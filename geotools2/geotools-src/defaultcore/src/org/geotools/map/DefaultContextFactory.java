@@ -16,32 +16,30 @@
  */
 package org.geotools.map;
 
+
 // JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
+
+// Geotools dependencies
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.Adapters;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.styling.Style;
 
 // OpenGIS dependencies
 import org.opengis.cs.CS_CoordinateSystem;
 
-// Geotools dependencies
-import org.geotools.cs.CoordinateSystem;
-import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.ct.Adapters;
-import org.geotools.styling.Style;
-import org.geotools.feature.FeatureCollection;
-
 
 /**
- * Default implementation of {@link ContextFactory}. This class should not be constructed
- * directly; use {@link #createFactory} instead.
+ * Default implementation of {@link ContextFactory}. This class should not be
+ * constructed directly; use {@link #createFactory} instead.
  *
  * @author Cameron Shorter
- * @version $Id: DefaultContextFactory.java,v 1.1 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: DefaultContextFactory.java,v 1.2 2003/08/20 20:51:16 cholmesny Exp $
  */
 public class DefaultContextFactory extends ContextFactory {
-    /**
-     * Translates between coordinate systems API.
-     */
+    /** Translates between coordinate systems API. */
     private Adapters adapters = Adapters.getDefault();
 
     /**
@@ -55,9 +53,8 @@ public class DefaultContextFactory extends ContextFactory {
      * {@inheritDoc}
      */
     public BoundingBox createBoundingBox(final Envelope bounds,
-                                         final CS_CoordinateSystem coordinateSystem)
-            throws IllegalArgumentException
-    {
+        final CS_CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException {
         return new DefaultBoundingBox(bounds, coordinateSystem);
     }
 
@@ -65,14 +62,11 @@ public class DefaultContextFactory extends ContextFactory {
      * {@inheritDoc}
      */
     public Context createContext(final BoundingBox bounds,
-                                 final LayerList   layerList,
-                                 final String      title,
-                                 final String      cabstract,
-                                 final String[]    keywords,
-                                 final String      contactInformation)
-        throws IllegalArgumentException
-    {
-        return new DefaultContext(bounds, layerList, title, cabstract, keywords, contactInformation);
+        final LayerList layerList, final String title, final String cabstract,
+        final String[] keywords, final String contactInformation)
+        throws IllegalArgumentException {
+        return new DefaultContext(bounds, layerList, title, cabstract,
+            keywords, contactInformation);
     }
 
     /**
@@ -83,31 +77,29 @@ public class DefaultContextFactory extends ContextFactory {
             CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
             org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
             Envelope envelope2 = new Envelope(envelope.getMinimum(0),
-                                              envelope.getMaximum(0),
-                                              envelope.getMinimum(1),
-                                              envelope.getMaximum(1));
+                    envelope.getMaximum(0), envelope.getMinimum(1),
+                    envelope.getMaximum(1));
 
             CS_CoordinateSystem cs1 = adapters.export(cs);
 
             return createContext(createBoundingBox(envelope2, cs1),
-                                                   createLayerList(), // empty LayerList
-                                                   "",   // title
-                                                   "",   // abstract
-                                                   null, // keywords
-                                                   "");  // contactInformation
+                createLayerList(), // empty LayerList
+                "", // title
+                "", // abstract
+                null, // keywords
+                ""); // contactInformation
         } catch (java.rmi.RemoteException e) {
             // TODO: We should not eat checked exception.
-            throw new java.lang.reflect.UndeclaredThrowableException(e, "CS RemoteException.");
+            throw new java.lang.reflect.UndeclaredThrowableException(e,
+                "CS RemoteException.");
         }
     }
 
     /**
      * {@inheritDoc}
      */
-    public Layer createLayer(final FeatureCollection features,
-                             final Style             style)
-            throws IllegalArgumentException
-    {
+    public Layer createLayer(final FeatureCollection features, final Style style)
+        throws IllegalArgumentException {
         return new DefaultLayer(features, style);
     }
 

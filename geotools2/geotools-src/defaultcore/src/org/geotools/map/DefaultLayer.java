@@ -16,15 +16,16 @@
  */
 package org.geotools.map;
 
-// J2SE dependencies
-import javax.swing.event.EventListenerList;
+import org.geotools.feature.FeatureCollection;
 
 // Geotools dependencies
 import org.geotools.map.event.LayerEvent;
 import org.geotools.map.event.LayerListener;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.styling.Style;
 import org.geotools.resources.Utilities;
+import org.geotools.styling.Style;
+
+// J2SE dependencies
+import javax.swing.event.EventListenerList;
 
 
 /**
@@ -32,7 +33,7 @@ import org.geotools.resources.Utilities;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: DefaultLayer.java,v 1.5 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: DefaultLayer.java,v 1.6 2003/08/20 20:51:16 cholmesny Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.
@@ -53,8 +54,8 @@ public class DefaultLayer implements Layer {
     private Style style;
 
     /**
-     * The title of this layer for use in Legend and similar.
-     * May be <code>null</code> if not set.
+     * The title of this layer for use in Legend and similar. May be
+     * <code>null</code> if not set.
      *
      * @see #getTitle
      * @see #setTitle
@@ -62,8 +63,8 @@ public class DefaultLayer implements Layer {
     private String title;
 
     /**
-     * Specify whether this layer is visible or not.
-     * Defaults to <code>true</code> on initialisation.
+     * Specify whether this layer is visible or not. Defaults to
+     * <code>true</code> on initialisation.
      *
      * @see #isVisible
      * @see #setVisible
@@ -71,8 +72,8 @@ public class DefaultLayer implements Layer {
     private boolean visible = true;
 
     /**
-     * Classes to notify if the layer changes.
-     * Will be constructed only when first needed.
+     * Classes to notify if the layer changes. Will be constructed only when
+     * first needed.
      */
     private EventListenerList listenerList;
 
@@ -80,15 +81,18 @@ public class DefaultLayer implements Layer {
      * Creates a Layer.
      *
      * @param features The features for this layer.
-     * @param style The style to use when rendering features associated with this layer.
+     * @param style The style to use when rendering features associated with
+     *        this layer.
+     *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected DefaultLayer(FeatureCollection features, Style style) throws IllegalArgumentException {
+    protected DefaultLayer(FeatureCollection features, Style style)
+        throws IllegalArgumentException {
         if ((style == null) || (features == null)) {
             throw new IllegalArgumentException();
         } else {
             this.features = features;
-            this.style    = style;
+            this.style = style;
         }
     }
 
@@ -96,7 +100,7 @@ public class DefaultLayer implements Layer {
      * {@inheritDoc}
      */
     public FeatureCollection getFeatures() {
-      return features;
+        return features;
     }
 
     /**
@@ -129,10 +133,11 @@ public class DefaultLayer implements Layer {
 
     /**
      * Determine whether this layer is visible on a map pane or whether the
-     * layer is hidden. Visibility defaults to <code>true</code> on initialisation.
+     * layer is hidden. Visibility defaults to <code>true</code> on
+     * initialisation.
      *
-     * @return <code>true</code> if the layer is visible,
-     *         or <code>false</code> if the layer is hidden.
+     * @return <code>true</code> if the layer is visible, or <code>false</code>
+     *         if the layer is hidden.
      */
     public boolean isVisible() {
         return visible;
@@ -168,7 +173,7 @@ public class DefaultLayer implements Layer {
     public void setVisability(boolean visability) {
         setVisible(visability);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -178,19 +183,20 @@ public class DefaultLayer implements Layer {
             listenerList.add(LayerListener.class, listener);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void removeLayerListener(final LayerListener listener) {
         if (listenerList != null) {
             listenerList.remove(LayerListener.class, listener);
+
             if (listenerList.getListenerCount() == 0) {
                 listenerList = null;
             }
         }
     }
-    
+
     /**
      * Add interest in receiving an LayerChangedEvent.
      *
@@ -198,7 +204,7 @@ public class DefaultLayer implements Layer {
      *
      * @deprecated Use {@link #addLayerListener} instead.
      */
-    public void addLayerChangedListener(LayerListener llce) { 
+    public void addLayerChangedListener(LayerListener llce) {
         addLayerListener(llce);
     }
 
@@ -209,46 +215,65 @@ public class DefaultLayer implements Layer {
      *
      * @deprecated Use {@link #removeLayerListener} instead.
      */
-    public void removeLayerChangedListener(LayerListener llcl) {  
+    public void removeLayerChangedListener(LayerListener llcl) {
         removeLayerListener(llcl);
     }
 
     /**
-     * Notify all listeners that have registered interest for notification
-     * on {@linkplain LayerEvent layer change event}. If the reason is
-     * {@link LayerEvent#VISIBILITY_CHANGED}, then one of
+     * Notify all listeners that have registered interest for notification on
+     * {@linkplain LayerEvent layer change event}. If the reason is {@link
+     * LayerEvent#VISIBILITY_CHANGED}, then one of
      * <code>LayerListener.</code>{@link LayerListener#layerShown layerShown}
-     * or {@link LayerListener#layerHidden layerHidden} methods will be invoked
-     * instead of {@link LayerListener#layerChanged layerChanged}.
+     * or {@link LayerListener#layerHidden layerHidden} methods will be
+     * invoked instead of {@link LayerListener#layerChanged layerChanged}.
      *
      * @param reason The reason for the change. Must be one of the constants
-     *       defined in {@link LayerEvent}.
+     *        defined in {@link LayerEvent}.
      */
     protected void fireLayerChanged(final int reason) {
         if (listenerList != null) {
             final int method;
+
             if (reason == LayerEvent.VISIBILITY_CHANGED) {
                 method = visible ? 1 : 2;
             } else {
                 method = 0;
             }
+
             // Guaranteed to return a non-null array
             Object[] listeners = listenerList.getListenerList();
 
             // Process the listeners last to first, notifying
             // those that are interested in this event
             LayerEvent event = null;
-            for (int i=listeners.length; (i-=2)>=0;) {
+
+            for (int i = listeners.length; (i -= 2) >= 0;) {
                 if (listeners[i] == LayerListener.class) {
                     if (event == null) {
-                        event = new LayerEvent(this,reason);
+                        event = new LayerEvent(this, reason);
                     }
-                    final LayerListener listener = ((LayerListener) listeners[i+1]);
+
+                    final LayerListener listener = ((LayerListener) listeners[i
+                        + 1]);
+
                     switch (method) {
-                        case 0:  listener.layerChanged(event); break;
-                        case 1:  listener.layerShown  (event); break;
-                        case 2:  listener.layerHidden (event); break;
-                        default: throw new AssertionError(method); // Should not happen.
+                    case 0:
+                        listener.layerChanged(event);
+
+                        break;
+
+                    case 1:
+                        listener.layerShown(event);
+
+                        break;
+
+                    case 2:
+                        listener.layerHidden(event);
+
+                        break;
+
+                    default:
+                        throw new AssertionError(method); // Should not happen.
                     }
                 }
             }
@@ -256,8 +281,8 @@ public class DefaultLayer implements Layer {
     }
 
     /**
-     * Return the title of this layer.
-     * If no title has been defined, then the class name is returned.
+     * Return the title of this layer. If no title has been defined, then the
+     * class name is returned.
      *
      * @return the title of this layer.
      */

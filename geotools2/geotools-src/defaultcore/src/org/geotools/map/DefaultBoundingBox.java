@@ -16,61 +16,57 @@
  */
 package org.geotools.map;
 
-// J2SE dependencies
-import java.rmi.RemoteException;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
-import javax.swing.event.EventListenerList;
-import java.lang.reflect.UndeclaredThrowableException;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
-
-// OpenGIS dependencies
-import org.opengis.cs.CS_CoordinateSystem;
-import org.opengis.ct.CT_MathTransform;
-
-// Geotools dependencies
-import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.TransformException;
-import org.geotools.resources.CTSUtilities;
 import org.geotools.map.event.BoundingBoxEvent;
 import org.geotools.map.event.BoundingBoxListener;
+
+// Geotools dependencies
+import org.geotools.pt.CoordinatePoint;
+import org.geotools.resources.CTSUtilities;
+
+// OpenGIS dependencies
+import org.opengis.cs.CS_CoordinateSystem;
+import org.opengis.ct.CT_MathTransform;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.lang.reflect.UndeclaredThrowableException;
+
+// J2SE dependencies
+import java.rmi.RemoteException;
+import javax.swing.event.EventListenerList;
 
 
 /**
  * A default implementation of {@link BoundingBox}.
  *
- * @version $Id: DefaultBoundingBox.java,v 1.1 2003/08/18 16:33:06 desruisseaux Exp $
  * @author Cameron Shorter
  * @author Martin Desruisseaux
+ * @version $Id: DefaultBoundingBox.java,v 1.2 2003/08/20 20:51:16 cholmesny Exp $
  *
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store points
  *       instead of using Envelope.  Also worth waiting to see what interface
  *       the GeoAPI project creates and use that.
  */
 public class DefaultBoundingBox implements BoundingBox {
-    /**
-     * The area of interest.
-     */
+    /** The area of interest. */
     private Envelope areaOfInterest;
 
-    /**
-     * The coordinate system for the area of interest.
-     */
+    /** The coordinate system for the area of interest. */
     private CoordinateSystem coordinateSystem;
 
-    /**
-     * The listener list. Will be constructed only when first needed.
-     */
+    /** The listener list. Will be constructed only when first needed. */
     private EventListenerList listenerList;
 
     /**
-     * Construct a bounding box with the given area of interest and coordinate system.
+     * Construct a bounding box with the given area of interest and coordinate
+     * system.
      *
      * @param areaOfInterest The extent associated with this class.
      * @param coordinateSystem The coordinate system associated with this
@@ -78,66 +74,68 @@ public class DefaultBoundingBox implements BoundingBox {
      *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected DefaultBoundingBox(final Envelope         areaOfInterest,
-                                 final CoordinateSystem coordinateSystem)
-            throws IllegalArgumentException
-    {
+    protected DefaultBoundingBox(final Envelope areaOfInterest,
+        final CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException {
         setAreaOfInterest(areaOfInterest, coordinateSystem);
     }
 
     /**
-     * Construct a bounding box with the given area of interest and coordinate system.
+     * Construct a bounding box with the given area of interest and coordinate
+     * system.
      *
      * @param areaOfInterest The extent associated with this class.
-     * @param coordinateSystem The coordinate system associated with this class.
+     * @param coordinateSystem The coordinate system associated with this
+     *        class.
+     *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
-    protected DefaultBoundingBox(final Envelope            areaOfInterest,
-                                 final CS_CoordinateSystem coordinateSystem)
-            throws IllegalArgumentException
-    {
+    protected DefaultBoundingBox(final Envelope areaOfInterest,
+        final CS_CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException {
         setAreaOfInterest(areaOfInterest, coordinateSystem);
     }
 
     /**
-     * Set a new area of interest and trigger a {@link BoundingBoxEvent}.
-     * Note that this is the only method to change coordinate system.  A
-     * <code>setCoordinateSystem</code> method is not provided to ensure
-     * this class is not dependant on transform classes.
+     * Set a new area of interest and trigger a {@link BoundingBoxEvent}. Note
+     * that this is the only method to change coordinate system.  A
+     * <code>setCoordinateSystem</code> method is not provided to ensure this
+     * class is not dependant on transform classes.
      *
      * @param areaOfInterest The new areaOfInterest.
      * @param coordinateSystem The coordinate system being using by this model.
+     *
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     private void setAreaOfInterest(final Envelope areaOfInterest,
-                                   final CoordinateSystem coordinateSystem)
-            throws IllegalArgumentException
-    {
-        if ((areaOfInterest == null) || (coordinateSystem == null) || areaOfInterest.isNull()) {
+        final CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException {
+        if ((areaOfInterest == null) || (coordinateSystem == null)
+                || areaOfInterest.isNull()) {
             throw new IllegalArgumentException();
         }
+
         // Calculate the transform from the old to new area of interest, or set transform
         // to null if it is not available. Note: current implementation do not take coordinate
         // system changes in account; we may provides that in a future version.
         MathTransform2D transform;
-        if ((this.areaOfInterest == null) || (this.coordinateSystem == null) ||
-            (!this.coordinateSystem.equals(coordinateSystem, false)))
-        {
+
+        if ((this.areaOfInterest == null) || (this.coordinateSystem == null)
+                || (!this.coordinateSystem.equals(coordinateSystem, false))) {
             transform = null;
         } else {
-            final AffineTransform at = AffineTransform.getTranslateInstance(
-                areaOfInterest.getMinX(),
-                areaOfInterest.getMinY()
-            );
+            final AffineTransform at = AffineTransform.getTranslateInstance(areaOfInterest
+                    .getMinX(), areaOfInterest.getMinY());
+
             // scaleFactor = newWidth/oldWidth
-            at.scale(
-                areaOfInterest.getWidth()  / this.areaOfInterest.getWidth(),
-                areaOfInterest.getHeight() / this.areaOfInterest.getHeight()
-            );
-            at.translate(-this.areaOfInterest.getMinX(), -this.areaOfInterest.getMinY());
+            at.scale(areaOfInterest.getWidth() / this.areaOfInterest.getWidth(),
+                areaOfInterest.getHeight() / this.areaOfInterest.getHeight());
+            at.translate(-this.areaOfInterest.getMinX(),
+                -this.areaOfInterest.getMinY());
             transform = MathTransformFactory.getDefault().createAffineTransform(at);
         }
-        this.areaOfInterest   = new Envelope(areaOfInterest);
+
+        this.areaOfInterest = new Envelope(areaOfInterest);
         this.coordinateSystem = coordinateSystem;
         fireAreaOfInterestChanged(transform);
     }
@@ -146,14 +144,11 @@ public class DefaultBoundingBox implements BoundingBox {
      * {@inheritDoc}
      */
     public void setAreaOfInterest(final Envelope areaOfInterest,
-                                  final CS_CoordinateSystem coordinateSystem)
-            throws IllegalArgumentException
-    {
+        final CS_CoordinateSystem coordinateSystem)
+        throws IllegalArgumentException {
         try {
-            setAreaOfInterest(
-                areaOfInterest,
-                Adapters.getDefault().wrap(coordinateSystem)
-            );
+            setAreaOfInterest(areaOfInterest,
+                Adapters.getDefault().wrap(coordinateSystem));
         } catch (RemoteException e) {
             // TODO: We should not hide a checked exception that way.
             throw new UndeclaredThrowableException(e, "Remote call failed");
@@ -190,21 +185,18 @@ public class DefaultBoundingBox implements BoundingBox {
      * Transform the area of interest according to the provided transform.
      * Useful for zooming and panning processes.
      *
-     * @param  transform The transform to apply on the area of interest.
+     * @param transform The transform to apply on the area of interest.
+     *
      * @throws TransformException if the transformation failed.
      */
-    public void transform(final MathTransform2D transform) throws TransformException {
-        Rectangle2D area = new Rectangle2D.Double(
-            areaOfInterest.getMinX(),
-            areaOfInterest.getMinY(),
-            areaOfInterest.getWidth(),
-            areaOfInterest.getHeight());
+    public void transform(final MathTransform2D transform)
+        throws TransformException {
+        Rectangle2D area = new Rectangle2D.Double(areaOfInterest.getMinX(),
+                areaOfInterest.getMinY(), areaOfInterest.getWidth(),
+                areaOfInterest.getHeight());
         area = CTSUtilities.transform(transform, area, area);
-        areaOfInterest = new Envelope(
-                area.getMinX(),
-                area.getMinY(),
-                area.getMaxX(),
-                area.getMaxY());
+        areaOfInterest = new Envelope(area.getMinX(), area.getMinY(),
+                area.getMaxX(), area.getMaxY());
         fireAreaOfInterestChanged(transform);
     }
 
@@ -213,7 +205,7 @@ public class DefaultBoundingBox implements BoundingBox {
      */
     public void transform(CT_MathTransform transform) {
         try {
-            transform((MathTransform2D)Adapters.getDefault().wrap(transform));
+            transform((MathTransform2D) Adapters.getDefault().wrap(transform));
         } catch (RemoteException e) {
             // TODO: We should not hide a checked exception that way.
             throw new UndeclaredThrowableException(e, "Remote call failed");
@@ -230,6 +222,7 @@ public class DefaultBoundingBox implements BoundingBox {
         if (listenerList == null) {
             listenerList = new EventListenerList();
         }
+
         listenerList.add(BoundingBoxListener.class, listener);
     }
 
@@ -239,6 +232,7 @@ public class DefaultBoundingBox implements BoundingBox {
     public void removeBoundingBoxListener(final BoundingBoxListener listener) {
         if (listenerList != null) {
             listenerList.remove(BoundingBoxListener.class, listener);
+
             if (listenerList.getListenerCount() == 0) {
                 listenerList = null;
             }
@@ -250,10 +244,10 @@ public class DefaultBoundingBox implements BoundingBox {
      *
      * @deprecated Use {@link #addBoundingBoxListener} instead.
      */
-    public void addAreaOfInterestChangedListener(final BoundingBoxListener ecl,
-                                                 final boolean sendEvent)
-    {
+    public void addAreaOfInterestChangedListener(
+        final BoundingBoxListener ecl, final boolean sendEvent) {
         addAreaOfInterestChangedListener(ecl);
+
         if (sendEvent) {
             fireAreaOfInterestChanged(null);
         }
@@ -278,10 +272,11 @@ public class DefaultBoundingBox implements BoundingBox {
     }
 
     /**
-     * Notify all listeners that have registered interest for changes in
-     * the area of tnterest.
+     * Notify all listeners that have registered interest for changes in the
+     * area of tnterest.
      *
-     * @param transform The transform that has been applied to the area of interest.
+     * @param transform The transform that has been applied to the area of
+     *        interest.
      */
     protected void fireAreaOfInterestChanged(final MathTransform2D transform) {
         if (listenerList != null) {
@@ -291,15 +286,22 @@ public class DefaultBoundingBox implements BoundingBox {
             // Process the listeners last to first, notifying
             // those that are interested in this event
             BoundingBoxEvent event = null;
-            for (int i=listeners.length; (i-=2)>=0;) {
+
+            for (int i = listeners.length; (i -= 2) >= 0;) {
                 if (listeners[i] == BoundingBoxListener.class) {
-                    if (event == null) try {
-                        event = new BoundingBoxEvent(this, Adapters.getDefault().export(transform));
-                    } catch (RemoteException exception) {
-                        // TODO: We should not hide a checked exception that way.
-                        throw new UndeclaredThrowableException(exception, "Remote call failed");
+                    if (event == null) {
+                        try {
+                            event = new BoundingBoxEvent(this,
+                                    Adapters.getDefault().export(transform));
+                        } catch (RemoteException exception) {
+                            // TODO: We should not hide a checked exception that way.
+                            throw new UndeclaredThrowableException(exception,
+                                "Remote call failed");
+                        }
                     }
-                    ((BoundingBoxListener) listeners[i+1]).areaOfInterestChanged(event);
+
+                    ((BoundingBoxListener) listeners[i + 1])
+                    .areaOfInterestChanged(event);
                 }
             }
         }
@@ -310,10 +312,7 @@ public class DefaultBoundingBox implements BoundingBox {
      * @task HACK: Probably need to add all the eventListeners to the cloned class.
      */
     public Object clone() {
-        return new DefaultBoundingBox(
-            this.areaOfInterest,
-            this.coordinateSystem
-        );
+        return new DefaultBoundingBox(this.areaOfInterest, this.coordinateSystem);
     }
 
     /**
@@ -332,6 +331,7 @@ public class DefaultBoundingBox implements BoundingBox {
         buffer.append(',');
         buffer.append(areaOfInterest.getMaxY());
         buffer.append(')');
+
         return buffer.toString();
     }
 }

@@ -25,7 +25,7 @@ import org.geotools.styling.Style;
  * Legacy implementation of {@link Layer}
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.11 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: LayerImpl.java,v 1.12 2003/08/20 20:51:16 cholmesny Exp $
  *
  * @deprecated Use {@link DefaultLayer} instead.
  */
@@ -44,7 +44,7 @@ public class LayerImpl extends DefaultLayer {
     /**
      * Notify all listeners that have registered interest for notification an
      * LayerChangedEvent.
-     *
+     * @param reason the code for why the layer changed.
      * @deprecated Use {@link #fireLayerChanged} instead.
      */
     protected void fireLayerChangedListener(final int reason) {

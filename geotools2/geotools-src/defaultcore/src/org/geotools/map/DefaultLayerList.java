@@ -16,21 +16,22 @@
  */
 package org.geotools.map;
 
-// J2SE dependencies
-import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Collections;
-import javax.swing.event.EventListenerList;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.feature.CollectionEvent;
+import org.geotools.feature.CollectionListener;
 
 // Geotools dependencies
 import org.geotools.map.event.LayerListEvent;
 import org.geotools.map.event.LayerListListener;
-import org.geotools.feature.CollectionListener;
-import org.geotools.feature.CollectionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+
+// J2SE dependencies
+import java.util.List;
+import javax.swing.event.EventListenerList;
 
 
 /**
@@ -38,10 +39,10 @@ import org.geotools.feature.CollectionEvent;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: DefaultLayerList.java,v 1.4 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: DefaultLayerList.java,v 1.5 2003/08/20 20:51:16 cholmesny Exp $
  *
- * @task REVISIT: This class should probably implements java.util.List.
- *                Maybe we should extend directly ArrayList.
+ * @task REVISIT: This class should probably implements java.util.List. Maybe
+ *       we should extend directly ArrayList.
  */
 public class DefaultLayerList implements LayerList, CollectionListener {
     /**
@@ -59,8 +60,8 @@ public class DefaultLayerList implements LayerList, CollectionListener {
     private Envelope bounds;
 
     /**
-     * Listeners to notify if the LayerList changes.
-     * Will be constructed only when first needed.
+     * Listeners to notify if the LayerList changes. Will be constructed only
+     * when first needed.
      */
     private EventListenerList listenerList;
 
@@ -111,11 +112,12 @@ public class DefaultLayerList implements LayerList, CollectionListener {
      */
     public void addLayers(final Layer[] layers) {
         if (layers != null) {
-            for (int i=0; i<layers.length; i++) {
+            for (int i = 0; i < layers.length; i++) {
                 final Layer layer = layers[i];
                 layer.getFeatures().addListener(this);
                 this.layers.add(layer);
             }
+
             fireLayerListChanged();
         }
     }
@@ -125,11 +127,12 @@ public class DefaultLayerList implements LayerList, CollectionListener {
      */
     public void removeLayers(final Layer[] layers) {
         if (layers != null) {
-            for (int i=0; i<layers.length; i++) {
+            for (int i = 0; i < layers.length; i++) {
                 final Layer layer = layers[i];
                 layer.getFeatures().removeListener(this);
                 this.layers.remove(layer);
             }
+
             fireLayerListChanged();
         }
     }
@@ -146,12 +149,14 @@ public class DefaultLayerList implements LayerList, CollectionListener {
      */
     public Envelope getBounds() {
         if (bounds == null) {
-            for (final Iterator it=layers.iterator(); it.hasNext();) {
+            for (Iterator it = layers.iterator(); it.hasNext();) {
                 final Layer layer = (Layer) it.next();
                 final Envelope toAdd = layer.getFeatures().getBounds();
+
                 if (toAdd == null) {
                     return null;
                 }
+
                 if (bounds == null) {
                     bounds = new Envelope(toAdd);
                 } else {
@@ -159,6 +164,7 @@ public class DefaultLayerList implements LayerList, CollectionListener {
                 }
             }
         }
+
         return bounds;
     }
 
@@ -189,13 +195,14 @@ public class DefaultLayerList implements LayerList, CollectionListener {
             listenerList.add(LayerListListener.class, listener);
         }
     }
-    
+
     /**
      * {@inheritDoc}
      */
     public void removeLayerListListener(final LayerListListener listener) {
         if (listenerList != null) {
             listenerList.remove(LayerListListener.class, listener);
+
             if (listenerList.getListenerCount() == 0) {
                 listenerList = null;
             }
@@ -219,7 +226,7 @@ public class DefaultLayerList implements LayerList, CollectionListener {
     public void removeLayerListChangedListener(final LayerListListener llcl) {
         removeLayerListListener(llcl);
     }
-    
+
     /**
      * Notify all listeners that have registered interest for notification on
      * {@linkplain LayerListEvent layer list change event}.
@@ -232,12 +239,14 @@ public class DefaultLayerList implements LayerList, CollectionListener {
             // Process the listeners last to first, notifying
             // those that are interested in this event
             LayerListEvent event = null;
-            for (int i=listeners.length; (i-=2)>= 0;) {
+
+            for (int i = listeners.length; (i -= 2) >= 0;) {
                 if (listeners[i] == LayerListListener.class) {
                     if (event == null) {
                         event = new LayerListEvent(this);
                     }
-                    ((LayerListListener) listeners[i+1]).layerListChanged(event);
+
+                    ((LayerListListener) listeners[i + 1]).layerListChanged(event);
                 }
             }
         }

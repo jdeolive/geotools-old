@@ -17,11 +17,10 @@
 package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.*;
-import org.geotools.feature.*;
-import org.geotools.renderer.*;
-import org.geotools.styling.*;
-import org.opengis.cs.*;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.renderer.Renderer;
+import org.geotools.styling.Style;
+import org.opengis.cs.CS_CoordinateSystem;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -34,7 +33,7 @@ import java.util.List;
  * 
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.17 2003/08/18 16:33:06 desruisseaux Exp $
+ * @version $Id: DefaultMap.java,v 1.18 2003/08/20 20:51:16 cholmesny Exp $
  *
  * @deprecated Use {@link DefaultContext} instead.
  */
