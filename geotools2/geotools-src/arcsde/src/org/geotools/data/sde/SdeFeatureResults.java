@@ -68,8 +68,8 @@ public class SdeFeatureResults implements FeatureResults
      * @param source DOCUMENT ME!
      * @param query DOCUMENT ME!
      *
-     * @throws IOException is the result envelope can't be computed by
-     * a SDEQuery object based on <code>query</code>
+     * @throws IOException is the result envelope can't be computed by a
+     *         SDEQuery object based on <code>query</code>
      */
     SdeFeatureResults(SdeFeatureSource source, Query query)
         throws IOException
@@ -92,6 +92,17 @@ public class SdeFeatureResults implements FeatureResults
         {
             sdeQuery.close();
         }
+    }
+
+    /**
+     * just calls to <code>getSchema(Query)</code> of the SdeFeatureSource
+     * that has been created the instance of this class
+     *
+     * @return DOCUMENT ME!
+     */
+    public FeatureType getSchema() throws IOException
+    {
+        return source.getSchema(query);
     }
 
     /**
