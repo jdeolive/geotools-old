@@ -81,10 +81,7 @@
             <fileset dir="../../extbin/gtbuild/lib/"/>
             <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
         </path>
-        <path id="cruisecontrol.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
-        </path>
+       
         <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
             <classpath refid="checkstyle.ext"/>
         </taskdef>
@@ -138,6 +135,10 @@
     </target>
     
     <target name="modificationset" if="${lastBuildAttemptTime}">
+        <path id="cruisecontrol.ext">
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
+        </path>
         <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
             <classpath refid="cruisecontrol.ext"/>        
         </taskdef>
