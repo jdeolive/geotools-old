@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>2</pomVersion>
+  <name>geotools-defaultcore</name>
+  <id>defaultcore</id>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+  </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>Default implementation of the majority of Core's interfaces</shortDescription>
+  <gumpRepositoryId>geotools-defaultcore</gumpRepositoryId>
+  <description/>
+  <url>http://www.geotols.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  <cvsRoot>:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools</cvsRoot>
+  <cvsModule>geotools2/geotools-src/defaultcore</cvsModule>
+  <mailingLists/>
+  <developers>
+    <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+    </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <name>log4j</name>
+      <version>1.1.3</version>
+    </dependency>
+    <dependency>
+      <name>JTS</name>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <name>core</name>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <name>opengis-css</name>
+      <version>0.1</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    <sourceDirectories>
+      <sourceDirectory>src</sourceDirectory>
+    </sourceDirectories>
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+  </build>
+</project>
