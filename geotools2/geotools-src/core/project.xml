@@ -8,6 +8,7 @@
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
+    <logo>http://www.geotools.org/images/geotools_logo.png</logo>
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
