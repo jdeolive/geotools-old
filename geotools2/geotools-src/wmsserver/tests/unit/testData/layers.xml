@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- Created by jamesm on 15 August 2002, 12:47 -->
+
+<WMSServer>
+    <Layer id="first">
+        <datasource class="Shapefile">
+            <param name="filename" value="maps/statepop.shp"/>
+        </datasource>
+    <description>A test layer</description>
+   </Layer>
+</WMSServer>
