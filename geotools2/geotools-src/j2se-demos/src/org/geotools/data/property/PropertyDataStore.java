@@ -25,7 +25,7 @@ public class PropertyDataStore extends AbstractDataStore {
         }
         return list;
     }
-
+    // START SNIPPET: getSchema
     public FeatureType getSchema(String typeName) throws IOException {
         String typeSpec = property( typeName, "_");
         try {
@@ -36,6 +36,7 @@ public class PropertyDataStore extends AbstractDataStore {
             throw new DataSourceException( typeName+" schema not available", e);
         }
     }
+    // END SNIPPET: getSchema
 
     private String property( String typeName, String key ) throws IOException {
         File file = new File( directory, typeName+".properties");
