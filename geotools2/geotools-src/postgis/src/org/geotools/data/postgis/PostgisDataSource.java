@@ -44,13 +44,14 @@ import org.geotools.resources.Geotools;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.25 2003/05/20 17:04:23 jmacgill Exp $
+ * @version $Id: PostgisDataSource.java,v 1.26 2003/06/02 23:44:19 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
     private static Map sqlTypeMap = new HashMap();
     private static Map geometryTypeMap = new HashMap();
 
+ 
     static {
         initMaps();
     }
@@ -125,13 +126,15 @@ public class PostgisDataSource extends AbstractDataSource
         } catch (DataSourceException e) {
             throw new DataSourceException("Couldn't make schema: " + e, e);
         }
+	
 
-        this.srid = querySRID(dbConnection, tableName);
 
         if (schema.getDefaultGeometry() != null) {
+	    this.srid = querySRID(dbConnection, tableName);
             encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	    encoder.setSRID(srid);
         }
-        encoder.setSRID(srid);
+
     }
 
     /**
@@ -175,13 +178,15 @@ public class PostgisDataSource extends AbstractDataSource
         this.dbConnection = dbConnection;
         this.tableName = tableName;
         this.schema = schema;
-        this.srid = querySRID(dbConnection, tableName);
+
 
         if (schema.getDefaultGeometry() != null) {
+	    this.srid = querySRID(dbConnection, tableName);
             encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	    encoder.setSRID(srid);
         }
 
-        encoder.setSRID(srid);
+
         this.fidColumn = getFidColumn(dbConnection, tableName);
     }
 
@@ -214,6 +219,7 @@ public class PostgisDataSource extends AbstractDataSource
         sqlTypeMap.put("float4", Float.class);
         sqlTypeMap.put("float8", Double.class);
         sqlTypeMap.put("geometry", Geometry.class);
+        sqlTypeMap.put("date", java.util.Date.class);
 
         geometryTypeMap.put("GEOMETRY", Geometry.class);
         geometryTypeMap.put("POINT", Point.class);
@@ -222,6 +228,7 @@ public class PostgisDataSource extends AbstractDataSource
         geometryTypeMap.put("MULTIPOINT", MultiPoint.class);
         geometryTypeMap.put("MULTILINESTRING", MultiLineString.class);
         geometryTypeMap.put("MULTIPOLYGON", MultiPolygon.class);
+	//gmlMap.put("pointproperty", "gml:pointProperty");
     }
 
     /**
@@ -257,8 +264,8 @@ public class PostgisDataSource extends AbstractDataSource
         throws DataSourceException {
         try {
             Statement statement = dbConnection.createStatement();
-            ResultSet result = statement.executeQuery("SELECT * FROM " +
-                    tableName + " LIMIT 1;");
+            ResultSet result = statement.executeQuery("SELECT * FROM \"" +
+                    tableName + "\" LIMIT 1;");
             ResultSetMetaData metaData = result.getMetaData();
             // initialize some local convenience variables        
             String columnName;
@@ -271,9 +278,9 @@ public class PostgisDataSource extends AbstractDataSource
             int offset = 1;
             // loop through all columns
             for (int i = 1, n = metaData.getColumnCount(); i <= n; i++) {
-                //LOGGER.finer("reading col: " + i);
-                //LOGGER.finer("reading col: " + metaData.getColumnTypeName(i));
-                LOGGER.finer("reading col: " + metaData.getColumnName(i));
+                LOGGER.finer("reading col: " + i);
+                LOGGER.finest("reading col: " + metaData.getColumnTypeName(i));
+                LOGGER.finest("reading col: " + metaData.getColumnName(i));
                 columnTypeName = metaData.getColumnTypeName(i);
                 columnName = metaData.getColumnName(i);
                 // geometry is treated specially
@@ -282,11 +289,14 @@ public class PostgisDataSource extends AbstractDataSource
                             tableName, columnName);
                 } else if (columnName.equals(fidColumnName)) {
                     //do nothing, fid does not have a proper attribute type.
-                    offset++;
+                    offset++; 
                 } else {
                     // set column name and type from database
+		    LOGGER.finer("setting attribute to " + columnName);
+		    LOGGER.finer("with class " + (Class) sqlTypeMap.get(columnTypeName));
                     attributes[i - offset] = new AttributeTypeDefault(columnName,
                             (Class) sqlTypeMap.get(columnTypeName));
+		    LOGGER.finer("new att-type is " + attributes[i - offset]);
                 }
             }
             closeResultSet(result);
@@ -403,6 +413,8 @@ public class PostgisDataSource extends AbstractDataSource
     private static AttributeType getGeometryAttribute(Connection dbConnection,
         String tableName, String columnName) throws DataSourceException {
 	try {
+
+	   
 	    String sqlStatement = "SELECT type FROM GEOMETRY_COLUMNS WHERE " +
 		"f_table_name='" + tableName + "' AND f_geometry_column='" +
 		columnName + "';";
@@ -418,7 +430,14 @@ public class PostgisDataSource extends AbstractDataSource
 	    }
 	    
 	    closeResultSet(result);
-	    
+
+	    if (geometryType == null) {
+		String msg = " no geometry found in the GEOMETRY_COLUMNS table "
+		    + " for " + tableName + " of the postgis install.  A row " +
+		    "for " + columnName + " is required  " +
+		    " for geotools to work correctly";
+		throw new DataSourceException(msg);
+	    }
 	    return new AttributeTypeDefault(columnName,
 					    (Class) geometryTypeMap.get(geometryType));
 	} catch (SQLException e) {
@@ -465,12 +484,12 @@ public class PostgisDataSource extends AbstractDataSource
         for (int i = 0; i < numAttributes; i++) {
             String curAttName = attributeTypes[i].getName();
             if (Geometry.class.isAssignableFrom(attributeTypes[i].getType())) {
-                sqlStatement.append(", AsText(" + curAttName + ")");
+                sqlStatement.append(", AsText(force_2d(\"" + curAttName + "\"))");
             } //REVISIT, see getIdColumn note.
             else if (fidColumn.equals(curAttName)) {
                 //do nothing, already covered by fid
             } else {
-                sqlStatement.append(", " + curAttName);
+                sqlStatement.append(", \"" + curAttName + "\"");
             }
         }
 
@@ -489,7 +508,7 @@ public class PostgisDataSource extends AbstractDataSource
         if (useLimit) {
             limit = query.getMaxFeatures();
         }
-        sqlStatement.append(" FROM " + tableName + " " + where + " LIMIT " +
+        sqlStatement.append(" FROM \"" + tableName + "\" " + where + " LIMIT " +
             limit + ";").toString();
         LOGGER.fine("sql statement is " + sqlStatement);
         return sqlStatement.toString();
@@ -518,6 +537,7 @@ public class PostgisDataSource extends AbstractDataSource
             LOGGER.warning("Error closing result set.");
         }
     }
+
 
    /**
      * Loads features from the datasource into the passed collection, based on
@@ -560,7 +580,7 @@ public class PostgisDataSource extends AbstractDataSource
 
             // set up a factory, attributes, and a counter for feature creation
             //LOGGER.fine("about to prepare feature reading");
-            FlatFeatureFactory factory = new FlatFeatureFactory(schema);
+            FeatureFactory factory = new FlatFeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             String featureId;
             //AttributeType[] attTypes = schema.getAttributeTypes();
@@ -581,8 +601,8 @@ public class PostgisDataSource extends AbstractDataSource
                 //LOGGER.finer("reading feature: " + resultCounter);
                 for (col = 0; col < totalAttributes; col++) {
                     if (attTypes[col].isGeometry()) {
-                        attributes[col] = geometryReader.read(result.getString(col +
-                                    2));
+			String wkt = result.getString(col + 2);
+                        attributes[col] = (wkt == null ? null : geometryReader.read(wkt));
                     } else {
                         attributes[col] = result.getObject(col + 2);
                     }
@@ -628,9 +648,9 @@ public class PostgisDataSource extends AbstractDataSource
      *
      * @param collection Add features to the PostGIS database.
      *
-     * @return DOCUMENT ME!
+     * @return A set of featureIds of the features added.
      *
-     * @throws DataSourceException DOCUMENT ME!
+     * @throws DataSourceException if anything went wrong.
      *
      * @task TODO: Check to make sure features passed in match schema.
      * @task TODO: get working with the primary key fid column.  This will
