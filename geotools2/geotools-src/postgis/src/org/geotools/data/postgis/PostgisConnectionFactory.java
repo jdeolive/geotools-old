@@ -18,6 +18,7 @@ package org.geotools.data.postgis;
 
 import org.postgresql.jdbc3.Jdbc3ConnectionPool;
 import org.geotools.data.jdbc.ConnectionPool;
+import org.geotools.data.jdbc.ConnectionPoolManager;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ import java.util.Map;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisConnectionFactory.java,v 1.4 2003/08/21 17:47:38 cholmesny Exp $
+ * @version $Id: PostgisConnectionFactory.java,v 1.5 2003/10/24 20:12:30 cholmesny Exp $
  *
  * @task REVISIT: connection pooling, implementing java.sql.Datasource.  I
  *       removed the implementing because that class should be provided by the
@@ -76,9 +77,8 @@ public class PostgisConnectionFactory {
     /** An alternate character set to use. */
     private String charSet;
     
-    private static Map connectionPools = Collections.synchronizedMap(new HashMap());
-
-    
+    /** Map that contains Connection Pool Data Sources */
+    private static Map dataSources = new HashMap();
 
     /**
      * Constructor with all internal database driver classes, driver paths and
@@ -195,33 +195,35 @@ public class PostgisConnectionFactory {
 
       public ConnectionPool getConnectionPool(String user, String pass)
         throws SQLException {
-        ConnectionPool pool = null;
+        org.postgresql.jdbc2.optional.ConnectionPool poolDataSource = null;
 	String dbUrl = connPath;
         String poolKey = dbUrl + user + pass;
 	LOGGER.fine("looking up pool key " + poolKey);
-	pool = (ConnectionPool) connectionPools.get(poolKey);
-	LOGGER.fine("pool is " + pool);
-        if (pool == null) {
-	    org.postgresql.jdbc2.optional.ConnectionPool source;
-	    source = new org.postgresql.jdbc2.optional.ConnectionPool();
+	Object poolDS = dataSources.get(poolKey);
+	poolDataSource = (org.postgresql.jdbc2.optional.ConnectionPool)poolDS;
+	LOGGER.fine("pool is " + poolDataSource);
+        if (poolDataSource == null) {
+	    poolDataSource = new org.postgresql.jdbc2.optional.ConnectionPool();
 	    //source.setDataSourceName("Geotools Postgis");
-	    source.setServerName(host);
-	    source.setDatabaseName(dbName);
-	    source.setPortNumber(port);
-	    source.setUser(user);
-	    source.setPassword(pass);
+	    poolDataSource.setServerName(host);
+	    poolDataSource.setDatabaseName(dbName);
+	    poolDataSource.setPortNumber(port);
+	    poolDataSource.setUser(user);
+	    poolDataSource.setPassword(pass);
 	    if (charSet != null) {
-		source.setEncoding(charSet);
+		poolDataSource.setEncoding(charSet);
 	    }
 	    //source.setMaxConnections(10);
 	    //the source looks like this defaults to false, but we have
 	    //assumed true (as that's how it was before pooling)
-	    source.setDefaultAutoCommit(true);
-            pool = new ConnectionPool(source);
-            connectionPools.put(poolKey, pool);
+	    poolDataSource.setDefaultAutoCommit(true);
+            dataSources.put(poolKey, poolDataSource);
+            
         }
 
-        return pool;
+       ConnectionPoolManager manager = ConnectionPoolManager.getInstance();
+       ConnectionPool connectionPool = manager.getConnectionPool(poolDataSource);
+        return connectionPool;
     }
 
     public ConnectionPool getConnectionPool() throws SQLException {
