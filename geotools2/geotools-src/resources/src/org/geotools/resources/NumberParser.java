@@ -840,7 +840,7 @@ public final class NumberParser {
     int result = 0;
     boolean negative = false;
     
-    if (start == end) return 0;
+    // if (start == end) return 0;
     
     int i = start, max = end + 1;
     int limit;
