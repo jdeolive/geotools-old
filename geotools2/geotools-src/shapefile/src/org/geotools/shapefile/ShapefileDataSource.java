@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.26 2003/05/08 19:04:36 cholmesny Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.27 2003/05/11 15:25:48 aaime Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -219,6 +219,63 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   }
   
 
+ /**************************************************
+    Data source utility methods.
+   **************************************************/
+  
+  /**
+   * Gets the DatasSourceMetaData object associated with this datasource.  
+   * This is the preferred way to find out which of the possible datasource
+   * interface methods are actually implemented, query the DataSourceMetaData
+   * about which methods the datasource supports.
+   */
+  public org.geotools.data.DataSourceMetaData getMetaData() {
+      return new DataSourceMetaData() {
+                public boolean supportsTransactions() {
+                    return false;
+                }
+
+                public boolean supportsMultiTransactions() {
+                    return false;
+                }
+
+                public boolean supportsSetFeatures() {
+                    return true;
+                }
+
+                public boolean supportsSetSchema() {
+                    return false;
+                }
+
+                public boolean supportsAbort() {
+                    return false;
+                }
+
+                public boolean supportsGetBbox() {
+                    return true;
+                }
+                
+                public boolean supportsAdd() {
+                    return false;
+                }
+                
+                public boolean supportsRemove() {
+                    return false;
+                }
+                
+                public boolean supportsModify() {
+                    return false;
+                }
+                
+                public boolean supportsRollbacks() {
+                    return false;
+                }
+                
+                public boolean hasFastBbox() {
+                    return true;
+                }
+            };
+  }
   
   private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf) 
   throws DataSourceException,IOException,InvalidShapefileException {
