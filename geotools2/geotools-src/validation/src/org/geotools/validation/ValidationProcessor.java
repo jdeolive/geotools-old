@@ -95,7 +95,7 @@ import java.util.Set;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.4 2004/04/20 23:07:05 dmzwiers Exp $
+ * @version $Id: ValidationProcessor.java,v 1.5 2004/04/20 23:20:19 dmzwiers Exp $
  */
 public class ValidationProcessor {
     // These are no longer used for Integrity Validation tests
@@ -108,7 +108,7 @@ public class ValidationProcessor {
 
     //	of integrity validation tests
     protected ArrayList modifiedFeatureTypes; // a list of feature types that have been modified
-    protected HashMap errors;
+    //protected HashMap errors;
 
     /**
      * ValidationProcessor constructor.
@@ -120,7 +120,7 @@ public class ValidationProcessor {
     public ValidationProcessor() {
         featureLookup = new HashMap();
         integrityLookup = new HashMap();
-        errors = new HashMap();
+        //errors = new HashMap();
     }
 
     /**
@@ -412,7 +412,7 @@ public class ValidationProcessor {
      *
      * @return Returns the errors.
      */
-    public HashMap getErrors() {
-        return errors;
-    }
+//    public HashMap getErrors() {
+//        return errors;
+//    }
 }
