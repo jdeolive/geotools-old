@@ -75,7 +75,7 @@ import org.geotools.renderer.j2d.StyledRenderer;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.20 2003/08/13 18:18:55 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.21 2003/08/13 22:44:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -101,9 +101,11 @@ public class MapPane extends ZoomPane {
     private static final Float REQUIRED_RESOLUTION = new Float(2);
 
     /**
-     * The renderer targeting Java2D.
+     * The renderer targeting Java2D. Will be constructed only when first requested.
+     * If {@link #setContext} is invoked before any call to {@link #getRenderer},
+     * then this method will actually be an instance of {@link StyledRenderer}.
      */
-    private final StyledRenderer renderer;
+    private Renderer renderer;
 
     /**
      * The model which stores a list of layers and bounding box.
@@ -160,10 +162,6 @@ public class MapPane extends ZoomPane {
      */
     public MapPane() {
         super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
-        renderer = new StyledRenderer(this);
-        renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
-        renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
-        renderer.addPropertyChangeListener(listenerProxy);
         ToolTipManager.sharedInstance().registerComponent(this);
         setResetPolicy(true);
     }
@@ -187,6 +185,16 @@ public class MapPane extends ZoomPane {
     }
 
     /**
+     * Initialize the renderer. This method must be
+     * invoked after the renderer has been created.
+     */
+    private void initRenderer() {
+        renderer.setRenderingHint(Hints.  FINEST_RESOLUTION,   FINEST_RESOLUTION);
+        renderer.setRenderingHint(Hints.REQUIRED_RESOLUTION, REQUIRED_RESOLUTION);
+        renderer.addPropertyChangeListener(listenerProxy);
+    }
+
+    /**
      * Set a new context as the current one. Invoking this method will remove all layers
      * in the {@linkplain #getRenderer renderer} and replace them with new layers from
      * the given context.
@@ -195,7 +203,11 @@ public class MapPane extends ZoomPane {
      */
     public void setContext(final Context context) {
         this.context = context;
-        renderer.setContext(context);
+        if (renderer == null) {
+            renderer = new StyledRenderer(this);
+            initRenderer();
+        }
+        ((StyledRenderer) renderer).setContext(context);
         reset();
     }
 
@@ -209,7 +221,11 @@ public class MapPane extends ZoomPane {
      *         Default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
      */
     public CoordinateSystem getCoordinateSystem() {
-        return renderer.getCoordinateSystem();
+        if (renderer != null) {
+            return renderer.getCoordinateSystem();
+        } else {
+            return GeographicCoordinateSystem.WGS84;
+        }
     }
 
     /**
@@ -224,7 +240,7 @@ public class MapPane extends ZoomPane {
      *         coordinate system., or if data can't be transformed for some other reason.
      */
     public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
-        renderer.setCoordinateSystem(cs);
+        getRenderer().setCoordinateSystem(cs);
     }
 
     /**
@@ -258,7 +274,10 @@ public class MapPane extends ZoomPane {
                 }
             }
         }
-        return renderer.getPreferredArea();
+        if (renderer != null) {
+            return renderer.getPreferredArea();
+        }
+        return null;
     }
 
     /**
@@ -270,8 +289,13 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getPreferredPixelSize
      */
     protected Dimension2D getPreferredPixelSize() {
-        final Dimension2D size = renderer.getPreferredPixelSize();
-        return (size!=null) ? size : super.getPreferredPixelSize();
+        if (renderer != null) {
+            final Dimension2D size = renderer.getPreferredPixelSize();
+            if (size != null) {
+                return size;
+            }
+        }
+        return super.getPreferredPixelSize();
     }
 
     /**
@@ -294,6 +318,10 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getLayerCount
      */
     public Renderer getRenderer() {
+        if (renderer == null) {
+            renderer = new Renderer(this);
+            initRenderer();
+        }
         return renderer;
     }
 
@@ -303,7 +331,9 @@ public class MapPane extends ZoomPane {
      * @param graphics The graphics context.
      */
     protected void paintComponent(final Graphics2D graphics) {
-        renderer.paint(graphics, getZoomableBounds(null), zoom, false);
+        if (renderer != null) {
+            renderer.paint(graphics, getZoomableBounds(null), zoom, false);
+        }
     }
 
     /**
@@ -312,7 +342,9 @@ public class MapPane extends ZoomPane {
      * @param graphics The graphics context.
      */
     protected void printComponent(final Graphics2D graphics) {
-        renderer.paint(graphics, getZoomableBounds(null), zoom, true);
+        if (renderer != null) {
+            renderer.paint(graphics, getZoomableBounds(null), zoom, true);
+        }
     }
 
     /**
@@ -367,8 +399,13 @@ public class MapPane extends ZoomPane {
      * @see Renderer#getToolTipText
      */
     public String getToolTipText(final MouseEvent event) {
-        final String text = renderer.getToolTipText((GeoMouseEvent)event);
-        return (text!=null) ? text : super.getToolTipText(event);
+        if (renderer != null) {
+            final String text = renderer.getToolTipText((GeoMouseEvent)event);
+            if (text != null) {
+                return text;
+            }
+        }
+        return super.getToolTipText(event);
     }
 
     /**
@@ -450,8 +487,11 @@ public class MapPane extends ZoomPane {
      * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
      * order to pass this event to any registered {@link MouseListener} objects.
      */
-    protected void processMouseEvent(final MouseEvent event) {
-        super.processMouseEvent(new GeoMouseEvent(event, renderer));
+    protected void processMouseEvent(MouseEvent event) {
+        if (renderer != null) {
+            event = new GeoMouseEvent(event, renderer);
+        }
+        super.processMouseEvent(event);
     }
 
     /**
@@ -460,7 +500,10 @@ public class MapPane extends ZoomPane {
      * a {@link GeoMouseEvent}. Then, the default AWT's implementation is invoked in
      * order to pass this event to any registered {@link MouseMotionListener} objects.
      */
-    protected void processMouseMotionEvent(final MouseEvent event) {
-        super.processMouseMotionEvent(new GeoMouseEvent(event, renderer));
+    protected void processMouseMotionEvent(MouseEvent event) {
+        if (renderer != null) {
+            event = new GeoMouseEvent(event, renderer);
+        }
+        super.processMouseMotionEvent(event);
     }
 }
