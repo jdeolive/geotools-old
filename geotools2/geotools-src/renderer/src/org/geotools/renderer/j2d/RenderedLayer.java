@@ -69,7 +69,9 @@ import javax.media.jai.PlanarImage; // For Javadoc
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.CoordinateTransformationFactory;
 import org.geotools.ct.TransformException;
+import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransform;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
@@ -90,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.18 2003/03/20 22:49:35 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.19 2003/04/25 17:38:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -109,8 +111,9 @@ public abstract class RenderedLayer {
     static final Stroke DEFAULT_STROKE = new BasicStroke(0);
 
     /**
-     * The renderer that own this layer, or <code>null</code>
-     * if this layer has not yet been added to a renderer.
+     * The renderer that own this layer, or <code>null</code> if this layer has not yet
+     * been added to a renderer. This field is modified by {@link Renderer} only when
+     * this layer is added or removed to the renderer.
      */
     transient Renderer renderer;
 
@@ -276,6 +279,20 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Returns the renderer which own this layer.
+     *
+     * @return The renderer (never <code>null</code>).
+     * @throws IllegalStateException if this layer has not been added to any renderer.
+     */
+    public Renderer getRenderer() throws IllegalStateException {
+        final Renderer renderer = this.renderer;
+        if (renderer != null) {
+            return renderer;
+        }
+        throw new IllegalStateException(); // TODO: add a localized message.
+    }
+
+    /**
      * Returns the two-dimensional rendering coordinate system. This is usually the
      * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}. This
      * CS is always two-dimensional and is used by most methods like {@link #getPreferredArea}
@@ -300,10 +317,8 @@ public abstract class RenderedLayer {
      *   <li>When this layer has just been added to a {@link Renderer}.</li>
      *   <li>When {@link Renderer#setCoordinateSystem} has been invoked.</li>
      * </ul>
-     * This method invalidate the {@linkplain #getPreferredArea preferred area} and
-     * the {@linkplain #getPreferredPixelSize preferred pixel size}  (i.e. set them
-     * to <code>null</code>). Subclasses should overrides this method and transform
-     * their internal data here, if needed.
+     * This method transforms the {@linkplain #getPreferredArea preferred area} if needed.
+     * Subclasses should overrides this method and transform their internal data here.
      *
      * @param  cs The coordinate system. If the specified coordinate system has more than
      *            two dimensions, then it must be a {@link CompoundCoordinateSystem} with
@@ -314,13 +329,43 @@ public abstract class RenderedLayer {
      *         and leave this layer in a consistent state.
      */
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
+        if (cs == null) {
+            throw new IllegalArgumentException(Resources.getResources(getLocale())
+                      .getString(ResourceKeys.ERROR_BAD_ARGUMENT_$2, "cs", cs));
+        }
         final CoordinateSystem oldCS;
         synchronized (getTreeLock()) {
-            clearCache();
-            oldCS              = coordinateSystem;
-            coordinateSystem   = CTSUtilities.getCoordinateSystem2D(cs);
-            preferredArea      = null;
-            preferredPixelSize = null;
+            oldCS = coordinateSystem;
+            final CoordinateSystem coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
+            /*
+             * If the preferred area need to be updated, update it now.
+             * The preferred pixel size will be updated in same time.
+             */
+            if (preferredArea!=null && !oldCS.equals(coordinateSystem, false)) {
+                final MathTransform2D transform;
+                if (renderer != null) {
+                    transform = (MathTransform2D)renderer.getMathTransform(oldCS, coordinateSystem,
+                                          "RenderedLayer", "setCoordinateSystem");
+                } else {
+                    transform = (MathTransform2D)CoordinateTransformationFactory.getDefault()
+                          .createFromCoordinateSystems(oldCS, coordinateSystem).getMathTransform();
+                }
+                final Point2D origin = new Point2D.Double(preferredArea.getCenterX(),
+                                                          preferredArea.getCenterY());
+                preferredArea = CTSUtilities.transform(transform, preferredArea, preferredArea);
+                if (preferredPixelSize != null) {
+                    Point2D pt = new Point2D.Double(preferredPixelSize.getWidth(),
+                                                    preferredPixelSize.getHeight());
+                    pt = CTSUtilities.deltaTransform(transform, origin, pt, pt);
+                    preferredPixelSize.setSize(pt.getX(), pt.getY());
+                }
+                clearCache();
+            }
+            /*
+             * Really changes the coordinate system only once we know that
+             * the transformation was okay.
+             */
+            this.coordinateSystem = coordinateSystem;
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
         repaint();
