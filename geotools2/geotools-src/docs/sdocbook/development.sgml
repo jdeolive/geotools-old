@@ -16,8 +16,7 @@
       </listitem>
 
       <listitem>
-        <para>maven beta 8 [Todo: Note, as of June 2003, people were
-        experiencing problems with beta 9]</para>
+        <para>maven beta 10 or later.</para>
       </listitem>
 
       <listitem>
@@ -91,6 +90,9 @@
       (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>). An
       excellent CVS manual can be found at <ulink
       url="http://cvsbook.red-bean.com/">http://cvsbook.red-bean.com/</ulink>.</para>
+
+      <para>Information about the geotools repository can be found at: <ulink
+      url="http://sourceforge.net/cvs/?group_id=4091">http://sourceforge.net/cvs/?group_id=4091</ulink>.</para>
     </section>
 
     <section id="moduleversionnumbers">
@@ -410,8 +412,8 @@ void example(int i) {
       <section id="gettingmaven">
         <title>Getting Maven</title>
 
-        <para>You will need Maven 1.0 beta 8 or later which you can download
-        from: <ulink url="http://maven.apache.org/start/download.html">http://maven.apache.org/start/download.html</ulink></para>
+        <para>You will need Maven 1.0 beta 10 or later which you can download
+        from: <ulink url="http://maven.apache.org/start/download.html">http://maven.apache.org/start/download.html</ulink>.</para>
       </section>
 
       <section id="installingmaven">
