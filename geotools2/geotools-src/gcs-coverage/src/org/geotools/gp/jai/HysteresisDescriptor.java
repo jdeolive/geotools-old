@@ -39,7 +39,7 @@ import javax.media.jai.registry.RenderedRegistryMode;
 /**
  * The descriptor for the {@link Hysteresis} operation.
  *
- * @version $Id: HysteresisDescriptor.java,v 1.2 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: HysteresisDescriptor.java,v 1.3 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Lionel Flahaut
  */
 public class HysteresisDescriptor extends OperationDescriptorImpl {
@@ -57,7 +57,10 @@ public class HysteresisDescriptor extends OperationDescriptorImpl {
                              {"Vendor",      "Geotools 2"},
                              {"Description", "Thresholding by hysteresis"},
                              {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
-                             {"Version",     "1.0"}},
+                             {"Version",     "1.0"},
+                             {"arg0Desc",    "The low threshold value, inclusive."},
+                             {"arg1Desc",    "The high threshold value, inclusive."},
+                             {"arg2Desc",    "The value to give to filtered pixel."}},
               new String[]   {RenderedRegistryMode.MODE_NAME}, 1,
               new String[]   {"low", "high", "padValue"}, // Argument names
               new Class []   {Double.class, Double.class, Double.class},    // Argument classes

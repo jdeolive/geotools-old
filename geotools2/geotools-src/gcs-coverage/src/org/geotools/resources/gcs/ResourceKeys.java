@@ -42,6 +42,7 @@ public interface ResourceKeys
     public static final int LINE_$1                              =    18;
     public static final int MAGENTA                              =    19;
     public static final int NAME                                 =    20;
+    public static final int NATIVE_ACCELERATION_STATE_$2         =    81;
     public static final int NODATA                               =    21;
     public static final int OPERATION_APPLIED_$3                 =    22;
     public static final int PALETTE                              =    23;

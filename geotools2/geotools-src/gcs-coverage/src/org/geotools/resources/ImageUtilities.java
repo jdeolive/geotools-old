@@ -34,14 +34,26 @@ package org.geotools.resources;
 
 // J2SE dependencies
 import java.util.List;
+import java.util.Iterator;
 import java.awt.Dimension;
 import java.awt.RenderingHints;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.RenderedImageFactory;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;
 import javax.media.jai.ImageLayout;
+import javax.media.jai.OperationRegistry;
+import javax.media.jai.registry.RIFRegistry;
+import javax.media.jai.registry.RenderedRegistryMode;
+
+// Geotools dependencies
+import org.geotools.resources.gcs.Resources;
+import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
@@ -53,7 +65,7 @@ import javax.media.jai.ImageLayout;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.8 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.9 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -201,7 +213,7 @@ public final class ImageUtilities {
      * from the <strong>first</strong> source for consistency with {@link OpImage} constructor.
      *
      * @param  layout The original layout. This object will not be modified.
-     * @param  sources The list of sources.
+     * @param  sources The list of sources {@link RenderedImage}.
      * @return A new <code>ImageLayout</code>, or the original <code>layout</code> if no
      *         change was needed.
      */
@@ -260,5 +272,70 @@ public final class ImageUtilities {
             }
         }
         return result;
+    }
+
+    /**
+     * Allow or disallow native acceleration for the specified JAI operation. By default, JAI uses
+     * hardware accelerated method when available. For example, it make use of MMX instructions on
+     * Intel processors. Unfortunatly, some native method crash the Java Virtual Machine under some
+     * circonstances. For example on JAI 1.1.2, the "Affine" operation on an image with float data
+     * type, bilinear interpolation and an {@link ImageLayout} rendering hint cause an exception in
+     * medialib native code. Disabling the native acceleration (i.e using the pure Java version) is
+     * a convenient workaround until Sun fix the bug.
+     * <br><br>
+     * <strong>Implementation note:</strong> the current implementation assume that factories
+     * for native implementations are declared in the <code>com.sun.media.jai.mlib</code>
+     * package, while factories for pure java implementations are declared in the
+     * <code>com.sun.media.jai.opimage</code> package. It work for Sun's 1.1.2 implementation,
+     * but may change in future versions. If this method doesn't recognize the package, that
+     * it does nothing.
+     *
+     * @param operation The operation name (e.g. "Affine").
+     * @param allowed <code>false</code> to disallow native acceleration.
+     */
+    public synchronized static void allowNativeAcceleration(final String operation,
+                                                            final boolean  allowed)
+    {
+        final String             product = "com.sun.media.jai";
+        final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+        final List             factories = registry.getOrderedFactoryList(
+                                           RenderedRegistryMode.MODE_NAME, operation, product);
+        if (factories != null) {
+            RenderedImageFactory   javaFactory = null;
+            RenderedImageFactory nativeFactory = null;
+            Boolean               currentState = null;
+            for (final Iterator it=factories.iterator(); it.hasNext();) {
+                final RenderedImageFactory factory = (RenderedImageFactory) it.next();
+                final String pack = factory.getClass().getPackage().getName();
+                if (pack.equals("com.sun.media.jai.mlib")) {
+                    nativeFactory = factory;
+                    if (javaFactory != null) {
+                        currentState = Boolean.FALSE;
+                    }
+                }
+                if (pack.equals("com.sun.media.jai.opimage")) {
+                    javaFactory = factory;
+                    if (nativeFactory != null) {
+                        currentState = Boolean.TRUE;
+                    }
+                }
+            }
+            if (currentState!=null && currentState.booleanValue()!=allowed) {
+                RIFRegistry.unsetPreference(registry, operation, product,
+                                            allowed ? javaFactory : nativeFactory,
+                                            allowed ? nativeFactory : javaFactory);
+                RIFRegistry.setPreference(registry, operation, product,
+                                          allowed ? nativeFactory : javaFactory,
+                                          allowed ? javaFactory : nativeFactory);
+                final LogRecord record = Resources.getResources(null).getLogRecord(Level.CONFIG,
+                                                   ResourceKeys.NATIVE_ACCELERATION_STATE_$2,
+                                                   operation, new Integer(allowed ? 1 : 0));
+                record.setSourceClassName("ImageUtilities");
+                record.setSourceMethodName("allowNativeAcceleration");
+                Logger.getLogger("org.geotools.gp").log(record);
+                // We used the "org.geotools.gp" logger since this method is usually
+                // invoked from the GridCoverageProcessor or one of its operations.
+            }
+        }
     }
 }

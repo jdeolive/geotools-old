@@ -46,10 +46,15 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.7 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.8 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
+    /**
+     * Small number for avoiding rounding errors.
+     */
+    private static final double EPS = 1E-8;
+
     /**
      * Do not allows instantiation of this class.
      */
@@ -113,8 +118,8 @@ public final class GCSUtilities {
         final int[] lower = new int[dimension];
         final int[] upper = new int[dimension];
         for (int i=0; i<dimension; i++) {
-            lower[i] = (int)Math.floor(envelope.getMinimum(i));
-            upper[i] = (int)Math.ceil (envelope.getMaximum(i));
+            lower[i] = (int)Math.floor(envelope.getMinimum(i) + EPS);
+            upper[i] = (int)Math.ceil (envelope.getMaximum(i) - EPS);
         }
         return new GridRange(lower, upper);
     }

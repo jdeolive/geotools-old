@@ -53,7 +53,7 @@ import org.geotools.resources.XMath;
  * than <code>validityThreshold</code>, then the center <code>NaN</code> is replaced
  * by the computed average. Otherwise, the <code>NaN</code> value is left unchanged.
  * 
- * @version $Id: NodataFilter.java,v 1.1 2003/07/18 13:49:56 desruisseaux Exp $
+ * @version $Id: NodataFilter.java,v 1.2 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Lionel Flahaut
  * @author Martin Desruisseaux
  */
@@ -80,8 +80,8 @@ public class NodataFilter extends AreaOpImage {
      * @param source   The source image.
      * @param layout   The image layout.
      * @param map      The image properties and rendering hints.
-     * @param padding  The number of source above, below, to the left and to the right of central
-     *                 <code>NaN</code> pixel. The full box size is <code>padding</code>&times;2.
+     * @param padding  The number of pixel above, below, to the left and to the right of central
+     *                 <code>NaN</code> pixel. The full box size is <code>padding</code>&times;2+1.
      * @param validityThreshold The minimal number of valid neighbors required in order to consider
      *                the average as valid.
      */

@@ -82,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.30 2003/07/24 09:34:38 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.31 2003/07/30 17:45:22 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -150,6 +150,7 @@ public class GridCoverageProcessor {
      * Rendering hints will be initialized with the following hints:
      * <ul>
      *   <li>{@link JAI#KEY_REPLACE_INDEX_COLOR_MODEL} set to {@link Boolean#FALSE}.</li>
+     *   <li>{@link JAI#KEY_TRANSFORM_ON_COLORMAP} set to {@link Boolean#FALSE}.</li>
      * </ul>
      *
      * @task REVISIT: This constror contains a hack for JAI 1.1.1 compatibility. This hack
@@ -157,9 +158,10 @@ public class GridCoverageProcessor {
      */
     protected GridCoverageProcessor() {
         /*
-         * The following line should have been enough:
+         * The following lines should have been enough:
          *
          * hints.put(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
+         * hints.put(JAI.KEY_TRANSFORM_ON_COLORMAP, Boolean.FALSE);
          *
          * However, this key is available in JAI 1.1.2 only. Since we still have JAI 1.1.1 around,
          * uses the reflection API in order to set this property without requiring JAI 1.1.2 to be
@@ -167,7 +169,9 @@ public class GridCoverageProcessor {
          */
         hints = new RenderingHints(Hints.PROCESSOR_INSTANCE, this);
         try {
-            final Object key = JAI.class.getField("KEY_REPLACE_INDEX_COLOR_MODEL").get(null);
+            Object key = JAI.class.getField("KEY_REPLACE_INDEX_COLOR_MODEL").get(null);
+            hints.put((RenderingHints.Key) key, Boolean.FALSE);
+            key = JAI.class.getField("JAI.KEY_TRANSFORM_ON_COLORMAP").get(null);
             hints.put((RenderingHints.Key) key, Boolean.FALSE);
         } catch (Exception exception) {
             // We are not running JAI 1.1.2. Ignore this exception,
@@ -518,7 +522,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.30 2003/07/24 09:34:38 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.31 2003/07/30 17:45:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

@@ -40,7 +40,7 @@ import javax.media.jai.registry.RenderedRegistryMode;
 /**
  * The descriptor for the {@link NodataFilter} operation.
  *
- * @version $Id: NodataFilterDescriptor.java,v 1.1 2003/07/18 13:49:56 desruisseaux Exp $
+ * @version $Id: NodataFilterDescriptor.java,v 1.2 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Lionel Flahaut 
  */
 public class NodataFilterDescriptor extends OperationDescriptorImpl {
@@ -63,7 +63,11 @@ public class NodataFilterDescriptor extends OperationDescriptorImpl {
                              {"Vendor",      "Geotools 2"},
                              {"Description", "Replace NaN values by a weighted average of neighbor values."},
                              {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
-                             {"Version",     "1.0"}},
+                             {"Version",     "1.0"},
+                             {"arg0Desc",    "The number of pixel above, below, to the left and " +
+                                             "to the right of central NaN pixel."},
+                             {"arg1Desc",    "The minimal number of valid neighbors required " +
+                                             "in order to consider the average as valid."}},
               new String[]   {RenderedRegistryMode.MODE_NAME}, 1,
               new String[]   {"padding", "validityThreshold"},   // Argument names
               new Class []   {Integer.class, Integer.class},     // Argument classes

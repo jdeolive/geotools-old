@@ -51,6 +51,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.util.Range;
 import javax.media.jai.ImageLayout;
 import javax.media.jai.ParameterList;
+import javax.media.jai.IntegerSequence;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.OperationDescriptor;
 import javax.media.jai.ParameterListDescriptor;
@@ -59,8 +60,13 @@ import javax.media.jai.registry.RenderedRegistryMode;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
+import org.geotools.cs.FactoryException;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CompoundCoordinateSystem;
+import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
+import org.geotools.ct.MathTransform;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridRange;
@@ -71,6 +77,7 @@ import org.geotools.gc.InvalidGridGeometryException;
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.JAIUtilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.gcs.Resources;
@@ -102,7 +109,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.24 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.25 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -456,13 +463,13 @@ public class OperationJAI extends Operation {
          * After the projection, the method still checks all CS in case the user overrided the
          * {@link #resampleToCommonGeometry} method.
          */
-        resampleToCommonGeometry(sources, hints);
-        GridCoverage      coverage = sources[MASTER_SOURCE_INDEX];
-        final CoordinateSystem  cs = getCoordinateSystem(coverage);
-        final MathTransform2D toCS = coverage.getGridGeometry().getGridToCoordinateSystem2D();
+        resampleToCommonGeometry(sources, null, null, hints);
+        GridCoverage          coverage = sources[MASTER_SOURCE_INDEX];
+        final CoordinateSystem      cs = getCoordinateSystem(coverage);
+        final MathTransform2D gridToCS = coverage.getGridGeometry().getGridToCoordinateSystem2D();
         for (int i=0; i<sources.length; i++) {
             if (!cs.equals(getCoordinateSystem(sources[i]), false) ||
-                !toCS.equals(sources[i].getGridGeometry().getGridToCoordinateSystem2D()))
+                !gridToCS.equals(sources[i].getGridGeometry().getGridToCoordinateSystem2D()))
             {
                 throw new IllegalArgumentException(Resources.format(
                         ResourceKeys.ERROR_INCOMPATIBLE_GRID_GEOMETRY));
@@ -471,7 +478,7 @@ public class OperationJAI extends Operation {
         /*
          * Apply the operation. This delegates the work to the chain of 'deriveXXX' methods.
          */
-        coverage = deriveGridCoverage(sources, new Parameters(cs, toCS, block, hints, ranges));
+        coverage = deriveGridCoverage(sources, new Parameters(cs, gridToCS, block, hints, ranges));
         if (requireGeophysicsType != null) {
             coverage = coverage.geophysics(requireGeophysicsType.booleanValue());
         }
@@ -480,48 +487,102 @@ public class OperationJAI extends Operation {
 
     /**
      * Resample all sources grid coverages to the same geometry before to apply an operation.
-     * This method has no effect if the operation doesn't take at least two source coverages.
-     * The default implementation use the geometry of the first source. Subclasses may overrides
-     * this method if they want to resample grid coverages in an other way.
+     * Subclasses should overrides this method if they want to specify a target grid geometry
+     * and coordinate system different than the default one.
      *
-     * @param  sources The source grid coverages to resample.
-     *                 This array is updated in-place as needed.
-     * @param  hints   The rendering hints, or <code>null</code> if none.
-     * @throws CannotReprojectException if a grid coverage can't be resampled.
+     * @param  sources  The source grid coverages to resample.
+     *                  This array is updated in-place as needed.
+     * @param  coordinateSystem The target coordinate system to use,
+     *                  or <code>null</code> for a default one.
+     * @param  gridToCS The target &quot;grid to coordinate system&quot; transform,
+     *                  or <code>null</code> for a default one.
+     * @param  hints    The rendering hints, or <code>null</code> if none.
+     *
+     * @throws InvalidGridGeometryException if a source coverage has an unsupported grid geometry.
+     * @throws CannotReprojectException if a grid coverage can't be resampled for some other reason.
      */
     protected void resampleToCommonGeometry(final GridCoverage[] sources,
+                                            CoordinateSystem     coordinateSystem,
+                                            MathTransform        gridToCS,
                                             final RenderingHints hints)
-            throws CannotReprojectException
+            throws InvalidGridGeometryException, CannotReprojectException
     {
-        if (sources.length < 2) {
+        if (sources.length == 0) {
             return;
         }
+        if (coordinateSystem == null) {
+            if (gridToCS==null && sources.length==1) {
+                return;
+            }
+            coordinateSystem = getCoordinateSystem(sources[MASTER_SOURCE_INDEX]);
+        }
+        if (gridToCS == null) {
+            gridToCS = sources[MASTER_SOURCE_INDEX].getGridGeometry().getGridToCoordinateSystem2D();
+        }
+        final int dimension = coordinateSystem.getDimension(); // Usually 2.
+        final GridGeometry geometry = new GridGeometry(null, gridToCS);
         final GridCoverageProcessor processor = getGridCoverageProcessor(hints);
-        GridCoverage   source = sources[MASTER_SOURCE_INDEX];
-        CoordinateSystem cs2D = getCoordinateSystem(source);
-        MathTransform2D  toCS = source.getGridGeometry().getGridToCoordinateSystem2D();
-        GridGeometry     geom = new GridGeometry(null, toCS);
         for (int i=0; i<sources.length; i++) {
-            source = sources[i];
+            final GridCoverage     source   = sources[i];
             final CoordinateSystem sourceCS = source.getCoordinateSystem();
-            final CoordinateSystem   headCS = getCoordinateSystem(source);
-            final CoordinateSystem   tailCS; // To be set later only if needed.
             final CoordinateSystem targetCS;
-            final int dimension = sourceCS.getDimension();
-            if (dimension <= 2) {
-                targetCS = cs2D;
+            final GridGeometry     targetGeom;
+            final int sourceDim = sourceCS.getDimension();
+            if (sourceDim <= dimension) {
+                targetCS   = coordinateSystem;
+                targetGeom = geometry;
             } else {
                 /*
                  * The source grid coverage has some extra dimensions. Uses the common CS
                  * for the two first dimensions, and try to preserve the extra dimensions.
                  */
-                tailCS = CTSUtilities.getSubCoordinateSystem(sourceCS, 0, dimension);
-                if (tailCS == null) {
+                final CoordinateSystem headCS,tailCS;
+                headCS = CTSUtilities.getSubCoordinateSystem(sourceCS, 0, dimension);
+                tailCS = CTSUtilities.getSubCoordinateSystem(sourceCS, dimension, sourceDim);
+                if (headCS==null || tailCS==null) {
                     // TODO: provides a localized message.
                     throw new InvalidGridGeometryException();
                 }
-                // TODO: continue implementation (set the new CS and the transform).
+                if (coordinateSystem.equals(headCS, false)) {
+                    targetCS = sourceCS;
+                } else {
+                    targetCS = new CompoundCoordinateSystem(coordinateSystem.getName(null),
+                                                            coordinateSystem, tailCS);
+                }
+                /*
+                 * Constructs the 'gridToCoordinateSystem' transform in the same way than the CS:
+                 * the first dimensions are set to the specified transform, and the extra dimensions
+                 * are preserved.
+                 */
+                MathTransformFactory factory = null;
+                final Object ctsFactory = hints.get(Hints.COORDINATE_TRANSFORMATION_FACTORY);
+                if (ctsFactory instanceof CoordinateTransformationFactory) {
+                    factory = ((CoordinateTransformationFactory)ctsFactory).getMathTransformFactory();
+                }
+                if (factory == null) {
+                    factory = MathTransformFactory.getDefault();
+                }
+                try {
+                    MathTransform transform = source.getGridGeometry().getGridToCoordinateSystem();
+                    IntegerSequence headDim = JAIUtilities.createSequence(0, dimension-1);
+                    IntegerSequence tailDim = JAIUtilities.createSequence(dimension, sourceDim-1);
+                    MathTransform   headTr  = factory.createSubTransform(transform, headDim, null);
+                    MathTransform   tailTr  = factory.createSubTransform(transform, tailDim, null);
+                    if (!headTr.equals(gridToCS)) {
+                        headTr = factory.createPassThroughTransform(0, headTr, sourceDim-dimension);
+                        tailTr = factory.createPassThroughTransform(dimension, tailTr, 0);
+                        transform = factory.createConcatenatedTransform(headTr, tailTr);
+                    }
+                    targetGeom = new GridGeometry(null, transform);
+                } catch (FactoryException exception) {
+                    throw new CannotReprojectException(Resources.format(
+                            ResourceKeys.ERROR_CANT_REPROJECT_$1,
+                            source.getName(null)), exception);
+                }
             }
+            sources[i] = processor.doOperation("Resample",         source,
+                                               "GridGeometry",     targetGeom,
+                                               "CoordinateSystem", targetCS);
         }
     }
     
@@ -858,7 +919,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.24 2003/07/23 18:04:52 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.25 2003/07/30 17:45:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {

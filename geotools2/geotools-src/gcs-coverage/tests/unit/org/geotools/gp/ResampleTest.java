@@ -30,9 +30,10 @@ package org.geotools.gp;
 
 // J2SE and JAI dependencies
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.InputStream;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -75,7 +76,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.9 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.10 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -139,9 +140,24 @@ public final class ResampleTest extends GridCoverageTest {
      * Projète l'image dans le systeme de coordonnées
      * spécifié et affiche le résultat à l'écran.
      *
-     * @param cs Le systeme de coordonées de destination.
+     * @param  cs Le systeme de coordonées de destination.
+     * @return The operation name which was applied on the image, or <code>null</code> if none.
      */
-    private void projectTo(final CoordinateSystem cs, final GridGeometry geometry) {
+    private String projectTo(final CoordinateSystem cs, final GridGeometry geometry) {
+        return projectTo(cs, geometry, SHOW);
+    }
+
+    /**
+     * Projète l'image dans le systeme de coordonnées
+     * spécifié et affiche le résultat à l'écran.
+     *
+     * @param  cs Le systeme de coordonées de destination.
+     * @return The operation name which was applied on the image, or <code>null</code> if none.
+     */
+    private String projectTo(final CoordinateSystem   cs,
+                             final GridGeometry geometry,
+                             final boolean          show)
+    {
         final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
         final String arg1; final Object value1;
         final String arg2; final Object value2;
@@ -156,32 +172,39 @@ public final class ResampleTest extends GridCoverageTest {
             arg1="GridGeometry";      value1=geometry;
             arg2="InterpolationType"; value2="bilinear";
         }
-        final GridCoverage projected = processor.doOperation("Resample", coverage.geophysics(true),
-                                                              arg1, value1, arg2, value2);
-        if (SHOW) {
-            Viewer.show(projected.geophysics(false));
-        }
+        GridCoverage projected = coverage.geophysics(true);
+        projected = processor.doOperation("Resample", projected, arg1, value1, arg2, value2);
+        assertNotNull(projected.getRenderedImage().getData());
         final RenderedImage image = projected.getRenderedImage();
-        if (image instanceof RenderedOp) {
-            Logger.getLogger("org.geotools.gp")
-                .fine("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
+        projected = projected.geophysics(false);
+        if (show) {
+            Viewer.show(projected);
+        } else {
+            // Force computation
+            assertNotNull(projected.getRenderedImage().getData());
         }
+        String operation = null;
+        if (image instanceof RenderedOp) {
+            operation = ((RenderedOp) image).getOperationName();
+            Logger.getLogger("org.geotools.gp").fine("Applied \""+operation+"\" JAI operation.");
+        }
+        return operation;
     }
 
     /**
      * Test the "Resample" operation with an identity transform.
      */
     public void testIdentity() {
-        projectTo(coverage.getCoordinateSystem(), null);
+        assertEquals("Lookup", projectTo(coverage.getCoordinateSystem(), null));
     }
 
     /**
      * Test the "Resample" operation with a "Crop" transform.
      */
     public void testCrop() {
-        projectTo(null, new GridGeometry(new GridRange(new Rectangle(50,50,200,200)), null));
+        assertEquals("Crop", projectTo(null,
+                             new GridGeometry(new GridRange(new Rectangle(50,50,200,200)), null)));
     }
-
 
     /**
      * Test the "Resample" operation with an "Affine" transform.
@@ -191,17 +214,14 @@ public final class ResampleTest extends GridCoverageTest {
         atr.preConcatenate(AffineTransform.getTranslateInstance(5, 5));
         MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
         CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
-        if (true) {
-            projectTo(null, new GridGeometry(null, tr));
-        } else {
-            /*
-             * Note: In current Resampler implementation, the affine transform effect tested
-             *       here will not be visible with the simple viewer used here.  It would be
-             *       visible however with more elaborated viewer like the one provided in the
-             *       <code>org.geotools.renderer</code> package.
-             */
-            projectTo(cs, null);
-        }
+        /*
+         * Note: In current Resampler implementation, the affine transform effect tested
+         *       on the first line below will not be visible with the simple viewer used
+         *       here.  It would be visible however with more elaborated viewer like the
+         *       one provided in the <code>org.geotools.renderer</code> package.
+         */
+        assertEquals("Lookup", projectTo(cs, null, false));
+        assertEquals("Affine", projectTo(null, new GridGeometry(null, tr)));
     }
 
     /**
@@ -211,7 +231,7 @@ public final class ResampleTest extends GridCoverageTest {
         final CoordinateSystem cs = new ProjectedCoordinateSystem("Stereographic",
                 GeographicCoordinateSystem.WGS84,
                 new Projection("Stereographic","Oblique_Stereographic",Ellipsoid.WGS84,null,null));
-        projectTo(cs, null);
+        assertEquals("Warp", projectTo(cs, null));
     }
     
     /**
@@ -273,7 +293,7 @@ public final class ResampleTest extends GridCoverageTest {
      */
     public static void main(final String[] args) {
         SHOW = true;
-        org.geotools.resources.Geotools.init();
+        org.geotools.resources.Geotools.init(Level.INFO);
         junit.textui.TestRunner.run(suite());
     }
 }

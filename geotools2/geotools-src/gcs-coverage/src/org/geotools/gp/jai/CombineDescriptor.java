@@ -53,7 +53,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * specified. The &quot;0&quot; should be understood as the <em>minimal</em> number of sources
  * required.
  *
- * @version $Id: CombineDescriptor.java,v 1.3 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: CombineDescriptor.java,v 1.4 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -72,7 +72,10 @@ public final class CombineDescriptor extends OperationDescriptorImpl {
                              {"Vendor",      "Geotools 2"},
                              {"Description", "Combine rendered images using a linear relation."},
                              {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
-                             {"Version",     "1.0"}},
+                             {"Version",     "1.0"},
+                             {"arg0Desc",    "The coefficients for linear combinaison as a matrix."},
+                             {"arg1Desc",    "An optional transform to apply on sample values "+
+                                             "before the linear combinaison."}},
               new String[]   {RenderedRegistryMode.MODE_NAME}, 0,        // Supported modes
               new String[]   {"matrix", "transform"},                    // Parameter names
               new Class []   {double[][].class, CombineTransform.class}, // Parameter classes

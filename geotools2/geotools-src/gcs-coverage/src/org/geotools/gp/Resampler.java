@@ -113,10 +113,22 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.16 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.17 2003/07/30 17:45:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
+    /**
+     * Disable the native acceleration for the "Affine" operation. In JAI 1.1.2, the "Affine"
+     * operation on TYPE_FLOAT datatype with INTERP_BILINEAR interpolation cause an exception
+     * in the native code of medialib, which halt the Java Virtual Machine. Using the pure Java
+     * implementation instead resolve the problem.
+     *
+     * @task TODO: Remove this hack when Sun will fix the medialib bug.
+     */
+    static {
+        ImageUtilities.allowNativeAcceleration("Affine", false);
+    }
+
     /**
      * Construct a new grid coverage for the specified grid geometry.
      *
@@ -639,7 +651,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.16 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.17 2003/07/30 17:45:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
