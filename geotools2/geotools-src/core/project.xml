@@ -4,12 +4,12 @@
   <pomVersion>3</pomVersion>
   <name>geotools-core</name>
   <id>core</id>
-  <logo>core.gif</logo>
+  <logo>/images/core.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-    <logo>gtLogo.gif</logo>
+    <logo>/images/gtLogo.gif</logo>
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
