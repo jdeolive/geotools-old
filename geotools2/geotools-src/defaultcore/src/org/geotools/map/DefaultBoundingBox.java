@@ -47,7 +47,7 @@ import javax.swing.event.EventListenerList;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: DefaultBoundingBox.java,v 1.3 2003/08/20 21:04:11 cholmesny Exp $
+ * @version $Id: DefaultBoundingBox.java,v 1.4 2003/08/28 22:00:35 aaime Exp $
  *
  * @task REVISIT Probably should use CoordinatePoint or Point2D to store points
  *       instead of using Envelope.  Also worth waiting to see what interface
@@ -194,8 +194,8 @@ public class DefaultBoundingBox implements BoundingBox {
                 areaOfInterest.getMinY(), areaOfInterest.getWidth(),
                 areaOfInterest.getHeight());
         area = CTSUtilities.transform(transform, area, area);
-        areaOfInterest = new Envelope(area.getMinX(), area.getMinY(),
-                area.getMaxX(), area.getMaxY());
+        areaOfInterest = new Envelope(area.getMinX(), area.getMaxX(),
+                area.getMinY(), area.getMaxY());
         fireAreaOfInterestChanged(transform);
     }
 
