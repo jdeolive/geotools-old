@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/10 09:00:32 $</date>
+    <date>$Date: 2002/11/12 10:22:07 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -32,15 +32,15 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 
           <entry>Description</entry>
         </row>
+      </thead>
 
+      <tbody>
         <row>
           <entry>CTS</entry>
 
           <entry>Coordinate Transform Service</entry>
         </row>
-      </thead>
 
-      <tbody>
         <row>
           <entry>GT2</entry>
 
