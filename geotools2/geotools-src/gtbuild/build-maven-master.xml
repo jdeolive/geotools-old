@@ -20,6 +20,7 @@
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\Java2DRendering" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\gmldatasource" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\postgis" inheritall="true" target="maven:site"/>
     </target>
     
     
