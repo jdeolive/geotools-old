@@ -5,7 +5,7 @@
  * Created on March 4, 2002, 4:00 PM
  */
 
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 import org.geotools.data.*;
 import org.geotools.feature.*;
@@ -15,7 +15,7 @@ import java.io.*;
 import java.net.*;
 
 import junit.framework.*;
-import org.geotools.shapefile.shapefile.*;
+import org.geotools.data.shapefile.*;
 
 /**
  * @author Ian Schneider

@@ -1,4 +1,4 @@
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 /*
  * GmlSuite.java

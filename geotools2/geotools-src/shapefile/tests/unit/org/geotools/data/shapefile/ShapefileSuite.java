@@ -5,7 +5,7 @@
  * Created on February 22, 2002, 3:58 PM
  */
 
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 import junit.framework.*;
 

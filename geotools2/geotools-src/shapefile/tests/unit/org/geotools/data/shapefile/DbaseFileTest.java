@@ -5,7 +5,7 @@
  * Created on 12 February 2002, 21:27
  */
 
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 import junit.framework.*;
 import java.net.*;
@@ -13,8 +13,8 @@ import java.net.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.util.ArrayList;
-import org.geotools.shapefile.dbf.DbaseFileHeader;
-import org.geotools.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.dbf.DbaseFileHeader;
+import org.geotools.data.shapefile.dbf.DbaseFileReader;
 
 
 /**

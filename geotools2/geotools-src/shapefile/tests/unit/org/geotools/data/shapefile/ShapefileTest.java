@@ -5,13 +5,13 @@
  * Created on 12 February 2002, 21:27
  */
 
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 import junit.framework.*;
 import java.net.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
-import org.geotools.shapefile.shapefile.*;
+import org.geotools.data.shapefile.shp.*;
 
 /**
  * @author Ian Schneider

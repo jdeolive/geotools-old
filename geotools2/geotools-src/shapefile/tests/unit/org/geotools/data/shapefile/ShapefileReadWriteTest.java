@@ -4,7 +4,7 @@
  * Created on April 30, 2003, 4:37 PM
  */
 
-package org.geotools.shapefile;
+package org.geotools.data.shapefile;
 
 import com.vividsolutions.jts.geom.Geometry;
 import java.io.File;
@@ -44,7 +44,15 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
   } 
   
   protected void tearDown() throws Exception {
-    tmpFile.delete();
+    File[] f = tmpFile.getParentFile().listFiles();
+    for (int i = 0, ii = f.length; i < ii; i++) {
+      if (f[i].getName().equals("tmp.shp"))
+        f[i].delete();
+      else if (f[i].getName().equals("tmp.dbf"))
+        f[i].delete();
+      else if (f[i].getName().equals("tmp.shx"))
+        f[i].delete();
+    }
   }
   
   public void testAll() {
