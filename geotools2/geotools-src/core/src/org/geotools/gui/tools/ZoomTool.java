@@ -1,10 +1,9 @@
 package org.geotools.gui.tools;
 
-import org.geotools.gui.tools.Tool;
 
 /**
  * A tool which provides methods for zooming.
- * @version $Id: ZoomTool.java,v 1.2 2003/03/29 22:32:55 camerons Exp $
+ * @version $Id: ZoomTool.java,v 1.3 2003/04/14 21:37:14 jmacgill Exp $
  * @author Cameron Shorter
  */
 public interface ZoomTool extends Tool {

@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.5 2002/11/22 18:50:08 ianturton Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.6 2003/04/14 21:36:33 jmacgill Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -141,14 +141,9 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isLogicFilter(short filterType) {
         LOGGER.entering("AbstractFilter", "isLogicFilter", new Short(filterType));
-        if ((filterType == LOGIC_OR) ||
+        return ((filterType == LOGIC_OR) ||
             (filterType == LOGIC_AND) ||
-            (filterType == LOGIC_NOT)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+            (filterType == LOGIC_NOT)); 
     }
 
     /**
@@ -159,15 +154,10 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isMathFilter(short filterType) {
 
-        if ((filterType == COMPARE_LESS_THAN) ||
+        return ((filterType == COMPARE_LESS_THAN) ||
             (filterType == COMPARE_GREATER_THAN) ||
             (filterType == COMPARE_LESS_THAN_EQUAL) ||
-            (filterType == COMPARE_GREATER_THAN_EQUAL) ) {
-            return true;
-        }
-        else {
-            return false;
-        }
+            (filterType == COMPARE_GREATER_THAN_EQUAL) );
     }
 
     /**
@@ -178,13 +168,8 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isCompareFilter(short filterType) {
 
-        if ((isMathFilter(filterType)) ||
-            (filterType == COMPARE_EQUALS) || (filterType == BETWEEN) ){
-            return true;
-        }
-        else {
-            return false;
-        }
+        return ((isMathFilter(filterType)) ||
+            (filterType == COMPARE_EQUALS) || (filterType == BETWEEN) );
     }
 
     /**
@@ -195,7 +180,7 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isGeometryFilter(short filterType) {
 
-        if ((filterType == GEOMETRY_BBOX) ||
+        return ((filterType == GEOMETRY_BBOX) ||
             (filterType == GEOMETRY_EQUALS) ||
             (filterType == GEOMETRY_DISJOINT) ||
             (filterType == GEOMETRY_TOUCHES) ||
@@ -204,12 +189,7 @@ public abstract class AbstractFilter implements Filter {
             (filterType == GEOMETRY_WITHIN) ||
             (filterType == GEOMETRY_CONTAINS) ||
             (filterType == GEOMETRY_OVERLAPS) ||
-            (filterType == GEOMETRY_BEYOND)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+            (filterType == GEOMETRY_BEYOND)); 
     }
 
     /**
@@ -220,16 +200,11 @@ public abstract class AbstractFilter implements Filter {
      */
     protected static boolean isSimpleFilter(short filterType) {
 
-        if (isCompareFilter(filterType) ||
+        return (isCompareFilter(filterType) ||
             isGeometryFilter(filterType) ||
             (filterType == NULL) ||
             (filterType == FID) ||
-            (filterType == LIKE)) {
-            return true;
-        }
-        else {
-            return false;
-        }
+            (filterType == LIKE));
     }
     
     public short getFilterType(){

@@ -1,6 +1,5 @@
 package org.geotools.filter;
 
-import java.util.regex.Pattern;
 import org.geotools.feature.Feature;
 
 

@@ -23,13 +23,10 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: Context.java,v 1.4 2003/03/30 20:07:49 camerons Exp $
+ * @version $Id: Context.java,v 1.5 2003/04/14 21:37:15 jmacgill Exp $
  * @author Cameron Shorter
  */
 
-import java.lang.Cloneable;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.LayerList;
 
 public interface Context {
 

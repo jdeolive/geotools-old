@@ -21,13 +21,10 @@ package org.geotools.gui.widget;
  *
  */
 
-import java.util.logging.Logger;
-import org.geotools.gui.widget.Widget;
-import java.awt.event.MouseListener;
 
 /**
  * A widget which contains the same functionality as a JPanel.
- * @version $Id: PanelWidget.java,v 1.2 2003/03/27 11:32:17 camerons Exp $
+ * @version $Id: PanelWidget.java,v 1.3 2003/04/14 21:37:15 jmacgill Exp $
  * @author Cameron Shorter
  * @deprecated
  */

@@ -1,7 +1,6 @@
 package org.geotools.filter;
 
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalFeatureException;
 
 
 public interface AttributeExpression extends Expression{

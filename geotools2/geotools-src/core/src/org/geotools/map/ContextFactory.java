@@ -2,7 +2,6 @@ package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.util.logging.Logger;
-import java.util.logging.Level;
 import org.geotools.data.DataSource;
 import org.geotools.gui.tools.Tool;
 import org.geotools.styling.Style;

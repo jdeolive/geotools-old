@@ -27,12 +27,11 @@ import org.geotools.styling.Style;
 import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.16 2003/02/14 13:14:00 ianturton Exp $
+ * @version $Id: Renderer.java,v 1.17 2003/04/14 21:37:16 jmacgill Exp $
  * @author James Macgill
  */
 

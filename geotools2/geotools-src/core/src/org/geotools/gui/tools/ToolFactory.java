@@ -1,11 +1,10 @@
 package org.geotools.gui.tools;
 
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 /**
  * Factory for constructing Tool classes.
- * @version $Id: ToolFactory.java,v 1.3 2003/03/28 19:08:43 camerons Exp $
+ * @version $Id: ToolFactory.java,v 1.4 2003/04/14 21:37:14 jmacgill Exp $
  * @author Cameron Shorter
  */
 public abstract class ToolFactory {

@@ -22,14 +22,12 @@
 package org.geotools.gui.widget;
 
 import java.awt.event.WindowListener;
-import org.geotools.gui.widget.Widget;
-import org.geotools.gui.widget.PanelWidget;
 
 /**
  * A frame which can contain other widgets.
  *
  * @author Cameron Shorter
- * @version $Id: FrameWidget.java,v 1.2 2003/02/09 09:48:08 camerons Exp $
+ * @version $Id: FrameWidget.java,v 1.3 2003/04/14 21:37:14 jmacgill Exp $
  *
  */
 

@@ -1,6 +1,5 @@
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.Feature;
 
 

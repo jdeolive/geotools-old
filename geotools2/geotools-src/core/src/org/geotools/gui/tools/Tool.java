@@ -1,16 +1,13 @@
 package org.geotools.gui.tools;
 
 import java.awt.Component;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import org.geotools.gui.widget.Widget;
 import org.geotools.map.Context;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: Tool.java,v 1.1 2003/03/30 19:25:05 camerons Exp $
+ * @version $Id: Tool.java,v 1.2 2003/04/14 21:37:13 jmacgill Exp $
  * @author Cameron Shorter
  */
 public abstract interface Tool {

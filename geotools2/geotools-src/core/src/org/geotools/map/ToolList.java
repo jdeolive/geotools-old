@@ -20,14 +20,12 @@
 
 package org.geotools.map;
 
-import java.util.EventObject;
-import javax.swing.event.EventListenerList;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: ToolList.java,v 1.1 2003/03/29 23:02:27 camerons Exp $
+ * @version $Id: ToolList.java,v 1.2 2003/04/14 21:37:16 jmacgill Exp $
  * @author  Cameron Shorter
  */
 
