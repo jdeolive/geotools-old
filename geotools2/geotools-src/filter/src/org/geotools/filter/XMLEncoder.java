@@ -26,7 +26,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-// J2SE dependencies 
+// J2SE dependencies
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashMap;
@@ -215,7 +215,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             out.write("<PropertyIsLike wildCard=\"" + wcm + "\" singleChar=\""
                 + wcs + "\" escape=\"" + esc + "\">\n");
             ((Expression) filter.getValue()).accept(this);
-            out.write("<Literal>\n" + filter.getPattern() + "\n</Literal>\n");
+            out.write("<Literal>" + filter.getPattern() + "</Literal>\n");
             out.write("</PropertyIsLike>\n");
         } catch (java.io.IOException ioe) {
             LOGGER.warning("Unable to export filter" + ioe);
