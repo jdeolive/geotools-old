@@ -8,17 +8,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.EventObject;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.JComponent;
 import org.geotools.map.Context;
-import org.geotools.gui.widget.Widget;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractTool.java,v 1.1 2003/04/01 11:10:41 camerons Exp $
+ * @version $Id: AbstractTool.java,v 1.2 2003/04/13 21:18:55 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractTool
