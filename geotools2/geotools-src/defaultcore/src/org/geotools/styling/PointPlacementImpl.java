@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.5 2003/05/16 21:10:20 jmacgill Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.6 2003/05/23 20:06:51 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -66,9 +66,11 @@ public class PointPlacementImpl implements PointPlacement {
      */
     public void setAnchorPoint(org.geotools.styling.AnchorPoint anchorPoint) {
         if(anchorPoint == null ) {
-            anchorPoint = new AnchorPointImpl();
+            this.anchorPoint = new AnchorPointImpl();
         }
-        this.anchorPoint = anchorPoint;
+        else{
+            this.anchorPoint = anchorPoint;
+        }
     }
     
     /**

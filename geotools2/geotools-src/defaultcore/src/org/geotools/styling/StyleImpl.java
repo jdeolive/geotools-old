@@ -24,8 +24,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @version $Id: StyleImpl.java,v 1.7 2003/05/16 21:10:21 jmacgill Exp $
+ * @version $Id: StyleImpl.java,v 1.8 2003/05/23 20:06:51 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
@@ -35,7 +37,7 @@ public class StyleImpl implements org.geotools.styling.Style {
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.styling");
     
-    ArrayList featureTypeStyleList = new ArrayList();
+    List featureTypeStyleList = new ArrayList();
     String abstractText = "";
     String name = "Default Styler";
     String title = "Default Styler";
