@@ -112,7 +112,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.26 2003/11/08 11:21:38 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.27 2003/11/15 14:13:42 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -857,12 +857,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         Font[] fonts = symbolizer.getFonts();
         java.awt.Font javaFont = getFont(feature, fonts);
+        
+        // fall back on a default font to avoid null pointer exception
+        if(javaFont == null)
+            javaFont = graphics.getFont();
 
         LabelPlacement placement = symbolizer.getLabelPlacement();
-
-//        if (javaFont != null) {
-//            graphics.setFont(javaFont);
-//        }
 
         // TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
         AffineTransform oldTx = graphics.getTransform();
@@ -1116,7 +1116,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
             return javaFont;
         }
 
-        return null;
+        // if everything fails fall back on a font distributed with the jdk
+        return java.awt.Font.getFont("Lucida Sans");
     }
 
     /**
@@ -1215,7 +1216,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
-
+        double scaleX = temp.getScaleX();
         double originalRotation = Math.atan(shearY / scaleY);
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1224,6 +1225,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         labelAT.rotate(rotation - originalRotation);
 
+        double xToyRatio = Math.abs(scaleX / scaleY);
+        labelAT.scale(xToyRatio, 1.0 / xToyRatio);
+        
         graphics.setTransform(labelAT);
 
         AffineTransform at = new AffineTransform();
@@ -2031,8 +2035,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     LOGGER.finest("loop end dist " + dist + " len " + len + " " + (len - dist));
                 }
 
-                if ((len - dist) > 0.0) {
-                    double remainder = len - dist;
+                double remainder = len - dist;
+                int remainingWidth = (int) remainder;
+                if (remainingWidth > 0) {
 
                     //clip and render image
                     if (LOGGER.isLoggable(Level.FINEST)) {
