@@ -17,7 +17,6 @@
 package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Envelope;
-
 import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -25,7 +24,6 @@ import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
-
 import java.io.IOException;
 
 
@@ -57,26 +55,34 @@ public class DefaultFeatureResults implements FeatureResults {
         this.query = query;
         this.featureSource = source;
     }
+
     /**
      * FeatureSchema for provided query.
+     * 
      * <p>
      * If query.retrieveAllProperties() is <code>true</code> the FeatureSource
      * getSchema() will be returned.
      * </p>
+     * 
      * <p>
-     * If query.getPropertyNames() is used to limit the result of the Query
-     * a sub type will be returned based on FeatureSource.getSchema().
+     * If query.getPropertyNames() is used to limit the result of the Query a
+     * sub type will be returned based on FeatureSource.getSchema().
      * </p>
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
      */
     public FeatureType getSchema() throws IOException {
-        if( query.retrieveAllProperties() ){
+        if (query.retrieveAllProperties()) {
             return featureSource.getSchema();
-        }
-        else {
+        } else {
             try {
-                return DataUtilities.createSubType( featureSource.getSchema(), query.getPropertyNames() );
+                return DataUtilities.createSubType(featureSource.getSchema(),
+                    query.getPropertyNames());
             } catch (SchemaException e) {
-                throw new DataSourceException( "Could not create schema", e );
+                throw new DataSourceException("Could not create schema", e);
             }
         }
     }
@@ -105,7 +111,15 @@ public class DefaultFeatureResults implements FeatureResults {
      * @throws IOException If results could not be obtained
      */
     public FeatureReader reader() throws IOException {
-        return featureSource.getDataStore().getFeatureReader( getSchema(), query.getFilter(), getTransaction());
+        FeatureReader reader = featureSource.getDataStore().getFeatureReader(getSchema(),
+                query.getFilter(), getTransaction());
+        int maxFeatures = query.getMaxFeatures();
+
+        if (maxFeatures == query.DEFAULT_MAX) {
+            return reader;
+        } else {
+            return new MaxFeatureReader(reader, maxFeatures);
+        }
     }
 
     /**
@@ -127,7 +141,7 @@ public class DefaultFeatureResults implements FeatureResults {
     public Envelope getBounds() throws IOException {
         Envelope bounds;
 
-        bounds = featureSource.getBounds( query );
+        bounds = featureSource.getBounds(query);
 
         if (bounds != null) {
             return bounds;
@@ -136,16 +150,20 @@ public class DefaultFeatureResults implements FeatureResults {
         try {
             Feature feature;
             bounds = new Envelope();
+
             FeatureReader reader = reader();
-            if( reader.getFeatureType().getDefaultGeometry() == null ){
-                throw new IOException( "No default Geometry specified" );
+
+            if (reader.getFeatureType().getDefaultGeometry() == null) {
+                throw new IOException("No default Geometry specified");
             }
+
             while (reader.hasNext()) {
                 feature = reader.next();
                 bounds.expandToInclude(feature.getBounds());
             }
 
             reader.close();
+
             return bounds;
         } catch (IllegalAttributeException e) {
             throw new DataSourceException("Could not read feature ", e);
@@ -180,13 +198,15 @@ public class DefaultFeatureResults implements FeatureResults {
         // Okay lets count the FeatureReader
         try {
             count = 0;
+
             FeatureReader reader = reader();
-            
+
             for (; reader.hasNext(); count++) {
                 reader.next();
             }
-            
+
             reader.close();
+
             return count;
         } catch (IllegalAttributeException e) {
             throw new DataSourceException("Could not read feature ", e);
@@ -198,12 +218,13 @@ public class DefaultFeatureResults implements FeatureResults {
             FeatureCollection collection = FeatureCollections.newCollection();
             Feature feature;
             FeatureReader reader = reader();
-            
+
             while (reader.hasNext()) {
                 collection.add(reader.next());
             }
-            
-            reader.close();                
+
+            reader.close();
+
             return collection;
         } catch (IllegalAttributeException e) {
             throw new DataSourceException("Could not read feature ", e);
