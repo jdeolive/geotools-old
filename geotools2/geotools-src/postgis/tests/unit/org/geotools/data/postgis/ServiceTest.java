@@ -58,8 +58,7 @@ public class ServiceTest extends TestCase {
 
         return suite;
     }
-    /* comment this back in when sean fixes Class.forName in oracle
-       constructor, or when we are no longer dependant on oracle-spatial.
+
     public void testIsAvailable() {
         Iterator list = DataSourceFinder.getAvailableDataSources();
         boolean found = false;
@@ -75,7 +74,7 @@ public class ServiceTest extends TestCase {
         }
 
         assertTrue("PostgisDataSourceFactory not registered", found);
-	}*/
+    }
 
     public void testPGDataSourceFactory() {
         PostgisDataSourceFactory pgdsFactory = new PostgisDataSourceFactory();
@@ -106,8 +105,6 @@ public class ServiceTest extends TestCase {
         }
     }
 
-      /* comment this back in when sean fixes Class.forName in oracle
-       constructor, or when we are no longer dependant on oracle-spatial.
     public void testPostgisDataSource() throws Exception {
         HashMap params = new HashMap();
         params.put("dbtype", "postgis");
@@ -124,5 +121,5 @@ public class ServiceTest extends TestCase {
 
         DataSource ds = DataSourceFinder.getDataSource(params);
         assertNotNull(ds);
-	}*/
+    }
 }

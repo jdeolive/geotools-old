@@ -35,7 +35,7 @@ import java.util.logging.Logger;
  *
  * @author Chris Holmes, TOPP
  * @author Sean Geoghegan
- * @version $Id: JDBCDataSource.java,v 1.3 2003/11/04 00:28:50 cholmesny Exp $
+ * @version $Id: JDBCDataSource.java,v 1.4 2003/11/04 00:34:02 cholmesny Exp $
  */
 public abstract class JDBCDataSource extends AbstractDataSource {
     /** The logger for the data package. */

@@ -37,7 +37,7 @@ import java.util.Map;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisConnectionFactory.java,v 1.5 2003/10/24 20:12:30 cholmesny Exp $
+ * @version $Id: PostgisConnectionFactory.java,v 1.6 2003/11/04 00:36:17 cholmesny Exp $
  *
  * @task REVISIT: connection pooling, implementing java.sql.Datasource.  I
  *       removed the implementing because that class should be provided by the
