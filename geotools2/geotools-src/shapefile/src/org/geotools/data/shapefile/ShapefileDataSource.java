@@ -52,7 +52,7 @@ import java.nio.charset.Charset;
 import org.geotools.feature.FeatureTypeFactory;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.13 2003/07/17 07:09:56 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.14 2003/07/17 18:03:34 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -125,7 +125,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    * @return The bounding box of the datasource or null if unknown and too
    * expensive for the method to calculate.
    */
-  public Envelope getBbox() throws DataSourceException {
+  public Envelope getBounds() throws DataSourceException {
     // This is way quick!!!
     try {
       ByteBuffer buffer = ByteBuffer.allocateDirect(100);
