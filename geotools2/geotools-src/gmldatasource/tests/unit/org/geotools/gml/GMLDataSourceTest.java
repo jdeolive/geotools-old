@@ -9,6 +9,7 @@ package org.geotools.gml;
 
 import org.geotools.datasource.*;
 import org.geotools.datasource.extents.*;
+import org.geotools.featuretable.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import java.net.URL;
@@ -18,7 +19,7 @@ import java.util.*;
  *
  * @author ian
  */
-public class GMLDataSourceTest extends junit.framework.TestCase implements TableChangedListener{
+public class GMLDataSourceTest extends junit.framework.TestCase {
     FeatureTable table = null;
     FeatureIndex fi = null;
     public GMLDataSourceTest(java.lang.String testName) {
@@ -96,50 +97,37 @@ public class GMLDataSourceTest extends junit.framework.TestCase implements Table
             System.out.println("Testing ability to load "+url+" as datasource");
             GMLDataSource ds = new GMLDataSource(url);
             
-            table = new FeatureTable(ds);
-            table.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
-            table.addTableChangedListener(this);
+            table = new DefaultFeatureTable(ds);
+            
+           
             
             EnvelopeExtent r = new EnvelopeExtent();
-            r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 0, 100, 100.0));
+            r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
             
             //table.requestExtent(r);
             try {
                 //fi = new SimpleIndex(table, "LONGITUDE");
-                System.out.println("calling reqExt "+r);
-                table.requestExtent(r);
-                System.out.println("called reqExt ");
+                
+                table.getFeatures(r);
+               
             }catch(Exception exp) {
                 System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
             }
-            while(table.getState()!=FeatureTable.STATE_NORMAL){
-                try{
-                    Thread.sleep(1000);
-                }catch(InterruptedException e){}
-                System.out.println("waiting...");
+
+            assertEquals(5,table.getFeatures().length);
+            Feature[] features = table.getFeatures();
+            
+            for(int i=0;i<features.length;i++){
+                
+                System.out.println("Feature  : "+features[i].getGeometry().toString());
             }
-            System.out.println("loaded "+table.getRows().size());
         }catch(Exception e){
             System.out.println(e);
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
     }
-    public void tableChanged(TableChangedEvent tce) {
-        System.out.println("tableChanged called()");
-        System.out.println("tableChanged() : Return code : "+tce.getCode());
-        if (tce.getCode()!=tce.TABLE_OK) {
-            System.out.println("tableChanged() : Exception :"+tce.getException().getClass().getName());
-            tce.getException().printStackTrace();
-        }
-        else {
-            System.out.println("Load code ok - Reading Index");
-            //Iterator it = fi.getFeatures().iterator();
-            Iterator it = table.getRows().iterator();
-            while (it.hasNext()) {
-                Feature f = (Feature)it.next();
-                System.out.println("Feature  : "+f.row[0].toString());
-            }
-        }
-    }
+
+            
+    
 }
