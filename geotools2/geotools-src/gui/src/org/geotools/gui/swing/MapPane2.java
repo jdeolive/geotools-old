@@ -25,13 +25,14 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.AreaOfInterestChangedEvent;
 import org.geotools.map.events.AreaOfInterestChangedListener;
 import org.geotools.map.AreaOfInterestModel;
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
-import org.geotools.map.LayerList;
+import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
@@ -43,7 +44,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.4 2002/08/16 22:07:21 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.5 2002/08/18 03:37:34 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -147,24 +148,32 @@ public class MapPane2 extends JPanel implements
     }
 
     /**
-     * Render this mapPane.
+     * Loop through all the layers in this mapPane's layerList and render each
+     * Layer which is set to Visable.
      * @param graphics The graphics object to paint to.
-     * @task TODO fill in exception.  This should impliment logging.
+     * @task TODO fill in exception.  This should implement logging.
+     * @task REVISIT Need to create an interface
+     * features=dataSource.getFeatures(extent)
      */
-    public void paintComponent(Graphics graphics)
-    {
+    public void paintComponent(Graphics graphics) {
         renderer.setOutput(graphics, this.getBounds());
-        if ((layerList!=null) && (layerList.getLayers()!=null)){
+        if ((layerList!=null) && (layerList.getLayers()!=null))
+        {
             for (int i=0;i<layerList.getLayers().length;i++) {
-                try {
-                    renderer.render(
-                            layerList.getLayers()[i].getFeatures(
-                                new EnvelopeExtent(
-                                    areaOfInterestModel.getAreaOfInterest())),
-                            areaOfInterestModel.getAreaOfInterest(),
-                            this.style);
-                } catch (DataSourceException exception) {
-                    // log exception
+                if ((layerList.getLayers()[i]!=null)&&
+                        layerList.getLayers()[i].getVisability())
+                {
+                    try {
+                        FeatureCollection fc=new FeatureCollectionDefault(
+                        layerList.getLayers()[i].getDataSource());
+                        renderer.render(
+                        fc.getFeatures(new EnvelopeExtent(
+                        areaOfInterestModel.getAreaOfInterest())),
+                        areaOfInterestModel.getAreaOfInterest(),
+                        style);
+                    } catch (DataSourceException exception) {
+                        // log exception
+                    }
                 }
             }
         }
