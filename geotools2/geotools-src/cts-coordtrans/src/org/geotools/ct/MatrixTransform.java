@@ -43,21 +43,25 @@ import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.XAffineTransform;
 
-// J2SE, JAI and vecmath dependencies
-import java.io.Serializable;
-import java.util.Arrays;
+// J2SE dependencies
 import java.awt.Shape;
 import java.awt.geom.Point2D;
+import java.util.Arrays;
+import java.io.Serializable;
+
+// JAI dependencies
+import javax.media.jai.util.Range;
+import javax.media.jai.ParameterList;
+
+// Vecmath (Java3D) dependencies
 import javax.vecmath.GMatrix;
 import javax.vecmath.SingularMatrixException;
-import javax.media.jai.ParameterList;
-import javax.media.jai.util.Range;
 
 
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.5 2002/07/24 17:14:21 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.6 2002/10/10 14:44:21 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -364,8 +368,8 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
         final int numCol = matrix.getNumCol();
         final StringBuffer buffer = paramMT("Affine");
         final StringBuffer eltBuf = new StringBuffer("elt_");
-        addParameter(buffer, "Num_row", numRow);
-        addParameter(buffer, "Num_col", numCol);
+        addParameter(buffer, "num_row", numRow);
+        addParameter(buffer, "num_col", numCol);
         for (int j=0; j<numRow; j++) {
             for (int i=0; i<numCol; i++) {
                 final double value = matrix.getElement(j,i);
@@ -385,38 +389,28 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.5 2002/07/24 17:14:21 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.6 2002/10/10 14:44:21 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
         /**
-         * Range of positives values. Range
-         * goes from 1 to the maximum value.
+         * Create a provider for affine transform.
+         * The default matrix size is 4&times;4.
          */
-        private static final Range POSITIVE_RANGE = new Range(Integer.class, new Integer(1), new Integer(Integer.MAX_VALUE));
-        
-        /**
-         * Create a provider for affine transforms of the specified
-         * dimension. Created affine transforms will have a size of
-         * <code>numRow&nbsp;&times;&nbsp;numCol</code>.
-         *
-         * @param numRow The number of matrix's rows.
-         * @param numCol The number of matrix's columns.
-         */
-        public Provider(final int numRow, final int numCol) {
+        public Provider() {
             super("Affine", ResourceKeys.AFFINE_TRANSFORM, null);
-            putInt("Num_row", numRow, POSITIVE_RANGE); // Add integer (not double) parameter
-            putInt("Num_col", numCol, POSITIVE_RANGE); // Add integer (not double) parameter
-            final StringBuffer buffer=new StringBuffer("elt_");
-            for (int j=0; j<numRow; j++) {
-                for (int i=0; i<numCol; i++) {
-                    buffer.setLength(4);
-                    buffer.append(j);
-                    buffer.append('_');
-                    buffer.append(i);
-                    put(buffer.toString(), (i==j) ? 1.0 : 0.0, null);
-                }
-            }
+            final int defaultSize = MatrixParameters.DEFAULT_SIZE.intValue();
+            putInt("num_row", defaultSize, MatrixParameters.POSITIVE_RANGE);
+            putInt("num_col", defaultSize, MatrixParameters.POSITIVE_RANGE);
+        }
+    
+        /**
+         * Returns a newly created parameter list. This custom parameter list
+         * is different from the default one in that it is "extensible", i.e.
+         * new parameters may be added if the matrix's size growth.
+         */
+        public ParameterList getParameterList() {
+            return new MatrixParameters();
         }
         
         /**
@@ -424,9 +418,14 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
          *
          * @param  parameters The parameter values in standard units.
          * @return A {@link MathTransform} object of this classification.
+         *
+         * @task REVISIT: Should we invoke {@link MathTransformFactory#createAffineTransform}
+         *       instead? It would force us to keep a reference to {@link MathTransformFactory}
+         *       (and not forget to change the reference if this provider is copied into an
+         *       other factory)...
          */
         public MathTransform create(final ParameterList parameters) {
-            final Matrix matrix = getMatrix(parameters);
+            final Matrix matrix = MatrixParameters.getMatrix(parameters);
             if (matrix.isAffine()) {
                 switch (matrix.getNumRow()) {
                     case 3: return new AffineTransform2D(matrix.toAffineTransform2D());
@@ -440,29 +439,6 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
                 return new IdentityTransform(matrix.getNumRow()-1);
             }
             return new MatrixTransform(matrix);
-        }
-
-        /**
-         * Construct a matrix from a parameter block. This method is used by
-         * {@link MathTransformFactory#createParameterizedTransform}.
-         */
-        public static Matrix getMatrix(final ParameterList parameters) {
-            final int numRow = parameters.getIntParameter("Num_row");
-            final int numCol = parameters.getIntParameter("Num_col");
-            final Matrix  matrix = new Matrix(numRow, numCol);
-            final String[] names = parameters.getParameterListDescriptor().getParamNames();
-            if (names!=null) {
-                for (int i=0; i<names.length; i++) {
-                    final String name = names[i];
-                    if (name.regionMatches(true, 0, "elt_", 0, 4)) {
-                        final int separator = name.lastIndexOf('_');
-                        final int row = Integer.parseInt(name.substring(4, separator));
-                        final int col = Integer.parseInt(name.substring(separator+1));
-                        matrix.setElement(row, col, parameters.getDoubleParameter(name));
-                    }
-                }
-            }
-            return matrix;
         }
     }
 }

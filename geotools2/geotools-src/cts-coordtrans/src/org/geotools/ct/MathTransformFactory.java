@@ -38,12 +38,14 @@ package org.geotools.ct;
 // J2SE dependencies
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.awt.geom.AffineTransform;
+import java.text.ParseException;
 import java.awt.geom.Point2D;
-import java.rmi.RemoteException;
-import java.rmi.server.RemoteObject;
-import java.lang.ref.WeakReference;
+import java.awt.geom.AffineTransform;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.rmi.RemoteException;
+import java.rmi.ServerException;
+import java.rmi.server.RemoteObject;
 
 // JAI and Java3D dependencies
 import javax.media.jai.ParameterList;
@@ -59,6 +61,7 @@ import org.opengis.ct.CT_MathTransformFactory;
 import org.geotools.pt.Matrix;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
+import org.geotools.cs.FactoryException;
 
 // Resources
 import org.geotools.units.Unit;
@@ -105,7 +108,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.12 2002/10/08 15:36:10 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.13 2002/10/10 14:44:20 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -117,6 +120,12 @@ public class MathTransformFactory {
      * will be constructed only when first needed.
      */
     private static MathTransformFactory DEFAULT;
+
+    /**
+     * The object to use for parsing <cite>Well-Known Text</cite> (WKT) strings.
+     * Will be created only when first needed.
+     */
+    private transient WKTParser parser;
     
     /**
      * A pool of math transform. This pool is used in order to
@@ -148,7 +157,7 @@ public class MathTransformFactory {
     public static synchronized MathTransformFactory getDefault() {
         if (DEFAULT==null) {
             DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
-                new              MatrixTransform.Provider(4,4),   // Affine (default to 4x4)
+                new              MatrixTransform.Provider(),      // Affine (default to 4x4)
                 new           MercatorProjection.Provider(),      // Mercator_1SP
                 new   LambertConformalProjection.Provider(),      // Lambert_Conformal_Conic_2SP
                 new      StereographicProjection.Provider(),      // Stereographic
@@ -481,7 +490,7 @@ public class MathTransformFactory {
         final MathTransform transform;
         classification = classification.trim();
         if (classification.equalsIgnoreCase("Affine")) {
-            return createAffineTransform(MatrixTransform.Provider.getMatrix(parameters));
+            return createAffineTransform(MatrixParameters.getMatrix(parameters));
         }
         transform = getMathTransformProvider(classification).create(parameters);
         return (MathTransform) pool.canonicalize(transform);
@@ -551,8 +560,8 @@ public class MathTransformFactory {
      * <br><br>
      * <table align="center" border='1' cellpadding='3' bgcolor="F4F8FF">
      *   <tr bgcolor="#B9DCFF"><th>Parameter</th> <th>Description</th></tr>
-     *   <tr><td><code>Num_row</code></td> <td>Number of rows in matrix</td></tr>
-     *   <tr><td><code>Num_col</code></td> <td>Number of columns in matrix</td></tr>
+     *   <tr><td><code>num_row</code></td> <td>Number of rows in matrix</td></tr>
+     *   <tr><td><code>num_col</code></td> <td>Number of columns in matrix</td></tr>
      *   <tr><td><code>elt_&lt;r&gt;_&lt;c&gt;</code></td> <td>Element of matrix</td></tr>
      * </table>
      * <br>
@@ -572,11 +581,15 @@ public class MathTransformFactory {
      * @return The provider for an affine transform.
      * @throws IllegalArgumentException if <code>numRow</code>
      *         or <code>numCol</code> is not a positive number.
+     *
+     * @deprecated Use {@link #getMathTransformProvider} instead. The generic method now
+     *             use an "extensible" {@link ParameterList}, which may growth or shrink
+     *             according the change in matrix size.
      */
     public MathTransformProvider getAffineTransformProvider(final int numRow, final int numCol)
             throws IllegalArgumentException
     {
-        return new MatrixTransform.Provider(numRow, numCol);
+        return new MatrixTransform.Provider();
     }
 
     /**
@@ -597,6 +610,33 @@ public class MathTransformFactory {
      */
     public Unit getParameterUnit(final String parameter) {
         return DescriptorNaming.getParameterUnit(parameter);
+    }
+
+    /**
+     * Creates a math transform object from a <cite>Well-Known Text</cite> (WKT) string.
+     * WKT are part of <cite>Coordinate Transformation Services Specification</cite>.
+     *
+     * @param  text The <cite>Well-Known Text</cite>.
+     * @return The math transform (never <code>null</code>).
+     * @throws FactoryException if the Well-Known Text can't be parsed,
+     *         or if the math transform creation failed from some other reason.
+     */
+    public MathTransform createFromWKT(final String text) throws FactoryException {
+        if (parser == null) {
+            // Not a big deal if we are not synchronized. If this method is invoked in
+            // same time by two different threads, we may have two WKTParser objects
+            // for a short time. It doesn't hurt...
+            parser = new WKTParser(Locale.US, this);
+        }
+        try {
+            return parser.parseMathTransform(text);
+        } catch (ParseException exception) {
+            final Throwable cause = exception.getCause();
+            if (cause instanceof FactoryException) {
+                throw (FactoryException) cause;
+            }
+            throw new FactoryException(exception.getLocalizedMessage(), exception);
+        }
     }
 
     /**
@@ -641,7 +681,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.12 2002/10/08 15:36:10 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.13 2002/10/10 14:44:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
@@ -703,10 +743,14 @@ public class MathTransformFactory {
         /**
          * Creates a math transform from a Well-Known Text string.
          */
-        public CT_MathTransform createFromWKT(final String wellKnownText)
+        public CT_MathTransform createFromWKT(final String text)
             throws RemoteException
         {
-            throw new UnsupportedOperationException("WKT parsing not yet implemented");
+            try {
+                return adapters.export(MathTransformFactory.this.createFromWKT(text));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
         }
         
         /**
@@ -736,6 +780,17 @@ public class MathTransformFactory {
         {
             final Unit unit = getParameterUnit(parameterName);
             return (unit!=null) && Unit.METRE.canConvert(unit);
+        }
+
+        /**
+         * Wrap a {@link FactoryException} into a {@link RemoteException}.
+         */
+        private RemoteException serverException(final FactoryException exception) {
+            final Throwable cause = exception.getCause();
+            if (cause instanceof RemoteException) {
+                return (RemoteException) cause;
+            }
+            return new ServerException("Can't create object", exception);
         }
     }
 }

@@ -65,14 +65,19 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <strong>Note: this class is not part of OpenGIS specification and
  * may change in a future version. Do not rely strongly on it.</strong>
  *
- * @version $Id: MathTransformProvider.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: MathTransformProvider.java,v 1.3 2002/10/10 14:44:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MathTransformProvider {
     /**
-     * The zero value.
+     * The value zero as a {@link Double}.
      */
-    private static final Double ZERO = new Double(0);
+    static final Double ZERO = new Double(0);
+    
+    /**
+     * The value one as a {@link Double}.
+     */
+    static final Double ONE = new Double(1);
     
     /**
      * Range of positives values. Range goes
@@ -113,7 +118,7 @@ public abstract class MathTransformProvider {
         "semi_minor",          Double.class, ParameterListDescriptor.NO_PARAMETER_DEFAULT, POSITIVE_RANGE,
         "central_meridian",    Double.class, ZERO,                                         LONGITUDE_RANGE,
         "latitude_of_origin",  Double.class, ZERO,                                         LATITUDE_RANGE,
-        "scale_factor",        Double.class, new Double(1),                                POSITIVE_RANGE,
+        "scale_factor",        Double.class, ONE,                                          POSITIVE_RANGE,
         "false_easting",       Double.class, ZERO,                                         null,
         "false_northing",      Double.class, ZERO,                                         null
     });
@@ -331,6 +336,7 @@ public abstract class MathTransformProvider {
         if (value == Longitude.MIN_VALUE) return LONGITUDE_RANGE.getMinValue();
         if (value == Longitude.MAX_VALUE) return LONGITUDE_RANGE.getMaxValue();
         if (value == 0)                   return ZERO;
+        if (value == 1)                   return ONE;
         return new Double(value);
     }
     
@@ -393,6 +399,8 @@ public abstract class MathTransformProvider {
      *
      * @param  parameters The parameter values in standard units.
      * @return A {@link MathTransform} object of this classification.
+     *
+     * @task REVISIT: Should it be protected?
      */
     public abstract MathTransform create(final ParameterList parameters);
     
