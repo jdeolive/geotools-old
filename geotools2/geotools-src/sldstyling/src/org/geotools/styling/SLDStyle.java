@@ -51,7 +51,7 @@ import java.util.logging.Level;
  *
  * @author Ian Turton
  * @author Sean Geoghegan
- * @version $Id: SLDStyle.java,v 1.40 2003/11/15 08:41:17 aaime Exp $
+ * @version $Id: SLDStyle.java,v 1.41 2003/12/16 21:15:41 jmacgill Exp $
  */
 public class SLDStyle {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -280,6 +280,7 @@ public class SLDStyle {
             if (child.getNodeName().equalsIgnoreCase("UserLayer")) {
               System.out.println("found a user layer");  
               StyledLayer layer = parseUserLayer(child);
+              sld.addStyledLayer(layer);
               //sld.addStyledLayer(user);
               //System.out.println("user:" +user);
              //   symbol.setStroke(parseStroke(child));
@@ -290,7 +291,7 @@ public class SLDStyle {
     }
       
        private StyledLayer parseUserLayer(Node root) {
-        StyledLayer layer = null;
+        UserLayer layer = new UserLayer();
         //LineSymbolizer symbol = factory.createLineSymbolizer();
         
         NodeList children = root.getChildNodes();
@@ -305,11 +306,12 @@ public class SLDStyle {
             if (child.getNodeName().equalsIgnoreCase("UserStyle")) {
              System.out.println("found a style");
              Style user = parseStyle(child);
+             layer.addUserStyle(user);
             }
             
             if (child.getNodeName().equalsIgnoreCase("Name")) {
               System.out.println("found a user layers name");  
-              layer = new UserLayer();
+              layer.setName(child.getNodeValue());
               
              //   symbol.setStroke(parseStroke(child));
             }
