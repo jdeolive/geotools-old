@@ -9,6 +9,7 @@
          xmlns:deploy="deploy">
          
         <goal name="release">
+            <attainGoal name="java:compile"/>
             <echo>
                   creating release from contents of ${maven.src.dir}
             </echo> 
@@ -22,7 +23,7 @@
                 <jar destfile="${maven.build.dir}/${jarname}.jar">
 
 
-                    <fileset dir="${maven.src.dir}">
+                    <fileset dir="${maven.build.dir}/classes">
                         
                     </fileset>
 
