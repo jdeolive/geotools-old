@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, TOPP
- * @version $Id: GeometryFilterImpl.java,v 1.11 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.12 2003/07/23 18:18:10 cholmesny Exp $
  *
  * @task: REVISIT: make this class (and all filters) immutable, implement
  *       cloneable and return new filters when calling addLeftGeometry and
@@ -62,7 +62,8 @@ import java.util.logging.Logger;
 public class GeometryFilterImpl extends AbstractFilterImpl
     implements GeometryFilter {
     /** Class logger */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
+    private static final Logger LOGGER = 
+         Logger.getLogger("org.geotools.filter");
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftGeometry = null;
@@ -278,7 +279,7 @@ public class GeometryFilterImpl extends AbstractFilterImpl
      * @return true if specified object is equal to this filter; else false
      */
     public boolean equals(Object obj) {
-        if (obj.getClass() == this.getClass()) {
+        if (obj instanceof GeometryFilterImpl) {
             GeometryFilterImpl geomFilter = (GeometryFilterImpl) obj;
             boolean isEqual = true;
 
@@ -311,8 +312,10 @@ public class GeometryFilterImpl extends AbstractFilterImpl
     public int hashCode() {
         int result = 17;
         result = (37 * result) + filterType;
-        result = (37 * result) + leftGeometry.hashCode();
-        result = (37 * result) + rightGeometry.hashCode();
+        result = (37 * result)
+            + ((leftGeometry == null) ? 0 : leftGeometry.hashCode());
+        result = (37 * result)
+            + ((rightGeometry == null) ? 0 : rightGeometry.hashCode());
 
         return result;
     }
