@@ -27,7 +27,7 @@
 main geotools
 gettingstarted -d GeoTools/GettingStarted website/help
 src -d GeoTools geotools/src
-release &gettingstarted &src
+release &src &gettingstarted
 
 
 
