@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
+  <name>geotools-lite-rendering</name>
+  <id>lite-rendering</id>
+ 
+  <currentVersion>0.1</currentVersion>
+  
+  <shortDescription>lite-rendering module</shortDescription>
+  
+  <description>lite-rendering module.</description>
+  
+  
+
+  <developers>
+    <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    <developer>
+      <name>Andrea Aime</name>
+      <id>aaime</id>
+      <email>aaime@users.sourceforge.net</email>
+      <organization>SATA</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        
+    </developers>
+  <dependencies>
+    <dependency>
+      <id>core</id>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>defaultcore</id>
+      <version>0.1</version>
+    </dependency>
+        <dependency>
+      <id>JTS</id>
+      <version>1.2</version>
+    </dependency>
+        <dependency>
+      <id>resources</id>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
+      <id>gcs-coverage</id>
+      <version>0.6</version>
+    </dependency>
+        <dependency>
+        <id>commons-collections</id>
+        <version>2.1</version>
+    </dependency>
+    </dependencies>
+  
+</project>
+
