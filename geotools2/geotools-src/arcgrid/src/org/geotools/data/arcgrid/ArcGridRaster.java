@@ -67,22 +67,22 @@ public class ArcGridRaster {
     private URL srcURL;
     
     /** max value found in the file */
-    private double maxValue = Float.MIN_VALUE;
+    protected double maxValue = Float.MIN_VALUE;
     
     /** min value found in the file */
-    private double minValue = Float.MAX_VALUE;
+    protected double minValue = Float.MAX_VALUE;
     
-    private double xllCorner = Double.NaN;
+	protected double xllCorner = Double.NaN;
     
-    private double yllCorner = Double.NaN;
+	protected double yllCorner = Double.NaN;
     
-    private double cellSize = Double.NaN;
+	protected double cellSize = Double.NaN;
     
-    private double noData = Double.NaN;
+	protected double noData = Double.NaN;
     
-    private int nCols = -1;
+	protected int nCols = -1;
     
-    private int nRows = -1;
+	protected int nRows = -1;
     
     /**
      * Creates a new instance of ArcGridRaster
@@ -181,7 +181,7 @@ public class ArcGridRaster {
     }
     
     
-    private void parseHeader(StreamTokenizer st) throws IOException {
+    protected void parseHeader(StreamTokenizer st) throws IOException {
         // make sure tokenizer is set up right
         st.resetSyntax();
         st.eolIsSignificant(true);
@@ -230,7 +230,7 @@ public class ArcGridRaster {
         st.pushBack();
     }
     
-    private double readHeaderDouble(StreamTokenizer st) throws IOException {
+    protected double readHeaderDouble(StreamTokenizer st) throws IOException {
         double val = st.nval;
         if (st.nextToken() == StreamTokenizer.TT_WORD && st.sval.startsWith("E")) {
             val = val * Math.pow(10,Integer.parseInt(st.sval.substring(1)));
@@ -244,7 +244,7 @@ public class ArcGridRaster {
     /**
      * Obtain the best reader for the situation
      */
-    private Reader openReader() throws IOException {
+    protected Reader openReader() throws IOException {
         // gzipped source, may be remote URL
         if (srcURL.getFile().endsWith(".gz")) {
             InputStream in = new java.util.zip.GZIPInputStream(
@@ -265,7 +265,7 @@ public class ArcGridRaster {
     /**
      * Open the best writer for the situation.
      */
-    private PrintWriter openWriter(boolean compress) throws IOException {
+    protected PrintWriter openWriter(boolean compress) throws IOException {
         java.io.OutputStream out;
         if (srcURL.getProtocol().equals("file")) {
             out = new java.io.BufferedOutputStream(
@@ -389,7 +389,7 @@ public class ArcGridRaster {
     /**
      * Print n spaces to the PrintWriter
      */
-    private void spaces(PrintWriter p,int n) {
+    protected void spaces(PrintWriter p,int n) {
         for (int i = 0; i < n; i++) {
             p.print(' ');
         }

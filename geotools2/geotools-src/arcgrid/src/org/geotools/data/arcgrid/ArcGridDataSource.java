@@ -81,6 +81,8 @@ public class ArcGridDataSource extends AbstractDataSource {
     
     private boolean compress = false;
     
+    private boolean GRASSFormatEnabled = false;
+    
     /**
      * Creates a new instance of ArcGridDataSource
      *
@@ -105,6 +107,14 @@ public class ArcGridDataSource extends AbstractDataSource {
         
     }
     
+    public boolean isGRASSFormatEnabled() {
+    	return GRASSFormatEnabled;
+    }
+    
+    public void setGRASSFormatEnabled(boolean enabled) {
+    	GRASSFormatEnabled = enabled;
+    }
+    
     /**
      * Use Gzip compression for writing file.
      */
@@ -121,7 +131,12 @@ public class ArcGridDataSource extends AbstractDataSource {
     public ArcGridRaster openArcGridRaster() throws java.io.IOException {
         if (arcGridRaster == null) {
             try {
-                arcGridRaster = new ArcGridRaster(srcURL);
+            	if(GRASSFormatEnabled) {
+					arcGridRaster = new GRASSArcGridRaster(srcURL);
+            	} else {
+					arcGridRaster = new ArcGridRaster(srcURL);
+            	}
+                
             } catch (Exception e) {
                 throw new DataSourceException("Unexpected exception", e);
             }
@@ -248,7 +263,12 @@ public class ArcGridDataSource extends AbstractDataSource {
                     (bounds.getMaximum(1) - yl) / data.getHeight()
                 );
                 try {
-                    arcGridRaster = new ArcGridRaster(srcURL);
+                    if(GRASSFormatEnabled) {
+						arcGridRaster = new GRASSArcGridRaster(srcURL);
+                    } else {
+						arcGridRaster = new ArcGridRaster(srcURL);
+                    }
+                    
                     arcGridRaster.writeRaster(data, xl, yl, cellsize,compress);
                 } catch (java.io.IOException ioe) {
                     throw new DataSourceException("IOError writing",ioe);
