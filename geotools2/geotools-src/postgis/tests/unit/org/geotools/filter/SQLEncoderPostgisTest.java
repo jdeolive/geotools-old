@@ -16,11 +16,11 @@
  */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.Envelope;
-import junit.framework.*;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import junit.framework.*;
 import org.geotools.feature.*;
 import java.io.*;
 import java.util.logging.Logger;
@@ -33,24 +33,37 @@ import java.util.logging.Logger;
  * @author Chris Holmes, TOPP
  */
 public class SQLEncoderPostgisTest extends TestCase {
-    /** Test suite for this test case */
-    TestSuite suite = null;
-
-    /** folder where test data is stored.. */
-    String dataFolder = "";
-    
     /** Standard logging instance */
     protected static final Logger LOGGER = Logger.getLogger(
             "org.geotools.filter");
-    protected static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+    protected static AttributeTypeFactory attFactory = AttributeTypeFactory
+        .newInstance();
 
     /** Schema on which to preform tests */
     protected static FeatureType testSchema = null;
 
     /** Schema on which to preform tests */
     protected static Feature testFeature = null;
+
+    /** Test suite for this test case */
+    TestSuite suite = null;
+
+    /** folder where test data is stored.. */
+    String dataFolder = "";
     protected boolean setup = false;
 
+    public SQLEncoderPostgisTest(String testName) {
+        super(testName);
+        LOGGER.finer("running SQLEncoderTests");
+        ;
+        dataFolder = System.getProperty("dataFolder");
+
+        if (dataFolder == null) {
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder += "/tests/unit/testData";
+        }
+    }
 
     protected void setUp() throws SchemaException, IllegalAttributeException {
         if (setup) {
@@ -100,7 +113,7 @@ public class SQLEncoderPostgisTest extends TestCase {
         };
 
         // Builds the schema
-        testSchema = FeatureTypeFactory.newFeatureType(types,"testSchema");
+        testSchema = FeatureTypeFactory.newFeatureType(types, "testSchema");
 
         GeometryFactory geomFac = new GeometryFactory();
 
@@ -128,19 +141,6 @@ public class SQLEncoderPostgisTest extends TestCase {
         LOGGER.finer("...flat feature created");
 
         //_log.getLoggerRepository().setThreshold(Level.DEBUG);
-    }
-
-    public SQLEncoderPostgisTest(String testName) {
-        super(testName);
-        LOGGER.finer("running SQLEncoderTests");
-        ;
-        dataFolder = System.getProperty("dataFolder");
-
-        if (dataFolder == null) {
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder += "/tests/unit/testData";
-        }
     }
 
     /**
@@ -199,6 +199,18 @@ public class SQLEncoderPostgisTest extends TestCase {
             + ", 2346) && \"testGeometry\"");
     }
 
+    public void testFid() throws Exception {
+        FilterFactory filterFac = FilterFactory.createFilterFactory();
+
+        FidFilter fidFilter = filterFac.createFidFilter("road.345");
+        SQLEncoderPostgisGeos encoder = new SQLEncoderPostgisGeos();
+        encoder.setFidColumn("gid");
+
+        String out = encoder.encode((AbstractFilterImpl) fidFilter);
+        LOGGER.fine("Resulting SQL filter is \n" + out);
+        assertEquals(out, "WHERE gid = '345'");
+    }
+
     public void test3() throws Exception {
         FilterFactory filterFac = FilterFactory.createFilterFactory();
         CompareFilter compFilter = filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
@@ -232,6 +244,4 @@ public class SQLEncoderPostgisTest extends TestCase {
             assertEquals("Filter type not supported", e.getMessage());
         }
     }
-    
-    
 }
