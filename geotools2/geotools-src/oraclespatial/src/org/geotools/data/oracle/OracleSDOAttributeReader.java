@@ -29,6 +29,8 @@ import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureListener;
 import org.geotools.data.jdbc.QueryDataListener;
 import org.geotools.data.jdbc.JDBCDataStore.QueryData;
 import org.geotools.feature.AttributeType;
@@ -67,6 +69,7 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
     public OracleSDOAttributeReader(AttributeType metaData, QueryData queryData, int columnIndex) 
                 throws DataSourceException {
         super(new AttributeType[]{metaData});
+        queryData.addQueryDataListener(this);
         this.queryData = queryData;
         this.resultSet = queryData.getResultSet();
         this.columnIndex = columnIndex;
@@ -75,7 +78,7 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
             ResultSetMetaData rsMetaData = resultSet.getMetaData();
             String tableName = queryData.getFeatureTypeInfo().getFeatureTypeName();
             String columnName = rsMetaData.getColumnName(columnIndex);
-            LOGGER.info("About to create Geometry convertor for " + tableName + "." + columnName);
+            LOGGER.fine("About to create Geometry convertor for " + tableName + "." + columnName);
             
             // TODO should check that it is an OracleConnection
             OracleConnection conn = (OracleConnection)queryData.getConnection();
@@ -240,5 +243,13 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
             LOGGER.log(Level.SEVERE, msg, e);
             throw new DataSourceException(msg, e);
         }
+    }
+
+    /**
+     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
+     * @param queryData
+     */
+    public void rowDeleted(QueryData queryData) {
+        rowIndex--;        
     }
 }

@@ -15,6 +15,8 @@ import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.FeatureEvent;
+import org.geotools.data.FeatureListener;
 import org.geotools.data.jdbc.JDBCDataStore.QueryData;
 import org.geotools.feature.AttributeType;
 
@@ -66,7 +68,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	public ResultSetAttributeIO(AttributeType[] metadata, JDBCDataStore.QueryData querydata,
 										int startColumn, int endColumn) {
 		super(metadata);
-        LOGGER.fine("Creating Ranged AttributeReader: " + Arrays.asList(metaData) + 
+        LOGGER.finer("Creating Ranged AttributeReader: " + Arrays.asList(metaData) + 
                 " range: " + startColumn + "-" + endColumn);
         this.queryData  = querydata;
         queryData.addQueryDataListener(this);
@@ -265,5 +267,13 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
         // Dont need to listen to this anymore so we remove ourselves to
         // allow cleanup. 
         queryData.removeQueryDataListener(this);
+    }
+
+    /**
+     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
+     * @param queryData
+     */
+    public void rowDeleted(QueryData queryData) {
+        rowIndex--;        
     }
 }

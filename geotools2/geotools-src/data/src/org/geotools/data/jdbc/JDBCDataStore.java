@@ -73,7 +73,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 /**
  * Abstract helper class for JDBC DataStore implementations.
  * 
@@ -1386,7 +1385,8 @@ public abstract class JDBCDataStore implements DataStore {
                 postFilter, queryData);
         AttributeWriter[] writers = buildAttributeWriters(info.getSchema()
                                                               .getAttributeTypes(),
-                queryData);
+                                                            queryData);
+        
         AttributeWriter joinedW = new JoiningAttributeWriter(writers);
         FeatureWriter writer = createFeatureWriter(reader, joinedW, queryData);
 
@@ -1839,6 +1839,19 @@ public abstract class JDBCDataStore implements DataStore {
             this.isInserting = isInserting;
         }
 
+        /**
+         * 
+         */
+        public void deleteCurrentRow() throws SQLException {
+            this.resultSet.deleteRow();
+            List clone = (List) listeners.clone();
+
+            for (Iterator iter = clone.iterator(); iter.hasNext();) {
+                QueryDataListener l = (QueryDataListener) iter.next();
+                l.rowDeleted(this);
+            }            
+        }
+
     }
 
     protected class JDBCFeatureWriter implements FeatureWriter {
@@ -1882,7 +1895,7 @@ public abstract class JDBCDataStore implements DataStore {
                     // existing content
                     live = fReader.next();
                     current = featureType.duplicate(live);
-                    LOGGER.info("Calling next on writer");
+                    LOGGER.finer("Calling next on writer");
                     writer.next();
                 } catch (IllegalAttributeException e) {
                     throw new DataSourceException("Unable to edit "
@@ -1919,12 +1932,13 @@ public abstract class JDBCDataStore implements DataStore {
             }
 
             if (live != null) {
+                LOGGER.fine("Removing " + live);
                 Envelope bounds = live.getBounds();
                 live = null;
                 current = null;
 
-                try {
-                    queryData.getResultSet().deleteRow();
+                try {                    
+                    queryData.deleteCurrentRow();
                     listenerManager.fireFeaturesRemoved(queryData.getFeatureTypeInfo()
                                                                  .getFeatureTypeName(),
                         queryData.getTransaction(), bounds);

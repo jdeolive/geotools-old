@@ -138,4 +138,11 @@ public class ResultSetFIDReader implements FIDReader, QueryDataListener {
         isClosed = true;
     }
 
+    /**
+     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
+     * @param queryData
+     */
+    public void rowDeleted(QueryData queryData) {
+        index--;
+    }
 }

@@ -58,7 +58,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Chris Holmes
- * @version $Id: WKTAttributeIO.java,v 1.3 2003/11/06 22:29:23 cholmesny Exp $
+ * @version $Id: WKTAttributeIO.java,v 1.4 2003/11/20 05:23:58 seangeo Exp $
  */
 public class WKTAttributeIO extends AbstractAttributeIO
     implements QueryDataListener, AttributeWriter, AttributeReader {
@@ -292,5 +292,13 @@ public class WKTAttributeIO extends AbstractAttributeIO
         // Dont need to listen to this anymore so we remove ourselves to
         // allow cleanup. 
         queryData.removeQueryDataListener(this);
+    }
+
+    /**
+     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
+     * @param queryData
+     */
+    public void rowDeleted(QueryData queryData) {
+        rowIndex--;        
     }
 }
