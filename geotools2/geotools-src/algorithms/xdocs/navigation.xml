@@ -6,7 +6,7 @@
 
   <body>
     <links>
-      <item name="core" href="/../../../defaultcore/target/docs/"/>
+      <item name="core" href="/../../../core/target/docs/"/>
       <item name="defaultcore" href="/../../../defaultcore/target/docs/"/>
       <item name="filter" href="/../../../filter/target/docs/"/>
             <item name="algorithms" href="/../../../algorithms/target/docs/"></item>
