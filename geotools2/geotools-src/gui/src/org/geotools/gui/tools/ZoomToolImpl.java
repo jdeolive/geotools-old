@@ -34,7 +34,7 @@ public class ZoomToolImpl extends MouseToolImpl implements ZoomTool
 
     /**
      * Construct a ZoomTool.
-     * @version $Id: ZoomToolImpl.java,v 1.1 2003/03/19 10:39:27 camerons Exp $
+     * @version $Id: ZoomToolImpl.java,v 1.2 2003/03/20 20:23:06 camerons Exp $
      * @author Cameron Shorter
      */
     public ZoomToolImpl(){
@@ -55,7 +55,6 @@ public class ZoomToolImpl extends MouseToolImpl implements ZoomTool
      */
     public void mouseClicked(MouseEvent e) {
         GeoMouseEvent geoMouseEvent=(GeoMouseEvent)e;
-        AffineTransform at = new AffineTransform();
         Envelope aoi=context.getBbox().getAreaOfInterest();
         
         try {
@@ -66,13 +65,27 @@ public class ZoomToolImpl extends MouseToolImpl implements ZoomTool
             Point2D minP=new Point2D.Double(aoi.getMinX(),aoi.getMinY());
             Point2D maxP=new Point2D.Double(aoi.getMaxX(),aoi.getMaxY());
             
-            at.scale(zoomFactor,zoomFactor);
-
-            // Calculate the panning translation.
-            // PannedPoint=OrigPoint+ClickedPoint-Midpoint
+            // ZoomTransform:
+            // x=scaleFactor*x + (1-zoomFactor)*(width/2-minX)
+            
+            AffineTransform at = new AffineTransform();
+            
+            // Pan so the middle of the map is the mouse click point.
+            // x=x+clickedPoint-midpoint
             at.translate(
                 mousePoint.getOrdinate(0)-(minP.getX()+maxP.getX())/2,
                 mousePoint.getOrdinate(1)-(minP.getY()+maxP.getY())/2);
+
+            // Move the trasformed box so the center point remains in the same
+            // place after zooming.
+            // x=x+(1-zoomFactor)*(width/2-minX)
+            at.translate(
+                (1-zoomFactor)*((maxP.getX()-minP.getX())/2)-minP.getX(),
+                (1-zoomFactor)*((maxP.getY()-minP.getY())/2)-minP.getY());
+            
+            // Zoom by zoomFactor
+            // x=x*zoomFactor
+            at.scale(zoomFactor,zoomFactor);
 
             MathTransform transform=
                 MathTransformFactory.getDefault().createAffineTransform(at);
