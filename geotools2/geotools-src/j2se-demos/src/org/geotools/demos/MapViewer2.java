@@ -38,7 +38,8 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import org.opengis.cs.CS_CoordinateSystem;
-import org.geotools.cs.Adapters;
+//import org.geotools.cs.Adapters;
+import org.geotools.ct.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
@@ -72,7 +73,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.10 2003/01/26 22:29:52 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.11 2003/01/28 10:10:34 camerons Exp $
  *
  */
 
@@ -99,7 +100,7 @@ public class MapViewer2 extends JFrame {
      */
     private void initComponents() {//GEN-BEGIN:initComponents
 
-        //getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -107,7 +108,7 @@ public class MapViewer2 extends JFrame {
             }
         });
 
-        //pack();
+        pack();
     }//GEN-END:initComponents
 
     /** 
@@ -129,10 +130,6 @@ public class MapViewer2 extends JFrame {
                         "WGS84",HorizontalDatum.WGS84));
             bbox=new BoundingBoxImpl(envelope,cs);
 
-            // Create a DataSource
-            MemoryDataSource datasource = new MemoryDataSource();
-            populateDataSource(datasource);
-
             // Create a Style
             StyleFactory styleFactory=StyleFactory.createStyleFactory();
             SLDStyle sldStyle = new SLDStyle(
@@ -140,10 +137,21 @@ public class MapViewer2 extends JFrame {
                 ClassLoader.getSystemResource("org/geotools/demos/simple.sld"));
             Style style=sldStyle.readXML();
 
+            // Create a DataSource
+            MemoryDataSource datasource1 = new MemoryDataSource();
+            populateDataSource(datasource1,46,46,"river");
+
+            MemoryDataSource datasource2 = new MemoryDataSource();
+            populateDataSource(datasource2,50,50,"road");
+
             // Create a LayerList and Layer
             layerList = new DefaultLayerList();
-            layer=new DefaultLayer(datasource,style);
-            layer.setTitle("funky layer");
+            layer=new DefaultLayer(datasource1,style);
+            layer.setTitle("river layer");
+            layerList.addLayer(layer);
+
+            layer=new DefaultLayer(datasource2,style);
+            layer.setTitle("road layer");
             layerList.addLayer(layer);
 
             // Create a Context
@@ -166,10 +174,7 @@ public class MapViewer2 extends JFrame {
             this.getContentPane().add(
                 mapPane,"North");
             
-            // Extra stuff for testing
-            JButton b1=new JButton("ok");
-            getContentPane().add(b1,"South");
-            pack();
+            this.pack();
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }
@@ -203,24 +208,29 @@ public class MapViewer2 extends JFrame {
     /**
      * Add some features into a dataSouce
      * @param dataSource The dataSource to populate
+     * @param xoff The starting x postion
+     * @param yoff The starting y position
      */
     private void populateDataSource(
-        MemoryDataSource dataSource)throws Exception {
+        MemoryDataSource dataSource,
+        double xoff, 
+        double yoff,
+        String featureTypeName)throws Exception {
         
         GeometryFactory geomFac = new GeometryFactory();
-        LineString line = makeSampleLineString(geomFac,50,50);
+        LineString line = makeSampleLineString(geomFac,xoff,yoff);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
-        LineString line2 = makeSampleLineString(geomFac,52,50);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
+        LineString line2 = makeSampleLineString(geomFac,xoff+2,yoff);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature2 = lineFac.create(new Object[]{line2});
         
-        LineString line3 = makeSampleLineString(geomFac,54,50);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
+        LineString line3 = makeSampleLineString(geomFac,xoff+4,yoff);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature3 = lineFac.create(new Object[]{line3});
         
