@@ -45,6 +45,7 @@ import java.awt.Paint;
 import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.Graphics2D;
+import java.awt.TexturePaint;
 import javax.swing.UIManager;
 import javax.media.jai.GraphicsJAI;
 
@@ -78,7 +79,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.5 2003/05/31 12:41:28 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.6 2003/06/10 11:30:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -158,6 +159,36 @@ public class RenderedGeometries extends RenderedLayer {
      * Used only if the user didn't set explicitely a preferred pixel size.
      */
     private Dimension2D preferredPixelSize;
+
+    /**
+     * The minimum and maximum resolution used the last time the map was rendered.
+     * The actual map resolution should be between those two values. Those values
+     * are in geometry units (usually meters)  and are updated every time the map
+     * is rendered. They are related to {@link Renderer#minResolution} and {@link
+     * Renderer#maxResolution}, except that the later are in device units (usually
+     * pixels).
+     *
+     * @task REVISIT: consider moving them into {@link Renderer}, since they are going
+     *                to be the same for every {@link RenderedLayer}.
+     */
+    private transient float minResolution, maxResolution;
+
+    /**
+     * <code>true</code> if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering} uses
+     * the &quot;real world&quot; coordinate system, or <code>false</code> if it uses the device
+     * coordinate system. If <code>true</code>, then {@linkplain Stroke stroke} and {@linkplain
+     * TexturePaint texture} attributes are in &quot;real world&quot; units (usually meters);
+     * otherwise, they are in pixels.
+     */
+    private boolean renderUsingMapCS = true;
+
+    /**
+     * A shape wrapping a {@link Geometry} with a given {@link AffineTransform}. Used only
+     * for rendering geometries when {@link #renderUsingMapCS} is <code>false</code>, null
+     * otherwise. Its value is updated in the {@link #paint(RenderingContext)} method only
+     * in order to protect it from <code>renderUsingMapCS</code> change while painting.
+     */
+    private transient TransformedShape transformedShape;
 
     /**
      * Construct a layer for the specified geometry.
@@ -344,6 +375,34 @@ public class RenderedGeometries extends RenderedLayer {
     }
 
     /**
+     * Returns <code>true</code> if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering}
+     * uses the &quot;real world&quot; coordinate system, or <code>false</code> if it uses the
+     * output device coordinate system. If <code>true</code>, then {@linkplain Stroke stroke} and
+     * {@linkplain TexturePaint texture} attributes are in &quot;real world&quot; units (usually
+     * meters); otherwise, they are in device units (usually pixels).
+     */
+    protected boolean getRenderUsingMapCS() {
+        return renderUsingMapCS;
+    }
+
+    /**
+     * Specifies if {@linkplain #paint(Graphics2D,Shape,Style2D) polygon rendering} uses the
+     * &quot;real world&quot; coordinate system. If <code>true</code>, then {@linkplain Stroke
+     * stroke} and {@linkplain TexturePaint texture} attributes are in &quot;real world&quot;
+     * units (usually meters); otherwise, they are in device units (usually pixels). When using
+     * &quot;real world&quot; units, the visual line width will changes with zoom. When using
+     * output device units, the visual line width are constant under any zoom.
+     */
+    protected void setRenderUsingMapCS(final boolean renderUsingMapCS) {
+        final boolean oldValue;
+        synchronized (getTreeLock()) {
+            oldValue = this.renderUsingMapCS;
+            this.renderUsingMapCS = renderUsingMapCS;
+        }
+        listeners.firePropertyChange("renderUsingMapCS", oldValue, renderUsingMapCS);
+    }
+
+    /**
      * Gets the style from a geometry object, or <code>null</code> if none. If the geometry style
      * is not an instance of of {@link Style2D} (for example if it came from a renderer targeting
      * an other output device), set it to <code>null</code> in order to lets the garbage collector
@@ -391,8 +450,6 @@ public class RenderedGeometries extends RenderedLayer {
      */
     private void paint(final Graphics2D       graphics,
                        final Shape                clip,
-                       final float       minResolution,
-                       final float       maxResolution,
                        final GeometryCollection toDraw,
                        final Style2D      defaultStyle)
     {
@@ -405,15 +462,24 @@ public class RenderedGeometries extends RenderedLayer {
             if (clip.intersects(geometry.getBounds2D())) {
                 final Style2D style = getStyle(geometry, defaultStyle);
                 if (geometry instanceof GeometryCollection) {
-                    paint(graphics, clip, minResolution, maxResolution,
-                          (GeometryCollection)geometry, style);
+                    paint(graphics, clip, (GeometryCollection)geometry, style);
                 } else {
+                    /*
+                     * Now draw the polyline. If polyline's rendering resolution is not in
+                     * current bounds, then a new rendering resolution will be set,  which
+                     * will probably flush the cache.
+                     */
                     float resolution = geometry.getRenderingResolution();
                     if (!(resolution>=minResolution && resolution<=maxResolution)) {
                         resolution = (minResolution + maxResolution)/2;
                         geometry.setRenderingResolution(resolution);
                     }
-                    paint(graphics, geometry, style);
+                    Shape shape = geometry;
+                    if (transformedShape != null) {
+                        transformedShape.shape = shape;
+                        shape = transformedShape;
+                    }
+                    paint(graphics, shape, style);
                     if (loggable && geometry instanceof Polyline) {
                         final int numPts = ((Polyline)geometry).getCachedPointCount();
                         rendered += Math.abs(numPts);
@@ -465,17 +531,17 @@ public class RenderedGeometries extends RenderedLayer {
         final GeometryCollection toDraw = getGeometry(
                                      context.getPaintingArea(geometryCS).getBounds2D(), geometryCS);
         if (toDraw != null) {
-            final Graphics2D graphics = context.getGraphics();
-            final Paint      oldPaint = graphics.getPaint();
-            final Stroke    oldStroke = graphics.getStroke();
-            final Shape          clip = graphics.getClip();
+            final Graphics2D   graphics = context.getGraphics();
+            final Paint        oldPaint = graphics.getPaint();
+            final Stroke      oldStroke = graphics.getStroke();
+            final Shape            clip = graphics.getClip();
             if (clip.intersects(toDraw.getBounds2D())) {
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
                 double r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                         (r=tr.getShearX())*r + (r=tr.getShearY())*r);
                 assert !Double.isNaN(r) : tr;
-                final float minResolution = (float)(renderer.minResolution*r);
-                final float maxResolution = (float)(renderer.maxResolution*r);
+                minResolution = (float)(renderer.minResolution*r);
+                maxResolution = (float)(renderer.maxResolution*r);
                 /*
                  * If the rendering coordinate system is geographic, then the resolution computed
                  * above do not use linear units. Computes an approximative correction factor.
@@ -507,14 +573,34 @@ public class RenderedGeometries extends RenderedLayer {
                     renderer.statistics.setResolutionScale(r, unit);
                 }
                 /*
-                 * Now recursively draw all polylines. If polyline's rendering resolution
-                 * is not in current bounds, then a new rendering resolution will be set,
-                 * which will probably flush the cache.
+                 * Now recursively draw all polylines. If rendering must be done in output device
+                 * units (usually pixels),  then the transformation from map to device units must
+                 * be done in an intermediate shape. Since the intermediate shape just concatenates
+                 * affine transforms and pass it to Geometry.getPathIterator(...), the cached
+                 * geometry data are exactly the same. This intermediate step should not have any
+                 * noticeable impact on performance or memory usage.
                  */
-                paint(graphics, clip, minResolution, maxResolution, toDraw, getStyle(toDraw, null));
+                if (renderUsingMapCS) {
+                    transformedShape = null;
+                } else {
+                    if (transformedShape == null) {
+                        transformedShape = new TransformedShape();
+                    }
+                    transformedShape.setTransform(graphics.getTransform());
+                    context.setCoordinateSystem(context.textCS);
+                    graphics.setStroke(DEFAULT_STROKE);
+                }
+                try {
+                    paint(graphics, clip, toDraw, getStyle(toDraw, null));
+                } finally {
+                    if (transformedShape != null) {
+                        transformedShape.shape = null;
+                        context.setCoordinateSystem(context.mapCS);
+                    }
+                    graphics.setStroke(oldStroke);
+                    graphics.setPaint (oldPaint);
+                }
             }
-            graphics.setStroke(oldStroke);
-            graphics.setPaint (oldPaint);
         }
         context.addPaintedArea(XAffineTransform.transform(tr, bounds, null), context.textCS);
         renderer.statistics.addGeometry(numPoints, 0, 0, 0);
@@ -627,6 +713,7 @@ public class RenderedGeometries extends RenderedLayer {
         if (clipped != null) {
             clipped.clear();
         }
+        transformedShape = null;
         super.clearCache();
     }
 

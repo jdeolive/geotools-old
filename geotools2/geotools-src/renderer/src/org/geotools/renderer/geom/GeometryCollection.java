@@ -85,10 +85,10 @@ import org.geotools.resources.renderer.ResourceKeys;
  * African polygons, etc.) or on a value basis (50 meters isobath, 100 meters isobath, etc.).
  * <br><br>
  * A <code>GeometryCollection</code> is initially built with a {@linkplain CoordinateSystem
- * coordinate system}. An arbitrary amount of {@linkplain Geometry geometries} can be added after
- * construction using {@link #add(Geometry)} or {@link #add(float[])}. Geometries will be rendered
- * in the order they were added. If polygons are broken in many pieces, then the
- * {@link #assemble(Shape,float[],ProgressListener) assemble(...)} method may help
+ * coordinate system}. An arbitrary amount of {@linkplain Geometry geometries} can be added
+ * after construction using {@link #add(Geometry)} or {@link #add(float[],int,int)}. Geometries
+ * will be rendered in the order they were added. If polygons are broken in many pieces, then
+ * the {@link #assemble(Shape,float[],ProgressListener) assemble(...)} method may help
  * to assemble them before rendering.
  * <br><br>
  * <strong>Note:</strong> this class has a natural ordering that is inconsistent with equals.
@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.6 2003/06/01 20:24:51 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.7 2003/06/10 11:30:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -178,7 +178,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * {@linkplain GeographicCoordinateSystem#WGS84 WGS84} coordinate system.
      * Polygons can be added using one of the <code>add(...)</code> methods.
      *
-     * @see #add(float[])
+     * @see #add(float[],int,int)
      * @see #add(Shape)
      * @see #add(Geometry)
      */
@@ -193,7 +193,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @param coordinateSystem The coordinate system to use for all
      *        points in this collection, or <code>null</code> if unknown.
      *
-     * @see #add(float[])
+     * @see #add(float[],int,int)
      * @see #add(Shape)
      * @see #add(Geometry)
      */
@@ -1392,7 +1392,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.6 2003/06/01 20:24:51 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.7 2003/06/10 11:30:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {
