@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<section id="developmentid">
+  <title>Identification.</title>
+
+  <para>This document aims to aid the development of <ulink
+  url="http://geotools.org">Geotools2</ulink> . It covers conventions used,
+  processes followed, suggested tools and tips for using the tools.</para>
+
+  <para>Only free, cross platform tools have been recommended. It has been
+  satisfying to discover that quality free tools are available for our full
+  software development needs.</para>
+</section>
