@@ -22,6 +22,7 @@ package org.geotools.resources.gui;
  */
 public interface ResourceKeys
 {
+    public static final int CANCEL                   =    38;
     public static final int CLASS                    =    33;
     public static final int CLOSE                    =     0;
     public static final int COORDINATES_SELECTION    =    19;
@@ -38,6 +39,7 @@ public interface ResourceKeys
     public static final int MESSAGE                  =    32;
     public static final int METHOD                   =    35;
     public static final int NO_DETAILS_$1            =     6;
+    public static final int OK                       =    39;
     public static final int PREFERRED_RESOLUTION     =    22;
     public static final int RECTANGLE_$4             =     7;
     public static final int RESET                    =     8;

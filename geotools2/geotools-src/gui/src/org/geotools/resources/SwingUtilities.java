@@ -57,8 +57,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.UndeclaredThrowableException;
 
 // Geotools dependencies
-import org.geotools.resources.rsc.Resources;
-import org.geotools.resources.rsc.ResourceKeys;
+import org.geotools.resources.gui.Resources;
+import org.geotools.resources.gui.ResourceKeys;
 
 
 /**
@@ -73,7 +73,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  *       internal frames instead of frames.</li>
  * </ul>
  *
- * @version $Id: SwingUtilities.java,v 1.1 2002/09/08 15:28:22 desruisseaux Exp $
+ * @version $Id: SwingUtilities.java,v 1.2 2002/09/08 15:37:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class SwingUtilities {
