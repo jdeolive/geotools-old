@@ -19,11 +19,8 @@ package org.geotools.factory;
 /**
  * For now, just a tagging interface required by the FactoryFinder.
  *
- * @author  Ian Schneider
- * @version $Id: Factory.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
+ * @author Ian Schneider
+ * @version $Id: Factory.java,v 1.3 2003/07/30 19:34:49 jmacgill Exp $
  */
 public interface Factory {
-  
-  
-  
 }

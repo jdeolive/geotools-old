@@ -18,31 +18,33 @@ package org.geotools.factory;
 
 /**
  * Deadly error. Usually if this is thrown, an application built upon geotools
- * will not be able to function. I make this an error so that
- * the standard bad code<br>
- * <code>
- * try {
- *   somthingRisky();
- * } catch (Exception e) {
- *   logger.warning("something happened");
- * }
- * </code>
- * will be subverted and the error will grind the application to a halt, as it
- * should.
- * 
+ * will not be able to function. I make this an error so that the standard bad code<br>
+ * <code> try { somthingRisky(); } catch (Exception e) {
+ * logger.warning("something happened"); }</code> will be subverted and the
+ * error will grind the application to a halt, as it should.
+ *
+ * @author Ian Schneider
+ * @version $Id: FactoryConfigurationError.java,v 1.3 2003/07/30 19:34:49 jmacgill Exp $
+ *
  * @see java.lang.Error
- * @author  Ian Schneider
- * @version $Id: FactoryConfigurationError.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
  */
 public class FactoryConfigurationError extends Error {
-  
-  /** Creates a new instance of FactoryConfigurationError */
-  public FactoryConfigurationError(String message) {
-    super(message);
-  }
-  
-  public FactoryConfigurationError(String message,Throwable cause) {
-    super(message,cause);
-  }
-  
+    /**
+     * Creates a new instance of FactoryConfigurationError
+     *
+     * @param message Informative statememt about what whent wrong
+     */
+    public FactoryConfigurationError(String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new instance of FactoryConfigurationError
+     *
+     * @param message Informative statememt about what whent wrong
+     * @param cause The origional exception which caused the problem
+     */
+    public FactoryConfigurationError(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
