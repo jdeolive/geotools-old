@@ -39,8 +39,9 @@ import org.w3c.dom.*;
  * Styled Layer Descriptor Spec.
  *
  * 
- * @version $Id: SLDStyle.java,v 1.31 2003/03/14 17:23:24 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.32 2003/03/20 14:16:34 ianturton Exp $
  * @author Ian Turton
+ * @author Sean Geoghegan <Sean.Geoghegan@dsto.defence.gov.au>
  */
 public class SLDStyle {
     private static final Logger LOGGER = Logger.getLogger(
@@ -128,7 +129,10 @@ public class SLDStyle {
         instream = in;
     }
 
-       
+    /**
+     * Read the xml inputsource provided and create a Style object for each user style found
+     * @return Style[] the styles constructed.
+     */   
     public Style[] readXML() {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -141,15 +145,29 @@ public class SLDStyle {
         return readDOM(dom);
     }
     
+    /**
+     * Read the DOM provided and create a Style object for each user style found
+     * @return Style[] the styles constructed.
+     */   
     public Style[] readDOM(Document dom){
         // for our next trick do something with the dom.
         NodeList nodes = dom.getElementsByTagName("UserStyle");
-        Style[] style = new Style[nodes.getLength()];
-
-        for (int i = 0; i < nodes.getLength(); i++) {
-            style[i] = factory.createStyle();
-
-            Node n = nodes.item(i);
+        Style[] styles = new Style[nodes.getLength()];
+        
+        for(int i=0;i<nodes.getLength();i++){
+            styles[i] = parseStyle(nodes.item(i));
+        }
+        
+        return styles;
+    }
+    
+    /** build a style for the Node provided
+     * @param Node n the node which contains the style to be parsed.
+     * @return the Style constructed.
+     */
+    public Style parseStyle(Node n){
+        
+            Style style = factory.createStyle();
 
             NodeList children = n.getChildNodes();
 
@@ -171,27 +189,26 @@ public class SLDStyle {
                 }
 
                 if (child.getNodeName().equalsIgnoreCase("Name")) {
-                    style[i].setName(child.getFirstChild().getNodeValue());
+                    style.setName(child.getFirstChild().getNodeValue());
                 }
 
                 if (child.getNodeName().equalsIgnoreCase("Title")) {
-                    style[i].setTitle(child.getFirstChild().getNodeValue());
+                    style.setTitle(child.getFirstChild().getNodeValue());
                 }
 
                 if (child.getNodeName().equalsIgnoreCase("Abstract")) {
-                    style[i].setAbstract(child.getFirstChild().getNodeValue());
+                    style.setAbstract(child.getFirstChild().getNodeValue());
                 }
 
                 if (child.getNodeName().equalsIgnoreCase("FeatureTypeStyle")) {
-                    style[i].addFeatureTypeStyle(parseFeatureTypeStyle(child));
+                    style.addFeatureTypeStyle(parseFeatureTypeStyle(child));
                 }
             }
-        }
-
-        return style;
+        
+        return style; 
     }
-
-    private FeatureTypeStyle parseFeatureTypeStyle(Node style) {
+    
+    private FeatureTypeStyle parseFeatureTypeStyle(Node style) { 
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("Parsing featuretype style " + style.getNodeName());
         }
