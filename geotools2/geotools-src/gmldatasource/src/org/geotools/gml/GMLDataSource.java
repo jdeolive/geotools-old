@@ -6,6 +6,7 @@
 
 package org.geotools.gml;
 import org.geotools.datasource.*;
+import org.geotools.datasource.extents.*;
 import java.net.*;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
@@ -14,7 +15,7 @@ import java.util.*;
  * rest of geotools.
  *
  * @author ian
- * @version $Id: GMLDataSource.java,v 1.2 2002/03/06 17:55:12 ianturton Exp $
+ * @version $Id: GMLDataSource.java,v 1.3 2002/03/11 15:52:26 ianturton Exp $
  */
 public class GMLDataSource implements org.geotools.datasource.DataSource{
     boolean stopped=false;
@@ -33,7 +34,7 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
      */
     public String[] getColumnNames() {
         if(gmlr != null){
-    
+            
         }
         return null;
     }
@@ -44,15 +45,39 @@ public class GMLDataSource implements org.geotools.datasource.DataSource{
      * @return List of features
      */
     public List load(Extent ex) throws DataSourceException {
-       
-        try{
-            BufferedReader in = new BufferedReader(new InputStreamReader(source.openStream()));
+        System.out.println("loading gml datasource");
+        if(ex instanceof EnvelopeExtent){
+            List features = new ArrayList();
+            EnvelopeExtent ee = (EnvelopeExtent)ex;
+            Envelope bounds = ee.getBounds();
+            System.out.println("about to load "+bounds);
+            try{
+                BufferedReader in = new BufferedReader(new InputStreamReader(source.openStream()));
+                
+                gmlr = new GMLReader(in);
+                GeometryCollection shapes = gmlr.read();
+                System.out.println("got GC "+shapes.getNumGeometries());
+                int count = shapes.getNumGeometries();
+                for(int i=0;i<count;i++){
+                    Feature feat = new Feature();
+                    feat.columnNames = getColumnNames();
+                    Object [] row = new Object[1];
+                    feat.row = row;
+                    feat.row[0] = shapes.getGeometryN(i);
+                    if(ex.containsFeature(feat)){
+                        features.add(feat);
+                    }
+                }
+            }
+            catch(IOException ioe){
+                throw new DataSourceException("IO Exception loading data : "+ioe.getMessage());
+            }
 
-            gmlr = new GMLReader(in);
-            GeometryCollection gc = gmlr.read();
-            return new ArrayList();
-        }catch(IOException e){
-            throw new DataSourceException("exception in GMLDataSource.load: "+e);
+            
+            return features;
+        }
+        else{
+            return null;
         }
         
     }

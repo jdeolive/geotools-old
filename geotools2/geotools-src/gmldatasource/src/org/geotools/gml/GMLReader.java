@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
 /** Reads and parses a GML file into a geometry collection
  *
  * @author ian
- * @version $Id: GMLReader.java,v 1.5 2002/03/11 14:37:34 ianturton Exp $
+ * @version $Id: GMLReader.java,v 1.6 2002/03/11 15:52:26 ianturton Exp $
  */
 public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
     boolean stopped = false;
@@ -65,6 +65,7 @@ public class GMLReader extends org.xml.sax.helpers.DefaultHandler {
      */
     public void stopLoading(){
         stopped=true;
+        // we should actually stop here!
     }
     /** called by parser when a new entity is found
      * @param namespace the namespace of the element
