@@ -95,7 +95,7 @@ import org.geotools.resources.XMath;
  * <p align="center"><img src="doc-files/Plot2D.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
+ * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see <A HREF="http://jgraph.sourceforge.net/">JGraph</A>
@@ -299,9 +299,26 @@ public class Plot2D extends ZoomPane {
     public void addSeries(final String name, final Object x, final Object y)
             throws ClassCastException, MismatchedSizeException
     {
-        final DefaultSeries series = new DefaultSeries(name, x, y);
-        series.color = DEFAULT_COLORS[this.series.size() % DEFAULT_COLORS.length];
-        addSeries(series);
+        addSeries(new DefaultSeries(name, x, y, this.series.size()));
+    }
+
+    /**
+     * Add a new serie to the chart. The <var>x</var> and <var>y</var> vectors may be arrays of any
+     * of Java primitive types.
+     *
+     * @param name The series name.
+     * @param x <var>x</var> values.
+     * @param y <var>y</var> values.
+     * @param lower Index of first point, inclusive.
+     * @param upper Index of last point, exclusive.
+     * @throws ClassCastException if <var>x</var> and <var>y</var> are not arrays
+     *         of a primitive type.
+     */
+    public void addSeries(final String name, final Object x, final Object y,
+                                             final int lower, final int upper)
+            throws ClassCastException
+    {
+        addSeries(new DefaultSeries(name, x, y, lower, upper, this.series.size()));
     }
 
     /**
@@ -350,8 +367,10 @@ public class Plot2D extends ZoomPane {
         }
         seriesBounds = null;
         if (bounds != null) {
-            // TODO: We should find a more flexible way.
+            // New axis added. TODO: We should find a more flexible way.
             reset();
+        } else {
+            repaint();
         }
     }
 
@@ -694,15 +713,31 @@ public class Plot2D extends ZoomPane {
     }
 
     /**
-     * Remove all series and axis previously displayed.
+     * Remove all series. If the <code>removeAxis</code> is <code>true</code>,
+     * then all axis are removed as well. Otherwise, the last pair of axis is keep.
+     *
+     * @param removeAxis <code>true</code> for removing axis as well,
+     *        or <code>false</code> for keeping the last used axis.
      */
-    public void clear() {
+    public void clear(final boolean removeAxis) {
         series.clear();
-        xAxis .clear();
-        yAxis .clear();
         seriesBounds = null;
-        previousAxis = null;
         Arrays.fill(nextAxis, null);
+        xAxis.clear();
+        yAxis.clear();
+        if (removeAxis) {
+            previousAxis = null;
+        } else {
+            if (previousAxis != null) {
+                if (previousAxis.xAxis != null) {
+                    xAxis.add(previousAxis.xAxis);
+                }
+                if (previousAxis.yAxis != null) {
+                    yAxis.add(previousAxis.yAxis);
+                }
+            }
+        }
+        repaint();
     }
 
     /**
@@ -710,7 +745,7 @@ public class Plot2D extends ZoomPane {
      * data to draw as a {@link Shape}. It also contains the {@link Paint} and {@link Stroke}
      * attributes.
      *
-     * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Series {
@@ -755,7 +790,7 @@ public class Plot2D extends ZoomPane {
     /**
      * Default implementation of {@link Plot2D.Series}.
      *
-     * @version $Id: Plot2D.java,v 1.2 2003/06/02 21:55:46 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.3 2003/06/03 18:08:58 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class DefaultSeries extends GenericArray implements Series {
@@ -763,12 +798,21 @@ public class Plot2D extends ZoomPane {
         private final String name;
 
         /** The color. */
-        Paint color = Color.BLUE;
+        private Paint color = Color.BLUE;
 
         /** Construct a series with the given name and  (<var>x</var>,<var>y</var>) vectors. */
-        public DefaultSeries(final String name, final Object x, final Object y) {
+        public DefaultSeries(final String name, final Object x, final Object y, final int index) {
             super(x,y);
-            this.name = name;
+            this.name  = name;
+            this.color = DEFAULT_COLORS[index % DEFAULT_COLORS.length];
+        }
+
+        /** Construct a series with the given name and  (<var>x</var>,<var>y</var>) vectors. */
+        public DefaultSeries(final String name, final Object x, final Object y,
+                             final int lower, final int upper, final int index) {
+            super(x,y, lower, upper);
+            this.name  = name;
+            this.color = DEFAULT_COLORS[index % DEFAULT_COLORS.length];
         }
 
         /** Returns the series name. */
