@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
     
-    <target name="init" depends="modificationset">
+    <target depends="modificationset" name="init">
         <property file="build.ant.properties"/>
         <path id="netbeans.ext">
 
@@ -41,21 +41,28 @@
 
     <target depends="init" name="clean">        
         <for-each inheritall="false" locations="${modules}" startdir=".." target="clean"/>
-        <delete quiet="true" dir="${releaseFolder}"/>
+        <delete dir="${releaseFolder}" quiet="true"/>
     </target>
 
     <target depends="build" name="release"/>
    
-    <target name="modificationset" if="${lastBuildAttemptTime}">
+    <target if="${lastBuildAttemptTime}" name="modificationset">
         <path id="cruisecontrol.ext">
             <fileset dir="../../extbin/gtbuild/lib/"/>
             <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
         </path>
-        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
+        <taskdef classname="net.sourceforge.cruisecontrol.ModificationSet" name="modificationset">
             <classpath refid="cruisecontrol.ext"/>        
         </taskdef>
         <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
             <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
         </modificationset>
+    </target>
+
+    <!-- this is used by a script on the geotools site to post all of the www directories -->
+    <target name="extractModulePages">
+        <copy todir="../../modulePages">
+            <fileset dir=".." includes="*/www/*"/>
+        </copy>
     </target>
 </project>
