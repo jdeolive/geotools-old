@@ -35,7 +35,7 @@ public class Ellipse implements Constants {
         setup(params);
     }
     private void setup(ParamSet params) throws ProjectionException{
-        double b=0.0, e;
+        double b=0.0;
         a=es=0d;
         /* R takes precedence */
         if(params.contains("R")){
