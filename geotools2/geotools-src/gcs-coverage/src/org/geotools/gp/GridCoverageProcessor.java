@@ -82,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.27 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.28 2003/07/23 10:33:14 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -213,16 +213,16 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new InvertOperation());
             DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
-            DEFAULT.addOperation(new FilterOperation("MinFilter"));
-            DEFAULT.addOperation(new FilterOperation("MaxFilter"));
-            DEFAULT.addOperation(new FilterOperation("MedianFilter"));
+            DEFAULT.addOperation(new MaskFilterOperation("MinFilter"));
+            DEFAULT.addOperation(new MaskFilterOperation("MaxFilter"));
+            DEFAULT.addOperation(new MaskFilterOperation("MedianFilter"));
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType1Filter", ConvolveOperation.LAPLACE_TYPE_1));
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType2Filter", ConvolveOperation.LAPLACE_TYPE_2));
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
-            DEFAULT.addOperation(new OperationJAI(  HysteresisDescriptor.OPERATION_NAME));
-            DEFAULT.addOperation(new OperationJAI(NodataFilterDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new FilterOperation(  HysteresisDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new PolyadicOperation(CombineDescriptor.OPERATION_NAME));
         }
         return DEFAULT;
@@ -495,7 +495,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.27 2003/07/22 15:24:53 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.28 2003/07/23 10:33:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

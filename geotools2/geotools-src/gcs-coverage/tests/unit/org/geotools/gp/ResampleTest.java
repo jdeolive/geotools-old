@@ -25,10 +25,6 @@
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
  *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.gp;
 
@@ -38,11 +34,17 @@ import java.util.logging.Logger;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.image.RenderedImage;
 import java.awt.geom.AffineTransform;
-import javax.media.jai.RenderedOp;
+import java.awt.geom.NoninvertibleTransformException;
+import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.RenderedImage;
 import javax.imageio.ImageIO;
+
+// JAI dependencies
+import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -53,6 +55,7 @@ import org.geotools.cs.FittedCoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.MathTransformFactory;
+import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.MathTransform;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
@@ -72,11 +75,24 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.7 2003/05/13 10:59:54 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.8 2003/07/23 10:33:14 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public final class ResampleTest extends GridCoverageTest {
+    /**
+     * Set to <code>true</code> if the test case should show the projection results
+     * in a windows. This flag is set to <code>true</code> if the test is run from
+     * the command line through the <code>main(String[])</code> method. Otherwise
+     * (for example if it is run from Maven), it is left to <code>false</code>.
+     */
+    private static boolean SHOW = false;
+
+    /**
+     * Small number for comparaisons.
+     */
+    private static final double EPS = 1E-6;
+
     /**
      * The source grid coverage.
      */
@@ -95,6 +111,28 @@ public final class ResampleTest extends GridCoverageTest {
     protected void setUp() throws Exception {
         super.setUp();
         coverage = getExample(0);
+    }
+
+    /**
+     * Compare two affine transforms.
+     */
+    public static void assertEquals(final AffineTransform expected, final AffineTransform actual) {
+        assertEquals("scaleX",     expected.getScaleX(),     actual.getScaleX(),     EPS);
+        assertEquals("scaleY",     expected.getScaleY(),     actual.getScaleY(),     EPS);
+        assertEquals("shearX",     expected.getShearX(),     actual.getShearX(),     EPS);
+        assertEquals("shearY",     expected.getShearY(),     actual.getShearY(),     EPS);
+        assertEquals("translateX", expected.getTranslateX(), actual.getTranslateX(), EPS);
+        assertEquals("translateY", expected.getTranslateY(), actual.getTranslateY(), EPS);
+    }
+
+    /**
+     * Returns the &quot;Sample to geophysics&quot; transform as an affine transform.
+     */
+    private static AffineTransform getAffineTransform(final GridCoverage coverage) {
+        AffineTransform tr;
+        tr = (AffineTransform)coverage.getGridGeometry().getGridToCoordinateSystem2D();
+        tr = new AffineTransform(tr); // Change the type to the default Java2D implementation.
+        return tr;
     }
 
     /**
@@ -120,7 +158,9 @@ public final class ResampleTest extends GridCoverageTest {
         }
         final GridCoverage projected = processor.doOperation("Resample", coverage.geophysics(true),
                                                               arg1, value1, arg2, value2);
-        Viewer.show(projected.geophysics(false));
+        if (SHOW) {
+            Viewer.show(projected.geophysics(false));
+        }
         final RenderedImage image = projected.getRenderedImage();
         if (image instanceof RenderedOp) {
             Logger.getLogger("org.geotools.gp")
@@ -147,8 +187,7 @@ public final class ResampleTest extends GridCoverageTest {
      * Test the "Resample" operation with an "Affine" transform.
      */
     public void testAffine() {
-        AffineTransform atr = (AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem();
-        atr = new AffineTransform(atr);
+        AffineTransform atr = getAffineTransform(coverage);
         atr.preConcatenate(AffineTransform.getTranslateInstance(5, 5));
         MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
         CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
@@ -174,6 +213,53 @@ public final class ResampleTest extends GridCoverageTest {
                 new Projection("Stereographic","Oblique_Stereographic",Ellipsoid.WGS84,null,null));
         projectTo(cs, null);
     }
+    
+    /**
+     * Tests <var>X</var>,<var>Y</var> translation in the {@link GridGeometry} after
+     * a "Resample" operation.
+     */
+    public void testTranslation() throws NoninvertibleTransformException {
+        GridCoverage  grid = coverage;
+        final int    transX =  -253;
+        final int    transY =  -456;
+        final double scaleX =  0.04;
+        final double scaleY = -0.04;
+        final ParameterBlock block = new ParameterBlock().addSource(grid.getRenderedImage())
+                                                         .add((float)transX).add((float)transY);
+        RenderedImage img = JAI.create("Translate", block);
+        assertEquals("Incorrect X translation", transX, img.getMinX());
+        assertEquals("Incorrect Y translation", transY, img.getMinY());
+        /*
+         * Create a grid coverage from the translated image but with the same envelope.
+         * Consequently, the 'gridToCoordinateSystem' should be translated by the same
+         * amount, with the opposite sign.
+         */
+        AffineTransform expected = getAffineTransform(grid);
+        grid = new GridCoverage("Translated", img,  grid.getCoordinateSystem(),
+                                grid.getEnvelope(), grid.getSampleDimensions(),
+                                new GridCoverage[]{grid}, grid.getProperties());
+        expected.translate(-transX, -transY);
+        assertEquals(expected, getAffineTransform(grid));
+        /*
+         * Apply the "Resample" operation with a specific 'gridToCoordinateSystem' transform.
+         * The envelope is left unchanged. The "Resample" operation should compute automatically
+         * new image bounds.
+         */
+        final AffineTransform at = AffineTransform.getScaleInstance(scaleX, scaleY);
+        final MathTransform2D tr = MathTransformFactory.getDefault().createAffineTransform(at);
+        final GridGeometry geometry = new GridGeometry(null, tr);
+        grid = GridCoverageProcessor.getDefault().doOperation(
+                                                  "Resample",         grid,
+                                                  "CoordinateSystem", grid.getCoordinateSystem(),
+                                                  "GridGeometry",     geometry);
+        assertEquals(at, getAffineTransform(grid));
+        img = grid.getRenderedImage();
+        expected.preConcatenate(at.createInverse());
+        Point point = new Point(transX, transY);
+        expected.transform(point, point); // Round toward neareast integer
+        assertEquals("Incorrect X translation", point.x, img.getMinX());
+        assertEquals("Incorrect Y translation", point.y, img.getMinY());
+    }
 
     /**
      * Returns the test suite.
@@ -186,6 +272,7 @@ public final class ResampleTest extends GridCoverageTest {
      * Run the suit from the command line.
      */
     public static void main(final String[] args) {
+        SHOW = true;
         org.geotools.resources.Geotools.init();
         junit.textui.TestRunner.run(suite());
     }

@@ -94,7 +94,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #deriveUnit}</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.22 2003/07/22 15:24:53 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.23 2003/07/23 10:33:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -155,7 +155,7 @@ public class OperationJAI extends Operation {
      *        May or may not be the same than the JAI operation name. If <code>null</code>,
      *        then the JAI operation name is used.
      * @param operationDescriptor The operation descriptor. This descriptor must supports
-     *        supports the "rendered" mode (which is the case for most JAI operations).
+     *        supports the &quot;rendered&quot; mode (which is the case for most JAI operations).
      * @param paramDescriptor The parameters descriptor. If <code>null</code>,
      *        then it will be infered from the JAI's parameter descriptor.
      *
@@ -593,14 +593,14 @@ public class OperationJAI extends Operation {
      * methods for each individual band.
      *
      * @param  bandLists {@link SampleDimension}s for each band in each source
-     *         <code>GridCoverage</code>s. For a band (or "sample dimension")
+     *         <code>GridCoverage</code>s. For a band (or &quot;sample dimension&quot;)
      *         <code>band</code> in a source coverage <code>source</code>, the
      *         corresponding <code>SampleDimension</code> is
      *
      *                 <code>bandLists[source][band]</code>.
      *
      * @param  parameters Parameters, rendering hints and coordinate system to use.
-     * @return The category lists for each band in the destination image. The
+     * @return The sample dimensions for each band in the destination image. The
      *         length of this array must matches the number of bands in the
      *         destination image. If the <code>SampleDimension</code>s are unknow,
      *         then this method may returns <code>null</code>.
@@ -810,7 +810,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.22 2003/07/22 15:24:53 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.23 2003/07/23 10:33:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
