@@ -49,7 +49,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link ExponentialTransform1D} and {@link LogarithmicTransform1D} classes.
  *
- * @version $Id: ExponentialTransformTest.java,v 1.1 2002/07/15 18:34:22 desruisseaux Exp $
+ * @version $Id: ExponentialTransformTest.java,v 1.2 2002/10/10 14:44:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExponentialTransformTest extends TransformationTest {
@@ -183,13 +183,13 @@ public class ExponentialTransformTest extends TransformationTest {
         };
         final MathTransformFactory factory = trFactory.getMathTransformFactory();
         final String classification = candidates[random.nextInt(candidates.length)];
-        final ParameterList param;
+        final ParameterList param = factory.getMathTransformProvider(classification).getParameterList();
         if (classification.equalsIgnoreCase("Affine")) {
-            param = factory.getAffineTransformProvider(2, 2).getParameterList();
+            param.setParameter("num_row", 2);
+            param.setParameter("num_col", 2);
             param.setParameter("elt_0_0", random.nextDouble()*2+0.1); // scale
             param.setParameter("elt_0_1", random.nextDouble()*1 - 2); // offset
         } else {
-            param = factory.getMathTransformProvider(classification).getParameterList();
             param.setParameter("base", random.nextDouble()*4 + 0.1);
         }
         return (MathTransform1D) factory.createParameterizedTransform(classification, param);
