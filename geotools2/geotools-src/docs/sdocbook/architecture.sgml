@@ -145,62 +145,6 @@
           </listitem>
         </varlistentry>
       </variablelist>
-
-      <itemizedlist>
-        <title>Geotools modules</title>
-
-        <listitem>
-          <para>core: At the hart of GT2 is the core module, this module
-          contains no implementation code, just Java interfaces for all the
-          key modules.</para>
-        </listitem>
-
-        <listitem>
-          <para>defaultcore: The next important module is the defaultcore
-          which provides an implementation of the key interfaces found in the
-          core module with the exception of datasource and rendering. The
-          defaultcore module contains code which uses the latest version of
-          Java (1.4) though it is envisioned that alternative implementations
-          of core could be made in future, perhaps to target J2ME.</para>
-
-          <para>The datasource and rendering interfaces are not implemented by
-          the defaultcore module as there will need to be multiple
-          implementations available so implementation is left to other
-          modules. Note that although the defaultcore module includes a full
-          set of objects for representing the SLD and Filter specification
-          there is no code in these modules for reading or writing such
-          documents, instead an entirely programmatic approach is assumed with
-          IO for such specifications being left to other modules.</para>
-        </listitem>
-
-        <listitem>
-          <para>Rendering: The rendering modules are responsible for rendering
-          geographic data.</para>
-        </listitem>
-
-        <listitem>
-          <para>Transforms: These modules manipulate geographic data.</para>
-        </listitem>
-
-        <listitem>
-          <para>DataSources: These modules read native geographic data formats
-          and convert it to a format usable by geotools2.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>to do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>explain the reasoning behind having a core/defaultcore
-          implementation.</para>
-        </listitem>
-
-        <listitem>
-          <para>Expand the module sections to explain each module&#39;s
-          design.</para>
-        </listitem>
-      </itemizedlist>
     </section>
   </section>
 
