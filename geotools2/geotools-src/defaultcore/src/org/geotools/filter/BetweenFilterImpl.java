@@ -31,7 +31,7 @@ import org.geotools.feature.Feature;
  * filter.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: BetweenFilterImpl.java,v 1.5 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: BetweenFilterImpl.java,v 1.6 2003/07/23 16:11:18 cholmesny Exp $
  */
 public class BetweenFilterImpl extends CompareFilterImpl
     implements BetweenFilter {
@@ -78,7 +78,8 @@ public class BetweenFilterImpl extends CompareFilterImpl
             return false;
         } else {
             double left = ((Number) leftValue.getValue(feature)).doubleValue();
-            double right = ((Number) rightValue.getValue(feature)).doubleValue();
+            double right = ((Number) rightValue.getValue(feature)).
+                doubleValue();
             double mid = ((Number) middleValue.getValue(feature)).doubleValue();
 
             return (left <= mid) && (right >= mid);
@@ -100,7 +101,7 @@ public class BetweenFilterImpl extends CompareFilterImpl
      * to make sure the filter types are the same as well as all three of the
      * values.
      *
-     * @param oFilter DOCUMENT ME!
+     * @param oFilter the filter to test for eqaulity.
      *
      * @return True if the objects are equal.
      */
@@ -124,9 +125,13 @@ public class BetweenFilterImpl extends CompareFilterImpl
      */
     public int hashCode() {
         int result = 17;
-        result = (37 * result) + leftValue.hashCode();
-        result = (37 * result) + middleValue.hashCode();
-        result = (37 * result) + rightValue.hashCode();
+
+        result = (37 * result)
+            + ((leftValue == null) ? 0 : leftValue.hashCode());
+        result = (37 * result)
+            + ((middleValue == null) ? 0 : middleValue.hashCode());
+        result = (37 * result)
+            + ((rightValue == null) ? 0 : rightValue.hashCode());
 
         return result;
     }
