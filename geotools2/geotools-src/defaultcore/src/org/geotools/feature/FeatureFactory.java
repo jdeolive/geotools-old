@@ -20,8 +20,11 @@
 
 package org.geotools.feature;
 
+// J2SE dependencies
 import java.util.*;
-import org.apache.log4j.Category;
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.data.*;
 
 /** 
@@ -36,13 +39,15 @@ import org.geotools.data.*;
  * they do not allow any nested elements, but they also restrict the
  * attribute objects to be very simple data types.</p>
  *
- * @version $Id: FeatureFactory.java,v 1.3 2002/07/11 16:51:57 loxnard Exp $
+ * @version $Id: FeatureFactory.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFactory {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(FeatureFactory.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     
     FeatureType schema; 
 

@@ -20,14 +20,24 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultHalo.java,v 1.3 2002/07/11 18:19:50 loxnard Exp $
+ * @version $Id: DefaultHalo.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultHalo implements Halo {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultHalo.class);        
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     private DefaultFill fill = new DefaultFill();
     private Expression radius = null;
     /** Creates a new instance of DefaultHalo */
@@ -35,8 +45,7 @@ public class DefaultHalo implements Halo {
         try {
             radius = new org.geotools.filter.ExpressionLiteral(new Integer(1));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultHalo: " + ife);
-            System.err.println("Failed to build defaultHalo: " + ife);
+            LOGGER.severe("Failed to build defaultHalo: " + ife);
         }
         fill.setColor("#FFFFFF"); // default halo is white
     }

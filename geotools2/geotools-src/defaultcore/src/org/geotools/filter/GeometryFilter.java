@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.8 2002/07/25 17:16:40 ianturton Exp $
+ * @version $Id: GeometryFilter.java,v 1.9 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -141,7 +141,7 @@ public class GeometryFilter extends AbstractFilter {
         
         if(leftGeometry != null ){
             Object o = leftGeometry.getValue(feature);
-            _log.debug("leftGeom = " + o.toString()); 
+            LOGGER.finer("leftGeom = " + o.toString()); 
             left = (Geometry) o;
         }else{
             left = feature.getDefaultGeometry();

@@ -20,15 +20,23 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.Expression;
 
+
 /**
- * @version $Id: DefaultLinePlacement.java,v 1.2 2002/07/11 18:20:43 loxnard Exp $
+ * @version $Id: DefaultLinePlacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultLinePlacement implements LinePlacement {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultLinePlacement.class);
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     
     private Expression perpendicularOffset = null;
     
@@ -37,8 +45,7 @@ public class DefaultLinePlacement implements LinePlacement {
         try {
             perpendicularOffset = new org.geotools.filter.ExpressionLiteral(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultLinePlacement: " + ife);
-            System.err.println("Failed to build defaultLinePlacement: " + ife);
+            LOGGER.severe("Failed to build defaultLinePlacement: " + ife);
         }
     }
     

@@ -6,16 +6,24 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
+// Geotools dependencies
+import org.geotools.filter.*;
+
 /**
  *
  * @author  iant
  */
-import java.util.ArrayList;
-import org.geotools.filter.*;
-
 public class TextMark extends DefaultMark implements Mark, Symbol {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger("Styling");
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     Expression wellKnownName = null;
     ArrayList fonts = new ArrayList();
     Expression symbol;
@@ -26,7 +34,7 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
         try{
             wellKnownName = new ExpressionLiteral("Symbol");
         } catch (IllegalFilterException ife){
-            _log.error("Unable to build TextMark " + ife);
+            LOGGER.severe("Unable to build TextMark " + ife);
         }
     }
     
@@ -36,7 +44,7 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
         try{
             wellKnownName = new ExpressionLiteral("Symbol");
         } catch (IllegalFilterException ife){
-            _log.error("Unable to build TextMark " + ife);
+            LOGGER.severe("Unable to build TextMark " + ife);
         }
     }
     
@@ -76,7 +84,7 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
         try{
             this.symbol = new ExpressionLiteral(symbol);
         } catch (IllegalFilterException ife){
-            _log.error("failed to build expression from string " + symbol, ife);
+            LOGGER.severe("failed to build expression from string " + symbol + ": " + ife);
         }
     }
     
@@ -89,5 +97,4 @@ public class TextMark extends DefaultMark implements Mark, Symbol {
     public void setWellKnownName(org.geotools.filter.Expression wellKnownName) {
         // this is really blank the name is always symbol
     }
-    
 }

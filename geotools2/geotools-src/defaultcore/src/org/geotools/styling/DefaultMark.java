@@ -20,15 +20,29 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
+
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.*;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultMark.java,v 1.9 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: DefaultMark.java,v 1.10 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark, Symbol {
-    private static org.apache.log4j.Logger _log = 
-        org.apache.log4j.Logger.getLogger(DefaultMark.class);    
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     Fill fill = new DefaultFill();
     Stroke stroke = new DefaultStroke();
     
@@ -41,19 +55,29 @@ public class DefaultMark implements Mark, Symbol {
     private GeometryFactory geometryFactory = new GeometryFactory();
     /** Creates a new instance of DefaultMark */
     public DefaultMark() {
-        _log.info("creating defaultMark");
+        LOGGER.info("creating defaultMark");
         try {
             wellKnownName = new ExpressionLiteral("square");
             size = new ExpressionLiteral(new Integer(6));
             rotation = new ExpressionLiteral(new Double(0.0));
         } catch (IllegalFilterException ife){
-            _log.fatal("Failed to build default mark: " + ife);
-            System.err.println("Failed to build default mark: " + ife);
+            severe("<init>", "Failed to build default mark: ", ife);
         }
     }
+
     public DefaultMark(String name){
-        _log.info("creating " + name + " type mark");
+        LOGGER.info("creating " + name + " type mark");
         setWellKnownName(name);
+    }
+
+    /**
+     * Convenience method for logging a message with an exception.
+     */
+    private static void severe(final String method, final String message, final Exception exception) {
+        final LogRecord record = new LogRecord(Level.SEVERE, message);
+        record.setSourceMethodName(method);
+        record.setThrown(exception);
+        LOGGER.log(record);
     }
     
     
@@ -113,7 +137,7 @@ public class DefaultMark implements Mark, Symbol {
         try {
             setSize(new ExpressionLiteral(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity", mfe);
+            severe("setSize", "Problem setting Opacity", mfe);
         }
     }
     /**
@@ -121,14 +145,14 @@ public class DefaultMark implements Mark, Symbol {
      * @param wellKnownName New value of property wellKnownName.
      */
     public void setWellKnownName(Expression wellKnownName) {
-        _log.debug("setting WellKnowName");
+        LOGGER.entering("DefaultMark", "setWellKnownName");
         this.wellKnownName = wellKnownName;
     }
     public void setWellKnownName(String name){
         try {
             setWellKnownName(new ExpressionLiteral(name));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation", mfe);
+            severe("setWellKnownName", "Problem setting the name", mfe);
         }
     }
     public void setRotation(Expression rotation) {
@@ -138,7 +162,7 @@ public class DefaultMark implements Mark, Symbol {
         try {
             setRotation(new ExpressionLiteral(new Double(rotation))); 
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation", mfe);
+            severe("setRotation", "Problem setting Rotation", mfe);
         }
     }
     /**

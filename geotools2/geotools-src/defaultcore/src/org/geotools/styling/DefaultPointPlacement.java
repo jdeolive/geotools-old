@@ -20,14 +20,24 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultPointPlacement.java,v 1.2 2002/07/11 18:25:23 loxnard Exp $
+ * @version $Id: DefaultPointPlacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultPointPlacement implements PointPlacement {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultPointPlacement.class);
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     AnchorPoint anchorPoint = new DefaultAnchorPoint();
     Displacement displacement = new DefaultDisplacement();
     Expression rotation = null;
@@ -36,8 +46,7 @@ public class DefaultPointPlacement implements PointPlacement {
         try {
             rotation = new org.geotools.filter.ExpressionLiteral(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultPointPlacement: " + ife);
-            System.err.println("Failed to build defaultPointPlacement: " + ife);
+            LOGGER.severe("Failed to build defaultPointPlacement: " + ife);
         }
     }
     

@@ -18,18 +18,26 @@
  *
  */
 
-
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.Expression;
 
+
 /**
- * @version $Id: DefaultFont.java,v 1.3 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: DefaultFont.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultFont implements Font {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultFont.class);
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     private Expression fontFamily = null;
     private Expression fontSize = null;
     private Expression fontStyle = null;
@@ -42,8 +50,7 @@ public class DefaultFont implements Font {
             fontWeight = new org.geotools.filter.ExpressionLiteral("normal");
             fontFamily = new org.geotools.filter.ExpressionLiteral("Courier");
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultFont: " + ife);
-            System.err.println("Failed to build defaultFont: " + ife);
+            LOGGER.severe("Failed to build defaultFont: " + ife);
         }
     }
  

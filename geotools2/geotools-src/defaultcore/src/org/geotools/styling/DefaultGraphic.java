@@ -19,18 +19,31 @@
  */
 
 package org.geotools.styling;
+
+// J2SE dependencies
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.logging.LogRecord;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultGraphic.java,v 1.10 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: DefaultGraphic.java,v 1.11 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
     ArrayList symbols = new ArrayList();
-    private static org.apache.log4j.Category _log = 
-        org.apache.log4j.Category.getInstance(DefaultGraphic.class);
     private Expression rotation = null;
     private Expression size = null;
     private Expression opacity = null;
@@ -41,11 +54,19 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             opacity = new ExpressionLiteral(new Double(1.0));
             rotation = new ExpressionLiteral(new Double(0.0));
         } catch (IllegalFilterException ife){
-            _log.fatal("Failed to build default graphic: " + ife);
-            System.err.println("Failed to build default graphic: " + ife);
+            severe("<init>", "Failed to build default graphic", ife);
         }
     }
-    
+
+    /**
+     * Convenience method for logging a message with an exception.
+     */
+    private static void severe(final String method, final String message, final Exception exception) {
+        final LogRecord record = new LogRecord(Level.SEVERE, message);
+        record.setSourceMethodName(method);
+        record.setThrown(exception);
+        LOGGER.log(record);
+    }
 
     /**
      * Provides a list of external graphics which can be used to represent
@@ -116,6 +137,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             return new Symbol[]{new DefaultMark()};
         }
     }
+
     public void addSymbol(Symbol symbol){
         symbols.add(symbol);
         if ( symbol instanceof ExternalGraphic){
@@ -127,6 +149,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             return;
         }
     }
+
     /**
      * This specifies the level of translucency to use when rendering the
      * graphic.<br>
@@ -184,7 +207,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         try {
             this.opacity = new ExpressionLiteral(new Double(opacity));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity", mfe);
+            severe("setOpacity", "Problem setting Opacity", mfe);
         }
     }
     /**
@@ -198,13 +221,15 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             ((DefaultMark) i.next()).setRotation(rotation);
         }
     }
+
     public void setRotation(double rotation){
         try {
             setRotation(new ExpressionLiteral(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Rotation", mfe);
+            severe("setRotation", "Problem setting Rotation", mfe);
         }
     }
+
     /**
      * Setter for property size.
      * @param size New value of property size.
@@ -216,14 +241,12 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             ((DefaultMark) i.next()).setSize(size);
         }
     }
+
     public void setSize(int size){
         try {
             setSize(new ExpressionLiteral(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
-            _log.fatal("Problem setting Opacity", mfe);
+            severe("setSize", "Problem setting Size", mfe);
         }
     }
-    
-    
-    
 }

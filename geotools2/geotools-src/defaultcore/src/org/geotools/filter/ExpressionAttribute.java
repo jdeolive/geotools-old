@@ -20,7 +20,10 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Category;
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.IllegalFeatureException;
@@ -31,12 +34,15 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.7 2002/07/23 14:49:45 jmacgill Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.8 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
 
-    private static Category _log = Category.getInstance(ExpressionAttribute.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Holds all sub filters of this filter. */
     protected String attributePath = new String();
@@ -75,7 +81,7 @@ public class ExpressionAttribute extends ExpressionDefault {
      */
     public void setAttributePath(String attributePath)
         throws IllegalFilterException {
-        _log.debug("Path is: " + attributePath);
+        LOGGER.entering("ExpressionAttribute", "setAttributePath", attributePath);
         if (schema != null){
             if (schema.hasAttributeType(attributePath)) {
                 this.attributePath = attributePath;
@@ -112,8 +118,7 @@ public class ExpressionAttribute extends ExpressionDefault {
             tempAttribute = feature.getAttribute(attributePath);
         }
         catch (IllegalFeatureException e) {            
-            _log.debug("Feature does not match declared schema: " 
-                      + schema.toString());
+            LOGGER.fine("Feature does not match declared schema: " + schema.toString());
         }
         return tempAttribute;
     }

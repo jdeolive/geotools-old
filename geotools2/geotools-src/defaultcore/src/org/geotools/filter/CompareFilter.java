@@ -20,7 +20,11 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Category;
+// J2SE dependencies
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
@@ -41,13 +45,15 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.4 2002/07/22 20:21:55 jmacgill Exp $
+ * @version $Id: CompareFilter.java,v 1.5 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilter extends AbstractFilter {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(CompareFilter.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftValue = null;
@@ -144,19 +150,21 @@ public class CompareFilter extends AbstractFilter {
     public boolean contains(Feature feature) {
         
 
-        _log.debug("checking if contains");
+        LOGGER.entering("CompareFilter", "contains");
         // Checks for error condition
         if (leftValue == null | rightValue == null) {
-            _log.debug("one value has not been set");
+            LOGGER.finer("one value has not been set");
             return false;
         }
 
         try {
             // Non-math comparison
             if (filterType == COMPARE_EQUALS) {
-                //_log.info("is equals thingy");
-                //_log.info("left value class: " + leftValue.getValue(feature).getClass().toString());
-                //_log.info("right value class: " + rightValue.getValue(feature).getClass().toString());
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("is equals thingy");
+                    LOGGER.finest("left value class: " + leftValue.getValue(feature).getClass().toString());
+                    LOGGER.finest("right value class: " + rightValue.getValue(feature).getClass().toString());
+                }
                 return leftValue.getValue(feature).equals( rightValue.getValue(feature));
             }
             

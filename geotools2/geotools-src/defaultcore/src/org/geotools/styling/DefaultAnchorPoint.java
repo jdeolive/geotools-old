@@ -20,14 +20,24 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultAnchorPoint.java,v 1.3 2002/07/11 18:09:02 loxnard Exp $
+ * @version $Id: DefaultAnchorPoint.java,v 1.4 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultAnchorPoint implements AnchorPoint {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultAnchorPoint.class);    
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     private Expression anchorPointX = null;
     private Expression anchorPointY = null;
     /** Creates a new instance of DefaultAnchorPoint */
@@ -36,8 +46,7 @@ public class DefaultAnchorPoint implements AnchorPoint {
             anchorPointX = new org.geotools.filter.ExpressionLiteral(new Double(0.0));
             anchorPointY = new org.geotools.filter.ExpressionLiteral(new Double(0.5));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultAnchorPoint: " + ife);
-            System.err.println("Failed to build defaultAnchorPoint: " + ife);
+            LOGGER.severe("Failed to build defaultAnchorPoint: " + ife);
         }
     }
     

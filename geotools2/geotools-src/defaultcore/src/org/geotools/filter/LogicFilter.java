@@ -20,9 +20,11 @@
 
 package org.geotools.filter;
 
+// J2SE dependencies
 import java.util.*;
+import java.util.logging.Logger;
 
-import org.apache.log4j.Category;
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
@@ -32,13 +34,15 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.7 2002/07/23 14:49:45 jmacgill Exp $
+ * @version $Id: LogicFilter.java,v 1.8 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilter {
 
-
-    private static Category _log = Category.getInstance(LogicFilter.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Holds all sub filters of this filter. */
     protected List subFilters = new ArrayList();
@@ -51,7 +55,7 @@ public class LogicFilter extends AbstractFilter {
      */
     public LogicFilter (short filterType)
         throws IllegalFilterException {
-        //_log.debug("filtertype "+filterType);
+        LOGGER.finest("filtertype "+filterType);
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
         }

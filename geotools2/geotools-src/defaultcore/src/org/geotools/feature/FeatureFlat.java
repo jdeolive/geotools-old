@@ -20,8 +20,12 @@
 
 package org.geotools.feature;
 
+// J2SE dependencies
 import java.util.*;
-import org.apache.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+// Java Topology Suite dependencies
 import com.vividsolutions.jts.geom.*;
 
 /**
@@ -32,13 +36,15 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.13 2002/07/29 16:50:35 ianturton Exp $
+ * @version $Id: FeatureFlat.java,v 1.14 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
 
-    /** Logging instance for this class. */
-    private static Logger _log = Logger.getLogger(FeatureFlat.class);
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Flat feature type schema for this feature. */
     private final String featureId;
@@ -103,14 +109,14 @@ public class FeatureFlat implements Feature {
         throws IllegalFeatureException {
 
         // Set the feature type reference
-        _log.debug("creating feature");
+        LOGGER.finer("creating feature");
 
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
-        //_log.debug("schema attributes: " + n);
-        _log.debug("passed attributes: " + attributes.length);
-        _log.debug("is right length: " + isValid);
+        LOGGER.finest("schema attributes: " + n);
+        LOGGER.finer ("passed attributes: " + attributes.length);
+        LOGGER.finer ("is right length: " + isValid);
 
         // Check to ensure that all attributes are valid
         for (int i = 0; i < n ; i++) {
@@ -121,21 +127,21 @@ public class FeatureFlat implements Feature {
 
                 String existingType = schema.getAttributeType(i).getType().toString();
                 String targetType = attributes[i].getClass().getName();
-                _log.debug("target type:" + attributes[i].toString());
-                _log.debug("validity check:" + schema.getAttributeType(i).getName());
-                _log.debug("existing type:" + existingType );
-                _log.debug("target type:" + targetType );
+                LOGGER.finer("target type:" + attributes[i].toString());
+                LOGGER.finer("validity check:" + schema.getAttributeType(i).getName());
+                LOGGER.finer("existing type:" + existingType );
+                LOGGER.finer("target type:" + targetType );
                 throw new IllegalFeatureException("Attribute[" + i + "] is of wrong type.\n" +
-                 "expected " + existingType + " got " + targetType);
+                                           "expected " + existingType + " got " + targetType);
             }
         }
 
         // Add if it is valid, otherwise throw an exception.
         if (isValid) {
-            //_log.debug("about to copy");
+            LOGGER.finest("about to copy");
             this.attributes = new Object[n];
             System.arraycopy(attributes, 0, this.attributes, 0, n);
-            //_log.debug("just copied");
+            LOGGER.finest("just copied");
         }
         else {
             throw new IllegalFeatureException("You have attempted to create an invalid feature " +
@@ -195,10 +201,13 @@ public class FeatureFlat implements Feature {
     public Object getAttribute(String xPath)
         throws IllegalFeatureException {
 
-        _log.debug("looking for attribute: " + xPath);
+        LOGGER.entering("FeatureFlat", "getAttribute", xPath);
         AttributeType definition = null;
-        _log.debug("has attribute: " + schema.hasAttributeType(xPath));
-        _log.debug("attribute is: " + schema.getAttributeType(xPath).toString());
+        final boolean loggable = LOGGER.isLoggable(Level.FINER);
+        if (loggable) {
+            LOGGER.finer("has attribute: " + schema.hasAttributeType(xPath));
+            LOGGER.finer("attribute is: "  + schema.getAttributeType(xPath).toString());
+        }
         if (schema.hasAttributeType(xPath)) {
             definition = schema.getAttributeType(xPath);
         }
@@ -206,8 +215,10 @@ public class FeatureFlat implements Feature {
             String message = "Could not find requested attribute: " + xPath;
             throw new IllegalFeatureException(message);
         }
-        _log.debug("position is: " + definition.getPosition());
-        _log.debug("attribute is: " + attributes[definition.getPosition()].toString());
+        if (loggable) {
+            LOGGER.finer("position is: "  + definition.getPosition());
+            LOGGER.finer("attribute is: " + attributes[definition.getPosition()].toString());
+        }
         return attributes[definition.getPosition()];
     }
 
@@ -276,18 +287,18 @@ public class FeatureFlat implements Feature {
     public void setAttribute(String xPath, Object attribute)
         throws IllegalFeatureException {
         
-        _log.debug("about to set attribute");
+        LOGGER.entering("FeatureFlat", "setAttribute");
 
         AttributeType definition = null;
 
-        _log.debug("has attribute: " + schema.hasAttributeType(xPath));
+        LOGGER.finer("has attribute: " + schema.hasAttributeType(xPath));
 
         if (schema.hasAttributeType(xPath)) {
-            //_log.debug("attribute: " + definition.toString());
+            LOGGER.finest("attribute: " + definition.toString());
 
             definition = schema.getAttributeType(xPath);
             if (definition.getType().isAssignableFrom(attribute.getClass())) {
-                //_log.debug("position: " + definition.getPosition());
+                LOGGER.finest("position: " + definition.getPosition());
                 attributes[definition.getPosition()] = attribute;
             }
             else {
@@ -315,8 +326,8 @@ public class FeatureFlat implements Feature {
      */
     public Geometry getDefaultGeometry() {
         AttributeType gType = schema.getDefaultGeometry();
-        _log.debug("schema " + schema + " \n gType = " + gType);
-        _log.debug("fetching geometry from " + gType.getPosition() + " -> " + attributes[gType.getPosition()]);
+        LOGGER.finer("schema " + schema + " \n gType = " + gType);
+        LOGGER.finer("fetching geometry from " + gType.getPosition() + " -> " + attributes[gType.getPosition()]);
         return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 

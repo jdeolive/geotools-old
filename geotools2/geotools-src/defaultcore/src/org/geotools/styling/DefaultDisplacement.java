@@ -19,14 +19,25 @@
  */
 
 package org.geotools.styling;
+
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.*;
+
+
 /**
- * @version $Id: DefaultDisplacement.java,v 1.2 2002/07/11 18:10:16 loxnard Exp $
+ * @version $Id: DefaultDisplacement.java,v 1.3 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultDisplacement implements Displacement {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultDisplacement.class);    
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     private Expression displacementX = null;
     private Expression displacementY = null;
     /** Creates a new instance of DefaultDisplacement */
@@ -35,8 +46,7 @@ public class DefaultDisplacement implements Displacement {
             displacementX = new org.geotools.filter.ExpressionLiteral(new Integer(0));
             displacementY = new org.geotools.filter.ExpressionLiteral(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build defaultDisplacement: " + ife);
-            System.err.println("Failed to build defaultDisplacement: " + ife);
+            LOGGER.severe("Failed to build defaultDisplacement: " + ife);
         }
     }
  

@@ -24,16 +24,25 @@
 
 package org.geotools.styling;
 
+// J2SE dependencies
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.filter.Expression;
 
+
 /**
- * @version $Id: DefaultFill.java,v 1.9 2002/07/31 13:30:57 ianturton Exp $
+ * @version $Id: DefaultFill.java,v 1.10 2002/08/06 22:27:15 desruisseaux Exp $
  * @author James Macgill, CCG
  */
 
 public class DefaultFill implements org.geotools.styling.Fill {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DefaultFill.class);
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     private Expression color = null;
     private Expression backgroundColor = null;
     private Expression opacity = null;
@@ -46,8 +55,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
             color = new org.geotools.filter.ExpressionLiteral("#808080");
             opacity = new org.geotools.filter.ExpressionLiteral(new Double(1.0));
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.fatal("Failed to build default fill: " + ife);
-            System.err.println("Failed to build default fill: " + ife);
+            LOGGER.severe("Failed to build default fill: " + ife);
         }
     }
     
@@ -88,7 +96,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
         try {
             color = new org.geotools.filter.ExpressionLiteral(rgb);
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.debug("error setting color: " + ife);
+            LOGGER.severe("error setting color: " + ife);
         }
     }
     
@@ -128,7 +136,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
         try {
             backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.debug("error setting color: " + ife);
+            LOGGER.severe("error setting color: " + ife);
         }
     }
     
@@ -159,7 +167,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
         try {
             this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
         } catch (org.geotools.filter.IllegalFilterException ife){
-            _log.debug("error setting opacity: " + ife);
+            LOGGER.severe("error setting opacity: " + ife);
         }
     }
     /**

@@ -19,18 +19,26 @@
  */
 
 package org.geotools.styling;
+
+// J2SE dependencies
 import java.net.*;
 import java.io.*;
-import org.apache.log4j.Category;
+import java.util.logging.Logger;
+
+
 /**
- * @version $Id: DefaultExternalGraphic.java,v 1.5 2002/08/02 16:43:23 ianturton Exp $
+ * @version $Id: DefaultExternalGraphic.java,v 1.6 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultExternalGraphic implements ExternalGraphic,Symbol {
+
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+
     URL location = null;
     String format = "";
-    
-    private static Category _log = Category.getInstance(DefaultExternalGraphic.class);
     /** Creates a new instance of DefaultExternalGraphic */
     public DefaultExternalGraphic(){
     }
@@ -39,7 +47,7 @@ public class DefaultExternalGraphic implements ExternalGraphic,Symbol {
         try {
             setLocation(new URL(uri));
         } catch (MalformedURLException e){
-            _log.info("Exception setting uri: " + uri + "\n" + e);
+            LOGGER.info("Exception setting uri: " + uri + "\n" + e);
             e.printStackTrace();
         }
     }

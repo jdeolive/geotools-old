@@ -20,21 +20,26 @@
 
 package org.geotools.filter;
 
-import org.apache.log4j.Category; 
+// J2SE dependencies
+import java.util.regex.*;
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.feature.*;
-import java.util.regex.*;
 
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.11 2002/07/24 15:32:22 ianturton Exp $
+ * @version $Id: LikeFilter.java,v 1.12 2002/08/06 22:27:15 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(LikeFilter.class.getName());
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** The attribute value, which must be an attribute expression. */
     protected Expression attribute = null;
@@ -115,15 +120,15 @@ public class LikeFilter extends AbstractFilter {
         //  Then, test for matching pattern and return result.
         
         char esc = escape.charAt(0);
-        _log.debug("wildcard "+wildcardMulti+" single "+wildcardSingle);
-        _log.debug("escape "+escape+" esc "+esc+" esc == \\ "+(esc == '\\'));
+        LOGGER.finer("wildcard "+wildcardMulti+" single "+wildcardSingle);
+        LOGGER.finer("escape "+escape+" esc "+esc+" esc == \\ "+(esc == '\\'));
         
         escapedWildcardMulti = fixSpecials(wildcardMulti);
         escapedWildcardSingle = fixSpecials(wildcardSingle);
         
         
-        _log.debug("after fixing: wildcard "+wildcardMulti+" single "+wildcardSingle+" escape "+escape);
-        _log.debug("start pattern = "+pattern);
+        LOGGER.finer("after fixing: wildcard "+wildcardMulti+" single "+wildcardSingle+" escape "+escape);
+        LOGGER.finer("start pattern = "+pattern);
         
         // escape any special chars which are not our wildcards
         StringBuffer tmp = new StringBuffer("");
@@ -131,19 +136,19 @@ public class LikeFilter extends AbstractFilter {
         boolean escapedMode = false;
         for(int i=0;i<pattern.length();i++){
             char c = pattern.charAt(i);
-            _log.debug("tmp = "+tmp+" looking at "+c);
+            LOGGER.finer("tmp = "+tmp+" looking at "+c);
             
             if(pattern.regionMatches(false, i, escape, 0, escape.length())) { // skip the escape string
-                _log.debug("escape ");
+                LOGGER.finer("escape ");
                 escapedMode = true;
                 
                 i+=escape.length();
                 c=pattern.charAt(i);
             }
             if(pattern.regionMatches(false, i, wildcardMulti, 0, wildcardMulti.length())){ // replace with java wildcard
-                _log.debug("multi wildcard");
+                LOGGER.finer("multi wildcard");
                 if(escapedMode){
-                    _log.debug("escaped ");
+                    LOGGER.finer("escaped ");
                     tmp.append(escapedWildcardMulti);
                 }else{
                     tmp.append(this.wildcardMulti);
@@ -153,9 +158,9 @@ public class LikeFilter extends AbstractFilter {
                 continue;
             }
             if(pattern.regionMatches(false, i, wildcardSingle, 0, wildcardSingle.length())){ // replace with java single wild card
-                _log.debug("single wildcard");
+                LOGGER.finer("single wildcard");
                 if(escapedMode){
-                    _log.debug("escaped ");
+                    LOGGER.finer("escaped ");
                     tmp.append(escapedWildcardSingle);
                 }else{
                     tmp.append(this.wildcardSingle);
@@ -165,7 +170,7 @@ public class LikeFilter extends AbstractFilter {
                 continue;
             }
             if(isSpecial(c)){
-                _log.debug("special");
+                LOGGER.finer("special");
                 tmp.append(this.escape+c);
                 escapedMode = false;
                 continue;
@@ -175,7 +180,7 @@ public class LikeFilter extends AbstractFilter {
         }
         
         this.pattern = tmp.toString();
-        _log.debug("final pattern "+this.pattern);
+        LOGGER.finer("final pattern "+this.pattern);
         compPattern = java.util.regex.Pattern.compile(this.pattern);
         matcher = compPattern.matcher("");
     }
@@ -207,8 +212,8 @@ public class LikeFilter extends AbstractFilter {
             // Of course, this does not guarantee a meaningful result, but it
             //  does guarantee a valid result.
 
-            //_log.info("pattern: " + pattern);
-            //_log.info("string: " + attribute.getValue(feature).toString());
+            //LOGGER.finest("pattern: " + pattern);
+            //LOGGER.finest("string: " + attribute.getValue(feature).toString());
             //return attribute.getValue(feature).toString().matches(pattern);
             
             matcher.reset(attribute.getValue(feature).toString());

@@ -20,27 +20,31 @@
 
 package org.geotools.feature;
 
+// J2SE dependencies
 import java.util.*;
+import java.util.logging.Logger;
+
+// Geotools dependencies
 import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
-
 import org.geotools.filter.*;
 
-//Logging system
-import org.apache.log4j.Logger;
 
 /**
  * The default feature collection holds and passes out features promiscuously
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.6 2002/07/21 19:32:42 jmacgill Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.7 2002/08/06 22:27:15 desruisseaux Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
 public class FeatureCollectionDefault implements FeatureCollection {
 
-    private static Logger log = Logger.getLogger("defaultcore");
+    /**
+     * The logger for the default core module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     
     /* Internal feature storage list */
     private List features = new Vector();
@@ -154,42 +158,44 @@ public class FeatureCollectionDefault implements FeatureCollection {
     public Feature[] getFeatures(Extent ex) 
         throws DataSourceException {
         try{
-        // TODO: 2
-        // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
-        //  idiom.  I think?
-        Extent toLoad[];
-        if (loadedExtent != null){
-            toLoad = loadedExtent.difference(ex);
-        }
-        else {
-            toLoad = new Extent[]{ex};
-        }
-        
-        for (int i = 0; i < toLoad.length; i++){
-            //TODO: move this code to its own method?
-            if (toLoad[i] != null){
-                if (data != null){
-                    log.debug("loading " + i);
-                    org.geotools.filter.GeometryFilter gf =
-                      new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-                    ExpressionLiteral right = 
-                      new BBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
-                    gf.addRightGeometry(right);
-                    data.getFeatures(this,gf);
-                }
-                if (loadedExtent == null){
-                    loadedExtent = toLoad[i];
-                }
-                else {
-                    loadedExtent = loadedExtent.combine(toLoad[i]);
+            // TODO: 2
+            // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
+            //  idiom.  I think?
+            Extent toLoad[];
+            if (loadedExtent != null){
+                toLoad = loadedExtent.difference(ex);
+            }
+            else {
+                toLoad = new Extent[]{ex};
+            }
+
+            for (int i = 0; i < toLoad.length; i++){
+                //TODO: move this code to its own method?
+                if (toLoad[i] != null){
+                    if (data != null){
+                        LOGGER.finer("loading " + i);
+                        org.geotools.filter.GeometryFilter gf =
+                          new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+                        ExpressionLiteral right = 
+                          new BBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
+                        gf.addRightGeometry(right);
+                        data.getFeatures(this,gf);
+                    }
+                    if (loadedExtent == null){
+                        loadedExtent = toLoad[i];
+                    }
+                    else {
+                        loadedExtent = loadedExtent.combine(toLoad[i]);
+                    }
                 }
             }
-        }
-        log.debug("calling getfeatures");
-        return getFeatures();
+            LOGGER.finer("calling getfeatures");
+            return getFeatures();
         }
         catch(IllegalFilterException ife){
-            throw new DataSourceException(ife.toString());
+            DataSourceException e = new DataSourceException(ife.toString());
+            e.initCause(ife);
+            throw e;
         }
     }
     
