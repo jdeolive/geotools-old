@@ -1,13 +1,13 @@
 /*
- * OpenGIS® Grid Coverage Services Implementation Specification
- * Copyright (2001) OpenGIS consortium
+ * OpenGIS® Grid Coverage Implementation Specification
  *
- * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
- * OpenGIS's interface files doesn't contain a copyright notice yet. This
- * file is a slightly modified version of official OpenGIS's interface.
- * Changes have been done in order to fix RMI problems and are documented
- * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
- * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ * This Java profile is derived from OpenGIS's specification
+ * available on their public web site:
+ *
+ *     http://www.opengis.org/techno/implementation.htm
+ *
+ * You can redistribute it, but should not modify it unless
+ * for greater OpenGIS compliance.
  */
 package org.opengis.cv;
 
@@ -22,7 +22,7 @@ import java.io.Serializable;
  * @version 1.00
  * @since   1.00
  */
-public class CV_SampleDimensionType implements Serializable
+public final class CV_SampleDimensionType implements Serializable
 {
     /**
      * Use <code>serialVersionUID</code> from first
@@ -33,7 +33,7 @@ public class CV_SampleDimensionType implements Serializable
     /**
      * The enum value.
      */
-    public int value;
+    public final int value;
 
     /** 1 bits integers.                         */ public static final int CV_1BIT       =  0;
     /** 2 bits integers.                         */ public static final int CV_2BIT       =  1;
@@ -73,7 +73,7 @@ public class CV_SampleDimensionType implements Serializable
     }
 
     /**
-     * Returns a string représentation of this enum.
+     * Returns a string representation of this enum.
      * The returned string is implementation dependent.
      * It is usually provided for debugging purposes only.
      */

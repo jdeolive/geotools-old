@@ -1,13 +1,13 @@
 /*
- * OpenGIS® Grid Coverage Services Implementation Specification
- * Copyright (2001) OpenGIS consortium
+ * OpenGIS® Grid Coverage Implementation Specification
  *
- * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
- * OpenGIS's interface files doesn't contain a copyright notice yet. This
- * file is a slightly modified version of official OpenGIS's interface.
- * Changes have been done in order to fix RMI problems and are documented
- * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
- * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ * This Java profile is derived from OpenGIS's specification
+ * available on their public web site:
+ *
+ *     http://www.opengis.org/techno/implementation.htm
+ *
+ * You can redistribute it, but should not modify it unless
+ * for greater OpenGIS compliance.
  */
 package org.opengis.gp;
 
@@ -28,7 +28,7 @@ import org.opengis.pt.PT_Matrix;
  * @version 1.00
  * @since   1.00
  */
-public interface GP_GridAnalysis extends GC_GridCoverage, Remote
+public interface GP_GridAnalysis extends GC_GridCoverage
 {
     /**
      * Determine the histogram of the grid values for a sample dimension.

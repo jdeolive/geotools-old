@@ -1,18 +1,16 @@
 /*
- * OpenGIS® Grid Coverage Services Implementation Specification
- * Copyright (2001) OpenGIS consortium
+ * OpenGIS® Grid Coverage Implementation Specification
  *
- * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
- * OpenGIS's interface files doesn't contain a copyright notice yet. This
- * file is a slightly modified version of official OpenGIS's interface.
- * Changes have been done in order to fix RMI problems and are documented
- * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
- * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ * This Java profile is derived from OpenGIS's specification
+ * available on their public web site:
+ *
+ *     http://www.opengis.org/techno/implementation.htm
+ *
+ * You can redistribute it, but should not modify it unless
+ * for greater OpenGIS compliance.
  */
 package org.opengis.gc;
 
-// Input/output
-import java.io.Serializable;
 
 /**
  * The parameter required for a grid coverage processing operation.
@@ -22,18 +20,12 @@ import java.io.Serializable;
  * @version 1.00
  * @since   1.00
  */
-public class GC_Parameter implements Serializable
+public interface GC_Parameter
 {
-    /**
-     * Use <code>serialVersionUID</code> from first
-     * draft for interoperability with GCS 1.00.
-     */
-    private static final long serialVersionUID = -2263108414899483691L;
-
     /**
      * Parameter name.
      */
-    public String name;
+    String getName();
 
     /**
      * The value for parameter.
@@ -43,65 +35,5 @@ public class GC_Parameter implements Serializable
      * grid coverage. This parameter may have <code>"Source"</code> as the
      * parameter name and the instance of the grid coverage as the value.
      */
-    public Object value;
-
-    /**
-     * Construct an empty Data type object. Caller
-     * must initialize {@link #name} and {@link #value}
-     */
-    public GC_Parameter()
-    {}
-
-    /**
-     * Construct a new Data Type object.
-     */
-    public GC_Parameter(final String name, final Object value)
-    {
-        this.name = name;
-        this.value = value;
-    }
-
-    /**
-     * Returns a hash value for this <code>Parameter</code>.
-     * This value need not remain consistent between
-     * different implementations of the same class.
-     */
-    public int hashCode()
-    {
-        int code = 0;
-        if (name  != null) code ^= name.hashCode();
-        if (value != null) code ^= value.hashCode();
-        return code;
-    }
-
-    /**
-     * Compares the specified object with
-     * this parameter for equality.
-     */
-    public boolean equals(final Object object)
-    {
-        if (object!=null && getClass().equals(object.getClass()))
-        {
-            final  GC_Parameter that = (GC_Parameter) object;
-            return GC_ParameterInfo.equals(name,  that.name) &&
-                   GC_ParameterInfo.equals(value, that.value);
-        }
-        else return false;
-    }
-
-    /**
-     * Returns a string représentation of this enum.
-     * The returned string is implementation dependent.
-     * It is usually provided for debugging purposes only.
-     */
-    public String toString()
-    {
-        final StringBuffer buffer=new StringBuffer("GC_Parameter");
-        buffer.append('[');
-        buffer.append(name);
-        buffer.append(',');
-        buffer.append(value);
-        buffer.append(']');
-        return buffer.toString();
-    }
+    Object getValue();
 }

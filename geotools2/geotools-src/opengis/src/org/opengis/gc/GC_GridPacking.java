@@ -1,18 +1,15 @@
 /*
- * OpenGIS® Grid Coverage Services Implementation Specification
- * Copyright (2001) OpenGIS consortium
+ * OpenGIS® Grid Coverage Implementation Specification
  *
- * THIS COPYRIGHT NOTICE IS A TEMPORARY PATCH.   Version 1.00 of official
- * OpenGIS's interface files doesn't contain a copyright notice yet. This
- * file is a slightly modified version of official OpenGIS's interface.
- * Changes have been done in order to fix RMI problems and are documented
- * on the SEAGIS web site (seagis.sourceforge.net). THIS FILE WILL LIKELY
- * BE REPLACED BY NEXT VERSION OF OPENGIS SPECIFICATIONS.
+ * This Java profile is derived from OpenGIS's specification
+ * available on their public web site:
+ *
+ *     http://www.opengis.org/techno/implementation.htm
+ *
+ * You can redistribute it, but should not modify it unless
+ * for greater OpenGIS compliance.
  */
 package org.opengis.gc;
-
-// Input/output
-import java.io.Serializable;
 
 
 /**
@@ -24,18 +21,12 @@ import java.io.Serializable;
  * @version 1.00
  * @since   1.00
  */
-public class GC_GridPacking implements Serializable
+public interface GC_GridPacking
 {
-    /**
-     * Use <code>serialVersionUID</code> from first
-     * draft for interoperability with GCS 1.00.
-     */
-    private static final long serialVersionUID = 8835511412962017097L;
-
     /**
      * Order of bytes packed in values for sample dimensions with greater than 8 bits.
      */
-    public GC_ByteInValuePacking byteInValuePacking;
+    GC_ByteInValuePacking getByteInValuePacking();
 
     /**
      * Order of values packed in a byte for
@@ -43,7 +34,7 @@ public class GC_GridPacking implements Serializable
      * {@link org.opengis.cv.CV_SampleDimensionType#CV_2BIT CV_2BIT} and
      * {@link org.opengis.cv.CV_SampleDimensionType#CV_4BIT CV_4BIT} data types.
      */
-    public GC_ValueInBytePacking valueInBytePacking;
+    GC_ValueInBytePacking getValueInBytePacking();
 
     /**
      * Gives the ordinate index for the band.
@@ -68,70 +59,5 @@ public class GC_GridPacking implements Serializable
      *  For 2 dimensional grids, band packing of 0 is referred to as band sequential,
      *  1 line interleaved and 2 pixel interleaved.
      */
-    public int bandPacking;
-
-    /**
-     * Construct an empty Data type object. Caller
-     * must initialize {@link #byteInValuePacking}, {@link #valueInBytePacking} and
-     * {@link #bandPacking}.
-     */
-    public GC_GridPacking()
-    {}
-
-    /**
-     * Construct a new Data Type object.
-     */
-    public GC_GridPacking(final GC_ByteInValuePacking byteInValuePacking, final GC_ValueInBytePacking valueInBytePacking, final int bandPacking)
-    {
-        this.byteInValuePacking = byteInValuePacking;
-        this.valueInBytePacking = valueInBytePacking;
-        this.bandPacking        = bandPacking;
-    }
-
-    /**
-     * Returns a hash value for this <code>GridPacking</code>.
-     * This value need not remain consistent between
-     * different implementations of the same class.
-     */
-    public int hashCode()
-    {
-        int code = bandPacking;
-        if (byteInValuePacking != null) code = code*37 + byteInValuePacking.hashCode();
-        if (valueInBytePacking != null) code = code*37 + valueInBytePacking.hashCode();
-        return code;
-    }
-
-    /**
-     * Compares the specified object with
-     * this grid packing for equality.
-     */
-    public boolean equals(final Object object)
-    {
-        if (object!=null && getClass().equals(object.getClass()))
-        {
-            final GC_GridPacking that = (GC_GridPacking) object;
-            return bandPacking == that.bandPacking &&
-                   GC_ParameterInfo.equals(byteInValuePacking, that.byteInValuePacking) &&
-                   GC_ParameterInfo.equals(valueInBytePacking, that.valueInBytePacking);
-        }
-        else return false;
-    }
-
-    /**
-     * Returns a string représentation of this enum.
-     * The returned string is implementation dependent.
-     * It is usually provided for debugging purposes only.
-     */
-    public String toString()
-    {
-        final StringBuffer buffer=new StringBuffer("GC_GridPacking");
-        buffer.append('[');
-        buffer.append(byteInValuePacking);
-        buffer.append(',');
-        buffer.append(valueInBytePacking);
-        buffer.append(',');
-        buffer.append(bandPacking);
-        buffer.append(']');
-        return buffer.toString();
-    }
+    int getBandPacking();
 }
