@@ -25,13 +25,14 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.9 2003/05/14 16:20:03 ianschneider Exp $
+ * @version $Id: Filter.java,v 1.10 2003/05/14 16:22:26 ianschneider Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
   
   /** Implements the semantics of "no filtering", that is, every call to contains will
-   * return true.<br>
+   * return true.
+   *
    * Logic table:<br>
    * <pre>
    * NONE or Filter -> NONE
@@ -61,7 +62,8 @@ public interface Filter {
   };
   
   /** Implements the semantics of "filter all", that is, every call to contains will
-   * return false.<br>
+   * return false.
+   *
    * Logic table:<br>
    * <pre>
    * ALL or Filter -> Filter
