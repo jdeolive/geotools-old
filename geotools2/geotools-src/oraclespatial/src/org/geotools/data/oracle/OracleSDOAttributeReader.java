@@ -25,39 +25,30 @@ import oracle.sdoapi.sref.SRManager;
 import oracle.sdoapi.sref.SpatialReference;
 import oracle.sql.STRUCT;
 
-import org.geotools.data.AbstractAttributeIO;
-import org.geotools.data.AttributeReader;
-import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.FeatureEvent;
-import org.geotools.data.FeatureListener;
-import org.geotools.data.jdbc.QueryDataListener;
+import org.geotools.data.jdbc.ResultSetAttributeIO;
 import org.geotools.data.jdbc.JDBCDataStore.QueryData;
 import org.geotools.feature.AttributeType;
 
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * @author geoghegs
+ * @author Sean Geoghegan, Defence Science and Technology Organisation.
  *
  */
-public class OracleSDOAttributeReader extends AbstractAttributeIO 
-            implements QueryDataListener, AttributeReader, AttributeWriter {
+public class OracleSDOAttributeReader extends ResultSetAttributeIO {
     
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.oracle");
 
     // geometry adpaters
     private AdapterJTS adapterJTS;
     private AdapterSDO adapterSDO;
-    
-    private int rowIndex = 0;
-    
+        
     private int columnIndex;
     
     private QueryData queryData;
     private ResultSet resultSet;
     
-    private boolean isClosed = false;
     
     /**
      * 
@@ -68,8 +59,7 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
      */
     public OracleSDOAttributeReader(AttributeType metaData, QueryData queryData, int columnIndex) 
                 throws DataSourceException {
-        super(new AttributeType[]{metaData});
-        queryData.addQueryDataListener(this);
+        super(new AttributeType[]{metaData},queryData,columnIndex,columnIndex + 1);
         this.queryData = queryData;
         this.resultSet = queryData.getResultSet();
         this.columnIndex = columnIndex;
@@ -108,74 +98,10 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
     }
 
     /* (non-Javadoc)
-     * @see org.geotools.data.jdbc.QueryDataListener#queryDataClosed(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     */
-    public void queryDataClosed(QueryData queryData) {
-        isClosed = true;
-        queryData.removeQueryDataListener(this);
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.AttributeReader#close()
-     */
-    public void close() throws IOException {
-        if (!isClosed)  {
-            isClosed = true;
-            queryData.close(null);
-            queryData.close( null );
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.AttributeReader#hasNext()
-     */
-    public boolean hasNext() throws IOException {
-        if (isClosed) {
-            throw new IOException("Close has already been called on this AttributeReader.");
-        }
-        
-        try {            
-             if (rowIndex == 0)  {
-                 return resultSet.first();
-             } else  {
-                 return ! (resultSet.isLast() || resultSet.isAfterLast());
-             }
-        } catch (SQLException sqlException) {
-             queryData.close( sqlException );
-             String msg = "SQL Error calling isLast on result set";
-             LOGGER.log(Level.SEVERE,msg,sqlException);         
-             throw new DataSourceException(msg + ":" + sqlException.getMessage(), sqlException);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see org.geotools.data.AttributeReader#next()
-     */
-    public void next() throws IOException {
-        if (isClosed) {
-            throw new IOException("Close has already been called on this AttributeReader.");
-        }
-        
-        try {
-            // check that we are in a valid row
-            if (rowIndex == 0 || !resultSet.isAfterLast())  {
-                rowIndex++;
-                resultSet.absolute(rowIndex);
-            }
-        } catch (SQLException sqlException) {
-            queryData.close( sqlException );
-            String msg = "SQL Error calling absolute on result set";
-            LOGGER.log(Level.SEVERE,msg,sqlException);            
-            throw new DataSourceException(msg + ":" + sqlException.getMessage(), sqlException);
-        }
-    }
-
-    
-    /* (non-Javadoc)
      * @see org.geotools.data.AttributeReader#read(int)
      */
     public Object read(int i) throws IOException, ArrayIndexOutOfBoundsException {
-        if (isClosed) {
+        if (isClosed()) {
             throw new IOException("Close has already been called on this AttributeReader.");
         }
         
@@ -211,7 +137,7 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
      * @see org.geotools.data.AttributeWriter#write(int, java.lang.Object)
      */
     public void write(int position, Object attribute) throws IOException {
-        if (isClosed) {
+        if (isClosed()) {
             throw new IOException("Close has already been called on this AttributeReader.");
         }
         
@@ -243,13 +169,5 @@ public class OracleSDOAttributeReader extends AbstractAttributeIO
             LOGGER.log(Level.SEVERE, msg, e);
             throw new DataSourceException(msg, e);
         }
-    }
-
-    /**
-     * @see org.geotools.data.jdbc.QueryDataListener#rowDeleted(org.geotools.data.jdbc.JDBCDataStore.QueryData)
-     * @param queryData
-     */
-    public void rowDeleted(QueryData queryData) {
-        rowIndex--;        
     }
 }
