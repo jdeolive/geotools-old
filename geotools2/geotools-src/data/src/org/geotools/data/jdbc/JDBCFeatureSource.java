@@ -157,7 +157,7 @@ public class JDBCFeatureSource implements FeatureSource {
      * retrieve Features.
      * </p>
      *
-     * @param query
+     * @param request
      *
      * @return
      *
@@ -165,25 +165,23 @@ public class JDBCFeatureSource implements FeatureSource {
      *
      * @see org.geotools.data.FeatureSource#getFeatures(org.geotools.data.Query)
      */
-    public FeatureResults getFeatures( Query request )
-        throws IOException {
+    public FeatureResults getFeatures(Query request) throws IOException {
         String typeName = featureType.getTypeName();
 
-        if( request.getTypeName() != null &&
-            !typeName.equals( request.getTypeName() )){
-            throw new IOException("Cannot query "+typeName+" with:"+request);                
-        }                    
-        if( request.getTypeName() == null ){
-            request = new DefaultQuery(
-                featureType.getTypeName(),
-                request.getFilter(),
-                request.getMaxFeatures(),
-                request.getPropertyNames(),
-                request.getHandle()
-            );
+        if ((request.getTypeName() != null)
+                && !typeName.equals(request.getTypeName())) {
+            throw new IOException("Cannot query " + typeName + " with:"
+                + request);
         }
+
+        if (request.getTypeName() == null) {
+            request = new DefaultQuery(featureType.getTypeName(),
+                    request.getFilter(), request.getMaxFeatures(),
+                    request.getPropertyNames(), request.getHandle());
+        }
+
         final Query query = request;
-                                    
+
         return new DefaultFeatureResults(this, query) {
                 /**
                  * JDBCDataStore has a more direct query method
@@ -197,7 +195,10 @@ public class JDBCFeatureSource implements FeatureSource {
                     FeatureReader reader = getJDBCDataStore().getFeatureReader(query,
                             getTransaction());
 
-                    if (maxFeatures == query.getMaxFeatures()) {
+                    //TODO: implement Query.UNLIMITED_FEATURES or something
+                    //to that effect, instead of constraining ourselves to 
+                    //integer max as we do now.  
+                    if (maxFeatures == Integer.MAX_VALUE) {
                         return reader;
                     } else {
                         return new MaxFeatureReader(reader, maxFeatures);
@@ -290,6 +291,8 @@ public class JDBCFeatureSource implements FeatureSource {
      * @param query Query we are requesting the bounds of
      *
      * @return null representing the lack of an optimization
+     *
+     * @throws IOException DOCUMENT ME!
      */
     public Envelope getBounds(Query query) throws IOException {
         if (query.getFilter() == Filter.ALL) {
@@ -394,7 +397,7 @@ public class JDBCFeatureSource implements FeatureSource {
 
             return count;
         } catch (SQLException sqlException) {
-            JDBCUtils.close( conn, transaction, sqlException );
+            JDBCUtils.close(conn, transaction, sqlException);
             conn = null;
             throw new DataSourceException("Could not count "
                 + query.getHandle(), sqlException);
@@ -403,8 +406,8 @@ public class JDBCFeatureSource implements FeatureSource {
             // but at least we did not break the connection
             return -1;
         } finally {
-            JDBCUtils.close( conn, transaction, null );
-        }                  
+            JDBCUtils.close(conn, transaction, null);
+        }
     }
 
     /**
