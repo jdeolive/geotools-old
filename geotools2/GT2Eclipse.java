@@ -90,6 +90,10 @@ public class GT2Eclipse
     
 /**
  * List of targets build by the last <code>maven build</code> command
+ * <p>
+ * These targets will be turned into nice little src and tests entries
+ * in your .classpath file.
+ * </p>
  */ 
 public static Set targets(String path){
     try
@@ -106,7 +110,7 @@ public static Set targets(String path){
             // a few corrections
             if( line.equals( "oracle-spatial") ) line = "oraclespatial";
             if( line.equals( "java2drendering") ) line = "Java2DRendering";
-            if( line.equals( "wmsserver")) continue; 
+            if( line.equals( "wmsserver")) continue;			 
             System.out.println("target "+line );            
             set.add( line );
         }        
@@ -146,6 +150,17 @@ public static Set targets(String path){
         return null;                
     }         
 }
+/**
+ * Run through the repository and depending on everything.
+ * <p>
+ * This is *not* very sophisticated, we could run through all the
+ * project.xml files instead. This technique does work it just
+ * is not pretty.
+ * </p>
+ * @param path
+ * @param targets
+ * @return
+ */
 static public Set dependencies( String path, Set targets ){
     Set depends = new TreeSet();
     // read file
@@ -164,11 +179,15 @@ static public Set dependencies( String path, Set targets ){
     {
         for( int i=0; i<content.length; i++){
             System.out.println("processing "+content[i]+"...");
+            if( "gt2".equals(content[i])){
+            	System.out.println( "  skipping geotools2 build results");
+            	continue;
+            }
             File dir = new File( repository, content[i]+"/jars" );
             String jars[] = dir.list(new FilenameFilter(){
                 public boolean accept(File dir, String name)
                 {
-                    if( name.indexOf("SNAPSHOT") != -1 ) return false;
+                    if( name.indexOf("-2.0-B") != -1 ) return false;
                     if( name.endsWith("-0.1.jar")) return false;
                     if( name.endsWith(".md5") ) return false;
                     return true;
