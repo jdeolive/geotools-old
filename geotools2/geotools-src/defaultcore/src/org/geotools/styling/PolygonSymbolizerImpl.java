@@ -26,7 +26,7 @@ import org.geotools.util.EqualsUtils;
  * PolygonSymbolizer defines how a polygon geometry should be rendered.
  *
  * @author James Macgill, CCG
- * @version $Id: PolygonSymbolizerImpl.java,v 1.14 2003/09/06 04:52:31 seangeo Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.15 2003/10/17 22:50:59 ianschneider Exp $
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private Fill fill = new FillImpl();
@@ -54,11 +54,28 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      * @return String The name of the attribute in the feature being styled
      *         that should be used.  If null then the default geometry should
      *         be used.
+     * @deprecated Misnamed. Use getGeometryPropertyName instead.
      */
     public String geometryPropertyName() {
-        return geometryPropertyName;
+        return getGeometryPropertyName();
     }
 
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used. Geometry types other
+     * than inherently area types can be used. If a line is used then the line
+     * string is closed for filling (only) by connecting its end point to its
+     * start point. The geometryPropertyName is the name of a geometry
+     * property in the Feature being styled.  Typically, features only have
+     * one geometry so, in general, the need to select one is not required.
+     * Note: this moves a little away from the SLD spec which provides an
+     * XPath reference to a Geometry object, but does follow it in spirit.
+     *
+     * @return String The name of the attribute in the feature being styled
+     *         that should be used.  If null then the default geometry should
+     *         be used.
+     */
     public String getGeometryPropertyName() {
         return geometryPropertyName;
     }

@@ -28,7 +28,7 @@ import org.geotools.util.EqualsUtils;
  * Provides a Java representation of the PointSymbolizer.
  * This defines how points are to be rendered. 
  * 
- * @version $Id: PointSymbolizerImpl.java,v 1.12 2003/09/06 04:52:31 seangeo Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.13 2003/10/17 22:50:59 ianschneider Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
@@ -57,6 +57,10 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
      * that should be used.  If null then the default geometry should be used.
      */
     public String geometryPropertyName() {
+        return getGeometryPropertyName();
+    }
+    
+    public String getGeometryPropertyName() {
         return geometryPropertyName;
     }
 
@@ -154,4 +158,6 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return false;
     }
 
+    
+    
 }

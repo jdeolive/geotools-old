@@ -25,7 +25,7 @@ import org.geotools.util.Cloneable;
  * LineSymbolizer defines how a line geometry should be rendered.
  *
  * @author James Macgill
- * @version $Id: LineSymbolizerImpl.java,v 1.14 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.15 2003/10/17 22:50:59 ianschneider Exp $
  */
 public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     private Stroke stroke = null;
@@ -54,8 +54,35 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
      * @return String The name of the attribute in the feature being styled
      *         that should be used.  If null then the default geometry should
      *         be used.
+     * @deprecated Misnamed. Use getGeometryPropertyName instead.
      */
     public String geometryPropertyName() {
+        return getGeometryPropertyName();
+    }
+    
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.
+     * 
+     * Geometry types other than inherently linear types can be used. 
+     * If a point geometry is used, it should be interpreted as a line of zero
+     * length and two end caps.  If a polygon is used (or other "area" type)
+     * then its closed outline should be used as the line string
+     * (with no end caps).
+     *
+     * The geometryPropertyName is the name of a geometry property in the
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
+     *
+     * Note: this moves a little away from the SLD spec which provides an XPath
+     * reference to a Geometry object, but does follow it in spirit.
+     *
+     * @return The name of the attribute in the feature being styled 
+     *  that should be used.  If null then the default geometry should be used.
+     * 
+     */
+    public String getGeometryPropertyName() {
         return geometryName;
     }
 
