@@ -38,7 +38,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import org.opengis.cs.CS_CoordinateSystem;
-//import org.geotools.cs.Adapters;
 import org.geotools.ct.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
@@ -55,7 +54,10 @@ import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.swing.MapPaneImpl;
+//import org.geotools.gui.tools.ToolFactory;
+//import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.PanToolImpl;
+import org.geotools.gui.tools.AbstractTool;
 import org.geotools.gui.tools.AbstractToolImpl;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
@@ -73,7 +75,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.13 2003/01/29 19:51:26 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.14 2003/02/03 21:06:01 camerons Exp $
  *
  */
 
@@ -100,7 +102,7 @@ public class MapViewer2 extends JFrame {
      */
     private void initComponents() {//GEN-BEGIN:initComponents
 
-        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
+        //getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -120,6 +122,7 @@ public class MapViewer2 extends JFrame {
         MapPaneImpl mapPane;
         LayerList layerList;
         Layer layer;
+        //AbstractTool tool;
         AbstractToolImpl tool;
         try {
             // Create a BoundingBox
@@ -163,6 +166,8 @@ public class MapViewer2 extends JFrame {
             this.getContentPane().setLayout(new BorderLayout());
 
             // Create MapPane and associate a Tool
+            //ToolFactory toolFactory=ToolFactory.createFactory();
+            //tool=toolFactory.createPanTool();
             tool=new PanToolImpl();
             mapPane = new MapPaneImpl(
                     tool,
