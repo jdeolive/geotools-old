@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.Envelope;
 /**
  *
  * @author  James
+ * @author Cameron Shorter
  */
 public class MapViewer extends javax.swing.JFrame {
     /**
@@ -52,7 +53,8 @@ public class MapViewer extends javax.swing.JFrame {
     
     /** Creates a new instance of MapViewer */
     public MapViewer() {
-         initComponents();
+        initComponents();
+        //initComponents2();
     }
     
     /** This method is called from within the constructor to
@@ -115,10 +117,22 @@ public class MapViewer extends javax.swing.JFrame {
         setLocation((screenSize.width-461)/2,(screenSize.height-318)/2);
     }
     
-    
+    private void initComponents2()
+    {
+        File f=new File("/home/cameron/work/geotools2/geotools-src/svgsupport/tests/unit/testData/simple.sld");
+        try {
+            GMLDataSource datasource = new GMLDataSource("file:///home/cameron/work/geotools2/geotools-src/svgsupport/tests/unit/testData/simple.gml");
+            features = new FeatureCollectionDefault(datasource);
+            style = new SLDStyle(f.toURL());
+            //setupMap();
+        } catch (Exception e){
+            LOGGER.warning("Exception: "+e+".  Unable to load predefined GML.");
+        }
+    }
 
     private void setupMap(){
-        updateStatus();
+        status.setText("[Geometry : " + (features != null) + "] " +
+                       "[Style : " + (style != null) + "]");
         if(style == null || features == null){
             LOGGER.fine("abort map setup, style or features is null");
             return;
@@ -138,8 +152,8 @@ public class MapViewer extends javax.swing.JFrame {
             style = new SLDStyle(f.toURL());
             setupMap();
         }
-        catch(IOException ioe){
-            LOGGER.warning("Unable to load SLD file " + ioe);
+        catch(Exception e){
+            LOGGER.warning("Unable to load SLD file "+e);
         }
      }
     
@@ -160,27 +174,15 @@ public class MapViewer extends javax.swing.JFrame {
             features.setExtent(r);
             aoi.setAreaOfInterest(env,null);
             LOGGER.fine("gml data loaded "+features.getFeatures().length  + " features loaded");
-            
-            
-            
-            
             setupMap();
         }
-        catch(IOException ioe){
-            LOGGER.warning("Unable to load GML file" + ioe);
-        }
-        catch(DataSourceException dse){
-            LOGGER.warning("Unable to load GML file" + dse);
+        catch(Exception e){
+            LOGGER.info("Unable to load GML file " + e);
         }
     }
     
     private void exitForm(java.awt.event.WindowEvent evt) {
         System.exit(0);
-    }
-    
-    private void updateStatus(){
-        status.setText("[Geometry : " + (features != null) + "] " +
-                       "[Style : " + (style != null) + "]");
     }
     
     /**
