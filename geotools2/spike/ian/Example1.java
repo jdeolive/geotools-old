@@ -8,9 +8,10 @@ package spike.ian;
 import java.io.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.renderer.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
+import org.geotools.filter.*;
 import org.geotools.map.*;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import org.geotools.shapefile.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import java.awt.event.*;
@@ -24,17 +25,17 @@ import org.geotools.styling.*;
  * @author  iant
  */
 public class Example1 extends java.awt.Panel{
-    EnvelopeExtent r = new EnvelopeExtent();
+    Envelope r;
     //AWTRenderer renderer = new AWTRenderer();
     Java2DRenderer renderer = new Java2DRenderer();
     Map map = new DefaultMap();
     /** Creates a new instance of Example1 */
-    public Example1(){
-   
-        DefaultFeatureTable ft = new DefaultFeatureTable();
+    
+    public Example1(String uri){
+        FeatureCollectionDefault ft = new FeatureCollectionDefault();
         
-        String dataFolder = "d:\\ian\\development\\geotools2/geotools-src/spike/ian";
-        String uri = "statepop.shp";
+        String dataFolder = System.getProperty("user.dir");//"d:\\ian\\development\\geotools2/geotools-src/spike/ian";
+       // String uri = "statepop.shp";
         try{
             java.net.URL url = new java.net.URL("file:///" + dataFolder + "/" + uri);
             System.out.println("Testing ability to load "+url);
@@ -43,7 +44,7 @@ public class Example1 extends java.awt.Panel{
             
             ft.setDataSource(datasource);
             
-            r=(EnvelopeExtent)datasource.getExtent();
+            r=(Envelope)datasource.getBbox();
             //Feature[] features = table.getFeatures(r);
             //System.out.println("No features loaded = "+features.length);
         }catch(IOException ioe){
@@ -55,15 +56,14 @@ public class Example1 extends java.awt.Panel{
         
         //The following is complex, and should be built from
         //an SLD document and not by hand
-        LineSymbolizer linesym = new DefaultLineSymbolizer();
+
         DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
         DefaultFill myFill = new DefaultFill();
-        myFill.setColor("#ff0000");
-        polysym.setFill(null);
+        myFill.setColor("#ffaaaa");
+        polysym.setFill(myFill);
         DefaultStroke stroke = new DefaultStroke();
-        stroke.setDashArray(new float[]{5,3});
-        stroke.setWidth(5);
-        stroke.setOpacity(.4);
+        stroke.setWidth(new ExpressionLiteral(2));
+       
         polysym.setStroke(stroke);
         DefaultRule rule = new DefaultRule();
         rule.setSymbolizers(new Symbolizer[]{polysym});
@@ -73,7 +73,7 @@ public class Example1 extends java.awt.Panel{
         DefaultStyle style = new DefaultStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
         try{
-            ft.getFeatures(r);
+            ft.getFeatures(new EnvelopeExtent(r));
         }catch (DataSourceException e){
             System.err.println("whoops - error reading features " + e);
             return;
@@ -90,7 +90,7 @@ public class Example1 extends java.awt.Panel{
         System.out.println("painting " + this.getBounds().toString());
         super.paint(g);
         renderer.setOutput(this.getGraphics(),this.getBounds());
-        map.render(renderer,r.getBounds());//and finaly  try and draw it!
+        map.render(renderer,r);//and finaly  try and draw it!
         System.out.println("done paint");
         
     }
@@ -103,6 +103,7 @@ public class Example1 extends java.awt.Panel{
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
         if(args.length<1){
             System.err.println("Usage: Example1 file");
             return;
