@@ -57,7 +57,7 @@ import org.geotools.map.Layer;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.87 2003/07/17 17:57:45 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.88 2003/07/17 19:05:28 ianschneider Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -111,7 +111,6 @@ Renderer2D {
    * @deprecated Renderer is to be created with a Context.
    */
   public Java2DRenderer() {
-    LOGGER.fine("creating new j2drenderer");
   }
   
   /**
@@ -420,9 +419,9 @@ Renderer2D {
   private void processStylers(FeatureCollection collection,
   final FeatureTypeStyle[] featureStylers, Graphics2D graphics) {
     
-    Map rendered = (Map) cache.get(collection);
+    Set rendered = (Set) cache.get(collection);
     if (rendered == null) {
-      rendered = new LinkedHashMap();
+      rendered = new LinkedHashSet();
       cache.put(collection, rendered);
     }
     
@@ -505,7 +504,7 @@ Renderer2D {
       }
     }
     
-    Iterator it = rendered.values().iterator();
+    Iterator it = rendered.iterator();
     
     while (it.hasNext()) {
       ((RenderedObject) it.next()).render(graphics);
@@ -523,57 +522,57 @@ Renderer2D {
    * @param symbolizers An array of symbolizers which actually perform the
    *        rendering.
    */
-  protected void processSymbolizers(Map rendered,final Feature feature,
+  protected void processSymbolizers(Set rendered,final Feature feature,
   final Symbolizer[] symbolizers) {
     for (int m = 0; m < symbolizers.length; m++) {
       if (LOGGER.isLoggable(Level.FINE)) {
         LOGGER.fine("applying symbolizer " + symbolizers[m]);
       }
       
-      Integer key = new Integer((symbolizers[m].hashCode() * 19) +
-      feature.hashCode());
+//      Integer key = new Integer((symbolizers[m].hashCode() * 19) +
+//      feature.hashCode());
       
       if (symbolizers[m] instanceof PolygonSymbolizer) {
-        if (!rendered.containsKey(key)) {
+//        if (!rendered.containsKey(key)) {
           RenderedPolygon rPolygon = new RenderedPolygon(feature,
           (PolygonSymbolizer) symbolizers[m]);
           
           //                    rPolygon.render(graphics);
-          rendered.put(key, rPolygon);
-        }
+          rendered.add(rPolygon);
+//        } 
       } else if (symbolizers[m] instanceof LineSymbolizer) {
-        if (!rendered.containsKey(key)) {
+//        if (!rendered.containsKey(key)) {
           RenderedLine rLine = new RenderedLine(feature,
           (LineSymbolizer) symbolizers[m]);
           
           //                    rLine.render(graphics);
-          rendered.put(key, rLine);
-        }
+          rendered.add(rLine);
+//        } 
       } else if (symbolizers[m] instanceof PointSymbolizer) {
-        if (!rendered.containsKey(key)) {
+//        if (!rendered.containsKey(key)) {
           RenderedPoint rPoint = new RenderedPoint(feature,
           (PointSymbolizer) symbolizers[m]);
           
           //                    rPoint.render(graphics);
-          rendered.put(key, rPoint);
-        }
+          rendered.add(rPoint);
+//        }
       } else if (symbolizers[m] instanceof TextSymbolizer) {
-        if (!rendered.containsKey(key)) {
+//        if (!rendered.containsKey(key)) {
           RenderedText rText = new RenderedText(feature,
           (TextSymbolizer) symbolizers[m]);
           
           //                   rText.render(graphics);
-          rendered.put(key, rText);
-        }
+          rendered.add(rText);
+//        }
       } else if (symbolizers[m] instanceof RasterSymbolizer) {
-        if (!rendered.containsKey(key)) {
+//        if (!rendered.containsKey(key)) {
           RenderedRaster rRaster = new RenderedRaster(feature,
           (RasterSymbolizer) symbolizers[m]);
           
           //                    rRaster.render(graphics);
-          rendered.put(key, rRaster);
-        }
-      }
+          rendered.add(rRaster);
+//        } 
+      } 
     }
   }
   

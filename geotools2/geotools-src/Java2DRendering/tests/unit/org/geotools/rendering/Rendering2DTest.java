@@ -74,7 +74,7 @@ public class Rendering2DTest extends TestCase {
         com.vividsolutions.jts.geom.Polygon polygon = makeSamplePolygon(geomFac);
         
         types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
-        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"edgy");
+        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"linefeature");
         
         Feature polygonFeature = polygonType.create(new Object[]{polygon});
         
