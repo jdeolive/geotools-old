@@ -41,36 +41,39 @@ import java.awt.geom.AffineTransform;
  * An event which indicates that a zoom occurred in a component.
  * This event is usually fired by {@link org.geotools.gui.swing.ZoomPane}.
  *
+ * $Id: ZoomChangeEvent.java,v 1.3 2002/07/15 10:32:03 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
 public class ZoomChangeEvent extends EventObject {
     /**
      * An affine transform indicating the zoom change.
-     * If <code>oldZoom</code> and <code>newZoom</code> are the affine transform
-     * before and after the change respectively, then the following relation
-     * must hold (within the limits of rounding error):
+     * If <code>oldZoom</code> and <code>newZoom</code> are the affine
+     * transform before and after the change respectively, then the
+     * following relation must hold (within the limits of rounding error):
      *
-     * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}(change)</code>
+     * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}
+     * (change)</code>
      */
     private final AffineTransform change;
 
     /**
-     * Construct a new event.
+     * Constructs a new event.
      *
      * @param source The event source
      *               (usually a {@link org.geotools.gui.swing.ZoomPane}).
      * @param change An affine transform indicating the zoom change.
      *               If <code>oldZoom</code> and <code>newZoom</code> are the
      *               affine transform before and after the change respectively,
-     *               then the following relation must hold (within the limits of
-     *               rounding error):
+     *               then the following relation must hold (within the limits
+     *               of rounding error):
      *
-     * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}(change)</code>
+     * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}
+     * (change)</code>
      */
     public ZoomChangeEvent(final Object source, final AffineTransform change) {
         super(source);
-        this.change=change;
+        this.change = change;
     }
 
     /**

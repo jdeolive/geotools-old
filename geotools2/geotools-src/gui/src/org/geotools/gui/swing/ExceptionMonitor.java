@@ -97,13 +97,14 @@ import org.geotools.resources.gui.ResourceKeys;
  * <i>Swing</i> component. The standard {@link java.lang.Exception} class
  * contains methods which write the exception to the error console.
  * This <code>ExceptionMonitor</code> class adds static methods which make
- * the message, and eventually the exception trace, appear in a
- * viewer component.
+ * the message, and eventually the exception trace, appear in a viewer
+ * component.
  *
  * <p>&nbsp;</p>
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
+ * $Id: ExceptionMonitor.java,v 1.2 2002/07/15 10:32:03 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -152,7 +153,7 @@ public final class ExceptionMonitor {
             Pane.show(owner, exception, message);
         }
         else {
-            final Runnable monitor=new Runnable()
+            final Runnable monitor = new Runnable()
             {
                 public void run() {
                     Pane.show(owner, exception, message);
@@ -183,7 +184,8 @@ public final class ExceptionMonitor {
      *        transform, default colour, etc...)
      * @param widgetBounds Size of the trace which was being drawn.
      */
-    public static void paintStackTrace(final Graphics2D graphics, final Rectangle widgetBounds, final Throwable exception) {
+    public static void paintStackTrace(final Graphics2D graphics, final Rectangle widgetBounds,
+                                       final Throwable exception) {
         /*
          * Obtains the exception trace in the form of a character chain.
          * The carriage returns in this chain can be "\r", "\n" or "r\n".
@@ -194,34 +196,34 @@ public final class ExceptionMonitor {
          * "Glyphs" will be created as we go along and we will take advantage
          * of this to calculate the necessary space.
          */
-        double width=0, height=0;
-        final List glyphs=new ArrayList();
-        final List bounds=new ArrayList();
-        final int length=message.length();
-        final Font font=graphics.getFont();
-        final FontRenderContext context=graphics.getFontRenderContext();
-        for (int i=0; i<length;) {
-            int ir=message.indexOf('\r', i);
-            int in=message.indexOf('\n', i);
-            if (ir<0) ir=length;
-            if (in<0) in=length;
-            final int irn=Math.min(ir,in);
-            final GlyphVector line=font.createGlyphVector(context, message.substring(i, irn));
+        double width = 0, height = 0;
+        final List glyphs = new ArrayList();
+        final List bounds = new ArrayList();
+        final int length = message.length();
+        final Font font = graphics.getFont();
+        final FontRenderContext context = graphics.getFontRenderContext();
+        for (int i = 0; i < length;) {
+            int ir = message.indexOf('\r', i);
+            int in = message.indexOf('\n', i);
+            if (ir < 0) ir = length;
+            if (in < 0) in = length;
+            final int irn = Math.min(ir, in);
+            final GlyphVector line = font.createGlyphVector(context, message.substring(i, irn));
             final Rectangle2D rect=line.getVisualBounds();
-            final double w=rect.getWidth();
-            if (w>width) width=w;
+            final double w = rect.getWidth();
+            if (w > width) width = w;
             height += rect.getHeight();
             glyphs.add(line);
             bounds.add(rect);
-            i = (Math.abs(ir-in)<=1 ? Math.max(ir,in) : irn)+1;
+            i = (Math.abs(ir - in) <= 1 ? Math.max(ir, in) : irn) + 1;
         }
         /*
          * Proceeds to draw all the previously calculated glyphs.
          */
-        float xpos = (float) (0.5*(widgetBounds.width -width));
-        float ypos = (float) (0.5*(widgetBounds.height-height));
-        final int size=glyphs.size();
-        for (int i=0; i<size; i++) {
+        float xpos = (float) (0.5 * (widgetBounds.width - width));
+        float ypos = (float) (0.5 * (widgetBounds.height - height));
+        final int size = glyphs.size();
+        for (int i = 0; i < size; i++) {
             final GlyphVector line = (GlyphVector) glyphs.get(i);
             final Rectangle2D rect = (Rectangle2D) bounds.get(i);
             ypos += rect.getHeight();
@@ -234,7 +236,7 @@ public final class ExceptionMonitor {
      * systematically replaced by 4 white spaces.
      */
     private static String printStackTrace(final Throwable exception) {
-        final StringWriter writer=new StringWriter();
+        final StringWriter writer = new StringWriter();
         exception.printStackTrace(new PrintWriter(new ExpandedTabWriter(writer, TAB_WIDTH)));
         return writer.toString();
     }
@@ -243,8 +245,8 @@ public final class ExceptionMonitor {
      * Class in charge of displaying any exception messages and eventually
      * their traces. The message will appear in a dialog box or in an
      * internal window, depending on the parent.
-     * <strong>Note:</strong> All methods in this class must be called in the same
-     * thread as the <i>Swing</i> thread.
+     * <strong>Note:</strong> All methods in this class must be called in the
+     * same thread as the <i>Swing</i> thread.
      *
      * @version 1.0
      * @author Martin Desruisseaux
@@ -340,24 +342,24 @@ public final class ExceptionMonitor {
              * {@link JDialog}. The exception trace will not be written
              * immediately.
              */
-            final String classname=Utilities.getShortClassName(exception);
-            final String title=resources.getString(ResourceKeys.ERROR_$1, classname);
-            final JDesktopPane desktop=getDesktopPaneForComponent(owner);
-            if (desktop!=null) {
-                final JInternalFrame dialog=createInternalFrame(desktop, title);
+            final String classname = Utilities.getShortClassName(exception);
+            final String title = resources.getString(ResourceKeys.ERROR_$1, classname);
+            final JDesktopPane desktop = getDesktopPaneForComponent(owner);
+            if (desktop != null) {
+                final JInternalFrame dialog = createInternalFrame(desktop, title);
                 desktop.setLayer(dialog, JDesktopPane.MODAL_LAYER.intValue());
                 dialog.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
                 dialog.setResizable(false);
                 dialog.pack();
-                this.dialog=dialog;
+                this.dialog = dialog;
             } else {
-                final JDialog dialog=createDialog(owner, title);
+                final JDialog dialog = createDialog(owner, title);
                 dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
                 dialog.setResizable(false);
                 dialog.pack();
-                this.dialog=dialog;
+                this.dialog = dialog;
             }
-            initialSize=dialog.getSize();
+            initialSize = dialog.getSize();
         }
 
         /**
@@ -366,27 +368,28 @@ public final class ExceptionMonitor {
          * same thread as the <i>Swing</i> thread.
          */
         public static void show(final Component owner, final Throwable exception, String message) {
-            final Resources resources = Resources.getResources((owner!=null) ? owner.getLocale() : null);
-            if (message==null) {
-                message=exception.getLocalizedMessage();
-                if (message==null) {
+            final Resources resources = Resources.getResources((owner != null) ? owner.getLocale() : null);
+            if (message == null) {
+                message = exception.getLocalizedMessage();
+                if (message == null) {
                     final String classname = Utilities.getShortClassName(exception);
-                    message=resources.getString(ResourceKeys.NO_DETAILS_$1, classname);
+                    message = resources.getString(ResourceKeys.NO_DETAILS_$1, classname);
                 }
             }
-            final JTextArea textArea=new JTextArea(message, 1, WIDTH);
+            final JTextArea textArea = new JTextArea(message, 1, WIDTH);
             textArea.setEditable(false);
             textArea.setLineWrap(true);
             textArea.setWrapStyleWord(true);
             textArea.setBackground(null);
             textArea.setBorder(null); // Certain L&Fs have a border.
+            
             /**
              * Constructs the rest of the dialog box.  The title bar will
              * contain the name of the exception class.
              */
-            final JComponent messageBox=new JPanel(new BorderLayout());
+            final JComponent messageBox = new JPanel(new BorderLayout());
             messageBox.add(textArea, BorderLayout.NORTH);
-            final Pane pane=new Pane(owner, exception, messageBox, new AbstractButton[]
+            final Pane pane = new Pane(owner, exception, messageBox, new AbstractButton[]
             {
                 new JButton(resources.getString(ResourceKeys.DEBUG)),
                 new JButton(resources.getString(ResourceKeys.CLOSE))
@@ -401,7 +404,7 @@ public final class ExceptionMonitor {
          * method will construct the necessary components once and for all.
          */
         public void actionPerformed(final ActionEvent event) {
-            if (event.getSource()!=traceButton) {
+            if (event.getSource() != traceButton) {
                 dispose();
                 return;
             }
@@ -409,21 +412,21 @@ public final class ExceptionMonitor {
              * Constructs the exception trace once and for all if it hasn't
              * already been constructed.
              */
-            if (trace==null) {
-                JComponent traceComponent=null;
+            if (trace == null) {
+                JComponent traceComponent = null;
                 for (Throwable cause  = exception;
-                               cause != null;
-                               cause  = cause.getCause())
-                {
-                    final JTextArea text=new JTextArea(1, WIDTH);
+                cause != null;
+                cause  = cause.getCause()) {
+                    final JTextArea text = new JTextArea(1, WIDTH);
                     text.setTabSize(4);
                     text.setText(printStackTrace(cause));
                     text.setEditable(false);
-                    final JScrollPane scroll=new JScrollPane(text);
-                    if (traceComponent!=null) {
+                    final JScrollPane scroll = new JScrollPane(text);
+                    if (traceComponent != null) {
                         if (!(traceComponent instanceof JTabbedPane)) {
                             String classname = Utilities.getShortClassName(exception);
-                            JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+                            JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP, 
+                                                               JTabbedPane.SCROLL_TAB_LAYOUT);
                             tabs.addTab(classname, traceComponent);
                             traceComponent = tabs;
                         }
@@ -434,14 +437,14 @@ public final class ExceptionMonitor {
                         traceComponent = scroll;
                     }
                 }
-                if (traceComponent==null) {
+                if (traceComponent == null) {
                     // Should not happen
                     return;
                 }
                 traceComponent.setBorder(BorderFactory.createCompoundBorder(
-                                         BorderFactory.createEmptyBorder(12,0,0,0),
-                                                      traceComponent.getBorder()));
-                trace=traceComponent;
+                BorderFactory.createEmptyBorder(12, 0, 0, 0),
+                traceComponent.getBorder()));
+                trace = traceComponent;
             }
             /*
              * Inserts or hides the exception trace.  Even if the trace is 
