@@ -70,12 +70,17 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.util.Date;
 import java.util.logging.Logger;
+import javax.media.jai.JAI;
 
 //Logging system
 import javax.media.jai.RasterFactory;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.j2d.StyledRenderer;
 
 
 /**
@@ -89,6 +94,8 @@ public class RenderingGridCoverageTest extends TestCase {
 
     /** Grid coverage height in cells */
     private static final int HEIGHT = 1000;
+    
+    private static final boolean INTERACTIVE = false;
 
 
     /**
@@ -125,10 +132,34 @@ public class RenderingGridCoverageTest extends TestCase {
      *
      * @throws Exception DOCUMENT ME!
      */
-    public void testEmptyStyleRendering() throws Exception {
+    public void testEmtpyStyleLiteRenderer() throws Exception {
         FeatureCollection fc = wrapGcInFeatureCollection(createGrid());
         Style style = createEmtpyRasterStyle();
-        contextArchitectureTest(fc, style);
+        
+        ContextFactory cfac = ContextFactory.createFactory();
+        Context ctx = cfac.createContext();
+        ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
+        
+        LiteRenderer renderer = new LiteRenderer(ctx);
+        performTestOnRenderer(renderer, "", 300, 300, 100, 100);
+    }
+    
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws Exception DOCUMENT ME!
+     */
+    public void testEmtpyStyleStyledRenderer() throws Exception {
+        FeatureCollection fc = wrapGcInFeatureCollection(createGrid());
+        Style style = createEmtpyRasterStyle();
+        
+        ContextFactory cfac = ContextFactory.createFactory();
+        Context ctx = cfac.createContext();
+        ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
+        
+        StyledRenderer renderer = new StyledRenderer(null);
+        renderer.setContext(ctx);
+        performTestOnRenderer(renderer, "", 300, 300, 100, 100);
     }
 
     /**
@@ -227,12 +258,12 @@ public class RenderingGridCoverageTest extends TestCase {
         //   using a linear tranformation).
         // cat1: something we dont' want to show on the screen
         int max = 255; // may choose 65535 if you want more colors
-        Category cat1 = new Category("empty", null, 0, 1, 100.0, 0.0);
+        Category cat1 = new Category("empty", new Color[] {Color.BLACK}, 0, 2, 200.0, 0.0);
         Category cat2 = new Category("sum",
                 new Color[] {
                     Color.RED, Color.BLUE, Color.YELLOW, Color.BLUE, Color.YELLOW, Color.BLUE,
                     Color.YELLOW, Color.BLUE
-                }, 1, max, (1000.0 - 100) / max, 100.0
+                }, 2, max, (2000.0 - 200) / max, 200.0
             );
 
         // A sample dimension can be composed of more than one category, each with different
@@ -313,5 +344,96 @@ public class RenderingGridCoverageTest extends TestCase {
         fc.add(feature);
 
         return fc;
+    }
+    
+    /**
+     * Perform test on the passed renderer, which must be already configured with its context
+     */
+    private void performTestOnRenderer(Renderer2D renderer, String fileSuffix, int width, int height, double dataWidth, double dataHeigth)
+        throws Exception {
+        final double scalex = width / dataWidth;
+        final double scaley = height / dataHeigth;
+            
+        java.net.URL base = getClass().getResource("rs-testData/");
+
+        AffineTransform at = new AffineTransform();
+        at.translate(0, height);
+        at.scale(scalex, -scaley);
+
+        if (INTERACTIVE) {
+            java.awt.Frame frame = new java.awt.Frame("Mark test (" + renderer.getClass().getName());
+            frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                    public void windowClosing(java.awt.event.WindowEvent e) {
+                        e.getWindow().dispose();
+                    }
+                });
+
+            java.awt.Panel p = new java.awt.Panel();
+            frame.add(p);
+            frame.setSize(width, height);
+            frame.setLocation(0, 0);
+            frame.setVisible(true);
+            renderer.paint((Graphics2D) p.getGraphics(), p.getBounds(), at);
+
+            Thread.sleep(5000);
+            frame.dispose();
+        }
+
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(width, height,
+                java.awt.image.BufferedImage.TYPE_INT_RGB);
+        java.awt.Graphics2D g = (Graphics2D) image.getGraphics();
+        g.setColor(java.awt.Color.white);
+        g.fillRect(0, 0, width, height);
+        renderer.paint(g, new java.awt.Rectangle(0, 0, width, height), at);
+
+        java.io.File file = new java.io.File(base.getPath(),
+                "RenderingGridCoverageTest_" + renderer.getClass().getName().replace('.', '_') + "_"
+                + fileSuffix + width + "x" + height + ".png");
+        java.io.FileOutputStream out = new java.io.FileOutputStream(file);
+        boolean fred = javax.imageio.ImageIO.write(image, "PNG", out);
+
+        if (!fred) {
+            System.out.println("Failed to write image to " + file.toString());
+        }
+
+        java.io.File file2 = new java.io.File(base.getPath() + "/exemplars/",
+                "RenderingGridCoverageTest_" + renderer.getClass().getName().replace('.', '_') + "_" + width + "x" + height + ".png");
+
+        RenderedImage image2 = (RenderedImage) JAI.create("fileload", file2.toString());
+
+        assertNotNull("Failed to load exemplar image", image2);
+
+        Raster data = image.getData();
+        Raster data2 = image2.getData();
+        int[] pixel1 = null;
+        int[] pixel2 = null;
+        boolean isBlack = false;
+
+        for (int x = 0; x < data.getWidth(); x++) {
+            for (int y = 0; y < data.getHeight(); y++) {
+                pixel1 = data.getPixel(x, y, pixel1);
+                pixel2 = data2.getPixel(x, y, pixel2);
+
+                if ((notBlack(pixel1)) && (notBlack(pixel2))) { //Since text is black and fonts are not stable across platforms, ignore pixels where at least one is black.
+
+                    for (int band = 0; band < data2.getNumBands(); band++) {
+                        assertEquals("mismatch in image comparison at (x: " + x + " y: " + y
+                            + " band: " + band + ")", pixel1[band], pixel2[band]);
+                    }
+                }
+            }
+        }
+    }
+    
+    private boolean notBlack(int[] pixel) {
+        boolean isBlack = true;
+        int x = 0;
+
+        while (isBlack && (x < pixel.length)) {
+            isBlack = (pixel[x] == 0);
+            x++;
+        }
+
+        return !(isBlack);
     }
 }
