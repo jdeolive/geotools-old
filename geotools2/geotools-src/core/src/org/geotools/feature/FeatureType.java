@@ -64,11 +64,11 @@ package org.geotools.feature;
  * <p>It is the responsibility of the implementing class to ensure that the
  * <code>FeatureType</code> is always in a valid state.  This means that each
  * attribute tuple must be fully initialized and valid.  The minimum valid
- * <code>FeatureType</code> is one with nulls for namespace, type, and attributes;
- * this is clearly a trivial case, since it is so constrained that it would
- * not allow for any feature construction.  There are a few conventions of
- * which implementers of this interface must be aware in order to successfully
- * manage a <code>FeatureType</code>:</p><ol>
+ * <code>FeatureType</code> is one with nulls for namespace, type, and
+ * attributes; this is clearly a trivial case, since it is so constrained that
+ * it would not allow for any feature construction.  There are a few
+ * conventions of which implementers of this interface must be aware in order
+ * to successfully manage a <code>FeatureType</code>:</p><ol>
  *   
  * <li><b>Immutability</b><br>
  * <i>FeatureTypes must be implemented as immutable objects!</i>  All setting 
@@ -97,7 +97,7 @@ package org.geotools.feature;
  * clearly written <a href="http://www.w3.org/TR/xpath">specification</a>.</li>
  * </ol>
  * 
- * @version $Id: FeatureType.java,v 1.3 2002/06/04 15:07:40 loxnard Exp $
+ * @version $Id: FeatureType.java,v 1.4 2002/07/12 15:15:48 loxnard Exp $
  * @author Rob Hranac, VFNY
  * @see org.geotools.datasource.Feature
  * @see org.geotools.datasource.FeatureTypeFlat
@@ -114,14 +114,14 @@ public interface FeatureType extends AttributeType {
      * @param namespace URI namespace associated with this schema.
      * @return A modified copy of this schema.
      */
-    public FeatureType setNamespace(String namespace);
+    FeatureType setNamespace(String namespace);
 
     /**
      * Gets the global schema namespace.
      *
      * @return Namespace of schema.
      */
-    public String getNamespace();
+    String getNamespace();
 
     /**
      * Sets the global schema type name.  Note that type names are not required
@@ -130,14 +130,14 @@ public interface FeatureType extends AttributeType {
      * @param name Type name associated with this schema.
      * @return A modified copy of this schema.
      */
-    public FeatureType setTypeName(String name);
+    FeatureType setTypeName(String name);
 
     /**
      * Gets the type name for this schema.
      *
      * @return Namespace of schema.
      */
-    public String getTypeName();
+    String getTypeName();
 
 
     /* ***********************************************************************
@@ -152,7 +152,7 @@ public interface FeatureType extends AttributeType {
      * @throws SchemaException When the type is not cloneable, occurrences 
      * are illegal.
      */
-    public FeatureType setAttributeType(AttributeType attribute)
+    FeatureType setAttributeType(AttributeType attribute)
         throws SchemaException;
 
     /**
@@ -162,7 +162,7 @@ public interface FeatureType extends AttributeType {
      * @return A modified copy of this schema.
      * @throws SchemaException When the attribute does not exist.
      */
-    public FeatureType removeAttributeType(String xPath)
+    FeatureType removeAttributeType(String xPath)
         throws SchemaException;
 
     /**
@@ -173,7 +173,7 @@ public interface FeatureType extends AttributeType {
      * @throws SchemaException If the attribute does not exist or is not a 
      * geometry.
      */
-    public FeatureType setDefaultGeometry(String xPath)
+    FeatureType setDefaultGeometry(String xPath)
         throws SchemaException;
 
 
@@ -187,7 +187,7 @@ public interface FeatureType extends AttributeType {
      *
      * @return Non-nested attribute names.
      */
-    public AttributeType[] getAttributeTypes();
+    AttributeType[] getAttributeTypes();
 
     /**
      * Gets all of the names for all 'levels' of attributes.  This is a
@@ -196,7 +196,7 @@ public interface FeatureType extends AttributeType {
      *
      * @return Nested attribute names.
      */
-    public AttributeType[] getAllAttributeTypes();
+    AttributeType[] getAllAttributeTypes();
 
     /**
      * Gets the number of occurrences of this attribute.
@@ -204,7 +204,7 @@ public interface FeatureType extends AttributeType {
      * @param xPath XPath pointer to attribute type.
      * @return Number of occurrences.
      */
-    public boolean hasAttributeType(String xPath);
+    boolean hasAttributeType(String xPath);
 
     /**
      * Checks for attribute existence.
@@ -214,7 +214,7 @@ public interface FeatureType extends AttributeType {
      * @return True if attribute exists.
      * @throws SchemaException thrown if the xPath does not point to a variable?
      */
-    public AttributeType getAttributeType(String xPath)
+    AttributeType getAttributeType(String xPath)
         throws SchemaException;
 
     /**
@@ -222,7 +222,7 @@ public interface FeatureType extends AttributeType {
      *
      * @return Path to initial geometry as XPath.
      */
-    public AttributeType getDefaultGeometry();
+    AttributeType getDefaultGeometry();
 
 
     /* ***********************************************************************
@@ -233,7 +233,7 @@ public interface FeatureType extends AttributeType {
      *
      * @return the total number of first level attributes.
      */
-    public int attributeTotal();
+    int attributeTotal();
 
     /**
      * Gets the number of occurrences of this attribute.
@@ -241,7 +241,7 @@ public interface FeatureType extends AttributeType {
      * @param position the position of the attribute to check.
      * @return Number of occurrences.
      */
-    public AttributeType getAttributeType(int position);
+    AttributeType getAttributeType(int position);
 
 }
 

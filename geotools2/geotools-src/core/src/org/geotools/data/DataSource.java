@@ -24,7 +24,7 @@ import org.geotools.feature.FeatureCollection;
 /**
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
- * @version $Id: DataSource.java,v 1.3 2002/06/04 14:21:03 loxnard Exp $
+ * @version $Id: DataSource.java,v 1.4 2002/07/12 15:06:42 loxnard Exp $
  * @author Ray Gallagher
  */
 public interface DataSource {
@@ -36,7 +36,7 @@ public interface DataSource {
      * features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureCollection ft, Extent ex)
+    void importFeatures(FeatureCollection ft, Extent ex)
            throws DataSourceException;
     
     /**
@@ -46,13 +46,13 @@ public interface DataSource {
      * @throws DataSourceException if anything goes wrong or if exporting is
      * not supported
      */
-    public void exportFeatures(FeatureCollection ft, Extent ex)
+    void exportFeatures(FeatureCollection ft, Extent ex)
            throws DataSourceException;
     
     /**
      * Stops this DataSource from loading.
      */
-    public void stopLoading();
+    void stopLoading();
     
     /**
      * Gets the extent of this datasource using the default speed of 
@@ -60,7 +60,7 @@ public interface DataSource {
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
-     public Extent getExtent();
+     Extent getExtent();
     
     /**
      * Gets the extent of this datasource using the speed of 
@@ -71,6 +71,6 @@ public interface DataSource {
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
-    public Extent getExtent(boolean speed);
+    Extent getExtent(boolean speed);
 }
 

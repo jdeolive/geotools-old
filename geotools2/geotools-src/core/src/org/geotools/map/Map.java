@@ -30,7 +30,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
  *
- * @version $Id: Map.java,v 1.7 2002/06/04 15:17:57 loxnard Exp $
+ * @version $Id: Map.java,v 1.8 2002/07/12 15:19:44 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface Map {
@@ -43,7 +43,7 @@ public interface Map {
      * @param cs The single coordinate system that all features will be
      *           converted to for output.
      */
-    public void setCoordinateSystem(CS_CoordinateSystem cs);
+    void setCoordinateSystem(CS_CoordinateSystem cs);
     
     /**
      * Adds a collection of features to this map together with a style
@@ -57,7 +57,7 @@ public interface Map {
      * @param fc The collection of features to add.
      * @param style The style to apply to these features.
      */
-    public void addFeatureTable(FeatureCollection fc, Style style);
+    void addFeatureTable(FeatureCollection fc, Style style);
     
     /**
      * Displays or outputs the portion of the map that falls within a 
@@ -65,7 +65,7 @@ public interface Map {
      * @param renderer The renderer which will produce the output.
      * @param envelope The portion of the map to be rendered.
      */
-    public void render(Renderer renderer, Envelope envelope);
+    void render(Renderer renderer, Envelope envelope);
     
 }
 

@@ -69,11 +69,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * a <code>Feature</code>:</p><ol>
  *
  * <li><b>FeatureType Reference</b><br>
- * Features must always hold a single (immutable: see <code>FeatureType</code>) schema
- * reference and this reference should not be altered after a feature
+ * Features must always hold a single (immutable: see <code>FeatureType</code>)
+ * schema reference and this reference should not be altered after a feature
  * has been created.  To ensure this, is is strongly recommended that features
- * take a valid reference to an existing immutable schema in its constructor and
- * declare that reference final.</li>
+ * take a valid reference to an existing immutable schema in its constructor
+ * and declare that reference final.</li>
  *
  * <li><b>Default Geometry</b><br>
  * Each feature must have a default geometry, but this primary geometry may
@@ -93,13 +93,15 @@ import com.vividsolutions.jts.geom.Geometry;
  * It is up to implementers of <code>Feature</code> to make sure that each
  * attribute value conforms to its internal schema.  A feature should never
  * reach a state where its attributes (or sub-attributes) do not conform to
- * their <code>FeatureType</code> definitions.  There are three ways to implement
- * this.  The first is to simply make features immutable; however, given the
- * ubiquity and required flexibility of features, this is likely not possible.
- * The second (and second easiest), is to make all feature attributes immutable.
- * For most cases, this is probably the best way to handle this issue.  The
- * third way, is to never give out a reference that would allow a client to 
- * change an attribute object's class (most obviously, an array reference).
+ * their <code>FeatureType</code> definitions.  There are three ways to
+ * implement this.  The first is to simply make features immutable; however,
+ * given the ubiquity and required flexibility of features, this is likely not
+ * possible.
+ * The second (and second easiest), is to make all feature attributes
+ * immutable. For most cases, this is probably the best way to handle this
+ * issue.
+ * The third way, is to never give out a reference that would allow a client
+ * to change an attribute object's class (most obviously, an array reference).
  * Generally speaking, features should attempt to minimize external object
  * references by attempting to clone incoming attributes before
  * adding them and outgoing attributes before sending them.  For features with
@@ -113,7 +115,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * is necessary to ensure that the feature is always in a valid state,
  * relative to its schema.</ol>
  *
- * @version $Id: Feature.java,v 1.3 2002/06/04 14:55:59 loxnard Exp $
+ * @version $Id: Feature.java,v 1.4 2002/07/12 15:12:48 loxnard Exp $
  * @author James Macgill, CCG<br>
  * @author Rob Hranac, VFNY
  * @see org.geotools.datasource.FeatureType 
@@ -126,7 +128,7 @@ public interface Feature {
      *
      * @return A copy of this feature's schema.
      */
-    public FeatureType getSchema();
+    FeatureType getSchema();
 
 
     /* ***********************************************************************
@@ -139,7 +141,7 @@ public interface Feature {
      *
      * @return A copy of all feature attributes.
      */
-    public Object[] getAttributes();
+    Object[] getAttributes();
 
     /** 
      * Gets an attribute for this feature at the location specified by xPath.
@@ -148,7 +150,7 @@ public interface Feature {
      * @return A copy of the requested attribute.
      * @throws IllegalFeatureException Requested attribute not found.
      */
-    public Object getAttribute(String xPath)
+    Object getAttribute(String xPath)
         throws IllegalFeatureException;
 
     /** 
@@ -161,7 +163,7 @@ public interface Feature {
      * @throws IllegalFeatureException Requested attribute does not have 
      * multiple instance or does not exist.
      */
-    public Object[] getAttributes(String xPath)
+    Object[] getAttributes(String xPath)
         throws IllegalFeatureException;
 
 
@@ -179,7 +181,7 @@ public interface Feature {
      * @param attributes All feature attributes.
      * @throws IllegalFeatureException Passed attributes do not match schema.
      */
-    public void setAttributes(Object[] attributes)
+    void setAttributes(Object[] attributes)
         throws IllegalFeatureException;
 
     /** 
@@ -194,7 +196,7 @@ public interface Feature {
      * @param attribute Feature attribute to set.
      * @throws IllegalFeatureException Passed attribute does not match schema.
      */
-    public void setAttribute(String xPath, Object attribute)
+    void setAttribute(String xPath, Object attribute)
         throws IllegalFeatureException;
 
 
@@ -206,7 +208,7 @@ public interface Feature {
      *
      * @return Default geometry for this feature.
      */
-    public Geometry getDefaultGeometry();
+    Geometry getDefaultGeometry();
 
     /** 
      * Sets the default geometry for this feature.
@@ -215,7 +217,7 @@ public interface Feature {
      * @throws IllegalFeatureException should this cause the Feature to become
      *         illegal or if change is forbidden.
      */
-    public void setDefaultGeometry(Geometry geometry)
+    void setDefaultGeometry(Geometry geometry)
         throws IllegalFeatureException;
     
 

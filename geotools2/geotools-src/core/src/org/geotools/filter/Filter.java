@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.1 2002/07/10 14:42:07 robhranac Exp $
+ * @version $Id: Filter.java,v 1.2 2002/07/12 15:18:15 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
@@ -62,7 +62,7 @@ public interface Filter {
      * @param feature Specified feature to examine.
      * @return True if filter contains passed feature.
      */
-    public boolean contains(Feature feature);
+    boolean contains(Feature feature);
     
     /**
      * Implements a logical AND with this filter and returns the merged filter.
@@ -70,7 +70,7 @@ public interface Filter {
      * @param filter The filter to AND with this filter.
      * @return Combined filter.
      */
-    public Filter and(Filter filter);    
+    Filter and(Filter filter);    
 
     /**
      * Implements a logical OR with this filter and returns the merged filter.
@@ -78,14 +78,14 @@ public interface Filter {
      * @param filter The filter to OR with this filter.
      * @return Combined filter.
      */
-    public Filter or(Filter filter);    
+    Filter or(Filter filter);    
 
     /**
      * Implements a logical NOT with this filter and returns the negated filter
      *
      * @return Combined filter.
      */
-    public Filter not();    
+    Filter not();    
 
     
 }

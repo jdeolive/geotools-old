@@ -23,7 +23,7 @@ package org.geotools.feature;
 /**
  * Interface to be implemented by all listeners of CollectionEvents.
  *
- * @version $Id: CollectionListener.java,v 1.3 2002/06/04 14:44:15 loxnard Exp $
+ * @version $Id: CollectionListener.java,v 1.4 2002/07/12 15:10:17 loxnard Exp $
  * @author Ray Gallagher
  */
 public interface CollectionListener extends java.util.EventListener {
@@ -32,6 +32,6 @@ public interface CollectionListener extends java.util.EventListener {
      * Typically fired to signify that a change has occurred in the collection.
      * @param tce The CollectionEvent
      */
-    public void collectionChanged(CollectionEvent tce);
+    void collectionChanged(CollectionEvent tce);
 }
 

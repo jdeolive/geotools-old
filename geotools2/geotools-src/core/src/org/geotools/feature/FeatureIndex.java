@@ -30,7 +30,7 @@ package org.geotools.feature;
  * using FeatureComparator. Implement this to perform more complex Index
  * building.
  *
- * @version $Id: FeatureIndex.java,v 1.3 2002/06/04 15:00:37 loxnard Exp $
+ * @version $Id: FeatureIndex.java,v 1.4 2002/07/12 15:14:09 loxnard Exp $
  * @author Ray Gallagher
  */
 public interface FeatureIndex extends CollectionListener {
@@ -39,6 +39,6 @@ public interface FeatureIndex extends CollectionListener {
     * Gets an array of references to the rows currently held by this Index.
     * @return all the features referenced by this Index
     */
-    public Feature[] getFeatures();
+    Feature[] getFeatures();
 }
 

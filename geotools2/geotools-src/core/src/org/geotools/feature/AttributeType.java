@@ -31,7 +31,7 @@ package org.geotools.feature;
  * <li>Position: All schemas are ordered, so they store the associated position
  * of the attribute.</li></ol></p>
  *
- * @version $Id: AttributeType.java,v 1.4 2002/06/04 14:40:45 loxnard Exp $
+ * @version $Id: AttributeType.java,v 1.5 2002/07/12 15:09:46 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public interface AttributeType {
@@ -42,40 +42,40 @@ public interface AttributeType {
      * @param position Position of attribute.
      * @return Copy of attribute with modified position.
      */
-    public AttributeType setPosition(int position);
+    AttributeType setPosition(int position);
 
     /**
      * Whether or not this attribute is a schema.
      * 
      * @return True if schema.
      */
-    public boolean isNested();
+    boolean isNested();
     
     /**
      * Gets the name of this attribute.
      * 
      * @return Name.
      */
-    public String getName();
+    String getName();
     
     /**
      * Gets the type of this attribute.
      * 
      * @return Type.
      */
-    public Class getType();
+    Class getType();
     
     /**
      * Gets the occurrences of this attribute.
      * 
      * @return Occurrences.
      */
-    public int getOccurrences();
+    int getOccurrences();
     
     /**
      * Gets the position of this attribute.
      * 
      * @return Position.
      */
-    public int getPosition();    
+    int getPosition();    
 }

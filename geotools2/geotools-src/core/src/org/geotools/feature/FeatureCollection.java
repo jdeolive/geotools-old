@@ -25,7 +25,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSource;
 
 /**
- * @version $Id: FeatureCollection.java,v 1.3 2002/06/04 14:59:25 loxnard Exp $
+ * @version $Id: FeatureCollection.java,v 1.4 2002/07/12 15:13:43 loxnard Exp $
  * @author  Ian Turton, CCG<br>
  * @author  Rob Hranac, VFNY
  */
@@ -39,14 +39,14 @@ public interface FeatureCollection {
      * 
      * @param data The datasource for this feature collection to mediate.
      */
-    public void setDataSource(DataSource data);
+    void setDataSource(DataSource data);
 
     /** 
      * Gets the DataSource being used by this FeatureTable.
      * 
      * @return Datasource used by this feature collection.
      */
-    public DataSource getDataSource();
+    DataSource getDataSource();
 
     /** 
      * Gets the loaded Extent of this FeatureTable.
@@ -54,7 +54,7 @@ public interface FeatureCollection {
      *
      * @param extent The datasource for this feature collection to mediate.
      */
-    public void setExtent(Extent extent);
+    void setExtent(Extent extent);
 
     /** 
      * Gets the loaded Extent of this FeatureTable.
@@ -62,7 +62,7 @@ public interface FeatureCollection {
      *
      * @return Datasource used by this feature collection.
      */
-    public Extent getExtent();
+    Extent getExtent();
 
 
     /* ***********************************************************************
@@ -75,7 +75,7 @@ public interface FeatureCollection {
      *
      * @see #getFeatures(Extent ex)
      */
-    public Feature[] getFeatures();
+    Feature[] getFeatures();
     
     /** 
      * Gets the features in the datasource inside the Extent ex.
@@ -89,7 +89,7 @@ public interface FeatureCollection {
      * @throws DataSourceException if anything went wrong during the fetching
      *         or construction of the requested features
      */
-    public Feature[] getFeatures(Extent boundary) 
+    Feature[] getFeatures(Extent boundary) 
         throws DataSourceException;
     
     /** 
@@ -97,7 +97,7 @@ public interface FeatureCollection {
      * CollectionListeners that the table has changed.
      * @param features The Features to remove
      */
-    public void removeFeatures(Feature[] features);
+    void removeFeatures(Feature[] features);
 
     /** 
      * Removes the features from this FeatureCollection which fall into the
@@ -105,14 +105,14 @@ public interface FeatureCollection {
      * has changed.
      * @param extent The extent defining which features to remove
      */
-    public void removeFeatures(Extent extent);
+    void removeFeatures(Extent extent);
 
     /** 
      * Adds the given List of Features to this FeatureTable.
      *
      * @param features The List of Features to add
      */
-    public void addFeatures(Feature[] features);
+    void addFeatures(Feature[] features);
     
    
     /* ***********************************************************************
@@ -122,13 +122,13 @@ public interface FeatureCollection {
      * Adds a listener for table events.
      * @param spy The listener to add
      */
-    public void addListener(CollectionListener spy);
+    void addListener(CollectionListener spy);
     
     /** 
      * Removes a listener for table events.
      * @param spy The listener to remove
      */
-    public void removeListener(CollectionListener spy);
+    void removeListener(CollectionListener spy);
     
     
 }

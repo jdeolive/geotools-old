@@ -28,7 +28,7 @@ import org.geotools.feature.Feature;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: Expression.java,v 1.4 2002/07/10 14:42:07 robhranac Exp $
+ * @version $Id: Expression.java,v 1.5 2002/07/12 15:17:13 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Expression {
@@ -39,7 +39,7 @@ public interface Expression {
      *
      * @return Expression type.
      */
-    public short getType();
+    short getType();
 
 
     /**
@@ -48,6 +48,6 @@ public interface Expression {
      * @param feature Specified feature to use when returning value.
      * @return Value of the feature object.
      */
-    public Object getValue(Feature feature);
+    Object getValue(Feature feature);
     
 }

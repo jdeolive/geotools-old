@@ -7,7 +7,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  /**
  * Event data passed when AreaOfInterest has changed.
  *
- * @version $Id: AreaOfInterestChangedEvent.java,v 1.1 2002/07/10 21:54:47 camerons Exp $
+ * @version $Id: AreaOfInterestChangedEvent.java,v 1.2 2002/07/12 15:20:22 loxnard Exp $
  * @author Cameron Shorter
  */
 public class AreaOfInterestChangedEvent extends EventObject {
@@ -25,8 +25,8 @@ public class AreaOfInterestChangedEvent extends EventObject {
             final Envelope areaOfInterest,
             final CS_CoordinateSystem coordinateSystem) {
         super(source);
-        this.areaOfInterest=areaOfInterest;
-        this.coordinateSystem=coordinateSystem;
+        this.areaOfInterest = areaOfInterest;
+        this.coordinateSystem = coordinateSystem;
     }
     /** Get the new areaOfInterest.
      * @return The new areaOfInterest.

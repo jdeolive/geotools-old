@@ -25,10 +25,10 @@ import org.geotools.feature.Feature;
 
 /**
  * Represents the extent of a loaded Feature set.
- * @version $Id: Extent.java,v 1.5 2002/06/04 14:27:55 loxnard Exp $
+ * @version $Id: Extent.java,v 1.6 2002/07/12 15:08:29 loxnard Exp $
  * @author Ray Gallagher
  */
-public interface Extent{
+public interface Extent {
         /**
          * Gets the Extent which represents the intersection between this
          * Extent and other.
@@ -37,7 +37,7 @@ public interface Extent{
          * Extents (null if there is no overlap).
          */
 
-        public Extent intersection(Extent other);
+        Extent intersection(Extent other);
         /**
          * Gets the difference, represented by another Extent, between this
          * Extent and other.
@@ -48,7 +48,7 @@ public interface Extent{
          * as other.
          */
         
-        public Extent [] difference(Extent other);
+        Extent [] difference(Extent other);
         /**
          * Produces the smallest extent that will hold both the existing extent
          * and that of the extent passed in.
@@ -58,7 +58,7 @@ public interface Extent{
          * @return The new, larger, extent.
          **/
 
-        public Extent combine(Extent other);
+        Extent combine(Extent other);
         /**
          * Tests whether the given Feature is within this Extent. This Extent
          * implementation must know and be able to read the object types
@@ -67,6 +67,6 @@ public interface Extent{
          * @return True if the Feature is within this Extent, otherwise false.
          */
         
-        public boolean containsFeature(Feature feature);
+        boolean containsFeature(Feature feature);
 }
 
