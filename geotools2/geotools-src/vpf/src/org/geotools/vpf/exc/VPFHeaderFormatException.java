@@ -17,9 +17,6 @@
 
 package org.geotools.vpf.exc;
 
-import java.io.IOException;
-
-
 /**
  * Class VPFHeaderFormatException.java is responsible for
  *

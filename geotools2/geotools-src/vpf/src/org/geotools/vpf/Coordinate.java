@@ -21,6 +21,7 @@ package org.geotools.vpf;
  * Interface <code>Coordinate</code> defines 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: Coordinate.java,v 1.3 2003/04/04 14:33:03 kobit Exp $
+ * @version $Id: Coordinate.java,v 1.4 2003/05/19 20:59:37 kobit Exp $
  */
-public interface Coordinate {} // Coordinate
+public interface Coordinate {
+} // Coordinate

@@ -24,21 +24,25 @@ package org.geotools.vpf;
  * @version 1.0.0
  */
 public class TripletId {
-    byte[] rawData = null;
+    /**
+     * Describe variable <code>rawData</code> here.
+     *
+     */
+    private byte[] rawData = null;
 
     /**
-     * Creates a new TripletId object.
+     * Creates a new <code>TripletId</code> instance.
      *
-     * @param data DOCUMENT ME!
+     * @param data a <code>byte[]</code> value
      */
     public TripletId(byte[] data) {
         rawData = data;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>toString</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>String</code> value
      */
     public String toString() {
         return (rawData == null) ? "NULL"
@@ -46,11 +50,10 @@ public class TripletId {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>calculateDataSize</code> method here.
      *
-     * @param definition DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
+     * @param definition a <code>byte</code> value
+     * @return an <code>int</code> value
      */
     public static int calculateDataSize(byte definition) {
         int[] pieces = new int[3];
@@ -88,13 +91,8 @@ public class TripletId {
                 System.out.println("piece 2: " + pieces[2]);
 
                 break;
-            } // end of switch (pieces[i])
+            }
         }
-
-        // end of for (int i = 0; i < pieces.length; i++)
         return size;
     }
 }
-
-
-// TripletId

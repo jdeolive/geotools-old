@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.VPFRow;
@@ -30,19 +29,24 @@ import java.util.Map;
  * @version 1.0
  */
 public class TableRow implements VPFRow {
-    protected RowField[] fieldsArr = null;
-    protected HashMap fieldsMap = null;
+    /**
+     * Describe variable <code>fieldsArr</code> here.
+     *
+     */
+    private RowField[] fieldsArr = null;
+    /**
+     * Describe variable <code>fieldsMap</code> here.
+     *
+     */
+    private HashMap fieldsMap = null;
 
     /**
-     * Creates a new TableRow object.
+     * Creates a new <code>TableRow</code> instance.
      *
-     * @param fieldsArr DOCUMENT ME!
-     * @param fieldsMap DOCUMENT ME!
+     * @param fieldsArr a <code>RowField[]</code> value
+     * @param fieldsMap a <code>HashMap</code> value
      */
-    public TableRow(
-        RowField[] fieldsArr,
-        HashMap fieldsMap
-    ) {
+    public TableRow(RowField[] fieldsArr, HashMap fieldsMap) {
         this.fieldsArr = fieldsArr;
         this.fieldsMap = fieldsMap;
     }
@@ -50,9 +54,9 @@ public class TableRow implements VPFRow {
     // TableRow constructor
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>toString</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>String</code> value
      */
     public String toString() {
         //     StringBuffer buff = new StringBuffer(" ["+getClass().getName());
@@ -78,88 +82,67 @@ public class TableRow implements VPFRow {
 
         if (fieldsMap == null) {
             buff.append("null)");
-        } // end of if (columnDefs == null)
-        else {
+        } else {
             for (int i = 0; i < fieldsArr.length; i++) {
                 buff.append(fieldsArr[i].toString() + ":");
             }
-
-            // end of for (int i = 0; i < fieldsArr.length; i++)
             buff.append(";");
         }
-
-        // end of if (columnDefs == null) else
         return buff.toString();
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>fieldsCount</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return an <code>int</code> value
      */
     public int fieldsCount() {
         return fieldsArr.length;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>get</code> method here.
      *
-     * @param name DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
+     * @param name a <code>String</code> value
+     * @return a <code>RowField</code> value
      */
     public RowField get(String name) {
         return (RowField) fieldsMap.get(name);
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>get</code> method here.
      *
-     * @param idx DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
+     * @param idx an <code>int</code> value
+     * @return a <code>RowField</code> value
      */
     public RowField get(int idx) {
         return fieldsArr[idx];
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>equals</code> method here.
      *
-     * @param obj DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
+     * @param obj an <code>Object</code> value
+     * @return a <code>boolean</code> value
      */
     public boolean equals(Object obj) {
         if ((obj == null) || !(obj instanceof TableRow)) {
             return false;
         }
-
-        // end of if (row == null || !(row instanceof TableRow))
         TableRow row = (TableRow) obj;
 
         if ((fieldsArr == null) || (row.fieldsArr == null)) {
             return false;
         }
-
-        // end of if (fieldsArr == null || row.fieldsArr == null)
         if (fieldsArr.length != row.fieldsArr.length) {
             return false;
         }
-
-        // end of if (fieldsArr.length != row.fieldsArr.length)
         for (int i = 0; i < fieldsArr.length; i++) {
             if (!fieldsArr[i].equals(row.fieldsArr[i])) {
                 return false;
             }
-
-            // end of if (!fieldsArr[i].equals(row.fieldsArr[i]))
         }
-
-        // end of for (int i = 0; i < fieldsArr.length; i++)
         return true;
     }
 }
-
-
-// TableRow

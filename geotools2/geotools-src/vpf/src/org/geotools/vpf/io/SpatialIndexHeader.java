@@ -23,7 +23,7 @@ import org.geotools.vpf.ifc.VPFHeader;
  * SpatialIndexHeader.java Created: Tue Mar 11 23:42:48 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexHeader.java,v 1.6 2003/05/15 20:34:51 kobit Exp $
+ * @version $Id: SpatialIndexHeader.java,v 1.7 2003/05/19 20:59:38 kobit Exp $
  */
 public class SpatialIndexHeader implements VPFHeader {
     /**
@@ -31,11 +31,35 @@ public class SpatialIndexHeader implements VPFHeader {
      * of
      */
     public static final int SPATIAL_INDEX_HEADER_LENGTH = 24;
+    /**
+     * Describe variable <code>numPrims</code> here.
+     *
+     */
     private int numPrims = 0;
+    /**
+     * Describe variable <code>xmin</code> here.
+     *
+     */
     private float xmin = 0;
+    /**
+     * Describe variable <code>ymin</code> here.
+     *
+     */
     private float ymin = 0;
+    /**
+     * Describe variable <code>xmax</code> here.
+     *
+     */
     private float xmax = 0;
+    /**
+     * Describe variable <code>ymax</code> here.
+     *
+     */
     private float ymax = 0;
+    /**
+     * Describe variable <code>numNodes</code> here.
+     *
+     */
     private int numNodes = 0;
 
     /**

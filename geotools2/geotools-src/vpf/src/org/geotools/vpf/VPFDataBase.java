@@ -29,14 +29,30 @@ import java.util.List;
  * Class <code>VPFDataBase</code> is responsible for 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataBase.java,v 1.5 2003/04/17 10:18:33 kobit Exp $
+ * @version $Id: VPFDataBase.java,v 1.6 2003/05/19 20:59:37 kobit Exp $
  */
 public class VPFDataBase implements FileConstants {
 
-    protected File directory = null;
-    protected TableRow dataBaseInfo = null;
-    protected TableRow[] libraries = null;
-    protected TableRow[][] coverages = null;
+    /**
+     * Describe variable <code>directory</code> here.
+     *
+     */
+    private File directory = null;
+    /**
+     * Describe variable <code>dataBaseInfo</code> here.
+     *
+     */
+    private TableRow dataBaseInfo = null;
+    /**
+     * Describe variable <code>libraries</code> here.
+     *
+     */
+    private TableRow[] libraries = null;
+    /**
+     * Describe variable <code>coverages</code> here.
+     *
+     */
+    private TableRow[][] coverages = null;
 
     /**
      * Creates a new <code><code>VPFDataBase</code></code> instance.
@@ -80,6 +96,11 @@ public class VPFDataBase implements FileConstants {
         return xmin;
     }
 
+    /**
+     * Describe <code>getMinY</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMinY() {
         double ymin = libraries[0].get(VPFLibraryIfc.FIELD_YMIN).getAsDouble();
         for (int i = 1; i < libraries.length; i++) {
@@ -89,7 +110,12 @@ public class VPFDataBase implements FileConstants {
         }
         return ymin;
     }
-    
+
+    /**
+     * Describe <code>getMaxX</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMaxX() {
         double xmax = libraries[0].get(VPFLibraryIfc.FIELD_XMAX).getAsDouble();
         for (int i = 1; i < libraries.length; i++) {
@@ -100,6 +126,11 @@ public class VPFDataBase implements FileConstants {
         return xmax;
     }
 
+    /**
+     * Describe <code>getMaxY</code> method here.
+     *
+     * @return a <code>double</code> value
+     */
     public double getMaxY() {
         double ymax = libraries[0].get(VPFLibraryIfc.FIELD_YMAX).getAsDouble();
         for (int i = 1; i < libraries.length; i++) {
@@ -110,13 +141,21 @@ public class VPFDataBase implements FileConstants {
         return ymax;
     }
 
+    /**
+     * Describe <code>getCoverages</code> method here.
+     *
+     * @param libId an <code>int</code> value
+     * @return a <code>TableRow[]</code> value
+     * @exception IOException if an error occurs
+     */
     public TableRow[] getCoverages(int libId) throws IOException {
         if (libId < 0 && libId >= coverages.length) {
             return null;
         }
         if (coverages[libId] == null) {
             String libCover =
-                libraries[libId].get(VPFLibraryIfc.FIELD_LIB_NAME).getAsString();
+                libraries[libId].get(
+                    VPFLibraryIfc.FIELD_LIB_NAME).getAsString();
             String vpfTableName =
                 new File(new File(directory, libCover),
                          COVERAGE_ATTRIBUTE_TABLE).toString();
@@ -129,11 +168,13 @@ public class VPFDataBase implements FileConstants {
         return coverages[libId];
     }
 
+    /**
+     * Describe <code>main</code> method here.
+     *
+     * @param args a <code>String[]</code> value
+     */
     public static void main(String[] args) {
-         
+
     }
-    
+
 }
-
-
-// VPFDataBase

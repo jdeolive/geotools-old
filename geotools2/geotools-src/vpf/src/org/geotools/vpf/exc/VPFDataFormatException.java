@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf.exc;
 
 /**
@@ -25,7 +24,7 @@ package org.geotools.vpf.exc;
  * </p>
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataFormatException.java,v 1.3 2003/05/15 20:34:51 kobit Exp $
+ * @version $Id: VPFDataFormatException.java,v 1.4 2003/05/19 20:59:38 kobit Exp $
  */
 public class VPFDataFormatException extends RuntimeException {
     /**
@@ -50,10 +49,7 @@ public class VPFDataFormatException extends RuntimeException {
      * @param message DOCUMENT ME!
      * @param cause DOCUMENT ME!
      */
-    public VPFDataFormatException(
-        String message,
-        Throwable cause
-    ) {
+    public VPFDataFormatException(String message, Throwable cause) {
         super(message, cause);
     }
 

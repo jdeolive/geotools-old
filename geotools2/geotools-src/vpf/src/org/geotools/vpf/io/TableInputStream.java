@@ -37,7 +37,7 @@ import java.util.List;
  * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: TableInputStream.java,v 1.18 2003/05/15 20:34:51 kobit Exp $
+ * @version $Id: TableInputStream.java,v 1.19 2003/05/19 20:59:38 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream implements FileConstants,
     DataTypesDefinition {
@@ -77,10 +77,11 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
      *
      * @return a <code><code>VPFHeader</code></code> value
      *
+     * @exception VPFHeaderFormatException if an error occurs
      * @exception IOException if an error occurs
-     * @throws VPFHeaderFormatException DOCUMENT ME!
      */
-    public VPFHeader readHeader() throws IOException {
+    public VPFHeader readHeader()
+        throws VPFHeaderFormatException, IOException {
         byte[] fourBytes = new byte[4];
         int res = input.read(fourBytes);
         char order = readChar();
@@ -109,7 +110,7 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         TableColumnDef colDef = readColumnDef();
 
         while (colDef != null) {
-            //	  System.out.println(colDef.toString());
+            //             System.out.println(colDef.toString());
             colDefs.add(colDef);
             ctrl = readChar();
 
@@ -133,11 +134,13 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
      * Describe <code>readColumnDef</code> method here.
      *
      * @return a <code>TableColumnDef</code> value
+     *
+     * @exception VPFHeaderFormatException if an error occurs
      * @exception IOException if an error occurs
      * @exception NumberFormatException if an error occurs
      */
     private TableColumnDef readColumnDef()
-        throws IOException, NumberFormatException {
+        throws VPFHeaderFormatException, IOException, NumberFormatException {
         char ctrl = readChar();
 
         if (ctrl == VPF_RECORD_SEPARATOR) {
@@ -197,7 +200,8 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
         for (int i = 0; i < rowsDef.size(); i++) {
             TableColumnDef tcd = (TableColumnDef) rowsDef.get(i);
 
-            //condeb("Reading field: "+tcd.getName()+", columnSize="+tcd.getColumnSize());
+            //             condeb("Reading field: "+tcd.getName()+
+            //                 ", columnSize="+tcd.getColumnSize());
             Object value = null;
 
             try {

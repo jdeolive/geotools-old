@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
@@ -31,37 +30,45 @@ import org.geotools.vpf.util.DataUtils;
  * @version 1.0
  */
 public class TableColumnDef implements DataTypesDefinition {
-    protected String name = null;
-    protected char type = CHAR_NULL_VALUE;
-    protected int elementsNumber = 0;
-    protected char keyType = CHAR_NULL_VALUE;
-    protected String colDesc = null;
-    protected String valDescTableName = null;
-    protected String thematicIdx = null;
-    protected String narrTable = null;
+    /** Describe variable <code>name</code> here. */
+    private String name = null;
+
+    /** Describe variable <code>type</code> here. */
+    private char type = CHAR_NULL_VALUE;
+
+    /** Describe variable <code>elementsNumber</code> here. */
+    private int elementsNumber = 0;
+
+    /** Describe variable <code>keyType</code> here. */
+    private char keyType = CHAR_NULL_VALUE;
+
+    /** Describe variable <code>colDesc</code> here. */
+    private String colDesc = null;
+
+    /** Describe variable <code>valDescTableName</code> here. */
+    private String valDescTableName = null;
+
+    /** Describe variable <code>thematicIdx</code> here. */
+    private String thematicIdx = null;
+
+    /** Describe variable <code>narrTable</code> here. */
+    private String narrTable = null;
 
     /**
-     * Creates a new TableColumnDef object.
+     * Creates a new <code>TableColumnDef</code> instance.
      *
-     * @param name DOCUMENT ME!
-     * @param type DOCUMENT ME!
-     * @param elementsNumber DOCUMENT ME!
-     * @param keyType DOCUMENT ME!
-     * @param colDesc DOCUMENT ME!
-     * @param valDescTableName DOCUMENT ME!
-     * @param thematicIdx DOCUMENT ME!
-     * @param narrTable DOCUMENT ME!
+     * @param name a <code>String</code> value
+     * @param type a <code>char</code> value
+     * @param elementsNumber an <code>int</code> value
+     * @param keyType a <code>char</code> value
+     * @param colDesc a <code>String</code> value
+     * @param valDescTableName a <code>String</code> value
+     * @param thematicIdx a <code>String</code> value
+     * @param narrTable a <code>String</code> value
      */
-    public TableColumnDef(
-        String name,
-        char type,
-        int elementsNumber,
-        char keyType,
-        String colDesc,
-        String valDescTableName,
-        String thematicIdx,
-        String narrTable
-    ) {
+    public TableColumnDef(String name, char type, int elementsNumber,
+        char keyType, String colDesc, String valDescTableName,
+        String thematicIdx, String narrTable) {
         this.name = name;
         this.type = type;
         this.elementsNumber = elementsNumber;
@@ -73,9 +80,9 @@ public class TableColumnDef implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>toString</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>String</code> value
      */
     public String toString() {
         StringBuffer buff = new StringBuffer();
@@ -181,18 +188,18 @@ public class TableColumnDef implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>getColumnSize</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return an <code>int</code> value
      */
     public int getColumnSize() {
         return DataUtils.getDataTypeSize(type) * elementsNumber;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>isNumeric</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>boolean</code> value
      */
     public boolean isNumeric() {
         return DataUtils.isNumeric(type);

@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf.io;
 
 import org.geotools.vpf.ifc.VPFRow;
@@ -24,22 +23,22 @@ import org.geotools.vpf.ifc.VPFRow;
  * VariableIndexRow.java Created: Sun Mar 16 23:28:11 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexRow.java,v 1.2 2003/04/04 09:15:50 kobit Exp $
+ * @version $Id: VariableIndexRow.java,v 1.3 2003/05/19 20:59:38 kobit Exp $
  */
 public class VariableIndexRow implements VPFRow {
-    protected int offset = 0;
-    protected int size = 0;
+    /** Describe variable <code>offset</code> here. */
+    private int offset = 0;
+
+    /** Describe variable <code>size</code> here. */
+    private int size = 0;
 
     /**
-     * Creates a new VariableIndexRow object.
+     * Creates a new <code>VariableIndexRow</code> instance.
      *
-     * @param offset DOCUMENT ME!
-     * @param size DOCUMENT ME!
+     * @param offset an <code>int</code> value
+     * @param size an <code>int</code> value
      */
-    public VariableIndexRow(
-        int offset,
-        int size
-    ) {
+    public VariableIndexRow(int offset, int size) {
         this.offset = offset;
         this.size = size;
     }
@@ -60,9 +59,8 @@ public class VariableIndexRow implements VPFRow {
     //    *
     //    * @param argOffset Value to assign to this.offset
     //    */
-    //   public void setOffset(int argOffset)
-    //   {
-    // 	this.offset = argOffset;
+    //   public void setOffset(int argOffset) {
+    //     this.offset = argOffset;
     //   }
 
     /**
@@ -79,9 +77,8 @@ public class VariableIndexRow implements VPFRow {
     //    *
     //    * @param argSize Value to assign to this.size
     //    */
-    //   public void setSize(int argSize)
-    //   {
-    // 	this.size = argSize;
+    //   public void setSize(int argSize) {
+    //     this.size = argSize;
     //   }
 }
 

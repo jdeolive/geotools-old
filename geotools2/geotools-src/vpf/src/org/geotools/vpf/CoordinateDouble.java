@@ -28,21 +28,25 @@ package org.geotools.vpf;
  * @version 1.0.0
  */
 public class CoordinateDouble implements Coordinate {
-    protected double[][] coordinates;
+    /**
+     * Describe variable <code>coordinates</code> here.
+     *
+     */
+    private double[][] coordinates;
 
     /**
-     * Creates a new CoordinateDouble object.
+     * Creates a new <code>CoordinateDouble</code> instance.
      *
-     * @param coords DOCUMENT ME!
+     * @param coords a <code>double[][]</code> value
      */
     public CoordinateDouble(double[][] coords) {
         coordinates = coords;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>toString</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>String</code> value
      */
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -54,19 +58,10 @@ public class CoordinateDouble implements Coordinate {
                 if (j > 0) {
                     sb.append(", ");
                 }
-
-                // end of if (j > 0)
                 sb.append(coordinates[i][j]);
             }
-
-            // end of for (int j = 0; j < coordinates[i].length; j++)
             sb.append(")");
         }
-
-        // end of for (int i = 0; i < coordinates.length; i++)
         return sb.toString();
     }
 }
-
-
-// CoordinateDouble

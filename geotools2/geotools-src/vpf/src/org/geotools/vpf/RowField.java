@@ -24,11 +24,19 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
  * RowField.java Created: Mon Jan 27 13:58:34 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: RowField.java,v 1.8 2003/04/17 21:18:02 kobit Exp $
+ * @version $Id: RowField.java,v 1.9 2003/05/19 20:59:37 kobit Exp $
  */
 public class RowField implements DataTypesDefinition {
-    protected Object value = null;
-    protected char type = CHAR_NULL_VALUE;
+    /**
+     * Describe variable <code>value</code> here.
+     *
+     */
+    private Object value = null;
+    /**
+     * Describe variable <code>type</code> here.
+     *
+     */
+    private char type = CHAR_NULL_VALUE;
 
     /**
      * Creates a new <code><code>RowField</code></code> instance.
@@ -50,13 +58,10 @@ public class RowField implements DataTypesDefinition {
         if (value != null) {
             //       return value.toString()+" ("+type+")";
             return value.toString();
-        } // end of if (value != null)
-        else {
+        } else {
             //      return "null ("+type+")";
             return "null";
         }
-
-        // end of if (value != null) else
     }
 
     /**
@@ -69,8 +74,6 @@ public class RowField implements DataTypesDefinition {
         if ((obj == null) || !(obj instanceof RowField)) {
             return false;
         }
-
-        // end of if (row == null || !(row instanceof TableRow))
         return toString().equals(obj.toString());
     }
 
@@ -100,12 +103,9 @@ public class RowField implements DataTypesDefinition {
     public String getAsString() {
         if (value != null) {
             return value.toString();
-        } // end of if (value != null)
-        else {
+        } else {
             return null;
         }
-
-        // end of else
     }
 
     /**
@@ -156,6 +156,3 @@ public class RowField implements DataTypesDefinition {
         return ((Number) value).doubleValue();
     }
 }
-
-
-// RowField

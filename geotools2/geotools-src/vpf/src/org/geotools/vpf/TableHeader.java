@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
@@ -36,7 +35,7 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
      * Variable <code>length</code> keeps value of length of ASCII header
      * string (i.e., the remaining information after this field)
      */
-    protected int headerLength = -0;
+    private int headerLength = -0;
 
     /**
      * Variable <code>byteOrder</code> keeps value of  byte order in which
@@ -51,27 +50,27 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
      * </li>
      * </ul>
      */
-    protected char byteOrder = LEAST_SIGNIF_FIRST;
+    private char byteOrder = LEAST_SIGNIF_FIRST;
 
     /**
      * Variable <code>description</code> keeps value of text description of the
      * table's contents.
      */
-    protected String description = null;
+    private String description = null;
 
     /**
      * Variable <code>narrativeTable</code> keeps value of  an optional
      * narrative file which contains miscellaneous information about the
      * table.
      */
-    protected String narrativeTable = null;
+    private String narrativeTable = null;
 
     /**
      * Variable <code>columnDefs</code> keeps value of list of all column
      * definitions found in table header. This list keeps objects of type
      * <code>TableColumnDef</code> class.
      */
-    protected List columnDefs = null;
+    private List columnDefs = null;
 
     /**
      * Creates a new <code>TableHeader</code> instance.
@@ -86,13 +85,8 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
      * @param columnDefs a <code>List</code> value of all column definitions
      *        for this table.
      */
-    public TableHeader(
-        int length,
-        char byteOrder,
-        String description,
-        String narrativeTable,
-        List columnDefs
-    ) {
+    public TableHeader(int length, char byteOrder, String description,
+        String narrativeTable, List columnDefs) {
         this.headerLength = length;
         this.byteOrder = byteOrder;
         this.description = description;
@@ -116,17 +110,12 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
 
         if (columnDefs == null) {
             buff.append("null)");
-        } // end of if (columnDefs == null)
-        else {
+        } else {
             for (int i = 0; i < columnDefs.size(); i++) {
                 buff.append("\n" + columnDefs.get(i).toString());
             }
-
-            // end of for (int i = 0; i < columnDefs.size(); i++)
             buff.append("\n");
         }
-
-        // end of if (columnDefs == null) else
         return buff.toString();
     }
 
@@ -157,15 +146,10 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
             //                          colDef.getColumnSize());
             if (colDef.getColumnSize() < 0) {
                 return -1;
-            } // end of if (colDef.getColumnSize() <= 0)
-            else {
+            } else {
                 size += colDef.getColumnSize();
             }
-
-            // end of if (colDef.getColumnSize() <= 0) else
         }
-
-        // end of for (int i = 0; i < columnDefs.size(); i++)
         return size;
     }
 

@@ -31,13 +31,21 @@ import java.util.TimeZone;
  * @version
  */
 public class VPFDate {
-    protected SimpleDateFormat sdf = null;
-    protected byte[] dateBin = null;
+    /**
+     * Describe variable <code>sdf</code> here.
+     *
+     */
+    private SimpleDateFormat sdf = null;
+    /**
+     * Describe variable <code>dateBin</code> here.
+     *
+     */
+    private byte[] dateBin = null;
 
     /**
-     * Creates a new VPFDate object.
+     * Creates a new <code>VPFDate</code> instance.
      *
-     * @param date DOCUMENT ME!
+     * @param date a <code>byte[]</code> value
      */
     public VPFDate(byte[] date) {
         dateBin = (byte[]) date.clone();
@@ -45,9 +53,9 @@ public class VPFDate {
     }
 
     /**
-     * Creates a new VPFDate object.
+     * Creates a new <code>VPFDate</code> instance.
      *
-     * @param date DOCUMENT ME!
+     * @param date a <code>String</code> value
      */
     public VPFDate(String date) {
         dateBin = new byte[date.length()];
@@ -59,6 +67,10 @@ public class VPFDate {
         initialize();
     }
 
+    /**
+     * Describe <code>initialize</code> method here.
+     *
+     */
     protected void initialize() {
         for (int i = 0; i < dateBin.length; i++) {
             if ((char) dateBin[i] == ' ') {
@@ -84,9 +96,9 @@ public class VPFDate {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>toString</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>String</code> value
      */
     public String toString() {
         StringBuffer sb = new StringBuffer(dateBin.length);
@@ -99,9 +111,9 @@ public class VPFDate {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>getDate</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>Date</code> value
      */
     public Date getDate() {
         try {
@@ -109,15 +121,13 @@ public class VPFDate {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-        // end of try-catch
         return null;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>getCalendar</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>Calendar</code> value
      */
     public Calendar getCalendar() {
         try {
@@ -127,11 +137,6 @@ public class VPFDate {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
-        // end of try-catch
         return null;
     }
 }
-
-
-// VPFDate

@@ -38,16 +38,44 @@ import java.util.List;
  * VPFInputStream.java Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.11 2003/05/15 20:34:51 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.12 2003/05/19 20:59:38 kobit Exp $
  */
 public abstract class VPFInputStream implements FileConstants,
     DataTypesDefinition {
+    /**
+     * Describe variable <code>input</code> here.
+     *
+     */
     protected RandomAccessFile input = null;
+    /**
+     * Describe variable <code>header</code> here.
+     *
+     */
     protected VPFHeader header = null;
+    /**
+     * Describe variable <code>streamFile</code> here.
+     *
+     */
     protected String streamFile = null;
+    /**
+     * Describe variable <code>rowsReadAhead</code> here.
+     *
+     */
     private List rowsReadAhead = new LinkedList();
+    /**
+     * Describe variable <code>variableIndex</code> here.
+     *
+     */
     private VPFInputStream variableIndex = null;
+    /**
+     * Describe variable <code>byteOrder</code> here.
+     *
+     */
     private char byteOrder = LITTLE_ENDIAN_ORDER;
+    /**
+     * Describe variable <code>accessMode</code> here.
+     *
+     */
     private String accessMode = "r";
 
     /**
@@ -348,7 +376,8 @@ public abstract class VPFInputStream implements FileConstants,
         case DATA_LEVEL2_TEXT:
         case DATA_LEVEL3_TEXT:
 
-            byte[] dataBytes = new byte[instancesCount * DataUtils.getDataTypeSize(dataType)];
+            byte[] dataBytes =
+                new byte[instancesCount * DataUtils.getDataTypeSize(dataType)];
             input.read(dataBytes);
 
             result = DataUtils.decodeData(dataBytes, dataType);
@@ -493,7 +522,7 @@ public abstract class VPFInputStream implements FileConstants,
                 throw new EOFException("No more bytes in input stream");
             } else {
                 throw new VPFDataException(
-                    "Inssufficient bytes in input stream : "+res);
+                    "Inssufficient bytes in input stream : " + res);
             }
         }
     }

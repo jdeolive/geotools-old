@@ -65,16 +65,19 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
             try {
                 return new VPFDataSource(file);
             } catch (IOException e) {
-                throw new DataSourceException("Unable to open VPF data base " +
-                    file, e);
+                throw new DataSourceException("Unable to open VPF data base "
+                    + file, e);
             }
         } catch (URISyntaxException e) {
             return null;
         }
-
-        // end of try-catch
     }
 
+    /**
+     * Describe <code>getDescription</code> method here.
+     *
+     * @return a <code>String</code> value
+     */
     public String getDescription() {
         return "Vector Product Format data source implementation.";
     }
@@ -101,15 +104,8 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
             } else {
                 return false;
             }
-
-            // end of else
         } catch (URISyntaxException e) {
             return false;
         }
-
-        // end of try-catch
     }
 }
-
-
-// VPFDataSourceFactory

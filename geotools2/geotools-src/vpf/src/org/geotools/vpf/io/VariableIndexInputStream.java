@@ -20,46 +20,41 @@ package org.geotools.vpf.io;
 import org.geotools.vpf.ifc.VPFHeader;
 import org.geotools.vpf.ifc.VPFRow;
 import java.io.IOException;
-import java.io.InputStream;
-
 
 /**
  * VariableIndexInputStream.java Created: Mon Feb 24 22:23:58 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexInputStream.java,v 1.7 2003/04/04 09:15:50 kobit Exp $
+ * @version $Id: VariableIndexInputStream.java,v 1.8 2003/05/19 20:59:38 kobit Exp $
  */
 public class VariableIndexInputStream extends VPFInputStream {
+
     /**
-     * Creates a new VariableIndexInputStream object.
+     * Creates a new <code>VariableIndexInputStream</code> instance.
      *
-     * @param file DOCUMENT ME!
-     * @param byteOrder DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @param file a <code>String</code> value
+     * @param byteOrder a <code>char</code> value
+     * @exception IOException if an error occurs
      */
-    public VariableIndexInputStream(
-        String file,
-        char byteOrder
-    ) throws IOException {
+    public VariableIndexInputStream(String file, char byteOrder)
+        throws IOException {
         super(file, byteOrder);
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>tableSize</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return an <code>int</code> value
      */
     public int tableSize() {
         return ((VariableIndexHeader) getHeader()).getEntriesNumber();
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>readHeader</code> method here.
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @return a <code>VPFHeader</code> value
+     * @exception IOException if an error occurs
      */
     public VPFHeader readHeader() throws IOException {
         return new VariableIndexHeader(
@@ -69,11 +64,10 @@ public class VariableIndexInputStream extends VPFInputStream {
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>readRow</code> method here.
      *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
+     * @return a <code>VPFRow</code> value
+     * @exception IOException if an error occurs
      */
     public VPFRow readRow() throws IOException {
         return new VariableIndexRow(
