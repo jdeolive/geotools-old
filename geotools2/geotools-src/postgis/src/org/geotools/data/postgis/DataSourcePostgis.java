@@ -1,6 +1,23 @@
-/* Copyright (c) 2002 Vision for New York - www.vfny.org.  All rights reserved.
- * This code is licensed under the GPL 2.0 license, availible at the root application directory.
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.data.postgis;
 
 import java.io.*;
@@ -18,42 +35,48 @@ import org.geotools.datasource.extents.EnvelopeExtent;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- *@author Rob Hranac, Vision for New York
- *@version $0.9 alpha, 11/01/01$
+ * @version $Id: DataSourcePostgis.java,v 1.2 2002/06/05 12:04:45 loxnard Exp $
+ * @author Rob Hranac, Vision for New York
  */
 public class DataSourcePostgis implements org.geotools.data.DataSource {
 
 
     private static Map sqlTypeMap = new HashMap();
 
-    /** Standard logging instance */
+    /** Standard logging instance. */
     private static Category _log = Category.getInstance(DataSourcePostgis.class.getName());
     
-    /** Initialize to clean Postgis database requests of SRID part */
+    /** Initializes to clean Postgis database requests of SRID part. */
     
     // NEEDS TO BE GENERALIZED, JUST TEMPORARY
-    /** GID - since all layers may contain only one primary geometry (i.e. geometry or geom collection), this is the same as a row ID */
+    /**
+     * GID.  Since all layers may contain only one primary geometry
+     * (i.e. geometry or geom collection), this is the same as a row ID
+     */
     private static final String GID_NAME = "objectid";
     
-    /** FID - since all layers may contain only one primary geometry (i.e. geometry or geom collection), this is the same as a row ID */
+    /**
+     * FID. Since all layers may contain only one primary geometry
+     * (i.e. geometry or geom collection), this is the same as a row ID
+     */
     private static final String FID_NAME = "objectid";
     
-    /** Factory for producing geometries (from JTS) */
+    /** Factory for producing geometries (from JTS). */
     private static GeometryFactory geometryFactory = new GeometryFactory();
     
-    /** Well Known Text reader (from JTS) */
+    /** Well Known Text reader (from JTS). */
     private static WKTReader geometryReader = new WKTReader(geometryFactory);
     
-    /** The maximum features allowed by the server for any given response */
+    /** The maximum features allowed by the server for any given response. */
     private int maxFeatures = 500;
 
-    /** The maximum features allowed by the server for any given response */
+    /** The maximum features allowed by the server for any given response. */
     private FeatureType schema = null;
 
-    /** A postgis connection */
+    /** A postgis connection. */
     private javax.sql.DataSource db;
 
-    /** A tablename */
+    /** A tablename. */
     private String tableName;
 
 
@@ -110,7 +133,8 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
     /**
      * Creates a new geometry object from the PostGIS database.
      *
-     * @param geometry The PostGIS WKT + SRID string representation of the geometry
+     * @param geometry The PostGIS WKT + SRID string representation of the
+     * geometry.
      */ 
     private static Geometry createGeometry(String geometry) {
         
@@ -140,7 +164,8 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
     /**
      * Creates a new geometry object from the PostGIS database.
      *
-     * @param geometry The PostGIS WKT + SRID string representation of the geometry
+     * @param geometry The PostGIS WKT + SRID string representation of the
+     * geometry.
      */ 
     private static Object createOther(Object other) {        
         return other;
@@ -150,7 +175,8 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
     /**
      * Creates a new geometry object from the PostGIS database.
      *
-     * @param geometry The PostGIS WKT + SRID string representation of the geometry
+     * @param geometry The PostGIS WKT + SRID string representation of the
+     * geometry.
      */ 
     private String makeSql(Extent query) {        
         return "SELECT * FROM " + tableName + ";";
@@ -236,7 +262,7 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
 
 
     // TODO 2:
-    // Implement these functioons
+    // Implement these functions
     public void exportFeatures(FeatureCollection features, Extent query) 
         throws DataSourceException {
     }
@@ -255,7 +281,7 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
 
 
     /**
-     * Closes the result set.  Child class must remember to call
+     * Closes the result set.  Child class must remember to call.
      *
      * @param result The servlet request object.
      */ 

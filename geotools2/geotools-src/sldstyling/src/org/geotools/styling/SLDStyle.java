@@ -1,18 +1,33 @@
 /*
- * SLDStyler.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 22 May 2002, 14:22
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.styling;
 
 /**
- * A class to read and parse an SLD file based on verions 0.7.2 of
- * the OGC Styled Layer Descriptor Spec
+ * A class to read and parse an SLD file based on verion 0.7.2 of
+ * the OGC Styled Layer Descriptor Spec.
  *
- * @author  iant
+ * @version $Id: SLDStyle.java,v 1.7 2002/06/05 12:08:33 loxnard Exp $
+ * @author Ian Turton, CCG
  *
- * @version $Id: SLDStyle.java,v 1.6 2002/06/03 16:10:13 ianturton Exp $
+
  */
 
 import org.w3c.dom.*;
@@ -98,7 +113,8 @@ public class SLDStyle implements org.geotools.styling.Style {
         return defaultB;
     }
     
-    /** Setter for property name.
+    /**
+     * Setter for property name.
      * @param name New value of property name.
      */
     private void setName(java.lang.String name) {
@@ -107,7 +123,8 @@ public class SLDStyle implements org.geotools.styling.Style {
     }
     
     
-    /** Setter for property abstractStr.
+    /**
+     * Setter for property abstractStr.
      * @param abstractStr New value of property abstractStr.
      */
     private void setAbstract(java.lang.String abstractStr) {
@@ -115,7 +132,8 @@ public class SLDStyle implements org.geotools.styling.Style {
         this.abstractStr = abstractStr;
     }
     
-    /** Setter for property title.
+    /**
+     * Setter for property title.
      * @param title New value of property title.
      */
     private void setTitle(java.lang.String title) {
@@ -579,7 +597,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             
             String nodeValue = child.getFirstChild().getNodeValue();
             _log.info("processing literal "+nodeValue);
-            // see if its an int
+            // see if it's an int
             try{
                 try{
                     Integer I = new Integer(nodeValue);
@@ -626,7 +644,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             _log.debug("processing a text node "+root.getNodeValue());
             String nodeValue = root.getNodeValue();
             _log.info("Text name "+nodeValue);
-            // see if its an int
+            // see if it's an int
             try{
                 try{
                     Integer I = new Integer(nodeValue);
