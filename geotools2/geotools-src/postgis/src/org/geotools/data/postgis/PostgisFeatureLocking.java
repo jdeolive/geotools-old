@@ -87,7 +87,7 @@ import java.util.logging.Logger;
  * </p>
  * 
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.2 2003/11/21 23:27:59 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.3 2003/11/21 23:36:02 jive Exp $
  *
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
@@ -145,7 +145,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      * @see org.geotools.data.FeatureLocking#lockFeatures(org.geotools.filter.Filter)
      */
     public int lockFeatures(Filter filter) throws IOException {
-        return lockFeatures(new DefaultQuery(filter));
+        return lockFeatures(new DefaultQuery( getSchema().getTypeName(), filter));
     }
 
     /**
