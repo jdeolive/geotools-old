@@ -47,6 +47,12 @@ The Java Advanced Imaging Image I/O Tools
 The JAI and the JAI I/O Tools are standard extensions to Java created by SUN.  They have versions specific to different platforms so we cannot distribute them as part of the release. You can obtain the latest versions of both of these from:
 http://java.sun.com/products/java-media/jai/current.html
 
+MODULE SPECIFIC REQUIREMENTS
+============================
+Oracle:
+Due to licensing restrictions, we are not able to distribute all the jars needed by the Oracle module.  
+Please see the readme file in that module for more details.
+
 BUILDING
 ========
 In order to build GeoTools you will need a copy of Maven.  Maven is a project management tool from the Apache group.  You can obtain a copy of maven from: 
@@ -57,12 +63,15 @@ At the time of writing, the build process was known to work with Maven Beta 10.
 Once you have maven installed, you can perform a full build by moving to the geotools2 folder and typing:
 maven build
 
-For information on common problems which can occur when building, see the FAQ at
+NOTE: The build may fail the first time, please try at least twice. 
+For more information on common problems which can occur when building, see the FAQ at
 http://www.geotools.org/index.php?module=articles&func=view&catid=37&itemtype=4
+
 
 FUTURE CHANGES
 ==============
 This is our first release and, whilst the API has stabilized somewhat, it is still undergoing change, so code written against this release may have to be modified to work with future releases.  We will always document what changes are necessary and we will leave existing API methods working but deprecated where possible.
+Some APIs may change more radically.  For example, as we bring the GUI components to maturity we will probably have to overhaul the rendering architecture.  In addition, we are planning to use a set of geometry interfaces in the near future - we will provide as much information as possible when these changes occur.
 
 You will find - in a few places - code which is already marked as deprecated.  Please do not use these methods (even if we do in some tests and examples) as there is a good chance these will be removed in the next release.
 
