@@ -488,7 +488,7 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
             case GMLUtils.MULTIPOLYGON:
             case GMLUtils.MULTIGEOMETRY:
 
-                String member = getMemberName(geometryType);
+                String member = GMLUtils.getMemberName(geometryType);
                 writeMulti((GeometryCollection) geometry, gid, member);
 
                 break;
@@ -588,23 +588,6 @@ public class FeatureTransformer extends XMLFilterImpl implements XMLReader {
             tab(--indent);
         }
 
-        //move to gml utils?
-        private String getMemberName(int geometryType) {
-            //String member;
-
-            switch (geometryType) {
-            case GMLUtils.MULTIPOINT:
-                return "pointMember";
-
-            case GMLUtils.MULTILINESTRING:
-                return "lineStringMember";
-
-            case GMLUtils.MULTIPOLYGON:
-                return "polygonMember";
-
-            default:
-                return "geometryMember";
-            }
-        }
+        
     }
 }
