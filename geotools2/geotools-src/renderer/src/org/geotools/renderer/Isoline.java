@@ -80,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.4 2003/01/20 23:21:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -107,6 +107,14 @@ public class Isoline extends GeoShape implements Comparable {
      * Ensemble de polygones constituant cet isoligne. Les éléments de
      * ce tableau peuvent être classés de façon à améliorer la qualité
      * de l'affichage lorsqu'ils sont dessinés du dernier au premier.
+     *
+     * This array contains cloned polygon (remind: cloned polgons still share their data).
+     * The <code>Isoline</code> API should never expose its internal polygons in anyway.
+     * If a polygon is to be returned, it must be cloned again. Cloning polygons allow to
+     * protect their state, especially the <code>Polygon.setDrawingResolution(...)</code>
+     * value which is implementation details and should be hidden to the user. The only
+     * exception to this rule is {@link Polygon.Renderer#paint}, which is not cloned for
+     * performance reasons.
      */
     private Polygon[] polygons;
 
@@ -288,7 +296,7 @@ public class Isoline extends GeoShape implements Comparable {
                 sort();
             }
             for (int i=0; i<polygonCount; i++) {
-                final Polygon polygon=polygons[i];
+                final Polygon polygon = polygons[i];
                 if (polygon.contains(x,y)) {
                     final InteriorType interiorType = polygon.getInteriorType();
                     if (InteriorType.ELEVATION.equals(interiorType)) {
@@ -473,15 +481,10 @@ public class Isoline extends GeoShape implements Comparable {
     /**
      * Paint this isoline to the specified {@link Polygon.Renderer}.
      * This method is faster than <code>graphics.draw(this)</code> since it reuse
-     * internal cache when possible.   However, since it may change the isoline's
-     * resolution, this method should not be invoked on user's isoline. It should
-     * be invoked on cloned isoline instead  (remind: cloned isolines share their
-     * data, so the memory overhead is keep low).
+     * internal cache when possible.
      *
      * @param  renderer The destination renderer. The {@link Polygon.Renderer#paint}
      *         method will be invoked for each polygon to renderer.
-     *
-     * @task REVISIT: Not happy with this method's specification (clones, etc.)
      *
      * @task TODO: We need to convert 'resolution' from Polygon's CS
      *             to view CS before to compute the decimation rate.
@@ -564,7 +567,10 @@ public class Isoline extends GeoShape implements Comparable {
      * @return An <em>estimation</em> of memory usage in bytes.
      */
     final synchronized long getMemoryUsage() {
-        long total=0;
+        long total = 48;
+        if (polygons != null) {
+            total += 4*polygons.length;
+        }
         for (int i=polygonCount; --i>=0;) {
             total += polygons[i].getMemoryUsage();
         }
@@ -1051,7 +1057,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.4 2003/01/20 23:21:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {

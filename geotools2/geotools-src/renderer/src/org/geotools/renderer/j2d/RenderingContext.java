@@ -36,6 +36,7 @@ package org.geotools.renderer.j2d;
 import java.util.List;
 import java.awt.Shape;
 import java.awt.Rectangle;
+import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
@@ -43,6 +44,8 @@ import java.awt.geom.NoninvertibleTransformException;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.FittedCoordinateSystem;
+import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.CoordinateTransformation;
@@ -55,33 +58,26 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Information relatives aux traçage d'une carte. Ces informations comprennent notamment
- * la suite des transformations nécessaires à la conversion de coordonnées géographiques
- * en coordonnées pixels.  Soit <code>point</code> un objet {@link Point2D} représentant
- * une coordonnée.  Alors la conversion de la coordonnée géographique vers la coordonnée
- * pixel suivra le chemin suivant (l'ordre des opérations est important):
+ * Informations relatives to the rendering of {@link RenderedObject}s. An
+ * <code>RenderingContext</code> object is created by {@link Renderer#paint} and
+ * passed to {@link RenderedObject#paint} method for every layer to renderer. A
+ * <code>RenderingContext</code> contains informations about coordinates transformations
+ * to apply.  A rendering process usually imply the following transformations (names are
+ * {@linkplain CoordinateSystem coordinate systems} and arrows are {@linkplain MathTransform
+ * transforms}:
  *
- * <blockquote><table>
- *   <tr><td><code>{@link #getMathTransform2D getMathTransform2D}(layer).transform(point, point)</code></td>
- *       <td>pour convertir la coordonnée géographique de l'objet {@link RenderedObject} spécifié
- *           vers le système de coordonnées de l'afficheur {@link Renderer}. Le résultat est
- *           encore en coordonnées logiques, par exemple en véritables mètres sur le terrain
- *           ou encore en degrés de longitude ou de latitude.</td></tr>
+ * <p align="center">
+ * {@link RenderedObject#getCoordinateSystem layerCS} <img src="doc-files/right.png">
+ * {@link #mapCS} <img src="doc-files/right.png">
+ * {@link #textCS} <img src="doc-files/right.png">
+ * {@link #deviceCS}
+ * </p>
  *
- *   <tr><td><code>{@link #getAffineTransform getAffineTransform}({@link #WORLD_TO_POINT}).transform(point, point)</code></td>
- *       <td>pour transformer les mètres en des unités proches de 1/72 de pouce. Avec cette
- *           transformation, nous passons des "mètres" sur le terrain en "points" sur l'écran
- *           (ou l'imprimante).</td></tr>
- *
- *   <tr><td><code>{@link #getAffineTransform getAffineTransform}({@link #POINT_TO_PIXEL}).transform(point, point)</code></td>
- *       <td>pour passer des 1/72 de pouce vers des unités qui dépendent du périphérique.</td></tr>
- * </table></blockquote>
- *
- * @version $Id: RenderingContext.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.2 2003/01/20 23:21:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
- * @see RenderedObject#paint
  * @see Renderer#paint
+ * @see RenderedObject#paint
  */
 public final class RenderingContext {
     /**
@@ -101,35 +97,36 @@ public final class RenderingContext {
     private final Renderer renderer;
 
     /**
-     * Transformation (généralement une projection cartographique) servant à convertir les
-     * coordonnées géographiques vers les données projetées à l'écran. La valeur retournée
-     * par {@link CoordinateTransformation#getTargetCS} doit obligatoirement être le système
-     * de coordonnées utilisé pour l'affichage. En revanche, la valeur retournée par {@link
-     * CoordinateTransformation#getSourceCS} peut être n'importe quel système de coordonnées,
-     * mais il vaux mieux pour des raisons de performance que ce soit le système de
-     * coordonnées le plus utilisé par les objets à dessiner.
+     * The graphics where painting occurs. This graphics is initialized with
+     * an affine transform appropriate for rendering geographic features in the
+     * {@link #mapCS} coordinate system. The affine transform can be changed in
+     * a convenient way with {@link #setCoordinateSystem}.
      */
-    private final CoordinateTransformation transformation;
+    public final Graphics2D graphics;
 
     /**
-     * Transformation affine convertissant les mètres vers les unités de texte (1/72 de pouce).
-     * Ces unités de textes pourront ensuite être converties en unités du périphérique avec la
-     * transformation {@link #fromPoints}. Cette transformation <code>fromWorld</code> peut varier
-     * en fonction de l'échelle de la carte, tandis que la transformation {@link #fromPoints}
-     * ne varie généralement pas pour un périphérique donné.
+     * The "real world" coordinate system for rendering. This is the coordinate system for
+     * what the user will see on the screen. Data from all {@link RenderedObject}s will be
+     * projected in this coordinate system before to be rendered.  Units are usually "real
+     * world" metres.
      */
-    private final AffineTransform fromWorld;
+    public final CoordinateSystem mapCS;
 
     /**
-     * Transformation affine convertissant des unités de texte (1/72 de pouce) en unités
-     * dépendantes du périphérique. Lors des sorties vers l'écran, cette transformation est
-     * généralement la matrice identité. Pour les écritures vers l'imprimante, il s'agit d'une
-     * matrice configurée d'une façon telle que chaque point correspond à environ 1/72 de pouce.
-     *
-     * Cette transformation affine reste habituellement identique d'un traçage à l'autre
-     * de la composante. Elle varie si par exemple on passe de l'écran vers l'imprimante.
+     * The {@linkplain Graphics2D Java2D coordinate system}. Each "unit" is a dot (about
+     * 1/72 of inch). <var>x</var> values increase toward the right of the screen and
+     * <var>y</var> values increase toward the bottom of the screen. This coordinate system
+     * is appropriate for rendering text and labels.
      */
-    private final AffineTransform fromPoints;
+    public final CoordinateSystem textCS;
+
+    /**
+     * The device coordinate system. Each "unit" is a pixel of device-dependent size. When
+     * rendering on screen, this coordinate system is identical to {@link #textCS}. When
+     * rendering on printer or some other devices, it may be different. This coordinate
+     * system is rarely directly used.
+     */
+    public final CoordinateSystem deviceCS;
 
     /**
      * Position et dimension de la région de la
@@ -152,86 +149,71 @@ public final class RenderingContext {
     /**
      * Construit un objet <code>RenderingContext</code> avec les paramètres spécifiés.
      * Ce constructeur ne fait pas de clones.
-     *
-     * @param renderer The originating {@link Renderer}.
-     * @param transformation Transformation (généralement une projection cartographique) servant à
-     *               convertir les coordonnées géographiques vers les données projetées à l'écran.
-     *               La valeur retournée par {@link CoordinateTransformation#getTargetCS} doit
-     *               obligatoirement être le système de coordonnées utilisé pour l'affichage. En
-     *               revanche, la valeur retournée par {@link CoordinateTransformation#getSourceCS}
-     *               peut être n'importe quel système de coordonnées, mais il vaux mieux pour des
-     *               raisons de performance que ce soit le système de coordonnées le plus utilisé
-     *               par les objets à dessiner.
-     * @param fromWorld  Transformation affine convertissant les mètres vers les unités de texte
-     *                   (1/72 de pouce).
-     * @param fromPoints Transformation affine convertissant des unités de texte (1/72 de pouce)
-     *                   en unités dépendantes du périphérique.
-     * @param bounds     Position et dimension de la région de la fenêtre dans lequel se fait le
-     *                   traçage.
      */
-    RenderingContext(final Renderer                 renderer,
-                     final CoordinateTransformation transformation,
-                     final AffineTransform          fromWorld,
-                     final AffineTransform          fromPoints,
-                     final Rectangle                bounds)
+    RenderingContext(final Renderer         renderer,
+                     final Graphics2D       graphics,
+                     final CoordinateSystem    mapCS,
+                     final CoordinateSystem   textCS,
+                     final CoordinateSystem deviceCS,
+                     final Rectangle          bounds)
     {
-        if (renderer!=null && transformation!=null && fromWorld!=null && fromPoints!=null) {
-            this.renderer       = renderer;
-            this.transformation = transformation;
-            this.fromWorld      = fromWorld;
-            this.fromPoints     = fromPoints;
-            this.bounds         = bounds;
-        } else {
-            throw new NullPointerException();
-        }
+        this.renderer = renderer;
+        this.graphics = graphics;
+        this.mapCS    =    mapCS;
+        this.textCS   =   textCS;
+        this.deviceCS = deviceCS;
+        this.bounds   = bounds;
     }
 
     /**
-     * Returns the view coordinate system. This is the coordinate system to be used
-     * for drawing objects on the widget. User can set this coordinate system prior
-     * rendering with {@link Renderer#setCoordinateSystem}.
+     * Set the coordinate system in use for rendering in {@link Graphics2D}. Invoking this
+     * method do not alter the {@link Renderer} coordinate system. It is only a convenient
+     * way to set the  {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s
+     * affine transform}, for example in order to alternate between rendering geographic
+     * features and text. The coordinate system specified in argument shoud be one of
+     * {@link #mapCS}, {@link #textCS} or {@link #deviceCS} fields. Other coordinate systems
+     * may thrown an exception.
      *
-     * @see Renderer#setCoordinateSystem
-     * @see Renderer#getCoordinateSystem
-     * @see RenderedObject#getCoordinateSystem
+     * @param cs The {@link graphics} coordinate system. Should be {@link #mapCS},
+     *          {@link #textCS} or {@link #deviceCS}.
+     * @throw IllegalArgumentException if the coordinate system is invalid.
+     *
+     * @see #graphics
+     * @see #getMathTransform
+     * @see Graphics2D#setTransform
      */
-    public CoordinateSystem getViewCoordinateSystem() {
-        return transformation.getTargetCS();
-    }
-
-    /**
-     * Retourne la transformation à utiliser pour convertir les coordonnées d'un objet vers
-     * les coordonnées projetées à l'écran. Cette transformation sera souvent une projection
-     * cartographique.
-     *
-     * @param  layer Objet dont on veut convertir les coordonnées.
-     * @return Une transformation qui transformera les coordonnées de l'objet spécifié
-     *         (<code>layer</code>) vers les coordonnées affichées à l'écran ({@link Renderer}).
-     * @throws CannotCreateTransformException Si la transformation n'a pas pu être créée.
-     */
-    public MathTransform2D getMathTransform2D(final RenderedObject layer)
-            throws CannotCreateTransformException
-    {
-        CoordinateTransformation transformation = this.transformation;
-        final CoordinateSystem source = layer.getCoordinateSystem();
-        if (!transformation.getSourceCS().equals(source, false)) {
-            transformation = renderer.getCoordinateTransformation(source,
-                                        transformation.getTargetCS(),
-                                        "RenderingContext", "getMathTransform2D");
+    public void setCoordinateSystem(final CoordinateSystem cs) throws IllegalArgumentException {
+        CannotCreateTransformException cause;
+        try {
+            final MathTransform tr = getMathTransform(cs, deviceCS);
+            if (tr instanceof AffineTransform) {
+                graphics.setTransform((AffineTransform) tr);
+                return;
+            }
+            cause = null;
+        } catch (CannotCreateTransformException exception) {
+            cause = exception;
         }
-        return (MathTransform2D) transformation.getMathTransform();
+        final IllegalArgumentException exception = new IllegalArgumentException(
+                  org.geotools.resources.cts.Resources.format(
+                  org.geotools.resources.cts.ResourceKeys.ERROR_NOT_AN_AFFINE_TRANSFORM));
+        exception.initCause(cause);
+        throw exception;
     }
 
     /**
-     * Retourne une transformation affine. Deux types de transformations sont d'intéret:
-     *
+     * Construct a transform between two coordinate systems. The coordinate arguments
+     * are usually (but not necessarily) one of the following pairs:
      * <ul>
-     *   <li>{@link TransformationStep#WORLD_TO_POINT}:
+     *   <li><code>({@link RenderedObject#getCoordinateSystem layerCS}, {@link #mapCS})</code>:
+     *       Arbitrary transform from the {@link RenderedObject} coordinate system to the
+     *       rendering coordinate system.</li>
+     *   <li><code>({@link #mapCS}, {@link #textCS})</code>:
      *       Transformation affine convertissant les mètres vers les unités de texte (1/72 de pouce).
      *       Ces unités de textes pourront ensuite être converties en unités du périphérique avec la
-     *       transformation {@link #POINT_TO_PIXEL}. Cette transformation peut varier en fonction
-     *       de l'échelle de la carte.</li>
-     *   <li>{@link TransformationStep#POINT_TO_PIXEL}:
+     *       transformation ci-dessous. Cette transformation peut varier en fonction de l'échelle de
+     *       la carte.</li>
+     *   <li><code>({@link #textCS}, {@link #deviceCS})</code>:
      *       Transformation affine convertissant des unités de texte (1/72 de pouce) en unités
      *       dépendantes du périphérique. Lors des sorties vers l'écran, cette transformation
      *       est généralement la matrice identité. Pour les écritures vers l'imprimante, il s'agit
@@ -241,16 +223,16 @@ public final class RenderingContext {
      *       si on dessine vers l'imprimante plutôt que l'écran.</li>
      * </ul>
      *
-     * <strong>Note: cette méthode ne fait pas de clone. Ne modifiez pas l'objet retourné!</strong>
+     * @param  sourceCS The source coordinate system.
+     * @param  targetCS The target coordinate system.
+     * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
+     * @throws CannotCreateTransformException if the transformation can't be created.
      */
-    public AffineTransform getAffineTransform(final TransformationStep type) {
-        if (TransformationStep.WORLD_TO_POINT.equals(type)) {
-            return fromWorld;
-        }
-        if (TransformationStep.POINT_TO_PIXEL.equals(type)) {
-            return fromPoints;
-        }
-        throw new IllegalArgumentException(String.valueOf(type));
+    public MathTransform getMathTransform(final CoordinateSystem sourceCS,
+                                          final CoordinateSystem targetCS)
+            throws CannotCreateTransformException
+    {
+        return renderer.getMathTransform(sourceCS, targetCS);
     }
 
     /**
@@ -259,7 +241,7 @@ public final class RenderingContext {
      * This method usually returns <code>false</code> during printing.
      */
     final boolean normalDrawing() {
-        return fromPoints.isIdentity();
+        return textCS == deviceCS;
     }
 
     /**
@@ -348,11 +330,11 @@ public final class RenderingContext {
 //                sourceCS = contour.getCoordinateSystem();
 //            }
 //            if (!targetCS.equals(sourceCS, false)) try {
-//                CoordinateTransformation transformation = this.transformation;
-//                if (!transformation.getSourceCS().equals(sourceCS, false)) {
-//                    transformation = Contour.getCoordinateTransformation(sourceCS, targetCS, "RenderingContext", "clip");
+//                CoordinateTransformation toView = this.toView;
+//                if (!toView.getSourceCS().equals(sourceCS, false)) {
+//                    toView = Contour.getCoordinateTransformation(sourceCS, targetCS, "RenderingContext", "clip");
 //                }
-//                clip = temporary = CTSUtilities.transform((MathTransform2D)transformation.getMathTransform(), clip, temporary);
+//                clip = temporary = CTSUtilities.transform((MathTransform2D)toView.getMathTransform(), clip, temporary);
 //            } catch (TransformException exception) {
 //                Utilities.unexpectedException("fr.ird.map", "RenderingContext", "clip", exception);
 //                continue; // A contour seems invalid. It will be ignored (and probably garbage collected soon).

@@ -106,7 +106,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.4 2003/01/20 23:21:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1170,7 +1170,7 @@ public class Polygon extends GeoShape {
      * @return An <em>estimation</em> of memory usage in bytes.
      */
     final synchronized long getMemoryUsage() {
-        return Polyline.getMemoryUsage(data);
+        return Polyline.getMemoryUsage(data) + 50;
     }
 
     /**
@@ -1833,7 +1833,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.4 2003/01/20 23:21:07 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Isoline#paint
@@ -1858,9 +1858,12 @@ public class Polygon extends GeoShape {
         public abstract float getResolution();
 
         /**
-         * Draw or fill a polygon.
+         * Draw or fill a polygon. {@link Isoline#paint} invokes this method with a decimated and/or
+         * clipped polygon in argument. This polygon expose some internal state of {@link Isoline}.
+         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
+         * in order to avoid unexpected behaviour.
          *
-         * @param polygon The polygon to draw. This object should not be changed.
+         * @param polygon The polygon to draw. <strong>Do not modify.</strong>
          */
         public abstract void paint(final Polygon polygon);
     }

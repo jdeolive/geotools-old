@@ -43,12 +43,12 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.AffineTransform;
 
 // User interface and Java2D rendering
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.EventQueue;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.event.EventListenerList;
-import javax.swing.JComponent;
 import javax.swing.JPopupMenu;
 
 // Miscellaneous J2SE
@@ -71,12 +71,10 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Base class for layers to be rendered using the Java2D renderer. Each layer can use
  * its own {@linkplain CoordinateSystem coordinate system} (CS) for its underlying data.
- * All methods except {@link #paint paint} expect arguments and returns values expressed
- * in this layer's CS, no matter which CS are in use by other layers or by the widget.
- * Transformations to the {@link RendereringContext#getViewCoordinateSystem view coordinate
- * system} are performed on the fly at rendering time.
+ * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
+ * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedObject.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
+ * @version $Id: RenderedObject.java,v 1.2 2003/01/20 23:21:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedObject {
@@ -88,18 +86,17 @@ public abstract class RenderedObject {
     private static final int TIME_THRESHOLD = 200;
 
     /**
-     * The component where to send {@link JComponent#repaint()} request. This component should
-     * never be accessible to subclasses because it is an implementation detail that may change
-     * in the future, and in order to prevent dead lock.
+     * The component where to send {@link Component#repaint()} request,
+     * or <code>null</code> if none.
      */
-    transient JComponent mapPanel;
+    transient Component mapPanel;
 
     /**
      * Forme géométrique englobant la région dans laquelle la couche a été dessinée lors du
      * dernier appel de la méthode {@link #paint}.  Les coordonnées de cette région doivent
-     * être en exprimées en coordonnées pixels de l'écran. La valeur <code>null</code>
-     * signifie qu'on peut considérer que cette couche occupe la totalité de la surface
-     * dessinable.
+     * être en exprimées en coordonnées pixels de l'écran ({@link RenderingContext#deviceCS}).
+     * La valeur <code>null</code> signifie qu'on peut considérer que cette couche occupe la
+     * totalité de la surface dessinable.
      */
     private transient Shape shape;
 
@@ -159,9 +156,9 @@ public abstract class RenderedObject {
     private final EventListenerList listenerList = new EventListenerList();
 
     /**
-     * Construct a new <code>RenderedObject</code>. The {@linkplain #getCoordinateSystem
+     * Construct a new <code>RenderedObject</code> layer. The {@linkplain #getCoordinateSystem
      * coordinate system} default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}
-     * and the {@linkplain #getZOrder z-order} default to positive infinity (i.e. this object
+     * and the {@linkplain #getZOrder z-order} default to positive infinity (i.e. this layer
      * is drawn on top of everything else). Subclasses should invokes <code>setXXX</code>
      * methods in order to define properly this object's properties.
      *
@@ -174,22 +171,27 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Returns this object's name. Default implementation returns class name
+     * Returns this layer's name. Default implementation returns class name
      * and its z-order.
      *
      * @param  locale The desired locale, or <code>null</code> for a default locale.
-     * @return This object's name.
+     * @return This layer's name.
+     *
+     * @see Renderer#getLocale
+     * @see Component#getLocale
      */
     public String getName(final Locale locale) {
         return Utilities.getShortClassName(this) + '[' + getZOrder() + ']';
     }
 
     /**
-     * Returns the two-dimensional coordinate system in use. This coordinate system
-     * is used by all methods in this class like {@link #getPreferredArea}.
+     * Returns the two-dimensional coordinate system in use. This coordinate system is
+     * used by {@link #getPreferredArea} and {@link #getPreferredPixelSize} among others.
      *
      * @see #setCoordinateSystem
-     * @see RenderingContext#getViewCoordinateSystem
+     * @see #getPreferredArea
+     * @see #getPreferredPixelSize
+     * @see RenderingContext#mapCS
      */
     public final CoordinateSystem getCoordinateSystem() {
         return coordinateSystem;
@@ -248,7 +250,7 @@ public abstract class RenderedObject {
      * Set the preferred pixel size for a close zoom. For images, the preferred pixel
      * size is the image's pixel size (in units of {@link #getCoordinateSystem}). For
      * other kind of object, this "pixel" size should be some raisonable resolution
-     * for the underlying data. For example an object drawing an isoline may use the
+     * for the underlying data. For example a layer drawing an isoline may use the
      * isoline's mean resolution.
      *
      * @param size The preferred pixel size, or <code>null</code> if there is none.
@@ -259,8 +261,8 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Retourne l'ordre <var>z</var> à laquelle cet objet devrait être dessiné.
-     * Les objets avec un <var>z</var> élevé seront dessinées par dessus ceux
+     * Retourne l'ordre <var>z</var> à laquelle cette couche devrait être dessinée.
+     * Les couches avec un <var>z</var> élevé seront dessinées par dessus celles
      * qui ont un <var>z</var> plus bas. La valeur retournée par défaut est
      * {@link Float#POSITIVE_INFINITY}.
      *
@@ -271,7 +273,7 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Modifie l'altitude <var>z</var> à laquelle sera dessinée cet objet. La
+     * Modifie l'altitude <var>z</var> à laquelle sera dessinée cette couche. La
      * valeur spécifiée viendra remplacer la valeur par défaut que retournait
      * normalement {@link #getZOrder}.
      *
@@ -291,16 +293,18 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Indique si cet objet est visible ou non.
+     * Determines whether this layer should be visible when its parent is visible.
+     *
+     * @return <code>true</code> if the layer is visible, <code>false</code> otherwise.
      */
     public final boolean isVisible() {
         return visible;
     }
 
     /**
-     * Spécifie si cet objet doit être visible ou non. Cette méthode peut être
-     * appelée pour cacher momentanément un objet. Elle est aussi appelée de
-     * façon systématique lorsque cet objet est ajoutée ou retirée d'un
+     * Spécifie si cette couche doit être visible ou non. Cette méthode peut être
+     * appelée pour cacher momentanément une couche. Elle est aussi appelée de
+     * façon systématique lorsque cette couche est ajoutée ou retirée d'un
      * {@link Renderer}:
      *
      * <ul>
@@ -324,7 +328,7 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Indique que cet objet a besoin d'être redéssinée. L'objet ne sera pas redessiné
+     * Indique que cette couche a besoin d'être redéssinée. La couche ne sera pas redessinée
      * immediatement, mais seulement un peu plus tard. Cette méthode <code>repaint()</code>
      * peut être appelée à partir de n'importe quel thread (pas nécessairement celui de
      * <i>Swing</i>).
@@ -334,20 +338,20 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Indique qu'une partie de cet objet a besoin d'être redéssinée.
+     * Indique qu'une partie de cette couche a besoin d'être redéssinée.
      * Cette méthode peut être appelée à partir de n'importe quel thread
      * (pas nécessairement celui de <i>Swing</i>).
      *
      * @param bounds Coordonnées (en points) de la partie à redessiner.
      */
     protected void repaint(final Rectangle bounds) {
-        final JComponent mapPanel = this.mapPanel;
+        final Component mapPanel = this.mapPanel;
         if (mapPanel != null) {
             if (EventQueue.isDispatchThread()) {
                 if (bounds == null) {
                     mapPanel.repaint();
                 } else {
-                    mapPanel.repaint(bounds);
+                    mapPanel.repaint(bounds.x, bounds.y, bounds.width, bounds.height);
                 }
             } else {
                 EventQueue.invokeLater(new Runnable() {
@@ -360,46 +364,49 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Paint this object. This method is invoked by {@link Renderer} every time
-     * this object need to be repainted. The painting must be done in the
-     * {@linkplain RendereringContext#getViewCoordinateSystem view coordinate system}
-     * (usually "real world" meters). This method is responsible for transformations
-     * from its own {@linkplain #getCoordinateSystem underlying CS} to the
-     * {@linkplain RendereringContext#getViewCoordinateSystem view CS}. The
-     * {@link RenderingContext} object provides informations for such transformations:
+     * Paint this object. This method is invoked by {@link Renderer} every time this layer needs
+     * to be repainted. The painting must be done in the {@linkplain RendereringContext#mapCS
+     * rendering coordinate system} (usually "real world" metres). This method is responsible
+     * for transformations from its own {@linkplain #getCoordinateSystem underlying CS} to the
+     * {@linkplain RendereringContext#mapCS rendering CS}. The {@link RenderingContext} object
+     * provides informations for such transformations:
      *
-     * <pre>context.{@link RenderingContext#getMathTransform2D getMathTransform2D}({@link #getCoordinateSystem getCoordinateSystem}())</pre>
-     * <blockquote>Returns a transform from this object's CS to the view CS.</blockquote>
+     * <p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(
+     *                  {@link #getCoordinateSystem getCoordinateSystem}(),
+     *                  context.{@link RenderingContext#mapCS mapCS} )</code><br>
+     * Returns a transform from this layer's CS to the rendering CS.</p>
      *
-     * <pre>context.{@link RenderingContext#getAffineTransform getAffineTransform}({@link TransformationStep#WORLD_TO_POINT})</pre>
-     * <blockquote>Returns a transform from the view CS to "points" (usually 1/72 of inch).
-     *             This transformation is zoom dependent.</blockquote>
+     * <p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(
+     *                  context.{@link RenderingContext#mapCS mapCS},
+     *                  context.{@link RenderingContext#textCS textCS} )</code><br>
+     * Returns a transform from the rendering CS to "points" (usually 1/72 of inch).
+     * This transformation is zoom dependent.</p>
      *
-     * <pre>context.{@link RenderingContext#getAffineTransform getAffineTransform}({@link RenderingContext#POINT_TO_PIXEL})</pre>
-     * <blockquote>Returns a transform from the "points" CS to device CS.
-     *             This transformation is device dependent.</blockquote>
+     * <p><code>context.{@link RenderingContext#getMathTransform getMathTransform}(
+     *                  context.{@link RenderingContext#textCS textCS},
+     *                  context.{@link RenderingContext#deviceCS deviceCS} )</code><br>
+     * Returns a transform from the "points" CS to device CS.
+     * This transformation is device dependent.</p>
      *
-     * <p>Cette méthode reçoit en argument un objet {@link java.awt.Graphics2D} qui aura déjà été
+     * <p>Cet objet contient un objet {@link java.awt.Graphics2D} qui aura déjà été
      * configuré en fonction de l'afficheur. En général, tous les traçages fait sur cet objet le
      * seront en <em>mètres sur le terrain</em>, ou en degrés de longitude et de latitude. C'est
      * approprié pour le traçage d'une carte, mais pas pour l'écriture de textes. Pour alterner
      * entre le traçage de cartes et l'écriture de texte, on peut procéder comme suit:</p>
      *
      * <blockquote><pre>
-     * &nbsp;Shape paint(Graphics2D graphics, RenderingContext context) {
-     * &nbsp;    // <i>Paint here map components in geographic coordinates (m or °)</i>
+     * &nbsp;Shape paint(RenderingContext context) {
+     * &nbsp;    Graphics2D graphics = context.graphics;
+     * &nbsp;    // <i>Paint here map features in geographic coordinates (m or °)</i>
      * &nbsp;
-     * &nbsp;    graphics.setTransform(context.getAffineTransform(RenderingContext.POINT_TO_PIXEL));
+     * &nbsp;    context.setCoordinateSystem(context.textCS);
      * &nbsp;    // <i>Write here text or label. Coordinates are in <u>points</u>.</i>
      * &nbsp;
-     * &nbsp;    graphics.setTransform(context.getAffineTransform(RenderingContext.WORLD_TO_POINT));
-     * &nbsp;    // <i>Continue here the rendering of map components in geographic coordinates</i>
-     * &nbsp;
-     * &nbsp;    return myShapeInPoints;
+     * &nbsp;    context.setCoordinateSystem(context.mapCS);
+     * &nbsp;    // <i>Continue here the rendering of map features in geographic coordinates</i>
      * &nbsp;}
      * </pre></blockquote>
      *
-     * @param  graphics Graphique à utiliser pour tracer les couches.
      * @param  context  Suite des transformations nécessaires à la conversion de coordonnées
      *         géographiques (<var>longitude</var>,<var>latitude</var>) en coordonnées pixels.
      *
@@ -446,8 +453,8 @@ public abstract class RenderedObject {
     /**
      * Méthode appellée automatiquement chaque fois qu'il a été déterminé qu'un menu contextuel
      * devrait être affiché. Sur Windows et Solaris, cette méthode est appelée lorsque l'utilisateur
-     * a appuyé sur le bouton droit de la souris. Si cet objet désire faire apparaître un menu, is
-     * devrait retourner le menu en question. Si non, il devrait retourner <code>null</code>.
+     * a appuyé sur le bouton droit de la souris. Si cette couche désire faire apparaître un menu,
+     * elle devrait retourner le menu en question. Si non, elle devrait retourner <code>null</code>.
      * L'implémentation par défaut retourne toujours <code>null</code>.
      *
      * @param  event Coordonnées du curseur de la souris.
@@ -459,7 +466,7 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Méthode appellée chaque fois que le bouton de la souris a été cliqué sur un objet qui
+     * Méthode appellée chaque fois que le bouton de la souris a été cliqué sur une couche qui
      * pourrait être <code>this</code>. L'implémentation par défaut ne fait rien. Les classes
      * dérivées qui souhaite entrepredre une action doivent d'abord vérifier si les coordonnées
      * de <code>event</code> correspondent bien à un point de cette couche. Si oui, alors elles
@@ -490,9 +497,9 @@ public abstract class RenderedObject {
     }
 
     /**
-     * Ajoute un objet intéressé à être informé chaque fois qu'une propriété de cet
-     * objet <code>RenderedObject</code> change. Les méthodes {@link #setVisible} et
-     * {@link #setZOrder} en particulier tiendront ces objets au courant des
+     * Ajoute un objet intéressé à être informé chaque fois qu'une propriété de cette
+     * couche <code>RenderedObject</code> change. Les méthodes {@link #setVisible}
+     * et {@link #setZOrder} en particulier tiendront ces objets au courant des
      * changements qu'ils font.
      */
     public final void addPropertyChangeListener(final PropertyChangeListener listener) {
@@ -501,14 +508,14 @@ public abstract class RenderedObject {
 
     /**
      * Retire un objet qui n'est plus intéressé à être informé chaque fois
-     * que change une propriété de cet objet <code>RenderedObject</code>.
+     * que change une propriété de cette couche <code>RenderedObject</code>.
      */
     public final void removePropertyChangeListener(final PropertyChangeListener listener) {
         listenerList.remove(PropertyChangeListener.class, listener);
     }
 
     /**
-     * Prévient tous les objets intéressés que l'état de cet objet a changé.
+     * Prévient tous les objets intéressés que l'état de cette couche a changé.
      * La méthode {@link PropertyChangeListener#propertyChange} de tous les
      * listeners sera appelée, sauf si <code>oldValue</code> et
      * <code>newValue</code> sont identiques.
