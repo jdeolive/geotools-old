@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.4 2002/10/22 17:02:04 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.5 2003/01/10 13:13:21 ianturton Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
@@ -30,7 +30,13 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     /** Creates a new instance of DefaultLineSymbolizer */
     protected LineSymbolizerImpl() {
     }
-
+    
+    public int hashcode(){
+        int key = 0;
+        key = stroke.hashCode();
+        key = key *13 + geometryName.hashCode();
+        return key;
+    }
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"

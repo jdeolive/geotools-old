@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.2 2002/10/14 17:09:02 ianturton Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.3 2003/01/10 13:13:21 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer {
@@ -30,7 +30,12 @@ public class PointSymbolizerImpl implements PointSymbolizer {
     /** Creates a new instance of DefaultPointSymbolizer */
     protected PointSymbolizerImpl() {
     }
-    
+    public int hashcode(){
+        int key = 0;
+        key = graphic.hashCode();
+        key = key *13 + geometryPropertyName.hashCode();
+        return key;
+    }
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"

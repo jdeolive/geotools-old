@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.3 2002/10/14 17:09:00 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.4 2003/01/10 13:13:21 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbolizer {
@@ -32,7 +32,13 @@ public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbol
     /** Creates a new instance of DefaultPolygonStyler */
     protected PolygonSymbolizerImpl() {
     }
-
+    public int hashcode(){
+        int key = 0;
+        key = fill.hashCode();
+        key = key *13 + stroke.hashCode();
+        key = key *13 + geometryPropertyName.hashCode();
+        return key;
+    }
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"

@@ -23,7 +23,7 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.6 2002/10/24 16:54:50 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.7 2003/01/10 13:13:20 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
@@ -41,7 +41,16 @@ public class TextSymbolizerImpl implements TextSymbolizer {
         halo = null;
         labelPlacement = new PointPlacementImpl(); 
     }
-    
+    public int hashcode(){
+        int key = 0;
+        key = fill.hashCode();
+        key = key *13 + fonts.hashCode();
+        key = key *13 + halo.hashCode();
+        key = key *13 + labelPlacement.hashCode();
+        key = key *13 + label.hashCode();
+        key = key *13 + geometryPropertyName.hashCode();
+        return key;
+    }
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"

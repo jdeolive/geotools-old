@@ -28,7 +28,17 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         opacity = filterFactory.createLiteralExpression(1.0);
         overlap = filterFactory.createLiteralExpression("Random");
     }
-    
+    public int hashcode(){
+        int key = 0;
+        key = channelSelction.hashCode();
+        key = key *13 + colorMap.hashCode();
+        key = key *13 + contrastEnhancement.hashCode();
+        key = key *13 + shadedRelief.hashCode();
+        key = key *13 + opacity.hashCode();
+        key = key *13 + overlap.hashCode();
+        key = key *13 + geometryName.hashCode();
+        return key;
+    }
     /** The ChannelSelection element specifies the false-color channel selection for a multi-spectral raster
      * source (such as a multi-band satellite-imagery source).
      * Either a channel may be selected to display in each of red, green, and blue, or a single channel

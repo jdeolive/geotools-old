@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.18 2003/01/02 19:48:08 cholmesny Exp $
+ * @version $Id: FeatureFlat.java,v 1.19 2003/01/10 13:13:21 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class FeatureFlat implements Feature {
@@ -52,7 +52,6 @@ public class FeatureFlat implements Feature {
     
     /** Attributes for the feature. */
     private Object[] attributes;
-
 
     /**
      * Creates a new instance of flat feature, which must take a flat feature 
@@ -400,6 +399,18 @@ public class FeatureFlat implements Feature {
         else {
             return toString();
         }
+    }
+    /**
+     * returns a unique code for this feature
+     * @return A unique int 
+     */
+    public int hashcode(){
+        int key = featureId.hashCode();
+        key = key *13 + schema.hashCode();
+        for(int i=0;i<attributes.length;i++){
+            key = key *13 + attributes[i].hashCode();
+        }
+        return key;
     }
 
 }
