@@ -237,7 +237,7 @@ public class ShapefileDataStoreTest extends TestCaseSupport {
     
     private void writeFeatures(ShapefileDataStore s,FeatureCollection fc) throws Exception {
         s.createSchema(fc.features().next().getFeatureType());
-        FeatureWriter fw = s.getFeatureWriter(s.getTypeNames()[0]);
+        FeatureWriter fw = s.getFeatureWriter(s.getTypeNames()[0],Transaction.AUTO_COMMIT);
         FeatureIterator it = fc.features();
         while (it.hasNext()) {
             fw.next().setAttributes(it.next().getAttributes(null));
