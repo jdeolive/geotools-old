@@ -80,7 +80,7 @@ public class DataUtilitiesTest extends DataTestCase {
 
         // check null
         names = DataUtilities.attributeNames(filter);
-        assertNull(names);
+        assertEquals(names.length, 0);
 
         FidFilter fidFilter = factory.createFidFilter("fid");
 
@@ -291,5 +291,9 @@ public class DataUtilitiesTest extends DataTestCase {
         assertEquals( 2, s.getFeatures( rd12Filter ).getCount() );                             
     }
 
+
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(DataUtilitiesTest.class);
+    }
     
 }
