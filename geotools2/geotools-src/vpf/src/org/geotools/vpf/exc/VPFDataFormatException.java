@@ -17,18 +17,15 @@
 
 package org.geotools.vpf.exc;
 
-import java.lang.Exception;
-
-
 /**
  * Class VPFDataFormatException.java is responsible for
- * 
+ *
  * <p>
  * Created: Wed Jan 29 10:28:53 2003
  * </p>
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataFormatException.java,v 1.2 2003/04/04 09:15:47 kobit Exp $
+ * @version $Id: VPFDataFormatException.java,v 1.3 2003/05/15 20:34:51 kobit Exp $
  */
 public class VPFDataFormatException extends RuntimeException {
     /**

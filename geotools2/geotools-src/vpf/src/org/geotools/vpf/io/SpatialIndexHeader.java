@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf.io;
 
 import org.geotools.vpf.ifc.VPFHeader;
@@ -24,7 +23,7 @@ import org.geotools.vpf.ifc.VPFHeader;
  * SpatialIndexHeader.java Created: Tue Mar 11 23:42:48 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexHeader.java,v 1.5 2003/04/04 09:15:48 kobit Exp $
+ * @version $Id: SpatialIndexHeader.java,v 1.6 2003/05/15 20:34:51 kobit Exp $
  */
 public class SpatialIndexHeader implements VPFHeader {
     /**
@@ -32,31 +31,25 @@ public class SpatialIndexHeader implements VPFHeader {
      * of
      */
     public static final int SPATIAL_INDEX_HEADER_LENGTH = 24;
-    protected int numPrims = 0;
-    protected float xmin = 0;
-    protected float ymin = 0;
-    protected float xmax = 0;
-    protected float ymax = 0;
-    protected int numNodes = 0;
+    private int numPrims = 0;
+    private float xmin = 0;
+    private float ymin = 0;
+    private float xmax = 0;
+    private float ymax = 0;
+    private int numNodes = 0;
 
     /**
-     * Creates a new SpatialIndexHeader object.
+     * Creates a new <code>SpatialIndexHeader</code> instance.
      *
-     * @param numPrims DOCUMENT ME!
-     * @param xmin DOCUMENT ME!
-     * @param ymin DOCUMENT ME!
-     * @param xmax DOCUMENT ME!
-     * @param ymax DOCUMENT ME!
-     * @param numNodes DOCUMENT ME!
+     * @param numPrims an <code>int</code> value
+     * @param xmin a <code>float</code> value
+     * @param ymin a <code>float</code> value
+     * @param xmax a <code>float</code> value
+     * @param ymax a <code>float</code> value
+     * @param numNodes an <code>int</code> value
      */
-    public SpatialIndexHeader(
-        int numPrims,
-        float xmin,
-        float ymin,
-        float xmax,
-        float ymax,
-        int numNodes
-    ) {
+    public SpatialIndexHeader(int numPrims, float xmin, float ymin, float xmax,
+        float ymax, int numNodes) {
         this.numPrims = numPrims;
         this.xmin = xmin;
         this.ymin = ymin;
@@ -102,7 +95,7 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setNumPrims(int argNumPrims)
     //   {
-    // 	this.numPrims = argNumPrims;
+    //      this.numPrims = argNumPrims;
     //   }
 
     /**
@@ -121,7 +114,7 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setXmin(float argXmin)
     //   {
-    // 	this.xmin = argXmin;
+    // this.xmin = argXmin;
     //   }
 
     /**
@@ -140,7 +133,7 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setYmin(float argYmin)
     //   {
-    // 	this.ymin = argYmin;
+    //this.ymin = argYmin;
     //   }
 
     /**
@@ -159,7 +152,7 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setXmax(float argXmax)
     //   {
-    // 	this.xmax = argXmax;
+    //this.xmax = argXmax;
     //   }
 
     /**
@@ -178,7 +171,7 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setYmax(float argYmax)
     //   {
-    // 	this.ymax = argYmax;
+    //this.ymax = argYmax;
     //   }
 
     /**
@@ -197,9 +190,6 @@ public class SpatialIndexHeader implements VPFHeader {
     //    */
     //   public void setNumNodes(int argNumNodes)
     //   {
-    // 	this.numNodes = argNumNodes;
+    //this.numNodes = argNumNodes;
     //   }
 }
-
-
-// SpatialIndexHeader

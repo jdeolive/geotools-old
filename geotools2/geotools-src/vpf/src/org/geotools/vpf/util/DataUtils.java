@@ -28,7 +28,6 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-
 /**
  * Class DataUtils.java is responsible for
  * 
@@ -37,7 +36,7 @@ import java.io.IOException;
  * </p>
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: DataUtils.java,v 1.9 2003/04/04 09:15:50 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.10 2003/05/15 20:34:52 kobit Exp $
  */
 public class DataUtils implements DataTypesDefinition {
     /**

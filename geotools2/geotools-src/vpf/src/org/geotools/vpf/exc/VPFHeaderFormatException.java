@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
  * Class VPFHeaderFormatException.java is responsible for
- * 
+ *
  * <p>
  * Created: Tue Jan 21 15:12:10 2003
  * </p>

@@ -21,6 +21,7 @@ package org.geotools.vpf.ifc;
  * VPFRow.java Created: Mon Feb 24 22:51:21 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFRow.java,v 1.3 2003/04/04 09:15:48 kobit Exp $
+ * @version $Id: VPFRow.java,v 1.4 2003/05/15 20:34:51 kobit Exp $
  */
-public interface VPFRow {} // VPFRow
+public interface VPFRow {
+} // VPFRow

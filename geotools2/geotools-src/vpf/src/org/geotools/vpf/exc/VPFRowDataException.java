@@ -17,9 +17,6 @@
 
 package org.geotools.vpf.exc;
 
-import java.io.IOException;
-
-
 /**
  * VPFRowDataException.java Created: Mon Jan 27 21:29:00 2003
  *

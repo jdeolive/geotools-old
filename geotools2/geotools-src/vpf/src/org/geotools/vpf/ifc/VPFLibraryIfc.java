@@ -23,13 +23,33 @@ package org.geotools.vpf.ifc;
  * Created: Fri Apr 04 14:06:29 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFLibraryIfc.java,v 1.1 2003/04/04 14:34:10 kobit Exp $
+ * @version $Id: VPFLibraryIfc.java,v 1.2 2003/05/15 20:34:51 kobit Exp $
  */
 
 public interface VPFLibraryIfc {
+    /**
+     * Describe constant <code>FIELD_XMIN</code> here.
+     *
+     */
     public static final String FIELD_XMIN = "xmin";
+    /**
+     * Describe constant <code>FIELD_YMIN</code> here.
+     *
+     */
     public static final String FIELD_YMIN = "ymin";
+    /**
+     * Describe constant <code>FIELD_XMAX</code> here.
+     *
+     */
     public static final String FIELD_XMAX = "xmax";
+    /**
+     * Describe constant <code>FIELD_YMAX</code> here.
+     *
+     */
     public static final String FIELD_YMAX = "ymax";
+    /**
+     * Describe constant <code>FIELD_LIB_NAME</code> here.
+     *
+     */
     public static final String FIELD_LIB_NAME = "library_name";
 }// VPFLibraryIfc

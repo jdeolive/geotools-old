@@ -21,7 +21,7 @@ package org.geotools.vpf.ifc;
  * FileConstants.java Created: Fri Dec 27 23:16:01 2002
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: FileConstants.java,v 1.4 2003/04/04 09:15:48 kobit Exp $
+ * @version $Id: FileConstants.java,v 1.5 2003/05/15 20:34:51 kobit Exp $
  */
 public interface FileConstants {
     //VPF Separators
@@ -95,21 +95,23 @@ public interface FileConstants {
 
     // Table reserved names
 
-    /** Variable constant <code>COVERAGE_ATTRIBUTE_TABLE</code> keeps value of */
+    /** Variable constant <code>COVERAGE_ATTRIBUTE_TABLE</code> keeps
+     *  value of */
     public static final String COVERAGE_ATTRIBUTE_TABLE = "cat";
 
     /** Variable constant <code>TABLE_CAT</code> keeps value of */
     public static final String TABLE_CAT = COVERAGE_ATTRIBUTE_TABLE;
 
-    /** Variable constant <code>CONNECTED_NODE_PRIMITIVE</code> keeps value of */
+    /** Variable constant <code>CONNECTED_NODE_PRIMITIVE</code> keeps
+     *  value of */
     public static final String CONNECTED_NODE_PRIMITIVE = "cnd";
 
     /** Variable constant <code>TABLE_CND</code> keeps value of */
     public static final String TABLE_CND = CONNECTED_NODE_PRIMITIVE;
 
     /**
-     * Variable constant <code>CONNECTED_NODE_SPATIAL_INDEX</code> keeps value
-     * of
+     * Variable constant <code>CONNECTED_NODE_SPATIAL_INDEX</code>
+     * keeps value of
      */
     public static final String CONNECTED_NODE_SPATIAL_INDEX = "csi";
 
@@ -128,7 +130,8 @@ public interface FileConstants {
     /** Variable constant <code>TABLE_DQT</code> keeps value of */
     public static final String TABLE_DQT = DATA_QUALITY_TABLE;
 
-    /** Variable constant <code>EDGE_BOUNDING_RECTANGLE</code> keeps value of */
+    /** Variable constant <code>EDGE_BOUNDING_RECTANGLE</code> keeps
+     * value of */
     public static final String EDGE_BOUNDING_RECTANGLE = "ebr";
 
     /** Variable constant <code>TABLE_EBR</code> keeps value of */
@@ -140,7 +143,9 @@ public interface FileConstants {
     /** Variable constant <code>TABLE_EDG</code> keeps value of */
     public static final String TABLE_EDG = EDGE_PRIMITIVE;
 
-    /** Variable constant <code>ENTITY_NODE_PRIMITIVE</code> keeps value of */
+    /** Variable constant <code>ENTITY_NODE_PRIMITIVE</code> keeps
+     * value of
+     */
     public static final String ENTITY_NODE_PRIMITIVE = "end";
 
     /** Variable constant <code>TABLE_END</code> keeps value of */
@@ -158,15 +163,17 @@ public interface FileConstants {
     /** Variable constant <code>TABLE_FAC</code> keeps value of */
     public static final String TABLE_FAC = FACE_PRIMITIVE;
 
-    /** Variable constant <code>FACE_BOUNDING_RECTANGLE</code> keeps value of */
+    /** Variable constant <code>FACE_BOUNDING_RECTANGLE</code> keeps
+     * value of
+     */
     public static final String FACE_BOUNDING_RECTANGLE = "fbr";
 
     /** Variable constant <code>TABLE_FBR</code> keeps value of */
     public static final String TABLE_FBR = FACE_BOUNDING_RECTANGLE;
 
     /**
-     * Variable constant <code>FEATURE_CLASS_ATTRIBUTE_TABLE</code> keeps value
-     * of
+     * Variable constant <code>FEATURE_CLASS_ATTRIBUTE_TABLE</code> keeps
+     * value of
      */
     public static final String FEATURE_CLASS_ATTRIBUTE_TABLE = "fca";
 
@@ -174,7 +181,8 @@ public interface FileConstants {
     public static final String TABLE_FCA = FEATURE_CLASS_ATTRIBUTE_TABLE;
 
     /**
-     * Variable constant <code>FEATURE_CLASS_SCHEMA_TABLE</code> keeps value of
+     * Variable constant <code>FEATURE_CLASS_SCHEMA_TABLE</code> keeps
+     * value of
      */
     public static final String FEATURE_CLASS_SCHEMA_TABLE = "fcs";
 
@@ -188,14 +196,17 @@ public interface FileConstants {
     public static final String TABLE_FSI = FACE_SPATIAL_INDEX;
 
     /**
-     * Variable constant <code>GEOGRAPHIC_REFERENCE_TABLE</code> keeps value of
+     * Variable constant <code>GEOGRAPHIC_REFERENCE_TABLE</code> keeps
+     * value of
      */
     public static final String GEOGRAPHIC_REFERENCE_TABLE = "grt";
 
     /** Variable constant <code>TABLE_GRT</code> keeps value of */
     public static final String TABLE_GRT = GEOGRAPHIC_REFERENCE_TABLE;
 
-    /** Variable constant <code>LIBRARY_ATTTIBUTE_TABLE</code> keeps value of */
+    /** Variable constant <code>LIBRARY_ATTTIBUTE_TABLE</code> keeps
+     * value of
+     */
     public static final String LIBRARY_ATTTIBUTE_TABLE = "lat";
 
     /** Variable constant <code>TABLE_LAT</code> keeps value of */
@@ -208,7 +219,8 @@ public interface FileConstants {
     public static final String TABLE_LHT = LIBRARY_HEADER_TABLE;
 
     /**
-     * Variable constant <code>ENTITY_NODE_SPATIAL_INDEX</code> keeps value of
+     * Variable constant <code>ENTITY_NODE_SPATIAL_INDEX</code> keeps
+     * value of
      */
     public static final String ENTITY_NODE_SPATIAL_INDEX = "nsi";
 
@@ -254,8 +266,8 @@ public interface FileConstants {
     // Table reserved extensions
 
     /**
-     * Variable constant <code>AREA_BOUMDING_RECTANGLE_TABLE</code> keeps value
-     * of
+     * Variable constant <code>AREA_BOUMDING_RECTANGLE_TABLE</code> keeps
+     * value of
      */
     public static final String AREA_BOUMDING_RECTANGLE_TABLE = ".abr";
 
@@ -338,8 +350,8 @@ public interface FileConstants {
     public static final String EXT_JTI = JOIN_THEMATIC_INDEX;
 
     /**
-     * Variable constant <code>LINE_BOUNDING_RECTANGLE_TABLE</code> keeps value
-     * of
+     * Variable constant <code>LINE_BOUNDING_RECTANGLE_TABLE</code> keeps
+     * value of
      */
     public static final String LINE_BOUNDING_RECTANGLE_TABLE = ".lbr";
 
@@ -391,13 +403,17 @@ public interface FileConstants {
     /** Variable constant <code>EXT_PTI</code> keeps value of */
     public static final String EXT_PTI = POINT_THEMATIC_INDEX;
 
-    /** Variable constant <code>RELATED_ATTRIBUTE_TABLE</code> keeps value of */
+    /** Variable constant <code>RELATED_ATTRIBUTE_TABLE</code> keeps
+     * value of
+     */
     public static final String RELATED_ATTRIBUTE_TABLE = ".rat";
 
     /** Variable constant <code>EXT_RAT</code> keeps value of */
     public static final String EXT_RAT = RELATED_ATTRIBUTE_TABLE;
 
-    /** Variable constant <code>REGISTRATION_POINT_TABLE</code> keeps value of */
+    /** Variable constant <code>REGISTRATION_POINT_TABLE</code> keeps
+     * value of
+     */
     public static final String REGISTRATION_POINT_TABLE = ".rpt";
 
     /** Variable constant <code>EXT_RPT</code> keeps value of */
@@ -431,13 +447,17 @@ public interface FileConstants {
     /** Variable constant <code>DIR_DQ</code> keeps value of */
     public static final String DIR_DQ = DATA_QUALITY_COVERAGE;
 
-    /** Variable constant <code>TILE_REFERENCE_COVERAGE</code> keeps value of */
+    /** Variable constant <code>TILE_REFERENCE_COVERAGE</code> keeps
+     * value of
+     */
     public static final String TILE_REFERENCE_COVERAGE = "tileref";
 
     /** Variable constant <code>DIR_TILEREF</code> keeps value of */
     public static final String DIR_TILEREF = TILE_REFERENCE_COVERAGE;
 
-    /** Variable constant <code>NAMES_REFERENCE_COVERAGE</code> keeps value of */
+    /** Variable constant <code>NAMES_REFERENCE_COVERAGE</code> keeps
+     * value of
+     */
     public static final String NAMES_REFERENCE_COVERAGE = "gazette";
 
     /** Variable constant <code>DIR_GAZETTE</code> keeps value of */

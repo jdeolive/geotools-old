@@ -14,89 +14,76 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.vpf.io;
 
 import org.geotools.vpf.ifc.VPFHeader;
 import org.geotools.vpf.ifc.VPFRow;
 import java.io.IOException;
-import java.io.InputStream;
 
 
 /**
  * SpatialIndexInputStream.java Created: Mon Feb 24 22:25:15 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexInputStream.java,v 1.5 2003/04/04 09:15:48 kobit Exp $
+ * @version $Id: SpatialIndexInputStream.java,v 1.6 2003/05/15 20:34:51 kobit Exp $
  */
 public class SpatialIndexInputStream extends VPFInputStream {
     /** Variable constant <code>SPATIAL_INDEX_ROW_SIZE</code> keeps value of */
     public static final long SPATIAL_INDEX_ROW_SIZE = 8;
 
     /**
-     * Creates a new SpatialIndexInputStream object.
+     * Creates a new <code>SpatialIndexInputStream</code> instance.
      *
-     * @param file DOCUMENT ME!
-     * @param byteOrder DOCUMENT ME!
+     * @param file a <code>String</code> value
+     * @param byteOrder a <code>char</code> value
      *
-     * @throws IOException DOCUMENT ME!
+     * @exception IOException if an error occurs
      */
-    public SpatialIndexInputStream(
-        String file,
-        char byteOrder
-    ) throws IOException {
+    public SpatialIndexInputStream(String file, char byteOrder)
+        throws IOException {
         super(file, byteOrder);
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>tableSize</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return an <code>int</code> value
      */
     public int tableSize() {
         return -1;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>readHeader</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>VPFHeader</code> value
      *
-     * @throws IOException DOCUMENT ME!
+     * @exception IOException if an error occurs
      */
     public VPFHeader readHeader() throws IOException {
-        return new SpatialIndexHeader(
-            readInteger(),
-            readFloat(),
-            readFloat(),
-            readFloat(),
-            readFloat(),
-            readInteger()
-        );
+        return new SpatialIndexHeader(readInteger(), readFloat(), readFloat(),
+            readFloat(), readFloat(), readInteger());
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>readRow</code> method here.
      *
-     * @return DOCUMENT ME!
+     * @return a <code>VPFRow</code> value
      *
-     * @throws IOException DOCUMENT ME!
+     * @exception IOException if an error occurs
      */
     public VPFRow readRow() throws IOException {
         return null;
     }
 
     /**
-     * DOCUMENT ME!
+     * Describe <code>setPosition</code> method here.
      *
-     * @param pos DOCUMENT ME!
+     * @param pos a <code>long</code> value
      *
-     * @throws IOException DOCUMENT ME!
+     * @exception IOException if an error occurs
      */
     public void setPosition(long pos) throws IOException {
         seek(SPATIAL_INDEX_ROW_SIZE * pos);
     }
 }
-
-
-// SpatialIndexInputStream

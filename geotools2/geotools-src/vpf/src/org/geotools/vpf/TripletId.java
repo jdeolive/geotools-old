@@ -42,7 +42,7 @@ public class TripletId {
      */
     public String toString() {
         return (rawData == null) ? "NULL"
-                                 : new String(rawData, 1, rawData.length - 1);
+            : new String(rawData, 1, rawData.length - 1);
     }
 
     /**
