@@ -53,7 +53,7 @@
   
     <reactor:execute
       basedir="${maven.src.dir}/../geotools-src"
-      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml"
+      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml,filter/project.xml,gmldatasource/project.xml"
       goals="clean,jar:install"
       banner="Building"
       ignoreFailures="true"
@@ -77,7 +77,7 @@
     
     <reactor:execute
       basedir="${maven.src.dir}/../geotools-src"
-      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml"
+      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml,filter/project.xml,gmldatasource/project.xml"
       goals="site:generate"
       banner="Generating site for"
       ignoreFailures="true"
