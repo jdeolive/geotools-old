@@ -26,12 +26,14 @@ public interface ExpressionParserConstants {
   int GEOMETRYCOLLECTION = 29;
   int LP = 30;
   int RP = 31;
-  int IDENTIFIER = 32;
-  int INTEGER_LITERAL = 33;
-  int FLOATING_LITERAL = 34;
-  int LETTER = 35;
-  int DIGIT = 36;
-  int EXPONENT = 37;
+  int LSP = 32;
+  int RSP = 33;
+  int IDENTIFIER = 34;
+  int INTEGER_LITERAL = 35;
+  int FLOATING_LITERAL = 36;
+  int LETTER = 37;
+  int DIGIT = 38;
+  int EXPONENT = 39;
 
   int DEFAULT = 0;
   int IN_SQ = 1;
@@ -70,6 +72,8 @@ public interface ExpressionParserConstants {
     "\"geometrycollection\"",
     "\"(\"",
     "\")\"",
+    "\"[\"",
+    "\"]\"",
     "<IDENTIFIER>",
     "<INTEGER_LITERAL>",
     "<FLOATING_LITERAL>",

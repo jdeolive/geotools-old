@@ -22,10 +22,10 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTReader;
 import java.io.*;
 import java.util.EmptyStackException;
-import java.util.HashSet;
 import java.util.Stack;
-import org.geotools.filter.*;
 import org.geotools.filter.parser.*;
+import org.geotools.filter.FilterTransformer;
+
 
 /**
  * ExpressionBuilder is the main entry point for parsing Expressions and Filters
@@ -185,6 +185,21 @@ public class ExpressionBuilder {
             }
         }
         
+        CompareFilter betweenFilter() throws ExpressionException {
+            try {   
+                BetweenFilter f = factory.createBetweenFilter();
+                Expression right = expression();
+                Expression middle = expression();
+                Expression left = expression();
+                f.addLeftValue(left);
+                f.addMiddleValue(middle);
+                f.addRightValue(right);
+                return f;
+            } catch (IllegalFilterException ife) {
+                throw new ExpressionException("Exception building CompareFilter",getToken(0),ife);
+            }
+        }
+        
         Object buildObject(Node n) throws ExpressionException {
             short type;
             switch (n.getType()) {
@@ -227,6 +242,9 @@ public class ExpressionBuilder {
                 case JJTNOTNODE:
                     return filter().not();
                     
+                    // Between Node
+                case JJTBETWEENNODE:
+                    return betweenFilter();
                     
                     // Compare Nodes
                 case JJTLENODE:
