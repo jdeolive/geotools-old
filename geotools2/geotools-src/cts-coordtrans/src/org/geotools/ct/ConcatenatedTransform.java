@@ -35,6 +35,10 @@
  */
 package org.geotools.ct;
 
+// J2SE dependencies
+import java.io.Serializable;
+import java.awt.geom.Point2D;
+
 // Geotools dependencies
 import org.geotools.pt.Matrix;
 import org.geotools.pt.CoordinatePoint;
@@ -44,15 +48,12 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-// J2SE dependencies
-import java.io.Serializable;
-
 
 /**
  * Base class for concatenated transform. Concatenated transforms are
  * serializable if all their step transforms are serializables.
  *
- * @version $Id: ConcatenatedTransform.java,v 1.2 2002/07/12 20:38:44 desruisseaux Exp $
+ * @version $Id: ConcatenatedTransform.java,v 1.3 2002/08/02 10:11:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class ConcatenatedTransform extends AbstractMathTransform implements Serializable {
@@ -254,6 +255,21 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
     }
     
     /**
+     * Gets the derivative of this transform at a point. We must delegate to the
+     * {@link #derivative(CoordinatePoint)} version  because  the transformation
+     * steps {@link #transform1} and {@link #transform2} may not be instances of
+     * {@link MathTransform2D}. The only class which is allowed to delegate directly
+     * to the {@link Point2D} version is {@link ConcatenatedTransformDirect2D}.
+     *
+     * @param  point The coordinate point where to evaluate the derivative.
+     * @return The derivative at the specified point as a 2&times;2 matrix.
+     * @throws TransformException if the derivative can't be evaluated at the specified point.
+     */
+    public Matrix derivative(final Point2D point) throws TransformException {
+        return derivative(new CoordinatePoint(point));
+    }
+    
+    /**
      * Gets the derivative of this transform at a point.
      *
      * @param  point The coordinate point where to evaluate the derivative.
@@ -263,8 +279,19 @@ class ConcatenatedTransform extends AbstractMathTransform implements Serializabl
     public Matrix derivative(final CoordinatePoint point) throws TransformException {
         final Matrix matrix1 = transform1.derivative(point);
         final Matrix matrix2 = transform2.derivative(transform1.transform(point, null));
-        matrix2.mul(matrix1);
-        return matrix2;
+        // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
+        // if possible, which is always the case when both matrix are square.
+        final int numRow = matrix2.getNumRow();
+        final int numCol = matrix1.getNumCol();
+        final Matrix matrix;
+        if (numCol == matrix2.getNumCol()) {
+            matrix = matrix2;
+            matrix2.mul(matrix1);
+        } else {
+            matrix = new Matrix(numRow, numCol);
+            matrix.mul(matrix2, matrix1);
+        }
+        return matrix;
     }
     
     /**

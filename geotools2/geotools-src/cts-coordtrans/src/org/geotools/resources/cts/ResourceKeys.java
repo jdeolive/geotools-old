@@ -39,6 +39,7 @@ public interface ResourceKeys
     public static final int EXPONENTIAL                                 =    80;
     public static final int FUTURE                                      =    14;
     public static final int GEOCENTRIC                                  =    15;
+    public static final int GEOCENTRIC_TRANSFORM                        =    84;
     public static final int GEOID_MODEL_DERIVED                         =    16;
     public static final int GMT                                         =    17;
     public static final int HORIZONTAL                                  =    18;
@@ -72,6 +73,7 @@ public interface ResourceKeys
 
     public static final int ERROR_ANGLE_OVERFLOW_$1                     =    43;
     public static final int ERROR_ANTIPODE_LATITUDES_$2                 =    44;
+    public static final int ERROR_CANT_COMPUTE_DERIVATIVE               =    85;
     public static final int ERROR_CANT_CONCATENATE_CS_$2                =    45;
     public static final int ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1      =    46;
     public static final int ERROR_COLINEAR_AXIS_$2                      =    47;

@@ -75,7 +75,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.6 2002/07/22 18:28:34 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.7 2002/08/02 10:11:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -166,16 +166,16 @@ public abstract class AbstractMathTransform implements MathTransform {
     public CoordinatePoint transform(final CoordinatePoint ptSrc, CoordinatePoint ptDst)
             throws TransformException
     {
-        final int  pointDim = ptSrc.getDimension();
-        final int sourceDim = getDimSource();
-        final int targetDim = getDimTarget();
-        if (pointDim != sourceDim) {
-            throw new MismatchedDimensionException(pointDim, sourceDim);
+        final int  dimPoint = ptSrc.getDimension();
+        final int dimSource = getDimSource();
+        final int dimTarget = getDimTarget();
+        if (dimPoint != dimSource) {
+            throw new MismatchedDimensionException(dimPoint, dimSource);
         }
         if (ptDst==null) {
-            ptDst = new CoordinatePoint(targetDim);
-        } else if (ptDst.getDimension()!=targetDim) {
-            throw new MismatchedDimensionException(ptDst.getDimension(), targetDim);
+            ptDst = new CoordinatePoint(dimTarget);
+        } else if (ptDst.getDimension()!=dimTarget) {
+            throw new MismatchedDimensionException(ptDst.getDimension(), dimTarget);
         }
         transform(ptSrc.ord, 0, ptDst.ord, 0, 1);
         return ptDst;
@@ -378,26 +378,40 @@ public abstract class AbstractMathTransform implements MathTransform {
     }
     
     /**
-     * Gets the derivative of this transform at a point. The default
-     * implementation invokes {@link #derivative(CoordinatePoint)}.
+     * Gets the derivative of this transform at a point. The default implementation always
+     * throw an exception. Subclasses that implement the {@link MathTransform2D} interface
+     * should override this method. Other subclasses should override
+     * {@link #derivative(CoordinatePoint)} instead.
      *
      * @param  point The coordinate point where to evaluate the derivative.
-     * @return The derivative at the specified point as a 2x2 matrix.
+     * @return The derivative at the specified point as a 2&times;2 matrix.
      * @throws MismatchedDimensionException if the input dimension is not 2.
      * @throws TransformException if the derivative can't be evaluated at the specified point.
      *
      * @see MathTransform2D#derivative(Point2D)
      */
     public Matrix derivative(final Point2D point) throws TransformException {
-        return derivative(new CoordinatePoint(point));
+        final int dimSource = getDimSource();
+        if (dimSource != 2) {
+            throw new MismatchedDimensionException(2, dimSource);
+        }
+        throw new TransformException(Resources.format(ResourceKeys.ERROR_CANT_COMPUTE_DERIVATIVE));
     }
     
     /**
      * Gets the derivative of this transform at a point. The default implementation
-     * ensure that <code>point</code> has a valid dimension. Next, if this object is
-     * an instance of {@link MathTransform1D}, then this method delegates the work to
-     * {@link MathTransform1D#derivative(double) derivative(double)}. Otherwise, a
-     * {@link TransformException} is thrown.
+     * ensure that <code>point</code> has a valid dimension. Next, it try to delegate
+     * the work to an other method:
+     *
+     * <ul>
+     *   <li>If the input dimension is 2, then this method delegates the work to
+     *       {@link #derivative(Point2D)}.</li>
+     *   <li>If this object is an instance of {@link MathTransform1D}, then this
+     *       method delegates the work to {@link MathTransform1D#derivative(double)
+     *       derivative(double)}.</li>
+     * </ul>
+     *
+     * Otherwise, a {@link TransformException} is thrown.
      *
      * @param  point The coordinate point where to evaluate the derivative.
      * @return The derivative at the specified point (never <code>null</code>).
@@ -409,19 +423,24 @@ public abstract class AbstractMathTransform implements MathTransform {
      *         specified point.
      */
     public Matrix derivative(final CoordinatePoint point) throws TransformException {
+        final int dimSource = getDimSource();
         if (point != null) {
-            final int  pointDim = point.getDimension();
-            final int sourceDim = getDimSource();
-            if (pointDim != sourceDim) {
-                throw new MismatchedDimensionException(pointDim, sourceDim);
+            final int dimPoint = point.getDimension();
+            if (dimPoint != dimSource) {
+                throw new MismatchedDimensionException(dimPoint, dimSource);
             }
+            if (dimSource == 2) {
+                return derivative(point.toPoint2D());
+            }
+        } else if (dimSource == 2) {
+            return derivative((Point2D)null);
         }
         if (this instanceof MathTransform1D) {
             return new Matrix(1, 1, new double[] {
                 ((MathTransform1D) this).derivative(point.ord[0])
             });
         }
-        throw new TransformException("Can't compute derivative"); // TODO: localize this message.
+        throw new TransformException(Resources.format(ResourceKeys.ERROR_CANT_COMPUTE_DERIVATIVE));
     }
     
     /**
@@ -600,7 +619,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * This inner class is the inverse of the enclosing
      * math transform.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.6 2002/07/22 18:28:34 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.7 2002/08/02 10:11:01 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform {

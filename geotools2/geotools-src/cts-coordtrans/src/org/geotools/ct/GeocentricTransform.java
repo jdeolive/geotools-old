@@ -58,7 +58,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -501,7 +501,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse {
@@ -527,7 +527,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -550,7 +550,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
          */
         public Provider(final boolean inverse) {
             super(inverse ? "Geocentric_To_Ellipsoid" : "Ellipsoid_To_Geocentric",
-                  -1/*ResourceKeys.GEOCENTRIC_TRANSFORM*/, null); // TODO
+                  ResourceKeys.GEOCENTRIC_TRANSFORM, null);
             put("semi_major", Double.NaN, POSITIVE_RANGE);
             put("semi_minor", Double.NaN, POSITIVE_RANGE);
             putInt("dim_geoCS", 3, DIM_RANGE); // Custom parameter: NOT AN OPENGIS SPECIFICATION

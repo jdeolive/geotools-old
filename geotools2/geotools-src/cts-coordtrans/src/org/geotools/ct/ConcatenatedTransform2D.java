@@ -35,18 +35,11 @@
  */
 package org.geotools.ct;
 
-// Resources
-import org.geotools.resources.Geometry;
-
-// J2SE dependencies
-import java.awt.Shape;
-import java.awt.geom.Point2D;
-
 
 /**
  * Concatenated transform in which the resulting transform is two-dimensional.
  *
- * @version $Id: ConcatenatedTransform2D.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
+ * @version $Id: ConcatenatedTransform2D.java,v 1.2 2002/08/02 10:11:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ConcatenatedTransform2D extends ConcatenatedTransform implements MathTransform2D {
