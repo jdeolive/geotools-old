@@ -49,26 +49,46 @@ public class PanTool extends MouseTool {
      * @task HACK The transform doesn't seem to take account of CoordinateSystem
      * so it would be possible to create Coordinates which are outside real
      * world coordinates.
+     * @task TODO Use an AffineTransform type interface to Bbox instead of
+     * setAreaOfInterest
      */
      public void mouseClicked(MouseEvent e)
      {
         if ((widget==null)||(context==null)){
             LOGGER.warning("Widget or Context is NULL");
         }else{
-            AffineTransform at = new AffineTransform();
-            // x=x(1+(clickX-w/2)/w)
-            at.scale(
-                1+(double)(e.getX()-widget.getWidth()/2)/(double)widget.getWidth(),
-                1+(double)(e.getY()-widget.getHeight()/2)/(double)widget.getHeight());
-            MathTransform2D mt=
-                MathTransformFactory.getDefault().createAffineTransform(at);
-
             CoordinatePoint maxP = new CoordinatePoint(
                 context.getBbox().getAreaOfInterest().getMaxX(),
                 context.getBbox().getAreaOfInterest().getMaxY());
             CoordinatePoint minP = new CoordinatePoint(
                 context.getBbox().getAreaOfInterest().getMinX(),
                 context.getBbox().getAreaOfInterest().getMinY());
+
+            AffineTransform at = new AffineTransform();
+            // xScaleFactor=
+            //    =1+screenScaleFactor*CSwidth/CSmaxX
+            //    =1+((clickX-screenWidth/2)/screenWidth)*CSwidth/CSmidX
+            // where:
+            //  CS_Param=Param in Coordinate System units
+            // note:
+            //   (0,0) in screenCoords is top left of screen, while
+            //   (0,0) in Cordinate System Coords is bottom left.
+            at.scale(
+                1+
+                ((double)e.getX()-(double)widget.getWidth()/2)
+                /widget.getWidth()
+                *(maxP.getOrdinate(0)-minP.getOrdinate(0))
+                /((minP.getOrdinate(0)+maxP.getOrdinate(0))/2),
+            
+                1+
+                ((double)widget.getWidth()/2-(double)e.getY())
+                /widget.getWidth()
+                *(maxP.getOrdinate(1)-minP.getOrdinate(1))
+                /((minP.getOrdinate(1)+maxP.getOrdinate(1))/2)
+            );
+             
+           MathTransform2D mt=
+                MathTransformFactory.getDefault().createAffineTransform(at);
 
             try {
                 maxP=mt.transform(maxP,maxP);
