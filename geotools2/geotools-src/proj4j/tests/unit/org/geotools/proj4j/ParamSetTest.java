@@ -74,9 +74,10 @@ public class ParamSetTest extends TestCase {
     /** Test of getRadiansParam method, of class org.geotools.proj4j.ParamSet. */
     public void testGetRadiansParam() {
         System.out.println("testGetRadiansParam");
-        
-        // Add your test code below by replacing the default call to fail.
-        fail("The test case is empty.");
+        assertEquals(0.19794943,testSet.getRadiansParam("testRadian"),0);
+        assertEquals(0.19794943,testSet.getRadiansParam("testDMS"),1e-6);
+        assertEquals(0.19794943,testSet.getRadiansParam("testD"),1e-6);
+      
     }
     
     public ParamSet testSet;
@@ -86,6 +87,10 @@ public class ParamSetTest extends TestCase {
         testSet.addParam("testInt=123");
         testSet.addParam("testFloat=456.321");
         testSet.addParam("testString=foo");
+        testSet.addParam("testRadian=0.19794943r");
+        testSet.addParam("testDMS=11d20'30\"");
+        testSet.addParam("testD=11.341667");
+        
     }
         
     
