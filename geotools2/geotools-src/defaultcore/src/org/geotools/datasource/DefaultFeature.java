@@ -20,6 +20,8 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
     
     /** Creates a new instance of DefaultFeature */
     public DefaultFeature() {
+        attributes = new Object[1];
+        colNames = new String[]{"Geom"};
     }
     
     public void setAttributes(Object[] attributes,String[] colNames){
