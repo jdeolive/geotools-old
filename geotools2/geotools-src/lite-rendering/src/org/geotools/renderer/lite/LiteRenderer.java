@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.14 2003/07/24 06:33:50 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.15 2003/07/24 23:40:11 ianschneider Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -277,13 +277,39 @@ public class LiteRenderer implements Renderer, Renderer2D {
      */
     public void paint(Graphics2D graphics, Rectangle paintArea,
         AffineTransform transform) {
-        Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
             LOGGER.info("renderer passed null arguments");
 
             return;
         }
+        
+        // Moved stuff - IanS
+        
+        // TODO: Need to check if the Layer CoordinateSystem is
+                    // different to the BoundingBox rendering CoordinateSystem and
+                    // if so, then transform the coordinates.
+        AffineTransform at = transform;
+
+        if (LOGGER.isLoggable(Level.FINE)) {
+            LOGGER.fine("Affine Transform is " + at);
+        }
+        
+        /* If we are rendering to a component which has already set up some
+                     * form of transformation then we can concatenate our
+                     * transformation to it. An example of this is the ZoomPane
+                     * component of the swinggui module.*/
+        if (concatTransforms) {
+            AffineTransform atg = graphics.getTransform();
+            atg.concatenate(at);
+            graphics.setTransform(atg);
+        } else {
+            graphics.setTransform(at);
+        }
+
+        setScaleDenominator(1 / graphics.getTransform().getScaleX());
+        
+        // End of Moved stuff - IanS
 
         try {
             // set the passed graphic as the current graphic but be sure to release it before
@@ -309,31 +335,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
                             " features");
                     }
 
-                    // TODO: Need to check if the Layer CoordinateSystem is
-                    // different to the BoundingBox rendering CoordinateSystem and
-                    // if so, then transform the coordinates.
-                    AffineTransform at = transform;
+                    
 
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.fine("Affine Transform is " + at);
-                    }
-
-                    /* If we are rendering to a component which has already set up some
-                     * form of transformation then we can concatenate our
-                     * transformation to it. An example of this is the ZoomPane
-                     * component of the swinggui module.*/
-                    System.out.println("graphic " + graphics.getTransform());
-                    System.out.println("affine transform " + at);
-                    if (true) {
-                        AffineTransform atg = graphics.getTransform();
-                        atg.concatenate(at);
-                        graphics.setTransform(atg);
-                    } else {
-                        graphics.setTransform(at);
-                    }
-                    System.out.println(graphics.getTransform());
-
-                    setScaleDenominator(1 / graphics.getTransform().getScaleX());
+                    
 
                     //extract the feature type stylers from the style object and
                     //process them
@@ -341,13 +345,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                                                              .getFeatureTypeStyles();
                     processStylers(fc, featureStylers);
 
-                    Date end = new Date();
-
-                    if (LOGGER.getLevel() == Level.INFO) { //change to fine when finished
-                        LOGGER.info("Time to render " + fc.size() +
-                            " is " + (end.getTime() - start.getTime()) +
-                            " milliSecs");
-                    }
+                    
                 } catch (Exception exception) {
                     LOGGER.warning("Exception " + exception +
                         " rendering layer " + layer);
@@ -504,24 +502,26 @@ public class LiteRenderer implements Renderer, Renderer2D {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing " + featureStylers.length + " stylers");
         }
-
+        
+        
         // create the arrayList of features that sits whithin the map envelop
-        List insideFeatures = new ArrayList();
-
-        for (Iterator it = features.iterator(); it.hasNext(); ) {
-            Feature feature = (Feature) it.next();
-            Envelope internal = feature.getDefaultGeometry()
-                                       .getEnvelopeInternal();
-
-            if (mapExtent.overlaps(internal)) {
-                insideFeatures.add(feature);
-            }
-        }
-
-        // if nothing to do exit immediatly
-        if (insideFeatures.size() == 0) {
-            return;
-        }
+//        List insideFeatures = new ArrayList();
+//
+//        for (Iterator it = features.iterator(); it.hasNext(); ) {
+//            Feature feature = (Feature) it.next();
+//            Envelope internal = feature.getDefaultGeometry()
+//                                       .getEnvelopeInternal();
+//
+//            if (mapExtent.overlaps(internal)) {
+//                insideFeatures.add(feature);
+//            }
+//        }
+//
+//        // if nothing to do exit immediatly
+//        if (insideFeatures.size() == 0) {
+//
+//            return;
+//        }
 
         // process stylers in order
         for (int i = 0; i < featureStylers.length; i++) {
@@ -534,7 +534,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             // get rules
             Rule[] rules = fts.getRules();
 
-            for (Iterator it = insideFeatures.iterator(); it.hasNext();) {
+            for (Iterator it = features.iterator(); it.hasNext();) {
                 Feature feature = (Feature) it.next();
 
                 for (int k = 0; k < rules.length; k++) {
@@ -544,7 +544,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
                         Symbolizer[] symbolizers = rules[k].getSymbolizers();
                         
                         String typeName = feature.getFeatureType().getTypeName();
-                        // System.out.println("typename "+typeName+" fts " + fts.getFeatureTypeName());
+                         
+                        
                         
                         if (((typeName != null) &&
                         (feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName()) ||
@@ -554,8 +555,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 //                            if(feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName())){
 //                                System.out.println("made it by inheretance!");
 //                            }
+
                             processSymbolizers(feature, symbolizers);
-                        }
+                        } 
                     }
                 }
 
@@ -692,7 +694,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
 
-        if (geom.isEmpty()) {
+        if (geom == null || geom.isEmpty()) {
             return;
         }
 
