@@ -43,7 +43,7 @@ import java.lang.reflect.Array;
  * This class may be removed if JavaSoft provide some language construct
  * functionally equivalent to C/C++'s <code>realloc</code>.
  *
- * @version 1.0
+ * @version $Id: XArray.java,v 1.3 2002/09/01 18:12:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XArray {
@@ -897,5 +897,87 @@ public final class XArray {
      */
     public static boolean[] insert(final boolean[] src, final int src_pos, final boolean[] dst, final int dst_pos, final int length) {
         return (boolean[]) doInsert(src, src_pos, dst, dst_pos, length);
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * This method is usefull in assertions.
+     */
+    public static boolean isSorted(final byte[] array) {
+        for (int i=1; i<array.length; i++)
+            if (array[i] < array[i-1])
+                return false;
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * This method is usefull in assertions.
+     */
+    public static boolean isSorted(final short[] array) {
+        for (int i=1; i<array.length; i++)
+            if (array[i] < array[i-1])
+                return false;
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * This method is usefull in assertions.
+     */
+    public static boolean isSorted(final int[] array) {
+        for (int i=1; i<array.length; i++)
+            if (array[i] < array[i-1])
+                return false;
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * This method is usefull in assertions.
+     */
+    public static boolean isSorted(final long[] array) {
+        for (int i=1; i<array.length; i++)
+            if (array[i] < array[i-1])
+                return false;
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * Since <code>NaN</code> values are unordered, they may appears anywhere in the array; they
+     * will be ignored. This method is usefull in assertions.
+     */
+    public static boolean isSorted(final float[] array) {
+        int previous = 0;
+        for (int i=1; i<array.length; i++) {
+            final float value = array[i];
+            if (value < array[previous]) {
+                return false;
+            }
+            if (!Float.isNaN(value)) {
+                previous = i;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * Since <code>NaN</code> values are unordered, they may appears anywhere in the array; they
+     * will be ignored. This method is usefull in assertions.
+     */
+    public static boolean isSorted(final double[] array) {
+        int previous = 0;
+        for (int i=1; i<array.length; i++) {
+            final double value = array[i];
+            if (value < array[previous]) {
+                return false;
+            }
+            if (!Double.isNaN(value)) {
+                previous = i;
+            }
+        }
+        return true;
     }
 }
