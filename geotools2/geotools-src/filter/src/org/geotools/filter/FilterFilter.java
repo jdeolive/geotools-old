@@ -36,7 +36,7 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.6 2002/07/10 14:46:58 robhranac Exp $
+ * @version $Id: FilterFilter.java,v 1.7 2002/07/12 18:22:52 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
@@ -44,7 +44,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     private static Logger _log = Logger.getLogger(FilterFilter.class);
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private LogicFactory logicFactory = new LogicFactory();  
+    private LogicFactory logicFactory;  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private FilterFactory filterFactory = new FilterFactory();  
@@ -79,6 +79,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         this.parent = parent;
         this.schema = schema;
         expressionFactory = new ExpressionFactory(schema);
+        logicFactory = new LogicFactory();
     }
     
     
@@ -189,6 +190,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                 if( logicFactory.isComplete()) {
                     _log.debug("logic stack complete: " + logicFactory.toString());
                     parent.filter( logicFactory.create());
+                    _log.debug("just created logic factory");
                 }
             }
             
@@ -202,7 +204,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                     logicFactory.add( filterFactory.create());
                 }
                 else {
-                    parent.filter( logicFactory.create());
+                    parent.filter( filterFactory.create());
                 }
             }
             
@@ -213,12 +215,13 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             else if( ExpressionDefault.isExpression(filterElementType) ) {
                 _log.debug("found an expression filter end");
                 expressionFactory.end(localName);
+                _log.debug("sent end to expression factory");
                 if( expressionFactory.isReady() ) {
-                    filterFactory.expression( expressionFactory.create() );
+                    _log.debug("expression factory is ready: " + expressionFactory.isReady());
+                    filterFactory.expression( expressionFactory.create());
+                    _log.debug("just add expression to filter");
                 }
             }
-            
-            
         }
         catch (IllegalFilterException e) {
             throw new SAXException("Attempted to construct illegal filter: " +

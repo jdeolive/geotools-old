@@ -32,13 +32,16 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.10 2002/07/11 16:58:17 loxnard Exp $
+ * @version $Id: FeatureFlat.java,v 1.11 2002/07/12 18:26:34 robhranac Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
 
+    /** Logging instance for this class. */
     private static Category _log = Category.getInstance(FeatureFlat.class.getName());
 
+    /** Flat feature type schema for this feature. */
+    private final String featureId;
 
     /** Flat feature type schema for this feature. */
     private final FeatureTypeFlat schema;
@@ -57,14 +60,49 @@ public class FeatureFlat implements Feature {
      *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
+     * @param featureId The unique ID for this feature.
+     * @throws IllegalFeatureException Attribtues do not conform to feature type
+     * schema.
+     */
+    protected FeatureFlat (FeatureTypeFlat schema, Object[] attributes, String featureId) 
+        throws IllegalFeatureException {
+        this.schema = schema;
+        this.featureId = featureId;
+        createNew(schema, attributes);
+    }
+
+    /**
+     * Creates a new instance of flat feature, which must take a flat feature 
+     * type schema and all attributes as arguments. 
+     *
+     *
+     * @param schema Feature type schema for this flat feature.
+     * @param attributes Initial attributes for this feature.
      * @throws IllegalFeatureException Attribtues do not conform to feature type
      * schema.
      */
     protected FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
         throws IllegalFeatureException {
+        this.schema = schema;
+        this.featureId = null;
+        createNew(schema, attributes);
+    }
+
+    /**
+     * Creates a new instance of flat feature, which must take a flat feature 
+     * type schema and all attributes as arguments. 
+     *
+     *
+     * @param schema Feature type schema for this flat feature.
+     * @param attributes Initial attributes for this feature.
+     * @param featureId The unique ID for this feature.
+     * @throws IllegalFeatureException Attribtues do not conform to feature type
+     * schema.
+     */
+    private void createNew(FeatureTypeFlat schema, Object[] attributes) 
+        throws IllegalFeatureException {
 
         // Set the feature type reference
-        this.schema = schema;
         _log.debug("creating feature");
 
         // Gets the number of attributes from feature and uses to set valid flag
@@ -113,6 +151,16 @@ public class FeatureFlat implements Feature {
      */
      public FeatureType getSchema() {
         return (FeatureType) schema;
+    }
+
+    /** 
+     * Gets a reference to the feature type schema for this feature.
+     *
+     * @return A copy of this feature's metadata in the form of a feature type
+     *         schema.
+     */
+     public String getId() {
+        return featureId;
     }
 
     /* ***********************************************************************

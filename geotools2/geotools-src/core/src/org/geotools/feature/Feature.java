@@ -115,9 +115,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * is necessary to ensure that the feature is always in a valid state,
  * relative to its schema.</ol>
  *
- * @version $Id: Feature.java,v 1.4 2002/07/12 15:12:48 loxnard Exp $
- * @author James Macgill, CCG<br>
- * @author Rob Hranac, VFNY
+ * @version $Id: Feature.java,v 1.5 2002/07/12 18:27:54 robhranac Exp $
+ * @author James Macgill, CCG
+ * @author Rob Hranac, TOPP
  * @see org.geotools.datasource.FeatureType 
  * @see org.geotools.datasource.FeatureFlat
  */
@@ -134,6 +134,13 @@ public interface Feature {
     /* ***********************************************************************
      * Attribute extraction methods.
      * ***********************************************************************/
+    /** 
+     * Gets the unique feature ID for this feature.
+     *
+     * @return Unique identifier for this feature.
+     */
+    public String getId();
+
     /** 
      * Gets all attributes from this feature, returned as a complex object
      * array.  This array comes with no metadata, so to interpret this 
