@@ -6,9 +6,9 @@
 
   <body>
     <links>
-      <item name="core" href="/core"/>
-      <item name="defaultcore" href="/defaultcore"/>
-      <item name="shapefile" href="/shapefile"/>
+      <item name="core" href="../core"/>
+      <item name="defaultcore" href="../defaultcore"/>
+      <item name="shapefile" href="../shapefile"/>
     </links>
     <menu name="Overview">
       <!-- <item name="Goals" href="/goals.html"/> -->
