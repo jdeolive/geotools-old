@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="release" name="j2se-demos">
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="release">
+    <property file="build.ant.properties"/>
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="all"/>
+  </target>
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="clean">
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="clean"/>
+  </target>
+
+  <!-- Set your module-specific build targets here -->
+
+  <!-- Tests the module -->
+  <target name="test">
+    <property file="build.ant.properties"/>
+    
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="test"/>
+  </target>
+  
+  <target name="doc">
+    <property name="dir.module" value="${basedir}"/>
+    <ant antfile="../developersguide/build.xml" inheritAll="true" target="html-docs"/>
+  </target>
+    
+
+</project>

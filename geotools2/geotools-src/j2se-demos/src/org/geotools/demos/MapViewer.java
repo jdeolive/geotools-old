@@ -1,0 +1,192 @@
+/*
+ * MapViewer.java
+ *
+ * Created on 20 July 2002, 19:25
+ */
+
+package org.geotools.demos;
+
+import org.geotools.data.*;
+import org.geotools.gml.*;
+import org.geotools.map.*;
+import org.geotools.feature.*;
+import org.geotools.styling.*;
+import org.geotools.gui.swing.MapPane;
+import org.geotools.styling.*;
+
+import org.geotools.datasource.extents.EnvelopeExtent;
+
+import javax.swing.JFileChooser;
+import javax.swing.JSeparator;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
+import com.vividsolutions.jts.geom.Envelope;
+
+
+/**
+ *
+ * @author  James
+ */
+public class MapViewer extends javax.swing.JFrame {
+    
+    private static Logger log = Logger.getLogger("j2se-demos");
+    
+    private FeatureCollection features;
+    private Style style;
+    private JLabel status;
+    private Map map;
+    private MapPane master;
+    private AreaOfInterestModel aoi;
+    
+    /** Creates a new instance of MapViewer */
+    public MapViewer() {
+      
+        PropertyConfigurator.configure(System.getProperty("user.dir")+java.io.File.separatorChar+"logger.properties");
+        initComponents();
+    }
+    
+    /** This method is called from within the constructor to
+     * initialize the form.
+     */
+    private void initComponents() {
+        JMenuBar menuBar = new javax.swing.JMenuBar();
+        JMenu fileMenu = new javax.swing.JMenu();
+        JMenuItem loadGML = new javax.swing.JMenuItem();
+        JMenuItem loadSHP = new javax.swing.JMenuItem();
+        JSeparator jSeparator1 = new javax.swing.JSeparator();
+        JMenuItem loadSLD = new javax.swing.JMenuItem();
+        
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("Map Viewer");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                exitForm(evt);
+            }
+        });
+        
+        fileMenu.setMnemonic('F');
+        fileMenu.setText("File");
+        fileMenu.setToolTipText("null");
+        loadGML.setText("Open GML");
+        loadGML.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadGMLActionPerformed(evt);
+            }
+        });
+        
+        loadSLD.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadSLDActionPerformed(evt);
+            }
+        });
+        
+        fileMenu.add(loadGML);
+        loadSHP.setText("Item");
+        loadSHP.setEnabled(false);
+        fileMenu.add(loadSHP);
+        fileMenu.add(jSeparator1);
+        loadSLD.setText("Open SLD");
+        fileMenu.add(loadSLD);
+        menuBar.add(fileMenu);
+        setJMenuBar(menuBar);
+        
+        status = new JLabel("[Geometry : False] [Style : False]");
+        
+        this.getContentPane().add(status,"South");
+        map = new DefaultMap();
+        aoi = new DefaultAreaOfInterestModel(null,null);
+        final MapPane master = new MapPane(map,aoi);
+        
+        this.getContentPane().add(master.createScrollPane(),"Center");
+        
+        pack();
+        java.awt.Dimension screenSize = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(new java.awt.Dimension(461, 318));
+        setLocation((screenSize.width-461)/2,(screenSize.height-318)/2);
+    }
+    
+    
+
+    private void setupMap(){
+        updateStatus();
+        if(style == null || features == null){
+            log.debug("abort map setup, style or features is null");
+            return;
+        }
+        
+        map.addFeatureTable(features,style);
+    }
+    
+     private void loadSLDActionPerformed(java.awt.event.ActionEvent evt){
+        try{
+            JFileChooser fc = new JFileChooser();
+            int status = fc.showOpenDialog(this);
+            if(status != JFileChooser.APPROVE_OPTION){
+                return;
+            }
+            File f = fc.getSelectedFile();
+            style = new SLDStyle(f.toURL());
+            setupMap();
+        }
+        catch(IOException ioe){
+            log.error("Unable to load SLD file",ioe);
+        }
+     }
+    
+    private void loadGMLActionPerformed(java.awt.event.ActionEvent evt){
+        try{
+            JFileChooser fc = new JFileChooser();
+            int status = fc.showOpenDialog(this);
+            if(status != JFileChooser.APPROVE_OPTION){
+                return;
+            }
+            File f = fc.getSelectedFile();
+            GMLDataSource datasource = new GMLDataSource(f.toURL());
+            
+            features = new FeatureCollectionDefault(datasource);
+            Envelope env = datasource.getBbox(false);
+            EnvelopeExtent r = new EnvelopeExtent(env);
+            features.getFeatures(r);
+            features.setExtent(r);
+            aoi.setAreaOfInterest(env,null);
+            log.debug("gml data loaded "+features.getFeatures().length+" features loaded");
+            
+            
+            
+            
+            setupMap();
+        }
+        catch(IOException ioe){
+            log.error("Unable to load GML file",ioe);
+        }
+        catch(DataSourceException dse){
+            log.error("Unable to load GML file",dse);
+        }
+    }
+    
+    private void exitForm(java.awt.event.WindowEvent evt) {
+        System.exit(0);
+    }
+    
+    private void updateStatus(){
+        status.setText("[Geometry : " + (features != null) + "] " +
+                       "[Style : " + (style != null) + "]");
+    }
+    
+    /**
+     * @param args the command line arguments
+     */
+    public static void main(String args[]) {
+        new MapViewer().show();
+    }
+}
