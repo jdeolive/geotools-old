@@ -71,7 +71,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.64 2003/01/08 18:07:08 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.65 2003/01/09 17:04:54 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -392,46 +392,51 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param symbolizers An array of symbolizers which actually perform the
      * rendering.
      */
-    java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
+    
     private void processSymbolizers(final Feature feature, 
                                     final Symbolizer[] symbolizers) {
-        
+        java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
         for (int m = 0; m < symbolizers.length; m++) {
             if (LOGGER.isLoggable(Level.FINE)) {
                 LOGGER.fine("applying symbolizer " + symbolizers[m]);
             }
 
             if (symbolizers[m] instanceof PolygonSymbolizer) {
-                if(!renderedObjects.containsKey(feature)){
+                //if(!renderedObjects.containsKey(feature)){
                     RenderedPolygon rPolygon = new RenderedPolygon(feature, (PolygonSymbolizer) symbolizers[m]);
-                    renderedObjects.put(feature, rPolygon);
-                }
+                    rPolygon.render(graphics);
+                    //renderedObjects.put(feature, rPolygon);
+                //}
             } else if (symbolizers[m] instanceof LineSymbolizer) {
-                if(!renderedObjects.containsKey(feature)){
+                //if(!renderedObjects.containsKey(feature)){
                     RenderedLine rLine = new RenderedLine(feature, (LineSymbolizer) symbolizers[m]);
-                    renderedObjects.put(feature, rLine);
-                }
+                    rLine.render(graphics);
+                    //renderedObjects.put(feature, rLine);
+                //}
             } else if (symbolizers[m] instanceof PointSymbolizer) {
-                if(!renderedObjects.containsKey(feature)){
+                //if(!renderedObjects.containsKey(feature)){
                     RenderedPoint rPoint = new RenderedPoint(feature, (PointSymbolizer) symbolizers[m]);
-                    renderedObjects.put(feature, rPoint);
-                }
+                    rPoint.render(graphics);
+                    //renderedObjects.put(feature, rPoint);
+                //}
             } else if (symbolizers[m] instanceof TextSymbolizer) {
-                if(!renderedObjects.containsKey(feature)){
+                //if(!renderedObjects.containsKey(feature)){
                    RenderedText rText = new RenderedText(feature, (TextSymbolizer) symbolizers[m]);
-                   renderedObjects.put(feature, rText);
-                }
+                   rText.render(graphics);
+                   //renderedObjects.put(feature, rText);
+                //}
             } else if (symbolizers[m] instanceof RasterSymbolizer) {
-                if(!renderedObjects.containsKey(feature)){
+                //if(!renderedObjects.containsKey(feature)){
                     RenderedRaster rRaster = new RenderedRaster(feature, (RasterSymbolizer) symbolizers[m]);
-                    renderedObjects.put(feature, rRaster);
-                }    
+                    rRaster.render(graphics);
+                    //renderedObjects.put(feature, rRaster);
+                //}    
             }
         }
-        Iterator it = renderedObjects.values().iterator();
-        while(it.hasNext()){
-            ((RenderedObject)it.next()).render(graphics);
-        }
+//        Iterator it = renderedObjects.values().iterator();
+//        while(it.hasNext()){
+//            ((RenderedObject)it.next()).render(graphics);
+//        }
     }
 
     

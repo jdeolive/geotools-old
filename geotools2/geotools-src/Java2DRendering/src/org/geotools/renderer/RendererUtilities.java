@@ -486,7 +486,7 @@ public class RendererUtilities {
         int trueImageWidth = 0;
 
         // get the image to draw
-        BufferedImage image = null; //getExternalGraphic(gFill);
+        BufferedImage image = getExternalGraphic(gFill);
 
         if (image != null) {
             trueImageWidth = image.getWidth();
@@ -500,7 +500,7 @@ public class RendererUtilities {
                 LOGGER.finer("going for the mark from graphic fill");
             }
 
-            Mark mark = null; //getMark(gFill, feature);
+            Mark mark = getMark(gFill, feature);
             int size = 200;
             trueImageWidth = size;
             trueImageHeight = size;
@@ -510,8 +510,8 @@ public class RendererUtilities {
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
             rotation = ((Number) gFill.getRotation().getValue(feature)).doubleValue();
-            //fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, 
-            //             feature);
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, 
+                         feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image, 1);
@@ -626,7 +626,7 @@ public class RendererUtilities {
 
                 for (dist = 0; dist < (len - imageWidth); dist += imageWidth) {
                     /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
-                    //renderImage(x, y, image, size, rotation);
+                    renderImage(graphic, x, y, image, size, rotation);
 
                     x += dx;
                     y += dy;
@@ -657,7 +657,7 @@ public class RendererUtilities {
                     ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight, 
                                  obs);
 
-                    //renderImage(x, y, img, size, rotation);
+                    renderImage(graphic, x, y, img, size, rotation);
                 }
 
                 break;
@@ -805,6 +805,9 @@ public class RendererUtilities {
                               Feature feature) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform markAT = new AffineTransform();
+        if(LOGGER.isLoggable(Level.FINE)){
+            LOGGER.fine("fill draw mark " + mark + " " + mark.getWellKnownName());
+        }
         Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName()
                                                       .getValue(feature)
                                                       .toString());

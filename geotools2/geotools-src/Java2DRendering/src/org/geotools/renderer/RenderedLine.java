@@ -28,6 +28,8 @@ public class RenderedLine implements RenderedObject {
     private Stroke stroke;
     private Geometry geom;
     private Feature feature;
+    private GeneralPath path;
+    private boolean renderable = false;
     /** Creates a new instance of RenderedLine */
     public RenderedLine(Feature feature, LineSymbolizer symbolizer) {
         if (symbolizer.getStroke() == null) {
@@ -37,6 +39,12 @@ public class RenderedLine implements RenderedObject {
         stroke = symbolizer.getStroke();
         String geomName = symbolizer.geometryPropertyName();
         geom = RendererUtilities.findGeometry(feature, geomName);
+        if (geom.isEmpty()) {
+            return;
+        }
+
+        path = utils.createGeneralPath(geom);
+        renderable = true;
     }
     /**
      * Renders the given feature as a line using the specified symbolizer.
@@ -57,17 +65,13 @@ public class RenderedLine implements RenderedObject {
      * @param symbolizer The polygon symbolizer to apply
      **/
     public void render(Graphics2D graphics) {
-        
+        if(!isRenderable()) return;
     
         utils.applyStroke(graphics, stroke, feature);
 
         
 
-        if (geom.isEmpty()) {
-            return;
-        }
-
-        GeneralPath path = utils.createGeneralPath(geom);
+        
 
         if (stroke.getGraphicStroke() == null) {
             graphics.draw(path);
@@ -79,7 +83,7 @@ public class RenderedLine implements RenderedObject {
     }
 
     public boolean isRenderable() {
-        return true;
+        return renderable;
     }    
     
 }

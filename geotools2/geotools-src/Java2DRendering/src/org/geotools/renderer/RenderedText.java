@@ -56,7 +56,7 @@ public class RenderedText implements RenderedObject {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("rendering text");
         }
-
+        this.feature = feature;
         String geomName = symbolizer.getGeometryPropertyName();
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -101,7 +101,7 @@ public class RenderedText implements RenderedObject {
 
         org.geotools.styling.Font[] fonts = symbolizer.getFonts();
         javaFont = utils.getFont(feature, fonts);
-
+        LOGGER.fine("Java Font = " + javaFont);
         placement = symbolizer.getLabelPlacement();
 
         halo = symbolizer.getHalo();
@@ -163,6 +163,8 @@ public class RenderedText implements RenderedObject {
     public void render(Graphics2D graphics) {
         if (javaFont != null) {
             graphics.setFont(javaFont);
+        }else{
+            javaFont = graphics.getFont();
         }
 
         TextLayout tl = new TextLayout(label, javaFont, 
