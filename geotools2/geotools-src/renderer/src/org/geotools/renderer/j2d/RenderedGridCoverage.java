@@ -80,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.6 2003/02/28 22:27:40 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.7 2003/02/28 22:29:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -95,7 +95,7 @@ public class RenderedGridCoverage extends RenderedLayer {
      * the resolution of previous level. This value is used only if
      * {@link #USE_PYRAMID} is <code>true</code>.
      */
-    private static final float DOWN_SAMPLER = 0.5f;
+    private static final float DOWN_SAMPLER = 0.25f;
 
     /**
      * Natural logarithm of {@link #DOWN_SAMPLER}. Used
