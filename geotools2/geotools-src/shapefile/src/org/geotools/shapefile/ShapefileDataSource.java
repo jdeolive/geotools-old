@@ -31,7 +31,7 @@ import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.10 2002/07/19 14:15:09 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.11 2002/07/20 08:55:52 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class ShapefileDataSource implements org.geotools.data.DataSource {
@@ -83,8 +83,10 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * @param collection The collection from which to add the features.
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
+     * @task TODO: Implement addFeatures method
      */
     public void addFeatures(FeatureCollection collection) throws DataSourceException {
+         throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
     
     /** Gets the bounding box of this datasource using the default speed of
