@@ -83,8 +83,7 @@ public class PolygonHandler implements ShapeHandler {
       multi = (MultiPolygon) geometry;
     } else {
       Geometry g = (Geometry) geometry;
-      multi = new MultiPolygon(new Polygon[] { (Polygon) geometry },
-      g.getPrecisionModel(), g.getSRID());
+      multi = geometryFactory.createMultiPolygon(new Polygon[] { (Polygon) geometry });
     }
     
     int nrings = 0;
@@ -349,8 +348,7 @@ public class PolygonHandler implements ShapeHandler {
       multi = (MultiPolygon) geometry;
     } else {
       Geometry g = (Geometry) geometry;
-      multi = new MultiPolygon(new Polygon[] { (Polygon) geometry },
-      g.getPrecisionModel(), g.getSRID());
+      multi = geometryFactory.createMultiPolygon(new Polygon[] { (Polygon) geometry });
     }
     
     Envelope box = multi.getEnvelopeInternal();
@@ -446,6 +444,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.9  2004/02/17 18:10:23  ianschneider
+ * changed to use GeometryFactory for Geometry creation
+ *
  * Revision 1.8  2003/07/24 19:10:02  ianschneider
  * *** empty log message ***
  *
