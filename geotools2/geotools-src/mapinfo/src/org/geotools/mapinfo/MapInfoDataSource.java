@@ -34,10 +34,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
-import java.util.Vector;
-import java.util.Iterator;
-import java.util.Hashtable;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import com.vividsolutions.jts.geom.*;
 
@@ -48,7 +45,7 @@ public class MapInfoDataSource implements DataSource {
     String hVersion;
     String hCharset;
     String hDelimeter = "\t";
-    Hashtable hColumns;
+    ArrayList hColumnsNames, hColumnsTypes;
     Vector hUnique;
     Vector hIndex;
     // CoordsSys not supported
@@ -88,6 +85,7 @@ public class MapInfoDataSource implements DataSource {
     public static final String CLAUSE_PEN = "PEN";
     public static final String CLAUSE_SMOOTH= "SMOOTH";
     public static final String CLAUSE_CENTER = "CENTER";
+    public static final String CLAUSE_BRUSH = "BRUSH";
     
     public static final String CLAUSE_VERSION = "Version";
     public static final String CLAUSE_CHARSET = "Charset";
@@ -132,70 +130,64 @@ public class MapInfoDataSource implements DataSource {
      */
     private void setUpFactories() throws DataSourceException {
         // Go through each column name, and set up an attribute for each one
-        Vector colAttribs = new Vector();
+        ArrayList colAttribs = new ArrayList();
         
         // Add attributes for each column
-        Iterator it = hColumns.keySet().iterator();
-        while (it.hasNext())
-            colAttribs.add(new AttributeTypeDefault((String)it.next(), String.class));
+        //Iterator it = hColumns.keySet().iterator();
+        for(int i=0;i<hColumnsNames.size();i++){
+            String type = ((String)hColumnsTypes.get(i)).toLowerCase();
+            Class typeClass = null;
+            if(type.equals("float") || type.startsWith("decimal")){
+                typeClass = Double.class;
+                hColumnsTypes.set(i,"Double");
+            } else if (type.startsWith("char")){
+                typeClass = String.class;
+                hColumnsTypes.set(i,"String");
+            } else if (type.equals("integer") || type.equals("smallint")){
+                typeClass = Integer.class;
+                hColumnsTypes.set(i,"Integer");
+            } else {
+                _log.warn("unknown type in mif/mid read " + type + " storing as String");
+                typeClass = String.class;
+                hColumnsTypes.set(i,"String");
+            }
+            colAttribs.add(new AttributeTypeDefault((String)hColumnsNames.get(i), typeClass));
+        }
         
-        // Set up Point factory
-        Vector pointAttribs = new Vector();
-        // Add default attribute type
-        pointAttribs.add(new AttributeTypeDefault("point", Geometry.class));
-        // Add hColumn Attributes
-        pointAttribs.addAll(colAttribs);
-        // Add point-specific columns (SYMBOL_SHAPE, SYMBOL_COLOR, SYMBOL_SIZE)
-/*		pointAttribs.add(new AttributeTypeDefault("SYMBOL_SHAPE", String.class));
-    pointAttribs.add(new AttributeTypeDefault("SYMBOL_COLOR", String.class));
-    pointAttribs.add(new AttributeTypeDefault("SYMBOL_SIZE", String.class));*/
+        
+        // Add default Geometry attribute type
+        colAttribs.add(0,new AttributeTypeDefault("point", Geometry.class));
+        
         
         // create point feature Type & factory
         try {
-            pointFeatureType = new FeatureTypeFlat((AttributeType[])pointAttribs.toArray(new AttributeType[pointAttribs.size()]));
+            pointFeatureType = new FeatureTypeFlat((AttributeType[])colAttribs.toArray(new AttributeType[0]));
             pointFactory = new FeatureFactory(pointFeatureType);
         } catch(SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up point factory : "+schexp.getMessage());
         }
         
         // Set up Line factory
-        Vector lineAttribs = new Vector();
-        // Add default attribute type
-        lineAttribs.add(new AttributeTypeDefault("line", Geometry.class));
-        // Add hColumn Attributes
-        lineAttribs.addAll(colAttribs);
-        // Add line-specific columns (PEN_WIDTH, PEN_PATTERN, PEN_COLOR)
-/*		lineAttribs.add(new AttributeTypeDefault("PEN_WIDTH", String.class));
-    lineAttribs.add(new AttributeTypeDefault("PEN_PATTERN", String.class));
-    lineAttribs.add(new AttributeTypeDefault("PEN_COLOR", String.class));*/
         
+        // Add default attribute type
+        colAttribs.set(0,new AttributeTypeDefault("line", Geometry.class));
         // create line feature Type & factory
         try {
-            lineFeatureType = new FeatureTypeFlat((AttributeType[])lineAttribs.toArray(new AttributeType[lineAttribs.size()]));
+            lineFeatureType = new FeatureTypeFlat((AttributeType[])colAttribs.toArray(new AttributeType[0]));
             lineFactory = new FeatureFactory(lineFeatureType);
         } catch(SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up line factory : "+schexp.getMessage());
         }
         
         // Set up Polygon factory
-        Vector polygonAttribs = new Vector();
         // Add default attribute type
-        polygonAttribs.add(new AttributeTypeDefault("polygon", Geometry.class));
-        // Add hColumn Attributes
-        polygonAttribs.addAll(colAttribs);
-        // Add polygon-specific columns (PEN_WIDTH, PEN_PATTERN, PEN_COLOR)
-/*		polygonAttribs.add(new AttributeTypeDefault("PEN_WIDTH", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("PEN_PATTERN", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("PEN_COLOR", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("BRUSH_PATTERN", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("BRUSH_FORECOLOR", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("BRUSH_BACKCOLOR", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("CENTER_X", String.class));
-    polygonAttribs.add(new AttributeTypeDefault("CENTER_Y", String.class));*/
+        colAttribs.set(0,new AttributeTypeDefault("polygon", Geometry.class));
+       
+
         
         // create polygon feature Type & factory
         try {
-            polygonFeatureType = new FeatureTypeFlat((AttributeType[])polygonAttribs.toArray(new AttributeType[polygonAttribs.size()]));
+            polygonFeatureType = new FeatureTypeFlat((AttributeType[])colAttribs.toArray(new AttributeType[0]));
             polygonFactory = new FeatureFactory(polygonFeatureType);
         } catch(SchemaException schexp) {
             throw new DataSourceException("SchemaException setting up polygon factory : "+schexp.getMessage());
@@ -244,42 +236,61 @@ public class MapInfoDataSource implements DataSource {
                 if (clause(line).equalsIgnoreCase(CLAUSE_VERSION)) {
                     // Read Version clause
                     hVersion = line.trim().substring(line.trim().indexOf(' ')).trim();
+                    _log.info("version [" + hVersion + "]");
                 }
                 if (clause(line).equalsIgnoreCase(CLAUSE_CHARSET)) {
                     // Read Charset clause
-                    hCharset = line.replace('\"',' ').trim().substring(line.trim().indexOf(' ')).trim();
+                    //hCharset = line.replace('\"',' ').trim().substring(line.trim().indexOf(' ')).trim();
+                    hCharset = remainder(line).replace('"',' ').trim();
+                    _log.info("Charset [" + hCharset + "]");
                 }
                 if (clause(line).equalsIgnoreCase(CLAUSE_DELIMETER)) {
                     // Read Delimeter clause
                     hDelimeter = line.replace('\"',' ').trim().substring(line.trim().indexOf(' ')).trim();
+                    _log.info("delimiter [" + hDelimeter + "]");
                 }
                 if (clause(line).equalsIgnoreCase(CLAUSE_UNIQUE)) {
                     // Read Unique clause
                     StringTokenizer st = new StringTokenizer(line.trim().substring(line.trim().indexOf(' ')), ",");
                     hUnique = new Vector();
-                    while (st.hasMoreTokens())
-                        hUnique.addElement(st.nextToken());
+                    _log.info("Unique cols ");
+                    while (st.hasMoreTokens()){
+                        String uniq = st.nextToken();
+                        _log.info("\t" + uniq);
+                        hUnique.addElement(uniq);
+                    }
                 }
                 if (clause(line).equalsIgnoreCase(CLAUSE_INDEX)) {
                     // Read Index clause
                     StringTokenizer st = new StringTokenizer(line.trim().substring(line.trim().indexOf(' ')), ",");
                     hIndex = new Vector();
-                    while (st.hasMoreTokens())
-                        hIndex.addElement(st.nextToken());
+                    _log.info("Indexes");
+                    while (st.hasMoreTokens()){
+                        String index = st.nextToken();
+                        _log.info("\t" + index);
+                        hIndex.addElement(index);
+                    }
                 }
                 if (clause(line).equalsIgnoreCase(CLAUSE_COLUMNS)) {
                     // Read Columns clause
                     int cols =0;
                     try {
-                        cols = Integer.parseInt(line.trim().substring(line.trim().indexOf(' ')));
-                    } catch(NumberFormatException nfexp) {}
+                        cols = Integer.parseInt(remainder(line));
+                        _log.debug("Cols " + cols);
+                    } catch(NumberFormatException nfexp) {
+                        _log.error("bad number of colums",nfexp);
+                    }
                     // Read each of the columns
-                    hColumns = new Hashtable();
+                    hColumnsNames = new ArrayList();
+                    hColumnsTypes = new ArrayList();
                     for (int i=0;i<cols;i++) {
                         line = readMifLine(mifReader);
-                        StringTokenizer st = new StringTokenizer(line.trim().substring(line.trim().indexOf(' ')), " ");
-                        
-                        hColumns.put(st.nextToken(), st.nextToken());
+                        //StringTokenizer st = new StringTokenizer(line.trim().substring(line.trim().indexOf(' ')), " ");
+                        String name = clause(line);
+                        String value = remainder(line);
+                        _log.debug("column name " + name + " value " + value);
+                        hColumnsNames.add(name);
+                        hColumnsTypes.add(value);
                     }
                 }
             }
@@ -292,12 +303,22 @@ public class MapInfoDataSource implements DataSource {
     /** A 'Clause' is stored as a single string at the start of a line. This rips the clause name out of the given line.
      */
     private String clause(String line) {
-        if (line.trim().indexOf(' ')==-1)
-            return line.trim();
+        line = line.trim();
+        if (line.indexOf(' ')==-1)
+            return line;
         else
-            return line.trim().substring(0, line.trim().indexOf(' '));
+            return line.substring(0, line.indexOf(' ')).trim();
     }
     
+    /** returns the last word of the string */
+    private String remainder(String line){
+        line = line.trim();
+        if(line.lastIndexOf(' ')==-1){
+            return "";
+        }else{
+            return line.substring(line.lastIndexOf(' ')).trim();
+        }
+    }
     /** Reads the next line in the reader, ignoring lines which are nothing but whitespace. Sets the global 'line' variable to the currently read line
      */
     private String readMifLine(BufferedReader reader) throws IOException {
@@ -306,14 +327,16 @@ public class MapInfoDataSource implements DataSource {
             if (line==null){
                 return null;
             }
-            if(line.startsWith("BRUSH") || line.startsWith("PEN") || line.startsWith("SMOOTH")){
+            if(isShadingClause(line)){
+                _log.debug("going to process shading");
+                processShading(line);
                 line=" ";
             }
         }
         while (line.trim().length()==0);
         
         line = line.trim();
-        
+        //_log.debug("returning line " + line);
         return line;
     }
     
@@ -321,7 +344,7 @@ public class MapInfoDataSource implements DataSource {
      */
     private Feature readObject(BufferedReader mifReader, BufferedReader midReader) throws DataSourceException {
         Feature feature = null;
-        _log.debug("line = " + line);
+        //_log.debug("line = " + line);
         // examine The current line
         if (line==null)
             return null;
@@ -348,6 +371,8 @@ public class MapInfoDataSource implements DataSource {
             // Read region data
             _log.debug("Reading REGION");
             feature = readRegionObject(mifReader, midReader);
+        }else{
+            _log.debug(line + " unknown object in mif reader");
         }
         
         return feature;
@@ -366,9 +391,9 @@ public class MapInfoDataSource implements DataSource {
             Geometry pointGeom = geomFactory.createPoint(new Coordinate(x, y));
             // Read next line
             readMifLine(mifReader);
-            Hashtable shading = readShading(mifReader);
+            //Hashtable shading = readShading(mifReader);
             // Shading is not included, as null feature attributes are not supported yet
-            Hashtable midValues = readMid(midReader);
+            ArrayList midValues = readMid(midReader);
             //			midValues.putAll(shading);
             // Create Feature
             feature = buildFeature(pointFeatureType, pointFactory, pointGeom, midValues);
@@ -401,9 +426,9 @@ public class MapInfoDataSource implements DataSource {
             Geometry lineGeom = geomFactory.createLineString(cPoints);
             // Read next line
             readMifLine(mifReader);
-            Hashtable shading = readShading(mifReader);
+            //Hashtable shading = readShading(mifReader);
             // Shading is not included, as null feature attributes are not supported yet
-            Hashtable midValues = readMid(midReader);
+            ArrayList midValues = readMid(midReader);
             //			midValues.putAll(shading);
             // Create Feature
             feature = buildFeature(lineFeatureType, lineFactory, lineGeom, midValues);
@@ -446,9 +471,9 @@ public class MapInfoDataSource implements DataSource {
             Geometry plineGeom = geomFactory.createLineString((Coordinate[])coords.toArray(new Coordinate[coords.size()]));
             // Read next line
             readMifLine(mifReader);
-            Hashtable shading = readShading(mifReader);
+            //Hashtable shading = readShading(mifReader);
             // Shading is not included, as null feature attributes are not supported yet
-            Hashtable midValues = readMid(midReader);
+            ArrayList midValues = readMid(midReader);
             //			midValues.putAll(shading);
             // Create Feature
             feature = buildFeature(lineFeatureType, lineFactory, plineGeom, midValues);
@@ -501,9 +526,9 @@ public class MapInfoDataSource implements DataSource {
             // Read next line
             readMifLine(mifReader);
             
-            Hashtable shading = readShading(mifReader);
+            //Hashtable shading = readShading(mifReader);
             // Shading is not included, as null feature attributes are not supported yet
-            Hashtable midValues = readMid(midReader);
+            ArrayList midValues = readMid(midReader);
             //			midValues.putAll(shading);
             // Create Feature
             feature = buildFeature(polygonFeatureType, polygonFactory, polyGeom, midValues);
@@ -524,87 +549,116 @@ public class MapInfoDataSource implements DataSource {
      * @param attribs The attibutes to use as the Feature's attributes (Attributes must be set up in the FeatureType)
      * @return A fully-formed Feature
      */
-    private Feature buildFeature(FeatureType featureType, FeatureFactory factory, Geometry geom, Hashtable attribs) throws DataSourceException {
-        // Create array of rows (attribs + geometry)
-        Object [] rows = new Object[featureType.getAllAttributeTypes().length];
-        
-        // Place each object in the attribs hashtable into the relevent row
+    private Feature buildFeature(FeatureType featureType, FeatureFactory factory, Geometry geom, ArrayList attribs) throws DataSourceException {
         int numAttribs = featureType.getAllAttributeTypes().length;
-        for (int i=0;i<numAttribs;i++)
-            rows[i] = attribs.get(featureType.getAttributeType(i).getName());
         
-        // Fill in geometry
-        rows[0] = geom;
+        // add geometry to the attributes
+        attribs.add(0,geom);
+        
+        if( numAttribs != attribs.size() ){
+            _log.error("wrong number of attributes passed to buildFeature");
+            throw new DataSourceException("wrong number of attributes passed to buildFeature.\n" +
+                "expected " + numAttribs + " got " + attribs.size());    
+        }
+        
         
         // Create Feature
         try {
-            return factory.create(rows);
+            return factory.create(attribs.toArray());
         }
         catch(IllegalFeatureException ifexp) {
-            throw new DataSourceException("IllegalFeatureException creating feature : "+ifexp.getMessage());
+            throw new DataSourceException("IllegalFeatureException creating feature : ",ifexp);
         }
     }
     
     /** Reads a single line of the given MID file stream, and returns a hashtable of the data in it, keyed byt he keys in the hColumns hash
      */
-    private Hashtable readMid(BufferedReader midReader) throws DataSourceException {
-        Vector midValues = new Vector();
-        if (midReader==null)
-            return new Hashtable();
+    private ArrayList readMid(BufferedReader midReader) throws DataSourceException {
+        ArrayList midValues = new ArrayList();
+        if (midReader==null){
+            return new ArrayList();
+        }
         // The delimeter is a single delimiting character
         String midLine = "";
         try {
             midLine = midReader.readLine();
             _log.debug("Read MID "+midLine);
-        }
-        catch(IOException ioexp) {
+        }  catch(IOException ioexp) {
             throw new DataSourceException("IOException reading MID file");
         }
         // read MID tokens
+        int col = 0;
         StringTokenizer quotes = new StringTokenizer(midLine, "\"");
         while (quotes.hasMoreTokens()) {
-            StringTokenizer delimeters = new StringTokenizer(quotes.nextToken(), hDelimeter);
+            StringTokenizer delimeters = new StringTokenizer(quotes.nextToken(), hDelimeter+"\0");
             // Read each delimited value into the Vector
-            while (delimeters.hasMoreTokens())
-                midValues.addElement(delimeters.nextToken());
+            while (delimeters.hasMoreTokens()){
+                String token = delimeters.nextToken();
+                String type = (String)hColumnsTypes.get(col++);
+                addAttribute(type,token,midValues);
+                    
+            }
             // Store the whole of the next bit (it's a quoted string)
-            if (quotes.hasMoreTokens())
-                midValues.addElement(quotes.nextToken());
-        }
+           if (quotes.hasMoreTokens()){
+                String token = quotes.nextToken();
+                String type = (String)hColumnsTypes.get(col++);
+                addAttribute(type,token,midValues);
+                //_log.debug("adding " + token);
+            }
+        } 
         
-        // Place the mid values into a Hashtable
-        Hashtable hValues = (Hashtable)hColumns.clone();
-        Iterator it = hValues.keySet().iterator();
-        int index = 0;
-        while (it.hasNext())
-            hValues.put(it.next(), midValues.elementAt(index++));
-        return hValues;
+        return midValues;
     }
     
+    private void addAttribute(String type, String token, ArrayList midValues){
+        if(type.equals("String")){
+                    midValues.add(token);
+                } else if (type.equals("Double")){
+                    try{
+                        midValues.add(new Double(token));
+                    } catch (NumberFormatException nfe){
+                        _log.warn("Bad double " + token);
+                        midValues.add(new Double(0.0));
+                    }
+                } else if (type.equals("Integer")){
+                    try{
+                        midValues.add(new Integer(token));
+                    } catch (NumberFormatException nfe){
+                        _log.warn("Bad Integer value " + token);
+                        midValues.add(new Integer(0));
+                    }
+                } else {
+                    _log.warn("Unknown type " + type );
+                }
+    }
     /** Reads the shading information at the end of Object data
      */
-    private Hashtable readShading(BufferedReader mifReader) throws IOException {
-        Hashtable shading = new Hashtable();
+    private void processShading(String line) {
         
-        if (line==null)
-            return shading;
         
-        String shadeType = line.toLowerCase();
-        while (shadeType!=null && isShadingClause(shadeType)) {
-            // Get clause name
-            String name = clause(shadeType);
-            _log.debug("Read shading ("+name+")");
-            shading.put(name, shadeType.substring(name.length()).trim());
-            shadeType = readMifLine(mifReader);
+        if (line==null){
+            return;
         }
+        String shadeType = line.toLowerCase();
+        String name = clause(shadeType);
+        _log.debug("Read shading ("+name+")");
         
-        return shading;
+        
+        return;
     }
     
     /** Test whether the given line contains a known shading clause keyword (PEN, STYLE, etc.)
      */
     private boolean isShadingClause(String line) {
-        return (line.indexOf(CLAUSE_PEN.toLowerCase())!=-1 || line.indexOf(CLAUSE_SYMBOL.toLowerCase())!=-1 || line.indexOf(CLAUSE_SMOOTH.toLowerCase())!=-1 || line.indexOf(CLAUSE_CENTER.toLowerCase())!=-1);
+        line = line.toUpperCase();
+        boolean ret = (line.indexOf(CLAUSE_PEN)!=-1 ||
+            line.indexOf(CLAUSE_SYMBOL)!=-1 ||
+            line.indexOf(CLAUSE_SMOOTH)!=-1 ||
+            line.indexOf(CLAUSE_CENTER)!=-1 ||
+            line.indexOf(CLAUSE_BRUSH)!=-1 );
+        
+        
+        return ret;
     }
     
     /**
