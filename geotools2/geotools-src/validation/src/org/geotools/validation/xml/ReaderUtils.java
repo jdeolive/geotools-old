@@ -50,7 +50,7 @@ import org.xml.sax.SAXException;
  * <p></p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @version $Id: ReaderUtils.java,v 1.4 2004/04/17 15:00:18 cholmesny Exp $
+ * @version $Id: ReaderUtils.java,v 1.5 2004/04/17 16:13:42 cholmesny Exp $
  *
  * @see XMLConfigReader
  */
@@ -86,7 +86,7 @@ class ReaderUtils {
      */
     public static Element loadConfig(Reader configFile)
         throws IOException, ParserConfigurationException, SAXException {
-        LOGGER.fine("loading configuration file " + configFile);
+        LOGGER.finest("loading configuration file " + configFile);
 
         InputSource in = new InputSource(configFile);
         DocumentBuilderFactory dfactory = DocumentBuilderFactory.newInstance();
