@@ -89,7 +89,7 @@ public class SLDStyleFactory {
     static Set wellKnownMarks = new java.util.HashSet();
 
     /** Holds the of graphic formats supported by the current jdk */
-    static Set supportedGraphicFormats = new java.util.HashSet();
+    static Set supportedGraphicFormats = null;
 
     /** Current way to load images */
     static ImageLoader imageLoader = new ImageLoader();
@@ -129,12 +129,20 @@ public class SLDStyleFactory {
         wellKnownMarks.add("star");
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
+    }
+    
+    private static Set getSupportedGraphicFormats() {
+        if(supportedGraphicFormats == null) {
+            supportedGraphicFormats = new java.util.HashSet();
+        
+            String[] types = ImageIO.getReaderMIMETypes();
 
-        String[] types = ImageIO.getReaderMIMETypes();
-
-        for (int i = 0; i < types.length; i++) {
-            supportedGraphicFormats.add(types[i]);
+            for (int i = 0; i < types.length; i++) {
+                supportedGraphicFormats.add(types[i]);
+            }
         }
+        
+        return supportedGraphicFormats;
     }
 
     /**
@@ -914,7 +922,7 @@ public class SLDStyleFactory {
             LOGGER.finest("got a " + eg.getFormat());
         }
 
-        if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
+        if (getSupportedGraphicFormats().contains(eg.getFormat().toLowerCase())) {
             if (eg.getFormat().equalsIgnoreCase("image/gif")
                     || eg.getFormat().equalsIgnoreCase("image/jpg")
                     || eg.getFormat().equalsIgnoreCase("image/png")) {
