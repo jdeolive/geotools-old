@@ -1,8 +1,6 @@
 package org.geotools.data.mysql;
 
 import junit.framework.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import java.util.*;
@@ -10,12 +8,13 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.*;
 import java.sql.*;
+import java.util.logging.Logger;
 
 
 public class MysqlGeomColTestSuite extends TestCase {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(MysqlTestSuite.class.getName());
+     /** Standard logging instance */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
 
     private MysqlConnection db;
 
@@ -46,24 +45,22 @@ public class MysqlGeomColTestSuite extends TestCase {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
 
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.info("starting suite...");
+        LOGGER.info("starting suite...");
         TestSuite suite = new TestSuite(MysqlGeomColTestSuite.class);
-        _log.info("made suite...");
+        LOGGER.info("made suite...");
         return suite;
     }
     
     public void setUp() {
-	_log.info("creating MysqlConnection connection...");
+	LOGGER.info("creating MysqlConnection connection...");
 	db = new MysqlConnection ("localhost","3306","test_Feature"); 
 	//this will eventually be a world accessible mysql database
 	//for now it is just on localhost
-	_log.info("created new db connection");
+	LOGGER.info("created new db connection");
 	gCol = new MysqlGeomColumn();
 	geometryFactory = new GeometryFactory();
 	geometryReader = new WKTReader(geometryFactory);
@@ -71,11 +68,11 @@ public class MysqlGeomColTestSuite extends TestCase {
 	    testGeo = geometryReader.read(TEST_WKT_GEOM);
 	}
         catch (ParseException e) {
-            _log.info("Failed to parse " + e.getMessage());
+            LOGGER.info("Failed to parse " + e.getMessage());
         }
 
 
-        _log.info("created new datasource");
+        LOGGER.info("created new datasource");
     }
 
     public void testFeatureSetters(){
@@ -114,9 +111,9 @@ public class MysqlGeomColTestSuite extends TestCase {
 	    assertNull(gCol.getGeometry(25));
 	}
         catch (ParseException e) {
-            _log.info("Failed to parse " + e.getMessage());
+            LOGGER.info("Failed to parse " + e.getMessage());
         } catch (DataSourceException e){
-	    _log.info("caught datasource exception");
+	    LOGGER.info("caught datasource exception");
 	    fail("datasource exception");
 	}
     }
@@ -127,7 +124,7 @@ public class MysqlGeomColTestSuite extends TestCase {
 	    gCol.removeData(15);
 	    assertNull(gCol.getGeometry(15));
 	} catch (DataSourceException e){
-	    _log.info("caught datasource exception");
+	    LOGGER.info("caught datasource exception");
 	    fail("datasource exception");
 	}
     }
@@ -141,11 +138,11 @@ public class MysqlGeomColTestSuite extends TestCase {
 	    dbCon.close();
 
 	} catch (SQLException e) {
-	    _log.info("sql error " + e.getMessage());
-	    _log.info("sql state: " + e.getSQLState());
+	    LOGGER.info("sql error " + e.getMessage());
+	    LOGGER.info("sql state: " + e.getSQLState());
 	    fail("sql error");
 	} catch (SchemaException e) {
-	    _log.info("schema error: " + e.getMessage());
+	    LOGGER.info("schema error: " + e.getMessage());
 	    fail("schema error");
 	}
 
@@ -161,7 +158,7 @@ public class MysqlGeomColTestSuite extends TestCase {
 	try {
 	assertTrue(gCol.getGeometry(49).equalsExact(testGeo));
 	} catch (DataSourceException e){
-	    _log.info("caught datasource exception");
+	    LOGGER.info("caught datasource exception");
 	    fail("datasource exception");
 	}
 

@@ -1,8 +1,6 @@
 package org.geotools.data.mysql;
 
 import junit.framework.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import java.util.*;
@@ -10,12 +8,14 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.*;
 import java.sql.*;
+import java.util.logging.Logger;
+
 //import org.geotools.data.mysql;
 
 public class MysqlConTestSuite extends TestCase {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(MysqlTestSuite.class.getName());
+     /** Standard logging instance */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     private MysqlConnection db;
 
     //DataSource mysql = null;
@@ -29,28 +29,27 @@ public class MysqlConTestSuite extends TestCase {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
 
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.info("starting suite...");
+
+        LOGGER.info("starting suite...");
         TestSuite suite = new TestSuite(MysqlConTestSuite.class);
-        _log.info("made suite...");
+        LOGGER.info("made suite...");
         return suite;
     }
     
     public void setUp() {
-	_log.info("creating MysqlConnection connection...");
+	LOGGER.info("creating MysqlConnection connection...");
 	db = new MysqlConnection ("localhost","3306","test_Feature"); 
-	_log.info("created new db connection");
+	LOGGER.info("created new db connection");
 	
     }
 
     public void testLogin() {
 	db.setLogin(TEST_USER,TEST_PWORD);
-	_log.info("set the login");
+	LOGGER.info("set the login");
 	assertEquals(TEST_USER, db.getLoginUser());
 	assertEquals(TEST_PWORD, db.getLoginPassword());
 	
@@ -62,10 +61,10 @@ public class MysqlConTestSuite extends TestCase {
 	Geometry curGeo = null;
 	GeometryFactory geometryFactory = new GeometryFactory();
 	WKTReader geometryReader = new WKTReader(geometryFactory);
-	_log.info("Connecting to Mysql database"); 
+	LOGGER.info("Connecting to Mysql database"); 
 	try {
 	    Connection dbConnection = db.getConnection();
-	    _log.info("connected");
+	    LOGGER.info("connected");
 	    Statement statement = dbConnection.createStatement();
 	    statement.executeUpdate("CREATE TABLE Con_Test(a int, b varchar(50))");
 	    statement.executeUpdate("INSERT INTO Con_Test values(5, 'road')");
@@ -75,7 +74,7 @@ public class MysqlConTestSuite extends TestCase {
 	    assertEquals(5, rs.getInt(1));
 	    assertEquals("road", rs.getString(2));
 	    statement.executeUpdate("DROP TABLE Con_Test");
-	    _log.info("created and dropped, dude");
+	    LOGGER.info("created and dropped, dude");
 	    rs.close();
 	    statement.close();
 	    dbConnection.close();

@@ -1,8 +1,6 @@
 package org.geotools.data.mysql;
 
 import junit.framework.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import java.util.*;
@@ -10,13 +8,14 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.*;
 import java.sql.*;
+import java.util.logging.Logger;
 import org.geotools.filter.*;
 //import org.geotools.data.mysql;
 
 public class MysqlTestSuite extends TestCase {
 
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(MysqlTestSuite.class.getName());
+     /** Standard logging instance */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
 
     private static String FEATURE_TABLE = "STREET_LAMP";
 
@@ -44,26 +43,26 @@ public class MysqlTestSuite extends TestCase {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
+
         junit.textui.TestRunner.run(suite());
     }
 
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.info("starting suite...");
+
+        LOGGER.info("starting suite...");
         TestSuite suite = new TestSuite(MysqlTestSuite.class);
 	suite.addTest(new TestSuite(MysqlConTestSuite.class));
 	suite.addTest(new TestSuite(MysqlGeomColTestSuite.class));
-        _log.info("made suite...");
+        LOGGER.info("made suite...");
         return suite;
     }
     
     public void setUp() {
-	_log.info("creating MysqlConnection connection...");
+	LOGGER.info("creating MysqlConnection connection...");
 	db = new MysqlConnection ("localhost","3306","test_Feature"); 
-	_log.info("created new db connection");
+	LOGGER.info("created new db connection");
 	mysql = new MysqlDataSource(db, FEATURE_TABLE);
-	_log.info("created new datasource");
+	LOGGER.info("created new datasource");
 	lampAttr[0].setPosition(0);
 	lampAttr[0].setPosition(1);
 	//create a filter that is always true, just to pass into getFeatures
@@ -79,15 +78,15 @@ public class MysqlTestSuite extends TestCase {
     }
     	
      public void testGet() {
-        _log.info("starting type enforcement tests...");
+        LOGGER.info("starting type enforcement tests...");
         try {
 	       	    mysql.getFeatures(collection, tFilter);
 	     assertEquals(4, collection.getFeatures().length);
 	} catch(DataSourceException e) {
-            _log.info("...threw data source exception: " + e.getMessage());    
+            LOGGER.info("...threw data source exception: " + e.getMessage());    
 	    fail();
         }
-        _log.info("...ending type enforcement tests");
+        LOGGER.info("...ending type enforcement tests");
 	}
     
     public void testAdd() {
@@ -107,11 +106,11 @@ public class MysqlTestSuite extends TestCase {
 	    collection.addFeatures(features);
 	    mysql.addFeatures(collection);
 	} catch(DataSourceException e){
-	    _log.info("threw data source exception");
+	    LOGGER.info("threw data source exception");
 	    fail();
 	} catch(SchemaException e){
 	    fail();
-	    _log.info("trouble creating feature type");
+	    LOGGER.info("trouble creating feature type");
 	} catch(IllegalFeatureException e){
 	    fail("illegal feature " + e);
 	}
@@ -135,7 +134,7 @@ public class MysqlTestSuite extends TestCase {
 	    dbConnection.close();
 	} catch(SQLException e){
 	   
-	    _log.info("we had some sql trouble " + e.getMessage());
+	    LOGGER.info("we had some sql trouble " + e.getMessage());
 	    fail();
 	}
     
