@@ -2975,7 +2975,7 @@ xxe yoursection.sgml</programlisting>
       Docbook format to HTML using maven.</para>
 
       <para>For information about using javadoc to comment your code, refer to
-      <xref linkend="CodingStandards" />.</para>
+      <xref linkend="codingstandards" />.</para>
     </section>
 
     <section id="modulardocumentation">
