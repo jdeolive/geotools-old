@@ -30,7 +30,7 @@ import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * @version $Id: DefaultMap.java,v 1.5 2002/07/11 17:16:28 loxnard Exp $
+ * @version $Id: DefaultMap.java,v 1.6 2002/07/22 09:18:24 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class DefaultMap implements org.geotools.map.Map {
@@ -45,6 +45,20 @@ public class DefaultMap implements org.geotools.map.Map {
         tables.put(ft, style);
     }
     
+    public void removeFeatureTable(FeatureCollection fc) {
+        tables.remove(fc);
+    }
+    
+    
+    /**
+     * renders the portion of the map conteined within a specified reagion 
+     * using a supplied renderer.
+     * @param renderer The renderer which will draw the map.
+     * @param envelope The region to draw
+     * 
+     * @task TODO: Look at performace implication of calling FeatureCollection each time
+     * @task HACK: DataSourceExceptions cought but not processed
+     */
     public void render(Renderer renderer, Envelope envelope) {
         java.util.Enumeration layers = tables.keys();
         while (layers.hasMoreElements()){
@@ -65,5 +79,6 @@ public class DefaultMap implements org.geotools.map.Map {
     
     public void setCoordinateSystem(CS_CoordinateSystem cs) {
     }
+    
     
 }

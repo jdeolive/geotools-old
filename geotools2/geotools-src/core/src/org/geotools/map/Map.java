@@ -30,7 +30,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
  *
- * @version $Id: Map.java,v 1.9 2002/07/19 16:33:12 jmacgill Exp $
+ * @version $Id: Map.java,v 1.10 2002/07/22 09:17:32 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public interface Map {
@@ -58,6 +58,8 @@ public interface Map {
      * @param style The style to apply to these features.
      */
     void addFeatureTable(FeatureCollection fc, Style style);
+    
+    void removeFeatureTable(FeatureCollection fc);
     
     /**
      * Displays or outputs the portion of the map that falls within a 
