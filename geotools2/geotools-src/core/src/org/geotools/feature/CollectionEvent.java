@@ -24,7 +24,7 @@ import java.util.EventObject;
  * instances (typically change events).
  *
  * @author Ray Gallagher
- * @version $Id: CollectionEvent.java,v 1.7 2003/07/30 21:31:41 jmacgill Exp $
+ * @version $Id: CollectionEvent.java,v 1.8 2003/08/05 21:33:26 cholmesny Exp $
  */
 public class CollectionEvent extends EventObject {
     /*
@@ -45,6 +45,8 @@ public class CollectionEvent extends EventObject {
      * modified
      */
     public static final int FEATURES_CHANGED = 2;
+
+    /** Indicates one of FEATURES_ADDED, FEATURES_REMOVED, FEATURES_CHANGED */
     private int type;
 
     /**
@@ -59,6 +61,7 @@ public class CollectionEvent extends EventObject {
 
     /**
      * provides access to the featurecollection which fired the event
+     *
      * @return The FeatureCollection which was the event's source.
      */
     public FeatureCollection getCollection() {

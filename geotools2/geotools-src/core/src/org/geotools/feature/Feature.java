@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -11,10 +12,6 @@
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
- *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
 package org.geotools.feature;
@@ -32,8 +29,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * useless approach because it establishes no unified methods for getting
  * attribute information (since it is totally Object dependent), without
  * elaborate reflection/introspection, which is inconvenient to use. Unlike
- * its <code>FeatureType</code> counterpart, this interface does not attempt
- * to serve as a typing framework.  Rather, multiple implementations of this
+ * its {@link FeatureType} counterpart, this interface does not attempt to
+ * serve as a typing framework.  Rather, multiple implementations of this
  * interface should generally be for performance reasons.
  * </p>
  * 
@@ -134,19 +131,19 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author James Macgill, CCG
  * @author Rob Hranac, TOPP
  * @author Ian Schneider, USDA-ARS
- * @version $Id: Feature.java,v 1.9 2003/07/30 21:31:41 jmacgill Exp $
+ * @version $Id: Feature.java,v 1.10 2003/08/05 21:33:26 cholmesny Exp $
  *
- * @see org.geotools.datasource.FeatureType
- * @see org.geotools.datasource.FeatureFlat
+ * @see org.geotools.feature.FeatureType
+ * @see org.geotools.feature.DefaultFeature
  */
 public interface Feature {
-     /**
+    /**
      * Gets the feature collection this feature is stored in.
      *
-     * @return the collection that is the parent of this feature.
+     * @return The collection that is the parent of this feature.
      */
     FeatureCollection getParent();
-    
+
     /**
      * Sets the parent collection this feature is stored in, if it is not
      * already set.  If it is set then this method does nothing.
@@ -212,6 +209,7 @@ public interface Feature {
      * @param position The requested index. Must be 0 &lt;= idx &lt;
      *        getNumberOfAttributes()
      * @param val An object representing the attribute being set
+     *
      * @throws IllegalAttributeException if the passed in val does not validate
      *         against the AttributeType at that position.
      * @throws ArrayIndexOutOfBoundsException if an invalid position is given
@@ -283,39 +281,6 @@ public interface Feature {
      * @return An Envelope containing the total bounds of this Feature.
      */
     Envelope getBounds();
-
-    /*
-     * Redesign notes:
-     *
-     * getFeature(String xpath) + NULL_ATTRIBUTE
-     *  The throwing of an IllegalFeatureException is obviously an attempt to
-     *  allow for the semantic that a Feature may have a given attribute, yet
-     *  the attribute may allow null values. I believe a better pattern is the
-     *  "null object" approach (Ian).
-     *
-     * getId -> getID
-     *  standards naming
-     *
-     * getSchema -> getFeatureType
-     *  API clarity
-     *
-     * Object[] getAttributes() -> Object[] getAttributes(Object[])
-     *  Performance enhancements
-     *
-     * getFeature(int idx)
-     *  Allow for faster access to features.
-     *
-     * getBounds()
-     *  Allows for bounds to be cached while geometries themselves may be softly
-     * held. Convenience.
-     *
-     *
-     *
-     *
-     *
-     *
-     *
-     */
 
     /**
      * A "null" Object representing a null value for a given attribute.
