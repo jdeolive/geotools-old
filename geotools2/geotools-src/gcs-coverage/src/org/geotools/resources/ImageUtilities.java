@@ -58,7 +58,7 @@ import javax.media.jai.ImageLayout;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.2 2002/07/23 17:53:37 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.3 2003/03/09 19:45:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -256,11 +256,27 @@ public final class ImageUtilities {
      * @return An index color model for the specified array.
      */
     public static IndexColorModel getIndexColorModel(final int[] ARGB) {
+        return getIndexColorModel(ARGB, 1, 0);
+    }
+
+    /**
+     * Returns a tolerant index color model for the specified ARGB code. This color model accept
+     * image with the specified number of bands.
+     *
+     * @param  ARGB         An array of ARGB values.
+     * @param  numBands     The number of bands.
+     * @param  visibleBands The band to display.
+     * @return An index color model for the specified array.
+     */
+    public static IndexColorModel getIndexColorModel(final int[] ARGB,
+                                                     final int numBands,
+                                                     final int visibleBand)
+    {
         boolean hasAlpha = false;
         int  transparent = -1;
         for (int i=0; i<ARGB.length; i++) {
             final int alpha = ARGB[i] & 0xFF000000;
-            if (alpha!=0xFF000000) {
+            if (alpha != 0xFF000000) {
                 if (alpha==0x00000000 && transparent<0) {
                     transparent=i;
                     continue;
@@ -269,8 +285,14 @@ public final class ImageUtilities {
                 break;
             }
         }
-        return new IndexColorModel(getBitCount(ARGB.length), ARGB.length, ARGB, 0,
-                                   hasAlpha, transparent, getTransferType(ARGB.length));
+        final int bits = getBitCount(ARGB.length);
+        final int type = getTransferType(ARGB.length);
+        if (numBands == 1) {
+            return new IndexColorModel(bits, ARGB.length, ARGB, 0, hasAlpha, transparent, type);
+        } else {
+            return new MultiBandsIndexColorModel(bits, ARGB.length, ARGB, 0, hasAlpha, transparent,
+                                                 type, numBands, visibleBand);
+        }
     }
 
     /**

@@ -67,7 +67,7 @@ import org.geotools.resources.ComponentColorModelJAI;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.4 2002/08/10 12:33:20 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.5 2003/03/09 19:45:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -209,9 +209,12 @@ final class ColorModelFactory {
             // ignore extra bands (by subclassing IndexColorModel), but it
             // would involve useless computation every time the "thematic"
             // image is computed since extra-bands are ignored...
-            throw new UnsupportedOperationException(String.valueOf(numBands));
+            java.util.logging.Logger.getLogger("org.geotools.cv").warning("ColorModel for "+
+                    "non-geophysics image with more than one band is broken in current "+
+                    "implementation. An exception is likely to be throw soon. Proposed fixes: "+
+                    "1) Use geophysics image  2) Use only one band  3) Contribute! Fix this bug!");
         }
-        if (categories.length==0) {
+        if (numBands==1 && categories.length==0) {
             // Construct a gray scale palette.
             final ColorSpace cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
             final int[] nBits = {DataBuffer.getDataTypeSize(type)};
@@ -233,7 +236,7 @@ final class ColorModelFactory {
                                   (int)Math.round(category.minimum),
                                   (int)Math.round(category.maximum)+1);
         }
-        return ImageUtilities.getIndexColorModel(ARGB);
+        return ImageUtilities.getIndexColorModel(ARGB, numBands, visibleBand);
     }
 
     /**
