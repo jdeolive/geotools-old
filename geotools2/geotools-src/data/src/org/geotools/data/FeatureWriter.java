@@ -55,7 +55,7 @@ import java.io.IOException;
  * </p>
  * @author Ian Schneider
  * @author Jody Garnett, Refractions Research 
- * @version $Id: FeatureWriter.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: FeatureWriter.java,v 1.3 2003/11/24 19:51:30 cholmesny Exp $
  */
 public interface FeatureWriter {
     /**
@@ -148,6 +148,9 @@ public interface FeatureWriter {
 
     /**
      * Release the underlying resources.
+     *
+     * @throws IOException if close has already been called or if there there
+     *         are problems releasing underlying resources.
      */
     void close() throws IOException;
 }
