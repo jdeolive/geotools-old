@@ -24,6 +24,7 @@ package org.geotools.filter;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -35,7 +36,7 @@ import org.geotools.feature.*;
 import org.geotools.data.*;
 import org.geotools.gml.GMLFilterGeometry;
 import org.geotools.gml.GMLFilterDocument;
-
+import org.geotools.resources.Geotools;
 
 /**
  * Unit test for expressions.  This is a complimentary test suite with the
@@ -50,6 +51,10 @@ public class ParserTest
     /** Standard logging instance */
     private static final Logger LOGGER = 
         Logger.getLogger("org.geotools.filter");
+
+    static {
+	Geotools.init("Log4JFormatter", Level.FINEST);
+    }
 
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
@@ -286,8 +291,15 @@ public class ParserTest
         Filter test = parseDocument(dataFolder+"/test16.xml");
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
-    }    
+	}    
     
+    public void test17()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test17.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }    
+
 //    public void test27()
 //        throws Exception {
 //        Filter test = parseDocument(dataFolder+"/test27.xml");
