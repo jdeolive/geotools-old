@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="shapefile">
+    <property file="build.ant.properties"/>
     <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
@@ -40,5 +41,14 @@
             </classpath>
             <test name="org.geotools.shapefile.ShapefileSuite"/>
         </junit>
+    </target>
+    <target depends="test" name="release">
+        <mkdir dir="${releaseFolder}"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/shapefile.jar"/>
+    </target>
+    <target name="clean">
+        <delete>
+            <fileset dir="src" includes="**/*.class"/>
+        </delete>
     </target>
 </project>
