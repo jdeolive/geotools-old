@@ -75,7 +75,7 @@ import java.util.logging.Level;
  * RenderedLayer#repaint} automatically on changes.
  *
  * @author Martin Desruisseaux
- * @version $Id: StyledMapRenderer.java,v 1.3 2004/02/23 17:55:07 aaime Exp $
+ * @version $Id: StyledMapRenderer.java,v 1.4 2004/02/27 14:09:51 aaime Exp $
  */
 public class StyledMapRenderer extends Renderer {
     private MapContext mapContext;
@@ -174,10 +174,11 @@ public class StyledMapRenderer extends Renderer {
                     }
 
                     public void layerMoved(MapLayerListEvent event) {
-                        MapLayer layer = event.getLayer();
-                        LayerEntry entry = (LayerEntry) renderedLayers.get(layer);
-                        int index = mapContext.indexOf(layer);
-                        setZOrder(entry.rendered, index);
+                        for(int i = event.getFromIndex(); i <= event.getToIndex(); i++) {
+                            MapLayer layer = mapContext.getLayer(i);
+                            LayerEntry entry = (LayerEntry) renderedLayers.get(layer);
+                            setZOrder(entry.rendered, i);
+                        }
                     }
                 });
         }
@@ -318,7 +319,7 @@ public class StyledMapRenderer extends Renderer {
      * catching changes in collection and visibility.
      *
      * @author Martin Desruisseaux
-     * @version $Id: StyledMapRenderer.java,v 1.3 2004/02/23 17:55:07 aaime Exp $
+     * @version $Id: StyledMapRenderer.java,v 1.4 2004/02/27 14:09:51 aaime Exp $
      */
     private final class LayerEntry implements MapLayerListener {
         /** The layer. */
