@@ -28,11 +28,15 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.4 2003/01/28 11:00:43 camerons Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.5 2003/03/17 19:56:20 camerons Exp $
  * @author Cameron Shorter
- * 
+ * @task REVISIT Probably should use CoordinatePoint or Point2D to store
+ * points instead of using Envelope.  Also worth waiting to see what interface
+ * the GeoAPI project creates and use that.
  */
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.lang.Cloneable;
 import java.lang.IllegalArgumentException;
 import java.rmi.RemoteException;
@@ -41,7 +45,10 @@ import java.util.EventObject;
 import java.util.logging.Logger;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
+import org.geotools.ct.MathTransform;
+import org.geotools.ct.TransformException;
 import org.geotools.ct.Adapters;
+import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.events.*;
@@ -175,13 +182,41 @@ public class BoundingBoxImpl implements BoundingBox{
     }
     
     /**
+     * Transform the coordinates according to the provided transform.  Useful
+     * for zooming and panning processes.
+     * @param transform The transform to change AreaOfInterest.
+     */
+    public void transform(MathTransform transform)
+    {
+        // The real world coordinates of the AreaOfInterest
+        CoordinatePoint minP=new CoordinatePoint(
+            bBox.getMinX(),bBox.getMinY());
+        CoordinatePoint maxP=new CoordinatePoint(
+            bBox.getMaxX(), bBox.getMaxY());
+        
+        try {
+            transform.transform(minP,minP);
+            transform.transform(maxP, maxP);
+            bBox=new Envelope(
+                minP.getOrdinate(0), 
+                maxP.getOrdinate(0), 
+                minP.getOrdinate(1),
+                maxP.getOrdinate(1));
+
+            fireAreaOfInterestChangedListener();
+        } catch (TransformException e) {
+            LOGGER.warning("TransformException in BoundingBoxImpl");
+        }
+    }
+    
+    /**
      * Gets the current AreaOfInterest.
      * @return Current AreaOfInterest
      */
     public Envelope getAreaOfInterest(){
         return new Envelope(bBox);
     }
-
+    
     /**
      * Get the coordinateSystem.
      */
