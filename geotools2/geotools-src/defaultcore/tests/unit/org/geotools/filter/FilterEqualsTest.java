@@ -177,7 +177,7 @@ public class FilterEqualsTest extends TestCase {
 	    testExp1 = new ExpressionLiteral(new Integer(34));
 	    assertTrue(testExp1.equals(testExp3));
 	}  catch (IllegalFilterException e) {
-	    _log.info("bad filter " + e.getMessage());
+	    LOGGER.warning("bad filter " + e.getMessage());
 	}
     }   
 
@@ -205,7 +205,7 @@ public class FilterEqualsTest extends TestCase {
 	    testMath1.addLeftValue(testExp2);
 	    assertTrue(!testMath1.equals(testMath2));
 	} catch (IllegalFilterException e){
-	    _log.info("bad filter: " + e.getMessage());
+	    LOGGER.warning("bad filter: " + e.getMessage());
 	}
     }
 
