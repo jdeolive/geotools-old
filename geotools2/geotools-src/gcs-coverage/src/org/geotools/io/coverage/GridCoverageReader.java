@@ -36,6 +36,7 @@ package org.geotools.io.coverage;
 import java.net.URL;
 import java.io.File;
 import java.io.IOException;
+import java.io.*;
 
 // Image input/output
 import javax.imageio.ImageIO;
@@ -56,6 +57,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.MissingResourceException;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -65,6 +67,8 @@ import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
+import org.geotools.io.TableWriter;
+import org.geotools.io.LineWriter;
 
 
 /**
@@ -91,11 +95,15 @@ import org.geotools.resources.gcs.ResourceKeys;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.4 2002/11/06 16:46:25 ianturton Exp $
+ * @version $Id: GridCoverageReader.java,v 1.5 2003/01/09 21:33:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
+    /**
+     * The logger for the {@link #getGridCoverage} method.
+     */
     private static Logger LOGGER = Logger.getLogger("org.geotools.gcs");
+
     /**
      * The format name (e.g. "PNG" or "GeoTIFF"). This format name should
      * be understood by {@link ImageIO#getImageReadersByFormatName(String)},
@@ -409,7 +417,40 @@ public abstract class GridCoverageReader {
         final CoordinateSystem  cs = getCoordinateSystem(index);
         final SampleDimension[] sd = getSampleDimensions(index);
         final RenderedImage  image = reader.readAsRenderedImage(index, param);
-        LOGGER.fine(name+" "+image+" "+cs+" "+envelope+" "+sd);
+        if (LOGGER.isLoggable(Level.FINE)) {
+            /*
+             * Log the arguments used for creating the GridCoverage. This is a costly logging:
+             * the string representations for some argument are very long   (RenderedImage and
+             * CoordinateSystem), and string representation for sample dimensions may use many
+             * lines.
+             */
+            final StringWriter buffer = new StringWriter(         );
+            final LineWriter   trimer = new LineWriter  (buffer   );
+            final TableWriter   table = new TableWriter (trimer, 1);
+            final PrintWriter     out = new PrintWriter (table    );
+            buffer.write("Creating GridCoverage[\"");
+            buffer.write(name);
+            buffer.write("\"] with:");
+            buffer.write(trimer.getLineSeparator());
+            table.setMultiLinesCells(true);
+            for (int i=-3; i<sd.length; i++) {
+                String key = "";
+                Object value;
+                switch (i) {
+                    case -3: key="RenderedImage";    value=image;    break;
+                    case -2: key="CoordinateSystem"; value=cs;       break;
+                    case -1: key="Envelope";         value=envelope; break;
+                    case  0: key="SampleDimensions"; // fall through
+                    default: value=sd[i]; break;
+                }
+                out.print("    ");
+                out.print(key   ); table.nextColumn();
+                out.print('='   ); table.nextColumn();
+                out.print(value ); table.nextLine();
+            }
+            out.flush();
+            LOGGER.fine(buffer.toString());
+        }
         return new GridCoverage(name, image, cs, envelope, sd, null, null);
     }
     
