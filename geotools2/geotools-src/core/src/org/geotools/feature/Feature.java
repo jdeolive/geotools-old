@@ -115,7 +115,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * is necessary to ensure that the feature is always in a valid state,
  * relative to its schema.</ol>
  *
- * @version $Id: Feature.java,v 1.5 2002/07/12 18:27:54 robhranac Exp $
+ * @version $Id: Feature.java,v 1.6 2002/11/25 15:28:07 robhranac Exp $
  * @author James Macgill, CCG
  * @author Rob Hranac, TOPP
  * @see org.geotools.datasource.FeatureType 
@@ -227,6 +227,26 @@ public interface Feature {
     void setDefaultGeometry(Geometry geometry)
         throws IllegalFeatureException;
     
+
+    /* ***********************************************************************
+     * Generic method for GoF visitors.                                      *
+     * ***********************************************************************/
+    /** 
+     * Used by FeatureVisitors to perform some action on this filter instance.
+     * Typicaly used by Feature decoders, but may also be used by any thing 
+     * which needs infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the 
+     * parents API is identical.
+     *
+     * @param visitor The visitor which requires access to this feature,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void accept(FeatureVisitor visitor);
+
 
 }
 

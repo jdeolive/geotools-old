@@ -36,14 +36,12 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.16 2002/11/06 15:49:07 ianturton Exp $
- * @author Rob Hranac, VFNY
+ * @version $Id: FeatureFlat.java,v 1.17 2002/11/25 15:27:51 robhranac Exp $
+ * @author Rob Hranac, TOPP
  */
 public class FeatureFlat implements Feature {
 
-    /**
-     * The logger for the default core module.
-     */
+    /** The logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Flat feature type schema for this feature. */
@@ -55,15 +53,10 @@ public class FeatureFlat implements Feature {
     /** Attributes for the feature. */
     private Object[] attributes;
 
-    /** Geometry for this feature. */
-    //private int geometryPosition;
-    
 
     /**
      * Creates a new instance of flat feature, which must take a flat feature 
      * type schema and all attributes as arguments. 
-     *
-     *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
      * @param featureId The unique ID for this feature.
@@ -80,8 +73,6 @@ public class FeatureFlat implements Feature {
     /**
      * Creates a new instance of flat feature, which must take a flat feature 
      * type schema and all attributes as arguments. 
-     *
-     *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
      * @throws IllegalFeatureException Attribtues do not conform to feature type
@@ -94,11 +85,10 @@ public class FeatureFlat implements Feature {
         createNew(schema, attributes);
     }
 
+
     /**
      * Creates a new instance of flat feature, which must take a flat feature 
      * type schema and all attributes as arguments. 
-     *
-     *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
      * @param featureId The unique ID for this feature.
@@ -154,7 +144,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Gets a reference to the feature type schema for this feature.
-     *
      * @return A copy of this feature's metadata in the form of a feature type
      *         schema.
      */
@@ -164,7 +153,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Gets a reference to the feature type schema for this feature.
-     *
      * @return A copy of this feature's metadata in the form of a feature type
      *         schema.
      */
@@ -194,7 +182,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Gets an attribute for this feature at the location specified by xPath.
-     *
      * @param xPath XPath representation of attribute location.
      * @return Attribute.
      * @throws IllegalFeatureException Requested attribute doesn't
@@ -226,7 +213,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Throws an exception, since flat features have only one occurrence.
-     *
      * @param xPath XPath representation of attribute location.
      * @return Attribute.
      * @throws IllegalFeatureException Requested attribute is not complex or
@@ -246,7 +232,6 @@ public class FeatureFlat implements Feature {
     /** 
      * Sets all attributes for this feature, passed as an array.  All attributes
      * are checked for validity before adding.
-     *
      * @param attributes All feature attributes.
      * @throws IllegalFeatureException Passed attributes do not match
      * feature type.
@@ -280,7 +265,6 @@ public class FeatureFlat implements Feature {
      * Sets a single attribute for this feature, passed as a complex object.
      * If the attribute does not exist or the object does not conform to the
      * internal feature type, an exception is thrown.
-     *
      * @param xPath XPath representation of attribute location.
      * @param attribute Feature attribute to set.
      * @throws IllegalFeatureException Passed attribute does not match
@@ -324,7 +308,6 @@ public class FeatureFlat implements Feature {
      * ***********************************************************************/
     /** 
      * Gets the geometry for this feature.
-     *
      * @return Geometry for this feature.
      */
     public Geometry getDefaultGeometry() {
@@ -336,7 +319,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Modifies the geometry.
-     *
      * @param geometry All feature attributes.
      */
     public void setDefaultGeometry(Geometry geometry)
@@ -357,8 +339,16 @@ public class FeatureFlat implements Feature {
      * Necessary overrides.
      * ***********************************************************************/
     /** 
+     * Runs a feature visitor's visit(Feature) method, as required by the 
+     * Feature interface.
+     * @param visitor A visitor to this feature.
+     */
+    public void accept(FeatureVisitor visitor) {
+        visitor.visit((Feature) this);
+    }
+    
+    /** 
      * Creates an exact copy of this feature.
-     *
      * @return A flat feature.
      */
     public Object clone() {
@@ -374,7 +364,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Returns a copy of all this feature's attributes and its WKT geometry.
-     *
      * @return A representation of this feature as a string.
      */
     public String toString() {
@@ -388,7 +377,6 @@ public class FeatureFlat implements Feature {
 
     /** 
      * Returns a copy of all this feature's attributes and its WKT geometry.
-     *
      * @return A representation of this feature as a string.
      */
     public String toString(boolean includeSchema) {
@@ -399,5 +387,5 @@ public class FeatureFlat implements Feature {
             return toString();
         }
     }
-    
+
 }
