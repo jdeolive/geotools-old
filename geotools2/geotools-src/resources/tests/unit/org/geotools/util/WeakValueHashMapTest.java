@@ -48,7 +48,7 @@ import junit.framework.TestSuite;
  * Test the {@link WeakHashSet}. A standard {@link HashSet} object
  * is used for comparaison purpose.
  *
- * @version $Id: WeakValueHashMapTest.java,v 1.2 2003/05/13 10:58:22 desruisseaux Exp $
+ * @version $Id: WeakValueHashMapTest.java,v 1.3 2003/08/06 17:30:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class WeakValueHashMapTest extends TestCase {
@@ -60,9 +60,16 @@ public class WeakValueHashMapTest extends TestCase {
     /**
      * Returns the test suite.
      */
-     public static Test suite() {
+    public static Test suite() {
          return new TestSuite(WeakValueHashMapTest.class);
-     }
+    }
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Constructs a test case with the given name.
