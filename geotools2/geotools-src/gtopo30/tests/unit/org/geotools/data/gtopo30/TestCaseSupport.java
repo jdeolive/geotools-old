@@ -25,7 +25,12 @@ public abstract class TestCaseSupport extends TestCase {
   
   protected File getFile(String name) {
       java.net.URL base = getClass().getResource("testData/");
-      return new File(base.getPath(), name);
+      try{
+        return new File(URLDecoder.decode(base.getPath(),"UTF-8"), name); 
+      }
+      catch(java.io.UnsupportedEncodingException uee){
+          throw new RuntimeException("Unable to decode file path ", uee);
+      }
   }
   
   protected URL getTestResource(String name) {

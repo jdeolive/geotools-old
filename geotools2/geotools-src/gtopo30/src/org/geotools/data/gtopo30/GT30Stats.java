@@ -52,7 +52,7 @@ class GT30Stats {
      */
     public GT30Stats(URL statsURL) throws IOException {
         String path = statsURL.getFile();
-        File stats = new File(path);
+        File stats = new File(java.net.URLDecoder.decode(path,"UTF-8"));
 
         BufferedReader reader = new BufferedReader(new FileReader(stats));
         String line = reader.readLine();

@@ -96,7 +96,7 @@ class GT30Header {
     public GT30Header(final URL headerURL)
         throws IOException, DataSourceException {
         String path = headerURL.getFile();
-        File header = new File(path);
+        File header = new File(java.net.URLDecoder.decode(path,"UTF-8"));
 
         BufferedReader reader = new BufferedReader(new FileReader(header));
         propertyMap = initMap();
