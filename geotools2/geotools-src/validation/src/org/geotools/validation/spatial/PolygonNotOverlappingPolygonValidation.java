@@ -23,9 +23,12 @@
 package org.geotools.validation.spatial;
 
 import java.util.Map;
+import java.util.logging.Logger;
 
+import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -40,11 +43,14 @@ import com.vividsolutions.jts.geom.Geometry;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.4 2004/02/27 23:41:22 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.5 2004/04/22 08:10:39 jive Exp $
  */
 public class PolygonNotOverlappingPolygonValidation
     extends PolygonPolygonAbstractValidation {
+
+	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
+	
     /**
      * PolygonBoundaryCoveredByPolygonValidation constructor.
      * 
@@ -78,23 +84,30 @@ public class PolygonNotOverlappingPolygonValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
+    	
+    	LOGGER.finer("Starting test "+getName()+" ("+getClass().getName()+")" );    	
         FeatureSource polySource1 = (FeatureSource) layers.get(getPolygonTypeRef());
         FeatureSource polySource2 = (FeatureSource) layers.get(getRestrictedPolygonTypeRef());
 
-        Object[] poly1 = polySource1.getFeatures().collection().toArray();
-        Object[] poly2 = polySource2.getFeatures().collection().toArray();
+        LOGGER.finer("featureType 1:"+polySource1.getSchema().getTypeName() );        
+        FeatureResults features1 = polySource1.getFeatures(); // limit with envelope
+        FeatureCollection collection1 = features1.collection();
+        Object[] poly1 = collection1.toArray();
 
-        if (!envelope.contains(polySource1.getBounds())) {
+        LOGGER.finer("featureType 2:"+polySource2.getSchema().getTypeName() );        
+        FeatureResults features2 = polySource2.getFeatures(); // limit with envelope
+        FeatureCollection collection2 = features2.collection();
+        Object[] poly2 = collection1.toArray();
+        
+        if (!envelope.contains(collection1.getBounds())) {
             results.error((Feature) poly1[0],
                 "Polygon Feature Source is not contained within the Envelope provided.");
-
             return false;
         }
 
-        if (!envelope.contains(polySource2.getBounds())) {
-            results.error((Feature) poly1[0],
+        if (!envelope.contains(collection2.getBounds())) {
+            results.error((Feature) poly2[0],
                 "Restricted Polygon Feature Source is not contained within the Envelope provided.");
-
             return false;
         }
 

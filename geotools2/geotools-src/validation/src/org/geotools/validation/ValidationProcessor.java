@@ -96,7 +96,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.7 2004/04/22 07:51:31 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.8 2004/04/22 08:10:40 jive Exp $
  */
 public class ValidationProcessor {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -388,23 +388,27 @@ public class ValidationProcessor {
     	
         // for each modified FeatureTypeInfo
         //
+    	LOGGER.finer("Finding tests for modified typeRefs" );    	    	
         for (Iterator i=typeRefs.iterator(); i.hasNext(); ){
         	String typeRef = (String) i.next();
         	LOGGER.finer("Finding tests for typeRef:"+typeRef );        	
         	tests.addAll( (List) integrityLookup.get( typeRef ) );
         }
+        
     	if( tests.isEmpty() ){
     		LOGGER.finer("Validation test abandond - no tests found to run");
     		return;
-    	}    	    
+    	}   
+    	LOGGER.finer("Validation test about to run - "+tests.size()+" tests found" );    	
         for( Iterator j=tests.iterator(); j.hasNext(); ){
             IntegrityValidation validator = (IntegrityValidation) j.next();
 
-            LOGGER.finer("Running test:"+validator.getName() );            
+            LOGGER.finer("Running test:"+validator.getName() );
             results.setValidation(validator);
 			try{
 				validator.validate(stores, envelope, results);
 			} catch(Throwable e){
+				LOGGER.finer( "Validation test died:"+ validator.getName() );				
 				results.error(null,e.getMessage());
 			}
         }        
