@@ -112,13 +112,13 @@ public class LegendImageGeneratorTest extends TestCase {
 
 
         //fts.setRules(new Rule[]{rule});
-        rule.setName("Polygon");
+        rule.setTitle("Polygon");
 
         Rule rule2 = sFac.createRule();
         rule2.setSymbolizers(new Symbolizer[] { linesym });
 
         FeatureTypeStyle fts2 = sFac.createFeatureTypeStyle();
-        rule2.setName("line");
+        rule2.setTitle("line");
         fts2.setRules(new Rule[] { rule2 });
         fts2.setFeatureTypeName("linefeature");
 
@@ -128,7 +128,7 @@ public class LegendImageGeneratorTest extends TestCase {
         FeatureTypeStyle fts3 = sFac.createFeatureTypeStyle();
         fts3.setRules(new Rule[] { rule3 });
         fts3.setFeatureTypeName("pointfeature");
-        rule3.setName("point");
+        rule3.setTitle("point");
 
         Style style = sFac.createStyle();
         style.setFeatureTypeStyles(new FeatureTypeStyle[] { fts, fts2, fts3 });

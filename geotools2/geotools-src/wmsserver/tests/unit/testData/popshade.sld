@@ -73,7 +73,7 @@ A styling layer used for the unit tests of sldstyler
         <LineSymbolizer>
            <Stroke/>    
         </LineSymbolizer>
-                    <name> state boundaries</name>
+                    <title> state boundaries</title>
                 </Rule>
     </FeatureTypeStyle>
 </UserStyle>
