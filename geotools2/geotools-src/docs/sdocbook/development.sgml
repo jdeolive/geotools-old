@@ -812,7 +812,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.12 2003/01/14 21:33:42 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.13 2003/01/17 10:19:19 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -968,8 +968,8 @@ void example(int i) {
 
             <mediaobject>
               <imageobject>
-                <imagedata format="PNG"
-                fileref="images/developersguide/dir_structure.png" />
+                <imagedata fileref="images/developersguide/dir_structure.png"
+                format="PNG" />
               </imageobject>
 
               <textobject>
@@ -1243,30 +1243,38 @@ org.geotools.cts.level = INFO</programlisting>
     <title>Code Profiling</title>
 
     <para>Code profilers are tools which analyse performance and memory of
-    applications. Good free tools that we have used are a combination of hprof
-    (provided with JDK) and <ulink
+    applications. Good free tools that we have used are a combination of
+    <literal>hprof</literal> (provided with JDK) and <ulink
     url="http://www.hp.com/products1/unix/java/hpjmeter/">HPJMeter</ulink>
-    (which analyzes profiling data from hprof).</para>
+    (which analyzes profiling data from <literal>hprof</literal>).</para>
 
     <para>To run hprof the same way you need to run the JVM with the following
     parameters added: <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a</command></para>
 
-    <para>If you are running from Netbeans, select <command>options-&#62;debugging
-    and executing-&#62;execution types-&#62;external executor</command>. By
-    using the context menu, copy it and paste again in the execution types,
-    then rename the new executor &#34;HProf External executor&#34; (or
-    whatever you like). In options, look at the &#34;External process&#34;
-    option, open the modification dialog, in arguments add at the beginning:
-    <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a
-    {assertEnabled}</command> Now <emphasis>hprof</emphasis> will be launched
-    every time you select this kind of executor. Then close, go in the expert
-    pane and set a working directory, Eg <filename>/home/&#60;username&#62;/tmp/hprof</filename>,
-    so that hprof dumps the resulting text file in this directory. This
-    setting modifies the working directory of the java jvm. Close the options
-    dialog and go select the file you want to profile, open file properties,
-    and set, in the execution properties, the &#34;HProf External
-    profiler&#34;. Run. At the end of the run you&#39;ll find a java.hprof.txt
-    file that can be opened with HPJMeter.</para>
+    <para>If you are running from Netbeans, select <command>Toos-&#62;Options-&#62;Debugging
+    and Executing-&#62;Execution Types-&#62;(right
+    click)-&#62;New-&#62;External Executor</command>. Rename the new executor
+    <emphasis>HProf External Executor</emphasis> (or whatever you like). Still
+    in the Options dialog box, open <command>HProf External
+    Executor-&#62;Properties-&#62;External Process</command> and in arguments
+    add at the beginning: <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a
+    {assertEnabled}</command></para>
+
+    <para>Now <emphasis>hprof</emphasis> will be launched every time you
+    select this kind of executor. Now go to <command>HProf External
+    Executor-&#62;Expert-&#62;Working Directory</command>. Set a working
+    directory, Eg <filename>/home/&#60;username&#62;/tmp/hprof</filename>.
+    <emphasis>Hprof</emphasis> dumps the resulting text file in this
+    directory. This setting modifies the working directory of the java JVM.
+    Make sure the working directory exists, otherwise the executor won&#39;t
+    work.</para>
+
+    <para>Close the <literal>options dialog</literal> and select the file you
+    want to profile, select <command>(right click on file to
+    profile)-&#62;Properties-&#62;Execution-&#62;Executor</command>. Set to
+    the <literal>HProf External Profiler</literal>. Run. At the end of the run
+    you&#39;ll find a <filename>java.hprof.txt</filename> file that can be
+    opened with <emphasis>HPJMeter</emphasis>.</para>
 
     <para>to do:</para>
 
