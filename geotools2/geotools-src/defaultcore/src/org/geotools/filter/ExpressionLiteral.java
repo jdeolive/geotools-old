@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.5 2002/07/23 14:49:45 jmacgill Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.6 2002/08/09 16:19:46 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -55,6 +55,61 @@ public class ExpressionLiteral extends ExpressionDefault {
         throws IllegalFilterException {
         
         this.setLiteral(literal);
+    }
+    
+    /**
+     * Constructor with literal.
+     * This alternative constructor is a convinience one for integers
+     * an Integer object will be constructed, and no IllegalFilterException
+     * can ever be thrown.
+     *
+     * @param literal The integer to store inside this expression.
+     */
+    public ExpressionLiteral (int value){
+        try{
+            this.setLiteral(new Integer(value));
+        }
+        catch(IllegalFilterException ile){
+            //this is imposible as this is only thrown for
+            //invalid types, and Integer is a valid type
+        }  
+    }
+    
+    
+    /**
+     * Constructor with literal.
+     * This alternative constructor is a convinience one for doubles
+     * an Double object will be constructed, and no IllegalFilterException
+     * can ever be thrown.
+     *
+     * @param literal The double to store inside this expression.
+     */
+    public ExpressionLiteral (double value){
+        try{
+            this.setLiteral(new Double(value));
+        }
+        catch(IllegalFilterException ile){
+            //this is imposible as this is only thrown for
+            //invalid types, and Double is a valid type
+        }  
+    }
+    
+    /**
+     * Constructor with literal.
+     * This alternative constructor is a convinience one for doubles
+     * an Double object will be constructed, and no IllegalFilterException
+     * can ever be thrown.
+     *
+     * @param literal The double to store inside this expression.
+     */
+    public ExpressionLiteral (String value){
+        try{
+            this.setLiteral(value);
+        }
+        catch(IllegalFilterException ile){
+            //this is imposible as this is only thrown for
+            //invalid types, and String is a valid type
+        }  
     }
 
 
