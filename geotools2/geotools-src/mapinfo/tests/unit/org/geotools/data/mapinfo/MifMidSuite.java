@@ -27,7 +27,7 @@ public class MifMidSuite extends TestCase {
     
     public static Test suite() {
         TestSuite suite = new TestSuite("All mifmid tests");
-        suite.addTestSuite(TestLoad.class);
+        suite.addTestSuite(LoadTest.class);
         suite.addTestSuite(TestStyling.class);
         return suite;
     }
