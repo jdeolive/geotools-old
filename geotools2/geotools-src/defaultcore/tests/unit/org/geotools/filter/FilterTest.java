@@ -21,10 +21,6 @@
 package org.geotools.filter;
 
 import java.util.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -41,9 +37,7 @@ import org.geotools.feature.*;
  */                                
 public class FilterTest extends TestCase {
     
-    /** Standard logging instance */
-    private static Logger _log;
-
+  
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
 
@@ -60,8 +54,8 @@ public class FilterTest extends TestCase {
     public FilterTest(String testName) {
         super(testName);
         //BasicConfigurator.configure();
-        _log = Logger.getLogger(FilterTest.class);
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+        //_log = Logger.getLogger(FilterTest.class);
+        //_log.getLoggerRepository().setThreshold(Level.INFO);
         
     }        
     
@@ -92,13 +86,13 @@ public class FilterTest extends TestCase {
         if(set) return;
         set = true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        //_log.debug("creating flat feature...");
         AttributeType geometryAttribute = 
             new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        //_log.debug("created geometry attribute");
         AttributeType booleanAttribute = 
             new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        //_log.debug("created boolean attribute");
         AttributeType charAttribute = 
             new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute = 
@@ -119,26 +113,26 @@ public class FilterTest extends TestCase {
             new AttributeTypeDefault("testString2", String.class);
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
-        _log.debug("created feature type and added geometry");
+        //_log.debug("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        //_log.debug("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        //_log.debug("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        //_log.debug("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        //_log.debug("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        //_log.debug("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        //_log.debug("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        //_log.debug("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        //_log.debug("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
         testSchema = testSchema.setAttributeType(stringAttribute2);
-        _log.debug("added string to feature type");
+        //_log.debug("added string to feature type");
         
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -163,7 +157,7 @@ public class FilterTest extends TestCase {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+        //_log.debug("...flat feature created");
     }
 
 
@@ -192,15 +186,15 @@ public class FilterTest extends TestCase {
         // Test for false positive.
         testLiteral = new ExpressionLiteral("test string data");
         filter.addRightValue(testLiteral);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false negative.
         testLiteral = new ExpressionLiteral("incorrect test string data");
         filter.addRightValue(testLiteral);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
     }
     
@@ -220,20 +214,20 @@ public class FilterTest extends TestCase {
         
         testLiteral = new ExpressionLiteral(new Integer(1001));
         filter.addRightValue(testLiteral);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals(filter.contains(testFeature), test1);
         
         testLiteral = new ExpressionLiteral(new Integer(1002));
         filter.addRightValue(testLiteral);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals(filter.contains(testFeature), test2);
         
         testLiteral = new ExpressionLiteral(new Integer(1003));
         filter.addRightValue(testLiteral);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals(filter.contains(testFeature), test3);
     }
 
@@ -255,35 +249,35 @@ public class FilterTest extends TestCase {
         
         // Test for false negative.
         filter.setPattern(new ExpressionLiteral("test*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
         filter.setPattern(new ExpressionLiteral("cows*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         // Test for \ as an escape char
         
         filter.setPattern(new ExpressionLiteral("cows\\*"),"*",".","\\");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString is like cows\\* ]",filter.toString());
     
         // test for escaped escapes
         
         filter.setPattern(new ExpressionLiteral("co!!ws*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString is like co!ws.* ]",filter.toString());
         
         // test for escaped escapes followed by wildcard
         
         filter.setPattern(new ExpressionLiteral("co!!*ws*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
     
@@ -291,8 +285,8 @@ public class FilterTest extends TestCase {
         testAttribute = new ExpressionAttribute(testSchema, "testString2");
         filter.setValue(testAttribute);
         filter.setPattern(new ExpressionLiteral("cow $*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertTrue("contains feature",filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString2 is like cow \\$.* ]",filter.toString());
@@ -300,31 +294,31 @@ public class FilterTest extends TestCase {
         // test for first wild card
         
         filter.setPattern(new ExpressionLiteral("*cows*"),"*",".","!");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString2 is like .*cows.* ]",filter.toString());
         
         // test for multi char parameters
         
         filter.setPattern(new ExpressionLiteral("!#coxxwsyyy"),"xx","yy","!#");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?y ]",filter.toString());
         
         // test for multi char parameters which are special
         
         filter.setPattern(new ExpressionLiteral("co.*ws.?\\.*"),".*",".?","\\");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?\\.\\* ]",filter.toString());
         
         // test for reading back in strings which are java regexs
         
         filter.setPattern(new ExpressionLiteral("co.*ws.?\\.\\*"),".*",".?","\\");
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         
         assertEquals("filter string doesn't match","[ testString2 is like co.*ws.?\\.\\* ]",filter.toString());
     }
@@ -344,8 +338,8 @@ public class FilterTest extends TestCase {
         testAttribute = new ExpressionAttribute(testSchema, "testString");
         NullFilter filter = new NullFilter();
         filter.nullCheckValue(testAttribute);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         /*
@@ -353,8 +347,8 @@ public class FilterTest extends TestCase {
           assertTrue(!filter.contains(testFeature));
           
           testFeature.setAttribute("testString", "test string data");
-          _log.info( filter.toString());            
-          _log.info( "contains feature: " + filter.contains(testFeature));
+          //_log.info( filter.toString());            
+          //_log.info( "contains feature: " + filter.contains(testFeature));
           assertTrue(!filter.contains(testFeature));
         */
     }
@@ -379,8 +373,8 @@ public class FilterTest extends TestCase {
         filter.addRightValue(testLiteralUpper);
         
         // Test for false negative.
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
@@ -388,8 +382,8 @@ public class FilterTest extends TestCase {
         testLiteralUpper = new ExpressionLiteral(new Integer(1000));
         filter.addLeftValue(testLiteralLower);
         filter.addRightValue(testLiteralUpper);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
     }
 
@@ -413,15 +407,15 @@ public class FilterTest extends TestCase {
         
         Expression right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         coords[0] = new Coordinate(0,0);
         right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         // Test Disjoint
@@ -434,8 +428,8 @@ public class FilterTest extends TestCase {
         coords[2] = new Coordinate(6,0);
         right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         coords[0] = new Coordinate(1,2);
@@ -443,8 +437,8 @@ public class FilterTest extends TestCase {
         coords[2] = new Coordinate(6,0);
         right = new ExpressionLiteral(new LineString(coords, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         // Test BBOX
@@ -461,8 +455,8 @@ public class FilterTest extends TestCase {
         right = new ExpressionLiteral(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
                                                   null, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         coords2[0] = new Coordinate(0,0);
@@ -473,8 +467,8 @@ public class FilterTest extends TestCase {
         right = new ExpressionLiteral(new Polygon(new LinearRing(coords2,new PrecisionModel(), 1),
                                                   null, new PrecisionModel(), 1));
         filter.addRightGeometry(right);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
     }
     
@@ -505,38 +499,38 @@ public class FilterTest extends TestCase {
         
         // Test OR for false negatives
         LogicFilter filter = new LogicFilter(filterFalse, filterTrue, AbstractFilter.LOGIC_OR);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test OR for false negatives
         filter = new LogicFilter(filterTrue, filterTrue, AbstractFilter.LOGIC_OR);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test OR for false positives
         filter = new LogicFilter(filterFalse, filterFalse, AbstractFilter.LOGIC_OR);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
         
         // Test AND for false positives
         filter = new LogicFilter(filterFalse, filterTrue, AbstractFilter.LOGIC_AND);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
 
         // Test AND for false positives
         filter = new LogicFilter(filterTrue, filterFalse, AbstractFilter.LOGIC_AND);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
 
         // Test AND for false positives
         filter = new LogicFilter(filterTrue, filterTrue, AbstractFilter.LOGIC_AND);
-        _log.info( filter.toString());            
-        _log.info( "contains feature: " + filter.contains(testFeature));
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
 
     }

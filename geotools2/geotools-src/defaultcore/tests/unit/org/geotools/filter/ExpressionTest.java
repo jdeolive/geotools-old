@@ -21,10 +21,6 @@
 package org.geotools.filter;
 
 import java.util.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -40,8 +36,7 @@ import org.geotools.feature.*;
  */                                
 public class ExpressionTest extends TestCase {
     
-    /** Standard logging instance */
-    private static Logger _log;
+
 
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
@@ -58,9 +53,9 @@ public class ExpressionTest extends TestCase {
      */
     public ExpressionTest(String testName) {
         super(testName);
-        //BasicConfigurator.configure();
-        _log = Logger.getLogger(ExpressionTest.class);
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+ 
+        //_log = Logger.getLogger(ExpressionTest.class);
+        //_log.getLoggerRepository().setThreshold(Level.INFO);
         
     }        
     
@@ -91,13 +86,13 @@ public class ExpressionTest extends TestCase {
         if(set) return;
         set = true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        //_log.debug("creating flat feature...");
         AttributeType geometryAttribute = 
             new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        //_log.debug("created geometry attribute");
         AttributeType booleanAttribute = 
             new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        //_log.debug("created boolean attribute");
         AttributeType charAttribute = 
             new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute = 
@@ -117,25 +112,25 @@ public class ExpressionTest extends TestCase {
         
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
-        _log.debug("created feature type and added geometry");
+        //_log.debug("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        //_log.debug("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        //_log.debug("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        //_log.debug("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        //_log.debug("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        //_log.debug("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        //_log.debug("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        //_log.debug("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        //_log.debug("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
-        _log.debug("added string to feature type");
+        //_log.debug("added string to feature type");
         
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -159,7 +154,7 @@ public class ExpressionTest extends TestCase {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+        //_log.debug("...flat feature created");
     }
 
 
@@ -171,12 +166,12 @@ public class ExpressionTest extends TestCase {
 
         // Test integer attribute
         Expression testAttribute = new ExpressionAttribute(testSchema, "testInteger");
-        _log.info("integer attribute expression equals: " + testAttribute.getValue(testFeature));            
+        //_log.info("integer attribute expression equals: " + testAttribute.getValue(testFeature));            
         assertEquals(new Integer(1002), testAttribute.getValue(testFeature));
 
         // Test string attribute
         testAttribute = new ExpressionAttribute(testSchema, "testString");
-        _log.info("string attribute expression equals: " + testAttribute.getValue(testFeature));            
+        //_log.info("string attribute expression equals: " + testAttribute.getValue(testFeature));            
         assertEquals("test string data", testAttribute.getValue(testFeature));
     }
     
@@ -188,12 +183,12 @@ public class ExpressionTest extends TestCase {
 
         // Test integer attribute
         Expression testLiteral = new ExpressionLiteral(new Integer(1002));
-        _log.info("integer literal expression equals: " + testLiteral.getValue(testFeature));            
+        //_log.info("integer literal expression equals: " + testLiteral.getValue(testFeature));            
         assertEquals(new Integer(1002), testLiteral.getValue(testFeature));
 
         // Test string attribute
         testLiteral = new ExpressionLiteral("test string data");
-        _log.info("string literal expression equals: " + testLiteral.getValue(testFeature));            
+        //_log.info("string literal expression equals: " + testLiteral.getValue(testFeature));            
         assertEquals("test string data", testLiteral.getValue(testFeature));
     }
     
@@ -245,7 +240,7 @@ public class ExpressionTest extends TestCase {
         ExpressionMath mathTest = new ExpressionMath(ExpressionDefault.MATH_ADD);
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
-        _log.info("math test: " +
+        //_log.info("math test: " +
                   testAttribute1.getValue(testFeature) + " + " +
                   testAttribute2.getValue(testFeature) + " = " + 
                   mathTest.getValue(testFeature));            
@@ -255,7 +250,7 @@ public class ExpressionTest extends TestCase {
         mathTest = new ExpressionMath(ExpressionDefault.MATH_SUBTRACT);
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
-        _log.info("math test: " +
+        //_log.info("math test: " +
                   testAttribute1.getValue(testFeature) + " - " +
                   testAttribute2.getValue(testFeature) + " = " + 
                   mathTest.getValue(testFeature));            
@@ -265,7 +260,7 @@ public class ExpressionTest extends TestCase {
         mathTest = new ExpressionMath(ExpressionDefault.MATH_MULTIPLY);
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
-        _log.info("math test: " +
+        //_log.info("math test: " +
                   testAttribute1.getValue(testFeature) + " * " +
                   testAttribute2.getValue(testFeature) + " = " + 
                   mathTest.getValue(testFeature));            
@@ -275,7 +270,7 @@ public class ExpressionTest extends TestCase {
         mathTest = new ExpressionMath(ExpressionDefault.MATH_DIVIDE);
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
-        _log.info("math test: " +
+        //_log.info("math test: " +
                   testAttribute1.getValue(testFeature) + " / " +
                   testAttribute2.getValue(testFeature) + " = " + 
                   mathTest.getValue(testFeature));            
