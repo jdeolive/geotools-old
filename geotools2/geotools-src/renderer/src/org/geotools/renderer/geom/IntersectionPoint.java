@@ -30,13 +30,17 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
+
 package org.geotools.renderer.geom;
 
 // J2SE dependencies
+
 import java.awt.geom.Line2D;
+
 import java.awt.geom.Point2D;
 
 // Geotools dependencies
+
 import org.geotools.units.Unit;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
@@ -46,204 +50,300 @@ import org.geotools.ct.CoordinateTransformationFactory;
 
 
 /**
- * Coordonnée associée à une intersection entre deux lignes. Cette classe est réservée à un usage
- * interne afin de déterminer de quelle façon on doit refermer les formes géométriques des îles et
- * des continents. Le point mémorisé par cette classe proviendra de l'intersection de deux lignes:
- * un des bords de la carte (généralement un des 4 côtés d'un rectangle, mais ça pourrait être une
- * autre forme géométrique) avec une ligne passant par les deux premiers ou les deux derniers points
- * du traît de côte. Appellons la première ligne (celle du bord de la carte) "<code>line</code>".
- * Cette classe mémorisera au passage le produit scalaire entre un vecteur passant le premier point
- * de <code>line</code> et le point d'intersection avec un vecteur passant par le premier et dernier
- * point de <code>line</code>. Ce produit scalaire peut être vu comme une sorte de mesure de la
- * distance entre le début de <code>line</code> et le point d'intersection.
+ * Coordinate associated with an intersection between two lines. This class is reseved for internal
+ * use in order to determine how we should reclose geometric shapes of islands and continents.
+ * The point memorised by this class will come from the intersection of two lines:
+ * one of the edges of the map (generally one of the 4 sides of a rectangle, but it could be another
+ * geometric shape) with a line passing through the two first or the two last points of the 
+ * shore line.  We will call the first line (that of the map edge) "<code>line</code>".
+ * This class will memorise the scalar product between a vector passing through the first point
+ * of <code>line</code> and the intersection point with a vector passing through the first and last
+ * points of <code>line</code>. This scalar product can be viewed as a sort of measure of the distance
+ * between the start of <code>line</code> and the intersection point.
  *
- * @version $Id: IntersectionPoint.java,v 1.1 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: IntersectionPoint.java,v 1.2 2003/02/19 20:21:14 jmacgill Exp $
  * @author Martin Desruisseaux
  */
+
 final class IntersectionPoint extends Point2D.Double implements Comparable {
+
     /**
-     * Numéro du bord sur lequel a été trouvée ce point. Cette information est laissé
-     * à la discrétion du programmeur, qui y mettra les informations qu'il souhaite.
-     * Ce numéro peut être utile pour aider à retrouver plus tard la ligne sur laquelle
-     * fut trouvée le point d'intersection.
+     * Number of the edge on which this point was found. This information is left to the
+     * discretion of the programmer, who will put in the information he wishes.
+     * This number could be useful to help us later refind the line on which the intersection
+     * point was found.
      */
+
     int border;
 
+
+
     /**
-     * Distance au carré entre le point d'intersection et le point qui en était le plus
-     * proche. Cette information n'est pas utilisée par cette classe, sauf dans la méthode
-     * {@link #toString}. Elle utile à des fins de déboguage, mais aussi pour choisir quel
-     * point d'intersection supprimé s'il y en a trop. On supprimera le point qui se trouve
-     * le plus loin de sa bordure.
+     * Distance squared between the intersection point and the point that was closest to it.
+     * This information is not used by this class, except in the method {@link #toString}.
+     * It is useful for debugging purposes, but also for choosing which intersection point to
+     * delete if there are too many.  We will delete the point which is found furthest from 
+     * its border.
      */
+
     double minDistanceSq = java.lang.Double.NaN;
 
+
+
     /**
-     * Produit scalaire entre la ligne sur laquelle fut trouvée le point d'intersection
-     * et un vecteur allant du début de cette ligne jusqu'au point d'intersection.
+     * Scalar product between the line on which the intersection point was found and a vector
+     * going from the start of this line to the intersection point.
      */
+
     double scalarProduct;
 
+
+
     /**
-     * Segment de traît de côte auquel appartient la ligne avec
-     * laquelle on a calculé un point d'intersection.
+     * Segment of shoreline to which the line with which we calculated an
+     * intersection point belonged.
      */
+
     Polygon path;
 
+
+
     /**
-     * Indique si le point d'intersection fut calculé à partir des deux premiers ou deux derniers
-     * points du traît de côte. Si <code>append</code> a la valeur <code>true</code>, cela
-     * signifiera que l'intersection fut calculée à partir des deux derniers points du trait
-     * de côte. Refermer la forme géométrique de l'île ou du continent impliquera donc que l'on
-     * ajoute des points à la fin du trait de côte ("append"), en opposition au fait d'ajouter
-     * des points au début du trait de côte ("prepend").
+     * Indicates whether the intersection point was calculated from the two first or the two last
+     * points of the shoreline. If <code>append</code> has the value <code>true</code>, this means
+     * that the intersection was calculated from the two last points of the shoreline.  To
+     * reclose the geometric shape of the island or continent would imply therefore that we add
+     * points to the end of the shoreline ("append"), as opposed to adding points to the start of
+     * the shoreline ("prepend").
      */
+
     boolean append;
 
+
+
     /**
-     * Système de coordonnées de ce point. Cette information n'est utilisée que par la méthode
-     * {@link #toString}, afin de pouvoir écrire une coordonnées en latitudes et longitudes.
+     * This point's coordinate system. This information is only used by the method
+     * {@link #toString}, so that a coordinate can be written in latitude and longitude.
      */
+
     CoordinateSystem coordinateSystem;
 
+
+
     /**
-     * Construit un point initialisé
-     * à la position (0,0).
+     * Constructs a point initialised at (0,0).
      */
+
     public IntersectionPoint() {
+
     }
 
+
+
     /**
-     * Construit un point initialisé
-     * à la position spécifiée.
+     * Constructs a point initialised at the specified position.
      */
+
     public IntersectionPoint(final Point2D point) {
+
         super(point.getX(), point.getY());
+
     }
 
+
+
     /**
-     * Mémorise dans cet objet la position du point spécifié. Le produit scalaire
-     * de ce point avec la ligne <code>line</code> sera aussi calculé et placé dans
-     * le champs {@link #scalarProduct}.
+     * Memorises in this object the position of the specified point. The scalar product
+     * of this point with the line <code>line</code> will also be calculated and placed
+     * in the field {@link #scalarProduct}.
      *
-     * @param point  Coordonnées de l'intersection.
-     * @param line   Coordonnées de la ligne sur laquelle l'intersection <code>point</code> fut
-     *               trouvée.
-     * @param border Numéro de la ligne <code>line</code>. Cette information sera mémorisée dans
-     *               le champs {@link #border} et est laissée à la discretion du programmeur.
-     *               Il est suggéré d'utiliser un numéro unique pour chaque ligne <code>line</code>,
-     *               et qui croissent dans le même ordre que les lignes <code>line</code> sont
-     *               balayées.
+     * @param point  Coordinates of the intersection.
+     * @param line   Coordinates of the line on which the intersection <code>point</code> was
+     *               found.
+     * @param border Number of the line <code>line</code>. This information will be memorised in
+     *               the field {@link #border} and is left to the discretion of the programmer.
+     *               It is recommended to use a unique number for each line <code>line</code>,
+     *               which grow in the same order as the lines <code>line</code> are swept.
      */
+
     final void setLocation(final Point2D point, final Line2D.Double line, final int border) {
+
         super.setLocation(point);
+
         final double dx = line.x2-line.x1;
+
         final double dy = line.y2-line.y1;
+
         scalarProduct = ((x-line.x1)*dx+(y-line.y1)*dy) / Math.sqrt(dx*dx + dy*dy);
+
         this.border = border;
+
     }
 
+
+
     /**
-     * Compare ce point avec un autre. Cette comparaison n'implique que
-     * la position de ces points sur un certain segment. Elle permettra
-     * de classer les points dans l'ordre des aiguilles d'une montre, ou
-     * dans l'ordre inverse selon la façon dont {@link PathIterator} est
-     * implémentée.
+     * Compares this point with another. This comparison only involves
+     * the position of these points on a particular segment. It will allow
+     * the points to be classified in a clockwise fashion, or anticlockwise
+     * depending on the way in which {@link PathIterator} is implemented.
      *
-     * @param o Autre point d'intersection avec lequel comparer celui-ci.
-     * @return -1, 0 ou +1 selon que ce point précède, égale ou suit le
-     *         point <code>o</code> dans un certain sens (généralement le
-     *         sens des aiguilles d'une montre).
+     * @param o Another intersection point with which to compare this one.
+     * @return -1, 0 or +1 depending on whether this point, precedes, equals or
+     *         follows point <code>o</code> in a particular direction (generally  
+     *         clockwise).
      */
+
     public int compareTo(final IntersectionPoint pt) {
+
         if (border < pt.border) return -1;
+
         if (border > pt.border) return +1;
+
         if (scalarProduct < pt.scalarProduct) return -1;
+
         if (scalarProduct > pt.scalarProduct) return +1;
+
         return 0;
+
     }
 
+
+
     /**
-     * Compare ce point avec un autre. Cette comparaison n'implique que
-     * la position de ces points sur un certain segment. Elle permettra
-     * de classer les points dans l'ordre des aiguilles d'une montre, ou
-     * dans l'ordre inverse selon la façon dont {@link PathIterator} est
-     * implémentée.
+     * Compares this point with another. This comparison only imvolves
+     * the position of these points on a particular segment. It will allow
+     * the classification of the points in a clockwise fashion, or anticlockwise
+     * depending on the way in which {@link PathIterator} is implemented.
      *
-     * @param o Autre point d'intersection avec lequel comparer celui-ci.
-     * @return -1, 0 ou +1 selon que ce point précède, égale ou suit le
-     *         point <code>o</code> dans un certain sens (généralement le
-     *         sens des aiguilles d'une montre).
+     * @param o Another intersection point with which to compare this one.
+     * @return -1, 0 or +1 depending on whether this point precedes, equals or follows
+     *         point <code>o</code> in a particular direction (generally clockwise).
      */
+
     public int compareTo(Object o) {
+
         return compareTo((IntersectionPoint) o);
+
     }
 
+
+
     /**
-     * Indique si ce point d'intersection est identique au point <code>o</code>.
-     * Cette méthode est définie pour être cohérente avec {@link #compareTo}, mais
-     * n'est pas utilisée.
+     * Indicates whether this intersection point is identical to point <code>o</code>.
+     * This method is defined to be coherent with {@link #compareTo}, but isn't used.
      *
-     * @return <code>true</code> si ce point d'intersection est le même que <code>o</code>.
+     * @return <code>true</code> if this intersection point is the same as <code>o</code>.
      */
+
     public boolean equals(final Object o) {
+
         if (o instanceof IntersectionPoint) {
+
             return compareTo((IntersectionPoint) o) == 0;
+
         } else {
+
             return false;
+
         }
+
     }
 
+
+
     /**
-     * Retourne un code à peu près unique pour ce point d'intersection,
-     * basé sur le produit scalaire et le numéro de la ligne. Ce code
-     * sera cohérent avec la méthode {@link #equals}.
+     * Returns an almost unique code for this intersection point, based on
+     * the scalar product and the line number. This code will be coherent
+     * with the method {@link #equals}.
      *
-     * @return Un numéro à peu près unique pour ce point d'intersection.
+     * @return An almost unique number for this intersection point.
      */
+
     public int hashCode() {
+
         final long bits = java.lang.Double.doubleToLongBits(scalarProduct);
+
         return border ^ (int)bits ^ (int)(bits >>> 32);
+
     }
 
+
+
     /**
-     * Renvoie une représentation sous forme de chaîne de caractères
-     * de ce point d'intersection (à des fins de déboguage seulement).
+     * Sends a character string representation of this intersection
+     * point (for debugging purposes only).
      *
-     * @return Chaîne de caractères représentant ce point d'intersection.
+     * @return Character string representing this intersection point.
      */
+
     public String toString() {
+
         final CoordinateSystem WGS84 = GeographicCoordinateSystem.WGS84;
+
         final StringBuffer buffer = new StringBuffer("IntersectionPoint[");
+
         if (coordinateSystem != null) {
+
             try {
+
                 CoordinatePoint coord = new CoordinatePoint(this);
+
                 coord = CoordinateTransformationFactory.getDefault()
+
                                             .createFromCoordinateSystems(coordinateSystem, WGS84)
+
                                             .getMathTransform().transform(coord, coord);
+
                 buffer.append(coord);
+
             } catch (TransformException exception) {
+
                 buffer.append("error");
+
             }
+
         } else {
+
             buffer.append((float) x);
+
             buffer.append(' ');
+
             buffer.append((float) y);
+
         }
+
         buffer.append(']');
+
         if (!java.lang.Double.isNaN(minDistanceSq)) {
+
             buffer.append(" at ");
+
             buffer.append((float) Math.sqrt(minDistanceSq));
+
         }
+
         if (coordinateSystem != null) {
+
             buffer.append(' ');
+
             buffer.append(coordinateSystem.getUnits(0));
+
         }
+
         buffer.append(" from #");
+
         buffer.append(border);
+
         buffer.append(" (");
+
         buffer.append((float) scalarProduct);
+
         buffer.append(')');
+
         return buffer.toString();
+
     }
+
 }
+
