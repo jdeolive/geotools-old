@@ -9,8 +9,10 @@ package org.geotools.gui.swing;
 
 import junit.framework.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.map.DefaultAreaOfInterestModel;
-import org.geotools.map.AreaOfInterestModel;
+import org.geotools.map.BoundingBoxImpl;
+import org.geotools.map.BoundingBox;
+import org.geotools.ct.Adapters;
+import org.geotools.cs.GeographicCoordinateSystem;
 
 import com.vividsolutions.jts.geom.*;
 
@@ -43,12 +45,13 @@ public class NavigationPaneTest extends TestCase {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
         
-        AreaOfInterestModel aoi = new DefaultAreaOfInterestModel(new Envelope(20, 40, 30, 70), null);
+        BoundingBox aoi = new BoundingBoxImpl(new Envelope(20, 40, 30, 70), 
+        Adapters.getDefault().export(GeographicCoordinateSystem.WGS84) );
         nav.setAoiModel(aoi);
         nav.setTotalAoi(new Envelope(0,500,0,500));
         for(int i = 0; i < 10; i++){
             Thread.sleep(100);
-            aoi.changeRelativeAreaOfInterest(0.5f, 0.5f, 0.5f, 0.5f);
+            aoi.setAreaOfInterest( new Envelope( 0.5d, 0.5d, 0.5d, 0.5d ) );
         }
         frame.dispose();
     }
