@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.2 2003/07/17 07:09:53 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.3 2003/07/18 19:41:57 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -238,7 +238,7 @@ public class DefaultAttributeType implements AttributeType {
     static class Feature extends DefaultAttributeType {
       private final FeatureType featureType;
       public Feature(String name,FeatureType type,boolean nillable) {
-        super(name,Feature.class,nillable); 
+        super(name,org.geotools.feature.Feature.class,nillable); 
         this.featureType = type;
       }
       
