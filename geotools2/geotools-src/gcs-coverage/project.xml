@@ -5,7 +5,7 @@
   <name>geotools-gcs-coverage</name>
   <id>gcs-coverage</id>
   <logo>/images/gcs.gif</logo>
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>0.6</currentVersion>
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
@@ -52,7 +52,7 @@
     </dependency>
     <dependency>
       <id>cts-coordtrans</id>
-      <version>0.1</version>
+      <version>0.6</version>
     </dependency>
   </dependencies>
 
