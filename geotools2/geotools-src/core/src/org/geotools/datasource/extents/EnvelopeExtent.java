@@ -7,8 +7,17 @@ import java.util.*;
 
 public class EnvelopeExtent implements Extent {
     Envelope bounds = new Envelope();
+    public EnvelopeExtent(){}
+    public EnvelopeExtent(double minx, double maxx, double miny, double maxy){
+        Envelope e = new Envelope(minx,maxx,miny,maxy);
+        setBounds(e);
+    }
     
     public void setBounds(Envelope r) {
+        if(r.getWidth()<=0 || r.getHeight()<=0){
+            // this is almost certainly an error in this context but technically its a valid envelope
+            System.err.println("Negative or zero envelope set in EnvelopeExtent");
+        }
         bounds = r;
     }
     
@@ -51,11 +60,12 @@ public class EnvelopeExtent implements Extent {
      * @return True is the Feature is within this Extent, false if otherwise.
      */
     public boolean containsFeature(Feature feature) {
-        // Assume the Feature contains a GeoShape
-        if (feature==null || feature.row==null)
+        // Assume the Feature contains a Geometry
+        if (feature==null || feature.row==null){
             return false;
+        }
         Geometry s = (Geometry)feature.row[0];
-        return bounds.contains(s.getEnvelopeInternal());
+        return bounds.overlaps(s.getEnvelopeInternal());
     }
     private Envelope createIntersect(Envelope one, Envelope two){
         if(!one.overlaps(two)){
