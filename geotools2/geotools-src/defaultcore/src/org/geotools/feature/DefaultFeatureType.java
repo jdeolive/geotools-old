@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.13 2003/12/01 17:51:55 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.14 2003/12/19 00:23:55 jive Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -39,7 +39,7 @@ public class DefaultFeatureType implements FeatureType {
     private final FeatureType[] ancestors;
 
     /** The default geometry AttributeType. */
-    private final AttributeType defaultGeom;
+    private final GeometryAttributeType defaultGeom;
 
     /** The position of the default Geometry 
      *  Leave as package protected for use by DefaultFeature
@@ -62,7 +62,7 @@ public class DefaultFeatureType implements FeatureType {
      * @throws NullPointerException If typeName is null.
      */
     public DefaultFeatureType(String typeName, String namespace,
-        Collection types, Collection superTypes, AttributeType defaultGeom)
+        Collection types, Collection superTypes, GeometryAttributeType defaultGeom)
         throws SchemaException, NullPointerException {
         if (typeName == null) {
             throw new NullPointerException(typeName);
@@ -155,7 +155,7 @@ public class DefaultFeatureType implements FeatureType {
      * @return The attribute type of the default geometry, which will contain
      *         the position.
      */
-    public AttributeType getDefaultGeometry() {
+    public GeometryAttributeType getDefaultGeometry() {
         return defaultGeom;
     }
 
@@ -382,7 +382,7 @@ public class DefaultFeatureType implements FeatureType {
 
     static final class Abstract extends DefaultFeatureType {
         public Abstract(String typeName, String namespace, Collection types,
-            Collection superTypes, AttributeType defaultGeom)
+            Collection superTypes, GeometryAttributeType defaultGeom)
             throws SchemaException {
             super(typeName, namespace, types, superTypes, defaultGeom);
 

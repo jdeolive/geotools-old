@@ -55,7 +55,7 @@ public class DummyFeatureType implements FeatureType {
         return new org.geotools.feature.AttributeType[] {};
     }
     
-    public org.geotools.feature.AttributeType getDefaultGeometry() {
+    public org.geotools.feature.GeometryAttributeType getDefaultGeometry() {
         return null;
     }
     

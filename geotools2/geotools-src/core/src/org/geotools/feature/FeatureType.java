@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.11 2003/11/26 19:06:12 cholmesny Exp $
+ * @version $Id: FeatureType.java,v 1.12 2003/12/19 00:24:45 jive Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -234,9 +234,7 @@ public interface FeatureType extends FeatureFactory {
      * @return The attribute type of the default geometry, which will contain
      *         the position.
      */
-    // Jody - can we change to the following?
-    //GeometryAttributeType getDefaultGeometry();
-    AttributeType getDefaultGeometry();
+    GeometryAttributeType getDefaultGeometry();    
 
     /**
      * Returns the number of attributes at the first 'level' of the schema.

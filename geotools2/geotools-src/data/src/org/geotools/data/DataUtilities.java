@@ -818,7 +818,7 @@ public class DataUtilities {
         String[] types = typeSpec.split(",");
         int geometryIndex = -1; // records * specified goemetry 
         AttributeType attributeType;
-        AttributeType geometryAttribute = null; // records guess 
+        GeometryAttributeType geometryAttribute = null; // records guess 
 
         for (int i = 0; i < types.length; i++) {
             if (types[i].startsWith("*")) {
@@ -829,16 +829,18 @@ public class DataUtilities {
             attributeType = createAttribute(types[i]);
             typeFactory.addType(attributeType);
 
-            if (geometryIndex == i) {
-                geometryAttribute = attributeType;
-            } else if ((geometryIndex == -1) && (geometryAttribute == null)
-                    && Geometry.class.isAssignableFrom(attributeType.getType())) {
-                geometryAttribute = attributeType;
+            if( geometryAttribute == null && attributeType instanceof GeometryAttributeType ){
+                if (geometryIndex == -1 ){
+                    geometryAttribute = (GeometryAttributeType) attributeType;
+                }
+                else if (geometryIndex == i ) {
+                    geometryAttribute = (GeometryAttributeType) attributeType;
+                }                
             }
         }
 
         if (geometryAttribute != null) {
-            typeFactory.setDefaultGeometry(geometryAttribute);
+            typeFactory.setDefaultGeometry( geometryAttribute);
         }
 
         return typeFactory.getFeatureType();

@@ -104,7 +104,7 @@ public class SampleFeatureFixtures {
                 Double.class));
       typeFactory.addType(AttributeTypeFactory.newAttributeType("testString",
                 String.class));
-      typeFactory.setDefaultGeometry(typeFactory.get(0));
+      typeFactory.setDefaultGeometry((GeometryAttributeType) typeFactory.get(0));
       return typeFactory.getFeatureType();
     }
     

@@ -23,6 +23,7 @@ import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.GeometryAttributeType;
 import org.geotools.feature.SchemaException;
 
 
@@ -101,7 +102,7 @@ public class LockingDataSourceFixture {
                 Point.class));
       typeFactory.addType(AttributeTypeFactory.newAttributeType("name",
                 String.class));
-      typeFactory.setDefaultGeometry( typeFactory.get(1) );
+      typeFactory.setDefaultGeometry( (GeometryAttributeType) typeFactory.get(1) );
       
       return typeFactory.getFeatureType();    
     }

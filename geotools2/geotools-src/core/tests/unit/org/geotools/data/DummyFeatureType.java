@@ -7,6 +7,7 @@
 package org.geotools.data;
 
 import org.geotools.feature.FeatureType;
+import org.geotools.feature.GeometryAttributeType;
 
 /**
  * An empty FeatureType implementation used in the AbstractDataSourceTest
@@ -55,7 +56,7 @@ public class DummyFeatureType implements FeatureType {
         return new org.geotools.feature.AttributeType[] {};
     }
     
-    public org.geotools.feature.AttributeType getDefaultGeometry() {
+    public GeometryAttributeType getDefaultGeometry() {
         return null;
     }
     

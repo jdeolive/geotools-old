@@ -24,6 +24,8 @@ import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.PrecisionModel;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.LocalCoordinateSystem;
+import org.opengis.sc.CoordinateReferenceSystem;
+
 import java.lang.reflect.Array;
 import java.math.*;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.19 2003/11/20 22:14:00 jive Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.20 2003/12/19 00:23:37 jive Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -635,11 +637,11 @@ public class DefaultAttributeType implements AttributeType {
     public static class Geometric extends DefaultAttributeType
         implements GeometryAttributeType {
         /** CoordianteSystem used by this GeometryAttributeType */
-        protected CoordinateSystem coordinateSystem;
+        protected CoordinateReferenceSystem coordinateSystem;
         protected GeometryFactory geometryFactory;
 
         public Geometric(String name, Class type, boolean nillable,
-            int fieldLength, Object defaultValue, CoordinateSystem cs) {
+            int fieldLength, Object defaultValue, CoordinateReferenceSystem cs) {
             super(name, type, nillable, fieldLength, defaultValue);
             coordinateSystem = (cs != null) ? cs : LocalCoordinateSystem.CARTESIAN;
             geometryFactory = (cs == LocalCoordinateSystem.CARTESIAN)
@@ -661,7 +663,7 @@ public class DefaultAttributeType implements AttributeType {
                 ? CSGeometryFactory.DEFAULT : new CSGeometryFactory(coordinateSystem);            
         }
 
-        public Object getCoordinateSystem() {
+        public CoordinateReferenceSystem getCoordinateSystem() {
             return coordinateSystem;
         }
 
@@ -692,9 +694,9 @@ public class DefaultAttributeType implements AttributeType {
 class CSGeometryFactory extends GeometryFactory {
     static public GeometryFactory DEFAULT = new CSGeometryFactory(LocalCoordinateSystem.CARTESIAN);
     static public PrecisionModel DEFAULT_PRECISON_MODEL = new PrecisionModel();
-    private CoordinateSystem coordinateSystem;
+    private CoordinateReferenceSystem coordinateSystem;
 
-    public CSGeometryFactory(CoordinateSystem cs) {
+    public CSGeometryFactory(CoordinateReferenceSystem cs) {
         super(toPrecisionModel(cs), toSRID(cs));
         coordinateSystem = (cs != null) ? cs : LocalCoordinateSystem.CARTESIAN;
     }
@@ -718,7 +720,7 @@ class CSGeometryFactory extends GeometryFactory {
     //
     // And so on
     // Utility Functions
-    private static int toSRID(CoordinateSystem cs) {
+    private static int toSRID(CoordinateReferenceSystem cs) {
         if ((cs == null) || (cs == LocalCoordinateSystem.CARTESIAN)) {
             return 0;
         }
@@ -727,7 +729,7 @@ class CSGeometryFactory extends GeometryFactory {
         return 0;
     }
 
-    private static PrecisionModel toPrecisionModel(CoordinateSystem cs) {
+    private static PrecisionModel toPrecisionModel(CoordinateReferenceSystem cs) {
         if ((cs == null) || (cs == LocalCoordinateSystem.CARTESIAN)) {
             return DEFAULT_PRECISON_MODEL;
         }

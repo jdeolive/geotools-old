@@ -57,7 +57,7 @@ import java.util.Set;
  * </p>
  *
  * @author Ian Schneider
- * @version $Id: FeatureTypeFactory.java,v 1.9 2003/08/05 23:24:41 cholmesny Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.10 2003/12/19 00:24:45 jive Exp $
  */
 public abstract class FeatureTypeFactory implements Factory {
     /** The types that all features have. */
@@ -79,7 +79,7 @@ public abstract class FeatureTypeFactory implements Factory {
     private FeatureType type = null;
 
     /** The current defaultGeometry of the FeatureType returned. */
-    private AttributeType defaultGeometry = null;
+    private GeometryAttributeType defaultGeometry = null;
 
     /** If the type is abstract. */
     private boolean abstractType = false;
@@ -554,7 +554,7 @@ public abstract class FeatureTypeFactory implements Factory {
      *
      * @return The AttributeType representing the defaultGeometry or null.
      */
-    public final AttributeType getDefaultGeometry() {
+    public final GeometryAttributeType getDefaultGeometry() {
         return defaultGeometry;
     }
 
@@ -569,7 +569,7 @@ public abstract class FeatureTypeFactory implements Factory {
      *
      * @throws IllegalArgumentException if the type is not a geometry.
      */
-    public final void setDefaultGeometry(AttributeType defaultGeometry)
+    public final void setDefaultGeometry(GeometryAttributeType defaultGeometry)
         throws IllegalArgumentException {
         // check if Geometry
         if ((defaultGeometry != null) && !defaultGeometry.isGeometry()) {
@@ -606,9 +606,8 @@ public abstract class FeatureTypeFactory implements Factory {
             // no defaultGeometry assigned, search for one.
             if (defaultGeometry == null) {
                 for (int i = 0, ii = getAttributeCount(); i < ii; i++) {
-                    if (get(i).isGeometry()) {
-                        defaultGeometry = get(i);
-
+                    if (get(i) instanceof GeometryAttributeType) {
+                        defaultGeometry = (GeometryAttributeType) get(i);
                         break;
                     }
                 }
