@@ -8,5 +8,7 @@ public interface Feature {
     public Object[] getAttributes();
     public String[] getAttributeNames();
     public Geometry getGeometry();
+    public void setGeometry(Geometry geom);
+    public void setAttributes(Object[] a);
 }
 
