@@ -31,14 +31,13 @@ public class FeatureFlat implements Feature {
     private Object[] attributes;
 
     /** Geometry for this feature. */
-    private int geometryPosition;
+    //private int geometryPosition;
     
 
     /**
      * Creates a new instance of flat feature, which must take a flat feature 
      * type schema and all attributes as arguments. 
      *
-     * HACK: Made public by James as he was unsure of reason for a protected constructor.
      *
      * @param schema Feature type schema for this flat feature.
      * @param attributes Initial attributes for this feature.
@@ -238,7 +237,9 @@ public class FeatureFlat implements Feature {
      * @return Geometry for this feature.
      */
     public Geometry getDefaultGeometry() {
-        return (Geometry) ((Geometry) attributes[geometryPosition]).clone();
+        AttributeType gType = schema.getDefaultGeometry();
+        _log.info("fetching geometry from "+gType.getPosition()+" "+attributes[gType.getPosition()]);
+        return (Geometry) ((Geometry) attributes[gType.getPosition()]).clone();
     }
 
     /** 
@@ -251,7 +252,7 @@ public class FeatureFlat implements Feature {
 
         AttributeType geometryAttribute = schema.getDefaultGeometry();
         if( geometryAttribute.getType().equals(geometry.getClass().getName())) {
-            attributes[geometryPosition] = (Geometry) geometry.clone();
+            attributes[geometryAttribute.getPosition()] = (Geometry) geometry.clone();
         }
         else {
             String message = "Cannot add geometry that does not match type.";
