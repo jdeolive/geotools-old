@@ -49,23 +49,30 @@
   </dependencies>
 
   
-    <contributors>
-      <contributor>
-        <name>Yann Cezard</name>
-        <organization>Universite de Montpellier II</organization>
-        <roles>
-          <role>Java developper</role>
-        </roles>
-      </contributor>
-      <contributor>
-        <name>Remi Eve</name>
-        <organization>Universite de Montpellier II</organization>
-        <roles>
-          <role>Java developper</role>
-        </roles>
-      </contributor>
-    </contributors>
-<build>
+  <contributors>
+    <contributor>
+      <name>Yann Cezard</name>
+      <organization>Universite de Montpellier II</organization>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Remi Eve</name>
+      <organization>Universite de Montpellier II</organization>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </contributor>
+    <contributor>
+      <name>Rueben Schulz</name>
+      <roles>
+        <role>Java developper / Tester</role>
+      </roles>
+    </contributor>
+  </contributors>
+
+  <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
     
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
@@ -76,14 +83,12 @@
     <sourceDirectory>src</sourceDirectory>
     <resourcesSourceDirectory>src</resourcesSourceDirectory>
     <resources>
-    
-        <includes>
-            <include>**/*.serialized</include> 
-            <include>**/*.txt</include> 
-             <include>**/*.utf</include> 
-        </includes>
+      <includes>
+        <include>**/*.serialized</include> 
+        <include>**/*.txt</include> 
+         <include>**/*.utf</include> 
+      </includes>
     </resources>
-
     
     <jars/>
 
