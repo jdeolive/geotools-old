@@ -241,9 +241,9 @@ public class ExpressionTest extends TestCase {
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
         //_log.info("math test: " +
-                  testAttribute1.getValue(testFeature) + " + " +
-                  testAttribute2.getValue(testFeature) + " = " + 
-                  mathTest.getValue(testFeature));            
+        //          testAttribute1.getValue(testFeature) + " + " +
+        //          testAttribute2.getValue(testFeature) + " = " + 
+        //          mathTest.getValue(testFeature));            
         assertEquals(new Double(6), mathTest.getValue(testFeature));
 
         // Test subtraction
@@ -251,9 +251,9 @@ public class ExpressionTest extends TestCase {
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
         //_log.info("math test: " +
-                  testAttribute1.getValue(testFeature) + " - " +
-                  testAttribute2.getValue(testFeature) + " = " + 
-                  mathTest.getValue(testFeature));            
+        //          testAttribute1.getValue(testFeature) + " - " +
+        //          testAttribute2.getValue(testFeature) + " = " + 
+        //          mathTest.getValue(testFeature));            
         assertEquals(new Double(2), mathTest.getValue(testFeature));
 
         // Test multiplication
@@ -261,9 +261,9 @@ public class ExpressionTest extends TestCase {
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
         //_log.info("math test: " +
-                  testAttribute1.getValue(testFeature) + " * " +
-                  testAttribute2.getValue(testFeature) + " = " + 
-                  mathTest.getValue(testFeature));            
+        //          testAttribute1.getValue(testFeature) + " * " +
+        //          testAttribute2.getValue(testFeature) + " = " + 
+        //          mathTest.getValue(testFeature));            
         assertEquals(new Double(8), mathTest.getValue(testFeature));
 
         // Test division
@@ -271,9 +271,9 @@ public class ExpressionTest extends TestCase {
         mathTest.addLeftValue(testAttribute1);
         mathTest.addRightValue(testAttribute2);
         //_log.info("math test: " +
-                  testAttribute1.getValue(testFeature) + " / " +
-                  testAttribute2.getValue(testFeature) + " = " + 
-                  mathTest.getValue(testFeature));            
+        //          testAttribute1.getValue(testFeature) + " / " +
+        //          testAttribute2.getValue(testFeature) + " = " + 
+        //          mathTest.getValue(testFeature));            
         assertEquals(new Double(2), mathTest.getValue(testFeature));
 
     }
