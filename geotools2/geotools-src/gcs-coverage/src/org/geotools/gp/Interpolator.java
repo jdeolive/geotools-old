@@ -608,7 +608,9 @@ final class Interpolator extends GridCoverage {
          * Apply an interpolation to a grid coverage. This method is invoked
          * by {@link GridCoverageProcessor} for the "Interpolate" operation.
          */
-        protected GridCoverage doOperation(final ParameterList parameters) {
+        protected GridCoverage doOperation(final ParameterList         parameters,
+                                           final GridCoverageProcessor processor)
+        {
             final GridCoverage   source = (GridCoverage)parameters.getObjectParameter("Source");
             final Object           type =               parameters.getObjectParameter("Type"  );
             final Interpolation[] interpolations;

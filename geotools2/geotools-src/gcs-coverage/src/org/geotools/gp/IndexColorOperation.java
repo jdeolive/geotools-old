@@ -78,8 +78,12 @@ abstract class IndexColorOperation extends Operation {
      * supplied parameters.
      *
      * @param parameters The parameters.
+     * @param processor The originating {@link GridCoverageProcessor}
+     *        (i.e. the instance that invoked this method).
      */
-    protected GridCoverage doOperation(final ParameterList parameters) {
+    protected GridCoverage doOperation(final ParameterList         parameters,
+                                       final GridCoverageProcessor processor)
+    {
         final GridCoverage source = (GridCoverage) parameters.getObjectParameter("Source");
         final RenderedImage image = source.getRenderedImage(false);
         final ColorModel    model = image.getColorModel();

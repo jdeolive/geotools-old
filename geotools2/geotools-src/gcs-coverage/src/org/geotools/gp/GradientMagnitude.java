@@ -40,6 +40,7 @@ import java.awt.Color;
 import java.awt.geom.AffineTransform;
 
 // Java Advanced Imaging
+import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterBlockJAI;
@@ -205,8 +206,9 @@ final class GradientMagnitude extends OperationJAI {
      * in the parameter list and divide kernel by the distance between pixel, in the
      * grid coverage's coordinate system.
      */
-    protected GridCoverage doOperation(final GridCoverage[] sources,
-                                       final ParameterBlockJAI parameters)
+    protected GridCoverage doOperation(final GridCoverage[]    sources,
+                                       final ParameterBlockJAI parameters,
+                                       final JAI               processor)
     {
         if (sources.length!=0) {
             KernelJAI mask1 = (KernelJAI) parameters.getObjectParameter("mask1");
@@ -244,7 +246,7 @@ final class GradientMagnitude extends OperationJAI {
             parameters.setParameter("mask1", divide(mask1, factor/scaleMask1));
             parameters.setParameter("mask2", divide(mask2, factor/scaleMask2));
         }
-        return super.doOperation(sources, parameters);
+        return super.doOperation(sources, parameters, processor);
     }
     
     /**

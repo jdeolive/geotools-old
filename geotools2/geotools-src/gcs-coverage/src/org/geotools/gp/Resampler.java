@@ -147,17 +147,31 @@ final class Resampler extends GridCoverage {
      * @param  targetCS Coordinate system for the new grid coverage, or <code>null</code>.
      * @param  targetGridGeometry The target grid geometry, or <code>null</code> for default.
      * @param  interpolation The interpolation to use.
-     * @param  factory The transformation factory to use.
+     * @param  processor The {@link JAI} instance to use for instantiating operations.
+     *         This argument is usually provided by a {@link GridCoverageProcessor}.
      * @return The new grid coverage, or <code>sourceCoverage</code> if no resampling was needed.
      * @throws TransformException if the grid coverage can't be reprojected.
      */
-    public static GridCoverage reproject(      GridCoverage             sourceCoverage,
-                                         final CoordinateSystem               targetCS,
-                                         final GridGeometry         targetGridGeometry,
-                                         final Interpolation             interpolation,
-                                         final CoordinateTransformationFactory factory)
+    public static GridCoverage reproject(      GridCoverage     sourceCoverage,
+                                         final CoordinateSystem       targetCS,
+                                         final GridGeometry targetGridGeometry,
+                                         final Interpolation     interpolation,
+                                         final JAI                   processor)
         throws TransformException
     {
+        /*
+         * Gets the {@link CoordinateTransformationFactory}
+         * to use from the rendering hints.
+         */
+        final Object property = processor.getRenderingHint(
+                GridCoverageProcessor.COORDINATE_TRANSFORMATION_FACTORY);
+
+        final CoordinateTransformationFactory factory;
+        if (property instanceof CoordinateTransformationFactory) {
+            factory = (CoordinateTransformationFactory) property;
+        } else {
+            factory = CoordinateTransformationFactory.getDefault();
+        }
         /*
          * If the user request a new grid geometry with the
          * same coordinate system, and if the grid geometry
@@ -182,7 +196,7 @@ final class Resampler extends GridCoverage {
                     final Dimension  size = new Dimension(range.getLength(0), range.getLength(1));
                     Rectangle2D    bounds = new Rectangle2D.Double(range.getLower(0), range.getLower(1), size.width, size.height);
                     bounds = XAffineTransform.transform(at, bounds, bounds);
-                    return scale(sourceCoverage, bounds, size);
+                    return scale(sourceCoverage, bounds, size, processor);
                 }
             }
         }
@@ -259,7 +273,8 @@ final class Resampler extends GridCoverage {
          * Note: RenderingHints contain mostly indications about tiles layout.
          */
         final PlanarImage sourceImage = PlanarImage.wrapRenderedImage(sourceCoverage.getRenderedImage(geophysics));
-        final RenderedOp  targetImage = JAI.create("Null", sourceImage, ImageUtilities.getRenderingHints(sourceImage));
+        final ParameterBlock paramBlk = new ParameterBlock().addSource(sourceImage);
+        final RenderedOp  targetImage = processor.createNS("Null", paramBlk, ImageUtilities.getRenderingHints(sourceImage));
         final GridCoverage targetCoverage;
         /*
          * Gets the math transform.  According our own GridCoverage
@@ -336,10 +351,13 @@ final class Resampler extends GridCoverage {
      * @param  area The subarea to extract, in the coordinate system units.
      * @param  size The size to scale image to, or <code>null</code> if the
      *         image should not be scaled.
+     * @param  processor The {@link JAI} instance to use for instantiating operations.
+     *         This argument is usually provided by a {@link GridCoverageProcessor}.
      * @return The resulting grid coverage.
      */
     public static GridCoverage scale(final GridCoverage sourceCoverage,
-                                     Rectangle2D area, final Dimension size)
+                                     Rectangle2D area, final Dimension size,
+                                     final JAI processor)
         throws TransformException
     {
         final MathTransform2D  gridToCS = sourceCoverage.getGridGeometry().getGridToCoordinateSystem2D();
@@ -363,9 +381,9 @@ final class Resampler extends GridCoverage {
         tmp = (int)Math.ceil(bounds.getMaxY() - EPS); if (tmp<ymax) {ymax=tmp; changed=true;}
         bounds.setRect(xmin, ymin, xmax-xmin, ymax-ymin);
         if (changed) {
-            image = JAI.create("Crop", new ParameterBlock().addSource(image)
-                        .add((float)bounds.getX    ()).add((float)bounds.getY())
-                        .add((float)bounds.getWidth()).add((float)bounds.getHeight()));
+            image = processor.create("Crop", new ParameterBlock().addSource(image)
+                             .add((float)bounds.getX    ()).add((float)bounds.getY())
+                             .add((float)bounds.getWidth()).add((float)bounds.getHeight()));
             area = CTSUtilities.transform(gridToCS, bounds, bounds);
         }
         /*
@@ -440,15 +458,9 @@ final class Resampler extends GridCoverage {
      */
     static final class Operation extends org.geotools.gp.Operation {
         /**
-         * The coordinate transform factory to use when
-         * coordinate transformation are required.
-         */
-        private final CoordinateTransformationFactory factory;
-        
-        /**
          * Construct a "Resample" operation.
          */
-        public Operation(final CoordinateTransformationFactory factory) {
+        public Operation() {
             super("Resample", new ParameterListDescriptorImpl(
                   null,         // the object to be reflected upon for enumerated values.
                   new String[]  // the names of each parameter.
@@ -474,20 +486,24 @@ final class Resampler extends GridCoverage {
                   },
                   null // Defines the valid values for each parameter.
                 ));
-            this.factory = factory;
         }
         
         /**
          * Resample a grid coverage. This method is invoked by
          * {@link GridCoverageProcessor} for the "Resample" operation.
          */
-        protected GridCoverage doOperation(final ParameterList parameters) {
+        protected GridCoverage doOperation(final ParameterList         parameters,
+                                           final GridCoverageProcessor processor)
+        {
             GridCoverage   source = (GridCoverage)     parameters.getObjectParameter("Source");
             Interpolation  interp = toInterpolation   (parameters.getObjectParameter("InterpolationType"));
             CoordinateSystem   cs = (CoordinateSystem) parameters.getObjectParameter("CoordinateSystem");
             GridGeometry gridGeom = (GridGeometry)     parameters.getObjectParameter("GridGeometry");
+            if (cs == null) {
+                cs = source.getCoordinateSystem();
+            }
             try {
-                return reproject(source, (cs!=null) ? cs : source.getCoordinateSystem(), gridGeom, interp, factory);
+                return reproject(source, cs, gridGeom, interp, processor.processor);
             } catch (TransformException exception) {
                 throw new CannotReprojectException(Resources.format(
                         ResourceKeys.ERROR_CANT_REPROJECT_$1,

@@ -57,6 +57,7 @@ import java.io.Writer;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.logging.Logger;
+import java.awt.RenderingHints;
 
 // Geotools dependencies
 import org.geotools.gc.GridCoverage;
@@ -92,6 +93,17 @@ public class GridCoverageProcessor {
         }
         Logger.getLogger("org.geotools.gcs").config("Java Advanced Imaging: "+JAI.getBuildVersion());
     }
+
+    /**
+     * Key for setting a {@link CoordinateTransformationFactory} object other
+     * than the default one when coordinate transformations must be performed
+     * at rendering time.
+     * <br><br>
+     * TODO: This constant may move in core module (<code>org.geotools.renderer</code>
+     *       package) later.
+     */
+    public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
+            new Key(0, CoordinateTransformationFactory.class);
     
     /**
      * The default grid coverage processor. Will
@@ -107,19 +119,62 @@ public class GridCoverageProcessor {
      * Generic-Type: <CaselessStringKey,Operation>
      */
     private final Map operations = new HashMap();
+
+    /**
+     * The {@link JAI} instance to use for instantiating JAI operations.
+     * This processor is usually given as argument to {@link OperationJAI}
+     * methods.
+     */
+    final JAI processor;
     
     /**
-     * Construct a grid coverage processor with no operation.
-     * Operation can be added by invoking {@link #addOperation}.
+     * Construct a grid coverage processor with no operation and using the
+     * default {@link JAI} instance. Operations can be added by invoking
+     * the {@link #addOperation} method at construction time.
      */
     protected GridCoverageProcessor() {
+        processor = JAI.getDefaultInstance();
+    }
+
+    /**
+     * Construct a grid coverage processor  with the specified set
+     * of rendering hints. Operations can be added by invoking the
+     * {@link #addOperation} method at construction time.
+     *
+     * @param hints The set of rendering hints, or <code>null</code> if none.
+     *        If non-null, then the rendering hints associated with the working
+     *        instance of JAI are overlaid with the hints passed to this
+     *        constructor. That is, the set of keys will be the union of the
+     *        keys from the JAI instance's hints and the hints parameter. If
+     *        the same key exists in both places, the value from the hints
+     *        parameter will be used. 
+     */
+    protected GridCoverageProcessor(final RenderingHints hints) {
+        processor = new JAI();
+        final RenderingHints merged = processor.getRenderingHints();
+        merged.putAll(hints);
+        processor.setRenderingHints(merged);
+    }
+
+    /**
+     * Construct a grid coverage processor  with the specified {@link JAI}
+     * instance. Operations can be added by invoking the {@link #addOperation}
+     * method at construction time.
+     *
+     * @param processor The {@link JAI} instance to use for instantiating JAI
+     *        operations. This processor is usually given as argument to
+     *        {@link OperationJAI} methods.
+     */
+    protected GridCoverageProcessor(final JAI processor) {
+        this.processor = processor;
     }
     
     /**
-     * Construct a grid coverage processor with the same
-     * set of operations than the specified processor.
+     * Construct a grid coverage processor with the same set of
+     * operations and rendering hints than the specified processor.
      */
     protected GridCoverageProcessor(final GridCoverageProcessor processor) {
+        this.processor = processor.processor;
         operations.putAll(processor.operations);
     }
     
@@ -128,10 +183,9 @@ public class GridCoverageProcessor {
      */
     public static synchronized GridCoverageProcessor getDefault() {
         if (DEFAULT==null) {
-            CoordinateTransformationFactory factory = CoordinateTransformationFactory.getDefault();
             DEFAULT = new GridCoverageProcessor();
             DEFAULT.addOperation(new Interpolator.Operation());
-            DEFAULT.addOperation(new Resampler.Operation(factory));
+            DEFAULT.addOperation(new Resampler.Operation());
             DEFAULT.addOperation(new GradientMagnitude());
             DEFAULT.addOperation(new OperationJAI("Rescale"));
             DEFAULT.addOperation(new ColormapOperation());
@@ -301,7 +355,7 @@ public class GridCoverageProcessor {
                 }
             }
         }
-        GridCoverage coverage = operation.doOperation(parameters);
+        GridCoverage coverage = operation.doOperation(parameters, this);
         if (interpolations!=null && coverage!=null && !(coverage instanceof Interpolator)) {
             coverage = Interpolator.create(coverage, interpolations);
         }
@@ -321,6 +375,40 @@ public class GridCoverageProcessor {
         for (int i=0; i<operations.length; i++) {
             out.write(lineSeparator);
             operations[i].print(out);
+        }
+    }
+
+    /**
+     * Class of all rendering hint keys defined in {@link GridCoverageProcessor}.
+     */
+    private static final class Key extends RenderingHints.Key
+    {
+        /**
+         * Base class of all values for this key.
+         */
+        private final Class valueClass;
+
+        /**
+         * Construct a new key.
+         *
+         * @param id An ID. Must be unique for all instances of {@link Key}.
+         * @param valueClass Base class of all valid values.
+         */
+        public Key(final int id, final Class valueClass) {
+            super(id);
+            this.valueClass = valueClass;
+        }
+
+        /**
+         * Returns <code>true</code> if the specified object is a valid
+         * value for this Key.
+         *
+         * @param  value The object to test for validity.
+         * @return <code>true</code> if the value is valid;
+         *         <code>false</code> otherwise.
+         */
+        public boolean isCompatibleValue(final Object value) {
+            return (value != null) && valueClass.isAssignableFrom(value.getClass());
         }
     }
 }

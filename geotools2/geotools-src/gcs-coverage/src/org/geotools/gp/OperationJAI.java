@@ -82,8 +82,8 @@ import org.geotools.resources.gcs.ResourceKeys;
  * different bits of tasks, resulting in the following chain of calls:
  *
  * <ol>
- *   <li>{@link #doOperation(ParameterList)}</li>
- *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI)}</li>
+ *   <li>{@link #doOperation(ParameterList, GridCoverageProcessor)}</li>
+ *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI, JAI)}</li>
  *   <li>{@link #deriveCategoryList}</li>
  *   <li>{@link #deriveCategory}</li>
  *   <li>{@link #deriveUnit}</li>
@@ -217,19 +217,23 @@ public class OperationJAI extends Operation {
         }
         return false;
     }
-    
+
     /**
      * Apply a process operation to a grid coverage.  The default implementation
      * extract the source <code>GridCoverage</code>s from parameters and invokes
-     * {@link #doOperation(GridCoverage[], ParameterBlockJAI)}.
+     * {@link #doOperation(GridCoverage[], ParameterBlockJAI, JAI)}.
      *
      * @param  parameters List of name value pairs for the
      *         parameters required for the operation.
+     * @param processor The originating {@link GridCoverageProcessor}
+     *        (i.e. the instance that invoked this method).
      * @return The result as a grid coverage.
      *
-     * @see #doOperation(GridCoverage[], ParameterBlockJAI)
+     * @see #doOperation(GridCoverage[], ParameterBlockJAI, JAI)
      */
-    protected GridCoverage doOperation(final ParameterList parameters) {
+    protected GridCoverage doOperation(final ParameterList         parameters,
+                                       final GridCoverageProcessor processor)
+    {
         final ParameterBlockJAI block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
         final String[]     paramNames = parameters.getParameterListDescriptor().getParamNames();
         final String[]    sourceNames = getSourceNames(descriptor);
@@ -245,7 +249,7 @@ public class OperationJAI extends Operation {
                 block.setParameter(name, param);
             }
         }
-        return doOperation(sources, block);
+        return doOperation(sources, block, processor.processor);
     }
     
     /**
@@ -254,23 +258,28 @@ public class OperationJAI extends Operation {
      * same envelope. Then, it construct a new mapping between sample values
      * and geophysics values with new units. This mapping is get by invoking
      * the {@link #deriveCategoryList deriveCategoryList} method. Finally, it
-     * apply the operation using the following code:
+     * apply the operation using the following pseudo-code:
      *
      * <blockquote><pre>
-     * {@link JAI#create(String,ParameterBlock) JAI.create}({@link #descriptor}.getName(),&nbsp;parameters)
+     * {@link JAI#createNS(String,ParameterBlock) processor.createNS}({@link #descriptor}.getName(),&nbsp;parameters)
      * </pre></blockquote>
      *
      * @param  sources The source coverages.
+     * @param  processor The {@link JAI} instance to use for instantiating operations.
+     *         This argument is usually fetch from a {@link GridCoverageProcessor}.
      * @param  parameters List of name value pairs for the
      *         parameters required for the operation.
      * @return The result as a grid coverage.
      *
-     * @see #doOperation(ParameterList)
+     * @see #doOperation(ParameterList, GridCoverageProcessor)
      * @see #deriveCategoryList
-     * @see JAI#create(String, ParameterBlock, RenderingHints)
+     * @see JAI#createNS(String, ParameterBlock, RenderingHints)
      */
-    protected GridCoverage doOperation(final GridCoverage[] sources, final ParameterBlockJAI parameters) {
-        final int band = 0; // The band to examine.
+    protected GridCoverage doOperation(final GridCoverage[]    sources,
+                                       final ParameterBlockJAI parameters,
+                                       final JAI               processor)
+    {
+        final int band = 0; // TODO: The band to examine.
         final GridCoverage source = sources[MASTER_SOURCE_INDEX];
         final CoordinateSystem cs = source.getCoordinateSystem();
         final Envelope   envelope = source.getEnvelope();
@@ -306,7 +315,7 @@ public class OperationJAI extends Operation {
          * construct the new grid coverage.
          */
         final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        final RenderedImage   data = JAI.create(descriptor.getName(), parameters, hints);
+        final RenderedImage   data = processor.createNS(descriptor.getName(), parameters, hints);
         return new GridCoverage(source.getName(null), // The grid coverage name
                                 data,                 // The underlying data
                                 cs,                   // The coordinate system.

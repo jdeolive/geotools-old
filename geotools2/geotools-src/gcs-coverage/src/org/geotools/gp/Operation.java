@@ -35,7 +35,7 @@
  */
 package org.geotools.gp;
 
-// Parameters
+// JAI dependencies
 import javax.media.jai.util.Range;
 import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
@@ -215,10 +215,14 @@ public abstract class Operation implements Serializable {
      * Apply a process operation to a grid coverage. This method
      * is invoked by {@link GridCoverageProcessor}.
      *
-     * @param  parameters List of name value pairs for the parameters required for the operation.
+     * @param  parameters List of name value pairs for the parameters
+     *         required for the operation.
+     * @param  processor The originating {@link GridCoverageProcessor}
+     *         (i.e. the instance that invoked this method).
      * @return The result as a grid coverage.
      */
-    protected abstract GridCoverage doOperation(final ParameterList parameters);
+    protected abstract GridCoverage doOperation(final ParameterList         parameters,
+                                                final GridCoverageProcessor processor);
     
     /**
      * Returns a hash value for this operation.
