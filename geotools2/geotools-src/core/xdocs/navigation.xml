@@ -9,7 +9,9 @@
       <item name="core" href="/../core"/>
       <item name="defaultcore" href="/../defaultcore"/>
       <item name="shapefile" href="/../shapefile"/>
-    </links>
+            <item name="java2drendering" href="/../Java2DRendering"></item>
+            <item name="gmldatasource" href="/../gmldatasource"></item>
+        </links>
     <menu name="Overview">
       <!-- <item name="Goals" href="/goals.html"/> -->
       <item name="Features" href="/features.html"/>
