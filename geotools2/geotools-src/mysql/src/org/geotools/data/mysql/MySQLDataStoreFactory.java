@@ -1,3 +1,7 @@
+/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
+ * This code is licensed under the GPL 2.0 license, availible at the root
+ * application directory.
+ */
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -34,7 +38,8 @@ import java.util.Map;
  *
  * @author Jody Garnett, Refractions Research
  */
-public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactorySpi {
+public class MySQLDataStoreFactory
+    implements org.geotools.data.DataStoreFactorySpi {
     /** Creates PostGIS-specific JDBC driver class. */
     private static final String DRIVER_CLASS = "org.postgresql.Driver";
 
@@ -61,8 +66,6 @@ public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactory
     /** Param, package visibiity for JUnit tests */
     static final Param PASSWD = new Param("passwd", String.class,
             "password used to login", false);
-
-    
 
     /**
      * Creates a new instance of PostgisDataStoreFactory
@@ -104,7 +107,7 @@ public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactory
      * @return <code>true</code> if dbtype equals postgis, and contains keys
      *         for host, user, passwd, and database.
      */
-   public boolean canProcess(Map params) {
+    public boolean canProcess(Map params) {
         Object value;
 
         if (!params.containsKey("dbtype")) {
@@ -146,19 +149,20 @@ public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactory
      * @throws DataSourceException Thrown if there were any problems creating
      *         or connecting the datasource.
      */
-   public DataStore createDataStore(Map params) throws IOException {
+    public DataStore createDataStore(Map params) throws IOException {
         String host = (String) HOST.lookUp(params);
         String user = (String) USER.lookUp(params);
         String passwd = (String) PASSWD.lookUp(params);
         Integer port = (Integer) PORT.lookUp(params);
         String database = (String) DATABASE.lookUp(params);
+
         //Charset charSet = (Charset) CHARSET.lookUp(params);
         //String namespace = (String) NAMESPACE.lookUp(params);
-        
         if (!canProcess(params)) {
             return null;
         }
-        try{
+
+        try {
             return MySQLDataStore.getInstance(host, port, database, user, passwd);
         } catch (SQLException e) {
             throw new DataSourceException("Could not create connection", e);
@@ -191,6 +195,23 @@ public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactory
     }
 
     /**
+     * Test to see if this datastore is available, if it has all the
+     * appropriate libraries to construct a datastore.  This datastore just
+     * returns true for now.  This method is used for gui apps, so as to not
+     * advertise data store capabilities they don't actually have.
+     *
+     * @return <tt>true</tt> if and only if this factory is available to create
+     *         DataStores.
+     *
+     * @task REVISIT: I'm just adding this method to compile, maintainer should
+     *       revisit to check for any libraries that may be necessary for
+     *       datastore creations. ch.
+     */
+    public boolean isAvailable() {
+        return true;
+    }
+
+    /**
      * Describe parameters.
      *
      * @return
@@ -198,8 +219,6 @@ public class MySQLDataStoreFactory implements org.geotools.data.DataStoreFactory
      * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
      */
     public Param[] getParametersInfo() {
-        return new Param[] {
-            DBTYPE, HOST, PORT, DATABASE, USER, PASSWD
-        };
+        return new Param[] { DBTYPE, HOST, PORT, DATABASE, USER, PASSWD };
     }
 }

@@ -1,3 +1,7 @@
+/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
+ * This code is licensed under the GPL 2.0 license, availible at the root
+ * application directory.
+ */
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -30,12 +34,12 @@ import java.util.logging.Logger;
  * Implementation of the DataStore service provider interface for Shapefiles.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: ShapefileDataStoreFactory.java,v 1.5 2004/02/11 20:45:03 ianschneider Exp $
+ * @version $Id: ShapefileDataStoreFactory.java,v 1.6 2004/04/20 03:33:23 cholmesny Exp $
  */
 public class ShapefileDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
-        
-    private static final Param PARAM = new Param("url", URL.class, "url to a .shp file");
+    private static final Param PARAM = new Param("url", URL.class,
+            "url to a .shp file");
 
     /**
      * Takes a list of params which describes how to access a restore and
@@ -72,33 +76,35 @@ public class ShapefileDataStoreFactory
      *
      * @return DataStore A ShapefileDatastore
      *
+     * @throws IOException DOCUMENT ME!
      * @throws DataSourceException Thrown if the datastore which is created
      *         cannot be attached to the restore specified in params.
      */
     public DataStore createDataStore(Map params) throws IOException {
         DataStore ds = null;
 
-
         URL url = null;
+
         try {
             url = (URL) PARAM.lookUp(params);
             ds = new ShapefileDataStore(url);
         } catch (MalformedURLException mue) {
             throw new DataSourceException("Unable to attatch datastore to "
-            + url, mue);
-        } 
+                + url, mue);
+        }
 
         return ds;
     }
 
     /**
      * Not implemented yet.
+     *
      * @param params
      *
      * @return
      *
      * @throws IOException DOCUMENT ME!
-     * @throws UnsupportedOperationException 
+     * @throws UnsupportedOperationException
      */
     public DataStore createNewDataStore(Map params) throws IOException {
         throw new UnsupportedOperationException("Not yet implemented");
@@ -113,6 +119,22 @@ public class ShapefileDataStoreFactory
      */
     public String getDescription() {
         return "ESRI(tm) Shapefiles (*.shp)";
+    }
+
+    /**
+     * Test to see if this datastore is available, if it has all the
+     * appropriate libraries to construct a datastore.  This datastore just
+     * returns true for now.
+     *
+     * @return <tt>true</tt> if and only if this factory is available to create
+     *         DataStores.
+     *
+     * @task REVISIT: I'm just adding this method to compile, maintainer should
+     *       revisit to check for any libraries that may be necessary for
+     *       datastore creations.
+     */
+    public boolean isAvailable() {
+        return true;
     }
 
     /**

@@ -37,6 +37,24 @@ public class PropertyDataStoreFactory implements DataStoreFactorySpi {
 
         return new Param[] { directory, };
     }
+    
+	/**
+	 * Test to see if this datastore is available, if it has all the
+	 * appropriate libraries to construct a datastore.  This datastore just
+	 * returns true for now.  This method is used for gui apps, so as to
+	 * not advertise data store capabilities they don't actually have.
+	 *
+	 * @return <tt>true</tt> if and only if this factory is available to create
+	 *         DataStores.
+	 *
+	 * @task REVISIT: I'm just adding this method to compile, maintainer should
+	 *       revisit to check for any libraries that may be necessary for
+	 *       datastore creations. ch.
+	 */
+	public boolean isAvailable() {
+		return true;
+	}
+    
     public boolean canProcess(Map params) {
         return (params != null) && params.containsKey("directory")
         && params.get("directory") instanceof File;
