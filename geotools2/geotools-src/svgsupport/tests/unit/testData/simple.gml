@@ -22,10 +22,7 @@
     </ccg:cartographicMember>
     <ccg:cartographicMember>
         <ccg:road fid="road2">
-            <ccg:description>
-                Local dirt track
-            </ccg:description>
-
+            <ccg:description>Local dirt track</ccg:description>
             <gml:LineString gid="2" srsName="http://?/epsg.xml#ESPG:4326">
                 <gml:coordinates>
                     25,0 25,25
