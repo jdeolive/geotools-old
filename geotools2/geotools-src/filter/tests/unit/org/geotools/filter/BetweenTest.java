@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import junit.framework.*;
 import org.geotools.feature.*;
+import java.util.logging.Logger;
 
 
 /**
@@ -34,7 +35,11 @@ import org.geotools.feature.*;
  * @author James Macgill
  */
 public class BetweenTest extends TestCase {
-    private static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+    /** Standard logging instance */
+    protected static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.filter");
+    private static AttributeTypeFactory attFactory = AttributeTypeFactory
+        .newInstance();
 
     public BetweenTest(java.lang.String testName) {
         super(testName);
@@ -60,20 +65,19 @@ public class BetweenTest extends TestCase {
                 Geometry.class);
         FeatureType schema = FeatureTypeFactory.newFeatureType(new AttributeType[] {
                     a1, a2
-                },"testSchema");
+                }, "testSchema");
 
         a.addLeftValue(new LiteralExpressionImpl(new Double(5)));
         a.addRightValue(new LiteralExpressionImpl(new Double(15)));
         a.addMiddleValue(new AttributeExpressionImpl(schema, "value"));
 
-        System.out.println("a1 official name is " + a1.getName());
+        LOGGER.fine("a1 official name is " + a1.getName());
 
         //FlatFeatureFactory fFac = new FlatFeatureFactory(schema);
-        System.out.println("geometry is " +
-            schema.getAttributeType("geometry"));
-        System.out.println("value is " + schema.getAttributeType("value"));
-        System.out.println("schema has value in it ? " +
-            schema.hasAttributeType("value"));
+        LOGGER.fine("geometry is " + schema.getAttributeType("geometry"));
+        LOGGER.fine("value is " + schema.getAttributeType("value"));
+        LOGGER.fine("schema has value in it ? "
+            + schema.hasAttributeType("value"));
 
         Feature f1 = schema.create(new Object[] {
                     new Integer(12), new GeometryCollection(null, null, -1)
