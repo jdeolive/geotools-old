@@ -1,14 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?xml-stylesheet type="text/css"
-href="file:/D:/ian/Development/geotools2/geotools-src/sldstyling/xdocs/css/docbook41.css"
+href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
 ?>
-<?xml-stylesheet type="text/css"
-href="file:/D:/ian/Development/geotools2/geotools-src/sldstyling/xdocs/css/docbook.css"
-title="Previous docbook stylesheet"
-alternate="yes"
-?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
-"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
+"file:../../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
 <article id="sld">
   <articleinfo>
     <title>Getting Started with SLD styling in GeotTools2</title>
@@ -19,7 +14,7 @@ alternate="yes"
       <surname>Turton</surname>
     </author>
 
-    <date>$Date: 2002/07/11 17:14:00 $</date>
+    <date>$Date: 2002/07/27 02:36:00 $</date>
 
     <abstract>
       <para>This document provides a simple overview of the Styled Layer
