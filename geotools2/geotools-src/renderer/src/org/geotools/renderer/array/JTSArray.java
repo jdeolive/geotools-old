@@ -46,7 +46,7 @@ import org.geotools.resources.XArray;
  * A wrapper around an array of JTS {@link Coordinate}s. This array is
  * usually a reference to the internal array of a {@link LineString} object.
  *
- * @version $Id: JTSArray.java,v 1.2 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: JTSArray.java,v 1.3 2003/05/11 15:27:05 aaime Exp $
  * @author Martin Desruisseaux
  */
 public final class JTSArray extends PointArray {
@@ -214,7 +214,7 @@ public final class JTSArray extends PointArray {
         }
         final int offset = dest.length;
         float[]   copy   = dest.array;
-        final int upper  = upper();
+        final int upper  = upper() - 2;
         int       src    = lower();
         int       dst    = offset;
         if (src < upper) {
@@ -226,7 +226,8 @@ public final class JTSArray extends PointArray {
             copy[dst++] = (float)(lastX = coord.x);
             copy[dst++] = (float)(lastY = coord.y);
             while (src < upper) {
-                coord = coords[(src+=2) >> 1];
+                final int curr = (src+=2) >> 1;
+                coord = coords[curr];
                 final double dx = coord.x - lastX;
                 final double dy = coord.y - lastY;
                 if ((dx*dx + dy*dy) >= resolution2) {
