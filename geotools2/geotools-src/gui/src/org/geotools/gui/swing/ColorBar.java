@@ -90,7 +90,11 @@ import org.geotools.resources.cts.ResourceKeys;
  * is usually painted together with a remote sensing image, for example in a
  * {@link org.geotools.gui.swing.MapPane} object.
  *
- * @version $Id: ColorBar.java,v 1.3 2003/03/14 13:42:40 desruisseaux Exp $
+ * <p>&nbsp;</p>
+ * <p align="center"><img src="doc-files/ColorBar.png"></p>
+ * <p>&nbsp;</p>
+ *
+ * @version $Id: ColorBar.java,v 1.4 2003/03/28 14:32:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -768,7 +772,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.3 2003/03/14 13:42:40 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.4 2003/03/28 14:32:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {
