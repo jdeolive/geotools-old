@@ -24,7 +24,7 @@ public interface ResourceKeys
     public static final int ERROR                                    =     0;
     public static final int INITIALIZING_TRANSFORMATION_$2           =     1;
     public static final int PAINTING_$2                              =     2;
-    public static final int POLYGON_CACHE_USE_$3                     =     3;
+    public static final int POLYGON_CACHE_USE_$4                     =     3;
     public static final int RESSAMPLING_RENDERED_IMAGE_$3            =     4;
     public static final int SCALE_$1                                 =     5;
     public static final int UPDATE_CACHE_$1                          =     6;

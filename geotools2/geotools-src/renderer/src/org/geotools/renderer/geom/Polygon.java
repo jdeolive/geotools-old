@@ -44,6 +44,7 @@ import java.awt.geom.AffineTransform;
 import java.util.Map;
 import java.util.Locale;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 
 // Geotools dependencies
@@ -60,7 +61,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * A polygon bounded by one exterior ring (the &quot;shell&quot;) and zero or more interior rings
  * (the &quot;holes&quot;). Shell and holes are stored as {@link Polyline} objects.
  *
- * @version $Id: Polygon.java,v 1.13 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.14 2003/05/30 18:20:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends Polyline {
@@ -68,6 +69,11 @@ public class Polygon extends Polyline {
      * Version number for compatibility with geometry created with previous versions.
      */
     private static final long serialVersionUID = 4862662818696526222L;
+
+    /**
+     * An empty array of polylines.
+     */
+    private static final Polyline[] EMPTY_ARRAY = new Polyline[0];
 
     /**
      * Nom de ce polygone.  Il s'agit en général d'un nom géographique, par exemple
@@ -135,28 +141,38 @@ public class Polygon extends Polyline {
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged, as if this method has
      *         never been invoked.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
     public synchronized void setCoordinateSystem(CoordinateSystem coordinateSystem)
-            throws TransformException
+            throws TransformException, UnmodifiableGeometryException
     {
         final CoordinateSystem oldCS = getCoordinateSystem();
         super.setCoordinateSystem(coordinateSystem);
         if (holes != null) {
             coordinateSystem = getCoordinateSystem();
+            final Polyline[] projected = getModifiableHoles();
             int i=0;
             try {
-                while (i < holes.length) {
-                    holes[i].setCoordinateSystem(coordinateSystem);
+                while (i < projected.length) {
+                    projected[i].setCoordinateSystem(coordinateSystem);
                     i++;
                 }
             } catch (TransformException exception) {
                 // Roll back the change.
                 while (--i >= 0) {
-                    holes[i].setCoordinateSystem(oldCS);
+                    if (projected[i] == holes[i]) try {
+                        projected[i].setCoordinateSystem(oldCS);
+                    } catch (TransformException unexpected) {
+                        // Should not happen, since the old coordinate system is supposed to be ok.
+                        LineString.unexpectedException(Utilities.getShortClassName(projected[i]),
+                                                       "setCoordinateSystem", unexpected);
+                    }
                 }
                 super.setCoordinateSystem(oldCS);
                 throw exception;
             }
+            holes = projected;
         }
     }
 
@@ -164,15 +180,22 @@ public class Polygon extends Polyline {
      * Add a hole to this polygon.
      *
      * @param  hole The hole to add.
-     * @throws IllegalArgumentException if the hole is not inside the exterior ring.
      * @throws TransformException if the hole uses an incompatible coordinate system.
+     * @throws IllegalArgumentException if the hole is not inside the exterior ring.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      *
      * @task TODO: The check for hole inclusion should use 'contains(Shape)'. However, this is an
      *             expensive check in current version. We just check the bounding box for now. We
      *             should make a stricter check when Polyline.contains will be optimized.
      *             We should also make sure that the new hole doesn't intersect an existing hole.
      */
-    public synchronized void addHole(Polyline hole) throws TransformException {
+    public synchronized void addHole(Polyline hole)
+            throws TransformException, UnmodifiableGeometryException
+    {
+        if (isFrozen()) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         // Use 'new Polyline(hole)' rather than 'hole.clone()' in order to
         // keep only the exterior ring if 'hole' is an instance of Polygon.
         hole = new Polyline(hole);
@@ -192,6 +215,7 @@ public class Polygon extends Polyline {
             holes = (Polyline[]) XArray.resize(holes, length+1);
             holes[length] = hole;
         }
+        clearCache();
     }
 
     /**
@@ -202,6 +226,43 @@ public class Polygon extends Polyline {
         if (holes != null) {
             for (int i=0; i<holes.length; i++) {
                 holes[i].reverse();
+            }
+        }
+    }
+
+    /**
+     * Returns a copy of {@link #holes} with modifiable geometries.
+     * All frozen geometries will be cloned.
+     */
+    private Polyline[] getModifiableHoles() {
+        assert Thread.holdsLock(this);
+        if (holes == null) {
+            return EMPTY_ARRAY;
+        }
+        final Polyline[] copy = (Polyline[])holes.clone();
+        Map alreadyCloned = null;
+        for (int i=0; i<copy.length; i++) {
+            if (copy[i].isFrozen()) {
+                if (alreadyCloned == null) {
+                    alreadyCloned = new IdentityHashMap();
+                }
+                copy[i] = (Polyline) copy[i].clone(alreadyCloned);
+            }
+            assert !copy[i].isFrozen() : copy[i];
+        }
+        return copy;
+    }
+
+    /**
+     * Add to the specified collection all {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
+     * and {@link PolygonAssembler} only.
+     */
+    synchronized void getPolylines(final Collection polylines) {
+        super.getPolylines(polylines);
+        if (holes != null) {
+            for (int i=0; i<holes.length; i++) {
+                holes[i].getPolylines(polylines);
             }
         }
     }
@@ -331,6 +392,7 @@ public class Polygon extends Polyline {
         final long memoryUsage = getMemoryUsage();
         super.compress(level);
         if (holes != null) {
+            holes = getModifiableHoles();
             int count = 0;
             for (int i=0; i<holes.length; i++) {
                 final Polyline polyline = holes[i];
@@ -366,6 +428,7 @@ public class Polygon extends Polyline {
     public synchronized void setResolution(final double resolution) throws TransformException {
         super.setResolution(resolution);
         if (holes != null) {
+            holes = getModifiableHoles();
             for (int i=0; i<holes.length; i++) {
                 holes[i].setResolution(resolution);
             }
@@ -375,8 +438,9 @@ public class Polygon extends Polyline {
     /**
      * Hints this polygon that the specified resolution is sufficient for rendering.
      */
-    public synchronized void setRenderingResolution(final float resolution) {
+    public void setRenderingResolution(final float resolution) {
         super.setRenderingResolution(resolution);
+        final Polyline[] holes = this.holes; // Avoid the need for synchronisation.
         if (holes != null) {
             for (int i=0; i<holes.length; i++) {
                 holes[i].setRenderingResolution(resolution);
@@ -389,6 +453,24 @@ public class Polygon extends Polyline {
      */
     public synchronized PathIterator getPathIterator(final AffineTransform transform) {
         return new PolygonPathIterator(this, (holes!=null) ? new Iterator(holes) : null, transform);
+    }
+
+    /**
+     * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
+     * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
+     */
+    synchronized boolean checkFlattenedShape() {
+        if (super.checkFlattenedShape()) {
+            if (holes != null) {
+                for (int i=0; i<holes.length; i++) {
+                    if (!holes[i].isFlattenedShape()) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -434,33 +516,6 @@ public class Polygon extends Polyline {
         }
         return shell;
     }
-    
-    /**
-     * Returns a hash code for this polygon.
-     */
-    public synchronized int hashCode() {
-        int code = ~super.hashCode();
-        if (name != null) {
-            code ^= name.hashCode();
-        }
-        return code;
-    }
-
-    /**
-     * Compare the specified object with this polygon for equality.
-     */
-    public synchronized boolean equals(final Object object) {
-        if (object == this) {
-            // Slight optimisation
-            return true;
-        }
-        if (super.equals(object)) {
-            final Polygon that = (Polygon) object;
-            return Utilities.equals(this.name,  that.name ) &&
-                      Arrays.equals(this.holes, that.holes);
-        }
-        return false;
-    }
 
     /**
      * Return a clone of this geometry. The returned geometry will have a deep copy semantic.
@@ -486,6 +541,43 @@ public class Polygon extends Polyline {
             }
         }
         return copy;
+    }
+
+    /**
+     * Compare the specified object with this polygon for equality.
+     */
+    public synchronized boolean equals(final Object object) {
+        if (object == this) {
+            // Slight optimisation
+            return true;
+        }
+        if (super.equals(object)) {
+            final Polygon that = (Polygon) object;
+            return Utilities.equals(this.name,  that.name ) &&
+                      Arrays.equals(this.holes, that.holes);
+        }
+        return false;
+    }
+    
+    /**
+     * Returns a hash code for this polygon.
+     */
+    public int hashCode() {
+        // Do not take the name in account, since it
+        // is not a property protected against changes.
+        return super.hashCode() ^ (int)serialVersionUID;
+    }
+
+    /**
+     * Clears all information that was kept in an internal cache.
+     */
+    synchronized void clearCache() {
+        super.clearCache();
+        if (holes != null) {
+            for (int i=0; i<holes.length; i++) {
+                holes[i].clearCache();
+            }
+        }
     }
 
     /**

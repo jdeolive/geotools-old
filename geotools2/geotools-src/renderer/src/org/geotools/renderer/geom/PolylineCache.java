@@ -53,7 +53,7 @@ import org.geotools.renderer.array.ArrayData;
  * There is at most one instance of this class for each instance of {@link Polyline}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolylineCache.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: PolylineCache.java,v 1.2 2003/05/30 18:20:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolylineCache {
@@ -102,6 +102,15 @@ final class PolylineCache {
     private boolean recomputed;
 
     /**
+     * <code>true</code> if the flag <code>recomputed</code> should be reset during the next
+     * invocation of {@link #getRenderingArray}.  This flag is set to <code>true</code> when
+     * the user invokes {@link #getPointCount}, which is an indication that the rendering is
+     * probably finished and the next call to {@link #getRenderingArray} will probably be for
+     * a new rendering.
+     */
+    private boolean reset;
+
+    /**
      * Codes computed by {@link ArrayData#curves}. We don't have to touch it here.
      */
     private int[] curves;
@@ -131,7 +140,11 @@ final class PolylineCache {
                                   final ArrayData destination,
                                   AffineTransform newTransform)
     {
-        assert Thread.holdsLock(polyline);
+        assert polyline.isFrozen() || Thread.holdsLock(polyline);
+        if (reset) {
+            reset      = false;
+            recomputed = false;
+        }
         if (newTransform != null) {
             newTransform = (AffineTransform) pool.canonicalize(new AffineTransform(newTransform));
             // TODO: This line may fill 'pool' with a lot of entries
@@ -172,8 +185,8 @@ final class PolylineCache {
                 final AffineTransform change = transform.createInverse();
                 change.preConcatenate(newTransform);
                 change.transform(array, 0, array, 0, length/2);
-                transform = newTransform;
-                lockCount = 1;
+                transform  = newTransform;
+                lockCount  = 1;
                 recomputed = false;
                 destination.setData(array, length, curves);
                 return;
@@ -238,21 +251,14 @@ final class PolylineCache {
     }
 
     /**
-     * Returns the number of points in the cache. Those points may not be
-     * available anymore. This method is provided for statistical purpose only.
+     * Returns the number of points in the cache. This method is invoked only for statistics
+     * purpose after a rendering. The number of points is the absolute value of the returned
+     * value. A positive value means that the cache has been reused. A negative value means
+     * that the cache has been flushed and recomputed.
      */
     public final int getPointCount() {
-        return length/2;
-    }
-
-    /**
-     * Returns <code>true</code> if the last call of {@link #getRenderingArray} has recomputed
-     * the cache array. This method reset the {@link #recomputed} flag to <code>false</code>.
-     * This information is for statistics purpose only.
-     */
-    final boolean recomputed() {
-        final boolean r = recomputed;
-        recomputed = false;
-        return r;
+        reset = true;
+        final int n = length/2;
+        return recomputed ? -n : n;
     }
 }

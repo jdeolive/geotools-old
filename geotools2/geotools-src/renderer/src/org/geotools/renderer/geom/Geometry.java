@@ -46,6 +46,7 @@ import java.awt.geom.FlatteningPathIterator;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
@@ -89,7 +90,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.4 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.5 2003/05/30 18:20:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -220,6 +221,14 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     public boolean isEmpty() {
         // To be overriden by subclasses with a more efficient implementation.
         return getPointCount() == 0;
+    }
+
+    /**
+     * Add to the specified collection all {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
+     * and {@link PolygonAssembler} only.
+     */
+    void getPolylines(final Collection polylines) {
     }
 
     /**
@@ -595,6 +604,25 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
         copy = clone(alreadyCloned);
         alreadyCloned.put(this, copy);
         return copy;
+    }
+
+    /**
+     * Compares the specified object with this geometry for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object!=null && object.getClass().equals(getClass())) {
+            return Utilities.equals(style, ((Geometry)object).style);
+        }
+        return false;
+    }
+
+    /**
+     * Returns a hash value for this geometry.
+     */
+    public int hashCode() {
+        // To be overriden by subclass with a more efficient implementation.
+        final String name = getName(null);
+        return (name!=null) ? name.hashCode() : 0;
     }
 
     /**

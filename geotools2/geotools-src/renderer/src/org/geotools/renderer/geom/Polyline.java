@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.12 2003/05/28 18:06:27 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.13 2003/05/30 18:20:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -122,7 +122,7 @@ public class Polyline extends Geometry {
      * Version number for compatibility with geometries serialized with previous versions
      * of this class.
      */
-    private static final long serialVersionUID = -8889783056267013008L;
+    private static final long serialVersionUID = 4201362804977681771L;
 
     /**
      * Small number for comparisons (mostly in assertions).
@@ -194,6 +194,13 @@ public class Polyline extends Geometry {
      * <code>true</code> if this <code>Polyline</code> is a closed ring.
      */
     private boolean isClosed;
+
+    /**
+     * <code>true</code> if this polyline has been {@linkplain #freeze frozen}.
+     * Invoking a mutator method like {@link #setResolution} on a frozen geometry
+     * will thrown a {@link UnmodifiableGeometryException}.
+     */
+    private boolean frozen;
 
     /**
      * The resolution to apply at rendering time.
@@ -515,10 +522,15 @@ public class Polyline extends Geometry {
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged (as if this method has
      *         never been invoked).
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
     public synchronized void setCoordinateSystem(CoordinateSystem coordinateSystem)
-            throws TransformException
+            throws TransformException, UnmodifiableGeometryException
     {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         // Do not use 'Polyline.getCoordinateSystem2D', since
         // we want a 'TransformException' in case of failure.
         coordinateSystem = CTSUtilities.getCoordinateSystem2D(coordinateSystem);
@@ -548,6 +560,7 @@ public class Polyline extends Geometry {
         this.coordinateTransform = transformCandidate;
         this.cache = null;
         this.flattened = checkFlattenedShape();
+        assert Utilities.equals(coordinateSystem, getCoordinateSystem());
     }
 
     /**
@@ -577,12 +590,14 @@ public class Polyline extends Geometry {
      * @param  border Coordinates to add as (x,y) number pairs.
      * @param  lower Index of the first <var>x</var> ordinate to add to the border.
      * @param  upper Index after of the last <var>y</var> ordinate to add to the border.
-     * @throws IllegalStateException if this polyline has already been closed.
      * @throws TransformException if <code>border</code> contains points that are invalid
      *         for this polyline's native coordinate system.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
+     * @throws IllegalStateException if this polyline has already been closed.
      */
     public void prependBorder(final float[] border, final int lower, final int upper)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
         prependBorder(border, lower, upper, getCoordinateSystem());
     }
@@ -595,12 +610,14 @@ public class Polyline extends Geometry {
      * @param  border Coordinates to add as (x,y) number pairs.
      * @param  lower Index of the first <var>x</var> ordinate to add to the border.
      * @param  upper Index after the last <var>y</var> ordinate to add to the border.
-     * @throws IllegalStateException if this polyline has already been closed.
      * @throws TransformException if <code>border</code> contains points that are invalid
      *         for this polyline's native coordinate system.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
+     * @throws IllegalStateException if this polyline has already been closed.
      */
     public void appendBorder(final float[] border, final int lower, final int upper)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
         appendBorder(border, lower, upper, getCoordinateSystem());
     }
@@ -611,7 +628,7 @@ public class Polyline extends Geometry {
      */
     final void prependBorder(final float[] border, final int lower, final int upper,
                              final CoordinateSystem cs)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
         addBorder(border, lower, upper, cs, false);
     }
@@ -622,7 +639,7 @@ public class Polyline extends Geometry {
      */
     final void appendBorder(final float[] border, final int lower, final int upper,
                              final CoordinateSystem cs)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
         addBorder(border, lower, upper, cs, true);
     }
@@ -636,8 +653,11 @@ public class Polyline extends Geometry {
      */
     private synchronized void addBorder(float[] border, int lower, int upper,
                                         final CoordinateSystem cs, final boolean append)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         if (isClosed) {
             throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
         }
@@ -669,12 +689,14 @@ public class Polyline extends Geometry {
      *         <code>data</code> will have no impact on the <code>Polyline</code>s created.
      * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
      * @param  upper Index after of the last <var>y</var> ordinate to add to the polyline.
-     * @throws IllegalStateException if this polyline has already been closed.
      * @throws TransformException if <code>points</code> contains points that are invalid
      *         for this polyline's native coordinate system.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
+     * @throws IllegalStateException if this polyline has already been closed.
      */
     public synchronized void append(final float[] points, final int lower, final int upper)
-            throws TransformException
+            throws TransformException, IllegalStateException
     {
         if (points != null) {
             final Polyline[] polylines = getInstances(points, lower, upper, getCoordinateSystem());
@@ -691,19 +713,26 @@ public class Polyline extends Geometry {
      * @param  toAppend <code>Polyline</code> to add to the end of <code>this</code>.
      *         The polyline <code>toAppend</code> will not be modified.
      * @throws IllegalStateException if this polyline has already been closed.
-     * @throws IllegalArgumentException if the polyline <code>toAppend</code> has already been closed.
      * @throws TransformException if <code>toAppend</code> contains points that are invalid
      *         for this polyline's native coordinate system.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
+     * @throws IllegalArgumentException if the polyline <code>toAppend</code> has already been closed.
      */
-    public synchronized void append(final Polyline toAppend) throws TransformException {
+    public synchronized void append(final Polyline toAppend)
+            throws TransformException, IllegalStateException
+    {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
+        if (isClosed || toAppend.isClosed) {
+            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
+        }
         if (toAppend == null) {
             return;
         }
         if (!equivalents(getInternalCS(), toAppend.getInternalCS())) {
             throw new TransformException("Transformation not yet implemented"); // TODO.
-        }
-        if (isClosed || toAppend.isClosed) {
-            throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
         }
         data = LineString.append(data, LineString.clone(toAppend.data));
         if (dataBounds != null) {
@@ -733,9 +762,9 @@ public class Polyline extends Geometry {
      * Reverse point order in this polyline.
      */
     public synchronized void reverse() {
-        data = LineString.reverse(data);
+        data      = LineString.reverse(data);
         flattened = checkFlattenedShape();
-        cache = null;
+        cache     = null;
     }
     
     /**
@@ -769,11 +798,10 @@ public class Polyline extends Geometry {
     }
 
     /**
-     * Close and freeze this polyline. After closing it,
-     * no more points can be added to this polyline.
+     * Close this polyline. After closing it, no more points can be added to this polyline.
      */
     public synchronized void close() {
-        data = LineString.freeze(data, true, null);
+        data      = LineString.freeze(data, true, null);
         flattened = checkFlattenedShape();
         isClosed  = true;
         cache     = null;
@@ -803,8 +831,23 @@ public class Polyline extends Geometry {
      *
      * @see #getPointCount
      */
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
+        if (!frozen) {
+            // synchronize only if the shape is mutable.
+            synchronized (this) {
+                return LineString.isEmpty(data);
+            }
+        }
         return LineString.isEmpty(data);
+    }
+
+    /**
+     * Add to the specified collection all {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
+     * and {@link PolygonAssembler} only.
+     */
+    void getPolylines(final Collection polylines) {
+        polylines.add(this);
     }
 
     /**
@@ -826,12 +869,12 @@ public class Polyline extends Geometry {
      * value. A positive value means that the cache has been reused. A negative value means
      * that the cache has been flushed and recomputed.
      */
-    public synchronized int getCachedPointCount() {
+    public int getCachedPointCount() {
+        final PolylineCache cache = this.cache;
         if (cache == null) {
             return 0;
         }
-        final int n = cache.getPointCount();
-        return cache.recomputed() ? -n : n;
+        return cache.getPointCount();
     }
 
     /**
@@ -845,7 +888,13 @@ public class Polyline extends Geometry {
      * @see #getLastPoints
      * @see #toArray
      */
-    public synchronized int getPointCount() {
+    public int getPointCount() {
+        if (!frozen) {
+            // synchronize only if the shape is mutable.
+            synchronized (this) {
+                return LineString.getPointCount(data);
+            }
+        }
         return LineString.getPointCount(data);
     }
 
@@ -881,7 +930,7 @@ public class Polyline extends Geometry {
     final LineString.Iterator iterator(final CoordinateSystem cs)
             throws CannotCreateTransformException
     {
-        assert Thread.holdsLock(this);
+        assert frozen || Thread.holdsLock(this) : frozen;
         return new LineString.Iterator(data, getMathTransform2D(getTransformationFromInternalCS(cs)));
     }
 
@@ -1003,7 +1052,13 @@ public class Polyline extends Geometry {
      * @return A bounding box of this polyline. Changes to the
      *         fields of this rectangle will not affect the cache.
      */
-    public synchronized Rectangle2D getBounds2D() {
+    public Rectangle2D getBounds2D() {
+        if (!frozen) {
+            // synchronize only if the shape is mutable.
+            synchronized (this) {
+                return getCachedBounds();
+            }
+        }
         return getCachedBounds(); // Immutable instance
     }
 
@@ -1034,7 +1089,7 @@ public class Polyline extends Geometry {
      * Return the bounding box of this polyline.
      */
     private Rectangle2D getCachedBounds() {
-        assert Thread.holdsLock(this);
+        assert frozen || Thread.holdsLock(this) : frozen;
         if (bounds == null) {
             bounds = new UnmodifiableRectangle(getBounds(data, coordinateTransform));
             if (isIdentity(coordinateTransform)) {
@@ -1498,7 +1553,7 @@ public class Polyline extends Geometry {
      *         the inside of this polyline.
      */
     private boolean intersects(final Polyline shape, final boolean checkEdgeOnly) {
-        assert Thread.holdsLock(this);
+        assert frozen || Thread.holdsLock(this) : frozen;
         try {
             final CoordinateSystem coordinateSystem = getInternalCS();
             if (getDataBounds().intersects(shape.getCachedBounds(coordinateSystem))) {
@@ -1587,8 +1642,15 @@ public class Polyline extends Geometry {
      *         may actually increase memory usage since the two polylines will no longer
      *         share their data.
      * @throws TransformException If an error has come up during a cartographic projection.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized float compress(final CompressionLevel level) throws TransformException {
+    public synchronized float compress(final CompressionLevel level)
+            throws TransformException, UnmodifiableGeometryException
+    {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         final long memoryUsage = getMemoryUsage();
         if (CompressionLevel.RELATIVE_AS_BYTES.equals(level)) {
             final Statistics stats = LineString.getResolution(data, coordinateTransform);
@@ -1598,10 +1660,11 @@ public class Polyline extends Geometry {
                 final double  resolution = mean + 0.5*standardDev;
                 if (resolution > 0) {
                     /*
-                     * Do not resample if at least 97.7% of coordinate points fits in
-                     * the [-128...+128] range (assuming a gaussian distribution).
+                     * Do not resample if at least 84% of coordinate points will use more
+                     * than half of the available range ([-64..+64] for byte values),
+                     * assuming a gaussian distribution.
                      */
-                    if (standardDev > mean/256) {
+                    if ((mean-standardDev)/stats.maximum() < 0.5) {
                         setResolution(resolution);
                     }
                 }
@@ -1646,8 +1709,15 @@ public class Polyline extends Geometry {
      * @param  resolution Desired resolution, in the same units as {@link #getResolution}.
      * @throws TransformException If some coordinate transformations were needed and failed.
      *         There is no guarantee on polyline's state in case of failure.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized void setResolution(final double resolution) throws TransformException {
+    public synchronized void setResolution(final double resolution)
+            throws TransformException, UnmodifiableGeometryException
+    {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
         CoordinateSystem targetCS = getCoordinateSystem();
         if (CTSUtilities.getHeadGeoEllipsoid(targetCS) != null) {
             /*
@@ -1695,7 +1765,7 @@ public class Polyline extends Geometry {
      * @param resolution The resolution to use at rendering time, in units of this polyline's
      *        {@linkplain #getCoordinateSystem coordinate system} (linear or angular units).
      */
-    public synchronized void setRenderingResolution(final float resolution) {
+    public void setRenderingResolution(final float resolution) {
         if (!Float.isNaN(resolution) && resolution!=renderingResolution) {
             cache = null;
             renderingResolution = resolution;
@@ -1733,7 +1803,7 @@ public class Polyline extends Geometry {
      * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
-    private boolean checkFlattenedShape() {
+    boolean checkFlattenedShape() {
         return coordinateTransform==null ||
                coordinateTransform.getMathTransform()==null ||
                !LineString.hasBorder(data);
@@ -1764,12 +1834,10 @@ public class Polyline extends Geometry {
      * @param  resolution The minimum distance desired between points, in linear or angular units.
      */
     final void toArray(final ArrayData dest, float resolution) {
-        assert Thread.holdsLock(this);
+        assert frozen || Thread.holdsLock(this) : frozen;
         try {
             /*
              * Transform the resolution from this polyline's CS to the underlying data CS.
-             * TODO: we should use 'MathTransform.derivative' instead, but it is not yet
-             *       implemented for most transforms.
              */
             if (coordinateTransform != null) {
                 final MathTransform tr = coordinateTransform.getMathTransform();
@@ -1778,15 +1846,18 @@ public class Polyline extends Geometry {
                     final double  centerX = bounds.getCenterX();
                     final double  centerY = bounds.getCenterY();
                     final double[] coords = new double[] {
-                        centerX-resolution, centerY,
-                        centerX+resolution, centerY,
-                        centerX,            centerY-resolution,
-                        centerX,            centerY+resolution
+                        bounds.getMinX(), centerY,
+                        bounds.getMaxX(), centerY,
+                        centerX,          bounds.getMinY(),
+                        centerX,          bounds.getMaxY()
                     };
                     tr.inverse().transform(coords, 0, coords, 0, coords.length/2);
-                    resolution = (float) (0.25*(
-                                          XMath.hypot(coords[2]-coords[0], coords[3]-coords[1]) +
-                                          XMath.hypot(coords[6]-coords[4], coords[7]-coords[5])));
+                    double t;
+                    double scaleX = (t=coords[2]-coords[0])*t + (t=coords[3]-coords[1])*t;
+                    double scaleY = (t=coords[6]-coords[4])*t + (t=coords[7]-coords[5])*t;
+                    scaleX /= (t=bounds.getWidth ())*t;
+                    scaleY /= (t=bounds.getHeight())*t;
+                    resolution *= Math.sqrt(scaleX + scaleY);
                 }
             }
             /*
@@ -1850,82 +1921,6 @@ public class Polyline extends Geometry {
     }
 
     /**
-     * Returns a hash value for this polyline.
-     */
-    public synchronized int hashCode() {
-        return LineString.hashCode(data);
-    }
-
-    /**
-     * Compare the specified object with this polyline for equality.
-     */
-    public synchronized boolean equals(final Object object) {
-        if (object == this) {
-            // Slight optimization
-            return true;
-        }
-        if (object!=null && object.getClass().equals(getClass())) {
-            final Polyline that = (Polyline) object;
-            return                  this.isClosed        ==   that.isClosed             &&
-                   Utilities.equals(this.coordinateTransform, that.coordinateTransform) &&
-                  LineString.equals(this.data,                that.data);
-        }
-        return false;
-    }
-
-    /**
-     * Return a clone of this polyline. The clone has a deep copy semantic,
-     * i.e. any change to the current polyline (including adding new points)
-     * will not affect the clone,  and vice-versa   (any change to the clone
-     * will not affect the current polyline). However, the two polylines will
-     * share many internal structures in such a way that memory consumption
-     * for polyline's clones should be kept low.
-     */
-    public synchronized Object clone() {
-        final Polyline polyline = (Polyline) super.clone();
-        polyline.data = LineString.clone(data); // Take an immutable view of 'data'.
-        return polyline;
-    }
-
-    /**
-     * Clears all information that was kept in an internal cache.
-     * This method can be called when we know that this polyline will no longer be used
-     * before a long time. It does not cause the loss of any information but will make
-     * the next use of this polyline slower (the time during which the internal caches
-     * are reconstructed, after which the polyline will resume its normal speed).
-     */
-    final synchronized void clearCache() {
-        cache      = null;
-        bounds     = null;
-        dataBounds = null;
-        flattened  = checkFlattenedShape();
-        super.clearCache();
-    }
-
-    /**
-     * Invoked during deserialization.
-     */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        flattened = checkFlattenedShape(); // Reasonably fast to compute.
-    }
-
-    /**
-     * Method called when an unexpected error has occurred.
-     *
-     * @param  method Name of the method in which the exception has occurred.
-     * @param  exception The exception which has occurred.
-     * @throws IllegalPathStateException systematically rethrown.
-     */
-    static void unexpectedException(final String method, final TransformException exception) {
-        LineString.unexpectedException("Polyline", method, exception);
-        final IllegalPathStateException e = new IllegalPathStateException(
-                                                exception.getLocalizedMessage());
-        e.initCause(exception);
-        throw e;
-    }
-
-    /**
      * Write all point coordinates to the specified stream.
      * This method is useful for debugging purposes.
      *
@@ -1933,7 +1928,7 @@ public class Polyline extends Geometry {
      * @param  locale Desired locale, or <code>null</code> for a default one.
      * @throws IOException If an error occured while writing to the destination stream.
      */
-    public void print(final Writer out, final Locale locale) throws IOException {
+    public synchronized void print(final Writer out, final Locale locale) throws IOException {
         print(new String[]{getName(locale)}, new Collection[]{getPoints()}, out, locale);
     }
 
@@ -2032,5 +2027,113 @@ public class Polyline extends Geometry {
             buffer.append(lineSeparator);
             out.write(buffer.toString());
         } while (hasNext);
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////           C L O N E   /   E Q U A L S   /   H A S H C O D E           ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Freeze this polyline. Once this method is invoked, no more points can
+     * be added to the polyline and the coordinate system can't be changed.
+     */
+    final void freeze() {
+        frozen = true;
+    }
+
+    /**
+     * Returns <code>true</code> if we are not allowed to change this polyline.
+     */
+    final boolean isFrozen() {
+        return frozen;
+    }
+
+    /**
+     * Return a clone of this polyline. The clone has a deep copy semantic,
+     * i.e. any change to the current polyline (including adding new points)
+     * will not affect the clone,  and vice-versa   (any change to the clone
+     * will not affect the current polyline). However, the two polylines will
+     * share many internal structures in such a way that memory consumption
+     * for polyline's clones should be kept low.
+     */
+    public synchronized Object clone() {
+        final Polyline polyline = (Polyline) super.clone();
+        polyline.data = LineString.clone(data); // Take an immutable view of 'data'.
+        polyline.frozen = false;
+        return polyline;
+    }
+
+    /**
+     * Compare the specified object with this polyline for equality.
+     */
+    public synchronized boolean equals(final Object object) {
+        if (object == this) {
+            // Slight optimization
+            return true;
+        }
+        if (super.equals(object)) {
+            final Polyline that = (Polyline) object;
+            return                  this.isClosed        ==   that.isClosed             &&
+                   Utilities.equals(this.coordinateTransform, that.coordinateTransform) &&
+                  LineString.equals(this.data,                that.data);
+        }
+        return false;
+    }
+
+    /**
+     * Returns a hash value for this polyline.
+     */
+    public int hashCode() {
+        if (!frozen) {
+            // synchronize only if the shape is mutable.
+            synchronized (this) {
+                return LineString.hashCode(data);
+            }
+        }
+        return LineString.hashCode(data);
+    }
+
+    /**
+     * Clears all information that was kept in an internal cache.
+     * This method can be called when we know that this polyline will no longer be used
+     * before a long time. It does not cause the loss of any information but will make
+     * the next use of this polyline slower (the time during which the internal caches
+     * are reconstructed, after which the polyline will resume its normal speed).
+     */
+    synchronized void clearCache() {
+        cache      = null;
+        bounds     = null;
+        dataBounds = null;
+        flattened  = checkFlattenedShape();
+        super.clearCache();
+    }
+
+    /**
+     * Invoked during deserialization.
+     */
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        flattened = checkFlattenedShape(); // Reasonably fast to compute.
+    }
+
+    /**
+     * Method called when an unexpected error has occurred.
+     *
+     * @param  method Name of the method in which the exception has occurred.
+     * @param  exception The exception which has occurred.
+     * @throws IllegalPathStateException systematically rethrown.
+     */
+    static void unexpectedException(final String method, final TransformException exception) {
+        final IllegalPathStateException e = new IllegalPathStateException(
+                                                exception.getLocalizedMessage());
+        e.initCause(exception);
+        throw e;
     }
 }

@@ -60,6 +60,7 @@ import org.geotools.math.Statistics;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.units.UnitException;
 import org.geotools.renderer.geom.Clipper;
 import org.geotools.renderer.geom.Polyline;
 import org.geotools.renderer.geom.Geometry;
@@ -77,7 +78,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.4 2003/05/30 18:20:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -202,7 +203,7 @@ public class RenderedGeometries extends RenderedLayer {
             }
             this.geometry = geometry;
             clearCache();
-            updatePreferences();
+            updatePreferences(false);
         }
         listeners.firePropertyChange("geometry", oldGeometry, geometry);
     }
@@ -221,41 +222,46 @@ public class RenderedGeometries extends RenderedLayer {
             }
             super.setCoordinateSystem(cs);
             clearCache();
-            updatePreferences();
+            updatePreferences(false);
         }
     }
  
     /**
      * Compute the preferred area and the preferred pixel size.
+     *
+     * @param updateResolution <code>true</code> for updating the {@link #preferredPixelSize}
+     *        property as well.
      */
-    private void updatePreferences() {
+    private void updatePreferences(final boolean updateResolution) {
         assert Thread.holdsLock(getTreeLock());
+        preferredArea = null;
+        preferredPixelSize = null;
         if (geometry == null) {
-            preferredArea = null;
-            preferredPixelSize = null;
             return;
         }
-        final Rectangle2D  bounds = geometry.getBounds2D();
-        final Statistics resStats = geometry.getResolution();
-        if (resStats != null) {
-            final double dx,dy;
-            final double resolution = resStats.mean();
-            Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometry.getCoordinateSystem());
-            if (ellipsoid != null) {
-                // Transforms the resolution into a pixel size in the middle of 'bounds'.
-                // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
-                //       For the inverse of "real" radius, we would have to swap sin and cos.
-                final double   y = Math.toRadians(bounds.getCenterY());
-                final double sin = Math.sin(y);
-                final double cos = Math.cos(y);
-                final double   r = XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
-                                               cos/ellipsoid.getSemiMinorAxis());
-                dy = Math.toDegrees(resolution*r);
-                dx = dy*cos;
-            } else {
-                dx = dy = resolution;
+        final Rectangle2D bounds = geometry.getBounds2D();
+        if (updateResolution) {
+            final Statistics resStats = geometry.getResolution();
+            if (resStats != null) {
+                final double dx,dy;
+                final double resolution = resStats.mean();
+                Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometry.getCoordinateSystem());
+                if (ellipsoid != null) {
+                    // Transforms the resolution into a pixel size in the middle of 'bounds'.
+                    // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
+                    //       For the inverse of "real" radius, we would have to swap sin and cos.
+                    final double   y = Math.toRadians(bounds.getCenterY());
+                    final double sin = Math.sin(y);
+                    final double cos = Math.cos(y);
+                    final double   r = XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
+                                                   cos/ellipsoid.getSemiMinorAxis());
+                    dy = Math.toDegrees(resolution*r);
+                    dx = dy*cos;
+                } else {
+                    dx = dy = resolution;
+                }
+                preferredPixelSize = new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy);
             }
-            preferredPixelSize = new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy);
         }
         preferredArea = bounds;
     }
@@ -314,6 +320,9 @@ public class RenderedGeometries extends RenderedLayer {
             if (size != null) {
                 return size;
             }
+            if (preferredPixelSize == null) {
+                updatePreferences(true);
+            }
             return (preferredPixelSize!=null) ? (Dimension2D) preferredPixelSize.clone() : null;
         }
     }
@@ -333,7 +342,25 @@ public class RenderedGeometries extends RenderedLayer {
             return Float.isNaN(z) ? 0 : z;
         }
     }
-        
+
+    /**
+     * Gets the style from a geometry object, or <code>null</code> if none. If the geometry style
+     * is not an instance of of {@link Style2D} (for example if it came from a renderer targeting
+     * an other output device), set it to <code>null</code> in order to lets the garbage collector
+     * do its work. It will not hurt the foreigner rendering device, since the constructor cloned
+     * the geometries.
+     */
+    private static Style2D getStyle(final Geometry geometry, final Style2D fallback) {
+        final Style style = geometry.getStyle();
+        if (style != null) {
+            if (style instanceof Style2D) {
+                return (Style2D) style;
+            }
+            geometry.setStyle(null);
+        }
+        return fallback;
+    }
+
     /**
      * Invoked automatically when a polyline is about to be draw. The default implementation
      * draw or fill the polyline according the current {@linkplain #getForeground foreground}
@@ -376,35 +403,16 @@ public class RenderedGeometries extends RenderedLayer {
         for (final Iterator it=polylines.iterator(); it.hasNext();) {
             final Geometry geometry = (Geometry)it.next();
             if (clip.intersects(geometry.getBounds2D())) {
-                /*
-                 * Gets the style from the geometry object, or set it to the default style if the
-                 * geometry doesn't have a style. If the geometry style is not an instance of
-                 * {@link Style2D} (for example if it came from a renderer targeting an other
-                 * output device), set it to <code>null</code> in order to lets the garbage
-                 * collector do its work. It will not hurt the foreigner rendering device,
-                 * since the constructor cloned the geometries.
-                 */
-                final Style2D style;
-                final Style candidate = geometry.getStyle();
-                if (candidate instanceof Style2D) {
-                    style = (Style2D) candidate;
-                } else {
-                    geometry.setStyle(null);
-                    style = defaultStyle;
-                }
-                /*
-                 * Set the rendering resolution and paint the geometry, which mean invokes
-                 * this method recursively if the geometry is an other collection.
-                 */
-                float resolution = geometry.getRenderingResolution();
-                if (!(resolution>=minResolution && resolution<=maxResolution)) {
-                    resolution = (minResolution + maxResolution)/2;
-                    geometry.setRenderingResolution(resolution);
-                }
+                final Style2D style = getStyle(geometry, defaultStyle);
                 if (geometry instanceof GeometryCollection) {
                     paint(graphics, clip, minResolution, maxResolution,
                           (GeometryCollection)geometry, style);
                 } else {
+                    float resolution = geometry.getRenderingResolution();
+                    if (!(resolution>=minResolution && resolution<=maxResolution)) {
+                        resolution = (minResolution + maxResolution)/2;
+                        geometry.setRenderingResolution(resolution);
+                    }
                     paint(graphics, geometry, style);
                     if (loggable && geometry instanceof Polyline) {
                         final int numPts = ((Polyline)geometry).getCachedPointCount();
@@ -475,10 +483,11 @@ public class RenderedGeometries extends RenderedLayer {
                  * statistics purpose only, usually for logging.
                  */
                 if (renderer.statistics.isLoggable()) {
+                    Unit unit;
+                    final Unit xUnit = geometryCS.getUnits(0);
+                    final Unit yUnit = geometryCS.getUnits(1);
                     final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometryCS);
                     if (ellipsoid != null) {
-                        final Unit xUnit = geometryCS.getUnits(0);
-                        final Unit yUnit = geometryCS.getUnits(1);
                         final double R2I = 0.70710678118654752440084436210485; // sqrt(0.5)
                         final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
                         final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
@@ -486,18 +495,23 @@ public class RenderedGeometries extends RenderedLayer {
                         final double  dy = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleY0(tr), yUnit);
                         assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
                         assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
-                        r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy) / r;
-                    } else {
-                        r = 1;
+                        r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy) / (r*1000);
+                        unit = Unit.KILOMETRE;
+                    } else try {
+                        unit = Unit.KILOMETRE;
+                        r = XMath.hypot(unit.convert(1, xUnit), unit.convert(1, yUnit));
+                    } catch (UnitException exception) {
+                        r = 1; // Not a linear unit. Not a big deal, since it is just for logging.
+                        unit = xUnit;
                     }
-                    renderer.statistics.setResolutionScale(r);
+                    renderer.statistics.setResolutionScale(r, unit);
                 }
                 /*
                  * Now recursively draw all polylines. If polyline's rendering resolution
                  * is not in current bounds, then a new rendering resolution will be set,
                  * which will probably flush the cache.
                  */
-                paint(graphics, clip, minResolution, maxResolution, toDraw, null);
+                paint(graphics, clip, minResolution, maxResolution, toDraw, getStyle(toDraw, null));
             }
             graphics.setStroke(oldStroke);
             graphics.setPaint (oldPaint);

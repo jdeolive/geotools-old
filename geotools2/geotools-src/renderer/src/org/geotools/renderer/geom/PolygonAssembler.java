@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.awt.geom.Line2D;
@@ -92,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.7 2003/05/30 18:20:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -220,6 +221,15 @@ final class PolygonAssembler implements Comparator {
     ///////////////////////////////////////////////////////////////////
 
     /**
+     * Returns all {@link Polylines} objects in the given geometry.
+     */
+    private static Collection getPolylines(final org.geotools.renderer.geom.Geometry geometry) {
+        final Set set = new LinkedHashSet();
+        geometry.getPolylines(set);
+        return set;
+    }
+
+    /**
      * Set the next collection to process. This method must be invoked first, before any
      * processing. It is legal to invoke this method with the current collection (i.e.
      * {@link #collection}); it will update internal fields according the current state
@@ -235,7 +245,7 @@ final class PolygonAssembler implements Comparator {
             this.collection = collection;
         }
         this.ellipsoid = CTSUtilities.getHeadGeoEllipsoid(collection.getCoordinateSystem());
-        final Collection set = collection.getPolylines();
+        final Collection set = getPolylines(collection);
         polylines = (Polyline[]) XArray.resize(set.toArray(polylines), set.size());
         collection.removeAll();
     }
@@ -1305,7 +1315,7 @@ final class PolygonAssembler implements Comparator {
                  * On recherchera maintenant le polygone qui se termine le plus
                  * près de cette bordure.
                  */
-                final Iterator iterator = otherIsoline.getPolylines().iterator();
+                final Iterator iterator = getPolylines(otherIsoline).iterator();
                 while (iterator.hasNext()) {
                     final Polyline jPath=(Polyline) iterator.next();
                     boolean first = true;

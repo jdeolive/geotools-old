@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -142,9 +142,9 @@ public class GeometryCollection extends Geometry implements Comparable {
     private int count;
 
     /**
-     * Immutable list of {@link Polyline} objects. Cached for faster rendering.
+     * View of {@link #geometries} as an immutable collection.
      */
-    private transient List polylines;
+    private transient Collection asCollection;
 
     /**
      * Rectangle completely enclosing this collection. This rectangle is 
@@ -211,7 +211,7 @@ public class GeometryCollection extends Geometry implements Comparable {
         this.value            = geometry.value;
         this.count            = geometry.count;
         this.bounds           = geometry.bounds;
-        this.polylines        = geometry.polylines;
+        this.asCollection     = geometry.asCollection;
         this.geometries       = new Geometry[count];
         for (int i=0; i<count; i++) {
             geometries[i] = (Geometry) geometry.geometries[i].clone();
@@ -306,14 +306,31 @@ public class GeometryCollection extends Geometry implements Comparable {
             return;
         }
         final Geometry[] projected = getModifiableGeometries();
-        for (int i=0; i<count; i++) {
-            projected[i].setCoordinateSystem(coordinateSystem);
+        int i=count;
+        try {
+            while (--i >= 0) {
+                projected[i].setCoordinateSystem(coordinateSystem);
+            }
+        } catch (TransformException exception) {
+            /*
+             * If a map projection failed, roll back to the original coordinate system.
+             */
+            while (++i < count) {
+                if (projected[i] == geometries[i]) try {
+                    projected[i].setCoordinateSystem(oldCoordinateSystem);
+                } catch (TransformException unexpected) {
+                    // Should not happen, since the old coordinate system is supposed to be ok.
+                    LineString.unexpectedException(Utilities.getShortClassName(projected[i]),
+                                                   "setCoordinateSystem", unexpected);
+                }
+            }
+            throw exception;
         }
         this.coordinateSystem = coordinateSystem;
         this.geometries       = projected;
         this.bounds           = null;
         this.resolution       = null;
-        this.polylines        = null;
+        this.asCollection     = null;
         this.flattened        = checkFlattenedShape();
     }
 
@@ -388,11 +405,13 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
      *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized void add(final Geometry toAdd)
+    public synchronized void add(Geometry toAdd)
             throws TransformException, UnmodifiableGeometryException
     {
         if (toAdd != null) {
-            toAdd.freeze();
+            if (toAdd.isFrozen()) {
+                toAdd = (Geometry) toAdd.clone();
+            }
             if (coordinateSystem != null) {
                 toAdd.setCoordinateSystem(coordinateSystem);
             } else {
@@ -401,6 +420,7 @@ public class GeometryCollection extends Geometry implements Comparable {
                     setCoordinateSystem(coordinateSystem);
                 }
             }
+            toAdd.freeze();
             addImpl(toAdd);
         }
     }
@@ -425,8 +445,8 @@ public class GeometryCollection extends Geometry implements Comparable {
                 geometries = (Geometry[])XArray.resize(geometries, count+Math.min(count, 256));
             }
             geometries[count++] = toAdd;
-            bounds    = null;
-            polylines = null;
+            bounds              = null;
+            asCollection        = null;
             if (flattened) {
                 // May changes from 'true' to 'false'.
                 flattened = checkFlattenedShape();
@@ -443,7 +463,8 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
      *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized boolean remove(final Geometry toRemove) throws UnmodifiableGeometryException
+    public synchronized boolean remove(final Geometry toRemove)
+            throws UnmodifiableGeometryException
     {
         if (frozen) {
             throw new UnmodifiableGeometryException((Locale)null);
@@ -464,8 +485,8 @@ public class GeometryCollection extends Geometry implements Comparable {
      */
     private void remove(final int index) {
         assert Thread.holdsLock(this) && !frozen : frozen;
-        bounds    = null;
-        polylines = null;
+        bounds       = null;
+        asCollection = null;
         System.arraycopy(geometries, index+1, geometries, index, count-(index+1));
         geometries[--count] = null;
         if (!flattened) {
@@ -559,6 +580,7 @@ public class GeometryCollection extends Geometry implements Comparable {
         }
         final PolygonAssembler assembler = new PolygonAssembler(mapBounds, progress);
         assembler.assemble(this, toComplete);
+        clearCache();
     }
 
     /**
@@ -589,13 +611,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @return <code>null</code> if this geometry doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped geometry otherwise.
      */
-    public Geometry clip(final Clipper clipper) {
-        // Synchronize only if the geometry is mutable.
-        if (!frozen && !Thread.holdsLock(this)) {
-            synchronized (this) {
-                return clip(clipper);
-            }
-        }
+    public synchronized Geometry clip(final Clipper clipper) {
         Geometry[] clips = new Geometry[count];
         int    clipCount = 0;
         boolean  changed = false;
@@ -669,42 +685,19 @@ public class GeometryCollection extends Geometry implements Comparable {
     }
 
     /**
-     * Returns the list of polylines. <code>GeometryCollection</code>
-     * objects are expanded into their {@link Polyline} elements. This
-     * method is used by {@link #getPathIterator}.
-     *
-     * @param  list The list to fill.
+     * Add to the specified collection all {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
+     * and {@link PolygonAssembler} only.
      */
-    private void getPolylines(final List list) {
-        assert frozen || Thread.holdsLock(this) : frozen;
-        for (int i=count; --i>=0;) {
-            final Geometry geometry = geometries[i];
-            if (geometry instanceof Polyline) {
-                list.add((Polyline) geometry);
-            } else if (geometry instanceof GeometryCollection) {
-                ((GeometryCollection) geometry).getPolylines(list);
-            }
+    synchronized void getPolylines(final Collection polylines) {
+        for (int i=0; i<count; i++) {
+            geometries[i].getPolylines(polylines);
         }
-    }
-
-    /**
-     * Returns the list of polylines in this collection and in all children
-     * <code>GeometryCollection</code> instances. This list is usefull for
-     * rendering.
-     */
-    final synchronized List getPolylines() {
-        if (polylines == null) {
-            final ArrayList list = new ArrayList(count);
-            getPolylines(list);
-            list.trimToSize();
-            polylines = Collections.unmodifiableList(list);
-        }
-        return polylines;
     }
 
     /**
      * Returns a copy of {@link #geometries} with modifiable geometries.
-     * All frozen geometries will have been cloned.
+     * All frozen geometries will have be cloned.
      */
     private Geometry[] getModifiableGeometries() {
         assert Thread.holdsLock(this);
@@ -726,36 +719,32 @@ public class GeometryCollection extends Geometry implements Comparable {
     }
 
     /**
-     * Returns the collection of {@link Geometry} objects. The collection will contains geometries
-     * in the reverse order, i.e. geometries {@linkplain #add(Geometry) added} last will be
-     * returned first. This convention make it easier to find the smallest visible feature
-     * (for example an island draw in a lake) which contains a given point. For example:
-     *
-     * <blockquote><pre>
-     * &nbsp;public Geometry getSmallestIslandAt(double x, double y) {
-     * &nbsp;    final Iterator it = collection.getGeometries().iterator();
-     * &nbsp;    while (it.hasNext()) {
-     * &nbsp;        final Geometry island=(Geometry) it.next();
-     * &nbsp;        if (island.contains(x,y)) {
-     * &nbsp;            return island;
-     * &nbsp;        }
-     * &nbsp;    }
-     * &nbsp;    return null;
-     * &nbsp;}
-     * </pre></blockquote>
+     * Returns the collection of {@link Geometry} objects. The collection will
+     * contains geometries in the order they were {@linkplain #add(Geometry) added}.
      *
      * @return A collection of {@link Geometry} objects.
      */
     public synchronized Collection getGeometries() {
-        // The 'Filtered' implementation uses a lazy iterator which
-        // will clone the geometries only when first required.
-        return new Filtered(this);
+        if (asCollection == null) {
+            trimToSize();
+            if (count == 0) {
+                asCollection = Collections.EMPTY_LIST;
+            } else {
+                for (int i=0; i<count; i++) {
+                    geometries[i].freeze();
+                }
+                asCollection = Collections.unmodifiableList(Arrays.asList(geometries));
+            }
+        }
+        return asCollection;
     }
 
     /**
      * Returns the collection of geometries containing the specified point.
      * The collection will contains geometries in the reverse order, i.e.
      * geometries {@linkplain #add(Geometry) added} last will be returned first.
+     * This convention make it easier to find the smallest geometry contained in
+     * bigger geometry.
      *
      * @param  point The coordinates to look at in this
      *               {@linkplain #getCoordinateSystem geometry's coordinate system}.
@@ -776,11 +765,13 @@ public class GeometryCollection extends Geometry implements Comparable {
      * Returns the collection of geometries containing the specified shape.
      * The collection will contains geometries in the reverse order, i.e.
      * geometries {@linkplain #add(Geometry) added} last will be returned first.
+     * This convention make it easier to find the smallest geometry contained in
+     * bigger geometry.
      *
      * @param  shape A shape with coordinates expressed according to {@link #getCoordinateSystem}.
      * @return The collection of geometries containing the specified shape.
      */
-    public Collection getGeometriesContaining(final Shape shape) {
+    public synchronized Collection getGeometriesContaining(final Shape shape) {
         if (shape.intersects(getCachedBounds())) {
             return new Filtered(this) {
                 protected boolean accept(final Geometry geometry) {
@@ -795,11 +786,13 @@ public class GeometryCollection extends Geometry implements Comparable {
      * Returns the collection of geometries intersecting the specified shape.
      * The collection will contains geometries in the reverse order, i.e.
      * geometries {@linkplain #add(Geometry) added} last will be returned first.
+     * This convention make it easier to find the smallest geometry contained in
+     * bigger geometry.
      *
      * @param  shape A shape with coordinates expressed according to {@link #getCoordinateSystem}.
      * @return The collection of geometries intersecting the specified shape.
      */
-    public Collection getGeometriesIntersecting(final Shape shape) {
+    public synchronized Collection getGeometriesIntersecting(final Shape shape) {
         if (shape.intersects(getCachedBounds())) {
             return new Filtered(this) {
                 protected boolean accept(final Geometry geometry) {
@@ -927,7 +920,13 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @return A bounding box of this geometry. Changes to this rectangle
      *         will not affect the cache.
      */
-    public synchronized Rectangle2D getBounds2D() {
+    public Rectangle2D getBounds2D() {
+        if (!frozen) {
+            // synchronize only if the shape is mutable.
+            synchronized (this) {
+                return getCachedBounds();
+            }
+        }
         return getCachedBounds(); // Immutable instance
     }
 
@@ -1040,6 +1039,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * Trim the {@link #geometries} array to its minimal size.
      */
     private void trimToSize() {
+        assert Thread.holdsLock(this);
         geometries = (Geometry[]) XArray.resize(geometries, count);
     }
 
@@ -1058,11 +1058,19 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @return A <em>estimation</em> of the compression rate. For example a value of 0.2
      *         means that the new polygon uses <em>approximately</em> 20% less memory.
      * @throws TransformException If an error has occurred during a cartographic projection.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized float compress(final CompressionLevel level) throws TransformException {
-        bounds    = null;
-        polylines = null;
+    public synchronized float compress(final CompressionLevel level)
+            throws TransformException, UnmodifiableGeometryException
+    {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
+        bounds       = null;
+        asCollection = null;
         int newCount = 0;
+        geometries   = getModifiableGeometries();
         final long memoryUsage = getMemoryUsage();
         for (int i=0; i<count; i++) {
             final Geometry polygon = geometries[i];
@@ -1106,10 +1114,18 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @param  resolution Desired resolution, in the same units as {@link #getResolution}.
      * @throws TransformException If some coordinate transformations were needed and failed.
      *         There is no guarantee on contour's state in case of failure.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized void setResolution(final double resolution) throws TransformException {
-        bounds    = null;
-        polylines = null;
+    public synchronized void setResolution(final double resolution)
+            throws TransformException, UnmodifiableGeometryException
+    {
+        if (frozen) {
+            throw new UnmodifiableGeometryException((Locale)null);
+        }
+        bounds       = null;
+        asCollection = null;
+        geometries   = getModifiableGeometries();
         for (int i=count; --i>=0;) {
             final Geometry polygon = geometries[i];
             polygon.setResolution(resolution);
@@ -1167,8 +1183,10 @@ public class GeometryCollection extends Geometry implements Comparable {
     /**
      * Returns a path iterator for this geometry.
      */
-    public synchronized PathIterator getPathIterator(final AffineTransform transform) {
-        return new PolygonPathIterator(null, getPolylines().iterator(), transform);
+    public PathIterator getPathIterator(final AffineTransform transform) {
+        final List list = new ArrayList(count);
+        getPolylines(list);
+        return new PolygonPathIterator(null, list.iterator(), transform);
     }
 
     /**
@@ -1194,15 +1212,77 @@ public class GeometryCollection extends Geometry implements Comparable {
     }
 
     /**
-     * Returns a hash value for this geometry.
+     * Deletes all the information that was kept in an internal cache. This method can be
+     * called when we know that this geometry will no longer be used before a particular time.
+     * It does not cause the loss of any information, but will make subsequent uses of this
+     * geometry slower (the time the internal caches take to be reconstructed, after which the
+     * geometry will resume its normal speed).
      */
-    public synchronized int hashCode() {
-        int code = 0;//(int)serialVersionUID;
-        for (int i=0; i<count; i++) {
-            // Must be insensitive to order.
-            code += geometries[i].hashCode();
+    final synchronized void clearCache() {
+        bounds        = null;
+        resolution    = null;
+        asCollection  = null;
+        for (int i=count; --i>=0;) {
+            geometries[i].clearCache();
         }
-        return code;
+        flattened = checkFlattenedShape();
+        super.clearCache();
+    }
+
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////                                                                       ////////////
+    ////////////           C L O N E   /   E Q U A L S   /   H A S H C O D E           ////////////
+    ////////////                                                                       ////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Freeze this collection. Once this method is invoked, no more geometry can
+     * be added to the collection and the coordinate system can't be changed.
+     */
+    final void freeze() {
+        frozen = true;
+    }
+
+    /**
+     * Returns <code>true</code> if we are not allowed to change this collection.
+     */
+    final boolean isFrozen() {
+        return frozen;
+    }
+
+    /**
+     * Return a copy of this geometry. The clone has a deep copy semantic,
+     * but will share many internal arrays with the original geometry.
+     * This method is <code>final</code> for implementation reason.
+     */
+    public final Object clone() {
+        /*
+         * This <code>clone()</code> method needs to be final because user's implementation would be
+         * ignored, since we override <code>clone(Map)</code> in a way which do not call this method
+         * anymore. It have to call <code>super.clone()</code> instead.
+         */
+        return clone(new IdentityHashMap());
+    }
+
+    /**
+     * Return a copy of this geometry. The clone has a deep copy semantic,
+     * but will share many internal arrays with the original geometry.
+     */
+    synchronized Object clone(final Map alreadyCloned) {
+        // Note: we can't use the 'GeometryCollection(GeometryCollection)' constructor,
+        //       because the user way have subclassed this geometry.
+        final GeometryCollection geometry = (GeometryCollection) super.clone();
+        geometry.frozen = false;
+        geometry.geometries = new Geometry[count];
+        for (int i=geometry.geometries.length; --i>=0;) {
+            geometry.geometries[i] = (Geometry) geometries[i].resolveClone(alreadyCloned);
+        }
+        return geometry;
     }
 
     /**
@@ -1249,7 +1329,7 @@ public class GeometryCollection extends Geometry implements Comparable {
             // Slight optimization
             return true;
         }
-        if (object!=null && object.getClass().equals(getClass())) {
+        if (super.equals(object)) {
             final GeometryCollection that = (GeometryCollection) object;
             if (this.count==that.count && Utilities.equals(this.value, that.value)) {
                 for (int i=count; --i>=0;) {
@@ -1264,50 +1344,17 @@ public class GeometryCollection extends Geometry implements Comparable {
     }
 
     /**
-     * Return a copy of this geometry. The clone has a deep copy semantic,
-     * but will share many internal arrays with the original geometry.
-     * This method is <code>final</code> for implementation reason.
+     * Returns a hash value for this geometry.
      */
-    public final Object clone() {
-        /*
-         * This <code>clone()</code> method needs to be final because user's implementation would be
-         * ignored, since we override <code>clone(Map)</code> in a way which do not call this method
-         * anymore. It have to call <code>super.clone()</code> instead.
-         */
-        return clone(new IdentityHashMap());
-    }
-
-    /**
-     * Return a copy of this geometry. The clone has a deep copy semantic,
-     * but will share many internal arrays with the original geometry.
-     */
-    synchronized Object clone(final Map alreadyCloned) {
-        // Note: we can't use the 'GeometryCollection(GeometryCollection)' constructor,
-        //       because the user way have subclassed this geometry.
-        final GeometryCollection geometry = (GeometryCollection) super.clone();
-        geometry.geometries = new Geometry[count];
-        for (int i=geometry.geometries.length; --i>=0;) {
-            geometry.geometries[i] = (Geometry) geometries[i].resolveClone(alreadyCloned);
+    public synchronized int hashCode() {
+        // Do not take the value in account, since it
+        // is not a property protected against changes.
+        int code = (int)serialVersionUID;
+        for (int i=0; i<count; i++) {
+            // Must be insensitive to order.
+            code += geometries[i].hashCode();
         }
-        return geometry;
-    }
-
-    /**
-     * Deletes all the information that was kept in an internal cache. This method can be
-     * called when we know that this geometry will no longer be used before a particular time.
-     * It does not cause the loss of any information, but will make subsequent uses of this
-     * geometry slower (the time the internal caches take to be reconstructed, after which the
-     * geometry will resume its normal speed).
-     */
-    final synchronized void clearCache() {
-        bounds     = null;
-        resolution = null;
-        polylines  = null;
-        for (int i=count; --i>=0;) {
-            geometries[i].clearCache();
-        }
-        flattened = checkFlattenedShape();
-        super.clearCache();
+        return code;
     }
 
     /**
@@ -1332,10 +1379,10 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private static class Filtered extends AbstractCollection {
+    private static abstract class Filtered extends AbstractCollection {
         /**
          * The geometries to check. This array <strong>must</strong> be a copy of
          * {@link GeometryCollection#geometries}. It will be changed during iteration:
@@ -1363,11 +1410,8 @@ public class GeometryCollection extends Geometry implements Comparable {
 
         /**
          * Returns <code>true</code> if this collection should accept the given geometry.
-         * The default implementation returns always <code>true</code>.
          */
-        protected boolean accept(final Geometry geometry) {
-            return true;
-        }
+        protected abstract boolean accept(final Geometry geometry);
 
         /**
          * Returns the index of the next valid polygon starting at of after the specified

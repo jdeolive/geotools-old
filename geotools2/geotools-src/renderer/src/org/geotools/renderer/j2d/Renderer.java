@@ -107,7 +107,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.30 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.31 2003/05/30 18:20:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -815,7 +815,9 @@ public class Renderer implements Renderer2D {
                 // Not a big deal. Continue...
             }
         }
-        if (!Double.isInfinite(minWidth) && !Double.isInfinite(minHeight)) {
+        if (minWidth >0 && !Double.isInfinite(minWidth) &&
+            minHeight>0 && !Double.isInfinite(minHeight))
+        {
             return new XDimension2D.Double(minWidth, minHeight);
         } else {
             return null;

@@ -40,6 +40,7 @@ import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 // Geotools dependencies
+import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
@@ -51,7 +52,7 @@ import org.geotools.renderer.geom.Geometry; // For Javadoc
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.8 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.9 2003/05/30 18:20:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -100,6 +101,11 @@ final class RenderingStatistics {
     private double resolutionScale = 1;
 
     /**
+     * The resolution units.
+     */
+    private Unit units = Unit.DIMENSIONLESS;
+
+    /**
      * Default constructor.
      */
     public RenderingStatistics() {
@@ -112,6 +118,7 @@ final class RenderingStatistics {
         loggable        = Renderer.LOGGER.isLoggable(LEVEL);
         time            = System.currentTimeMillis();
         recomputed      = rendered = total = 0;
+        units           = Unit.DIMENSIONLESS;
         resolution      = 0;
         resolutionScale = 1;
     }
@@ -123,8 +130,9 @@ final class RenderingStatistics {
      * Of course, this is only a very approximative transformation, since real transformations
      * are not linears.
      */
-    final void setResolutionScale(final double scale) {
+    final void setResolutionScale(final double scale, final Unit units) {
         resolutionScale = scale;
+        this.units      = units;
     }
 
     /**
@@ -170,10 +178,10 @@ final class RenderingStatistics {
                 record = new LogRecord(LEVEL,
                          resources.getString(ResourceKeys.PAINTING_$2, name, time) +
                          System.getProperty("line.separator", "\n") +
-                         resources.getString(ResourceKeys.POLYGON_CACHE_USE_$3,
+                         resources.getString(ResourceKeys.POLYGON_CACHE_USE_$4,
                               new Double((double)rendered/(double)total),
                               new Double((double)(rendered-recomputed)/(double)rendered),
-                              new Double(resolution)));
+                              new Double(resolution), units));
             }
             record.setSourceClassName(Utilities.getShortClassName(renderer));
             record.setSourceMethodName("paint");

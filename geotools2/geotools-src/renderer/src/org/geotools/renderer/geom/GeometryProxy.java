@@ -44,6 +44,7 @@ import java.awt.geom.FlatteningPathIterator;
 // Miscellaneous
 import java.util.Map;
 import java.util.Locale;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 
 // Geotools dependencies
@@ -59,7 +60,7 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
+ * @version $Id: GeometryProxy.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeometryProxy extends Geometry {
@@ -123,6 +124,13 @@ public class GeometryProxy extends Geometry {
      */
     public boolean isEmpty() {
         return geometry.isEmpty();
+    }
+
+    /**
+     * Add to the specified collection all {@link Polyline} objects making the wrapped geometry.
+     */
+    void getPolylines(final Collection polylines) {
+        geometry.getPolylines(polylines);
     }
 
     /**
@@ -334,7 +342,7 @@ public class GeometryProxy extends Geometry {
     /**
      * Freeze the wrapped geometry.
      */
-    void freeze() {
+    final void freeze() {
         geometry.freeze();
     }
 
@@ -342,7 +350,7 @@ public class GeometryProxy extends Geometry {
      * Returns <code>true</code> if we are not allowed to change this geometry.
      * This method forwards the call to the wrapped geometry.
      */
-    boolean isFrozen() {
+    final boolean isFrozen() {
         return geometry.isFrozen();
     }
 
@@ -362,9 +370,30 @@ public class GeometryProxy extends Geometry {
     /**
      * Clone this geometry, trying to avoid cloning twice the wrapped geometry.
      */
-    synchronized Object clone(final Map alreadyCloned) {
+    Object clone(final Map alreadyCloned) {
         final GeometryProxy copy = (GeometryProxy) super.clone();
         copy.geometry = (Geometry) geometry.resolveClone(alreadyCloned);
         return copy;
+    }
+
+    /**
+     * Compares the specified object with this geometry for equality.
+     */
+    public boolean equals(final Object object) {
+        if (object==this) {
+            // Slight optimization
+            return true;
+        }
+        if (super.equals(object)) {
+            return geometry.equals(((GeometryProxy)object).geometry);
+        }
+        return false;
+    }
+
+    /**
+     * Returns a hash value for this geometry.
+     */
+    public int hashCode() {
+        return geometry.hashCode() ^ (int)serialVersionUID;
     }
 }
