@@ -96,7 +96,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.3 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.4 2002/07/24 18:16:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -546,10 +546,28 @@ public class Category implements Serializable {
                 value = (direction<0) ? XMath.previous(f) : XMath.next(f);
             } else if (Double.class.isAssignableFrom(type)) {
                 value = (direction<0) ? XMath.previous(value) : XMath.next(value);
+            } else if (isInteger(type)) {
+                value += direction;
+            } else {
+                throw new IllegalArgumentException(Resources.format(
+                          ResourceKeys.ERROR_UNSUPPORTED_DATA_TYPE));
             }
-            else value += direction;
         }
         return value;
+    }
+
+    /**
+     * Check if <code>type</code> is one of integer types.
+     *
+     * @param  type The type to test.
+     * @return <code>true</code> if <code>type</code> is a class {@link Long},
+     *         {@link Integer}, {@link Short} or {@link Byte}.
+     */
+    static boolean isInteger(final Class type) {
+        return Long.class.isAssignableFrom(type) ||
+            Integer.class.isAssignableFrom(type) ||
+              Short.class.isAssignableFrom(type) ||
+               Byte.class.isAssignableFrom(type);
     }
     
     /**

@@ -37,6 +37,7 @@ package org.geotools.cv;
 
 // J2SE dependencies
 import java.awt.Color;
+import java.util.List;
 import java.util.Locale;
 import java.util.Arrays;
 import java.io.Serializable;
@@ -76,10 +77,10 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * In this example, sample values in range <code>[10..210]</code> defines a quantitative category,
  * while all others categories are qualitative. The difference between those two kinds of category
- * is that the {@link Category#getSampleToGeophysics} method  returns a non-null value if and only
- * if the category is quantitative.
+ * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
+ * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.4 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.5 2002/07/24 18:16:05 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -107,8 +108,11 @@ public class SampleDimension implements Serializable {
 
     /**
      * If there is one and only one quantitative category, the
-     * {@link Category#getSampleToGeophysics} object for this
-     * category. Otherwise, <code>null</code>.
+     * {@link Category#getSampleToGeophysics}  object for this
+     * category. Otherwise, <code>null</code>. This information
+     * is used by {@link #getOffset} and {@link #getScale}. The
+     * {@link #getSampleToGeophysics} method use it also, even
+     * if it doesn't returns it directly.
      */
     private final MathTransform1D sampleToGeophysics;
 
@@ -152,43 +156,29 @@ public class SampleDimension implements Serializable {
     }
     
     /**
-     * Construct a sample dimension with an arbitrary set of categories,
-     * which may be both quantitative and qualitative.
+     * Construct a sample dimension with an arbitrary set of categories, which may be both
+     * quantitative and qualitative.  It is possible to specify more than one quantitative
+     * categories, providing that their sample value ranges do not overlap.   Quantitative
+     * categories can map sample values to geophysics values using arbitrary relation (not
+     * necessarly linear).
      *
-     * @param  categories The category list.
+     * @param  categories The list of categories.
      * @param  units      The unit information for this sample dimension.
      *                    May be <code>null</code> if no category has units.
+     *                    This unit apply to values obtained after the
+     *                    {@link #getSampleToGeophysics sampleToGeophysics} transformation.
      * @throws IllegalArgumentException if two or more categories have overlapping
      *         sample value range.
      */
     public SampleDimension(final Category[] categories, Unit units) throws IllegalArgumentException
     {
-        this(new CategoryList(categories, units));
-    }
-
-    /**
-     * Construct a new sample dimension with the same categories and
-     * units than the specified sample dimension.
-     */
-    public SampleDimension(final SampleDimension other) {
-        categories         = other.categories;
-        sampleToGeophysics = other.sampleToGeophysics;
-        isQuantitative     = other.isQuantitative;
-    }
-    
-    /**
-     * Construct a sample dimension with a set of categories.
-     *
-     * @param categories The category list for this sample dimension, or
-     *        <code>null</code> if this sample dimension has no category.
-     */
-    private SampleDimension(final CategoryList categories) {
-        this.categories = categories;
+        CategoryList list      = null;
+        Category     main      = null;
         boolean isQuantitative = false;
-        Category main = null;
         if (categories != null) {
-            for (int i=categories.size(); --i>=0;) {
-                final Category candidate = (Category) categories.get(i);
+            list = (CategoryList) Category.pool.canonicalize(new CategoryList(categories, units));
+            for (int i=list.size(); --i>=0;) {
+                final Category candidate = (Category) list.get(i);
                 if (candidate.isQuantitative()) {
                     isQuantitative = true;
                     if (main != null) {
@@ -199,8 +189,21 @@ public class SampleDimension implements Serializable {
                 }
             }
         }
-        this.isQuantitative = isQuantitative;
-        sampleToGeophysics = (main!=null) ? main.getSampleToGeophysics() : null;
+        this.categories         = list;
+        this.isQuantitative     = isQuantitative;
+        this.sampleToGeophysics = (main!=null) ? main.getSampleToGeophysics() : null;
+    }
+
+    /**
+     * Construct a new sample dimension with the same categories and
+     * units than the specified sample dimension.
+     *
+     * @param other The other sample dimension.
+     */
+    public SampleDimension(final SampleDimension other) {
+        categories         = other.categories;
+        isQuantitative     = other.isQuantitative;
+        sampleToGeophysics = other.sampleToGeophysics;
     }
     
     /**
@@ -247,26 +250,12 @@ public class SampleDimension implements Serializable {
     public String getDescription(final Locale locale) {
         return (categories!=null) ? categories.getName(locale) : null;
     }
-    
-    /**
-     * Returns all categories in this sample dimension. Note that a {@link Category} object may
-     * apply to an arbitrary range of sample values. Consequently, element <code>[0]</code> (for
-     * example) in the returned array may not be directly related to the sample value
-     * <code>0</code>.
-     *
-     * @return The categories in this sample dimension, or <code>null</code> if none.
-     */
-    public Category[] getCategories() {
-        return (categories!=null) ? (Category[]) categories.toArray() : null;
-    }
 
     /**
      * Returns a sequence of category names for the values contained in this sample dimension.
      * This allows for names to be assigned to numerical values. The first entry in the sequence
-     * relates to a cell value of zero. For grid coverages, category names are only valid for a
-     * classified grid data.
+     * relates to a cell value of zero. For example:
      *
-     * For example:
      *  <blockquote><pre>
      *    [0] Background
      *    [1] Water
@@ -275,24 +264,23 @@ public class SampleDimension implements Serializable {
      *  </pre></blockquote>
      *
      * @param  locale The locale for category names, or <code>null</code> for a default locale.
-     * @return The sequence of category names for the values contained in a sample dimension,
+     * @return The sequence of category names for the values contained in this sample dimension,
      *         or <code>null</code> if there is no category in this sample dimension.
      * @throws IllegalStateException if a sequence can't be mapped because some category use
-     *         negative of non-integer sample values.
+     *         negative or non-integer sample values.
      *
      * @see CV_SampleDimension#getCategoryNames()
+     * @see #getCategories
      */
     public String[] getCategoryNames(final Locale locale) throws IllegalStateException {
         if (categories == null) {
             return null;
         }
-        final int categoryCount = categories.size();
-        if (categoryCount == 0) {
+        if (categories.isEmpty()) {
             return new String[0];
         }
-        final int length=Math.max((int)((Category)categories.get(categoryCount-1)).maximum + 1,0);
-        final String[] names = new String[length];
-        for (int i=0; i<categoryCount; i++) {
+        String[] names = null;
+        for (int i=categories.size(); --i>=0;) {
             final Category category = (Category) categories.get(i);
             final int lower = (int) category.minimum;
             final int upper = (int) category.maximum;
@@ -303,67 +291,138 @@ public class SampleDimension implements Serializable {
                 throw new IllegalStateException("Some categories use non-integer sample values");
                 // TODO: localize this message.
             }
+            if (names == null) {
+                names = new String[upper];
+            }
             Arrays.fill(names, lower, upper+1, category.getName(locale));
         }
         return names;
     }
     
-    // NOTE: "getPaletteInterpretation()" is not available in Geotools since
-    //       palette are backed by IndexColorModel, which support only RGB.
+    /**
+     * Returns all categories in this sample dimension. Note that a {@link Category} object may
+     * apply to an arbitrary range of sample values.    Consequently, the first element in this
+     * collection may not be directly related to the sample value <code>0</code> (for example).
+     *
+     * @return The list of categories in this sample dimension, or <code>null</code> if none.
+     */
+    public List getCategories() {
+        return categories;
+    }
     
     /**
-     * Returns the color interpretation of the sample dimension.
-     * A sample dimension can be an index into a color palette or be a color model
-     * component. If the sample dimension is not assigned a color interpretation
-     * the value is {@link ColorInterpretation#UNDEFINED}.
+     * Returns the category for the specified sample value. If this method can't maps
+     * a category to the specified value, then it returns <code>null</code>.
      *
-     * @see CV_SampleDimension#getColorInterpretation()
+     * @param  sample The value (can be one of <code>NaN</code> values).
+     * @return The category for the supplied value, or <code>null</code> if none.
      */
-    public ColorInterpretation getColorInterpretation() {
-        return ColorInterpretation.UNDEFINED;
+    public Category getCategory(final double sample) {
+        return (categories!=null) ? categories.getCategory(sample) : null;
     }
+    
+    /**
+     * Format a sample value. If <code>value</code> is a real number, then the value is
+     * formatted with the appropriate number of digits and the units symbol. Otherwise,
+     * if <code>value</code> is <code>NaN</code>, then the category name is returned.
+     *
+     * @param  value  The geophysics value (can be one of <code>NaN</code> values).
+     * @param  locale Locale to use for formatting, or <code>null</code> for the default locale.
+     * @return A string representation of the geophysics value.
+     */
+//    public String format(final double value, final Locale locale) {
+//        if (categories == null) {
+//            return String.valueOf(value);
+//        }
+//        return categories.format(value, locale);
+//    }
 
     /**
-     * Returns the values to indicate "no data" for this sample dimension.
-     * The default implementation fetch those values from the categories
-     * supplied at construction time.
-     * <br><br>
+     * Returns the values to indicate "no data" for this sample dimension.  The default
+     * implementation deduces the "no data" values from the list of categories supplied
+     * at construction time. The rules are:
+     *
+     * <ul>
+     *   <li>If {@link #getSampleToGeophysics} returns <code>null</code>, then
+     *       <code>getNoDataValue()</code> returns <code>null</code> as well.
+     *       This means that this sample dimension contains no category or contains
+     *       only qualitative categories (e.g. a band from a classified image).</li>
+     *
+     *   <li>If {@link #getSampleToGeophysics} returns an identity transform,
+     *       then <code>getNoDataValue()</code> returns <code>null</code>.
+     *       This means that sample value in this sample dimension are already
+     *       expressed in geophysics values and that all "no data" values (if any)
+     *       have already been converted into <code>NaN</code> values.</li>
+     *
+     *   <li>Otherwise, if there is at least one quantitative category, returns the sample values
+     *       of all non-quantitative categories. For example if "Temperature" is a quantitative
+     *       category and "Land" and "Cloud" are two qualitative categories, then sample values
+     *       for "Land" and "Cloud" will be considered as "no data" values. "No data" values
+     *       that are already <code>NaN</code> will be ignored.</li>
+     * </ul>
+     *
      * Together with {@link #getOffset()} and {@link #getScale()}, this method provides a limited
      * way to transform sample values into geophysics values. However, the recommended way is to
-     * use {@link #getSampleToGeophysics} instead, which is more general and take cares of
-     * "no data" values.
+     * use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead, which is more
+     * general and take care of converting automatically "no data" values into <code>NaN</code>.
      *
      * @return The values to indicate no data values for this sample dimension,
      *         or <code>null</code> if not applicable.
      * @throws IllegalStateException if some qualitative categories use a range of
      *         non-integer values.
+     *
+     * @see CV_SampleDimension#getNoDataValue()
      */
     public double[] getNoDataValue() throws IllegalStateException {
         if (!isQuantitative) {
             return null;
         }
         int count = 0;
-        final int categoryCount = categories.size();
-        double[] padValues = new double[categoryCount];
-        for (int i=0; i<categoryCount; i++) {
+        double[] padValues = null;
+        final int size = categories.size();
+        for (int i=0; i<size; i++) {
             final Category category = (Category) categories.get(i);
             if (!category.isQuantitative()) {
-                padValues[count++] = category.minimum;
-                if (category.maximum != category.minimum) {
-                    int lower = (int) category.minimum;
-                    int upper = (int) category.maximum;
-                    if (lower!=category.minimum || upper!=category.maximum) {
-                        throw new IllegalStateException("Some categories use non-integer sample values");
-                        // TODO: localize this message.
+                final double min = category.minimum;
+                final double max = category.maximum;
+                if (!Double.isNaN(min) || !Double.isNaN(max)) {
+                    if (padValues == null) {
+                        padValues = new double[size-i];
                     }
-                    padValues = XArray.resize(padValues, padValues.length + (upper-lower));
-                    while (++lower <= upper) {
-                        padValues[count++] = lower;
+                    if (count >= padValues.length) {
+                        padValues = XArray.resize(padValues, count*2);
+                    }
+                    padValues[count++] = min;
+                    /*
+                     * The "no data" value has been extracted. Now, check if we have a range
+                     * of "no data" values instead of a single one for this category.  If we
+                     * have a single value, it can be of any type. But if we have a range,
+                     * then it must be a range of integers (otherwise we can't expand it).
+                     */
+                    if (max != min) {
+                        int lower = (int) min;
+                        int upper = (int) max;
+                        if (lower!=min || upper!=max ||
+                            !Category.isInteger(category.getRange().getElementClass()))
+                        {
+                            throw new IllegalStateException("Some categories use non-integer sample values");
+                            // TODO: localize this message.
+                        }
+                        final int requiredLength = count + (upper-lower);
+                        if (requiredLength > padValues.length) {
+                            padValues = XArray.resize(padValues, requiredLength*2);
+                        }
+                        while (++lower <= upper) {
+                            padValues[count++] = lower;
+                        }
                     }
                 }
             }
         }
-        return XArray.resize(padValues, count);
+        if (padValues != null) {
+            padValues = XArray.resize(padValues, count);
+        }
+        return padValues;
     }
     
     /**
@@ -375,8 +434,11 @@ public class SampleDimension implements Serializable {
      * @see CV_SampleDimension#getMinimumValue()
      */
     public double getMinimumValue() {
-        if (categories!=null && categories.size()!=0) {
-            return ((Category) categories.get(0)).minimum;
+        if (categories!=null && !categories.isEmpty()) {
+            final double value = ((Category) categories.get(0)).minimum;
+            if (!Double.isNaN(value)) {
+                return value;
+            }
         }
         return Double.NEGATIVE_INFINITY;
     }
@@ -402,13 +464,32 @@ public class SampleDimension implements Serializable {
     }
     
     /**
+     * Returns the range of values in this sample dimension. This is the union of the range of
+     * values of every categories, excluding <code>NaN</code> values.   A {@link Range} object
+     * give more informations than {@link #getMinimum} and {@link getMaximum} methods since it
+     * contains also the data type (integer, float, etc.) and inclusion/exclusion informations.
+     *
+     * @return The range of values. May be <code>null</code> if this sample dimension has no
+     *         quantitative category.
+     *
+     * @see Category#getRange
+     * @see #getMinimum
+     * @see #getMaximum
+     */
+    public Range getRange() {
+        return (categories!=null) ? categories.getRange() : null;
+    }
+    
+    /**
      * Returns the unit information for this sample dimension.
      * May returns <code>null</code> if this dimension has no units.
+     * This unit apply to values obtained after the {@link #getSampleToGeophysics
+     * sampleToGeophysics} transformation.
      *
      * @see CV_SampleDimension#getUnits()
      */
     public Unit getUnits() {
-        return (categories!=null) ? categories.getUnits() : null;
+        return (categories!=null) ? categories.rescale(true).getUnits() : null;
     }
 
     /**
@@ -420,8 +501,9 @@ public class SampleDimension implements Serializable {
      *
      * Together with {@link #getSample()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
-     * way is to use {@link #getSampleToGeophysics} instead, which is more general and take cares
-     * of "no data" values.
+     * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
+     * which is more general and take care of converting automatically "no data" values into
+     * <code>NaN</code>.
      *
      * @return the offset to add to grid values.
      * @throws IllegalStateException if the transform from sample to geophysics values
@@ -442,8 +524,9 @@ public class SampleDimension implements Serializable {
      *
      * Together with {@link #getOffset()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
-     * way is to use {@link #getSampleToGeophysics} instead, which is more general and take cares
-     * of "no data" values.
+     * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
+     * which is more general and take care of converting automatically "no data" values into
+     * <code>NaN</code>.
      *
      * @return the scale to multiply to grid value.
      * @throws IllegalStateException if the transform from sample to geophysics values
@@ -458,13 +541,16 @@ public class SampleDimension implements Serializable {
     /**
      * Returns a coefficient of the linear transform from sample to geophysics values.
      *
-     * @param  order 0 for the offset, or 1 for the scale factor.
+     * @param  order The coefficient order (0 for the offset, or 1 for the scale factor,
+     *         2 if we were going to implement quadratic relation, 3 for cubic, etc.).
      * @return The coefficient.
      * @throws IllegalStateException if the transform from sample to geophysics values
      *         is not a linear relation.
      */
     private double getCoefficient(final int order) throws IllegalStateException {
         if (!isQuantitative) {
+            // Default value for "offset" is 0; default value for "scale" is 1.
+            // This is equal to the order if 0 <= order <= 1.
             return order;
         }
         Exception cause = null;
@@ -486,37 +572,31 @@ public class SampleDimension implements Serializable {
         exception.initCause(cause);
         throw exception;
     }
-    
+
     /**
-     * Convert a sample value into a geophysics value.
+     * Returns a transform from sample values to geophysics values. If this sample dimension
+     * has no category, then this method returns <code>null</code>. If all sample values are
+     * already geophysics values (including <code>NaN</code> for "no data" values), then this
+     * method returns an identity transform. Otherwise, this method returns a transform expecting
+     * sample values as input and computing geophysics value as output. This transform will take
+     * care of converting all "{@linkplain #getNoDataValue() no data values}" into
+     * <code>NaN</code> values.
+     * The <code>sampleToGeophysics.{@linkplain MathTransform1D#inverse() inverse()}</code>
+     * transform is capable to differenciate <code>NaN</code> values to get back the original
+     * sample value.
      *
-     * @param  sample The sample value.
-     * @return The geophysics value, in the units {@link #getUnits}. This
-     *         value may be one of the many <code>NaN</code> values if the
-     *         sample do not belong to a quantitative category. Many
-     *         <code>NaN</code> values are possibles, which make it possible
-     *         to differenciate among many qualitative categories.
+     * @return The transform from sample to geophysics values, or <code>null</code> if this
+     *         sample dimension do not defines any transform (which is not the same that
+     *         defining an identity transform).
      */
-    public final double toGeophysicsValue(final double sample) {
-        // TODO
-        return Double.NaN;
-    }
-    
-    /**
-     * Convert a geophysics value into a sample value. <code>value</code> must be
-     * in the units {@link #getUnits}. If <code>value</code> is <code>NaN</code>,
-     * then this method returns the sample value for one of the qualitative categories.
-     * Many different <code>NaN</code> are alowed, which make it possible to differenciate
-     * among many qualitative categories.
-     *
-     * @param  value The geophysics value (may be <code>NaN</code>). If this value is
-     *               outside the allowed range of values, it will be clamped to the
-     *               minimal or the maximal value.
-     * @return The sample value.
-     */
-    public final double toSampleValue(final double value) {
-        // TODO
-        return 0;
+    public MathTransform1D getSampleToGeophysics() {
+        if (categories!=null && categories.size()==1 && sampleToGeophysics!=null) {
+            // If there is exactly one category and this category is quantitative,
+            // then we don't need the indirection level provided by CategoryList.
+            return sampleToGeophysics;
+        }
+        // CategoryList is a MathTransform1D.
+        return categories;
     }
     
     /**
@@ -570,29 +650,27 @@ public class SampleDimension implements Serializable {
         return categories;
     }
     
+    // NOTE: "getPaletteInterpretation()" is not available in Geotools since
+    //       palette are backed by IndexColorModel, which support only RGB.
+    
     /**
-     * Format a geophysics value. If <code>value</code> is a real number, then the value is
-     * formatted with the appropriate number of digits and the units symbol.  Otherwise, if
-     * <code>value</code> is <code>NaN</code>, then the category name is returned.
+     * Returns the color interpretation of the sample dimension.
+     * A sample dimension can be an index into a color palette or be a color model
+     * component. If the sample dimension is not assigned a color interpretation
+     * the value is {@link ColorInterpretation#UNDEFINED}.
      *
-     * @param  value  The geophysics value (may be <code>NaN</code>).
-     * @param  locale Locale to use for formatting, or <code>null</code> for the default locale.
-     * @return A string representation of the geophysics value.
+     * @see CV_SampleDimension#getColorInterpretation()
      */
-    public String format(final double value, final Locale locale) {
-        // TODO: check for categories==null
-        return categories.format(value, locale);
+    public ColorInterpretation getColorInterpretation() {
+        return ColorInterpretation.UNDEFINED;
     }
     
     /**
      * Returns a color model for this sample dimension. The default implementation builds up the
      * color model using each category's colors (as returned by {@link Category#getColors}). The
-     * returned color model will use data type {@link DataBuffer#TYPE_FLOAT} for geophysical
-     * values, or an integer data type for sample values.
+     * returned color model will typically use data type {@link DataBuffer#TYPE_FLOAT} if this
+     * sample model is for geophysical values, or an integer data type otherwise.
      *
-     * @param  type {@link SampleInterpretation#GEOPHYSICS} to request a color model applicable
-     *         to geophysics,  or {@link SampleInterpretation#INDEXED} to request a color model
-     *         applicable to sample values.
      * @param  visibleBand The band to be made visible (usually 0). All other bands, if any
      *         will be ignored.
      * @param  numBands The number of bands for the color model (usually 1). The returned color
@@ -600,13 +678,14 @@ public class SampleDimension implements Serializable {
      *         the existence of all <code>numBands</code> will be at least tolerated. Supplemental
      *         bands, even invisible, are useful for processing with Java Advanced Imaging.
      * @return The requested color model, suitable for {@link RenderedImage} objects with values
-     *         in the <code>{@link #getRange getRange}(type)</code> range.
+     *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this
+     *         sample dimension has no category.
      */
-    public final synchronized ColorModel getColorModel(final SampleInterpretation type,
-                                                       final int visibleBand, final int numBands)
+    public ColorModel getColorModel(final int visibleBand, final int numBands)
     {
-        // TODO: check for categories==null
-//        return categories.getColorModel(type, visibleBand, numBands);
+        if (categories != null) {
+            return categories.getColorModel(visibleBand, numBands);
+        }
         return null;
     }
 }

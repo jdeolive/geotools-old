@@ -68,7 +68,7 @@ import org.geotools.resources.ImageUtilities;
  * An image that contains transformed pixels. It may be sample values after their
  * transformation in geophyics values, or the converse.
  *
- * @version $Id: ImageAdapter.java,v 1.3 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.4 2002/07/24 18:16:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -169,19 +169,33 @@ final class ImageAdapter extends PointOpImage {
     }
     
     /**
-     * Effectue le calcul d'une tuile de l'image.
+     * Compute one of the destination image tile.
      *
-     * @param sources  Un tableau de longueur 1 contenant la source.
-     * @param dest     La tuile dans laquelle écrire les pixels.
-     * @param destRect La région de <code>dest</code> dans laquelle écrire.
+     * @task TODO: There is two optimisations we could do here:
+     *
+     *             1) If source and destination are the same raster, then a single
+     *                {@link WritableRectIter} object would be more efficient (the
+     *                hard work is to detect if source and destination are the same).
+     *             2) If the destination image is a single-banded, non-interleaved
+     *                sample model, we could apply the transform directly in the
+     *                {@link java.awt.image.DataBuffer}. We can even avoid to copy
+     *                sample value if source and destination raster are the same.
+     *
+     * @param sources  An array of length 1 with source image.
+     * @param dest     The destination tile.
+     * @param destRect the rectangle within the destination to be written.
      */
     protected void computeRect(final PlanarImage[] sources,
                                final WritableRaster   dest,
                                final Rectangle    destRect)
     {
-        final WritableRectIter iterator = DualRectIter.create(
-                RectIterFactory.create(sources[0],   destRect),
-                RectIterFactory.createWritable(dest, destRect));
+        final PlanarImage source = sources[0];
+        WritableRectIter iterator = RectIterFactory.createWritable(dest, destRect);
+        if (true) {
+            // TODO: Detect if source and destination rasters are the same. If they are
+            //       the same, we should skip this block. Iteration will then be faster.
+            iterator = DualRectIter.create(RectIterFactory.create(source, destRect), iterator);
+        }
         int band=0;
         if (!iterator.finishedBands()) do {
             categories[band].transform(iterator);
