@@ -59,7 +59,7 @@ import java.nio.channels.*;
  * </ol>
  * 
  * @deprecated Use org.geotools.data.shapefile.ShapefileDataStore
- * @version $Id: ShapefileDataSource.java,v 1.23 2003/11/05 22:58:37 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.24 2003/11/06 23:41:04 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -214,9 +214,7 @@ public class ShapefileDataSource extends AbstractDataSource {
     catch (org.geotools.feature.IllegalAttributeException ife){
       throw new DataSourceException("Illegal Attribute Exception loading data",ife);
     }
-    catch (org.geotools.data.shapefile.shp.ShapefileException ise){
-      throw new DataSourceException("Illegal Feature Exception loading data",ise);
-    }
+    
   }
   
   /* Just a hook to allow various entry points and caching of schema
@@ -528,7 +526,10 @@ public class ShapefileDataSource extends AbstractDataSource {
         shapeDims = JTSUtilities.guessCoorinateDims(gc.getGeometryN(0).getCoordinates());
       }
       
-      ShapefileWriter writer = new ShapefileWriter(getWriteChannel(shpURL),getWriteChannel(shxURL));
+      ShapefileWriter writer = new ShapefileWriter(
+        (FileChannel) getWriteChannel(shpURL),
+        (FileChannel) getWriteChannel(shxURL)
+      );
       
       writer.write(gc, JTSUtilities.getShapeType(gc.getGeometryN(0), shapeDims));
       writeDbf(collection);
@@ -620,6 +621,7 @@ public class ShapefileDataSource extends AbstractDataSource {
         "Unable to write : " + colType.getName());
       }
     }
+
     header.setNumRecords(featureCollection.size());
     
     // write header
