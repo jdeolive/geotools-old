@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
+    <target name="modificationset">
+    <modificationset lastbuild="${lastGoodBuildTime}"
+        quietperiod="30"
+        dateformat="yyyy-MMM-dd HH:mm:ss">
+
+        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2"
+            localworkingcopy="../.."/>
+    </modificationset>
+    </target>
     <target name="init">
         <property file="build.ant.properties"/>
         <path id="netbeans.ext">
