@@ -33,7 +33,8 @@ import java.util.HashMap;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.15 2003/11/05 01:29:31 seangeo Exp $
+ * @author Ian Schneider
+ * @version $Id: DefaultAttributeType.java,v 1.16 2003/11/06 23:36:26 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -44,6 +45,10 @@ public class DefaultAttributeType implements AttributeType {
 
     /** Indicates if nulls are allowed for this attribute */
     protected final boolean nillable;
+    
+    protected final int fieldLength;
+    
+    protected Object defaultValue;
 
     /**
      * Constructor with name and type.
@@ -55,10 +60,12 @@ public class DefaultAttributeType implements AttributeType {
      * @task REVISIT: make this protected?  I think it's only used by facotries
      *       at this time.
      */
-    public DefaultAttributeType(String name, Class type, boolean nillable) {
+    protected DefaultAttributeType(String name, Class type, boolean nillable,int fieldLength,Object defaultValue) {
         this.name = (name == null) ? "" : name;
         this.type = (type == null) ? Object.class : type;
         this.nillable = nillable;
+        this.fieldLength = fieldLength;
+        this.defaultValue = defaultValue;
     }
 
     /**
@@ -297,6 +304,14 @@ public class DefaultAttributeType implements AttributeType {
         }
     }
 
+    public Object createDefaultValue() {
+        return defaultValue;
+    }
+    
+    public int getFieldLength() {
+        return fieldLength;
+    }
+    
     /**
      * Class that represents a Numeric.
      *
@@ -304,6 +319,9 @@ public class DefaultAttributeType implements AttributeType {
      *       hierarchy.  Better documentation as well.
      */
     static class Numeric extends DefaultAttributeType {
+        
+        static final Object defaultValue = new Byte( (byte) 0);
+        
         /**
          * Constructor with name, type and nillable.  Type should always be a
          * Number class.
@@ -316,15 +334,16 @@ public class DefaultAttributeType implements AttributeType {
          *
          * @task REVISIT: protected?
          */
-        public Numeric(String name, Class type, boolean nillable)
+        public Numeric(String name, Class type, boolean nillable,int fieldLength,Object defaultValue)
             throws IllegalArgumentException {
-            super(name, type, nillable);
+            super(name, type, nillable,fieldLength,defaultValue);
 
             if (!Number.class.isAssignableFrom(type)) {
                 throw new IllegalArgumentException(
                     "Numeric requires Number class, " + "not " + type);
             }
         }
+        
 
         /**
          * Allows this AttributeType to convert an argument to its prefered
@@ -365,11 +384,25 @@ public class DefaultAttributeType implements AttributeType {
             
             // parse a String to our preferred type
             // note, this is the final parsing attempt !
-            Object parsed = parseFromString(value.toString());
+            String str = value.toString();
             
-            if (parsed != null)
-                return parsed;
-
+            try {
+                Object parsed = parseFromString(str);
+                if (parsed != null)
+                    return parsed;
+            } catch (IllegalArgumentException iae) {
+                // do nothing
+            } 
+            
+            // check empty string or black space
+            if (str.length() == 0 || str.trim().length() == 0) {
+                Object parsed = parseFromString("0");
+                if (parsed != null)
+                    return parsed;
+            }
+            
+            
+            // nothing else to do
             throw new RuntimeException(
                 "DefaultAttributeType.Numeric is coded wrong");
         }
@@ -469,8 +502,8 @@ public class DefaultAttributeType implements AttributeType {
          * @param type The FeatureType to use for validation.
          * @param nillable If nulls are allowed for the attribute of this type.
          */
-        public Feature(String name, FeatureType type, boolean nillable) {
-            super(name, org.geotools.feature.Feature.class, nillable);
+        public Feature(String name, FeatureType type, boolean nillable,Object defaultValue) {
+            super(name, org.geotools.feature.Feature.class, nillable,0,defaultValue);
             this.featureType = type;
         }
         
@@ -489,6 +522,7 @@ public class DefaultAttributeType implements AttributeType {
 
             org.geotools.feature.Feature att = (org.geotools.feature.Feature) attribute;
 
+            if (att == null) return;
             if (!(att.getFeatureType().isDescendedFrom(featureType)
                     || att.getFeatureType().equals(featureType))) {
                 throw new IllegalArgumentException(
@@ -499,8 +533,8 @@ public class DefaultAttributeType implements AttributeType {
     }
     
     static class Textual extends DefaultAttributeType {
-        public Textual (String name, boolean nillable) {
-            super(name,String.class,nillable);
+        public Textual (String name, boolean nillable,int fieldLength,Object defaultValue) {
+            super(name,String.class,nillable,fieldLength,defaultValue);
         }
         public Object parse(Object value) throws IllegalArgumentException {
             if (value == null) 
@@ -519,8 +553,8 @@ public class DefaultAttributeType implements AttributeType {
     static class Temporal extends DefaultAttributeType {
         // this might be right, maybe not, but anyway, its a default formatting
         static java.text.DateFormat format = java.text.DateFormat.getInstance();
-        public Temporal (String name, boolean nillable) {
-            super(name, java.util.Date.class, nillable);
+        public Temporal (String name, boolean nillable,int fieldLength,Object defaultValue) {
+            super(name, java.util.Date.class, nillable,fieldLength,defaultValue);
         }
         public Object parse(Object value) throws IllegalArgumentException {
             if (value == null)

@@ -20,7 +20,7 @@ package org.geotools.feature;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.4 2003/09/10 17:29:56 ianschneider Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.5 2003/11/06 23:36:26 ianschneider Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
@@ -32,18 +32,16 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
      *
      * @return the newly created AttributeType
      */
-    protected AttributeType createAttributeType(String name, Class clazz,
-        boolean isNillable) {
+    protected AttributeType createAttributeType(String name, Class clazz, 
+        boolean isNillable, int fieldLength) {
+        Object defaultValue = null;
         if (Number.class.isAssignableFrom(clazz)) {
-            return new DefaultAttributeType.Numeric(name, clazz, isNillable);
+            defaultValue = DefaultAttributeType.Numeric.defaultValue;
         } else if (CharSequence.class.isAssignableFrom(clazz)) {
-            return new DefaultAttributeType.Textual(name,isNillable);
-        } else if (java.util.Date.class.isAssignableFrom(clazz)) {
-            return new DefaultAttributeType.Temporal(name,isNillable);
+            defaultValue = "";
         }
-            
 
-        return new DefaultAttributeType(name, clazz, isNillable);
+        return createAttributeType(name,clazz,isNillable,fieldLength,defaultValue);
     }
 
     /**
@@ -57,6 +55,22 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
      */
     protected AttributeType createAttributeType(String name, FeatureType type,
         boolean isNillable) {
-        return new DefaultAttributeType.Feature(name, type, isNillable);
+        return new DefaultAttributeType.Feature(name, type, isNillable,null);
     }
+    
+    protected AttributeType createAttributeType(String name, Class clazz, boolean isNillable, int fieldLength, Object defaultValue) {
+        if (! isNillable && defaultValue == null)
+            throw new IllegalArgumentException("Cannot provide a null default value for non-nillable attribute");
+        if (Number.class.isAssignableFrom(clazz)) {
+            return new DefaultAttributeType.Numeric(
+                name, clazz, isNillable,fieldLength,defaultValue);
+        } else if (CharSequence.class.isAssignableFrom(clazz)) {
+            return new DefaultAttributeType.Textual(name,isNillable,fieldLength,defaultValue);
+        } else if (java.util.Date.class.isAssignableFrom(clazz)) {
+            return new DefaultAttributeType.Temporal(name,isNillable,fieldLength,defaultValue);
+        }
+
+        return new DefaultAttributeType(name, clazz, isNillable,fieldLength,defaultValue);
+    }
+    
 }

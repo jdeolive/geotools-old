@@ -25,7 +25,7 @@ import java.util.List;
  * better ways to do this, but this seems to work.
  *
  * @author Chris Holmes
- * @version $Id: MultiAttributeType.java,v 1.4 2003/08/20 19:56:18 cholmesny Exp $
+ * @version $Id: MultiAttributeType.java,v 1.5 2003/11/06 23:36:27 ianschneider Exp $
  */
 public class MultiAttributeType extends DefaultAttributeType {
     /** Number of instances of this attribute in the schema. */
@@ -43,7 +43,7 @@ public class MultiAttributeType extends DefaultAttributeType {
      * @param validator Name of this attribute.
      */
     public MultiAttributeType(AttributeType validator) {
-        super(validator.getName(), List.class, false);
+        super(validator.getName(), List.class, false,0,null);
         this.validator = validator;
     }
 
