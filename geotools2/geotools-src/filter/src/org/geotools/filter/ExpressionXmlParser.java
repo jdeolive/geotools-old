@@ -347,7 +347,7 @@ public class ExpressionXmlParser {
                     Node grandKid = grandKids.item(k);
                     if(grandKid.getNodeValue()==null) continue;
                     if(grandKid.getNodeValue().trim().length()==0) continue;
-                    String outer = grandKid.getNodeValue();
+                    String outer = grandKid.getNodeValue().trim();
                     StringTokenizer ost = new StringTokenizer(outer," ");
                     while(ost.hasMoreTokens()){
                         String internal = ost.nextToken();
