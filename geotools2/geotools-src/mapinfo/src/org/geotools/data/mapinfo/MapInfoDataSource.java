@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import java.util.*;
+import java.util.List;
 
 import java.util.logging.*;
 
@@ -52,7 +53,7 @@ import org.geotools.styling.*;
 /**
  *
  *
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @author $author$
  */
 public class MapInfoDataSource extends AbstractDataSource implements DataSource {
@@ -144,10 +145,10 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
     private FeatureType polygonFeatureType;
     
     // Factories to use to build Features
-//    private FlatFeatureFactory pointFactory;
-//    private FlatFeatureFactory lineFactory;
-//    private FlatFeatureFactory polygonFactory;
-  
+    //    private FlatFeatureFactory pointFactory;
+    //    private FlatFeatureFactory lineFactory;
+    //    private FlatFeatureFactory polygonFactory;
+    
     private FeatureType pointType;
     private FeatureType lineType;
     private FeatureType polygonType;
@@ -381,6 +382,11 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
                     // Read Delimeter clause
                     hDelimeter = line.replace('\"', ' ').trim().substring(line.trim().indexOf(' '))
                     .trim();
+                    
+                    if(hDelimeter.length()==0) {
+                        //triming removed everything so it must have been a space.
+                        hDelimeter=" ";
+                    }
                     LOGGER.info("delimiter [" + hDelimeter + "]");
                 }
                 
@@ -913,29 +919,15 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         
         // read MID tokens
         int col = 0;
-        StringTokenizer quotes = new StringTokenizer(midLine, "\"");
-        
-        while (quotes.hasMoreTokens()) {
-            StringTokenizer delimeters = new StringTokenizer(quotes.nextToken(), hDelimeter +
-            "\0");
-            
-            // Read each delimited value into the Vector
-            while (delimeters.hasMoreTokens()) {
-                String token = delimeters.nextToken();
-                String type = (String) hColumnsTypes.get(col++);
-                addAttribute(type, token, midValues);
-            }
-            
-            // Store the whole of the next bit (it's a quoted string)
-            if (quotes.hasMoreTokens()) {
-                String token = quotes.nextToken();
-                String type = (String) hColumnsTypes.get(col++);
-                addAttribute(type, token, midValues);
-                
-                //LOGGER.finest("adding " + token);
-            }
+        //StringTokenizer delimeters = new StringTokenizer(midLine, hDelimeter + "\0");
+        List tokens = parse(midLine, hDelimeter.charAt(0));
+        Iterator values = tokens.iterator();
+        while (values.hasNext()) {
+            //String token = delimeters.nextToken();
+            String value = (String)values.next();
+            String type = (String) hColumnsTypes.get(col++);
+            addAttribute(type, value.trim(), midValues);
         }
-        
         return midValues;
     }
     
@@ -1098,10 +1090,10 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
      * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection collection, Query query) throws DataSourceException {
-	org.geotools.filter.Filter filter = null;
-	if (query != null) {
-	    filter = query.getFilter();
-	}
+        org.geotools.filter.Filter filter = null;
+        if (query != null) {
+            filter = query.getFilter();
+        }
         Vector features = readMifMid();
         for(int i=0; i < features.size(); i++){
             if(filter == null || filter.contains((Feature)features.elementAt(i))){
@@ -1110,7 +1102,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         }
     }
     
-        
+    
     /**
      * Retrieves the featureType that features extracted from this datasource
      * will be created with.
@@ -1120,5 +1112,53 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
         return null;
     }
     
-
-} 
+    private List parse(String s, char delim) {
+        ArrayList tokens = new ArrayList();
+        int index = 0;
+        boolean inQuotes = false;
+        boolean gettingToken = true;
+        StringBuffer token = new StringBuffer("");
+        
+        while(true) {
+            if(s.length() <= index) {
+                if (!token.toString().equals(""))
+                    tokens.add(token.toString());
+                
+                break;
+            }
+            
+            char c = s.charAt(index);
+            index++;
+            if (c == '"') {
+                if (inQuotes) {
+                    tokens.add(token.toString());
+                    token.setLength(0);
+                }
+                
+                inQuotes = !inQuotes;
+                gettingToken = inQuotes;
+            }
+            else if(c == delim || c == '\0') {
+                if (inQuotes)
+                    token.append(c);
+                else if (gettingToken) {
+                    // eat whitespaces
+                    if (token.length() > 0) {
+                        tokens.add(token.toString());
+                        // initialize new token
+                        token.setLength(0);
+                        gettingToken = false;
+                    }
+                }
+            }
+            else {
+                token.append(c);
+                gettingToken = true;
+            }
+        }
+        return tokens;
+    }
+    
+    
+    
+}
