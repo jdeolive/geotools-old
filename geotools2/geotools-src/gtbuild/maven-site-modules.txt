@@ -6,6 +6,7 @@ defaultcore
 Java2DRendering
 gmldatasource
 postgis
+mysql
 gui
 filter
 cts-coordtrans
