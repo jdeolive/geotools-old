@@ -52,7 +52,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.1 2003/01/20 23:21:08 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.2 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -91,13 +91,19 @@ public final class Hints extends RenderingHints.Key {
 
     /**
      * Returns <code>true</code> if the specified object is a valid
-     * value for this Key.
+     * value for this key.
      *
      * @param  value The object to test for validity.
      * @return <code>true</code> if the value is valid;
      *         <code>false</code> otherwise.
      */
     public boolean isCompatibleValue(final Object value) {
-        return (value != null) && valueClass.isAssignableFrom(value.getClass());
+        if (value==null || !valueClass.isAssignableFrom(value.getClass())) {
+            return false;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).doubleValue() >= 0;
+        }
+        return true;
     }
 }

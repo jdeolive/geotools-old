@@ -37,6 +37,7 @@ import java.util.List;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
+import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
@@ -58,13 +59,21 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
- * Informations relatives to the rendering of {@link RenderedObject}s. An
- * <code>RenderingContext</code> object is created by {@link Renderer#paint} and
- * passed to {@link RenderedObject#paint} method for every layer to renderer. A
- * <code>RenderingContext</code> contains informations about coordinates transformations
- * to apply.  A rendering process usually imply the following transformations (names are
- * {@linkplain CoordinateSystem coordinate systems} and arrows are {@linkplain MathTransform
- * transforms}:
+ * Informations relatives to a rendering in progress.  A <code>RenderingContext</code> object is
+ * automatically created by {@link Renderer#paint} at rendering time. Then the renderer iterates
+ * over layers and invokes {@link RenderedObject#paint} for each of them.  The rendering context
+ * is destroyed once the rendering is completed, and recreated for each subsequent ones.
+ * <code>RenderingContext</code> contains the following informations:
+ *
+ * <ul>
+ *   <li>The {@link Graphics2D} handler to use for rendering.</li>
+ *   <li>The coordinate systems in use and the transformations between them.</li>
+ *   <li>The area rendered up to date. This information is updated by each
+ *       {@link RenderedObject} while they are painting.</li>
+ * </ul>
+ *
+ * A rendering usually imply the following transformations (names are {@linkplain CoordinateSystem
+ * coordinate systems} and arrows are {@linkplain MathTransform transforms}):
  *
  * <p align="center">
  * {@link RenderedObject#getCoordinateSystem layerCS} <img src="doc-files/right.png">
@@ -73,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.2 2003/01/20 23:21:10 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.3 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -109,34 +118,51 @@ public final class RenderingContext {
      * what the user will see on the screen. Data from all {@link RenderedObject}s will be
      * projected in this coordinate system before to be rendered.  Units are usually "real
      * world" metres.
+     *
+     * @see #textCS
+     * @see #setCoordinateSystem
      */
     public final CoordinateSystem mapCS;
 
     /**
      * The {@linkplain Graphics2D Java2D coordinate system}. Each "unit" is a dot (about
      * 1/72 of inch). <var>x</var> values increase toward the right of the screen and
-     * <var>y</var> values increase toward the bottom of the screen. This coordinate system
-     * is appropriate for rendering text and labels.
+     * <var>y</var> values increase toward the bottom of the screen.  This coordinate
+     * system is appropriate for rendering text and labels.
+     *
+     * @see #mapCS
+     * @see #deviceCS
+     * @see #setCoordinateSystem
      */
     public final CoordinateSystem textCS;
 
     /**
      * The device coordinate system. Each "unit" is a pixel of device-dependent size. When
      * rendering on screen, this coordinate system is identical to {@link #textCS}. When
-     * rendering on printer or some other devices, it may be different. This coordinate
-     * system is rarely directly used.
+     * rendering on printer or some other devices, it depends of the device's resolution.
+     * This coordinate system is rarely used.
+     *
+     * @see #textCS
+     * @see #setCoordinateSystem
      */
     public final CoordinateSystem deviceCS;
 
     /**
-     * Position et dimension de la région de la
-     * fenêtre dans lequel se fait le traçage.
+     * The painted area in the {@linkplain #deviceCS device coordinate system}, or
+     * <code>null</code> if unknow. This field is built by {@link #addPaintedArea}
+     * at rendering time. The package-private method {@link RenderedObject#update}
+     * method use and update this field.
      */
-    private final Rectangle bounds;
+    Shape paintedArea;
 
     /**
-     * The {@link #bounds} rectangle transformed into logical
-     * coordinates (according {@link #getViewCoordinateSystem}).
+     * The widget bounding box, in coordinates of {@link #deviceCS}.
+     */
+//    private final Rectangle bounds;
+
+    /**
+     * The {@link #bounds} rectangle transformed into logical coordinates
+     * (according {@link #mapCS}). Will be computed only when first requested.
      */
 //    private transient Rectangle2D logicalClip;
 
@@ -147,86 +173,107 @@ public final class RenderingContext {
 //    private transient Clipper clipper;
 
     /**
-     * Construit un objet <code>RenderingContext</code> avec les paramètres spécifiés.
-     * Ce constructeur ne fait pas de clones.
+     * Construct a new <code>RenderingContext</code> for the specified {@link Renderer}
+     * and {@link Graphics2D}.
      */
     RenderingContext(final Renderer         renderer,
                      final Graphics2D       graphics,
                      final CoordinateSystem    mapCS,
                      final CoordinateSystem   textCS,
-                     final CoordinateSystem deviceCS,
-                     final Rectangle          bounds)
+                     final CoordinateSystem deviceCS)
     {
         this.renderer = renderer;
         this.graphics = graphics;
         this.mapCS    =    mapCS;
         this.textCS   =   textCS;
         this.deviceCS = deviceCS;
-        this.bounds   = bounds;
     }
 
     /**
      * Set the coordinate system in use for rendering in {@link Graphics2D}. Invoking this
-     * method do not alter the {@link Renderer} coordinate system. It is only a convenient
-     * way to set the  {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s
-     * affine transform}, for example in order to alternate between rendering geographic
-     * features and text. The coordinate system specified in argument shoud be one of
-     * {@link #mapCS}, {@link #textCS} or {@link #deviceCS} fields. Other coordinate systems
-     * may thrown an exception.
+     * method do not alter the current {@link Renderer}'s coordinate system.  It is only a
+     * convenient way to set the {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s
+     * affine transform}, for example in order to alternate rendering mode between geographic
+     * features and texts. The specified coordinate system (argument <code>cs</code>) shoud be
+     * one of {@link #mapCS}, {@link #textCS} or {@link #deviceCS} fields. Other coordinate
+     * systems may work, but most of them will thrown an exception.
      *
-     * @param cs The {@link graphics} coordinate system. Should be {@link #mapCS},
-     *          {@link #textCS} or {@link #deviceCS}.
-     * @throw IllegalArgumentException if the coordinate system is invalid.
+     * @param cs The {@link graphics} coordinate system.
+     *           Should be {@link #mapCS}, {@link #textCS} or {@link #deviceCS}.
+     * @throw TransformException if this method failed to find an affine transform from the
+     *        specified coordinate system to the device coordinate system ({@link #deviceCS}).
      *
      * @see #graphics
-     * @see #getMathTransform
+     * @see #getAffineTransform
      * @see Graphics2D#setTransform
      */
-    public void setCoordinateSystem(final CoordinateSystem cs) throws IllegalArgumentException {
-        CannotCreateTransformException cause;
-        try {
-            final MathTransform tr = getMathTransform(cs, deviceCS);
-            if (tr instanceof AffineTransform) {
-                graphics.setTransform((AffineTransform) tr);
-                return;
-            }
-            cause = null;
-        } catch (CannotCreateTransformException exception) {
-            cause = exception;
-        }
-        final IllegalArgumentException exception = new IllegalArgumentException(
-                  org.geotools.resources.cts.Resources.format(
-                  org.geotools.resources.cts.ResourceKeys.ERROR_NOT_AN_AFFINE_TRANSFORM));
-        exception.initCause(cause);
-        throw exception;
+    public void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
+        graphics.setTransform(getAffineTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS));
     }
 
     /**
-     * Construct a transform between two coordinate systems. The coordinate arguments
+     * Returns an affine transform between two coordinate systems.  This method is equivalents
+     * to the following pseudo-code, except for the exception to be thrown if the transform is
+     * not an instance of {@link AffineTransform}.
+     * <blockquote><pre>
+     * return (AffineTransform) {@link #getMathTransform getMathTransform}(sourceCS, targetCS);
+     * </pre></blockquote>
+     *
+     * @param  sourceCS The source coordinate system.
+     * @param  targetCS The target coordinate system.
+     * @return An affine transform from <code>sourceCS</code> to <code>targetCS</code>.
+     * @throws CannotCreateTransformException if the transform can't be created or is not affine.
+     *
+     * @see #getMathTransform
+     * @see Renderer#getRenderingHint
+     * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     */
+    public AffineTransform getAffineTransform(final CoordinateSystem sourceCS,
+                                              final CoordinateSystem targetCS)
+            throws CannotCreateTransformException
+    {
+        try {
+            return (AffineTransform) renderer.getMathTransform(sourceCS, targetCS);
+        } catch (ClassCastException cause) {
+            throw new CannotCreateTransformException(
+                    org.geotools.resources.cts.Resources.format(
+                    org.geotools.resources.cts.ResourceKeys.ERROR_NOT_AN_AFFINE_TRANSFORM), cause);
+        }
+    }
+
+    /**
+     * Returns a transform between two coordinate systems. If a {@link
+     * Hints#COORDINATE_TRANSFORMATION_FACTORY} has been provided to the {@link Renderer},
+     * then the specified {@link CoordinateTransformationFactory} will be used. The arguments
      * are usually (but not necessarily) one of the following pairs:
      * <ul>
      *   <li><code>({@link RenderedObject#getCoordinateSystem layerCS}, {@link #mapCS})</code>:
-     *       Arbitrary transform from the {@link RenderedObject} coordinate system to the
-     *       rendering coordinate system.</li>
+     *       Arbitrary transform from the data coordinate system (set in {@link RenderedObject})
+     *       to the rendering coordinate system (set in {@link Renderer}).</li>
      *   <li><code>({@link #mapCS}, {@link #textCS})</code>:
-     *       Transformation affine convertissant les mètres vers les unités de texte (1/72 de pouce).
-     *       Ces unités de textes pourront ensuite être converties en unités du périphérique avec la
-     *       transformation ci-dessous. Cette transformation peut varier en fonction de l'échelle de
-     *       la carte.</li>
+     *       {@linkplain AffineTransform Affine transform} from the rendering coordinate system
+     *       in "real world" units (usually metres or degrees) to the Java2D coordinate system
+     *       in dots (usually 1/72 of inch). This transform changes every time the zoom (or map
+     *       scale) changes.</li>
      *   <li><code>({@link #textCS}, {@link #deviceCS})</code>:
-     *       Transformation affine convertissant des unités de texte (1/72 de pouce) en unités
-     *       dépendantes du périphérique. Lors des sorties vers l'écran, cette transformation
-     *       est généralement la matrice identité. Pour les écritures vers l'imprimante, il s'agit
-     *       d'une matrice configurée d'une façon telle que chaque point correspond à environ 1/72
-     *       de pouce. Cette transformation affine reste habituellement identique d'un traçage à
-     *       l'autre de la composante. Elle ne varie que si on change de périphérique, par exemple
-     *       si on dessine vers l'imprimante plutôt que l'écran.</li>
+     *       {@linkplain AffineTransform Affine transform} from dots to device units. When
+     *       rendering target the screen, this transform is usually the identity transform.
+     *       When printing, the affine transform is set up in such a way that rendering in
+     *       Java2D is isolated from the printer resolution:  rendering in {@link #textCS}
+     *       is performed as if printers always have a 72 DPI resolution (except that fractional
+     *       coordinates are valid, e.g. a dot of size 0.1&times;&0.1), and the transform maps
+     *       it to whatever the printer resolution is. This transform is zoom insensitive and
+     *       constant as long as the target device do not change.</li>
      * </ul>
      *
      * @param  sourceCS The source coordinate system.
      * @param  targetCS The target coordinate system.
-     * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
+     * @return A transform from <code>sourceCS</code> to <code>targetCS</code>.
      * @throws CannotCreateTransformException if the transformation can't be created.
+     *
+     * @see #getAffineTransform
+     * @see Renderer#getRenderingHint
+     * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
     public MathTransform getMathTransform(final CoordinateSystem sourceCS,
                                           final CoordinateSystem targetCS)
@@ -236,12 +283,74 @@ public final class RenderingContext {
     }
 
     /**
-     * Returns <code>true</code> if the rendering is performed on the
-     * screen or any other devices with an identity default transform.
-     * This method usually returns <code>false</code> during printing.
+     * Declares that an area in {@link #graphics} coordinates has been painted. The coordinate
+     * system for <code>area</code>  should be the same than the one just used for painting in
+     * the {@link #graphics} handler, which depends of the {@linkplain Graphics2D#getTransform
+     * affine transform currently set}. This method is equivalents to
+     * <code>{@link #addPaintedArea(Shape, CoordinateSystem) addPaintedArea}(area, null)</code>.
+     *
+     * @param area A bounding shape of the area just painted. This shape may be approximative,
+     *             as long as it completely encloses the painted area. Simple shape with fast
+     *             <code>contains(...)</code> and <code>intersects(...)</code> methods are
+     *             encouraged. The coordinate system is infered from the current
+     *             {@link #graphics} state.
+     *
+     * @see Graphics2D#getTransform
+     * @see #addPaintedArea(Shape, CoordinateSystem)
      */
-    final boolean normalDrawing() {
-        return textCS == deviceCS;
+    public void addPaintedArea(final Shape area) {
+        try {
+            addPaintedArea(area, null);
+        } catch (TransformException exception) {
+            // Should never happen, since the 'cs' argument was null.
+            throw new AssertionError(exception);
+        }
+    }
+
+    /**
+     * Declares that an area has been painted. This method should be invoked from
+     * {@link RenderedObject#paint} at rendering time.  The {@link Renderer} uses
+     * this information  in order  to determine which layers need to be repainted
+     * when a screen area is damaged. If <code>addPaintedArea(...)</code> methods
+     * are never invoked from a particular {@link RenderedObject}, then the renderer
+     * will assume that the painted area is unknow and conservatively repaint the full
+     * layer during subsequent rendering.
+     *
+     * @param  area A bounding shape of the area just painted,  in <code>cs</code> coordinate
+     *         system. This shape may be approximative, as long as it completely encloses the
+     *         painted area. Simple shape with fast <code>contains(...)</code> and
+     *         <code>intersects(...)</code> methods are encouraged.
+     * @param  cs The coordinate system for <code>area</code>, or <code>null</code>
+     *         to infer it from the current {@link #graphics} state.
+     * @throws TransformException if <code>area</code> coordinates can't be transformed.
+     */
+    public void addPaintedArea(Shape area, final CoordinateSystem cs) throws TransformException {
+        final Shape userArea = area;
+        if (cs != null) {
+            final MathTransform2D transform = (MathTransform2D)
+                    renderer.getMathTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS);
+            if (!transform.isIdentity()) {
+                area = transform.createTransformedShape(area);
+            }
+        } else {
+            final AffineTransform transform = graphics.getTransform();
+            if (!transform.isIdentity()) {
+                area = transform.createTransformedShape(area);
+            }
+        }
+        if (paintedArea == null) {
+            if (area==userArea && area instanceof Area) {
+                // Protect the user's object from changes,
+                // since the code below may update the area.
+                area = new Area(area);
+            }
+            paintedArea = area;
+        } else {
+            if (!(paintedArea instanceof Area)) {
+                paintedArea = new Area(area);
+            }
+            ((Area) paintedArea).add((area instanceof Area) ? (Area) area : new Area(area));
+        }
     }
 
     /**
@@ -249,18 +358,9 @@ public final class RenderingContext {
      * For performance reason, this method do not clone
      * the area. Do not modify it!
      */
-    public Rectangle getDrawingArea() {
-        return bounds;
-    }
-
-    /**
-     * Returns the rendered area in point coordinates.
-     *
-     * @task TODO: Not yet implemented.
-     */
-    final Shape getRenderedArea() {
-        return null; // TODO
-    }
+//    public Rectangle getDrawingArea() {
+//        return bounds;
+//    }
 
     /**
      * Clip a contour to the current widget's bounds. The clip is only approximative
@@ -294,7 +394,7 @@ public final class RenderingContext {
 //            return contours.get(0);
 //        }
 //        /*
-//         * Gets the clip area expressed in MapPanel's coordinate system
+//         * Gets the clip area expressed in MapPane's coordinate system
 //         * (i.e. gets bounds in "logical visual coordinates").
 //         */
 //        if (logicalClip==null) try {
@@ -320,7 +420,7 @@ public final class RenderingContext {
 //            /*
 //             * First, we need to know the clip in contour's coordinates.
 //             * The {@link fr.ird.map.layer.IsolineLayer} usually keeps
-//             * isoline in the same coordinate system than the MapPanel's
+//             * isoline in the same coordinate system than the MapPane's
 //             * one. But a user could invoke this method in a more unusual
 //             * way, so we are better to check...
 //             */

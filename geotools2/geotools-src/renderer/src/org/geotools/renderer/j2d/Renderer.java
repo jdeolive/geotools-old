@@ -35,14 +35,24 @@ package org.geotools.renderer.j2d;
 // J2SE dependencies
 import java.awt.Shape;
 import java.awt.Component;
+import java.awt.EventQueue;
+import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.IllegalComponentStateException;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
 import java.util.Map;
-import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.Locale;
+import java.util.Comparator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
@@ -60,6 +70,7 @@ import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.ct.TransformException;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
@@ -74,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.2 2003/01/20 23:21:10 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.3 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -83,6 +94,52 @@ public class Renderer {
      */
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
 
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////         RenderedObject (a.k.a "Layers")          ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
+    /**
+     * Objet utilisé pour comparer deux objets {@link RenderedObject}.
+     * Ce comparateur permettra de classer les {@link RenderedObject}
+     * par ordre croissant d'ordre <var>z</var>.
+     */
+    private static final Comparator COMPARATOR = new Comparator() {
+        public int compare(final Object layer1, final Object layer2) {
+            return Float.compare(((RenderedObject)layer1).getZOrder(),
+                                 ((RenderedObject)layer2).getZOrder());
+        }
+    };
+
+    /**
+     * The set of {@link RenderedObject} to display. Named "layers" here because each
+     * {@link RenderedObject} has its own <var>z</var> value and layer are painted in
+     * increasing <var>z</var> order (i.e. layers with a hight <var>z</var> value are
+     * painted on top of layers with a low <var>z</var> value).
+     */
+    private RenderedObject[] layers;
+
+    /**
+     * The number of valid elements in {@link #layers}.
+     */
+    private int layerCount;
+
+    /**
+     * Tells if elements in {@link #layers} are sorted in increasing <var>z</var> value.
+     * If <code>false</code>, then <code>Arrays.sort(layers, COMPARATOR)</code> need to
+     * be invoked.
+     */
+    private boolean layerSorted;
+
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////        Coordinate systems and transforms         ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
      * Axis orientations in the Java2D space. Coordinates are in "dots" (about 1/72 of inch),
      * <var>x</var> values increasing right and <var>y</var> values increasing down. East and
@@ -95,24 +152,6 @@ public class Renderer {
     };
 
     /**
-     * Objet utilisé pour comparer deux objets {@link RenderedObject}.
-     * Ce comparateur permettra de classer les {@link RenderedObject}
-     * par ordre croissant d'ordre <var>z</var>.
-     */
-//    private static final Comparator COMPARATOR = new Comparator() {
-//        public int compare(final Object layer1, final Object layer2) {
-//            return Float.compare(((RenderedObject)layer1).getZOrder(),
-//                                 ((RenderedObject)layer2).getZOrder());
-//        }
-//    };
-
-    /**
-     * The component owner, or <code>null</code> if none. This is used for managing
-     * repaint request (see RenderedObject#repaint}) or mouse events.
-     */
-    private final Component mapPanel;
-
-    /**
      * The "real world" coordinate system for rendering. This is the coordinate system for
      * what the user will see on the screen. Data from all {@link RenderedObject}s will be
      * projected in this coordinate system before to be rendered.  Units are usually "real
@@ -120,25 +159,37 @@ public class Renderer {
      *
      * This coordinate system is usually set once for ever and do not change anymore, except
      * if the user want to change the projection see on screen.
+     *
+     * @see #textCS
+     * @see RenderingContext#mapCS
      */
     private CoordinateSystem mapCS = GeographicCoordinateSystem.WGS84;
 
     /**
-     * The Java2D coordinate system. Each "unit" in this CS is a dot (about 1/72 of inch).
-     * <var>x</var> values increase toward the right of the screen and <var>y</var> values
-     * increase toward the bottom of the screen. This coordinate system is appropriate for
-     * rendering text and labels.
+     * The {@linkplain Graphics2D Java2D coordinate system}. Each "unit" is a dot (about
+     * 1/72 of inch). <var>x</var> values increase toward the right of the screen and
+     * <var>y</var> values increase toward the bottom of the screen.  This coordinate
+     * system is appropriate for rendering text and labels.
      *
      * This coordinate system change every time the zoom change.
      * A <code>null</code> value means that it need to be recomputed.
+     *
+     * @see #mapCS
+     * @see #deviceCS
+     * @see RenderingContext#textCS
      */
     private CoordinateSystem textCS;
 
     /**
      * The device coordinate system. Each "unit" is a pixel of device-dependent size. When
      * rendering on screen, this coordinate system is identical to {@link #textCS}. When
-     * rendering on printer or some other devices, it may be different.
+     * rendering on printer or some other devices, it depends of the device's resolution.
+     * This coordinate system is rarely used.
+     *
      * A <code>null</code> value means that it need to be recomputed.
+     *
+     * @see #textCS
+     * @see RenderingContext#deviceCS
      */
     private CoordinateSystem deviceCS;
 
@@ -149,7 +200,7 @@ public class Renderer {
      * If a transformation is not available in this collection, then the usual {@link #factory}
      * will be used.
      */
-    private final Map transforms = new HashMap();
+    private final Map transforms = new WeakHashMap();
 
     /**
      * The factory to use for creating {@link CoordinateTransformation} objects.
@@ -157,33 +208,13 @@ public class Renderer {
      */
     private CoordinateTransformationFactory factory = CoordinateTransformationFactory.getDefault();
 
-    /**
-     * The bounding box of all {@link RenderedObject} in the {@link #mapCS} coordinate system.
-     * This box is computed from {@link RenderedObject#getPreferredArea}. A <code>null</code>
-     * value means that none of them returned a non-null value.
-     */
-    private Rectangle2D area;
 
-    /**
-     * Tells if elements in {@link #layers} are sorted in increasing <var>z</var> value.
-     * If <code>false</code>, then <code>Arrays.sort(layers, COMPARATOR)</code> need to
-     * be invoked.
-     */
-    private boolean layerSorted;
 
-    /**
-     * The number of valid elements in {@link #layers}.
-     */
-    private int layerCount;
-
-    /**
-     * The set of {@link RenderedObject} to display. Named "layers" here because each
-     * {@link RenderedObject} has its own <var>z</var> value and layer are painted in
-     * increasing <var>z</var> order (i.e. layers with a hight <var>z</var> value are
-     * painted on top of layers with a low <var>z</var> value).
-     */
-//    private RenderedObject[] layers;
-
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////        Rendering hints (e.g. resolution)         ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
      * A set of rendering hints. Recognized hints include
      * {@link Hints#COORDINATE_TRANSFORMATION_FACTORY} and
@@ -192,15 +223,110 @@ public class Renderer {
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    private RenderingHints hints = new RenderingHints(null);
+    private final RenderingHints hints = new RenderingHints(null);
 
     /**
      * The rendering resolution, in units of {@link #mapCS} coordinate system
      * (usually metres or degree). A larger resolution speed up rendering, while
      * a smaller resolution draw more precise map. The value can be set with
-     * {@link #setRenderingHints}.
+     * {@link #setRenderingHint}.
      */
     private float resolution;
+
+    /**
+     * The bounding box of all {@link RenderedObject} in the {@link #mapCS} coordinate system.
+     * This box is computed from {@link RenderedObject#getPreferredArea}. A <code>null</code>
+     * value means that none of them returned a non-null value.
+     */
+    private Rectangle2D preferredArea;
+
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////         AWT and Swing container / events         ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
+    /**
+     * The component owner, or <code>null</code> if none. This is used for managing
+     * repaint request (see {@link RenderedObject#repaint}) or mouse events.
+     */
+    private final Component mapPane;
+
+    /**
+     * <code>true</code> if {@link #listeners} is currently registered into {@link #mapPane}.
+     */
+    private boolean listenerRegistered;
+
+    /**
+     * Objet "listener" ayant la charge de réagir aux différents
+     * événements qui intéressent cet objet <code>Renderer</code>.
+     */
+    private final Listeners listeners = new Listeners();
+
+    /**
+     * Classe ayant la charge de réagir aux différents événements qui intéressent cet
+     * objet <code>Renderer</code>. Cette classe réagira entre autres aux changements
+     * de l'ordre <var>z</var> ainsi qu'aux changements des coordonnées géographiques
+     * d'une couche.
+     */
+    private final class Listeners extends MouseAdapter implements ComponentListener,
+                                                                  PropertyChangeListener
+    {
+        /** Invoked when the mouse has been clicked on a component. */
+        public void mouseClicked(final MouseEvent event) {
+//            Renderer.this.mouseClicked(event);
+        }
+
+        /** Invoked when the component's size changes. */
+        public void componentResized(final ComponentEvent event) {
+//            Renderer.this.zoomChanged(null);
+        }
+
+        /** Invoked when the component's position changes. */
+        public void componentMoved(final ComponentEvent event) {
+        }
+
+        /** Invoked when the component has been made visible. */
+        public void componentShown(final ComponentEvent event) {
+        }
+
+        /** Invoked when the component has been made invisible. */
+        public void componentHidden(final ComponentEvent event) {
+//            clearCache();
+        }
+
+        /** Invoked when a {@link RenderedObject}'s property is changed. */
+        public void propertyChange(final PropertyChangeEvent event) {
+            // Make sure we are running in the AWT thread.
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        propertyChange(event);
+                    }
+                });
+                return;
+            }
+            final String propertyName = event.getPropertyName();
+            if (propertyName.equalsIgnoreCase("preferredArea")) {
+//                changeArea((Rectangle2D)     event.getOldValue(),
+//                           (Rectangle2D)     event.getNewValue(),
+//                           ((RenderedObject) event.getSource()).getCoordinateSystem(),
+//                           "RenderedObject", "setPreferredArea");
+                return;
+            }
+            if (propertyName.equalsIgnoreCase("zOrder")) {
+                layerSorted = false;
+                return;
+            }
+            if (propertyName.equalsIgnoreCase("tools")) {
+                if ((event.getOldValue()==null) != (event.getNewValue()==null)) {
+                    registerListeners();
+                }
+                return;
+            }
+        }
+    }
 
     /**
      * Construct a new renderer for the specified component.
@@ -208,7 +334,10 @@ public class Renderer {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
-        this.mapPanel = owner;
+        this.mapPane = owner;
+        if (mapPane != null) {
+            mapPane.addComponentListener(listeners);
+        }
     }
 
     /**
@@ -234,8 +363,10 @@ public class Renderer {
      *
      * @param cs The view coordinate system. If this coordinate system has
      *           more than 2 dimensions, then only the 2 first will be retained.
+     * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
+     *         coordinate system., or if data can't be transformed for some other reason.
      */
-    public void setCoordinateSystem(CoordinateSystem cs) {
+    public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
         cs = CTSUtilities.getCoordinateSystem2D(cs);
         if (!cs.equals(mapCS)) {
             mapCS    = cs;
@@ -246,19 +377,33 @@ public class Renderer {
     }
 
     /**
-     * Returns to locale for this renderer. The renderer will inherit
-     * the locale of its {@link Component}, if he have one. Otherwise,
-     * a default locale will be returned.
+     * Returns a bounding box that completely encloses all layer's {@linkplain
+     * RenderedObject#getPreferredArea preferred area}, visible or not. This
+     * bounding box should be representative of the geographic area to drawn.
+     * Coordinates are expressed in this {@linkplain #getCoordinateSystem
+     * renderer's coordinate system}.
      *
-     * @see Component#getLocale
+     * @return The enclosing area computed from available data, or <code>null</code>
+     *         if this area can't be computed.
      */
-    public Locale getLocale() {
-        if (mapPanel!=null) try {
-            return mapPanel.getLocale();
-        } catch (IllegalComponentStateException exception) {
-            // Not yet added to a containment hierarchy. Ignore...
+    public Rectangle2D getPreferredArea() {
+        final Rectangle2D area = this.preferredArea;
+        return (area!=null) ? (Rectangle2D) area.clone() : null;
+    }
+
+    /**
+     * Set the geographic area. This is method is invoked as a result of
+     * internal computation. User should not call this method directly.
+     */
+    private void setArea(final Rectangle2D newArea) {
+        final Rectangle2D oldArea = this.preferredArea;
+        if (!Utilities.equals(oldArea, newArea)) {
+            this.preferredArea = newArea;
+//            firePropertyChange("area", oldArea, newArea);
+//            fireZoomChanged(new AffineTransform()); // Update scrollbars
+// TODO: Need protected access
+//          log("fr.ird.map", "MapPanel", "setArea", newArea);
         }
-        return JComponent.getDefaultLocale();
     }
 
     /**
@@ -283,7 +428,7 @@ public class Renderer {
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    public void setRenderingHints(final RenderingHints.Key key, final Object value) {
+    public void setRenderingHint(final RenderingHints.Key key, final Object value) {
         hints.put(key, value);
         if (Hints.RESOLUTION.equals(key)) {
             resolution = ((Number) hints.get(key)).floatValue();
@@ -336,6 +481,10 @@ public class Renderer {
      * @param  targetCS The target coordinate system.
      * @return A transformation from <code>sourceCS</code> to <code>targetCS</code>.
      * @throws CannotCreateTransformException if the transformation can't be created.
+     *
+     * @see #getRenderingHint
+     * @see #setRenderingHint
+     * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
     final MathTransform getMathTransform(final CoordinateSystem sourceCS,
                                          final CoordinateSystem targetCS)
@@ -388,12 +537,15 @@ public class Renderer {
          * to create a new one. A message is logged in order to trace down the amount
          * of coordinate transformations created.
          */
-        final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
-                                           ResourceKeys.INITIALIZING_TRANSFORMATION_$2,
-                                           toString(sourceCS), toString(targetCS));
-        record.setSourceClassName ("Renderer");
-        record.setSourceMethodName("getMathTransform");
-        LOGGER.log(record);
+        if (LOGGER.isLoggable(Level.FINER)) {
+            // FINER is the default level for entering, returning, or throwing an exception.
+            final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
+                                               ResourceKeys.INITIALIZING_TRANSFORMATION_$2,
+                                               toString(sourceCS), toString(targetCS));
+            record.setSourceClassName ("Renderer");
+            record.setSourceMethodName("getMathTransform");
+            LOGGER.log(record);
+        }
         tr = factory.createFromCoordinateSystems(sourceCS, targetCS).getMathTransform();
         if (cachedTransform) {
             transforms.put(sourceCS, tr);
@@ -416,5 +568,52 @@ public class Renderer {
         }
         buffer.append(']');
         return buffer.toString();
+    }
+
+    /**
+     * Register {@link #listeners} if at least one layer has a tool, or unregister it
+     * if no layer has tools.   This method is automatically invoked when the "tools"
+     * property change in a {@link RenderedObject}.
+     */
+    private void registerListeners() {
+        if (mapPane != null) {
+            boolean hasTools = false;
+            for (int i=layerCount; --i>=0;) {
+                if (layers[i].getTools() != null) {
+                    hasTools = true;
+                    break;
+                }
+            }
+            if (hasTools != listenerRegistered) {
+                mapPane.removeMouseListener(listeners);
+                if (hasTools) {
+                    mapPane.addMouseListener(listeners);
+                    if (mapPane instanceof JComponent) {
+                        ToolTipManager.sharedInstance().registerComponent((JComponent)mapPane);
+                    }
+                } else {
+                    if (mapPane instanceof JComponent) {
+                        ToolTipManager.sharedInstance().unregisterComponent((JComponent)mapPane);
+                    }
+                }
+                listenerRegistered = hasTools;
+            }
+        }
+    }
+
+    /**
+     * Returns to locale for this renderer. The renderer will inherit
+     * the locale of its {@link Component}, if he have one. Otherwise,
+     * a default locale will be returned.
+     *
+     * @see Component#getLocale
+     */
+    public Locale getLocale() {
+        if (mapPane != null) try {
+            return mapPane.getLocale();
+        } catch (IllegalComponentStateException exception) {
+            // Not yet added to a containment hierarchy. Ignore...
+        }
+        return JComponent.getDefaultLocale();
     }
 }

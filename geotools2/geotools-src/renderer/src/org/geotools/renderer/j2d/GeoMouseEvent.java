@@ -49,8 +49,8 @@ import org.geotools.resources.CTSUtilities;
 
 /**
  * An event which indicates that a mouse action occurred in a map component. This event can
- * convert mouse position in geographic coordinates. All {@link MouseListener}s registered
- * to {@link MapPanel} will automatically receive events of this class.
+ * convert mouse position in geographic coordinates.  All {@link MouseListener}s registered
+ * to {@link org.geotools.gui.swing.MapPane} will automatically receive events of this class.
  * Listeners implementations can implements their code as below:
  *
  * <blockquote><pre>
@@ -60,7 +60,7 @@ import org.geotools.resources.CTSUtilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.1 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.2 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeoMouseEvent extends MouseEvent {
@@ -72,11 +72,11 @@ public class GeoMouseEvent extends MouseEvent {
     /**
      * Carte qui a construit cet événement.
      */
-//    private final MapPanel mapPanel;
+//    private final MapPane mapPane;
 
     /**
      * The transform most likely to be used by this event. This transform must be equals
-     * to <code>MapPanel.commonestTransform.inverse()</code>, or be <code>null</code> if
+     * to <code>MapPane.commonestTransform.inverse()</code>, or be <code>null</code> if
      * not yet computed. The <code>getSourceCS()</code> MUST be the map panel's coordinate
      * system (i.e. the coordinate system used for rendering). The <code>getTargetCS()</code>
      * is arbitrary, but performance will be better if it is set to the commonest coordinate
@@ -101,12 +101,12 @@ public class GeoMouseEvent extends MouseEvent {
     /**
      * Construit un événements qui utilisera les mêmes paramètres que <code>event</code>.
      * Les coordonnées en pixels pourront être converties en coordonnées géographiques en
-     * utilisant les paramètres de l'objet {@link MapPanel} spécifié.
+     * utilisant les paramètres de l'objet {@link MapPane} spécifié.
      *
      * @param event Evénement original.
-     * @param mapPanel Carte ayant produit cet événement.
+     * @param mapPane Carte ayant produit cet événement.
      */
-    public GeoMouseEvent(final MouseEvent event /*, final MapPanel mapPanel*/) {
+    public GeoMouseEvent(final MouseEvent event /*, final MapPane mapPane*/) {
         super(event.getComponent(),    // the Component that originated the event
               event.getID(),           // the integer that identifies the event
               event.getWhen(),         // a long int that gives the time the event occurred
@@ -116,7 +116,7 @@ public class GeoMouseEvent extends MouseEvent {
               event.getClickCount(),   // the number of mouse clicks associated with event
               event.isPopupTrigger(),  // a boolean, true if this event is a trigger for a popup-menu
               event.getButton());      // which of the mouse buttons has changed state (JDK 1.4 only).
-//        this.mapPanel = mapPanel;
+//        this.mapPane = mapPane;
     }
 
     /**
@@ -132,14 +132,14 @@ public class GeoMouseEvent extends MouseEvent {
 //    public Point2D getPoint2D(Point2D dest) {
 //        if (dest!=null) dest.setLocation(getX(), getY());
 //        else dest=new Point2D.Double(getX(), getY());
-//        mapPanel.correctPointForMagnifier(dest);
+//        mapPane.correctPointForMagnifier(dest);
 //        return dest;
 //    }
 
     /**
      * Retourne les coordonnées logiques de l'endroit ou s'est produit l'événement.
      * Les coordonnées seront exprimées selon le système de coordonnées de l'afficheur
-     * {@link MapPanel}. Si la coordonnée n'a pas pu être déterminée, alors
+     * {@link MapPane}. Si la coordonnée n'a pas pu être déterminée, alors
      * cette méthode retourne <code>null</code>.
      *
      * @param  dest Un point pré-aloué dans lequel mémoriser le résultat, ou <code>null</code>
@@ -149,7 +149,7 @@ public class GeoMouseEvent extends MouseEvent {
      *         une nouveau point sera automatiquement créé et retourné.
      */
 //    public Point2D getVisualCoordinate(final Point2D dest) {
-//        return mapPanel.inverseTransform(getPoint2D(dest));
+//        return mapPane.inverseTransform(getPoint2D(dest));
 //    }
 
     /**
@@ -169,7 +169,7 @@ public class GeoMouseEvent extends MouseEvent {
 //        system = CTSUtilities.getCoordinateSystem2D(system);
 //        try {
 //            if (inverseTransform==null) {
-//                inverseTransform = mapPanel.getCommonestTransformation("GeoMouseEvent", "getCoordinate").inverse();
+//                inverseTransform = mapPane.getCommonestTransformation("GeoMouseEvent", "getCoordinate").inverse();
 //            }
 //            /*
 //             * Si le système de coordonnées spécifié n'est pas
@@ -182,7 +182,7 @@ public class GeoMouseEvent extends MouseEvent {
 //                    return null;
 //                }
 //                final CoordinateTransformation tr;
-//                tr = Contour.getCoordinateTransformation(mapPanel.getCoordinateSystem(), system);
+//                tr = Contour.getCoordinateTransformation(mapPane.getCoordinateSystem(), system);
 //                return ((MathTransform2D) tr.getMathTransform()).transform(dest, dest);
 //            }
 //            /*
@@ -212,10 +212,10 @@ public class GeoMouseEvent extends MouseEvent {
 //        } catch (TransformException exception) {
 //            /*
 //             * Si une projection cartographique a échouée, reporte
-//             * l'erreur à l'objet {@link MapPanel} qui avait lancé
+//             * l'erreur à l'objet {@link MapPane} qui avait lancé
 //             * cet événement.
 //             */
-//            mapPanel.handleException("GeoMouseEvent", "getCoordinate", exception);
+//            mapPane.handleException("GeoMouseEvent", "getCoordinate", exception);
 //        }
 //        return null;
 //    }
@@ -228,14 +228,14 @@ public class GeoMouseEvent extends MouseEvent {
      */
 //    final CoordinateTransformation getTransformToTarget(final CoordinateTransformation cached) throws CannotCreateTransformException
 //    {
-//        final CoordinateSystem sourceCS = mapPanel.getCoordinateSystem();
+//        final CoordinateSystem sourceCS = mapPane.getCoordinateSystem();
 //        if (sourceCS.equals(cached.getSourceCS(), false)) {
 //            return cached;
 //        }
 //        final CoordinateSystem targetCS = cached.getTargetCS();
 //        try {
 //            if (inverseTransform == null) {
-//                inverseTransform = mapPanel.getCommonestTransformation("MouseCoordinateFormat", "format").inverse();
+//                inverseTransform = mapPane.getCommonestTransformation("MouseCoordinateFormat", "format").inverse();
 //            }
 //            assert sourceCS.equals(inverseTransform.getSourceCS(), false);
 //            if (targetCS.equals(inverseTransform.getTargetCS(), false)) {
@@ -243,7 +243,7 @@ public class GeoMouseEvent extends MouseEvent {
 //            }
 //        } catch (NoninvertibleTransformException exception) {
 //            // This method is actually invoked by MouseCoordinateFormat only.
-//            mapPanel.handleException("MouseCoordinateFormat", "format", exception);
+//            mapPane.handleException("MouseCoordinateFormat", "format", exception);
 //        }
 //        return Contour.getCoordinateTransformation(sourceCS, targetCS, "MouseCoordinateFormat", "format");
 //    }

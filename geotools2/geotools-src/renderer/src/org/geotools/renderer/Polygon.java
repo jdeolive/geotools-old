@@ -106,7 +106,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.4 2003/01/20 23:21:07 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -256,7 +256,7 @@ public class Polygon extends GeoShape {
      *        points in this polygon, or <code>null</code> if unknow.
      */
     public Polygon(final CoordinateSystem coordinateSystem) {
-        this(getIdentityTransform(CTSUtilities.getCoordinateSystem2D(coordinateSystem)));
+        this(getIdentityTransform(getCoordinateSystem2D(coordinateSystem)));
     }
 
     /**
@@ -340,7 +340,7 @@ public class Polygon extends GeoShape {
      * @return Tableau de polygones. Peut avoir une longueur de 0, mais ne sera jamais nul.
      */
     public static Polygon[] getInstances(final Shape shape, CoordinateSystem coordinateSystem) {
-        coordinateSystem = CTSUtilities.getCoordinateSystem2D(coordinateSystem);
+        coordinateSystem = getCoordinateSystem2D(coordinateSystem);
         if (shape instanceof Polygon) {
             return new Polygon[] {(Polygon) shape};
         }
@@ -397,6 +397,21 @@ public class Polygon extends GeoShape {
             }
         }
         return (Polygon[]) polygons.toArray(new Polygon[polygons.size()]);
+    }
+
+    /**
+     * Same as {@link CTSUtilities#getCoordinateSystem2D}, but wrap the {@link TransformException}
+     * into an {@link IllegalArgumentException}. Used for constructors only. Other methods still
+     * use the method throwing a transform exception.
+     */
+    private static CoordinateSystem getCoordinateSystem2D(final CoordinateSystem cs)
+            throws IllegalArgumentException
+    {
+        try {
+            return CTSUtilities.getCoordinateSystem2D(cs);
+        } catch (TransformException exception) {
+            throw new IllegalArgumentException(exception.getLocalizedMessage());
+        }
     }
 
     /**
@@ -471,6 +486,8 @@ public class Polygon extends GeoShape {
     public synchronized void setCoordinateSystem(CoordinateSystem coordinateSystem)
             throws TransformException
     {
+        // Do not use 'Polygon.getCoordinateSystem2D', since
+        // we want a 'TransformException' in case of failure.
         coordinateSystem = CTSUtilities.getCoordinateSystem2D(coordinateSystem);
         if (coordinateSystem == null) {
             coordinateSystem = getSourceCS();
@@ -1833,7 +1850,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.4 2003/01/20 23:21:07 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Isoline#paint

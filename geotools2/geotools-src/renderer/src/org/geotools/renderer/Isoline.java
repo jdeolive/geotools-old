@@ -80,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.4 2003/01/20 23:21:06 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -518,7 +518,7 @@ public class Isoline extends GeoShape implements Comparable {
                     }
                 }
             }
-            if (numPoints != 0) {
+            if (numPoints!=0 && LOGGER.isLoggable(Level.FINER)) {
                 // FINER is the default level for entering, returning, or throwing an exception.
                 final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
                                          ResourceKeys.REBUILD_CACHE_ARRAY_$3,
@@ -1057,7 +1057,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.4 2003/01/20 23:21:06 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
