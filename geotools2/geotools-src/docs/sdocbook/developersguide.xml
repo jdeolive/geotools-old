@@ -40,7 +40,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2003/04/25 21:50:42 $</date>
+    <date>$Date: 2003/04/25 22:56:19 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -61,6 +61,9 @@ id="index">
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
         href="doclicense.sgml"/>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+        href="sourcelicense.sgml"/>
   </section>
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"

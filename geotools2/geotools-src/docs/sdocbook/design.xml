@@ -48,9 +48,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.xml,v 1.9 2003/04/25 21:50:41 camerons Exp $</date>
+    <date>$Id: design.xml,v 1.10 2003/04/25 22:56:18 camerons Exp $</date>
 
-    <edition>$Id: design.xml,v 1.9 2003/04/25 21:50:41 camerons Exp $</edition>
+    <edition>$Id: design.xml,v 1.10 2003/04/25 22:56:18 camerons Exp $</edition>
   </articleinfo>
 
   <section id="scope">
@@ -67,6 +67,9 @@ id="index">
   href="systemoverview.sgml"></xi:include> <xi:include
   xmlns:xi="http://www.w3.org/2001/XInclude" href="designoverview.sgml"></xi:include>
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="doclicense.sgml"></xi:include>
+
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+        href="sourcelicense.sgml"/>
   </section>
 
   <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
