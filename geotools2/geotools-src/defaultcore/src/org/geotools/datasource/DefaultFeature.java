@@ -50,4 +50,8 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
         setAttributes(a,new String[]{});
     }
     
+    public String getTypeName() {
+        return "feature";//TODO: this is just a generic name for now.
+    }
+    
 }
