@@ -34,17 +34,20 @@ import java.util.logging.Logger;
  * A dom based parser to build filters as per OGC 01-067
  *
  * @author Ian Turton, CCG
- * @version $Id: FilterDOMParser.java,v 1.9 2003/08/06 16:27:12 cholmesny Exp $
+ * @version $Id: FilterDOMParser.java,v 1.10 2003/08/11 16:49:03 cholmesny Exp $
  *
  * @task TODO: split this class up into multiple methods.
  */
-public class FilterDOMParser {
+public final class FilterDOMParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Factory to create filters. */
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory
+    private static final FilterFactory FILTER_FACT = FilterFactory
         .createFilterFactory();
+
+    /** Number of children in a between filter. */
+    private static final int NUM_BETWEEN_CHILDREN = 3;
 
     /** Map of comparison names to their filter types. */
     private static java.util.Map comparisions = new java.util.HashMap();
@@ -94,7 +97,7 @@ public class FilterDOMParser {
     /**
      * Creates a new instance of FilterXMLParser
      */
-    public FilterDOMParser() {
+    private FilterDOMParser() {
     }
 
     /**
@@ -124,16 +127,17 @@ public class FilterDOMParser {
         LOGGER.finest("looking up " + childName);
 
         if (comparisions.containsKey(childName)) {
-            LOGGER.finest("a comparision filter " + childName);
+            LOGGER.finer("a comparision filter " + childName);
 
             //boolean like = false;
             //boolean between = false;
             try {
                 short type = ((Integer) comparisions.get(childName)).shortValue();
                 CompareFilter filter = null;
+                LOGGER.finer("type is " + type);
 
                 if (type == AbstractFilter.FID) {
-                    FidFilter fidFilter = filterFactory.createFidFilter();
+                    FidFilter fidFilter = FILTER_FACT.createFidFilter();
                     Element fidElement = (Element) child;
                     fidFilter.addFid(fidElement.getAttribute("fid"));
 
@@ -155,11 +159,11 @@ public class FilterDOMParser {
 
                     return fidFilter;
                 } else if (type == AbstractFilter.BETWEEN) {
-                    BetweenFilter bfilter = filterFactory.createBetweenFilter();
+                    BetweenFilter bfilter = FILTER_FACT.createBetweenFilter();
 
                     NodeList kids = child.getChildNodes();
 
-                    if (kids.getLength() < 3) {
+                    if (kids.getLength() < NUM_BETWEEN_CHILDREN) {
                         throw new IllegalFilterException(
                             "wrong number of children in Between filter: expected 3 got "
                             + kids.getLength());
@@ -173,7 +177,8 @@ public class FilterDOMParser {
 
                     // first expression
                     //value = kid.getFirstChild();
-                    //while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                    //while(value.getNodeType() != Node.ELEMENT_NODE ) 
+                    //value = value.getNextSibling();
                     LOGGER.finer("add middle value -> " + value + "<-");
                     bfilter.addMiddleValue(ExpressionDOMParser.parseExpression(
                             value));
@@ -259,7 +264,7 @@ public class FilterDOMParser {
 
                     if (!((wildcard == null) || (single == null)
                             || (escape == null) || (pattern == null))) {
-                        LikeFilter lfilter = filterFactory.createLikeFilter();
+                        LikeFilter lfilter = FILTER_FACT.createLikeFilter();
                         LOGGER.finer("Building like filter " + value.toString()
                             + "\n" + pattern + " " + wildcard + " " + single
                             + " " + escape);
@@ -273,6 +278,8 @@ public class FilterDOMParser {
                         + " " + wildcard + " " + single + " " + escape);
 
                     return null;
+                } else if (type == AbstractFilter.NULL) {
+                    return parseNullFilter(child);
                 } else {
                     filter = new CompareFilterImpl(type);
                 }
@@ -306,7 +313,7 @@ public class FilterDOMParser {
 
             try {
                 short type = ((Integer) spatial.get(childName)).shortValue();
-                GeometryFilter filter = filterFactory.createGeometryFilter(type);
+                GeometryFilter filter = FILTER_FACT.createGeometryFilter(type);
                 Node value = child.getFirstChild();
 
                 while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -349,7 +356,7 @@ public class FilterDOMParser {
                 short type = ((Integer) logical.get(childName)).shortValue();
                 LOGGER.finest("logic type " + type);
 
-                LogicFilter filter = filterFactory.createLogicFilter(type);
+                LogicFilter filter = FILTER_FACT.createLogicFilter(type);
                 NodeList map = child.getChildNodes();
 
                 for (int i = 0; i < map.getLength(); i++) {
@@ -375,5 +382,31 @@ public class FilterDOMParser {
         LOGGER.warning("unknown filter " + root);
 
         return null;
+    }
+
+    /**
+     * Parses a null filter from a node known to be a null node.
+     *
+     * @param nullNode the PropertyIsNull node.
+     *
+     * @return a null filter of the expression contained in null node.
+     *
+     * @throws IllegalFilterException DOCUMENT ME!
+     */
+    private static NullFilter parseNullFilter(Node nullNode)
+        throws IllegalFilterException {
+        LOGGER.info("parsing null node: " + nullNode);
+
+        NullFilter nFilter = FILTER_FACT.createNullFilter();
+        Node value = nullNode.getFirstChild();
+
+        while (value.getNodeType() != Node.ELEMENT_NODE) {
+            value = value.getNextSibling();
+        }
+
+        LOGGER.finest("add null value -> " + value + "<-");
+        nFilter.nullCheckValue(ExpressionDOMParser.parseExpression(value));
+
+        return nFilter;
     }
 }
