@@ -24,7 +24,17 @@
                <role>Java Developer</role>
             </roles>
         </developer>
-  </developers>
+        <developer>
+      <name>Chris Holmes</name>
+      <id>cholmesny</id>
+      <email>cholmesny@users.sourceforge.net</email>
+      <organization>TOPP</organization>
+            <roles>
+		<role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    </developers>
   <dependencies>
    <dependency>
       <id>core</id>
