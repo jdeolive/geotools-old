@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.5 2003/01/24 23:40:21 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.6 2003/01/27 22:52:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -117,7 +117,7 @@ public final class RenderingContext {
      * @see #getGraphics
      * @see Renderer#paint
      */
-    Graphics2D graphics;
+    private Graphics2D graphics;
 
     /**
      * The "real world" coordinate system for rendering. This is the coordinate system for
@@ -209,13 +209,22 @@ public final class RenderingContext {
     }
 
     /**
+     * Set the destination {@link Graphics2D}. Set it to <code>null</code> once
+     * the rendering is finished.
+     */
+    final void setGraphics(final Graphics2D graphics) {
+        this.graphics = graphics;
+    }
+
+    /**
      * Set the coordinate system in use for rendering in {@link Graphics2D}. Invoking this
-     * method do not alter the current {@link Renderer}'s coordinate system.  It is only a
-     * convenient way to set the {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s
-     * affine transform}, for example in order to alternate rendering mode between geographic
-     * features and texts. The specified coordinate system (argument <code>cs</code>) shoud be
-     * one of {@link #mapCS}, {@link #textCS} or {@link #deviceCS} fields. Other coordinate
-     * systems may work, but most of them will thrown an exception.
+     * method do not alter the current {@linkplain Renderer#getCoordinateSystem renderer's
+     * coordinate system}. It is only a convenient way to set the
+     * {@linkplain Graphics2D#setTransform <code>Graphics2D</code>'s affine transform}, for
+     * example in order to alternate rendering mode between geographic features and texts.
+     * The specified coordinate system (argument <code>cs</code>) shoud be one of {@link #mapCS},
+     * {@link #textCS} or {@link #deviceCS} fields. Other coordinate systems may work, but most
+     * of them will thrown an exception.
      *
      * @param cs The {@link #getGraphics() graphics} coordinate system.
      *           Should be {@link #mapCS}, {@link #textCS} or {@link #deviceCS}.

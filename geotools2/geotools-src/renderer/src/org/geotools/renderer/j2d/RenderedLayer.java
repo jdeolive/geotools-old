@@ -36,19 +36,19 @@ package org.geotools.renderer.j2d;
 // Geometric shapes
 import java.awt.Shape;
 import java.awt.Point;
-import java.awt.Stroke;
 import java.awt.Rectangle;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.AffineTransform;
-import javax.swing.JComponent;
 
 // User interface and Java2D rendering
+import java.awt.Stroke;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.EventQueue;
+import java.awt.BasicStroke;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
@@ -59,10 +59,14 @@ import java.util.EventListener;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+// Java Advanced Imaging
+import javax.media.jai.PlanarImage; // For Javadoc
+
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XAffineTransform;
@@ -76,7 +80,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.4 2003/01/26 22:30:40 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.5 2003/01/27 22:52:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -86,6 +90,12 @@ public abstract class RenderedLayer {
      * tracking down performance bottleneck.
      */
     private static final int TIME_THRESHOLD = 200;
+
+    /**
+     * The default stroke to use if no stroke can be infered from
+     * {@link #getPreferredPixelSize}.
+     */
+    private static final Stroke DEFAULT_STROKE = new BasicStroke(0);
 
     /**
      * The renderer that own this layer, or <code>null</code>
@@ -196,7 +206,7 @@ public abstract class RenderedLayer {
     /**
      * Returns the lock for synchronisation.
      */
-    private Object getTreeLock() {
+    final Object getTreeLock() {
         return (renderer!=null) ? (Object)renderer : (Object)this;
     }
 
@@ -223,7 +233,7 @@ public abstract class RenderedLayer {
      */
     public Locale getLocale() {
         final Renderer renderer = this.renderer;
-        return (renderer!=null) ? renderer.getLocale() : JComponent.getDefaultLocale();
+        return (renderer!=null) ? renderer.getLocale() : Locale.getDefault();
     }
 
     /**
@@ -248,7 +258,7 @@ public abstract class RenderedLayer {
      *
      * @param  cs The coordinate system.
      * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
-     *         coordinate system., or if data can't be transformed for some other reason.
+     *         coordinate system. or if data can't be transformed for some other reason.
      */
     protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
         final CoordinateSystem oldCS;
@@ -552,12 +562,22 @@ public abstract class RenderedLayer {
      *        ({@link RenderingContext#deviceCS}).
      */
     final void update(final RenderingContext context,
-                                   final Rectangle clipBounds)
+                      final Rectangle clipBounds)
             throws TransformException
     {
-        if (visible) synchronized (getTreeLock()) {
+        assert Thread.holdsLock(getTreeLock());
+        if (visible) {
             if (paintedArea==null || clipBounds==null || paintedArea.intersects(clipBounds)) {
                 long time = System.currentTimeMillis();
+                if (stroke == null) {
+                    final Dimension2D s = getPreferredPixelSize();
+                    if (s != null) {
+                        stroke = new BasicStroke((float)XMath.hypot(s.getWidth(), s.getHeight()));
+                    } else {
+                        stroke = DEFAULT_STROKE;
+                    }
+                }
+                context.getGraphics().setStroke(stroke);
                 context.paintedArea = null;
                 paint(context);
                 if (context.textCS == context.deviceCS) {
@@ -568,6 +588,7 @@ public abstract class RenderedLayer {
                      */
                     this.paintedArea = context.paintedArea;
                 }
+                context.paintedArea = null;
                 /*
                  * If this layer took a long time to renderer, log a message.
                  */
@@ -585,6 +606,20 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Hints that the given area might be painted in the near future.  Some implementations
+     * may spawn a thread to compute the data while others may ignore the hint. The default
+     * implementation does nothing.
+     *
+     * @param The area (in this {@linkplain #getCoordinateSystem layer's coordinate system})
+     *        that may need to be painted. A <code>null</code> value means that the whole
+     *        layer may be painted soon.
+     *
+     * @see PlanarImage#prefetchTiles
+     */
+    protected void prefetch(final Rectangle2D area) {
+    }
+
+    /**
      * Tells if this layer <strong>may</strong> contains the specified point. This method
      * performs only a fast check. Subclasses will have to perform a more exhautive check
      * in their {@link #mouseClicked}, {@link #getPopupMenu} and similar methods. The
@@ -596,6 +631,7 @@ public abstract class RenderedLayer {
      * @return <code>true</code> if this layer is visible and may contains the specified point.
      */
     final boolean contains(final int x, final int y) {
+        assert Thread.holdsLock(getTreeLock());
         if (visible) {
             final Shape paintedArea = this.paintedArea;
             return (paintedArea==null) || paintedArea.contains(x,y);
@@ -662,25 +698,24 @@ public abstract class RenderedLayer {
      *        will be fully redrawn during the next rendering.
      */
     final void zoomChanged(final AffineTransform change) {
-        final Renderer renderer = this.renderer;
-        if (renderer == null) {
+        assert Thread.holdsLock(getTreeLock());
+        if (paintedArea == null) {
             return;
         }
-        final Component mapPane = renderer.mapPane;
-        final Shape paintedArea = this.paintedArea;
-        if (paintedArea != null) {
-            if (change!=null && mapPane!=null) {
+        if (change!=null && renderer!=null) {
+            final Component mapPane = renderer.mapPane;
+            if (mapPane != null) {
                 final Area newArea = new Area(mapPane.getBounds());
                 newArea.subtract(newArea.createTransformedArea(change));
                 final Area area = (paintedArea instanceof Area) ?    (Area)paintedArea
                                                                 : new Area(paintedArea);
                 area.transform(change);
                 area.add(newArea);
-                this.paintedArea = area;
-            } else {
-                this.paintedArea = null;
+                paintedArea = area;
+                return;
             }
         }
+        paintedArea = null;
     }
 
     /**
@@ -692,7 +727,9 @@ public abstract class RenderedLayer {
      * traçage un peu plus lent.
      */
     void clearCache() {
-        stroke = null;
+        assert Thread.holdsLock(getTreeLock());
+        paintedArea = null;
+        stroke      = null;
     }
 
     /**
@@ -703,7 +740,6 @@ public abstract class RenderedLayer {
     protected void dispose() {
         synchronized (getTreeLock()) {
             clearCache();
-            paintedArea = null;
             final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {
                 listeners.removePropertyChangeListener(list[i]);

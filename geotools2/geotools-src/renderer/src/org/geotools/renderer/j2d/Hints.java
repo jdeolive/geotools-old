@@ -40,6 +40,7 @@ import java.awt.RenderingHints;
 
 // JAI dependencies
 import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools Dependencies
 import org.geotools.ct.CoordinateTransformation;
@@ -52,7 +53,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.2 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.3 2003/01/27 22:52:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -72,6 +73,16 @@ public final class Hints extends RenderingHints.Key {
      * By convention, a resolution of 0 means the finest resolution available.
      */
     public static final RenderingHints.Key RESOLUTION = new Hints(0, Number.class);
+
+    /**
+     * {@link Boolean#TRUE} if the renderer is allowed to prefetch data before to
+     * paint layers. Prefetching data may speed up rendering on machine with more
+     * than one processor.
+     *
+     * @see RenderedLayer#prefetch
+     * @see PlanarImage#prefetchTiles
+     */
+    public static final RenderingHints.Key PREFETCH = new Hints(2, Boolean.class);
 
     /**
      * Base class of all values for this key.

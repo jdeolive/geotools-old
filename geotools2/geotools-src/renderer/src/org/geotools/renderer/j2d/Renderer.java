@@ -64,6 +64,7 @@ import java.util.logging.LogRecord;
 
 // Java Advanced Imaging
 import javax.media.jai.GraphicsJAI;
+import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools dependencies
 import org.geotools.cs.AxisInfo;
@@ -83,11 +84,10 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XDimension2D;
+import org.geotools.resources.XRectangle2D;
+import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
-
-// TODO: can we get ride of this GUI dependencies?
-//import org.geotools.gui.swing.ExceptionMonitor;
 
 
 /**
@@ -95,10 +95,10 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>Renderer</code> is initially empty. To make something appears, {@link RendererObject}s
  * must be added using one of <code>addLayer(...)</code> methods. The visual content depends of
  * the <code>RendererObject</code> subclass. It may be an isoline ({@link RenderedIsoline}),
- * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
+ * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.7 2003/01/26 22:30:40 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.8 2003/01/27 22:52:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -106,6 +106,11 @@ public class Renderer {
      * The logger for the Java2D renderer module.
      */
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
+
+    /**
+     * Small value for avoiding rounding error.
+     */
+    private static final double EPS = 1E-6;
 
 
 
@@ -125,6 +130,11 @@ public class Renderer {
                                  ((RenderedLayer)layer2).getZOrder());
         }
     };
+
+    /**
+     * An empty list of layers.
+     */
+    private static final RenderedLayer[] EMPTY = new RenderedLayer[0];
 
     /**
      * The set of {@link RenderedLayer} to display. Named "layers" here because each
@@ -222,8 +232,19 @@ public class Renderer {
      *
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     * @see Hints#PREFETCH
+     * @see RenderingHints#KEY_RENDERING
+     * @see RenderingHints#KEY_COLOR_RENDERING
+     * @see RenderingHints#KEY_INTERPOLATION
      */
     protected final RenderingHints hints = new RenderingHints(null);
+
+    /**
+     * <code>true</code> if the renderer is allowed to prefetch data before to
+     * paint layers.   Prefetching data may speed up rendering on machine with
+     * more than one processor.
+     */
+    private boolean prefetch;
 
     /**
      * The rendering resolution,  in units of {@link RenderingContext#mapCS} coordinate
@@ -295,7 +316,9 @@ public class Renderer {
 
         /** Invoked when the component's size changes. */
         public void componentResized(final ComponentEvent event) {
-            Renderer.this.zoomChanged(null);
+            synchronized (Renderer.this) {
+                zoomChanged(null);
+            }
         }
 
         /** Invoked when the component's position changes. */
@@ -304,6 +327,9 @@ public class Renderer {
 
         /** Invoked when the component has been made visible. */
         public void componentShown(final ComponentEvent event) {
+            // It would be nice to invokes 'prefetch(...)' here, but we don't know
+            // yet for sure the widget bounds and the zoom.  We are better to wait
+            // until 'paint(...)' is invoked.
         }
 
         /** Invoked when the component has been made invisible. */
@@ -313,15 +339,6 @@ public class Renderer {
 
         /** Invoked when a {@link RenderedLayer}'s property is changed. */
         public void propertyChange(final PropertyChangeEvent event) {
-            // Make sure we are running in the AWT thread.
-            if (!EventQueue.isDispatchThread()) {
-                EventQueue.invokeLater(new Runnable() {
-                    public void run() {
-                        propertyChange(event);
-                    }
-                });
-                return;
-            }
             final String propertyName = event.getPropertyName();
             synchronized (Renderer.this) {
                 if (propertyName.equalsIgnoreCase("preferredArea")) {
@@ -362,7 +379,8 @@ public class Renderer {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
-        context = new RenderingContext(this, GeographicCoordinateSystem.WGS84, null, null);
+        final CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
+        context   = new RenderingContext(this, cs, cs, cs);
         listeners = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
@@ -402,8 +420,9 @@ public class Renderer {
         synchronized (this) {
             oldCS = getCoordinateSystem();
             if (!cs.equals(oldCS)) {
-                context = new RenderingContext(this, cs, null, null);
-                transforms.clear();
+                CoordinateSystem textCS = createFittedCoordinateSystem("textCS", cs, mapToText);
+                context = new RenderingContext(this, cs, textCS, textCS);
+                clearCache();
             }
         }
         listeners.firePropertyChange("coordinateSystem", oldCS, cs);
@@ -431,11 +450,12 @@ public class Renderer {
      * @param newArea The new preferred area (will not be cloned).
      */
     private void setPreferredArea(final Rectangle2D newArea) {
-        final Rectangle2D oldArea = this.preferredArea;
-        if (!Utilities.equals(oldArea, newArea)) {
-            this.preferredArea = newArea;
-            listeners.firePropertyChange("preferredArea", oldArea, newArea);
+        final Rectangle2D oldArea;
+        synchronized (this) {
+            oldArea = preferredArea;
+            preferredArea = newArea;
         }
+        listeners.firePropertyChange("preferredArea", oldArea, newArea);
     }
 
     /**
@@ -447,6 +467,7 @@ public class Renderer {
      * @param  sourceMethodName The caller's method name, for logging purpose.
      */
     private void computePreferredArea(final String sourceClassName, final String sourceMethodName) {
+        assert Thread.holdsLock(this);
         Rectangle2D         newArea = null;
         CoordinateSystem lastSystem = null;
         MathTransform2D   transform = null;
@@ -470,6 +491,7 @@ public class Renderer {
                     }
                 } catch (TransformException exception) {
                     handleException(sourceClassName, sourceMethodName, exception);
+                    // Continue. The preferred area for this layer will be ignored.
                 }
             }
         }
@@ -495,6 +517,7 @@ public class Renderer {
                                      final String sourceClassName,
                                      final String sourceMethodName)
     {
+        assert Thread.holdsLock(this);
         try {
             final MathTransform2D transform = (MathTransform2D) getMathTransform(
                     coordinateSystem, getCoordinateSystem(), sourceClassName, sourceMethodName);
@@ -703,30 +726,33 @@ public class Renderer {
      * @see #getLayerCount
      */
     public synchronized void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
-        if (layer.renderer == this) {
-            return;
+        synchronized (layer.getTreeLock()) {
+            if (layer.renderer == this) {
+                return;
+            }
+            if (layer.renderer != null) {
+                throw new IllegalArgumentException(
+                            Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
+            }
+            layer.renderer = this;
+            /*
+             * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
+             * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
+             */
+            if (layers == null) {
+                layers = new RenderedLayer[16];
+            }
+            if (layerCount >= layers.length) {
+                layers = (RenderedLayer[]) XArray.resize(layers, Math.max(layerCount,8) << 1);
+            }
+            layers[layerCount++] = layer;
+            layerSorted = false;
+            layer.setVisible(true);
+            changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
+                                "Renderer", "addLayer");
+            layer.addPropertyChangeListener(proxyListener);
         }
-        if (layer.renderer != null) {
-            throw new IllegalArgumentException(
-                        Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
-        }
-        layer.renderer = this;
-        /*
-         * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
-         * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
-         */
-        if (layers == null) {
-            layers = new RenderedLayer[16];
-        }
-        if (layerCount >= layers.length) {
-            layers = (RenderedLayer[]) XArray.resize(layers, Math.max(layerCount,8) << 1);
-        }
-        layers[layerCount++] = layer;
-        layerSorted = false;
-        layer.setVisible(true);
-        changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
-                            "Renderer", "addLayer");
-        layer.addPropertyChangeListener(proxyListener);
+        updateListenerRegistration();
     }
 
     /**
@@ -773,6 +799,7 @@ public class Renderer {
             }
         }
         changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
+        updateListenerRegistration();
     }
 
     /**
@@ -794,7 +821,7 @@ public class Renderer {
         }
         layerCount = 0;
         setPreferredArea(null);
-        transforms.clear();
+        clearCache();
     }
 
     /**
@@ -818,7 +845,7 @@ public class Renderer {
             System.arraycopy(layers, 0, array, 0, layerCount);
             return array;
         } else {
-            return new RenderedLayer[0];
+            return EMPTY;
         }
     }
 
@@ -838,6 +865,7 @@ public class Renderer {
      * Procède au classement immédiat des couches, si ce n'était pas déjà fait.
      */
     private void sortLayers() {
+        assert Thread.holdsLock(this);
         if (!layerSorted && layers!=null) {
             layers = (RenderedLayer[]) XArray.resize(layers, layerCount);
             Arrays.sort(layers, COMPARATOR);
@@ -851,70 +879,79 @@ public class Renderer {
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
-     * Returns a rendering hints.
+     * Returns a rendering hint.
      *
      * @param  key The hint key (e.g. {@link Hints#RESOLUTION}).
-     * @return The hint value for the specified key.
+     * @return The hint value for the specified key, or <code>null</code> if there is no
+     *         hint for the specified key.
      *
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     * @see Hints#PREFETCH
+     * @see RenderingHints#KEY_RENDERING
+     * @see RenderingHints#KEY_COLOR_RENDERING
+     * @see RenderingHints#KEY_INTERPOLATION
      */
     public synchronized Object getRenderingHints(final RenderingHints.Key key) {
         return hints.get(key);
     }
 
     /**
-     * Add a rendering hints. Hints provides optional information used by some rendering code.
+     * Add a rendering hint. Hints provides optional information used by some rendering code.
      *
      * @param key   The hint key (e.g. {@link Hints#RESOLUTION}).
-     * @param value The hint value.
+     * @param value The hint value. A <code>null</code> value remove the hint.
      *
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
+     * @see Hints#PREFETCH
+     * @see RenderingHints#KEY_RENDERING
+     * @see RenderingHints#KEY_COLOR_RENDERING
+     * @see RenderingHints#KEY_INTERPOLATION
      */
     public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
-        hints.put(key, value);
+        if (value != null) {
+            hints.put(key, value);
+        } else {
+            hints.remove(key);
+        }
         if (Hints.RESOLUTION.equals(key)) {
-            resolution = ((Number) hints.get(key)).floatValue();
-            if (!(resolution >= 0)) {
-                resolution = 0;
+            if (value != null) {
+                resolution = ((Number) hints.get(key)).floatValue();
+                if (resolution >= 0) {
+                    return;
+                }
             }
-        } else if (Hints.COORDINATE_TRANSFORMATION_FACTORY.equals(key)) {
-            factory = (CoordinateTransformationFactory) hints.get(key);
-            transforms.clear();
+            resolution = 0;
+            return;
+        }
+        if (Hints.PREFETCH.equals(key)) {
+            prefetch = (value!=null) && ((Boolean) value).booleanValue();
+            return;
+        }
+        if (Hints.COORDINATE_TRANSFORMATION_FACTORY.equals(key)) {
+            factory = (value!=null) ? (CoordinateTransformationFactory) value :
+                                       CoordinateTransformationFactory.getDefault();
+            clearCache();
+            return;
         }
     }
 
     /**
-     * Returns a fitted coordinate system for {@link RenderingContext#textCS} and
-     * {@link RenderingContext#deviceCS}.
-     *
-     * @param  name     The coordinate system name (e.g. "text" or "device").
-     * @param  base     The base coordinate system (e.g. {@link RenderingContext#mapCS}).
-     * @param  fromBase The transform from the base CS to the fitted CS.  Note that this is the
-     *                  opposite of the usual {@link FittedCoordinateSystem} constructor. We do
-     *                  it that way because it is the way we usually gets affine transform from
-     *                  {@link Graphics2D}.
-     * @return The fitted coordinate system, or <code>base</code> if the transform is the identity
-     *         transform.
-     * @throws NoninvertibleTransformException if the affine transform is not invertible.
+     * Returns a string representation of a coordinate system. This method is
+     * used for formatting a logging message in {@link #getMathTransform}.
      */
-    private CoordinateSystem createFittedCoordinateSystem(final String           name,
-                                                          final CoordinateSystem base,
-                                                          final AffineTransform fromBase)
-            throws NoninvertibleTransformException
-    {
-        if (fromBase.isIdentity()) {
-            return base;
+    private static String toString(final CoordinateSystem cs) {
+        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(cs));
+        buffer.append('[');
+        final String name = cs.getName(null);
+        if (name != null) {
+            buffer.append('"');
+            buffer.append(name);
+            buffer.append('"');
         }
-        /*
-         * Inverse the MathTransform rather than the AffineTransform because MathTransform
-         * keep a reference to its inverse. It avoid the need for re-inversing it again later,
-         * which help to avoid rounding errors.
-         */
-        final MathTransform toBase;
-        toBase = factory.getMathTransformFactory().createAffineTransform(fromBase).inverse();
-        return new FittedCoordinateSystem(name, base, toBase, TEXT_AXIS);
+        buffer.append(']');
+        return buffer.toString();
     }
 
     /**
@@ -1003,6 +1040,130 @@ public class Renderer {
     }
 
     /**
+     * Returns a fitted coordinate system for {@link RenderingContext#textCS} and
+     * {@link RenderingContext#deviceCS}.
+     *
+     * @param  name     The coordinate system name (e.g. "text" or "device").
+     * @param  base     The base coordinate system (e.g. {@link RenderingContext#mapCS}).
+     * @param  fromBase The transform from the base CS to the fitted CS.  Note that this is the
+     *                  opposite of the usual {@link FittedCoordinateSystem} constructor. We do
+     *                  it that way because it is the way we usually gets affine transform from
+     *                  {@link Graphics2D}.
+     * @return The fitted coordinate system, or <code>base</code> if the transform is the identity
+     *         transform.
+     * @throws NoninvertibleTransformException if the affine transform is not invertible.
+     */
+    private CoordinateSystem createFittedCoordinateSystem(final String           name,
+                                                          final CoordinateSystem base,
+                                                          final AffineTransform fromBase)
+            throws NoninvertibleTransformException
+    {
+        if (fromBase.isIdentity()) {
+            return base;
+        }
+        /*
+         * Inverse the MathTransform rather than the AffineTransform because MathTransform
+         * keep a reference to its inverse. It avoid the need for re-inversing it again later,
+         * which help to avoid rounding errors.
+         */
+        final MathTransform toBase;
+        toBase = factory.getMathTransformFactory().createAffineTransform(fromBase).inverse();
+        return new FittedCoordinateSystem(name, base, toBase, TEXT_AXIS);
+    }
+
+    /**
+     * Paint this <code>Renderer</code> and all visible layers it contains.
+     * This method invokes {@link RenderedLayer#paint} for each layer.
+     *
+     * @param graph  The graphics handler.
+     * @param zoom   The zoom (usually provided by {@link org.geotools.gui.swing.ZoomPane#zoom}.
+     * @param widget The bounds of drawing area (usually provided by
+     *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
+     */
+    public synchronized void paint(final Graphics2D      graph,
+                                   final AffineTransform zoom,
+                                   final Rectangle       bounds)
+    {
+        sortLayers();
+        RenderingContext       context = this.context;
+        final RenderedLayer[]   layers = this.layers;
+        final GraphicsJAI     graphics = GraphicsJAI.createGraphicsJAI(graph, mapPane);
+        final Rectangle     clipBounds = graphics.getClipBounds();
+        final AffineTransform toDevice = graphics.getTransform();
+        final boolean         toScreen = toDevice.isIdentity();
+        final boolean         sameZoom = mapToText.equals(zoom);
+        /*
+         * If the zoom has changed, send a notification to all layers before
+         * to start the rendering.  Layers will update their cache, which is
+         * used in order to decide if a layer need to be repainted or not.
+         */
+        if (!sameZoom) try {
+            final AffineTransform change = mapToText.createInverse();
+            change.preConcatenate(zoom);
+            if (true) {
+                // Scale slightly the zoom in order to avoid rounding errors in Area.
+                final double centerX = bounds.getCenterX();
+                final double centerY = bounds.getCenterY();
+                change.translate( centerX,  centerY);
+                change.scale(1+EPS, 1+EPS);
+                change.translate(-centerX, -centerY);
+            }
+            zoomChanged(change);
+        } catch (java.awt.geom.NoninvertibleTransformException exception) {
+            // Should not happen. If it happen anyway, declare that everything must be
+            // repainted. It will be slower, but will not prevent the renderer to work.
+            Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                          "Renderer", "paint", exception);
+            zoomChanged(null);
+        }
+        /*
+         * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
+         * be recreated.
+         */
+        if (!sameZoom || !toScreen) try {
+            final CoordinateSystem mapCS, textCS, deviceCS;
+            mapCS    = context.mapCS;
+            textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
+            deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
+            context  = new RenderingContext(this, mapCS, textCS, deviceCS);
+            if (toScreen) {
+                mapToText.setTransform(zoom);
+                this.context = context;
+            }
+            if (prefetch) {
+                // Prepare data in separated threads.
+                prefetch(bounds, context.deviceCS);
+            }
+        } catch (TransformException exception) {
+            // Impossible to process to the rendering. Paint the stack
+            // trace right into the component and exit from this method.
+            GraphicsUtilities.paintStackTrace(graphics, bounds, exception);
+            return;
+        }
+        /*
+         * Dessine les couches en commençant par
+         * celles qui ont un <var>z</var> le plus bas.
+         */
+        graphics.transform(zoom);
+        graphics.addRenderingHints(hints);
+        context.setGraphics(graphics);
+        try {
+            for (int i=0; i<layerCount; i++) {
+                try {
+                    layers[i].paint(context);
+                } catch (TransformException exception) {
+                    handleException("RenderedLayer", "paintComponent", exception);
+                } catch (RuntimeException exception) {
+                    Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                                  "RenderedLayer", "paint", exception);
+                }
+            }
+        } finally {
+            context.setGraphics(null);
+        }
+    }
+
+    /**
      * Méthode appelée lorsqu'une exception {@link TransformException} non-gérée
      * s'est produite. Cette méthode peut être appelée pendant le traçage de la carte
      * où les mouvements de la souris. Elle ne devrait donc pas utiliser une boîte de
@@ -1013,85 +1174,11 @@ public class Renderer {
      * @param  sourceMethodName The caller's method name, for logging purpose.
      * @param  exception        The transform exception.
      */
-    private static void handleException(final String className,
-                                        final String methodName,
-                                        final TransformException exception)
+    static void handleException(final String className,
+                                final String methodName,
+                                final TransformException exception)
     {
         Utilities.unexpectedException("org.geotools.renderer.j2d", className, methodName, exception);
-    }
-
-    /**
-     * Returns a string representation of a coordinate system. This method is
-     * used for formatting a logging message in {@link #getMathTransform}.
-     */
-    private static String toString(final CoordinateSystem cs) {
-        final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(cs));
-        buffer.append('[');
-        final String name = cs.getName(null);
-        if (name != null) {
-            buffer.append('"');
-            buffer.append(name);
-            buffer.append('"');
-        }
-        buffer.append(']');
-        return buffer.toString();
-    }
-
-    /**
-     * Paint this <code>Renderer</code> and all visible layers it contains.
-     *
-     * @param graph  The graphics context.
-     * @param zoom   The zoom (usually provided by {@link org.geotools.gui.swing.ZoomPane#zoom}.
-     * @param widget The bounds of drawing area (usually provided by
-     *               {@link org.geotools.gui.swing.ZoomPane#getZoomableBounds}).
-     */
-    public synchronized void paintComponent(final Graphics2D      graph,
-                                            final AffineTransform zoom,
-                                            final Rectangle       bounds)
-    {
-        sortLayers();
-//        if (stroke == null) {
-//            Dimension2D s = getPreferredPixelSize();
-//            double t; t=Math.sqrt((t=s.getWidth())*t + (t=s.getHeight())*t);
-//            stroke = new BasicStroke((float)t);
-//        }
-        final RenderedLayer[] layers = this.layers;
-        final GraphicsJAI   graphics = GraphicsJAI.createGraphicsJAI(graph, mapPane);
-        final Rectangle   clipBounds = graphics.getClipBounds();
-        try {
-            final CoordinateSystem mapCS, textCS, deviceCS;
-            mapCS    = context.mapCS;
-            textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
-            deviceCS = createFittedCoordinateSystem("deviceCS", textCS, graphics.getTransform());
-// TODO: check if we could reuse existing 'this.context'.
-            context = new RenderingContext(this, mapCS, textCS, deviceCS);
-        } catch (TransformException exception) {
-//            ExceptionMonitor.paintStackTrace(graphics, bounds, exception);
-            handleException("Renderer", "paintComponent", exception);
-            return;
-        }
-        graphics.transform(zoom);
-//        graphics.setStroke(stroke);
-        /*
-         * Dessine les couches en commençant par
-         * celles qui ont un <var>z</var> le plus bas.
-         */
-        context.graphics = graphics;
-        try {
-            for (int i=0; i<layerCount; i++) {
-                try {
-                    layers[i].paint(context);
-                } catch (TransformException exception) {
-                    handleException("RenderedLayer", "paintComponent", exception);
-                } catch (RuntimeException exception) {
-                    Utilities.unexpectedException("org.geotools.renderer.j2d",
-                                                  "RenderedLayer",
-                                                  "paint", exception);
-                }
-            }
-        } finally {
-            context.graphics = null;
-        }
     }
 
 
@@ -1107,6 +1194,7 @@ public class Renderer {
      * property change in a {@link RenderedLayer}.
      */
     private void updateListenerRegistration() {
+        assert Thread.holdsLock(this);
         if (mapPane != null) {
             boolean hasTools = (tools != null);
             if (!hasTools) {
@@ -1118,6 +1206,20 @@ public class Renderer {
                 }
             }
             if (hasTools != listenerRegistered) {
+                /*
+                 * Since we are about to change Component registration,
+                 * make sure we are running in the AWT thread.
+                 */
+                if (!EventQueue.isDispatchThread()) {
+                    EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            synchronized (Renderer.this) {
+                                updateListenerRegistration();
+                            }
+                        }
+                    });
+                    return;
+                }
                 /*
                  * Before to register any listener, unregister unconditionnaly in order
                  * to make sure we don't register the same listener twice.  It is safer
@@ -1153,14 +1255,19 @@ public class Renderer {
      * a default locale will be returned.
      *
      * @see Component#getLocale
+     * @see JComponent#getDefaultLocale
+     * @see Locale#getDefault
      */
     public Locale getLocale() {
         if (mapPane != null) try {
             return mapPane.getLocale();
         } catch (IllegalComponentStateException exception) {
             // Not yet added to a containment hierarchy. Ignore...
+            if (mapPane instanceof JComponent) {
+                return JComponent.getDefaultLocale();
+            }
         }
-        return JComponent.getDefaultLocale();
+        return Locale.getDefault();
     }
 
     /**
@@ -1201,8 +1308,8 @@ public class Renderer {
      */
     public synchronized String getToolTipText(final GeoMouseEvent event) {
         sortLayers();
-        final int                  x = event.getX();
-        final int                  y = event.getY();
+        final int x = event.getX();
+        final int y = event.getY();
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
@@ -1263,8 +1370,8 @@ public class Renderer {
      */
     public synchronized Action[] getPopupMenu(final GeoMouseEvent event) {
         sortLayers();
-        final int                  x = event.getX();
-        final int                  y = event.getY();
+        final int x = event.getX();
+        final int y = event.getY();
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
@@ -1289,8 +1396,8 @@ public class Renderer {
      */
     private synchronized void mouseClicked(final GeoMouseEvent event) {
         sortLayers();
-        final int                  x = event.getX();
-        final int                  y = event.getY();
+        final int x = event.getX();
+        final int y = event.getY();
         final RenderedLayer[] layers = this.layers;
         for (int i=layerCount; --i>=0;) {
             final RenderedLayer layer = layers[i];
@@ -1312,34 +1419,16 @@ public class Renderer {
      * Cette méthode met à jour les coordonnées des formes géométriques
      * déclarées dans les objets {@link RenderedLayer}.
      *
-     * @param change Le changement de zoom, ou <code>null</code> s'il
-     *        n'est pas connu. Dans ce dernier cas, toutes les couches
-     *        seront redessinées lors du prochain traçage.
+     * @param change The zoom <strong>change</strong> in <strong>device</strong> coordinate
+     *        system, or <code>null</code> if unknow. If <code>null</code>, then all layers
+     *        will be fully redrawn during the next rendering.
      */
-    private synchronized void zoomChanged(AffineTransform change) {
-        final AffineTransform zoom = null; // TODO: SHOULD BE SET TO ZoomPane.zoom
-        if (change != null) try {
-            if (change.isIdentity()) {
-                return;
-            }
-            // NOTE: 'change' is a transformation in LOGICAL coordinates.
-            //       But 'Layer.zoomChanged(...)' expect a transformation
-            //       in PIXEL coordinates. Compute the matrix now...
-            final AffineTransform matrix = zoom.createInverse();
-            matrix.preConcatenate(change);
-            matrix.preConcatenate(zoom);
-            change = matrix;
-        } catch (java.awt.geom.NoninvertibleTransformException exception) {
-            // Should not happen.
-            Utilities.unexpectedException("org.geotools.renderer.j2d", "Renderer",
-                                          "zoomChanged", exception);
-            change = null;
+    private void zoomChanged(AffineTransform change) {
+        if (change!=null && change.isIdentity()) {
+            return;
         }
+        assert Thread.holdsLock(this);
         for (int i=layerCount; --i>=0;) {
-            /*
-             * Remind: 'Layer' is about to use the affine transform change
-             *         for updating its bounding shape in pixel coordinates.
-             */
             layers[i].zoomChanged(change);
         }
     }
@@ -1364,6 +1453,45 @@ public class Renderer {
      */
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Hints that the given area might be painted in the near future. Some layers
+     * may spawn a thread to compute the data while others may ignore the hint.
+     *
+     * @param The area (in the <code>cs</code> coordinate system) that may need to
+     *        be painted. A <code>null</code> value means that all layers will need
+     *        to be fully painted soon.
+     * @param cs The coordinate system for <code>area</code>.
+     *
+     * @see RenderedLayer#prefetch
+     * @see PlanarImage#prefetchTiles
+     */
+    private void prefetch(Rectangle2D area, final CoordinateSystem cs) {
+        assert Thread.holdsLock(this);
+        Rectangle2D buffer = null;
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            Rectangle2D layerArea = area;
+            try {
+                if (area != null) {
+                    // Note: the 'getMathTransform(...)' method is faster when the targetCS is
+                    //       'context.mapCS'.  This is why we invoke 'MathTransform.inverse()'
+                    //       instead of swaping 'sourceCS' and 'targetCS' arguments.
+                    final MathTransform2D transform = (MathTransform2D)
+                                               getMathTransform(layer.getCoordinateSystem(), cs,
+                                                                "Renderer", "prefetch").inverse();
+                    if (!transform.isIdentity()) {
+                        layerArea = buffer = CTSUtilities.transform(transform, area, buffer);
+                    }
+                }
+                layer.prefetch(layerArea);
+            } catch (TransformException exception) {
+                // Can't transform the area. This is not a big deal, since
+                // 'prefetch' is nothing more than a hint. Continue the loop...
+                handleException("Renderer", "prefetch", exception);
+            }
+        }
     }
 
     /**
@@ -1397,6 +1525,7 @@ public class Renderer {
         for (int i=layerCount; --i>=0;) {
             layers[i].dispose();
         }
+        clearCache();
         final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
         for (int i=list.length; --i>=0;) {
             listeners.removePropertyChangeListener(list[i]);
