@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.6 2003/08/01 16:55:04 ianturton Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.7 2003/08/03 05:06:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer {
@@ -86,4 +86,16 @@ public class PointSymbolizerImpl implements PointSymbolizer {
         visitor.visit(this);
     }
     
+    /** Creates a deep copy clone. 
+     * 
+     * TODO: Need to complete the deep copy,
+     * currently only shallow copy.
+     * 
+     * @return The deep copy clone.
+     * @throws CloneNotSupportedException If the implementing 
+     * class does not correctly support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

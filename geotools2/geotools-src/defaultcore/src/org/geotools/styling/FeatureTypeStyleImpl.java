@@ -20,11 +20,11 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.9 2003/08/01 16:54:49 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.10 2003/08/03 05:06:31 seangeo Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl
-    implements org.geotools.styling.FeatureTypeStyle {
+    implements org.geotools.styling.FeatureTypeStyle, Cloneable {
     private java.util.List ruleList = new java.util.ArrayList(); // Possibly not the best storage
     private String featureTypeName = "feature";
     private String name = "name";
@@ -124,4 +124,19 @@ protected FeatureTypeStyleImpl(Rule[] rules) {
         visitor.visit(this);
     }
     
+    /** Creates a deep copy clone of the FeatureTypeStyle.
+     * @see org.geotools.styling.FeatureTypeStyle#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        FeatureTypeStyle clone = (FeatureTypeStyle) super.clone();
+        
+        Rule[] ruleArray = new Rule[ruleList.size()];        
+        for (int i = 0; i < ruleArray.length; i++) {
+            Rule rule = (Rule) ruleList.get(i);
+            ruleArray[i] = (Rule) rule.clone();
+        }        
+        clone.setRules(ruleArray);
+        
+        return clone;
+    }
 }

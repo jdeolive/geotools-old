@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.8 2003/08/01 16:55:16 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.9 2003/08/03 05:06:31 seangeo Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
@@ -91,5 +91,19 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
+    
+    /** Creates a deep copy clone. 
+     * 
+     * TODO: Need to complete the deep copy,
+     * currently only shallow copy.
+     * 
+     * @return The deep copy clone.
+     * @throws CloneNotSupportedException If the implementing 
+     * class does not correctly support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
     
 }

@@ -304,4 +304,16 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
         visitor.visit(this);
     }
     
+    /** Creates a deep copy clone. 
+     * 
+     * TODO: Need to complete the deep copy,
+     * currently only shallow copy.
+     * 
+     * @return The deep copy clone.
+     * @throws CloneNotSupportedException If the implementing 
+     * class does not correctly support cloning.
+     */
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.7 2003/08/01 16:54:49 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.8 2003/08/03 05:06:31 seangeo Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.List;
 import org.geotools.filter.Filter;
 
 
-public class RuleImpl implements org.geotools.styling.Rule {
+public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
     private Symbolizer[] symbolizers;
     private List graphics = new ArrayList();
     private String name = "name";
@@ -185,4 +185,27 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public void accept(StyleVisitor visitor){
         visitor.visit(this);
     }
+    
+    /* (non-Javadoc)
+     * @see org.geotools.styling.Rule#clone()
+     */
+    public Object clone() throws CloneNotSupportedException {
+        Rule clone = (Rule) super.clone();
+        
+        Graphic[] legends = new Graphic[graphics.size()];
+        for (int i = 0; i < legends.length; i++) {
+            Graphic legend = (Graphic) graphics.get(i);
+            legends[i] = (Graphic) legend.clone();
+        } 
+        clone.setLegendGraphic(legends);
+        
+        Symbolizer[] symbArray = new Symbolizer[symbolizers.length];
+        for (int i = 0; i < symbArray.length; i++) {
+            symbArray[i] = (Symbolizer) symbolizers[i].clone();
+        }
+        clone.setSymbolizers(symbArray);
+        
+        return clone;
+    }
+
 }
