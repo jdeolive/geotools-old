@@ -243,7 +243,11 @@
   <target depends="init,compile,test" name="release">
     <echo message="release of ${project.name} targeted at ${releaseFolder}"/>
     <mkdir dir="${releaseFolder}"/>
-    <jar basedir="${dir.source}" jarfile="${releaseFolder}/${project.name}.jar"/>
+    <jar basedir="${dir.source}" jarfile="${releaseFolder}/${project.name}.jar">
+            <include name="**/*.class"/>
+            <include name="**/*.utf"/>
+            <include name="**/*.xml"/>
+        </jar>
     <antcall target="copy-extlib"/>
   </target>
     
