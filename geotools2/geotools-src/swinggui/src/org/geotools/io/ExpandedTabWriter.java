@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -32,7 +32,7 @@
  */
 package org.geotools.io;
 
-// Standards I/O
+// Standard I/O
 import java.io.Writer;
 import java.io.FilterWriter;
 import java.io.IOException;
@@ -42,15 +42,15 @@ import org.geotools.resources.Utilities;
 
 
 /**
- * Write characters to a stream while expanding
- * tabulations (<code>'\t'</code>) into spaces.
+ * Writes characters to a stream while expanding
+ * tabs (<code>'\t'</code>) into spaces.
  *
  * @version 1.0
  * @author Martin Desruisseaux
  */
 public class ExpandedTabWriter extends FilterWriter {
     /**
-     * Tabulation width (in number of spaces).
+     * Tab width (in number of spaces).
      */
     private int tabWidth = 8;
 
@@ -59,37 +59,37 @@ public class ExpandedTabWriter extends FilterWriter {
      * Columns are numbered from 0.
      */
     private int column = 0;
-
+    
     /**
-     * Construct a filter replacing tabulation characters (<code>'\t'</code>)
-     * into spaces. Tabulations width default to 8 characters.
+     * Constructs a filter which replaces tab characters (<code>'\t'</code>)
+     * with spaces. Tab widths default to 8 characters.
      *
      * @param out a Writer object to provide the underlying stream.
      */
     public ExpandedTabWriter(final Writer out) {
         super(out);
     }
-
+    
     /**
-     * Construct a filter replacing tabulation characters (<code>'\t'</code>)
-     * into spaces, using the specified tabulation width.
+     * Constructs a filter which replaces tab characters (<code>'\t'</code>)
+     * with spaces, using the specified tab width.
      *
      * @param  out a Writer object to provide the underlying stream.
-     * @param  tabWidth The tabulation width. Must be greater than 0.
+     * @param  tabWidth The tab width. Must be greater than 0.
      * @throws IllegalArgumentException if <code>tabWidth</code>
-     *         is not greater than 0.
+     * is not greater than 0.
      */
     public ExpandedTabWriter(final Writer out, final int tabWidth) throws IllegalArgumentException {
         super(out);
         setTabWidth(tabWidth);
     }
-
+    
     /**
-     * Set the tabulation width.
+     * Sets the tab width.
      *
-     * @param  tabWidth The tabulation width. Must be greater than 0.
+     * @param  tabWidth The tab width. Must be greater than 0.
      * @throws IllegalArgumentException if <code>tabWidth</code>
-     *         is not greater than 0.
+     * is not greater than 0.
      */
     public void setTabWidth(final int tabWidth) throws IllegalArgumentException {
         synchronized (lock) {
@@ -101,16 +101,16 @@ public class ExpandedTabWriter extends FilterWriter {
             }
         }
     }
-
+    
     /**
-     * Returns the tabulation width.
+     * Returns the tab width.
      */
     public int getTabWidth() {
         return tabWidth;
     }
-
+    
     /**
-     * Write spaces for a tabulation.
+     * Writes spaces for a tab character.
      *
      * @throws IOException If an I/O error occurs
      */
@@ -119,9 +119,9 @@ public class ExpandedTabWriter extends FilterWriter {
         out.write(Utilities.spaces(width));
         column += width;
     }
-
+    
     /**
-     * Write a single character.
+     * Writes a single character.
      *
      * @throws IOException If an I/O error occurs
      */
@@ -136,9 +136,9 @@ public class ExpandedTabWriter extends FilterWriter {
             out.write(c);
         }
     }
-
+    
     /**
-     * Write a portion of an array of characters.
+     * Writes a portion of an array of characters.
      *
      * @param  buffer  Buffer of characters to be written
      * @param  offset  Offset from which to start reading characters
@@ -160,7 +160,7 @@ public class ExpandedTabWriter extends FilterWriter {
                                start=end+1;
                                expand();
                                break;
-
+                    
                     default  : column++;
                                break;
                 }
@@ -168,9 +168,9 @@ public class ExpandedTabWriter extends FilterWriter {
             out.write(buffer, start, length-start);
         }
     }
-
+    
     /**
-     * Write a portion of an array of a string.
+     * Writes a portion of a string.
      *
      * @param  string  String to be written
      * @param  offset  Offset from which to start reading characters
@@ -187,12 +187,12 @@ public class ExpandedTabWriter extends FilterWriter {
                     case '\r': // fall through
                     case '\n': column=0;
                                break;
-
+                    
                     case '\t': out.write(string, start, end-start);
                                start=end+1;
                                expand();
                                break;
-
+                    
                     default  : column++;
                                break;
                 }
