@@ -202,7 +202,7 @@
   </target>
 
   <!-- Compiles all test code for the module. -->
-  <target depends="compile,prepare-tests" if="cond.test" name="compile-test">
+  <target depends="compile, prepare-tests" if="cond.test" name="compile-test">
    <echo message="compiling test code, cond.test=${cond.test} whilst testing=${testing} and testDependancies = ${has.testDependancies}"/>
     <javac debug="true" srcdir="${dir.test}">
             <classpath>
@@ -253,6 +253,7 @@
             <include name="**/*.class"/>
             <include name="**/*.utf"/>
             <include name="**/*.xml"/>
+            <include name="**/*.serialized"/>
         </jar>
     <antcall target="copy-extlib"/>
   </target>
