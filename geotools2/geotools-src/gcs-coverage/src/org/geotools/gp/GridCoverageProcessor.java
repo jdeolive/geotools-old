@@ -82,7 +82,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.29 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.30 2003/07/24 09:34:38 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -203,21 +203,40 @@ public class GridCoverageProcessor {
     public static synchronized GridCoverageProcessor getDefault() {
         if (DEFAULT==null) {
             DEFAULT = new GridCoverageProcessor();
-            DEFAULT.addOperation(new Interpolator.Operation());
+            //
+            // OpenGIS operations
+            //
             DEFAULT.addOperation(new Resampler.Operation());
+            DEFAULT.addOperation(new Interpolator.Operation());
             DEFAULT.addOperation(new SelectSampleDimension.Operation());
-            DEFAULT.addOperation(new OperationJAI("Rescale"));
-            DEFAULT.addOperation(new InvertOperation());
-            DEFAULT.addOperation(new RecolorOperation());
-            DEFAULT.addOperation(new GradualColormapOperation());
             DEFAULT.addOperation(new MaskFilterOperation("MinFilter"));
             DEFAULT.addOperation(new MaskFilterOperation("MaxFilter"));
             DEFAULT.addOperation(new MaskFilterOperation("MedianFilter"));
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType1Filter", ConvolveOperation.LAPLACE_TYPE_1));
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType2Filter", ConvolveOperation.LAPLACE_TYPE_2));
-            DEFAULT.addOperation(new ConvolveOperation());
-            DEFAULT.addOperation(new GradientMagnitudeOperation());
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
+            //
+            // JAI operations
+            //
+            DEFAULT.addOperation(new ConvolveOperation());
+            DEFAULT.addOperation(new OperationJAI("Absolute"));
+            DEFAULT.addOperation(new OperationJAI("Add"));
+            DEFAULT.addOperation(new OperationJAI("AddConst"));
+            DEFAULT.addOperation(new OperationJAI("Divide"));
+            DEFAULT.addOperation(new OperationJAI("DivideByConst"));
+            DEFAULT.addOperation(new OperationJAI("Exp"));
+            DEFAULT.addOperation(new OperationJAI("Invert"));
+            DEFAULT.addOperation(new OperationJAI("Multiply"));
+            DEFAULT.addOperation(new OperationJAI("MultiplyConst"));
+            DEFAULT.addOperation(new OperationJAI("Subtract"));
+            DEFAULT.addOperation(new OperationJAI("SubtractConst"));
+            DEFAULT.addOperation(new OperationJAI("Rescale"));
+            //
+            // Custom (Geotools) operations
+            //
+            DEFAULT.addOperation(new RecolorOperation());
+            DEFAULT.addOperation(new GradualColormapOperation());
+            DEFAULT.addOperation(new GradientMagnitudeOperation()); // Backed by JAI
             DEFAULT.addOperation(new FilterOperation(  HysteresisDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new CombineOperation());
@@ -499,7 +518,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.29 2003/07/23 18:04:52 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.30 2003/07/24 09:34:38 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {
