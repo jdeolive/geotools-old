@@ -33,10 +33,6 @@
 package org.geotools.gui.swing;
 
 // Graphics and geometry
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.awt.Font;
-import java.awt.geom.Rectangle2D;
 import java.awt.Rectangle;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
@@ -67,16 +63,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.EventQueue;
 
-// Input / Output
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import org.geotools.io.ExpandedTabWriter;
-
-// Collections
-import java.util.List;
-import java.util.ArrayList;
-
 // Miscellaneous
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -85,6 +71,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
+import org.geotools.resources.GraphicsUtilities;
 
 
 /**
@@ -99,15 +86,10 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ExceptionMonitor.java,v 1.5 2002/08/20 21:53:57 desruisseaux Exp $
+ * @version $Id: ExceptionMonitor.java,v 1.6 2003/01/27 23:02:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ExceptionMonitor {
-    /**
-     * Number of spaces to leave between each tab.
-     */
-    private static final int TAB_WIDTH = 4;
-
     /**
      * The creation of <code>ExceptionMonitor</code> class objects is
      * forbidden.
@@ -142,11 +124,11 @@ public final class ExceptionMonitor {
      *        {@link Exception#getLocalizedMessage} will be called to obtain
      *        the message.
      */
-    public static void show(final Component owner, final Throwable exception, final String message) {
+    public static void show(final Component owner, final Throwable exception, final String message)
+    {
         if (EventQueue.isDispatchThread()) {
             Pane.show(owner, exception, message);
-        }
-        else {
+        } else {
             final Runnable monitor = new Runnable()
             {
                 public void run() {
@@ -178,61 +160,11 @@ public final class ExceptionMonitor {
      *        transform, default colour, etc...)
      * @param widgetBounds Size of the trace which was being drawn.
      */
-    public static void paintStackTrace(final Graphics2D graphics, final Rectangle widgetBounds,
-                                       final Throwable exception) {
-        /*
-         * Obtains the exception trace in the form of a character chain.
-         * The carriage returns in this chain can be "\r", "\n" or "r\n".
-         */
-        final String message = printStackTrace(exception);
-        /*
-         * Examines the character chain line by line.
-         * "Glyphs" will be created as we go along and we will take advantage
-         * of this to calculate the necessary space.
-         */
-        double width = 0, height = 0;
-        final List glyphs = new ArrayList();
-        final List bounds = new ArrayList();
-        final int length = message.length();
-        final Font font = graphics.getFont();
-        final FontRenderContext context = graphics.getFontRenderContext();
-        for (int i = 0; i < length;) {
-            int ir = message.indexOf('\r', i);
-            int in = message.indexOf('\n', i);
-            if (ir < 0) ir = length;
-            if (in < 0) in = length;
-            final int irn = Math.min(ir, in);
-            final GlyphVector line = font.createGlyphVector(context, message.substring(i, irn));
-            final Rectangle2D rect=line.getVisualBounds();
-            final double w = rect.getWidth();
-            if (w > width) width = w;
-            height += rect.getHeight();
-            glyphs.add(line);
-            bounds.add(rect);
-            i = (Math.abs(ir - in) <= 1 ? Math.max(ir, in) : irn) + 1;
-        }
-        /*
-         * Proceeds to draw all the previously calculated glyphs.
-         */
-        float xpos = (float) (0.5 * (widgetBounds.width - width));
-        float ypos = (float) (0.5 * (widgetBounds.height - height));
-        final int size = glyphs.size();
-        for (int i = 0; i < size; i++) {
-            final GlyphVector line = (GlyphVector) glyphs.get(i);
-            final Rectangle2D rect = (Rectangle2D) bounds.get(i);
-            ypos += rect.getHeight();
-            graphics.drawGlyphVector(line, xpos, ypos);
-        }
-    }
-
-    /**
-     * Returns an exception trace. All tabs will have been 
-     * systematically replaced by 4 white spaces.
-     */
-    private static String printStackTrace(final Throwable exception) {
-        final StringWriter writer = new StringWriter();
-        exception.printStackTrace(new PrintWriter(new ExpandedTabWriter(writer, TAB_WIDTH)));
-        return writer.toString();
+    public static void paintStackTrace(final Graphics2D graphics,
+                                       final Rectangle  widgetBounds,
+                                       final Throwable  exception)
+    {
+        GraphicsUtilities.paintStackTrace(graphics, widgetBounds, exception);
     }
 
     /**
@@ -322,7 +254,8 @@ public final class ExceptionMonitor {
          */
         private Pane(final Component owner,   final Throwable exception,
                      final Container message, final AbstractButton[] buttons,
-                     final Resources resources) {
+                     final Resources resources)
+        {
             super(message, ERROR_MESSAGE, OK_CANCEL_OPTION, null, buttons);
             this.exception   = exception;
             this.message     = message;
@@ -413,7 +346,7 @@ public final class ExceptionMonitor {
                 cause  = cause.getCause()) {
                     final JTextArea text = new JTextArea(1, WIDTH);
                     text.setTabSize(4);
-                    text.setText(printStackTrace(cause));
+                    text.setText(GraphicsUtilities.printStackTrace(cause));
                     text.setEditable(false);
                     final JScrollPane scroll = new JScrollPane(text);
                     if (traceComponent != null) {
@@ -426,8 +359,7 @@ public final class ExceptionMonitor {
                         }
                         String classname = Utilities.getShortClassName(cause);
                         ((JTabbedPane) traceComponent).addTab(classname, scroll);
-                    }
-                    else {
+                    } else {
                         traceComponent = scroll;
                     }
                 }

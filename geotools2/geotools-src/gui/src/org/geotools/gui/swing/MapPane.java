@@ -60,8 +60,6 @@ import org.geotools.renderer.j2d.Tools;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
 import org.geotools.renderer.j2d.GeoMouseEvent;
-import org.geotools.gui.swing.event.ZoomChangeEvent;
-import org.geotools.gui.swing.event.ZoomChangeListener;
 
 
 /**
@@ -71,7 +69,7 @@ import org.geotools.gui.swing.event.ZoomChangeListener;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.10 2003/01/26 22:31:00 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.11 2003/01/27 23:02:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MapPane extends ZoomPane {
@@ -96,19 +94,13 @@ public class MapPane extends ZoomPane {
      * Objet "listener" ayant la charge de réagir aux différents
      * événements qui intéressent cet objet <code>MapPane</code>.
      */
-    private final Listeners listeners = new Listeners();
+    private final ListenerProxy listenerProxy = new ListenerProxy();
 
     /**
      * Classe ayant la charge de réagir aux différents événements qui intéressent cet
-     * objet <code>MapPane</code>.  Cette classe réagira entre autres aux changements
-     * du zoom.
+     * objet <code>MapPane</code>.
      */
-    private final class Listeners implements ZoomChangeListener, PropertyChangeListener {
-        /** Invoked when the zoom changed. */
-        public void zoomChanged(final ZoomChangeEvent event) {
-//            renderer.zoomChanged(event);
-        }
-
+    private final class ListenerProxy implements PropertyChangeListener {
         /** Invoked when a {@link Renderer} property is changed. */
         public void propertyChange(final PropertyChangeEvent event) {
             // Make sure we are running in the AWT thread.
@@ -134,8 +126,8 @@ public class MapPane extends ZoomPane {
     public MapPane() {
         super(TRANSLATE_X | TRANSLATE_Y | UNIFORM_SCALE | DEFAULT_ZOOM | ROTATE | RESET);
         renderer = new Renderer(this);
-        addZoomChangeListener(listeners);
-        setResetPolicy       (true);
+        renderer.addPropertyChangeListener(listenerProxy);
+        setResetPolicy(true);
     }
 
     /**
@@ -306,7 +298,7 @@ public class MapPane extends ZoomPane {
      * @param graphics The graphics context.
      */
     protected void paintComponent(final Graphics2D graphics) {
-        renderer.paintComponent(graphics, zoom, getZoomableBounds(null));
+        renderer.paint(graphics, zoom, getZoomableBounds(null));
     }
 
     /**
