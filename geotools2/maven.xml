@@ -347,7 +347,7 @@ Module ${module} : ${status}
                 
           <!--  <j:if te${maven.stable}</echo> -->
             <!-- this will be called for each module but only applied to modules which have maven.stable set to true -->
-            <j:set var="stable" value="${maven..module.stable}"/>
+            <j:set var="stable" value="${maven.module.stable}"/>
             <j:if test="${stable == true}">
              <echo message="${pom.id} is stable"/>
             <!-- <ant:copy todir="../../srcRelease/${pom.artifactId}/src">
