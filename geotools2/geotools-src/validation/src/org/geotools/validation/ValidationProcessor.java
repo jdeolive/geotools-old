@@ -95,7 +95,7 @@ import java.util.Set;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+ * @version $Id: ValidationProcessor.java,v 1.3 2004/04/15 23:51:29 dmzwiers Exp $
  */
 public class ValidationProcessor {
     // These are no longer used for Integrity Validation tests
@@ -279,16 +279,18 @@ public class ValidationProcessor {
      * @param collection The collection of features, of a particulare
      *        FeatureTypeInfo "type", that are to be validated.
      * @param results Storage for the results of the validation tests.
+     * @param dsID data Store id.
      *
      * @throws Exception FeatureValidations throw Exceptions
      */
-    public void runFeatureTests(FeatureType type, FeatureCollection collection,
+    public void runFeatureTests(String dsID, FeatureType type, FeatureCollection collection,
         ValidationResults results) throws Exception {
         // check for any tests that are to be performed on ALL features
         ArrayList tests = (ArrayList) featureLookup.get(ANYTYPENAME);
 
         // check for any FeatureTypeInfo specific tests
-        ArrayList FT_tests = (ArrayList) featureLookup.get(type.getTypeName());
+        String typeRef = dsID+":"+type.getTypeName();
+        ArrayList FT_tests = (ArrayList) featureLookup.get(typeRef);
 
         // append featureType specific tests to the list of tests		
         if (FT_tests != null) {
