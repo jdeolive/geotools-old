@@ -76,11 +76,12 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.2 2003/03/20 22:48:02 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
-abstract class MapProjection extends AbstractMathTransform implements MathTransform2D, Serializable
+public abstract class MapProjection extends AbstractMathTransform implements MathTransform2D,
+                                                                             Serializable
 {
     /**
      * Maximal error (in metres) tolerated for assertion, if enabled. When assertions are enabled,
@@ -486,7 +487,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.1 2003/03/17 14:24:31 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.2 2003/03/20 22:48:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
