@@ -9,11 +9,30 @@ package org.geotools.coverage;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Panel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import javax.imageio.ImageIO;
 import junit.framework.*;
 import org.geotools.data.DataSourceException;
+import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.Filter;
+import org.geotools.map.DefaultMap;
+import org.geotools.renderer.Java2DRenderer;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
+import org.geotools.styling.Symbolizer;
 
 
 /**
@@ -66,7 +85,7 @@ public class TestImageDataSource extends TestCase {
         System.out.println("testGetFeatures");
         
         FeatureCollection fc = ds.getFeatures(null);
-        System.out.println("got " + fc.size() + " features ");
+        
         
     }
     
@@ -79,9 +98,52 @@ public class TestImageDataSource extends TestCase {
         
         
     }
-    // Add test methods here, they have to start with 'test' name.
-    // for example:
-    // public void testHello() {}
     
+    public void testRenderImage() throws Exception{
+        FeatureCollection ft = ds.getFeatures(null);
+        org.geotools.map.Map map = new DefaultMap();
+        StyleFactory sFac = StyleFactory.createStyleFactory();
+        EnvelopeExtent ex = new EnvelopeExtent(ds.getBbox());
+        //The following is complex, and should be built from
+        //an SLD document and not by hand
+        RasterSymbolizer rs = sFac.getDefaultRasterSymbolizer();
+        Rule rule = sFac.createRule();
+        rule.setSymbolizers(new Symbolizer[]{rs});
+        FeatureTypeStyle fts = sFac.createFeatureTypeStyle(new Rule[]{rule});
+        Style style = sFac.createStyle();
+        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
+        map.addFeatureTable(ft,style);
+        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        Frame frame = new Frame();
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+        });
+        Panel p = new Panel();
+        frame.add(p);
+        int w = 600, h = 300;
+        frame.setSize(w,h);
+        frame.setVisible(true);
+        renderer.setOutput(p.getGraphics(),p.getBounds());
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        
+        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+        Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0,0,w,h);
+        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        File file = new File(dataFolder, "RendererStyle.jpg"); 
+        FileOutputStream out = new FileOutputStream(file);
+        ImageIO.write(image, "JPEG", out); 
+        
+        //Thread.sleep(5000);
+        frame.dispose();
+    }
     
 }
