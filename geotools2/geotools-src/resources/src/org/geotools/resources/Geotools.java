@@ -41,7 +41,7 @@ import java.util.logging.Level;
  * initialization. Current implementation just setup a custom logger for the
  * <code>"org.geotools"</code> package.
  *
- * @version $Id: Geotools.java,v 1.6 2003/07/24 12:32:26 desruisseaux Exp $
+ * @version $Id: Geotools.java,v 1.7 2004/02/03 15:51:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Geotools {
@@ -74,21 +74,6 @@ public final class Geotools {
             // Set the source format only if the user didn't specified
             // an explicit one in the jre/lib/logging.properties file.
             f.setSourceFormat("class:long");
-        }
-    }
-
-    /**
-     * Performs a system-wide initialization for Geotools.
-     *
-     * @deprecated The "Log4JFormatter" type is deprecated and will be removed in a future version.
-     *             Use {@link #init(Level)} instead.
-     */
-    public static void init(String type, Level level) {
-        if(type.equals("Log4JFormatter")) {
-            Log4JFormatter.init("org.geotools", level);
-        }
-        else {
-            MonolineFormatter.init("org.geotools");
         }
     }
 }
