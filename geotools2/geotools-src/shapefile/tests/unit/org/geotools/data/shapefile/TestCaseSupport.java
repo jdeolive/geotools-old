@@ -76,7 +76,7 @@ public abstract class TestCaseSupport extends TestCase {
     private void prepareData() {
         if (prepared) return;
         prepared = true;
-        System.out.println("preparing test data");
+        
         ZipInputStream zip = new ZipInputStream(getTestResourceAsStream("data.zip"));
         
         try {
