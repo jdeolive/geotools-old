@@ -59,7 +59,7 @@ import org.geotools.renderer.Renderer2D;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.32 2003/08/18 16:34:02 desruisseaux Exp $
+ * @version $Id: MapPaneImpl.java,v 1.33 2003/08/28 22:01:33 aaime Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -104,6 +104,17 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             ((LiteRenderer) renderer).setConcatTransforms(true);
             // this.renderer = new org.geotools.renderer.Java2DRenderer(context);
             this.context = context;
+            
+            // auto-zoom if necessary
+            Layer[] layers = context.getLayerList().getLayers();
+            if(layers != null) {
+                Envelope bounds = new Envelope(layers[0].getFeatures().getBounds());
+                for(int i = 1; i < layers.length; i++) {
+                    Envelope env = layers[i].getFeatures().getBounds();
+                    bounds.expandToInclude(env);
+                }
+                context.getBoundingBox().setAreaOfInterest(bounds);
+            }
 
             // Request to be notified when map parameters change
             context.getBbox().addBoundingBoxListener(this);
