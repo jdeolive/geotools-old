@@ -61,10 +61,10 @@ public class EnvelopeExtent implements Extent {
      */
     public boolean containsFeature(Feature feature) {
         // Assume the Feature contains a Geometry
-        if (feature==null || feature.row==null){
+        if (feature==null /*|| feature.row==null*/){
             return false;
         }
-        Geometry s = (Geometry)feature.row[0];
+        Geometry s = (Geometry)feature.getGeometry();
         return bounds.overlaps(s.getEnvelopeInternal());
     }
     private Envelope createIntersect(Envelope one, Envelope two){
