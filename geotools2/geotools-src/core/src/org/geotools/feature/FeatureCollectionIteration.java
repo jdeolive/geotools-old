@@ -90,6 +90,12 @@ public class FeatureCollectionIteration {
         walker(collection);
     }
 
+    /** Perform the iterative behavior on the given collection. This will alert the
+     * handler with a <code>handleFeatureCollection</code> call, followed by an <code>
+     * iterate()</code>, followed by a <code>handler.endFeatureCollection()</code>
+     * call.
+     * @param collection The collection to iterate upon.
+     */    
     protected void walker(FeatureCollection collection) {
         handler.handleFeatureCollection(collection);
 
@@ -98,12 +104,18 @@ public class FeatureCollectionIteration {
         handler.endFeatureCollection(collection);
     }
 
+    /** Perform the actual iteration on the Iterator which is provided.
+     * @param iterator The Iterator to iterate upon.
+     */    
     protected void iterate(Iterator iterator) {
         while (iterator.hasNext()) {
             walker((Feature) iterator.next());
         }
     }
 
+    /** Perform the visitation of an individual Feature.
+     * @param feature The Feature to explore.
+     */    
     protected void walker(Feature feature) {
         final FeatureType schema = feature.getFeatureType();
         final int cnt = schema.getAttributeCount();
@@ -135,14 +147,30 @@ public class FeatureCollectionIteration {
      * FeatureCollection.
      */
     public interface Handler {
+      /** The handler is visiting a FeatureCollection.
+       * @param fc The currently visited FeatureCollection.
+       */      
         void handleFeatureCollection(FeatureCollection fc);
 
+        /** The handler is done visiting a FeatureCollection.
+         * @param fc The FeatureCollection which was visited.
+         */        
         void endFeatureCollection(FeatureCollection fc);
 
+        /** The handler is visiting a Feature.
+         * @param f The Feature the handler is visiting.
+         */        
         void handleFeature(Feature f);
 
+        /** The handler is ending its visit with a Feature.
+         * @param f The Feature that was visited.
+         */        
         void endFeature(Feature f);
 
+        /** The handler is visiting an Attribute of a Feature.
+         * @param type The meta-data of the given attribute value.
+         * @param value The attribute value, may be null.
+         */        
         void handleAttribute(AttributeType type, Object value);
     }
 }

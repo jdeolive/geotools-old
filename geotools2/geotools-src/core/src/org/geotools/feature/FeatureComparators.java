@@ -60,13 +60,23 @@ public class FeatureComparators {
         return new Name(name);
     }
 
+    /** A Comparator which performs the comparison on attributes at a given index. */    
     public static class Index implements java.util.Comparator {
         final int idx;
 
+        /** Create a new Comparator based on the given index.
+         * @param i The index.
+         */        
         public Index(int i) {
             idx = i;
         }
 
+        /** Implementation of Comparator. Calls compareAtts to perform the 
+         * actual comparison.
+         * @param o1 The first Feature.
+         * @param o2 The second Feature
+         * @return A value indicating less than, equal, or greater than.
+         */        
         public int compare(Object o1, Object o2) {
             Feature f1 = (Feature) o1;
             Feature f2 = (Feature) o2;
@@ -74,18 +84,33 @@ public class FeatureComparators {
             return compareAtts(f1.getAttribute(idx), f2.getAttribute(idx));
         }
 
+        /**
+         * @param att1 The first attribute to compare.
+         * @param att2 The second attribute to compare.
+         * @return A value indicating less than, equal, or greater than.
+         */        
         protected int compareAtts(Object att1, Object att2) {
             return ((Comparable) att1).compareTo((Comparable) att2);
         }
     }
 
+    /** A Comparator which performs the comparison on attributes with a given name. */
     public static class Name implements java.util.Comparator {
         final String name;
 
+        /** Create a new Comparator based on the given index.
+         * @param name The attribute name.
+         */
         public Name(String name) {
             this.name = name;
         }
 
+        /** Implementation of Comparator. Calls compareAtts to perform the 
+         * actual comparison.
+         * @param o1 The first Feature.
+         * @param o2 The second Feature
+         * @return A value indicating less than, equal, or greater than.
+         */  
         public int compare(Object o1, Object o2) {
             Feature f1 = (Feature) o1;
             Feature f2 = (Feature) o2;
@@ -93,6 +118,11 @@ public class FeatureComparators {
             return compareAtts(f1.getAttribute(name), f2.getAttribute(name));
         }
 
+        /**
+         * @param att1 The first attribute to compare.
+         * @param att2 The second attribute to compare.
+         * @return A value indicating less than, equal, or greater than.
+         */
         protected int compareAtts(Object att1, Object att2) {
             if ((att1 == null) && (att2 == null)) {
                 return 0;
