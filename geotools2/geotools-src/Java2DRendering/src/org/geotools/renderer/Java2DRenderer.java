@@ -26,8 +26,8 @@
 
 package org.geotools.renderer;
 
-import org.geotools.featuretable.*;
-import org.geotools.datasource.*;
+import org.geotools.feature.*;
+import org.geotools.data.*;
 import org.geotools.map.Map;
 import org.geotools.styling.*;
 
@@ -146,8 +146,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             FeatureTypeStyle fts = featureStylers[i];
             for(int j=0;j<features.length;j++){
                 Feature feature = features[j];
-                System.out.println("fature is "+feature.getTypeName()+" type styler is "+fts.getFeatureTypeName());
-                if(feature.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
+                System.out.println("fature is "+feature.getSchema().getTypeName()+" type styler is "+fts.getFeatureTypeName());
+                if(feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
                     //this styler is for this type of feature
                     //now find which rule applies
                     Rule[] rules = fts.getRules();
@@ -309,14 +309,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private Geometry findGeometry(final Feature feature, final String geomName) {
         Geometry geom = null;
         if(geomName==null){
-            geom = feature.getGeometry();
+            geom = feature.getDefaultGeometry();
         }
         else{
-            String names[] =  feature.getAttributeNames();
-            for(int i=0;i<names.length;i++){
-                if(names[i].equalsIgnoreCase(geomName)){
-                    geom=(Geometry)feature.getAttributes()[i];
-                }
+            try{
+                geom = (Geometry)feature.getAttribute(geomName);
+            }
+            catch(IllegalFeatureException ife){
+                //hack: not sure if null is the right thing to return at this point
+                geom = null;
             }
         }
         return geom;
