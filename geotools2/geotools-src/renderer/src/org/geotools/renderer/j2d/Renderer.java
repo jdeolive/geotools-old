@@ -34,6 +34,7 @@
 package org.geotools.renderer.j2d;
 
 // J2SE dependencies
+import java.awt.Color;
 import java.awt.Shape;
 import java.awt.Image;
 import java.awt.Frame;
@@ -113,7 +114,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.36 2003/08/12 17:05:50 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.37 2003/08/13 14:12:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -179,6 +180,12 @@ public class Renderer implements Renderer2D {
      * @see #setOffscreenBuffered
      */
     private transient VolatileImage[] offscreenBuffers;
+
+    /**
+     * Tells in an offscreen buffer need to be repaint. This array length must be
+     * equals to the length of {@link #offscreenBuffers}.
+     */
+    private transient boolean[] offscreenNeedRepaint;
 
     /**
      * The ranges of {@linkplain RenderedLayer#getZOrder z-order} for which to create an
@@ -1225,21 +1232,23 @@ public class Renderer implements Renderer2D {
                                                   final ImageType type)
     {
         /*
-         * Save the references to the old VolatileImage. We will try to reuse
-         * existing VolatileImages after the range set has been updated.
+         * Save the references to the old images and their status (type, need repaint, etc.).
+         * We will try to reuse existing images after the range set has been updated.
          */
-        final Map old;
+        final Map             oldIndexMap;
+        final VolatileImage[] oldBuffers = offscreenBuffers;
+        final boolean[]       oldNeeds   = offscreenNeedRepaint;
         if (offscreenZRanges == null) {
             if (ImageType.NONE.equals(type)) {
                 return;
             }
             offscreenZRanges = new RangeSet(Float.class);
-            old = Collections.EMPTY_MAP;
+            oldIndexMap = Collections.EMPTY_MAP;
         } else {
             int index=0;
-            old = new HashMap();
+            oldIndexMap = new HashMap();
             for (final Iterator it=offscreenZRanges.iterator(); it.hasNext();) {
-                if (old.put(it.next(), offscreenBuffers[index++]) != null) {
+                if (oldIndexMap.put(it.next(), new Integer(index++)) != null) {
                     throw new AssertionError(); // Should not happen
                 }
             }
@@ -1253,23 +1262,32 @@ public class Renderer implements Renderer2D {
         } else {
             offscreenZRanges.add(lower, upper);
         }
-        offscreenBuffers = new VolatileImage[offscreenZRanges.size()];
-        int index=0;
-        for (final Iterator it=offscreenZRanges.iterator(); it.hasNext();) {
-            offscreenBuffers[index++] = (VolatileImage) old.remove(it.next());
+        offscreenBuffers     = new VolatileImage[offscreenZRanges.size()];
+        offscreenNeedRepaint = new boolean[offscreenBuffers.length];
+        int index = 0;
+        for (final Iterator it=offscreenZRanges.iterator(); it.hasNext(); index++) {
+            final Integer oldInteger = (Integer) oldIndexMap.remove(it.next());
+            if (oldInteger != null) {
+                final int oldIndex = oldInteger.intValue();
+                offscreenBuffers    [index] = oldBuffers[oldIndex];
+                offscreenNeedRepaint[index] = oldNeeds  [oldIndex];
+            }
         }
         assert index == offscreenBuffers.length : index;
         /*
          * Release resources used by remaining (now unused) images.
          */
-        for (final Iterator it=old.values().iterator(); it.hasNext();) {
-            ((Image) it.next()).flush();
+        for (final Iterator it=oldIndexMap.values().iterator(); it.hasNext();) {
+            final Image image = oldBuffers[((Integer) it.next()).intValue()];
+            if (image != null) {
+                image.flush();
+            }
         }
     }
 
     /**
      * Signal that a layer at the given {@linkplain RenderedLayer#getZOrder z-order} need
-     * to be repaint.  If an offscreen buffer were allocated for this z-order, it must be
+     * to be repainted. If an offscreen buffer were allocated for this z-order, it may be
      * flushed. This method is invoked by any of {@link RenderedLayer#repaint} methods.
      *
      * @param zOrder The z-order of the offscreen buffer to flush.
@@ -1278,10 +1296,15 @@ public class Renderer implements Renderer2D {
         if (offscreenZRanges != null) {
             final int index = offscreenZRanges.indexOfRange(new Float(zOrder));
             if (index >= 0) {
-                final Image image = offscreenBuffers[index];
-                if (image != null) {
-                    image.flush();
+                if (false) {
+                    // In previous version, we flushed the whole image. Now try
+                    // to preserve the image and repaint only the damaged area.
+                    final Image image = offscreenBuffers[index];
+                    if (image != null) {
+                        image.flush();
+                    }
                 }
+                offscreenNeedRepaint[index] = true;
             }
         }
     }
@@ -1298,6 +1321,7 @@ public class Renderer implements Renderer2D {
                     image.flush();
                 }
             }
+            Arrays.fill(offscreenNeedRepaint, true);
         }
     }
 
@@ -1633,7 +1657,8 @@ public class Renderer implements Renderer2D {
                         buffer.getHeight(mapPane) != zoomableBounds.height)
                     {
                         buffer.flush();
-                        offscreenBuffers[i] = null;
+                        offscreenBuffers    [i] = null;
+                        offscreenNeedRepaint[i] = true;
                     }
                 }
             }
@@ -1642,7 +1667,6 @@ public class Renderer implements Renderer2D {
              * to start the actual drawing,  we will notify all layers that they are about to be
              * drawn. Some layers may spend one or two threads for pre-computing data.
              */
-            graphics.transform(zoom);
             graphics.addRenderingHints(hints);
             clippedContext.init(graphics, zoomableBounds, isPrinting);
             boolean contextInitialized = (clippedContext == context);
@@ -1653,12 +1677,14 @@ public class Renderer implements Renderer2D {
                     layers[i].prefetch(clippedContext);
                 }
             }
-            int offscreenIndex = -1;                   // Index of current offscreen buffer.
+            int     offscreenIndex = -1;               // Index of current offscreen buffer.
+            boolean graphicsZoomed = false;            // Is graphics.transform(zoom) applied?
             float minZOrder = Float.NEGATIVE_INFINITY; // The minimum z-value for current buffer.
             float maxZOrder = Float.NaN;               // The maximum z-value for current buffer.
-  render:   for (int layerIndex=0; layerIndex<layerCount; layerIndex++) {
+            for (int layerIndex=0; layerIndex<layerCount; layerIndex++) {
+                int          layerIndexUp = layerIndex;
                 final RenderedLayer layer = layers[layerIndex];
-                final float zOrder = layer.getZOrder();
+                final float        zOrder = layer.getZOrder();
                 while (zOrder >= minZOrder) {
                     if (!(zOrder <= maxZOrder)) {
                         if (++offscreenIndex < offscreenCount) {
@@ -1676,110 +1702,152 @@ public class Renderer implements Renderer2D {
                      * We have found the begining of a range to be rendered using offscreen
                      * buffer. Search the index of the last layer in this range, exclusive.
                      */
-                    int layerIndexUp = layerIndex;
                     while (++layerIndexUp < layerCount) {
                         if (!(layers[layerIndexUp].getZOrder() <= maxZOrder)) {
                             break;
                         }
                     }
-                    /*
-                     * The range of layer index to render offscreen goes from 'layerIndex'
-                     * inclusive to 'layerIndexUp' exclusive. If the image is still valid,
-                     * paint it immediately. Otherwise, performs the rendering offscreen.
-                     */
-                    boolean createFromComponent = (mapPane != null);
-                    VolatileImage buffer = offscreenBuffers[offscreenIndex];
-                    graphics.setTransform(toDevice);
-  renderOffscreen:  do {
-                        int status;
-                        while ((status=validate(buffer, config)) != VolatileImage.IMAGE_OK) {
-                            if (status == VolatileImage.IMAGE_INCOMPATIBLE) {
-                                if (buffer != null) {
-                                    buffer.flush();
-                                    buffer = null;
-                                }
-                                if (createFromComponent) {
-                                    createFromComponent = false;
-                                    buffer = mapPane.createVolatileImage(
-                                                    zoomableBounds.width, zoomableBounds.height);
-                                }
-                                if (buffer == null) {
-                                    buffer = config.createCompatibleVolatileImage(
-                                                    zoomableBounds.width, zoomableBounds.height);
-                                }
-                                offscreenBuffers[offscreenIndex] = buffer;
-                                continue;
-                            }
-                            final Graphics2D graphicsOff = buffer.createGraphics();
-                            graphicsOff.addRenderingHints(hints);
-                            graphicsOff.translate(-zoomableBounds.x, -zoomableBounds.y);
-                            if (mapPane != null) {
-                                graphicsOff.setColor(mapPane.getBackground());
-                                graphicsOff.fill(zoomableBounds);
-                                graphicsOff.setColor(mapPane.getForeground());
-                            }
-                            graphicsOff.clip(zoomableBounds); // Information needed by some layers.
-                            graphicsOff.transform(zoom);
-                            if (contextInitialized) {
-                                context.setGraphics(graphicsOff);
-                            } else {
-                                context.init(graphicsOff, zoomableBounds, isPrinting);
-                                contextInitialized = true;
-                            }
-                            for (int i=layerIndex; i<layerIndexUp; i++) {
-                                try {
-                                    // Do not clip, since we are re-rendering the whole image.
-                                    layers[i].update(context, zoomableBounds);
-                                } catch (Exception exception) {
-                                    /*
-                                     * An exception occured in user code. Do not try anymore to use
-                                     * offscreen buffer for this layer; render it in the "ordinary"
-                                     * loop instead. If this exception still occurs, it will be the
-                                     * "ordinary" loop's job to handle it.
-                                     */
-                                    context.disposeGraphics();
-                                    buffer.flush();
-                                    offscreenBuffers[offscreenIndex] = buffer = null;
-                                    layerIndexUp = layerIndex; // Force re-rendering of this layer.
-                                    maxZOrder = Float.NaN;     // Disable offscreen for this layer.
-                                    handleOffscreenException(layers[i], exception);
-                                    break renderOffscreen;
-                                }
-                                if (buffer.contentsLost()) {
-                                    context.disposeGraphics();
-                                    continue renderOffscreen;
-                                }
-                            }
-                            context.disposeGraphics();
-                        }
-                        graphics.drawImage(buffer, zoomableBounds.x, zoomableBounds.y, mapPane);
-                    } while (buffer.contentsLost());
-                    /*
-                     * The offscreen buffer has been successfully rendered (or we failed because
-                     * of an exception in user's code). If the ordinary (clipped) context was
-                     * modified, restore it and continue the rendering for next layers.
-                     */
-                    graphics.transform(zoom);
-                    if (clippedContext != context) {
-                        clippedContext.setGraphics(graphics);
+                    break;
+                }
+                /*
+                 * If the current layer is not part of any offscreen buffer,
+                 * render it directly in the Swing's graphics handler.
+                 */
+                if (layerIndex == layerIndexUp) {
+                    if (!graphicsZoomed) {
+                        graphics.transform(zoom);
+                        graphicsZoomed = true;
                     }
-                    layerIndex = layerIndexUp-1;
-                    continue render;
+                    try {
+                        layer.update(clippedContext, clipBounds);
+                    } catch (TransformException exception) {
+                        handleException("RenderedLayer", "paintComponent", exception);
+                    } catch (RuntimeException exception) {
+                        Utilities.unexpectedException("org.geotools.renderer.j2d",
+                                                      "RenderedLayer", "paint", exception);
+                    }
+                    continue;
                 }
-                try {
-                    layer.update(clippedContext, clipBounds);
-                } catch (TransformException exception) {
-                    handleException("RenderedLayer", "paintComponent", exception);
-                } catch (RuntimeException exception) {
-                    Utilities.unexpectedException("org.geotools.renderer.j2d",
-                                                  "RenderedLayer", "paint", exception);
+                /*
+                 * The range of layer index to render offscreen goes from 'layerIndex'
+                 * inclusive to 'layerIndexUp' exclusive. If the image is still valid,
+                 * paint it immediately. Otherwise, performs the rendering offscreen.
+                 */
+                boolean createFromComponent = (mapPane != null);
+                Rectangle bufferClip = clipBounds;
+                VolatileImage buffer = offscreenBuffers[offscreenIndex];
+renderOffscreen:while (true) {
+                    switch (validate(buffer, config)) {
+                        //
+                        // Image incompatible or inexistant: recreates an empty
+                        // one and restarts the loop from the 'validate' check.
+                        //
+                        case VolatileImage.IMAGE_INCOMPATIBLE: {
+                            if (buffer != null) {
+                                buffer.flush();
+                                buffer = null;
+                            }
+                            if (createFromComponent) {
+                                createFromComponent = false;
+                                buffer = mapPane.createVolatileImage(
+                                                zoomableBounds.width, zoomableBounds.height);
+                            }
+                            if (buffer == null) {
+                                buffer = config.createCompatibleVolatileImage(
+                                                zoomableBounds.width, zoomableBounds.height);
+                            }
+                            offscreenBuffers[offscreenIndex] = buffer;
+                            bufferClip = zoomableBounds;
+                            continue;
+                        }
+                        //
+                        // Image preserved: paint it immediately if no layer changed
+                        // since last rendering, or repaint only the damaged area.
+                        //
+                        case VolatileImage.IMAGE_OK: {
+                            if (!offscreenNeedRepaint[offscreenIndex]) {
+                                if (graphicsZoomed) {
+                                    graphics.setTransform(toDevice);
+                                    graphicsZoomed = false;
+                                }
+                                graphics.drawImage(buffer, zoomableBounds.x,
+                                                           zoomableBounds.y, mapPane);
+                                if (buffer.contentsLost()) {
+                                    // Upcomming 'validate' will falls in IMAGE_RESTORED case.
+                                    continue;
+                                }
+                                // Rendering finished for this offscreen buffer.
+                                break renderOffscreen;
+                            }
+                            // Repaint only the damaged area.
+                            break;
+                        }
+                        //
+                        // Contents has been lost: we need to repaint the whole image.
+                        //
+                        case VolatileImage.IMAGE_RESTORED: {
+                            bufferClip = zoomableBounds;
+                            break;
+                        }
+                    }
+                    /*
+                     * At this point, we know that some area need to be repainted.
+                     * Try to repaint just the requested area.
+                     */
+                    final Graphics2D graphicsOff = buffer.createGraphics();
+                    graphicsOff.addRenderingHints(hints);
+                    graphicsOff.translate(-zoomableBounds.x, -zoomableBounds.y);
+                    graphicsOff.setColor(mapPane!=null ? mapPane.getBackground() : Color.WHITE);
+                    graphicsOff.fill(bufferClip);
+                    graphicsOff.setColor(mapPane!=null ? mapPane.getForeground() : Color.BLACK);
+                    graphicsOff.clip(bufferClip); // Information needed by some layers.
+                    graphicsOff.transform(zoom);
+                    if (contextInitialized) {
+                        context.setGraphics(graphicsOff);
+                    } else {
+                        context.init(graphicsOff, zoomableBounds, isPrinting);
+                        contextInitialized = true;
+                    }
+                    offscreenNeedRepaint[offscreenIndex] = false;
+                    for (int i=layerIndex; i<layerIndexUp; i++) {
+                        try {
+                            layers[i].update(context, bufferClip);
+                        } catch (Exception exception) {
+                            /*
+                             * An exception occured in user code. Do not try anymore to use
+                             * offscreen buffer for this layer; render it in the "ordinary"
+                             * loop instead. If this exception still occurs, it will be the
+                             * "ordinary" loop's job to handle it.
+                             */
+                            context.disposeGraphics();
+                            buffer.flush();
+                            offscreenBuffers[offscreenIndex] = buffer = null;
+                            layerIndexUp = layerIndex; // Force re-rendering of this layer.
+                            minZOrder    = Float.NaN;  // Disable offscreen for all layers.
+                            handleOffscreenException(layers[i], exception);
+                            break renderOffscreen;
+                        }
+                        if (buffer.contentsLost()) {
+                            break;
+                        }
+                    }
+                    context.disposeGraphics();
                 }
+                /*
+                 * The offscreen buffer has been successfully rendered (or we failed because
+                 * of an exception in user's code). If the ordinary (clipped) context was
+                 * modified, restore it and continue the rendering for next layers.
+                 */
+                if (clippedContext == context) {
+                    clippedContext.setGraphics(graphics);
+                }
+                layerIndex = layerIndexUp-1;
             }
         } finally {
-            context.init(null, null, false);
+            context       .init(null, null, false);
             clippedContext.init(null, null, false);
-            RenderedLayer.setDirtyArea(layers, layerCount, null);
-            graphics.setTransform(toDevice);
+            RenderedLayer .setDirtyArea(layers, layerCount, null);
+            graphics      .setTransform(toDevice);
         }
         /*
          * If this map took a long time to render, log a message.
@@ -2051,8 +2119,9 @@ public class Renderer implements Renderer2D {
      */
     public synchronized void dispose() {
         flushOffscreenBuffers();
-        offscreenBuffers = null;
-        offscreenZRanges = null;
+        offscreenZRanges     = null;
+        offscreenBuffers     = null;
+        offscreenNeedRepaint = null;
         final RenderedLayer[] layers = new RenderedLayer[layerCount];
         if (layerCount != 0) {
             System.arraycopy(this.layers, 0, layers, 0, layerCount);
