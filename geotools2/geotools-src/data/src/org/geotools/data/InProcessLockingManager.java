@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Collection;
 import java.util.Set;
 
 
@@ -210,7 +211,7 @@ public class InProcessLockingManager implements LockingManager {
 
             for (Iterator i = lockTables.values().iterator(); i.hasNext();) {
                 fidLocks = (Map) i.next();
-                set.addAll(fidLocks.values());
+                set.addAll(fidLocks.values()); 
             }
 
             return set;
@@ -339,21 +340,16 @@ public class InProcessLockingManager implements LockingManager {
      * @param transaction
      */
     public synchronized void refreshLock(String authID, Transaction transaction) {
-        Map fidLocks;
         Lock lock;
 
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
-            fidLocks = (Map) i.next();
-
-            for (Iterator j = fidLocks.values().iterator(); j.hasNext();) {
-                lock = (Lock) j.next();
-
-                if (lock.isExpired()) {
-                    j.remove();
-                } else if (lock.isMatch(authID)) {
-                    lock.refresh();
-                }
-            }
+	    lock = (Lock) i.next();
+	    
+	    if (lock.isExpired()) {
+		i.remove();
+	    } else if (lock.isMatch(authID)) {
+		lock.refresh();
+	    }
         }
     }
 
@@ -364,21 +360,16 @@ public class InProcessLockingManager implements LockingManager {
      * @param transaction
      */
     public void releaseLock(String authID, Transaction transaction) {
-        Map fidLocks;
         Lock lock;
 
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
-            fidLocks = (Map) i.next();
-
-            for (Iterator j = fidLocks.values().iterator(); j.hasNext();) {
-                lock = (Lock) j.next();
+	      lock = (Lock) i.next();
 
                 if (lock.isExpired()) {
-                    j.remove();
+                    i.remove();
                 } else if (lock.isMatch(authID)) {
-                    j.remove();
+                    i.remove();
                 }
-            }
         }
     }
 
