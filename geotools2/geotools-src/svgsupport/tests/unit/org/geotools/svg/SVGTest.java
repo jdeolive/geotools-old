@@ -21,6 +21,7 @@ import org.geotools.gml.*;
 import org.geotools.feature.FeatureCollectionDefault;
 
 import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.datasource.extents.EnvelopeExtent;
 
 
 
@@ -51,10 +52,25 @@ public class SVGTest extends TestCase {
     }
     
    public void testGenerateSVG(){
+      String stylefile = "simple.sld"; 
+      String gmlfile = "simple.gml";
+      createSVG("simple.sld","simple.gml","simple.svg");
        
-      try{
+   }
+   
+   public void testNameFilterSVG(){
+      createSVG("nameFilter.sld", "simple.gml", "nameFilter.svg");       
+   }
+
+
+   /**
+    * @param stylefile
+    * @param gmlfile
+    */
+    private void createSVG(final String stylefile, final String gmlfile, final String outfile) {
+       try{
             GenerateSVG gen = new GenerateSVG();
-            URL url = new URL("file:///"+dataFolder+"/simple.gml");
+            URL url = new URL("file:///"+dataFolder+"/"+gmlfile);
             DataSource ds = new GMLDataSource(url);
             FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
 
@@ -65,15 +81,16 @@ public class SVGTest extends TestCase {
 
             //fc.getFeatures(r);
             
-            File f = new File(dataFolder,"simple.sld");
+            File f = new File(dataFolder,stylefile);
        
             Map map = new DefaultMap();
             StyleFactory sFac = StyleFactory.createStyleFactory();
             SLDStyle reader = new SLDStyle(sFac,f);
             Style style = reader.readXML();
             map.addFeatureTable(fc,style);
-       
-            url = new URL("file:///"+dataFolder+"/simple.svg");
+            System.out.println("schema for first feature is " + fc.getFeatures(new EnvelopeExtent(new Envelope(0,30,0,30)))[1].getSchema());
+            //fc.getFeatures(new Extent())[0].getSchema();
+            url = new URL("file:///"+dataFolder+"/"+outfile);
             FileOutputStream out = new FileOutputStream(url.getFile());
             gen.go(map,new Envelope(0,30,0,30),out);
             
@@ -85,8 +102,7 @@ public class SVGTest extends TestCase {
             fail("failed because of exception "+e.toString());
         }
        
-       
-   }
+    }
     
     
 }
