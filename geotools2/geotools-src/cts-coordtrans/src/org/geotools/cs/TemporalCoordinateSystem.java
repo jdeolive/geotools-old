@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.5 2002/10/10 23:14:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -183,7 +183,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
      *
      * @param  object The object to compare to <code>this</code>.
      * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
-     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
      *         code}, etc. as well, or <code>false</code> to compare only properties
      *         relevant to transformations.
      * @return <code>true</code> if both objects are equal.

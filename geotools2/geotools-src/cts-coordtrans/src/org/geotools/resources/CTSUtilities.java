@@ -50,11 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
-<<<<<<< CTSUtilities.java
- * @version $Id: CTSUtilities.java,v 1.3 2002/10/09 19:42:52 desruisseaux Exp $
-=======
- * @version $Id: CTSUtilities.java,v 1.3 2002/10/09 19:42:52 desruisseaux Exp $
->>>>>>> 1.2
+ * @version $Id: CTSUtilities.java,v 1.4 2002/10/10 23:14:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -96,7 +92,7 @@ public final class CTSUtilities {
     public static CoordinateSystem getCoordinateSystem2D(CoordinateSystem cs)
             throws IllegalArgumentException
     {
-        if (cs!=null) {
+        if (cs != null) {
             while (cs.getDimension()!=2) {
                 if (!(cs instanceof CompoundCoordinateSystem)) {
                     throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs.getName(null)));
@@ -108,10 +104,8 @@ public final class CTSUtilities {
     }
     
     /**
-     * Returns the first horizontal coordinate system found in a coordinate system,
-     * or <code>null</code> if there is none. Note: in a future version,  we may
-     * implement this method directly into {@link CoordinateSystem} (not sure yet
-     * if it would be a good idea).
+     * Returns the first horizontal coordinate system found in a
+     * coordinate system, or <code>null</code> if there is none.
      */
     public static HorizontalCoordinateSystem getHorizontalCS(final CoordinateSystem cs) {
         if (cs instanceof HorizontalCoordinateSystem) {
@@ -127,10 +121,8 @@ public final class CTSUtilities {
     }
     
     /**
-     * Returns the first vertical coordinate system found in a coordinate system,
-     * or <code>null</code> if there is none. Note: if a future version,
-     * we may implement this method directly into {@link CoordinateSystem}
-     * (not sure yet if it would be a good idea).
+     * Returns the first vertical coordinate system found in a
+     * coordinate system, or <code>null</code> if there is none.
      */
     public static VerticalCoordinateSystem getVerticalCS(final CoordinateSystem cs) {
         if (cs instanceof VerticalCoordinateSystem) {
@@ -146,10 +138,8 @@ public final class CTSUtilities {
     }
     
     /**
-     * Returns the first temporal coordinate system found in a coordinate system,
-     * or <code>null</code> if there is none. Note: if a future version,
-     * we may implement this method directly into {@link CoordinateSystem}
-     * (not sure yet if it would be a good idea).
+     * Returns the first temporal coordinate system found in a
+     * coordinate system, or <code>null</code> if there is none.
      */
     public static TemporalCoordinateSystem getTemporalCS(final CoordinateSystem cs) {
         if (cs instanceof TemporalCoordinateSystem) {
@@ -160,6 +150,26 @@ public final class CTSUtilities {
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
             if ((cts=getTemporalCS(comp.getHeadCS())) != null) return cts;
             if ((cts=getTemporalCS(comp.getTailCS())) != null) return cts;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the first ellipsoid found in a coordinate
+     * system, or <code>null</code> if there is none.
+     */
+    public static Ellipsoid getEllipsoid(final CoordinateSystem cs) {
+        if (cs instanceof HorizontalCoordinateSystem) {
+            final HorizontalDatum datum = ((HorizontalCoordinateSystem) cs).getHorizontalDatum();
+            if (datum != null) {
+                return datum.getEllipsoid();
+            }
+        }
+        if (cs instanceof CompoundCoordinateSystem) {
+            Ellipsoid ell;
+            final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
+            if ((ell=getEllipsoid(comp.getHeadCS())) != null) return ell;
+            if ((ell=getEllipsoid(comp.getTailCS())) != null) return ell;
         }
         return null;
     }
@@ -278,8 +288,9 @@ public final class CTSUtilities {
     public static String toWGS84String(final CoordinateSystem cs, Rectangle2D bounds) {
         StringBuffer buffer=new StringBuffer();
         try {
-            if (!GeographicCoordinateSystem.WGS84.equivalents(cs)) {
-                final CoordinateTransformation tr = CoordinateTransformationFactory.getDefault().createFromCoordinateSystems(cs, GeographicCoordinateSystem.WGS84);
+            if (!GeographicCoordinateSystem.WGS84.equals(cs, false)) {
+                final CoordinateTransformation tr = CoordinateTransformationFactory.getDefault().
+                               createFromCoordinateSystems(cs, GeographicCoordinateSystem.WGS84);
                 bounds = transform((MathTransform2D) tr.getMathTransform(), bounds, null);
             }
             final AngleFormat fmt=new AngleFormat("DD°MM.m'");

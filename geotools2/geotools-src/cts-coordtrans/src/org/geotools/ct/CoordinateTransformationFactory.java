@@ -85,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.7 2002/10/09 19:39:15 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.8 2002/10/10 23:14:09 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1118,7 +1118,7 @@ public class CoordinateTransformationFactory {
     /**
      * Creates a transformation from a geocentric to a geographic coordinate systems.
      * The default implementation returns
-     * <code>{@link #createTransformationStep(GeographicCoordinateSystem, VerticalCoordinateSystem
+     * <code>{@link #createTransformationStep(GeographicCoordinateSystem, VerticalCoordinateSystem,
      * GeocentricCoordinateSystem) createTransformationStep}(targetCS, verticalCS, sourceCS).{@link
      * MathTransform#inverse() inverse()}</code>.
      *

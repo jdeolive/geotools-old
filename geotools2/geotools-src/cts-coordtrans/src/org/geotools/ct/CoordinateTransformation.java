@@ -70,7 +70,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version $Id: CoordinateTransformation.java,v 1.2 2002/10/09 19:36:34 desruisseaux Exp $
+ * @version $Id: CoordinateTransformation.java,v 1.3 2002/10/10 23:14:09 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -277,7 +277,7 @@ public class CoordinateTransformation extends Info {
      *
      * @param  object The object to compare to <code>this</code>.
      * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
-     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
      *         code}, etc. as well, or <code>false</code> to compare only properties
      *         relevant to transformations.
      * @return <code>true</code> if both objects are equal.
