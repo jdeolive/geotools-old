@@ -25,6 +25,7 @@ import org.geotools.feature.Feature;
 
 /**
  * Represents the extent of a loaded Feature set.
+ * @version $Id: Extent.java,v 1.5 2002/06/04 14:27:55 loxnard Exp $
  * @author Ray Gallagher
  */
 public interface Extent{
