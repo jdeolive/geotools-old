@@ -53,12 +53,13 @@ import java.rmi.RemoteException;
  * relationship of a coordinate system to some predefined physical locations
  * (such as center of mass) and physical directions (such as axis of spin).
  * It can be defined as a set of real points on the earth that have coordinates.
- * For example a datum can be thought of as a set of parameters defining completely
- * the origin and orientation of a coordinate system with respect to the earth.
- * The definition of the datum may also include the temporal behavior (such
- * as the rate of change of the orientation of the coordinate axes).
+ * For example, a datum can be thought of as a set of parameters defining
+ * completely the origin and orientation of a coordinate system with respect
+ * to the earth.  The definition of the datum may also include the temporal
+ * behavior (such as the rate of change of the orientation of the coordinate
+ * axes).
  *
- * @version 1.00
+ * @version $Id: Datum.java,v 1.3 2002/06/05 15:01:38 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -76,7 +77,7 @@ public class Datum extends Info {
     private final DatumType type;
     
     /**
-     * Construct a new datum with the
+     * Constructs a new datum with the
      * specified name and datum type.
      *
      * @param name The datum name.
@@ -120,8 +121,8 @@ public class Datum extends Info {
     }
     
     /**
-     * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Fills the part inside "[...]".
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -134,7 +135,7 @@ public class Datum extends Info {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -152,13 +153,10 @@ public class Datum extends Info {
     /**
      * Wrap a {@link Datum} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     class Export extends Info.Export implements CS_Datum {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

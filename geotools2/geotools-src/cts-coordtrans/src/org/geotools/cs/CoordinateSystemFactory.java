@@ -77,18 +77,20 @@ import javax.media.jai.ParameterListImpl;
  * Builds up complex objects from simpler objects or values.
  * <code>CoordinateSystemFactory</code> allows applications to make coordinate
  * systems that cannot be created by a {@link CoordinateSystemAuthorityFactory}.
- * This factory is very flexible, whereas the authority factory is easier to use.
+ * This factory is very flexible, whereas the authority factory is easier to
+ * use.
  *
  * So {@link CoordinateSystemAuthorityFactory} can be used to make 'standard'
  * coordinate systems, and <code>CoordinateSystemFactory</code> can be used to
  * make "special" coordinate systems.
  *
- * For example, the EPSG authority has codes for USA state plane coordinate systems
- * using the NAD83 datum, but these coordinate systems always use meters.  EPSG does
- * not have codes for NAD83 state plane coordinate systems that use feet units.  This
- * factory lets an application create such a hybrid coordinate system.
+ * For example, the EPSG authority has codes for USA state plane coordinate
+ * systems using the NAD83 datum, but these coordinate systems always use
+ * meters.  EPSG does not have codes for NAD83 state plane coordinate systems
+ * that use feet units.  This factory lets an application create such a hybrid
+ * coordinate system.
  *
- * @version 1.00
+ * @version $Id: CoordinateSystemFactory.java,v 1.3 2002/06/05 14:59:14 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -103,13 +105,13 @@ public class CoordinateSystemFactory {
     
     /**
      * Set of weak references to existing coordinate systems.
-     * This set is used in order to return pre-existing object
-     * instead of creating new one.
+     * This set is used in order to return a pre-existing object
+     * instead of creating a new one.
      */
     private final WeakHashSet pool;
     
     /**
-     * Construct a new factory with the specified pool.
+     * Constructs a new factory with the specified pool.
      */
     private CoordinateSystemFactory(final WeakHashSet pool) {
         this.pool = pool;
@@ -138,15 +140,14 @@ public class CoordinateSystemFactory {
      * increasing east and latitude values increasing north.  Angular units are
      * degrees and prime meridian is Greenwich.
      *
-     * @param name      Name to give new object.
-     * @param datum     Horizontal datum for created coordinate system.
-     *
+     * @param name Name to give new object.
+     * @param datum Horizontal datum for created coordinate system.
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      */
     public GeographicCoordinateSystem createGeographicCoordinateSystem(
                                         final CharSequence    name,
@@ -174,9 +175,9 @@ public class CoordinateSystemFactory {
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createGeographicCoordinateSystem
      */
@@ -200,13 +201,12 @@ public class CoordinateSystemFactory {
      * @param  name Name to give new object.
      * @param  gcs Geographic coordinate system to base projection on.
      * @param  projection Projection from geographic to projected coordinate system.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      */
     public ProjectedCoordinateSystem createProjectedCoordinateSystem(
                                         final CharSequence               name,
@@ -227,13 +227,12 @@ public class CoordinateSystemFactory {
      * @param  unit Linear units of returned PCS.
      * @param  axis0 Details of 0th ordinates in returned PCS coordinates.
      * @param  axis1 Details of 1st ordinates in returned PCS coordinates.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createProjectedCoordinateSystem
      */
@@ -256,13 +255,12 @@ public class CoordinateSystemFactory {
      *
      * @param name  Name to give new object.
      * @param datum Datum to use for new coordinate system.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      */
     public VerticalCoordinateSystem createVerticalCoordinateSystem(
                                         final CharSequence  name,
@@ -279,13 +277,12 @@ public class CoordinateSystemFactory {
      * @param datum Datum to use for new coordinate system.
      * @param unit  Units to use for new coordinate system.
      * @param axis  Axis to use for new coordinate system.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createVerticalCoordinateSystem
      */
@@ -306,13 +303,12 @@ public class CoordinateSystemFactory {
      * @param name Name to give new object.
      * @param head Coordinate system to use for earlier ordinates.
      * @param tail Coordinate system to use for later ordinates.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createCompoundCoordinateSystem
      */
@@ -337,13 +333,12 @@ public class CoordinateSystemFactory {
      * @param datum Local datum to use in created CS.
      * @param unit  Units to use for all axes in created CS.
      * @param axes  Axes to use in created CS.
-     *
      * @return The coordinate system.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalCoordinateSystem
      */
@@ -365,13 +360,12 @@ public class CoordinateSystemFactory {
      * @param semiMajorAxis Equatorial radius in supplied linear units.
      * @param semiMinorAxis Polar radius in supplied linear units.
      * @param unit          Linear units of ellipsoid axes.
-     *
      * @return The ellipsoid.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createEllipsoid
      */
@@ -392,13 +386,12 @@ public class CoordinateSystemFactory {
      * @param semiMajorAxis     Equatorial radius in supplied linear units.
      * @param inverseFlattening Eccentricity of ellipsoid.
      * @param unit              Linear units of major axis.
-     *
      * @return The ellipsoid.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createFlattenedSphere
      */
@@ -417,14 +410,14 @@ public class CoordinateSystemFactory {
      *
      * @param name      Name to give new object.
      * @param unit      Angular units of longitude.
-     * @param longitude Longitude of prime meridian in supplied angular units East of Greenwich.
-     *
+     * @param longitude Longitude of prime meridian in supplied angular units
+     *        East of Greenwich.
      * @return The prime meridian.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createPrimeMeridian
      */
@@ -438,10 +431,11 @@ public class CoordinateSystemFactory {
     }
     
     /**
-     * Creates a projection. The client must ensure that all the linear parameters are
-     * expressed in meters, and all the angular parameters are expressed in degrees.
-     * Also, they must supply <code>"semi_major"</code> and <code>"semi_minor"</code>
-     * parameters. The set of legal parameters and their default values can be queried
+     * Creates a projection. The client must ensure that all the linear
+     * parameters are expressed in meters, and all the angular parameters
+     * are expressed in degrees.  Also, they must supply
+     * <code>"semi_major"</code> and <code>"semi_minor"</code> parameters.
+     * The set of legal parameters and their default values can be queried
      * using {@link #createProjectionParameterList}. Example:
      *
      * <blockquote><pre>
@@ -457,13 +451,12 @@ public class CoordinateSystemFactory {
      *                       be constructed using <code>{@link #createProjectionParameterList
      *                       createProjectionParameterList}(classification)</code> and initialized
      *                       using a chain of <code>setParameter(...)</code> calls.
-     *
      * @return The projection.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createProjection
      */
@@ -477,25 +470,25 @@ public class CoordinateSystemFactory {
     }
     
     /**
-     * Convenience method for constructing a projection using the specified ellipsoid.
+     * Convenience method for constructing a projection using the specified
+     * ellipsoid.
      *
      * @param name           Name to give new object.
      * @param classification Classification string for projection (e.g. "Transverse_Mercator").
      * @param ellipsoid      Ellipsoid parameter. If non-null, then <code>"semi_major"</code>
-     *                       and <code>"semi_minor"</code> parameters will be set according.
+     *                       and <code>"semi_minor"</code> parameters will be set accordingly.
      * @param centre         Central meridian and latitude of origin, in degrees. If non-null, then
      *                       <code>"central_meridian"</code> and <code>"latitude_of_origin"</code>
-     *                       will be set according.
+     *                       will be set accordingly.
      * @param translation    False easting and northing, in metres. If non-null, then
      *                       <code>"false_easting"</code> and <code>"false_northing"</code>
-     *                       will be set according.
-     *
+     *                       will be set accordingly.
      * @return The projection.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      */
     public Projection createProjection(final CharSequence name,
                                        final String       classification,
@@ -523,23 +516,22 @@ public class CoordinateSystemFactory {
     
     /**
      * Creates horizontal datum from ellipsoid and Bursa-Wolf parameters.
-     * Since this method contains a set of Bursa-Wolf parameters, the created datum will always
-     * have a relationship to WGS84. If you wish to create a horizontal datum that
-     * has no relationship with WGS84, then you can either specify
-     * {@link DatumType.Horizontal#OTHER} as the horizontalDatumType,
-     * or create it via WKT.
+     * Since this method contains a set of Bursa-Wolf parameters, the created
+     * datum will always have a relationship to WGS84. If you wish to create
+     * a horizontal datum that has no relationship with WGS84, then you can
+     * either specify {@link DatumType.Horizontal#OTHER} as the
+     * horizontalDatumType, or create it via WKT.
      *
      * @param name      Name to give new object.
      * @param type      Type of horizontal datum to create.
      * @param ellipsoid Ellipsoid to use in new horizontal datum.
      * @param toWGS84   Suggested approximate conversion from new datum to WGS84.
-     *
      * @return The datum.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createHorizontalDatum
      */
@@ -559,13 +551,12 @@ public class CoordinateSystemFactory {
      *
      * @param name      Name to give new object.
      * @param ellipsoid Ellipsoid to use in new horizontal datum.
-     *
      * @return The datum.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      */
     public HorizontalDatum createHorizontalDatum(final CharSequence name,
                                                  final Ellipsoid    ellipsoid)
@@ -579,13 +570,12 @@ public class CoordinateSystemFactory {
      *
      * @param name Name to give new object.
      * @param type Type of vertical datum to create.
-     *
      * @return The datum.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createVerticalDatum
      */
@@ -601,13 +591,12 @@ public class CoordinateSystemFactory {
      *
      * @param name Name to give new object.
      * @param localDatumType Type of local datum to create.
-     *
      * @return The datum.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
-     * @throws FactoryException if an error occured during the object creation.
-     *         It may be for example a network error or a failure on the server
-     *         side.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalDatum
      */
@@ -623,7 +612,7 @@ public class CoordinateSystemFactory {
      * The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -639,13 +628,10 @@ public class CoordinateSystemFactory {
     /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Wrap a {@link Info} object for use with OpenGIS. This wrapper is a
-     * good place to check for non-implemented OpenGIS methods  (just check
+     * Wrap an {@link Info} object for use with OpenGIS. This wrapper is a
+     * good place to check for non-implemented OpenGIS methods (just check
      * for methods throwing {@link UnsupportedOperationException}). This
      * class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CS_CoordinateSystemFactory {
         /**
@@ -654,7 +640,7 @@ public class CoordinateSystemFactory {
         protected final Adapters adapters;
         
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             this.adapters = (Adapters)adapters;
@@ -763,7 +749,7 @@ public class CoordinateSystemFactory {
         }
         
         /**
-         * Creates an ellipsoid from an major radius, and inverse flattening.
+         * Creates an ellipsoid from a major radius, and inverse flattening.
          */
         public CS_Ellipsoid createFlattenedSphere(final String name,
                                                   final double semiMajorAxis,
