@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project>
-  <pomVersion>2</pomVersion>
+  <pomVersion>3</pomVersion>
   <name>geotools-filter</name>
   <id>filter</id>
   <currentVersion>0.1</currentVersion>
@@ -11,57 +11,48 @@
   </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Implementation of the OpenGIS filter specification</shortDescription>
-  <gumpRepositoryId>geotools-filter</gumpRepositoryId>
-  <description/>
+  <shortDescription>Implementaion of OpenGIS Filter specification</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description><![CDATA[Implementaion of OpenGIS Filter specification]]></description>
   <url>http://www.geotols.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
   <siteDirectory/>
   <distributionDirectory/>
-  <cvsRoot>:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools</cvsRoot>
-  <cvsModule>geotools2/geotools-src/filter</cvsModule>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/filter</connection>
+    <url>http://address.of.geotools/cvsviewer/</url>
+  </repository>
+  
+
   <mailingLists/>
   <developers>
     <developer>
       <name>Rob Hranac</name>
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
-      <organization>VFBY</organization>
+      <organization>VFNY</organization>
     </developer>
-    <developer>
-      <name>James Macgill</name>
-      <id>jmacgill</id>
-      <email>jmacgill@users.sourceforge.net</email>
-      <organization>CCG</organization>
-    </developer>
-    <developer>
-      <name>Ian Turton</name>
-      <id>ianturton</id>
-      <email>ianturton@users.sourceforge.net</email>
-      <organization>CCG</organization>
-    </developer>
+    
   </developers>
   <dependencies>
     <dependency>
-      <name>log4j</name>
-      <version>1.1.3</version>
-    </dependency>
-    <dependency>
-      <name>JTS</name>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <name>core</name>
+      <id>core</id>
       <version>0.1</version>
     </dependency>
-  </dependencies>
+    
+    
+        
+        <dependency>
+      <id>log4j</id>
+      <version>1.1.3</version>
+    </dependency>
+    </dependencies>
   <build>
-    <nagEmailAddress>robhranac@users.sourceforge.net</nagEmailAddress>
-    <sourceDirectories>
-      <sourceDirectory>src</sourceDirectory>
-    </sourceDirectories>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
@@ -71,5 +62,7 @@
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
-  </build>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
 </project>
+
