@@ -1,3 +1,22 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 package org.geotools.map;
 
 /**
@@ -6,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.1 2002/07/10 22:28:35 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.2 2002/07/12 13:39:53 loxnard Exp $
  * @author Cameron Shorter
  * 
  */
@@ -31,8 +50,8 @@ public class DefaultAreaOfInterestModel {
             Envelope areaOfInterest,
             CS_CoordinateSystem coordinateSystem)
     {
-        this.areaOfInterest=areaOfInterest;
-        this.coordinateSystem=coordinateSystem;
+        this.areaOfInterest = areaOfInterest;
+        this.coordinateSystem = coordinateSystem;
     }
     /**
      * Register interest in receiving an AreaOfInterestChangedEvent.
@@ -66,10 +85,10 @@ public class DefaultAreaOfInterestModel {
                 this,
                 this.areaOfInterest,
                 this.coordinateSystem);
-        for (int i = listeners.length-2; i>=0; i-=2) {
-            if (listeners[i]==AreaOfInterestChangedListener.class) {
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == AreaOfInterestChangedListener.class) {
                 ((AreaOfInterestChangedListener)
-                    listeners[i+1]).areaOfInterestChanged(ece);
+                    listeners[i + 1]).areaOfInterestChanged(ece);
             }
         }
     }
@@ -78,8 +97,8 @@ public class DefaultAreaOfInterestModel {
             Envelope areaOfInterest,
             CS_CoordinateSystem coordinateSystem)
     {
-        this.areaOfInterest=areaOfInterest;
-        this.coordinateSystem=coordinateSystem;
+        this.areaOfInterest = areaOfInterest;
+        this.coordinateSystem = coordinateSystem;
         fireAreaOfInterestChangedListener();
     }
 
@@ -89,10 +108,10 @@ public class DefaultAreaOfInterestModel {
      * units of the coordinate system.
      * For instance, if a map zooms to the left by half a map width,
      * then deltaMinX=-0.5, deltaMaxX=-0.5, deltaMinY=0, deltaMaxY=0.
-     * @param deltaX1 The relative change in the bottom left X coordinate.
-     * @param deltaY1 The relative change in the bottom left Y coordinate.
-     * @param deltaX1 The relative change in the top right X coordinate.
-     * @param deltaX1 The relative change in the top right Y coordinate.
+     * @param deltaMinX The relative change in the bottom left X coordinate.
+     * @param deltaMinY The relative change in the bottom left Y coordinate.
+     * @param deltaMaxX The relative change in the top right X coordinate.
+     * @param deltaMaxY The relative change in the top right Y coordinate.
      */
     public void changeRelativeAreaOfInterest(
             float deltaMinX,
@@ -100,13 +119,13 @@ public class DefaultAreaOfInterestModel {
             float deltaMinY,
             float deltaMaxY)
     {
-        Envelope newAreaOfInterest=new Envelope(
-            areaOfInterest.getMinX()+(areaOfInterest.getWidth()*deltaMinX),
-            areaOfInterest.getMaxX()+(areaOfInterest.getWidth()*deltaMaxX),
-            areaOfInterest.getMinY()+(areaOfInterest.getWidth()*deltaMinY),
-            areaOfInterest.getMaxY()+(areaOfInterest.getWidth()*deltaMaxY));
-        areaOfInterest=null;
-        areaOfInterest=newAreaOfInterest;
+        Envelope newAreaOfInterest = new Envelope(
+            areaOfInterest.getMinX() + (areaOfInterest.getWidth() * deltaMinX),
+            areaOfInterest.getMaxX() + (areaOfInterest.getWidth() * deltaMaxX),
+            areaOfInterest.getMinY() + (areaOfInterest.getWidth() * deltaMinY),
+            areaOfInterest.getMaxY() + (areaOfInterest.getWidth() * deltaMaxY));
+        areaOfInterest = null;
+        areaOfInterest = newAreaOfInterest;
         fireAreaOfInterestChangedListener();
     }
 
@@ -114,7 +133,7 @@ public class DefaultAreaOfInterestModel {
      * Set the coordinateSystem.
      */
     public void setCoordinateSystem(CS_CoordinateSystem coordinateSystem) {
-        this.coordinateSystem=coordinateSystem;
+        this.coordinateSystem = coordinateSystem;
     }
 
     /**
