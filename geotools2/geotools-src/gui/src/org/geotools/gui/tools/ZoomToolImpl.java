@@ -22,7 +22,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ZoomToolImpl.java,v 1.4 2003/03/28 19:08:53 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.5 2003/03/29 10:43:23 camerons Exp $
  * @author Cameron Shorter
  */
 public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
@@ -33,10 +33,10 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
 
     private Adapters adapters = Adapters.getDefault();
 
-    /** The factor to zoom in out by, zoomFactor=0.5 means zoom in,
+    /** The factor to zoom in/out by, zoomFactor=0.5 means zoom in,
      * zoomFactor=2 means zoom out. Defaults to 2.
      */
-    private double zoomFactor=2;
+    private double inverseZoomFactor=0.5;
 
     /**
      * Construct a ZoomTool.
@@ -51,7 +51,7 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
      * zoom in, zoomFactor=2 means zoom out.
      */
     public ZoomToolImpl(double zoomFactor){
-        this.zoomFactor=zoomFactor;
+        this.inverseZoomFactor=1/zoomFactor;
         if (zoomFactor==1){
             setName("Pan");
         }else if (zoomFactor<1){
@@ -66,45 +66,20 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
      * Pan the map so that the new extent has the click point in the middle
      * of the map and then zoom in/out by the zoomFactor.
      * @param e The mouse clicked event.
-     * @throws IllegalStateException If context has not been
-     * initialized yet.
-     * @task HACK The transform doesn't seem to take account of CoordinateSystem
-     * so it would be possible to create Coordinates which are outside real
-     * world coordinates.
      */
     public void mouseClicked(MouseEvent e) {
-        GeoMouseEvent geoMouseEvent=(GeoMouseEvent)e;
-        Envelope aoi=context.getBbox().getAreaOfInterest();
-        
         try {
             // The real world coordinates of the mouse click
-            CoordinatePoint mousePoint=geoMouseEvent.getMapCoordinate(null);
-
-            // The real world coordinates of the AreaOfInterest
-            Point2D minP=new Point2D.Double(aoi.getMinX(),aoi.getMinY());
-            Point2D maxP=new Point2D.Double(aoi.getMaxX(),aoi.getMaxY());
-            
-            // ZoomTransform:
-            // x=scaleFactor*x + (1-zoomFactor)*(width/2-minX)
+            CoordinatePoint
+                mousePoint=((GeoMouseEvent)e).getMapCoordinate(null);
+            Envelope aoi=context.getBbox().getAreaOfInterest();
             
             AffineTransform at = new AffineTransform();
-            
-            // Pan so the middle of the map is the mouse click point.
-            // x=x+clickedPoint-midpoint
+            at.translate(mousePoint.getOrdinate(0), mousePoint.getOrdinate(1));
+            at.scale(inverseZoomFactor, inverseZoomFactor);
             at.translate(
-                mousePoint.getOrdinate(0)-(minP.getX()+maxP.getX())/2,
-                mousePoint.getOrdinate(1)-(minP.getY()+maxP.getY())/2);
-
-            // Move the trasformed box so the center point remains in the same
-            // place after zooming.
-            // x=x+(1-zoomFactor)*(width/2-minX)
-            at.translate(
-                (1-zoomFactor)*((maxP.getX()-minP.getX())/2)-minP.getX(),
-                (1-zoomFactor)*((maxP.getY()-minP.getY())/2)-minP.getY());
-            
-            // Zoom by zoomFactor
-            // x=x*zoomFactor
-            at.scale(zoomFactor,zoomFactor);
+                -(aoi.getMinX()+aoi.getMaxX())/2,
+                -(aoi.getMinY()+aoi.getMaxY())/2);
 
             MathTransform transform=
                 MathTransformFactory.getDefault().createAffineTransform(at);
@@ -140,7 +115,7 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
      * zoomFactor=2 means zoom out. Defaults to 2.
      */
     public void setZoomFactor(double zoomFactor){
-        this.zoomFactor=zoomFactor;
+        this.inverseZoomFactor=1/zoomFactor;
     }
 
     /**
@@ -148,6 +123,6 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
      * zoomFactor=2 means zoom out. Defaults to 2.
      */
     public double getZoomFactor(){
-        return zoomFactor;
+        return 1/inverseZoomFactor;
     }
 }
