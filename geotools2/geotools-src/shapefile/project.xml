@@ -55,6 +55,15 @@
             <role>Java Developer</role>
           </roles>
       </developer>
+      <developer>
+        <name>Ian Schneider</name>
+        <id>en</id>
+        <email>ianschneiderw@ars.usda.gov</email>
+        <organization>USDA/ARS</organization>
+        <roles>
+          <role>Java Developer</role>
+        </roles>
+      </developer>
     </developers>
   <dependencies>
   <dependency>
@@ -126,9 +135,7 @@
           <resource>
               <directory>${basedir}/tests/unit</directory>
               <includes>
-                  <include>**/*.shp</include>
-                  <include>**/*.dbf</include>
-                  <include>**/*.shx</include>
+                  <include>**/data.zip</include>
               </includes>
           </resource>
       </resources>
