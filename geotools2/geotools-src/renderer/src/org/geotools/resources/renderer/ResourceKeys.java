@@ -41,4 +41,5 @@ public interface ResourceKeys
     public static final int ERROR_ODD_ARRAY_LENGTH_$1                =    14;
     public static final int ERROR_POLYGON_CLOSED                     =    15;
     public static final int ERROR_RENDERER_NOT_OWNER_$1              =    16;
+    public static final int ERROR_UNMODIFIABLE_GEOMETRY              =    18;
 }

@@ -76,7 +76,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.1 2003/05/28 10:21:46 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -410,7 +410,7 @@ public class RenderedGeometries extends RenderedLayer {
             final Paint      oldPaint = graphics.getPaint();
             final Stroke    oldStroke = graphics.getStroke();
             final Shape          clip = graphics.getClip();
-            if (toDraw.boundsIntersects(clip)) {
+            if (clip.intersects(toDraw.getBounds2D())) {
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
                 double r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                         (r=tr.getShearX())*r + (r=tr.getShearY())*r);
@@ -450,7 +450,7 @@ public class RenderedGeometries extends RenderedLayer {
                 for (int i=0; i<count; i++) {
                     final Polyline polyline = (Polyline)polylines.get(i);
                     synchronized (polyline) {
-                        if (polyline.boundsIntersects(clip)) {
+                        if (clip.intersects(polyline.getBounds2D())) {
                             float resolution = polyline.getRenderingResolution();
                             if (!(resolution>=minResolution && resolution<=maxResolution)) {
                                 resolution = (minResolution + maxResolution)/2;
@@ -472,7 +472,7 @@ public class RenderedGeometries extends RenderedLayer {
             graphics.setStroke(oldStroke);
             graphics.setPaint (oldPaint);
         }
-        context.addPaintedArea(XAffineTransform.transform(tr, bounds, bounds), context.textCS);
+        context.addPaintedArea(XAffineTransform.transform(tr, bounds, null), context.textCS);
     }
 
     /**

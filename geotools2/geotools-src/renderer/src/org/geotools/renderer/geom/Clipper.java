@@ -34,6 +34,8 @@
 package org.geotools.renderer.geom;
 
 // J2SE dependencies
+import java.util.Map;
+import java.util.IdentityHashMap;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.IllegalPathStateException;
@@ -50,14 +52,20 @@ import org.geotools.resources.XArray;
 
 /**
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
- * contains a {@link Rectangle2D} and its {@link CoordinateSystem}.
+ * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.5 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.6 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
  */
 public final class Clipper {
+    /**
+     * Map of polylines already clipped. Used in order to avoid clipping the
+     * same polyline twice when some {@link GeometryProxy} objects exists.
+     */
+    private final Map alreadyClipped = new IdentityHashMap(101);
+
     /**
      * Coordinate system of {@link #mapClip}.
      */
@@ -118,7 +126,7 @@ public final class Clipper {
      * Constructs a clipping area.
      *
      * @param mapClip The limits of the region to keep.
-     * @param mapCS <code>clip</code>'s coordinate system.
+     * @param mapCS The <code>clip</code>'s coordinate system.
      */
     public Clipper(final Rectangle2D mapClip, final CoordinateSystem mapCS) {
         this.mapCS   = mapCS;
@@ -128,36 +136,6 @@ public final class Clipper {
         xmax = (float) clip.getMaxX();
         ymin = (float) clip.getMinY();
         ymax = (float) clip.getMaxY();
-    }
-
-    /**
-     * Returns the clip in the polyline's internal coordinate system. This method
-     * <strong>must</strong> be invoked before {@link #clip(Polyline)}.
-     *
-     * @param  The polyline to clip.
-     * @return The clip in polyline's internal coordinate system. Will never be null, but may
-     *         be empty if a transformation failed. Note: this method returns an internal
-     *         rectangle. <strong>Do not modify</strong>.
-     */
-    final Rectangle2D getInternalClip(final Polyline polyline) {
-        try {
-            final MathTransform2D tr;
-            tr = Polyline.getMathTransform2D(polyline.getTransformationFromInternalCS(mapCS));
-            if (tr != null) {
-                CTSUtilities.transform((MathTransform2D) tr.inverse(), mapClip, clip);
-            } else {
-                clip.setRect(mapClip);
-            }
-        } catch (TransformException exception) {
-            // Cette exception peut être normale.
-            LineString.unexpectedException("Clipper", "getInternalClip", exception);
-            clip.setRect(0,0,0,0);
-        }
-        xmin = (float) clip.getMinX();
-        xmax = (float) clip.getMaxX();
-        ymin = (float) clip.getMinY();
-        ymax = (float) clip.getMaxY();
-        return clip;
     }
 
     /**
@@ -291,22 +269,58 @@ public final class Clipper {
 
     /**
      * Returns a polyline which only contains the points of <code>polyline</code> that appear
-     * in the rectangle specified in the constructeur. If none of the polyline's points appear
+     * in the rectangle specified to the constructor. If none of the polyline's points appear
      * inside <code>clip</code>, this method returns <code>null</code>. If all the polyline's
      * points appear inside <code>clip</code>, this method returns <code>polyline</code>.
      * Otherwise, this method returns a polyline that contains the points that appear inside
      * <code>clip</code>. These polylines will share the same data as <code>polyline</code>
      * where possible, so that memory consumption should remain reasonable.
-     * <br><br>
-     * Note: before calling this method, {@link #getInternalClip} must have been called.
      *
      * @param  polyline Polyline to clip in a region.
      * @return Clipped polyline.
      */
-    final Polyline clip(final Polyline polyline) {
+    protected Polyline clip(final Polyline polyline) {
+        Polyline result = (Polyline) alreadyClipped.get(polyline);
+        if (result != null) {
+            return result;
+        }
+        /*
+         * Gets the clip in the polyline's internal coordinate system.
+         * Then, perform a fast check using the polyline bounds in its
+         * native coordinate system.
+         */
+        try {
+            final MathTransform2D tr;
+            tr = Polyline.getMathTransform2D(polyline.getTransformationFromInternalCS(mapCS));
+            if (tr != null) {
+                CTSUtilities.transform((MathTransform2D) tr.inverse(), mapClip, clip);
+            } else {
+                clip.setRect(mapClip);
+            }
+        } catch (TransformException exception) {
+            // This exception may be normal if the clipping bounds is close to
+            // the domain of validity. Conservatively returns the whole geometry.
+            LineString.unexpectedException("Clipper", "clip", exception);
+            return polyline;
+        }
+        final Rectangle2D dataBounds = polyline.getDataBounds();
+        if (clip.contains(dataBounds)) {
+            return polyline;
+        }
+        if (!clip.intersects(dataBounds)) {
+            return null;
+        }
+        xmin = (float) clip.getMinX();
+        xmax = (float) clip.getMaxX();
+        ymin = (float) clip.getMinY();
+        ymax = (float) clip.getMaxY();
+        /*
+         * It would appear that the polyline is neither completely inside nor completely
+         * outside <code>clip</code>.  It is therefore necessary to perform a more powerful
+         * (and more costly) check.
+         */
         borderLength    = 0;
         intersectLength = 0;
-        Polyline result = null;
         final boolean isClosed = polyline.isClosed();
         final LineString.Iterator it;
         try {
@@ -639,6 +653,7 @@ public final class Clipper {
                 }
             }
         }
+        alreadyClipped.put(polyline, result);
         return result;
     }
 }

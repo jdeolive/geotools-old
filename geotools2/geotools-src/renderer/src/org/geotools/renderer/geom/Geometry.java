@@ -35,6 +35,7 @@ package org.geotools.renderer.geom;
 
 // Java2D Geometry
 import java.awt.Shape;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
@@ -50,6 +51,7 @@ import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
 // Miscellaneous
+import java.util.Map;
 import java.util.Locale;
 import java.io.Serializable;
 
@@ -87,7 +89,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.2 2003/05/28 10:21:45 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.3 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -164,9 +166,11 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged, as if this method has
      *         never been invoked.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
     public abstract void setCoordinateSystem(final CoordinateSystem coordinateSystem)
-            throws TransformException;
+            throws TransformException, UnmodifiableGeometryException;
 
     /**
      * Check if two coordinate system are equivalents, ignoring attributes like the CS name.
@@ -235,6 +239,19 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     long getMemoryUsage() {
         // To be overriden by subclasses.
         return getPointCount()*8;
+    }
+
+    /**
+     * Returns the smallest bounding box containing {@link #getBounds2D}.
+     *
+     * @deprecated This method is required by the {@link Shape} interface,
+     *             but it doesn't provide enough precision for most cases.
+     *             Use {@link #getBounds2D()} instead.
+     */
+    public Rectangle getBounds() {
+        final Rectangle rect = new Rectangle();
+        rect.setRect(getBounds2D()); // Perform the appropriate rounding.
+        return rect;
     }
 
     /**
@@ -321,16 +338,6 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     public abstract boolean intersects(final Shape shape);
 
     /**
-     * Test if the {@linkplain #getBounds2D bounding box} of this geometry intersects the
-     * interior of the specified shape. This method is less precise but faster than invoking
-     * {@link #intersects(Shape)}.
-     */
-    public boolean boundsIntersects(final Shape shape) {
-        // To be overriden by subclasses with a more efficient implementation.
-        return shape.intersects(getBounds2D());
-    }
-
-    /**
      * Returns an geometry approximately equal to this geometry clipped to the specified bounds.
      * The clip is only approximate in that the resulting geometry may extend outside the clip
      * area. However, it is guaranteed that the returned geometry contains at least all the
@@ -349,7 +356,7 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     public Geometry clip(final Clipper clipper) {
         // Subclasses will overrides this method with a more efficient implementation.
         if (equivalents(clipper.mapCS, getCoordinateSystem())) {
-            return boundsIntersects(clipper.mapClip) ? this : null;
+            return clipper.mapClip.intersects(getBounds2D()) ? this : null;
         }
         return this;
     }
@@ -370,8 +377,11 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      *         may actually increase memory usage since the two geometries will no longer
      *         share their data.
      * @throws TransformException If an error has come up during a cartographic projection.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public abstract float compress(final CompressionLevel level) throws TransformException;
+    public abstract float compress(final CompressionLevel level)
+            throws TransformException, UnmodifiableGeometryException;
 
     /**
      * Returns the geometry's resolution. The mean resolution is the mean distance between
@@ -418,8 +428,11 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * @param  resolution Desired resolution, in the same linear units than {@link #getResolution}.
      * @throws TransformException If some coordinate transformations were needed and failed.
      *         There is no guaranteed on geometry's state in case of failure.
+     * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
+     *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public abstract void setResolution(final double resolution) throws TransformException;
+    public abstract void setResolution(final double resolution)
+            throws TransformException, UnmodifiableGeometryException;
 
     /**
      * Returns the rendering resolution. This is the spatial resolution used by
@@ -497,6 +510,72 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     }
 
     /**
+     * Freeze this geometry. A frozen geometry can't change its internal data anymore.
+     * Invoking methods like {@link #setCoordinateSystem setCoordinateSystem(...)} or
+     * {@link #setResolution setResolution(...)} on a frozen geometry will result in a
+     * {@link UnmodifiableGeometryException} to be thrown. However, the following methods
+     * still allowed:
+     * <br><br>
+     * <ul>
+     *   <li>{@link #setStyle}</li>
+     *   <li>{@link #setRenderingResolution}</li>
+     * </ul>
+     * <br><br>
+     * This is because those methods affect the way the geometry is rendered, but has no
+     * negative impact on the container that own this geometry.
+     *
+     * A frozen geometry can never been unfrozen, because we never know if there is not
+     * some {@link GeometryProxy} left which still included in the container. To modify
+     * a frozen geometry, {@linkplain #clone clone} it first.
+     */
+    void freeze() {
+        // Will be overriden by subclasses.
+    }
+
+    /**
+     * Return a clone of this geometry. The returned geometry will have
+     * a deep copy semantic. However, subclasses should overrides this
+     * method in such a way that both shapes will share as much internal
+     * arrays as possible, even if they use differents coordinate systems.
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException exception) {
+            // Should never happen, since we are cloneable.
+            throw new AssertionError(exception);
+        }
+    }
+
+    /**
+     * Clone this geometry only if it was not already done. This implementation is used in order to
+     * avoid duplicates clones when a {@link GeometryCollection} contains {@link GeometryProxy}.
+     *
+     * @param alreadyCloned Maps the original geometries with their clones.
+     *        This map should be an instance of {@link java.util.IdentityHashMap}.
+     */
+    final Object clone(final Map alreadyCloned) {
+        if (alreadyCloned == null) {
+            return clone();
+        }
+        Object copy = alreadyCloned.get(this);
+        if (copy != null) {
+            return copy;
+        }
+        copy = doClone(alreadyCloned);
+        alreadyCloned.put(this, copy);
+        return copy;
+    }
+
+    /**
+     * Clone this geometry. The <code>alreadyCloned</code> argument should not be modified
+     * inside this method, but should be passed to all invocation of {@link #clone(Map)}.
+     */
+    Object doClone(final Map alreadyCloned) {
+        return clone();
+    }
+
+    /**
      * Return a string representation of this geometry for debugging purpose.
      * The returned string will look like
      * "<code>Polygon["polygon name", 44°30'N-51°59'N  70°59'W-54°59'W (56 pts)]</code>".
@@ -533,20 +612,5 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
         format.format(maxX, buffer, dummy).append(" (");
         buffer.append(getPointCount()); buffer.append(" pts)]");
         return buffer.toString();
-    }
-
-    /**
-     * Return a clone of this geometry. The returned geometry will have
-     * a deep copy semantic. However, subclasses should overrides this
-     * method in such a way that both shapes will share as much internal
-     * arrays as possible, even if they use differents coordinate systems.
-     */
-    public Object clone() {
-        try {
-            return super.clone();
-        } catch (CloneNotSupportedException exception) {
-            // Should never happen, since we are cloneable.
-            throw new AssertionError(exception);
-        }
     }
 }

@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.11 2003/05/28 10:21:45 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.12 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -171,7 +171,7 @@ public class Polyline extends Geometry {
      * {@link Rectangle2D} referenced by this field must never be modified</strong>, as it could
      * be shared by several {@link Polyline} objects.
      */
-    private transient Rectangle2D dataBounds;
+    private transient UnmodifiableRectangle dataBounds;
 
     /**
      * Rectangle completely encompassing the projected coordinates of this polyline.
@@ -181,7 +181,7 @@ public class Polyline extends Geometry {
      * <strong>The {@link Rectangle2D} rectangle referenced by this field should never be
      * modified</strong>, as it could be shared by several {@link Polyline} objects.
      */
-    private transient Rectangle2D bounds;
+    private transient UnmodifiableRectangle bounds;
 
     /**
      * <code>true</code> if {@link #getPathIterator} will return a flattened iterator.
@@ -538,8 +538,9 @@ public class Polyline extends Geometry {
          * Compute bounds now. The getBounds2D(...) method scans every point.
          * Consequently, if an exception must be thrown, it will be thrown now.
          */
-        bounds = LineString.getBounds2D(data, (transformCandidate==null) ? null :
-                              (MathTransform2D)transformCandidate.getMathTransform());
+        bounds = new UnmodifiableRectangle(LineString.getBounds2D(data,
+                                (transformCandidate==null) ? null :
+                                (MathTransform2D)transformCandidate.getMathTransform()));
         /*
          * Store the new coordinate transform
          * only after projection has succeeded.
@@ -707,7 +708,17 @@ public class Polyline extends Geometry {
         data = LineString.append(data, LineString.clone(toAppend.data));
         if (dataBounds != null) {
             if (toAppend.dataBounds != null) {
-                dataBounds.add(toAppend.dataBounds);
+                // Instead of recomputing all the bounds, just add the two rectangles.
+                // Try to keep the existing references if possible.
+                final XRectangle2D rect = new XRectangle2D(dataBounds);
+                rect.add(toAppend.dataBounds);
+                if (!rect.equals(dataBounds)) {
+                    if (rect.equals(toAppend.dataBounds)) {
+                        dataBounds = toAppend.dataBounds;
+                    } else {
+                        dataBounds = new UnmodifiableRectangle(rect);
+                    }
+                }
                 assert equalsEps(dataBounds, getDataBounds()) : dataBounds;
             } else {
                 dataBounds = null;
@@ -993,37 +1004,24 @@ public class Polyline extends Geometry {
      *         fields of this rectangle will not affect the cache.
      */
     public synchronized Rectangle2D getBounds2D() {
-        return (Rectangle2D) getCachedBounds().clone();
+        return getCachedBounds(); // Immutable instance
     }
 
     /**
-     * Returns the smallest bounding box containing {@link #getBounds2D}.
-     *
-     * @deprecated This method is required by the {@link Shape} interface,
-     *             but it doesn't provide enough precision for most cases.
-     *             Use {@link #getBounds2D()} instead.
-     */
-    public synchronized Rectangle getBounds() {
-        final Rectangle bounds = new Rectangle();
-        bounds.setRect(getCachedBounds()); // 'setRect' effectue l'arrondissement correct.
-        return bounds;
-    }
-
-    /**
-     * Returns a rectangle encompassing all {@link #data}'s points. Because this method returns
-     * the rectangle directly from the cache and not a copy, the returned rectangle should
-     * never be modified.
+     * Returns a rectangle encompassing all {@link #data}'s points. Because this method
+     * returns the rectangle directly from the cache and not a copy, the returned rectangle
+     * should never be modified (and is immutable anyway).
      *
      * @return A rectangle encompassing all {@link #data}'s points.
      *         This rectangle may be empty, but will never be null.
      */
-    private Rectangle2D getDataBounds() {
+    final Rectangle2D getDataBounds() {
         // assert Thread.holdsLock(this);
         // Can't make this assertion, because this method is invoked
         // by {@link #getCachedBounds}. See later for details.
 
         if (dataBounds == null) {
-            dataBounds = getBounds(data, null);
+            dataBounds = new UnmodifiableRectangle(getBounds(data, null));
             if (isIdentity(coordinateTransform)) {
                 bounds = dataBounds; // Avoid computing the same rectangle twice
             }
@@ -1033,14 +1031,12 @@ public class Polyline extends Geometry {
     }
 
     /**
-     * Return the bounding box of this isoline. This method returns
-     * a direct reference to the internally cached bounding box. DO
-     * NOT MODIFY!
+     * Return the bounding box of this polyline.
      */
     private Rectangle2D getCachedBounds() {
         assert Thread.holdsLock(this);
         if (bounds == null) {
-            bounds = getBounds(data, coordinateTransform);
+            bounds = new UnmodifiableRectangle(getBounds(data, coordinateTransform));
             if (isIdentity(coordinateTransform)) {
                 dataBounds = bounds; // Avoid computing the same rectangle twice
             }
@@ -1536,15 +1532,6 @@ public class Polyline extends Geometry {
     }
 
     /**
-     * Test if the {@linkplain #getBounds2D bounding box} of this polyline intersects the
-     * interior of the specified shape. This method is less precise but faster than invoking
-     * {@link #intersects(Shape)}.
-     */
-    public synchronized boolean boundsIntersects(final Shape shape) {
-        return shape.intersects(getCachedBounds());
-    }
-
-    /**
      * Returns a polyline approximately equal to this polyline clipped to the specified bounds.
      * The clip is only approximative in that the resulting polyline may extend outside the clip
      * area. However, it is guaranteed that the resulting polyline contains at least all the
@@ -1564,19 +1551,6 @@ public class Polyline extends Geometry {
      *             compiler. Then remove the cast in Polygon.clip(Clipper).
      */
     public synchronized Geometry clip(final Clipper clipper) {
-        final Rectangle2D clip = clipper.getInternalClip(this);
-        final Rectangle2D dataBounds = getDataBounds();
-        if (clip.contains(dataBounds)) {
-            return this;
-        }
-        if (!clip.intersects(dataBounds)) {
-            return null;
-        }
-        /*
-         * It would appear that the polyline is neither completely inside nor completely
-         * outside <code>clip</code>.  It is therefore necessary to resolve to perform
-         * a more powerful (and more costly) check.
-         */
         final Polyline clipped = clipper.clip(this);
         if (clipped != null) {
             if (LineString.equals(data, clipped.data)) {

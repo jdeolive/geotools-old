@@ -71,6 +71,7 @@ import org.geotools.util.ProgressListener;
 import org.geotools.math.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
 
@@ -94,7 +95,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -148,7 +149,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * calculated just once and kept in an internal cache to accelerate
      * certain checks.
      */
-    private transient Rectangle2D bounds;
+    private UnmodifiableRectangle bounds;
 
     /**
      * <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
@@ -582,7 +583,7 @@ public class GeometryCollection extends Geometry implements Comparable {
         geometry.count      = clipCount;
         geometry.value      = this.value;
         if (coordinateSystem.equals(clipper.mapCS, false)) {
-            geometry.bounds = bounds.createIntersection(clipper.mapClip);
+            geometry.bounds = new UnmodifiableRectangle(bounds.createIntersection(clipper.mapClip));
             // Note: Bounds computed above may be bigger than the bounds usually computed
             //       by 'getBounds2D()'.  However, these bigger bounds conform to Shape
             //       specification and are also desirable.  If the bounds were smaller than
@@ -831,27 +832,24 @@ public class GeometryCollection extends Geometry implements Comparable {
     }
 
     /**
-     * Return the bounding box of this geometry. This method returns
-     * a direct reference to the internally cached bounding box. DO
-     * NOT MODIFY!
+     * Return the bounding box of this geometry.
      */
     private Rectangle2D getCachedBounds() {
         assert Thread.holdsLock(this);
         if (bounds == null) {
+            Rectangle2D bounds = null;
             for (int i=count; --i>=0;) {
                 final Geometry polygon = geometries[i];
                 if (!polygon.isEmpty()) {
                     final Rectangle2D polygonBounds = polygon.getBounds2D();
                     if (bounds == null) {
-                        bounds = polygonBounds;
+                        bounds = new XRectangle2D(polygonBounds);
                     } else {
                         bounds.add(polygonBounds);
                     }
                 }
             }
-            if (bounds == null) {
-                bounds = new Rectangle2D.Float();
-            }
+            this.bounds = new UnmodifiableRectangle(bounds);
         }
         return bounds;
     }
@@ -865,20 +863,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      *         will not affect the cache.
      */
     public synchronized Rectangle2D getBounds2D() {
-        return (Rectangle2D) getCachedBounds().clone();
-    }
-
-    /**
-     * Returns the smallest bounding box containing {@link #getBounds2D}.
-     *
-     * @deprecated This method is required by the {@link Shape} interface,
-     *             but it doesn't provide enough precision for most cases.
-     *             Use {@link #getBounds2D()} instead.
-     */
-    public synchronized Rectangle getBounds() {
-        final Rectangle rect = new Rectangle();
-        rect.setRect(getCachedBounds()); // Perform the appropriate rounding.
-        return rect;
+        return getCachedBounds(); // Immutable instance
     }
 
     /**
@@ -973,15 +958,6 @@ public class GeometryCollection extends Geometry implements Comparable {
             }
         }
         return false;
-    }
-
-    /**
-     * Test if the {@linkplain #getBounds2D bounding box} of this geometry intersects the
-     * interior of the specified shape. This method is less precise but faster than invoking
-     * {@link #intersects(Shape)}.
-     */
-    public synchronized boolean boundsIntersects(final Shape shape) {
-        return shape.intersects(getCachedBounds());
     }
 
 
@@ -1277,7 +1253,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static class Filtered extends AbstractCollection {

@@ -60,7 +60,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  * Note: this implementation is not the fastest one. For maximal performance, consider using
  * {@link DefaultArray} instead.
  *
- * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -231,11 +231,8 @@ public class GenericArray extends PointArray implements RandomAccess {
      * If this array is empty, then this method returns <code>null</code>.
      */
     public Rectangle2D getBounds2D() {
-        final XRectangle2D bounds = new XRectangle2D();
-        bounds.xmin = x.minimum;
-        bounds.xmax = x.maximum;
-        bounds.ymin = y.minimum;
-        bounds.ymax = y.maximum;
+        final XRectangle2D bounds = XRectangle2D.createFromExtremums(x.minimum, y.minimum,
+                                                                     x.maximum, y.maximum);
         return bounds.isEmpty() ? null : bounds;
     }
 
@@ -360,7 +357,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     /**
      * A path iterator for the data.
      *
-     * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements PathIterator {
@@ -430,7 +427,7 @@ public class GenericArray extends PointArray implements RandomAccess {
      * Wrap an array of <code>double</code>, <code>float</code>, <code>long</code>,
      * <code>int</code>, <code>short</code> or <code>byte</code> data.
      *
-     * @version $Id: GenericArray.java,v 1.3 2003/05/27 18:22:43 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Vector implements Serializable {

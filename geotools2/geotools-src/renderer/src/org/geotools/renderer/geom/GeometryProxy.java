@@ -42,6 +42,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.FlatteningPathIterator;
 
 // Miscellaneous
+import java.util.Map;
 import java.util.Locale;
 
 // Geotools dependencies
@@ -57,7 +58,7 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.1 2003/05/28 10:21:45 desruisseaux Exp $
+ * @version $Id: GeometryProxy.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeometryProxy extends Geometry {
@@ -69,7 +70,7 @@ public class GeometryProxy extends Geometry {
     /**
      * The wrapped geometry object.
      */
-    private final Geometry geometry;
+    private Geometry geometry;
 
     /**
      * Construct a geographic shape wrapping the given geometry. The new geometry will
@@ -224,14 +225,6 @@ public class GeometryProxy extends Geometry {
     }
 
     /**
-     * Test if the {@linkplain #getBounds2D bounding box} of this geometry intersects the
-     * interior of the specified shape. This method forwards the call to the wrapped geometry.
-     */
-    public boolean boundsIntersects(final Shape shape) {
-        return geometry.boundsIntersects(shape);
-    }
-
-    /**
      * Returns an geometry approximately equal to this geometry clipped to the specified
      * bounds. This method clip the wrapped geometry, and wrap the result in a new
      * <code>GeometryProxy</code> instance with the same {@linkplain Style style} than
@@ -338,12 +331,28 @@ public class GeometryProxy extends Geometry {
     }
 
     /**
+     * Freeze the wrapped geometry.
+     */
+    void freeze() {
+        geometry.freeze();
+    }
+
+    /**
      * Return a clone of this geometry. The returned geometry will have
      * a deep copy semantic. However, subclasses should overrides this
      * method in such a way that both shapes will share as much internal
      * arrays as possible, even if they use differents coordinate systems.
      */
     public Object clone() {
-        return super.clone(); // TODO
+        return doClone(null);
+    }
+
+    /**
+     * Clone this geometry, trying to avoid cloning twice the wrapped geometry.
+     */
+    Object doClone(final Map alreadyCloned) {
+        final GeometryProxy copy = (GeometryProxy) super.clone();
+        copy.geometry = (Geometry) geometry.clone(alreadyCloned);
+        return copy;
     }
 }
