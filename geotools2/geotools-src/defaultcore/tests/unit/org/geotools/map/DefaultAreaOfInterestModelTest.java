@@ -177,27 +177,35 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
             envelope1.equals(envelope2));
     }
     
-    /** Test external change of envelope does not change envelope internally
+    /** Test changing inserted envelope does not change envelope
+     * internally
      */
-    public void testImmutableEnvelope(){
+    public void testImmutableEnvelope1(){
         Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
         Envelope envelope2=new Envelope(envelope1);
         bbox.setAreaOfInterest(envelope1);
-        envelope2.expandToInclude(1.0,2.0);
+        envelope1.expandToInclude(1.0,2.0);
         Envelope envelope3=bbox.getAreaOfInterest();
-        this.assertTrue("1Changing external Envelope changes internal values",
+        this.assertTrue("Changing extracted Envelope changes internal values",
             (envelope1!=envelope2)
-            && envelope3.equals(envelope1));
+            && envelope3.equals(envelope2));
+    }
 
-        envelope2=null;
-        envelope2=new Envelope(envelope3);
-        envelope2.expandToInclude(1.0,1.0);
+    /** Test changing extracted envelope does not change envelope
+     * internally
+     */
+    public void testImmutableEnvelope2(){
+        Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
+        bbox.setAreaOfInterest(envelope1);
+        Envelope envelope3=bbox.getAreaOfInterest();
+        Envelope envelope2=new Envelope(envelope3);
+        envelope3.expandToInclude(1.0,1.0);
         this.assertTrue("2Changing external Envelope changes internal values",
             (envelope2!=envelope3)
-            && envelope3.equals(bbox.getAreaOfInterest()));
- }
+            && envelope2.equals(bbox.getAreaOfInterest()));
+   }
 
-    /* TestimmutableCoordinateSystem()
+    /* TestImmutableCoordinateSystem()
      */
     
     /* Test change of coordinate system works, ensure there is no dependance
