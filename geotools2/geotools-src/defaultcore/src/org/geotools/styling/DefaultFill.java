@@ -23,10 +23,11 @@
  */
 
 package org.geotools.styling;
-import org.geotools.filter.*;
+
+import org.geotools.filter.Expression;
 
 /**
- * @version $Id: DefaultFill.java,v 1.8 2002/07/11 17:26:48 loxnard Exp $
+ * @version $Id: DefaultFill.java,v 1.9 2002/07/31 13:30:57 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -34,7 +35,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
     private static org.apache.log4j.Logger _log =
     org.apache.log4j.Logger.getLogger(DefaultFill.class);
     private Expression color = null;
-    
+    private Expression backgroundColor = null;
     private Expression opacity = null;
     
     private Graphic graphicFill = null;
@@ -42,9 +43,9 @@ public class DefaultFill implements org.geotools.styling.Fill {
     /** Creates a new instance of DefaultFill */
     public DefaultFill() {
         try {
-            color = new ExpressionLiteral("#808080");
-            opacity = new ExpressionLiteral(new Double(1.0));
-        } catch (IllegalFilterException ife){
+            color = new org.geotools.filter.ExpressionLiteral("#808080");
+            opacity = new org.geotools.filter.ExpressionLiteral(new Double(1.0));
+        } catch (org.geotools.filter.IllegalFilterException ife){
             _log.fatal("Failed to build default fill: " + ife);
             System.err.println("Failed to build default fill: " + ife);
         }
@@ -85,12 +86,51 @@ public class DefaultFill implements org.geotools.styling.Fill {
     }
     public void setColor(String rgb){
         try {
-            color = new ExpressionLiteral(rgb);
-        } catch (IllegalFilterException ife){
+            color = new org.geotools.filter.ExpressionLiteral(rgb);
+        } catch (org.geotools.filter.IllegalFilterException ife){
             _log.debug("error setting color: " + ife);
         }
     }
     
+    /**
+     * This parameter gives the solid color that will be used as a background for a Fill.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.
+     * The hexidecimal digits between A and F may be in either upper
+     * or lower case.  For example, full red is encoded as "#ff0000" (with no
+     * quotation marks).
+     * The default color is defined to be transparent.
+     *
+     *
+     * @return The color of the Fill encoded as a hexidecimal RGB value.
+     */
+    public Expression getBackgroundColor() {
+        return backgroundColor;
+    }
+    /**
+     * This parameter gives the solid color that will be used as a background for a Fill.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.
+     * The hexidecimal digits between A and F may be in either upper
+     * or lower case.  For example, full red is encoded as "#ff0000" (with no
+     * quotation marks).
+     *
+     * 
+     *
+     * @param rgb The color of the Fill encoded as a hexidecimal RGB value.
+     */
+    public void setBackgroundColor(Expression rgb) {
+        backgroundColor = rgb;
+    }
+    public void setBackgroundColor(String rgb){
+        try {
+            backgroundColor = new org.geotools.filter.ExpressionLiteral(rgb);
+        } catch (org.geotools.filter.IllegalFilterException ife){
+            _log.debug("error setting color: " + ife);
+        }
+    }
     
     /**
      * This specifies the level of translucency to use when rendering the fill.
@@ -117,8 +157,8 @@ public class DefaultFill implements org.geotools.styling.Fill {
     }
     public void setOpacity(String opacity){
         try {
-            this.opacity = new ExpressionLiteral(opacity);
-        } catch (IllegalFilterException ife){
+            this.opacity = new org.geotools.filter.ExpressionLiteral(opacity);
+        } catch (org.geotools.filter.IllegalFilterException ife){
             _log.debug("error setting opacity: " + ife);
         }
     }

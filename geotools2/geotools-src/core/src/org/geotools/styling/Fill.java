@@ -39,7 +39,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  * 
- * @version $Id: Fill.java,v 1.7 2002/07/12 15:30:06 loxnard Exp $
+ * @version $Id: Fill.java,v 1.8 2002/07/31 13:30:57 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface Fill {
@@ -57,8 +57,21 @@ public interface Fill {
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      **/
-    Expression getColor();
+    Expression getColor(); 
     
+    /**
+     * This parameter gives the solid color that will be used as a background for a Fill.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component, in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.  The hexidecimal digits beetween A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000" (with no quotation marks).  The default color is defined to be
+     * transparent.
+     *
+     *
+     * @return The background color of the Fill encoded as a hexidecimal RGB value.
+     **/
+    Expression getBackgroundColor();
     
     /**
      * This specifies the level of translucency to use when rendering the fill.
