@@ -115,7 +115,8 @@ public class FilterTest extends TestCase {
             new AttributeTypeDefault("testDouble", Double.class);
         AttributeType stringAttribute = 
             new AttributeTypeDefault("testString", String.class);
-        
+        AttributeType stringAttribute2 = 
+            new AttributeTypeDefault("testString2", String.class);
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
         _log.debug("created feature type and added geometry");
@@ -136,6 +137,7 @@ public class FilterTest extends TestCase {
         testSchema = testSchema.setAttributeType(doubleAttribute);
         _log.debug("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
+        testSchema = testSchema.setAttributeType(stringAttribute2);
         _log.debug("added string to feature type");
         
         // Creates coordinates for the linestring
@@ -145,7 +147,7 @@ public class FilterTest extends TestCase {
         coords[2] = new Coordinate(5,6);
         
         // Builds the test feature
-        Object[] attributes = new Object[10];
+        Object[] attributes = new Object[11];
         attributes[0] = new LineString(coords, new PrecisionModel(), 1);
         attributes[1] = new Boolean(true);
         attributes[2] = new Character('t');
@@ -156,6 +158,7 @@ public class FilterTest extends TestCase {
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
         attributes[9] = "test string data";
+        attributes[10] = "cow $10";
         
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
@@ -281,8 +284,34 @@ public class FilterTest extends TestCase {
         filter.setPattern(new ExpressionLiteral("co!!*ws*"),"*",".","!");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
-        // curently fails
-        //assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
+        
+        assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
+    
+        // test for "special" characters in string
+        testAttribute = new ExpressionAttribute(testSchema, "testString2");
+        filter.setValue(testAttribute);
+        filter.setPattern(new ExpressionLiteral("cow $*"),"*",".","!");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        
+        assertTrue("contains feature",filter.contains(testFeature));
+        assertEquals("filter string doesn't match","[ testString2 is like cow \\$.* ]",filter.toString());
+        
+        // test for first wild card
+        
+        filter.setPattern(new ExpressionLiteral("*cows*"),"*",".","!");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        assertEquals("filter string doesn't match","[ testString2 is like .*cows.* ]",filter.toString());
+        /*
+        // test for multi char parameters
+        
+        filter.setPattern(new ExpressionLiteral("!#co*ws**"),"xx","*","!#");
+        _log.info( filter.toString());            
+        _log.info( "contains feature: " + filter.contains(testFeature));
+        
+        assertEquals("filter string doesn't match","[ testString is like co!.*ws.* ]",filter.toString());
+         */
     }
 
 
