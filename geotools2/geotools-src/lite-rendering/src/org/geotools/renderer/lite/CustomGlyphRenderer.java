@@ -9,7 +9,10 @@ package org.geotools.renderer.lite;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -70,7 +73,23 @@ public class CustomGlyphRenderer implements GlyphRenderer {
     }
     
     public BufferedImage render(Graphic graphic, ExternalGraphic eg, Feature feature) {
-        //Change this to get values from list.  
+        Map props = eg.getCustomProperties();
+        Set propNames = props.keySet();
+        Iterator it = propNames.iterator();
+        
+        while (it.hasNext()) {
+            String nextName = (String) it.next();
+            
+            if (list.hasProperty(nextName)) {
+                list.setPropertyValue(nextName, props.get(nextName));
+            } else {
+                //DO I WANT TO THROW AN EXCEPTION OR ADD THE NEW PROPERTY TO THE LIST OR DO NOTHING?
+                System.out.println("Tried to set the property " + nextName
+                + " to a glyph that does not have this property.");
+            }
+        }
+        
+        //Change this to get values from list.
         int radius = 50;
         Expression e = (Expression) list.getPropertyValue("radius");
         if (e != null){
@@ -81,31 +100,31 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         e = (Expression) list.getPropertyValue("circle color");
         if (e != null){
             circleColor = Color.decode((String) e.getValue(feature));
-        }        
+        }
         
         int barHeight = 150;
         e = (Expression) list.getPropertyValue("bar height");
         if (e != null){
             barHeight = ((Number) e.getValue(feature)).intValue();
-        }       
+        }
         
         Color barColor = Color.BLACK;
         e = (Expression) list.getPropertyValue("bar color");
         if (e != null){
             barColor = Color.decode((String) e.getValue(feature));
-        }        
+        }
         
         int barUncertainty = 50;
         e = (Expression) list.getPropertyValue("bar uncertainty");
         if (e != null){
             barUncertainty = ((Number) e.getValue(feature)).intValue();
-        } 
+        }
         
         int barUncWidth = 5;
         e = (Expression) list.getPropertyValue("bar uncertainty width");
         if (e != null){
             barUncWidth = ((Number) e.getValue(feature)).intValue();
-        } 
+        }
         
         Color barUncColor = Color.GRAY;
         e = (Expression) list.getPropertyValue("bar uncertainty color");
@@ -117,38 +136,38 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         e = (Expression) list.getPropertyValue("pointer direction");
         if (e != null){
             pointerDirection = ((Number) e.getValue(feature)).intValue();
-        } 
+        }
         
         Color pointerColor = Color.RED;
         e = (Expression) list.getPropertyValue("pointer color");
         if (e != null){
             pointerColor = Color.decode((String) e.getValue(feature));
-        }        
+        }
         
         int pointerLength = 100;
         e = (Expression) list.getPropertyValue("pointer length");
         if (e != null){
             pointerLength = ((Number) e.getValue(feature)).intValue();
-        } 
+        }
         
         int wedgeWidth = 25;
         e = (Expression) list.getPropertyValue("wedge width");
         if (e != null){
             wedgeWidth = ((Number) e.getValue(feature)).intValue();
-        } 
+        }
         
         Color wedgeColor = Color.BLUE;
         e = (Expression) list.getPropertyValue("wedge color");
         if (e != null){
             wedgeColor = Color.decode((String) e.getValue(feature));
-        }        
+        }
         
         int circleCenterX, circleCenterY, imageHeight, imageWidth;
-
-
+        
+        
         BufferedImage image;
         Graphics2D imageGraphic;
-
+        
         //calculate maximum value of barHeight + barUncertainty & use that instead of "barHeight + barUncertainty"
         if (!maxFound){
             maxFound = true;
@@ -165,15 +184,15 @@ public class CustomGlyphRenderer implements GlyphRenderer {
                 int temp2 = 0;
                 if (tempExp != null){
                     temp2 = ((Number) tempExp.getValue(next)).intValue();
-                }            
+                }
                 if (temp1 + temp2 > maxBarHeight){
                     maxBarHeight = temp1 + temp2;
-                }            
+                }
             }
-        }   
+        }
         
         circleCenterX = Math.max(pointerLength, radius);
-        circleCenterY = Math.max(maxBarHeight, Math.max(pointerLength, radius));     
+        circleCenterY = Math.max(maxBarHeight, Math.max(pointerLength, radius));
         
         imageHeight = Math.max(radius * 2, Math.max(radius + pointerLength, Math.max(radius + maxBarHeight, pointerLength + maxBarHeight)));
         imageWidth = Math.max(radius * 2, pointerLength * 2);
@@ -182,19 +201,19 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         imageGraphic = image.createGraphics();
         imageGraphic.setColor(circleColor);
         imageGraphic.fillOval(circleCenterX - radius, circleCenterY - radius, radius * 2, radius * 2);
-        imageGraphic.setColor(wedgeColor); 
+        imageGraphic.setColor(wedgeColor);
         imageGraphic.fillArc(circleCenterX - radius,
-                             circleCenterY - radius,
-                             radius * 2,
-                             radius * 2, 
-                             calculateWedgeAngle(pointerDirection, wedgeWidth),
-                             wedgeWidth * 2);
+        circleCenterY - radius,
+        radius * 2,
+        radius * 2,
+        calculateWedgeAngle(pointerDirection, wedgeWidth),
+        wedgeWidth * 2);
         imageGraphic.setColor(barUncColor);
-        imageGraphic.fillRect(circleCenterX - barUncWidth, 
-                              circleCenterY - barHeight - barUncertainty, 
-                              barUncWidth * 2, 
-                              barUncertainty * 2);
-         //pointer
+        imageGraphic.fillRect(circleCenterX - barUncWidth,
+        circleCenterY - barHeight - barUncertainty,
+        barUncWidth * 2,
+        barUncertainty * 2);
+        //pointer
         int[] endPoint = calculateEndOfPointer(circleCenterX, circleCenterY, pointerLength, pointerDirection);
         imageGraphic.setStroke(new java.awt.BasicStroke(3));
         imageGraphic.setColor(pointerColor);
@@ -203,11 +222,11 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         imageGraphic.setStroke(new java.awt.BasicStroke(3));
         imageGraphic.setColor(barColor);
         imageGraphic.draw(new java.awt.geom.Line2D.Double(circleCenterX, circleCenterY, circleCenterX, circleCenterY - barHeight));
-
+        
         imageGraphic.dispose();
         return image;
     }
-
+    
     private int calculateWedgeAngle(int pointerDirection, int wedgeWidth){
         return 450 - (pointerDirection + wedgeWidth);
     }
@@ -216,6 +235,6 @@ public class CustomGlyphRenderer implements GlyphRenderer {
         int x = circleCenterX + (int) Math.round(pointerLength * Math.cos(Math.toRadians(pointerDirection - 90)));
         int y = circleCenterY + (int) Math.round(pointerLength * Math.sin(Math.toRadians(pointerDirection - 90)));
         return new int[]{x, y};
-    }    
+    }
     
 }
