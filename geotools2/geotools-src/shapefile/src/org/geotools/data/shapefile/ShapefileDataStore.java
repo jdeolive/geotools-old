@@ -781,7 +781,7 @@ public class ShapefileDataStore extends AbstractDataStore {
     	}
     }
     
-    private Envelope getBounds(Query query) throws IOException {
+    protected Envelope getBounds(Query query) throws IOException {
     	if(query == Query.ALL) {
     		return getBounds();
     	} else {
