@@ -33,6 +33,7 @@ import sun.awt.image.codec.JPEGImageEncoderImpl;
 
 import org.geotools.feature.Feature;
 
+import org.apache.commons.collections.LRUMap;
 /** A servlet implementation of the WMS spec. This servlet delegates the required call to an implementor of WMSServer.
  * Much of the front-end logic, such as Exception throwing, and Feature Formatting, is handled here, leaving the implementation of WMSServer abstracted away from the WMS details as much as possible.
  * The exception to this rule is the getCapabilites call, which returns the capabilities XML directly from the WMSServer. This may be changed later.
@@ -87,13 +88,16 @@ public class WMSServlet extends HttpServlet {
     private Vector featureFormatters;
     private String getUrl;
     
+    private static Map allMaps = new LRUMap(200);
+    private static Map nationalMaps = new HashMap();
     
     /**
      * Override init() to set up data used by invocations of this servlet.
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        
+        allMaps = Collections.synchronizedMap(allMaps);
+        nationalMaps = Collections.synchronizedMap(nationalMaps);
         // save servlet context
         context = config.getServletContext();
         
@@ -210,9 +214,54 @@ public class WMSServlet extends HttpServlet {
     
     /** Returns WMS 1.1.1 compatible response for a getMap request
      */
-    public void doGetMap(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public synchronized void doGetMap(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("Sending Map");
+        System.out.println("Request is " + request);
         
+        if(nationalMaps.containsKey(request.getQueryString())){
+            String format = getParameter(request, PARAM_FORMAT);
+            if (format==null)
+                format = DEFAULT_FORMAT;
+            BufferedImage image = (BufferedImage) nationalMaps.get(request.getQueryString());
+            System.out.println("Got image from National cache - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
+            
+            // Write the response
+            response.setContentType(format);
+            OutputStream out = response.getOutputStream();
+            // avoid caching in browser
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires",0);
+            try{
+                formatImageOutputStream(format, image, out);
+            } catch (WMSException we){
+                System.out.println("WMS Exception " + we);
+            }
+            out.close();
+            return ;
+        } else if(allMaps.containsKey(request.getQueryString())){
+            String format = getParameter(request, PARAM_FORMAT);
+             if (format==null)
+                format = DEFAULT_FORMAT;
+            BufferedImage image = (BufferedImage) allMaps.get(request.getQueryString());
+            System.out.println("Got image from cache - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
+            
+            // Write the response
+            response.setContentType(format);
+            OutputStream out = response.getOutputStream();
+            // avoid caching in browser
+            response.setHeader("Pragma", "no-cache");
+            response.setHeader("Cache-Control", "no-cache");
+            response.setDateHeader("Expires",0);
+            
+            try{
+                formatImageOutputStream(format, image, out);
+            } catch (WMSException we){
+                System.out.println("WMS Exception " + we);
+            }
+            out.close();
+            return ;
+        }
         // Get the requested exception mime-type (if any)
         String exceptions = getParameter(request, PARAM_EXCEPTIONS);
         
@@ -268,7 +317,7 @@ public class WMSServlet extends HttpServlet {
             
             // Get the image
             BufferedImage image = server.getMap(layers, styles, srs, dBbox, width, height, trans, bgcolor);
-            
+            allMaps.put(request.getQueryString(), image);
             System.out.println("Got image - sending response as "+format+" ("+image.getWidth(null)+","+image.getHeight(null)+")");
             
             // Write the response
