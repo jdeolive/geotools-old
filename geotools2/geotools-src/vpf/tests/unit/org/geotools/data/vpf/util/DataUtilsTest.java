@@ -12,10 +12,6 @@ package org.geotools.data.vpf.util;
 
 import junit.framework.*;
 import junit.extensions.*;
-import java.awt.Toolkit;
-import java.awt.AWTEvent;
-import java.awt.event.AWTEventListener;
-import java.awt.event.WindowEvent;
 import org.geotools.data.vpf.ifc.DataTypesDefinition;
 
 /**
@@ -90,13 +86,6 @@ public class DataUtilsTest extends TestCase
    * actions which are necessary for performs tests.
    */
   protected void setUp() {
-    Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-        public void eventDispatched(AWTEvent event) {
-          WindowEvent we = ((WindowEvent) event);
-          if (we.getID() == WindowEvent.WINDOW_OPENED)
-            we.getWindow().dispose();
-        }
-      }, AWTEvent.WINDOW_EVENT_MASK);
     varDataUtils = new org.geotools.data.vpf.util.DataUtils();
   } // end of setUp()
   /**

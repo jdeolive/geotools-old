@@ -10,10 +10,6 @@
  */
 package org.geotools.data.vpf.io;
 
-import java.awt.AWTEvent;
-import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import junit.extensions.*;
 import junit.framework.*;
