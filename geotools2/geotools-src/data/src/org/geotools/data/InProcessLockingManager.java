@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Logger;
 
 
 /**
@@ -42,8 +43,21 @@ import java.util.Set;
  * </p>
  *
  * @author Jody Garnett, Refractions Research
+ * @author Chris Holmes, TOPP
+ *
+ * @task REVISIT: I'm not sure that the map within a map is a good idea, it
+ *       makes things perhaps too complicated.  A nasty bug came about with
+ *       releasing, as allLocks put locks into a new collection, and the
+ *       iterator just removed them from that set instead of from the storage.
+ *       This is now fixed, but the loop to do it is really damn complex.
+ *       I'm not sure of the solution, but there should be something that is
+ *       less confusing.
  */
 public class InProcessLockingManager implements LockingManager {
+    /** The logger for the postgis module. */
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.data.data");
+
     /** lockTable access by typeName stores Transactions or MemoryLocks */
     protected Map lockTables = new HashMap();
 
@@ -124,6 +138,8 @@ public class InProcessLockingManager implements LockingManager {
      */
     protected Lock getLock(String typeName, String featureID) {
         Map locks = locks(typeName);
+        //LOGGER.info("checking for lock " + typeName + ", " + featureID
+        //    + " in locks " + locks);
 
         synchronized (locks) {
             if (locks.containsKey(featureID)) {
@@ -131,12 +147,17 @@ public class InProcessLockingManager implements LockingManager {
 
                 if (lock.isExpired()) {
                     locks.remove(featureID);
+                    //LOGGER.info("returning null");
 
                     return null;
                 } else {
+                    //LOGGER.info("returing " + lock);
+
                     return lock;
                 }
             } else {
+                //LOGGER.info("locks did not contain key, returning null");
+
                 // not found
                 return null;
             }
@@ -254,6 +275,9 @@ public class InProcessLockingManager implements LockingManager {
     public void assertAccess(String typeName, String featureID,
         Transaction transaction) throws FeatureLockException {
         Lock lock = getLock(typeName, featureID);
+
+        //LOGGER.info("asserting access on lock for " + typeName + ", fid: "
+	//  + featureID + ", transaction: " + transaction + ", lock " + lock);
 
         if ((lock != null) && !lock.isAuthorized(transaction)) {
             throw new FeatureLockException(
@@ -400,6 +424,9 @@ public class InProcessLockingManager implements LockingManager {
      */
     public boolean release(String authID, Transaction transaction)
         throws IOException {
+        //LOGGER.info("release called on lock: " + authID + ", trans: "
+	//  + transaction);
+
         if (authID == null) {
             throw new IllegalArgumentException("lockID required");
         }
@@ -412,18 +439,44 @@ public class InProcessLockingManager implements LockingManager {
         Lock lock;
         boolean release = false;
 
-        for (Iterator i = allLocks().iterator(); i.hasNext();) {
-            lock = (Lock) i.next();
+        //This could be done more efficiently, and perhaps cleaner,
+        //but these maps within a map are just nasty.  The previous way of
+        //calling iterator.remove() didn't actually remove anything, as it
+        //was only iterating through the values of a map, which I believe
+        //java just copies, so it's immutable.  Or perhaps we just moved
+        //through too many iterator layers...
+        for (Iterator i = lockTables.values().iterator(); i.hasNext();) {
+            Map fidMap = (Map) i.next();
+            Set unLockedFids = new HashSet();
 
-            if (lock.isExpired()) {
-                i.remove();
-            } else if (lock.isMatch(authID)) {
-                if (lock.isAuthorized(transaction)) {
-                    i.remove();
-                    release = true;
-                } else {
-                    throw new IOException("Not authorized to release " + lock);
+            for (Iterator j = fidMap.keySet().iterator(); j.hasNext();) {
+                String fid = (String) j.next();
+                lock = (Lock) fidMap.get(fid);
+                //LOGGER.info("checking lock " + lock + ", is match "
+                //    + lock.isMatch(authID));
+
+                if (lock.isExpired()) {
+                    unLockedFids.add(fid);
+
+                    //fidMap.remove(fid); concurrent modification error.
+                } else if (lock.isMatch(authID)) {
+                    //LOGGER.info("matches, is authorized: "
+                    //    + lock.isAuthorized(transaction));
+
+                    if (lock.isAuthorized(transaction)) {
+                        unLockedFids.add(fid);
+
+                        //fidMap.remove(fid);
+                        release = true;
+                    } else {
+                        throw new IOException("Not authorized to release "
+                            + lock);
+                    }
                 }
+            }
+
+            for (Iterator k = unLockedFids.iterator(); k.hasNext();) {
+                fidMap.remove(k.next());
             }
         }
 
@@ -444,6 +497,9 @@ public class InProcessLockingManager implements LockingManager {
      * @see org.geotools.data.LockingManager#lockExists(java.lang.String)
      */
     public boolean exists(String authID) {
+        //LOGGER.info("checking existence of lock: " + authID + " in "
+        //    + allLocks());
+
         if (authID == null) {
             return false;
         }
@@ -683,6 +739,10 @@ public class InProcessLockingManager implements LockingManager {
         }
 
         public boolean isAuthorized(Transaction transaction) {
+            //LOGGER.info("checking authorization on " + this.toString() + ", "
+	    //  + ((transaction != Transaction.AUTO_COMMIT)
+	    //  ? transaction.getAuthorizations().toString() : "autocommit"));
+
             return (transaction != Transaction.AUTO_COMMIT)
             && transaction.getAuthorizations().contains(authID);
         }
