@@ -24,6 +24,7 @@ package org.geotools.renderer;
 import org.geotools.styling.*;
 import org.geotools.map.Map;
 import org.geotools.datasource.Extent;
+import org.geotools.datasource.Feature;
 
 /**
  * this is very much work in progress
@@ -36,7 +37,7 @@ public interface Renderer {
     
     //we could pass in somehting like
     
-    public void render(Map map,Extent visible);
+    public void render(Feature f[],Extent viewport,Style style);
     
     //is that enough to go on? lets assume it is.
 }
