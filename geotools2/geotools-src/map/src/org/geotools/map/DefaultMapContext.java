@@ -678,6 +678,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removeMapLayerListListener(
         org.geotools.map.event.MapLayerListListener listener) {
+        if(listenerList == null) {
+            return;
+        }
+        
         listenerList.remove(org.geotools.map.event.MapLayerListListener.class, listener);
     }
 
@@ -775,6 +779,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removePropertyChangeListener(
         java.beans.PropertyChangeListener listener) {
+        if(listenerList == null) {
+            return;
+        }
+        
         propertyChangeSupport.removePropertyChangeListener(listener);
     }
 
@@ -798,6 +806,10 @@ public class DefaultMapContext implements MapContext {
      */
     public synchronized void removeMapBoundsListener(
         org.geotools.map.event.MapBoundsListener listener) {
+        if(listenerList == null) {
+            return;
+        }
+        
         listenerList.remove(org.geotools.map.event.MapBoundsListener.class, listener);
     }
 
