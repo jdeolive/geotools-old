@@ -23,7 +23,6 @@ package org.geotools.data.postgis;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-import org.apache.log4j.Category;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -31,12 +30,15 @@ import org.geotools.feature.*;
 import org.geotools.filter.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 
+//Logging system
+import java.util.logging.Logger;
+
 /**
  * Connects to a Postgis database and returns properly formatted GML.
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.2 2002/08/17 21:46:48 jmacgill Exp $
+ * @version $Id: PostgisDataSource.java,v 1.3 2002/09/01 16:00:21 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -46,8 +48,11 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
     private static Map geometryTypeMap = new HashMap();
 
-    /** Standard logging instance. */
-    private static Category _log = Category.getInstance(PostgisDataSource.class.getName());
+  /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.postgis");
+    
     
     /** Initializes to clean Postgis database requests of SRID part. */
     
@@ -167,9 +172,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         //_log.debug("about to loop through cols");
         // loop through all columns
         for( int i = 1, n = metaData.getColumnCount(); i <= n; i++) {
-            _log.debug("reading col: " + i);
-            _log.debug("reading col: " + metaData.getColumnTypeName(i));
-            _log.debug("reading col: " + metaData.getColumnName(i));
+            LOGGER.fine("reading col: " + i);
+            LOGGER.fine("reading col: " + metaData.getColumnTypeName(i));
+            LOGGER.fine("reading col: " + metaData.getColumnName(i));
 
             columnTypeName = metaData.getColumnTypeName(i);
             columnName = metaData.getColumnName(i);
@@ -200,10 +205,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             result.getStatement().getConnection().close();			
         }
         catch (SQLException e) {
-            _log.debug("Error closing result set.");
+            LOGGER.fine("Error closing result set.");
         } 
 
-        //_log.debug("the postgis-created schema is: " + FeatureTypeFactory.create(attributes).toString());
+        //LOGGER.fine("the postgis-created schema is: " + FeatureTypeFactory.create(attributes).toString());
         return FeatureTypeFactory.create(attributes);
     }
 
@@ -227,16 +232,16 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         String geometryType = null;
 
         // retrieve the result set from the JDBC driver
-        //_log.debug("about to make connection, SQL: " + sqlStatement);
+        //LOGGER.fine("about to make connection, SQL: " + sqlStatement);
         Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery(sqlStatement);
         
         // loop through entire result set or until maxFeatures are reached
-        //_log.debug("about to read geometry type");
+        //LOGGER.fine("about to read geometry type");
         if( result.next()) {
             geometryType = result.getString("type");
-            //_log.debug("geometry type is: " + geometryType);
+            //LOGGER.fine("geometry type is: " + geometryType);
         }
         
         closeResultSet(result);
@@ -283,7 +288,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             result.getStatement().getConnection().close();			
         }
         catch (SQLException e) {
-            _log.debug("Error closing result set.");
+            LOGGER.warning("Error closing result set.");
         } 
     }
 
@@ -315,7 +320,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         List features = new ArrayList(maxFeatures);
         try {
             // retrieve the result set from the JDBC driver
-            //_log.debug("about to make connection");
+            //LOGGER.fine("about to make connection");
             Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
 
@@ -323,13 +328,13 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             if( schema == null) {
                 schema = makeSchema(tableName, db);
             }
-            //_log.debug("just made schema: " + schema.toString());
+            //LOGGER.fine("just made schema: " + schema.toString());
 
-            //_log.debug("about to run a query: " + makeSql(filter, tableName, schema));
+            //LOGGER.fine("about to run a query: " + makeSql(filter, tableName, schema));
             ResultSet result = statement.executeQuery( makeSql(filter, tableName, schema));
 
             // set up a factory, attributes, and a counter for feature creation
-            //_log.debug("about to prepare feature reading");
+            //LOGGER.fine("about to prepare feature reading");
             FeatureFactory factory = new FeatureFactory(schema);
             Object[] attributes = new Object[schema.attributeTotal()];
             String featureId;
@@ -346,16 +351,16 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                 featureId = result.getString(1);
 
                 // create an individual attribute by looping through columns
-                _log.debug("reading feature: " + resultCounter);
-                //_log.debug("geometry position: " + geometryPosition);
+                LOGGER.fine("reading feature: " + resultCounter);
+                //LOGGER.fine("geometry position: " + geometryPosition);
                 for( col = 0; col < totalAttributes; col++) {
-                    //_log.debug("reading attribute: " + col);
+                    //LOGGER.fine("reading attribute: " + col);
                     if( col == geometryPosition) {
-                        //_log.debug("found geometry: " + geometryReader.read( result.getString(col + 2)));
+                        //LOGGER.fine("found geometry: " + geometryReader.read( result.getString(col + 2)));
                         attributes[col] = geometryReader.read( result.getString(col + 2));
                     }
                     else {
-                        //_log.debug("found attribute: " + result.getString(col + 2));
+                        //LOGGER.fine("found attribute: " + result.getString(col + 2));
                         attributes[col] = result.getObject(col + 2);
                     }
                 }
@@ -371,14 +376,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             closeResultSet(result);
         }
         catch(SQLException e) {
-            _log.debug("Some sort of database connection error: " + e.getMessage());
+            LOGGER.warning("Some sort of database connection error: " + e.getMessage());
         }
         catch(SchemaException e) {
-            _log.debug("Had problems creating the feature type..." + e.getMessage());
+            LOGGER.warning("Had problems creating the feature type..." + e.getMessage());
         }
         catch(Exception e) {
-            _log.debug("Error from the result set: " + e.getMessage());
-            _log.debug( e.toString() );
+            LOGGER.warning("Error from the result set: " + e.getMessage());
+            LOGGER.warning( e.toString() );
             e.printStackTrace();
         }
 
