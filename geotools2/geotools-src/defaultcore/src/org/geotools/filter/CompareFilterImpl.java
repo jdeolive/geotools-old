@@ -19,10 +19,10 @@ package org.geotools.filter;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
+import java.util.logging.Level;
 
 // J2SE dependencies
 import java.util.logging.Logger;
-import java.util.logging.Level;
 
 
 /**
@@ -41,7 +41,7 @@ import java.util.logging.Level;
  * simplify/make meaningful filter logic.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: CompareFilterImpl.java,v 1.7 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.8 2003/07/23 16:16:57 cholmesny Exp $
  */
 public class CompareFilterImpl extends AbstractFilterImpl
     implements CompareFilter {
@@ -61,8 +61,7 @@ public class CompareFilterImpl extends AbstractFilterImpl
      *
      * @throws IllegalFilterException Non-compare type.
      */
-    protected CompareFilterImpl(short filterType) 
-        throws IllegalFilterException {
+    protected CompareFilterImpl(short filterType) throws IllegalFilterException {
         if (isCompareFilter(filterType)) {
             this.filterType = filterType;
         } else {
@@ -271,8 +270,10 @@ public class CompareFilterImpl extends AbstractFilterImpl
     public int hashCode() {
         int result = 17;
         result = (37 * result) + filterType;
-        result = (37 * result) + leftValue.hashCode();
-        result = (37 * result) + rightValue.hashCode();
+        result = (37 * result)
+            + ((leftValue == null) ? 0 : leftValue.hashCode());
+        result = (37 * result)
+            + ((rightValue == null) ? 0 : rightValue.hashCode());
 
         return result;
     }
