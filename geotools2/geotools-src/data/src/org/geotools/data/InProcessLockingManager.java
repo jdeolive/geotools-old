@@ -314,6 +314,7 @@ public class InProcessLockingManager implements LockingManager {
 
                 public void close() throws IOException {
                     live = null;
+       	            writer.close();
                 }
             };
     }
