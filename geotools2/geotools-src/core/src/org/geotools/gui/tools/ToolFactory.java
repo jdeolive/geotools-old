@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  * Factory for constructing Tool classes.
  *
  * @author Cameron Shorter
- * @version $Id: ToolFactory.java,v 1.6 2003/08/20 21:32:13 cholmesny Exp $
+ * @version $Id: ToolFactory.java,v 1.7 2004/04/19 17:38:18 jmacgill Exp $
  */
 public abstract class ToolFactory {
     /** The logger */
@@ -40,9 +40,14 @@ public abstract class ToolFactory {
      */
     public static ToolFactory createFactory() {
         if (factory == null) {
-            String factoryClass = System.getProperty("ToolFactoryImpl");
-            LOGGER.fine("loaded property = " + factoryClass);
-
+            String factoryClass = null;
+            try{
+                factoryClass = System.getProperty("ToolFactoryImpl");
+                LOGGER.fine("loaded property = " + factoryClass);
+            }
+            catch(SecurityException se){
+                LOGGER.warning("unable to obtain ToolFactory property " + se);
+            }
             if ((factoryClass != null) && (factoryClass != "")) {
                 factory = createFactory(factoryClass);
             }
