@@ -34,7 +34,7 @@ import java.util.HashMap;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.16 2003/11/06 23:36:26 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.17 2003/11/19 07:34:00 jive Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -67,7 +67,13 @@ public class DefaultAttributeType implements AttributeType {
         this.fieldLength = fieldLength;
         this.defaultValue = defaultValue;
     }
-
+    protected DefaultAttributeType( AttributeType copy ){
+        this.name = copy.getName();
+        this.type = copy.getType();
+        this.nillable = copy.isNillable();
+        this.fieldLength = copy.getFieldLength();
+        this.defaultValue = copy.createDefaultValue();        
+    }
     /**
      * False, since it is not a schema.
      *
