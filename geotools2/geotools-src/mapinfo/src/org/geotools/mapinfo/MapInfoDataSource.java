@@ -28,6 +28,8 @@ import java.io.IOException;
 
 import java.util.*;
 
+import java.util.logging.*;
+
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.Extent;
@@ -44,12 +46,11 @@ import org.geotools.styling.*;
 /**
  * 
  * 
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @author $author$
  */
 public class MapInfoDataSource implements DataSource {
-    private static org.apache.log4j.Logger _log = org.apache.log4j.Logger.getLogger(
-                                                          "MapInfoDataSource");
+    private static Logger LOGGER = Logger.getLogger("org.geotools.mifmid");
 
     
     public static final String TYPE_NONE = "none";
@@ -143,8 +144,11 @@ public class MapInfoDataSource implements DataSource {
 
     // Factory to use to build Geometries
     private GeometryFactory geomFactory;
-    private DefaultStroke stroke = new DefaultStroke();
-    private DefaultFill fill = new DefaultFill();
+    
+    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private static final StyleFactory styleFactory = StyleFactory.createStyleFactory();
+    private Stroke stroke = styleFactory.getDefaultStroke();
+    private Fill fill = styleFactory.getDefaultFill();
 
     /**
      * Creates a new MapInfoDataSource object.
@@ -221,7 +225,7 @@ public class MapInfoDataSource implements DataSource {
                 typeClass = Integer.class;
                 hColumnsTypes.set(i, "Integer");
             } else {
-                _log.warn("unknown type in mif/mid read " + type + " storing as String");
+                LOGGER.fine("unknown type in mif/mid read " + type + " storing as String");
                 typeClass = String.class;
                 hColumnsTypes.set(i, "String");
             }
@@ -325,21 +329,21 @@ public class MapInfoDataSource implements DataSource {
                 if (clause(line).equalsIgnoreCase(CLAUSE_VERSION)) {
                     // Read Version clause
                     hVersion = line.trim().substring(line.trim().indexOf(' ')).trim();
-                    _log.info("version [" + hVersion + "]");
+                    LOGGER.info("version [" + hVersion + "]");
                 }
 
                 if (clause(line).equalsIgnoreCase(CLAUSE_CHARSET)) {
                     // Read Charset clause
                     //hCharset = line.replace('\"',' ').trim().substring(line.trim().indexOf(' ')).trim();
                     hCharset = remainder(line).replace('"', ' ').trim();
-                    _log.info("Charset [" + hCharset + "]");
+                    LOGGER.info("Charset [" + hCharset + "]");
                 }
 
                 if (clause(line).equalsIgnoreCase(CLAUSE_DELIMETER)) {
                     // Read Delimeter clause
                     hDelimeter = line.replace('\"', ' ').trim().substring(line.trim().indexOf(' '))
                                      .trim();
-                    _log.info("delimiter [" + hDelimeter + "]");
+                    LOGGER.info("delimiter [" + hDelimeter + "]");
                 }
 
                 if (clause(line).equalsIgnoreCase(CLAUSE_UNIQUE)) {
@@ -348,11 +352,11 @@ public class MapInfoDataSource implements DataSource {
                                                                  .substring(line.trim()
                                                                                 .indexOf(' ')), ",");
                     hUnique = new Vector();
-                    _log.info("Unique cols ");
+                    LOGGER.info("Unique cols ");
 
                     while (st.hasMoreTokens()) {
                         String uniq = st.nextToken();
-                        _log.info("\t" + uniq);
+                        LOGGER.info("\t" + uniq);
                         hUnique.addElement(uniq);
                     }
                 }
@@ -363,11 +367,11 @@ public class MapInfoDataSource implements DataSource {
                                                                  .substring(line.trim()
                                                                                 .indexOf(' ')), ",");
                     hIndex = new Vector();
-                    _log.info("Indexes");
+                    LOGGER.info("Indexes");
 
                     while (st.hasMoreTokens()) {
                         String index = st.nextToken();
-                        _log.info("\t" + index);
+                        LOGGER.info("\t" + index);
                         hIndex.addElement(index);
                     }
                 }
@@ -379,11 +383,11 @@ public class MapInfoDataSource implements DataSource {
                     try {
                         cols = Integer.parseInt(remainder(line));
 
-                        if (_log.isDebugEnabled()) {
-                            _log.debug("Cols " + cols);
+                        if (LOGGER.isLoggable(Level.FINEST)) {
+                            LOGGER.finest("Cols " + cols);
                         }
                     } catch (NumberFormatException nfexp) {
-                        _log.error("bad number of colums", nfexp);
+                        LOGGER.severe("bad number of colums " + nfexp);
                     }
 
 
@@ -398,8 +402,8 @@ public class MapInfoDataSource implements DataSource {
                         String name = clause(line);
                         String value = remainder(line);
 
-                        if (_log.isDebugEnabled()) {
-                            _log.debug("column name " + name + " value " + value);
+                        if (LOGGER.isLoggable(Level.FINEST)) {
+                            LOGGER.finest("column name " + name + " value " + value);
                         }
 
                         hColumnsNames.add(name);
@@ -480,7 +484,7 @@ public class MapInfoDataSource implements DataSource {
             }
 
             if (isShadingClause(line)) {
-                _log.debug("going to process shading");
+                LOGGER.finest("going to process shading");
                 processShading(line);
                 line = " ";
             }
@@ -488,7 +492,7 @@ public class MapInfoDataSource implements DataSource {
 
         line = line.trim();
 
-        //_log.debug("returning line " + line);
+        //LOGGER.finest("returning line " + line);
         return line;
     }
 
@@ -506,7 +510,7 @@ public class MapInfoDataSource implements DataSource {
                         throws DataSourceException {
         Feature feature = null;
 
-        //_log.debug("line = " + line);
+        //LOGGER.finest("line = " + line);
         // examine The current line
         if (line == null) {
             return null;
@@ -520,22 +524,22 @@ public class MapInfoDataSource implements DataSource {
 
         if (line.substring(0, index).equalsIgnoreCase(TYPE_POINT)) {
             // Read point data
-            _log.debug("Reading POINT");
+            LOGGER.finest("Reading POINT");
             feature = readPointObject(mifReader, midReader);
         } else if (line.substring(0, index).equalsIgnoreCase(TYPE_LINE)) {
             // Read line data
-            _log.debug("Reading LINE");
+            LOGGER.finest("Reading LINE");
             feature = readLineObject(mifReader, midReader);
         } else if (line.substring(0, index).equalsIgnoreCase(TYPE_PLINE)) {
             // Read pline data
-            _log.debug("Reading PLINE");
+            LOGGER.finest("Reading PLINE");
             feature = readPLineObject(mifReader, midReader);
         } else if (line.substring(0, index).equalsIgnoreCase(TYPE_REGION)) {
             // Read region data
-            _log.debug("Reading REGION");
+            LOGGER.finest("Reading REGION");
             feature = readRegionObject(mifReader, midReader);
         } else {
-            _log.debug(line + " unknown object in mif reader");
+            LOGGER.finest(line + " unknown object in mif reader");
         }
 
         return feature;
@@ -577,8 +581,8 @@ public class MapInfoDataSource implements DataSource {
             // Create Feature
             feature = buildFeature(pointFeatureType, pointFactory, pointGeom, midValues);
 
-            if (_log.isDebugEnabled()) {
-                _log.debug("Built point feature : " + x + " " + y);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("Built point feature : " + x + " " + y);
             }
         } catch (NumberFormatException nfexp) {
             throw new DataSourceException("Exception reading Point data from MIF file : ", nfexp);
@@ -631,8 +635,8 @@ public class MapInfoDataSource implements DataSource {
             // Create Feature
             feature = buildFeature(lineFeatureType, lineFactory, lineGeom, midValues);
 
-            if (_log.isDebugEnabled()) {
-                _log.debug("Built line feature : " + x1 + " " + y1 + " - " + x2 + " " + y2);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("Built line feature : " + x1 + " " + y1 + " - " + x2 + " " + y2);
             }
         } catch (NumberFormatException nfexp) {
             throw new DataSourceException("Exception reading Point data from MIF file : " + 
@@ -702,8 +706,8 @@ public class MapInfoDataSource implements DataSource {
             // Create Feature
             feature = buildFeature(lineFeatureType, lineFactory, plineGeom, midValues);
 
-            if (_log.isDebugEnabled()) {
-                _log.debug("Read polyline (" + coords.size() + ")");
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("Read polyline (" + coords.size() + ")");
             }
         } catch (NumberFormatException nfexp) {
             throw new DataSourceException("Exception reading Point data from MIF file : " + 
@@ -790,8 +794,8 @@ public class MapInfoDataSource implements DataSource {
             // Create Feature
             feature = buildFeature(polygonFeatureType, polygonFactory, polyGeom, midValues);
 
-            if (_log.isDebugEnabled()) {
-                _log.debug("Read Region (" + polys.size() + ")");
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("Read Region (" + polys.size() + ")");
             }
         } catch (NumberFormatException nfexp) {
             throw new DataSourceException("Exception reading Point data from MIF file : ", nfexp);
@@ -825,7 +829,7 @@ public class MapInfoDataSource implements DataSource {
         attribs.add(0, geom);
 
         if (numAttribs != attribs.size()) {
-            _log.error("wrong number of attributes passed to buildFeature");
+            LOGGER.severe("wrong number of attributes passed to buildFeature");
             throw new DataSourceException("wrong number of attributes passed to buildFeature.\n" + 
                                           "expected " + numAttribs + " got " + attribs.size());
         }
@@ -862,8 +866,8 @@ public class MapInfoDataSource implements DataSource {
         try {
             midLine = midReader.readLine();
 
-            if (_log.isDebugEnabled()) {
-                _log.debug("Read MID " + midLine);
+            if (LOGGER.isLoggable(Level.FINEST)) {
+                LOGGER.finest("Read MID " + midLine);
             }
         } catch (IOException ioexp) {
             throw new DataSourceException("IOException reading MID file");
@@ -890,7 +894,7 @@ public class MapInfoDataSource implements DataSource {
                 String type = (String) hColumnsTypes.get(col++);
                 addAttribute(type, token, midValues);
 
-                //_log.debug("adding " + token);
+                //LOGGER.finest("adding " + token);
             }
         }
 
@@ -904,18 +908,18 @@ public class MapInfoDataSource implements DataSource {
             try {
                 midValues.add(new Double(token));
             } catch (NumberFormatException nfe) {
-                _log.warn("Bad double " + token);
+                LOGGER.info("Bad double " + token);
                 midValues.add(new Double(0.0));
             }
         } else if (type.equals("Integer")) {
             try {
                 midValues.add(new Integer(token));
             } catch (NumberFormatException nfe) {
-                _log.warn("Bad Integer value " + token);
+                LOGGER.info("Bad Integer value " + token);
                 midValues.add(new Integer(0));
             }
         } else {
-            _log.warn("Unknown type " + type);
+            LOGGER.info("Unknown type " + type);
         }
     }
 
@@ -948,17 +952,17 @@ public class MapInfoDataSource implements DataSource {
 
         if (name.equals("pen")) {
             try {
-                if (_log.isDebugEnabled()) {
-                    _log.debug("setting new pen " + settings);
-                    _log.debug("width " + values[0]);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("setting new pen " + settings);
+                    LOGGER.finest("width " + values[0]);
                 }
 
-                stroke.setWidth(new ExpressionLiteral(new Integer(values[0])));
+                stroke.setWidth(filterFactory.createLiteralExpression(new Integer(values[0])));
 
                 int pattern = Integer.parseInt(values[1]);
 
-                if (_log.isDebugEnabled()) {
-                    _log.debug("pattern = " + pattern);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("pattern = " + pattern);
                 }
 
                 stroke.setDashArray(MifStyles.getPenPattern(new Integer(pattern)));
@@ -966,64 +970,64 @@ public class MapInfoDataSource implements DataSource {
 
                 String rgb = Integer.toHexString(color);
 
-                if (_log.isDebugEnabled()) {
-                    _log.debug("color " + color + " -> " + rgb);
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("color " + color + " -> " + rgb);
                 }
 
-                stroke.setColor(new ExpressionLiteral(rgb));
+                stroke.setColor(filterFactory.createLiteralExpression(rgb));
             } catch (Exception nfe) {
                 throw new DataSourceException("Error setting up pen", nfe);
             }
 
             return;
         } else if (name.equals("brush")) {
-            _log.debug("setting new brush " + settings);
+            LOGGER.finest("setting new brush " + settings);
 
             int pattern = Integer.parseInt(values[0]);
-            _log.debug("pattern = " + pattern);
+            LOGGER.finest("pattern = " + pattern);
 
-            DefaultGraphic dg = new DefaultGraphic();
+            Graphic dg = styleFactory.getDefaultGraphic();
             dg.addExternalGraphic(MifStyles.getBrushPattern(new Integer(pattern)));
             stroke.setGraphicFill(dg);
             color = Integer.parseInt(values[1]);
 
             String rgb = Integer.toHexString(color);
-            _log.debug("color " + color + " -> " + rgb);
-            fill.setColor(rgb); // foreground
+            LOGGER.finest("color " + color + " -> " + rgb);
+            fill.setColor(filterFactory.createLiteralExpression(rgb)); // foreground
 
             if (values.length == 3) { // optional parameter
                 color = Integer.parseInt(values[2]);
                 rgb = Integer.toHexString(color);
-                _log.debug("color " + color + " -> " + rgb);
+                LOGGER.finest("color " + color + " -> " + rgb);
 
-                fill.setBackgroundColor(rgb); // background
+                fill.setBackgroundColor(filterFactory.createLiteralExpression(rgb)); // background
             } else {
                 fill.setBackgroundColor((Expression) null);
             }
         } else if (name.equals("center")) {
-            _log.debug("setting center " + settings);
+            LOGGER.finest("setting center " + settings);
         } else if (name.equals("smooth")) {
-            _log.debug("setting smooth on");
+            LOGGER.finest("setting smooth on");
         } else if (name.equals("symbol")) {
-            _log.debug("setting symbol " + settings);
+            LOGGER.finest("setting symbol " + settings);
 
             Mark symbol = null;
-            DefaultExternalGraphic eg = null;
+            ExternalGraphic eg = null;
 
             if (values.length == 3) { // version 3.0
 
                 //symbol = symbols.get(new Integer(symNumb));
             } else if (values.length == 6) {}
             else if (values.length == 4) { // custom bitmap
-                eg = new DefaultExternalGraphic();
-                eg.setURI("CustSymb/" + values[0]);
+                eg = styleFactory.createExternalGraphic("CustSymb/" + values[0],"image/unknown"); // hack!
+                
             } else {
-                _log.warn("unexpected symbol style " + name + settings);
+                LOGGER.info("unexpected symbol style " + name + settings);
             }
         } else if (name.equals("font")) {
-            _log.debug("setting font " + settings);
+            LOGGER.finest("setting font " + settings);
         } else {
-            _log.debug("unknown styling directive " + name + settings);
+            LOGGER.finest("unknown styling directive " + name + settings);
         }
 
         return;
@@ -1092,7 +1096,7 @@ public class MapInfoDataSource implements DataSource {
      * 
      * @throws DataSourceException For all data source errors.
      */
-    public void getFeatures(FeatureCollection collection, Filter filter)
+    public void getFeatures(FeatureCollection collection, org.geotools.filter.Filter filter)
                      throws DataSourceException {}
 
     /**
@@ -1104,7 +1108,7 @@ public class MapInfoDataSource implements DataSource {
      * 
      * @throws DataSourceException For all data source errors.
      */
-    public FeatureCollection getFeatures(Filter filter)
+    public FeatureCollection getFeatures(org.geotools.filter.Filter filter)
                                   throws DataSourceException {
         return null;
     }
@@ -1164,7 +1168,7 @@ public class MapInfoDataSource implements DataSource {
      * @throws DataSourceException If modificaton is not supported, if the object type do not match
      *         the attribute type.
      */
-    public void modifyFeatures(AttributeType type, Object value, Filter filter)
+    public void modifyFeatures(AttributeType type, Object value, org.geotools.filter.Filter filter)
                         throws DataSourceException {}
 
     /**
@@ -1179,7 +1183,7 @@ public class MapInfoDataSource implements DataSource {
      *         arrays are not eqaul length, or if the object types do not match the attribute
      *         types.
      */
-    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
+    public void modifyFeatures(AttributeType[] type, Object[] value, org.geotools.filter.Filter filter)
                         throws DataSourceException {}
 
     /**
@@ -1189,5 +1193,5 @@ public class MapInfoDataSource implements DataSource {
      * 
      * @throws DataSourceException If anything goes wrong or if deleting is not supported.
      */
-    public void removeFeatures(Filter filter) throws DataSourceException {}
+    public void removeFeatures(org.geotools.filter.Filter filter) throws DataSourceException {}
 }
