@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.2 2002/07/12 12:53:40 loxnard Exp $
+ * @version $Id: GeometryFilter.java,v 1.3 2002/07/13 11:37:17 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -162,7 +162,7 @@ public class GeometryFilter extends AbstractFilter {
         }
         else if (filterType == GEOMETRY_BBOX) {
             return ((Geometry) leftGeometry.getValue(feature)).
-                contains((Geometry) rightGeometry.getValue(feature));
+                within((Geometry) rightGeometry.getValue(feature));
         }
 
         // Note that this is a pretty permissive logic
