@@ -34,21 +34,21 @@ package org.geotools.resources.gui;
 
 
 /**
- * French language resource.
+ * German language resource.
  *
- * @version $Id: Resources_fr.java,v 1.3 2003/08/22 14:23:59 desruisseaux Exp $
+ * @version $Id: Resources_de.java,v 1.1 2003/08/22 14:23:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class Resources_fr extends Resources {
+public class Resources_de extends Resources {
     /**
      * The resource file, using UTF-8 encoding.
      */
-    static final String FILEPATH = "org/geotools/resources/gui/resources_fr.utf";
+    static final String FILEPATH = "org/geotools/resources/gui/resources_de.utf";
 
     /**
-     * Construct resources for French.
+     * Construct resources for German.
      */
-    public Resources_fr() {
+    public Resources_de() {
         super(FILEPATH);
     }
 }

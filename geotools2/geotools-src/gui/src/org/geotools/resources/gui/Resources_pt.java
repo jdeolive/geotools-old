@@ -27,7 +27,7 @@ package org.geotools.resources.gui;
 /**
  * Portuguese language resource.
  *
- * @version $Id: Resources_pt.java,v 1.1 2003/08/07 13:20:34 desruisseaux Exp $
+ * @version $Id: Resources_pt.java,v 1.2 2003/08/22 14:23:59 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources_pt extends Resources {
@@ -37,7 +37,7 @@ public class Resources_pt extends Resources {
     static final String FILEPATH = "org/geotools/resources/gui/resources_pt.utf";
 
     /**
-     * Construct resources for Spanich.
+     * Construct resources for Portuguese.
      */
     public Resources_pt() {
         super(FILEPATH);
