@@ -26,7 +26,7 @@ import java.util.*;
  * Simple, immutable class to store attributes.  This class should be sufficient 
  * for all simple (ie. non-schema) attribute implementations of this interface.
  *
- * @version $Id: AttributeTypeDefault.java,v 1.3 2002/06/04 16:30:17 loxnard Exp $
+ * @version $Id: AttributeTypeDefault.java,v 1.4 2002/07/04 10:50:08 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -140,10 +140,10 @@ public class AttributeTypeDefault implements AttributeType {
      * @throws SchemaException If the attribute does not exist.
      */
     public String toString() {
-        StringBuffer returnString = new StringBuffer(this.position + ". ");
+        StringBuffer returnString = new StringBuffer("position:"+this.position + ". ");
         returnString.append(this.name);
-        returnString.append(" [" + this.type + "]");
-        returnString.append(" - " + this.occurrences);
+        returnString.append(" [type:" + this.type + "]");
+        returnString.append(" - occurences:" + this.occurrences);
         return returnString.toString();
     }
 }
