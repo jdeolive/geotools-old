@@ -17,6 +17,7 @@
 package org.geotools.data;
 
 import org.geotools.filter.Filter;
+import org.opengis.sc.CoordinateReferenceSystem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +53,12 @@ public class DefaultQuery implements Query {
     /** The handle associated with this query. */
     private String handle;
 
+    /** Coordinate System associated with this query */
+    private CoordinateReferenceSystem coordinateSystem;
+    
+    /** Reprojection associated associated with this query */
+    private CoordinateReferenceSystem coordinateSystemReproject;
+        
     /**
      * No argument constructor.
      */
@@ -352,11 +359,13 @@ public class DefaultQuery implements Query {
         String[] n = getPropertyNames();
 
         return ((n == null) ? (-1)
-                            : ((n.length == 0) ? 0 : (n.length
-        | n[0].hashCode()))) | getMaxFeatures()
-        | ((getFilter() == null) ? 0 : getFilter().hashCode())
-        | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
-        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+                                    : ((n.length == 0) ? 0 : (n.length
+                | n[0].hashCode()))) | getMaxFeatures()
+                | ((getFilter() == null) ? 0 : getFilter().hashCode())
+                | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
+                | ((getVersion() == null) ? 0 : getVersion().hashCode())
+                | ((getCoordianteSystem() == null) ? 0 : getCoordianteSystem().hashCode())
+                | ((getCoordianteSystemReproject() == null) ? 0 : getCoordianteSystemReproject().hashCode());
     }
 
     /**
@@ -386,7 +395,12 @@ public class DefaultQuery implements Query {
         && ((getTypeName() == null) ? (other.getTypeName() == null)
                                     : getTypeName().equals(other.getTypeName()))
         && ((getVersion() == null) ? (other.getVersion() == null)
-                                   : getVersion().equals(other.getVersion()));
+                                   : getVersion().equals(other.getVersion()))
+        && ((getCoordianteSystem() == null) ? (other.getCoordianteSystem() == null)
+                                           : getCoordianteSystem().equals(other.getCoordianteSystem()))
+        && ((getCoordianteSystemReproject() == null) ? (other.getCoordianteSystemReproject() == null)
+                                                   : getCoordianteSystemReproject().equals(other.getCoordianteSystemReproject()))                                           
+        ;
     }
     /**
      * Over ride of toString
@@ -424,4 +438,48 @@ public class DefaultQuery implements Query {
             return returnString.toString();
         }
     }
+    /**
+     * getCoordinateSystem purpose.
+     * <p>
+     * Description ...
+     * </p>
+     * @return
+     */
+    public CoordinateReferenceSystem getCoordianteSystem() {
+        return coordinateSystem;
+    }
+
+    /**
+     * getCoordinateSystemReproject purpose.
+     * <p>
+     * Description ...
+     * </p>
+     * @return
+     */
+    public CoordinateReferenceSystem getCoordianteSystemReproject() {
+        return coordinateSystemReproject;
+    }
+
+    /**
+     * setCoordinateSystem purpose.
+     * <p>
+     * Description ...
+     * </p>
+     * @param system
+     */
+    public void setCoordianteSystem(CoordinateReferenceSystem system) {
+        coordinateSystem = system;
+    }
+
+    /**
+     * setCoordinateSystemReproject purpose.
+     * <p>
+     * Description ...
+     * </p>
+     * @param system
+     */
+    public void setCoordianteSystemReproject(CoordinateReferenceSystem system) {
+        coordinateSystemReproject = system;
+    }
+
 }

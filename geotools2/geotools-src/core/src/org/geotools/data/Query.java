@@ -17,6 +17,8 @@
 package org.geotools.data;
 
 import org.geotools.filter.Filter;
+import org.opengis.sc.CoordinateReferenceSystem;
+
 import java.util.Arrays;
 
 
@@ -65,7 +67,7 @@ import java.util.Arrays;
  * Consider Namespace, FeatueType name override
  * </li>
  * <li>
- * DataStore.getFeatureReader( Query )
+ * DataStore.getFeatureReader( Query, Transaction )
  * </li>
  * <li>
  * DataStore.getView( Query )
@@ -74,7 +76,7 @@ import java.util.Arrays;
  * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.10 2003/12/01 23:26:04 cholmesny Exp $
+ * @version $Id: Query.java,v 1.11 2003/12/09 18:51:13 jive Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -234,32 +236,44 @@ public interface Query {
     String getVersion();
 
     /**
-     * Gets the Coordinate System to temporarily to override the coordinate
-     * system contained in the FeatureSource being queried.  The same
-     * coordinate values will be used, but the features created will appear in
-     * this Coordinate System. This change is not persistant at all, indeed it
-     * is only for the Features returned by this Query.  It may be used in
-     * conjunction with the reprojection Coordinate System, but this one will
-     * always be used first, the reprojection CS will perform its operation on
-     * this cs.
+     * Temporarily override the coordinate system.
+     * <p>
+     * This denotes a request to Temporarily to override the coordinate
+     * system contained in the FeatureSource being queried. The same coordinate
+     * values will be used, but the features created will appear in this
+     * Coordinate System.
+     * </p>
+     * <p>
+     * This change is not persistant at all, indeed it is only for the Features
+     * returned by this Query.  It may be used in conjunction with the
+     * reprojection Coordinate System, but this one will always be used first,
+     * the reprojection CS will perform its operation on this cs.
+     * </p>
      *
      * @return The coordinate system to be returned for Features from this
      *         Query (override the set coordinate system).
      */
-    //CS_CoordinateSystem getOverrideCS();
+    CoordinateReferenceSystem getCoordianteSystem();
 
     /**
+     * Request data reprojection.
+     * <p>
      * Gets the coordinate System to reproject the data contained in the
-     * backend datastore to.  If the DataStore can optimize the reprojection
-     * it should, if not then a decorator on the reader should perform the
-     * reprojection on the fly.  If the datastore has the wrong CS then
-     * getOverrideCS() should be set to the CS to be used, this will perform
+     * backend datastore to.
+     * </p>
+     * <p>
+     * If the DataStore can optimize the reprojection it should, if not then a
+     * decorator on the reader should perform the reprojection on the fly.
+     * </p>
+     * <p>
+     * If the datastore has the wrong CS then getOverrideCS() should be set to
+     * the CS to be used, this will perform
      * the reprojection on that.
      *
      * @return The coordinate system that Features from the datasource should
      *         be reprojected to.
      */
-    //CS_CoordinateSystem getReprojectionCS();
+    CoordinateReferenceSystem getCoordianteSystemReproject();
 }
 
 
@@ -324,7 +338,9 @@ class FIDSQuery implements Query {
         | n[0].hashCode()))) | getMaxFeatures()
         | ((getFilter() == null) ? 0 : getFilter().hashCode())
         | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
-        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+        | ((getVersion() == null) ? 0 : getVersion().hashCode())
+        | ((getCoordianteSystem() == null) ? 0 : getCoordianteSystem().hashCode())
+        | ((getCoordianteSystemReproject() == null) ? 0 : getCoordianteSystemReproject().hashCode());
     }
 
     /**
@@ -354,11 +370,38 @@ class FIDSQuery implements Query {
         && ((getTypeName() == null) ? (other.getTypeName() == null)
                                     : getTypeName().equals(other.getTypeName()))
         && ((getVersion() == null) ? (other.getVersion() == null)
-                                   : getVersion().equals(other.getVersion()));
+                                   : getVersion().equals(other.getVersion()))
+        && ((getCoordianteSystem() == null) ? (other.getCoordianteSystem() == null)
+                                           : getCoordianteSystem().equals(other.getCoordianteSystem()))
+        && ((getCoordianteSystemReproject() == null) ? (other.getCoordianteSystemReproject() == null)
+                                                   : getCoordianteSystemReproject().equals(other.getCoordianteSystemReproject()))                                           
+        ;
     }
 
     public String toString() {
         return "Query.FIDS";
+    }
+
+    /**
+     * Return <code>null</code> as FIDSQuery does not require a CS.
+     * 
+     * @see org.geotools.data.Query#getCoordianteSystem()
+     * 
+     * @return <code>null</code> as override is not required.
+     */
+    public CoordinateReferenceSystem getCoordianteSystem() {
+        return null;
+    }
+
+    /**
+     * Return <code>null</code> as FIDSQuery does not require a CS.
+     * 
+     * @see org.geotools.data.Query#getCoordianteSystemReproject()
+     * 
+     * @return <code>null</code> as reprojection is not required.
+     */
+    public CoordinateReferenceSystem getCoordianteSystemReproject() {
+        return null;
     }
 }
 
@@ -418,11 +461,13 @@ class ALLQuery implements Query {
         String[] n = getPropertyNames();
 
         return ((n == null) ? (-1)
-                            : ((n.length == 0) ? 0 : (n.length
-        | n[0].hashCode()))) | getMaxFeatures()
-        | ((getFilter() == null) ? 0 : getFilter().hashCode())
-        | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
-        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+                                    : ((n.length == 0) ? 0 : (n.length
+                | n[0].hashCode()))) | getMaxFeatures()
+                | ((getFilter() == null) ? 0 : getFilter().hashCode())
+                | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
+                | ((getVersion() == null) ? 0 : getVersion().hashCode())
+                | ((getCoordianteSystem() == null) ? 0 : getCoordianteSystem().hashCode())
+                | ((getCoordianteSystemReproject() == null) ? 0 : getCoordianteSystemReproject().hashCode());
     }
 
     /**
@@ -452,10 +497,37 @@ class ALLQuery implements Query {
         && ((getTypeName() == null) ? (other.getTypeName() == null)
                                     : getTypeName().equals(other.getTypeName()))
         && ((getVersion() == null) ? (other.getVersion() == null)
-                                   : getVersion().equals(other.getVersion()));
+                                   : getVersion().equals(other.getVersion()))
+        && ((getCoordianteSystem() == null) ? (other.getCoordianteSystem() == null)
+                                           : getCoordianteSystem().equals(other.getCoordianteSystem()))
+        && ((getCoordianteSystemReproject() == null) ? (other.getCoordianteSystemReproject() == null)
+                                                   : getCoordianteSystemReproject().equals(other.getCoordianteSystemReproject()))                                           
+        ;
     }
 
     public String toString() {
         return "Query.ALL";
+    }
+
+    /**
+     * Return <code>null</code> as ALLQuery does not require a CS.
+     * 
+     * @see org.geotools.data.Query#getCoordianteSystem()
+     * 
+     * @return <code>null</code> as override is not required.
+     */
+    public CoordinateReferenceSystem getCoordianteSystem() {
+        return null;
+    }
+
+    /**
+     * Return <code>null</code> as ALLQuery does not require a CS.
+     * 
+     * @see org.geotools.data.Query#getCoordianteSystemReproject()
+     * 
+     * @return <code>null</code> as reprojection is not required.
+     */
+    public CoordinateReferenceSystem getCoordianteSystemReproject() {
+        return null;
     }
 }
