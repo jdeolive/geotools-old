@@ -27,7 +27,7 @@ import java.util.EventObject;
  * @author Andrea Aime
  * @author Ian Turton
  * @author Martin Desruisseaux
- * @version $Id: MapLayerEvent.java,v 1.2 2004/03/14 18:44:22 aaime Exp $
+ * @version $Id: MapLayerEvent.java,v 1.3 2004/04/18 03:24:34 groldan Exp $
  *
  * @see Layer
  * @see LayerListener
@@ -61,6 +61,13 @@ public class MapLayerEvent extends EventObject {
      */
     public static final int STYLE_CHANGED = 4;
 
+    /**
+     * Flag set when the definition query attached to this layer changed.
+     *
+     * @see #getReason
+     */
+    public static final int FILTER_CHANGED = 5;
+
     /** The reason for the change. */
     private final int reason;
 
@@ -77,7 +84,7 @@ public class MapLayerEvent extends EventObject {
         super(source);
         this.reason = reason;
 
-        if ((reason <= 0) || (reason > STYLE_CHANGED)) {
+        if ((reason <= 0) || (reason > FILTER_CHANGED)) {
             throw new IllegalArgumentException();
         }
     }
