@@ -21,7 +21,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-import java.text.DecimalFormat;
+import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -32,100 +32,85 @@ import java.util.Locale;
  * Handles the writing of coordinates for gml.
  *
  * @author Chris Holmes
+ * @author Ian Schneider
  */
 class CoordinateWriter {
-    private static final String DEFAULT_COORD_DELIMITER = ",";
-    private static final String DEFAULT_TUPLE_DELIMITER = " ";
-
-    //REVISIT: There is a way in java to change the decimal delimiter using
-    //the number formatter.  
-    private static final int NUM_DECIMALS_DEFAULT = 4;
 
     /**
      * Internal representation of coordinate delimeter (',' for GML is default)
      */
-    private String coordinateDelimiter = DEFAULT_COORD_DELIMITER;
+    private final String coordinateDelimiter;
 
     /** Internal representation of tuple delimeter (' ' for GML is  default) */
-    private String tupleDelimiter = DEFAULT_TUPLE_DELIMITER;
+    private final String tupleDelimiter;
 
     /** To be used for formatting numbers, uses US locale. */
-    private NumberFormat coordFormatter = NumberFormat.getInstance(Locale.US);
-
-    /** Whether delimiters should be printed. */
-    private boolean printDelimiters = true;
+    private final NumberFormat coordFormatter = NumberFormat.getInstance(Locale.US);
     
-    char[] buff = new char[200];
+    private final AttributesImpl atts = new org.xml.sax.helpers.AttributesImpl();
+    
+    private final StringBuffer coordBuff = new StringBuffer();
+    
+    private final FieldPosition zero = new FieldPosition(0);
+    
+    private char[] buff = new char[200];
 
     public CoordinateWriter() {
-        this(NUM_DECIMALS_DEFAULT);
+        this(4);
     }
 
     public CoordinateWriter(int numDecimals) {
-//        StringBuffer decimalPattern = new StringBuffer();
-//
-//        for (int i = 0; i < numDecimals; i++) {
-//            decimalPattern.append("#");
-//        }
-//
-//        String numPattern = "#." + decimalPattern.toString();
-//
-//        if (coordFormatter instanceof DecimalFormat) {
-//            ((DecimalFormat) coordFormatter).applyPattern(numPattern);
-//        }
+        this(numDecimals," ",",");
     }
 
     //TODO: check gml spec - can it be strings?  Or just chars?
-    public CoordinateWriter(int numDecimals, String tupleDelim,
-        String coordDelim) {
-        this(numDecimals);
+    public CoordinateWriter(int numDecimals, String tupleDelim, String coordDelim) {
+        if (tupleDelim == null || tupleDelim.length() == 0)
+            throw new IllegalArgumentException("Tuple delimeter cannot be null or zero length");
 
-        //Dont allow nulls or empty spaces - just use defaults
-        if ((tupleDelim != null) && !tupleDelim.equals("")) {
-            this.tupleDelimiter = tupleDelim;
+        if ((coordDelim != null) && coordDelim.length() == 0) {
+            throw new IllegalArgumentException("Coordinate delimeter cannot be null or zero length");
         }
-
-        if ((coordDelim != null) && !coordDelim.equals("")) {
-            this.coordinateDelimiter = coordDelim;
-        }
-    }
-
-    //TODO: private setNumDecimals, with a public method.
-    public void setPrintDelimiters(boolean printDelimiters) {
-        this.printDelimiters = printDelimiters;
-    }
-
-    public void writeCoordinates(Coordinate[] c, ContentHandler output)
-        throws SAXException {
-        AttributesImpl atts = new org.xml.sax.helpers.AttributesImpl();
-
-        StringBuffer coordBuff = new StringBuffer();
-
-        //if (printDelimiters) {
+        
+        tupleDelimiter = tupleDelim;
+        coordinateDelimiter = coordDelim;
+        
+        coordFormatter.setMaximumFractionDigits(numDecimals);
+        coordFormatter.setGroupingUsed(false);
+        
         atts.addAttribute(GMLUtils.GML_URL, "decimal", "decimal", "decimal", ".");
         atts.addAttribute(GMLUtils.GML_URL, "cs", "cs", "cs",
             coordinateDelimiter);
         atts.addAttribute(GMLUtils.GML_URL, "ts", "ts", "ts", tupleDelimiter);
+    }
+
+    public void writeCoordinates(Coordinate[] c, ContentHandler output)
+        throws SAXException {
+
         output.startElement(GMLUtils.GML_URL, "coordinates", "gml:coordinates",
             atts);
 
         for (int i = 0, n = c.length; i < n; i++) {
-//            String xCoord = coordFormatter.format(c[i].x);
-//            String yCoord = coordFormatter.format(c[i].y);
-//            coordBuff.append(xCoord + coordinateDelimiter + yCoord
-//                + tupleDelimiter);
+            // clear the buffer
             coordBuff.delete(0, coordBuff.length());
-            coordBuff.append(c[i].x).append(coordinateDelimiter).append(c[i].y);
+            // format x into buffer and append delimiter
+            coordFormatter.format(c[i].x,coordBuff,zero).append(coordinateDelimiter);
+            // format y into buffer
+            coordFormatter.format(c[i].y,coordBuff,zero);
+
+            // if theres another coordinate, tack on a tuple delimeter
             if (i + 1 < c.length)
                 coordBuff.append(tupleDelimiter);
+            // make sure our character buffer is big enough
             if (coordBuff.length() > buff.length) {
                 buff = new char[coordBuff.length()];
             }
+            // copy the characters
             coordBuff.getChars(0, coordBuff.length(), buff, 0);
+            // finally, output
             output.characters(buff, 0, coordBuff.length());
         }
 
-        
-        output.endElement(GMLUtils.GML_URL, "coordinates", "gml:coordinates");
+        output.endElement(GMLUtils.GML_URL,"coordinates", "gml:coordinates");
     }
 }
