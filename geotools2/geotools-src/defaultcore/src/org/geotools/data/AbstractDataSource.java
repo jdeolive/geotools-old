@@ -49,15 +49,11 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.2 2003/05/12 18:44:44 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.3 2003/05/14 23:22:05 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
     protected DataSourceMetaData metaData = createMetaData();
-
-    ////////////////////////////////////////////////////////////////////////
-    // Feature retrieval methods.
-    ////////////////////////////////////////////////////////////////////////
 
     /**
      * Loads features from the datasource into the passed collection, based on
@@ -70,7 +66,7 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @throws DataSourceException For all data source errors.
      */
-    abstract public void getFeatures(FeatureCollection collection, Query query)
+    public abstract void getFeatures(FeatureCollection collection, Query query)
         throws DataSourceException;
 
     /**
@@ -80,23 +76,26 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @param collection The collection to put the features into.
      * @param filter An OpenGIS filter; specifies which features to retrieve.
+     *        To get all features use {@link Filter.ALL}
      *
      * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection collection, Filter filter)
         throws DataSourceException {
-	Query query = makeDefaultQuery(filter);
+        Query query = makeDefaultQuery(filter);
         getFeatures(collection, query);
     }
 
-    protected Query makeDefaultQuery(Filter filter) throws DataSourceException{
-	String typeName = null;
-        FeatureType schema = getSchema();
-	if (schema != null) {
-	    typeName = schema.getTypeName();
-	} //if schema is null then the datasource probably doesn't use typenames.
-	
-	return new QueryImpl(typeName, filter);
+    /**
+     * Creates a query with just the filter.
+     *
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     *        To get all features use {@link Filter.ALL}
+     *
+     * @return A default query with the filter passed in.
+     */
+    protected Query makeDefaultQuery(Filter filter) {
+        return new QueryImpl(filter);
     }
 
     /**
@@ -136,9 +135,18 @@ public abstract class AbstractDataSource implements DataSource {
         return collection;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Data source modification methods
-    ///////////////////////////////////////////////////////////////////////////
+    /**
+     * Loads all features from the datasource into the returned collection.
+     * Filter.NONE can also be used to get all features.  Calling this
+     * function is equivalent to using {@link Query.ALL}
+     *
+     * @return Collection The collection to put the features into.
+     *
+     * @throws DataSourceException For all data source errors.
+     */
+    public FeatureCollection getFeatures() throws DataSourceException {
+        return getFeatures(Query.ALL);
+    }
 
     /**
      * Adds all features from the passed feature collection to the datasource.
@@ -241,10 +249,6 @@ public abstract class AbstractDataSource implements DataSource {
         }
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // DataSource Transaction methods.
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Makes all transactions made since the previous commit/rollback
      * permanent.  This method should be used only when auto-commit mode has
@@ -320,10 +324,6 @@ public abstract class AbstractDataSource implements DataSource {
         return true;
     }
 
-    ///////////////////////////////////////////////////////////////////////////
-    // DataSource Utility methods
-    ///////////////////////////////////////////////////////////////////////////
-
     /**
      * Gets the DatasSourceMetaData object associated with this datasource.
      * This is the preferred way to find out which of the possible datasource
@@ -367,33 +367,17 @@ public abstract class AbstractDataSource implements DataSource {
      *       can now support multiple types? Or just wait until we can
      *       programmatically make powerful enough schemas?
      */
-    abstract public FeatureType getSchema() throws DataSourceException;
-
-    /**
-     * Sets the schema that features extrated from this datasource will be
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the
-     * attributeTypes from the currently used schema.
-     *
-     * @param schema the new schema to be used to create features.
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @deprecated Use the properties of the query object to accomplish the
-     *             same functionality.
-     */
-    public void setSchema(FeatureType schema) throws DataSourceException {
-    }
+    public abstract FeatureType getSchema() throws DataSourceException;
 
     /**
      * Stops this DataSource from loading.
      *
-     * @throws UnsupportedOperationException DOCUMENT ME!
+     * @throws UnsupportedOperationException always, as it's not yet supported.
      *
      * @task REVISIT: this needs serious thought.  See geotools IRC from 5 may,
      *       2003.
      */
-    public void abortLoading() {
+    public void abortLoading() throws UnsupportedOperationException {
         if (!metaData.supportsAbort()) {
             throw new UnsupportedOperationException("This datasource does not" +
                 " support abortLoading");
@@ -420,35 +404,6 @@ public abstract class AbstractDataSource implements DataSource {
         }
 
         return null;
-    }
-
-    /**
-     * Gets the bounding box of this datasource using the speed of this
-     * datasource as set by the parameter.
-     *
-     * @param speed If true then a quick (and possibly dirty) estimate of the
-     *        extent is returned. If false then a slow but accurate extent
-     *        will be returned
-     *
-     * @return The extent of the datasource or null if unknown and too
-     *         expensive for the method to calculate.
-     *
-     * @throws RuntimeException DOCUMENT ME!
-     *
-     * @task REVISIT:Consider changing return of getBbox to Filter once Filters
-     *       can be unpacked
-     * @deprecated users can use <tt>DataSourceMetaData.hasFastBbox()</tt> to
-     *             check if the loading of the bounding box will take a long
-     *             time.
-     */
-    public Envelope getBbox(boolean speed) {
-        try {
-            return getBbox();
-        } catch (DataSourceException e) {
-            throw new RuntimeException(
-                "Error in getBbox.  This method should not" +
-                " be used any more, use getBbox()");
-        }
     }
 
     /**
@@ -496,6 +451,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsAdd;
         }
 
+        /**
+         * Sets whether this datasource supports addFeatures.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsAdd(boolean support) {
             this.supportsAdd = support;
         }
@@ -510,6 +470,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsRemove;
         }
 
+        /**
+         * Sets whether this datasource supports removeFeatures.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsRemove(boolean support) {
             this.supportsRemove = support;
         }
@@ -524,6 +489,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsModify;
         }
 
+        /**
+         * Sets whether this datasource supports modifyFeatures.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsModify(boolean support) {
             this.supportsModify = support;
         }
@@ -543,6 +513,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsRollbacks;
         }
 
+        /**
+         * Sets whether this datasource supports rollbacks.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsRollbacks(boolean support) {
             this.supportsRollbacks = support;
         }
@@ -559,6 +534,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsSet;
         }
 
+        /**
+         * Sets whether this datasource supports setFeatures.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsSetFeatures(boolean support) {
             this.supportsSet = support;
         }
@@ -574,6 +554,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsAbort;
         }
 
+        /**
+         * Sets whether this datasource supports abort.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsAbort(boolean support) {
             this.supportsAbort = support;
         }
@@ -589,6 +574,11 @@ public abstract class AbstractDataSource implements DataSource {
             return supportsGetBbox;
         }
 
+        /**
+         * Sets whether this datasource supports getBbox.
+         *
+         * @param support if this operation should be supported.
+         */
         public void setSupportsGetBbox(boolean support) {
             this.supportsGetBbox = support;
         }
@@ -606,8 +596,26 @@ public abstract class AbstractDataSource implements DataSource {
             return hasFastBbox;
         }
 
+        /*
+         * Sets whether this datasource has a fast bbox.
+         */
         public void setFastBbox(boolean fast) {
             this.hasFastBbox = fast;
+        }
+
+        /**
+         * Override of toString.  Prints a string representation of this
+         * object.
+         *
+         * @return a string representation of the metadata.
+         */
+        public String toString() {
+            return "supportsAdd: " + supportsAdd + "\n" + "supportsRemove: " +
+            supportsRemove + "\n" + "supportsModify: " + supportsModify + "\n" +
+            "supportsSetFeatures: " + supportsSet + "\n" +
+            "supportsRollbacks: " + supportsRollbacks + "\n" +
+            "supportsAbort: " + supportsAbort + "\n" + "supportsGetBbox: " +
+            supportsGetBbox + "\n" + "hasFastBbox: " + hasFastBbox;
         }
     }
 }
