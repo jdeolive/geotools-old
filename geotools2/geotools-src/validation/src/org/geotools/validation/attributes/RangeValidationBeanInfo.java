@@ -36,8 +36,8 @@ import java.util.ResourceBundle;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: RangeValidationBeanInfo.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: RangeValidationBeanInfo.java,v 1.3 2004/04/17 00:02:59 jive Exp $
  */
 public class RangeValidationBeanInfo extends DefaultFeatureValidationBeanInfo {
     /**
@@ -73,7 +73,7 @@ public class RangeValidationBeanInfo extends DefaultFeatureValidationBeanInfo {
             pd[i] = pd2[i];
 
         try {
-            pd[i] = createPropertyDescriptor("path", RangeValidation.class,
+            pd[i] = createPropertyDescriptor("name", RangeValidation.class,
                     resourceBundle);
             pd[i].setExpert(false);
             pd[i + 1] = createPropertyDescriptor("max", RangeValidation.class,

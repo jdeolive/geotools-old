@@ -58,20 +58,20 @@ import org.geotools.validation.ValidationResults;
  * 
  * x.setMin(3);
  * x.setMax(5);
- * x.setPath("id");
+ * x.setName("id");
  * 
  * boolean result = x.validate(feature, featureType, results);
  * </code></pre>
  * </p>
  *
  * @author rgould, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: RangeValidation.java,v 1.2 2004/02/17 17:19:15 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: RangeValidation.java,v 1.3 2004/04/17 00:02:59 jive Exp $
  */
 public class RangeValidation extends DefaultFeatureValidation {
     private int max = Integer.MAX_VALUE;
     private int min = Integer.MIN_VALUE;
-    private String path;
+    private String name;
 
     /**
      * RangeFeatureValidation constructor.
@@ -103,10 +103,10 @@ public class RangeValidation extends DefaultFeatureValidation {
      */
     public boolean validate(Feature feature, FeatureType type,
         ValidationResults results) {
-        Object ft = feature.getAttribute(path);
+        Object ft = feature.getAttribute(name);
 
         if (ft == null) {
-            results.error(feature, path + " is Empty");
+            results.error(feature, name + " is Empty");
 
             return false;
         }
@@ -115,13 +115,13 @@ public class RangeValidation extends DefaultFeatureValidation {
             Number nb = (Number) ft;
 
             if (nb.intValue() < min) {
-                results.error(feature, path + " is less than " + min);
+                results.error(feature, name + " is less than " + min);
 
                 return false;
             }
 
             if (nb.intValue() > max) {
-                results.error(feature, path + " is greater than " + max);
+                results.error(feature, name + " is greater than " + max);
 
                 return false;
             }
@@ -180,8 +180,8 @@ public class RangeValidation extends DefaultFeatureValidation {
      *
      * @return
      */
-    public String getPath() {
-        return path;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -219,7 +219,7 @@ public class RangeValidation extends DefaultFeatureValidation {
      *
      * @param string
      */
-    public void setPath(String string) {
-        path = string;
+    public void setName(String string) {
+        name = string;
     }
 }
