@@ -100,7 +100,7 @@ public class DefaultFeatureResults implements FeatureResults {
     public Envelope getBounds() throws IOException {
         Envelope bounds;
 
-        bounds = featureSource.getBounds();
+        bounds = featureSource.getBounds( query );
 
         if (bounds != null) {
             return bounds;
