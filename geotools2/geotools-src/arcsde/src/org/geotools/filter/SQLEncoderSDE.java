@@ -18,8 +18,8 @@ package org.geotools.filter;
 
 import com.esri.sde.sdk.client.*;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -42,38 +42,30 @@ public class SQLEncoderSDE extends SQLEncoder
     implements org.geotools.filter.FilterVisitor
 {
     /** Standard java logger */
-    private static Logger log = Logger.getLogger("org.geotools.filter");
+    private static Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
-    /**
-     * The filters that this encoder can processed with default capabilities:
-     * AbstractFilter.LOGIC_OR AbstractFilter.LOGIC_AND
-     * AbstractFilter.LOGIC_NOT AbstractFilter.COMPARE_EQUALS
-     * AbstractFilter.COMPARE_NOT_EQUALS AbstractFilter.COMPARE_LESS_THAN
-     * AbstractFilter.COMPARE_GREATER_THAN
-     * AbstractFilter.COMPARE_LESS_THAN_EQUAL
-     * AbstractFilter.COMPARE_GREATER_THAN_EQUAL AbstractFilter.NULL
-     * AbstractFilter.BETWEEN
-     */
-    private static FilterCapabilities capabilities = null;
 
-    /**
-     * Describes the capabilities of this encoder.
-     * <p>
-     * Performs lazy creation of capabilities.
-     * </p>
-     * @return The capabilities supported by this encoder.
-     */
-    public synchronized FilterCapabilities getCapabilities() {
-        if( capabilities == null ){
-            capabilities = createFilterCapabilities();
-        }
-        return capabilities; //maybe clone?  Make immutable somehow
+    /** DOCUMENT ME! */
+    private SeLayer sdeLayer;
+
+    public SQLEncoderSDE()
+    {
     }
 
     /**
      */
-    public SQLEncoderSDE()
+    public SQLEncoderSDE(SeLayer layer)
     {
+        this.sdeLayer = layer;
+    }
+
+    /**
+     * @deprecated remove when the old data api dissapear
+     * @param layer DOCUMENT ME!
+     */
+    public void setLayer(SeLayer layer)
+    {
+        this.sdeLayer = layer;
     }
 
 
@@ -87,7 +79,8 @@ public class SQLEncoderSDE extends SQLEncoder
      */
     public void encode(Writer out, Filter filter) throws SQLEncoderException
     {
-        if (capabilities.fullySupports(filter))
+
+        if (getCapabilities().fullySupports(filter))
         {
             this.out = out;
             filter.accept(this);
@@ -99,14 +92,108 @@ public class SQLEncoderSDE extends SQLEncoder
     }
 
     /**
-     * @task TODO: look forward for Like filter implementation or contribute in
-     *       doing so.  public void visit(LikeFilter filter) throws
-     *       UnsupportedOperationException { log.finer("exporting like
-     *       filter"); try { String pattern = filter.getPattern(); String
-     *       wildCard = filter.getWildcardMulti(); pattern =
-     *       pattern.replaceAll(wildCard, "%"); ((DefaultExpression)
-     *       filter.getValue()).accept(this); out.write(" LIKE ");
-     *       out.write("'" + pattern + "'"); } catch (java.io.IOException ioe)
-     *       { throw new RuntimeException(ioe.getMessage(), ioe); }}
+     * This only exists the fulfill the interface - unless There is a way of
+     * determining the FID column in the database...
+     *
+     * @param filter the Fid Filter.
+     *
+     * @throws RuntimeException DOCUMENT ME!
      */
+    public void visit(FidFilter filter)
+    {
+        String[] fids = getNumericFids(filter.getFids());
+        int nFids = fids.length;
+
+        if (nFids == 0)
+            return;
+
+        String fidField = sdeLayer.getSpatialColumn();
+
+        try
+        {
+            StringBuffer sb = new StringBuffer();
+            sb.append(fidField + " IN(");
+
+            for (Iterator it = Arrays.asList(fids).iterator(); it.hasNext();)
+            {
+                sb.append(it.next());
+
+                if (it.hasNext())
+                    sb.append(", ");
+            }
+
+            sb.append(')');
+
+            if (LOGGER.isLoggable(Level.FINER))
+                LOGGER.finer("added fid filter: " + sb.toString());
+
+            out.write(sb.toString());
+        }
+        catch (Exception ex)
+        {
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param stringFids DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     *
+     */
+    private String[] getNumericFids(String[] stringFids)
+        throws IllegalArgumentException
+    {
+        int nfids = stringFids.length;
+        String[] fids = new String[nfids];
+
+        for (int i = 0; i < nfids; i++)
+        {
+            fids[i] = getNumericFid(stringFids[i]);
+        }
+
+        return fids;
+    }
+
+    /*
+    * @task TODO: look forward for Like filter implementation or contribute in
+    *       doing so.  public void visit(LikeFilter filter) throws
+    *       UnsupportedOperationException { log.finer("exporting like
+    *       filter"); try { String pattern = filter.getPattern(); String
+    *       wildCard = filter.getWildcardMulti(); pattern =
+    *       pattern.replaceAll(wildCard, "%"); ((DefaultExpression)
+    *       filter.getValue()).accept(this); out.write(" LIKE ");
+    *       out.write("'" + pattern + "'"); } catch (java.io.IOException ioe)
+    *       { throw new RuntimeException(ioe.getMessage(), ioe); }}
+    */
+
+    /**
+     * Returns the numeric identifier of a FeatureId, given by the full
+     * qualified name of the featureclass prepended to the ArcSDE feature id.
+     * ej: SDE.SDE.SOME_LAYER.1
+     *
+     * @param fid a geotools FeatureID
+     *
+     * @return an ArcSDE feature ID
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    private String getNumericFid(String fid) throws IllegalArgumentException
+    {
+        int dotIndex = fid.lastIndexOf('.');
+
+        try
+        {
+            return Long.decode(fid.substring(++dotIndex)).toString();
+        }
+        catch (Exception ex)
+        {
+            throw new IllegalArgumentException("FeatureID " + fid
+                + " does not seems as a valid ArcSDE FID");
+        }
+    }
 }

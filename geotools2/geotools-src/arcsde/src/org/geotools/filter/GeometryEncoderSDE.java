@@ -14,6 +14,7 @@
  *    Lesser General Public License for more details.
  *
  */
+
 package org.geotools.filter;
 
 import com.esri.sde.sdk.client.*;
@@ -21,6 +22,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.sde.GeometryBuilder;
 import org.geotools.data.sde.GeometryBuildingException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -51,14 +53,8 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
 
     static
     {
-        /*
-           capabilities.addType(AbstractFilter.LOGIC_AND);
-           capabilities.addType(AbstractFilter.LOGIC_OR);
-           capabilities.addType(AbstractFilter.LOGIC_NOT);
-         */
         capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
         capabilities.addType(AbstractFilter.GEOMETRY_INTERSECTS);
-        capabilities.addType(AbstractFilter.FID);
     }
 
     /** DOCUMENT ME! */
@@ -71,12 +67,22 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
      */
     public GeometryEncoderSDE()
     {
+
+    }
+
+    /**
+     */
+    public GeometryEncoderSDE(SeLayer layer)
+    {
+        this.sdeLayer = layer;
     }
 
     /**
      * DOCUMENT ME!
      *
      * @param layer DOCUMENT ME!
+     *
+     * @deprecated remove when the old data api dissapear
      */
     public void setLayer(SeLayer layer)
     {
@@ -147,8 +153,6 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
      * DOCUMENT ME!
      *
      * @param filter DOCUMENT ME!
-     *
-     * @throws RuntimeException DOCUMENT ME!
      */
     public void visit(GeometryFilter filter)
     {
@@ -162,13 +166,9 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
         }
         else
         {
-            String warning = "exporting unknown filter type, supported filters are:";
-            log.warning(warning);
-
-            StringBuffer msg = new StringBuffer(warning).append("BBox")
-                                                        .append(", Intersects")
-                                                        .append(", FID");
-            throw new RuntimeException(msg.toString());
+            String msg = "exporting unknown filter type, supported "
+                + "filters are: BBox, Intersects";
+            log.warning(msg);
         }
     }
 
@@ -180,59 +180,6 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
      */
     public void visit(FidFilter filter)
     {
-        String[] fids = filter.getFids();
-        SeShapeIdFilter idFilter;
-        SeObjectId objectId;
-
-        /**
-         * @task TODO: figure out how to establish seaching method based on
-         *       filter (search equals, not equals, etc)
-         */
-        int searchMethod = SeFilter.METHOD_IDENTICAL;
-        int nFids = (fids == null) ? 0 : fids.length;
-
-        try
-        {
-            for (int i = 0; i < nFids; i++)
-            {
-                objectId = new SeObjectId(getNumericFid(fids[i]));
-                idFilter = new SeShapeIdFilter(getLayerName(),
-                        sdeLayer.getSpatialColumn(), getLayerName(), objectId,
-                        searchMethod);
-
-                sdeSpatialFilters.add(idFilter);
-            }
-        }
-        catch (Exception ex)
-        {
-          throw new RuntimeException(ex.getMessage(), ex);
-        }
-    }
-
-    /**
-     * Returns the numeric identifier of a FeatureId, given by the full
-     * qualified name of the featureclass prepended to the ArcSDE feature id.
-     * ej: SDE.SDE.SOME_LAYER.1
-     *
-     * @param fid a geotools FeatureID
-     *
-     * @return an ArcSDE feature ID
-     *
-     * @throws IllegalArgumentException DOCUMENT ME!
-     */
-    private long getNumericFid(String fid) throws IllegalArgumentException
-    {
-        int dotIndex = fid.lastIndexOf('.');
-
-        try
-        {
-            return Long.parseLong(fid.substring(++dotIndex));
-        }
-        catch (Exception ex)
-        {
-            throw new IllegalArgumentException("FeatureID " + fid
-                + " does not contains a valid ArcSDE FID");
-        }
     }
 
     /**
@@ -268,9 +215,6 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
             try
             {
                 GeometryBuilder gb = GeometryBuilder.builderFor(Polygon.class);
-                //obtain a valid bbox by intersecting the parameter one with
-                //the layer's extent, because SDE doesn't like coordinate filters
-                //that exceeds the valid layer's range
                 SeExtent seExtent = sdeLayer.getExtent();
                 SeShape extent = new SeShape(sdeLayer.getCoordRef());
                 extent.generateRectangle(seExtent);
@@ -309,11 +253,9 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
         log.finer("exporting GeometryFilter");
 
         DefaultExpression left = (DefaultExpression) filter.getLeftGeometry();
-
         DefaultExpression right = (DefaultExpression) filter.getRightGeometry();
 
         Geometry compareGeometry = null;
-
         String spatialCol = sdeLayer.getSpatialColumn();
 
         if ((left != null)
@@ -332,7 +274,6 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
             try
             {
                 GeometryBuilder bg = GeometryBuilder.builderFor(Polygon.class);
-
                 SeShape envShape = bg.construct(compareGeometry,
                         sdeLayer.getCoordRef());
 
@@ -396,6 +337,31 @@ public class GeometryEncoderSDE implements org.geotools.filter.FilterVisitor
      */
     public void visit(LogicFilter filter)
     {
+        log.finer("exporting LogicFilter");
+
+        /*
+           filter.getFilterType();
+           String type = (String) logical.get(new Integer(filter.getFilterType()));
+           try {
+               java.util.Iterator list = filter.getFilterIterator();
+               if (filter.getFilterType() == AbstractFilter.LOGIC_NOT) {
+                   out.write(" NOT (");
+                   ((AbstractFilter) list.next()).accept(this);
+                   out.write(")");
+               } else { //AND or OR
+                   out.write("(");
+                   while (list.hasNext()) {
+                       ((AbstractFilter) list.next()).accept(this);
+                       if (list.hasNext()) {
+                           out.write(" " + type + " ");
+                       }
+                   }
+                   out.write(")");
+               }
+           } catch (java.io.IOException ioe) {
+               throw new RuntimeException(IO_ERROR, ioe);
+           }
+         */
     }
 
     /**

@@ -48,7 +48,7 @@ public class SdeTestSuite extends TestCase
 
         suite.addTestSuite(org.geotools.data.sde.GeometryBuilderTest.class);
 
-        suite.addTestSuite(org.geotools.data.sde.SdeDataSourceTest.class);
+        suite.addTestSuite(org.geotools.data.sde.SdeDataStoreTest.class);
 
         return suite;
     }
