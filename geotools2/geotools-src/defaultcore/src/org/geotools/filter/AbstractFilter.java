@@ -27,7 +27,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.4 2002/07/22 16:31:36 jmacgill Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.5 2002/07/22 21:41:58 jmacgill Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -108,6 +108,8 @@ public abstract class AbstractFilter implements Filter {
      * @return Result of 'contains' test.
      */
     public abstract boolean contains(Feature feature);
+    
+    public abstract void accept(FilterVisitor visitor);
     
     /**
      * Default implementation for OR - should be sufficient for most filters.
@@ -263,6 +265,6 @@ public abstract class AbstractFilter implements Filter {
     public short getFilterType(){
         return filterType;
     }
-
+    
     
 }
