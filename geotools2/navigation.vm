@@ -20,7 +20,7 @@
      </menu>
 
     <menu name="Information">
-      <item name="Overview"               href="http://www.geotools.org/modules.php?op=modload&name=Sections&file=index&req=viewarticle&artid=62&page=1"/>
+      <item name="Overview"               href="http://www.geotools.org/modules.php?op=modload&amp;name=Sections&amp;file=index&amp;req=viewarticle&amp;artid=62&amp;page=1"/>
       <item name="Developers Guidelines"  href="http://www.geotools.org/gt2docs/developersguide.html"/>
       <item name="Glossary"               href="http://www.geotools.org/gt2docs/glossary.html"/>
       <item name="Design Overview"        http="http://www.geotools.org/gt2docs/design.html"/>
