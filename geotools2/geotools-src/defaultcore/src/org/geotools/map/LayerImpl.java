@@ -20,6 +20,7 @@ package org.geotools.map;
 import java.util.EventObject;
 import javax.swing.event.EventListenerList;
 import org.geotools.data.DataSource;
+import org.geotools.map.events.LayerChangedEvent;
 import org.geotools.map.events.LayerListener;
 import org.geotools.styling.Style;
 
@@ -28,12 +29,14 @@ import org.geotools.styling.Style;
  * Layer is an aggregation of both a FeatureCollection and Style.
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.6 2003/07/10 16:03:37 ianturton Exp $
+ * @version $Id: LayerImpl.java,v 1.7 2003/07/10 16:39:54 ianturton Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.
  */
 public class LayerImpl implements Layer {
+    static final private int VISIBILITY = 0;
+    static final private int TITLE = 0;
     /** Specify the DataSource which provides the features for this layer. */
     private DataSource dataSource;
     /** Specify the style for this layer. */
@@ -96,7 +99,7 @@ public class LayerImpl implements Layer {
      */
     public void setVisability(boolean visability) {
         this.visability = visability;
-        fireLayerChangedListener();
+        fireLayerChangedListener(VISIBILITY);
     }
 
     /**
@@ -130,7 +133,7 @@ public class LayerImpl implements Layer {
      */
     public void setTitle(String title) {
         this.title = title;
-        fireLayerChangedListener();
+        fireLayerChangedListener(TITLE);
     }
 
     /**
@@ -164,13 +167,13 @@ public class LayerImpl implements Layer {
      * Notify all listeners that have registered interest for notification an
      * LayerChangedEvent.
      */
-    protected void fireLayerChangedListener() {
+    protected void fireLayerChangedListener(int reason) {
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
 
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        EventObject llce = new EventObject(this);
+        LayerChangedEvent llce = new LayerChangedEvent(this,reason);
 
         //(Layer[])layers.toArray(new Layer[0]));
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
