@@ -139,10 +139,10 @@
                 <insertStatement>false</insertStatement>
             </empty>
             <insert>
-                <dowhile>true</dowhile>
-                <for>true</for>
+                <dowhile>false</dowhile>
+                <for>false</for>
                 <ifelse>true</ifelse>
-                <while>true</while>
+                <while>false</while>
             </insert>
             <remove>
                 <block>true</block>
@@ -183,14 +183,14 @@
                     <standard>@task</standard>
                 </tags>
                 <templates>
-                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.7 $| */</class>
+                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.8 $| */</class>
                     <constructor>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
                         <param> * @param $paramType$ DOCUMENT ME!</param>
                         <top>/**| * Creates a new $objectType$ object.</top>
                     </constructor>
-                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.7 $| */</interface>
+                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.8 $| */</interface>
                     <method>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
@@ -231,7 +231,7 @@
             <keys>Geotools2 - OpenSource mapping toolkit</keys>
             <smartMode>0</smartMode>
             <text>/*| *    Geotools2 - OpenSource mapping toolkit| *    http://geotools.org| *    (C) 2002, Geotools Project Managment Committee (PMC)| *| *    This library is free software; you can redistribute it and/or| *    modify it under the terms of the GNU Lesser General Public| *    License as published by the Free Software Foundation;| *    version 2.1 of the License.| *| *    This library is distributed in the hope that it will be useful,| *    but WITHOUT ANY WARRANTY; without even the implied warranty of| *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU| *    Lesser General Public License for more details.| *| */</text>
-            <use>true</use>
+            <use>false</use>
         </header>
         <history>
             <policy>disabled</policy>
@@ -361,7 +361,7 @@
                 </parameter>
             </always>
             <general>
-                <beforeOperator>false</beforeOperator>
+                <beforeOperator>true</beforeOperator>
                 <enable>true</enable>
                 <lineLength>80</lineLength>
             </general>
