@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <section id="development">
@@ -211,6 +211,14 @@ cvs tag -R r2_3_4</programlisting>
       url="http://sourceforge.net/mail/?group_id=4091">http://sourceforge.net/mail/?group_id=4091</ulink>
       for a list of geotools lists.</para>
     </section>
+  </section>
+
+  <section id="bugs">
+    <title>Bug Tracking</title>
+
+    <para>Geotools bugs are tracked using the sourceforge site.</para>
+
+    <para>to do: flesh out this section.</para>
   </section>
 
   <section id="building">
@@ -812,7 +820,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.15 2003/01/22 19:42:56 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.16 2003/01/26 22:36:12 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
