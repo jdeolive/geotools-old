@@ -31,7 +31,7 @@ import javax.media.jai.ParameterList;
  *
  * To exit from the application, enter "exit".
  *
- * @version $Id: TransformationConsole.java,v 1.2 2003/02/27 14:31:39 desruisseaux Exp $
+ * @version $Id: TransformationConsole.java,v 1.3 2003/07/25 18:06:42 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationConsole {
@@ -87,8 +87,12 @@ public class TransformationConsole {
         Unit       linearUnit = Unit.METRE;
         Ellipsoid   ellipsoid = datum.getEllipsoid();
         ParameterList  params = csFactory.createProjectionParameterList(classification);
-        params.setParameter("semi_major", ellipsoid.getSemiMajorAxis());
-        params.setParameter("semi_minor", ellipsoid.getSemiMinorAxis());
+        if (false) {
+            // Set optional parameters here. This example set the false
+            // easting and northing just for demonstration purpose.
+            params.setParameter("false_easting",  1000.0);
+            params.setParameter("false_northing", 1000.0);
+        }
         Projection projection = csFactory.createProjection("My projection", classification, params);
         ProjectedCoordinateSystem targetCS = csFactory.createProjectedCoordinateSystem(
                 "My target CS", sourceCS, projection, linearUnit, AxisInfo.X, AxisInfo.Y);
