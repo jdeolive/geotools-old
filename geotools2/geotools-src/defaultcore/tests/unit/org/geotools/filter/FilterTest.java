@@ -245,7 +245,7 @@ public class FilterTest extends TestCase {
      */
     public void testLike()
         throws IllegalFilterException {
-        _log.getLoggerRepository().setThreshold("Debug");
+        
         Expression testAttribute = null;
 
         // Set up string
@@ -267,10 +267,10 @@ public class FilterTest extends TestCase {
         
         // Test for \ as an escape char
         
-        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","\\");
+        filter.setPattern(new ExpressionLiteral("cows\\*"),"*",".","\\");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
-        assertEquals("filter string doesn't match","[ testString is like cows.* ]",filter.toString());
+        assertEquals("filter string doesn't match","[ testString is like cows\\* ]",filter.toString());
     
         // test for escaped escapes
         
