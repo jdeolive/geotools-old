@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.9 2002/06/22 17:57:30 jmacgill Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.10 2002/07/04 10:52:55 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -125,8 +125,10 @@ public class FeatureTypeFlat implements FeatureType {
             // if it is a conforming non-geometry, initialize feature type
             if( isAllowed( attributeTypes[i])) {
             _log.info("is ok attribute");
-                nameMap.put( attributeTypes[i].getName(), attributeTypes[i]);
+                
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
+                _log.debug("Pos = "+attributeTypes[i].getPosition());
+                nameMap.put( attributeTypes[i].getName(), attributeTypes[i]);
             }
 
             // if it is a conforming geometry, initialize feature type
@@ -473,8 +475,8 @@ public class FeatureTypeFlat implements FeatureType {
     public AttributeType getAttributeType(String xPath) {
 
         //_log.info("has element: " + nameMap.containsValue(attributeTypes[1]));
-
-        /*_log.info("getting attribute: " + nameMap.get(xPath));
+        _log.debug("in getAttributeType()");
+        _log.info("getting attribute: " + nameMap.get(xPath));
           _log.info("getting map size: " + nameMap.size());
         Set mySet = nameMap.keySet(); 
         Iterator myIt = mySet.iterator();
@@ -486,7 +488,7 @@ public class FeatureTypeFlat implements FeatureType {
         while( myIt.hasNext() ) {
             _log.info("values: " + myIt.next());            
         }
-        */
+        _log.debug("returning: "+(nameMap.get(xPath)));
         return (AttributeType) nameMap.get(xPath);
     }
 
@@ -519,21 +521,25 @@ public class FeatureTypeFlat implements FeatureType {
      * @throws SchemaException If the attribute does not exist.
      */
     public Object clone() {
-        FeatureTypeFlat copy = new FeatureTypeFlat(attributeTypes[0]);
+        //FeatureTypeFlat copy = new FeatureTypeFlat(attributeTypes[0]);
+        FeatureTypeFlat copy = null;
+        try{
+            copy = new FeatureTypeFlat(attributeTypes);
+        }catch (SchemaException e){}
         _log.debug("about to clone");
         _log.debug("instantiated new copy");
 
-        copy.attributeTypes = new AttributeType[attributeTypes.length];
-        System.arraycopy(this.attributeTypes, 0, copy.attributeTypes, 0, attributeTypes.length);
+        //copy.attributeTypes = new AttributeType[attributeTypes.length];
+        //System.arraycopy(this.attributeTypes, 0, copy.attributeTypes, 0, attributeTypes.length);
         //_log.info("attribute length (original): " + attributeTypes.length);
         //_log.info("attribute length (copy): " + copy.attributeTypes.length);        
         //_log.info("copied attributes");
-        copy.name = this.name;
-        copy.namespace = this.namespace;
-        copy.occurrences = this.occurrences;
-        copy.position = this.position;
-        copy.geometryPosition = this.geometryPosition;
-        copy.nameMap = (HashMap) nameMap.clone();
+        //copy.name = this.name;
+        //copy.namespace = this.namespace;
+        //copy.occurrences = this.occurrences;
+        //copy.position = this.position;
+        //copy.geometryPosition = this.geometryPosition;
+        //copy.nameMap = (HashMap) nameMap.clone();
         //_log.info("test geometry there: " + nameMap.get("testGeometry"));
 
         return copy;
