@@ -17,9 +17,17 @@
 package org.geotools.data;
 
 import org.geotools.filter.Filter;
+import java.util.Arrays;
 
 
 /**
+ * Encapsulates a data request.
+ * 
+ * <p>
+ * DataSource API:
+ * </p>
+ * 
+ * <p>
  * The query object is used by the getFeature method of the DataSource
  * interface, to encapsulate a request.  It defines which feature type  to
  * query, what properties to retrieve and what constraints (spatial  and
@@ -29,9 +37,44 @@ import org.geotools.filter.Filter;
  * the features selected.  It allows a full  GetFeature request to properly
  * control how many features it gets from each query, instead of requesting
  * and discarding when the max is reached.
+ * </p>
+ * 
+ * <p>
+ * DataStore API
+ * </p>
+ * 
+ * <p>
+ * The query object is used by the FeatureSource.getFeatures(Query) to
+ * encapsulate a request. For this use it the
+ * FeatureSource.getSchema().getTypeName() should match the one provided by
+ * the Query, or the Query should not provide one.
+ * </p>
+ * 
+ * <p>
+ * Suggested Extensions (Jody):
+ * </p>
+ * 
+ * <ul>
+ * <li>
+ * Transient CoordianteSystem override
+ * </li>
+ * <li>
+ * Transient Geometry reproject to an alternate CoordinateSystem
+ * </li>
+ * <li>
+ * Consider Namespace, FeatueType name override
+ * </li>
+ * <li>
+ * DataStore.getFeatureReader( Query )
+ * </li>
+ * <li>
+ * DataStore.getView( Query )
+ * </li>
+ * </ul>
+ * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.7 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: Query.java,v 1.8 2003/11/19 05:35:30 jive Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -42,35 +85,14 @@ public interface Query {
      * query should retrieve all properties, with no maxFeatures, no
      * filtering, and the default featureType.
      */
-    final Query ALL = new Query() {
-            public final String[] getPropertyNames() {
-                return null;
-            }
+    final Query ALL = new ALLQuery();
 
-            public final boolean retrieveAllProperties() {
-                return true;
-            }
-
-            public final int getMaxFeatures() {
-                return DEFAULT_MAX;
-            }
-
-            public final Filter getFilter() {
-                return Filter.NONE;
-            }
-
-            public final String getTypeName() {
-                return null;
-            }
-
-            public final String getHandle() {
-                return null;
-            }
-
-            public final String getVersion() {
-                return null;
-            }
-        };
+    /**
+     * Implements a query that will fetch all the FeatureIDs from a datasource.
+     * This query should retrive no properties, with no maxFeatures, no
+     * filtering, and the a featureType with no attribtues.
+     */
+    final Query FIDS = new FIDSQuery();
 
     /**
      * The properties array is used to specify the attributes that should be
@@ -103,6 +125,8 @@ public interface Query {
      * @return the attributes to be used in the returned FeatureCollection.
      *
      * @task REVISIT: make a FidProperties object, instead of an array size 0.
+     *       I think Query.FIDS fills this role to some degree.
+     *       Query.FIDS.equals( filter ) would meet this need?
      */
     String[] getPropertyNames();
 
@@ -193,4 +217,202 @@ public interface Query {
      * @return the version of the feature to return.
      */
     String getVersion();
+}
+
+
+/**
+ * Implementation for Query.FIDS.
+ * 
+ * <p>
+ * This query is used to retrive FeatureIds. Query.FIDS is the only instance of
+ * this class.
+ * </p>
+ * 
+ * <p>
+ * Example:
+ * </p>
+ * <pre><code>
+ * featureSource.getFeatures( Query.FIDS );
+ * </code></pre>
+ *
+ * @author Jody Garnett, Refractions Research, Inc
+ */
+class FIDSQuery implements Query {
+    static final String[] NO_PROPERTIES = new String[0];
+
+    public String[] getPropertyNames() {
+        return NO_PROPERTIES;
+    }
+
+    public boolean retrieveAllProperties() {
+        return false;
+    }
+
+    public int getMaxFeatures() {
+        return DEFAULT_MAX; // consider Integer.MAX_VALUE
+    }
+
+    public Filter getFilter() {
+        return Filter.NONE;
+    }
+
+    public String getTypeName() {
+        return null;
+    }
+
+    public String getHandle() {
+        return "Request Feature IDs";
+    }
+
+    public String getVersion() {
+        return null;
+    }
+
+    /**
+     * Hashcode based on propertyName, maxFeatures and filter.
+     *
+     * @return hascode for filter
+     */
+    public int hashCode() {
+        String[] n = getPropertyNames();
+
+        return ((n == null) ? (-1)
+                            : ((n.length == 0) ? 0 : (n.length
+        | n[0].hashCode()))) | getMaxFeatures()
+        | ((getFilter() == null) ? 0 : getFilter().hashCode())
+        | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
+        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+    }
+
+    /**
+     * Equality based on propertyNames, maxFeatures, filter, typeName and
+     * version.
+     * 
+     * <p>
+     * Changing the handle does not change the meaning of the Query.
+     * </p>
+     *
+     * @param obj Other object to compare against
+     *
+     * @return <code>true</code> if <code>obj</code> retrieves only FIDS
+     */
+    public boolean equals(Object obj) {
+        if ((obj == null) || !(obj instanceof Query)) {
+            return false;
+        }
+
+        Query other = (Query) obj;
+
+        return Arrays.equals(getPropertyNames(), other.getPropertyNames())
+        && (retrieveAllProperties() == other.retrieveAllProperties())
+        && (getMaxFeatures() == other.getMaxFeatures())
+        && ((getFilter() == null) ? (other.getFilter() == null)
+                                  : getFilter().equals(other.getFilter()))
+        && ((getTypeName() == null) ? (other.getTypeName() == null)
+                                    : getTypeName().equals(other.getTypeName()))
+        && ((getVersion() == null) ? (other.getVersion() == null)
+                                   : getVersion().equals(other.getVersion()));
+    }
+
+    public String toString() {
+        return "Query.FIDS";
+    }
+}
+
+
+/**
+ * Implementation of Query.ALL.
+ * 
+ * <p>
+ * This query is used to retrive all Features. Query.ALL is the only instance
+ * of this class.
+ * </p>
+ * 
+ * <p>
+ * Example:
+ * </p>
+ * <pre><code>
+ * featureSource.getFeatures( Query.FIDS );
+ * </code></pre>
+ *
+ * @author Jody Garnett, Refractions Research, Inc
+ */
+class ALLQuery implements Query {
+    public final String[] getPropertyNames() {
+        return null;
+    }
+
+    public final boolean retrieveAllProperties() {
+        return true;
+    }
+
+    public final int getMaxFeatures() {
+        return DEFAULT_MAX; // consider Integer.MAX_VALUE
+    }
+
+    public final Filter getFilter() {
+        return Filter.NONE;
+    }
+
+    public final String getTypeName() {
+        return null;
+    }
+
+    public final String getHandle() {
+        return "Request All Features";
+    }
+
+    public final String getVersion() {
+        return null;
+    }
+
+    /**
+     * Hashcode based on propertyName, maxFeatures and filter.
+     *
+     * @return hascode for filter
+     */
+    public int hashCode() {
+        String[] n = getPropertyNames();
+
+        return ((n == null) ? (-1)
+                            : ((n.length == 0) ? 0 : (n.length
+        | n[0].hashCode()))) | getMaxFeatures()
+        | ((getFilter() == null) ? 0 : getFilter().hashCode())
+        | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
+        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+    }
+
+    /**
+     * Equality based on propertyNames, maxFeatures, filter, typeName and
+     * version.
+     * 
+     * <p>
+     * Changing the handle does not change the meaning of the Query.
+     * </p>
+     *
+     * @param obj Other object to compare against
+     *
+     * @return <code>true</code> if <code>obj</code> matches this filter
+     */
+    public boolean equals(Object obj) {
+        if ((obj == null) || !(obj instanceof Query)) {
+            return false;
+        }
+
+        Query other = (Query) obj;
+
+        return Arrays.equals(getPropertyNames(), other.getPropertyNames())
+        && (retrieveAllProperties() == other.retrieveAllProperties())
+        && (getMaxFeatures() == other.getMaxFeatures())
+        && ((getFilter() == null) ? (other.getFilter() == null)
+                                  : getFilter().equals(other.getFilter()))
+        && ((getTypeName() == null) ? (other.getTypeName() == null)
+                                    : getTypeName().equals(other.getTypeName()))
+        && ((getVersion() == null) ? (other.getVersion() == null)
+                                   : getVersion().equals(other.getVersion()));
+    }
+
+    public String toString() {
+        return "Query.ALL";
+    }
 }

@@ -17,6 +17,8 @@
 package org.geotools.data;
 
 import org.geotools.filter.Filter;
+
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -323,6 +325,51 @@ public class DefaultQuery implements Query {
         throw new UnsupportedOperationException("No feature versioning yet");
     }
 
+    /**
+     * Hashcode based on propertyName, maxFeatures and filter.
+     *
+     * @return hascode for filter
+     */
+    public int hashCode() {
+        String[] n = getPropertyNames();
+
+        return ((n == null) ? (-1)
+                            : ((n.length == 0) ? 0 : (n.length
+        | n[0].hashCode()))) | getMaxFeatures()
+        | ((getFilter() == null) ? 0 : getFilter().hashCode())
+        | ((getTypeName() == null) ? 0 : getTypeName().hashCode())
+        | ((getVersion() == null) ? 0 : getVersion().hashCode());
+    }
+
+    /**
+     * Equality based on propertyNames, maxFeatures, filter, typeName and
+     * version.
+     * 
+     * <p>
+     * Changing the handle does not change the meaning of the Query.
+     * </p>
+     *
+     * @param obj Other object to compare against
+     *
+     * @return <code>true</code> if <code>obj</code> matches this filter
+     */
+    public boolean equals(Object obj) {
+        if ((obj == null) || !(obj instanceof Query)) {
+            return false;
+        }
+
+        Query other = (Query) obj;
+
+        return Arrays.equals(getPropertyNames(), other.getPropertyNames())
+        && (retrieveAllProperties() == other.retrieveAllProperties())
+        && (getMaxFeatures() == other.getMaxFeatures())
+        && ((getFilter() == null) ? (other.getFilter() == null)
+                                  : getFilter().equals(other.getFilter()))
+        && ((getTypeName() == null) ? (other.getTypeName() == null)
+                                    : getTypeName().equals(other.getTypeName()))
+        && ((getVersion() == null) ? (other.getVersion() == null)
+                                   : getVersion().equals(other.getVersion()));
+    }
     /**
      * Over ride of toString
      *
