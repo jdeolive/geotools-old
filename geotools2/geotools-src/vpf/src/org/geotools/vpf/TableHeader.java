@@ -101,20 +101,21 @@ public class TableHeader implements VPFHeader, DataTypesDefinition {
      * @return a <code>String</code> value
      */
     public String toString() {
+        String endLine = System.getProperty("line.separator");
         StringBuffer buff = new StringBuffer();
-        buff.append(" length=" + headerLength + "\n");
-        buff.append(" byteOrder=" + byteOrder + "\n");
-        buff.append(" description=" + description + "\n");
-        buff.append(" narrativeTable=" + narrativeTable + "\n");
+        buff.append(" length=" + headerLength + endLine);
+        buff.append(" byteOrder=" + byteOrder + endLine);
+        buff.append(" description=" + description + endLine);
+        buff.append(" narrativeTable=" + narrativeTable + endLine);
         buff.append(" columnDefs:");
 
         if (columnDefs == null) {
             buff.append("null)");
         } else {
             for (int i = 0; i < columnDefs.size(); i++) {
-                buff.append("\n" + columnDefs.get(i).toString());
+                buff.append(endLine + columnDefs.get(i).toString());
             }
-            buff.append("\n");
+            buff.append(endLine);
         }
         return buff.toString();
     }

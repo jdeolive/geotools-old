@@ -37,10 +37,12 @@ import java.util.List;
  * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: TableInputStream.java,v 1.19 2003/05/19 20:59:38 kobit Exp $
+ * @version $Id: TableInputStream.java,v 1.20 2003/06/02 13:36:31 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream implements FileConstants,
     DataTypesDefinition {
+
+    private static final String EMPTY_STRING = "";
     /**
      * Variable constant <code>AHEAD_BUFFER_SIZE</code> keeps value of  number
      * of records to read ahead and keep in cache to improve further access to
@@ -83,7 +85,7 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
     public VPFHeader readHeader()
         throws VPFHeaderFormatException, IOException {
         byte[] fourBytes = new byte[4];
-        int res = input.read(fourBytes);
+        input.read(fourBytes);
         char order = readChar();
         char ctrl = order;
 
@@ -104,8 +106,8 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
                 "Header format does not fit VPF file definition.");
         }
 
-        String description = readString("" + VPF_RECORD_SEPARATOR);
-        String narrativeTable = readString("" + VPF_RECORD_SEPARATOR);
+        String description = readString(EMPTY_STRING + VPF_RECORD_SEPARATOR);
+        String narrativeTable = readString(EMPTY_STRING + VPF_RECORD_SEPARATOR);
         ArrayList colDefs = new ArrayList();
         TableColumnDef colDef = readColumnDef();
 
@@ -156,7 +158,7 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
                 "Header format does not fit VPF file definition.");
         }
 
-        String elemStr = readString("" + VPF_ELEMENT_SEPARATOR).trim();
+        String elemStr = readString(EMPTY_STRING + VPF_ELEMENT_SEPARATOR).trim();
 
         if (elemStr.equals("*")) {
             elemStr = "-1";
@@ -171,14 +173,14 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
                 "Header format does not fit VPF file definition.");
         }
 
-        String colDesc = readString("" + VPF_ELEMENT_SEPARATOR +
-                VPF_FIELD_SEPARATOR);
-        String descTableName = readString("" + VPF_ELEMENT_SEPARATOR +
-                VPF_FIELD_SEPARATOR);
-        String indexFile = readString("" + VPF_ELEMENT_SEPARATOR +
-                VPF_FIELD_SEPARATOR);
-        String narrTable = readString("" + VPF_ELEMENT_SEPARATOR +
-                VPF_FIELD_SEPARATOR);
+        String colDesc = readString(EMPTY_STRING + VPF_ELEMENT_SEPARATOR
+            + VPF_FIELD_SEPARATOR);
+        String descTableName = readString(EMPTY_STRING + VPF_ELEMENT_SEPARATOR
+            + VPF_FIELD_SEPARATOR);
+        String indexFile = readString(EMPTY_STRING + VPF_ELEMENT_SEPARATOR
+            + VPF_FIELD_SEPARATOR);
+        String narrTable = readString(EMPTY_STRING + VPF_ELEMENT_SEPARATOR
+            + VPF_FIELD_SEPARATOR);
 
         return new TableColumnDef(name, type, elements, key, colDesc,
             descTableName, indexFile, narrTable);
@@ -251,7 +253,6 @@ public class TableInputStream extends VPFInputStream implements FileConstants,
 
         List fieldDefs = testHeader.getColumnDefs();
         TableRow row = (TableRow) testInput.readRow();
-        int counter = 0;
 
         while (row != null) {
             for (int i = 0; i < fieldDefs.size(); i++) {

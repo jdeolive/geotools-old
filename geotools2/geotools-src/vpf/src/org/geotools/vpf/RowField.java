@@ -24,7 +24,7 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
  * RowField.java Created: Mon Jan 27 13:58:34 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: RowField.java,v 1.9 2003/05/19 20:59:37 kobit Exp $
+ * @version $Id: RowField.java,v 1.10 2003/06/02 13:36:30 kobit Exp $
  */
 public class RowField implements DataTypesDefinition {
     /**
@@ -75,6 +75,10 @@ public class RowField implements DataTypesDefinition {
             return false;
         }
         return toString().equals(obj.toString());
+    }
+
+    public int hashCode() {
+        return toString().hashCode();
     }
 
     /**

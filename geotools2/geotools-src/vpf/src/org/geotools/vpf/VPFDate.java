@@ -71,7 +71,7 @@ public class VPFDate {
      * Describe <code>initialize</code> method here.
      *
      */
-    protected void initialize() {
+    private void initialize() {
         for (int i = 0; i < dateBin.length; i++) {
             if ((char) dateBin[i] == ' ') {
                 dateBin[i] = (byte) '0';

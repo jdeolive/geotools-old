@@ -85,30 +85,31 @@ public class TableColumnDef implements DataTypesDefinition {
      * @return a <code>String</code> value
      */
     public String toString() {
+        String emptyStr = "";
         StringBuffer buff = new StringBuffer();
         StringBuffer sb = null;
-        sb = new StringBuffer("" + name);
+        sb = new StringBuffer(emptyStr + name);
         sb.setLength(16);
         buff.append(sb);
-        sb = new StringBuffer("" + type);
+        sb = new StringBuffer(emptyStr + type);
         sb.setLength(5);
         buff.append(sb);
-        sb = new StringBuffer("" + elementsNumber);
+        sb = new StringBuffer(emptyStr + elementsNumber);
         sb.setLength(5);
         buff.append(sb);
-        sb = new StringBuffer("" + keyType);
+        sb = new StringBuffer(emptyStr + keyType);
         sb.setLength(4);
         buff.append(sb);
-        sb = new StringBuffer("" + colDesc);
+        sb = new StringBuffer(emptyStr + colDesc);
         sb.setLength(55);
         buff.append(sb);
-        sb = new StringBuffer("" + valDescTableName);
+        sb = new StringBuffer(emptyStr + valDescTableName);
         sb.setLength(5);
         buff.append(sb);
-        sb = new StringBuffer("" + thematicIdx);
+        sb = new StringBuffer(emptyStr + thematicIdx);
         sb.setLength(5);
         buff.append(sb);
-        sb = new StringBuffer("" + narrTable);
+        sb = new StringBuffer(emptyStr + narrTable);
         sb.setLength(5);
         buff.append(sb);
 

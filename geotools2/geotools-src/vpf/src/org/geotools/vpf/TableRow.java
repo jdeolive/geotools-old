@@ -17,10 +17,7 @@
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.VPFRow;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-
 
 /**
  * TableRow.java Created: Thu Jan 02 23:58:39 2003
@@ -38,7 +35,7 @@ public class TableRow implements VPFRow {
      * Describe variable <code>fieldsMap</code> here.
      *
      */
-    private HashMap fieldsMap = null;
+    private Map fieldsMap = null;
 
     /**
      * Creates a new <code>TableRow</code> instance.
@@ -46,7 +43,7 @@ public class TableRow implements VPFRow {
      * @param fieldsArr a <code>RowField[]</code> value
      * @param fieldsMap a <code>HashMap</code> value
      */
-    public TableRow(RowField[] fieldsArr, HashMap fieldsMap) {
+    public TableRow(RowField[] fieldsArr, Map fieldsMap) {
         this.fieldsArr = fieldsArr;
         this.fieldsMap = fieldsMap;
     }
@@ -132,6 +129,9 @@ public class TableRow implements VPFRow {
         }
         TableRow row = (TableRow) obj;
 
+        if ((fieldsArr == null) && (row.fieldsArr == null)) {
+            return true;
+        }
         if ((fieldsArr == null) || (row.fieldsArr == null)) {
             return false;
         }
@@ -145,4 +145,17 @@ public class TableRow implements VPFRow {
         }
         return true;
     }
+
+    public int hashCode() {
+        int code = 0;
+        if (fieldsArr == null || fieldsArr.length == 0) {
+            code = super.hashCode();
+        } else {
+            for (int i = 0; i < fieldsArr.length; i++) {
+                code += fieldsArr[i].hashCode();
+            }
+        }
+        return code;
+    }
+
 }

@@ -99,11 +99,7 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
         try {
             File file = new File(new File(new URI(url)), "dht");
 
-            if (file.exists() && !file.isDirectory()) {
-                return true;
-            } else {
-                return false;
-            }
+            return (file.exists() && !file.isDirectory());
         } catch (URISyntaxException e) {
             return false;
         }

@@ -34,14 +34,14 @@ import org.geotools.filter.Filter;
  * Class <code>VPFDataSource</code> implements
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataSource.java,v 1.12 2003/05/19 20:59:37 kobit Exp $
+ * @version $Id: VPFDataSource.java,v 1.13 2003/06/02 13:36:31 kobit Exp $
  */
 public class VPFDataSource extends AbstractDataSource implements DataSource {
     /**
      * Describe variable <code>log</code> here.
      *
      */
-    private Logger log = Logger.getLogger("org.geotools.vpf");
+    //    private Logger log = Logger.getLogger("org.geotools.vpf");
     /**
      * Describe variable <code>file</code> here.
      *
