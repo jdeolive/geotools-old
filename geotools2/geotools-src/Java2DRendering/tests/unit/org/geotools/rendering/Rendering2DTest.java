@@ -17,6 +17,9 @@ import java.util.*;
 import junit.framework.*;
 import java.awt.Frame;
 import java.awt.Panel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 import javax.swing.*;
 
 /**
@@ -77,6 +80,9 @@ public class Rendering2DTest extends TestCase {
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         Frame frame = new Frame();
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+        });
         Panel p = new Panel();
         frame.add(p);
         frame.setSize(300,300);
@@ -113,12 +119,12 @@ public class Rendering2DTest extends TestCase {
         polygonCoordinates[8] = new Coordinate(6,2);
         polygonCoordinates[9] = new Coordinate(2,2);
         try{
-        LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
-        com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
-        return polyg;
+            LinearRing ring = geomFac.createLinearRing(polygonCoordinates);
+            com.vividsolutions.jts.geom.Polygon polyg = geomFac.createPolygon(ring,null);
+            return polyg;
         }
         catch(TopologyException te){
-           fail("Error creating sample polygon for testing "+te);
+            fail("Error creating sample polygon for testing "+te);
         }
         return null;
     }
