@@ -38,11 +38,8 @@ public class PickleDataSource extends AbstractDataSource {
     try {
       obj = new FileOutputStream(objectFile);
       clz = new FileOutputStream(classFile);
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.defaultProtocol();
-      protocol.setOutput(obj, clz);
+      PickledFeatureProtocol protocol = PickledFeatureProtocol.getWriter(obj,clz);
       protocol.write(collection);
-      obj.flush();
-      clz.flush();
     } catch (IOException ioe) {
       throw new DataSourceException("IOError",ioe);
     } finally {
@@ -58,10 +55,9 @@ public class PickleDataSource extends AbstractDataSource {
   
   public void getFeatures(FeatureCollection collection, Query query) throws DataSourceException {
     try {
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.defaultProtocol();
       FileInputStream obj = new FileInputStream(objectFile);
       FileInputStream clz = new FileInputStream(classFile);
-      protocol.setInput(obj,clz);
+      PickledFeatureProtocol protocol = PickledFeatureProtocol.getReader(obj,clz);
       protocol.read(collection);
     } catch (Exception e) {
       e.printStackTrace();
@@ -72,10 +68,9 @@ public class PickleDataSource extends AbstractDataSource {
     FileInputStream obj = null;
     FileInputStream clz = null;
     try {
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.defaultProtocol();
       obj = new FileInputStream(objectFile);
       clz = new FileInputStream(classFile);
-      protocol.setInput(obj,clz);
+      PickledFeatureProtocol protocol = PickledFeatureProtocol.getReader(obj,clz);
       return protocol.read(idx);
     } catch (Exception e) {
       e.printStackTrace(); 
@@ -96,17 +91,12 @@ public class PickleDataSource extends AbstractDataSource {
   
   
   
-  
-  
-  
-  
-  
   public static final void main(String[] args) throws Exception {
     String tmpDir = System.getProperty("java.io.tmpdir");
     java.net.URL url = new java.net.URL("file:" + args[0]);
     java.net.URL tmpShp = new java.net.URL("file:" + tmpDir + "/tmpshp_delete_me.shp");
     java.util.logging.Logger.getLogger("org.geotools.data.shapefile").setLevel(java.util.logging.Level.OFF);
-    for (int i = 0, ii = 3; i < ii; i++) {
+    for (int i = 0, ii = 10; i < ii; i++) {
       long time = System.currentTimeMillis();
       org.geotools.data.shapefile.ShapefileDataSource sds = new org.geotools.data.shapefile.ShapefileDataSource(url);
       FeatureCollection fc = sds.getFeatures();
@@ -118,7 +108,7 @@ public class PickleDataSource extends AbstractDataSource {
       System.out.println("wrote shapefile in " + (System.currentTimeMillis() - time));
       
       time = System.currentTimeMillis();
-      PickleDataSource pds = new PickleDataSource(new File(tmpDir), "junkyCrap");
+      PickleDataSource pds = new PickleDataSource(new File(tmpDir), "pickletest_deleteme");
       pds.setFeatures(fc);
       System.out.println("pickled in " + (System.currentTimeMillis() - time));
   
