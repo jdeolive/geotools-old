@@ -58,6 +58,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     private String NAMESPACE;
     /** some sort of feature name */
     private String FEATURE_MEMBER_NAME = "featureMember";
+    private String typeName="GenericFeature";
     
     
     /**
@@ -91,7 +92,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
      */
     public void geometry(Geometry geometry) {
         //insideGeometry = true;
-        attributeNames.addElement("geometry");
+        attributeNames.addElement(attName /*"geometry"*/ );
         attributes.addElement(geometry);
         //currentFeature.setGeometry(geometry);
     }
@@ -131,6 +132,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
                 String name = atts.getLocalName(i);
                 if (name.equalsIgnoreCase("fid")){
                     //currentFeature.setTypeName(localName);
+                    typeName = new String(localName);
+                    
                 }
                 attributes.add(atts.getValue(i));
                 attributeNames.add(name);
@@ -198,7 +201,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
                 attDef[i] = new AttributeTypeDefault((String)attributeNames.get(i),attributes.get(i).getClass());
             }
             try{
-                FeatureType schema = FeatureTypeFactory.create(attDef);
+                FeatureType schema = FeatureTypeFactory.create(attDef).setTypeName(typeName);
+                schema.setNamespace(namespaceURI);
                 FeatureFactory fac = new FeatureFactory(schema);
                 Feature feature = fac.create((Object []) attributes.toArray());
                 //currentFeature.setAttributes((Object []) attributes.toArray());
