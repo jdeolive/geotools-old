@@ -41,14 +41,14 @@ import org.geotools.feature.*;
 public class ExpressionTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(ExpressionTest.class);
+    private static Logger _log;
 
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
 
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
-
+    boolean set = false;
     /** Test suite for this test case */
     TestSuite suite = null;
 
@@ -58,6 +58,10 @@ public class ExpressionTest extends TestCase {
      */
     public ExpressionTest(String testName) {
         super(testName);
+        //BasicConfigurator.configure();
+        _log = Logger.getLogger(ExpressionTest.class);
+        _log.getLoggerRepository().setThreshold(Level.INFO);
+        
     }        
     
     /** 
@@ -72,8 +76,7 @@ public class ExpressionTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+       
         TestSuite suite = new TestSuite(ExpressionTest.class);
         return suite;
     }
@@ -85,7 +88,8 @@ public class ExpressionTest extends TestCase {
      */
     protected void setUp() 
         throws SchemaException, IllegalFeatureException {
-        
+        if(set) return;
+        set = true;
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute = 

@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.4 2002/07/16 10:21:36 ianturton Exp $
+ * @version $Id: LikeFilter.java,v 1.5 2002/07/18 16:28:57 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -76,20 +76,11 @@ public class LikeFilter extends AbstractFilter {
             throw new IllegalFilterException("Attempted to add something other than a string attribute expression to a like filter.");
         }
     }
-
-
-    /**
-     * Sets the matching pattern for this FilterLike.
-     *
-     * @param pattern The limited REGEXP pattern for this string. 
-     */
-    public void setPattern(Expression literal) {
-        String pattern = literal.toString();
-        pattern = pattern.replaceAll("\\?", ".?");
-        pattern = pattern.replaceAll("\\*", ".*");
-        this.pattern = pattern;
+    
+    public void setPattern(Expression p, String wildcardMulti, String wildcardSingle, String escape) {
+        String pattern = p.toString();
+        setPattern(pattern,wildcardMulti,wildcardSingle,escape);
     }
-
 
     /**
      * Sets the matching pattern for this FilterLike.
@@ -104,12 +95,15 @@ public class LikeFilter extends AbstractFilter {
         //  Then, test for matching pattern and return result.
         
         char esc = escape.charAt(0);
-        
+        _log.debug("wildcard "+wildcardMulti+" single "+wildcardSingle);
+        _log.debug("escape "+escape+" esc "+esc+" esc == \\ "+(esc == '\\'));
         if(esc == '.' || esc == '?' || esc == '*' || esc == '^' || esc == '$' ||
-            esc == '\\' || esc == '+' || esc == '[' || esc == ']' || esc == '(' ||
-            esc == ')' || esc == '|') {
+            esc == '+' || esc == '[' || esc == ']' || esc == '(' ||
+            esc == ')' || esc == '|' ) {
                 escape = "\\\\"+escape;
                 _log.debug("escape "+escape);
+        }else if (esc == '\\'){
+            escape = "\\"+escape;
         }
         char wcs = wildcardSingle.charAt(0);
         

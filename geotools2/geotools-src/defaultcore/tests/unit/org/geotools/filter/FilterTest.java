@@ -42,14 +42,14 @@ import org.geotools.feature.*;
 public class FilterTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(FilterTest.class);
+    private static Logger _log;
 
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
 
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
-
+    boolean set = false;
     /** Test suite for this test case */
     TestSuite suite = null;
 
@@ -59,6 +59,10 @@ public class FilterTest extends TestCase {
      */
     public FilterTest(String testName) {
         super(testName);
+        //BasicConfigurator.configure();
+        _log = Logger.getLogger(FilterTest.class);
+        _log.getLoggerRepository().setThreshold(Level.INFO);
+        
     }        
     
     /** 
@@ -73,8 +77,7 @@ public class FilterTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.INFO);
+        
         TestSuite suite = new TestSuite(FilterTest.class);
         return suite;
     }
@@ -86,7 +89,8 @@ public class FilterTest extends TestCase {
      */
     protected void setUp() 
         throws SchemaException, IllegalFeatureException {
-        
+        if(set) return;
+        set = true;
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute = 
@@ -247,13 +251,13 @@ public class FilterTest extends TestCase {
         filter.setValue(testAttribute);
         
         // Test for false negative.
-        filter.setPattern(new ExpressionLiteral("test*"));
+        filter.setPattern(new ExpressionLiteral("test*"),"*",".","\\");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(filter.contains(testFeature));
         
         // Test for false positive.
-        filter.setPattern(new ExpressionLiteral("cows*"));
+        filter.setPattern(new ExpressionLiteral("cows*"),"*",".","\\");
         _log.info( filter.toString());            
         _log.info( "contains feature: " + filter.contains(testFeature));
         assertTrue(!filter.contains(testFeature));
