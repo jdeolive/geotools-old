@@ -22,10 +22,10 @@ package org.geotools.styling;
 /**
  * A style object is quite hard to set up, involving fills, strokes,
  * symbolizers and rules.
- * @version $Id: BasicPolygonStyle.java,v 1.1 2002/08/09 16:26:22 jmacgill Exp $
+ * @version $Id: BasicPolygonStyle.java,v 1.2 2002/08/09 18:16:08 jmacgill Exp $
  * @author James Macgill, CCG
  */
-public class BasicPolgyonStyle extends DefaultStyle implements org.geotools.styling.Style {
+public class BasicPolygonStyle extends DefaultStyle implements org.geotools.styling.Style {
 
     FeatureTypeStyle[] featureTypeStyleList; 
     
