@@ -125,7 +125,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.38 2004/04/12 15:44:07 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.39 2004/04/15 17:08:43 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -254,7 +254,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private double scaleDenominator;
 
     /** Maximun displacement for generalization during rendering */
-    private double maxDistance = 1.0;
+    private double generalizationDistance = 1.0;
 
     /**
      * Creates a new instance of LiteRenderer without a context. Use it only to gain access to
@@ -2332,7 +2332,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @return A GeneralPath that is equivalent to geom
      */
     private Shape createPath(final Geometry geom) {
-        return new LiteShape(geom, true, maxDistance);
+        if(generalizationDistance > 0)
+            return new LiteShape(geom, true, generalizationDistance);
+        else
+            return new LiteShape(geom, false);
     }
 
     /**
@@ -2392,6 +2395,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
      */
     public void setOptimizedDataLoadingEnabled(boolean b) {
         optimizedDataLoadingEnabled = b;
+    }
+
+    /**
+     * @return
+     */
+    public double getGeneralizationDistance() {
+        return generalizationDistance;
+    }
+
+    /**
+     * <p>Sets the generalizazion distance in the screen space.</p>
+     * <p>Default value is 1, meaning that two subsequent points are collapsed to
+     * one if their on screen distance is less than one pixel</p>
+     * <p>Set the distance to 0 if you don't want any kind of generalization</p>
+     * @param d
+     */
+    public void setGeneralizationDistance(double d) {
+        generalizationDistance = d;
     }
 
 }
