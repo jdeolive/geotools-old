@@ -2198,6 +2198,9 @@ public abstract class JDBCDataStore implements DataStore {
         }
 
         public void close() throws IOException {
+             if (queryData == null) {
+                throw new IOException("FeatureWriter has been closed");
+            }
             if (fReader != null) {
                 fReader.close();
             }
