@@ -493,11 +493,12 @@ public class WMSServlet extends HttpServlet {
      * add layer to the capabilites xml
      * @task TODO: Support LegendUrl which requires additional format and
      *             size information.
+     * @task HACK: queryable is fixed to true for the moment, needs to be set as required
      */
     private String layersToXml(Capabilities.Layer root, int tabIndex) {
         String tab = "\t";
         for (int t=0;t<tabIndex;t++) tab += "\t";
-        String xml = tab+"<Layer>\n";
+        String xml = tab+"<Layer queryable=\"1\">\n";
         
         // Tab in a little
         if (root.name!=null) xml += tab+"<Name>"+root.name+"</Name>\n";
