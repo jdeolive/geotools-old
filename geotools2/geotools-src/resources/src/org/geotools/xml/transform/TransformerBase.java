@@ -197,6 +197,7 @@ public abstract class TransformerBase {
     public void setNamespaceDeclarationEnabled(boolean enabled) {
         nsDecl = enabled;
     }
+    
 
     /**
      * Filter output from a ContentHandler and insert Namespace declarations in
@@ -259,11 +260,15 @@ public abstract class TransformerBase {
                     namespaceDecls.addAttribute(null, null, atts.getQName(i),
                         atts.getType(i), atts.getValue(i));
                 }
-
+                
+                    
                 atts = namespaceDecls;
                 namespaceDecls = null;
             }
-
+            if (namespaceURI == null)
+                namespaceURI = "";
+            if (localName == null)
+                localName = "";
             original.startElement(namespaceURI, localName, qName, atts);
         }
 
@@ -289,13 +294,27 @@ public abstract class TransformerBase {
             this.contentHandler = contentHandler;
             this.prefix = prefix;
             this.namespace = nsURI;
-            nsSupport.declarePrefix(prefix, nsURI);
+            if (prefix != null && nsURI != null)
+                nsSupport.declarePrefix(prefix, nsURI);
         }
 
         public TranslatorSupport(ContentHandler contentHandler, String prefix,
             String nsURI, SchemaLocationSupport schemaLocation) {
             this(contentHandler, prefix, nsURI);
             this.schemaLocation = schemaLocation;
+        }
+        
+        /**
+         * Utility method to copy namespace declarations from "sub" translators
+         * into this ns support...
+         */
+        protected void addNamespaceDeclarations(TranslatorSupport trans) {
+            NamespaceSupport additional = trans.getNamespaceSupport();
+            java.util.Enumeration declared = additional.getDeclaredPrefixes();
+            while (declared.hasMoreElements()) {
+                String prefix = declared.nextElement().toString();
+                nsSupport.declarePrefix(prefix, additional.getURI(prefix));
+            }
         }
 
         protected void element(String element, String content) {
