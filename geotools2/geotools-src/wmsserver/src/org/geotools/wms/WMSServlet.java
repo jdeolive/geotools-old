@@ -354,7 +354,8 @@ public class WMSServlet extends HttpServlet {
                 // instead of a default format we should try to give them the best image we can
                 // so check accept to see what they'll take
                 String accept = request.getHeader("Accept");
-                System.out.println("accept: " + accept);
+                LOGGER.fine("browser accepts: " + accept);
+                LOGGER.fine("JAI supports: " + ImageIO.getWriterMIMETypes());
                 if(accept.indexOf("image/png")!= -1 ){
                     format="image/png";
                 }else{
