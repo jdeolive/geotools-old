@@ -41,12 +41,18 @@
 Beta
 <h2>TODO:</h2>
 <ul>
-  <li><code>AngleFormat</code> should implements new JDK 1.4 methods.</li>
+  <li><code>AngleFormat</code> should implements the new JDK 1.4 method
+      <code>formatToCharacterIterator(Object)</code>.</li>
   <li>Implement XML parsing and formatting.</li>
   <li>Implement ConvexHull (see methods commented-out in <code>MathTransform</code>).</li>
   <li>Implement <code>MathTransform.derivative</code> for map projections.
       NOTE: This require strong mathematic habilities, unless we can take
             the algorithms somewhere else.</li>
+  <li>Finish and test the implementation of <code>AbridgedMolodenskiTransform</code>.</li>
+  <li>Import the projections from the <code>proj4j</code> module to this one.</li>
+  <li>Consider moving all <code>*Projection</code> classes in a new internal package,
+      for easier maintenance. We will have to think about some way to give access to
+      package-private methods currently found in <code>AbstractMathTransform</code>.</li>
 </ul>
 <br>
 <a href="http://sourceforge.net/pm/task.php?group_project_id=19903&group_id=4091&func=browse">View Task List</a>
@@ -60,10 +66,10 @@ join the main developers mailing list.
 <P>If you're not listed below, and you think you should be, please contact
 the module maintainer.
 
-<P><h3>resources Maintainer</h3>
+<P><h3>cts-coordtrans Maintainer</h3>
 <UL><LI><A HREF="http://sourceforge.net/users/desruisseaux/">Martin Desruisseaux</A></LI></UL>
 
-<P><h3>resources Contributors</h3>
+<P><h3>cts-coordtrans Contributors</h3>
 
 <UL>
 
