@@ -258,10 +258,10 @@ public class XMLEncoderTest extends TestCase {
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
                 filter = FilterDOMParser.parseFilter(child);
                 //_log.getLoggerRepository().setThreshold(Level.DEBUG);
-                LOGGER.finer("filter: " + filter.getClass().toString());
+                LOGGER.info("filter: " + filter.getClass().toString());
                 StringWriter output = new StringWriter();
-                XMLEncoder encode = new XMLEncoder(output,(AbstractFilterImpl)filter);
-                LOGGER.finer("Resulting filter XML is \n"+output.getBuffer().toString());
+                XMLEncoder encode = new XMLEncoder(output,filter);
+                LOGGER.info("Resulting filter XML is \n"+output.getBuffer().toString());
             }
         }
         
