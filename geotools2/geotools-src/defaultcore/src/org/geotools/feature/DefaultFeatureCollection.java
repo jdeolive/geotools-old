@@ -16,24 +16,30 @@
  */
 package org.geotools.feature;
 
-import com.vividsolutions.jts.geom.Envelope;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
+// J2SE interfaces
 import java.util.Set;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Collection;
+
+// J2SE implementations
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.AbstractCollection;
+
+// JTS dependencies
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
- * A basic implementation of FeatureCollection which use a LinkedHashSet for
+ * A basic implementation of FeatureCollection which use a {@link LinkedHashSet} for
  * its internal storage. This preserves ordering and allows a faster iteration
- * speed then a HashSet.
+ * speed then a {@link HashSet}.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureCollection.java,v 1.3 2003/07/22 18:26:06 cholmesny Exp $
+ * @version $Id: DefaultFeatureCollection.java,v 1.4 2003/08/28 14:02:14 desruisseaux Exp $
  */
-public class DefaultFeatureCollection implements FeatureCollection {
+public class DefaultFeatureCollection extends AbstractCollection implements FeatureCollection {
     /** Internal feature storage list */
     private Set features = new LinkedHashSet();
 
@@ -196,28 +202,6 @@ public class DefaultFeatureCollection implements FeatureCollection {
         // useful for client sanity to get a ClassCastException and not just a
         // false.
         return features.contains((Feature) o);
-    }
-
-    /**
-     * Returns <tt>true</tt> if this collection contains all of the elements in
-     * the specified collection.
-     *
-     * @param c collection to be checked for containment in this collection.
-     *
-     * @return <tt>true</tt> if this collection contains all of the elements in
-     *         the specified collection
-     *
-     * @see #contains(Object)
-     */
-    public boolean containsAll(Collection c) {
-        boolean contains = true;
-        Iterator iter = c.iterator();
-
-        while (iter.hasNext()) {
-            contains &= contains(iter.next());
-        }
-
-        return contains;
     }
 
     /**
