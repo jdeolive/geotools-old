@@ -23,8 +23,7 @@
             extension=".html"
             style="${docbookXSL}"
             includes="*.sgml"
-            processor="trax"
-            classpath="bin"/>
+            processor="trax"/>
     </target>
     <target name="anakia">
         <!-- Convert docbook to anakia -->
