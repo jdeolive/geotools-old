@@ -30,7 +30,7 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Point Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">SansSerif</CssParameter>
+                    <CssParameter name="font-family">Lucida Sans</CssParameter>
                     <CssParameter name="font-Size">
                         <PropertyName>size</PropertyName>
                     </CssParameter>
@@ -70,7 +70,7 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Line Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">SansSerif</CssParameter>
+                    <CssParameter name="font-family">Lucida Sans</CssParameter>
                     <CssParameter name="font-Size">
                         <PropertyName>size</PropertyName>
                     </CssParameter>
