@@ -82,6 +82,32 @@ that allows you to describe the latyer in more detail
         
       </Rule>
     </FeatureTypeStyle>
+        <FeatureTypeStyle>
+        <FeatureTypeName>point</FeatureTypeName>
+        <rule>
+            <PointSymbolizer>
+                <graphic>
+                    <size>10</size>
+                    <mark>
+                    <!-- since cross is not implemented yet should draw next mark -->
+                        <wellknownname>cross</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#FF0000</CssParameter>
+                            <CssParameter name="fill-opacity">0.5</CssParameter>
+                        </Fill>
+                    </mark>
+                    <mark>
+                        <wellknownname>triangle</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#00FF00</CssParameter>
+                        </Fill>
+                    </mark>
+                </graphic>
+            </PointSymbolizer>
+        </rule>
+    </FeatureTypeStyle>
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>
