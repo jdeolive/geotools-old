@@ -5,7 +5,8 @@ package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.*;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 /**
  * Implements a geometry filter.
