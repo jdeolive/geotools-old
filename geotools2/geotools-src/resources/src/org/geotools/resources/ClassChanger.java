@@ -50,11 +50,12 @@ import java.util.Date;
  * Number myObjectAsANumber = {@link ClassChanger#toNumber ClassChanger.toNumber}(someArbitraryObject);
  * </pre></blockquote>
  *
- * @version $Id: ClassChanger.java,v 1.3 2003/04/12 00:02:55 desruisseaux Exp $
+ * @version $Id: ClassChanger.java,v 1.4 2003/04/14 21:07:25 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ClassChanger {
     /**
+     * Wrapper classes sorted by their wide.
      */
     private static final Class[] CLASS_RANK = {
         Byte   .class,
@@ -326,8 +327,8 @@ public abstract class ClassChanger {
             if (lg >= Integer.MIN_VALUE  &&  lg <= Integer.MAX_VALUE) return Integer.class;
             if (lg >=   Short.MIN_VALUE  &&  lg <=    Long.MAX_VALUE) return    Long.class;
         }
-        final double abs = Math.abs(value);
-        if (abs>=Float.MIN_VALUE  &&  abs<=Float.MAX_VALUE) {
+        final float fv = (float) value;
+        if (value == (double)fv) {
             return Float.class;
         }
         return Double.class;
