@@ -48,7 +48,7 @@ import org.geotools.util.EqualsUtils;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.17 2003/09/06 04:52:31 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.18 2003/11/15 14:11:33 aaime Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
@@ -173,7 +173,7 @@ public class GraphicImpl implements Graphic, Cloneable {
         Symbol[] ret = new Symbol[] { new MarkImpl() };
 
         if (symbols.size() > 0) {
-            ret = (Symbol[]) symbols.toArray(new Symbol[0]);
+            ret = (Symbol[]) symbols.toArray(new Symbol[symbols.size()]);
         }
 
         return ret;
