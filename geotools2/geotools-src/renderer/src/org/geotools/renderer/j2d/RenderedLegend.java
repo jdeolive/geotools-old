@@ -56,10 +56,15 @@ import org.geotools.ct.TransformException;
  * and a {@linkplain #getMargin margin} in dots (or pixels) to keep between the legend and
  * widget's borders.
  *
- * @version $Id: RenderedLegend.java,v 1.3 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedLegend.java,v 1.4 2003/08/12 17:05:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public abstract class RenderedLegend extends RenderedLayer {
+public class RenderedLegend extends RenderedLayer {
+    /**
+     * The legend text, of <code>null</code> if none.
+     */
+    private String text;
+
     /**
      * Position où placer la légende.
      */
@@ -87,9 +92,40 @@ public abstract class RenderedLegend extends RenderedLayer {
 
     /**
      * Construct a new legend located in the upper left corner ({@link LegendPosition#NORTH_WEST}).
-     * Margin between legend and painting area's bounds default to 15 pixels.
+     * The space between legend and widget's bounds default to 15 pixels.
      */
     public RenderedLegend() {
+    }
+
+    /**
+     * Construct a new legend with the specified text. By default, the legend is located in the
+     * upper left corner ({@link LegendPosition#NORTH_WEST}). The space between legend and
+     * widget's bounds default to 15 pixels.
+     *
+     * @param text The legend text, or <code>null</code> if none.
+     */
+    public RenderedLegend(final String text) {
+        this.text = text;
+    }
+
+    /**
+     * Returns the legend text, or <code>null</code> if none.
+     */
+    public String getText() {
+        return text;
+    }
+
+    /**
+     * Set the legend text.
+     *
+     * @param text The new legend text, or <code>null</code> if none.
+     */
+    public void setText(final String text) {
+        final String oldText = this.text;
+        synchronized (getTreeLock()) {
+            this.text = text;
+        }
+        listeners.firePropertyChange("text", oldText, text);
     }
 
     /**
@@ -106,15 +142,31 @@ public abstract class RenderedLegend extends RenderedLayer {
         if (position == null) {
             throw new IllegalArgumentException();
         }
+        final LegendPosition oldPosition = this.position;
         synchronized (getTreeLock()) {
             this.position = position;
         }
+        listeners.firePropertyChange("position", oldPosition, position);
+    }
+
+    /**
+     * @deprecated Use {@link #getInsets} instead.
+     */
+    public Insets getMargin() {
+        return getInsets();
+    }
+
+    /**
+     * @deprecated Use {@link #setInsets} instead.
+     */
+    public void setMargin(final Insets insets) {
+        setInsets(insets);
     }
 
     /**
      * Returns the space in pixels between the legend and the painting area's bounds.
      */
-    public Insets getMargin() {
+    public Insets getInsets() {
         synchronized (getTreeLock()) {
             return new Insets(top, left, bottom, right);
         }
@@ -123,13 +175,27 @@ public abstract class RenderedLegend extends RenderedLayer {
     /**
      * Set the space in pixels between the legend and the painting area's bounds.
      */
-    public void setMargin(final Insets insets) {
+    public void setInsets(final Insets insets) {
+        final Insets oldInsets;
         synchronized (getTreeLock()) {
+            oldInsets = getInsets();
             top    = (short) insets.top;
             left   = (short) insets.left;
             bottom = (short) insets.bottom;
             right  = (short) insets.right;
         }
+        listeners.firePropertyChange("insets", oldInsets, insets);
+    }
+
+    /**
+     * Paint the {@linkplain #getText text} in the legend area.
+     *
+     * @param  context Information relatives to the rendering context.
+     * @throws TransformException If a coordinate transformation failed
+     *         during the rendering process.
+     */
+    protected void paint(final RenderingContext context) throws TransformException {
+        paint(context, text);
     }
 
     /**
@@ -140,9 +206,7 @@ public abstract class RenderedLegend extends RenderedLayer {
      * @throws TransformException If a coordinate transformation failed
      *         during the rendering process.
      */
-    protected void paint(final RenderingContext context, final String text)
-            throws TransformException
-    {
+    final void paint(final RenderingContext context, final String text) throws TransformException {
         context.setCoordinateSystem(context.textCS);
         final Graphics2D  graphics = context.getGraphics();
         final Stroke     oldStroke = graphics.getStroke();
@@ -161,7 +225,7 @@ public abstract class RenderedLegend extends RenderedLayer {
 
     /**
      * Translate the specified rectangle in such a way that it appears at the {@link #getPosition}
-     * location. If the <code>graphics</code> argument is non-null, then the same translation
+     * location. If the <code>toTranslate</code> argument is non-null, then the same translation
      * is applied to the specified {@link Graphics2D} as well. This is a helper method for
      * implementing the {@link #paint} method in subclasses. Example:
      *

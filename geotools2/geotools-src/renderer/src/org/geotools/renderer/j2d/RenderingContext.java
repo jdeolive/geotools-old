@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.17 2003/08/11 20:04:16 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.18 2003/08/12 17:05:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -221,10 +221,11 @@ public final class RenderingContext {
      * Set the destination {@link Graphics2D}. Other properties are left unchanged.
      * This method is invoked for switching rendering between different offscreen buffer.
      *
-     * @param graphics The destination graphics.
+     * @param graphics The destination graphics (never <code>null</code>).
      */
     final void setGraphics(final Graphics2D graphics) {
-        this.graphics = graphics;
+        this.graphics    = graphics;
+        this.mapToDevice = graphics.getTransform();
     }
 
     /**

@@ -86,7 +86,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.7 2003/06/25 15:14:16 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.8 2003/08/12 17:05:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -201,7 +201,7 @@ public class RenderedMapScale extends RenderedLegend {
      */
     public RenderedMapScale() {
         setPosition(LegendPosition.SOUTH_WEST);
-        setMargin(new Insets(8,16,8,16)); // top, left, bottom, right
+        setInsets(new Insets(8,16,8,16)); // top, left, bottom, right
     }
 
     /**
@@ -570,7 +570,10 @@ public class RenderedMapScale extends RenderedLegend {
                 tickGlyphs[i] = glyphs;
                 buffer.setLength(0);
             }
-            final String title = getTitle(mapCS);
+            String title = getText();
+            if (title == null) {
+                title = getTitle(mapCS);
+            }
             if (title != null) {
                 final Font        lfont  = font.deriveFont(Font.BOLD | Font.ITALIC);
                 final GlyphVector glyphs = lfont.createGlyphVector(fontContext, title);

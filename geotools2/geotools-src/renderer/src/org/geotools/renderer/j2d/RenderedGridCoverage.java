@@ -94,7 +94,7 @@ import org.geotools.resources.DeferredPlanarImage;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.18 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.19 2003/08/12 17:05:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer implements TileObserver {
@@ -671,88 +671,80 @@ public class RenderedGridCoverage extends RenderedLayer implements TileObserver 
      * Implementation of the <code>paint</code> method. If <code>doDraw</code> is false,
      * then this method invokes {@link PlanarImage#prefetchTiles} rather than painting
      * the image now.
+     *
+     * @param  context Information relatives to the rendering context.
+     * @param  doDraw <code>true</code> for performing the actual drawing,
+     *         or <code>false</code> for prefetching tiles.
+     * @throws TransformException If a coordinate transformation failed
+     *         during the rendering process.
      */
     private void paint(final RenderingContext context, final boolean doDraw)
             throws TransformException
     {
         assert Thread.holdsLock(getTreeLock());
-        if (coverage != null) {
-            assert CTSUtilities.getCoordinateSystem2D(coverage.getCoordinateSystem())
-                               .equals(context.mapCS, false) : coverage.getCoordinateSystem();
-            final AffineTransform gridToCoordinate; // This transform is immutable.
-            try {
-                gridToCoordinate = (AffineTransform) coverage.getGridGeometry()
-                                                             .getGridToCoordinateSystem2D();
-            } catch (ClassCastException exception) {
-                throw new TransformException(Resources.getResources(getLocale()).getString(
-                                             ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
+        if (coverage == null) {
+            return;
+        }
+        assert CTSUtilities.getCoordinateSystem2D(coverage.getCoordinateSystem())
+                           .equals(context.mapCS, false) : coverage;
+        /*
+         * Computes the 'gridToCS' transform to use for rendering the image.  This is the
+         * "grid to coordinat system" transform from the coverage, except if we are using
+         * a decimated image for faster rendering.  In the later case, the transform will
+         * have to be scaled in order to match the image scaling. In any case, a 1/2 pixel
+         * translation is performed last in order to maps pixels upper-left corner (the
+         * difference is insignifiant under wide zoom, but huge on close zoom).
+         */
+        try {
+            gridToCS.setTransform((AffineTransform) coverage.getGridGeometry()
+                                                    .getGridToCoordinateSystem2D());
+        } catch (ClassCastException exception) {
+            throw new TransformException(Resources.getResources(getLocale()).getString(
+                                         ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
+        }
+        final Graphics2D graphics = context.getGraphics();
+        PlanarImage image; // The image to display (will be computed below).
+        if (images == null) {
+            image = PlanarImage.wrapRenderedImage(coverage.getRenderedImage());
+        } else {
+            /*
+             * Compute which level (i.e. which decimated image)  is more appropriate for the
+             * current zoom. If level different than 0 (the original image) is choosen, then
+             * then the 'gridToCS' transform will need to be adjusted.
+             */
+            final AffineTransform gridToDevice = graphics.getTransform();
+            gridToDevice.concatenate(gridToCS);
+            final int level = Math.max(0,
+                              Math.min(images.length-1,
+                              (int)(Math.log(Math.max(XAffineTransform.getScaleX0(gridToDevice),
+                              XAffineTransform.getScaleY0(gridToDevice)))/LOG_DOWN_SAMPLER)));
+            if (level != 0) {
+                final double scale = Math.pow(DOWN_SAMPLER, -level);
+                gridToCS.scale(scale, scale);
             }
-            final Graphics2D graphics = context.getGraphics();
-            PlanarImage image; // The image to display (will be computed below).
-            if (images != null) {
-                /*
-                 * Compute which level (i.e. which decimated image)  is more appropriate for the
-                 * current zoom. If level different than 0 (the original image) is choosen, then
-                 * then the 'gridToCS' transform will need to be adjusted.
-                 */
-                gridToCS.setTransform(graphics.getTransform());
-                gridToCS.concatenate(gridToCoordinate);
-                final int level = Math.max(0,
-                                  Math.min(images.length-1,
-                                  (int)(Math.log(Math.max(XAffineTransform.getScaleX0(gridToCS),
-                                  XAffineTransform.getScaleY0(gridToCS)))/LOG_DOWN_SAMPLER)));
-
-                gridToCS.setTransform(gridToCoordinate);
-                if (level != 0) {
-                    final double scale = Math.pow(DOWN_SAMPLER, -level);
-                    gridToCS.scale(scale, scale);
-                }
-                /*
-                 * If the level has changed, log a message (only for information).
-                 * It help to track performance issue.
-                 */
-                if (level != this.level) {
-                    final Logger logger = Renderer.LOGGER;
-                    if (logger.isLoggable(Level.FINE)) {
-                        final Locale locale = getLocale();
-                        final LogRecord record = Resources.getResources(locale).getLogRecord(
-                                           Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$3,
-                                           coverage.getName(locale),
-                                           new Integer(level), new Integer(images.length));
-                        record.setSourceClassName(Utilities.getShortClassName(this));
-                        record.setSourceMethodName("paint");
-                        logger.log(record);
-                    }
-                    this.level = level;
-                }
-                image = images[level];
-            } else {
-                gridToCS.setTransform(gridToCoordinate);
-                image = PlanarImage.wrapRenderedImage(coverage.getRenderedImage());
+            if (level != this.level) {
+                this.level = level;
+                levelChanged();
             }
-            gridToCS.translate(-0.5, -0.5); // Map to upper-left corner.
-            if (doDraw) {
-                /*
-                 * Paint the image. If printing, then the image should be fully painted
-                 * immediately (no deferred painting).
-                 */
-                if (context.isPrinting()) {
-                    while (image instanceof DeferredPlanarImage) {
-                        image = ((DeferredPlanarImage) image).getSourceImage(0);
-                    }
-                }
-                graphics.drawRenderedImage(image, gridToCS);
-                context.addPaintedArea(preferredArea, context.mapCS);
-            } else {
-                /*
-                 * Prefetch tiles in a background thread, but do not paint them yet.
-                 * Invoked a few milliseconds before the actual rendering occurs.
-                 */
-                gridToCS.preConcatenate(graphics.getTransform());
-                Rectangle bounds = new Rectangle(context.getPaintingArea());
+            image = images[level];
+        }
+        gridToCS.translate(-0.5, -0.5); // Map to upper-left corner.
+        /*
+         * If this method is invoked from the 'prefetch' method, then prefetch tiles in
+         * a background thread but do not paint them yet. This block may be run a few
+         * milliseconds before the actual rendering occurs.
+         */
+        if (!doDraw) {
+            final Shape clip = graphics.getClip();
+            if (clip != null) {
+                Rectangle2D bounds = clip.getBounds2D();
+                final AffineTransform gridToDevice = graphics.getTransform();
+                gridToDevice.concatenate(gridToCS);
                 try {
-                    bounds = (Rectangle)XAffineTransform.inverseTransform(gridToCS, bounds, bounds);
-                    final Point[] indices = image.getTileIndices(bounds);
+                    bounds = XAffineTransform.inverseTransform(gridToDevice, bounds, bounds);
+                    Rectangle tileIndices = new Rectangle();
+                    tileIndices.setRect(bounds);
+                    final Point[] indices = image.getTileIndices(tileIndices);
                     if (indices != null) {
                         image.prefetchTiles(indices);
                     }
@@ -761,7 +753,19 @@ public class RenderedGridCoverage extends RenderedLayer implements TileObserver 
                     throw new TransformException(exception.getLocalizedMessage(), exception);
                 }
             }
+            return;
         }
+        /*
+         * Paint the image. If printing, then the image should be fully painted
+         * immediately (no deferred painting).
+         */
+        if (context.isPrinting()) {
+            while (image instanceof DeferredPlanarImage) {
+                image = ((DeferredPlanarImage) image).getSourceImage(0);
+            }
+        }
+        graphics.drawRenderedImage(image, gridToCS);
+        context.addPaintedArea(preferredArea, context.mapCS);
     }
 
     /**
@@ -790,6 +794,25 @@ public class RenderedGridCoverage extends RenderedLayer implements TileObserver 
                 bounds = null;
             }
             repaint(bounds);
+        }
+    }
+
+    /**
+     * Invoked when the level changed during a rendering operation. The <code>paint</code> method
+     * takes care of updating important fields. This method just log a message to the user.  This
+     * message help to track performance issues.
+     */
+    private void levelChanged() {
+        final Logger logger = Renderer.LOGGER;
+        if (logger.isLoggable(Level.FINE)) {
+            final Locale locale = getLocale();
+            final LogRecord record = Resources.getResources(locale).getLogRecord(
+                               Level.FINE, ResourceKeys.RESSAMPLING_RENDERED_IMAGE_$3,
+                               coverage.getName(locale),
+                               new Integer(level), new Integer(images.length));
+            record.setSourceClassName(Utilities.getShortClassName(this));
+            record.setSourceMethodName("paint");
+            logger.log(record);
         }
     }
 

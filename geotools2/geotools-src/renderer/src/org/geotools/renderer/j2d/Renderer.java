@@ -113,7 +113,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.35 2003/08/11 20:04:16 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.36 2003/08/12 17:05:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -210,16 +210,14 @@ public class Renderer implements Renderer2D {
     /**
      * The coordinate systems for rendering. This object contains the following:
      * <ul>
-     *   <li>The "real world" coordinate system  ({@link RenderingContext#mapCS mapCS}).
+     *   <li>The "real world" coordinate system ({@link RenderingContext#mapCS mapCS}).
      *       Should never be <code>null</code>, since it is the viewer coordinate system
      *       as returned by {@link #getCoordinateSystem}.</li>
-     *   <li>The Java2D coordinate system ({@link RenderingContext#textCS textCS}),  which
-     *       is rendering-dependent.   This CS must be the one used for the last rendering
-     *       ({@link GeoMouseEvent rely on it}), or <code>null</code> if the map has never
-     *       been rendered yet.</li>
+     *   <li>The Java2D coordinate system ({@link RenderingContext#textCS textCS}), which
+     *       is rendering-dependent. This CS must be the one used for the last rendering
+     *       ({@link GeoMouseEvent rely on it}).</li>
      *   <li>The device coordinate system ({@link RenderingContext#deviceCS deviceCS}), which
-     *       is rendering-dependent.  This CS must be the one used for the last rendering, or
-     *       <code>null</code> if the map has never been rendered yet.</li>
+     *       is rendering-dependent. This CS must be the one used for the last rendering.</li>
      * </ul>
      *
      * @see RenderingContext#mapCS
@@ -227,6 +225,14 @@ public class Renderer implements Renderer2D {
      * @see RenderingContext#deviceCS
      */
     private RenderingContext context;
+
+    /**
+     * The same context than {@link #context}, except that the {@link RenderingContext#deviceCS}
+     * may includes a supplementary translation term set by <cite>Swing</code>. This translation
+     * term is encapsulated in <code>clippedContext.deviceCS</code> when rendering a clipped area
+     * without offscreen buffering.
+     */
+    private RenderingContext clippedContext;
 
     /**
      * The scale factor from the last rendering, or <code>null</code> if unknow.
@@ -247,8 +253,21 @@ public class Renderer implements Renderer2D {
     /**
      * The affine transform from {@link RenderingContext#mapCS mapCS} to
      * {@link RenderingContext#textCS textCS} used in the last rendering.
+     * This is the <code>zoom</code> argument given to {@link #paint}
+     * during the last rendering.
      */
     private final AffineTransform mapToText = new AffineTransform();
+
+    /**
+     * The affine transform from {@link RenderingContext#textCS textCS} to
+     * {@link RenderingContext#deviceCS deviceCS} used in the last rendering.
+     * This transform is set as if no clipping were performed by <cite>Swing</cite>.
+     * This transform should contains only <var>x</var> and <var>y</var> translation
+     * terms (usually 0). They are the {@link Rectangle#x} and {@link Rectangle#y}
+     * values of the <code>zoomableBounds</code> argument given to {@link #paint}
+     * during the last rendering.
+     */
+    private final AffineTransform textToDevice = new AffineTransform();
 
     /**
      * A set of {@link MathTransform}s from various source CS. The target CS must be
@@ -355,6 +374,13 @@ public class Renderer implements Renderer2D {
             }
         }
 
+        /** Invoked when the component's position changes. */
+        public void componentMoved(final ComponentEvent event) {
+            synchronized (Renderer.this) {
+                zoomChanged(null); // Translation term has changed.
+            }
+        }
+
         /** Invoked when the component has been made invisible. */
         public void componentHidden(final ComponentEvent event) {
             synchronized (Renderer.this) {
@@ -406,8 +432,9 @@ public class Renderer implements Renderer2D {
      */
     public Renderer(final Component owner) {
         final CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
-        context   = new RenderingContext(this, cs, cs, cs);
-        listeners = new PropertyChangeSupport(this);
+        context        = new RenderingContext(this, cs, cs, cs);
+        clippedContext = context;
+        listeners      = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
             mapPane.addComponentListener(listenerProxy);
@@ -467,6 +494,8 @@ public class Renderer implements Renderer2D {
      * in order to gets a "snapshot" of current coordinate system states.
      */
     final RenderingContext getRenderingContext() {
+        // Use the offscreen context, since it doesn't includes the translation
+        // term that Swing may have applied when rendering a clipped area.
         assert context.getGraphics() == null;
         return context;
     }
@@ -525,7 +554,7 @@ public class Renderer implements Renderer2D {
                 }
                 clearCache();
                 CoordinateSystem textCS = createFittedCoordinateSystem("textCS", cs, mapToText);
-                context = new RenderingContext(this, cs, textCS, textCS);
+                clippedContext = context = new RenderingContext(this, cs, textCS, textCS);
                 computePreferredArea("Renderer", "setCoordinateSystem");
                 updateNormalizationFactor(cs);
                 scaleFactor = null;
@@ -1309,6 +1338,19 @@ public class Renderer implements Renderer2D {
     }
 
     /**
+     * Set the {@link #textToDevice} transform to the specified translation.
+     * Returns <code>true</code> if the transform changed as a result of this call.
+     */
+    private boolean setTextToDevice(final int tx, final int ty) {
+        assert (textToDevice.getType() & ~AffineTransform.TYPE_TRANSLATION) == 0 : textToDevice;
+        if (textToDevice.getTranslateX() != tx || textToDevice.getTranslateY() != ty) {
+            textToDevice.setToTranslation(tx, ty);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Returns the math transform factory associated to this renderer.
      */
     final synchronized MathTransformFactory getMathTransformFactory() {
@@ -1492,6 +1534,7 @@ public class Renderer implements Renderer2D {
         sortLayers();
         // Copy reference to 'context' in order to avoid change to instance field if printing.
         RenderingContext           context = this.context;
+        RenderingContext    clippedContext = this.clippedContext;
         final GraphicsJAI         graphics = GraphicsJAI.createGraphicsJAI(graph, mapPane);
         final GraphicsConfiguration config = graphics.getDeviceConfiguration();
         final Rectangle         clipBounds = graphics.getClipBounds();
@@ -1515,7 +1558,6 @@ public class Renderer implements Renderer2D {
              * same area twice.
              */
             if (!sameZoom) {
-                flushOffscreenBuffers();
                 /*
                  * Compute the change as an affine transform, and sent the notification.
                  */
@@ -1559,15 +1601,24 @@ public class Renderer implements Renderer2D {
              * the object reference will be changed only if we are rendering to screen. We
              * also check for offscreen buffers only when rendering to screen.
              */
-            if (!sameZoom || !toScreen) try {
-                final CoordinateSystem mapCS, textCS, deviceCS;
+            if (!sameZoom || !toScreen || setTextToDevice(-zoomableBounds.x, -zoomableBounds.y)) try
+            {
+                final CoordinateSystem mapCS, textCS, deviceCS, clippedCS;
                 mapCS    = context.mapCS;
                 textCS   = createFittedCoordinateSystem("textCS",    mapCS, zoom);
-                deviceCS = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
+                deviceCS = createFittedCoordinateSystem("deviceCS", textCS, textToDevice);
                 context  = new RenderingContext(this, mapCS, textCS, deviceCS);
+                if (textToDevice.equals(toDevice)) {
+                    clippedCS      = deviceCS;
+                    clippedContext = context;
+                } else {
+                    clippedCS      = createFittedCoordinateSystem("deviceCS", textCS, toDevice);
+                    clippedContext = new RenderingContext(this, mapCS, textCS, clippedCS);
+                }
                 if (toScreen) {
                     mapToText.setTransform(zoom);
-                    this.context = context;
+                    this.context        = context;
+                    this.clippedContext = clippedContext;
                 }
             } catch (TransformException exception) {
                 // Impossible to process to the rendering. Paint the stack
@@ -1593,12 +1644,13 @@ public class Renderer implements Renderer2D {
              */
             graphics.transform(zoom);
             graphics.addRenderingHints(hints);
-            context.init(graphics, zoomableBounds, isPrinting);
+            clippedContext.init(graphics, zoomableBounds, isPrinting);
+            boolean contextInitialized = (clippedContext == context);
             if (prefetch) {
                 // Prepare data in background threads. While we are painting
                 // one layer, next layers will be pre-computed.
                 for (int i=0; i<layerCount; i++) {
-                    layers[i].prefetch(context);
+                    layers[i].prefetch(clippedContext);
                 }
             }
             int offscreenIndex = -1;                   // Index of current offscreen buffer.
@@ -1635,6 +1687,7 @@ public class Renderer implements Renderer2D {
                      * inclusive to 'layerIndexUp' exclusive. If the image is still valid,
                      * paint it immediately. Otherwise, performs the rendering offscreen.
                      */
+                    boolean createFromComponent = (mapPane != null);
                     VolatileImage buffer = offscreenBuffers[offscreenIndex];
                     graphics.setTransform(toDevice);
   renderOffscreen:  do {
@@ -1643,20 +1696,40 @@ public class Renderer implements Renderer2D {
                             if (status == VolatileImage.IMAGE_INCOMPATIBLE) {
                                 if (buffer != null) {
                                     buffer.flush();
+                                    buffer = null;
                                 }
-                                buffer = config.createCompatibleVolatileImage(zoomableBounds.width,
-                                                                              zoomableBounds.height);
+                                if (createFromComponent) {
+                                    createFromComponent = false;
+                                    buffer = mapPane.createVolatileImage(
+                                                    zoomableBounds.width, zoomableBounds.height);
+                                }
+                                if (buffer == null) {
+                                    buffer = config.createCompatibleVolatileImage(
+                                                    zoomableBounds.width, zoomableBounds.height);
+                                }
                                 offscreenBuffers[offscreenIndex] = buffer;
                                 continue;
                             }
                             final Graphics2D graphicsOff = buffer.createGraphics();
+                            graphicsOff.addRenderingHints(hints);
                             graphicsOff.translate(-zoomableBounds.x, -zoomableBounds.y);
+                            if (mapPane != null) {
+                                graphicsOff.setColor(mapPane.getBackground());
+                                graphicsOff.fill(zoomableBounds);
+                                graphicsOff.setColor(mapPane.getForeground());
+                            }
                             graphicsOff.clip(zoomableBounds); // Information needed by some layers.
                             graphicsOff.transform(zoom);
-                            context.setGraphics(graphicsOff);
+                            if (contextInitialized) {
+                                context.setGraphics(graphicsOff);
+                            } else {
+                                context.init(graphicsOff, zoomableBounds, isPrinting);
+                                contextInitialized = true;
+                            }
                             for (int i=layerIndex; i<layerIndexUp; i++) {
                                 try {
-                                    layers[i].update(context, clipBounds);
+                                    // Do not clip, since we are re-rendering the whole image.
+                                    layers[i].update(context, zoomableBounds);
                                 } catch (Exception exception) {
                                     /*
                                      * An exception occured in user code. Do not try anymore to use
@@ -1669,6 +1742,7 @@ public class Renderer implements Renderer2D {
                                     offscreenBuffers[offscreenIndex] = buffer = null;
                                     layerIndexUp = layerIndex; // Force re-rendering of this layer.
                                     maxZOrder = Float.NaN;     // Disable offscreen for this layer.
+                                    handleOffscreenException(layers[i], exception);
                                     break renderOffscreen;
                                 }
                                 if (buffer.contentsLost()) {
@@ -1682,15 +1756,18 @@ public class Renderer implements Renderer2D {
                     } while (buffer.contentsLost());
                     /*
                      * The offscreen buffer has been successfully rendered (or we failed because
-                     * of an exception in user's code).
+                     * of an exception in user's code). If the ordinary (clipped) context was
+                     * modified, restore it and continue the rendering for next layers.
                      */
                     graphics.transform(zoom);
-                    context.setGraphics(graphics);
+                    if (clippedContext != context) {
+                        clippedContext.setGraphics(graphics);
+                    }
                     layerIndex = layerIndexUp-1;
                     continue render;
                 }
                 try {
-                    layer.update(context, clipBounds);
+                    layer.update(clippedContext, clipBounds);
                 } catch (TransformException exception) {
                     handleException("RenderedLayer", "paintComponent", exception);
                 } catch (RuntimeException exception) {
@@ -1700,6 +1777,7 @@ public class Renderer implements Renderer2D {
             }
         } finally {
             context.init(null, null, false);
+            clippedContext.init(null, null, false);
             RenderedLayer.setDirtyArea(layers, layerCount, null);
             graphics.setTransform(toDevice);
         }
@@ -1758,6 +1836,25 @@ public class Renderer implements Renderer2D {
                                 final TransformException exception)
     {
         Utilities.unexpectedException("org.geotools.renderer.j2d", className, methodName, exception);
+    }
+
+    /**
+     * Log a warning message when the offscreen rendering failed for some layer.
+     * The message is logged with a low level (FINE rather than WARNING) because
+     * an other attempt will be done using the default rendering loop (without
+     * offscreen buffer).
+     *
+     * @param layer The layer for which the offscreen rendering failed.
+     * @param exception The exception.
+     */
+    private void handleOffscreenException(final RenderedLayer layer, final Exception exception) {
+        final Locale locale = getLocale();
+        final LogRecord record = Resources.getResources(locale).getLogRecord(Level.FINE,
+                ResourceKeys.WARNING_OFFSCREEN_RENDERING_FAILED_$1, layer.getName(locale));
+        record.setSourceClassName("Renderer");
+        record.setSourceMethodName("paint");
+        record.setThrown(exception);
+        LOGGER.log(record);
     }
 
 
@@ -1826,9 +1923,8 @@ public class Renderer implements Renderer2D {
     }
 
     /**
-     * Méthode appelée automatiquement chaque fois que le zoom a changé.
-     * Cette méthode met à jour les coordonnées des formes géométriques
-     * déclarées dans les objets {@link RenderedLayer}.
+     * Invoked when the zoom change. This method update geographic
+     * coordinates of cached shapes contained in {@link RenderedLayer}.
      *
      * @param change The zoom <strong>change</strong> in <strong>device</strong> coordinate
      *        system, or <code>null</code> if unknow. If <code>null</code>, then all layers
@@ -1839,6 +1935,13 @@ public class Renderer implements Renderer2D {
             return;
         }
         assert Thread.holdsLock(this);
+        flushOffscreenBuffers();
+        if (change == null) {
+            // Paranoiac clean only if there is a major change in display.
+            if (offscreenBuffers != null) {
+                Arrays.fill(offscreenBuffers, null);
+            }
+        }
         for (int i=layerCount; --i>=0;) {
             layers[i].zoomChanged(change);
         }
@@ -1911,17 +2014,20 @@ public class Renderer implements Renderer2D {
     }
 
     /**
-     * Efface les données qui avaient été conservées dans une cache interne. L'appel
-     * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
-     * devrait être appelée lorsque l'on sait qu'on n'affichera plus la carte avant
-     * un certain temps. Par exemple la méthode {@link java.applet.Applet#stop}
-     * devrait appeller <code>clearCache()</code>. Notez que l'appel de cette méthode
-     * ne modifie aucunement le paramétrage de la carte. Seulement, son prochain
-     * traçage sera plus lent, le temps que <code>Renderer</code> reconstruise les
-     * caches internes.
+     * Clear all cached data. Invoking this method may help to release some resources for other
+     * applications. It should be invoked when we know that the map is not going to be rendered
+     * for a while. For example it should be invoked from {@link java.applet.Applet#stop}. Note
+     * that this method doesn't changes the renderer setting; it will just slow down the first
+     * rendering after this method call.
+     *
+     * @see #dispose
      */
     private void clearCache() {
         assert Thread.holdsLock(this);
+        flushOffscreenBuffers();
+        if (offscreenBuffers != null) {
+            Arrays.fill(offscreenBuffers, null);
+        }
         for (int i=layerCount; --i>=0;) {
             layers[i].clearCache();
         }
