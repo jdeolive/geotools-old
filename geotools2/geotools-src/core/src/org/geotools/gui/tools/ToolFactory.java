@@ -5,7 +5,7 @@ import java.util.logging.Level;
 
 /**
  * Factory for constructing Tool classes.
- * @version $Id: ToolFactory.java,v 1.2 2003/03/21 18:37:46 camerons Exp $
+ * @version $Id: ToolFactory.java,v 1.3 2003/03/28 19:08:43 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class ToolFactory {
@@ -67,7 +67,14 @@ public abstract class ToolFactory {
     public abstract PanTool createPanTool();
     
     /**
-     * Create an instance of PanTool.
+     * Create an instance of ZoomTool.
      */
     public abstract ZoomTool createZoomTool();
+
+    /**
+     * Create an instance of ZoomTool.
+    /* @parma zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means
+     * zoom in, zoomFactor=2 means zoom out.
+     */
+    public abstract ZoomTool createZoomTool(double zoomFactor);
 }

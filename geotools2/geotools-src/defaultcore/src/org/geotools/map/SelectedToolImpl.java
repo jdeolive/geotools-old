@@ -28,7 +28,7 @@ import org.geotools.map.events.SelectedToolListener;
 
 /**
  * The tool which will process mouse events on a MapPane.
- * @version $Id: SelectedToolImpl.java,v 1.5 2003/03/27 19:51:51 camerons Exp $
+ * @version $Id: SelectedToolImpl.java,v 1.6 2003/03/28 19:08:43 camerons Exp $
  * @author  Cameron Shorter
  */
 
@@ -111,7 +111,9 @@ public class SelectedToolImpl implements SelectedTool
         if (tool!=this.tool){
             this.tool=tool;
             // Stop the old tool from recieving MouseEvents
-            tool.removeMouseListeners();
+            if (this.tool!=null){
+                this.tool.removeMouseListeners();
+            }
             // Notify all listeners that the selected tool has changed.  They
             // will then ask to be listeners of the new tool.
             fireSelectedToolListener();

@@ -23,4 +23,14 @@ public class ToolFactoryImpl extends ToolFactory {
     public ZoomTool createZoomTool() {
         return new ZoomToolImpl();
     }
+    
+    /**
+     * Create an instance of ZoomTool.
+     * @parma zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means
+     * zoom in, zoomFactor=2 means zoom out.
+     */
+    public ZoomTool createZoomTool(double zoomFactor) {
+        return new ZoomToolImpl(zoomFactor);
+    }
+    
 }

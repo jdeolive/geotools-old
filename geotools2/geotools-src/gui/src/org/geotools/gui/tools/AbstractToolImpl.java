@@ -17,7 +17,7 @@ import org.geotools.gui.widget.Widget;
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractToolImpl.java,v 1.6 2003/03/27 19:51:51 camerons Exp $
+ * @version $Id: AbstractToolImpl.java,v 1.7 2003/03/28 19:08:45 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractToolImpl
@@ -30,6 +30,9 @@ public abstract class AbstractToolImpl
     /** The widgets that use this Tool for MouseMotionEvents */
     private List mouseMotionListenerList=
         Collections.synchronizedList(new ArrayList());
+    
+    /** The name of the tool, eg "Zoom In" */
+    private String name="Tool";
 
     /**
      * A tool is associated with only one context.  The context stores all data
@@ -163,4 +166,26 @@ public abstract class AbstractToolImpl
      */
     public void mouseMoved(MouseEvent e) {
     }
+    
+    /**
+     * Set the name for the tool, eg "Zoom In", "Zoom Out", "Pan".
+     */
+    public void setName(String name) {
+        this.name=name;
+    }
+    
+    /**
+     * Get the name of the tool.
+     */
+    public String getName() {
+        return name;
+    }
+    
+    /**
+     * Return the name of the tool.
+     */
+    public String toString() {
+        return getName();
+    }
+    
 }

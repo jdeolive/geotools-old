@@ -29,10 +29,11 @@ public class PanToolImpl extends AbstractToolImpl implements PanTool {
 
     /**
      * Construct a PanTool.
-     * @version $Id: PanToolImpl.java,v 1.12 2003/03/27 11:32:18 camerons Exp $
+     * @version $Id: PanToolImpl.java,v 1.13 2003/03/28 19:08:51 camerons Exp $
      * @author Cameron Shorter
      */
     public PanToolImpl(){
+        setName("Pan");
     }
     
     /**

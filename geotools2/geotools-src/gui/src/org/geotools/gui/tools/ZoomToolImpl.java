@@ -22,7 +22,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ZoomToolImpl.java,v 1.3 2003/03/27 11:32:18 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.4 2003/03/28 19:08:53 camerons Exp $
  * @author Cameron Shorter
  */
 public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
@@ -40,10 +40,25 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
 
     /**
      * Construct a ZoomTool.
-     * @version $Id: ZoomToolImpl.java,v 1.3 2003/03/27 11:32:18 camerons Exp $
-     * @author Cameron Shorter
      */
     public ZoomToolImpl(){
+        setName("Zoom");
+    }
+
+    /**
+     * Construct a ZoomTool.
+    /* @parma zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means
+     * zoom in, zoomFactor=2 means zoom out.
+     */
+    public ZoomToolImpl(double zoomFactor){
+        this.zoomFactor=zoomFactor;
+        if (zoomFactor==1){
+            setName("Pan");
+        }else if (zoomFactor<1){
+            setName("Zoom In");
+        }else{
+            setName("Zoom Out");
+        }
     }
     
     /**
@@ -115,7 +130,6 @@ public class ZoomToolImpl extends AbstractToolImpl implements ZoomTool
      * or the tool is being assigned a different context to before.
      */
     public void addMouseListener(Component component, Context context)
-        throws IllegalArgumentException
     {
         super.addMouseListener(
             component,context,this);
