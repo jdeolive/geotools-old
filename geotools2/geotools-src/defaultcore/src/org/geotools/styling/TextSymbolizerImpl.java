@@ -20,18 +20,18 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.9 2003/07/22 15:55:05 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.10 2003/07/22 16:36:52 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
-    Fill fill;
-    java.util.List fonts = new java.util.ArrayList();
-    Halo halo;
-    LabelPlacement labelPlacement;
-    String geometryPropertyName = null;
-    org.geotools.filter.Expression label = null;
+    private Fill fill;
+    private java.util.List fonts = new java.util.ArrayList();
+    private Halo halo;
+    private LabelPlacement labelPlacement;
+    private String geometryPropertyName = null;
+    private org.geotools.filter.Expression label = null;
 
     /** Creates a new instance of DefaultTextSymbolizer */
     protected TextSymbolizerImpl() {

@@ -14,9 +14,9 @@ import org.geotools.filter.FilterFactory;
  * @author  iant
  */
 public class SelectedChannelTypeImpl implements SelectedChannelType {
-    static FilterFactory filterFactory = FilterFactory.createFilterFactory();
-    Expression contrastEnhancement;
-    String name = "channel";
+    private static  FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private Expression contrastEnhancement;
+    private String name = "channel";
 
     /** Creates a new instance of SelectedChannelImpl */
     public SelectedChannelTypeImpl() {

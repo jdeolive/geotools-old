@@ -45,9 +45,9 @@ import org.geotools.filter.FilterFactory;
  * @author  iant
  */
 public class ContrastEnhancementImpl implements ContrastEnhancement {
-    FilterFactory filterFactory = FilterFactory.createFilterFactory();
-    Expression gamma;
-    Expression type;
+    private FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private Expression gamma;
+    private Expression type;
 
     public Expression getGammaValue() {
         return gamma;

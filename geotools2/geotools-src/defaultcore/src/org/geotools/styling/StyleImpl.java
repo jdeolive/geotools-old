@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.11 2003/07/22 15:52:29 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.12 2003/07/22 16:37:10 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
@@ -37,13 +37,13 @@ public class StyleImpl implements org.geotools.styling.Style {
      */
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.styling");
-    List featureTypeStyleList = new ArrayList();
-    String abstractText = "";
-    String name = "Default Styler";
-    String title = "Default Styler";
-    boolean defaultB = false;
+    private List featureTypeStyleList = new ArrayList();
+    private String abstractText = "";
+    private String name = "Default Styler";
+    private String title = "Default Styler";
+    private boolean defaultB = false;
 
-    /** Creates a new instance of DefaultStyle */
+    /** Creates a new instance of StyleImpl */
     protected StyleImpl() {
     }
 
@@ -56,8 +56,8 @@ public class StyleImpl implements org.geotools.styling.Style {
             new FeatureTypeStyleImpl()
         };
 
-        if ((featureTypeStyleList != null) && 
-                (featureTypeStyleList.size() != 0)) {
+        if ((featureTypeStyleList != null) 
+               && (featureTypeStyleList.size() != 0)) {
             LOGGER.fine("number of fts set " + featureTypeStyleList.size());
             ret = (FeatureTypeStyle[]) featureTypeStyleList.toArray(
                             new FeatureTypeStyle[] {  });

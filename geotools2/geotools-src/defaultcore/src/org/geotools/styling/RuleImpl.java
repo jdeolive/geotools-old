@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.5 2003/07/22 15:55:04 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.6 2003/07/22 16:36:52 ianturton Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class RuleImpl implements org.geotools.styling.Rule {
      * as a legend against features stylized by the symbolizers in this
      * rule.
      *
-     * @param An array of Graphic objects, any of which can be used as
+     * @param graphics An array of Graphic objects, any of which can be used as
      *         the legend.
      *
      */

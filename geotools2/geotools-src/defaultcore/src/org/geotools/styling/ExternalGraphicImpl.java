@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.4 2003/07/22 15:55:05 ianturton Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.5 2003/07/22 16:36:52 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic, Symbol {
@@ -29,8 +29,8 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol {
      */
     private static final java.util.logging.Logger LOGGER = 
             java.util.logging.Logger.getLogger("org.geotools.core");
-    java.net.URL location = null;
-    String format = "";
+    private java.net.URL location = null;
+    private String format = "";
 
     public void setURI(String uri) {
         try {

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.6 2003/07/22 15:52:10 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.7 2003/07/22 16:37:01 ianturton Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
@@ -82,7 +82,7 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
      * Sets the graphical-symbolization parameter to use for the
      * linear geometry.
      *
-     * @param s The Stroke style to use when rendering lines.
+     * @param stroke The Stroke style to use when rendering lines.
      */
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;

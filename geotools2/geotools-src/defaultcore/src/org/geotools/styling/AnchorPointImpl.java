@@ -19,24 +19,21 @@
  */
 package org.geotools.styling;
 
-// J2SE dependencies
-import java.util.logging.Logger;
-
-// Geotools dependencies
-import org.geotools.filter.*;
+import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: AnchorPointImpl.java,v 1.4 2003/07/22 15:52:29 ianturton Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.5 2003/07/22 16:37:10 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class AnchorPointImpl implements AnchorPoint {
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    private static final FilterFactory filterFactory = 
-            FilterFactory.createFilterFactory();
+    private static final java.util.logging.Logger LOGGER = 
+            java.util.logging.Logger.getLogger("org.geotools.core");
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression anchorPointX = null;
     private Expression anchorPointY = null;
 
@@ -55,28 +52,28 @@ public class AnchorPointImpl implements AnchorPoint {
     /** Getter for property anchorPointX.
      * @return Value of property anchorPointX.
      */
-    public org.geotools.filter.Expression getAnchorPointX() {
+    public Expression getAnchorPointX() {
         return anchorPointX;
     }
 
     /** Setter for property anchorPointX.
      * @param anchorPointX New value of property anchorPointX.
      */
-    public void setAnchorPointX(org.geotools.filter.Expression anchorPointX) {
+    public void setAnchorPointX(Expression anchorPointX) {
         this.anchorPointX = anchorPointX;
     }
 
     /** Getter for property anchorPointY.
      * @return Value of property anchorPointY.
      */
-    public org.geotools.filter.Expression getAnchorPointY() {
+    public Expression getAnchorPointY() {
         return anchorPointY;
     }
 
     /** Setter for property anchorPointY.
      * @param anchorPointY New value of property anchorPointY.
      */
-    public void setAnchorPointY(org.geotools.filter.Expression anchorPointY) {
+    public void setAnchorPointY(Expression anchorPointY) {
         this.anchorPointY = anchorPointY;
     }
 }

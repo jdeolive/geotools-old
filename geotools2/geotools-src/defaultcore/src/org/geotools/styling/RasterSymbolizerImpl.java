@@ -14,15 +14,15 @@ import org.geotools.filter.FilterFactory;
  * @author  iant
  */
 public class RasterSymbolizerImpl implements RasterSymbolizer {
-    FilterFactory filterFactory = FilterFactory.createFilterFactory();
-    ChannelSelection channelSelction = new ChannelSelectionImpl();
-    ColorMap colorMap = new ColorMapImpl();
-    ContrastEnhancement contrastEnhancement = new ContrastEnhancementImpl();
-    ShadedRelief shadedRelief = new ShadedReliefImpl();
-    String geometryName = "raster";
-    Symbolizer symbolizer;
-    Expression opacity;
-    Expression overlap;
+    private FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private ChannelSelection channelSelction = new ChannelSelectionImpl();
+    private ColorMap colorMap = new ColorMapImpl();
+    private ContrastEnhancement contrastEnhancement = new ContrastEnhancementImpl();
+    private ShadedRelief shadedRelief = new ShadedReliefImpl();
+    private String geometryName = "raster";
+    private Symbolizer symbolizer;
+    private Expression opacity;
+    private Expression overlap;
 
     /** Creates a new instance of RasterSymbolizerImpl */
     public RasterSymbolizerImpl() {
@@ -209,7 +209,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      * A “GammaValue” tells how much to brighten (value greater than 1.0) or dim (value less than 1.0) an image.
      * The default GammaValue is 1.0 (no change). If none of Normalize, Histogram, or GammaValue are selected
      * in a ContrastEnhancement, then no enhancement is performed.
-     * @param ce the contrastEnhancement
+     * @param cEnhancement the contrastEnhancement
      *
      */
     public void setContrastEnhancement(ContrastEnhancement cEnhancement) {

@@ -21,12 +21,12 @@ package org.geotools.styling;
 /**
  * A style object is quite hard to set up, involving fills, strokes,
  * symbolizers and rules.
- * @version $Id: BasicPolygonStyle.java,v 1.5 2003/07/22 15:52:29 ianturton Exp $
+ * @version $Id: BasicPolygonStyle.java,v 1.6 2003/07/22 16:37:10 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class BasicPolygonStyle extends StyleImpl
     implements org.geotools.styling.Style {
-    FeatureTypeStyle[] featureTypeStyleList;
+    
 
     /** Creates a new instance of BasicPolygonStyle */
     public BasicPolygonStyle() {

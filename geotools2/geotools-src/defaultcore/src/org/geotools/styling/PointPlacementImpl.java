@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.7 2003/07/22 15:52:29 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.8 2003/07/22 16:37:10 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -31,9 +31,9 @@ public class PointPlacementImpl implements PointPlacement {
             java.util.logging.Logger.getLogger("org.geotools.core");
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
-    AnchorPoint anchorPoint = new AnchorPointImpl();
-    Displacement displacement = new DisplacementImpl();
-    org.geotools.filter.Expression rotation = null;
+    private AnchorPoint anchorPoint = new AnchorPointImpl();
+    private Displacement displacement = new DisplacementImpl();
+    private org.geotools.filter.Expression rotation = null;
 
     /** Creates a new instance of DefaultPointPlacement */
     public PointPlacementImpl() {

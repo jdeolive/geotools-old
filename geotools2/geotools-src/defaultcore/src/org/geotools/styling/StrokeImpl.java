@@ -18,19 +18,15 @@
  **/
 package org.geotools.styling;
 
-import java.awt.Color;
+import org.geotools.filter.Expression;
+
 
 /**
  *
- * TODO:This is unfinished as it currently returns fixed values with no way
- * to change them.
  *
- * @version $Id: StrokeImpl.java,v 1.7 2003/07/22 15:52:19 ianturton Exp $
+ * @version $Id: StrokeImpl.java,v 1.8 2003/07/22 16:37:01 ianturton Exp $
  * @author James Macgill, CCG
  */
-import org.geotools.filter.*;
-
-
 public class StrokeImpl implements org.geotools.styling.Stroke {
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
@@ -46,21 +42,6 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
 
     /** Creates a new instance of Stroke */
     protected StrokeImpl() {
-        //        try {
-        //            color = new ExpressionLiteral("#000000");
-        //            dashArray = null;//HACK: is this an acceptable return?
-        //            dashOffset = new ExpressionLiteral(new Integer(0));
-        //            fillGraphic = null;
-        //            strokeGraphic = null;
-        //            lineCap = new ExpressionLiteral("butt");
-        //            lineJoin = new ExpressionLiteral("miter");
-        //            opacity = new ExpressionLiteral(new Integer(1));
-        //            width = new ExpressionLiteral(new Integer(1));
-        //        } catch (IllegalFilterException ife){
-        //            //we should never be in here
-        //            //TODO: log this as a fatal exception
-        //            System.err.println("DefaultStroke constructor failed " + ife);
-        //        }
     }
 
     /**
@@ -91,7 +72,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
      *
-     * @param c The color of the stroke encoded as a hexidecimal RGB value.
+     * @param color The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(Expression color) {
         if (color == null) {
@@ -112,7 +93,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
      *
-     * @param c The color of the stroke encoded as a hexidecimal RGB value.
+     * @param color The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(String color) {
         setColor(filterFactory.createLiteralExpression(color));
@@ -375,7 +356,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         return out.toString();
     }
 
-    public Color getColor(org.geotools.feature.Feature feature) {
-        return Color.decode((String) this.getColor().getValue(feature));
+    public java.awt.Color getColor(org.geotools.feature.Feature feature) {
+        return java.awt.Color.decode((String) this.getColor().getValue(feature));
     }
 }

@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.5 2003/07/22 15:55:04 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.6 2003/07/22 16:36:52 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl
@@ -87,7 +87,7 @@ public class PolygonSymbolizerImpl
      * Sets the graphical-symbolization parameter to use to fill the area
      * of the geometry.
      *
-     * @param f The Fill style to use when rendering the area.
+     * @param fill The Fill style to use when rendering the area.
      */
     public void setFill(Fill fill) {
         this.fill = fill;
@@ -107,7 +107,7 @@ public class PolygonSymbolizerImpl
      * Sets the graphical-symbolization parameter to use for the outline
      * of the Polygon.
      *
-     * @param s The Stroke style to use when rendering lines.
+     * @param stroke The Stroke style to use when rendering lines.
      */
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;

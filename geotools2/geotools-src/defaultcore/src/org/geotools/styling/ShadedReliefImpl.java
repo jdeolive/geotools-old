@@ -14,9 +14,9 @@ import org.geotools.filter.FilterFactory;
  * @author  iant
  */
 public class ShadedReliefImpl implements ShadedRelief {
-    FilterFactory filterFactory = FilterFactory.createFilterFactory();
-    Expression reliefFactor;
-    boolean brightness = false;
+    private static FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private Expression reliefFactor;
+    private boolean brightness = false;
 
     /** Creates a new instance of ShadedReliefImpl */
     public ShadedReliefImpl() {

@@ -23,7 +23,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.8 2003/07/22 15:52:10 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.9 2003/07/22 16:37:01 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark {
@@ -34,8 +34,8 @@ public class MarkImpl implements Mark {
             java.util.logging.Logger.getLogger("org.geotools.styling");
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
-    Fill fill;
-    Stroke stroke;
+    private Fill fill;
+    private Stroke stroke;
 
     //Polygon shape;
     private Expression wellKnownName = null;

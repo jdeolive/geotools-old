@@ -22,10 +22,10 @@ package org.geotools.styling;
  * @author iant
  */
 public class ChannelSelectionImpl implements ChannelSelection {
-    SelectedChannelType gray;
-    SelectedChannelType red;
-    SelectedChannelType blue;
-    SelectedChannelType green;
+    private SelectedChannelType gray;
+    private SelectedChannelType red;
+    private SelectedChannelType blue;
+    private SelectedChannelType green;
 
     public SelectedChannelType getGrayChannel() {
         return gray;
@@ -84,4 +84,5 @@ public class ChannelSelectionImpl implements ChannelSelection {
                     channels.length);
         }
     }
+          
 }

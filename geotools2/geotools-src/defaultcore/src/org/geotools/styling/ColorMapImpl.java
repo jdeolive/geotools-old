@@ -14,7 +14,7 @@ import java.util.List;
  * @author  iant
  */
 public class ColorMapImpl implements ColorMap {
-    List list = new ArrayList();
+    private List list = new ArrayList();
 
     public void addColorMapEntry(ColorMapEntry entry) {
         list.add(entry);

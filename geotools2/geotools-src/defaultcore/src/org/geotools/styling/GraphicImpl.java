@@ -42,7 +42,7 @@ import org.geotools.filter.Expression;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.9 2003/07/22 15:52:19 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.10 2003/07/22 16:37:01 ianturton Exp $
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
     /** The logger for the default core module. */
@@ -50,10 +50,10 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
             java.util.logging.Logger.getLogger("org.geotools.core");
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
-    String geometryPropertyName = "";
-    java.util.List externalGraphics = new java.util.ArrayList();
-    java.util.List marks = new java.util.ArrayList();
-    java.util.List symbols = new java.util.ArrayList();
+    private String geometryPropertyName = "";
+    private java.util.List externalGraphics = new java.util.ArrayList();
+    private java.util.List marks = new java.util.ArrayList();
+    private java.util.List symbols = new java.util.ArrayList();
     private Expression rotation = null;
     private Expression size = null;
     private Expression opacity = null;
@@ -67,9 +67,9 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     /**
      * Convenience method for logging a message with an exception.
      *
-     * @param method DOCUMENT ME!
-     * @param message DOCUMENT ME!
-     * @param exception DOCUMENT ME!
+     * @param method the name of the calling method 
+     * @param message the error message
+     * @param exception The exception thrown
      */
     private static void severe(final String method, final String message, 
                                final Exception exception) {
@@ -92,11 +92,13 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      *         instead.
      */
     public ExternalGraphic[] getExternalGraphics() {
-        ExternalGraphic[] ret =null;
+        ExternalGraphic[] ret = null;
+
         if (externalGraphics.size() > 0) {
-            ret=(ExternalGraphic[]) externalGraphics.toArray(
-                             new ExternalGraphic[0]);
-        } 
+            ret = (ExternalGraphic[]) externalGraphics.toArray(
+                            new ExternalGraphic[0]);
+        }
+
         return ret;
     }
 
@@ -124,9 +126,11 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      */
     public Mark[] getMarks() {
         Mark[] ret = new Mark[] { new MarkImpl() };
+
         if (marks.size() > 0) {
-            ret=(Mark[]) marks.toArray(new Mark[0]);
-        } 
+            ret = (Mark[]) marks.toArray(new Mark[0]);
+        }
+
         return ret;
     }
 
@@ -161,11 +165,12 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      */
     public Symbol[] getSymbols() {
         Symbol[] ret = new Symbol[] { new MarkImpl() };
+
         if (symbols.size() > 0) {
-            ret=(Symbol[]) symbols.toArray(new Symbol[0]);
-        } 
-            return ret;
-        
+            ret = (Symbol[]) symbols.toArray(new Symbol[0]);
+        }
+
+        return ret;
     }
 
     public void setSymbols(Symbol[] symbols) {
@@ -181,15 +186,12 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
         if (symbol instanceof ExternalGraphic) {
             addExternalGraphic((ExternalGraphic) symbol);
-
-            
         }
 
         if (symbol instanceof Mark) {
             addMark((Mark) symbol);
-
-           
         }
+
         return;
     }
 
