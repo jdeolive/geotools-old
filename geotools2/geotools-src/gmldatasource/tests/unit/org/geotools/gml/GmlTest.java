@@ -14,6 +14,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.*;
+import org.geotools.data.gml.GMLDataSource;
 
 
 import junit.framework.*;

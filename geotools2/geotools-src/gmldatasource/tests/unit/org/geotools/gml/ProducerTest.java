@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.geotools.gml.producer.*;
+import org.geotools.data.gml.GMLDataSource;
 
 import junit.framework.*;
 

@@ -27,6 +27,7 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
 import org.geotools.data.*;
+import org.geotools.data.gml.GMLDataSource;
 
 import org.geotools.feature.*;
 
@@ -48,7 +49,7 @@ import org.geotools.feature.*;
  * own class.  The only requirement of your new class is that it implements 
  * <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
- * @version $Id: TestParser.java,v 1.13 2003/07/17 07:09:54 ianschneider Exp $
+ * @version $Id: TestParser.java,v 1.14 2003/07/23 21:41:49 dledmonds Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class TestParser {
