@@ -96,6 +96,10 @@ that allows you to describe the latyer in more detail
                 <graphic>
                     <size>10</size>
                     <rotation>45.0</rotation>
+                    <externalGraphic>
+                        <onLineResource>file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif</onLineResource>
+                        <format>image/gif</format>
+                    </externalGraphic>
                     <mark>
                     <!-- since cross is not implemented yet should draw next mark -->
                         <wellknownname>triangle</wellknownname>
