@@ -88,6 +88,10 @@ public class FlatFeature implements Feature {
         setAttributes(a,new String[]{});
     }
     
+    public String getTypeName(){
+        return "feature"; //TODO: this needs to a paramiter rather than just being fixed.
+    }
+    
     public String toString() {
 				StringBuffer featureString = new StringBuffer();
 				Vector currentAttributes = new Vector( java.util.Arrays.asList(attributes) );  
