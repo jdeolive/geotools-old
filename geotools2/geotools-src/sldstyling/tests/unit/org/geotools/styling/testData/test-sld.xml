@@ -14,6 +14,9 @@ F:\projects\schema\sld\1.0.0\StyledLayerDescriptor.xsd" version="1.0.0">
 			<FeatureTypeConstraint/>
 		</LayerFeatureConstraints>
 		<UserStyle>
+		       <Name>My User Style</Name>
+			<Title>A style by me</Title>
+			<Abstract>this is a sample style</Abstract>
 			<FeatureTypeStyle>
 				<Rule>
 					<LineSymbolizer>
