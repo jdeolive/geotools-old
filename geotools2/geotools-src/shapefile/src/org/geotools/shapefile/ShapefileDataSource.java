@@ -42,7 +42,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
                 EnvelopeExtent ee = (EnvelopeExtent)ex;
                 Envelope bounds = ee.getBounds();
                 Geometry typical = shapes.getGeometryN(0);
-                AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class.getName());
+                AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class);
                 
                 FeatureType shapefileType = new FeatureTypeFlat(geometryAttribute);
                 System.out.println("schema is "+shapefileType);
