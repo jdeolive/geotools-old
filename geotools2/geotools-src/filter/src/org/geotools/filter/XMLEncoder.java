@@ -41,7 +41,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     private Writer out;
     
     /** Creates a new instance of XMLEncoder */
-    public XMLEncoder(Writer out,AbstractFilterImpl filter) {
+    public XMLEncoder(Writer out,Filter filter) {
         this.out = out;
         try{
         out.write("<Filter>\n");
@@ -59,15 +59,15 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
      * its own version of accept(FilterVisitor);
      * @param filter The filter to visit
      */
-    public void visit(AbstractFilter filter) {
+    public void visit(Filter filter) {
         LOGGER.warning("exporting unknown filter type");
     }
     
     public void visit(BetweenFilter filter) {
         LOGGER.finer("exporting BetweenFilter");
-        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
-        DefaultExpression right = (DefaultExpression)filter.getRightValue();
-        DefaultExpression mid = (DefaultExpression)filter.getMiddleValue();
+        Expression left = (Expression)filter.getLeftValue();
+        Expression right = (Expression)filter.getRightValue();
+        Expression mid = (Expression)filter.getMiddleValue();
         LOGGER.finer("Filter type id is "+filter.getFilterType());
         LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -93,7 +93,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             String esc = filter.getEscape();
             out.write("<PropertyIsLike wildCard=\""+wcm+"\" singleChar=\""+wcs
                 +"\" escapeChar=\""+esc+"\">\n");
-            ((DefaultExpression)filter.getValue()).accept(this);
+            ((Expression)filter.getValue()).accept(this);
             out.write("<Literal>\n"+filter.getPattern()+"\n</literal>\n");
             out.write("</PropertyIsLike>\n");
         } catch (java.io.IOException ioe){
@@ -122,14 +122,16 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public void visit(CompareFilter filter){
         LOGGER.finer("exporting ComparisonFilter");
         
-        DefaultExpression left = (DefaultExpression)filter.getLeftValue();
-        DefaultExpression right = (DefaultExpression)filter.getRightValue();
+        Expression left = filter.getLeftValue();
+        Expression right = filter.getRightValue();
         LOGGER.finer("Filter type id is "+filter.getFilterType());
         LOGGER.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
+            LOGGER.fine("exporting left expression " + left);
             left.accept(this);
+            LOGGER.fine("exporting right expression " + right);
             right.accept(this);
             out.write("</"+type+">\n");
         }
@@ -140,8 +142,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(GeometryFilter filter){
         LOGGER.finer("exporting GeometryFilter");
-        DefaultExpression left = (DefaultExpression)filter.getLeftGeometry();
-        DefaultExpression right = (DefaultExpression)filter.getRightGeometry();
+        Expression left = filter.getLeftGeometry();
+        Expression right = filter.getRightGeometry();
         String type = (String)spatial.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
@@ -156,7 +158,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(NullFilter filter) {
         LOGGER.finer("exporting NullFilter");
-        DefaultExpression expr = (DefaultExpression)filter.getNullCheckValue();
+        Expression expr = (Expression)filter.getNullCheckValue();
        
 
         String type = (String)comparisions.get(new Integer(filter.getFilterType()));
@@ -183,7 +185,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
     
-    public void visit(DefaultExpression expression) {
+    public void visit(Expression expression) {
         LOGGER.warning("exporting unknown (default) expression");
     }
     
@@ -209,8 +211,8 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         String type = (String)expressions.get(new Integer(expression.getType()));
         try{
             out.write("<"+type+">\n");
-            ((DefaultExpression)expression.getLeftValue()).accept(this);
-            ((DefaultExpression)expression.getRightValue()).accept(this);
+            ((Expression)expression.getLeftValue()).accept(this);
+            ((Expression)expression.getRightValue()).accept(this);
             out.write("</"+type+">\n");
         }
         catch(java.io.IOException ioe){

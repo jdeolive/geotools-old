@@ -91,7 +91,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public SQLEncoder(Writer out, AbstractFilter filter)
+    public SQLEncoder(Writer out, Filter filter)
 	throws SQLEncoderException {
         if (capabilities.fullySupports(filter)) {
 	    this.out = out;
@@ -115,7 +115,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public void encode(Writer out, AbstractFilter filter) 
+    public void encode(Writer out, Filter filter) 
 	throws SQLEncoderException {
 	if (capabilities.fullySupports(filter)) {
 	    this.out = out;
@@ -139,7 +139,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @param filter the Filter to be encoded.
      * @return the string of the SQL where statement.
      */
-    public String encode(AbstractFilter filter)
+    public String encode(Filter filter)
 	throws SQLEncoderException {
 	StringWriter output = new StringWriter();
 	encode(output, filter);
@@ -162,7 +162,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * its own version of accept(FilterVisitor);
      * @param filter The filter to visit
      */
-    public void visit(AbstractFilter filter) {
+    public void visit(Filter filter) {
         log.warning("exporting unknown filter type");
     }
     
@@ -336,7 +336,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *
      * @param expression the attribute to turn to SQL.
      */
-    public void visit(DefaultExpression expression) {
+    public void visit(Expression expression) {
         log.warning("exporting unknown (default) expression");
     }
 
