@@ -28,26 +28,25 @@ import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: PanelWidget.java,v 1.1 2003/02/07 11:04:19 camerons Exp $
+ * @version $Id: PanelWidgetImpl.java,v 1.1 2003/02/08 01:27:11 camerons Exp $
  * @author Cameron Shorter
  */
 
-public class PanelWidget extends JPanel implements
-    AbstractWidget
+public class PanelWidgetImpl extends JPanel implements AbstractWidget
 {
 
     /**
      * The class used for identifying for logging.
      */
     private static final Logger LOGGER = Logger.getLogger(
-        "org.geotools.gui.swing.AbstractWidgetImpl");
+        "org.geotools.gui.swing.PanelWidgetImpl");
 
     /**
      * Create an AbstractWidget.
      * A MapPane marshals the drawing of maps.
      *
      */
-    public PanelWidget()
+    public PanelWidgetImpl()
     {
     }
     
