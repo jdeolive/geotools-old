@@ -27,20 +27,10 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.io.WKTWriter;
 
 /**
- * Encodes a filter into a SQL WHERE statement.  It should hopefully be generic
- * enough that any SQL database will work with it, though it has only been
- * tested with MySQL.  This generic SQL encoder should eventually be able to
- * encode all filters except Geometry Filters (currently LikeFilters are not
- * yet fully implemented, but when they are they should be generic enough).  This
- * is because the OGC's SFS for SQL document specifies two ways of doing SQL
- * databases, one with native geometry types and one without.  To implement
- * an encoder for one of the two types simply subclass off of this encoder
- * and put in the proper GeometryFilter visit method.  Then add the filter
- * types supported to the capabilities in the static capabilities.addType block.
- *
- * @task TODO: Implement LikeFilter encoding, need to figure out escape chars,
- * the rest of the code should work right.  Once fixed be sure to add the LIKE
- * type to capabilities, so others know that they can be encoded.
+ * Encodes a filter into a SQL WHERE statement for postgis.  This class
+ * adds the ability to turn geometry filters into sql statements if they
+ * are bboxes.  
+ * TODO: add support for other spatial queries.
  *
  * @author Chris Holmes, TOPP
  */
@@ -109,14 +99,38 @@ public class SQLEncoderPostgis extends SQLEncoder
 	}
     }
 
+    /**
+     * Sets a spatial reference system ESPG number, so that the geometry can
+     * be properly encoded for postgis.  If geotools starts actually creating
+     * geometries with valid srids then this method will no longer be needed.
+     *
+     * @param srid the integer code for the EPSG spatial reference system.
+     */
     public void setSRID(int srid) {
 	this.srid = srid;
     }
-    
+
+    /**
+     * Sets the default geometry, so that filters with null for one of
+     * their expressions can assume that the default geometry is intended.
+     *
+     * @param name the name of the default geometry Attribute.
+     * @tasks REVISIT: pass in a featureType so that geometries can figure
+     * out their own default geometry?  
+     */
+    //Do we really want clients to be using malformed filters?  I mean, this
+    //is a useful method for unit tests, but shouldn't fully formed filters
+    //usually be used?  Though I guess adding the option wouldn't hurt me. -ch
     public void setDefaultGeometry(String name) {
         this.defaultGeometry = name;
     }
 
+
+    /**
+     * Turns a geometry filter into the postgis sql bbox statement.
+     *
+     * @param filter the geometry filter to be encoded.
+     */
     public void visit(GeometryFilter filter) {
 
 	log.finer("exporting GeometryFilter");	
@@ -147,31 +161,24 @@ public class SQLEncoderPostgis extends SQLEncoder
 
     }
 
-
- public void visit(LiteralExpression expression) {
+    /**
+     * Checks to see if the literal is a geometry, and encodes it if it 
+     * is, if not just sends to the parent class.
+     */
+    public void visit(LiteralExpression expression) {
         log.finer("exporting LiteralExpression");
         try{
 	    if (expression.getType() == DefaultExpression.LITERAL_GEOMETRY){
-	        visit((BBoxExpression)expression);
-		//bit of a hack, but BBox doesn't seem to like to use its visit.
+		Geometry bbox = (Geometry)expression.getLiteral();
+		 String geomText = wkt.write(bbox);
+	    out.write("GeometryFromText('" + geomText + "', " + srid + ")");
 	    } else {
-	    out.write("'"+expression.getLiteral()+"'");
+		out.write("'"+expression.getLiteral()+"'");
+		//super.visit(expression);
 	    }        
 	}
         catch(java.io.IOException ioe){
             log.warning("Unable to export expresion" + ioe);
-        }
-    }
-
-    //TODO: throw some sort of error if srid is not set.
-    public void visit(BBoxExpression expression) {
-	Geometry bbox = (Geometry)expression.getLiteral();
-	
-	try {
-	    String geomText = wkt.write(bbox);
-	    out.write("GeometryFromText('" + geomText + "', " + srid + ")");
-	} catch (java.io.IOException ioe){
-            log.warning("Unable to export filter" + ioe);
         }
     }
 
