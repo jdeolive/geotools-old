@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.6 2002/06/04 16:48:51 loxnard Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.7 2002/06/20 23:18:28 jmacgill Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -448,7 +448,7 @@ public class FeatureTypeFlat implements FeatureType {
      * @return True if attribute exists.
      */
     public boolean hasAttributeType(String xPath) {
-        return (nameMap.get(name) == null);
+        return (nameMap.get(name) != null);
     }
 
 
