@@ -20,7 +20,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultStyle.java,v 1.4 2002/08/09 16:19:01 jmacgill Exp $
+ * @version $Id: DefaultStyle.java,v 1.5 2002/08/12 09:36:55 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class DefaultStyle implements org.geotools.styling.Style {
@@ -29,6 +29,17 @@ public class DefaultStyle implements org.geotools.styling.Style {
     
     /** Creates a new instance of DefaultStyle */
     public DefaultStyle() {
+        featureTypeStyleList = new DefaultFeatureTypeStyle[1];
+        featureTypeStyleList[0] = new DefaultFeatureTypeStyle();
+        featureTypeStyleList[0].setFeatureTypeName("default");
+        DefaultRule [] rules = new DefaultRule[1];
+        rules[0] = new DefaultRule();
+        Symbolizer[] symbolizers = new Symbolizer[3];
+        symbolizers[0] = new DefaultPolygonSymbolizer();
+        symbolizers[1] = new DefaultLineSymbolizer();
+        symbolizers[2] = new DefaultPointSymbolizer();
+        rules[0].setSymbolizers(symbolizers);
+        ((DefaultFeatureTypeStyle)featureTypeStyleList[0]).setRules(rules);
     }
 
     public String getAbstract() {
