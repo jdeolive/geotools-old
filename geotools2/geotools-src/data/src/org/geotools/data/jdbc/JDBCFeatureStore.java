@@ -220,6 +220,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
             Transaction atomic = new DefaultTransaction();
             try {
                 FeatureWriter writer = getDataStore().getFeatureWriter(typeName, filter, atomic);
+                modifyFeatures( type, value, writer );                
                 atomic.commit();                
             }
             catch( Throwable t ){
