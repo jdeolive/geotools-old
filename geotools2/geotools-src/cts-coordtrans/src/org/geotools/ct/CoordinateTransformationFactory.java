@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
+import java.util.NoSuchElementException;
 import java.awt.geom.AffineTransform;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
@@ -84,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.4 2002/10/07 15:09:44 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.5 2002/10/07 22:49:55 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -478,7 +479,13 @@ public class CoordinateTransformationFactory {
         assert normalize(stepGeoCS, projection) == stepGeoCS;
         assert projection.equals(targetCS.getProjection());
         
-        final MathTransform    mapProjection = factory.createParameterizedTransform(projection);
+        final MathTransform mapProjection;
+        try {
+            mapProjection = factory.createParameterizedTransform(projection);
+        } catch (NoSuchElementException exception) {
+            // REVISIT: Should MathTransform throws FactoryException instead?
+            throw new CannotCreateTransformException(exception);
+        }
         final CoordinateTransformation step1 = createTransformationStep(sourceCS, stepGeoCS);
         final CoordinateTransformation step2 = createFromMathTransform(stepGeoCS, stepProjCS, TransformType.CONVERSION, mapProjection);
         final CoordinateTransformation step3 = createTransformationStep(stepProjCS, targetCS);
@@ -885,10 +892,24 @@ public class CoordinateTransformationFactory {
         }
         assert !Arrays.equals(sourceAxis, targetAxis) || matrix.isIdentity();
         /*
-         * Convert units. We multiply 
+         * The previous code computed a matrix for swapping axis. Usually, this
+         * matrix contains only 0 and 1 values with only one "1" value by row.
+         * For example, the matrix operation for swapping x and y axis is:
+         *
+         *          [y]   [ 0  1  0 ] [x]
+         *          [x] = [ 1  0  0 ] [y]
+         *          [1]   [ 0  0  1 ] [1]
+         *
+         * Now, take in account units conversions. Each matrix's element (j,i)
+         * is multiplied by the conversion factor from sourceCS.getUnit(i) to
+         * targetCS.getUnit(j). This is a element-by-element multiplication,
+         * not a matrix multiplication. The last column is process in a special
+         * way, since it contains the offset values.
          */
         final int sourceDim = matrix.getNumCol()-1;
         final int targetDim = matrix.getNumRow()-1;
+        assert sourceDim == sourceCS.getDimension();
+        assert targetDim == targetCS.getDimension();
         for (int j=0; j<targetDim; j++) {
             final Unit targetUnit = targetCS.getUnits(j);
             for (int i=0; i<sourceDim; i++) {
@@ -913,7 +934,7 @@ public class CoordinateTransformationFactory {
                 final double offset = targetUnit.convert(0, sourceUnit);
                 final double scale  = targetUnit.convert(1, sourceUnit)-offset;
                 matrix.setElement(j,i, scale*element);
-                matrix.setElement(j,sourceDim, matrix.getElement(j,sourceDim)+offset);
+                matrix.setElement(j,sourceDim, matrix.getElement(j,sourceDim) + element*offset);
             }
         }
         return matrix;

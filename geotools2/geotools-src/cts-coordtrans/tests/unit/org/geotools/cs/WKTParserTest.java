@@ -44,9 +44,9 @@ import junit.framework.TestSuite;
 
 
 /**
- * Test the {@link CoordinateSystemEPSGFactory} implementation.
+ * Test the {@link WKTParser} implementation.
  *
- * @version $Id: WKTParserTest.java,v 1.2 2002/09/04 15:09:49 desruisseaux Exp $
+ * @version $Id: WKTParserTest.java,v 1.3 2002/10/07 22:49:55 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -107,7 +107,7 @@ public class WKTParserTest extends TestCase {
             /*
              * Parse a line. If the parse fails, then dump the WKT and rethrow the
              * exception. We try to favor ParseException instead of FactoryException,
-             * since the later contains less usuful information for our test.
+             * since the former contains more useful information for our tests.
              */
             final CoordinateSystem cs;
             try {

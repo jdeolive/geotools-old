@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * It may be because there is no known path between source and coordinate systems,
  * or because the requested transformation is not available in the environment.
  *
- * @version 1.0
+ * @version $Id: CannotCreateTransformException.java,v 1.2 2002/10/07 22:49:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CannotCreateTransformException extends TransformException {
@@ -70,6 +70,13 @@ public class CannotCreateTransformException extends TransformException {
      */
     public CannotCreateTransformException(final String message) {
         super(message);
+    }
+    
+    /**
+     * Construct an exception with the specified cause.
+     */
+    CannotCreateTransformException(final Exception cause) {
+        super(cause.getLocalizedMessage(), cause);
     }
     
     /**
