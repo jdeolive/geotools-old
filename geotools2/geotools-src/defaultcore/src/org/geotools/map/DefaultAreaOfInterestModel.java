@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.8 2002/12/15 01:49:10 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.9 2002/12/15 04:05:09 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -62,8 +62,7 @@ public class DefaultAreaOfInterestModel implements Cloneable{
         if ((bbox==null) || (coordinateSystem==null)){
             throw new IllegalArgumentException();
         }
-        //this.areaOfInterest = new Envelope(bbox);
-        this.areaOfInterest = bbox;
+        this.areaOfInterest = new Envelope(bbox);
         this.coordinateSystem = coordinateSystem;
     }
     
@@ -109,14 +108,18 @@ public class DefaultAreaOfInterestModel implements Cloneable{
      * Note that this is the only method to change coordinateSystem.  A
      * <code>setCoordinateSystem</code> method is not provided to ensure
      * this class is not dependant on transform classes.
-     * @param areaOfInterest The new areaOfInterest.
+     * @param bbox The new areaOfInterest.
      * @param coordinateSystem The coordinate system being using by this model.
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public void setAreaOfInterest(
-            Envelope areaOfInterest,
-            CoordinateSystem coordinateSystem)
+            Envelope bbox,
+            CoordinateSystem coordinateSystem) throws IllegalArgumentException
     {
-        this.areaOfInterest = areaOfInterest;
+        if ((bbox==null) || (coordinateSystem==null) || bbox.isNull()){
+            throw new IllegalArgumentException();
+        }
+        this.areaOfInterest = new Envelope(bbox);
         this.coordinateSystem = coordinateSystem;
         fireAreaOfInterestChangedListener();
     }
@@ -124,52 +127,21 @@ public class DefaultAreaOfInterestModel implements Cloneable{
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.
      * @param areaOfInterest The new areaOfInterest.
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public void setAreaOfInterest(
             Envelope areaOfInterest)
     {
-        this.areaOfInterest = areaOfInterest;
-        this.coordinateSystem = coordinateSystem;
-        fireAreaOfInterestChangedListener();
+        setAreaOfInterest(areaOfInterest,this.coordinateSystem);
     }
     
     /**
      * Gets the current AreaOfInterest.
      * @return Current AreaOfInterest
-     * HACK: should return a clone as direct ref to aoi could be bad.
      */
     public Envelope getAreaOfInterest(){
-        return areaOfInterest;
+        return new Envelope(areaOfInterest);
     }
-
-    /**
-     * Change the AreaOfInterest using relative parameters.
-     * Relative parameters are used so that tools do not need to know the 
-     * units of the coordinate system.
-     * For instance, if a map zooms to the left by half a map width,
-     * then deltaMinX=-0.5, deltaMaxX=-0.5, deltaMinY=0, deltaMaxY=0.
-     * @param deltaMinX The relative change in the bottom left X coordinate.
-     * @param deltaMinY The relative change in the bottom left Y coordinate.
-     * @param deltaMaxX The relative change in the top right X coordinate.
-     * @param deltaMaxY The relative change in the top right Y coordinate.
-    
-    public void changeRelativeAreaOfInterest(
-            float deltaMinX,
-            float deltaMaxX,
-            float deltaMinY,
-            float deltaMaxY)
-    {
-        Envelope newAreaOfInterest = new Envelope(
-            areaOfInterest.getMinX() + (areaOfInterest.getWidth() * deltaMinX),
-            areaOfInterest.getMaxX() + (areaOfInterest.getWidth() * deltaMaxX),
-            areaOfInterest.getMinY() + (areaOfInterest.getWidth() * deltaMinY),
-            areaOfInterest.getMaxY() + (areaOfInterest.getWidth() * deltaMaxY));
-        areaOfInterest = null;
-        areaOfInterest = newAreaOfInterest;
-        fireAreaOfInterestChangedListener();
-    }
-     */
-
 
     /**
      * Get the coordinateSystem.
@@ -180,6 +152,7 @@ public class DefaultAreaOfInterestModel implements Cloneable{
 
     /*
      * Create a copy of this class
+     * @HACK Probably need to add all the eventListeners to the cloned class.
      */
     public Object clone() {
         return new DefaultAreaOfInterestModel(
