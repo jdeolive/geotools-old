@@ -34,16 +34,17 @@ package org.geotools.resources.gcs;
 
 
 /**
- * English language resource.
+ * English language resource. This is the default language,
+ * in Geotools, which is why the "_en" suffix is ommited.
  *
- * @version 1.0
+ * @version $Id: Resources_en.java,v 1.3 2003/08/28 17:17:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources_en extends Resources {
     /**
      * The resource file, using UTF-8 encoding.
      */
-    static final String FILEPATH = "org/geotools/resources/gcs/resources_en.utf";
+    static final String FILEPATH = "org/geotools/resources/gcs/resources.utf";
     
     /**
      * Construct resources for English.

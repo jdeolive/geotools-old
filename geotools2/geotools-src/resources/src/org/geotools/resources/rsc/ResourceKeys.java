@@ -1,7 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  *
  *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
  *     Generated with: org.geotools.resources.ResourceCompiler
