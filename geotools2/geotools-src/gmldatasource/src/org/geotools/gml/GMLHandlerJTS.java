@@ -26,17 +26,17 @@ package org.geotools.gml;
  * <p>This handler must be implemented by the parent of a GMLFilterGeometry
  * filter in order to handle the JTS objects passed to it from the child.</p>
  *
- * @version $Id: GMLHandlerJTS.java,v 1.5 2002/06/05 11:14:24 loxnard Exp $
+ * @version $Id: GMLHandlerJTS.java,v 1.6 2002/07/12 17:00:42 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface GMLHandlerJTS extends org.xml.sax.ContentHandler {
     
     
     /**
-     * Recieves OGC simple feature type geometry from parent.
+     * Receives OGC simple feature type geometry from parent.
      * @param geometry the simple feature geometry
      */
-    public void geometry(com.vividsolutions.jts.geom.Geometry geometry);
+    void geometry(com.vividsolutions.jts.geom.Geometry geometry);
     
     
 }
