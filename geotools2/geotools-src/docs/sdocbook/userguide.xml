@@ -3,57 +3,21 @@
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <article id="index">
   <articleinfo>
-    <title>Geotools2 Developer Guide</title>
-
-     
-
+    <title>Geotools2 Users Guide</title>
     <authorgroup>
-       
-
       <author>
-         
-
         <firstname>James</firstname>
-
-         
-
         <surname>Macgill</surname>
-
-         
       </author>
-
-       
-
       <editor>
-         
-
         <firstname>James</firstname>
-
-         
-
         <surname>Macgill</surname>
-
-         
       </editor>
-
-       
     </authorgroup>
-
-     
-
-    <date>$Date: 2003/02/21 20:37:56 $</date>
-
-     
-
-    <edition>$Id: userguide.xml,v 1.1 2003/02/21 20:37:56 jmacgill Exp $</edition>
-
-     
-
+    <date>$Date: 2003/02/23 09:03:38 $</date>
+    <edition>$Id: userguide.xml,v 1.2 2003/02/23 09:03:38 camerons Exp $</edition>
     <abstract>
-       
-
       <para>Guide to aid <filename>geotools2</filename></para>
-
       users 
     </abstract>
   </articleinfo>
