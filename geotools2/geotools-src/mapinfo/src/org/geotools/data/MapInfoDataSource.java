@@ -17,7 +17,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package org.geotools.mapinfo;
+package org.geotools.data;
 
 import com.vividsolutions.jts.geom.*;
 
@@ -49,7 +49,7 @@ import org.geotools.styling.*;
 /**
  *
  *
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.1 $
  * @author $author$
  */
 public class MapInfoDataSource implements DataSource {
