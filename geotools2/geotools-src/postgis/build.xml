@@ -1,36 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project basedir="." default="release" name="gmldatasource">
+<project basedir="." default="release" name="postgis">
 
   <property file="build.ant.properties"/>
   <property name="dir.module" value="${basedir}"/>           
 
   <!-- Runs default build; don't modify this target and run it as default -->
-  <target name="init" if="cond.Uninitialized">
+  <target if="cond.Uninitialized" name="init">
     <condition property="cond.Uninitialized" value="false"/>           
-    <ant antfile="common.xml" dir="../gtbuild" target="externalInit" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="externalInit"/>
   </target>
 
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="release">
-    <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="all"/>
   </target>
 
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="clean">
-    <ant antfile="common.xml" dir="../gtbuild" target="clean" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="clean"/>
   </target>
 
   <!-- Now, set your module-specific build targets here -->
-  <target name="testme" depends="init">
+  <target depends="init" name="testme">
     <echo message="dir.test = ${dir.test}"/>
   </target>
 
   <!-- Tests the feature flat stuff -->
-  <target name="test" depends="release">
+  <target depends="release" name="test">
     <property name="dir.module" value="${basedir}"/>           
-    <ant antfile="common.xml" dir="../gtbuild" target="taskdefs" inheritAll="true"/>
-    <ant antfile="common.xml" dir="../gtbuild" target="compile-test" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="taskdefs"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="compile-test"/>
     <junit fork="true" printsummary="withOutAndErr">
       <formatter type="plain" usefile="false"/>
       <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
