@@ -92,7 +92,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.18 2004/01/19 22:58:25 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.19 2004/04/12 19:15:03 ianschneider Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -368,7 +368,7 @@ public class FeatureTransformer extends TransformerBase {
         public void handleFeatureReader(FeatureReader r)
             throws IOException {
             try {
-                while (r.hasNext()) {
+                while (r.hasNext() && running) {
                     Feature f = r.next();
                     handleFeature(f);
 
@@ -393,6 +393,7 @@ public class FeatureTransformer extends TransformerBase {
 
         public void startFeatureCollection() {
             try {
+                
                 String element = (getDefaultPrefix() == null) ? fc
                                                               : (getDefaultPrefix()
                     + ":" + fc);
@@ -403,6 +404,7 @@ public class FeatureTransformer extends TransformerBase {
                 }
 
                 contentHandler.startElement("", "", element, atts);
+
             } catch (SAXException se) {
                 throw new RuntimeException(se);
             }
