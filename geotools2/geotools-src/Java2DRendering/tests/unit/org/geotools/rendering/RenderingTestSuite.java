@@ -2,7 +2,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: RenderingTestSuite.java,v 1.2 2002/10/23 17:03:40 ianturton Exp $
+ * $Id: RenderingTestSuite.java,v 1.3 2002/10/25 17:03:19 ianturton Exp $
  */                
 
 package org.geotools.rendering;
@@ -11,8 +11,7 @@ import junit.framework.*;
 
 import org.geotools.styling.*;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -22,7 +21,6 @@ public class RenderingTestSuite extends TestCase {
     
     public RenderingTestSuite(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
         
     }        
     
