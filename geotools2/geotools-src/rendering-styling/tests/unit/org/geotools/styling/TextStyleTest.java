@@ -171,7 +171,7 @@ public class TextStyleTest extends junit.framework.TestCase {
 
         StyleFactory factory = StyleFactory.createStyleFactory();
         java.net.URL surl = new java.net.URL(base + "/textTest.sld");
-        SLDStyle stylereader = new SLDStyle(factory, surl);
+        SLDParser stylereader = new SLDParser(factory, surl);
         Style[] style = stylereader.readXML();
 
         return style[0];
