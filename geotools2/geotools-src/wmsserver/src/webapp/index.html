@@ -8,11 +8,11 @@
     <h1>GeoTools 2 Web Map Server</h1>
     If you can see a map in the area below this text then you have correctly
 installed the GT2WMS.<p>
-<img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green'
+<img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green&Format=image/png'
 width=400 height=200/>
 The URL used to generated the map was:<br>
-'<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green"/>
-servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green</a>'<P>
+'<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green&Format=image/png"/>
+servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green&Format=image/png</a>'<P>
 As you can see, a lot of information is passed to your servlet installation to generate the map.  For full details of what all the parts of the
 URL mean, take a look through the OpenGIS <a href="http://www.opengis.org/techno/specs/01-068r3.pdf">Web Map Server</A> specification. <p> 
 
@@ -41,20 +41,20 @@ options that you can set for fills and strokes, including opacity, patterns and 
 
 
 The following map uses a more advanced style document to shade the states based on their population:<p>
-    <img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population'
+    <img
+src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population&Format=image/png'
 width=400 height=200/> 
-<img src='servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100'
+<img src='servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100&Format=image/png'
 width='250' height='100'/>
 <p>That map was generated using :<br>
-'<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population"/>
-servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population'</a><br>
+'<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population&Format=image/png"/>
+servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=population&Format=image/png'</a><br>
 using the <a href="styles/popshade.sld">popshade</A> style document. The legend
 is drawn using the GetLegendGraphics request <a
-href="servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100">servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100</A><p>
+href="servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100&Format=image/png">servlet/gt2wms?request=getLegendGraphic&layers=USA&styles=population&width=250&height=100&Format=image/png</A><p>
 This style document adds filters to the rules so that different states are shaded in different colours.  For example:<br>
 <pre>
 &lt;Rule&gt;
-    &lt;name&gt;between 2000000 and 4000000 persons&lt;/name&gt;
     &lt;Filter xmlns:gml="http://www.opengis.net/gml"&gt;
       &lt;PropertyIsBetween&gt;
         &lt;PropertyName&gt;PERSONS&lt;/PropertyName&gt;
@@ -80,11 +80,11 @@ The filters are very powerful and can include spatial operations as well as math
 details see the OpenGIS <a href="http://www.opengis.org/techno/specs/02-059.pdf">Filter Encoding Specification.</a>
 
 The following shows an example of a spatial operation being embedded in the style document:<p>
- <img src='servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox'
+ <img src='servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox&Format=image/png'
 width=400 height=200/><br>
 This image was generated using the following URL<p>
-'<a href="servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox"/>
-servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox</a>
+'<a href="servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox&Format=image/png"/>
+servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox&Format=image/png</a>
 '<br>
 which uses the <a href="styles/normal.sld">normal</A> and <a href="styles/usa_central.sld">usa_central</A> style documents.<br>
 The interesting part is the following filter in the usa_central document:<br>
@@ -110,10 +110,10 @@ which shades only the polygons which are not disjoint from the specified boundin
 
 Expressions can also be used inside the symbolizers to control their parameters.  For example, line width can be derived from a roads attributes or, as in the following map,
 the opacity can be determined from a ratio.<p>
-<img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers'
+<img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers&Format=image/png'
 width=400 height=200/><p>
-The URL for this map is: '<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers"/>
-servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers'</A><br>
+The URL for this map is: '<a href="servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers&Format=image/png"/>
+servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers&Format=image/png'</A><br>
 and the style document is <a href="styles/normal.sld">usa_math</A><p>
 This time the important information is in the symbolizer:
 <pre>
@@ -132,10 +132,10 @@ This time the important information is in the symbolizer:
 </pre>
 Note that because the map is semi-transparent it can be combined with another map to produce a combined effect.  For example, the following map uses the same style as above as well as
  another where the colour is determined by the male/female ratio:<p>
-<img src='servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers,maleVsFemale'
+<img src='servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers,maleVsFemale&Format=image/png'
 width=400 height=200/><p>
 The URL for this map is: '
-<a href="servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers,maleVsFemale">
+<a href="servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers,maleVsFemale&Format=image/png">
 servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=manualVsWorkers,maleVsFemale</a>'<br>
 and male vs female style document is <a href="styles/usa_ratio.sld">usa_ratio</A>
 <p>
