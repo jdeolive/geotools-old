@@ -32,7 +32,7 @@ public class DatasourceTest extends TestCase implements TableChangedListener {
         //ft.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
         ft.addTableChangedListener(this);
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(50, 360, 0, 180.0);
+        EnvelopeExtent ex = new EnvelopeExtent(0, 360, 0, 180.0);
         try{
             ft.getFeatures(ex);
         }
@@ -40,6 +40,7 @@ public class DatasourceTest extends TestCase implements TableChangedListener {
             fail(e.toString());
         }
         System.out.println("Loaded: "+ft.getFeatures());
+        assertEquals(5,ft.getFeatures().length);
     }
     
     public void tableChanged(TableChangedEvent tce) {
