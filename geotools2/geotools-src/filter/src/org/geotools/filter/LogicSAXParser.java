@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LogicSAXParser.java,v 1.3 2003/01/31 18:35:38 cholmesny Exp $
+ * @version $Id: LogicSAXParser.java,v 1.4 2003/02/05 22:14:03 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LogicSAXParser {
@@ -69,7 +69,7 @@ public class LogicSAXParser {
     public void start(short logicType)
         throws IllegalFilterException {
 
-        LOGGER.finer("got a start element: " + logicType);
+        LOGGER.finer("*********************got a start element: " + logicType);
         if( this.logicType != -1) {
             logicFactory = new LogicSAXParser();
             logicFactory.start(logicType);
@@ -152,7 +152,10 @@ public class LogicSAXParser {
                     filter.addFilter( (Filter) iterator.next());
                 }
             }
+	    //reset the variables so it works right if called again.
 	    subFilters = new ArrayList();
+	    this.logicType = -1;
+	    isComplete = false;
             return filter;
         }
         else {
