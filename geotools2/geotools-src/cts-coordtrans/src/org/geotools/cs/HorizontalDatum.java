@@ -51,7 +51,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure positions on the surface of the Earth.
  *
- * @version $Id: HorizontalDatum.java,v 1.5 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: HorizontalDatum.java,v 1.6 2002/10/13 19:56:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -152,10 +152,11 @@ public class HorizontalDatum extends Datum {
      * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
-        super.addString(buffer, context);
+        // Do NOT invokes the super-class method, because
+        // horizontal datum do not write the datum type.
         buffer.append(", ");
         buffer.append(ellipsoid);
-        if (parameters!=null) {
+        if (parameters != null) {
             buffer.append(", ");
             buffer.append(parameters);
         }

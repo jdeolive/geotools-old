@@ -49,7 +49,7 @@ import java.io.Serializable;
  * where the X axis points towards the Greenwich Prime Meridian, the Y axis
  * points East, and the Z axis points North.
  *
- * @version $Id: WGS84ConversionInfo.java,v 1.2 2002/06/05 16:23:16 loxnard Exp $
+ * @version $Id: WGS84ConversionInfo.java,v 1.3 2002/10/13 19:56:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -178,8 +178,7 @@ public class WGS84ConversionInfo implements Cloneable, Serializable {
      * looks like <code>TOWGS84[dx, dy, dz, ex, ey, ez, ppm]</code>.
      */
     public String toString() {
-        final StringBuffer buffer=new StringBuffer("TOWGS84[\"");
-        buffer.append(areaOfUse); buffer.append("\", ");
+        final StringBuffer buffer=new StringBuffer("TOWGS84[");
         buffer.append(dx);        buffer.append(", ");
         buffer.append(dy);        buffer.append(", ");
         buffer.append(dz);        buffer.append(", ");

@@ -60,7 +60,7 @@ import org.geotools.resources.DescriptorNaming;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.5 2002/10/08 13:38:14 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.6 2002/10/13 19:56:17 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -408,11 +408,12 @@ final class WKTParser extends WKTFormat {
         LocalDatum   datum = parseLocalDatum(element);
         Unit          unit = parseUnit(element, Unit.METRE);
         AxisInfo      axis = parseAxis(element, true);
-        List          list = new ArrayList();  
-        AxisInfo candidate;
-        while ((candidate=parseAxis(element, false)) != null) {
-            list.add(candidate);
+        List          list = new ArrayList();
+        do {
+            list.add(axis);
+            axis = parseAxis(element, false);
         }
+        while (axis != null);
         name = parseAuthority(element, name);
         element.close();
         AxisInfo[] array = (AxisInfo[]) list.toArray(new AxisInfo[list.size()]);

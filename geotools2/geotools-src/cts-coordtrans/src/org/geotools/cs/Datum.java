@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * behavior (such as the rate of change of the orientation of the coordinate
  * axes).
  *
- * @version $Id: Datum.java,v 1.5 2002/10/10 23:14:08 desruisseaux Exp $
+ * @version $Id: Datum.java,v 1.6 2002/10/13 19:56:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -127,12 +127,14 @@ public class Datum extends Info {
     }
     
     /**
-     * Fills the part inside "[...]".
-     * Used for formatting Well Known Text (WKT).
+     * Fills the part inside "[...]". Used for formatting Well Known Text (WKT).
+     * Note: All subclasses will override this method, but only {@link HorizontalDatum}
+     *       will <strong>not</strong> invokes this parent method, because horizontal
+     *       datum do not write the datum type.
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
-        buffer.append(type.getName());
+        buffer.append(type.getValue());
         return "DATUM";
     }
     
