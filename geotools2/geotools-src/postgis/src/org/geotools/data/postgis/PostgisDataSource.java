@@ -77,7 +77,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.36 2003/10/02 22:37:51 jive Exp $
+ * @version $Id: PostgisDataSource.java,v 1.37 2003/10/24 20:14:39 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -900,8 +900,11 @@ public class PostgisDataSource extends AbstractDataSource
      */
     private String addQuotes(Object value) {
         String retString;
-        retString = "'" + value.toString() + "'";
-
+	if (value != null) {
+	    retString = "'" + value.toString() + "'";
+	} else {
+	    retString = "null";
+	}
         return retString;
     }
 
