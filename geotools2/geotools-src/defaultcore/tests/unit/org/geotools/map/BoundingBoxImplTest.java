@@ -24,15 +24,14 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.util.EventObject;
 import java.util.logging.Logger;
 import junit.framework.*;
+import org.geotools.cs.Adapters;
 import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.map.events.AreaOfInterestChangedListener;
 import org.geotools.map.BoundingBoxImpl;
-//import org.opengis.cs.CS_CoordinateSystem;
-
+import org.opengis.cs.CS_CoordinateSystem;
 
 /**
  * Unit test for BoundingBox.
@@ -41,7 +40,7 @@ import org.geotools.map.BoundingBoxImpl;
  */                                
 public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChangedListener {
     
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.map.BoundingBoxImplTest");
     
     /** flag to set and unset when an ChangeEvent is sent */
     private boolean changeEventSent=false;
@@ -51,10 +50,9 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
     
     private BoundingBoxImpl boundingBox = null;
     private Envelope envelope = null;
-    private CoordinateSystem cs = null;
+    private CS_CoordinateSystem cs = null;
     private BoundingBoxImpl bbox;
-
-
+    private Adapters adapters = Adapters.getDefault();
 
     /** 
      * Constructor with test name.
@@ -86,8 +84,9 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
     protected void setUp() {
         envelope=new Envelope(10.0,10.0,15.0,15.0);
         try {
-        cs=CoordinateSystemFactory.getDefault(
-            ).createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84);
+            cs = adapters.export(CoordinateSystemFactory.getDefault(
+            ).createGeographicCoordinateSystem("WGS84",HorizontalDatum.WGS84));
+             
             bbox=new BoundingBoxImpl(envelope,cs);
         } catch (org.geotools.cs.FactoryException e) {
             LOGGER.warning("FactoryException in setup");
@@ -107,7 +106,7 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
     }
 
     /** Test null constuctors.  Should raise an exception */
-    public void testNullConstructor(){
+    public void testNullConstructor1(){
         try {
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(null,null);
@@ -115,7 +114,10 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
             this.fail("No exception when creating using a null contructor");
         } catch (IllegalArgumentException e) {
         }
+    }
         
+    /** Test null constuctors.  Should raise an exception */
+    public void testNullConstructor2(){
         try {
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(envelope,null);
@@ -123,7 +125,10 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
             this.fail("No exception when creating using a null Bbox");
         } catch (IllegalArgumentException e) {
         }
+    }
         
+    /** Test null constuctors.  Should raise an exception */
+    public void testNullConstructor3(){
         try {
             BoundingBoxImpl bbox1=
                 new BoundingBoxImpl(null,cs);
@@ -132,7 +137,6 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
         } catch (IllegalArgumentException e) {
         }
     }
-    
     
      /** Test change of envelope triggers an event when register, and does
       * not trigger an event after deregistering */
@@ -224,5 +228,4 @@ public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChang
     public void areaOfInterestChanged(EventObject areaOfInterestChangedEvent) {
         changeEventSent=true;
     }
-    
 }
