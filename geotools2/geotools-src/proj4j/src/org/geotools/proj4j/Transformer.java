@@ -15,9 +15,9 @@ public class Transformer {
     /** Creates a new instance of Transform */
     public Transformer() {
     }
-    
+    //instead of thowing, it should probably just set MAX_VALUE for all that fail
     public void transform( Projection srcdefn, Projection dstdefn, int point_count, int point_offset,
-                  double x[], double y[], double z[] )
+                  double x[], double y[], double z[] ) throws ProjectionException
 
 {
     boolean       needDatumShift;
@@ -29,54 +29,48 @@ public class Transformer {
 /*      Transform source points to lat/long, if they aren't             */
 /*      already.                                                        */
 /* -------------------------------------------------------------------- */
-    if( !srcdefn.is_latlong )
+    if( !srcdefn.isLatLong )
     {
         for(int i = 0; i < point_count; i++ )
         {
             XY  projected_loc = new XY();
             LP	geodetic_loc = new LP();
 
-            projected_loc.u = x[point_offset*i];
-            projected_loc.v = y[point_offset*i];
+            projected_loc.x = x[point_offset*i];
+            projected_loc.y = y[point_offset*i];
 
-            geodetic_loc = pj_inv( projected_loc, srcdefn );
+            geodetic_loc = srcdefn.inverse( projected_loc );
 
-            x[point_offset*i] = geodetic_loc.u;
-            y[point_offset*i] = geodetic_loc.v;
+            x[point_offset*i] = geodetic_loc.lam;
+            y[point_offset*i] = geodetic_loc.phi;
         }
     }
     
-/* -------------------------------------------------------------------- */
-/*      Convert datums if needed, and possible.                         */
-/* -------------------------------------------------------------------- */
-    if( pj_datum_transform( srcdefn, dstdefn, point_count, point_offset, 
-                            x, y, z ) != 0 )
-        return pj_errno;
+// -------------------------------------------------------------------- 
+//      Convert datums if needed, and possible.                         
+// -------------------------------------------------------------------- 
+    datumTransform( srcdefn, dstdefn, point_count, point_offset,x, y, z );
 
-/* -------------------------------------------------------------------- */
-/*      Transform destination points to projection coordinates, if      */
-/*      desired.                                                        */
-/* -------------------------------------------------------------------- */
-    if( !dstdefn->is_latlong )
+//-------------------------------------------------------------------- 
+//      Transform destination points to projection coordinates, if      
+//      desired.                                                        
+// -------------------------------------------------------------------- 
+    if( !dstdefn.isLatLong )
     {
-        for( i = 0; i < point_count; i++ )
+        for( int i = 0; i < point_count; i++ )
         {
             XY         projected_loc;
-            LP	       geodetic_loc;
+            LP	       geodetic_loc = new LP();
 
-            geodetic_loc.u = x[point_offset*i];
-            geodetic_loc.v = y[point_offset*i];
+            geodetic_loc.lam = x[point_offset*i];
+            geodetic_loc.phi = y[point_offset*i];
 
-            projected_loc = pj_fwd( geodetic_loc, dstdefn );
-            if( pj_errno != 0 )
-                return pj_errno;
+            projected_loc = dstdefn.forward( geodetic_loc );
 
-            x[point_offset*i] = projected_loc.u;
-            y[point_offset*i] = projected_loc.v;
+            x[point_offset*i] = projected_loc.x;
+            y[point_offset*i] = projected_loc.y;
         }
     }
-
-    return 0;
 }
     
     
@@ -151,26 +145,26 @@ public class Transformer {
     {
         
         int io;
-        if( defn.datum_type == Projection.PJD_3PARAM ) {
+        if( defn.datumType == Projection.PJD_3PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 
-                x[io] = x[io] + defn.datum_params[0];
-                y[io] = y[io] + defn.datum_params[1];
-                z[io] = z[io] + defn.datum_params[2];
+                x[io] = x[io] + defn.datum.getParams()[0];
+                y[io] = y[io] + defn.datum.getParams()[1];
+                z[io] = z[io] + defn.datum.getParams()[2];
             }
         }
-        else if( defn.datum_type == Projection.PJD_7PARAM ) {
+        else if( defn.datumType == Projection.PJD_7PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 double x_out, y_out, z_out;
-                double Dx_BF = defn.datum_params[0];//not elegent!
-                double Dy_BF = defn.datum_params[1];//and possibly expensive
-                double Dz_BF = defn.datum_params[2];//sigh, no macros in Java
-                double Rx_BF = defn.datum_params[3];//...
-                double Ry_BF = defn.datum_params[4];//still, keeps it readable
-                double Rz_BF = defn.datum_params[5];//if a little verbose
-                double M_BF  = defn.datum_params[6];//could do with a better solution though.
+                double Dx_BF = defn.datum.getParams()[0];//not elegent!
+                double Dy_BF = defn.datum.getParams()[1];//and possibly expensive
+                double Dz_BF = defn.datum.getParams()[2];//sigh, no macros in Java
+                double Rx_BF = defn.datum.getParams()[3];//...
+                double Ry_BF = defn.datum.getParams()[4];//still, keeps it readable
+                double Rz_BF = defn.datum.getParams()[5];//if a little verbose
+                double M_BF  = defn.datum.getParams()[6];//could do with a better solution though.
                 x_out = M_BF*(       x[io] - Rz_BF*y[io] + Ry_BF*z[io]) + Dx_BF;
                 y_out = M_BF*( Rz_BF*x[io] +       y[io] - Rx_BF*z[io]) + Dy_BF;
                 z_out = M_BF*(-Ry_BF*x[io] + Rx_BF*y[io] +       z[io]) + Dz_BF;
@@ -188,27 +182,27 @@ public class Transformer {
     double x[], double y[], double z[] ) {
         
         int io;
-        if( defn.datum_type == Projection.PJD_3PARAM ) {
+        if( defn.datumType == Projection.PJD_3PARAM ) {
             
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 
-                x[io] = x[io] - defn.datum_params[0];
-                y[io] = y[io] - defn.datum_params[1];
-                z[io] = z[io] - defn.datum_params[2];
+                x[io] = x[io] - defn.datum.getParams()[0];
+                y[io] = y[io] - defn.datum.getParams()[1];
+                z[io] = z[io] - defn.datum.getParams()[2];
             }
         }
-        else if( defn.datum_type == Projection.PJD_7PARAM ) {
+        else if( defn.datumType == Projection.PJD_7PARAM ) {
             for(int i = 0; i < point_count; i++ ) {
                 io = i * point_offset;
                 double x_out, y_out, z_out;
-                double Dx_BF = defn.datum_params[0];//not elegent!
-                double Dy_BF = defn.datum_params[1];//and possibly expensive
-                double Dz_BF = defn.datum_params[2];//sigh, no macros in Java
-                double Rx_BF = defn.datum_params[3];//...
-                double Ry_BF = defn.datum_params[4];//still, keeps it readable
-                double Rz_BF = defn.datum_params[5];//if a little verbose
-                double M_BF  = defn.datum_params[6];//could do with a better solution though.
+                double Dx_BF = defn.datum.getParams()[0];//not elegent!
+                double Dy_BF = defn.datum.getParams()[1];//and possibly expensive
+                double Dz_BF = defn.datum.getParams()[2];//sigh, no macros in Java
+                double Rx_BF = defn.datum.getParams()[3];//...
+                double Ry_BF = defn.datum.getParams()[4];//still, keeps it readable
+                double Rz_BF = defn.datum.getParams()[5];//if a little verbose
+                double M_BF  = defn.datum.getParams()[6];//could do with a better solution though.
                 x_out = M_BF*(       x[io] + Rz_BF*y[io] - Ry_BF*z[io]) - Dx_BF;
                 y_out = M_BF*(-Rz_BF*x[io] +       y[io] + Rx_BF*z[io]) - Dy_BF;
                 z_out = M_BF*( Ry_BF*x[io] - Rx_BF*y[io] +       z[io]) - Dz_BF;
@@ -248,7 +242,7 @@ public class Transformer {
         /*	If this datum requires grid shifts, then apply it to geodetic   */
         /*      coordinates.                                                    */
         /* -------------------------------------------------------------------- */
-        if( srcdefn.datum_type == Projection.PJD_GRIDSHIFT ) {
+        if( srcdefn.datumType == Projection.PJD_GRIDSHIFT ) {
             throw new ProjectionException("Grid shifts not yet supported");
         /*
         pj_apply_gridshift( pj_param(srcdefn->params,"snadgrids").s, 0,
@@ -262,7 +256,7 @@ public class Transformer {
          */
         }
         
-        if( dstdefn.datum_type == Projection.PJD_GRIDSHIFT ) {
+        if( dstdefn.datumType == Projection.PJD_GRIDSHIFT ) {
             dst_a = SRS_WGS84_SEMIMAJOR;
             dst_es = 0.006694379990;
         }
@@ -270,10 +264,10 @@ public class Transformer {
         /* ==================================================================== */
         /*      Do we need to go through geocentric coordinates?                */
         /* ==================================================================== */
-        if( srcdefn.datum_type == Projection.PJD_3PARAM
-        || srcdefn.datum_type == Projection.PJD_7PARAM
-        || dstdefn.datum_type == Projection.PJD_3PARAM
-        || dstdefn.datum_type == Projection.PJD_7PARAM) {
+        if( srcdefn.datumType == Projection.PJD_3PARAM
+        || srcdefn.datumType == Projection.PJD_7PARAM
+        || dstdefn.datumType == Projection.PJD_3PARAM
+        || dstdefn.datumType == Projection.PJD_7PARAM) {
             /* -------------------------------------------------------------------- */
             /*      Convert to geocentric coordinates.                              */
             /* -------------------------------------------------------------------- */
@@ -284,8 +278,8 @@ public class Transformer {
             /* -------------------------------------------------------------------- */
             /*      Convert between datums.                                         */
             /* -------------------------------------------------------------------- */
-            if( srcdefn.datum_type != Projection.PJD_UNKNOWN
-            && dstdefn.datum_type != Projection.PJD_UNKNOWN ) {
+            if( srcdefn.datumType != Projection.PJD_UNKNOWN
+            && dstdefn.datumType != Projection.PJD_UNKNOWN ) {
                 geocentricToWSG84( srcdefn, point_count, point_offset,x,y,z);
                 geocentricFromWSG84( dstdefn, point_count,point_offset,x,y,z);
             }
@@ -301,7 +295,7 @@ public class Transformer {
         /* -------------------------------------------------------------------- */
         /*      Apply grid shift to destination if required.                    */
         /* -------------------------------------------------------------------- */
-        if( dstdefn.datum_type == Projection.PJD_GRIDSHIFT ) {
+        if( dstdefn.datumType == Projection.PJD_GRIDSHIFT ) {
             throw new ProjectionException("Grid shifts not yet supported");
         /*
         pj_apply_gridshift( pj_param(dstdefn->params,"snadgrids").s, 1,

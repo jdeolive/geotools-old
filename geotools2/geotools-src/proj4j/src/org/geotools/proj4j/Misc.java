@@ -101,7 +101,7 @@ public class Misc {
             }
             
             v += tv * vm[n];
-            
+            if(!tok.hasMoreTokens())return v;
             //if (n < nl) {
             //pj_errno = -16;
             //	return Double.MAX_VALUE;

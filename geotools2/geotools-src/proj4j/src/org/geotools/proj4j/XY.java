@@ -11,7 +11,7 @@ package org.geotools.proj4j;
  * @author  James Macgill
  */
 public class XY {
-    double x,y;
+    public double x,y;
     /** Creates a new instance of XY */
     public XY() {
     }

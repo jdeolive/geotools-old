@@ -11,23 +11,19 @@ package org.geotools.proj4j;
  *
  * @author  jamesm
  */
-public class Projection implements Constants {
+public abstract class Projection implements Constants {
     public static final int  PJD_UNKNOWN   =0;
     public static final int  PJD_3PARAM    =1;   /* Molodensky */
     public static final int  PJD_7PARAM    =2;   /* Molodensky */
     public static final int  PJD_GRIDSHIFT =3;
     public static final int  PJD_WGS84     =4;   /* WGS84 (or anything considered equivelent) */
-    
-    
-    
-    
-    
+   
     String descr;
     ParamSet params;
     Datum datum;
     boolean over;   /* over-range flag */
     boolean geoc;   /* geocentric latitude flag */
-    double
+    protected double
     a,  /* major axis or radius if es==0 */
     e,  /* eccentricity */
     es, /* e ^ 2 */
@@ -238,12 +234,54 @@ public class Projection implements Constants {
         }
     }
     
+    public XY forward(LP lp) throws ProjectionException{
+        XY xy = new XY();
+        double t;
+        
+        /* check for forward and latitude or longitude overange */
+        if ((t = Math.abs(lp.phi)-HALFPI) >  EPS || Math.abs(lp.lam) > 10.) {
+            xy.x = xy.y = Double.MAX_VALUE;
+            throw new ProjectionException("latitude or longitude exceeded limits "+lp.phi+" "+lp.lam);
+        } else { /* proceed with projection */
+            if (Math.abs(t) <= EPS)
+                lp.phi = lp.phi < 0. ? -HALFPI : HALFPI;
+            else if (geoc)
+                lp.phi = Math.atan(rone_es * Math.tan(lp.phi));
+            lp.lam -= lam0;	/* compute del lp.lam */
+            if (!over)
+                lp.lam = Misc.adjlon(lp.lam); /* adjust del longitude */
+            xy =  doForward(lp);//the magic line
+            /* adjust for major axis and easting/northings */
+            
+            xy.x = fr_meter * (a * xy.x + x0);
+            xy.y = fr_meter * (a * xy.y + y0);
+            
+        }
+        return xy;
+    }
+    public LP inverse(XY xy) throws ProjectionException{
+        LP lp = new LP();
+        
+        /* can't do as much preliminary checking as with forward */
+        if (xy.x == Double.MAX_VALUE || xy.y == Double.MAX_VALUE) {
+            lp.lam = lp.phi = Double.MAX_VALUE;
+            throw new ProjectionException("invalid x or y");
+            //pj_errno = -15;
+        }
+        //errno = pj_errno = 0; //this was just set, and now we clear it???
+        xy.x = (xy.x * to_meter - x0) * ra; /* descale and de-offset */
+        xy.y = (xy.y * to_meter - y0) * ra;
+        lp=doInverse(xy);
+        lp.lam += lam0; /* reduce from del lp.lam */
+        if (!over)
+            lp.lam = Misc.adjlon(lp.lam); /* adjust longitude to CM */
+        if (geoc && Math.abs(Math.abs(lp.phi)-HALFPI) > EPS)
+            lp.phi = Math.atan(one_es * Math.tan(lp.phi));
+        return lp;
+    }
     
-    
-    
-    
-    
-    
+    protected abstract XY doForward(LP lp) throws ProjectionException;
+    protected abstract LP doInverse(XY XY) throws ProjectionException;
     
     public boolean isDatumEqual(Projection test){
         if( datumType != test.datumType ) {

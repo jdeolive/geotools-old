@@ -10,7 +10,7 @@ package org.geotools.proj4j;
  *
  * @author  James Macgill
  */
-public class GeocentricException extends java.lang.Exception {
+public class GeocentricException extends ProjectionException {
 
 public static final long GEOCENT_NO_ERROR    =    0x0000;
 public static final long GEOCENT_LAT_ERROR    =   0x0001;

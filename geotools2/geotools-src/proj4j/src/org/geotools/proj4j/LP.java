@@ -5,15 +5,27 @@
  */
 
 package org.geotools.proj4j;
-
+import java.util.StringTokenizer;
 /**
  *
  * @author  James Macgill
  */
 public class LP {
-    double lam, phi;
+    public double lam, phi;
     /** Creates a new instance of LP */
-    public LP() {
+    public LP(){
     }
-
+    
+    public LP(double lam,double phi) {
+        this.lam = lam;
+        this.phi = phi;
+    }
+   
+    public LP(String coord){
+        StringTokenizer tok = new StringTokenizer(coord," ,");
+        lam = Misc.dmsToR(tok.nextToken());
+        phi = Misc.dmsToR(tok.nextToken());
+    }
+    
+    
 }
