@@ -38,7 +38,7 @@ import java.util.logging.Logger;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.3 2002/09/01 16:00:21 jmacgill Exp $
+ * @version $Id: PostgisDataSource.java,v 1.4 2002/09/01 16:01:34 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -172,9 +172,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         //_log.debug("about to loop through cols");
         // loop through all columns
         for( int i = 1, n = metaData.getColumnCount(); i <= n; i++) {
-            LOGGER.fine("reading col: " + i);
-            LOGGER.fine("reading col: " + metaData.getColumnTypeName(i));
-            LOGGER.fine("reading col: " + metaData.getColumnName(i));
+            LOGGER.finer("reading col: " + i);
+            LOGGER.finer("reading col: " + metaData.getColumnTypeName(i));
+            LOGGER.finer("reading col: " + metaData.getColumnName(i));
 
             columnTypeName = metaData.getColumnTypeName(i);
             columnName = metaData.getColumnName(i);
