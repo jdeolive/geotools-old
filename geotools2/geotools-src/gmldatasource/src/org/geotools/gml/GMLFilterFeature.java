@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.10 2002/12/27 21:55:18 cholmesny Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.11 2003/02/24 20:28:03 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -130,6 +130,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
      * @param atts The element attributes.
      * @throws SAXException Some parsing error occured while reading
      * coordinates.
+     * @task HACK:The method for determining if something is a feature or not is too crude.
      */
     public void startElement(String namespaceURI, String localName,
     String qName, Attributes atts)
@@ -143,7 +144,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             return;
         }
         // if it ends with Member we'll assume it's a feature for the time being
-        if ( localName.endsWith("Member") ) {
+        // nasty hack to fix members of multi lines and polygons
+        if ( localName.endsWith("Member") && !localName.endsWith("StringMember") && !localName.endsWith("polygonMember") ) {
             attributes = new Vector();
             attributeNames = new Vector();
             //currentFeature = new FeatureFlat();
@@ -234,7 +236,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     public void endElement(String namespaceURI, String localName, String qName)
     throws SAXException {
         
-        if (localName.endsWith("Member")) {
+        if (localName.endsWith("Member")  && !localName.endsWith("StringMember") && !localName.endsWith("polygonMember")) {
             AttributeType attDef[] = new AttributeTypeDefault[attributes.size()];
             for (int i = 0; i < attributes.size(); i++){
                 attDef[i] = new AttributeTypeDefault((String) attributeNames.get(i),attributes.get(i).getClass());

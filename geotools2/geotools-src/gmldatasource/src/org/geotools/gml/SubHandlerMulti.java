@@ -4,7 +4,7 @@
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -15,67 +15,73 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
+ *
  */
 
 package org.geotools.gml;
 
 import java.util.*;
+import java.util.logging.Logger;
 import com.vividsolutions.jts.geom.*;
 
-/** 
+/**
  * Creates a MultiPoint, MultiLineString, or MultiPolygon geometry as required
  * by the internal functions.
  *
- * @version $Id: SubHandlerMulti.java,v 1.4 2002/07/12 17:11:24 loxnard Exp $
+ * @version $Id: SubHandlerMulti.java,v 1.5 2003/02/24 20:28:04 jmacgill Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
-  */
+ */
 public class SubHandlerMulti extends SubHandler {
-
-
-    /** Geometry factory to return the multi type. */    
+    
+    /**
+     * The logger for the GML module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
+    
+    /** Geometry factory to return the multi type. */
     private GeometryFactory geometryFactory = new GeometryFactory();
-
-    /** Handler factory to return the sub type. */    
+    
+    /** Handler factory to return the sub type. */
     private SubHandlerFactory handlerFactory = new SubHandlerFactory();
-
-    /** Creates a SubHandler for the current sub type. */    
+    
+    /** Creates a SubHandler for the current sub type. */
     private SubHandler currentHandler;
-
-    /** Stores list of all sub types. */    
+    
+    /** Stores list of all sub types. */
     private List geometries = new Vector();
-
-    /** Remembers the current sub type (ie. Line, Polygon, Point). */    
+    
+    /** Remembers the current sub type (ie. Line, Polygon, Point). */
     private String internalType;
-
-    /** Remembers whether or not the internal type is set already. */    
+    
+    /** Remembers whether or not the internal type is set already. */
     private boolean internalTypeSet = false;
-
-               /**
-                * Remembers the list of all possible sub (base) types for this
-                *  multi type.
-                */    
-                private static final Collection BASE_GEOMETRY_TYPES = new Vector(java.util.Arrays.asList(new String[] {"Point", "LineString", "Polygon"}));
-
-
+    
+    /**
+     * Remembers the list of all possible sub (base) types for this
+     *  multi type.
+     */
+    private static final Collection BASE_GEOMETRY_TYPES = new Vector(java.util.Arrays.asList(new String[] {"Point", "LineString", "Polygon"}));
+    
+    
     /** Empty constructor. */
     public SubHandlerMulti() {}
     
-
-    /** 
+    
+    /**
      * Handles all internal (sub) geometries.
      *
      * @param message The sub geometry type found.
      * @param type Whether or not it is at a start or end.
-     */    
+     */
     public void subGeometry(String message, int type) {
-        
+        LOGGER.fine("subGeometry message = " + message + " type = " +type);
         // if the internal type is not yet set, set it
         if (!internalTypeSet) {
             if (BASE_GEOMETRY_TYPES.contains(message)) {
                 internalType = message;
                 internalTypeSet = true;
+                LOGGER.fine("Internal type set to "+message);
             }
         }
         
@@ -89,25 +95,32 @@ public class SubHandlerMulti extends SubHandler {
             else if (type == GEOMETRY_END) {
                 geometries.add(currentHandler.create(geometryFactory));
             }
+            else if (type == GEOMETRY_SUB) {
+                currentHandler.subGeometry(message,type);
+            }
+        }
+        else {
+            currentHandler.subGeometry(message,type);
+            LOGGER.fine(internalType + " != " + message);
         }
     }
-
-
-    /** 
+    
+    
+    /**
      * Adds a coordinate to the current internal (sub) geometry.
      *
      * @param coordinate The coordinate.
-     */    
+     */
     public void addCoordinate(Coordinate coordinate) {
         currentHandler.addCoordinate(coordinate);
     }
-
     
-    /** 
+    
+    /**
      * Determines whether or not it is time to return this geometry.
      *
      * @param message The geometry element that prompted this check.
-     */    
+     */
     public boolean isComplete(String message) {
         
         if (message.equals("Multi" + internalType)) {
@@ -117,25 +130,30 @@ public class SubHandlerMulti extends SubHandler {
             return false;
         }
     }
-
     
-    /** 
+    
+    /**
      * Returns a completed multi type.
      *
      * @param geometryFactory The factory this method should use to create
-     * the multi type. 
+     * the multi type.
      * @return Appropriate multi geometry type.
-     */    
+     */
     public Geometry create(GeometryFactory geometryFactory) {
-        
         if (internalType.equals("Point")) {
-            return geometryFactory.createMultiPoint(geometryFactory.toPointArray(geometries));
+            MultiPoint mp =  geometryFactory.createMultiPoint(geometryFactory.toPointArray(geometries));
+            LOGGER.fine("created " + mp);
+            return mp;
         }
         else if (internalType.equals("LineString")) {
-            return geometryFactory.createMultiLineString(geometryFactory.toLineStringArray(geometries));
+            MultiLineString ml =  geometryFactory.createMultiLineString(geometryFactory.toLineStringArray(geometries));
+            LOGGER.fine("created " + ml);
+            return ml;
         }
         else if (internalType.equals("Polygon")) {
-            return geometryFactory.createMultiPolygon(geometryFactory.toPolygonArray(geometries));
+            MultiPolygon mp = geometryFactory.createMultiPolygon(geometryFactory.toPolygonArray(geometries));
+            LOGGER.fine("created " + mp);
+            return mp;
         }
         else {
             return null;
