@@ -1,7 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  *
  *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
  *     Generated with: org.geotools.resources.ResourceCompiler
@@ -29,11 +28,13 @@ public interface ResourceKeys
     public static final int CLOSE                    =     0;
     public static final int COLUMNS                  =    49;
     public static final int COORDINATES_SELECTION    =    19;
+    public static final int COORDINATE_FORMAT        =    62;
     public static final int DEBUG                    =     1;
     public static final int DOWN                     =     2;
     public static final int END_TIME                 =    20;
     public static final int EVENT_LOGGER             =    37;
     public static final int EXCEPTION                =    41;
+    public static final int FORMAT                   =    60;
     public static final int GEOGRAPHIC_COORDINATES   =    21;
     public static final int GRADIENT_MASKS           =    50;
     public static final int HIDE                     =     3;
@@ -55,6 +56,7 @@ public interface ResourceKeys
     public static final int PERSONALIZED             =    54;
     public static final int PREDEFINED_KERNELS       =    55;
     public static final int PREFERRED_RESOLUTION     =    22;
+    public static final int PREVIEW                  =    61;
     public static final int PROGRESSION              =    44;
     public static final int RECTANGLE_$4             =     7;
     public static final int RESET                    =     8;
