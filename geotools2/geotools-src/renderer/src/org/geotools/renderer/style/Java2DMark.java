@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * Utility class that will return the Shape for well known marks
  *
  * @author Ian Turton
- * @version $Id: Java2DMark.java,v 1.1 2003/06/13 18:21:45 aaime Exp $
+ * @version $Id: Java2DMark.java,v 1.2 2003/10/17 21:37:38 jmacgill Exp $
  */
 public class Java2DMark {
     /** The logger for the rendering module. */
@@ -93,7 +93,7 @@ public class Java2DMark {
         arrow.lineTo(0f, -.5f);
     }
 
-    static Shape getWellKnownMark(String wellKnownName) {
+    public static Shape getWellKnownMark(String wellKnownName) {
         LOGGER.finer("fetching mark of name " + wellKnownName);
 
         if (wellKnownName.equalsIgnoreCase("cross")) {
