@@ -30,7 +30,7 @@ import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * @version $Id: DefaultMap.java,v 1.4 2002/06/04 16:49:54 loxnard Exp $
+ * @version $Id: DefaultMap.java,v 1.5 2002/07/11 17:16:28 loxnard Exp $
  * @author James Macgill, CCG
  */
 public class DefaultMap implements org.geotools.map.Map {
@@ -42,19 +42,19 @@ public class DefaultMap implements org.geotools.map.Map {
     }
 
     public void addFeatureTable(FeatureCollection ft, Style style) {
-        tables.put(ft,style);
+        tables.put(ft, style);
     }
     
     public void render(Renderer renderer, Envelope envelope) {
         java.util.Enumeration layers = tables.keys();
-        while(layers.hasMoreElements()){
-            FeatureCollection ft = (FeatureCollection)layers.nextElement();
-            Style style = (Style)tables.get(ft);
-            try{
+        while (layers.hasMoreElements()){
+            FeatureCollection ft = (FeatureCollection) layers.nextElement();
+            Style style = (Style) tables.get(ft);
+            try {
                 Feature[] features = ft.getFeatures(new EnvelopeExtent(envelope));//TODO: this could be a bottle neck
-                renderer.render(features,envelope,style);
+                renderer.render(features, envelope, style);
             }
-            catch(DataSourceException dse){
+            catch (DataSourceException dse){
                 //HACK: should deal with this exception properly
                 //HACK: or ensure that there is a method in feature table we can call without fear
                 System.err.println(dse);
