@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+  <section>
+    <title id="map">map</title>
+
+    <figure>
+      <title>Map Context</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/defaultcore/MapContext.png" />
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para><emphasis>MapContext</emphasis> stores geographic information in a
+    series of <emphasis>MapState</emphasis> classes: Layers, Area of Interest,
+    Coordinate System etc. <emphasis>MapState</emphasis> classes send events
+    to interested objects when it&#39;s data changes.</para>
+
+    <para>Multiple <emphasis>MapContext</emphasis> objects can be created
+    using similar components in order to create widgets which share common
+    components. For example. A display may contain two <emphasis>MapPanes</emphasis>
+    which show the same area but use different basemaps. This would be
+    achieved by building two <emphasis>MapContexts</emphasis> which use the
+    same extent <emphasis>Envelope</emphasis> but use different
+    <emphasis>LayerLists</emphasis>.</para>
+
+    <para><emphasis>MapContext</emphasis> is based on the OGC Web Map Context
+    Specification which means <emphasis>MapContext</emphasis> can be stored as
+    XML and recreated by other applications which implement the OGC Web Map
+    Context Specification.</para>
+  </section>

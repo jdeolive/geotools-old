@@ -1,0 +1,154 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+  <section>
+    <title id="modulefilter">filter</title>
+
+    <section>
+      <title>Overview</title>
+
+      <para>This package establishes a common internal feature model for
+      GeoTools2 code. A common internal feature model is important as a target
+      for data sources and all common functionality for vector data found
+      within GT2. The most generic approach would be to pass all feature
+      attributes as objects and use Java variable and method references to
+      access them. However, this is also the most useless approach because it
+      establishes no unified methods for getting and setting attribute
+      information (since it is totally Object dependent), without elaborate
+      (and inefficient) reflection and introspection. The GT2 feature model
+      roughly (and imperfectly) follows the <ulink
+      url="http://www.isotc211.org/pow.htm">ISO TC211</ulink> standards for
+      geographic features: it most closely resembles the Geography Markup
+      Language actualization of abstract ISO standards. The GT2 feature model
+      also borrows heavily from the design of existing open source
+      feature-oriented toolkits. In particular, the design of the excellent
+      C++ <ulink url="http://remotesensing.org/gdal/">GDAL</ulink> library and
+      advice from Frank Warnerdam (its creator) were influential in the GT2
+      design.</para>
+
+      <para>This package answers the question: How do we represent features
+      within GT2? Of course, the most general answer would be: features can be
+      any Java object. However, this is also the least useful solution because
+      it means that users of features have essentially no way to find out
+      about the meaning of features via GT2. This is too cumbersome and is
+      insufficient for the goal of creating a simple framework for
+      manipulating and accessing generic geographic data.The opposite approach
+      might be to define a very constrained set of possible attributes (that,
+      for example, mirrored Java primitives and OGC simple geometries) and
+      only allow features of this type. This package takes a different
+      approach: it defines a minimal ontology for representing a feature and
+      serves as a consistent framework for defining more constrained (and,
+      therefore, often more meaningful) feature types. Furthermore, it creates
+      a simple baseline implementation of the feature interface (known as the
+      flat feature) for use in GT2.</para>
+
+      <figure>
+        <title>Feature Model Class Diagram</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata width="100" fileref="images/defaultcore/feature.png"
+            format="PNG" align="right" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+    </section>
+
+    <section>
+      <title>Feature</title>
+
+      <para>The feature interface forms a flexible framework to define and
+      consistently access feature attributes. Unlike its FeatureType
+      counterpart, this interface does not attempt to serve as a typing
+      framework. The feature interface is intended to be as simple as
+      possible. The slightly more complex FeatureType and Feature interfaces
+      work together to give implementers a framework for constraining and
+      enforcing constraints (respectively) on allowed feature types. As such,
+      this interface is as general as possible in terms of the types of
+      objects to which it provides access. All features contain zero or more
+      attributes, which can have one or more occurrences inside the feature.
+      Attributes may be any valid Java object. If attributes are instances of
+      Feature, they are handled specially by the Feature methods, in that
+      their attributes may be accessed directly by their containing feature.
+      All other object variables and methods must be accessed through the
+      objects themselves. A feature will never reach a state where its
+      attributes (or sub-attributes) do not conform to their FeatureType
+      definitions.</para>
+    </section>
+
+    <section>
+      <title>Feature Types</title>
+
+      <para>Feature types serve as a metadata template for a feature of
+      arbitrary complexity. FeatureType represent features as an object that
+      contains zero or more attribute objects, one of which should be a
+      geometry. Note that instances of implementations of this class are
+      henceforth referred to as schemas. With one exception, the type of an
+      attribute is considered to be its cannonical definition by the
+      FeatureType. For example, an attribute type might be a
+      javax.sound.midi.Sequence object, which contains a float public field
+      called PPQ.The fact that this attribute exists is not known by the
+      FeatureType itself. If a caller asks this FeatureType for all of its
+      attributes, the FeatureType will tell the caller that it has an
+      attribute of type javax.sound.midi.Sequence, but not that this attribute
+      has a sub-attribute (field) called PPQ. It is the responsibility of the
+      callers to understand the objects it is asking for and manipulate them
+      appropriately. The sole exception is if the type stored in the
+      FeatureType is a org.geotools.datasource.Feature type.In this case, all
+      information about sub-attributes are stored and passed to calling
+      classes upon request. The style of reference (XPath) is defined in and
+      mediated by FeatureType implementations.</para>
+
+      <para>FeatureTypes are be implemented as immutable objects. All setting
+      methods return schemas that are clones of the schema object, rather than
+      the object itself. This is the reason that the FeatureType interface
+      extends the Cloneable interface. FeatureType contains two special
+      methods for handling geometries. The primary geometry retrieval methods
+      are in Feature because they may change over the life of the feature,
+      while the schema may not. XPath is the standard used to access all
+      attributes (flat, nested, and multiple), via a single, unified string.
+      Using XPath to access attributes has the convenient side-benefit of
+      making them appear to be non-nested and non-multiple to callers with no
+      awareness of XPath. This greatly simplifies accessing and manipulating
+      data.</para>
+    </section>
+
+    <section>
+      <title>Geometry Model</title>
+
+      <para>For James Macgill to write.</para>
+    </section>
+
+    <section>
+      <title>Flat Features</title>
+
+      <para>Because of their extreme flexibility, forcing all GT2 code to
+      support all possible feature types would require a near-infinite amount
+      of work. For example, all features may theoretically contain media
+      objects, or other similarly complex types that would be impossible to
+      serialize to GML. Or features, may contain arbitrarily deep nesting of
+      attributes, which would make importing or exporting to most types of
+      data sources (for example, Shapefiles), an impossibility. For this
+      reason, the only current implementation of the feature interface is what
+      the GT2 team terms a &#39;flat&#39; implementation. This implementation
+      is more or less akin to an ESRI shapefile in structure. It has the
+      following constraints:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Each flat feature has a single geometry.</para>
+        </listitem>
+      </itemizedlist>
+
+      <itemizedlist>
+        <listitem>
+          <para>Each flat feature has zero or more other non-nested
+          attributes, which are Java primitives.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>The vast majority of GT2 code is geared to operate on flat
+      features, but due to the generality of the feature interfaces, the GT2
+      core retains the capability to deal with more complex feature models.</para>
+    </section>
+  </section>

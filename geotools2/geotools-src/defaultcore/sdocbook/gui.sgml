@@ -1,0 +1,126 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+  <section>
+    <title id="gui">gui</title>
+
+    <para>gui - a suite of visual components for navigating and displaying
+    maps produced by a renderer.</para>
+
+    <section>
+      <title>Model-View-Controller</title>
+
+      <figure>
+        <title>Model View Controller</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/defaultcore/ModelViewController.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The Geotools2 dispay objects use a <emphasis>Model-View-Controller</emphasis>
+      design pattern. Context is the model, GeoWidgets like MapPane are the
+      viewers, and Tools like the ZoomTool are the controllers.</para>
+
+      <para>This design ensures the same data can be displayed in many ways
+      and the rendering technology is independant of the data.</para>
+
+      <para><emphasis>GeoWidgets</emphasis> register with data objects they
+      are interested in then redraw themselves when they recieve
+      <emphasis>dataChangedEvents</emphasis>. For example, the
+      <emphasis>Legend</emphasis> widget registers interest with the
+      <emphasis>LayerList</emphasis> object. When a new Layer is added,
+      removed or selected, the <emphasis>Legend</emphasis> recieves a
+      <emphasis>LayerListChangedEvent</emphasis> and redraws itself.</para>
+    </section>
+
+    <section>
+      <title id="geowidgets">GeoWidgets</title>
+
+      <figure>
+        <title>Widget Factory</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/defaultcore/WidgetFactory.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>Classes that display Geotools data are called
+      <emphasis>GeoWidgets</emphasis>. Examples include:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>MapPane, this is the main widget which displays an image of
+          geographic map.</para>
+        </listitem>
+
+        <listitem>
+          <para>LocatorMap, similar to the MapPane, but has a static basemap
+          and shows a box showing the <emphasis>area of interest</emphasis>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Legend, shows a list of layers.</para>
+        </listitem>
+
+        <listitem>
+          <para>etc.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>To create GeoWidgets, applications should use
+      <emphasis>WidgetFactory</emphasis>. This uses an Abstract Factory design
+      pattern which ensures that calling applications are not dependant the
+      rendering technology chosen.</para>
+    </section>
+
+    <section>
+      <title id="rendering">Rendering</title>
+
+      <para>Rendering objects in Geotools2 are independant of data objects and
+      the calling applications. This design allows multiple
+      <emphasis>rendering</emphasis> implimentations. Consequently Geotools
+      can have rendering for Swing, AWT, and Palm Pilot technologies.</para>
+
+      <figure>
+        <title>Rendering</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/defaultcore/Rendering.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para>The swing rendering model uses cached RenderedFeatures to speed up
+      rendering. <emphasis>RenderedFeature</emphasis> speeds up rendering by
+      ensuring styling and coordinate transforms are only applied to features
+      one.</para>
+    </section>
+
+    <section>
+      <title id="tools">Tools</title>
+
+      <figure>
+        <title>Tools</title>
+
+        <mediaobject>
+          <imageobject>
+            <imagedata fileref="images/defaultcore/Tools.png" />
+          </imageobject>
+        </mediaobject>
+      </figure>
+
+      <para><emphasis>Tools</emphasis> process key and mouse action events for
+      <emphasis>GeoWidgets</emphasis>. Different Tools can be applied to
+      <emphasis>GeoWidgets</emphasis> to trigger different behaviour. For
+      example, when a <emphasis>ZoomTool</emphasis> is applied to
+      <emphasis>MapPane</emphasis>, mouse click and drag will create a box and
+      then zoom the extent into that box. When <emphasis>PanTool</emphasis> is
+      used, the entire map drags around the screen during a click and drag.</para>
+    </section>
+  </section>
