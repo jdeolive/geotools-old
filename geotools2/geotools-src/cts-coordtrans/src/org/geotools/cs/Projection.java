@@ -44,7 +44,7 @@ import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.DescriptorNaming;
 import org.geotools.ct.MissingParameterException;
-//import org.geotools.ct.MathTransformProvider;
+import org.geotools.ct.MathTransformProvider;
 
 // Parameters
 import javax.media.jai.ParameterList;
@@ -128,9 +128,8 @@ public class Projection extends Info {
      * classification, then a default descriptor is used.
      */
     static ParameterList getParameterList(final String classification) {
-        return null; // TODO
-//      return Naming.PROJECTIONS.getParameterList(classification,
-//              MathTransformProvider.DEFAULT_PROJECTION_DESCRIPTOR);
+        return DescriptorNaming.PROJECTIONS.getParameterList(classification,
+                MathTransformProvider.DEFAULT_PROJECTION_DESCRIPTOR);
     }
     
     /**
