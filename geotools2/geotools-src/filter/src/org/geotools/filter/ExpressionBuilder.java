@@ -94,7 +94,7 @@ public class ExpressionBuilder {
                 item = popStack();
                 return (Expression) item.built;
             } catch (ClassCastException cce) {
-                throw new ExpressionException("Current node not expression",item.token);
+                throw new ExpressionException("Expecting Expression, but found Filter",item.token);
             } catch (EmptyStackException ese) {
                 throw new ExpressionException("No items on stack",getToken(0));
             }
@@ -106,7 +106,7 @@ public class ExpressionBuilder {
                 item = popStack();
                 return (Filter) item.built;
             } catch (ClassCastException cce) {
-                throw new ExpressionException("Current node not filter",item.token);
+                throw new ExpressionException("Expecting Filter, but found Expression",item.token);
             } catch (EmptyStackException ese) {
                 throw new ExpressionException("No items on stack",getToken(0));
             }
@@ -116,7 +116,7 @@ public class ExpressionBuilder {
             try {
                 return ((Number) expression().getValue(null)).doubleValue();
             } catch (ClassCastException cce) {
-                throw new ExpressionException("Current node not double",getToken(0));
+                throw new ExpressionException("Expected double",getToken(0));
             }
         }
         
@@ -124,7 +124,7 @@ public class ExpressionBuilder {
             try {
                 return ((Number) expression().getValue(null)).intValue();
             } catch (ClassCastException cce) {
-                throw new ExpressionException("Current node not int",getToken(0));
+                throw new ExpressionException("Expected int",getToken(0));
             }
         }
         
@@ -328,6 +328,19 @@ public class ExpressionBuilder {
                     throw new ExpressionException("Exception building LikeFilter",getToken(0),ife);
                 }
                 return f;
+            } else if ("null".equalsIgnoreCase(function) || "isNull".equalsIgnoreCase(function)) {
+                NullFilter nf = factory.createNullFilter();
+                Expression e = expression();
+                
+                try {
+                    if (e instanceof LiteralExpression) {
+                        e = factory.createAttributeExpression(null, ((LiteralExpression)e).getValue(null).toString() );
+                    }
+                    nf.nullCheckValue(e);
+                } catch (IllegalFilterException ife) {
+                    throw new ExpressionException("Exception building NullFilter",getToken(0),ife);
+                }
+                return nf;
             }
             
             short geometryFilterType = lookupGeometryFilter(function);
@@ -344,7 +357,7 @@ public class ExpressionBuilder {
             java.lang.reflect.Field[] f = AbstractFilter.class.getFields();
             name = name.toUpperCase();
             for (int i = 0, ii = f.length; i < ii; i++) {
-                if (f[i].getName().endsWith(name)) 
+                if (f[i].getName().endsWith(name))
                     try {return f[i].getShort(null);} catch (Exception e) {}
             }
             return -1;
@@ -373,5 +386,23 @@ public class ExpressionBuilder {
         }
     }
     
-    
+    public static final void main(String[] args) throws Exception {
+        System.out.println("Expression Tester");
+        BufferedReader r = new BufferedReader(new InputStreamReader(System.in));
+        FilterTransformer t = new FilterTransformer();
+        t.setPrettyPrint(true);
+        while (true) {
+            System.out.print("> ");
+            String line = r.readLine();
+            if (line.equals("quit"))
+                break;
+            try {
+                Object b = ExpressionBuilder.parse(line);
+                t.transform(b, System.out);
+                System.out.println();
+            } catch (ParseException pe) {
+                System.out.println(ExpressionBuilder.getFormattedErrorMessage(pe, line));
+            }
+        } 
+    }
 }

@@ -63,13 +63,13 @@ MORE:
 <IN_SQ>
 TOKEN:
 { 
-  <SQ_STRING : "'"> { matchedToken.image = image.toString(); } : DEFAULT
+  <SQ_STRING : "'"> { matchedToken.image = image.substring(1,image.length() -1); } : DEFAULT
 }
 
 <IN_DQ>
 TOKEN:
 {
-  <DQ_STRING : "\""> { matchedToken.image = image.toString(); } : DEFAULT
+  <DQ_STRING : "\""> { matchedToken.image = image.substring(1,image.length() -1); } : DEFAULT
 }
 
 <IN_SQ>
@@ -101,7 +101,6 @@ TOKEN [IGNORE_CASE]:  /* keywords */
 
 TOKEN [IGNORE_CASE]: /* geometry markers */
 {
-  //< GEOMETRY: <POINT> | <LINESTRING> | <POLYGON> | <MULTIPOINT> | <MULTILINESTRING> | <MULTIPOLYGON> | <GEOMETRYCOLLECTION>> |
   < POINT: "point"> |
   < LINESTRING: "linestring"> |
   < POLYGON: "polygon"> |
@@ -294,28 +293,6 @@ void FunctionArg() #void:
 {
   Literal() | Attribute()
 }
-
-/*
-JAVACODE
-Token skipToEnd() {
-    Token wkt = getToken(0);
-    Token t = wkt;
-    int nesting = 1;
-    while (nesting > 0) {
-      t = getNextToken();
-      if (t.kind == LP) nesting++;
-      if (t.kind == RP) nesting--;
-    }
-    return wkt;
-}
-
-void Geometry() #WKTNode:
-{}
-{
-  jjtThis.token = <GEOMETRY>
-  <LP> skipToEnd()
-}
-*/
 
 void Geometry() #void:
 {}
