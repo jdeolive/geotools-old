@@ -246,7 +246,9 @@ public class LineFormat {
          */
   load: while (true) {
             while (true) {
-                if (lower>=upper) break load;
+                if (lower >= upper) {
+                    break load;
+                }
                 if (!Character.isWhitespace(line.charAt(lower))) break;
                 lower++;
             }
@@ -258,8 +260,8 @@ public class LineFormat {
             final Object datum=format[Math.min(count, format.length-1)].parseObject(line, position);
             final int next=position.getIndex();
             if (datum==null || next<=lower) {
-                final int error=position.getErrorIndex();
-                int end=error;
+                final int error = position.getErrorIndex();
+                int end = error;
                 while (end<upper && !Character.isWhitespace(line.charAt(end))) end++;
                 throw new ParseException(Resources.format(ResourceKeys.ERROR_PARSE_EXCEPTION_$2, line.substring(lower, end).trim(), line.substring(error, Math.min(error+1, end))), error);
             }
@@ -267,13 +269,13 @@ public class LineFormat {
              * Mémorise la nouvelle donnée, en agrandissant
              * l'espace réservée en mémoire si c'est nécessaire.
              */
-            if (count>=data.length) {
+            if (count >= data.length) {
                 data   = XArray.resize(data,   count+Math.min(count, 256));
                 limits = XArray.resize(limits, data.length+1);
             }
-            limits[count]=lower;
-            data[count++]=datum;
-            lower=next;
+            limits[count] = lower;
+            data[count++] = datum;
+            lower = next;
         }
         limits[count]=lower;
         return count;
@@ -294,20 +296,20 @@ public class LineFormat {
      * sera ajouté à la fin des données existante et une colonne sera ajoutée.
      *
      * @param  index Index de la donnée à modifier ou ajouter.
-     * @param  Value Nouvelle valeur à retenir.
+     * @param  value Nouvelle valeur à retenir.
      * @throws ArrayIndexOutOfBoundsException si l'index est en dehors de la plage permise.
      */
     public synchronized void setValue(final int index, final Object value)
         throws ArrayIndexOutOfBoundsException
     {
-        if (index>count) {
+        if (index > count) {
             throw new ArrayIndexOutOfBoundsException(index);
         }
-        if (value==null) {
+        if (value == null) {
             throw new NullPointerException();
         }
-        if (index==count) {
-            if (index==data.length) {
+        if (index == count) {
+            if (index == data.length) {
                 data = XArray.resize(data, index+Math.min(index, 256));
             }
             count++;
@@ -325,7 +327,7 @@ public class LineFormat {
      * @throws ArrayIndexOutOfBoundsException si l'index est en dehors de la plage permise.
      */
     public synchronized Object getValue(final int index) throws ArrayIndexOutOfBoundsException {
-        if (index<count) {
+        if (index < count) {
             return data[index];
         }
         throw new ArrayIndexOutOfBoundsException(index);

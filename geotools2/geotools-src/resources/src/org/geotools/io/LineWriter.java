@@ -49,7 +49,7 @@ import org.geotools.resources.XArray;
  * explicitly set at construction time. This writer also remove trailing blanks
  * before end of lines.
  *
- * @version $Id: LineWriter.java,v 1.3 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: LineWriter.java,v 1.4 2003/07/11 16:56:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LineWriter extends FilterWriter {
@@ -258,7 +258,7 @@ public class LineWriter extends FilterWriter {
     /**
      * Write a portion of an array of characters.
      *
-     * @param  buffer  Buffer of characters to be written
+     * @param  cbuf    Buffer of characters to be written
      * @param  offset  Offset from which to start reading characters
      * @param  length  Number of characters to be written
      * @throws IOException  If an I/O error occurs

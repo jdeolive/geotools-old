@@ -107,7 +107,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.5 2003/05/30 18:26:46 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.6 2003/07/11 16:59:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
@@ -178,7 +178,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.5 2003/05/30 18:26:46 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.6 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -558,7 +558,8 @@ public class CoordinateChooser extends JPanel {
      * any listeners that the accessory might have registered with the
      * coordinate chooser.
      *
-     * @param The accessory component, or <code>null</code> to remove any previous accessory.
+     * @param accessory The accessory component, or <code>null</code>
+     *        to remove any previous accessory.
      *
      * @deprecated This method doesn't bring any new feature. You can do
      *             the same with better results using the following code:

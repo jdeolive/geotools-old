@@ -103,7 +103,7 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.9 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.10 2003/07/11 16:56:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -395,7 +395,7 @@ public class MonolineFormatter extends Formatter {
         }
         try {
             writer.setLineSeparator(bodyLineSeparator);
-            writer.write(formatMessage(record));
+            writer.write(String.valueOf(formatMessage(record)));
             writer.setLineSeparator(lineSeparator);
             writer.write('\n');
             writer.flush();

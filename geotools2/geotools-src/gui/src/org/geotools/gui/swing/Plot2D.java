@@ -95,7 +95,7 @@ import org.geotools.resources.XMath;
  * <p align="center"><img src="doc-files/Plot2D.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
+ * @version $Id: Plot2D.java,v 1.5 2003/07/11 16:59:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see <A HREF="http://jgraph.sourceforge.net/">JGraph</A>
@@ -137,7 +137,7 @@ public class Plot2D extends ZoomPane {
      * but not necessarly in the same order.
      *
      * @see #newAxis
-     * @see #addSeries(Series)
+     * @see #addSeries
      */
     private final List xAxis = new ArrayList(3);
 
@@ -147,7 +147,7 @@ public class Plot2D extends ZoomPane {
      * but not necessarly in the same order.
      *
      * @see #newAxis
-     * @see #addSeries(Series)
+     * @see #addSeries
      */
     private final List yAxis = new ArrayList(3);
 
@@ -156,7 +156,7 @@ public class Plot2D extends ZoomPane {
      * <code>Entry</code> objects with the <var>x</var> and <var>y</var> axis to use
      * for the series.
      *
-     * @see #addSeries(Series)
+     * @see #addSeries
      */
     private final Map series = new LinkedHashMap();
 
@@ -262,7 +262,7 @@ public class Plot2D extends ZoomPane {
     }
 
     /**
-     * Advises that the next series to be added with {@link #addSeries(Series) addSeries(...)}
+     * Advises that the next series to be added with {@link #addSeries addSeries(...)}
      * should uses a new axis for the specified dimension. Dimension 0 is for the <var>x</var>
      * axis while dimension 1 is for the <var>y</var> axis. If this method is never invoked,
      * then <code>addSeries(...)</code> will automatically create untitled axis.
@@ -749,7 +749,7 @@ public class Plot2D extends ZoomPane {
      * data to draw as a {@link Shape}. It also contains the {@link Paint} and {@link Stroke}
      * attributes.
      *
-     * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.5 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Series {
@@ -794,7 +794,7 @@ public class Plot2D extends ZoomPane {
     /**
      * Default implementation of {@link Plot2D.Series}.
      *
-     * @version $Id: Plot2D.java,v 1.4 2003/06/04 18:15:34 desruisseaux Exp $
+     * @version $Id: Plot2D.java,v 1.5 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class DefaultSeries extends GenericArray implements Series {

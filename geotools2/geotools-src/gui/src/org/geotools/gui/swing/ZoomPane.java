@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.12 2003/06/25 12:58:06 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -543,7 +543,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * contextual menu appear).  It will listen out for changes in the size
      * of the component (to adjust the zoom), etc.
      *
-     * @version $Id: ZoomPane.java,v 1.12 2003/06/25 12:58:06 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners extends MouseAdapter implements MouseWheelListener,
@@ -1427,7 +1427,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * The default implementation always returns a
      * {@link java.awt.geom.Rectangle2D} object.
      *
-     * @param  event Logical coordinates of the mouse at the moment the button
+     * @param  point Logical coordinates of the mouse at the moment the button
      *         is pressed. This information can be used by derived classes
      *         that wish to consider the mouse position before choosing a
      *         geometric shape.
@@ -1661,7 +1661,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * place the user clicked when this menu was invoked.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.12 2003/06/25 12:58:06 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
      */
     private static final class PointPopupMenu extends JPopupMenu {
         /**
@@ -1844,7 +1844,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * class is not used because it is difficult to get {@link JViewport} to
      * cooperate with transformations already handled by {@link ZoomPane#zoom}.
      *
-     * @version $Id: ZoomPane.java,v 1.12 2003/06/25 12:58:06 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ScrollPane extends JComponent implements PropertyChangeListener {
@@ -2025,7 +2025,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * <code>ZoomPane</code> object.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.12 2003/06/25 12:58:06 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
      */
     private final class Synchronizer implements ChangeListener, ZoomChangeListener {
         /**

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="ISO-8859-1"?>
 
 <project>
   <pomVersion>3</pomVersion>
@@ -16,7 +16,7 @@
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>none</organization>
+      <organization>Institut de recherche pour le développement</organization>
       <roles>
         <role>Module Maintainer</role>
         <role>Java Developer</role>

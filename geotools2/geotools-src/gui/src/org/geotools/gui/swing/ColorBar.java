@@ -97,7 +97,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><img src="doc-files/ColorBar.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ColorBar.java,v 1.7 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.8 2003/07/11 16:59:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -234,7 +234,7 @@ public class ColorBar extends JComponent {
     /**
      * Returns the colors painted by this <code>ColorBar</code>.
      * 
-     * @param colors The colors (never <code>null</code>).
+     * @return The colors (never <code>null</code>).
      */
     public Color[] getColors() {
         return (colors.length!=0) ? (Color[])colors.clone() : colors;
@@ -269,8 +269,6 @@ public class ColorBar extends JComponent {
      * Sets the colors to paint from an {@link IndexColorModel}.
      *
      * @param model The colors to paint.
-     * @param lower First color index to paint, inclusive.
-     * @param upper Last  color index to paint, exclusive.
      * @return <code>true</code> if the state of this <code>ColorBar</code>
      *         changed as a result of this call.
      *
@@ -774,7 +772,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.7 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.8 2003/07/11 16:59:33 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {
