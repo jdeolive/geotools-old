@@ -99,7 +99,7 @@ public class DefaultQuery implements Query {
      */
     public DefaultQuery(String typeName, Filter filter, int maxFeatures,
         String[] propNames, String handle) {
-        this(filter, propertyNames);
+        this(filter, propNames);
         this.maxFeatures = maxFeatures;
         this.handle = handle;
     }
@@ -139,7 +139,7 @@ public class DefaultQuery implements Query {
      * @param propNames The names of attributes to load from the datasouce.
      */
     public void setPropertyNames(String[] propNames) {
-        this.properties = propertyNames;
+        this.properties = propNames;
     }
 
     /**
