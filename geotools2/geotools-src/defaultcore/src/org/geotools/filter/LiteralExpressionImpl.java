@@ -28,10 +28,10 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.1 2002/10/24 12:03:17 ianturton Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LiteralExpressionImpl extends DefaultExpressionImpl {
+public class LiteralExpressionImpl extends DefaultExpression implements LiteralExpression { 
 
 
     /** Holds a reference to the literal. */

@@ -14,7 +14,7 @@ import org.geotools.feature.*;
  *
  * @author  James
  */
-public abstract class FunctionExpressionImpl extends org.geotools.filter.DefaultExpressionImpl {
+public abstract class FunctionExpressionImpl extends org.geotools.filter.DefaultExpression implements FunctionExpression {
     
     /** Creates a new instance of FunctionExpression */
     public FunctionExpressionImpl() {

@@ -31,12 +31,12 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
+ * @version $Id: LikeFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LikeFilterImpl extends AbstractFilterImpl {
+public class LikeFilterImpl extends AbstractFilterImpl implements LikeFilter {
 
-    /**
+    /** 
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
@@ -77,7 +77,7 @@ public class LikeFilterImpl extends AbstractFilterImpl {
     public void setValue(Expression attribute)
         throws IllegalFilterException {
         
-        if( (attribute.getType() != DefaultExpressionImpl.ATTRIBUTE_STRING) ||
+        if( (attribute.getType() != DefaultExpression.ATTRIBUTE_STRING) ||
             permissiveConstruction ) {
             this.attribute = attribute;
         }

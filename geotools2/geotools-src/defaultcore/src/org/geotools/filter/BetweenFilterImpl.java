@@ -36,10 +36,10 @@ import org.geotools.feature.*;
  * is enforced by the FilterAbstract class, which considers a BETWEEN operator
  * to be a math filter.
  * 
- * @version $Id: BetweenFilterImpl.java,v 1.1 2002/10/24 12:02:57 ianturton Exp $
+ * @version $Id: BetweenFilterImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class BetweenFilterImpl extends CompareFilterImpl {
+public class BetweenFilterImpl extends CompareFilterImpl implements BetweenFilter {
 
     /** The 'middle' value, which must be an attribute expression. */
     protected Expression middleValue = null;
@@ -60,8 +60,7 @@ public class BetweenFilterImpl extends CompareFilterImpl {
      * @param middleValue The value of this 
      * @throws IllegalFilterException Filter is illegal.
      */
-    public void addMiddleValue(Expression middleValue)
-        throws IllegalFilterException {
+    public void addMiddleValue(Expression middleValue) {
         
             this.middleValue = middleValue;
 

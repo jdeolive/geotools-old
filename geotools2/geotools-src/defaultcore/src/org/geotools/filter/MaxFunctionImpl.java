@@ -12,12 +12,12 @@ import org.geotools.feature.Feature;
  *
  * @author  James
  */
-public class MaxFunctionImpl extends org.geotools.filter.FunctionExpressionImpl {
+public class MaxFunctionImpl extends MathExpressionImpl implements MaxFunction {
     
     Expression a,b;
     
     /** Creates a new instance of MinFunction */
-    public MaxFunctionImpl() {
+    public MaxFunctionImpl() { 
     }
     
     

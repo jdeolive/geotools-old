@@ -26,10 +26,10 @@ import org.geotools.feature.*;
 /**
  * Defines a null filter, which checks to see if an attribute is null.
  *
- * @version $Id: NullFilterImpl.java,v 1.1 2002/10/24 12:03:26 ianturton Exp $
+ * @version $Id: NullFilterImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class NullFilterImpl extends AbstractFilterImpl {
+public class NullFilterImpl extends AbstractFilterImpl implements NullFilter {
 
     /** The null check value, which must be an attribute expression. */
     protected Expression nullCheck = null;
@@ -37,7 +37,7 @@ public class NullFilterImpl extends AbstractFilterImpl {
 
     /**
      * Constructor which flags the operator as between.
-     */
+     */ 
     public NullFilterImpl () {
         filterType = NULL;
     }

@@ -34,10 +34,10 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilterImpl.java,v 1.1 2002/10/24 12:03:26 ianturton Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class LogicFilterImpl extends AbstractFilterImpl {
+public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
 
     /** The logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
@@ -49,7 +49,7 @@ public class LogicFilterImpl extends AbstractFilterImpl {
     /**
      * Constructor with type (must be valid).
      *
-     * @param filterType The final relation between all sub filters.
+     * @param filterType The final relation between all sub filters. 
      */
     public LogicFilterImpl (short filterType)
         throws IllegalFilterException {

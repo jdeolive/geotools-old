@@ -12,7 +12,7 @@ import org.geotools.feature.Feature;
  *
  * @author  James
  */
-public class MinFunctionImpl extends org.geotools.filter.FunctionExpressionImpl {
+public class MinFunctionImpl extends org.geotools.filter.MathExpressionImpl implements MinFunction {
     
     Expression a,b;
     

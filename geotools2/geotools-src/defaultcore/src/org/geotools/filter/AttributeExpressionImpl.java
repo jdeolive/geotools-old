@@ -34,15 +34,15 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.1 2002/10/24 12:02:57 ianturton Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class AttributeExpressionImpl extends DefaultExpressionImpl {
+public class AttributeExpressionImpl extends DefaultExpression implements AttributeExpression {  
 
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core"); 
 
     /** Holds all sub filters of this filter. */
     protected String attributePath = new String();

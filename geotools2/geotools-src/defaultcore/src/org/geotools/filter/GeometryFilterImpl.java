@@ -44,16 +44,16 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class GeometryFilterImpl extends AbstractFilterImpl {
+public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFilter {
 
     /** Class logger */
     private static final Logger LOGGER =  Logger.getLogger("org.geotools.filter");
 
     /** Holds the 'left' value of this comparison filter. */
-    protected Expression leftGeometry = null;
+    protected Expression leftGeometry = null; 
 
     /** Holds the 'right' value of this comparison filter. */
     protected Expression rightGeometry = null;
@@ -88,7 +88,7 @@ public class GeometryFilterImpl extends AbstractFilterImpl {
         throws IllegalFilterException {
         
         // Checks if this is geometry filter or not and handles appropriately
-        if (DefaultExpressionImpl.isGeometryExpression(leftGeometry.getType())  ||
+        if (DefaultExpression.isGeometryExpression(leftGeometry.getType())  ||
             permissiveConstruction) {
             this.leftGeometry = leftGeometry;
         }
@@ -108,7 +108,7 @@ public class GeometryFilterImpl extends AbstractFilterImpl {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if (DefaultExpressionImpl.isGeometryExpression(rightGeometry.getType()) ||
+        if (DefaultExpression.isGeometryExpression(rightGeometry.getType()) ||
             permissiveConstruction) {
             this.rightGeometry = rightGeometry;
         }

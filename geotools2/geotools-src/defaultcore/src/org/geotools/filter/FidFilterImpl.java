@@ -37,10 +37,10 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilterImpl.java,v 1.1 2002/10/24 12:02:57 ianturton Exp $
+ * @version $Id: FidFilterImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class FidFilterImpl extends AbstractFilterImpl {
+public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
 
     /** Logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");

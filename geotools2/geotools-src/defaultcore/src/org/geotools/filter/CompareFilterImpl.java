@@ -45,10 +45,10 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class CompareFilterImpl extends AbstractFilterImpl {
+public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilter { 
 
     /**
      * The logger for the default core module.
@@ -92,7 +92,7 @@ public class CompareFilterImpl extends AbstractFilterImpl {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (DefaultExpressionImpl.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.leftValue = leftValue;
             }
@@ -119,7 +119,7 @@ public class CompareFilterImpl extends AbstractFilterImpl {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (DefaultExpressionImpl.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.rightValue = rightValue;
             }
