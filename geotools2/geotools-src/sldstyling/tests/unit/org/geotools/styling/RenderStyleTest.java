@@ -117,7 +117,9 @@ public class RenderStyleTest extends TestCase {
         File f = new File(dataFolder,"sample.sld");
         
         System.out.println("testing reader using "+f.toString());
-        SLDStyle style = new SLDStyle(f);
+        StyleFactory factory = StyleFactory.createStyleFactory();
+        SLDStyle stylereader = new SLDStyle(factory,f);
+        Style style = stylereader.readXML();
         
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();

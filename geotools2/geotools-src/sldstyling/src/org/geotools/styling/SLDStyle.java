@@ -40,38 +40,29 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.24 2002/10/17 16:54:28 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.25 2002/10/21 16:12:58 ianturton Exp $
  * @author Ian Turton
  */
-public class SLDStyle implements org.geotools.styling.Style {
+public class SLDStyle {
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.styling");
-    private String abstractStr = new String();
-    private String name = new String();
-    private String title = new String();
-    private ArrayList fts = new ArrayList();
-    private boolean defaultB;
     private InputStream instream;
     private Document dom;
     private StyleFactory factory;
     
-    public SLDStyle(){
-        try{
-            factory = StyleFactory.createStyleFactory();
-        } catch (Exception e){
-            System.err.println("Exception creating StyleFactory " + e);
-        }
+    public SLDStyle(StyleFactory factory){
+        this.factory = factory;
+        
     }
     /**
      * Creates a new instance of SLDStyler
      * 
      * @param filename The file to be read.
      */
-    public SLDStyle(String filename) {
-        this();
+    public SLDStyle(StyleFactory factory, String filename) {
+        this(factory);
         File f = new File(filename);
         setInput(f);
-        readXML();
     }
 
     /**
@@ -79,10 +70,9 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param f the File to be read
      */
-    public SLDStyle(File f) {
-        this();
+    public SLDStyle(StyleFactory factory, File f) {
+        this(factory);
         setInput(f);
-        readXML();
     }
 
     /**
@@ -90,10 +80,9 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param url the URL to be read.
      */
-    public SLDStyle(URL url) {
-        this();
+    public SLDStyle(StyleFactory factory, URL url) {
+        this(factory);
         setInput(url);
-        readXML();
     }
 
     /**
@@ -101,13 +90,21 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param s The inputstream to be read
      */
-    public SLDStyle(InputStream s) {
-        this();
+    public SLDStyle(StyleFactory factory, InputStream s) {
+        this(factory);
         instream = s;
-        readXML();
     }
-
-    private void setInput(File f) {
+    
+    public void setInput(String filename) {
+        try {
+            instream = new FileInputStream(new File(filename));
+        } catch (FileNotFoundException e) {
+            System.out.println("file " + filename + " not found\n" + e);
+            instream = null;
+        }
+    }
+    
+    public void setInput(File f) {
         try {
             instream = new FileInputStream(f);
         } catch (FileNotFoundException e) {
@@ -116,7 +113,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         }
     }
 
-    private void setInput(URL url) {
+    public void setInput(URL url) {
         try {
             instream = url.openStream();
         } catch (IOException e) {
@@ -125,102 +122,11 @@ public class SLDStyle implements org.geotools.styling.Style {
         }
     }
 
-    /**
-     * Fetches the abstract associated with this SLD style
-     * 
-     * @return The abstract
-     */
-    public String getAbstract() {
-        return abstractStr;
+    public void setInput(InputStream in) {
+        instream = in;
     }
-
-    public void addFeatureTypeStyle(FeatureTypeStyle ft) {
-        fts.add(ft);
-    }
-
-    /**
-     * Fetches the featureTypeStyles used in this style
-     * 
-     * @return an array of FeatureTypeStyle
-     */
-    public FeatureTypeStyle[] getFeatureTypeStyles() {
-        return (FeatureTypeStyle[]) fts.toArray(new FeatureTypeStyle[0]);
-    }
-    public void setFeatureTypeStyles(FeatureTypeStyle[] types) {
-        fts = new ArrayList();
-        for(int i=0;i<types.length;i++){
-            fts.add(types[i]);
-        }
-    }
-    /**
-     * get the name of the style
-     * 
-     * @return the name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Get the title of the style
-     * 
-     * @return the title
-     */
-    public String getTitle() {
-        return title;
-    }
-
-    /**
-     * Determines if this style is a default style
-     * 
-     * @return true if the style is a default
-     */
-    public boolean isDefault() {
-        return defaultB;
-    }
-    public void setIsDefault(boolean db){
-        defaultB = db;
-    }
-    /**
-     * Setter for property name.
-     * 
-     * @param name New value of property name.
-     */
-    public void setName(java.lang.String name) {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("setting name " + name);
-        }
-
-        this.name = name;
-    }
-
-    /**
-     * Setter for property abstractStr.
-     * 
-     * @param abstractStr New value of property abstractStr.
-     */
-    public void setAbstract(java.lang.String abstractStr) {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("setting abstract " + abstractStr);
-        }
-
-        this.abstractStr = abstractStr;
-    }
-
-    /**
-     * Setter for property title.
-     * 
-     * @param title New value of property title.
-     */
-    public void setTitle(java.lang.String title) {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("setting title " + title);
-        }
-
-        this.title = title;
-    }
-
-    private void readXML() {
+    
+    public Style readXML() {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -228,7 +134,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         } catch (Exception e) {
             System.out.println("exception in sldStyler " + e);
         }
-
+        Style style = factory.createStyle();
         // for our next trick do something with the dom.
         NodeList nodes = dom.getElementsByTagName("UserStyle");
 
@@ -259,21 +165,23 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("Name")) {
-                setName(child.getFirstChild().getNodeValue());
+                style.setName(child.getFirstChild().getNodeValue());
             }
 
             if (child.getNodeName().equalsIgnoreCase("Title")) {
-                setTitle(child.getFirstChild().getNodeValue());
+                style.setTitle(child.getFirstChild().getNodeValue());
             }
 
             if (child.getNodeName().equalsIgnoreCase("Abstract")) {
-                setAbstract(child.getFirstChild().getNodeValue());
+                style.setAbstract(child.getFirstChild().getNodeValue());
             }
-
+ 
             if (child.getNodeName().equalsIgnoreCase("FeatureTypeStyle")) {
-                addFeatureTypeStyle(parseFeatureTypeStyle(child));
+                style.addFeatureTypeStyle(parseFeatureTypeStyle(child)); 
             }
         }
+        
+        return style;
     }
 
     private FeatureTypeStyle parseFeatureTypeStyle(Node style) {
