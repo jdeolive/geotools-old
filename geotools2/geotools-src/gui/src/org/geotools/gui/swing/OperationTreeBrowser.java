@@ -41,7 +41,10 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.renderable.RenderableImage;
 import java.awt.image.RenderedImage;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -51,12 +54,14 @@ import java.awt.Dimension;
 import javax.media.jai.OperationNode;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.PropertySource;
 
 // Geotools dependencies
 import org.geotools.resources.Utilities;
 import org.geotools.resources.SwingUtilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
+import org.geotools.gui.swing.tree.TreeNode;
 import org.geotools.gui.swing.tree.NamedTreeNode;
 import org.geotools.gui.swing.tree.MutableTreeNode;
 import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
@@ -67,27 +72,33 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * tree. Each source image is a children node (with potentially their own source images and/or
  * parameters) and each parameter is a children leaf.
  *
- * @version $Id: OperationTreeBrowser.java,v 1.1 2003/07/26 11:19:30 desruisseaux Exp $
+ * @version $Id: OperationTreeBrowser.java,v 1.2 2003/07/27 21:27:00 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
  */
 public class OperationTreeBrowser extends JPanel {
     /**
+     * The image properties viewer.
+     */
+    private final ImageProperties imageProperties = new ImageProperties();
+
+    /**
      * Construct a new browser for the given image.
      *
      * @param source The last image from the rendering chain to browse.
      */
-    public OperationTreeBrowser(RenderedImage source) {
+    public OperationTreeBrowser(final RenderedImage source) {
         super(new BorderLayout());
         final JTree tree = new JTree(getTree(source, getDefaultLocale()));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setBorder(BorderFactory.createEmptyBorder(6,6,0,0));
 
-        final JLabel parameters = new JLabel("Parameter block (work in progress)");
         final JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                                new JScrollPane(tree), parameters);
+                                                new JScrollPane(tree), imageProperties);
         add(split, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(500,200));
+        setPreferredSize(new Dimension(600,250));
+        final Listeners listeners = new Listeners();
+        tree.addTreeSelectionListener(listeners);
     }
 
     /**
@@ -174,6 +185,37 @@ public class OperationTreeBrowser extends JPanel {
                 name = resources.getString(ResourceKeys.PARAMETER_$1, new Integer(i));
             }
             root.add(new NamedTreeNode(name, param.getObjectParameter(i), false));
+        }
+    }
+
+    /**
+     * The listener for various event in the {@link OperationTreeBrowser} widget.
+     *
+     * @version $Id: OperationTreeBrowser.java,v 1.2 2003/07/27 21:27:00 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private final class Listeners implements TreeSelectionListener {
+        /** 
+         * Called whenever the value of the selection changes.
+         */
+        public void valueChanged(final TreeSelectionEvent event) {
+            Object selection = null;
+            final TreePath path = event.getPath();
+            if (path != null) {
+                selection = path.getLastPathComponent();
+                if (selection instanceof TreeNode) {
+                    selection = ((TreeNode) selection).getUserObject();
+                }
+            }
+            if (selection instanceof RenderedImage) {
+                imageProperties.setImage((RenderedImage) selection);
+            } else if (selection instanceof RenderableImage) {
+                imageProperties.setImage((RenderableImage) selection);
+            } else if (selection instanceof PropertySource) {
+                imageProperties.setImage((PropertySource) selection);
+            } else {
+                imageProperties.setImage((PropertySource) null);
+            }
         }
     }
 
