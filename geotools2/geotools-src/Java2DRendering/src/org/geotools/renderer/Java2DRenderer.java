@@ -58,7 +58,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.82 2003/06/16 12:02:39 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.83 2003/06/23 11:08:59 ianturton Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -74,7 +74,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * rendered.
      */
     private Context context;
-    private java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
+    protected java.util.LinkedHashMap renderedObjects = new LinkedHashMap();
 
     /**
      * Flag which determines if the renderer is interactive or not. An
@@ -253,8 +253,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
         for (int l = 0; l < this.context.getLayerList().getLayers().length;
                 l++) {
             if (!this.context.getLayerList().getLayers()[l].getVisability()) {
-                // Only render layer when layer is visable
-                break;
+                // Only render layer when layer is visible
+                continue;
             }
 
             FeatureCollection fc = new FeatureCollectionDefault(context.getLayerList()
@@ -536,7 +536,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * @param symbolizers An array of symbolizers which actually perform the
      *        rendering.
      */
-    private void processSymbolizers(final Feature feature,
+    protected void processSymbolizers(final Feature feature,
         final Symbolizer[] symbolizers) {
         for (int m = 0; m < symbolizers.length; m++) {
             if (LOGGER.isLoggable(Level.FINE)) {
