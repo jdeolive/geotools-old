@@ -17,6 +17,9 @@ import junit.framework.TestSuite;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import java.io.StreamTokenizer;
+import java.io.StringReader;
+import java.util.Date;
 
 /**
  *
@@ -244,23 +247,88 @@ public class AttributeTypeTest extends TestCase {
     public void testBigNumberSupport() throws Exception {
         AttributeType decimal = AttributeTypeFactory.newAttributeType("decimal", BigDecimal.class,true);
         AttributeType integer = AttributeTypeFactory.newAttributeType("integer", BigInteger.class,true);
+
+        BigDecimal decimalValue = new BigDecimal(200);
+        BigInteger integerValue = new BigInteger("200");
+        Object[] vals = new Object[] {
+          "200",
+          new Integer(200),
+          new Double(200),
+          new Long(200),
+          decimalValue
+        };
         
-        Number parsed = (Number) decimal.parse("200");
-        assertEquals(200,parsed.intValue());
-        assertEquals(BigDecimal.class, parsed.getClass());
         
-        parsed = (Number) decimal.parse(new Integer(200));
-        assertEquals(200,parsed.intValue());
-        assertEquals(BigDecimal.class, parsed.getClass());
+        // BigDecimal tests
+        for (int i = 0, ii = vals.length; i < ii; i++) {
+            checkNumericAttributeSetting(decimal, vals[i], decimalValue);
+        }
         
-        parsed = (Number) integer.parse("200");
-        assertEquals(200,parsed.intValue());
-        assertEquals(BigInteger.class, parsed.getClass());
         
-        parsed = (Number) integer.parse(new Double(200));
-        assertEquals(200,parsed.intValue());
-        assertEquals(BigInteger.class, parsed.getClass());
+        // BigInteger tests
+        for (int i = 0, ii = vals.length; i < ii; i++) {
+            checkNumericAttributeSetting(decimal, vals[i], integerValue);
+        }
+        
+        checkNull(decimal);
+        checkNull(integer);
     }
+    
+    private void checkNull(AttributeType type) {
+        if (type.isNillable()) {
+            assertNull(type.parse(null));
+            type.validate(null);
+        }
+    }
+    
+    private void checkNumericAttributeSetting(AttributeType type,Object value,Number expected) {
+        Number parsed = (Number) type.parse(value);
+        type.validate(parsed);
+        assertEquals(parsed.intValue(),expected.intValue());
+    }
+    
+    public void testTextualSupport() throws Exception {
+        AttributeType textual = AttributeTypeFactory.newAttributeType("textual",String.class,true);
+        
+        Object[] vals = new Object[] {
+            "stringValue",
+            new StringBuffer("stringValue"),
+            new Date(System.currentTimeMillis()),
+            new Long(1000000)
+        };
+        for (int i = 0, ii = vals.length; i < ii; i++) {
+            Object p = textual.parse(vals[i]);
+            textual.validate(p);
+            assertEquals(p.getClass(),String.class);
+        }
+        
+        checkNull(textual);
+    }
+    
+    public void textTemporalSupport() throws Exception {
+        AttributeType temporal = AttributeTypeFactory.newAttributeType("temporal",Date.class,true);
+        
+        Date d = new Date();
+        
+        Object[] vals = new Object[] {
+          new String(d.toString()),
+          new Date(),
+          new Long(d.getTime())
+        };
+        
+        for (int i = 0, ii = vals.length; i < ii; i++) {
+            checkTemporalAttributeSetting(temporal, vals[i], d);
+        }
+        
+        checkNull(temporal);
+    }
+    
+    private void checkTemporalAttributeSetting(AttributeType type,Object value,Date expected) {
+        Object p = type.parse(value);
+        type.validate(p);
+        assertEquals(expected,p);
+    }
+    
     
     
 }
