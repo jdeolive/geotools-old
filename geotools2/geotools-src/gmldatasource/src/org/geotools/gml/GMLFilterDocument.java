@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * <p></p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: GMLFilterDocument.java,v 1.10 2003/08/14 18:35:05 cholmesny Exp $
+ * @version $Id: GMLFilterDocument.java,v 1.11 2003/12/10 20:54:29 cholmesny Exp $
  */
 public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
     /** The logger for the GML module */
@@ -145,10 +145,13 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
                 coordinateReader.insideCoord(true);
                 buffer = new StringBuffer();
             } else if (X_NAME.equals(localName)) {
+                buffer = new StringBuffer();
                 coordinateReader.insideX(true);
             } else if (Y_NAME.equals(localName)) {
+                buffer = new StringBuffer();
                 coordinateReader.insideY(true);
             } else if (Z_NAME.equals(localName)) {
+                buffer = new StringBuffer();
                 coordinateReader.insideZ(true);
             } else {
                 parent.startElement(namespaceURI, localName, qName, atts);
@@ -257,10 +260,13 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
                 coordinateReader.readCoord(buffer.toString());
                 coordinateReader.insideCoord(false);
             } else if (X_NAME.equals(localName)) {
+                coordinateReader.readCoord(buffer.toString());
                 coordinateReader.insideX(false);
             } else if (Y_NAME.equals(localName)) {
+                coordinateReader.readCoord(buffer.toString());
                 coordinateReader.insideY(false);
             } else if (Z_NAME.equals(localName)) {
+                coordinateReader.readCoord(buffer.toString());
                 coordinateReader.insideZ(false);
             } else if (!namespaceAware) {
                 /* if not namespace aware, then just pass element through;
@@ -479,8 +485,8 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
                     parent.gmlCoordinates(x.doubleValue(), y.doubleValue(),
                         z.doubleValue());
                 }
-                 //else {
 
+                //else {
                 x = new Double(Double.NaN);
                 y = new Double(Double.NaN);
                 z = new Double(Double.NaN);
