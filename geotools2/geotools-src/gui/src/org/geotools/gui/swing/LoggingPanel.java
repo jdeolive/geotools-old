@@ -88,10 +88,15 @@ import org.geotools.resources.SwingUtilities;
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.7 2002/09/08 15:29:27 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.8 2003/04/30 22:05:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
+    /**
+     * The background color for the columns prior to the logging message.
+     */
+    private static final Color INFO_BACKGROUND = new Color(240,240,240);
+
     /**
      * The model for this component.
      */
@@ -159,9 +164,10 @@ public class LoggingPanel extends JPanel {
         new AutoScroll(scroll.getVerticalScrollBar().getModel());
         add(scroll, BorderLayout.CENTER);
 
-        setLevelColor(Level.CONFIG,  new Color(0, 128, 0), null);
-        setLevelColor(Level.WARNING, Color.RED,            null);
-        setLevelColor(Level.SEVERE,  Color.WHITE,     Color.RED);
+        setLevelColor(Level.ALL,     Color.GRAY,       null);
+        setLevelColor(Level.CONFIG,  null,             null);
+        setLevelColor(Level.WARNING, Color.RED,        null);
+        setLevelColor(Level.SEVERE,  Color.WHITE, Color.RED);
     }
 
     /**
@@ -421,9 +427,9 @@ public class LoggingPanel extends JPanel {
             Color background = this.background;
             final boolean isMessage = (columnIndex == messageColumn);
             if (!isMessage) {
-                foreground = Color.GRAY;
+                background = INFO_BACKGROUND;
             }
-            else if (rowIndex >= 0) {
+            if (rowIndex >= 0) {
                 final TableModel candidate = table.getModel();
                 if (candidate instanceof LoggingTableModel) {
                     final LoggingTableModel model = (LoggingTableModel) candidate;
