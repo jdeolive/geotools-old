@@ -65,7 +65,7 @@ public class WMSServlet extends HttpServlet {
     public static final String PARAM_EXCEPTIONS		= "EXCEPTIONS";
     public static final String PARAM_TIME			= "TIME";
     public static final String PARAM_ELEVATION		= "ELEVATION";
-    
+    public static final String PARAM_USECACHE       = "USECACHE";
     // GetFeatureInfo parameters
     public static final String PARAM_QUERY_LAYERS	= "QUERY_LAYERS";
     public static final String PARAM_INFO_FORMAT	= "INFO_FORMAT";
@@ -223,14 +223,17 @@ public class WMSServlet extends HttpServlet {
         BufferedImage image;
         String exceptions = getParameter(request, PARAM_EXCEPTIONS);
         String format = getParameter(request, PARAM_FORMAT);
+        String nocache = getParameter(request, PARAM_USECACHE); 
+        boolean useCache = true;
+        if(nocache!=null && nocache.trim().equalsIgnoreCase("false")) useCache=false;
         if(format == null){
             format = DEFAULT_FORMAT;
         }
         CacheKey key = new CacheKey(request);
-        LOGGER.fine("About to request map with key = " + key);
-        // this needs to be something nicer than request.getQueryString as it should ignore format and order and case
+        LOGGER.fine("About to request map with key = " + key + " usecache "+useCache);
+        
         if(((image = (BufferedImage)nationalMaps.get(key))==null) &&
-            ((image = (BufferedImage)allMaps.get(key))==null)){
+            ((image = (BufferedImage)allMaps.get(key))==null)||useCache==false){
             // Get the requested exception mime-type (if any)
 
             try {
@@ -689,6 +692,7 @@ public class WMSServlet extends HttpServlet {
         
         // Parse the string
         color = color.replace('#', ' ');
+        color = color.replaceAll("0x",""); // incase they passed in 0XFFFFFF instead like cubewerx do
         try {
             LOGGER.fine("decoding "+color);
             return new Color(Integer.parseInt(color.trim(), 16));
@@ -702,6 +706,8 @@ public class WMSServlet extends HttpServlet {
     private void clearCache(){
         allMaps = new LRUMap(CACHE_SIZE);
         allMaps = Collections.synchronizedMap(allMaps);
+        nationalMaps = new HashMap();
+        nationalMaps = Collections.synchronizedMap(nationalMaps);
     }
     
     class CacheKey{
@@ -731,7 +737,7 @@ public class WMSServlet extends HttpServlet {
             for(int i = 0; i < layers.length; i++){
                 key += layers[i].toLowerCase().hashCode();
                 LOGGER.finest("layer "+ layers[i] + " key = " + key);
-                if(i < styles.length){
+                if(styles!=null&&i < styles.length){
                     key += styles[i].toLowerCase().hashCode();
                     LOGGER.finest("style "+ styles[i] + " key = " + key);
                 }
