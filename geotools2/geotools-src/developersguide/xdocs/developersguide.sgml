@@ -14,7 +14,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/27 02:31:50 $</date>
+    <date>$Date: 2002/07/28 20:05:32 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -44,6 +44,13 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       Low level modules, like DataSource, can be used as base classes by
       external Geographic Applications.</para>
 
+      <para>Each module has its own home page which provides an overview of the
+      module, contact details for the modules developer, a list of all develoeprs
+      and contributors, dependancy information, full javadocs, unit test reports
+      and lists of outstanding tasks.  A full list of the module homepages can
+      be found at <ulink url="http://modules.geotools.org"> modules.geotools.org
+      </ulink>.</para>
+      
       <para>Geotools derived its directory structure from <ulink
       url="http://www.netbeans.org">Netbeans</ulink>.</para>
 
@@ -314,11 +321,11 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.22 2002/07/27 02:31:50 camerons Exp $</emphasis>.
+          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.23 2002/07/28 20:05:32 jmacgill Exp $</emphasis>.
           When you commit your file into CVS, this will be expanded to
           something like:</para>
 
-          <para>$Id: developersguide.sgml,v 1.22 2002/07/27 02:31:50 camerons Exp $</para>
+          <para>$Id: developersguide.sgml,v 1.23 2002/07/28 20:05:32 jmacgill Exp $</para>
         </listitem>
       </orderedlist>
     </section>
