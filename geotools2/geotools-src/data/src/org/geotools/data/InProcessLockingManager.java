@@ -389,13 +389,15 @@ public class InProcessLockingManager implements LockingManager {
      * @return true if lock exists for authID
      */
     public boolean lockExists(String authID) {
+        if( authID == null ) return false;
+        
         Lock lock;
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
             lock = (Lock) i.next();
 
             if (lock.isExpired()) {
                 i.remove();
-            } else if (authID == null || lock.isMatch(authID)) {
+            } else if (lock.isMatch(authID)) {
                 return true;
             }
         }
