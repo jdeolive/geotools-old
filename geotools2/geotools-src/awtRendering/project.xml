@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-awtrendering</name>
+  <id>awtrendering</id>
+  <logo>/images/awtrendering.gif</logo>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+    <logo>/images/gtLogo.gif</logo>
+  </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>awtrendering module</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>awtrendering module.</description>
+  <url>http://www.geotols.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/awtrendering</connection>
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/awtrendering/</url>
+  </repository>
+  
+
+  <mailingLists/>
+  <developers>
+    <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+        
+    </developers>
+  <dependencies>
+    <dependency>
+      <id>core</id>
+      <version>0.1</version>
+    </dependency>
+    </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+      <sourceDirectory>src/</sourceDirectory>
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+  </build>
+</project>
+
