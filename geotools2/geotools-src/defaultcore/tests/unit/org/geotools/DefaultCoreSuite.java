@@ -11,6 +11,7 @@ import junit.framework.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.filter.*;
+import org.geotools.styling.*;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -40,6 +41,7 @@ public class DefaultCoreSuite extends TestCase {
         suite.addTestSuite(FeatureFlatTest.class);
         suite.addTestSuite(ExpressionTest.class);
         suite.addTestSuite(FilterTest.class);
+        suite.addTestSuite(TextSymbolTest.class); 
         return suite;
     }
 }

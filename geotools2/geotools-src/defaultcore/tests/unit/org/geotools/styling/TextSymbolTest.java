@@ -96,6 +96,7 @@ public class TextSymbolTest extends TestCase {
         //an SLD document and not by hand
         
         org.geotools.styling.FontImpl font = new org.geotools.styling.FontImpl();
+        
         font.setFontFamily(new ExpressionLiteral(dataFolder + "geog.ttf"));
         font.setFontSize(new ExpressionAttribute(pointType, "size"));
         
