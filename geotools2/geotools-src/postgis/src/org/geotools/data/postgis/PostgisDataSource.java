@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.11 2002/12/26 18:40:21 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.12 2003/01/07 19:00:32 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -228,7 +228,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
         //LOGGER.fine("the postgis-created schema is: " 
 	//+ FeatureTypeFactory.create(attributes).toString());
-        FeatureType retSchema =  FeatureTypeFactory.create(attributes);
+	FeatureType retSchema =  
+	    FeatureTypeFactory.create(attributes).setTypeName(tableName);
 	if (retSchema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
 	    //((FeatureTypeFlat)retFeature).setSRID(srid); 
 	    // first way depends on static srid, which could change if another
@@ -237,7 +238,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	  int srid = querySRID(db, tableName);
 	((FeatureTypeFlat)retSchema).setSRID(srid);
 	}
-	retSchema = retSchema.setTypeName(tableName);
 	return retSchema;
     }
 
