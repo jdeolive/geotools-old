@@ -29,10 +29,16 @@ import org.apache.log4j.BasicConfigurator;
  * @author James
  */
 public class SVGTest extends TestCase {
-    
+    String dataFolder;
     public SVGTest(java.lang.String testName) {
         super(testName);
         BasicConfigurator.configure();
+        dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
     }
     
     public static void main(java.lang.String[] args) {
@@ -47,7 +53,7 @@ public class SVGTest extends TestCase {
    public void testGenerateSVG(){
        GenerateSVG gen = new GenerateSVG();
       try{
-            String dataFolder = System.getProperty("dataFolder");
+            
             URL url = new URL("file:///"+dataFolder+"/simple.gml");
             DataSource ds = new GMLDataSource(url);
             FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
@@ -59,7 +65,7 @@ public class SVGTest extends TestCase {
 
             //fc.getFeatures(r);
             
-            File f = new File(System.getProperty("dataFolder"),"simple.sld");
+            File f = new File(dataFolder,"simple.sld");
        
             Map map = new DefaultMap();
             
