@@ -27,6 +27,7 @@ import org.apache.log4j.Category;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
+import org.geotools.filter.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 
@@ -35,7 +36,7 @@ import org.geotools.datasource.extents.EnvelopeExtent;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: DataSourcePostgis.java,v 1.3 2002/06/28 15:42:54 jmacgill Exp $
+ * @version $Id: DataSourcePostgis.java,v 1.4 2002/07/30 22:32:22 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class DataSourcePostgis implements org.geotools.data.DataSource {
@@ -48,10 +49,11 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
     
     /** Initializes to clean Postgis database requests of SRID part. */
     
-    // NEEDS TO BE GENERALIZED, JUST TEMPORARY
+    
     /**
      * GID.  Since all layers may contain only one primary geometry
      * (i.e. geometry or geom collection), this is the same as a row ID
+     * @task HACK: GID NEEDS TO BE GENERALIZED, JUST TEMPORARY
      */
     private static final String GID_NAME = "objectid";
     
@@ -178,8 +180,9 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
      *
      * @param geometry The PostGIS WKT + SRID string representation of the
      * geometry.
+     * @task: TODO, regardless of query, makeSql fetches everything at the moment
      */ 
-    private String makeSql(Extent query) {        
+    private String makeSql(Filter query) {        
         return "SELECT * FROM " + tableName + ";";
     }
 
@@ -196,8 +199,104 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
     public void importFeatures(org.geotools.feature.FeatureCollection collection, 
                                org.geotools.data.Extent query) 
         throws DataSourceException {
+       
+
+    }
+
+
+
+    // TODO 2:
+    // Implement these functions
+    public void exportFeatures(FeatureCollection features, Extent query) 
+        throws DataSourceException {
+    }
+    
+    public void stopLoading() {
+    }
+    
+
+
+
+
+    /**
+     * Closes the result set.  Child class must remember to call.
+     *
+     * @param result The servlet request object.
+     */ 
+    protected static void closeResultSet(ResultSet result) {
         
-        List features = new ArrayList(maxFeatures);
+        try {
+            result.close();			
+            result.getStatement().close();			
+            result.getStatement().getConnection().close();			
+        }
+        catch (SQLException e) {
+            _log.info("Error closing result set.");
+        } 
+    }
+
+    /** Stops this DataSource from loading.
+     */
+    public void abortLoading() {
+    }    
+    
+    /** Adds all features from the passed feature collection to the datasource.
+     *
+     * @param collection The collection from which to add the features.
+     * @throws DataSourceException If anything goes wrong or if exporting is
+     * not supported.
+     */
+    public void addFeatures(FeatureCollection collection) throws DataSourceException {
+    }    
+    
+    /** Gets the bounding box of this datasource using the default speed of
+     * this datasource as set by the implementer.
+     *
+     * @return The bounding box of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Envelope getBbox() {
+        return null;
+    }
+    
+    /** Gets the bounding box of this datasource using the speed of
+     * this datasource as set by the parameter.
+     *
+     * @param speed If true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but accurate extent
+     * will be returned
+     * @return The extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Envelope getBbox(boolean speed) {
+        return null;
+    }
+    
+    /** Loads features from the datasource into the returned collection, based on
+     * the passed filter.
+     *
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @return Collection The collection to put the features into.
+     * @throws DataSourceException For all data source errors.
+     */
+    public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
+         
+       FeatureCollectionDefault col = new FeatureCollectionDefault();
+       getFeatures(col,filter);
+       return col;
+       
+    }
+    
+    /** Loads features from the datasource into the passed collection, based on
+     * the passed filter.  Note that all data sources must support this method
+     * at a minimum.
+     *
+     * @param collection The collection to put the features into.
+     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @throws DataSourceException For all data source errors.
+     */
+    public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
+         List features = new ArrayList(maxFeatures);
 
         try {
             // retrieve the result set
@@ -205,7 +304,7 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
 
             Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
-            ResultSet result = statement.executeQuery( makeSql(query));
+            ResultSet result = statement.executeQuery( makeSql(filter));
 
 
             //_log.info("about to make schema");
@@ -257,47 +356,43 @@ public class DataSourcePostgis implements org.geotools.data.DataSource {
             _log.info( e.toString() );
             e.printStackTrace();
         }
-
-    }
-
-
-
-    // TODO 2:
-    // Implement these functions
-    public void exportFeatures(FeatureCollection features, Extent query) 
-        throws DataSourceException {
+       
     }
     
-    public void stopLoading() {
-    }
-    
-    public Extent getExtent() {
-        return new EnvelopeExtent();
-    }
-    
-    public Extent getExtent(boolean speed) {
-        return new EnvelopeExtent();
-    }
-
-
-
-    /**
-     * Closes the result set.  Child class must remember to call.
+    /** Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.  A convenience
+     * method for single attribute modifications.
      *
-     * @param result The servlet request object.
-     */ 
-    protected static void closeResultSet(ResultSet result) {
-        
-        try {
-            result.close();			
-            result.getStatement().close();			
-            result.getStatement().getConnection().close();			
-        }
-        catch (SQLException e) {
-            _log.info("Error closing result set.");
-        } 
+     * @param type The attributes to modify.
+     * @param value The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the object type do not match the attribute type.
+     */
+    public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException {
     }
-
     
+    /** Modifies the passed attribute types with the passed objects in all
+     * features that correspond to the passed OGS filter.
+     *
+     * @param type The attributes to modify.
+     * @param value The values to put in the attribute types.
+     * @param filter An OGC filter to note which attributes to modify.
+     * @throws DataSourceException If modificaton is not supported, if
+     * the attribute and object arrays are not eqaul length, or if the object
+     * types do not match the attribute types.
+     */
+    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
+    }
+    
+    /** Removes all of the features specificed by the passed filter from the
+     * collection.
+     *
+     * @param filter An OpenGIS filter; specifies which features to remove.
+     * @throws DataSourceException If anything goes wrong or if deleting is
+     * not supported.
+     */
+    public void removeFeatures(Filter filter) throws DataSourceException {
+    }
     
 }
