@@ -33,11 +33,11 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.7 2003/08/29 08:24:41 seangeo Exp $
+ * @version $Id: DefaultFeature.java,v 1.8 2003/08/29 08:30:57 seangeo Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
-public class DefaultFeature implements Feature, Cloneable {
+public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
     /*
      * Redesign notes, from FeatureFlat:
      *
