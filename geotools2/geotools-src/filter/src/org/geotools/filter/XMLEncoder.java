@@ -39,9 +39,9 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public XMLEncoder(Writer out,AbstractFilter filter) {
         this.out = out;
         try{
-        out.write("<Filter>");
+        out.write("<Filter>\n");
         filter.accept(this);
-        out.write("</Fitler>");
+        out.write("\n</Fitler>");
         }
         catch(java.io.IOException ioe){
             log.error("Unable to export filter",ioe);
@@ -80,7 +80,21 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             log.error("Unable to export filter",ioe);
         }
     }
-    
+    public void visit(LikeFilter filter){
+        log.debug("exporting like filter");
+        try{
+            String wcm = filter.getWildcardMulti();
+            String wcs = filter.getWildcardSingle();
+            String esc = filter.getEscape();
+            out.write("<PropertyIsLike wildCard=\""+wcm+"\" singleChar=\""+wcs
+                +"\" escapeChar=\"\\"+esc+"\">\n");
+            ((ExpressionDefault)filter.getValue()).accept(this);
+            out.write("<Literal>\n"+filter.getPattern()+"\n</literal>\n");
+            out.write("</PropertyIsLike>\n");
+        } catch (java.io.IOException ioe){
+            log.error("Unable to export filter",ioe);
+        }
+    }
     public void visit(LogicFilter filter){
         log.debug("exporting LogicFilter");
         
@@ -152,15 +166,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         
     }
     
-    /**
-     * Export a like filter.
-     * @param filter The Like filter to export
-     * @task TODO:Implement exporting of Like Filters
-     */
-    public void visit(LikeFilter filter) {
-        log.debug("exporting NullFilter");
-       
-    }
+    
     
     public void visit(ExpressionAttribute expression) {
         log.debug("exporting ExpressionAttribute");
