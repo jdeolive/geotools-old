@@ -14,7 +14,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/28 22:05:50 $</date>
+    <date>$Date: 2002/07/30 11:05:34 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -100,9 +100,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
           A full implementation is still needed which supports complex nested Feature types.
           </para>
         </listitem>
-        
-        
-        
+      </itemizedlist>       
     </section>
 
     <section>
@@ -350,11 +348,11 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.24 2002/07/28 22:05:50 jmacgill Exp $</emphasis>.
+          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons Exp $</emphasis>.
           When you commit your file into CVS, this will be expanded to
           something like:</para>
 
-          <para>$Id: developersguide.sgml,v 1.24 2002/07/28 22:05:50 jmacgill Exp $</para>
+          <para>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons Exp $</para>
         </listitem>
       </orderedlist>
     </section>
