@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -240,6 +240,16 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * Default width and height of the magnifying glass.
      */
     private static final int DEFAULT_MAGNIFIER_SIZE = 150;
+
+    /**
+     * Default color with which to tint magnifying glass.
+     */
+    private static final Paint DEFAULT_MAGNIFIER_GLASS = new Color(197, 204, 221);
+
+    /**
+     * Default color of the magnifying glass's border.
+     */
+    private static final Paint DEFAULT_MAGNIFIER_BORDER = new Color(102, 102, 153);
 
     /**
      * Constant indicating the scale changes on the <var>x</var> axis.
@@ -543,7 +553,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * contextual menu appear).  It will listen out for changes in the size
      * of the component (to adjust the zoom), etc.
      *
-     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners extends MouseAdapter implements MouseWheelListener,
@@ -673,12 +683,12 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     /**
      * Colour with which to tint magnifying glass.
      */
-    private final Color magnifierColor = new Color(197, 204, 221);
+    private Paint magnifierGlass = DEFAULT_MAGNIFIER_GLASS;
 
     /**
      * Colour of the magnifying glass's border.
      */
-    private final Color magnifierBorder = new Color(102, 102, 153);
+    private Paint magnifierBorder = DEFAULT_MAGNIFIER_BORDER;
 
     /**
      * Construct a <code>ZoomPane</code>.
@@ -1440,24 +1450,6 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     }
 
     /**
-     * Indicates whether or not the magnifying glass is visible.  By default,
-     * it is not visible. Call {@link #setMagnifierVisible(boolean)} to make it
-     * appear.
-     */
-    public boolean isMagnifierVisible() {
-        return magnifier != null;
-    }
-
-    /**
-     * Displays or hides the magnifying glass. If the magnifying glass is not
-     * visible and this method is called with the argument <code>true</code>,
-     * the magnifying glass will appear at the centre of the window.
-     */
-    public void setMagnifierVisible(final boolean visible) {
-        setMagnifierVisible(visible, null);
-    }
-
-    /**
      * Indicates whether or not the magnifying glass is allowed to be
      * displayed on this component.  By default, it is allowed.
      */
@@ -1479,6 +1471,56 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
         if (!enabled) {
             setMagnifierVisible(false);
         }
+    }
+
+    /**
+     * Indicates whether or not the magnifying glass is visible.  By default,
+     * it is not visible. Call {@link #setMagnifierVisible(boolean)} to make it
+     * appear.
+     */
+    public boolean isMagnifierVisible() {
+        return magnifier != null;
+    }
+
+    /**
+     * Displays or hides the magnifying glass. If the magnifying glass is not
+     * visible and this method is called with the argument <code>true</code>,
+     * the magnifying glass will appear at the centre of the window.
+     */
+    public void setMagnifierVisible(final boolean visible) {
+        setMagnifierVisible(visible, null);
+    }
+
+    /**
+     * Returns the color with which to tint magnifying glass.
+     */
+    public Paint getMagnifierGlass() {
+        return magnifierGlass;
+    }
+
+    /**
+     * Set the color with which to tint magnifying glass.
+     */
+    public void setMagnifierGlass(final Paint color) {
+        final Paint old = magnifierGlass;
+        magnifierGlass = color;
+        firePropertyChange("magnifierGlass", old, color);
+    }
+
+    /**
+     * Returns the color of the magnifying glass's border.
+     */
+    public Paint getMagnifierBorder() {
+        return magnifierBorder;
+    }
+
+    /**
+     * Set the color of the magnifying glass's border.
+     */
+    public void setMagnifierBorder(final Paint color) {
+        final Paint old = magnifierBorder;
+        magnifierBorder = color;
+        firePropertyChange("magnifierBorder", old, color);
     }
 
     /**
@@ -1661,7 +1703,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * place the user clicked when this menu was invoked.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
      */
     private static final class PointPopupMenu extends JPopupMenu {
         /**
@@ -1844,7 +1886,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * class is not used because it is difficult to get {@link JViewport} to
      * cooperate with transformations already handled by {@link ZoomPane#zoom}.
      *
-     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ScrollPane extends JComponent implements PropertyChangeListener {
@@ -2025,7 +2067,7 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
      * <code>ZoomPane</code> object.
      *
      * @author Martin Desruisseaux
-     * @version $Id: ZoomPane.java,v 1.13 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: ZoomPane.java,v 1.14 2003/09/18 13:45:13 desruisseaux Exp $
      */
     private final class Synchronizer implements ChangeListener, ZoomChangeListener {
         /**
@@ -2248,11 +2290,11 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
         final Stroke  stroke =  graphics.getStroke();
         final Paint    paint =  graphics.getPaint();
         graphics.setStroke(new BasicStroke(6));
-        graphics.setColor (magnifierBorder);
+        graphics.setPaint (magnifierBorder);
         graphics.draw     (magnifier);
         graphics.setStroke(stroke);
         graphics.clip     (magnifier); // Coordinates in pixels!
-        graphics.setColor (magnifierColor);
+        graphics.setPaint (magnifierGlass);
         graphics.fill     (magnifier.getBounds2D());
         graphics.setPaint (paint);
         graphics.translate(+centerX, +centerY);
