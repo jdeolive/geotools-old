@@ -16,7 +16,7 @@
     </menu>
 -->
     <menu name="Download">
-      <item name="Nightly src archive"    href="http://prdownloads.sourceforge.net/geotools/gt2-src-snapshot.tar.gz.html?download"/>
+      <item name="Nightly src archive"    href="http://geotools.sf.net/daily/lib/gt2-src-snapshot.tar.gz"/>
      </menu>
 
     <menu name="Information">
@@ -36,6 +36,11 @@
       <item name="$reactorProject.name" href="/$reactorProject.artifactId/index.html"/>
       #end
    </menu>
+
+   <links>
+     #foreach ($reactorProject in $reactorProjects)
+     <item name="$reactorProject.name" href="/$reactorProject.artifactId/index.html"/>
+   </links>
 
     <menu name="GeoTools Community">
       <item name="GeoTools Home Page"           href="http://www.geotools.org"/>
