@@ -12,6 +12,7 @@ import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.net.*;
+import java.net.URLDecoder;
 import java.util.*;
 
 import junit.framework.*;
@@ -43,7 +44,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
   
   public void testSpacesInPath() throws Exception {
       URL u = getTestResource("legacy folder/pointtest.shp");
-      File f = new File(u.getFile());
+      File f = new File(URLDecoder.decode(u.getFile(),"UTF-8"));
       assertTrue(f.exists());
       ShapefileDataSource s = new ShapefileDataSource(u);
   }
@@ -142,7 +143,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     }
     
     URL parent = getTestResource("");
-    File data = new File(parent.getFile());
+    File data = new File(URLDecoder.decode(parent.getFile(),"UTF-8"));
     if (!data.exists())
       throw new Exception("Couldn't setup temp file");
     File tmpFile = new File(data, "tmp.shp");

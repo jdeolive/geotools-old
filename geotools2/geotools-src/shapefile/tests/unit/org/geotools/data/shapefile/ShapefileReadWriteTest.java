@@ -9,6 +9,7 @@ package org.geotools.data.shapefile;
 import com.vividsolutions.jts.geom.Geometry;
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -35,7 +36,7 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
   
   protected void setUp() throws Exception {
     URL parent = getTestResource("");
-    File data = new File(parent.getFile());
+    File data = new File(URLDecoder.decode(parent.getFile(),"UTF-8"));
     if (!data.exists())
       throw new Exception("Couldn't setup temp file");
   } 

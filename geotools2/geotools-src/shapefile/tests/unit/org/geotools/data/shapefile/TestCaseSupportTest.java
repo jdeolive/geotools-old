@@ -7,7 +7,9 @@
 package org.geotools.data.shapefile;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
@@ -28,12 +30,15 @@ public class TestCaseSupportTest extends TestCase {
         junit.textui.TestRunner.run(new TestSuite(TestCaseSupportTest.class));
     }
     
-    public void testUnzipping() {
-        TestCaseSupport.prepared = false;
-        
+    public void testUnzipping() throws UnsupportedEncodingException {
+        TestCaseSupport.prepared = false;       
         URL r = getClass().getResource("/testData/");
-        assertNotNull(r);
-        File f = new File(r.getFile(),folderWithSpaces);
+        String decoded = URLDecoder.decode(r.getPath(),"UTF-8");
+        assertNotNull(decoded);
+        File dir = new File(decoded);
+        assertTrue(dir.exists());
+        File f = new File(decoded,folderWithSpaces);
+        System.out.println("creating " + f);
         f.mkdir();
         assertTrue(f.exists() && f.isDirectory());
         new Dumby();
