@@ -104,7 +104,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
- * $Id: ExceptionMonitor.java,v 1.2 2002/07/15 10:32:03 loxnard Exp $
+ * $Id: ExceptionMonitor.java,v 1.3 2002/07/15 15:52:38 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -112,7 +112,7 @@ public final class ExceptionMonitor {
     /**
      * Number of spaces to leave between each tab.
      */
-    private static final int TAB_WIDTH=4;
+    private static final int TAB_WIDTH = 4;
 
     /**
      * The creation of <code>ExceptionMonitor</code> class objects is
@@ -190,7 +190,7 @@ public final class ExceptionMonitor {
          * Obtains the exception trace in the form of a character chain.
          * The carriage returns in this chain can be "\r", "\n" or "r\n".
          */
-        final String message=printStackTrace(exception);
+        final String message = printStackTrace(exception);
         /*
          * Examines the character chain line by line.
          * "Glyphs" will be created as we go along and we will take advantage
@@ -256,13 +256,13 @@ public final class ExceptionMonitor {
          * Default width (in number of columns) of the component which displays
          * the exception message or trace.
          */
-        private static final int WIDTH=40;
+        private static final int WIDTH = 40;
 
         /**
          * Minimum height (in pixels) of the dialog box when it also displays
          * the trace.
          */
-        private static final int HEIGHT=300;
+        private static final int HEIGHT = 300;
     
         /**
          * Displayed dialog box.  It will be a {@link JDialog} object or a
