@@ -37,7 +37,7 @@ import java.util.logging.Logger;
  * <p></p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @version $Id: WriterUtils.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
+ * @version $Id: WriterUtils.java,v 1.3 2004/04/17 15:02:00 cholmesny Exp $
  */
 class WriterUtils {
     /** Used internally to create log information to detect errors. */
@@ -67,7 +67,7 @@ class WriterUtils {
      * @param writer the writer which will be used for outputing the xml.
      */
     public WriterUtils(Writer writer) {
-        LOGGER.fine("In constructor WriterHelper");
+        //LOGGER.finest("In constructor WriterHelper");
         this.writer = writer;
     }
 
