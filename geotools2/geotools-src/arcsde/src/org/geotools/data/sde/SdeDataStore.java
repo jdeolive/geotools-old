@@ -28,7 +28,7 @@ import java.util.*;
 /**
  * DOCUMENT ME!
  *
- * @author not attributable
+ * @author Gabriel Roldán
  * @version 0.1
  */
 public class SdeDataStore implements DataStore
