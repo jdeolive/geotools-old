@@ -27,6 +27,7 @@ import java.awt.Graphics;
 import java.lang.IllegalArgumentException;
 import javax.swing.JPanel;
 import java.util.logging.Logger;
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
@@ -48,7 +49,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.15 2003/01/22 21:04:57 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.16 2003/01/26 22:28:20 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -97,8 +98,16 @@ public class MapPane2 extends JPanel implements
             throw new IllegalArgumentException();
         }else{
             this.context=context;
+            this.context.getBbox().addAreaOfInterestChangedListener(this);
             this.renderer=new Java2DRenderer();
             setTool(tool);
+            
+            // A zero sized mapPane cannot be resized later and doesn't behave
+            // very nicely
+            this.setMinimumSize(new Dimension(2,2));
+            
+            // use absolute positioning
+            this.setLayout(null);
         }
     }
     
@@ -146,6 +155,7 @@ public class MapPane2 extends JPanel implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
+        super.paintComponent(graphics);
         if (context.getBbox().getAreaOfInterest()==null){
             Envelope bBox=context.getLayerList().getBbox(false);
             if (bBox!=null){
@@ -153,12 +163,8 @@ public class MapPane2 extends JPanel implements
                 context.getBbox().setAreaOfInterest(
                     context.getLayerList().getBbox(false),
                     null);
-                    //layerList.getCoordinateSystem);
-            }else{
-                LOGGER.info("AreaOfInterest not calculated during rendering");
             }
         }
-        //LOGGER.info("AreaOfInterest="+areaOfInterestModel);
         renderer.setOutput(graphics,this.getVisibleRect());
 
         for (int i=0;i<context.getLayerList().getLayers().length;i++) {
