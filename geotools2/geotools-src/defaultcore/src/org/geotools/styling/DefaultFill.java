@@ -1,0 +1,80 @@
+/**
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Center for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ *
+ * Contacts:
+ *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
+ *
+ *
+ * @author jamesm
+ */
+
+package org.geotools.styling;
+
+public class DefaultFill implements org.geotools.styling.Fill {
+
+    /** Creates a new instance of DefaultFill */
+    public DefaultFill() {
+    }
+
+    /**
+     * This parameter gives the solid color that will be used for a Fill.<br>
+     * The color value is RGB-encoded using two hexidecimal digits per 
+     * primary-color component, in the
+     * order Red, Green, Blue, prifixed wih the hash (#) sign.  
+     * The hexidecimal digits beetween A and F may be in either uppoer 
+     * or lower case.  For example full red is encoded as "#ff0000" (with no
+     * quotation marks).  
+     * The default color is defined to be 50% gray ("#808080").
+     *
+     * Note: in CSS this parameter is just called Fill and not Color
+     *
+     * @return The color of the Fill encoded as a hexidecimal RGB value.
+     */
+    public String getColor() {
+        return ("#808080");
+    }
+    
+    /**
+     * This parameter indicates that a stipple-fill repeated graphic will be used and 
+     * specifed the fill graphic to use.
+     *
+     * @return The graphic to use as a stipple fill.  
+     *  If null then no Stipple fill should be used.
+     */
+    public Graphic getGraphicFill() {
+        return null;
+    }
+    
+    /**
+     * This specifies the level of translucency to use when rendering the fill.
+     * <br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
+     * representing totaly transparent and 1.0 representing totaly opaque, with
+     * a linear scale of translucency for intermediate values.<br>
+     * For example, "0.65" would represent 65% opacity.  
+     * The default value is 1.0 (opaque)
+     *
+     * @return The opacity of the fill, where 0.0 is completly transparent
+     *  and 1.0 is completly opaque.
+     */
+    public double getOpacity() {
+        return 1.0;
+    }
+    
+}
