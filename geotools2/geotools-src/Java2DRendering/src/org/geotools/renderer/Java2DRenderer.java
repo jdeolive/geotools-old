@@ -12,12 +12,8 @@
  */
 package org.geotools.renderer;
 
-
-//Java Topology Suite
 import com.vividsolutions.jts.geom.*;
 import org.apache.commons.collections.LRUMap;
-
-//geotools imports
 import org.geotools.data.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.*;
@@ -29,8 +25,6 @@ import org.geotools.styling.*;
 import org.opengis.ct.CT_MathTransform;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
-
-//standard java awt imports
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontFormatException;
@@ -44,20 +38,12 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.*;
-
-// file handling
 import java.io.*;
 import java.net.*;
-
-//util imports
 import java.util.*;
 import java.util.Collections;
 import java.util.logging.Level;
-
-//Logging system
 import java.util.logging.Logger;
-
-// image handling
 import javax.imageio.ImageIO;
 
 
@@ -70,7 +56,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.74 2003/05/04 09:49:44 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.75 2003/05/04 09:53:22 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -240,15 +226,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * @param graphics The graphics object to draw to.
      * @param paintArea The size of the output area in output units (eg:
      *        pixels).
+     *
+     * @task TODO Move this functionality into render(Graphics2D,
+     *       CT_MathTransform).
      * @deprecated Use render(Graphics2D, CT_MathTransform) instead.
-     * @task TODO Move this functionality into
-     * render(Graphics2D, CT_MathTransform).
      */
     public void render(Graphics2D graphics, Rectangle paintArea) {
         Date start = new Date();
 
         if ((graphics == null) || (paintArea == null)) {
             LOGGER.info("renderer passed null arguements");
+
             return;
         }
 
@@ -602,16 +590,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
     }
-    
-    /** Render features based on the LayerList, BoundBox and Style specified in
+
+    /**
+     * Render features based on the LayerList, BoundBox and Style specified in
      * this.context.
      *
      * @param graphics The graphics object to draw to.
-     * @param transform A transform which converts World coordinates to
-     * Screen coordinates.
+     * @param transform A transform which converts World coordinates to Screen
+     *        coordinates.
+     *
      * @task TODO Populate this method.
      */
     public void render(Graphics2D graphics, CT_MathTransform transform) {
     }
-    
 }
