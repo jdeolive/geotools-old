@@ -1,7 +1,3 @@
-/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
- * This code is licensed under the GPL 2.0 license, availible at the root
- * application directory.
- */
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -38,7 +34,7 @@ import java.util.logging.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPool.java,v 1.7 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: SdeConnectionPool.java,v 1.8 2003/11/16 12:40:18 groldan Exp $
  *
  * @task TODO: make it read a properties file to get connection pool
  *       information, such as min/max connections, expire time, etc.
