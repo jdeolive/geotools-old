@@ -60,29 +60,10 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     private static final String IO_ERROR = "io problem writing filter";
 
     /** The filter types that this class can encode */
-    private static FilterCapabilities capabilities = new FilterCapabilities();
+    private static FilterCapabilities capabilities = null;
 
     /** Standard java logger */
-    private static Logger log = Logger.getLogger("org.geotools.filter");
-
-    /**
-     * sets the capabilities for this encoder
-     */
-    static {
-        capabilities.addType(AbstractFilter.LOGIC_OR);
-        capabilities.addType(AbstractFilter.LOGIC_AND);
-        capabilities.addType(AbstractFilter.LOGIC_NOT);
-        capabilities.addType(AbstractFilter.COMPARE_EQUALS);
-        capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
-        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
-        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
-        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
-        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
-        capabilities.addType(AbstractFilter.NULL);
-        capabilities.addType(AbstractFilter.BETWEEN);
-        capabilities.addType((short) 12345);
-        capabilities.addType((short) -12345);
-    }
+    private static Logger log = Logger.getLogger("org.geotools.filter");   
 
     /** Map of comparison types to sql representation */
     private static Map comparisions = new HashMap();
@@ -140,7 +121,29 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      */
     public SQLEncoder() {
     }
-
+    /** 
+     * Sets the capabilities of this filter.
+     * @return FilterCapabilities for this Filter
+     */
+    protected FilterCapabilities createFilterCapabilities(){
+        FilterCapabilities capabilities = new FilterCapabilities();
+        
+        capabilities.addType(AbstractFilter.LOGIC_OR);
+        capabilities.addType(AbstractFilter.LOGIC_AND);
+        capabilities.addType(AbstractFilter.LOGIC_NOT);
+        capabilities.addType(AbstractFilter.COMPARE_EQUALS);
+        capabilities.addType(AbstractFilter.COMPARE_NOT_EQUALS);
+        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN);
+        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN);
+        capabilities.addType(AbstractFilter.COMPARE_LESS_THAN_EQUAL);
+        capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
+        capabilities.addType(AbstractFilter.NULL);
+        capabilities.addType(AbstractFilter.BETWEEN);
+        capabilities.addType((short) 12345);
+        capabilities.addType((short) -12345);
+        
+        return capabilities; 
+    }
     /**
      * Convenience constructor to perform the whole encoding process at once.
      *
@@ -213,10 +216,15 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
     /**
      * Describes the capabilities of this encoder.
-     * 
+     * <p>
+     * Performs lazy creation of capabilities.
+     * </p>
      * @return The capabilities supported by this encoder.
      */
-    public FilterCapabilities getCapabilities() {
+    public synchronized FilterCapabilities getCapabilities() {
+        if( capabilities == null ){
+            capabilities = createFilterCapabilities();
+        }
         return capabilities; //maybe clone?  Make immutable somehow
     }
 
