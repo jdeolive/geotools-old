@@ -79,7 +79,7 @@ public class FeatureTableModelTest extends TestCase {
     protected void setUp()
     throws SchemaException, IllegalFeatureException {
         
-        
+        try{
         /** Schema on which to preform tests */
         FeatureType testSchema = null;
         
@@ -134,9 +134,11 @@ public class FeatureTableModelTest extends TestCase {
         polyCoords[3] = new Coordinate(8,2);
         polyCoords[4] = new Coordinate(1,1);
         
+        GeometryFactory fac = new GeometryFactory();
+        
         // Builds the test feature
         Object[] attributesA = new Object[10];
-        attributesA[0] = new LineString(lineCoords, new PrecisionModel(), 1);
+        attributesA[0] = fac.createLineString(lineCoords);
         attributesA[1] = new Boolean(true);
         attributesA[2] = new Character('t');
         attributesA[3] = new Byte("10");
@@ -148,8 +150,8 @@ public class FeatureTableModelTest extends TestCase {
         attributesA[9] = "feature A";
         
         Object[] attributesB = new Object[10];
-        LinearRing ring = new LinearRing(polyCoords, new PrecisionModel(), 1);
-        attributesB[0] = new Polygon(ring,new PrecisionModel(),1);
+        LinearRing ring = fac.createLinearRing(polyCoords);
+        attributesB[0] = fac.createPolygon(ring,null);
         attributesB[1] = new Boolean(false);
         attributesB[2] = new Character('t');
         attributesB[3] = new Byte("20");
@@ -166,6 +168,11 @@ public class FeatureTableModelTest extends TestCase {
         testFeatures[0] = factory.create(attributesA);
         testFeatures[1] = factory.create(attributesB);
         _log.debug("...flat features created");
+        }
+        catch(TopologyException te){
+            _log.error("Unable to construct test geometies",te);
+            throw new IllegalFeatureException(te.toString());
+        }
     }
     
     
