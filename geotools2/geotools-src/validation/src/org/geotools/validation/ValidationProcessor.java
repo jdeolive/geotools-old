@@ -96,7 +96,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.8 2004/04/22 08:10:40 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.9 2004/04/22 08:22:15 jive Exp $
  */
 public class ValidationProcessor {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -372,6 +372,9 @@ public class ValidationProcessor {
      */
     public void runIntegrityTests(Set typeRefs, Map stores, Envelope envelope,
         ValidationResults results) throws Exception {
+    	LOGGER.fine("Starting validation tests for:"+ typeRefs );
+    	LOGGER.fine("Marshalled "+stores.size()+" FeatureSources for testing" );
+    	LOGGER.fine("Testing limited to "+envelope );
     	
     	if( typeRefs == null || typeRefs.isEmpty() ){
     		LOGGER.finer("Validation test abandond - nothing was modified" );    		
@@ -384,7 +387,7 @@ public class ValidationProcessor {
     	//
     	LOGGER.finer("Finding tests for everybody" );    	
     	tests.addAll( (List) integrityLookup.get(ANYTYPENAME) );
-
+    	LOGGER.finer("Found "+tests.size()+" tests (so far)" );
     	
         // for each modified FeatureTypeInfo
         //
