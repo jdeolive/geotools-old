@@ -25,11 +25,13 @@ public class FilterSuite extends TestCase {
     }
     
     public static Test suite() {
+        org.apache.log4j.BasicConfigurator.configure();
         TestSuite suite = new TestSuite("All filter tests");
         suite.addTestSuite(LiteralTest.class);
         suite.addTestSuite(AttributeTest.class);
         suite.addTestSuite(BetweenTest.class);
         suite.addTestSuite(MathTest.class);
+        suite.addTestSuite(DOMParserTest.class);
         return suite;
     }
     

@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.1 2002/07/09 18:38:45 robhranac Exp $
+ * @version $Id: LogicFilter.java,v 1.2 2002/07/11 14:06:26 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilter {
@@ -49,9 +49,9 @@ public class LogicFilter extends AbstractFilter {
      *
      * @param type The final relation between all sub filters.
      */
-    public LogicFilter (short fitlerType)
+    public LogicFilter (short filterType)
         throws IllegalFilterException {
-
+        //_log.debug("filtertype "+filterType);
         if( isLogicFilter(filterType) ) {
             this.filterType = filterType;
         }

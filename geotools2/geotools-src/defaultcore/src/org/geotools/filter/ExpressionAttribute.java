@@ -31,7 +31,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.3 2002/07/09 18:17:31 robhranac Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.4 2002/07/11 14:06:26 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
@@ -77,11 +77,14 @@ public class ExpressionAttribute extends ExpressionDefault {
     public void setAttributePath(String attributePath)
         throws IllegalFilterException {
         _log.debug("Path is: " + attributePath);
-        if( schema.hasAttributeType(attributePath)) {
+        if(schema!=null){
+            if(schema.hasAttributeType(attributePath)) {
+                this.attributePath = attributePath;
+            } else {
+                throw new IllegalFilterException();
+            }
+        }else{
             this.attributePath = attributePath;
-        }
-        else {
-            throw new IllegalFilterException();
         }
     }
 
