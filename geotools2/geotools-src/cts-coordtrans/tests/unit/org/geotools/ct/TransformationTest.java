@@ -40,17 +40,18 @@ import org.geotools.cs.*;
 import org.geotools.ct.*;
 
 // JUnit dependencies
+import junit.framework.Test;
 import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 
 /**
- * Base class for test classes.
+ * Base class for transformation test classes.
  *
- * @version $Id: TransformationTest.java,v 1.8 2003/05/13 10:58:50 desruisseaux Exp $
+ * @version $Id: TransformationTest.java,v 1.9 2004/03/08 11:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class TransformationTest extends TestCase
-{
+public class TransformationTest extends TestCase {
     /**
      * The default coordinate systems factory.
      */
@@ -71,6 +72,21 @@ public class TransformationTest extends TestCase
      */
     public TransformationTest(final String name) {
         super(name);
+    }
+    
+    /**
+     * Uses reflection to dynamically create a test suite containing all 
+     * the <code>testXXX()</code> methods - from the JUnit FAQ.
+     */
+    public static Test suite() {
+        return new TestSuite(TransformationTest.class);
+    }
+    
+    /**
+     * Runs the tests with the textual test runner.
+     */
+    public static void main(String args[]) {
+        junit.textui.TestRunner.run(suite());
     }
 
     /**
@@ -97,6 +113,42 @@ public class TransformationTest extends TestCase
         double b[] = {10.1,10.1};
         double delta[] = {0.2,0.2};
         assertPointsEqual(name,a,b,delta);
+    }
+
+    /**
+     * Make sure that <code>createFromCoordinateSystems(sourceCS, targetCS)</code>
+     * returns an identity transform when <code>sourceCS</code> and <code>targetCS</code>
+     * are identical, and tests the promiscuous CS.
+     */
+    public void testPromiscuousTransform() throws TransformException {
+        assertTrue(trFactory.createFromCoordinateSystems(GeographicCoordinateSystem.WGS84,
+                   GeographicCoordinateSystem.WGS84).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(LocalCoordinateSystem.CARTESIAN,
+                   LocalCoordinateSystem.CARTESIAN).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(LocalCoordinateSystem.PROMISCUOUS,
+                   LocalCoordinateSystem.PROMISCUOUS).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(LocalCoordinateSystem.PROMISCUOUS,
+                   LocalCoordinateSystem.CARTESIAN).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(LocalCoordinateSystem.CARTESIAN,
+                   LocalCoordinateSystem.PROMISCUOUS).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(GeographicCoordinateSystem.WGS84,
+                   LocalCoordinateSystem.PROMISCUOUS).getMathTransform().isIdentity());
+        assertTrue(trFactory.createFromCoordinateSystems(LocalCoordinateSystem.PROMISCUOUS,
+                   GeographicCoordinateSystem.WGS84).getMathTransform().isIdentity());
+        try {
+            trFactory.createFromCoordinateSystems(LocalCoordinateSystem.CARTESIAN,
+                                                  GeographicCoordinateSystem.WGS84);
+            fail();
+        } catch (CannotCreateTransformException exception) {
+            // This is the expected exception.
+        }
+        try {
+            trFactory.createFromCoordinateSystems(GeographicCoordinateSystem.WGS84,
+                                                  LocalCoordinateSystem.CARTESIAN);
+            fail();
+        } catch (CannotCreateTransformException exception) {
+            // This is the expected exception.
+        }
     }
     
     /**

@@ -57,13 +57,13 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 import org.geotools.pt.Matrix;
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.Ellipsoid;
-import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.Projection;
 import org.geotools.cs.PrimeMeridian;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.WGS84ConversionInfo;
+import org.geotools.cs.LocalCoordinateSystem;
 import org.geotools.cs.FittedCoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
@@ -87,7 +87,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.19 2004/03/07 19:55:52 aaime Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.20 2004/03/08 11:30:55 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -405,18 +405,26 @@ public class CoordinateTransformationFactory {
             step = factory.createConcatenatedTransform(step, step2.getMathTransform());
             return createFromMathTransform(sourceCS, targetCS, step, step2.getTransformType());
         }
-        
-		///////////////////////////////////////////
-	    ////                                   ////
-	    ////     Cartesian  -->  various CS    ////
-	    ////     Various CS --> Cartesian      ////
-	    ////                                   ////
-	    ///////////////////////////////////////////
-	    if(sourceCS == LocalCoordinateSystem.CARTESIAN || targetCS == LocalCoordinateSystem.CARTESIAN) {
-			final int dimSource = sourceCS.getDimension(); 
-			MathTransform step = factory.createIdentityTransform(dimSource);
-	    	return createFromMathTransform(sourceCS, targetCS, step);
-	    }
+        /////////////////////////////////////////////
+        ////                                     ////
+        ////     Promiscuous  -->  various CS    ////
+        ////     Various CS --> Promiscuous      ////
+        ////                                     ////
+        /////////////////////////////////////////////
+        if (sourceCS == LocalCoordinateSystem.PROMISCUOUS ||
+            targetCS == LocalCoordinateSystem.PROMISCUOUS)
+        {
+            final int dimSource = sourceCS.getDimension();
+            final int dimTarget = targetCS.getDimension();
+            if (dimTarget <= dimSource) {
+                MathTransform step = factory.createIdentityTransform(dimSource);
+                if (dimTarget != dimSource) {
+                    step = factory.createFilterTransform(step,
+                                   JAIUtilities.createSequence(0, dimTarget-1));
+                }
+                return createFromMathTransform(sourceCS, targetCS, step);
+            }
+        }
         throw new CannotCreateTransformException(sourceCS, targetCS);
     }
 

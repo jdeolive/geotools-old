@@ -107,7 +107,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.28 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.29 2004/03/08 11:30:56 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -441,32 +441,6 @@ public class MathTransformFactory {
         return (MathTransform) pool.canonicalize(new PassThroughTransform(
                 firstAffectedOrdinate, subTransform, numTrailingOrdinates));
     }
-    
-    /**
-     * Creates a transform working on a subset of an other transform's inputs/outputs.
-     *
-     * @param  lower Index of the first ordinate to keep.
-     * @param  upper Index after the last ordinate to keep. Must be greater than <code>lower</code>.
-     * @param  transform The transform. Its dimension must not be lower than <code>upper</code>.
-     * @return The same transform than <code>transform</code>, but keeping only ordinates
-     *         from index <code>lower</code> inclusive to <code>upper</code> exclusive.
-     *
-     * @deprecated This method never specified clearly if it was working on input or output
-     *             dimensions, and actually mixed both of them. This method is Now replaced
-     *             by {@link #createSubTransform} and {@link #createFilterTransform}.
-     */
-    public MathTransform createSubMathTransform(final int lower, final int upper,
-                                                final MathTransform transform)
-    {
-        if (transform instanceof PassThroughTransform) try {
-            // It was the wrong behaviour in the old implementation.
-            // Keep it until we delete this deprecated method.
-            return createSubTransform(transform, JAIUtilities.createSequence(lower, upper-1), null);
-        } catch (FactoryException exception) {
-            throw new RuntimeException(exception.getLocalizedMessage(), exception);
-        }
-        return createFilterTransform(transform, JAIUtilities.createSequence(lower, upper-1));
-    }
 
     /**
      * Reduces the number of input dimensions for the specified transform. The remaining output
@@ -799,46 +773,6 @@ reduce:     for (int j=0; j<rows.length; j++) {
         }
         throw new NoSuchClassificationException(null, classification);
     }
-    
-    /**
-     * Create a provider for affine transforms of the specified
-     * dimension. Created affine transforms will have a size of
-     * <code>numRow&nbsp;&times;&nbsp;numCol</code>.
-     * <br><br>
-     * <table align="center" border='1' cellpadding='3' bgcolor="F4F8FF">
-     *   <tr bgcolor="#B9DCFF"><th>Parameter</th> <th>Description</th></tr>
-     *   <tr><td><code>num_row</code></td> <td>Number of rows in matrix</td></tr>
-     *   <tr><td><code>num_col</code></td> <td>Number of columns in matrix</td></tr>
-     *   <tr><td><code>elt_&lt;r&gt;_&lt;c&gt;</code></td> <td>Element of matrix</td></tr>
-     * </table>
-     * <br>
-     * For the element parameters, <code>&lt;r&gt;</code> and <code>&lt;c&gt;</code>
-     * should be substituted by printed decimal numbers. The values of <var>r</var>
-     * should be from 0 to <code>(num_row-1)</code>, and the values of <var>c</var>
-     * should be from 0 to <code>(num_col-1)</code>. Any undefined matrix elements
-     * are assumed to be zero for <code>(r!=c)</code>, and one for <code>(r==c)</code>.
-     * This corresponds to the identity transformation when the number of rows and columns
-     * are the same. The number of columns corresponds to one more than the dimension of
-     * the source coordinates and the number of rows corresponds to one more than the
-     * dimension of target coordinates. The extra dimension in the matrix is used to
-     * let the affine map do a translation.
-     *
-     * @param  numRow The number of matrix's rows.
-     * @param  numCol The number of matrix's columns.
-     * @return The provider for an affine transform.
-     * @throws IllegalArgumentException if <code>numRow</code>
-     *         or <code>numCol</code> is not a positive number.
-     * @throws FactoryException if the provider can't be created from some other reason.
-     *
-     * @deprecated Use {@link #getMathTransformProvider} instead. The generic method now
-     *             use an "extensible" {@link ParameterList}, which may growth or shrink
-     *             according the change in matrix size.
-     */
-    public MathTransformProvider getAffineTransformProvider(final int numRow, final int numCol)
-            throws IllegalArgumentException, FactoryException
-    {
-        return new MatrixTransform.Provider();
-    }
 
     /**
      * Returns the unit for the specified parameter.
@@ -929,7 +863,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.28 2003/08/04 17:11:17 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.29 2004/03/08 11:30:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

@@ -56,7 +56,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version $Id: DatumType.java,v 1.8 2003/09/02 12:33:32 desruisseaux Exp $
+ * @version $Id: DatumType.java,v 1.9 2004/03/08 11:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -182,6 +182,7 @@ public abstract class DatumType extends EnumeratedParameter {
      *
      * @see LocalDatum#UNKNOW
      * @see LocalCoordinateSystem#CARTESIAN
+     * @see LocalCoordinateSystem#PROMISCUOUS
      */
     public static final Local UNKNOW = new Local("UNKNOW", Local.MAXIMUM, ResourceKeys.UNKNOW);
     

@@ -63,7 +63,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.14 2003/11/20 22:18:25 jive Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.15 2004/03/08 11:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -76,21 +76,48 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     private static final long serialVersionUID = -2067954038057402418L;
 
     /**
+     * A cartesian local coordinate system.
+     */
+    private static final class Cartesian extends LocalCoordinateSystem {
+        /** The set of axis. */
+        private static final AxisInfo[] AXIS = new AxisInfo[] {AxisInfo.X, AxisInfo.Y};
+
+        /** Construct a coordinate system with the given name. */
+        public Cartesian(final String name) {
+            super(name, LocalDatum.UNKNOW, Unit.METRE, AXIS);
+        }
+
+        /** Returns the localized name for "Cartesian". */
+        public String getName(final Locale locale) {
+            return Resources.getResources(locale).getString(ResourceKeys.CARTESIAN);
+        }
+
+        // TODO: What about serialization?
+    }
+
+    /**
      * A two-dimensional cartesian coordinate system with
      * {@linkplain AxisInfo#X x},{@linkplain AxisInfo#Y y} axis in
      * {@linkplain Unit#METRE metres}. By default, this coordinate system has no transformation
      * path to any other coordinate system  (i.e. a map using this CS can't be reprojected to a
-     * {@linkplain GeographicCoordinateSystem geographic coordinate system}). This CS is usefull
-     * as a default one when no CS were explicitly specified.
+     * {@linkplain GeographicCoordinateSystem geographic coordinate system} for example).  This
+     * is therefore a strict cartesian CS.
      */
-    public static final LocalCoordinateSystem CARTESIAN = new LocalCoordinateSystem(
-                        "Cartesian", LocalDatum.UNKNOW, Unit.METRE,
-                        new AxisInfo[] {AxisInfo.X, AxisInfo.Y})
-    {
-        public String getName(final Locale locale) {
-            return Resources.getResources(locale).getString(ResourceKeys.CARTESIAN);
-        }
-    };
+    public static final LocalCoordinateSystem CARTESIAN = new Cartesian("Cartesian");
+
+    /**
+     * A two-dimensional wildcard coordinate system with
+     * {@linkplain AxisInfo#X x},{@linkplain AxisInfo#Y y} axis in
+     * {@linkplain Unit#METRE metres}. At the difference of {@link #CARTESIAN},
+     * this coordinate system is treated specially by the default {@linkplain
+     * org.geotools.ct.CoordinateTransformationFactory coordinate transformation factory}
+     * with loose transformation rules: if no transformation path were found (for example
+     * through a {@linkplain FittedCoordinateSystem fitted coordinate system}), then the
+     * transformation from this CS to any CS with a compatible number of dimensions is
+     * assumed to be the identity transform. This CS is usefull as a kind of wildcard
+     * when no CS were explicitly specified.
+     */
+    public static final LocalCoordinateSystem PROMISCUOUS = new Cartesian("Promiscuous");
     
     /**
      * The local datum.

@@ -55,7 +55,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * between two different local coordinate systems, as long as they are based
  * on the same local datum.
  *
- * @version $Id: LocalDatum.java,v 1.7 2003/09/02 12:33:32 desruisseaux Exp $
+ * @version $Id: LocalDatum.java,v 1.8 2004/03/08 11:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -73,6 +73,7 @@ public class LocalDatum extends Datum {
      *
      * @see DatumType#UNKNOW
      * @see LocalCoordinateSystem#CARTESIAN
+     * @see LocalCoordinateSystem#PROMISCUOUS
      */
     public static final LocalDatum UNKNOW = new LocalDatum("Unknow", DatumType.UNKNOW) {
         public String getName(final Locale locale) {

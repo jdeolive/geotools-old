@@ -81,7 +81,7 @@ import java.rmi.RemoteException;
  * come from specification 2.0 and appears in the <code>implements</code> clause only as a patch
  * for anticipating a future transition to OGC spec. 2.0.
  *
- * @version $Id: CoordinateSystem.java,v 1.13 2003/11/26 00:23:06 desruisseaux Exp $
+ * @version $Id: CoordinateSystem.java,v 1.14 2004/03/08 11:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -225,26 +225,6 @@ public abstract class CoordinateSystem extends Info implements Dimensioned,
             envelope.setRange(i, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
         }
         return envelope;
-    }
-    
-    /**
-     * Returns <code>true</code> if this object is equivalent to the specified object.
-     * Two {@link Info} objects are equivalent if transformation involving one or the
-     * other would give the same results.   For example, two {@link CoordinateSystem}
-     * are equivalent if the transformation from <code>this</code> to <code>info</code>
-     * is the identity transform.
-     * <br><br>
-     * The <code>equivalents</code> method is similar but less strict than
-     * <code>equals</code> in that it doesn't compare names, alias, authority
-     * and other similar "optional" informations.
-     *
-     * @param  cs The other object (may be <code>null</code>).
-     * @return <code>true</code> if both objects are equivalent.
-     *
-     * @deprecated Use <code>equals(info, false)</code> instead.
-     */
-    public boolean equivalents(final CoordinateSystem cs) {
-        return equals(cs, false);
     }
     
     /**
