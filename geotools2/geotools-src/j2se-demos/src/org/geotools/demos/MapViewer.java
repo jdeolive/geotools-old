@@ -28,15 +28,16 @@ import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.Adapters;
 
 import org.geotools.data.DataSource;
+import org.geotools.data.DataSourceException;
 import org.geotools.data.MemoryDataSource;
 
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFlat;
-import org.geotools.feature.FlatFeatureFactory;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.feature.SchemaException;
 
 import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.gui.swing.ToolMenu;
@@ -73,7 +74,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.20 2003/06/19 10:10:19 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.21 2003/07/17 19:47:34 cholmesny Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -131,12 +132,12 @@ public class MapViewer {
 
             // Create a Context
             context = contextFactory.createContext();
-            layer = contextFactory.createLayer(datasource1, style[0]);
+            layer = contextFactory.createLayer(datasource1.getFeatures(), style[0]);
             layer.setTitle("river layer");
             context.getLayerList().addLayer(layer);
 
             // Create Layers
-            layer = contextFactory.createLayer(datasource2, style[0]);
+            layer = contextFactory.createLayer(datasource2.getFeatures(), style[0]);
             layer.setTitle("road layer");
             context.getLayerList().addLayer(layer);
 
@@ -145,14 +146,22 @@ public class MapViewer {
             mapPane.setBorder(new javax.swing.border.TitledBorder("MapPane Map"));
             mapPane.setBackground(Color.BLACK);
             mapPane.setPreferredSize(new Dimension(300, 300));
-        } catch (IllegalFeatureException e) {
+        } catch (IllegalAttributeException e) {
             LOGGER.warning("Error styling features.  Cause is: " +
                 e.getCause());
-            throw new RuntimeException();
-        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (SchemaException e) {
+            LOGGER.warning("Error styling features.  Cause is: " +
+                e.getCause());
+            throw new RuntimeException(e);
+        }catch (IOException e) {
             LOGGER.warning("IOException creating styles.  Cause is: " +
                 e.getCause());
-            throw new RuntimeException();
+            throw new RuntimeException(e);
+        } catch (DataSourceException e) {
+            LOGGER.warning("DataSourceException getting features.  Cause is: " +
+                e.getCause());
+            throw new RuntimeException(e);
         }
 
         return mapPane;
@@ -233,35 +242,37 @@ public class MapViewer {
      * @param yoff The starting y position
      * @param featureTypeName The type of feature
      *
-     * @throws IllegalFeatureException for IllegalFeatures
+     * @throws IllegalAttributeException for IllegalFeatures
      */
     private void populateDataSource(MemoryDataSource dataSource, double xoff,
-        double yoff, String featureTypeName) throws IllegalFeatureException {
+        double yoff, String featureTypeName) throws IllegalAttributeException,
+    SchemaException{
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac, xoff, yoff);
-        AttributeType lineAttribute = new AttributeTypeDefault("centerline",
-                line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature = lineFac.create(new Object[] { line });
+        AttributeType lineAttribute = AttributeTypeFactory.newAttributeType
+	    ("centerline", line.getClass());
+	AttributeType[] atts = {lineAttribute};
+        FeatureType lineType = FeatureTypeFactory.newFeatureType(atts,
+								 featureTypeName);
+        //FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
+        Feature lineFeature = lineType.create(new Object[] { line });
 
         LineString line2 = makeSampleLineString(geomFac, xoff + 2, yoff);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FlatFeatureFactory(lineType);
-
-        Feature lineFeature2 = lineFac.create(new Object[] { line2 });
+        //lineType = FeatureTypeFactory.newFeatureType(lineAttribute, 
+	//				     featureTypeName);
+        Feature lineFeature2 = lineType.create(new Object[] { line2 });
 
         LineString line3 = makeSampleLineString(geomFac, xoff + 4, yoff);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FlatFeatureFactory(lineType);
+        //lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        //lineFac = new FlatFeatureFactory(lineType);
 
-        Feature lineFeature3 = lineFac.create(new Object[] { line3 });
+        Feature lineFeature3 = lineType.create(new Object[] { line3 });
 
         LineString line4 = makeSampleLineString2(geomFac);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        lineFac = new FlatFeatureFactory(lineType);
+        //lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        //lineFac = new FlatFeatureFactory(lineType);
 
-        Feature lineFeature4 = lineFac.create(new Object[] { line4 });
+        Feature lineFeature4 = lineType.create(new Object[] { line4 });
 
         dataSource.addFeature(lineFeature);
         dataSource.addFeature(lineFeature2);
