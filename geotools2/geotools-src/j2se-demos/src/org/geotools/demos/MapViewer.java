@@ -34,6 +34,7 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.IllegalFeatureException;
 import org.geotools.gui.swing.MapPaneImpl;
+import org.geotools.gui.swing.ToolMenu;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
@@ -59,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.15 2003/05/17 11:14:07 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.16 2003/05/17 23:16:43 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -143,55 +144,6 @@ public class MapViewer {
     private void initComponents(MapPaneImpl mapPane) {
         // Create Menu for tools
         JMenuBar menuBar = new javax.swing.JMenuBar();
-        JMenu toolMenu = new javax.swing.JMenu();
-        JMenuItem panMenuItem = new javax.swing.JMenuItem();
-        JMenuItem zoomInMenuItem = new javax.swing.JMenuItem();
-        JMenuItem zoomOutMenuItem = new javax.swing.JMenuItem();
-        JMenuItem zoomPanMenuItem = new javax.swing.JMenuItem();
-        JMenuItem noToolMenuItem = new javax.swing.JMenuItem();
-
-        toolMenu.setText("Tool");
-
-        panMenuItem.setText("Pan");
-        panMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    panActionPerformed(evt);
-                }
-            });
-        toolMenu.add(panMenuItem);
-
-        zoomInMenuItem.setText("Zoom In");
-        zoomInMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    zoomInActionPerformed(evt);
-                }
-            });
-        toolMenu.add(zoomInMenuItem);
-
-        zoomOutMenuItem.setText("Zoom Out");
-        zoomOutMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    zoomOutActionPerformed(evt);
-                }
-            });
-        toolMenu.add(zoomOutMenuItem);
-
-        zoomPanMenuItem.setText("Zoom Pan");
-        zoomPanMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    zoomPanActionPerformed(evt);
-                }
-            });
-        toolMenu.add(zoomPanMenuItem);
-
-        noToolMenuItem.setText("No Tool");
-        noToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    noToolActionPerformed(evt);
-                }
-            });
-        toolMenu.add(noToolMenuItem);
-
         // Create frame
         JFrame frame = new JFrame();
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -200,6 +152,7 @@ public class MapViewer {
                 }
             });
 
+        ToolMenu toolMenu=new ToolMenu(context.getToolList());
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
         frame.getContentPane().setLayout(new BorderLayout());
