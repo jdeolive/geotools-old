@@ -77,6 +77,11 @@
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <artifactId>renderer</artifactId>
+      <groupId>gt2</groupId>
+      <version>SNAPSHOT</version>
+    </dependency>
         <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
