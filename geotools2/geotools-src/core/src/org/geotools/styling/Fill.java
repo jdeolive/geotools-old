@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -29,16 +29,18 @@ import org.geotools.filter.Expression;
  *
  * There are two types of fill: solid-color and repeated graphic fill.
  *
- * The details of this object are taken from the OGC Styled-Layer Descriptor Report
- * (OGC 01-077) version 0.7.2.
+ * The details of this object are taken from the OGC Styled-Layer Descriptor
+ * Report (OGC 01-077) version 0.7.2.
  * Renderers can use this information when displaying styled features, though
  * it must be remembered that not all renderers will be able to fully represent
- * strokes as set out by this interface: for example, opacity may not be supported.
+ * strokes as set out by this interface: for example, opacity may not be
+ * supported.
  *
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  * 
- * @author  jamesm
+ * @version $Id: Fill.java,v 1.6 2002/06/04 15:30:23 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface Fill {
     
@@ -51,7 +53,7 @@ public interface Fill {
      * "#ff0000" (with no quotation marks).  The default color is defined to be
      * 50% gray ("#808080").
      *
-     * Note: in CSS this parameter is just called Fill and not Color
+     * Note: in CSS this parameter is just called Fill and not Color.
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      **/
@@ -65,7 +67,7 @@ public interface Fill {
      * with 0.0 representing totally transparent and 1.0 representing totally
      * opaque, with a linear scale of translucency for intermediate values.<br>
      * For example, "0.65" would represent 65% opacity.  The default value is
-     * 1.0 (opaque)
+     * 1.0 (opaque).
      *
      * @return The opacity of the fill, where 0.0 is completely transparent and
      * 1.0 is completely opaque.
@@ -76,7 +78,7 @@ public interface Fill {
      * This parameter indicates that a stipple-fill repeated graphic will be 
      * used and specifies the fill graphic to use.
      * 
-     * @return The graphic to use as a stipple fill.  If null then no Stipple
+     * @return The graphic to use as a stipple fill.  If null then no stipple
      * fill should be used.
      */
     public Graphic getGraphicFill();
