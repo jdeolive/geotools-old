@@ -74,10 +74,12 @@ public class ArcGridDataSource extends AbstractDataSource {
     private Color[] demColors = new Color[] {Color.BLUE, Color.WHITE, Color.RED};
     
     /** The grid coverage read from the data file */
-    private GridCoverage gridCoverage = null;
+    private java.lang.ref.SoftReference gridCoverage = null;
     
     /** The name of the file, used as the schema name */
     private String name = null;
+    
+    private boolean compress = false;
     
     /**
      * Creates a new instance of ArcGridDataSource
@@ -97,22 +99,17 @@ public class ArcGridDataSource extends AbstractDataSource {
             + use.getMessage());
         }
         
-//        String arcext = ".arc";
-//        String ascext = ".asc";
-        
-        //        if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
-        //            throw new MalformedURLException("file extension not recognized: " + filename);
-        //        } else {
         name = filename.substring(0, filename.length() - 4);
-        //        }
-        
         srcURL = new URL(url, filename);
         
-        try {
-            arcGridRaster = new ArcGridRaster(srcURL);
-        } catch (Exception e) {
-            throw new DataSourceException("Unexpected exception", e);
-        }
+        
+    }
+    
+    /**
+     * Use Gzip compression for writing file.
+     */
+    public void setUseGzipCompression(boolean compress) {
+        this.compress = true;
     }
     
     /**
@@ -121,7 +118,14 @@ public class ArcGridDataSource extends AbstractDataSource {
      *
      * @return the ArcGridRaster read by the datasource
      */
-    public ArcGridRaster getArcGridRaster() {
+    public ArcGridRaster openArcGridRaster() throws java.io.IOException {
+        if (arcGridRaster == null) {
+            try {
+                arcGridRaster = new ArcGridRaster(srcURL);
+            } catch (Exception e) {
+                throw new DataSourceException("Unexpected exception", e);
+            }
+        }
         return arcGridRaster;
     }
     
@@ -132,8 +136,35 @@ public class ArcGridDataSource extends AbstractDataSource {
      *
      * @return the GridCoverage read by the datasource
      */
-    public GridCoverage getGridCoverage() {
-        return gridCoverage;
+    public GridCoverage getGridCoverage() throws java.io.IOException {
+        if (gridCoverage == null || gridCoverage.get() == null) {
+            gridCoverage = new java.lang.ref.SoftReference(createCoverage());
+        }
+        return (GridCoverage) gridCoverage.get();
+    }
+    
+    protected GridCoverage createCoverage() throws java.io.IOException {
+        java.awt.image.WritableRaster raster = null;
+        
+        raster = openArcGridRaster().readRaster();
+        
+        double[] min = new double[] {arcGridRaster.getMinValue()};
+        double[] max = new double[] {arcGridRaster.getMaxValue()};
+        
+        CoordinateSystem coordinateSystem = getCoordinateSystem();
+        if (coordinateSystem == null)
+            coordinateSystem = GeographicCoordinateSystem.WGS84;
+        
+        return new GridCoverage(
+            name,
+            raster,
+            coordinateSystem,
+            convertEnvelope(getBounds()),
+            min,max,
+            null,
+            new Color[][] {getColors()},
+            null
+        );
     }
     
     /**
@@ -173,7 +204,7 @@ public class ArcGridDataSource extends AbstractDataSource {
         double ymax = ymin + (arcGridRaster.getNRows() * arcGridRaster.getCellSize());
         
         env = new com.vividsolutions.jts.geom.Envelope(xmin, xmax, ymin, ymax);
-
+        
         return env;
     }
     
@@ -196,6 +227,37 @@ public class ArcGridDataSource extends AbstractDataSource {
         return fc;
     }
     
+    public void setFeatures(FeatureCollection fc) throws DataSourceException {
+        if (fc.size() > 0) {
+            Feature f = fc.features().next();
+            GridCoverage gc = (GridCoverage) f.getAttribute("grid");
+            if (gc == null) {
+                AttributeType[] t = f.getFeatureType().getAttributeTypes();
+                for (int i = 0, ii = t.length; i < ii; i++) {
+                    if (GridCoverage.class.isAssignableFrom(t[i].getType()))
+                        gc = (GridCoverage) f.getAttribute(i);
+                }
+            }
+            if (gc != null) {
+                java.awt.image.Raster data = gc.getRenderedImage().getData();
+                org.geotools.pt.Envelope bounds = gc.getGridGeometry().getEnvelope();
+                double xl = bounds.getMinimum(0);
+                double yl = bounds.getMinimum(1);
+                double cellsize = Math.max(
+                    (bounds.getMaximum(0) - xl) / data.getWidth(),
+                    (bounds.getMaximum(1) - yl) / data.getHeight()
+                );
+                try {
+                    arcGridRaster = new ArcGridRaster(srcURL);
+                    arcGridRaster.writeRaster(data, xl, yl, cellsize,compress);
+                } catch (java.io.IOException ioe) {
+                    throw new DataSourceException("IOError writing",ioe);
+                }
+            }
+        }
+    }
+    
+    
     /**
      * Loads features from the datasource into the passed collection, based on the passed query.
      * The FeatureCollection will contain a new Feature, the GridCoverage will be contained in the
@@ -210,37 +272,12 @@ public class ArcGridDataSource extends AbstractDataSource {
     public void getFeatures(FeatureCollection collection, Query query)
     throws DataSourceException {
         
-        java.awt.image.WritableRaster raster = null;
-        try {
-            raster = arcGridRaster.getRaster();
-        } catch (java.io.IOException ioe) {
-            throw new DataSourceException("Error loading data",ioe);
-        }
-        
-        double[] min = new double[] {arcGridRaster.getMinValue()};
-        double[] max = new double[] {arcGridRaster.getMaxValue()};
-        //gridCoverage = new GridCoverage(name, raster, convertEnvelope(getBounds()));
-        
-        CoordinateSystem coordinateSystem = getCoordinateSystem();
-        if (coordinateSystem == null)
-            coordinateSystem = GeographicCoordinateSystem.WGS84;
-        
-        gridCoverage = new GridCoverage(
-            name,
-            raster,
-            coordinateSystem,
-            convertEnvelope(getBounds()),
-            min,max,
-            null,
-            new Color[][] {getColors()},
-            null
-        );
-        
         // last step, wrap, add the the feature collection and return
         try {
-            collection.add(wrapGcInFeature(gridCoverage));
+            GridCoverage gc = getGridCoverage();
+            collection.add(wrapGcInFeature(gc));
         } catch (Exception e) {
-            throw new DataSourceException("Unexpected error", e);
+            throw new DataSourceException("IO error", e);
         }
     }
     
