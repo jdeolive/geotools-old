@@ -46,7 +46,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
     /** The standard SQL multicharacter wild card. */
 
-    //private static String SQL_WILD_MULTI = "%";  
+    //private static String SQL_WILD_MULTI = "%";
 
     /** The standard SQL single character wild card. */
 
@@ -362,7 +362,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     //TODO: Implement this function...or declare abstract and have children implement.
     public void visit(GeometryFilter filter) {
         //if implementing BBox for use with an sql datasource be
-        //sure to implement an equals method for the BBoxExpression, 
+        //sure to implement an equals method for the BBoxExpression,
         //as there is none now, and it is needed to test the unpacking
     }
 
@@ -386,6 +386,14 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
             log.warning("Unable to export filter" + ioe);
         }
     }
+
+	/** This only exists the fulfill the interface - unless
+	 *  There is a way of determining the FID column in the database...
+	 *
+	 * @param filter the Fid Filter.
+	 */
+	public void visit(FidFilter filter) {
+	}
 
     /**
      * Writes the SQL for the attribute Expression.
@@ -437,7 +445,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
 
                 break;
 
-                //case LITERAL_GEOMETRY is SQL implementation specific.	    
+                //case LITERAL_GEOMETRY is SQL implementation specific.
             }
         } catch (java.io.IOException ioe) {
             log.warning("Unable to export expresion" + ioe);
