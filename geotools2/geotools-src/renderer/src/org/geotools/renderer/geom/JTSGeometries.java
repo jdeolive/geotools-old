@@ -62,7 +62,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.6 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: JTSGeometries.java,v 1.7 2003/11/15 14:16:16 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends GeometryCollection {
@@ -286,8 +286,9 @@ public class JTSGeometries extends GeometryCollection {
             final Geometry candidate = (Geometry) wrapped.get(geometry);
             if (candidate != null) {
                 final Geometry proxy = new GeometryProxy(candidate);
-                add(proxy);
-                return proxy;
+                // add may clone the geometry
+                Geometry newGeom = add(proxy);
+                return newGeom;
             }
         }
         if (geometry instanceof SFSPoint) {

@@ -98,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.14 2003/11/15 14:16:16 aaime Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -218,6 +218,7 @@ public class GeometryCollection extends Geometry implements Comparable {
         this.asCollection     = geometry.asCollection;
         this.geometries       = new Geometry[count];
         for (int i=0; i<count; i++) {
+            // TODO: Consider using an IdentityHashMap
             geometries[i] = (Geometry) geometry.geometries[i].clone();
         }
         flattened = checkFlattenedShape();
@@ -409,7 +410,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
      *         To avoid this exception, {@linkplain #clone clone} this geometry before to modify it.
      */
-    public synchronized void add(Geometry toAdd)
+    public synchronized Geometry add(Geometry toAdd)
             throws TransformException, UnmodifiableGeometryException
     {
         if (toAdd != null) {
@@ -426,7 +427,10 @@ public class GeometryCollection extends Geometry implements Comparable {
             }
             toAdd.freeze();
             addImpl(toAdd);
+            
+            return toAdd;
         }
+        return null;
     }
 
     /**
@@ -1409,7 +1413,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.14 2003/11/15 14:16:16 aaime Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

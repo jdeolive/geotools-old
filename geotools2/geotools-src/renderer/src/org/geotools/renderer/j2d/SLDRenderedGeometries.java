@@ -22,6 +22,7 @@
 package org.geotools.renderer.j2d;
 
 import java.awt.AlphaComposite;
+import java.awt.Canvas;
 
 // Geotools dependencies
 import org.geotools.ct.*;
@@ -35,13 +36,23 @@ import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XMath;
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Paint;
 
 // J2SE dependencies
 import java.awt.Shape;
+import java.awt.TexturePaint;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.lang.Math;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.geotools.renderer.style.GraphicStyle2D;
 
 
 /**
@@ -52,6 +63,12 @@ import java.awt.geom.Rectangle2D;
  */
 public class SLDRenderedGeometries extends RenderedGeometries {
     private static AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
+    
+    /** Observer for image loading */
+    private static Canvas imgObserver = new Canvas();
+    
+    /** The logger for the rendering module. */
+    private static final Logger LOGGER = Logger.getLogger(SLDRenderedGeometries.class.getName());
 
     /** The current map scale. */
     protected double currentScale;
@@ -150,6 +167,16 @@ public class SLDRenderedGeometries extends RenderedGeometries {
                     graphics.draw(transformedShape);
                 }
             } 
+        } else if (style instanceof GraphicStyle2D) {
+            // get the point onto the shape has to be painted
+            float[] coords = new float[2];
+            PathIterator iter = shape.getPathIterator(IDENTITY_TRANSFORM);
+            iter.currentSegment(coords);
+            
+            GraphicStyle2D gs2d = (GraphicStyle2D) style;
+            
+            renderImage(graphics, coords[0], coords[1], (Image) gs2d.getImage(), 
+                        gs2d.getRotation(), gs2d.getOpacity());
         } else if (style instanceof TextStyle2D) {
             // get the point onto the shape has to be painted
             float[] coords = new float[2];
@@ -206,7 +233,18 @@ public class SLDRenderedGeometries extends RenderedGeometries {
                 PolygonStyle2D ps2d = (PolygonStyle2D) style;
 
                 if (ps2d.getFill() != null) {
-                    graphics.setPaint(ps2d.getFill());
+                    Paint paint = ps2d.getFill();
+                    if(paint instanceof TexturePaint) {
+                        TexturePaint tp = (TexturePaint) paint;
+                        BufferedImage image = tp.getImage();
+                        Rectangle2D rect = tp.getAnchorRect();
+                        AffineTransform at = graphics.getTransform();
+                        double width = rect.getWidth() * at.getScaleX();
+                        double height = rect.getHeight() * at.getScaleY();
+                        Rectangle2D scaledRect = new Rectangle2D.Double(0, 0, width, height);
+                        paint = new TexturePaint(image, scaledRect);
+                    } 
+                    graphics.setPaint(paint);
                     graphics.setComposite(ps2d.getFillComposite());
                     graphics.fill(shape);
                 }
@@ -216,12 +254,189 @@ public class SLDRenderedGeometries extends RenderedGeometries {
                 LineStyle2D ls2d = (LineStyle2D) style;
 
                 if (ls2d.getStroke() != null) {
-                    graphics.setPaint(ls2d.getContour());
-                    graphics.setStroke(ls2d.getStroke());
-                    graphics.setComposite(ls2d.getContourComposite());
-                    graphics.draw(shape);
+                    // see if a graphic stroke is to be used, the drawing method is completely
+                    // different in this case
+                    if(ls2d.getGraphicStroke() != null) {
+                        drawWithGraphicsStroke(graphics, shape, ls2d.getGraphicStroke());
+                    } else {
+                        Paint paint  = ls2d.getContour();
+                        if(paint instanceof TexturePaint) {
+                            TexturePaint tp = (TexturePaint) paint;
+                            BufferedImage image = tp.getImage();
+                            Rectangle2D rect = tp.getAnchorRect();
+                            AffineTransform at = graphics.getTransform();
+                            double width = rect.getWidth() * at.getScaleX();
+                            double height = rect.getHeight() * at.getScaleY();
+                            Rectangle2D scaledRect = new Rectangle2D.Double(0, 0, width, height);
+                            paint = new TexturePaint(image, scaledRect);
+                        } 
+                        graphics.setPaint(paint);
+                        graphics.setStroke(ls2d.getStroke());
+                        graphics.setComposite(ls2d.getContourComposite());
+                        graphics.draw(shape);
+                    }
                 }
             }
         }
+    }
+    
+    // draws the image along the path
+    private void drawWithGraphicsStroke(Graphics2D graphics, Shape shape, BufferedImage image) {
+        PathIterator pi = shape.getPathIterator(null, 10.0);
+        double[] coords = new double[2];
+        int type;
+        
+        // I suppose the image has been already scaled and its square
+        int imageSize = image.getWidth();
+
+        double[] first = new double[2];
+        double[] previous = new double[2];
+        type = pi.currentSegment(coords);
+        first[0] = coords[0];
+        first[1] = coords[1];
+        previous[0] = coords[0];
+        previous[1] = coords[1];
+
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("starting at " + first[0] + "," + first[1]);
+        }
+
+        pi.next();
+
+        while (!pi.isDone()) {
+            type = pi.currentSegment(coords);
+
+            switch (type) {
+            case PathIterator.SEG_MOVETO:
+
+                // nothing to do?
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("moving to " + coords[0] + "," + coords[1]);
+                }
+
+                break;
+
+            case PathIterator.SEG_CLOSE:
+
+                // draw back to first from previous
+                coords[0] = first[0];
+                coords[1] = first[1];
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("closing from " + previous[0] + "," + previous[1] + " to "
+                        + coords[0] + "," + coords[1]);
+                }
+
+            // no break here - fall through to next section
+            case PathIterator.SEG_LINETO:
+
+                // draw from previous to coords
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("drawing from " + previous[0] + "," + previous[1] + " to "
+                        + coords[0] + "," + coords[1]);
+                }
+
+                double dx = coords[0] - previous[0];
+                double dy = coords[1] - previous[1];
+                double len = Math.sqrt((dx * dx) + (dy * dy)); // - imageWidth;
+
+                double theta = Math.atan2(dx, dy);
+                dx = (Math.sin(theta) * imageSize);
+                dy = (Math.cos(theta) * imageSize);
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = "
+                        + Math.sqrt((dx * dx) + (dy * dy)));
+                }
+
+                double rotation = -(theta - (Math.PI / 2d));
+                double x = previous[0] + (dx / 2.0);
+                double y = previous[1] + (dy / 2.0);
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("len =" + len + " imageSize " + imageSize);
+                }
+
+                double dist = 0;
+
+                for (dist = 0; dist < (len - imageSize); dist += imageSize) {
+                    /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
+                    renderImage(graphics, x, y, image, rotation, 1);
+
+                    x += dx;
+                    y += dy;
+                }
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("loop end dist " + dist + " len " + len + " " + (len - dist));
+                }
+
+                double remainder = len - dist;
+                int remainingWidth = (int) remainder;
+                if (remainingWidth > 0) {
+
+                    //clip and render image
+                    if (LOGGER.isLoggable(Level.FINEST)) {
+                        LOGGER.finest("about to use clipped image " + remainder);
+                    }
+
+                    BufferedImage img = new BufferedImage(remainingWidth, imageSize, image.getType());
+                    Graphics2D ig = img.createGraphics();
+                    ig.drawImage(image, 0, 0, imgObserver);
+
+                    renderImage(graphics, x, y, img, rotation, 1);
+                }
+
+                break;
+
+            default:
+                LOGGER.warning("default branch reached in drawWithGraphicStroke");
+            }
+
+            previous[0] = coords[0];
+            previous[1] = coords[1];
+            pi.next();
+        }
+    }
+    
+    /**
+     * Renders an image on the device
+     *
+     * @param tx the image location on the screen, x coordinate
+     * @param ty the image location on the screen, y coordinate
+     * @param img the image
+     * @param rotation the image rotatation
+     */
+    private void renderImage(Graphics2D graphics, double x, double y, Image image, double rotation, float opacity) {
+        if (LOGGER.isLoggable(Level.FINEST)) {
+            LOGGER.finest("drawing Image @" + x + "," + y);
+        }
+
+        AffineTransform temp = graphics.getTransform();
+        AffineTransform markAT = new AffineTransform();
+        Point2D mapCentre = new java.awt.geom.Point2D.Double(x, y);
+        Point2D graphicCentre = new java.awt.geom.Point2D.Double();
+        temp.transform(mapCentre, graphicCentre);
+        markAT.translate(graphicCentre.getX(), graphicCentre.getY());
+
+        double shearY = temp.getShearY();
+        double scaleY = temp.getScaleY();
+
+        double originalRotation = Math.atan(shearY / scaleY);
+
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer("originalRotation " + originalRotation);
+        }
+
+        markAT.rotate(rotation);
+        graphics.setTransform(markAT);
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
+
+        // we moved the origin to the centre of the image.
+        graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image.getHeight(imgObserver) / 2, imgObserver);
+
+        graphics.setTransform(temp);
+
+        return;
     }
 }
