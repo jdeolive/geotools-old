@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,47 +13,42 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
 package org.geotools.styling;
 
-/** Provides a representation of a PolygonSymbolizer in an SLD
- *  Document.  A PolygonSymbolizer defines how a polygon geometry should
- *  be rendered.
- * 
- * @version $Id: PolygonSymbolizerImpl.java,v 1.11 2003/08/10 08:39:28 seangeo Exp $
+/**
+ * Provides a representation of a PolygonSymbolizer in an SLD Document.  A
+ * PolygonSymbolizer defines how a polygon geometry should be rendered.
+ *
  * @author James Macgill, CCG
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.12 2003/08/20 21:13:46 cholmesny Exp $
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private Fill fill = new FillImpl();
     private Stroke stroke = new StrokeImpl();
     private String geometryPropertyName = null;
 
-    /** Creates a new instance of DefaultPolygonStyler */
+    /**
+     * Creates a new instance of DefaultPolygonStyler
+     */
     protected PolygonSymbolizerImpl() {
     }
 
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
-     * geometry property of the feature should be used.
-     *
-     * Geometry types other than inherently area types can be used.
-     * If a line is used then the line string is closed for filling (only)
-     * by connecting its end point to its start point.
-     *
-     * The geometryPropertyName is the name of a geometry property in the
-     * Feature being styled.  Typically, features only have one geometry so,
-     * in general, the need to select one is not required.
-     *
+     * geometry property of the feature should be used. Geometry types other
+     * than inherently area types can be used. If a line is used then the line
+     * string is closed for filling (only) by connecting its end point to its
+     * start point. The geometryPropertyName is the name of a geometry
+     * property in the Feature being styled.  Typically, features only have
+     * one geometry so, in general, the need to select one is not required.
      * Note: this moves a little away from the SLD spec which provides an
      * XPath reference to a Geometry object, but does follow it in spirit.
      *
      * @return String The name of the attribute in the feature being styled
-     * that should be used.  If null then the default geometry should be used.
+     *         that should be used.  If null then the default geometry should
+     *         be used.
      */
     public String geometryPropertyName() {
         return geometryPropertyName;
@@ -62,10 +58,12 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         return geometryPropertyName;
     }
 
-    /** Sets the GeometryPropertyName.
-     * 
-     *  @param name The name of the GeometryProperty.
-     *  @see #PolygonSymbolizerImpl.geometryPropertyName()
+    /**
+     * Sets the GeometryPropertyName.
+     *
+     * @param name The name of the GeometryProperty.
+     *
+     * @see #PolygonSymbolizerImpl.geometryPropertyName()
      */
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
@@ -82,8 +80,8 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     }
 
     /**
-     * Sets the graphical-symbolization parameter to use to fill the area
-     * of the geometry.
+     * Sets the graphical-symbolization parameter to use to fill the area of
+     * the geometry.
      *
      * @param fill The Fill style to use when rendering the area.
      */
@@ -92,8 +90,8 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     }
 
     /**
-     * Provides the graphical-symbolization parameter to use for the outline
-     * of the Polygon.
+     * Provides the graphical-symbolization parameter to use for the outline of
+     * the Polygon.
      *
      * @return The Stroke style to use when rendering lines.
      */
@@ -102,8 +100,8 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     }
 
     /**
-     * Sets the graphical-symbolization parameter to use for the outline
-     * of the Polygon.
+     * Sets the graphical-symbolization parameter to use for the outline of the
+     * Polygon.
      *
      * @param stroke The Stroke style to use when rendering lines.
      */
@@ -111,64 +109,76 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         this.stroke = stroke;
     }
 
-    /** Accepts a StyleVisitor to perform some operation
-     *  on this LineSymbolizer.
-     * 
-     *  @param visitor The visitor to accept.
+    /**
+     * Accepts a StyleVisitor to perform some operation on this LineSymbolizer.
+     *
+     * @param visitor The visitor to accept.
      */
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
 
-    /** Creates a deep copy clone. 
-     * 
-     * TODO: Need to complete the deep copy,
+    /**
+     * Creates a deep copy clone.   TODO: Need to complete the deep copy,
      * currently only shallow copy.
-     * 
-     * @return The deep copy clone.
      *
+     * @return The deep copy clone.
      */
     public Object clone() {
         PolygonSymbolizerImpl clone;
+
         try {
             clone = (PolygonSymbolizerImpl) super.clone();
-            if ( fill != null ) {
+
+            if (fill != null) {
                 clone.fill = (Fill) fill.clone();
             }
-            if ( stroke != null ) {
+
+            if (stroke != null) {
                 clone.stroke = (Stroke) stroke.clone();
             }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
+
         return clone;
     }
-    
-    /** Generates a hashcode for the PolygonSymbolizerImpl.
-     * 
-     *  @return A hashcode.
+
+    /**
+     * Generates a hashcode for the PolygonSymbolizerImpl.
+     *
+     * @return A hashcode.
      */
     public int hashCode() {
         final int PRIME = 1000003;
         int result = 0;
+
         if (fill != null) {
-            result = PRIME * result + fill.hashCode();
+            result = (PRIME * result) + fill.hashCode();
         }
+
         if (stroke != null) {
-            result = PRIME * result + stroke.hashCode();
+            result = (PRIME * result) + stroke.hashCode();
         }
+
         if (geometryPropertyName != null) {
-            result = PRIME * result + geometryPropertyName.hashCode();
+            result = (PRIME * result) + geometryPropertyName.hashCode();
         }
 
         return result;
     }
 
-    /** Compares this PolygonSymbolizerImpl with another.
+    /**
+     * Compares this PolygonSymbolizerImpl with another.
      * 
-     *  <p>Two PolygonSymbolizerImpls are equal if they have
-     *  the same geometryProperty, fill and stroke. 
-     * 
+     * <p>
+     * Two PolygonSymbolizerImpls are equal if they have the same
+     * geometryProperty, fill and stroke.
+     * </p>
+     *
+     * @param oth the object to compare against.
+     *
+     * @return true if oth is equal to this object.
      */
     public boolean equals(Object oth) {
         if (this == oth) {
@@ -184,6 +194,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         }
 
         PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
+
         if (this.geometryPropertyName == null) {
             if (other.geometryPropertyName != null) {
                 return false;
@@ -193,6 +204,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
                 return false;
             }
         }
+
         if (this.fill == null) {
             if (other.fill != null) {
                 return false;
@@ -202,6 +214,7 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
                 return false;
             }
         }
+
         if (this.stroke == null) {
             if (other.stroke != null) {
                 return false;
@@ -214,5 +227,4 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
 
         return true;
     }
-
 }

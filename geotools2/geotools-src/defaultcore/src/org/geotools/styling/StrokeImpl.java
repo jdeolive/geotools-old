@@ -1,6 +1,7 @@
-/**
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,27 +13,23 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- **/
+ */
 package org.geotools.styling;
 
+import org.geotools.filter.Expression;
 import java.util.Arrays;
 
-import org.geotools.filter.Expression;
 
-
-/** Provides a Java representation of the Stroke object in an SLD document.
- *  A stroke defines how a line is rendered. 
+/**
+ * Provides a Java representation of the Stroke object in an SLD document. A
+ * stroke defines how a line is rendered.
  *
- *
- * @version $Id: StrokeImpl.java,v 1.11 2003/08/10 14:10:10 seangeo Exp $
  * @author James Macgill, CCG
+ * @version $Id: StrokeImpl.java,v 1.12 2003/08/20 21:13:46 cholmesny Exp $
  */
 public class StrokeImpl implements Stroke, Cloneable {
-    private static final org.geotools.filter.FilterFactory filterFactory = 
-            org.geotools.filter.FilterFactory.createFilterFactory();
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory
+        .createFilterFactory();
     private Expression color;
     private float[] dashArray;
     private Expression dashOffset;
@@ -43,20 +40,21 @@ public class StrokeImpl implements Stroke, Cloneable {
     private Expression opacity;
     private Expression width;
 
-    /** Creates a new instance of Stroke */
+    /**
+     * Creates a new instance of Stroke
+     */
     protected StrokeImpl() {
     }
 
     /**
      * This parameter gives the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component in the order Red, Green, Blue, prefixed with the
-     * hash (#) sign.  The hexidecimal digits between A and F may be in either
-     * upper or lower case.  For example, full red is encoded as "#ff0000" 
-     * (with no quotation marks).  The default color is defined to be
-     * black ("#000000").
-     *
-     * Note: in CSS this parameter is just called Stroke and not Color.
+     * primary-color component in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.  The hexidecimal digits between A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000"  (with no quotation marks).  The default color is defined to
+     * be black ("#000000"). Note: in CSS this parameter is just called Stroke
+     * and not Color.
      *
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      */
@@ -67,18 +65,15 @@ public class StrokeImpl implements Stroke, Cloneable {
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component in the order Red, Green, Blue, prefixed with the
-     * hash (#) sign.  The hexidecimal digits between A and F may be in either
-     * upper or lower case.  For example, full red is encoded as "#ff0000" 
-     * (with no quotation marks).  The default color is defined to be
-     * black ("#000000").
-     *
-     * Note: in CSS this parameter is just called Stroke and not Color.
-     * 
-     * 
+     * primary-color component in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.  The hexidecimal digits between A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000"  (with no quotation marks).  The default color is defined to
+     * be black ("#000000"). Note: in CSS this parameter is just called Stroke
+     * and not Color.
      *
      * @param color The color of the stroke encoded as a hexidecimal RGB value.
-     * This must not be null.
+     *        This must not be null.
      */
     public void setColor(Expression color) {
         if (color == null) {
@@ -91,13 +86,12 @@ public class StrokeImpl implements Stroke, Cloneable {
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
-     * primary-color component in the order Red, Green, Blue, prefixed with the
-     * hash (#) sign.  The hexidecimal digits between A and F may be in either
-     * upper or lower case.  For example, full red is encoded as "#ff0000" 
-     * (with no quotation marks).  The default color is defined to be
-     * black ("#000000").
-     *
-     * Note: in CSS this parameter is just called Stroke and not Color.
+     * primary-color component in the order Red, Green, Blue, prefixed with
+     * the hash (#) sign.  The hexidecimal digits between A and F may be in
+     * either upper or lower case.  For example, full red is encoded as
+     * "#ff0000"  (with no quotation marks).  The default color is defined to
+     * be black ("#000000"). Note: in CSS this parameter is just called Stroke
+     * and not Color.
      *
      * @param color The color of the stroke encoded as a hexidecimal RGB value.
      */
@@ -107,19 +101,17 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     /**
      * This parameter encodes the dash pattern as a series of floats.<br>
-     * The first number gives the length in pixels of the dash to draw,
-     * the second gives the amount of space to leave, and this pattern
-     * repeats.<br>
-     * If an odd number of values is given, then the pattern is expanded
-     * by repeating it twice to give an even number of values.
-     * The default is to draw an unbroken line.<br>
-     *
+     * The first number gives the length in pixels of the dash to draw, the
+     * second gives the amount of space to leave, and this pattern repeats.<br>
+     * If an odd number of values is given, then the pattern is expanded by
+     * repeating it twice to give an even number of values. The default is to
+     * draw an unbroken line.<br>
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;
      * ---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      *
      * @return The dash pattern as an array of float values in the form
-     * "dashlength gaplength ..."
+     *         "dashlength gaplength ..."
      */
     public float[] getDashArray() {
         float[] ret = new float[0];
@@ -137,16 +129,15 @@ public class StrokeImpl implements Stroke, Cloneable {
      * The first number gives the length in pixels of the dash to draw, the
      * second gives the amount of space to leave, and this pattern repeats.<br>
      * If an odd number of values is given, then the pattern is expanded by
-     * repeating it twice to give an even number of values.
-     * The default is to draw an unbroken line.<br>
-     *
+     * repeating it twice to give an even number of values. The default is to
+     * draw an unbroken line.<br>
      * For example, "2 1 3 2" would produce:<br>
      * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;
      * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;
      * ---&nbsp;&nbsp;--</code>
      *
      * @param dashPattern The dash pattern as an array of float values in the
-     * form "dashlength gaplength ..."
+     *        form "dashlength gaplength ..."
      */
     public void setDashArray(float[] dashPattern) {
         dashArray = dashPattern;
@@ -154,6 +145,8 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     /**
      * This param determines where the dash pattern should start from.
+     *
+     * @return where the dash should start from.
      */
     public Expression getDashOffset() {
         return dashOffset;
@@ -161,8 +154,9 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     /**
      * This param determines where the dash pattern should start from.
-     * @param offset The distance into the dash pattern that should act as
-     *        the start.
+     *
+     * @param offset The distance into the dash pattern that should act as the
+     *        start.
      */
     public void setDashOffset(Expression offset) {
         if (offset == null) {
@@ -173,40 +167,38 @@ public class StrokeImpl implements Stroke, Cloneable {
     }
 
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will
-     * be used and specifies the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will be
+     * used and specifies the fill graphic to use.
      *
-     * @return The graphic to use as a stipple fill.
-     *         If null, then no Stipple fill should be used.
+     * @return The graphic to use as a stipple fill. If null, then no Stipple
+     *         fill should be used.
      */
     public Graphic getGraphicFill() {
         return fillGraphic;
     }
 
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will
-     * be used and specifies the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will be
+     * used and specifies the fill graphic to use.
      *
-     * @param graphic The graphic to use as a stipple fill.
-     *        If null, then no Stipple fill should be used.
+     * @param graphic The graphic to use as a stipple fill. If null, then no
+     *        Stipple fill should be used.
      */
     public void setGraphicFill(Graphic graphic) {
         fillGraphic = graphic;
     }
 
     /**
-     * This parameter indicates that a repeated-linear-graphic graphic
-     * stroke type will be used and specifies the graphic to use.
-     *
-     * Proper stroking with a linear graphic requires two "hot-spot" points
-     * within the space of the graphic to indicate where the rendering line
-     * starts and stops.
-     * In the case of raster images with no special mark-up, this line will
-     * be assumed to be the middle pixel row of the image, starting from the
+     * This parameter indicates that a repeated-linear-graphic graphic stroke
+     * type will be used and specifies the graphic to use. Proper stroking
+     * with a linear graphic requires two "hot-spot" points within the space
+     * of the graphic to indicate where the rendering line starts and stops.
+     * In the case of raster images with no special mark-up, this line will be
+     * assumed to be the middle pixel row of the image, starting from the
      * first pixel column and ending at the last pixel column.
      *
-     * @return The graphic to use as a linear graphic.
-     *         If null, then no graphic stroke should be used.
+     * @return The graphic to use as a linear graphic. If null, then no graphic
+     *         stroke should be used.
      */
     public Graphic getGraphicStroke() {
         return strokeGraphic;
@@ -214,17 +206,15 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     /**
      * This parameter indicates that a repeated-linear-graphic graphic stroke
-     * type will be used and specifies the graphic to use.
-     *
-     * Proper stroking with a linear graphic requires two "hot-spot" points
-     * within the space of the graphic to indicate where the rendering line
-     * starts and stops.
-     * In the case of raster images with no special mark-up, this line will
-     * be assumed to be the middle pixel row of the image, starting from the
+     * type will be used and specifies the graphic to use. Proper stroking
+     * with a linear graphic requires two "hot-spot" points within the space
+     * of the graphic to indicate where the rendering line starts and stops.
+     * In the case of raster images with no special mark-up, this line will be
+     * assumed to be the middle pixel row of the image, starting from the
      * first pixel column and ending at the last pixel column.
      *
-     * @param graphic The graphic to use as a linear graphic.
-     *        If null, then no graphic stroke should be used.
+     * @param graphic The graphic to use as a linear graphic. If null, then no
+     *        graphic stroke should be used.
      */
     public void setGraphicStroke(Graphic graphic) {
         strokeGraphic = graphic;
@@ -243,8 +233,8 @@ public class StrokeImpl implements Stroke, Cloneable {
     /**
      * This parameter controls how line strings should be capped.
      *
-     * @param cap The cap style. This can be one of "butt", "round" and "square"
-     *        There is no defined default.
+     * @param cap The cap style. This can be one of "butt", "round" and
+     *        "square" There is no defined default.
      */
     public void setLineCap(Expression cap) {
         if (cap == null) {
@@ -258,7 +248,7 @@ public class StrokeImpl implements Stroke, Cloneable {
      * This parameter controls how line strings should be joined together.
      *
      * @return The join style.  This will be one of "mitre", "round" and
-     * "bevel".  There is no defined default.
+     *         "bevel".  There is no defined default.
      */
     public Expression getLineJoin() {
         return lineJoin;
@@ -268,7 +258,7 @@ public class StrokeImpl implements Stroke, Cloneable {
      * This parameter controls how line strings should be joined together.
      *
      * @param join The join style.  This will be one of "mitre", "round" and
-     * "bevel". There is no defined default.
+     *        "bevel". There is no defined default.
      */
     public void setLineJoin(Expression join) {
         if (join == null) {
@@ -279,34 +269,30 @@ public class StrokeImpl implements Stroke, Cloneable {
     }
 
     /**
-     * This specifies the level of translucency to use when rendering the
-     * stroke.<br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0
-     * with 0.0 representing totally transparent and 1.0 representing totally
-     * opaque.  A linear scale of translucency is used for intermediate
-     * values.<br>
-     * For example, "0.65" would represent 65% opacity.
-     * The default value is 1.0 (opaque).
+     * This specifies the level of translucency to use when rendering the stroke.<br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0 with
+     * 0.0 representing totally transparent and 1.0 representing totally
+     * opaque.  A linear scale of translucency is used for intermediate values.<br>
+     * For example, "0.65" would represent 65% opacity. The default value is
+     * 1.0 (opaque).
      *
      * @return The opacity of the stroke, where 0.0 is completely transparent
-     * and 1.0 is completely opaque.
+     *         and 1.0 is completely opaque.
      */
     public Expression getOpacity() {
         return opacity;
     }
 
     /**
-     * This specifies the level of translucency to use when rendering the
-     * stroke.<br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0
-     * with 0.0 representing totally transparent and 1.0 representing totally
-     * opaque.  A linear scale of translucency is used for intermediate
-     * values.<br>
-     * For example, "0.65" would represent 65% opacity.
-     * The default value is 1.0 (opaque).
+     * This specifies the level of translucency to use when rendering the stroke.<br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0 with
+     * 0.0 representing totally transparent and 1.0 representing totally
+     * opaque.  A linear scale of translucency is used for intermediate values.<br>
+     * For example, "0.65" would represent 65% opacity. The default value is
+     * 1.0 (opaque).
      *
      * @param level The opacity of the stroke, where 0.0 is completely
-     * transparent and 1.0 is completely opaque.
+     *        transparent and 1.0 is completely opaque.
      */
     public void setOpacity(Expression level) {
         if (level == null) {
@@ -318,25 +304,23 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
-     * pixels encoded as a float.
-     * The default is 1.0.  Fractional numbers are allowed but negative
-     * numbers are not.
+     * pixels encoded as a float. The default is 1.0.  Fractional numbers are
+     * allowed but negative numbers are not.
      *
-     * @return The width of the stroke in pixels.  This may be fractional
-     * but not negative.
+     * @return The width of the stroke in pixels.  This may be fractional but
+     *         not negative.
      */
     public Expression getWidth() {
         return width;
     }
 
     /**
-     * This parameter sets the absolute width (thickness) of a stroke in
-     * pixels encoded as a float.
-     * The default is 1.0.  Fractional numbers are allowed but negative
-     * numbers are not.
+     * This parameter sets the absolute width (thickness) of a stroke in pixels
+     * encoded as a float. The default is 1.0.  Fractional numbers are allowed
+     * but negative numbers are not.
      *
      * @param expr The width of the stroke in pixels.  This may be fractional
-     * but not negative.
+     *        but not negative.
      */
     public void setWidth(Expression expr) {
         if (expr == null) {
@@ -348,7 +332,7 @@ public class StrokeImpl implements Stroke, Cloneable {
 
     public String toString() {
         StringBuffer out = new StringBuffer(
-                                   "org.geotools.styling.StrokeImpl:\n");
+                "org.geotools.styling.StrokeImpl:\n");
         out.append("\tColor " + this.color + "\n");
         out.append("\tWidth " + this.width + "\n");
         out.append("\tOpacity " + this.opacity + "\n");
@@ -365,75 +349,86 @@ public class StrokeImpl implements Stroke, Cloneable {
     public java.awt.Color getColor(org.geotools.feature.Feature feature) {
         return java.awt.Color.decode((String) this.getColor().getValue(feature));
     }
-    
+
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
-    /** Clone the StrokeImpl object.
+
+    /**
+     * Clone the StrokeImpl object.
      * 
-     *  <p>The clone is a deep copy of the original, except for
-     *  the expression values which are immutable.
-     *  
+     * <p>
+     * The clone is a deep copy of the original, except for the expression
+     * values which are immutable.
+     * </p>
+     *
      * @see org.geotools.styling.Stroke#clone()
      */
     public Object clone() {
         try {
             StrokeImpl clone = (StrokeImpl) super.clone();
-            
-            if ( dashArray != null ) {
+
+            if (dashArray != null) {
                 clone.dashArray = new float[dashArray.length];
-                System.arraycopy(dashArray, 0, clone.dashArray, 0, dashArray.length);
+                System.arraycopy(dashArray, 0, clone.dashArray, 0,
+                    dashArray.length);
             }
-            
-            if ( fillGraphic != null ) {
+
+            if (fillGraphic != null) {
                 clone.fillGraphic = (Graphic) fillGraphic.clone();
             }
-            
-            if ( strokeGraphic != null ) {
+
+            if (strokeGraphic != null) {
                 clone.strokeGraphic = (Graphic) strokeGraphic.clone();
             }
-            
+
             return clone;
         } catch (CloneNotSupportedException e) {
             // This will never happen
             throw new RuntimeException("Failed to clone StrokeImpl");
         }
     }
-    
+
     public int hashCode() {
         final int PRIME = 1000003;
         int result = 0;
+
         if (color != null) {
-            result = PRIME * result + color.hashCode();
+            result = (PRIME * result) + color.hashCode();
         }
-        
+
         if (dashOffset != null) {
-            result = PRIME * result + dashOffset.hashCode();
+            result = (PRIME * result) + dashOffset.hashCode();
         }
+
         if (fillGraphic != null) {
-            result = PRIME * result + fillGraphic.hashCode();
+            result = (PRIME * result) + fillGraphic.hashCode();
         }
+
         if (strokeGraphic != null) {
-            result = PRIME * result + strokeGraphic.hashCode();
+            result = (PRIME * result) + strokeGraphic.hashCode();
         }
+
         if (lineCap != null) {
-            result = PRIME * result + lineCap.hashCode();
+            result = (PRIME * result) + lineCap.hashCode();
         }
+
         if (lineJoin != null) {
-            result = PRIME * result + lineJoin.hashCode();
+            result = (PRIME * result) + lineJoin.hashCode();
         }
+
         if (opacity != null) {
-            result = PRIME * result + opacity.hashCode();
+            result = (PRIME * result) + opacity.hashCode();
         }
+
         if (width != null) {
-            result = PRIME * result + width.hashCode();
+            result = (PRIME * result) + width.hashCode();
         }
-        
+
         if (dashArray != null) {
-            result = PRIME * result + hashCodeDashArray(dashArray);
+            result = (PRIME * result) + hashCodeDashArray(dashArray);
         }
-        
+
         return result;
     }
 
@@ -442,23 +437,27 @@ public class StrokeImpl implements Stroke, Cloneable {
      */
     private int hashCodeDashArray(float[] a) {
         final int PRIME = 1000003;
+
         if (a == null) {
             return 0;
         }
 
         int result = 0;
+
         for (int i = 0; i < a.length; i++) {
-            result = PRIME * result + Float.floatToIntBits(a[i]);
+            result = (PRIME * result) + Float.floatToIntBits(a[i]);
         }
 
         return result;
     }
 
-   /** Compares this stroke with another stroke for equality.
-    *  
-    *  @param oth The other StrokeImpl to compare
-    *  @return True if this and oth are equal.
-    */
+    /**
+     * Compares this stroke with another stroke for equality.
+     *
+     * @param oth The other StrokeImpl to compare
+     *
+     * @return True if this and oth are equal.
+     */
     public boolean equals(Object oth) {
         if (this == oth) {
             return true;
@@ -473,6 +472,7 @@ public class StrokeImpl implements Stroke, Cloneable {
         }
 
         StrokeImpl other = (StrokeImpl) oth;
+
         // check the color first - most likely to change
         if (this.color == null) {
             if (other.color != null) {
@@ -482,7 +482,8 @@ public class StrokeImpl implements Stroke, Cloneable {
             if (!this.color.equals(other.color)) {
                 return false;
             }
-        }  
+        }
+
         // check the width 
         if (this.width == null) {
             if (other.width != null) {
@@ -492,7 +493,8 @@ public class StrokeImpl implements Stroke, Cloneable {
             if (!this.width.equals(other.width)) {
                 return false;
             }
-        }      
+        }
+
         // check the dashOffset
         if (this.dashOffset == null) {
             if (other.dashOffset != null) {
@@ -502,7 +504,8 @@ public class StrokeImpl implements Stroke, Cloneable {
             if (!this.dashOffset.equals(other.dashOffset)) {
                 return false;
             }
-        }        
+        }
+
         if (this.lineCap == null) {
             if (other.lineCap != null) {
                 return false;
@@ -512,6 +515,7 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
+
         if (this.lineJoin == null) {
             if (other.lineJoin != null) {
                 return false;
@@ -521,6 +525,7 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
+
         if (this.opacity == null) {
             if (other.opacity != null) {
                 return false;
@@ -530,6 +535,7 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
+
         if (this.fillGraphic == null) {
             if (other.fillGraphic != null) {
                 return false;
@@ -539,6 +545,7 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
+
         if (this.strokeGraphic == null) {
             if (other.strokeGraphic != null) {
                 return false;
@@ -548,11 +555,11 @@ public class StrokeImpl implements Stroke, Cloneable {
                 return false;
             }
         }
+
         if (!Arrays.equals(dashArray, other.dashArray)) {
             return false;
         }
-        
+
         return true;
     }
-
 }
