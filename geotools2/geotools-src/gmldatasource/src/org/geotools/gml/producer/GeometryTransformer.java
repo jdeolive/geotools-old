@@ -37,7 +37,11 @@ public class GeometryTransformer {
     }
     
     public GeometryTransformer(ContentHandler handler) {
-        this(handler,GMLUtils.GML_URL, "gml");
+        this(handler,GMLUtils.GML_URL, null);
+    }
+    
+    public GeometryTransformer(ContentHandler handler,String prefix) {
+        this(handler,GMLUtils.GML_URL, prefix);
     }
     
     public void encode(Geometry geometry) {
