@@ -1,10 +1,11 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -12,12 +13,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
  */
-
 package org.geotools.filter;
 
 // J2SE dependencies
@@ -35,7 +31,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterSAXParser.java,v 1.3 2002/12/13 19:43:09 cholmesny Exp $
+ * @version $Id: FilterSAXParser.java,v 1.4 2003/06/02 23:29:20 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterSAXParser {
@@ -43,13 +39,13 @@ public class FilterSAXParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
     private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
-    /** The (limited) REGEXP pattern. */
+    /** The filter being currently constructed */
     private Filter currentFilter = null;
 
-    /** The (limited) REGEXP pattern. */
+    /** The current completion state of the filter */
     private String currentState = "uninitialized";
 
-    /** The (limited) REGEXP pattern. */
+    /** The short representation of this type of filter */
     private short filterType;
 
     /** the Attributes of the filter (only applicable to LIKE filters, I think) */
@@ -72,25 +68,29 @@ public class FilterSAXParser {
      */
     public void start(short filterType)
         throws IllegalFilterException {
-
+	LOGGER.finest("starting filter type " + filterType);
         if( filterType == AbstractFilter.FID && !currentState.equals("fid")) {
 	    LOGGER.finer("creating the FID filter");
 	    currentFilter = filterFactory.createFidFilter();            
 	}
+	else if( AbstractFilter.isGeometryDistanceFilter(filterType) ) {
+	    currentFilter = filterFactory.createGeometryDistanceFilter(filterType);            
+	    
+        }
         else if( AbstractFilter.isGeometryFilter(filterType) ) {
             currentFilter = filterFactory.createGeometryFilter(filterType);            
         }
         else if( filterType == AbstractFilter.BETWEEN ) {
             currentFilter = filterFactory.createBetweenFilter();            
         }
-        else if( AbstractFilter.isCompareFilter(filterType) ) {
-            currentFilter = filterFactory.createCompareFilter(filterType);            
-        }
         else if( filterType == AbstractFilter.NULL ) {
             currentFilter = filterFactory.createNullFilter();            
         }
         else if( filterType == AbstractFilter.LIKE ) {
             currentFilter = filterFactory.createLikeFilter();            
+        }
+        else if( AbstractFilter.isCompareFilter(filterType) ) {
+            currentFilter = filterFactory.createCompareFilter(filterType);            
         }
         else {
             throw new IllegalFilterException
@@ -126,8 +126,7 @@ public class FilterSAXParser {
         throws IllegalFilterException {
 
         // Handle all filter compare states and expressions
-        LOGGER.finer("got expression: " + expression.toString());
-        LOGGER.finer("current state (start): " + currentState);
+       
         if( filterType == AbstractFilter.BETWEEN ) {
             if( currentState.equals("attribute") ) {
                 ((BetweenFilter) currentFilter).addMiddleValue(expression);
@@ -180,8 +179,14 @@ public class FilterSAXParser {
             }
             else if( currentState.equals("rightValue") ) {
                 ((GeometryFilter) currentFilter).addRightGeometry(expression);
-                currentState = "complete";
-            }
+		if (AbstractFilter.isGeometryDistanceFilter(filterType)) {
+		    currentState = "distance";
+		} else {				 
+		    currentState = "complete";
+		}
+		LOGGER.finer("expression called on geometry, curState = " + 
+			     currentState);
+	    }
             else {
                 throw new IllegalFilterException
                     ("Got expression for Geometry Filter in illegal state: "
@@ -202,7 +207,14 @@ public class FilterSAXParser {
                 }
                 String wildcard = (String)attributes.get("wildCard");
                 String singleChar = (String)attributes.get("singleChar");
-                String escapeChar = (String)attributes.get("escapeChar");
+                String escapeChar = (String)attributes.get("escape");
+		LOGGER.fine("escape char is " + escapeChar);
+		//old way, this should deprecate, but keep it for backwords
+		//compatability.  Spec says escape.
+		if (escapeChar == null) {
+		    escapeChar = (String)attributes.get("escapeChar");
+		}
+		LOGGER.fine("if null get new : " + escapeChar);
                 ((LikeFilter) currentFilter).setPattern(expression,
                                                         wildcard,
                                                         singleChar,
@@ -233,7 +245,8 @@ public class FilterSAXParser {
         }
         else {
             throw new IllegalFilterException
-                ("Got to the end state of an incomplete filter.");
+                ("Got to the end state of an incomplete filter, current" + 
+		 " state is " + currentState);
         }
 
 
@@ -265,6 +278,45 @@ public class FilterSAXParser {
 
     }
 
+    /**
+     * This sets the distance for a GeometryDistanceFilter.  It currently
+     * ignores the units, and attempts to convert the distance to a double.
+     * 
+     * @param distance the distance - should be a string of a double.
+     * @param units a reference to a units dictionary.
+     * @throws IllegelFilterException if the distance string can not be 
+     * converted to a double.  
+     * @task TODO: Implement units, probably with org.geotools.units package
+     * and a special distance class in the filter package.  It would be
+     * nice if the distance class could get any type of units, like
+     * it would handle the conversion.
+     */
+    public void setDistance(String distance, String units) 
+	throws IllegalFilterException {
+	LOGGER.finer("set distance called, current state is " + currentState);
+	if (currentState.equals("distance")) {
+	    try {
+		double distDouble = Double.parseDouble(distance);
+		((GeometryDistanceFilter) currentFilter).setDistance(distDouble);
+		currentState = "complete";
+	    } catch (NumberFormatException nfe) {
+		throw new IllegalFilterException("could not parse distance: " +
+						 distance + " to a double");
+	    }
+	} else {
+	    throw new IllegalFilterException
+		("Got distance for Geometry Distance Filter in illegal state: "
+		 + currentState + ", geometry and property should be set first");
+	}
+    }
+
+    /**
+     * Sets the filter attributes.  Called when attributes are encountered
+     * by the filter filter.  Puts them in a hash map by thier name and 
+     * value.
+     * 
+     * @param atts the attributes to set.
+     */
     public void setAttributes(Attributes atts){
         LOGGER.finer("got attribute: " + atts.getLocalName(0) + 
                      ", " + atts.getValue(0));
@@ -282,8 +334,9 @@ public class FilterSAXParser {
     }
 
     /**
-     * Sets the multi wildcard for this LikeFilter.
+     * Indicates that the filter is in a complete state (ready to be created.)
      *
+     * @return <tt>true</tt> if the current state is either complete or fid
      */
     private boolean isComplete() {
         if( currentState.equals("complete") ||

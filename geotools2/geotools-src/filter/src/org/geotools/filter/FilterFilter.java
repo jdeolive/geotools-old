@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: FilterFilter.java,v 1.18 2003/05/27 20:47:38 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.19 2003/06/02 23:29:20 cholmesny Exp $
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** The logger for the filter module. */
@@ -76,11 +76,11 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** Whether or not this parser should consider namespaces. */
     private boolean insideFilter = false;
 
-    // Static Globals to handle some expected elements
+    /** Whether we are inside a distance element or not. */
+    private boolean insideDistance = false;
 
-    /**
-     * GML namespace string.     */
-    //private static final String GML_NAMESPACE = "http://www.opengis.net/gml";
+    /** units for a distance element attribute. somewhere else? */
+    private String units;
 
     /**
      * Constructor with parent, which must implement GMLHandlerJTS.
@@ -169,6 +169,15 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                     else if (DefaultExpression.isExpression(filterElementType)) {
                         LOGGER.finest("found an expression filter start");
                         expressionFactory.start(localName);
+                    } else if (localName.equals("Distance")) {
+                        LOGGER.finest("inside distance");
+
+                        if (atts.getLocalName(0).equals("units")) {
+                            units = atts.getValue(0);
+                            LOGGER.finest("units = " + units);
+                        }
+
+                        insideDistance = true;
                     }
                 }
             } catch (IllegalFilterException e) {
@@ -203,8 +212,14 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
 
         if (insideFilter) {
             try {
-                LOGGER.finest("sending to expression factory: " + message);
-                expressionFactory.message(message);
+                if (insideDistance) {
+                    LOGGER.finest("calling set distance on " + message + ", " +
+                        units);
+                    filterFactory.setDistance(message, units);
+                } else {
+                    LOGGER.finest("sending to expression factory: " + message);
+                    expressionFactory.message(message);
+                }
             } catch (IllegalFilterException ife) {
                 throw new SAXException(ife);
             }
@@ -288,8 +303,8 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                     }
                 }
                 // if at the end of an expression, two cases:
-           //1. at the end of an outer expression, create it and pass to filter
-              //  2. at end of an inner expression, pass the message along to 
+                //1. at the end of an outer expression, create it and pass to filter
+                //  2. at end of an inner expression, pass the message along to 
                 //      current outer expression
                 else if (DefaultExpression.isExpression(filterElementType)) {
                     LOGGER.finer("found an expression filter end");
@@ -299,6 +314,8 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                         LOGGER.finer("expression factory is ready");
                         filterFactory.expression(expressionFactory.create());
                     }
+                } else if (localName.equals("Distance")) {
+                    insideDistance = false;
                 }
             } catch (IllegalFilterException e) {
                 throw new SAXException(
@@ -331,21 +348,13 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         }
     }
 
-    /* ************************************************************************
-     * Following static methods check for certain aggregate types, based on
-     * (above) declared types.  Note that these aggregate types do not
-     * necessarily map directly to the sub-classes of AbstractFilter.  In most,
-     * but not all, cases, a single class implements an aggregate type.
-     * However, there are aggregate types that are implemented by multiple
-     * classes (ie. the Math type is implemented by two separate classes).
-     * ***********************************************************************/
-
     /**
-     * Checks to see if passed type is logic.
+     * Converts the string representation of the expression to the
+     * AbstractFilter or DefaultExpression short type.
      *
      * @param filterType Type of filter for check.
      *
-     * @return Whether or not this is a logic filter type.
+     * @return the short representation of the filter.
      */
     protected static short convertType(String filterType) {
         // matches all filter types to the default logic type
@@ -379,7 +388,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
             return AbstractFilter.COMPARE_EQUALS;
         } else if (filterType.equals("PropertyIsNotEqualTo")) {
             return AbstractFilter.COMPARE_NOT_EQUALS;
-        }else if (filterType.equals("PropertyIsLessThan")) {
+        } else if (filterType.equals("PropertyIsLessThan")) {
             return AbstractFilter.COMPARE_LESS_THAN;
         } else if (filterType.equals("PropertyIsGreaterThan")) {
             return AbstractFilter.COMPARE_GREATER_THAN;
