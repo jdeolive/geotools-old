@@ -121,13 +121,14 @@ public class OracleDataStoreFactory
         String user = (String) params.get("user");
         String passwd = (String) params.get("passwd");
         String schema = (String) params.get("schema");
+        String namespace = (String) params.get("namespace");
 
         try {
             OracleConnectionFactory ocFactory = new OracleConnectionFactory(host, port, instance);
-
             ocFactory.setLogin(user, passwd);
-
             ConnectionPool pool = ocFactory.getConnectionPool();
+            
+            
             OracleDataStore dataStore = new OracleDataStore(pool, schema, new HashMap());
 
             return dataStore;
@@ -169,7 +170,8 @@ public class OracleDataStoreFactory
             new Param("user", String.class, "The user name to log in with.", true),
             new Param("passwd", String.class, "The password.", true),
             new Param("instance", String.class, "The name of the Oracle instance to connect to.", true),   
-            new Param("schema", String.class, "The schema to narrow down the exposed tables.", false)                    
+            new Param("schema", String.class, "The schema name to narrow down the exposed tables.", false),
+            new Param("namespace", String.class, "The namespace to give the DataStore.", false)
         };                
     }    
 }
