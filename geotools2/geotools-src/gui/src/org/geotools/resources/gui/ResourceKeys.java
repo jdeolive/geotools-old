@@ -22,9 +22,12 @@ package org.geotools.resources.gui;
  */
 public interface ResourceKeys
 {
+    public static final int ALL                      =    47;
     public static final int CANCEL                   =    38;
+    public static final int CATEGORY                 =    48;
     public static final int CLASS                    =    33;
     public static final int CLOSE                    =     0;
+    public static final int COLUMNS                  =    49;
     public static final int COORDINATES_SELECTION    =    19;
     public static final int DEBUG                    =     1;
     public static final int DOWN                     =     2;
@@ -32,9 +35,13 @@ public interface ResourceKeys
     public static final int EVENT_LOGGER             =    37;
     public static final int EXCEPTION                =    41;
     public static final int GEOGRAPHIC_COORDINATES   =    21;
+    public static final int GRADIENT_MASKS           =    50;
     public static final int HIDE                     =     3;
+    public static final int HORIZONTAL_COMPONENT     =    58;
+    public static final int KERNEL                   =    51;
     public static final int LEFT                     =     4;
     public static final int LEVEL                    =    31;
+    public static final int LINES                    =    52;
     public static final int LOADING_$1               =    40;
     public static final int LOGGER                   =    34;
     public static final int MAGNIFIER                =     5;
@@ -44,6 +51,9 @@ public interface ResourceKeys
     public static final int METHOD                   =    35;
     public static final int NO_DETAILS_$1            =     6;
     public static final int OK                       =    39;
+    public static final int OTHERS                   =    53;
+    public static final int PERSONALIZED             =    54;
+    public static final int PREDEFINED_KERNELS       =    55;
     public static final int PREFERRED_RESOLUTION     =    22;
     public static final int PROGRESSION              =    44;
     public static final int RECTANGLE_$4             =     7;
@@ -53,6 +63,7 @@ public interface ResourceKeys
     public static final int ROTATE_RIGHT             =    11;
     public static final int SET_PREFERRED_RESOLUTION =    23;
     public static final int SHOW_MAGNIFIER           =    12;
+    public static final int SIZE                     =    56;
     public static final int SIZE_IN_MINUTES          =    24;
     public static final int START_TIME               =    25;
     public static final int TIME_OF_DAY              =    36;
@@ -61,6 +72,7 @@ public interface ResourceKeys
     public static final int UNTITLED                 =    42;
     public static final int UP                       =    13;
     public static final int USE_BEST_RESOLUTION      =    28;
+    public static final int VERTICAL_COMPONENT       =    59;
     public static final int WARNING                  =    43;
     public static final int ZOOM_IN                  =    14;
     public static final int ZOOM_MAX                 =    15;
@@ -70,4 +82,5 @@ public interface ResourceKeys
     public static final int ERROR_BAD_COORDINATE_$1  =    29;
     public static final int ERROR_BAD_ENTRY          =    30;
     public static final int ERROR_BAD_RECTANGLE_$1   =    18;
+    public static final int ERROR_FILTERS            =    57;
 }
