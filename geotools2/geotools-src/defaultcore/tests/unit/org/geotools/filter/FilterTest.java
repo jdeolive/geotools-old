@@ -266,6 +266,12 @@ public class FilterTest extends TestCase {
         //_log.info( "contains feature: " + filter.contains(testFeature));
         assertEquals("filter string doesn't match","[ testString is like cows\\* ]",filter.toString());
     
+        // Test for \ as an escape char
+        
+        filter.setPattern(new LiteralExpressionImpl("cows\\."),"*",".","\\");
+        //_log.info( filter.toString());            
+        //_log.info( "contains feature: " + filter.contains(testFeature));
+        assertEquals("filter string doesn't match","[ testString is like cows\\. ]",filter.toString());
         // test for escaped escapes
         
         filter.setPattern(new LiteralExpressionImpl("co!!ws*"),"*",".","!");
