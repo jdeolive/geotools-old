@@ -22,10 +22,10 @@ package org.geotools.data;
 
 import org.geotools.feature.FeatureCollection;
 /**
- * The source of data for Features. Shapefiles, database, etc. are referenced
+ * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
- * @version $Id: DataSource.java,v 1.2 2002/05/26 09:32:59 jmacgill Exp $
- * @author ray
+ * @version $Id: DataSource.java,v 1.3 2002/06/04 14:21:03 loxnard Exp $
+ * @author Ray Gallagher
  */
 public interface DataSource {
     
@@ -42,7 +42,7 @@ public interface DataSource {
     /**
      * Saves the given features to the datasource.
      * @param ft featureTable to get features from
-     * @param ex extent to define which features to write - null means all
+     * @param ex an extent defining which features to write - null means all
      * @throws DataSourceException if anything goes wrong or if exporting is
      * not supported
      */
@@ -54,17 +54,19 @@ public interface DataSource {
      */
     public void stopLoading();
     
-    /** gets the extent of this data source using the default speed of 
+    /**
+     * Gets the extent of this datasource using the default speed of 
      * this datasource as set by the implementer. 
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
      */
      public Extent getExtent();
     
-    /** gets the extent of this data source using the speed of 
+    /**
+     * Gets the extent of this datasource using the speed of 
      * this datasource as set by the parameter.
      * @param speed if true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but acurate extent
+     * the extent is returned. If false then a slow but accurate extent
      * will be returned
      * @return the extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
