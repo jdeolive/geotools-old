@@ -16,28 +16,19 @@
  */
 package org.geotools.renderer.j2d;
 
-// J2SE dependencies
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Logger;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.sfs.SFSCurve;
-import com.vividsolutions.jts.geom.sfs.SFSGeometry;
-import com.vividsolutions.jts.geom.sfs.SFSLinearRing;
-import com.vividsolutions.jts.geom.sfs.SFSPoint;
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.ct.TransformException;
 
 // Geotools dependencies
 import org.geotools.feature.Feature;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
-import org.geotools.cs.CoordinateSystem;
-import org.geotools.ct.TransformException;
 import org.geotools.renderer.geom.Geometry;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
@@ -53,33 +44,35 @@ import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.geotools.util.RangeSet;
 
+// J2SE dependencies
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
+
 
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.15 2003/11/01 17:34:28 aaime Exp $
  * @author Andrea Aime
  * @author Martin Desruisseaux
+ * @version $Id: RenderedLayerFactory.java,v 1.16 2003/11/20 07:28:02 aaime Exp $
  */
 public class RenderedLayerFactory {
-    /**
-     * The logger.
-     */
+    /** The logger. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
 
-    /**
-     * The full range of map scale.
-     */
+    /** The full range of map scale. */
     private static final NumberRange FULL_SCALE_RANGE = new NumberRange(0.0, Double.MAX_VALUE);
 
-    /**
-     * Prepare the style factory that will convert SLD styles into resolved styles.
-     */
+    /** Prepare the style factory that will convert SLD styles into resolved styles. */
     private final SLDStyleFactory styleFactory = new SLDStyleFactory();
 
     /**
-     * The default coordinate system for geometry to be created. If a geometry defines explicitly
-     * a coordinate system, then the geometry CS will have precedence over this default CS.
+     * The default coordinate system for geometry to be created. If a geometry defines explicitly a
+     * coordinate system, then the geometry CS will have precedence over this default CS.
      *
      * @see #getCoordinateSystem
      * @see #setCoordinateSystem
@@ -94,8 +87,8 @@ public class RenderedLayerFactory {
 
     /**
      * Returns the default coordinate system for geometry to be created. If a geometry defines
-     * explicitly a coordinate system, then the geometry CS will have precedence over this
-     * default CS.
+     * explicitly a coordinate system, then the geometry CS will have precedence over this default
+     * CS.
      *
      * @return The default coordinate system.
      */
@@ -104,16 +97,16 @@ public class RenderedLayerFactory {
     }
 
     /**
-     * Set the default coordinate system for geometry to be created. This CS is used only if
-     * a geometry doesn't specifies explicitly its own CS. If this method is never invoked,
-     * then the default CS is {@link Geometry#DEFAULT_COORDINATE_SYSTEM}.
+     * Set the default coordinate system for geometry to be created. This CS is used only if a
+     * geometry doesn't specifies explicitly its own CS. If this method is never invoked, then the
+     * default CS is {@link Geometry#DEFAULT_COORDINATE_SYSTEM}.
      *
      * @param coordinateSystem The default coordinate system.
      */
     public void setCoordinateSystem(final CoordinateSystem coordinateSystem) {
         this.coordinateSystem = coordinateSystem;
     }
-    
+
     /**
      * Create an array of rendered layers from the specified feature and style.
      *
@@ -126,7 +119,6 @@ public class RenderedLayerFactory {
      */
     public RenderedLayer[] create(final Feature[] features,
         final org.geotools.styling.Style SLDStyle) throws TransformException {
-        
         // ... the list that will contain all generated rendered layers
         List renderedLayers = new ArrayList();
 
@@ -218,8 +210,7 @@ public class RenderedLayerFactory {
 
                                 if ((finalRange != null) && !finalRange.isEmpty()) {
                                     geometries = processSymbolizers(feature, symbolizers,
-                                                                    finalRange, renderedLayers,
-                                                                    geometries);
+                                            finalRange, renderedLayers, geometries);
                                 }
                             }
                         }
@@ -229,7 +220,7 @@ public class RenderedLayerFactory {
         }
 
         // add the current layer if not empty
-        if (geometries != null && geometries.getGeometries().size() > 0) {
+        if ((geometries != null) && (geometries.getGeometries().size() > 0)) {
             renderedLayers.add(new SLDRenderedGeometries(geometries));
         }
 
@@ -252,11 +243,8 @@ public class RenderedLayerFactory {
      *
      * @throws TransformException if a transformation was required and failed.
      */
-    private JTSGeometries processSymbolizers(Feature       feature,
-                                             Symbolizer[]  symbolizers,
-                                             NumberRange   scaleRange,
-                                             List          renderedLayers,
-                                             JTSGeometries geometries)
+    private JTSGeometries processSymbolizers(Feature feature, Symbolizer[] symbolizers,
+        NumberRange scaleRange, List renderedLayers, JTSGeometries geometries)
         throws TransformException {
         for (int i = 0; i < symbolizers.length; i++) {
             Symbolizer symb = symbolizers[i];
@@ -273,7 +261,7 @@ public class RenderedLayerFactory {
                 GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
                 renderedLayers.add(new RenderedGridCoverage(grid));
             } else {
-                SFSGeometry geometry = findGeometry(feature, symb);
+                com.vividsolutions.jts.geom.Geometry geometry = findGeometry(feature, symb);
 
                 if (geometry != null) {
                     geometries.add(geometry).setStyle(style);
@@ -295,14 +283,16 @@ public class RenderedLayerFactory {
      */
     private boolean featureMatching(Feature feature, String ftsTypeName, Filter filter) {
         String typeName = feature.getFeatureType().getTypeName();
+
         if (typeName == null) {
             return false;
         }
-        if (feature.getFeatureType().isDescendedFrom(null, ftsTypeName) || 
-            typeName.equalsIgnoreCase(ftsTypeName))
-        {
-            return (filter==null) || filter.contains(feature);
+
+        if (feature.getFeatureType().isDescendedFrom(null, ftsTypeName)
+                || typeName.equalsIgnoreCase(ftsTypeName)) {
+            return (filter == null) || filter.contains(feature);
         }
+
         return false;
     }
 
@@ -310,14 +300,22 @@ public class RenderedLayerFactory {
      * Builds a range from the rule scale specification
      *
      * @param r The rule
-     * @return  The range with minimum and maximun scale (will use minimum and maximum double values
-     *          if unbounded).
+     *
+     * @return The range with minimum and maximun scale (will use minimum and maximum double values
+     *         if unbounded).
      */
     private NumberRange buildRuleRange(final Rule r) {
         double min = r.getMinScaleDenominator();
         double max = r.getMaxScaleDenominator();
-        if (Double.isInfinite(min)) min = Double.MIN_VALUE;
-        if (Double.isInfinite(max)) max = Double.MAX_VALUE;
+
+        if (Double.isInfinite(min)) {
+            min = Double.MIN_VALUE;
+        }
+
+        if (Double.isInfinite(max)) {
+            max = Double.MAX_VALUE;
+        }
+
         return new NumberRange(min, max);
     }
 
@@ -330,7 +328,7 @@ public class RenderedLayerFactory {
      * @return The geometry requested in the symbolizer, or the default geometry if none is
      *         specified
      */
-    public SFSGeometry findGeometry(Feature f, Symbolizer s) {
+    public com.vividsolutions.jts.geom.Geometry findGeometry(Feature f, Symbolizer s) {
         String geomName = null;
 
         // TODO: fix the styles, should be the same method name and probably should be moved 
@@ -346,30 +344,32 @@ public class RenderedLayerFactory {
         }
 
         // get the geometry
-        SFSGeometry geom;
+        com.vividsolutions.jts.geom.Geometry geom;
+
         if (geomName == null) {
             geom = f.getDefaultGeometry();
         } else {
-            geom = (SFSGeometry) f.getAttribute(geomName);
+            geom = (com.vividsolutions.jts.geom.Geometry) f.getAttribute(geomName);
         }
-        
+
         // if the symbolizer is a point or text symbolizer generate a suitable location to place the
         // point in order to avoid recomputing that location at each rendering step
-        if((s instanceof PointSymbolizer || s instanceof TextSymbolizer) && !(geom instanceof SFSPoint)) {
-			com.vividsolutions.jts.geom.Geometry jtsGeom = (com.vividsolutions.jts.geom.Geometry) geom;
-        	if(geom instanceof SFSCurve && !(geom instanceof SFSLinearRing)) {
-        		// use the mid point to represent the point/text symbolizer anchor
-        		Coordinate[] coordinates = jtsGeom.getCoordinates();
-				Coordinate start = coordinates[0];
-        		Coordinate end = coordinates[1];
-        		Coordinate mid = new Coordinate((start.x + end.x) / 2, (start.y + end.y) / 2);
-        		geom = new Point(mid, jtsGeom.getPrecisionModel(), 0);
-        	} else {
-	        	// otherwise use the centroid of the polygon
-	        	geom = jtsGeom.getCentroid();
-        	}
+        if ((s instanceof PointSymbolizer || s instanceof TextSymbolizer)
+                && !(geom instanceof Point)) {
+            com.vividsolutions.jts.geom.Geometry jtsGeom = (com.vividsolutions.jts.geom.Geometry) geom;
+
+            if (geom instanceof LineString && !(geom instanceof LinearRing)) {
+                // use the mid point to represent the point/text symbolizer anchor
+                Coordinate[] coordinates = jtsGeom.getCoordinates();
+                Coordinate start = coordinates[0];
+                Coordinate end = coordinates[1];
+                Coordinate mid = new Coordinate((start.x + end.x) / 2, (start.y + end.y) / 2);
+                geom = new Point(mid, jtsGeom.getPrecisionModel(), 0);
+            } else {
+                // otherwise use the centroid of the polygon
+                geom = jtsGeom.getCentroid();
+            }
         }
-        
 
         return geom;
     }
