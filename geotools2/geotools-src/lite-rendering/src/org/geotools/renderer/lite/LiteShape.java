@@ -38,7 +38,7 @@ import java.awt.geom.Rectangle2D.Double;
  * geometry can be used by java2d without coordinate cloning
  *
  * @author Andrea Aime
- * @version $Id: LiteShape.java,v 1.4 2003/07/27 15:29:47 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.5 2003/08/05 05:16:18 aaime Exp $
  */
 class LiteShape implements Shape {
     /** The floating precision model */
@@ -248,8 +248,8 @@ class LiteShape implements Shape {
         y1 = y2 = coords[0].y;
 
         for (int i = 1; i < 3; i++) {
-            double x = coords[1].x;
-            double y = coords[1].y;
+            double x = coords[i].x;
+            double y = coords[i].y;
 
             if (x < x1) {
                 x1 = x;
@@ -300,24 +300,18 @@ class LiteShape implements Shape {
         // get out corners. the documentation doens't specify in which
         // order the bounding box coordinates are returned
         double x1;
-
-        // get out corners. the documentation doens't specify in which
-        // order the bounding box coordinates are returned
         double y1;
-
-        // get out corners. the documentation doens't specify in which
-        // order the bounding box coordinates are returned
         double x2;
-
-        // get out corners. the documentation doens't specify in which
-        // order the bounding box coordinates are returned
         double y2;
+
         x1 = x2 = coords[0].x;
         y1 = y2 = coords[0].y;
 
+        
         for (int i = 1; i < 3; i++) {
-            double x = coords[1].x;
-            double y = coords[1].y;
+            double x = coords[i].x;
+            double y = coords[i].y;
+            
 
             if (x < x1) {
                 x1 = x;
@@ -336,7 +330,7 @@ class LiteShape implements Shape {
             }
         }
 
-        return new Double(x1, y1, x2 - x1, y2 - y1);
+        return new Rectangle2D.Double(x1, y1, x2 - x1, y2 - y1);
     }
 
     /**
@@ -546,7 +540,8 @@ class LiteShape implements Shape {
             new Coordinate(r.getMinX(), r.getMinY()),
             new Coordinate(r.getMinX(), r.getMaxY()),
             new Coordinate(r.getMaxX(), r.getMaxY()),
-            new Coordinate(r.getMaxX(), r.getMinY())
+            new Coordinate(r.getMaxX(), r.getMinY()),
+            new Coordinate(r.getMinX(), r.getMinY())
         };
         LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
 
@@ -567,7 +562,8 @@ class LiteShape implements Shape {
     private Geometry createRectangle(double x, double y, double w, double h) {
         Coordinate[] coords = {
             new Coordinate(x, y), new Coordinate(x, y + h),
-            new Coordinate(x + w, y + h), new Coordinate(x + w, y)
+            new Coordinate(x + w, y + h), new Coordinate(x + w, y),
+            new Coordinate(x, y)
         };
         LinearRing lr = new LinearRing(coords, FLOATING_PM, 0);
 
