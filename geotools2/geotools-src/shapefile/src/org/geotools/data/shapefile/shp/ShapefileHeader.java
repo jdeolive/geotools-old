@@ -153,7 +153,9 @@ public class ShapefileHeader {
   }
   
   public String toString()  {
-    String res = new String("ShapeFileHeader[ size " + fileLength + " version " + version + " shapeType " + shapeType + " ]");
+    String res = new String("ShapeFileHeader[ size " + fileLength + " version "
+      + version + " shapeType " + shapeType + " bounds "
+      + minX + "," + minY + "," + maxX + "," + maxY + " ]");
     return res;
   }
 
