@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.5 2002/07/13 17:05:07 jmacgill Exp $
+ * @version $Id: TransformationTest.java,v 1.6 2002/07/16 17:25:25 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase
@@ -89,7 +89,7 @@ public class TransformationTest extends TestCase
 
     /**
      * Quick self test, in part to give this test suite a test
-     * and also the test the internal method.
+     * and also to test the internal method.
      */
     public void testAssertPointsEqual(){
         String name = "self test";
@@ -139,7 +139,7 @@ public class TransformationTest extends TestCase
      *
      * @param name      The name of the comparaison to be performed.
      * @param expected  The expected array of points.
-     * @param actial    The actual array of points.
+     * @param actual    The actual array of points.
      * @param delta     The maximal difference tolerated in comparaisons for each dimension.
      *                  This array length must be equal to coordinate dimension (usually 1, 2 or 3).
      */
