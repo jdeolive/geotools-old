@@ -1,5 +1,6 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.2 2002/12/12 19:23:15 camerons Exp $
+# $Id: gtpublish,v 1.3 2002/12/12 19:30:08 camerons Exp $
+#
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
 # Results are stored in the ${target} directory.
@@ -12,13 +13,18 @@
 # Original Author: Cameron Shorter cameron@shorter.net
 #
 
-imageSource="sdocbook/images ../sldstyling/xdocs/images"
+# Directories are relative to the root directory of this script
+imageSource="sdocbook/images \
+    ../sldstyling/xdocs/images"
 docbookSource="sdocbook"
 target="www"
 xsl=../../extbin/gtbuild/docbook-xsl/html/docbook.xsl 
 
 sourceFiles="${docbookSource}/*.xml"
-#sourceFiles="${docbookSource}/*.sgml ${docbookSource}/*.xml"
+
+# All directory names are relative to this script root, so change directory
+# to the root directory
+cd `dirname ${0}`
 
 mkdir -p ${target}
 
@@ -28,7 +34,7 @@ for imageDir in ${imageSource}; do
     for file in `find ${imageDir} -print | grep -v "/CVS"`; do
         targetFile=`echo $file | sed -e"s/^.*images/images/"`
         mkdir -p ${target}/`dirname ${targetFile}`
-        cp ${file} ${target}/${targetFile}
+        cp -p ${file} ${target}/${targetFile}
     done
 done
 
