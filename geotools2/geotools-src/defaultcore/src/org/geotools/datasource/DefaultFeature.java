@@ -39,4 +39,13 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
         return (Geometry)attributes[geomColumn];
     }
     
+    public void setGeometry(Geometry geom) {
+        attributes[geomColumn]=geom;
+        
+    }    
+    
+    public void setAttributes(Object[] a) {
+        setAttributes(a,new String[]{});
+    }
+    
 }
