@@ -103,7 +103,7 @@ import org.geotools.io.LineWriter;
  * java.util.logging.ConsoleHandler.level = FINE
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.12 2003/07/24 12:32:26 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.13 2003/07/24 12:41:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
@@ -461,6 +461,14 @@ public class MonolineFormatter extends Formatter {
                 Handler handler = handlers[i];
                 if (handler.getClass().equals(ConsoleHandler.class)) {
                     final Formatter formatter = handler.getFormatter();
+                    if (formatter instanceof MonolineFormatter) {
+                        if (monoline == null) {
+                            monoline = (MonolineFormatter) formatter;
+                            if (level != null) {
+                                handler.setLevel(level);
+                            }
+                        }
+                    }
                     if (formatter.getClass().equals(SimpleFormatter.class)) {
                         if (monoline == null) {
                             monoline = new MonolineFormatter(base);
