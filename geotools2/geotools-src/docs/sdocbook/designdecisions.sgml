@@ -44,6 +44,10 @@
           <para>Not all interfaces are implemented, some functionality is
           imported from external vendors. For instance, Geotools2 uses the
           Java Topology Suite (JTS) to store core geographic primitives.</para>
+
+          <para>At the time of writing <literal>GeoAPI</literal> had only just
+          started. It is likely that many of the geotools interfaces will be
+          ported to <literal>GeoAPI</literal>.</para>
         </listitem>
       </varlistentry>
 
@@ -189,5 +193,47 @@ Tool panTool=toolFactory.createPanTool();</programlisting>
       can be written to replace an old module without effecting the rest of
       the code.</para>
     </example>
+  </section>
+
+  <section id="moduledirectories">
+    <title>Module structure</title>
+
+    <para>Geotools2 contains a set of sub-projects. Each sub-projects can be
+    treated as a unique project by itself. It contains it&#39;s own directory
+    structure, build system, list of dependancies and resultant jar file.
+    Applications that use Geotools2 need to reference the sub-project jars it
+    depends upon, which will usually be a subset of all Geotools2 jars.</para>
+
+    <para>There are two special sub-projects of note:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>core</term>
+
+        <listitem>
+          <para>The <literal>core</literal> module contains all interfaces,
+          events and abstract factories for the geotools modules. Applications
+          that use Geotools2 will need to include the <literal>core</literal>
+          module.</para>
+
+          <para>It is likely that many of the classes in the core module will
+          be moved to the <ulink url="http://geoapi.sourceforge.net">GeoAPI</ulink>
+          project.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>defaultcore</term>
+
+        <listitem>
+          <para>The <literal>defaultcore</literal> module contains basic
+          implementations of many of the <literal>core</literal> interfaces.</para>
+
+          <para>to do: (Author&#39;s note. I think that defaultcore should be
+          deprecated and be replaced by multiple default packages, eg
+          defaultdatasource, defaulttools, etc.)</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
   </section>
 </section>
