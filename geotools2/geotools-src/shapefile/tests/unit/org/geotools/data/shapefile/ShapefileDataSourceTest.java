@@ -118,6 +118,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     factory.addType(AttributeTypeFactory.newAttributeType("f",Date.class));
     factory.addType(AttributeTypeFactory.newAttributeType("g",Boolean.class));
     factory.addType(AttributeTypeFactory.newAttributeType("h",Geometry.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("i",Number.class));
     FeatureType type = factory.getFeatureType();
     FeatureCollection features = FeatureCollections.newCollection();
     for (int i = 0, ii = 20; i < ii; i++) {
@@ -129,7 +130,8 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
         new String( i + " " ),
         new Date( i ),
         new Boolean( true ),
-        new Point(new Coordinate(0,0), new PrecisionModel(),0)
+        new Point(new Coordinate(0,0), new PrecisionModel(),0),
+        new Integer(22)
       }));
     }
     
