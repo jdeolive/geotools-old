@@ -43,6 +43,12 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
+// Image I/O
+import javax.imageio.spi.IIORegistry;
+import javax.imageio.spi.ImageReaderSpi;
+import javax.imageio.spi.ImageWriterSpi;
+import javax.imageio.spi.ImageReaderWriterSpi;
+
 // Java Advanced Imaging
 import javax.media.jai.JAI;
 import javax.media.jai.OpImage;  // For Javadoc
@@ -65,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.10 2003/08/04 19:07:23 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.11 2003/11/10 23:24:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -287,8 +293,8 @@ public final class ImageUtilities {
      * for native implementations are declared in the <code>com.sun.media.jai.mlib</code>
      * package, while factories for pure java implementations are declared in the
      * <code>com.sun.media.jai.opimage</code> package. It work for Sun's 1.1.2 implementation,
-     * but may change in future versions. If this method doesn't recognize the package, that
-     * it does nothing.
+     * but may change in future versions. If this method doesn't recognize the package, it does
+     * nothing.
      *
      * @param operation The operation name (e.g. "Affine").
      * @param allowed <code>false</code> to disallow native acceleration.
@@ -335,6 +341,51 @@ public final class ImageUtilities {
                 Logger.getLogger("org.geotools.gp").log(record);
                 // We used the "org.geotools.gp" logger since this method is usually
                 // invoked from the GridCoverageProcessor or one of its operations.
+            }
+        }
+    }
+
+    /**
+     * Allow or disallow native acceleration for the specified image format. By default, the
+     * image I/O extension for JAI provides native acceleration for PNG and JPEG. Unfortunatly,
+     * those native codec has bug in their 1.0 version. Invoking this method will force the use
+     * of standard codec provided in J2SE 1.4.
+     * <br><br>
+     * <strong>Implementation note:</strong> the current implementation assume that JAI codec
+     * class name start with "CLib". It work for Sun's 1.0 implementation, but may change in
+     * future versions. If this method doesn't recognize the class name, it does nothing.
+     *
+     * @param operation The format name (e.g. "png").
+     * @param writer <code>false</code> to set the reader, or <code>true</code> to set the writer.
+     * @param allowed <code>false</code> to disallow native acceleration.
+     */
+    public synchronized static void allowNativeCodec(final String format,
+                                                     final boolean writer,
+                                                     final boolean allowed)
+    {
+        ImageReaderWriterSpi standard = null;
+        ImageReaderWriterSpi codeclib = null;
+        final IIORegistry registry = IIORegistry.getDefaultInstance();
+        final Class category = writer ? ImageWriterSpi.class : ImageReaderSpi.class;
+        for (final Iterator it=registry.getServiceProviders(category, false); it.hasNext();) {
+            final ImageReaderWriterSpi provider = (ImageReaderWriterSpi) it.next();
+            final String[] formats = provider.getFormatNames();
+            for (int i=0; i<formats.length; i++) {
+                if (formats[i].equalsIgnoreCase(format)) {
+                    if (Utilities.getShortClassName(provider).startsWith("CLib")) {
+                        codeclib = provider;
+                    } else {
+                        standard = provider;
+                    }
+                    break;
+                }
+            }
+        }
+        if (standard!=null && codeclib!=null) {
+            if (allowed) {
+                registry.setOrdering(category, codeclib, standard);
+            } else {
+                registry.setOrdering(category, standard, codeclib);
             }
         }
     }
