@@ -1116,703 +1116,825 @@ cp -pr .netbeans/ .netbeans.</programlisting>
         </example>
       </section>
     </section>
+
     <section id="emacsjdee">
       <title>Emacs and JDEE</title>
-      <para>
-	<ulink url="http://www.gnu.org/software/emacs/">Emacs</ulink> is
-	not Java IDE. However it can be treated like multi-language IDE
-	without a GUI builder. If your are not a GUI designer or developer
-	this solution is well worth to considering as a software
-	development environment. Why? I suggest to read a few first
-	sentences on page pointed in given URL above.</para> 
-      <para>
-	The most important features for GeoTools developers (most of
-	them provided by JDEE) are:</para>
-      <itemizedlist>
-	<listitem>
-	  <para>Efficient and extremely customizable editor which
-	    supporting almost all programming and natural languages.</para>
-	</listitem>
-	<listitem>
-	  <para>Excellent Java support provided by 
-	    <ulink url="http://jdee.sunsite.dk/">JDEE</ulink>
-	    package. JDEE provides all standard features provided by
-	    dedicated Java IDEs like class browser, code completion,
-	    imports management and so on. In many cases, It&#39;s built
-	    in wizards and code templates makes it better.</para>
-	</listitem>
-	<listitem>
-	  <para>Built in Java code formatter as well as interface to
-	    Jalopy. It is worth to note that "native" JDEE code
-	    formatter has capabilities almost equal to Jalopy's and with
-	    a little time spent on configuration you can have
-	    on-line code formating.</para>
-	</listitem>
-	<listitem>
-	  <para>Java-Doc generator and Java-Doc browser.</para>
-	</listitem>
-	<listitem>
-	  <para>Java-Debug built-in interface and remote debugging
-	    support.</para> 
-	</listitem>
-	<listitem>
-	  <para>Doc-Book support. You can use mode with simple support
-	    coming with emacs or very complex but maybe full SGML and XML
-	    support available in 
-	    <ulink url="http://sourceforge.net/projects/psgml/">
-	      PSGML</ulink> package.</para>
-	</listitem>
-	<listitem>
-	  <para>Built in CVS support.</para>
-	</listitem>
-      </itemizedlist>
-      
-      <section id="getinsconf">
-	<title>Getting, installing and configuring software</title>
-	<para>Emacs and JDEE work the best on Linux and other Unix like
-	  systems. It is also possible to use all features of emacs on
-	  Windows machine but it requires additional software and
-	  effort.</para>
-	<section id="get">
-	  <title>Below is list of locations for necessary software.</title>
-	  <variablelist>
-	    <varlistentry>
-	      <term>Emacs for Linux users</term>
-	      <listitem>
-		<para>In most cases emacs should be installed with
-		  distribution. If not, search package list for your
-		  distribution and install emacs separately.</para> 
-	      </listitem> 
-	    </varlistentry>
-	    
-	    <varlistentry>
-	      <term>Emacs for Windows users</term>
-	      <listitem>
-		<para>
-		  I suggest to download full precompiled binaries
-		  <quote>fullbin</quote> from 
-		  <ulink
-		    url="http://ftp.gnu.org/gnu/windows/emacs/latest/">
-		    this location</ulink>. This directory contains also
-		  sources and full emacs, elisp documentation. The
-		  easiest way to make emacs fully functional is to install 
-		  <ulink url="http://www.cygwin.com/">CygWin</ulink>.
-		  CygWin provides a Unix environment under
-		  windows. CygWin contains emacs package but the native
-		  install contains configuration problems relating to
-		  ANT and Java so I don&#39;t recommend it. 
-		</para>
-	      </listitem>
-	    </varlistentry>
-	    
-	    <varlistentry>
-	      <term>Emacs for other systems or source lovers</term>
-	      <listitem>
-		<para>
-		  <ulink 
-		    url="http://ftp.gnu.org/gnu/emacs/">Sources and
-		    manuals</ulink></para>
-	      </listitem> 
-	    </varlistentry>
-	    <varlistentry>
-	      <term>JDEE - Java Development Environment for Emacs</term>
-	      <listitem>
-		<para>
-		  <ulink url="http://jdee.sunsite.dk/">JDEE</ulink>
-		  project main page. The best source for all necessary
-		  information about JDEE.
-		</para>
-	      </listitem> 
-	    </varlistentry>
-	    <varlistentry>
-	      <term>CygWin - UNIX environment for Windows</term>
-	      <listitem>
-		<para>
-		  <ulink url="http://www.cygwin.com/">CygWin</ulink>
-		  project main page. It contains link to last available
-		  <filename>setup.exe</filename> CygWin installation
-		  program. 
-		</para>
-	      </listitem> 
-	    </varlistentry>
-	    <varlistentry>
-	      <term><filename>install-jde.sh</filename> - automatic
-		installer of JDEE and all required libraries.</term>
-	      <listitem>
-		<para>
-		  <ulink 
-		    url="http://wttools.sourceforge.net/emacs-stuff/package.html#install-jdee">
-		    JDEE installation script</ulink> with some additional
-		  information about using it in particular cases.
-		</para>
-	      </listitem> 
-	    </varlistentry>
-	  </variablelist>
-	  
-	</section>
-	<section id="inst">
-	  <title>Installation procedure for each piece of software</title>
-	  <para>I work on the same Java projects on machines with Linux and
-	    Windows+CygWin systems. So I will present configuration
-	    options necessary to use it transparently regardless of the
-	    environment you use.</para>
-	  <para>Emacs installation is really simple. Put it in any
-	    convenient location on HDD and make it available using the system
-	    environment variable: "PATH". On Unix like system emacs is
-	    Plug and Play software and without any additional effort it can be
-	    used immediately after installation. For use of JDEE and
-	    Java look in <ulink url="#envvar">environment
-	    variables</ulink> setting description.</para>
-	  <para>There are some tricks to use it on windows system with
-	    CygWin so I describe it with all details. Below are step by
-	    step instructions:</para>
 
-	  <orderedlist>
-	    <listitem>
-	      <para>Run <ulink url="http://www.cygwin.com/setup.exe">
-		setup.exe</ulink> - CygWin installation program. All
-		default settings should be good for our needs even default
-		packages set is sufficient. I am only not sure if
-		<filename>libxslt</filename> is installed in basic - default
-		set. To ensure go to <filename>Text</filename> category,
-		expand it and check <filename>libxslt</filename>
-		package.</para> 
-	    </listitem>
-	    <listitem>
-	      <para>Unpack downloaded emacs binaries to CygWin root
-		directory <filename>d:/gnu</filename> in my case. Because
-		emacs binaries are packed with <filename>gzip</filename>
-		and gnu <filename>tar</filename> tools the easiest way
-		to unpack emacs package is to run CygWin console and execute
-		following commands:</para> 
-	      <example id="emacsunpack">
-		<title>Unpacking emacs binaries in CygWin root.</title>
-		<programlisting>
-# assuming downloaded emacs binaries are
+      <para><ulink url="http://www.gnu.org/software/emacs/">Emacs</ulink> is
+      not a Java IDE, however it can be treated like multi-language IDE
+      without a GUI builder. If your are not a GUI designer or developer emacs
+      is well worth considering for a software development environment.</para>
+
+      <para>The most important features for GeoTools developers (most of them
+      provided by JDEE) are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Efficient and extremely customizable editor which supporting
+          almost all programming and natural languages.</para>
+        </listitem>
+
+        <listitem>
+          <para>Excellent Java support provided by <ulink
+          url="http://jdee.sunsite.dk/">Java Development Environment for Emacs
+          (JDEE)</ulink>. JDEE provides all standard features provided by
+          dedicated Java IDEs like class browsing, code completion, imports
+          management and so on. In many cases built in wizards and code
+          templates makes emacs better.</para>
+        </listitem>
+
+        <listitem>
+          <para>Built in Java code formatter and interface to <link
+          linkend="jalopy">Jalopy</link>. It is worth noting that the
+          &#34;native&#34; JDEE code formatter has capabilities almost equal
+          to Jalopy&#39;s and with a little time spent on configuration you
+          can have on-line code formating.</para>
+        </listitem>
+
+        <listitem>
+          <para>Java-Doc generator and Java-Doc browser.</para>
+        </listitem>
+
+        <listitem>
+          <para>Java-Debug built-in interface and remote debugging support.</para>
+        </listitem>
+
+        <listitem>
+          <para>Doc-Book support. You can use emac&#39;s default simple
+          support or full SGML and XML support provided by <ulink
+          url="http://sourceforge.net/projects/psgml/">PSGML</ulink>.</para>
+        </listitem>
+
+        <listitem>
+          <para>Built in CVS support.</para>
+        </listitem>
+      </itemizedlist>
+
+      <section id="getinsconf">
+        <title>Getting, installing and configuring software</title>
+
+        <para>Emacs and JDEE work best on Linux and other Unix like systems.
+        It is possible to use all features of emacs on Windows machine but it
+        requires additional software and effort.</para>
+
+        <section id="getemacs">
+          <title>Below is list of locations for necessary software.</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>Emacs for Linux users</term>
+
+              <listitem>
+                <para>In most cases emacs should be installed with
+                distribution. If not, search package list for your
+                distribution and install emacs separately.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Emacs for Windows users</term>
+
+              <listitem>
+                <para>I suggest you download full precompiled binaries
+                <quote>fullbin</quote> from <ulink
+                url="http://ftp.gnu.org/gnu/windows/emacs/latest/">http://jdee.sunsite.dk/</ulink>.
+                This directory contains source and full emacs, elisp
+                documentation. The easiest way to make emacs fully functional
+                is to install <ulink url="http://www.cygwin.com/">CygWin</ulink>.
+                CygWin provides a Unix environment under windows. CygWin
+                contains an emacs package but the native install contains
+                configuration problems relating to ANT and Java so I don&#39;t
+                recommend it.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Emacs for other systems or source lovers</term>
+
+              <listitem>
+                <para><ulink url="http://ftp.gnu.org/gnu/emacs/">Sources and
+                manuals</ulink></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>JDEE - Java Development Environment for Emacs</term>
+
+              <listitem>
+                <para><ulink url="http://jdee.sunsite.dk/">JDEE</ulink>
+                project main page. The best source for all necessary
+                information about JDEE.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>CygWin - UNIX environment for Windows</term>
+
+              <listitem>
+                <para><ulink url="http://www.cygwin.com/">CygWin</ulink>
+                project main page. It contains link to last available
+                <filename>setup.exe</filename> CygWin installation program.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><filename>install-jde.sh</filename> - automatic installer
+              of JDEE and all required libraries.</term>
+
+              <listitem>
+                <para><ulink
+                url="http://wttools.sourceforge.net/emacs-stuff/package.html#install-jdee">
+                JDEE installation script</ulink> with some additional
+                information about using it in particular cases.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </section>
+
+        <section id="inst">
+          <title>Installation procedure for each piece of software</title>
+
+          <para>I work on the same Java projects on machines with Linux and
+          Windows+CygWin systems. So I will present configuration options
+          necessary to use it transparently regardless of the environment you
+          use.</para>
+
+          <para>Emacs installation is really simple. Put it in any convenient
+          location on HDD and make it available using the system environment
+          variable: &#34;PATH&#34;. On Unix like system emacs is Plug and Play
+          software and without any additional effort it can be used
+          immediately after installation. For use of JDEE and Java look in
+          <ulink url="#envvar">environment variables</ulink> setting
+          description.</para>
+
+          <para>There are some tricks to use it on windows system with CygWin
+          so I will describe it with all details. Below are step by step
+          instructions:</para>
+
+          <orderedlist>
+            <listitem>
+              <para>Run <ulink url="http://www.cygwin.com/setup.exe">
+              setup.exe</ulink> - CygWin installation program. All default
+              settings should be good for our needs even default packages set
+              is sufficient. I am not sure if <filename>libxslt</filename> is
+              installed in basic - default set. To ensure go to
+              <filename>Text</filename> category, expand it and check
+              <filename>libxslt</filename> package.</para>
+            </listitem>
+
+            <listitem>
+              <para>Unpack downloaded emacs binaries to CygWin root directory
+              <filename>d:/gnu</filename> in my case. Because emacs binaries
+              are packed with <filename>gzip</filename> and gnu
+              <filename>tar</filename> tools the easiest way to unpack emacs
+              package is to run CygWin console and execute following commands:</para>
+
+              <example id="emacsunpack">
+                <title>Unpacking emacs binaries in CygWin root.</title>
+
+                <programlisting># assuming downloaded emacs binaries are
 # stored in c:\tmp\emacs-21.2-fullbin-i386.tar.gz
 cd /
-tar -xzvf /cygdrive/c/tmp/emacs-21.2-fullbin-i386.tar.gz
-		</programlisting>
-	      </example>
-	    </listitem>
-	    <listitem>
-	      <para>Put <filename>install-jde.sh</filename> script in
-		your CygWin home directory and run it. (If you are not
-		beginner to emacs look in information at the beginning
-		of the script about how to customize it.) It is
-		necessary to make emacs binaries available in PATH
-		environment variable or set full path name to emacs at
-		the beginning of the script.</para>
-	    </listitem>
-	  </orderedlist>
-	  <para>All the most necessary components are now installed. To use
-	    them effectively some customization should be done.</para> 
-	</section>
-	<section id="conf">
-	  <title>Step by step configuration</title>
-	  <para>System, CygWin, emacs and JDEE customization hints.</para>
-	  <orderedlist>
-	    <listitem id="envvar">
-	      <para>On Windows systems some variables should be set in
-		system level and others in CygWin level. On Unix
-		systems all variables can be set from user startup -
-		profile files. On Windows they must be separated because
-		CygWin paths are Unix-like and CygWin root directory
-		starts in CygWin installation directory. So some
-		programs will use Windows paths and others will use
-		CygWin paths.</para> 
-	      <para>To set environment variable on system level
-		right-click on 
-		<systemitem class="resource">My-Computer</systemitem> and
-		choose 
-		<systemitem class="resource">Properties</systemitem>. Go
-		to <systemitem class="resource">Advanced</systemitem> tab
-		and click on 
-		<systemitem class="resource">
-		  System environment</systemitem> button.</para>
-	      <para>To set environment variable on CygWin level or on
-		all levels in native Unix system put them to
-		<filename>.bashrc</filename> file in the way presented 
-		<ulink url="#cygvarsex">bellow</ulink>.</para>
-	      <example id="sysvarsex">
-		<title>System level variables list with sample values.</title>
-		<programlisting>
-JAVA_HOME=d:/jdk1.4.1
+tar -xzvf /cygdrive/c/tmp/emacs-21.2-fullbin-i386.tar.gz</programlisting>
+              </example>
+            </listitem>
+
+            <listitem>
+              <para>Put <filename>install-jde.sh</filename> script in your
+              CygWin home directory and run it. (If you are an experienced
+              emacs user, look in information at the beginning of the script
+              about how to customize it.) It is necessary to make emacs
+              binaries available in PATH environment variable or set full path
+              name to emacs at the beginning of the script.</para>
+            </listitem>
+          </orderedlist>
+
+          <para>All the most necessary components are now installed. To use
+          them effectively some customization should be done.</para>
+        </section>
+
+        <section id="conf">
+          <title>Step by step configuration</title>
+
+          <para>System, CygWin, emacs and JDEE customization hints.</para>
+
+          <orderedlist>
+            <listitem id="envvar">
+              <para>On Windows systems some variables should be set in system
+              level and others in CygWin level. On Unix systems all variables
+              can be set from user startup - profile files. On Windows they
+              must be separated because CygWin paths are Unix-like and CygWin
+              root directory starts in CygWin installation directory. So some
+              programs will use Windows paths and others will use CygWin
+              paths.</para>
+
+              <para>To set environment variable on system level right-click on
+              <systemitem class="resource">My-Computer</systemitem> and choose
+              <systemitem class="resource">Properties</systemitem>. Go to
+              <systemitem class="resource">Advanced</systemitem> tab and click
+              on <systemitem class="resource"> System environment</systemitem>
+              button.</para>
+
+              <para>To set environment variable on CygWin level or on all
+              levels in native Unix system add the following to your
+              <filename>.bashrc</filename> file:</para>
+
+              <example id="sysvarsex">
+                <title>System level variables list with sample values.</title>
+
+                <programlisting>JAVA_HOME=d:/jdk1.4.1
 ANT_HOME=d:/projects/jakarta-ant-1.5.1
 MAVEN_HOME=d:/projects/maven-1.0-beta-8
-PROJECTS_HOME=d:/projects
-		</programlisting>
-		<para>On Unix like system above variables should be set to
-		  proper Unix file system locations.</para>
-	      </example>
-	      <example id="cygvarsex">
-		<title>CygWin level variables list with sample
-		  values.</title>
-		<programlisting>
-export PATH="/emacs-21.2/bin:$PATH"
-export CVS_RSH='ssh'
-export CVSROOT=":ext:user@cvs.geotools.sourceforge.net:/cvsroot/geotools"
+PROJECTS_HOME=d:/projects</programlisting>
+
+                <para>On Unix like system above variables should be set to
+                proper Unix file system locations.</para>
+              </example>
+
+              <example id="cygvarsex">
+                <title>CygWin level variables list with sample values.</title>
+
+                <programlisting>export PATH=&#34;/emacs-21.2/bin:$PATH&#34;
+export CVS_RSH=&#39;ssh&#39;
+export CVSROOT=&#34;:ext:user@cvs.geotools.sourceforge.net:/cvsroot/geotools&#34;
 
 # Unix users should uncomment lines below:
 
 # export JAVA_HOME=/usr/local/jdk1.4.1
 # export ANT_HOME=/usr/local/jakarta-ant-1.5.1
 # export MAVEN_HOME=/usr/local/maven-1.0-beta-8
-# export PROJECTS_HOME=$HOME/projects
-		</programlisting>
-		<para>For 
-		  <systemitem class="constant">CVSROOT</systemitem> variable
-		  <systemitem class="username">user</systemitem> should
-		  be replaced with your Source Forge user name.</para>
-	      </example>
-	    </listitem>
-	    <listitem>
-	      <para>To start emacs with your home directory set to
-		CygWin home directory and make visible some CygWin
-		variables for emacs, create in your CygWin root
-		directory following script:</para>
-	      <example id="startemacs">
-		<title>Script for starting emacs - 
-		  <filename>D:\gnu\startemacs.bat</filename></title>
-		<programlisting>
-@echo off
+# export PROJECTS_HOME=$HOME/projects</programlisting>
+
+                <para>For <systemitem class="constant">CVSROOT</systemitem>,
+                replace <systemitem class="username"><literal>user</literal></systemitem>
+                with your Source Forge user name.</para>
+              </example>
+            </listitem>
+
+            <listitem>
+              <para>To start emacs with your home directory set to CygWin home
+              directory and make visible some CygWin variables for emacs, add
+              the following script to your CygWin root directory:</para>
+
+              <example id="startemacs">
+                <title>Script for starting emacs - <filename>D:\gnu\startemacs.bat</filename></title>
+
+                <programlisting>@echo off
 d:
 chdir d:\gnu\bin
 set HOME=/home/Administrator
-start "Emacs console" /min bash --login -c -c "/emacs-21.2/bin/emacs"
-		</programlisting>
-	      </example>
-	    </listitem>
-	    <listitem>
-	      <para>Main emacs configuration file
-		<filename>.emacs</filename> is located in your home 
-		directory. Example below present sample file with
-		necessary settings and some number of not necessary but
-		very useful especially for emacs beginners.</para>
-	      <example id="emacsdot">
-		<title>Sample <filename>.emacs</filename>
-		  content.</title> 
-		<informaltable frame="none">
-		  <tgroup cols="2"  align="center" colsep="1" rowsep="1">
-		    <tbody>
-		      <row>
-			<entry>
-			  <ulink 
-			    url="http://wttools.sourceforge.net/emacs-stuff/emacs.html">
-			    emacs.html</ulink>
-			</entry>
-			<entry>
-			  <ulink
-			    url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/wttools/wttools/emacs-stuff/.emacs?rev=HEAD&amp;content-type=text/plain">
-			    .emacs</ulink></entry>
-		      </row>
-		    </tbody>
-		  </tgroup>	      
-		</informaltable>
-		<para>It is rather big sample file, so to prevent
-		  scrolling through the number of lines of lisp code I
-		  have made my <filename>.emacs</filename> working file
-		  available on web page. I tried to make them readable
-		  and well commented. Especially with every external
-		  package used I have also added URL to place where the
-		  last version is available.</para>
-	      </example>
-	    </listitem>
-	    <listitem>
-	      <para>If you work on several projects and if many settings
-		and customizations elements vary from one project to
-		another for example coding standards, templates and so
-		on, you can fully appreciate the power of emacs and
-		JDEE. Maybe even this is the biggest emacs advantage
-		over other IDEs.</para>
-	      <para>JDEE has it's own configuration file where you can
-		set all possible project options. If some of them are
-		common for all projects than they can be moved to
-		<filename>.emacs</filename> file. If you are working on
-		Java code and you have opened Java file, JDEE looks for
-		project configuration file - <filename>prj.el</filename>
-		in current directory and all parent directories. Project
-		file located in current directory inherits all
-		parameters from projects files in parent directories and
-		of course from <filename>.emacs</filename> file. So
-		it is also possible to customize in different way each
-		package if necessary. For example you can set different
-		class as main executable class for each package. Anyway
-		below I present sample JDEE project file with almost all
-		common settings:</para>
-	      <example id="prjfile">
-		<title>Sample <filename>prj.el</filename> file.</title>
-		<informaltable frame="none">
-		  <tgroup cols="2"  align="center" colsep="1" rowsep="1">
-		    <tbody>
-		      <row>
-			<entry>
-			  <ulink 
-			    url="http://wttools.sourceforge.net/emacs-stuff/prj.html">
-			    jde.html</ulink>
-			</entry>
-			<entry>
-			  <ulink
-			    url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/wttools/wttools/emacs-stuff/prj.el?rev=HEAD&amp;content-type=text/plain">
-			    jde.el</ulink></entry>
-		      </row>
-		    </tbody>
-		  </tgroup>	      
-		</informaltable>
-		<para>As you can see, it is possible to use environment
-		  variables in <filename>prj.el</filename> file. With
-		  this feature it is not a problem to have the one
-		  project file for all operating systems you use.</para>
-	      </example>
-	    </listitem>
-	  </orderedlist>
-	</section>
+start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs&#34;</programlisting>
+              </example>
+            </listitem>
+
+            <listitem>
+              <para>Main emacs configuration file <filename>.emacs</filename>
+              is located in your home directory. Example below present sample
+              file with necessary settings and some number of not necessary
+              but very useful especially for emacs beginners.</para>
+
+              <example id="emacsdot">
+                <title>Sample <filename>.emacs</filename> content.</title>
+
+                <informaltable frame="none">
+                  <tgroup align="center" cols="2" colsep="1" rowsep="1">
+                    <tbody>
+                      <row>
+                        <entry><ulink
+                        url="http://wttools.sourceforge.net/emacs-stuff/emacs.html">emacs.html</ulink></entry>
+
+                        <entry><ulink
+                        url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/wttools/wttools/emacs-stuff/.emacs?rev=HEAD&#38;content-type=text/plain">.emacs</ulink></entry>
+                      </row>
+                    </tbody>
+                  </tgroup>
+                </informaltable>
+
+                <para>It is rather big sample file, so to prevent scrolling
+                through the number of lines of lisp code I have made my
+                <filename>.emacs</filename> working file available on web
+                page. I tried to make them readable and well commented.
+                Especially with every external package used I have also added
+                URL to place where the last version is available.</para>
+              </example>
+            </listitem>
+
+            <listitem>
+              <para>If you work on several projects with different settings
+              (like coding standards), you will appreciate the power of emacs
+              and JDEE. This is one of the biggest advantages emacs has over
+              other IDEs.</para>
+
+              <para>JDEE has it&#39;s own configuration file where you can set
+              all possible project options. If some of them are common for all
+              projects than they can be moved to <filename>.emacs</filename>
+              file. If you are working on Java code and you have opened Java
+              file, JDEE looks for project configuration file -
+              <filename>prj.el</filename> in current directory and all parent
+              directories. Project file located in current directory inherits
+              all parameters from projects files in parent directories and of
+              course from <filename>.emacs</filename> file. So it is possible
+              to customize each package if necessary. For example you can set
+              a different class as main executable class for each package.
+              Anyway below I present sample JDEE project file with almost all
+              common settings:</para>
+
+              <example id="prjfile">
+                <title>Sample <filename>prj.el</filename> file.</title>
+
+                <informaltable frame="none">
+                  <tgroup align="center" cols="2" colsep="1" rowsep="1">
+                    <tbody>
+                      <row>
+                        <entry><ulink
+                        url="http://wttools.sourceforge.net/emacs-stuff/prj.html">
+                        jde.html</ulink></entry>
+
+                        <entry><ulink
+                        url="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/wttools/wttools/emacs-stuff/prj.el?rev=HEAD&#38;content-type=text/plain">
+                        jde.el</ulink></entry>
+                      </row>
+                    </tbody>
+                  </tgroup>
+                </informaltable>
+
+                <para>As you can see, it is possible to use environment
+                variables in <filename>prj.el</filename> file. With this
+                feature it is not a problem to have the one project file for
+                all operating systems you use.</para>
+              </example>
+            </listitem>
+          </orderedlist>
+        </section>
       </section>
+
       <section id="usethis">
-	<title>How to use this stuff</title>
-	<para>Many commands are available through main and context
-	  menu. Others are not. I will present below how to effectively
-	  use all of them from the keyboard and how quickly find
-	  necessary function name.</para>
-	<section id="isworking">
-	  <title>Is it working?</title>
-	  <para>If you already installed all the software, you should
-	    check if it works first. The easiest way to check your JDEE
-	    installation is to load any Java file. If you can see new
-	    <systemitem class="resource">Menu</systemitem> element
-	    called JDE it means 
-	    <systemitem class="resource">JDEE</systemitem> mode is
-	    selected and activated.</para>
-	</section>
+        <title>How to use this stuff</title>
+
+        <para>Many commands are available through main and context menu.
+        Others are not. I will present below how to effectively use all of
+        them from the keyboard and how quickly find necessary function name.</para>
       </section>
+
+      <section id="isworking">
+        <title>Is it working?</title>
+
+        <para>If you already installed all the software, you should check if
+        it works first. The easiest way to check your JDEE installation is to
+        load any Java file. If you can see new <systemitem class="resource">Menu</systemitem>
+        element called JDE it means <systemitem class="resource">JDEE</systemitem>
+        mode is selected and activated.</para>
+      </section>
+
       <section id="commands">
-	<title>Common commands table</title>
-	<para>I have put here table with the most important and often used
-	  functions of JDEE. Of course you can find all available
-	  functions in both off-line and on-line JDEE documentation. But
-	  it seems to me it is useful to have some of them - the most
-	  important collected in the table. In most cases descriptions
-	  were fully or partially <quote>copy-pasted</quote> from original
-	  JDEE documentation. So for many of them you can find more
-	  information in on-line JDEE documentation using:
-	  <userinput>Alt-x describe-function</userinput>, then
-	  <userinput>ENTER</userinput>, then write function name.</para>
-	<para>To see all JDEE key-bindings, call the function
-	  <command>jde-keys</command> under emacs. 
-	  (<userinput>Alt-x jde-keys</userinput>)</para>  
-	<table frame="all">
-	  <title>Most often used commands quick reference table.</title>
-	  <tgroup cols="3" colsep="1" rowsep="1">
-	    <thead valign="middle">
-	      <row>
-		<entry>Function name</entry>
-		<entry>Keys binding</entry>
-		<entry>Description</entry>
-	      </row>
-	    </thead>
-	    <tbody valign="middle" >
-	      <row>
-		<entry><command>jde-abbrev-mode</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> none </userinput></literallayout>
-		</entry>
-		<entry>It is not used indeed. Abbreviations in JDEE are
-		  very powerful and you should always have JDEE
-		  abbreviations turned ON. To turn them permanently on you
-		  don't have to use this function. Set value of
-		  <command>jde-enable-abbrev-mode</command> variable to true
-		  in your <filename>.emacs</filename> or
-		  <filename>prj.el</filename> file instead. Look in
-		  <ulink url="#abbrtab"><xref linkend="abbrtab"/></ulink>
-		  for more details.</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-find</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-f </userinput></literallayout>
-		</entry>
-		<entry>Find a regular expression REGEXP in all of the
-		  files in the current JDE project.</entry>   
-	      </row>
-	      <row>
-		<entry><command>jde-open-class-at-point</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-y </userinput></literallayout></entry>
-		<entry>Find definition for symbol under cursor. Opens the
-		  java-file which defines the class where current point is
-		  and jumps to the definition of current thing at point
-		  (this can be a variable name, class name, method name,
-		  attribute name).</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-complete-in-line</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v . </userinput></literallayout>
-		</entry>
-		<entry>Completes the method or field name at point.
-		  Repeating the command cycles through all potential
-		  completions for the name.  This function displays the
-		  signature of a method completion as specified by
-		  `jde-complete-display-current-signature'</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-complete</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-. </userinput></literallayout>
-		</entry>
-		<entry>Displays completions for the Java symbol at
-		  point. Depends on user settings possible completions can
-		  be displayed as context menu or in minibufer.</entry>
-	      </row>
-	      <row>
-		<entry><command>jde-gen-try-catch-wrapper</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v t </userinput></literallayout>
-		</entry>
-		<entry>Wrap the region from BEG to END into a try/catch
-		  block. BEG and END are modified so the region only
-		  contains complete lines.</entry>
-	      </row>
-	      <row>
-		<entry><command>jde-gen-try-finally-wrapper</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v f </userinput></literallayout>
-		</entry>
-		<entry>Wrap the region from BEG to END into a try/finally
-		  block. BEG and END are modified so the region only
-		  contains complete lines.</entry>
-	      </row>
-	      <row>
-		<entry><command>jde-import-find-and-import</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-z </userinput></literallayout>
-		</entry>
-		<entry>Insert an import statement for a class in the
-		  current buffer. CLASS is an unqualified class name. This
-		  function searches the classpath for a class (or classes)
-		  that match CLASS. If it finds only one, it inserts an
-		  import statements for the class at the head of the
-		  current buffer. If it finds more than one class that
-		  matches CLASS, it prompts you to select which class to
-		  import.</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-show-superclass-source</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-x </userinput></literallayout>
-		</entry>
-		<entry>Show the source for the parent of the class at
-		  point.</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-wiz-update-class-list</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-q </userinput></literallayout>
-		</entry>
-		<entry>Update the class list used to resolve class
-		  names. The first time you invoke a JDE wizard, the JDE
-		  builds a list of all classes on the classpath defined by
-		  jde-global-classpath. Wizards use this list to resolve
-		  unqualified class names. If you add any classes to the
-		  classpath after invoking a wizard, you should update the
-		  class list.</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-gen-println</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-l </userinput></literallayout>
-		</entry>
-		<entry>Insert println statement.</entry>
-	      </row>
-	      <row>
-		<entry><command>jde-compile</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-c </userinput></literallayout>
-		</entry>
-		<entry>Compile the Java program in the current
-		  buffer. This command invokes the compiler specified by
-		  `jde-compiler' with the options specified by the JDE
-		  customization variables that begin with
-		  `jde-compile'.</entry> 
-	      </row>
-	      <row>
-		<entry><command>jde-build</command></entry>
-		<entry>
-		  <literallayout format="linespecific"><userinput> C-c C-v C-b </userinput></literallayout>
-		</entry>
-		<entry>Rebuild the entire project. This command invokes
-		  the function defined by `jde-build-function'.</entry> 
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table>
+        <title>Common commands table</title>
+
+        <para>I have put here table with the most important and often used
+        functions of JDEE. Of course you can find all available functions in
+        both off-line and on-line JDEE documentation. But I find it useful to
+        have the most important functions in a table. In most cases
+        descriptions were fully or partially copied from the original JDEE
+        documentation. So for many of them you can find more information in
+        on-line JDEE documentation using: <userinput>Alt-x describe-function</userinput>,
+        then <userinput>ENTER</userinput>, then write function name.</para>
+
+        <para>To see all JDEE key-bindings, call the function
+        <command>jde-keys</command> under emacs. (<userinput>Alt-x jde-keys</userinput>)</para>
+
+        <table frame="all">
+          <title>Most often used commands quick reference table.</title>
+
+          <tgroup cols="3" colsep="1" rowsep="1">
+            <thead valign="middle">
+              <row>
+                <entry>Function name</entry>
+
+                <entry>Keys binding</entry>
+
+                <entry>Description</entry>
+              </row>
+            </thead>
+
+            <tbody valign="middle">
+              <row>
+                <entry><command>jde-abbrev-mode</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> none </userinput></literallayout></entry>
+
+                <entry>It is not used indeed. Abbreviations in JDEE are very
+                powerful and you should always have JDEE abbreviations turned
+                ON. To turn them permanently on you don&#39;t have to use this
+                function. Set value of <command>jde-enable-abbrev-mode</command>
+                variable to true in your <filename>.emacs</filename> or
+                <filename>prj.el</filename> file instead. Look in <ulink
+                url="#abbrtab"><xref linkend="abbrtab" /></ulink> for more
+                details.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-find</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-f </userinput></literallayout></entry>
+
+                <entry>Find a regular expression REGEXP in all of the files in
+                the current JDE project.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-open-class-at-point</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-y </userinput></literallayout></entry>
+
+                <entry>Find definition for symbol under cursor. Opens the
+                java-file which defines the class where current point is and
+                jumps to the definition of current thing at point (this can be
+                a variable name, class name, method name, attribute name).</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-complete-in-line</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v . </userinput></literallayout></entry>
+
+                <entry>Completes the method or field name at point. Repeating
+                the command cycles through all potential completions for the
+                name. This function displays the signature of a method
+                completion as specified by
+                `jde-complete-display-current-signature&#39;</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-complete</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-. </userinput></literallayout></entry>
+
+                <entry>Displays completions for the Java symbol at point.
+                Depends on user settings possible completions can be displayed
+                as context menu or in minibufer.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-gen-try-catch-wrapper</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v t </userinput></literallayout></entry>
+
+                <entry>Wrap the region from BEG to END into a try/catch block.
+                BEG and END are modified so the region only contains complete
+                lines.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-gen-try-finally-wrapper</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v f </userinput></literallayout></entry>
+
+                <entry>Wrap the region from BEG to END into a try/finally
+                block. BEG and END are modified so the region only contains
+                complete lines.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-import-find-and-import</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-z </userinput></literallayout></entry>
+
+                <entry>Insert an import statement for a class in the current
+                buffer. CLASS is an unqualified class name. This function
+                searches the classpath for a class (or classes) that match
+                CLASS. If it finds only one, it inserts an import statements
+                for the class at the head of the current buffer. If it finds
+                more than one class that matches CLASS, it prompts you to
+                select which class to import.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-show-superclass-source</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-x </userinput></literallayout></entry>
+
+                <entry>Show the source for the parent of the class at point.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-wiz-update-class-list</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-q </userinput></literallayout></entry>
+
+                <entry>Update the class list used to resolve class names. The
+                first time you invoke a JDE wizard, the JDE builds a list of
+                all classes on the classpath defined by jde-global-classpath.
+                Wizards use this list to resolve unqualified class names. If
+                you add any classes to the classpath after invoking a wizard,
+                you should update the class list.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-gen-println</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-l </userinput></literallayout></entry>
+
+                <entry>Insert println statement.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-compile</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-c </userinput></literallayout></entry>
+
+                <entry>Compile the Java program in the current buffer. This
+                command invokes the compiler specified by `jde-compiler&#39;
+                with the options specified by the JDE customization variables
+                that begin with `jde-compile&#39;.</entry>
+              </row>
+
+              <row>
+                <entry><command>jde-build</command></entry>
+
+                <entry><literallayout format="linespecific"><userinput> C-c C-v C-b </userinput></literallayout></entry>
+
+                <entry>Rebuild the entire project. This command invokes the
+                function defined by `jde-build-function&#39;.</entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
       </section>
+
       <section id="abbrtab">
-	<title>Abbreviations available in JDEE</title>
-	<para>This is list of abbreviations taken from the last, during
-	  writing this document, version of JDEE - 2.3.2. To see list of
-	  abbreviations in your currently used version execute
-	  <command>describe-variable</command> emacs function with
-	  parameter <command>jde-mode-abbreviations</command>:
-	  <userinput>Alt-x describe-variable</userinput>, then 
-	  <userinput>ENTER</userinput>, then
-	  <userinput>jde-mode-abbreviations</userinput>.</para>
-	<table frame="all">
-	  <title>JDEE abbreviations table.</title>
-	  <tgroup cols="6" align="center" colsep="1" rowsep="1">
-	    <thead>
-	      <row>
-		<entry>Abbreviation</entry>
-		<entry>Expansion</entry>
-		<entry>Abbreviation</entry>
-		<entry>Expansion</entry>
-		<entry>Abbreviation</entry>
-		<entry>Expansion</entry>
-	      </row>
-	    </thead>
-	    <tbody>
-	      <row>
-		<entry><userinput>ab</userinput></entry>
-		<entry><command>abstract</command></entry>
-		<entry><userinput>bo</userinput></entry>
-		<entry><command>boolean</command></entry>
-		<entry><userinput>br</userinput></entry>
-		<entry><command>break</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>by</userinput></entry>
-		<entry><command>byte</command></entry>
-		<entry><userinput>byv</userinput></entry>
-		<entry><command>byvalue</command></entry>
-		<entry><userinput>cas</userinput></entry>
-		<entry><command>cast</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>ca</userinput></entry>
-		<entry><command>catch</command></entry>
-		<entry><userinput>ch</userinput></entry>
-		<entry><command>char</command></entry>
-		<entry><userinput>cl</userinput></entry>
-		<entry><command>class</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>co</userinput></entry>
-		<entry><command>const</command></entry>
-		<entry><userinput>con</userinput></entry>
-		<entry><command>continue</command></entry>
-		<entry><userinput>de</userinput></entry>
-		<entry><command>default</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>dou</userinput></entry>
-		<entry><command>double</command></entry>
-		<entry><userinput>el</userinput></entry>
-		<entry><command>else</command></entry>
-		<entry><userinput>ex</userinput></entry>
-		<entry><command>extends</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>fa</userinput></entry>
-		<entry><command>false</command></entry>
-		<entry><userinput>fi</userinput></entry>
-		<entry><command>final</command></entry>
-		<entry><userinput>fin</userinput></entry>
-		<entry><command>finally</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>fl</userinput></entry>
-		<entry><command>float</command></entry>
-		<entry><userinput>fo</userinput></entry>
-		<entry><command>for</command></entry>
-		<entry><userinput>fu</userinput></entry>
-		<entry><command>future</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>ge</userinput></entry>
-		<entry><command>generic</command></entry>
-		<entry><userinput>go</userinput></entry>
-		<entry><command>goto</command></entry>
-		<entry><userinput>impl</userinput></entry>
-		<entry><command>implements</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>impo</userinput></entry>
-		<entry><command>import</command></entry>
-		<entry><userinput>ins</userinput></entry>
-		<entry><command>instanceof</command></entry>
-		<entry><userinput>in</userinput></entry>
-		<entry><command>int</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>inte</userinput></entry>
-		<entry><command>interface</command></entry>
-		<entry><userinput>lo</userinput></entry>
-		<entry><command>long</command></entry>
-		<entry><userinput>na</userinput></entry>
-		<entry><command>native</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>ne</userinput></entry>
-		<entry><command>new</command></entry>
-		<entry><userinput>nu</userinput></entry>
-		<entry><command>null</command></entry>
-		<entry><userinput>pa</userinput></entry>
-		<entry><command>package</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>pri</userinput></entry>
-		<entry><command>private</command></entry>
-		<entry><userinput>pro</userinput></entry>
-		<entry><command>protected</command></entry>
-		<entry><userinput>pu</userinput></entry>
-		<entry><command>public</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>re</userinput></entry>
-		<entry><command>return</command></entry>
-		<entry><userinput>sh</userinput></entry>
-		<entry><command>short</command></entry>
-		<entry><userinput>st</userinput></entry>
-		<entry><command>static</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>su</userinput></entry>
-		<entry><command>super</command></entry>
-		<entry><userinput>sw</userinput></entry>
-		<entry><command>switch</command></entry>
-		<entry><userinput>sy</userinput></entry>
-		<entry><command>synchronized</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>th</userinput></entry>
-		<entry><command>this</command></entry>
-		<entry><userinput>thr</userinput></entry>
-		<entry><command>throw</command></entry>
-		<entry><userinput>throw</userinput></entry>
-		<entry><command>throws</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>tra</userinput></entry>
-		<entry><command>transient</command></entry>
-		<entry><userinput>tr</userinput></entry>
-		<entry><command>true</command></entry>
-		<entry><userinput>vo</userinput></entry>
-		<entry><command>void</command></entry>
-	      </row>
-	      <row>
-		<entry><userinput>vol</userinput></entry>
-		<entry><command>volatile</command></entry>
-		<entry><userinput>wh</userinput></entry>
-		<entry><command>while</command></entry>
-		<entry></entry>
-		<entry></entry>
-	      </row>
-	    </tbody>
-	  </tgroup>
-	</table>
+        <title>Abbreviations available in JDEE</title>
+
+        <para>This is list of abbreviations taken from version of JDEE -
+        2.3.2. To see list of abbreviations in your current version execute
+        <command>describe-variable</command> emacs function with parameter
+        <command>jde-mode-abbreviations</command>: <userinput>Alt-x
+        describe-variable</userinput>, then <userinput>ENTER</userinput>, then
+        <userinput>jde-mode-abbreviations</userinput>.</para>
+
+        <table frame="all">
+          <title>JDEE abbreviations table.</title>
+
+          <tgroup align="center" cols="6" colsep="1" rowsep="1">
+            <thead>
+              <row>
+                <entry>Abbreviation</entry>
+
+                <entry>Expansion</entry>
+
+                <entry>Abbreviation</entry>
+
+                <entry>Expansion</entry>
+
+                <entry>Abbreviation</entry>
+
+                <entry>Expansion</entry>
+              </row>
+            </thead>
+
+            <tbody>
+              <row>
+                <entry><userinput>ab</userinput></entry>
+
+                <entry><command>abstract</command></entry>
+
+                <entry><userinput>bo</userinput></entry>
+
+                <entry><command>boolean</command></entry>
+
+                <entry><userinput>br</userinput></entry>
+
+                <entry><command>break</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>by</userinput></entry>
+
+                <entry><command>byte</command></entry>
+
+                <entry><userinput>byv</userinput></entry>
+
+                <entry><command>byvalue</command></entry>
+
+                <entry><userinput>cas</userinput></entry>
+
+                <entry><command>cast</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>ca</userinput></entry>
+
+                <entry><command>catch</command></entry>
+
+                <entry><userinput>ch</userinput></entry>
+
+                <entry><command>char</command></entry>
+
+                <entry><userinput>cl</userinput></entry>
+
+                <entry><command>class</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>co</userinput></entry>
+
+                <entry><command>const</command></entry>
+
+                <entry><userinput>con</userinput></entry>
+
+                <entry><command>continue</command></entry>
+
+                <entry><userinput>de</userinput></entry>
+
+                <entry><command>default</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>dou</userinput></entry>
+
+                <entry><command>double</command></entry>
+
+                <entry><userinput>el</userinput></entry>
+
+                <entry><command>else</command></entry>
+
+                <entry><userinput>ex</userinput></entry>
+
+                <entry><command>extends</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>fa</userinput></entry>
+
+                <entry><command>false</command></entry>
+
+                <entry><userinput>fi</userinput></entry>
+
+                <entry><command>final</command></entry>
+
+                <entry><userinput>fin</userinput></entry>
+
+                <entry><command>finally</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>fl</userinput></entry>
+
+                <entry><command>float</command></entry>
+
+                <entry><userinput>fo</userinput></entry>
+
+                <entry><command>for</command></entry>
+
+                <entry><userinput>fu</userinput></entry>
+
+                <entry><command>future</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>ge</userinput></entry>
+
+                <entry><command>generic</command></entry>
+
+                <entry><userinput>go</userinput></entry>
+
+                <entry><command>goto</command></entry>
+
+                <entry><userinput>impl</userinput></entry>
+
+                <entry><command>implements</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>impo</userinput></entry>
+
+                <entry><command>import</command></entry>
+
+                <entry><userinput>ins</userinput></entry>
+
+                <entry><command>instanceof</command></entry>
+
+                <entry><userinput>in</userinput></entry>
+
+                <entry><command>int</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>inte</userinput></entry>
+
+                <entry><command>interface</command></entry>
+
+                <entry><userinput>lo</userinput></entry>
+
+                <entry><command>long</command></entry>
+
+                <entry><userinput>na</userinput></entry>
+
+                <entry><command>native</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>ne</userinput></entry>
+
+                <entry><command>new</command></entry>
+
+                <entry><userinput>nu</userinput></entry>
+
+                <entry><command>null</command></entry>
+
+                <entry><userinput>pa</userinput></entry>
+
+                <entry><command>package</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>pri</userinput></entry>
+
+                <entry><command>private</command></entry>
+
+                <entry><userinput>pro</userinput></entry>
+
+                <entry><command>protected</command></entry>
+
+                <entry><userinput>pu</userinput></entry>
+
+                <entry><command>public</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>re</userinput></entry>
+
+                <entry><command>return</command></entry>
+
+                <entry><userinput>sh</userinput></entry>
+
+                <entry><command>short</command></entry>
+
+                <entry><userinput>st</userinput></entry>
+
+                <entry><command>static</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>su</userinput></entry>
+
+                <entry><command>super</command></entry>
+
+                <entry><userinput>sw</userinput></entry>
+
+                <entry><command>switch</command></entry>
+
+                <entry><userinput>sy</userinput></entry>
+
+                <entry><command>synchronized</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>th</userinput></entry>
+
+                <entry><command>this</command></entry>
+
+                <entry><userinput>thr</userinput></entry>
+
+                <entry><command>throw</command></entry>
+
+                <entry><userinput>throw</userinput></entry>
+
+                <entry><command>throws</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>tra</userinput></entry>
+
+                <entry><command>transient</command></entry>
+
+                <entry><userinput>tr</userinput></entry>
+
+                <entry><command>true</command></entry>
+
+                <entry><userinput>vo</userinput></entry>
+
+                <entry><command>void</command></entry>
+              </row>
+
+              <row>
+                <entry><userinput>vol</userinput></entry>
+
+                <entry><command>volatile</command></entry>
+
+                <entry><userinput>wh</userinput></entry>
+
+                <entry><command>while</command></entry>
+
+                <entry></entry>
+
+                <entry></entry>
+              </row>
+            </tbody>
+          </tgroup>
+        </table>
       </section>
     </section>
   </section>
+
   <section id="CodingStandards">
     <title>Coding Convensions</title>
 
