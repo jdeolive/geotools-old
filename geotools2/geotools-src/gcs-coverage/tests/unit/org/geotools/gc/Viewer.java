@@ -54,7 +54,7 @@ import org.geotools.resources.Arguments;
  * capability, no user interaction and ignores the coordinate system. It is just
  * for quick test of grid coverage.
  *
- * @version $Id: Viewer.java,v 1.1 2002/08/09 18:43:35 desruisseaux Exp $
+ * @version $Id: Viewer.java,v 1.2 2002/08/09 23:05:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Viewer extends JPanel {
@@ -75,15 +75,9 @@ public class Viewer extends JPanel {
      *
      * @param coverage The image to display.
      */
-    public Viewer(final RenderedImage image) {
+    public Viewer(RenderedImage image) {
         this.image = PlanarImage.wrapRenderedImage(image);
         setPreferredSize(new Dimension(image.getWidth(), image.getHeight()));
-        final Raster data = image.getTile(0,0);
-        for (int x=0; x<300; x++) {
-            for (int y=0; y<300; y++) {
-                System.out.println(data.getSampleFloat(x,y,0));
-            }
-        }
     }
 
     /**
@@ -92,16 +86,14 @@ public class Viewer extends JPanel {
      * @param coverage The coverage to display.
      */
     public Viewer(final GridCoverage coverage) {
-        this(coverage.geophysics(true).getRenderedImage());
+        this(coverage.getRenderedImage());
     }
 
     /**
      * Paint this component.
      */
     public void paintComponent(final Graphics graphics) {
-//        final GraphicsJAI g = GraphicsJAI.createGraphicsJAI((Graphics2D) graphics, this);
-        final Graphics2D g = (Graphics2D) graphics;
-System.out.println(image);
+        final GraphicsJAI g = GraphicsJAI.createGraphicsJAI((Graphics2D) graphics, this);
         g.drawRenderedImage(image, gridToCoordinateSystem);
     }
 
@@ -141,35 +133,31 @@ System.out.println(image);
      * Load and display one of examples grid coverages.
      */
     public static void main(String[] args) throws IOException {
-        args = new String[]{"0", "-operation=GradientMagnitude"};
-        args = new String[]{"0"};
         final Arguments arguments = new Arguments(args);
         final PrintWriter     out = arguments.out;
-        final Integer     example = arguments.getOptionalInteger("-example");
-        final String    operation = arguments.getOptionalString("-operation");
+        final String    operation = arguments.getOptionalString ("-operation");
+        final Boolean  geophysics = arguments.getOptionalBoolean("-geophysics");
         args = arguments.getRemainingArguments(1);
-        if (example==null && args.length==0) {
-            out.println("Usage: Viewer [options]");
+        if (args.length == 0) {
+            out.println("Usage: Viewer [options] example");
             out.println();
-            out.println("Where options includes:");
-            out.print  ("  -example=[n]    The number of the requested example (0 to ");
+            out.print("Where \"example\" is the number of the requested example (0 to ");
             out.print(GridCoverageTest.getNumExamples()-1);
             out.println(" inclusive)");
-            out.println("  -operation=[s]  An operation name to apply (e.g. \"GradientMagniture\")");
+            out.println("and [options] includes:");
+            out.println();
+            out.println("  -operation=[s]  An operation name to apply (e.g. \"GradientMagniture\").");
             out.println("                  For a list of available operations, run the following:");
             out.println("                  java org.geotools.gp.GridCoverageProcessor");
+            out.println("  -geophysics=[b] Set to 'true' or 'false' for requesting a \"geophysics\"");
+            out.println("                  version of data or an indexed version, respectively.");
             out.flush();
             return;
         }
-
-        javax.imageio.ImageReader reader = new fr.ird.io.image.USRelaxed_ASC().createReaderInstance();
-        reader.setInput(new File("D:/Données/Réunion/Bathymétrie/Baudry.asc"));
-        RenderedImage test = reader.read(0);
-        System.out.println(test);
-        show(test);
-
-        final int number = (example!=null) ? example.intValue() : Integer.parseInt(args[0]);
-        GridCoverage coverage = GridCoverageTest.getExample(number);
+        GridCoverage coverage = GridCoverageTest.getExample(Integer.parseInt(args[0]));
+        if (geophysics != null) {
+            coverage = coverage.geophysics(geophysics.booleanValue());
+        }
         if (operation != null) {
             final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
             coverage = processor.doOperation(operation, coverage);
