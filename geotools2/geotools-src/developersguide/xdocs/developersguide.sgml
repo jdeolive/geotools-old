@@ -9,7 +9,7 @@ alternate="yes"
 ?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
-<!--file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
+<!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
@@ -20,7 +20,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/06/20 21:59:49 $</date>
+    <date>$Date: 2002/06/23 20:53:10 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -78,7 +78,7 @@ alternate="yes"
         </listitem>
 
         <listitem>
-          <para>what ant checks</para>
+          <para>using maven</para>
         </listitem>
 
         <listitem>
@@ -383,13 +383,16 @@ alternate="yes"
         <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
         java IDE which also provides a framework for adding extra
         functionality. Geotools2 is developed using the same modular structure
-        as netbeans and can be integrated into netbeans in the future.</para>
+        as netbeans and can be integrated into netbeans in the future. Sun
+        have repackaged Netbeans and called it <ulink
+        url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE
+        Studio</ulink> (previously Forte).</para>
       </section>
 
       <section>
         <title id="netbeansprerequisites">Prerequisites</title>
 
-        <para>Before setting up Netbeans you need to:</para>
+        <para>Before setting up Netbeans for geotools development you need to:</para>
 
         <itemizedlist>
           <listitem>
@@ -469,35 +472,12 @@ alternate="yes"
         <para>If you want to debug files using Netbeans, you will need to
         mount the source module directories based on the root source directory
         of that module. To do this, you will need to ensure the &#34;View over
-        FileSystem&#34; Netbeans module is installed select a
+        FileSystem&#34; Netbeans module is installed select all
         <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
-        directory in the Filesystem Explorer, select Tools-&#62;Mount As New
-        Filesystem.</para>
-      </section>
-
-      <section id="todo2">
-        <title>to do</title>
-
-        <para>To do:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Where to get it.</para>
-          </listitem>
-
-          <listitem>
-            <para></para>
-          </listitem>
-
-          <listitem>
-            <para>How to setup getools to fit the multiple directory structure</para>
-          </listitem>
-
-          <listitem>
-            <para>The extra Netbeans modules that are useful and should be
-            downloaded.</para>
-          </listitem>
-        </itemizedlist>
+        directories in the Filesystem Explorer then select Tools-&#62;Mount As
+        New Filesystem. If you are running any test or demonstration programs,
+        you will probably also need to mount their directory using the same
+        method.</para>
       </section>
     </section>
   </section>
