@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.21 2004/02/03 20:37:07 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.22 2004/02/09 09:03:21 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -917,8 +917,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final PreparedStatement stmt;
             stmt = prepareStatement("Datum", "select DATUM_NAME,"
                                              + " DATUM_TYPE,"
-                                             + " ELLIPSOID_CODE,"
-                                             + " REMARKS"
+                                             + " REMARKS,"
+                                             + " ELLIPSOID_CODE"  // Only for horizontal type
                                              + " from [Datum]"
                                              + " where DATUM_CODE = ?");
             stmt.setString(1, code);
@@ -931,8 +931,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             while (result.next()) {
                 final String name    = getString(result, 1, code);
                 final String type    = getString(result, 2, code);
-                final String ellps   = getString(result, 3, code);
-                final String remarks = result.getString( 4);
+                final String remarks = result.getString( 3);
                 final CharSequence prp = pack(name, code, remarks);
                 final Datum datum;
                 if (type.equalsIgnoreCase("vertical")) {
@@ -945,7 +944,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                     /*
                      * Horizontal datum type. Maps to "GEOCENTRIC".
                      */
-                    final Ellipsoid         ellipsoid = createEllipsoid(ellps);
+                    final Ellipsoid         ellipsoid = createEllipsoid(getString(result, 4, code));
                     final WGS84ConversionInfo[] infos = createWGS84ConversionInfo(code);
                     final WGS84ConversionInfo mainInf = (infos.length!=0) ? infos[0] : null;
                     final DatumType.Horizontal  dtype = DatumType.Horizontal.GEOCENTRIC; // TODO
