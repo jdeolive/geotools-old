@@ -1,307 +1,244 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+<!DOCTYPE appendix PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
-"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><article
-id="index">
-  <articleinfo>
-    <title>Geotools2 Glossary</title>
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><!-- $Id: glossary.sgml,v 1.14 2002/12/10 10:41:41 camerons Exp $ --><appendix>
+  <title>Glossary</title>
 
-    <author>
-      <firstname>Cameron</firstname>
+  <table>
+    <title>Glossary</title>
 
-      <surname>Shorter</surname>
-    </author>
+    <tgroup cols="3">
+      <thead>
+        <row>
+          <entry>Term</entry>
 
-    <date>$Date: 2002/12/07 08:34:17 $</date>
+          <entry>Expanded Accronym</entry>
 
-    <abstract>
-      <para>Glossary of terms used in the Geotools2 project.</para>
-    </abstract>
-  </articleinfo>
+          <entry>Description</entry>
+        </row>
+      </thead>
 
-  <section>
-    <title id="introduction">Introduction</title>
+      <tbody>
+        <row>
+          <entry>CSS</entry>
 
-    <section>
-      <title id="identification">Identification.</title>
+          <entry>Coordinate System Specification</entry>
+        </row>
 
-      <para>This document explains accronyms used in the <ulink
-      url="http://geotools.org">Geotools2</ulink> project.</para>
-    </section>
+        <row>
+          <entry>CTS</entry>
 
-    <section>
-      <title id="systemoverview">System overview.</title>
+          <entry>Coordinate Transform Service</entry>
 
-      <para>Geotools 2 is an open source, java GIS toolkit for developing
-      standards compliant solutions. It&#39;s modular architecture allows
-      extra functionality to be easily incorporated. Geotools 2 aims to
-      support Open GIS and other relevant standards as they are developed.</para>
+          <entry>As specified by the OGC.</entry>
+        </row>
 
-      <para>GeoTools 2 code is built using the latest Java tools and
-      environments (Java 1.4.1 at time of writing) and will continue to
-      leverage the capabilities of future Java environments and official
-      extensions as and when the technologies are released and have been
-      through the first maintenance cycle (i.e. version 1.x.1).</para>
+        <row>
+          <entry>GT2</entry>
 
-      <para>The GeoTools2 project is divided into separate modules, each of
-      which implements a specific requirement. Only a subset of these modules
-      is usually required to build an application based on Geotools2.</para>
-    </section>
+          <entry><ulink url="http://geotools.org">GeoTools 2</ulink></entry>
+        </row>
 
-    <section>
-      <title id="licence">Licence</title>
+        <row>
+          <entry>IDE</entry>
 
-      <para>Copyright (c) 2002 Cameron Shorter. Permission is granted to copy,
-      distribute and/or modify this document under the terms of the <ulink
-      url="http://www.fsf.org/copyleft/fdl.html">GNU Free Documentation
-      License</ulink>, Version 1.1 or any later version published by the Free
-      Software Foundation; with the Invariant Sections being with no Invariant
-      Sections, with the Front-Cover Texts being no Front-Cover Texts, and
-      with the Back-Cover Texts being no Back-Cover Texts.</para>
-    </section>
-  </section>
+          <entry>Integrated Development Environment</entry>
+        </row>
 
-  <section>
-    <title id="glossary">Glossary</title>
+        <row>
+          <entry>J2ME</entry>
 
-    <table>
-      <title>Glossary</title>
+          <entry>Java 2 Micro Edition</entry>
+        </row>
 
-      <tgroup cols="3">
-        <thead>
-          <row>
-            <entry>Term</entry>
+        <row>
+          <entry>JAI</entry>
 
-            <entry>Expanded Accronym</entry>
+          <entry>Java Advance Imaging</entry>
 
-            <entry>Description</entry>
-          </row>
-        </thead>
+          <entry>Java Rendering Libraries.</entry>
+        </row>
 
-        <tbody>
-          <row>
-            <entry>CSS</entry>
+        <row>
+          <entry>JDK</entry>
 
-            <entry>Coordinate System Specification</entry>
-          </row>
+          <entry>Java Development Kit</entry>
+        </row>
 
-          <row>
-            <entry>CTS</entry>
+        <row>
+          <entry>JRE</entry>
 
-            <entry>Coordinate Transform Service</entry>
+          <entry>Java Runtime Environment</entry>
+        </row>
 
-            <entry>As specified by the OGC.</entry>
-          </row>
+        <row>
+          <entry>JTS</entry>
 
-          <row>
-            <entry>GT2</entry>
+          <entry><ulink url="http://www.vividsolutions.com/jts/jts_frame.htm">Java
+          Topology Suite</ulink></entry>
+        </row>
 
-            <entry><ulink url="http://geotools.org">GeoTools 2</ulink></entry>
-          </row>
+        <row>
+          <entry>GCS</entry>
 
-          <row>
-            <entry>IDE</entry>
+          <entry>Grid Coverage Specification</entry>
 
-            <entry>Integrated Development Environment</entry>
-          </row>
+          <entry>As specified by the OGC.</entry>
+        </row>
 
-          <row>
-            <entry>J2ME</entry>
+        <row>
+          <entry>GIS</entry>
 
-            <entry>Java 2 Micro Edition</entry>
-          </row>
+          <entry>Geographic Information Systems</entry>
+        </row>
 
-          <row>
-            <entry>JAI</entry>
+        <row>
+          <entry>GML</entry>
 
-            <entry>Java Advance Imaging</entry>
+          <entry>Geographic Markup Language</entry>
 
-            <entry>Java Rendering Libraries.</entry>
-          </row>
+          <entry>XML format for describing geographic features.</entry>
+        </row>
 
-          <row>
-            <entry>JDK</entry>
+        <row>
+          <entry>LGPL</entry>
 
-            <entry>Java Development Kit</entry>
-          </row>
+          <entry><ulink url="http://www.gnu.org/copyleft/lesser.html">Lesser
+          General Public Licence</ulink></entry>
 
-          <row>
-            <entry>JRE</entry>
+          <entry>Geotools licence which ensures the code is open, free and can
+          be used in proprietry software.</entry>
+        </row>
 
-            <entry>Java Runtime Environment</entry>
-          </row>
+        <row>
+          <entry>MIL-STD 498</entry>
 
-          <row>
-            <entry>JTS</entry>
+          <entry>Military Standard 498</entry>
 
-            <entry><ulink
-            url="http://www.vividsolutions.com/jts/jts_frame.htm">Java
-            Topology Suite</ulink></entry>
-          </row>
+          <entry>Set of processes for software development. While Geotools2
+          does not follow this standard, some of it&#39;s processes have been
+          adopted.</entry>
+        </row>
 
-          <row>
-            <entry>GCS</entry>
+        <row>
+          <entry>OGC</entry>
 
-            <entry>Grid Coverage Specification</entry>
+          <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
 
-            <entry>As specified by the OGC.</entry>
-          </row>
+          <entry>Geographic Standards Body</entry>
+        </row>
 
-          <row>
-            <entry>GIS</entry>
+        <row>
+          <entry>SDD</entry>
 
-            <entry>Geographic Information Systems</entry>
-          </row>
+          <entry>Software Design Description</entry>
 
-          <row>
-            <entry>GML</entry>
+          <entry>A design document as defined by MIL-STD 498.</entry>
+        </row>
 
-            <entry>Geographic Markup Language</entry>
+        <row>
+          <entry>SDK</entry>
 
-            <entry>XML format for describing geographic features.</entry>
-          </row>
+          <entry>Software Development Kit</entry>
+        </row>
 
-          <row>
-            <entry>LGPL</entry>
+        <row>
+          <entry>SRS</entry>
 
-            <entry><ulink url="http://www.gnu.org/copyleft/lesser.html">Lesser
-            General Public Licence</ulink></entry>
+          <entry>Spacial Reference System</entry>
 
-            <entry>Geotools licence which ensures the code is open, free and
-            can be used in proprietry software.</entry>
-          </row>
+          <entry>Spacial Reference System (as defined by the OGC). An
+          alpha-numeric ID which specifies what coordinate system you are
+          using. Eg: SRS=&#34;EPSG:4326&#34;.</entry>
+        </row>
 
-          <row>
-            <entry>MIL-STD 498</entry>
+        <row>
+          <entry>SVG</entry>
 
-            <entry>Military Standard 498</entry>
+          <entry>Scalable Vector Graphics</entry>
+        </row>
 
-            <entry>Set of processes for software development. While Geotools2
-            does not follow this standard, some of it&#39;s processes have
-            been adopted.</entry>
-          </row>
+        <row>
+          <entry>SLD</entry>
 
-          <row>
-            <entry>OGC</entry>
+          <entry>Styled Layer Descriptor</entry>
 
-            <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
+          <entry>XML document which describes how to draw specific features.
+          Eg, A road line may be drawn in red, 3 pixels wide.</entry>
+        </row>
 
-            <entry>Geographic Standards Body</entry>
-          </row>
+        <row>
+          <entry>UML</entry>
 
-          <row>
-            <entry>SDD</entry>
+          <entry>Unified Modeling Language</entry>
 
-            <entry>Software Design Description</entry>
+          <entry>A set of diagrams used to describe software pictorially.</entry>
+        </row>
 
-            <entry>A design document as defined by MIL-STD 498.</entry>
-          </row>
+        <row>
+          <entry>WCS</entry>
 
-          <row>
-            <entry>SDK</entry>
+          <entry>Web Coverage Server</entry>
+        </row>
 
-            <entry>Software Development Kit</entry>
-          </row>
+        <row>
+          <entry>WFS</entry>
 
-          <row>
-            <entry>SRS</entry>
+          <entry>Web Feature Server</entry>
 
-            <entry>Spacial Reference System</entry>
+          <entry>Return vector data about features.</entry>
+        </row>
 
-            <entry>Spacial Reference System (as defined by the OGC). An
-            alpha-numeric ID which specifies what coordinate system you are
-            using. Eg: SRS=&#34;EPSG:4326&#34;.</entry>
-          </row>
+        <row>
+          <entry>WMS</entry>
 
-          <row>
-            <entry>SVG</entry>
+          <entry>Web Map Server</entry>
 
-            <entry>Scalable Vector Graphics</entry>
-          </row>
+          <entry>Return raster map images and point queries.</entry>
+        </row>
 
-          <row>
-            <entry>SLD</entry>
+        <row>
+          <entry>WYSIWYG</entry>
 
-            <entry>Styled Layer Descriptor</entry>
+          <entry>What You See Is What You Get</entry>
 
-            <entry>XML document which describes how to draw specific features.
-            Eg, A road line may be drawn in red, 3 pixels wide.</entry>
-          </row>
+          <entry>Refers to editors (like &#34;word&#34;) which display edited
+          text the same way it will be displayed when printed on paper.</entry>
+        </row>
 
-          <row>
-            <entry>UML</entry>
+        <row>
+          <entry>WYSIWYM</entry>
 
-            <entry>Unified Modeling Language</entry>
+          <entry>What You See Is What You Mean</entry>
 
-            <entry>A set of diagrams used to describe software pictorially.</entry>
-          </row>
+          <entry>Refers to editors which store symantics instead of print
+          fonts. Eg, store &#60;h1&#62; instead of &#60;fontsize=32&#62;.</entry>
+        </row>
 
-          <row>
-            <entry>WCS</entry>
+        <row>
+          <entry>XSL</entry>
 
-            <entry>Web Coverage Server</entry>
-          </row>
+          <entry>Extensible Stylesheet Language</entry>
 
-          <row>
-            <entry>WFS</entry>
+          <entry>A language for expressing stylesheets.</entry>
+        </row>
 
-            <entry>Web Feature Server</entry>
+        <row>
+          <entry>XSLT</entry>
 
-            <entry>Return vector data about features.</entry>
-          </row>
+          <entry>XSL Transform</entry>
 
-          <row>
-            <entry>WMS</entry>
+          <entry>A language for transforming XML documents into other XML
+          documents.</entry>
+        </row>
 
-            <entry>Web Map Server</entry>
+        <row>
+          <entry>XML</entry>
 
-            <entry>Return raster map images and point queries.</entry>
-          </row>
-
-          <row>
-            <entry>WYSIWYG</entry>
-
-            <entry>What You See Is What You Get</entry>
-
-            <entry>Refers to editors (like &#34;word&#34;) which display
-            edited text the same way it will be displayed when printed on
-            paper.</entry>
-          </row>
-
-          <row>
-            <entry>WYSIWYM</entry>
-
-            <entry>What You See Is What You Mean</entry>
-
-            <entry>Refers to editors which store symantics instead of print
-            fonts. Eg, store &#60;h1&#62; instead of &#60;fontsize=32&#62;.</entry>
-          </row>
-
-          <row>
-            <entry>XSL</entry>
-
-            <entry>Extensible Stylesheet Language</entry>
-
-            <entry>A language for expressing stylesheets.</entry>
-          </row>
-
-          <row>
-            <entry>XSLT</entry>
-
-            <entry>XSL Transform</entry>
-
-            <entry>A language for transforming XML documents into other XML
-            documents. </entry>
-          </row>
-
-          <row>
-            <entry>XML</entry>
-
-            <entry>Extensible Markup Language</entry>
-          </row>
-        </tbody>
-      </tgroup>
-    </table>
-  </section>
-</article>
+          <entry>Extensible Markup Language</entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+</appendix>
