@@ -2,7 +2,22 @@
     <target depends="release" name="all">
         <!-- WRITEME -->
     </target>
-    
+    <path id="checkstyle.ext">
+        <fileset dir="..\..\extbin\gtbuild\lib\"/>
+        <pathelement location="..\..\extbin\gtbuild\lib\checkstyle-all.jar"/>
+    </path>
+    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
+        <classpath refid="checkstyle.ext"/>
+    </taskdef>
+     <!-- TODO: failOnViolation should be set to true eventualy -->
+    <target name="checkstyle">
+         <echo message="using ${licence.header} as header check file"/>
+         <checkstyle failOnViolation="false"> 
+            <fileset dir="src" includes="**/*.java"/>
+            <formatter type="plain"/>
+            <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
+         </checkstyle>
+    </target>
     <target depends="prepare-compile" description="compile the code for the package" name="compile">
         <javac debug="true" srcdir="src">
             <classpath refid="compile.path" />
@@ -16,7 +31,7 @@
             </classpath>
         </javac>
     </target>
-    <target depends="compile-test" name="test" if="testsuite">
+    <target depends="compile-test,checkstyle" name="test" if="testsuite">
 
         <junit fork="true" printsummary="true">
             <formatter type="plain"/>
