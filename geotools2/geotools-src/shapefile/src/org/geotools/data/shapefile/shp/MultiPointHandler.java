@@ -39,9 +39,9 @@ public class MultiPointHandler implements ShapeHandler {
     shapeType = ShapeType.POINT;
   }
   
-  public MultiPointHandler(ShapeType type) throws InvalidShapefileException {
+  public MultiPointHandler(ShapeType type) throws ShapefileException {
     if ((type != ShapeType.MULTIPOINT) && (type != ShapeType.MULTIPOINTM) && (type != ShapeType.MULTIPOINTZ)) {
-      throw new InvalidShapefileException(
+      throw new ShapefileException(
       "Multipointhandler constructor - expected type to be 8, 18, or 28");
     }
     

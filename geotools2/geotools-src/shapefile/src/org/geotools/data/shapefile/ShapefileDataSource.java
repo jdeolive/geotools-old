@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.17 2003/07/23 01:03:14 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.18 2003/07/23 23:41:08 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -105,11 +105,7 @@ public class ShapefileDataSource extends AbstractDataSource {
 
   }
 
-  public ShapefileDataSource(URL shpURL, URL dbfURL, URL shxURL) {
-    this.shpURL = shpURL;
-    this.dbfURL = dbfURL;
-    this.shxURL = shxURL;
-  }
+
   
   public IDFactory getIDFactory() {
     if (idFactory == null) {
@@ -217,7 +213,7 @@ public class ShapefileDataSource extends AbstractDataSource {
     catch (org.geotools.feature.IllegalAttributeException ife){
       throw new DataSourceException("Illegal Attribute Exception loading data",ife);
     }
-    catch (org.geotools.data.shapefile.shp.InvalidShapefileException ise){
+    catch (org.geotools.data.shapefile.shp.ShapefileException ise){
       throw new DataSourceException("Illegal Feature Exception loading data",ise);
     }
   }
@@ -226,7 +222,7 @@ public class ShapefileDataSource extends AbstractDataSource {
    *
    */
   private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf,Query q,int[] sel)
-  throws DataSourceException,IOException,InvalidShapefileException {
+  throws DataSourceException,IOException,ShapefileException {
       
     // Create the FeatureType based on the dbf and shapefile
     schema = getFeatureType( dbf == null ? createDbaseReader() : dbf,
@@ -245,7 +241,7 @@ public class ShapefileDataSource extends AbstractDataSource {
   public FeatureType getSchema() throws DataSourceException{
     try {
       return getSchema(null,null,new DefaultQuery(),null);
-    } catch (InvalidShapefileException e) {
+    } catch (ShapefileException e) {
       throw new DataSourceException("Invalid Shapefile",e);
     } catch (IOException e) {
       throw new DataSourceException("IO problem reading shapefile",e);
@@ -359,35 +355,7 @@ public class ShapefileDataSource extends AbstractDataSource {
     atts[0] = geometryAttribute;
     
     for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
-      Class clazz = void.class;
-      switch (header.getFieldType(i)) {
-        // L,C,D,N,F
-        case 'l': case 'L':
-          clazz = Boolean.class;
-          break;
-        case 'c': case 'C':
-          clazz = String.class;
-          break;
-        case 'd': case 'D':
-          clazz = java.util.Date.class;
-          break;
-        case 'n': case 'N':
-          if (header.getFieldDecimalCount(i) > 0) {
-            clazz = Double.class;
-          }
-          else {
-            clazz = Integer.class;
-          }
-          break;
-        case 'f': case 'F':
-          clazz = Double.class;
-          break;
-        default:
-          throw new RuntimeException(
-          "Problem with dbf header, cannot deal with type : '" + 
-          header.getFieldType(i) + "'"
-          );
-      }
+      Class clazz = header.getFieldClass(i);
       atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
       
     }
@@ -472,7 +440,7 @@ public class ShapefileDataSource extends AbstractDataSource {
         more = false;
       } else {
         throw new IllegalStateException(
-        (both == 1 ? "shape" : "dbf") + "file has extra record"
+        (both == 1 ? "shape" : "dbf") + "file has extra record (count = " + cnt + ")"
         );
       }
       return more;
@@ -559,7 +527,13 @@ public class ShapefileDataSource extends AbstractDataSource {
       
       writer.write(gc, JTSUtilities.getShapeType(gc.getGeometryN(0), shapeDims));
       writeDbf(collection);
-    } catch(Exception e) {
+    } catch (ShapefileException se) {
+      throw new DataSourceException("Something went wrong during shapefile saving", se);
+    } catch (DbaseFileException dfe) {
+      throw new DataSourceException("Something went wrong during shapefile saving", dfe);
+    } catch(IOException e) {
+      throw new DataSourceException("IOException during shapefile saving", e);
+    } catch(RuntimeException e) {
       throw new DataSourceException("Something went wrong during shapefile saving", e);
     }
   }
@@ -621,6 +595,8 @@ public class ShapefileDataSource extends AbstractDataSource {
         header.addColumn(colName, 'N', 33, 16);
       } else if(Date.class.isAssignableFrom(colType)) {
         header.addColumn(colName, 'D', 8, 0);
+      } else if (colType == Boolean.class) {
+        header.addColumn(colName, 'L', 1, 0);
       } else if(colType == String.class) {
         int maxlength = findMaxStringLength(featureCollection, i);
         
@@ -681,6 +657,8 @@ public class ShapefileDataSource extends AbstractDataSource {
       } else {
         object = o.toString();
       }
+    } else if (colType == Boolean.class) {
+      object = o;
     } else if(Date.class.isAssignableFrom(colType)) {
       object = o;
     } else {
@@ -745,10 +723,13 @@ public class ShapefileDataSource extends AbstractDataSource {
     
     Iterator i = fc.iterator();
     if (! i.hasNext()) {
-      throw new RuntimeException("Feature Collection is empty");
+      throw new DataSourceException("Feature Collection is empty");
     }
     
     Feature f1 = (Feature) i.next();
+    if (f1.getFeatureType().getDefaultGeometry() == null) {
+      throw new DataSourceException("Feature has no geometry");
+    }
     
     final ShapeType type = JTSUtilities.findBestGeometryType(f1.getDefaultGeometry());
     
@@ -823,14 +804,14 @@ public class ShapefileDataSource extends AbstractDataSource {
   
   
   // Just a Test
-  public static final void main(String[] args) throws Exception {
-    File src = new File(args[0]);
-    ShapefileDataSource ds = new ShapefileDataSource(src.toURL());
-    FeatureCollection features = ds.getFeatures(Filter.NONE);
-    Iterator i = features.iterator();
-    while (i.hasNext()) {
-      System.out.println(i.next());
-    }
-
-  }
+//  public static final void main(String[] args) throws Exception {
+//    File src = new File(args[0]);
+//    ShapefileDataSource ds = new ShapefileDataSource(src.toURL());
+//    FeatureCollection features = ds.getFeatures(Filter.NONE);
+//    Iterator i = features.iterator();
+//    while (i.hasNext()) {
+//      System.out.println(i.next());
+//    }
+//
+//  }
 }

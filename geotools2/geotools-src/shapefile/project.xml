@@ -132,6 +132,7 @@
               <directory>${basedir}/tests/unit</directory>
               <includes>
                   <include>**/data.zip</include>
+                  <include>**/*.wkt</include>
               </includes>
           </resource>
       </resources>

@@ -45,6 +45,7 @@ public class ServiceTest extends TestCaseSupport {
       DataSourceFactorySpi fac = (DataSourceFactorySpi)list.next();
       if(fac instanceof ShapefileDataSourceFactory){
         found=true;
+        assertNotNull(fac.getDescription());
         break;
       }
     }

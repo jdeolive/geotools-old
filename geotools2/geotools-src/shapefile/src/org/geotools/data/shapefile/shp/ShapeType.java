@@ -159,10 +159,10 @@ public final class ShapeType {
   
   /** Each ShapeType corresponds to a handler. In the future this should probably go
    * else where to allow different handlers, or something...
-   * @throws InvalidShapefileException If the ShapeType is bogus.
+   * @throws ShapefileException If the ShapeType is bogus.
    * @return The correct handler for this ShapeType. Returns a new one.
    */  
-  public ShapeHandler getShapeHandler() throws InvalidShapefileException {
+  public ShapeHandler getShapeHandler() throws ShapefileException {
     ShapeHandler handler;
     switch (id) {
       case 1: case 11: case 21:

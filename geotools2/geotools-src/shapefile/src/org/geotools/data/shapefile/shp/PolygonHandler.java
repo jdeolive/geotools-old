@@ -45,9 +45,9 @@ public class PolygonHandler implements ShapeHandler {
     shapeType = ShapeType.POLYGON;
   }
   
-  public PolygonHandler(ShapeType type) throws InvalidShapefileException {
+  public PolygonHandler(ShapeType type) throws ShapefileException {
     if ((type != ShapeType.POLYGON) && (type != ShapeType.POLYGONM) && (type != ShapeType.POLYGONZ)) {
-      throw new InvalidShapefileException(
+      throw new ShapefileException(
       "PolygonHandler constructor - expected type to be 5, 15, or 25.");
     }
     
@@ -440,6 +440,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.6  2003/07/23 23:41:09  ianschneider
+ * more testing updates
+ *
  * Revision 1.5  2003/07/23 00:59:59  ianschneider
  * Lots of PMD fix ups
  *

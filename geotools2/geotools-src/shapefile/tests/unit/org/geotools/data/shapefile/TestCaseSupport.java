@@ -6,6 +6,8 @@
 
 package org.geotools.data.shapefile;
 
+import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.io.*;
 import java.io.*;
 import junit.framework.*;
 import java.net.*;
@@ -24,6 +26,16 @@ public abstract class TestCaseSupport extends TestCase {
   public TestCaseSupport(String name) {
     super(name);
     prepareData();
+  }
+  
+  protected Geometry readGeometry(String wktResource) {
+    WKTReader reader = new WKTReader();
+    InputStream stream = getClass().getResourceAsStream( wktResource + ".wkt");
+    try {
+      return reader.read(new InputStreamReader(stream));
+    } catch (ParseException pe) {
+      throw new RuntimeException("parsing error in resource " + wktResource,pe); 
+    }
   }
   
   private void prepareData() {

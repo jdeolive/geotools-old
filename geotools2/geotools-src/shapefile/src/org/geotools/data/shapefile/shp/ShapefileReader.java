@@ -91,9 +91,9 @@ public class ShapefileReader {
    * @param strict True to make the header parsing throw Exceptions if the version or magic number
    * are incorrect.
    * @throws IOException If problems arise.
-   * @throws InvalidShapefileException If for some reason the file contains invalid records.
+   * @throws ShapefileException If for some reason the file contains invalid records.
    */
-  public ShapefileReader(ReadableByteChannel channel, boolean strict) throws IOException, InvalidShapefileException {
+  public ShapefileReader(ReadableByteChannel channel, boolean strict) throws IOException, ShapefileException {
     this.channel = channel;
     randomAccessEnabled = channel instanceof FileChannel;
     init(strict);
@@ -102,9 +102,9 @@ public class ShapefileReader {
   /** Default constructor. Calls ShapefileReader(channel,true).
    * @param channel
    * @throws IOException
-   * @throws InvalidShapefileException
+   * @throws ShapefileException
    */  
-  public ShapefileReader(ReadableByteChannel channel) throws IOException, InvalidShapefileException {
+  public ShapefileReader(ReadableByteChannel channel) throws IOException, ShapefileException {
     this(channel,true);
   }
   
@@ -166,7 +166,7 @@ public class ShapefileReader {
     return r;
   }
   
-  private void init(boolean strict) throws IOException,InvalidShapefileException {
+  private void init(boolean strict) throws IOException,ShapefileException {
     header = readHeader(channel,strict);
     fileShapeType = header.getShapeType();
     handler = fileShapeType.getShapeHandler();
@@ -261,8 +261,6 @@ public class ShapefileReader {
     // record header is big endian
     buffer.order(ByteOrder.BIG_ENDIAN);
     
-    record.offset = buffer.position();
-    
     // read shape record header
     int recordNumber = buffer.getInt();
     // silly ESRI say contentLength is in 2-byte words
@@ -315,6 +313,7 @@ public class ShapefileReader {
     }
     buffer.reset();
 
+    record.offset += record.length + (record.length == 0 ? 0 : 8);
     // update all the record info.
     record.length = recordLength;
     record.type = recordType;
@@ -328,7 +327,7 @@ public class ShapefileReader {
   public Object shapeAt(int offset) throws IOException,UnsupportedOperationException {
     if (randomAccessEnabled) {
       buffer.position(offset);
-      record.ready = true;
+      hasNext();
       return nextRecord().shape();
     }
     throw new UnsupportedOperationException("Random Access not enabled");

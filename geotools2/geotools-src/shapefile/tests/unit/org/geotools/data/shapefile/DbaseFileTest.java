@@ -67,6 +67,24 @@ public class DbaseFileTest extends TestCaseSupport {
     }
   }
   
+  public void testHeader() throws Exception {
+    DbaseFileHeader header = new DbaseFileHeader();
+    header.addColumn("emptyString", 'C', 20, 0);
+    header.addColumn("emptyInt", 'N', 20, 0);
+    header.addColumn("emptyDouble", 'N',20,5);
+    header.addColumn("emptyFloat", 'F', 20, 5);
+    header.addColumn("emptyLogical", 'L', 1, 0);
+    header.addColumn("emptyDate", 'D', 20, 0);
+    int length = header.getRecordLength();
+    header.removeColumn("emptyDate");
+    assertTrue(length !=  header.getRecordLength());
+    header.addColumn("emptyDate", 'D',20,0);
+    assertTrue(length == header.getRecordLength());
+    header.removeColumn("billy");
+    assertTrue(length == header.getRecordLength());
+  }
+
+  
   public void testEmptyFields() throws Exception {
     DbaseFileHeader header = new DbaseFileHeader();
     header.addColumn("emptyString", 'C', 20, 0);

@@ -25,9 +25,6 @@ package org.geotools.data.shapefile.shp;
  * occures
  */
 public class ShapefileException extends Exception {
-    public ShapefileException() {
-        super();
-    }
 
     public ShapefileException(String s) {
         super(s);

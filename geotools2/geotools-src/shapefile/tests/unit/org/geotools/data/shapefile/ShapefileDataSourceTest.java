@@ -12,6 +12,7 @@ import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import junit.framework.*;
 import org.geotools.data.shapefile.*;
@@ -29,7 +30,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     super(testName);
   }
   
-  public static void main(java.lang.String[] args) {
+  public static void main(java.lang.String[] args) throws Exception {
     junit.textui.TestRunner.run(suite(ShapefileDataSourceTest.class));
   }
   
@@ -53,6 +54,12 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     assertEquals("Number of Attributes",253,types.length);
   }
   
+  public void testEnvelope() throws Exception {
+    FeatureCollection features = loadFeatures(STATE_POP, null);
+    ShapefileDataSource s = new ShapefileDataSource(getTestResource(STATE_POP));
+    assertEquals(features.getBounds(), s.getBounds());
+  }
+  
   public void testLoadAndVerify() throws Exception {
     FeatureCollection features = loadFeatures(STATE_POP,null);
     
@@ -65,6 +72,12 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     assertEquals("Value of land area is wrong",((Double)firstFeature(features).getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
   }
   
+  public void testMetaData() throws Exception {
+    ShapefileDataSource s = new ShapefileDataSource(getTestResource(STATE_POP));
+    DataSourceMetaData meta = s.getMetaData();
+    assertTrue(meta.hasFastBbox());
+    assertTrue(meta.supportsSetFeatures());
+  }
   
   public void testQuerySubset() throws Exception {
     DefaultQuery qi = new DefaultQuery();
@@ -77,33 +90,11 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     assertEquals("Number of Attributes",1,schema.getAttributeTypes().length);
   }
   
-//  public void testQueryFill() throws Exception {
-//    DefaultQuery qi = new DefaultQuery();
-//    qi.setProperties(new AttributeTypeDefault[] {
-//      new AttributeTypeDefault("Billy",String.class),
-//      new AttributeTypeDefault("STATE_NAME",String.class),
-//      new AttributeTypeDefault("LAND_KM",Double.class),
-//      new AttributeTypeDefault("the_geom",Geometry.class)});
-//    Feature[] features = loadFeatures(STATE_POP,qi);
-//    assertEquals("Number of Features loaded",49,features.length);
-//    
-//    FeatureType schema = features[0].getSchema();
-//    assertNotNull(schema.getDefaultGeometry());
-//    assertEquals("Number of Attributes",4,schema.getAttributeTypes().length);
-//    assertEquals("Value of statename is wrong",features[0].getAttribute("STATE_NAME"),"Illinois");
-//    assertEquals("Value of land area is wrong",((Double)features[0].getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
-//    
-//    for (int i = 0, ii = features.length; i < ii; i++) {
-//      assertNull(features[i].getAttribute("Billy")); 
-//    }
-//  }
-  
   public void testQuerying() throws Exception {
     URL url = getTestResource(STREAM);
     ShapefileDataSource s = new ShapefileDataSource(url);
     FeatureType schema = s.getSchema();
     AttributeType[] types = schema.getAttributeTypes();
-    System.out.println("TESTING QUERYING");
     for (int i = 0, ii = types.length; i < ii; i++) {
       DefaultQuery q = new DefaultQuery();
       q.setPropertyNames(new String[] {types[i].getName()});
@@ -116,4 +107,124 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
       if (i % 5 == 0) System.out.print(".");
     }
   }
+  
+  public void testAttributesWriting() throws Exception {
+    FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
+    factory.addType(AttributeTypeFactory.newAttributeType("a",Byte.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("b",Short.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("c",Double.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("d",Float.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("e",String.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("f",Date.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("g",Boolean.class));
+    factory.addType(AttributeTypeFactory.newAttributeType("h",Geometry.class));
+    FeatureType type = factory.getFeatureType();
+    FeatureCollection features = FeatureCollections.newCollection();
+    for (int i = 0, ii = 20; i < ii; i++) {
+      features.add(type.create(new Object[] {
+        new Byte( (byte) i ),
+        new Short( (short) i),
+        new Double( i ),
+        new Float( i ),
+        new String( i + " " ),
+        new Date( i ),
+        new Boolean( true ),
+        new Point(new Coordinate(0,0), new PrecisionModel(),0)
+      }));
+    }
+    
+    URL parent = getTestResource("");
+    File data = new File(parent.getFile());
+    if (!data.exists())
+      throw new Exception("Couldn't setup temp file");
+    File tmpFile = new File(data, "tmp.shp");
+    tmpFile.createNewFile();
+    
+    ShapefileDataSource s = new ShapefileDataSource(tmpFile.toURL());
+    s.setFeatures(features);
+    
+    tmpFile.delete();
+  }
+  
+  public void testGeometriesWriting() throws Exception {
+    
+    
+    String[] wktResources = new String[] {
+      "point",
+      "multipoint",
+      "line",
+      "multiline",
+      "polygon",
+      "multipolygon"
+    };
+    
+    PrecisionModel pm = new PrecisionModel();
+    for (int i = 0; i < wktResources.length; i++) {
+      Geometry geom = readGeometry(wktResources[i]);
+      System.err.println("geometry write " + wktResources[i]);
+      runWriteReadTest(geom);
+//      make3D(geom);
+//      System.err.println("geometry write " + wktResources[i] + "3d");
+//      runWriteReadTest(geom);
+    }
+    
+  }
+  
+  private void make3D(Geometry g) {
+    Coordinate[] c = g.getCoordinates();
+    for (int i = 0, ii = c.length; i < ii; i++) {
+      c[i].z = 42; 
+    }
+  }
+  
+  private void runWriteReadTest(Geometry geom) throws Exception {
+    FeatureTypeFactory factory = FeatureTypeFactory.newInstance("junk");
+    factory.addType(AttributeTypeFactory.newAttributeType("a",Geometry.class));
+    
+    FeatureType type = factory.getFeatureType();
+    FeatureCollection features = FeatureCollections.newCollection();
+    for (int i = 0, ii = 20; i < ii; i++) {
+      
+      features.add(type.create(new Object[] {
+        geom
+      }));
+      
+      URL parent = getTestResource("");
+      File data = new File(parent.getFile());
+      if (!data.exists())
+        throw new Exception("Couldn't setup temp file");
+      File tmpFile = new File(data, "tmp.shp");
+      tmpFile.createNewFile();
+      
+      ShapefileDataSource s = new ShapefileDataSource(tmpFile.toURL());
+      s.setFeatures(features);
+      
+      s = new ShapefileDataSource(tmpFile.toURL());
+      FeatureCollection fc = s.getFeatures();
+      FeatureIterator fci = fc.features();
+      
+      while (fci.hasNext()) {
+        Feature f = fci.next();
+        Geometry fromShape = f.getDefaultGeometry();
+        
+        if (fromShape instanceof GeometryCollection) {
+          if ( ! (geom instanceof GeometryCollection) ) {
+            fromShape = ((GeometryCollection)fromShape).getGeometryN(0);
+          }
+        }
+        try {
+          Coordinate[] c1 = geom.getCoordinates();
+          Coordinate[] c2 = fromShape.getCoordinates();
+          for (int cc = 0, ccc = c1.length; cc < ccc; cc++) {
+            assertTrue(c1[cc].equals3D(c2[cc])); 
+          }
+        } catch (Throwable t) {
+          fail("Bogus : " + Arrays.asList(geom.getCoordinates()) + " : " + Arrays.asList(fromShape.getCoordinates())); 
+        }
+        
+        
+      }
+    }
+  }
+  
 }

@@ -36,9 +36,9 @@ public class PointHandler implements ShapeHandler {
   final ShapeType shapeType;
   GeometryFactory geometryFactory = new GeometryFactory();
   
-  public PointHandler(ShapeType type) throws InvalidShapefileException {
+  public PointHandler(ShapeType type) throws ShapefileException {
     if ((type != ShapeType.POINT) && (type != ShapeType.POINTM) && (type != ShapeType.POINTZ)) { // 2d, 2d+m, 3d+m
-      throw new InvalidShapefileException(
+      throw new ShapefileException(
       "PointHandler constructor: expected a type of 1, 11 or 21");
     }
     
@@ -79,15 +79,14 @@ public class PointHandler implements ShapeHandler {
     
     double x = buffer.getDouble();
     double y = buffer.getDouble();
-    double m;
     double z = Double.NaN;
     
     if (shapeType == ShapeType.POINTM) {
-      z = buffer.getDouble();
+      buffer.getDouble();
     }
     
     if (shapeType == ShapeType.POINTZ) {
-      m = buffer.getDouble();
+      z = buffer.getDouble();
     }
     
     return geometryFactory.createPoint(new Coordinate(x, y, z));

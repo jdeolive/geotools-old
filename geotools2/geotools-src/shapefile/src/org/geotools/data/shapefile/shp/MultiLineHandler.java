@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 
 
 /*
- * $Id: MultiLineHandler.java,v 1.2 2003/07/23 00:59:59 ianschneider Exp $
+ * $Id: MultiLineHandler.java,v 1.3 2003/07/23 23:41:09 ianschneider Exp $
  * @author aaime
  * @author Ian Schneider
  */
@@ -45,11 +45,11 @@ public class MultiLineHandler implements ShapeHandler {
   /** Create a MultiLineHandler for one of:<br>
    * ShapeType.ARC,ShapeType.ARCM,ShapeType.ARCZ
    * @param type The ShapeType to use.
-   * @throws InvalidShapefileException If the ShapeType is not correct (see constructor).
+   * @throws ShapefileException If the ShapeType is not correct (see constructor).
    */
-  public MultiLineHandler(ShapeType type) throws InvalidShapefileException {
+  public MultiLineHandler(ShapeType type) throws ShapefileException {
     if ((type != ShapeType.ARC) && (type != ShapeType.ARCM) && (type != ShapeType.ARCZ)) {
-      throw new InvalidShapefileException(
+      throw new ShapefileException(
       "MultiLineHandler constructor - expected type to be 3,13 or 23");
     }
     
@@ -222,6 +222,9 @@ public class MultiLineHandler implements ShapeHandler {
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.3  2003/07/23 23:41:09  ianschneider
+ * more testing updates
+ *
  * Revision 1.2  2003/07/23 00:59:59  ianschneider
  * Lots of PMD fix ups
  *
