@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  * internally defined manner.
  *
  * @author Rob Hranac, TOPP
- * @version $Id: AttributeExpressionImpl.java,v 1.10 2003/07/22 22:41:07 cholmesny Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.11 2003/07/23 15:50:27 cholmesny Exp $
  */
 public class AttributeExpressionImpl extends DefaultExpression
     implements AttributeExpression {
@@ -164,9 +164,8 @@ public class AttributeExpressionImpl extends DefaultExpression
      */
     public int hashCode() {
         int result = 17;
-        result = (37 * result) + attPath.hashCode();
-        result = (37 * result) + schema.hashCode();
-
+        result = (37 * result) + (attPath == null ? 0 : attPath.hashCode());
+        result = (37 * result) + (schema == null ? 0 : schema.hashCode());
         return result;
     }
 
