@@ -14,7 +14,7 @@ import java.util.Vector;
  * @author  jamesm
  */
 public class DefaultFeature implements org.geotools.datasource.Feature {
-
+    private String typeName = "feature";
     protected Object[] attributes;
     protected String[] colNames;
     protected int geomColumn = 0;//HACK: unsafe assumption?
@@ -44,30 +44,39 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
     
     public void setGeometry(Geometry geom) {
         attributes[geomColumn]=geom;
+        colNames[geomColumn]="Geom";
         
-    }    
+    }
     
     public void setAttributes(Object[] a) {
         setAttributes(a,new String[]{});
     }
-    
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
     public String getTypeName() {
-        return "feature";//TODO: this is just a generic name for now.
+        return typeName;
     }
     
     public String toString() {
         StringBuffer featureString = new StringBuffer();
+        Vector cols = new Vector( java.util.Arrays.asList(getAttributeNames()));
         Vector currentAttributes = new Vector( java.util.Arrays.asList(attributes) );
+        currentAttributes.remove(getGeometry());
+        cols.remove("Geom");
         
-        featureString.append("\n");
-        if(currentAttributes != null){
+        featureString.append(typeName+":\n");
+        if(cols != null && cols.size() > 0){
+            featureString.append(" Names:       " + cols.toString() + "\n");
+        }
+        if(currentAttributes != null && currentAttributes.size() > 0){
             featureString.append(" attributes:  " + currentAttributes.toString() + "\n");
         }else{
             featureString.append(" No attributes set \n");
         }
         Geometry geometry = getGeometry();
         if(geometry != null){
-            featureString.append(" geometry:    " + geometry.toText() + "\n");
+            featureString.append(" geometry:    " + geometry.toString() + "\n");
         }else{
             featureString.append(" No Geometry set \n");
         }
@@ -77,7 +86,6 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
         
     }
     
-    public void setTypeName(String typeName) {
-    }
+    
     
 }
