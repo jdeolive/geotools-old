@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.44 2002/07/09 16:26:00 jmacgill Exp $
+ * @version $Id: Java2DRenderer.java,v 1.45 2002/07/11 11:24:51 jmacgill Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -408,7 +408,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     String[] fontFamilies = null;
     private void renderText(Feature feature, TextSymbolizer symbolizer) {
-        try{
+        //try{
             
             _log.debug("rendering text");
             
@@ -555,24 +555,24 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             resetFill();
             graphics.setTransform(temp);
             return;
-                    } catch (org.geotools.filter.MalformedFilterException mfe){
+            /*        } catch (org.geotools.filter.MalformedFilterException mfe){
             _log.debug("MalformedFilterException in RenderText\n"+mfe);
             
             return;
-        }
+        }*/
         
         }
         
         private void renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature){
             BufferedImage img = getExternalGraphic(graphic);
             if(img!=null){
-                try{
+               // try{
                     int size = ((Number)graphic.getSize().getValue(feature)).intValue();
                     double rotation =((Number)graphic.getRotation().getValue(feature)).doubleValue();
                     renderImage((Point)geom,img,size,rotation);
-                } catch (MalformedFilterException mfe){
+                /*} catch (MalformedFilterException mfe){
                     _log.fatal("",mfe);
-                }
+                }*/
             }else{
                 // if we get to here we need to render the marks;
                 renderMark(geom,graphic,feature);
@@ -608,13 +608,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         int size = 6; // size in pixels
         double rotation = 0.0; // rotation in degrees
         Mark mark = getMark(graphic,feature);
-        try{
-            size = ((Number)graphic.getSize().getValue(feature)).intValue();
-            rotation = ((Number)graphic.getRotation().getValue(feature)).doubleValue()*Math.PI/180d;
-            fillDrawMark(graphics,(Point)geom,mark,size,rotation,feature);
-        } catch (MalformedFilterException mfe){
-                    _log.fatal("",mfe);
-                }
+        
+        size = ((Number)graphic.getSize().getValue(feature)).intValue();
+        rotation = ((Number)graphic.getRotation().getValue(feature)).doubleValue()*Math.PI/180d;
+        fillDrawMark(graphics,(Point)geom,mark,size,rotation,feature);
+        
     }
     private Mark getMark(Graphic graphic, Feature feature){
         Mark marks[] = graphic.getMarks();
@@ -627,16 +625,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         
         for(int i = 0; i<marks.length; i++){
-            try{
-                String name  = marks[i].getWellKnownName().getValue(feature).toString();
-                if(wellKnownMarks.contains(name)){
-                    mark = marks[i];
-                    return mark;
-                }
             
-            } catch (MalformedFilterException mfe){
-                    _log.fatal("",mfe);
+            String name  = marks[i].getWellKnownName().getValue(feature).toString();
+            if(wellKnownMarks.contains(name)){
+                mark = marks[i];
+                return mark;
             }
+            
         }
         _log.debug("going for a defaultMark");
         mark = new DefaultMark();
@@ -677,57 +672,52 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         fillDrawMark(graphic,point.getX(),point.getY(),mark,size,rotation,feature);
     }
     private void fillDrawMark(Graphics2D graphic,double tx, double ty,Mark mark, int size, double rotation,Feature feature){
-        try{
-            AffineTransform temp = graphic.getTransform();
-            AffineTransform markAT = new AffineTransform();
-            Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().getValue(feature).toString());
-
-            Point2D mapCentre = new Point2D.Double(tx,ty);
-            Point2D graphicCentre = new Point2D.Double();
-            temp.transform(mapCentre,graphicCentre);
-            markAT.translate(graphicCentre.getX(),graphicCentre.getY());
-            markAT.rotate(rotation);
-            double unitSize = 1.0; // getbounds is broken !!!
-            double drawSize = (double)size/unitSize;
-            markAT.scale(drawSize,-drawSize);
-
-
-            graphic.setTransform(markAT);
-            if(mark.getFill()!=null){
-                _log.debug("applying fill to mark");
-                applyFill(graphic,mark.getFill(),null);
-                graphic.fill(shape);
-            }
-            if(mark.getStroke()!=null){
-                _log.debug("applying stroke to mark");
-                applyStroke(graphic,mark.getStroke(),null);
-                graphic.draw(shape);
-            }
-            graphic.setTransform(temp);
-            if(mark.getFill()!=null){
-                resetFill();
-            }
-            return;
-        } catch (MalformedFilterException mfe){
-            _log.fatal("",mfe);
+        
+        AffineTransform temp = graphic.getTransform();
+        AffineTransform markAT = new AffineTransform();
+        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().getValue(feature).toString());
+        
+        Point2D mapCentre = new Point2D.Double(tx,ty);
+        Point2D graphicCentre = new Point2D.Double();
+        temp.transform(mapCentre,graphicCentre);
+        markAT.translate(graphicCentre.getX(),graphicCentre.getY());
+        markAT.rotate(rotation);
+        double unitSize = 1.0; // getbounds is broken !!!
+        double drawSize = (double)size/unitSize;
+        markAT.scale(drawSize,-drawSize);
+        
+        
+        graphic.setTransform(markAT);
+        if(mark.getFill()!=null){
+            _log.debug("applying fill to mark");
+            applyFill(graphic,mark.getFill(),null);
+            graphic.fill(shape);
         }
+        if(mark.getStroke()!=null){
+            _log.debug("applying stroke to mark");
+            applyStroke(graphic,mark.getStroke(),null);
+            graphic.draw(shape);
+        }
+        graphic.setTransform(temp);
+        if(mark.getFill()!=null){
+            resetFill();
+        }
+        return;
+        
     }
     static java.awt.Canvas obs = new java.awt.Canvas();
     private void applyFill(Graphics2D graphic, Fill fill, Feature feature){
         if(fill == null ) return;
         //HACK: not happy with having to catch exceptions. getValue should
         //HACK: never be throwing any
-        try{
+
             graphic.setColor(Color.decode((String)fill.getColor().getValue(feature)));
             _log.debug("Setting fill: "+graphic.getColor().toString());
             Number value = (Number)fill.getOpacity().getValue(feature);
             float opacity = value.floatValue();
             graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
             
-        } catch (org.geotools.filter.MalformedFilterException mfe){
-            //HACK: see above hack statement, not happy with having to catch these
-            _log.error(mfe);
-        }
+
         org.geotools.styling.Graphic gr=fill.getGraphicFill();
         
         if(gr!=null){
@@ -749,13 +739,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
-            try{
-                rotation = ((Number)gr.getRotation().getValue(feature)).doubleValue();
-            } catch (MalformedFilterException mfe){
-                _log.fatal("",mfe);
-            }
-            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),rotation,feature);
             
+            rotation = ((Number)gr.getRotation().getValue(feature)).doubleValue();
+            
+            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),rotation,feature);
+
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image,1);
             try{
@@ -767,11 +755,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double height = image.getHeight();
         double unitSize = Math.max(width,height);
         int size = 6;
-        try{
-            size = ((Number)gr.getSize().getValue(feature)).intValue();
-        } catch (MalformedFilterException mfe){
-            _log.fatal("",mfe);
-        }
+        
+        size = ((Number)gr.getSize().getValue(feature)).intValue();
+        
         double drawSize = (double)size/unitSize;
         _log.debug("size = "+size+" unitsize "+unitSize+" drawSize "+drawSize);
         AffineTransform at = graphics.getTransform();
@@ -806,74 +792,70 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private void applyStroke(Graphics2D graphic,org.geotools.styling.Stroke stroke, Feature feature){
         if(stroke == null) return;
         double scale = graphics.getTransform().getScaleX();
-        //HACK:not happy with having to catch exceptions. getValue should
-        //HACK: never be throwing any
-        try{
-            String joinType = (String)stroke.getLineJoin().getValue(feature);
-            
-            if(joinType==null) { joinType="miter"; }
-            int joinCode;
-            if(joinLookup.containsKey(joinType)){
-                joinCode = ((Integer) joinLookup.get(joinType)).intValue();
-            }
-            else{
-                joinCode = java.awt.BasicStroke.JOIN_MITER;
-            }
-            
-            String capType = (String)stroke.getLineCap().getValue(feature);
-            if(capType==null) { capType="square"; }
-            int capCode;
-            if(capLookup.containsKey(capType)){
-                capCode = ((Integer) capLookup.get(capType)).intValue();
-            }
-            else{
-                capCode = java.awt.BasicStroke.CAP_SQUARE;
-            }
-            float[] dashes = stroke.getDashArray();
-            if(dashes!=null){
-                for(int i = 0;i<dashes.length;i++){
-                    dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
-                }
-            }
-            
-            Number value = (Number)stroke.getWidth().getValue(feature);
-            float width = value.floatValue();
-            value = (Number)stroke.getDashOffset().getValue(feature);
-            float dashOffset = value.floatValue();
-            value = (Number)stroke.getOpacity().getValue(feature);
-            float opacity = value.floatValue();
-            _log.debug("width, dashoffset, opacity "+width+" "+dashOffset+" "+opacity);
-            
-            BasicStroke stroke2d;
-            //TODO: It should not be necessary to divide each value by scale.
-            if(dashes.length > 0){
-                stroke2d = new BasicStroke(
-                width/(float)scale, capCode, joinCode,
-                (float)(Math.max(1,10/scale)),dashes, dashOffset/(float)scale);
-                
-            } else {
-                stroke2d = new BasicStroke(width/(float)scale, capCode, joinCode,
-                (float)(Math.max(1,10/scale)));
-            }
-            
-            
-            
-            graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
-            graphic.setStroke(stroke2d);
-            graphic.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
-            org.geotools.styling.Graphic gr=stroke.getGraphicFill();
-            if(gr!=null){
-                setTexture(graphic,gr,feature);
-            }else{
-                _log.debug("no graphic fill set");
-            }
-            //System.out.println("stroke color "+graphics.getColor());
+        
+        
+        String joinType = (String)stroke.getLineJoin().getValue(feature);
+        
+        if(joinType==null) { joinType="miter"; }
+        int joinCode;
+        if(joinLookup.containsKey(joinType)){
+            joinCode = ((Integer) joinLookup.get(joinType)).intValue();
         }
-        catch(org.geotools.filter.MalformedFilterException mfe){
-            //HACK: see above hack statement.  Not happy with having to catch these.
-            _log.error(mfe);
+        else{
+            joinCode = java.awt.BasicStroke.JOIN_MITER;
         }
+        
+        String capType = (String)stroke.getLineCap().getValue(feature);
+        if(capType==null) { capType="square"; }
+        int capCode;
+        if(capLookup.containsKey(capType)){
+            capCode = ((Integer) capLookup.get(capType)).intValue();
+        }
+        else{
+            capCode = java.awt.BasicStroke.CAP_SQUARE;
+        }
+        float[] dashes = stroke.getDashArray();
+        if(dashes!=null){
+            for(int i = 0;i<dashes.length;i++){
+                dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
+            }
+        }
+        
+        Number value = (Number)stroke.getWidth().getValue(feature);
+        float width = value.floatValue();
+        value = (Number)stroke.getDashOffset().getValue(feature);
+        float dashOffset = value.floatValue();
+        value = (Number)stroke.getOpacity().getValue(feature);
+        float opacity = value.floatValue();
+        _log.debug("width, dashoffset, opacity "+width+" "+dashOffset+" "+opacity);
+        
+        BasicStroke stroke2d;
+        //TODO: It should not be necessary to divide each value by scale.
+        if(dashes.length > 0){
+            stroke2d = new BasicStroke(
+            width/(float)scale, capCode, joinCode,
+            (float)(Math.max(1,10/scale)),dashes, dashOffset/(float)scale);
+            
+        } else {
+            stroke2d = new BasicStroke(width/(float)scale, capCode, joinCode,
+            (float)(Math.max(1,10/scale)));
+        }
+        
+        
+        
+        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
+        graphic.setStroke(stroke2d);
+        graphic.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
+        org.geotools.styling.Graphic gr=stroke.getGraphicFill();
+        if(gr!=null){
+            setTexture(graphic,gr,feature);
+        }else{
+            _log.debug("no graphic fill set");
+        }
+        //System.out.println("stroke color "+graphics.getColor());
     }
+    
+
     /**
      * a method to draw the path with a graphic stroke.
      * @param gFill the graphic fill to be used to draw the stroke
@@ -901,11 +883,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
             double rotation =0.0;
-            try{
-               rotation = ((Number)gFill.getRotation().getValue(feature)).doubleValue();
-            } catch (MalformedFilterException mfe){
-                _log.fatal("",mfe);
-            }
+            rotation = ((Number)gFill.getRotation().getValue(feature)).doubleValue();
             fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),rotation,feature);
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -916,11 +894,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
         }
         int size = 6;
-        try{
-            size = ((Number)gFill.getSize().getValue(feature)).intValue();
-        } catch (MalformedFilterException mfe){
-            _log.fatal("",mfe);
-        }
+ 
+        size = ((Number)gFill.getSize().getValue(feature)).intValue();
+ 
         int imageWidth = size;//image.getWidth();
         int imageHeight = size;//image.getHeight();
         int midx = imageWidth/2;
