@@ -75,7 +75,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.5 2002/07/19 17:10:53 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.6 2002/07/22 18:28:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -417,13 +417,9 @@ public abstract class AbstractMathTransform implements MathTransform {
             }
         }
         if (this instanceof MathTransform1D) {
-            final double  input = (point!=null) ? point.ord[0] : Double.NaN;
-            final double output = ((MathTransform1D) this).derivative(input);
-            if (!Double.isNaN(output) || point!=null) {
-                return new Matrix(1, 1, new double[] {output});
-            } else {
-                throw new NullPointerException("A coordinate point is required"); // TODO: localize
-            }
+            return new Matrix(1, 1, new double[] {
+                ((MathTransform1D) this).derivative(point.ord[0])
+            });
         }
         throw new TransformException("Can't compute derivative"); // TODO: localize this message.
     }
@@ -604,7 +600,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * This inner class is the inverse of the enclosing
      * math transform.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.5 2002/07/19 17:10:53 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.6 2002/07/22 18:28:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform {
