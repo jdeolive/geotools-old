@@ -21,35 +21,56 @@
  */
 package org.geotools.filter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 // Java Topology Suite dependencies
-import com.vividsolutions.jts.geom.*;
-import org.w3c.dom.*;
-import java.util.*;
+import com.vividsolutions.jts.geom.TopologyException;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+//import org.w3c.dom.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 // J2SE dependencies
 import java.util.logging.Logger;
 
 
 /**
- * DOCUMENT ME!
+ * parsez short sections of gml for use in expressions and filters Hopefully we
+ * can get away without a full parser here.
  *
  * @author iant
  */
 public class ExpressionDOMParser {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
 
-    /**
-     * parsez short sections of gml for use in expressions and filters
-     * Hopefully we can get away without a full parser here.
-     */
-    static GeometryFactory gfac = new GeometryFactory();
-    static int GML_BOX = 1;
-    static int GML_POLYGON = 2;
-    static int GML_LINESTRING = 3;
-    static int GML_POINT = 4;
+    /** Factory for creating filters. */
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory
+        .createFilterFactory();
+
+    /** Factory for creating geometry objects */
+    private static GeometryFactory gfac = new GeometryFactory();
+
+    /** int representation of a box */
+    private static final int GML_BOX = 1;
+
+    /** int representation of a polygon */
+    private static final int GML_POLYGON = 2;
+
+    /** int representation of a linestring */
+    private static final int GML_LINESTRING = 3;
+
+    /** int representation of a point */
+    private static final int GML_POINT = 4;
 
     /**
      * Creates a new instance of ExpressionXmlParser
@@ -57,6 +78,13 @@ public class ExpressionDOMParser {
     public ExpressionDOMParser() {
     }
 
+    /**
+     * parses an expression for a filter.
+     *
+     * @param root the root node to parse, should be an filter expression.
+     *
+     * @return the geotools representation of the expression held in the node.
+     */
     public static Expression parseExpression(Node root) {
         LOGGER.finer("parsingExpression " + root.getNodeName());
 
@@ -76,21 +104,22 @@ public class ExpressionDOMParser {
             try {
                 LOGGER.fine("processing an Add");
 
-                Node left = null;
-                Node right = null;
-
+                //Node left = null;
+                //Node right = null;
                 MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_ADD);
                 Node value = child.getFirstChild();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add left value -> " + value + "<-");
                 math.addLeftValue(parseExpression(value));
                 value = value.getNextSibling();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add right value -> " + value + "<-");
                 math.addRightValue(parseExpression(value));
@@ -105,19 +134,21 @@ public class ExpressionDOMParser {
 
         if (child.getNodeName().equalsIgnoreCase("sub")) {
             try {
-                NodeList kids = child.getChildNodes();
+                //NodeList kids = child.getChildNodes();
                 MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_SUBTRACT);
                 Node value = child.getFirstChild();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add left value -> " + value + "<-");
                 math.addLeftValue(parseExpression(value));
                 value = value.getNextSibling();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add right value -> " + value + "<-");
                 math.addRightValue(parseExpression(value));
@@ -132,19 +163,21 @@ public class ExpressionDOMParser {
 
         if (child.getNodeName().equalsIgnoreCase("mul")) {
             try {
-                NodeList kids = child.getChildNodes();
+                //NodeList kids = child.getChildNodes();
                 MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_MULTIPLY);
                 Node value = child.getFirstChild();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add left value -> " + value + "<-");
                 math.addLeftValue(parseExpression(value));
                 value = value.getNextSibling();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add right value -> " + value + "<-");
                 math.addRightValue(parseExpression(value));
@@ -162,15 +195,17 @@ public class ExpressionDOMParser {
                 MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_DIVIDE);
                 Node value = child.getFirstChild();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add left value -> " + value + "<-");
                 math.addLeftValue(parseExpression(value));
                 value = value.getNextSibling();
 
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 LOGGER.finer("add right value -> " + value + "<-");
                 math.addRightValue(parseExpression(value));
@@ -187,8 +222,8 @@ public class ExpressionDOMParser {
             LOGGER.finer("processing literal " + child);
 
             NodeList kidList = child.getChildNodes();
-            LOGGER.finest("literal elements (" + kidList.getLength() + ") " +
-                kidList.toString());
+            LOGGER.finest("literal elements (" + kidList.getLength() + ") "
+                + kidList.toString());
 
             for (int i = 0; i < kidList.getLength(); i++) {
                 Node kid = kidList.item(i);
@@ -201,20 +236,20 @@ public class ExpressionDOMParser {
                 }
 
                 if (kid.getNodeValue() == null) {
-                    /* it might be a gml string so we need to convert it into a geometry
-                     * this is a bit tricky since our standard gml parser is SAX based and
-                     * we're a DOM here.
+                    /* it might be a gml string so we need to convert it into
+                     * a geometry this is a bit tricky since our standard
+                     * gml parser is SAX based and we're a DOM here.
                      */
-                    LOGGER.finer("node " + kid.getNodeValue() + " namespace " +
-                        kid.getNamespaceURI());
+                    LOGGER.finer("node " + kid.getNodeValue() + " namespace "
+                        + kid.getNamespaceURI());
                     LOGGER.fine("a literal gml string?");
 
                     try {
                         Geometry geom = parseGML(kid);
 
                         if (geom != null) {
-                            LOGGER.finer("built a " + geom.getGeometryType() +
-                                " from gml");
+                            LOGGER.finer("built a " + geom.getGeometryType()
+                                + " from gml");
                             LOGGER.finer("\tpoints: " + geom.getNumPoints());
                         } else {
                             LOGGER.finer(
@@ -223,8 +258,8 @@ public class ExpressionDOMParser {
 
                         return filterFactory.createLiteralExpression(geom);
                     } catch (IllegalFilterException ife) {
-                        LOGGER.warning("Problem building GML/JTS object: " +
-                            ife);
+                        LOGGER.warning("Problem building GML/JTS object: "
+                            + ife);
                     }
 
                     return null;
@@ -261,20 +296,20 @@ public class ExpressionDOMParser {
                 // see if it's an int
                 try {
                     try {
-                        Integer I = new Integer(nodeValue);
+                        Integer intLit = new Integer(nodeValue);
                         LOGGER.finer("An integer");
 
-                        return filterFactory.createLiteralExpression(I);
+                        return filterFactory.createLiteralExpression(intLit);
                     } catch (NumberFormatException e) {
                         /* really empty */
                     }
 
                     // A double?
                     try {
-                        Double D = new Double(nodeValue);
+                        Double doubleLit = new Double(nodeValue);
                         LOGGER.finer("A double");
 
-                        return filterFactory.createLiteralExpression(D);
+                        return filterFactory.createLiteralExpression(doubleLit);
                     } catch (NumberFormatException e) {
                         /* really empty */
                     }
@@ -293,8 +328,9 @@ public class ExpressionDOMParser {
 
         if (child.getNodeName().equalsIgnoreCase("PropertyName")) {
             try {
-                NodeList kids = child.getChildNodes();
-                AttributeExpression attribute = filterFactory.createAttributeExpression(null);
+                //NodeList kids = child.getChildNodes();
+                AttributeExpression attribute = filterFactory
+                    .createAttributeExpression(null);
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
 
                 return attribute;
@@ -332,8 +368,9 @@ public class ExpressionDOMParser {
             Node value = child.getFirstChild();
 
             for (int i = 0; i < argCount; i++) {
-                while (value.getNodeType() != Node.ELEMENT_NODE)
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
                     value = value.getNextSibling();
+                }
 
                 args[i] = parseExpression(value);
                 value = value.getNextSibling();
@@ -353,17 +390,17 @@ public class ExpressionDOMParser {
             // see if it's an int
             try {
                 try {
-                    Integer I = new Integer(nodeValue);
+                    Integer intLiteral = new Integer(nodeValue);
 
-                    return filterFactory.createLiteralExpression(I);
+                    return filterFactory.createLiteralExpression(intLiteral);
                 } catch (NumberFormatException e) {
                     /* really empty */
                 }
 
                 try {
-                    Double D = new Double(nodeValue);
+                    Double doubleLit = new Double(nodeValue);
 
-                    return filterFactory.createLiteralExpression(D);
+                    return filterFactory.createLiteralExpression(doubleLit);
                 } catch (NumberFormatException e) {
                     /* really empty */
                 }
@@ -377,42 +414,49 @@ public class ExpressionDOMParser {
         return null;
     }
 
+    /**
+     * Parses the gml of this node to jts.
+     *
+     * @param root the parent node of the gml to parse.
+     *
+     * @return the java representation of the geometry contained in root.
+     */
     public static Geometry parseGML(Node root) {
         LOGGER.finer("processing gml " + root);
 
-        java.util.ArrayList coords = new java.util.ArrayList();
+        List coordList;
         int type = 0;
         Node child = root;
 
         if (child.getNodeName().equalsIgnoreCase("gml:box")) {
             LOGGER.finer("box");
             type = GML_BOX;
-            coords = parseCoords(child);
+            coordList = parseCoords(child);
 
             com.vividsolutions.jts.geom.Envelope env = new com.vividsolutions.jts.geom.Envelope();
 
-            for (int i = 0; i < coords.size(); i++) {
-                env.expandToInclude((Coordinate) coords.get(i));
+            for (int i = 0; i < coordList.size(); i++) {
+                env.expandToInclude((Coordinate) coordList.get(i));
             }
 
-            Coordinate[] c = new Coordinate[5];
-            c[0] = new Coordinate(env.getMinX(), env.getMinY());
-            c[1] = new Coordinate(env.getMinX(), env.getMaxY());
-            c[2] = new Coordinate(env.getMaxX(), env.getMaxY());
-            c[3] = new Coordinate(env.getMaxX(), env.getMinY());
-            c[4] = new Coordinate(env.getMinX(), env.getMinY());
+            Coordinate[] coords = new Coordinate[5];
+            coords[0] = new Coordinate(env.getMinX(), env.getMinY());
+            coords[1] = new Coordinate(env.getMinX(), env.getMaxY());
+            coords[2] = new Coordinate(env.getMaxX(), env.getMaxY());
+            coords[3] = new Coordinate(env.getMaxX(), env.getMinY());
+            coords[4] = new Coordinate(env.getMinX(), env.getMinY());
 
-            com.vividsolutions.jts.geom.LinearRing r = null;
+            com.vividsolutions.jts.geom.LinearRing ring = null;
 
             try {
-                r = gfac.createLinearRing(c);
-            } catch (com.vividsolutions.jts.geom.TopologyException e) {
-                System.err.println("Topology Exception in GMLBox");
+                ring = gfac.createLinearRing(coords);
+            } catch (com.vividsolutions.jts.geom.TopologyException tope) {
+                LOGGER.fine("Topology Exception in GMLBox" + tope);
 
                 return null;
             }
 
-            return gfac.createPolygon(r, null);
+            return gfac.createPolygon(ring, null);
         }
 
         if (child.getNodeName().equalsIgnoreCase("gml:polygon")) {
@@ -420,7 +464,7 @@ public class ExpressionDOMParser {
             type = GML_POLYGON;
 
             LinearRing outer = null;
-            ArrayList inner = new ArrayList();
+            List inner = new ArrayList();
             NodeList kids = root.getChildNodes();
 
             for (int i = 0; i < kids.getLength(); i++) {
@@ -444,8 +488,8 @@ public class ExpressionDOMParser {
             }
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs") ||
-                child.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs")) {
+        if (child.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs")
+                || child.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs")) {
             LOGGER.finer("Boundary layer");
 
             NodeList kids = ((Element) child).getElementsByTagName(
@@ -456,12 +500,12 @@ public class ExpressionDOMParser {
 
         if (child.getNodeName().equalsIgnoreCase("gml:linearRing")) {
             LOGGER.finer("LinearRing");
-            coords = parseCoords(child);
+            coordList = parseCoords(child);
 
-            com.vividsolutions.jts.geom.LinearRing r = null;
+            com.vividsolutions.jts.geom.LinearRing ring = null;
 
             try {
-                r = gfac.createLinearRing((Coordinate[]) coords.toArray(
+                ring = gfac.createLinearRing((Coordinate[]) coordList.toArray(
                             new Coordinate[] {  }));
             } catch (TopologyException te) {
                 LOGGER.finer("Topology Exception build linear ring: " + te);
@@ -469,68 +513,74 @@ public class ExpressionDOMParser {
                 return null;
             }
 
-            return r;
+            return ring;
         }
 
         if (child.getNodeName().equalsIgnoreCase("gml:linestring")) {
             LOGGER.finer("linestring");
             type = GML_LINESTRING;
-            coords = parseCoords(child);
+            coordList = parseCoords(child);
 
-            com.vividsolutions.jts.geom.LineString r = null;
-            r = gfac.createLineString((Coordinate[]) coords.toArray(
+            com.vividsolutions.jts.geom.LineString line = null;
+            line = gfac.createLineString((Coordinate[]) coordList.toArray(
                         new Coordinate[] {  }));
 
-            return r;
+            return line;
         }
 
         if (child.getNodeName().equalsIgnoreCase("gml:point")) {
             LOGGER.finer("point");
             type = GML_POINT;
-            coords = parseCoords(child);
+            coordList = parseCoords(child);
 
-            com.vividsolutions.jts.geom.Point r = null;
-            r = gfac.createPoint((Coordinate) coords.get(0));
+            com.vividsolutions.jts.geom.Point point = null;
+            point = gfac.createPoint((Coordinate) coordList.get(0));
 
-            return r;
+            return point;
         }
 
         if (child.getNodeName().toLowerCase().startsWith("gml:multiPolygon")) {
             LOGGER.finer("MultiPolygon");
 
-            ArrayList gc = new ArrayList();
+            List multi = new ArrayList();
 
             // parse all children thru parseGML
             NodeList kids = child.getChildNodes();
 
             for (int i = 0; i < kids.getLength(); i++) {
-                gc.add(parseGML(kids.item(i)));
+                multi.add(parseGML(kids.item(i)));
             }
 
-            return gfac.createMultiPolygon((Polygon[]) gc.toArray(
+            return gfac.createMultiPolygon((Polygon[]) multi.toArray(
                     new Polygon[0]));
         }
 
         return null;
     }
 
-    public static java.util.ArrayList parseCoords(Node root) {
+    /**
+     * Parses a dom node into a coordinate list.
+     *
+     * @param root the root node representation of gml:coordinates.
+     *
+     * @return the coordinates in a list.
+     */
+    public static java.util.List parseCoords(Node root) {
         LOGGER.finer("parsing coordinate(s) " + root);
 
-        ArrayList clist = new ArrayList();
+        List clist = new ArrayList();
         NodeList kids = root.getChildNodes();
 
         for (int i = 0; i < kids.getLength(); i++) {
             Node child = kids.item(i);
             LOGGER.finer("doing " + child);
 
-            if (child.getNodeName().equalsIgnoreCase("gml:coordinate")) {
-                String internal = child.getNodeValue();
-            }
-
+            //if (child.getNodeName().equalsIgnoreCase("gml:coordinate")) {
+            //  String internal = child.getNodeValue();
+            //}
             if (child.getNodeName().equalsIgnoreCase("gml:coordinates")) {
-                LOGGER.finer("coordinates " +
-                    child.getFirstChild().getNodeValue());
+                LOGGER.finer("coordinates "
+                    + child.getFirstChild().getNodeValue());
 
                 NodeList grandKids = child.getChildNodes();
 
@@ -551,15 +601,15 @@ public class ExpressionDOMParser {
                     while (ost.hasMoreTokens()) {
                         String internal = ost.nextToken();
                         StringTokenizer ist = new StringTokenizer(internal, ",");
-                        double x = Double.parseDouble(ist.nextToken());
-                        double y = Double.parseDouble(ist.nextToken());
-                        double z = Double.NaN;
+                        double xCoord = Double.parseDouble(ist.nextToken());
+                        double yCoord = Double.parseDouble(ist.nextToken());
+                        double zCoord = Double.NaN;
 
                         if (ist.hasMoreTokens()) {
-                            z = Double.parseDouble(ist.nextToken());
+                            zCoord = Double.parseDouble(ist.nextToken());
                         }
 
-                        clist.add(new Coordinate(x, y, z));
+                        clist.add(new Coordinate(xCoord, yCoord, zCoord));
                     }
                 }
             }
