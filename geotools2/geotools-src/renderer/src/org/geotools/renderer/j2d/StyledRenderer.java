@@ -65,7 +65,7 @@ import org.geotools.ct.Adapters;
  * This renderer listen for {@linkplain CollectionEvent feature collection changes}
  * and invokes {@link RenderedLayer#repaint} automatically on changes.
  *
- * @version $Id: StyledRenderer.java,v 1.2 2003/08/13 22:45:57 desruisseaux Exp $
+ * @version $Id: StyledRenderer.java,v 1.3 2003/08/18 16:33:42 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StyledRenderer extends Renderer {
@@ -162,12 +162,12 @@ public class StyledRenderer extends Renderer {
         final FeatureCollection fc = layer.getFeatures();
         final Feature[]   features = (Feature[]) fc.toArray(new Feature[fc.size()]);
         final RenderedLayer[] rend = factory.create(features, style);
-        final boolean   visibility = layer.getVisability();
+        final boolean      visible = layer.isVisible();
         final int       baseZOrder = renderedLayers.size();
         final double   zOrderScale = XMath.pow10((int)Math.ceil(XMath.log10(rend.length)));
         for (int j=0; j<rend.length; j++) {
             final RenderedLayer rendered = rend[j];
-            rendered.setVisible(visibility);
+            rendered.setVisible(visible);
             rendered.setZOrder((float)(baseZOrder + j/zOrderScale));
             addLayer(rendered);
         }
@@ -211,7 +211,7 @@ public class StyledRenderer extends Renderer {
      * Map a {@link Layer} to a set of {@link RenderedLayer} and to the listeners
      * needed for catching changes in collection and visibility.
      *
-     * @version $Id: StyledRenderer.java,v 1.2 2003/08/13 22:45:57 desruisseaux Exp $
+     * @version $Id: StyledRenderer.java,v 1.3 2003/08/18 16:33:42 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class LayerEntry implements CollectionListener {
