@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<section id="designdecisions">
+  <title>Geotools2 wide design decisions.</title>
+
+  <section id="context">
+    <title>Geotools2 in Context</title>
+
+    <figure>
+      <title>Geotools2 in Context</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/design/context.png" />
+        </imageobject>
+      </mediaobject>
+
+      <blockquote>
+        <para>Geotools2 and the systems it interacts with.</para>
+      </blockquote>
+    </figure>
+
+    <variablelist>
+      <varlistentry>
+        <term>Applications</term>
+
+        <listitem>
+          <para>Applications are geographic applications which use geotools2
+          primitives. They are generally end products like Map Viewers, Web
+          Map Servers and so on.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>GeoAPI</term>
+
+        <listitem>
+          <para><ulink url="http://geoapi.sourceforge.net">GeoAPI</ulink>
+          contains interfaces for all the key geographic primitives like a
+          Feature, Extent, Data Source and so on. Geotools2 key purpose is to
+          provide implementations for these interfaces.</para>
+
+          <para>Not all interfaces are implemented, some functionality is
+          imported from external vendors. For instance, Geotools2 uses the
+          Java Topology Suite (JTS) to store core geographic primitives.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Data</term>
+
+        <listitem>
+          <para>Data is the geographic data that geotools2 manipulates. These
+          may be in a database, ESRI shapefile or some other format.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Geographic Objects</term>
+
+        <listitem>
+          <para>Geographic Objects are the core geographic primitives provided
+          by the Java Topology Suite (JTS).</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="designdrivers">
+    <title>Design Drivers</title>
+
+    <variablelist>
+      <varlistentry>
+        <term>Toolkit</term>
+
+        <listitem>
+          <para>Geotools2 is a toolkit to be used by multiple applications, it
+          is not designed to be an application itself. Geotools2 aims to
+          implement all the common elements used by GIS applications.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>OGC Compliant</term>
+
+        <listitem>
+          <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
+          specifications as they become available. Since the specifications
+          are continuously evolving, Geotools2 needs to provide a flexable
+          design which can easilly be refactored.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Implements GeoAPI</term>
+
+        <listitem>
+          <para>The <ulink url="http://geoapi.sourceforge.net">GeoAPI</ulink>
+          project defines geographic components and Geotools2 provides
+          implimentations of these interfaces.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Multiple implimentations</term>
+
+        <listitem>
+          <para>Different applications have different design goals. One may
+          require fast rendering while anothe require small source code.
+          Geotools2 allows two different modules to impliment the same
+          functionality.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Open Source</term>
+
+        <listitem>
+          <para>Geotools2 is released under the LGPL Open Source licence.
+          External packages Geotools2 depends upon must use a similar licence
+          to ensure users can use Geotools2 under the LGPL licence.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Modular</term>
+
+        <listitem>
+          <para>Geotools2 uses a modular design. The benefits of this include:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>The design is easier to understand.</para>
+            </listitem>
+
+            <listitem>
+              <para>Extra functionality can be incorporated easilly because a
+              developer only needs to understand the module they are working
+              on.</para>
+            </listitem>
+
+            <listitem>
+              <para>Existing modules can be reworked with minimal effect on
+              the rest of Geotools2.</para>
+            </listitem>
+
+            <listitem>
+              <para>Applications which use Geotools2 only need to include the
+              subset of the modules required.</para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
+
+  <section id="abstractfactory">
+    <title>Abstract Factory Design Pattern for packages</title>
+
+    <para>Most Geotools2 packages use an Abstract Factory Design pattern to
+    ensure packages do not depend on each other.</para>
+
+    <figure>
+      <title>Abstract Factory</title>
+
+      <mediaobject>
+        <imageobject>
+          <imagedata fileref="images/design/AbstractFactory.png" />
+        </imageobject>
+      </mediaobject>
+    </figure>
+
+    <para><literal>XxxXxxToolImpl</literal> and <literal>XxxToolFactoryImpl</literal>
+    classes have <emphasis>protected</emphasis> constructors. This means that
+    external packages cannot create them directly. Instead external packages
+    need to create the classes through ToolFactory.</para>
+
+    <example>
+      <title>Use a Factory to create a PanTool</title>
+
+      <programlisting>// Create a PanTool
+ToolFactory toolFactory=ToolFactory.createFactory(
+    &#34;org.geotools.gui.simple.SimpleToolFactoryImpl&#34;);
+Tool panTool=toolFactory.createPanTool();</programlisting>
+
+      <para>Using the Abstract Factory pattern ensures that modules do not
+      have direct dependancies on each other, so at a later stage a new module
+      can be written to replace an old module without effecting the rest of
+      the code.</para>
+    </example>
+  </section>
+</section>
