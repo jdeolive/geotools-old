@@ -223,6 +223,19 @@ AttributeType shortAttribute =
 	
     }
 
+    public void test3() throws Exception{
+	FilterFactory filterFac = FilterFactory.createFilterFactory();
+	CompareFilter compFilter = 
+	    filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
+	compFilter.addLeftValue
+	    (filterFac.createAttributeExpression(testSchema, "testInteger"));
+	compFilter.addRightValue
+	    (filterFac.createLiteralExpression(new Double(5)));
+	SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
+	String out = encoder.encode((AbstractFilterImpl)compFilter);
+	LOGGER.finer("Resulting SQL filter is \n"+ out);
+    }
+
     public void testException() throws Exception {
 	GeometryFilterImpl gf =
             new GeometryFilterImpl(AbstractFilter.GEOMETRY_BEYOND);
