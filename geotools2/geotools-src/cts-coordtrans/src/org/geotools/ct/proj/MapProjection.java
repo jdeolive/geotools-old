@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.3 2003/03/28 10:21:57 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.4 2003/03/29 20:26:32 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -140,11 +140,11 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     protected final double centralMeridian;
     
     /**
-     * Central latitude in <u>radians</u>. Default value is 0, the equator.
+     * Latitude of origin in <u>radians</u>. Default value is 0, the equator.
      * <strong>Consider this field as final</strong>. It is not final only
      * because some class need to modify it at construction time.
      */
-    protected double centralLatitude;
+    protected double latitudeOfOrigin;
     
     /**
      * The scale factor.
@@ -183,15 +183,15 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * @throws MissingParameterException if a mandatory parameter is missing.
      */
     protected MapProjection(final Projection parameters) throws MissingParameterException {
-        descriptor      =                    parameters.getParameters().getParameterListDescriptor();
-        classification  =                    parameters.getClassName();
-        semiMajor       =                    parameters.getValue("semi_major");
-        semiMinor       =                    parameters.getValue("semi_minor");
-        centralMeridian = longitudeToRadians(parameters.getValue("central_meridian",   0), true);
-        centralLatitude =  latitudeToRadians(parameters.getValue("latitude_of_origin", 0), true);
-        scaleFactor     =                    parameters.getValue("scale_factor",       1);
-        falseEasting    =                    parameters.getValue("false_easting",      0);
-        falseNorthing   =                    parameters.getValue("false_northing",     0);
+        descriptor       =                    parameters.getParameters().getParameterListDescriptor();
+        classification   =                    parameters.getClassName();
+        semiMajor        =                    parameters.getValue("semi_major");
+        semiMinor        =                    parameters.getValue("semi_minor");
+        centralMeridian  = longitudeToRadians(parameters.getValue("central_meridian",   0), true);
+        latitudeOfOrigin =  latitudeToRadians(parameters.getValue("latitude_of_origin", 0), true);
+        scaleFactor      =                    parameters.getValue("scale_factor",       1);
+        falseEasting     =                    parameters.getValue("false_easting",      0);
+        falseNorthing    =                    parameters.getValue("false_northing",     0);
         es = 1.0 - (semiMinor*semiMinor)/(semiMajor*semiMajor);
         e  = Math.sqrt(es);
     }
@@ -497,7 +497,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.3 2003/03/28 10:21:57 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.4 2003/03/29 20:26:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -663,7 +663,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         long code =      Double.doubleToLongBits(semiMajor);
         code = code*37 + Double.doubleToLongBits(semiMinor);
         code = code*37 + Double.doubleToLongBits(centralMeridian);
-        code = code*37 + Double.doubleToLongBits(centralLatitude);
+        code = code*37 + Double.doubleToLongBits(latitudeOfOrigin);
         return (int) code ^ (int) (code >>> 32);
     }
     
@@ -676,13 +676,13 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         // optimization is usually done in subclasses.
         if (super.equals(object)) {
             final MapProjection that = (MapProjection) object;
-            return Double.doubleToLongBits(this.semiMajor)       == Double.doubleToLongBits(that.semiMajor)       &&
-                   Double.doubleToLongBits(this.semiMinor)       == Double.doubleToLongBits(that.semiMinor)       &&
-                   Double.doubleToLongBits(this.centralMeridian) == Double.doubleToLongBits(that.centralMeridian) &&
-                   Double.doubleToLongBits(this.centralLatitude) == Double.doubleToLongBits(that.centralLatitude) &&
-                   Double.doubleToLongBits(this.scaleFactor)     == Double.doubleToLongBits(that.scaleFactor)     &&
-                   Double.doubleToLongBits(this.falseEasting)    == Double.doubleToLongBits(that.falseEasting)    &&
-                   Double.doubleToLongBits(this.falseNorthing)   == Double.doubleToLongBits(that.falseNorthing);
+            return Double.doubleToLongBits(this.semiMajor)        == Double.doubleToLongBits(that.semiMajor)        &&
+                   Double.doubleToLongBits(this.semiMinor)        == Double.doubleToLongBits(that.semiMinor)        &&
+                   Double.doubleToLongBits(this.centralMeridian)  == Double.doubleToLongBits(that.centralMeridian)  &&
+                   Double.doubleToLongBits(this.latitudeOfOrigin) == Double.doubleToLongBits(that.latitudeOfOrigin) &&
+                   Double.doubleToLongBits(this.scaleFactor)      == Double.doubleToLongBits(that.scaleFactor)      &&
+                   Double.doubleToLongBits(this.falseEasting)     == Double.doubleToLongBits(that.falseEasting)     &&
+                   Double.doubleToLongBits(this.falseNorthing)    == Double.doubleToLongBits(that.falseNorthing);
         }
         return false;
     }
@@ -713,7 +713,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         addParameter(names, buffer, "semi_major",         semiMajor);
         addParameter(names, buffer, "semi_minor",         semiMinor);
         addParameter(names, buffer, "central_meridian",   Math.toDegrees(centralMeridian));
-        addParameter(names, buffer, "latitude_of_origin", Math.toDegrees(centralLatitude));
+        addParameter(names, buffer, "latitude_of_origin", Math.toDegrees(latitudeOfOrigin));
         addParameter(names, buffer, "scale_factor",       scaleFactor);
         addParameter(names, buffer, "false_easting",      falseEasting);
         addParameter(names, buffer, "false_northing",     falseNorthing);
