@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.8 2002/09/05 20:35:50 robhranac Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.1 2002/10/23 15:45:37 ianturton Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
