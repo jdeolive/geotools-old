@@ -20,18 +20,20 @@ import junit.framework.*;
 
 
 /**
- * geotools2 ArcSDE test suite 
+ * geotools2 ArcSDE test suite
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-public class SdeTestSuite extends TestCase {
+public class SdeTestSuite extends TestCase
+{
     /**
      * Creates a new SdeTestSuite object.
      *
      * @param s suite's name
      */
-    public SdeTestSuite(String s) {
+    public SdeTestSuite(String s)
+    {
         super(s);
     }
 
@@ -40,10 +42,12 @@ public class SdeTestSuite extends TestCase {
      *
      * @return test suite for sde datasource
      */
-    public static Test suite() {
+    public static Test suite()
+    {
         TestSuite suite = new TestSuite();
 
         suite.addTestSuite(org.geotools.data.sde.GeometryBuilderTest.class);
+
         suite.addTestSuite(org.geotools.data.sde.SdeDataSourceTest.class);
 
         return suite;

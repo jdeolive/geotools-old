@@ -24,23 +24,25 @@ import java.util.*;
 
 /**
  * Creates propper JTS Geometry objects from <code>SeShape</code> objects and
- * viceversa. 
+ * viceversa.
+ *
  * <p>
- * <code>SeShape</code>'s are gathered from an <code>SeRow</code>
- * ArcSDE API's result object and holds it's geometry attributes as a three
- * dimensional array of <code>double</code> primitives as explained bellow.
+ * <code>SeShape</code>'s are gathered from an <code>SeRow</code> ArcSDE API's
+ * result object and holds it's geometry attributes as a three dimensional
+ * array of <code>double</code> primitives as explained bellow.
  * </p>
+ *
  * <p>
  * By this way, we avoid the creation of ArcSDE's java implementation of  OGC
  * geometries for later translation to JTS, avoiding too the dependency on the
  * ArcSDE native library wich the geometry package of the ArcSDE Java API
  * depends on.
  * </p>
- * 
+ *
  * <p>
  * Given <code>double [][][]coords</code> the meaning of this array is as
  * follow:
- * 
+ *
  * <ul>
  * <li>
  * coords.length reprsents the number of geometries this geometry is composed
@@ -62,7 +64,7 @@ import java.util.*;
  * </li>
  * </ul>
  * </p>
- * 
+ *
  * <p>
  * This abstract class will use specialized subclass for constructing the
  * propper geometry type
@@ -71,19 +73,26 @@ import java.util.*;
  * @author Gabriel Roldán
  * @version 0.1
  */
-public abstract class GeometryBuilder {
+public abstract class GeometryBuilder
+{
     /** specialized geometry builders classes by it's geometry type */
     private static final Map builders = new HashMap();
 
     /**
      * mapping of geometry classess with their builders
      */
-    static {
+    static
+    {
         builders.put(Point.class, PointBuilder.class);
+
         builders.put(MultiPoint.class, MultiPointBuilder.class);
+
         builders.put(LineString.class, LineStringBuilder.class);
+
         builders.put(MultiLineString.class, MultiLineStringBuilder.class);
+
         builders.put(Polygon.class, PolygonBuilder.class);
+
         builders.put(MultiPolygon.class, MultiPolygonBuilder.class);
     }
 
@@ -112,7 +121,8 @@ public abstract class GeometryBuilder {
      *         by <code>newGeometry</code>
      */
     public Geometry construct(SeShape shape)
-        throws SeException, DataSourceException {
+        throws SeException, DataSourceException
+    {
         return shape.isNil() ? getEmpty() : newGeometry(shape.getAllCoords());
     }
 
@@ -133,13 +143,18 @@ public abstract class GeometryBuilder {
      * @throws GeometryBuildingException DOCUMENT ME!
      */
     public SeShape construct(Geometry geometry, SeCoordinateReference seSrs)
-        throws GeometryBuildingException {
-        try {
+        throws GeometryBuildingException
+    {
+        try
+        {
             SeShape shape = new SeShape(seSrs);
+
             generateShape(geometry, shape);
 
             return shape;
-        } catch (SeException ex) {
+        }
+        catch (SeException ex)
+        {
             throw new GeometryBuildingException(ex.getMessage(), ex);
         }
     }
@@ -167,20 +182,28 @@ public abstract class GeometryBuilder {
      * @return the array of <code>double</code> primitives that represents
      *         <code>jtsGeom</code> in <code>SeShape</code> format
      */
-    private double[][][] geometryToSdeCoords(Geometry jtsGeom) {
+    private double[][][] geometryToSdeCoords(Geometry jtsGeom)
+    {
         int numParts;
+
         int numSubParts = 1;
+
         int numSubpartPoints;
 
         double[][][] sdeCoords;
+
         GeometryCollection gcol = null;
 
         //to simplify the algorithm, allways use GeometryCollections
         //as input geometries
-        if (jtsGeom instanceof MultiPolygon) {
+        if (jtsGeom instanceof MultiPolygon)
+        {
             gcol = (GeometryCollection) jtsGeom;
-        } else {
+        }
+        else
+        {
             Geometry[] geoms = { jtsGeom };
+
             gcol = new GeometryFactory().createGeometryCollection(geoms);
         }
 
@@ -188,7 +211,8 @@ public abstract class GeometryBuilder {
 
         sdeCoords = new double[numParts][0][0];
 
-        for (int i = 0; i < numParts; i++) {
+        for (int i = 0; i < numParts; i++)
+        {
             Geometry geom = gcol.getGeometryN(i);
 
             numSubParts = (geom instanceof Polygon)
@@ -200,19 +224,28 @@ public abstract class GeometryBuilder {
 
             Coordinate[] partCoords = null;
 
-            for (int j = 0; j < numSubParts; j++) {
-                if (geom instanceof Polygon) {
-                    if (j == 0) {
+            for (int j = 0; j < numSubParts; j++)
+            {
+                if (geom instanceof Polygon)
+                {
+                    if (j == 0)
+                    {
                         partCoords = ((Polygon) geom).getExteriorRing()
                                       .getCoordinates();
-                    } else {
+                    }
+                    else
+                    {
                         partCoords = ((Polygon) geom).getInteriorRingN(j - 1)
                                       .getCoordinates();
                     }
-                } else if (geom instanceof GeometryCollection) {
+                }
+                else if (geom instanceof GeometryCollection)
+                {
                     partCoords = ((GeometryCollection) geom).getGeometryN(j)
                                   .getCoordinates();
-                } else {
+                }
+                else
+                {
                     partCoords = geom.getCoordinates();
                 }
 
@@ -232,14 +265,20 @@ public abstract class GeometryBuilder {
      * @return the <code>SeShape</code> style coordinate array of a single
      *         geometry given by its <code>Coordinate</code> array
      */
-    private double[] toSdeCoords(Coordinate[] coords) {
+    private double[] toSdeCoords(Coordinate[] coords)
+    {
         int nCoords = coords.length;
+
         double[] sdeCoords = new double[2 * nCoords];
+
         Coordinate c;
 
-        for (int i = 0, j = 1; i < nCoords; i++, j += 2) {
+        for (int i = 0, j = 1; i < nCoords; i++, j += 2)
+        {
             c = coords[i];
+
             sdeCoords[j - 1] = c.x;
+
             sdeCoords[j] = c.y;
         }
 
@@ -266,7 +305,7 @@ public abstract class GeometryBuilder {
      * returns an empty JTS geometry who's type is given by the
      * <code>GeometryBuilder</code> subclass instance specialization  that
      * implements it.
-     * 
+     *
      * <p>
      * this method is called in case that <code>SeShape.isNil() == true</code>
      * </p>
@@ -286,8 +325,10 @@ public abstract class GeometryBuilder {
      * @return a geometrically equal to <code>coordList</code> array of
      *         <code>Coordinate</code> instances
      */
-    protected Coordinate[] toCoords(double[] coordList) {
+    protected Coordinate[] toCoords(double[] coordList)
+    {
         int nCoords = coordList.length / 2;
+
         Coordinate[] coords = new Coordinate[nCoords];
 
         for (int i = 0, j = 0; i < nCoords; i++, j++)
@@ -303,13 +344,18 @@ public abstract class GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected SDEPoint[] toPointsArray(Coordinate[] coords) {
+    protected SDEPoint[] toPointsArray(Coordinate[] coords)
+    {
         int nCoords = coords.length;
+
         SDEPoint[] points = new SDEPoint[nCoords];
+
         Coordinate c;
 
-        for (int i = 0; i < nCoords; i++) {
+        for (int i = 0; i < nCoords; i++)
+        {
             c = coords[i];
+
             points[i] = new SDEPoint(c.x, c.y);
         }
 
@@ -331,23 +377,31 @@ public abstract class GeometryBuilder {
      *         <code>com.vividsolutions.jts.geom.MultiPoint.class</code>i.e.)
      */
     public static GeometryBuilder builderFor(Class jtsGeometryClass)
-        throws IllegalArgumentException {
+        throws IllegalArgumentException
+    {
         GeometryBuilder builder = null;
 
         Class builderClass = (Class) builders.get(jtsGeometryClass);
 
-        if (builderClass == null) {
-        	String msg = "no geometry builder is defined to construct " +
-        	jtsGeometryClass + " instances.";
-        	throw new IllegalArgumentException(msg);
+        if (builderClass == null)
+        {
+            String msg = "no geometry builder is defined to construct "
+                + jtsGeometryClass + " instances.";
+
+            throw new IllegalArgumentException(msg);
         }
 
-        try {
+        try
+        {
             builder = (GeometryBuilder) builderClass.newInstance();
-        } catch (IllegalAccessException ex) {
+        }
+        catch (IllegalAccessException ex)
+        {
             throw new IllegalArgumentException("Cannot instantiate a "
                 + builderClass.toString());
-        } catch (InstantiationException ex) {
+        }
+        catch (InstantiationException ex)
+        {
             throw new IllegalArgumentException("Cannot instantiate a "
                 + builderClass.toString());
         }
@@ -358,14 +412,14 @@ public abstract class GeometryBuilder {
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>Point</code>s from <code>SeShape</code> points
- * and viceversa
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>Point</code>s from <code>SeShape</code> points and viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class PointBuilder extends GeometryBuilder {
+class PointBuilder extends GeometryBuilder
+{
     /** the empty point singleton */
     private static Geometry EMPTY;
 
@@ -374,8 +428,10 @@ class PointBuilder extends GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createPoint(null);
         }
 
@@ -392,7 +448,8 @@ class PointBuilder extends GeometryBuilder {
      * @throws DataSourceException DOCUMENT ME!
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         return factory.createPoint(new Coordinate(coords[0][0][0],
                 coords[0][0][1]));
     }
@@ -407,28 +464,34 @@ class PointBuilder extends GeometryBuilder {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     protected void generateShape(Geometry geometry, SeShape dest)
-        throws SeException {
-        if (!(geometry instanceof Point)) {
+        throws SeException
+    {
+        if (!(geometry instanceof Point))
+        {
             throw new IllegalArgumentException("argument mus be a Point");
         }
 
         Point pointArg = (Point) geometry;
+
         SDEPoint[] sdePoint = new SDEPoint[1];
+
         sdePoint[0] = new SDEPoint(pointArg.getX(), pointArg.getY());
+
         dest.generatePoint(1, sdePoint);
     }
 }
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>MultiPoint</code>s from <code>SeShape</code> multipoints
- * and viceversa
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>MultiPoint</code>s from <code>SeShape</code> multipoints and
+ * viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class MultiPointBuilder extends GeometryBuilder {
+class MultiPointBuilder extends GeometryBuilder
+{
     /** the empty multipoint singleton */
     private static Geometry EMPTY;
 
@@ -437,8 +500,10 @@ class MultiPointBuilder extends GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createMultiPoint((Point[]) null);
         }
 
@@ -455,8 +520,10 @@ class MultiPointBuilder extends GeometryBuilder {
      * @throws DataSourceException DOCUMENT ME!
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         int nPoints = coords[0].length;
+
         Coordinate[] points = new Coordinate[nPoints];
 
         for (int i = 0; i < nPoints; i++)
@@ -475,18 +542,25 @@ class MultiPointBuilder extends GeometryBuilder {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     protected void generateShape(Geometry geometry, SeShape dest)
-        throws SeException {
-        if (!(geometry instanceof MultiPoint)) {
+        throws SeException
+    {
+        if (!(geometry instanceof MultiPoint))
+        {
             throw new IllegalArgumentException("argument mus be a MultiPoint");
         }
 
         MultiPoint mpointArg = (MultiPoint) geometry;
+
         Point currPoint;
+
         int nPoints = mpointArg.getNumGeometries();
+
         SDEPoint[] sdePoints = new SDEPoint[nPoints];
 
-        for (int i = 0; i < nPoints; i++) {
+        for (int i = 0; i < nPoints; i++)
+        {
             currPoint = (Point) mpointArg.getGeometryN(i);
+
             sdePoints[i] = new SDEPoint(currPoint.getX(), currPoint.getY());
         }
 
@@ -496,14 +570,14 @@ class MultiPointBuilder extends GeometryBuilder {
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>LineString</code>s from <code>SeShape</code> linestring
- * and viceversa
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>LineString</code>s from <code>SeShape</code> linestring and viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class LineStringBuilder extends GeometryBuilder {
+class LineStringBuilder extends GeometryBuilder
+{
     /** the empty linestring singleton */
     private static Geometry EMPTY;
 
@@ -512,8 +586,10 @@ class LineStringBuilder extends GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createMultiLineString(null);
         }
 
@@ -530,15 +606,19 @@ class LineStringBuilder extends GeometryBuilder {
      * @throws DataSourceException DOCUMENT ME!
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         return constructLineString(coords[0][0]);
     }
 
     //
     protected LineString constructLineString(double[] linearCoords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         LineString ls = null;
+
         Coordinate[] coords = toCoords(linearCoords);
+
         ls = factory.createLineString(coords);
 
         return ls;
@@ -554,31 +634,38 @@ class LineStringBuilder extends GeometryBuilder {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     protected void generateShape(Geometry geometry, SeShape dest)
-        throws SeException {
-        if (!(geometry instanceof LineString)) {
+        throws SeException
+    {
+        if (!(geometry instanceof LineString))
+        {
             throw new IllegalArgumentException("argument mus be a LineString");
         }
 
         LineString lineString = (LineString) geometry;
 
         SDEPoint[] sdePoints = toPointsArray(lineString.getCoordinates());
+
         int numPoints = sdePoints.length;
+
         int numParts = 1; //it's allways 1 for geoms other than multipolygons
+
         int[] partOffsets = { 0 };
+
         dest.generateLine(numPoints, numParts, partOffsets, sdePoints);
     }
 }
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>MultiLineString</code>s from <code>SeShape</code> multilinestrings
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>MultiLineString</code>s from <code>SeShape</code> multilinestrings
  * and viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class MultiLineStringBuilder extends LineStringBuilder {
+class MultiLineStringBuilder extends LineStringBuilder
+{
     /** the empty multilinestring singleton */
     private static Geometry EMPTY;
 
@@ -587,8 +674,10 @@ class MultiLineStringBuilder extends LineStringBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createMultiLineString(null);
         }
 
@@ -605,11 +694,14 @@ class MultiLineStringBuilder extends LineStringBuilder {
      * @throws DataSourceException DOCUMENT ME!
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         MultiLineString mls = null;
+
         LineString[] lineStrings = null;
 
         int nLines = coords[0].length;
+
         lineStrings = new LineString[nLines];
 
         for (int i = 0; i < nLines; i++)
@@ -623,14 +715,14 @@ class MultiLineStringBuilder extends LineStringBuilder {
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>Polygon</code>s from <code>SeShape</code> polygon
- * and viceversa
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>Polygon</code>s from <code>SeShape</code> polygon and viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class PolygonBuilder extends GeometryBuilder {
+class PolygonBuilder extends GeometryBuilder
+{
     /** the empty polygon singleton */
     private static Geometry EMPTY;
 
@@ -639,8 +731,10 @@ class PolygonBuilder extends GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createMultiPolygon(null);
         }
 
@@ -657,7 +751,8 @@ class PolygonBuilder extends GeometryBuilder {
      * @throws DataSourceException
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         return buildPolygon(coords[0]);
     }
 
@@ -668,17 +763,24 @@ class PolygonBuilder extends GeometryBuilder {
      *
      * @return DOCUMENT ME!
      */
-    protected Polygon buildPolygon(double[][] parts) {
+    protected Polygon buildPolygon(double[][] parts)
+    {
         Polygon p = null;
+
         double[] linearCoordArray = parts[0];
+
         int nHoles = parts.length - 1;
 
         LinearRing shell = factory.createLinearRing(toCoords(linearCoordArray));
+
         LinearRing[] holes = new LinearRing[nHoles];
 
-        if (nHoles > 0) {
-            for (int i = 0; i < nHoles; i++) {
+        if (nHoles > 0)
+        {
+            for (int i = 0; i < nHoles; i++)
+            {
                 linearCoordArray = parts[i + 1];
+
                 holes[i] = factory.createLinearRing(toCoords(linearCoordArray));
             }
         }
@@ -698,15 +800,22 @@ class PolygonBuilder extends GeometryBuilder {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     protected void generateShape(Geometry geometry, SeShape dest)
-        throws SeException {
+        throws SeException
+    {
         MultiPolygon mp;
 
-        if (geometry instanceof Polygon) {
+        if (geometry instanceof Polygon)
+        {
             Polygon[] polys = { (Polygon) geometry };
+
             mp = factory.createMultiPolygon(polys);
-        } else if (geometry instanceof MultiPolygon) {
+        }
+        else if (geometry instanceof MultiPolygon)
+        {
             mp = (MultiPolygon) geometry;
-        } else {
+        }
+        else
+        {
             throw new IllegalArgumentException(
                 "argument mus be a Polygon or a MultiPolygon");
         }
@@ -714,14 +823,19 @@ class PolygonBuilder extends GeometryBuilder {
         Polygon poly;
 
         int numParts = mp.getNumGeometries();
+
         List pointList = new ArrayList();
 
         int[] partOffsets = new int[numParts];
+
         int nextPartOffset = 0;
 
-        for (int i = 0; i < numParts; i++) {
+        for (int i = 0; i < numParts; i++)
+        {
             partOffsets[i] = nextPartOffset;
+
             poly = (Polygon) mp.getGeometryN(i);
+
             nextPartOffset += (poly.getNumInteriorRing() + 1);
 
             SDEPoint[] polyPoints = toPointsArray(poly.getCoordinates());
@@ -730,7 +844,9 @@ class PolygonBuilder extends GeometryBuilder {
         }
 
         int numPoints = pointList.size();
+
         SDEPoint[] ptArray = new SDEPoint[numPoints];
+
         pointList.toArray(ptArray);
 
         dest.generatePolygon(numPoints, numParts, partOffsets, ptArray);
@@ -739,14 +855,15 @@ class PolygonBuilder extends GeometryBuilder {
 
 
 /**
- * <code>GeometryBuilder</code> specialized in creating 
- * JTS <code>MultiPolygon</code>s from <code>SeShape</code> multipolygons
- * and viceversa
+ * <code>GeometryBuilder</code> specialized in creating  JTS
+ * <code>MultiPolygon</code>s from <code>SeShape</code> multipolygons and
+ * viceversa
  *
  * @author Gabriel Roldán
  * @version 0.1
  */
-class MultiPolygonBuilder extends PolygonBuilder {
+class MultiPolygonBuilder extends PolygonBuilder
+{
     /** the empty multipolygon singleton */
     private static Geometry EMPTY;
 
@@ -755,8 +872,10 @@ class MultiPolygonBuilder extends PolygonBuilder {
      *
      * @return an empty multipolygon
      */
-    protected Geometry getEmpty() {
-        if (EMPTY == null) {
+    protected Geometry getEmpty()
+    {
+        if (EMPTY == null)
+        {
             EMPTY = factory.createMultiPolygon(null);
         }
 
@@ -777,15 +896,22 @@ class MultiPolygonBuilder extends PolygonBuilder {
      *         Geometry
      */
     protected Geometry newGeometry(double[][][] coords)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         Polygon[] polys = null;
+
         int numPolys = coords.length;
+
         polys = new Polygon[numPolys];
 
-        for (int i = 0; i < numPolys; i++) {
-            try {
+        for (int i = 0; i < numPolys; i++)
+        {
+            try
+            {
                 polys[i] = buildPolygon(coords[i]);
-            } catch (Exception ex1) {
+            }
+            catch (Exception ex1)
+            {
                 ex1.printStackTrace();
             }
         }

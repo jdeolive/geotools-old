@@ -30,7 +30,8 @@ import java.util.logging.*;
  * @author Gabriel Roldán
  * @version 0.1
  */
-public class SdeDatasourceFactory implements DataSourceFactorySpi {
+public class SdeDatasourceFactory implements DataSourceFactorySpi
+{
     /** package's logger */
     protected static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.sde");
@@ -45,7 +46,8 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi {
     /**
      * empty constructor
      */
-    public SdeDatasourceFactory() {
+    public SdeDatasourceFactory()
+    {
     }
 
     /**
@@ -56,14 +58,28 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi {
      * Expected parameters are:
      *
      * <ul>
-     * <li><b>dbtype</b>: MUST be <code>"arcsde"</code>
-     * <li><b>server</b>: machine name where ArcSDE is running
-     * <li><b>port</b>: por number where ArcSDE listens for connections on server
-     * <li><b>instance</b>: database instance name to connect to
-     * <li><b>user</b>: database user name with at least reading privileges over
+     * <li>
+     * <b>dbtype</b>: MUST be <code>"arcsde"</code>
+     * </li>
+     * <li>
+     * <b>server</b>: machine name where ArcSDE is running
+     * </li>
+     * <li>
+     * <b>port</b>: por number where ArcSDE listens for connections on server
+     * </li>
+     * <li>
+     * <b>instance</b>: database instance name to connect to
+     * </li>
+     * <li>
+     * <b>user</b>: database user name with at least reading privileges over
      * SDE instance
-     * <li><b>password</b>: database user password
-     * <li><b>table</b>: wich featureclass to work on
+     * </li>
+     * <li>
+     * <b>password</b>: database user password
+     * </li>
+     * <li>
+     * <b>table</b>: wich featureclass to work on
+     * </li>
      * </ul>
      * </p>
      *
@@ -78,48 +94,61 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi {
      *         exists in the SDE catalog or the user has no reading
      *         privilegies over it
      */
-    public DataSource createDataSource(Map params) throws DataSourceException {
-        try { //check for ArcSDE dependencies
+    public DataSource createDataSource(Map params) throws DataSourceException
+    {
+        try
+        { //check for ArcSDE dependencies
             Class.forName("com.esri.sde.sdk.client.SeConnection");
-        } catch (ClassNotFoundException ex) {
+        }
+        catch (ClassNotFoundException ex)
+        {
             throw new DataSourceException("ArcSDE dependencies not found", ex);
         }
 
-        if (params == null) {
+        if (params == null)
+        {
             throw new DataSourceException(
                 "null is not valid as method argument");
         }
 
         SdeConnectionConfig connectionConfig = null;
+
         SdeDataSource dataSource = null;
 
-        try {
+        try
+        {
             connectionConfig = new SdeConnectionConfig(params);
-        } catch (IllegalArgumentException ex) {
+        }
+        catch (IllegalArgumentException ex)
+        {
             throw new DataSourceException("Argument list is invalid", ex);
-        } catch (NullPointerException ex) {
+        }
+        catch (NullPointerException ex)
+        {
             throw new DataSourceException("At least one argument is missing", ex);
         }
 
         String tableName = (String) params.get(SdeConnectionConfig.TABLE_NAME_PARAM);
 
-        if ((tableName == null) || (tableName.length() == 0)) {
+        if ((tableName == null) || (tableName.length() == 0))
+        {
             throw new DataSourceException("parameter table was not specified");
         }
 
         SdeConnectionPool connectionPool = poolFactory.getPoolFor(connectionConfig);
+
         dataSource = new SdeDataSource(connectionPool, tableName);
 
         return dataSource;
     }
-
 
     /**
      * A human friendly name for this data source factory
      *
      * @return this factory's description
      */
-    public String getDescription() {
+    public String getDescription()
+    {
         return FACTORY_DESCRIPTION;
     }
 
@@ -130,14 +159,20 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi {
      *
      * @return
      */
-    public boolean canProcess(Map params) {
+    public boolean canProcess(Map params)
+    {
         boolean canProcess = true;
 
-        try {
+        try
+        {
             new SdeConnectionConfig(params);
-        } catch (NullPointerException ex) {
+        }
+        catch (NullPointerException ex)
+        {
             canProcess = false;
-        } catch (IllegalArgumentException ex) {
+        }
+        catch (IllegalArgumentException ex)
+        {
             canProcess = false;
         }
 
@@ -158,45 +193,68 @@ public class SdeDatasourceFactory implements DataSourceFactorySpi {
      * @throws DataSourceException DOCUMENT ME!
      */
     public SdeDataSource[] getAvailableLayers(Map params)
-        throws DataSourceException {
+        throws DataSourceException
+    {
         SdeConnectionConfig dbConfig = new SdeConnectionConfig(params);
+
         SeConnection sdeConn = null;
+
         SdeConnectionPool pool = null;
+
         List dataSourcesList = new LinkedList();
+
         SdeDataSource[] dataSources = new SdeDataSource[0];
 
-        try {
+        try
+        {
             pool = poolFactory.getPoolFor(dbConfig);
+
             sdeConn = pool.getConnection();
 
             Vector sdeLayers = sdeConn.getLayers();
+
             pool.release(sdeConn);
 
             SeLayer sdeLayer;
+
             int nLayers = sdeLayers.size();
 
             SdeDataSource sdeds;
 
-            for (int i = 0; i < nLayers; i++) {
+            for (int i = 0; i < nLayers; i++)
+            {
                 sdeLayer = (SeLayer) sdeLayers.get(i);
 
-                try {
+                try
+                {
                     sdeds = new SdeDataSource(pool, sdeLayer.getQualifiedName());
+
                     dataSourcesList.add(sdeds);
-                } catch (SeException seEx) {
+                }
+                catch (SeException seEx)
+                {
                     LOGGER.warning("can't get " + sdeLayer.getName()
                         + "'s qualified name: " + seEx.getMessage());
-                } catch (DataSourceException dsEx) {
+                }
+                catch (DataSourceException dsEx)
+                {
                     LOGGER.warning("can't create SdeDataSouce for "
                         + sdeLayer.getName() + ": " + dsEx.getMessage());
                 }
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
-        } finally {
-            try {
+        }
+        finally
+        {
+            try
+            {
                 pool.release(sdeConn);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 LOGGER.warning("can't release connection " + sdeConn + ": "
                     + ex.getMessage());
             }

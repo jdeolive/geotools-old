@@ -24,13 +24,15 @@ import org.geotools.data.DataSourceException;
  * calling thread was waiting an available connection for
  * <code>SdeConnectionPool instance's getMaxWaitTime()</code> milliseconds
  *
- * @task REVISIT: sure there are a better exception to use in somewhere... just
- * take a look since it seems not very wise to have it here... may be in
- * current jdbc package.
  * @author Gabriel Roldán
  * @version 0.1
+ *
+ * @task REVISIT: sure there are a better exception to use in somewhere... just
+ *       take a look since it seems not very wise to have it here... may be in
+ *       current jdbc package.
  */
-public class UnavailableConnectionException extends DataSourceException {
+public class UnavailableConnectionException extends DataSourceException
+{
     /**
      * Creates a new UnavailableConnectionException object.
      *
@@ -38,7 +40,8 @@ public class UnavailableConnectionException extends DataSourceException {
      * @param config DOCUMENT ME!
      */
     public UnavailableConnectionException(int usedConnections,
-        SdeConnectionConfig config) {
+        SdeConnectionConfig config)
+    {
         super("The maximun of " + usedConnections + " to " + config.toString()
             + " has been reached");
     }

@@ -44,13 +44,14 @@ import java.util.logging.Logger;
  * @author Gabriel Roldán
  * @version 0.1
  */
-public class GeometryBuilderTest extends TestCase {
+public class GeometryBuilderTest extends TestCase
+{
     static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
 
     /** DOCUMENT ME! */
     private GeometryBuilder geometryBuilder = null;
 
-    /** DOCUMENT ME!  */
+    /** DOCUMENT ME! */
     private WKTReader wktReader;
 
     /**
@@ -58,7 +59,8 @@ public class GeometryBuilderTest extends TestCase {
      *
      * @param name DOCUMENT ME!
      */
-    public GeometryBuilderTest(String name) {
+    public GeometryBuilderTest(String name)
+    {
         super(name);
     }
 
@@ -67,8 +69,10 @@ public class GeometryBuilderTest extends TestCase {
      *
      * @throws Exception DOCUMENT ME!
      */
-    protected void setUp() throws Exception {
+    protected void setUp() throws Exception
+    {
         super.setUp();
+
         this.wktReader = new WKTReader();
     }
 
@@ -77,7 +81,8 @@ public class GeometryBuilderTest extends TestCase {
      *
      * @throws Exception DOCUMENT ME!
      */
-    protected void tearDown() throws Exception {
+    protected void tearDown() throws Exception
+    {
         geometryBuilder = null;
         wktReader = null;
         super.tearDown();
@@ -86,35 +91,40 @@ public class GeometryBuilderTest extends TestCase {
     /**
      * DOCUMENT ME!
      */
-    public void testPointBuilder() {
+    public void testPointBuilder()
+    {
         testBuildGeometries(Point.class, "pointtest.wkt");
     }
 
     /**
      * DOCUMENT ME!
      */
-    public void testMultiPointBuilder() {
+    public void testMultiPointBuilder()
+    {
         testBuildGeometries(MultiPoint.class, "multipointtest.wkt");
     }
 
     /**
      * DOCUMENT ME!
      */
-    public void testLineStringBuilder() {
+    public void testLineStringBuilder()
+    {
         testBuildGeometries(LineString.class, "linestringtest.wkt");
     }
 
     /**
      * DOCUMENT ME!
      */
-    public void testMultiLineStringBuilder() {
+    public void testMultiLineStringBuilder()
+    {
         testBuildGeometries(MultiLineString.class, "multilinestringtest.wkt");
     }
 
     /**
      * DOCUMENT ME!
      */
-    public void testMultiPolygonBuilder() {
+    public void testMultiPolygonBuilder()
+    {
         testBuildGeometries(MultiPolygon.class, "multipolygontest.wkt");
     }
 
@@ -125,14 +135,17 @@ public class GeometryBuilderTest extends TestCase {
      * @param testDataResource DOCUMENT ME!
      */
     private void testBuildGeometries(final Class geometryClass,
-        final String testDataResource) {
+        final String testDataResource)
+    {
         LOGGER.info("---- testBuildGeometries: testing " + testDataResource
             + " ----");
 
         String failMsg = "Expected and created by GeometryBuilder geometries does not match";
 
-        try {
+        try
+        {
             geometryBuilder = GeometryBuilder.builderFor(geometryClass);
+
             LOGGER.info("created " + geometryBuilder.getClass().getName());
 
             Geometry[] expectedGeometries = loadTestData(testDataResource);
@@ -140,14 +153,18 @@ public class GeometryBuilderTest extends TestCase {
             Geometry expectedGeometry;
             double[][][] sdeCoords;
 
-            for (int i = 0; i < expectedGeometries.length; i++) {
+            for (int i = 0; i < expectedGeometries.length; i++)
+            {
                 expectedGeometry = expectedGeometries[i];
                 sdeCoords = geometryToSdeCoords(expectedGeometry);
                 createdGeometry = geometryBuilder.newGeometry(sdeCoords);
                 assertTrue(expectedGeometry.equals(createdGeometry));
             }
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             ex.printStackTrace();
+
             fail(ex.getMessage());
         }
     }
@@ -159,18 +176,26 @@ public class GeometryBuilderTest extends TestCase {
      *
      * @return DOCUMENT ME!
      */
-    private double[][][] geometryToSdeCoords(Geometry jtsGeom) {
+    private double[][][] geometryToSdeCoords(Geometry jtsGeom)
+    {
         int numParts;
+
         int numSubParts = 1;
+
         int numSubpartPoints;
 
         double[][][] sdeCoords;
+
         GeometryCollection gcol = null;
 
-        if (jtsGeom instanceof MultiPolygon) {
+        if (jtsGeom instanceof MultiPolygon)
+        {
             gcol = (GeometryCollection) jtsGeom;
-        } else {
+        }
+        else
+        {
             Geometry[] geoms = { jtsGeom };
+
             gcol = new GeometryFactory().createGeometryCollection(geoms);
         }
 
@@ -178,7 +203,8 @@ public class GeometryBuilderTest extends TestCase {
 
         sdeCoords = new double[numParts][0][0];
 
-        for (int i = 0; i < numParts; i++) {
+        for (int i = 0; i < numParts; i++)
+        {
             Geometry geom = gcol.getGeometryN(i);
 
             numSubParts = (geom instanceof Polygon)
@@ -190,19 +216,28 @@ public class GeometryBuilderTest extends TestCase {
 
             Coordinate[] partCoords = null;
 
-            for (int j = 0; j < numSubParts; j++) {
-                if (geom instanceof Polygon) {
-                    if (j == 0) {
+            for (int j = 0; j < numSubParts; j++)
+            {
+                if (geom instanceof Polygon)
+                {
+                    if (j == 0)
+                    {
                         partCoords = ((Polygon) geom).getExteriorRing()
                                       .getCoordinates();
-                    } else {
+                    }
+                    else
+                    {
                         partCoords = ((Polygon) geom).getInteriorRingN(j - 1)
                                       .getCoordinates();
                     }
-                } else if (geom instanceof GeometryCollection) {
+                }
+                else if (geom instanceof GeometryCollection)
+                {
                     partCoords = ((GeometryCollection) geom).getGeometryN(j)
                                   .getCoordinates();
-                } else {
+                }
+                else
+                {
                     partCoords = geom.getCoordinates();
                 }
 
@@ -220,12 +255,14 @@ public class GeometryBuilderTest extends TestCase {
      *
      * @return DOCUMENT ME!
      */
-    private double[] toSdeCoords(Coordinate[] coords) {
+    private double[] toSdeCoords(Coordinate[] coords)
+    {
         int nCoords = coords.length;
         double[] sdeCoords = new double[2 * nCoords];
-        Coordinate c;
 
-        for (int i = 0, j = 1; i < nCoords; i++, j += 2) {
+        Coordinate c;
+        for (int i = 0, j = 1; i < nCoords; i++, j += 2)
+        {
             c = coords[i];
             sdeCoords[j - 1] = c.x;
             sdeCoords[j] = c.y;
@@ -244,27 +281,38 @@ public class GeometryBuilderTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     private Geometry[] loadTestData(final String resource)
-        throws Exception {
+        throws Exception
+    {
         List testGeoms = new LinkedList();
         Geometry g;
         String line = null;
 
-        try {
+        try
+        {
             LOGGER.info("loading test data /testData/" + resource);
 
             InputStream in = getClass().getResourceAsStream("/testData/"
                     + resource);
+
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null)
+            {
+                line = line.trim();
+                if(line.startsWith("#") || "".equals(line))
+                  continue;
                 g = wktReader.read(line);
                 LOGGER.info("loaded test geometry: " + g.toText());
                 testGeoms.add(g);
             }
-        } catch (ParseException ex) {
+        }
+        catch (ParseException ex)
+        {
             LOGGER.severe("cant create a test geometry: " + ex.getMessage());
             throw ex;
-        } catch (IOException ex) {
+        }
+        catch (IOException ex)
+        {
             LOGGER.severe("cant load test data " + resource + ": "
                 + ex.getMessage());
             throw ex;

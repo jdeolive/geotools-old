@@ -29,52 +29,87 @@ import java.util.logging.*;
  */
 public class SdeConnectionPoolFactory
 {
-  private static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
-  private static SdeConnectionPoolFactory singleton;
-  private Map currentPools = new HashMap();
+    /** DOCUMENT ME!  */
+    private static Logger LOGGER = Logger.getLogger("org.geotools.data.sde");
 
-  private SdeConnectionPoolFactory()
-  {
-  }
+    /** DOCUMENT ME!  */
+    private static SdeConnectionPoolFactory singleton;
 
-  public synchronized static SdeConnectionPoolFactory getInstance()
-  {
-    if(singleton == null)
-      singleton = new SdeConnectionPoolFactory();
+    /** DOCUMENT ME!  */
+    private Map currentPools = new HashMap();
 
-    return singleton;
-  }
-
-  public synchronized SdeConnectionPool getPoolFor(SdeConnectionConfig config)
-    throws DataSourceException
-  {
-    SdeConnectionPool pool = (SdeConnectionPool)currentPools.get(config);
-
-    if(pool == null)
+    /**
+     * Creates a new SdeConnectionPoolFactory object.
+     */
+    private SdeConnectionPoolFactory()
     {
-      pool = new SdeConnectionPool(config);
-      pool.populate();
-      currentPools.put(config, pool);
     }
 
-    return pool;
-  }
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    public synchronized static SdeConnectionPoolFactory getInstance()
+    {
+        if (singleton == null)
+            singleton = new SdeConnectionPoolFactory();
 
-  public void clear()
-  {
-    closeAll();
-    currentPools.clear();
-    LOGGER.fine("sde connection pools creared");
-  }
+        return singleton;
+    }
 
-  public void closeAll()
-  {
-    for(Iterator it = currentPools.values().iterator(); it.hasNext();)
-      ((SdeConnectionPool)it.next()).close();
-  }
+    /**
+     * DOCUMENT ME!
+     *
+     * @param config DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     */
+    public synchronized SdeConnectionPool getPoolFor(SdeConnectionConfig config)
+        throws DataSourceException
+    {
+        SdeConnectionPool pool = (SdeConnectionPool) currentPools.get(config);
 
-  public void finalize()
-  {
-    closeAll();
-  }
+        if (pool == null)
+        {
+            pool = new SdeConnectionPool(config);
+
+            pool.populate();
+
+            currentPools.put(config, pool);
+        }
+
+        return pool;
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void clear()
+    {
+        closeAll();
+
+        currentPools.clear();
+
+        LOGGER.fine("sde connection pools creared");
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void closeAll()
+    {
+        for (Iterator it = currentPools.values().iterator(); it.hasNext();)
+            ((SdeConnectionPool) it.next()).close();
+    }
+
+    /**
+     * DOCUMENT ME!
+     */
+    public void finalize()
+    {
+        closeAll();
+    }
 }

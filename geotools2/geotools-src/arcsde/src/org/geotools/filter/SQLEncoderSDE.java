@@ -16,28 +16,31 @@
  */
 package org.geotools.filter;
 
+import com.esri.sde.sdk.client.*;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import com.esri.sde.sdk.client.*;
+
 
 /**
  * Encodes a filter into a SQL WHERE statement for arcsde.
+ *
  * <p>
  * Although not all filters support is coded yet, the strategy to filtering
  * queries for ArcSDE datasources is separated in two parts, the SQL where
- * clause construction, provided here and the 
- * spatial filters (or spatial constraints, in SDE vocabulary) provided
- * by <code>GeometryEncoderSDE</code>; mirroring the java SDE api approach
- * for easy programing
+ * clause construction, provided here and the  spatial filters (or spatial
+ * constraints, in SDE vocabulary) provided by
+ * <code>GeometryEncoderSDE</code>; mirroring the java SDE api approach for
+ * easy programing
  * </p>
  *
  * @author Chris Holmes, TOPP
  * @author Gabriel Roldán
  */
 public class SQLEncoderSDE extends SQLEncoder
-    implements org.geotools.filter.FilterVisitor {
+    implements org.geotools.filter.FilterVisitor
+{
     /** Standard java logger */
     private static Logger log = Logger.getLogger("org.geotools.filter");
 
@@ -53,7 +56,8 @@ public class SQLEncoderSDE extends SQLEncoder
      */
     private static FilterCapabilities capabilities = SQLEncoder.getCapabilities();
 
-    static {
+    static
+    {
         capabilities.addType(AbstractFilter.LIKE);
     }
 
@@ -64,8 +68,10 @@ public class SQLEncoderSDE extends SQLEncoder
     private SeLayer sdeLayer;
 
     /**
+
      */
-    public SQLEncoderSDE() {
+    public SQLEncoderSDE()
+    {
     }
 
     /**
@@ -73,7 +79,8 @@ public class SQLEncoderSDE extends SQLEncoder
      *
      * @param layer DOCUMENT ME!
      */
-    public void setLayer(SeLayer layer) {
+    public void setLayer(SeLayer layer)
+    {
         this.sdeLayer = layer;
     }
 
@@ -82,7 +89,8 @@ public class SQLEncoderSDE extends SQLEncoder
      *
      * @return DOCUMENT ME!
      */
-    public static FilterCapabilities getCapabilities() {
+    public static FilterCapabilities getCapabilities()
+    {
         return capabilities; //maybe clone?  Make immutable somehow
     }
 
@@ -93,8 +101,10 @@ public class SQLEncoderSDE extends SQLEncoder
      *
      * @throws IllegalStateException DOCUMENT ME!
      */
-    private String getLayerName() {
-        if (sdeLayer == null) {
+    private String getLayerName()
+    {
+        if (sdeLayer == null)
+        {
             throw new IllegalStateException("SDE layer name has not been set");
         }
 
@@ -109,31 +119,28 @@ public class SQLEncoderSDE extends SQLEncoder
      *
      * @throws SQLEncoderException DOCUMENT ME!
      */
-    public void encode(Writer out, Filter filter) throws SQLEncoderException {
-        if (capabilities.fullySupports(filter)) {
+    public void encode(Writer out, Filter filter) throws SQLEncoderException
+    {
+        if (capabilities.fullySupports(filter))
+        {
             this.out = out;
             filter.accept(this);
-        } else {
+        }
+        else
+        {
             throw new SQLEncoderException("Filter type not supported");
         }
     }
 
-/**
- *@task TODO: look forward for Like filter implementation or contribute in doing so.
- * 
-     public void visit(LikeFilter filter) throws UnsupportedOperationException {
-        log.finer("exporting like filter");
-
-        try {
-            String pattern = filter.getPattern();
-            String wildCard = filter.getWildcardMulti();
-            pattern = pattern.replaceAll(wildCard, "%");
-            ((DefaultExpression) filter.getValue()).accept(this);
-            out.write(" LIKE ");
-            out.write("'" + pattern + "'");
-        } catch (java.io.IOException ioe) {
-            throw new RuntimeException(ioe.getMessage(), ioe);
-        }
-    }
-*/
+    /**
+     * @task TODO: look forward for Like filter implementation or contribute in
+     *       doing so.  public void visit(LikeFilter filter) throws
+     *       UnsupportedOperationException { log.finer("exporting like
+     *       filter"); try { String pattern = filter.getPattern(); String
+     *       wildCard = filter.getWildcardMulti(); pattern =
+     *       pattern.replaceAll(wildCard, "%"); ((DefaultExpression)
+     *       filter.getValue()).accept(this); out.write(" LIKE ");
+     *       out.write("'" + pattern + "'"); } catch (java.io.IOException ioe)
+     *       { throw new RuntimeException(ioe.getMessage(), ioe); }}
+     */
 }

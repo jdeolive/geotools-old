@@ -29,14 +29,16 @@ import java.util.Map;
  * @author Gabriel Roldán
  * @version 0.1
  */
-public class SdeConnectionConfig {
-    /** message of the exception thrown if a mandatory parameter is
-     * not supplied*/
+public class SdeConnectionConfig
+{
+    /**
+     * message of the exception thrown if a mandatory parameter is not supplied
+     */
     private static final String NULL_ARGUMENTS_MSG =
         "Illegal arguments. At least one of them was null. Check to pass "
         + "correct values to dbtype, server, port, database, user and password parameters";
 
-    /** DOCUMENT ME!  */
+    /** DOCUMENT ME! */
     private static final String ILLEGAL_ARGUMENT_MSG = " is not valid for parameter ";
 
     /** must equals to <code>"arcsde"</code> */
@@ -69,19 +71,19 @@ public class SdeConnectionConfig {
      */
     protected static final String TABLE_NAME_PARAM = "table";
 
-    /** name or IP of the ArcSDE server to connect to  */
+    /** name or IP of the ArcSDE server to connect to */
     String serverName;
 
-    /** port number where the ArcSDE instance listens for connections  */
+    /** port number where the ArcSDE instance listens for connections */
     Integer portNumber;
 
-    /** name of the ArcSDE database to connect to  */
+    /** name of the ArcSDE database to connect to */
     String databaseName;
 
-    /** database user name to connect as  */
+    /** database user name to connect as */
     String userName;
 
-    /** database user password  */
+    /** database user password */
     String userPassword;
 
     /**
@@ -90,12 +92,12 @@ public class SdeConnectionConfig {
      * @param params
      *
      * @throws NullPointerException if at least one mandatory parameter is
-     * 
-     * @throws IllegalArgumentException if at least one mandatory parameter
-     * is present but has no a "valid" value. 
+     * @throws IllegalArgumentException if at least one mandatory parameter is
+     *         present but has no a "valid" value.
      */
     public SdeConnectionConfig(Map params)
-        throws NullPointerException, IllegalArgumentException {
+        throws NullPointerException, IllegalArgumentException
+    {
         this((String) params.get(DBTYPE_PARAM),
             (String) params.get(SERVER_NAME_PARAM),
             String.valueOf(params.get(PORT_NUMBER_PARAM)),
@@ -120,14 +122,19 @@ public class SdeConnectionConfig {
     public SdeConnectionConfig(String dbType, String serverName,
         String portNumber, String databaseName, String userName,
         String userPassword)
-        throws NullPointerException, IllegalArgumentException {
+        throws NullPointerException, IllegalArgumentException
+    {
         Integer port = checkParams(dbType, serverName, portNumber,
                 databaseName, userName, userPassword);
 
         this.serverName = serverName;
+
         this.portNumber = port;
+
         this.databaseName = databaseName;
+
         this.userName = userName;
+
         this.userPassword = userPassword;
     }
 
@@ -149,9 +156,11 @@ public class SdeConnectionConfig {
     private Integer checkParams(String dbType, String serverName,
         String portNumber, String databaseName, String userName,
         String userPassword)
-        throws IllegalArgumentException, NullPointerException {
+        throws IllegalArgumentException, NullPointerException
+    {
         //check if dbtype is 'arcsde'
-        if (!(DBTYPE_PARAM_VALUE.equals(dbType))) {
+        if (!(DBTYPE_PARAM_VALUE.equals(dbType)))
+        {
             throw new IllegalArgumentException("parameter dbtype must be "
                 + DBTYPE_PARAM_VALUE);
         }
@@ -159,31 +168,39 @@ public class SdeConnectionConfig {
         //check for nullity
         if ((serverName == null) || (portNumber == null)
                 || (databaseName == null) || (userName == null)
-                || (userPassword == null)) {
+                || (userPassword == null))
+        {
             throw new NullPointerException(NULL_ARGUMENTS_MSG);
         }
 
-        if (serverName.length() == 0) {
+        if (serverName.length() == 0)
+        {
             throwIllegal(SERVER_NAME_PARAM, serverName);
         }
 
-        if (databaseName.length() == 0) {
+        if (databaseName.length() == 0)
+        {
             throwIllegal(INSTANCE_NAME_PARAM, databaseName);
         }
 
-        if (userName.length() == 0) {
+        if (userName.length() == 0)
+        {
             throwIllegal(USER_NAME_PARAM, userName);
         }
 
-        if (userPassword.length() == 0) {
+        if (userPassword.length() == 0)
+        {
             throwIllegal(PASSWORD_PARAM, userPassword);
         }
 
         Integer port = null;
 
-        try {
+        try
+        {
             port = Integer.valueOf(portNumber);
-        } catch (NumberFormatException ex) {
+        }
+        catch (NumberFormatException ex)
+        {
             throwIllegal(PORT_NUMBER_PARAM, portNumber);
         }
 
@@ -199,7 +216,8 @@ public class SdeConnectionConfig {
      * @throws IllegalArgumentException DOCUMENT ME!
      */
     private void throwIllegal(String paramName, String paramValue)
-        throws IllegalArgumentException {
+        throws IllegalArgumentException
+    {
         throw new IllegalArgumentException("'" + paramValue + "'"
             + ILLEGAL_ARGUMENT_MSG + paramValue);
     }
@@ -209,7 +227,8 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public String getDatabaseName() {
+    public String getDatabaseName()
+    {
         return databaseName;
     }
 
@@ -218,7 +237,8 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public Integer getPortNumber() {
+    public Integer getPortNumber()
+    {
         return portNumber;
     }
 
@@ -227,7 +247,8 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public String getServerName() {
+    public String getServerName()
+    {
         return serverName;
     }
 
@@ -236,17 +257,19 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public String getUserName() {
+    public String getUserName()
+    {
         return userName;
     }
 
     /**
-     * accessor method for retrieving the user password of
-     * the ArcSDE connection properties holded here
+     * accessor method for retrieving the user password of the ArcSDE
+     * connection properties holded here
      *
      * @return the ArcSDE user password
      */
-    public String getUserPassword() {
+    public String getUserPassword()
+    {
         return userPassword;
     }
 
@@ -255,7 +278,8 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public int hashCode() {
+    public int hashCode()
+    {
         return getServerName().hashCode() * getPortNumber().hashCode() * getDatabaseName()
                                                                              .hashCode() * getUserName()
                                                                                                .hashCode();
@@ -268,12 +292,15 @@ public class SdeConnectionConfig {
      *
      * @return DOCUMENT ME!
      */
-    public boolean equals(Object o) {
-        if (o == this) {
+    public boolean equals(Object o)
+    {
+        if (o == this)
+        {
             return true;
         }
 
-        if (!(o instanceof SdeConnectionConfig)) {
+        if (!(o instanceof SdeConnectionConfig))
+        {
             return false;
         }
 

@@ -1,19 +1,48 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.filter;
 
 /**
  * Indicates a client class has attempted to encode a filter not supported by
  * the GeometryEncoderSDE being used.
+ *
  * @author Gabriel Roldán
  * @version 0.1
  */
+public class GeometryEncoderException extends Exception
+{
+    /**
+     * Creates a new GeometryEncoderException object.
+     *
+     * @param msg DOCUMENT ME!
+     */
+    public GeometryEncoderException(String msg)
+    {
+        this(msg, null);
+    }
 
-public class GeometryEncoderException extends Exception {
-
-  public GeometryEncoderException(String msg) {
-    this(msg, null);
-  }
-
-  public GeometryEncoderException(String msg, Throwable cause) {
-    super(msg, cause);
-  }
+    /**
+     * Creates a new GeometryEncoderException object.
+     *
+     * @param msg DOCUMENT ME!
+     * @param cause DOCUMENT ME!
+     */
+    public GeometryEncoderException(String msg, Throwable cause)
+    {
+        super(msg, cause);
+    }
 }

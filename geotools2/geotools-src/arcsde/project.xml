@@ -5,12 +5,9 @@
   <name>geotools-arcsde</name>
   <id>arcsde</id>
   <currentVersion>0.1</currentVersion>
-
   <package>org.geotools</package>
   <shortDescription>arcsde datasource module</shortDescription>
-
   <description>arcsde datasource module</description>
-
   <developers>
     <developer>
       <name>Gabriel Roldan</name>
@@ -65,7 +62,7 @@
       <includes>
         <include>**/*Test.java</include>
       </includes>
-      <!-- This section excludes the tests, comment out if your 
+      <!-- This section excludes the tests, comment out if your
            testData/testparams.properties are set correctly -->
       <excludes>
         <exclude>**/SdeDataSourceTest.java</exclude>
@@ -84,4 +81,6 @@
     </unitTest>
     </build>
 </project>
+
+
 
