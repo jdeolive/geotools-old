@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: FilterFilter.java,v 1.19 2003/06/02 23:29:20 cholmesny Exp $
+ * @version $Id: FilterFilter.java,v 1.20 2003/06/06 18:54:13 cholmesny Exp $
  */
 public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** The logger for the filter module. */
@@ -74,7 +74,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     private boolean isFidFilter = false;
 
     /** Whether or not this parser should consider namespaces. */
-    private boolean insideFilter = false;
+    protected boolean insideFilter = false;
 
     /** Whether we are inside a distance element or not. */
     private boolean insideDistance = false;
