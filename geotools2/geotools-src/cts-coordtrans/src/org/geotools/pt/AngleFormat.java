@@ -495,7 +495,7 @@ public class AngleFormat extends Format {
                                             StringBuffer toAppendTo,
                                             final FieldPosition pos)
     {
-        double degrés = angle;
+        double degrees = angle;
         /*
          * Calcule à l'avance les minutes et les secondes. Si les minutes et secondes
          * ne doivent pas être écrits, on mémorisera NaN. Notez que pour extraire les
@@ -506,9 +506,9 @@ public class AngleFormat extends Format {
         double minutes  = Double.NaN;
         double secondes = Double.NaN;
         if (width1!=0) {
-            int tmp = (int) degrés; // Arrondie vers 0 même si négatif.
-            minutes = Math.abs(degrés-tmp)*60;
-            degrés  = tmp;
+            int tmp = (int) degrees; // Arrondie vers 0 même si négatif.
+            minutes = Math.abs(degrees-tmp)*60;
+            degrees  = tmp;
             if (minutes<0 || minutes>60) {
                 // Erreur d'arrondissement (parce que l'angle est trop élevé)
                 throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_ANGLE_OVERFLOW_$1, new Double(angle)));
@@ -536,7 +536,7 @@ public class AngleFormat extends Format {
             }
             tmp = (int) (minutes/60); // Arrondie vers 0 même si négatif.
             minutes -= 60*tmp;
-            degrés += tmp;
+            degrees += tmp;
         }
         /*
          * Les variables 'degrés', 'minutes' et 'secondes' contiennent
@@ -555,7 +555,7 @@ public class AngleFormat extends Format {
         } else {
             field=PREFIX_FIELD;
         }
-        toAppendTo = formatField(degrés, toAppendTo,
+        toAppendTo = formatField(degrees, toAppendTo,
                                  field==DEGREES_FIELD ? pos : null,
                                  width0, width1==0, suffix0);
         if (!Double.isNaN(minutes)) {
