@@ -86,7 +86,7 @@ import org.geotools.resources.SwingUtilities;
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.4 2002/09/02 13:17:47 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.5 2002/09/04 10:32:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
@@ -107,8 +107,8 @@ public class LoggingPanel extends JPanel {
      * color <code>levelColors[i*2]</code> and background color <code>levelColors[i*2+1]</code>.
      *
      * @see Level#intValue
-     * @see #getForeground(Level)
-     * @see #getBackground(Level)
+     * @see #getForeground(LogRecord)
+     * @see #getBackground(LogRecord)
      */
     private int[] levelValues = new int[0];
 
@@ -118,8 +118,8 @@ public class LoggingPanel extends JPanel {
      * with foreground color <code>levelColors[i*2]</code> and background color
      * <code>levelColors[i*2+1]</code>.
      *
-     * @see #getForeground(Level)
-     * @see #getBackground(Level)
+     * @see #getForeground(LogRecord)
+     * @see #getBackground(LogRecord)
      */
     private final List levelColors = new ArrayList();
 
