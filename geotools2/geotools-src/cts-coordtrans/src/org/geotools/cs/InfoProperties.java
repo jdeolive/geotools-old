@@ -56,7 +56,7 @@ import java.io.ObjectInputStream;
  * this map is used only internally by {@link Info} objects,   users don't need to
  * know those short-comming.
  *
- * @version $Id: InfoProperties.java,v 1.3 2002/07/24 10:59:31 desruisseaux Exp $
+ * @version $Id: InfoProperties.java,v 1.4 2002/08/24 12:28:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class InfoProperties implements Map, Serializable {
@@ -268,6 +268,60 @@ class InfoProperties implements Map, Serializable {
     }
 
     /**
+     * A set of properties together with a name.
+     */
+    static class Named extends InfoProperties implements CharSequence {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = 7538378414620363218L;
+
+        /**
+         * The source name.
+         */
+        private final String name;
+
+        /**
+         * Constructs an <code>InfoProperties</code> with
+         * the specified name.
+         *
+         * @param name the name.
+         */
+        public Named(final String name) {
+            super(null);
+            this.name = name;
+        }
+
+        /**
+         * Returns the length of this character sequence.
+         */
+        public final int length() {
+            return name.length();
+        }
+
+        /**
+         * Returns the character at the specified index.
+         */
+        public final char charAt(int index) {
+            return name.charAt(index);
+        }
+
+        /**
+         * Returns a new character sequence that is a subsequence of this sequence.
+         */
+        public final CharSequence subSequence(int start, int end) {
+            return name.substring(start, end);
+        }
+
+        /**
+         * Returns the name.
+         */
+        public final String toString() {
+            return name;
+        }
+    }
+
+    /**
      * A set of properties fetched from a {@link CS_Info} object. The default {@link Info}
      * implementation use instances of {@link InfoProperties}, which have no notion of any
      * source {@link CS_Info} object.    Instances of  <code>InfoProperties.Adapter</code>
@@ -280,17 +334,11 @@ class InfoProperties implements Map, Serializable {
      *             we need to think for a framework for XML and WKT, since they may be heavy
      *             properties.
      */
-    static final class Adapter extends InfoProperties implements CharSequence
-    {
+    static final class Adapter extends Named {
         /**
          * Serial number for interoperability with different versions.
          */
-        private static final long serialVersionUID = 250560837080692032L;
-
-        /**
-         * The source name.
-         */
-        private final String name;
+        private static final long serialVersionUID = 7453632109986034253L;
 
         /**
          * Constructs an <code>InfoProperties</code> for
@@ -299,10 +347,8 @@ class InfoProperties implements Map, Serializable {
          * @param  info The OpenGIS object.
          * @throws RemoteException if a remote call fails.
          */
-        public Adapter(final CS_Info info) throws RemoteException
-        {
-            super(null);
-            name = info.getName();
+        public Adapter(final CS_Info info) throws RemoteException {
+            super(info.getName());
             put("authority",      info.getAuthority());
             put("authorityCode",  info.getAuthorityCode());
             put("alias",          info.getAlias());
@@ -314,34 +360,6 @@ class InfoProperties implements Map, Serializable {
                 put("WKT",        info.getWKT());
                 put("XML",        info.getXML());
             }
-        }
-
-        /**
-         * Returns the length of this character sequence.
-         */
-        public int length() {
-            return name.length();
-        }
-
-        /**
-         * Returns the character at the specified index.
-         */
-        public char charAt(int index) {
-            return name.charAt(index);
-        }
-
-        /**
-         * Returns a new character sequence that is a subsequence of this sequence.
-         */
-        public CharSequence subSequence(int start, int end) {
-            return name.substring(start, end);
-        }
-
-        /**
-         * Returns the name.
-         */
-        public String toString() {
-            return name;
         }
     }
 }

@@ -84,7 +84,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.5 2002/07/24 10:59:31 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.6 2002/08/24 12:28:04 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -301,7 +301,7 @@ public class Info implements Serializable {
         if (properties!=null) {
             final String authority = getAuthority(locale);
             if (authority!=null) {
-                buffer.append(", AUTHORITY[");
+                buffer.append(", AUTHORITY[\"");
                 buffer.append(authority);
                 final String code = getAuthorityCode(locale);
                 if (code!=null) {

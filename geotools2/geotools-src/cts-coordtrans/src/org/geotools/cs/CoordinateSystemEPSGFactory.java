@@ -45,6 +45,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Blob;
 
+// Preferences
+import java.util.prefs.Preferences;
+
 // Logging
 import java.io.PrintWriter;
 import java.util.logging.Level;
@@ -68,6 +71,7 @@ import javax.media.jai.util.CaselessStringKey;
 
 // Resources
 import org.geotools.units.Unit;
+import org.geotools.resources.Arguments;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -90,7 +94,7 @@ import org.geotools.resources.cts.ResourceKeys;
  *       button to select it.</li>
  * </ul>
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.7 2002/08/20 22:01:44 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.8 2002/08/24 12:28:04 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -100,6 +104,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * Will be constructed only when first requested.
      */
     private static CoordinateSystemEPSGFactory DEFAULT;
+
+    /** Preference node for the JDBC driver class name, and its default value. */
+    private static final String DRIVER = "JDBC driver",
+                        DEFAULT_DRIVER = "sun.jdbc.odbc.JdbcOdbcDriver";
+
+    /** Preference node for the EPSG database connection string, and its default value. */
+    private static final String CONNECTION = "EPSG connection",
+                        DEFAULT_CONNECTION = "jdbc:odbc:EPSG";
 
     /**
      * Default mapping for {@link #namesMap}.
@@ -197,17 +209,24 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * Invoking {@link #dispose} on this special factory will not close the database
      * connection, since it may be shared by many users. However, it is safe to invoke
      * {@link #dispose} anyway in order to release some resources used by this instance.
+     * <br><br>
+     * By default, this method loads the <code>"sun.jdbc.odbc.JdbcOdbcDriver"</code> and
+     * ask for a connection to the <code>"jdbc:odbc:EPSG"</code> database. This default
+     * behavior can be changed by invoking the {@link #main} method from the command line.
+     * For example:
+     * <blockquote><pre>
+     * java org.geotools.cs.CoordinateSystemEPSGFactory -driver=[my driver] -connection=[my url]
+     * </pre></blockquote>
      *
      * @return The default factory.
      * @throws SQLException if the connection to the database can't be etablished.
      */
     public synchronized static CoordinateSystemAuthorityFactory getDefault() throws SQLException {
         if (DEFAULT == null) {
-            final String url    = "jdbc:odbc:EPSG";
-            final String driver = "sun.jdbc.odbc.JdbcOdbcDriver";
-            // TODO: In a future version, we should fetch the
-            //       above properties from system's preferences.
-            DEFAULT = new CoordinateSystemEPSGFactory(CoordinateSystemFactory.getDefault(), url, driver);
+            final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
+            final String     driver = prefs.get(DRIVER, DEFAULT_DRIVER);
+            final String    connect = prefs.get(CONNECTION, DEFAULT_CONNECTION);
+            DEFAULT = new CoordinateSystemEPSGFactory(CoordinateSystemFactory.getDefault(), connect, driver);
             Runtime.getRuntime().addShutdownHook(new Thread("EPSG factory shutdown") {
                 public void run() {
                     try {
@@ -411,6 +430,28 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     }
 
     /**
+     * Returns the name for the {@link Info} object to construct,
+     * together with a set of properties. This {@link CharSequence}
+     * object is to be given to the {@link Info} constructor.
+     *
+     * @param  name The name for the {@link Info} object to construct.
+     * @param  code The EPSG code of the object to construct.
+     * @param  remarks Remarks, or <code>null</code> if none.
+     * @return The name together with a set of properties.
+     */
+    private CharSequence pack(String name, String code, String remarks) {
+        name = name.trim();
+        code = code.trim();
+        final InfoProperties.Named props = new InfoProperties.Named(name);
+        props.put("authority",     getAuthority());
+        props.put("authorityCode", code);
+        if (remarks!=null && (remarks=remarks.trim()).length()!=0) {
+            props.put("remarks", remarks);
+        }
+        return props;
+    }
+
+    /**
      * Returns an arbitrary object from a code.
      * Default implementation will invokes one of {@link #createCoordinateSystem},
      * {@link #createDatum}, {@link #createEllipsoid}, or {@link #createUnit}
@@ -478,7 +519,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                                  + " SEMI_MAJOR_AXIS,"
                                                  + " INV_FLATTENING,"
                                                  + " SEMI_MINOR_AXIS,"
-                                                 + " UOM_CODE"
+                                                 + " UOM_CODE,"
+                                                 + " REMARKS"
                                                  + " from [Ellipsoid]"
                                                  + " where ELLIPSOID_CODE = ?");
             stmt.setString(1, code);
@@ -499,7 +541,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final double inverseFlattening = result.getDouble( 3);
                 final double semiMinorAxis     = result.getDouble( 4);
                 final String unitCode          = getString(result, 5, code);
+                final String remarks           = result.getString( 6);
                 final Unit   unit              = createUnit(unitCode);
+                final CharSequence prp         = pack(name, code, remarks);
                 final Ellipsoid ellipsoid;
                 if (inverseFlattening == 0) {
                     if (semiMinorAxis == 0) {
@@ -510,8 +554,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                                    ResourceKeys.ERROR_NULL_VALUE_$2, code, column));
                     } else {
                         // We only have semiMinorAxis defined -> it's OK
-                        ellipsoid = factory.createEllipsoid(name, semiMajorAxis,
-                                                            semiMinorAxis, unit);
+                        ellipsoid = factory.createEllipsoid(prp, semiMajorAxis, semiMinorAxis, unit);
                     }
                 } else {
                     if (semiMinorAxis != 0) {
@@ -520,8 +563,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                         Logger.getLogger("org.geotools.cs").warning(Resources.format(
                                             ResourceKeys.WARNING_AMBIGUOUS_ELLIPSOID));
                     }
-                    ellipsoid = factory.createFlattenedSphere(name, semiMajorAxis,
-                                                              inverseFlattening, unit);
+                    ellipsoid = factory.createFlattenedSphere(prp, semiMajorAxis, inverseFlattening, unit);
                 }
                 /*
                  * Now that we have built an ellipsoid, compare
@@ -643,7 +685,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final PreparedStatement stmt;
             stmt = prepareStatement("PrimeMeridian", "select PRIME_MERIDIAN_NAME,"
                                                      + " GREENWICH_LONGITUDE,"
-                                                     + " UOM_CODE"
+                                                     + " UOM_CODE,"
+                                                     + " REMARKS"
                                                      + " from [Prime Meridian]"
                                                      + " where PRIME_MERIDIAN_CODE = ?");
             stmt.setString(1, code);
@@ -657,8 +700,10 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String name      = getString(result, 1, code);
                 final double longitude = getDouble(result, 2, code);
                 final String unit_code = getString(result, 3, code);
+                final String remarks   = result.getString( 4);
                 final Unit unit        = createUnit(unit_code);
-                PrimeMeridian primeMeridian = factory.createPrimeMeridian(name, unit, longitude);
+                final CharSequence prp = pack(name, code, remarks);
+                PrimeMeridian primeMeridian = factory.createPrimeMeridian(prp, unit, longitude);
                 returnValue = (PrimeMeridian) ensureSingleton(primeMeridian, returnValue, code);
             }
             result.close();
@@ -700,7 +745,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final PreparedStatement stmt;
             stmt = prepareStatement("Datum", "select DATUM_NAME,"
                                              + " DATUM_TYPE,"
-                                             + " ELLIPSOID_CODE"
+                                             + " ELLIPSOID_CODE,"
+                                             + " REMARKS"
                                              + " from [Datum]"
                                              + " where DATUM_CODE = ?");
             stmt.setString(1, code);
@@ -711,31 +757,34 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
              * paranoiac check and verify if there is more records.
              */
             while (result.next()) {
-                final String name = getString(result, 1, code);
-                final String type = getString(result, 2, code);
+                final String name    = getString(result, 1, code);
+                final String type    = getString(result, 2, code);
+                final String ellps   = getString(result, 3, code);
+                final String remarks = result.getString( 4);
+                final CharSequence prp = pack(name, code, remarks);
                 final Datum datum;
                 if (type.equalsIgnoreCase("vertical")) {
                     /*
                      * Vertical datum type. Maps to "ELLIPSOIDAL".
                      */
                     final DatumType.Vertical dtype = DatumType.Vertical.ELLIPSOIDAL; // TODO
-                    datum = factory.createVerticalDatum(name, dtype);
+                    datum = factory.createVerticalDatum(prp, dtype);
                 } else if (type.equalsIgnoreCase("geodetic")) {
                     /*
                      * Horizontal datum type. Maps to "GEOCENTRIC".
                      */
-                    final Ellipsoid         ellipsoid = createEllipsoid(getString(result, 3, code));
+                    final Ellipsoid         ellipsoid = createEllipsoid(ellps);
                     final WGS84ConversionInfo[] infos = createWGS84ConversionInfo(code);
                     final WGS84ConversionInfo mainInf = (infos.length!=0) ? infos[0] : null;
                     final DatumType.Horizontal  dtype = DatumType.Horizontal.GEOCENTRIC; // TODO
                     // TODO: on utilise la premiere info seulement pour le moment.
-                    datum = factory.createHorizontalDatum(name, dtype, ellipsoid, mainInf);
+                    datum = factory.createHorizontalDatum(prp, dtype, ellipsoid, mainInf);
                 } else if (type.equalsIgnoreCase("engineering")) {
                     /*
                      * Local datum type.
                      */
                     // TODO
-                    //return factory.createLocalDatum(name, new DatumType.Local("bidon",0,0));
+                    //return factory.createLocalDatum(prp, new DatumType.Local("bidon",0,0));
                     result.close();
                     throw new UnsupportedOperationException("DatumType.Local not supported.");
                 } else {
@@ -886,7 +935,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                                + " CS.COORD_SYS_CODE,"
                                                + " COORD_REF_SYS_NAME,"
                                                + " PRIME_MERIDIAN_CODE,"
-                                               + " Datum.DATUM_CODE"
+                                               + " Datum.DATUM_CODE,"
+                                               + " CRS.REMARKS"
                                                + " from [Coordinate Reference System] as CRS,"
                                                + " [Coordinate System] as CS,"
                                                + " [Datum]"
@@ -906,10 +956,12 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String          name = getString(result, 3, code);
                 final String primeMeridian = getString(result, 4, code);
                 final String         datum = getString(result, 5, code);
+                final String       remarks = result.getString( 6);
                 final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
                 final Unit            unit = createUnit2D(coordSysCode);
+                final CharSequence     prp = pack(name, code, remarks);
                 final CoordinateSystem coordSys;
-                coordSys = factory.createGeographicCoordinateSystem(name, unit,
+                coordSys = factory.createGeographicCoordinateSystem(prp, unit,
                                             createHorizontalDatum(datum),
                                             createPrimeMeridian(primeMeridian),
                                             axisInfos[0], axisInfos[1]);
@@ -945,7 +997,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                        + " CRS.SOURCE_GEOGCRS_CODE,"
                                        + " CO.COORD_OP_NAME,"
                                        + " COM.COORD_OP_METHOD_NAME,"
-                                       + " CRS.PROJECTION_CONV_CODE"
+                                       + " CRS.PROJECTION_CONV_CODE,"
+                                       + " CRS.REMARKS"
                                        + " from [Coordinate Reference System] as CRS,"
                                        + " [Coordinate System] as CS,"
                                        + " [Coordinate_Operation] as CO,"
@@ -969,7 +1022,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String   operationName =               getString(result, 5, code);
                 final String  classification = fromEPSGtoOGC(getString(result, 6, code));
                 final Parameter[] parameters = getParameter (getString(result, 7, code));
+                final String         remarks = result.getString(8);
                 final AxisInfo[]   axisInfos = getAxisInfo(coordSysCode, dimension);
+                final CharSequence       prp = pack(name, code, remarks);
                 final ParameterList list = factory.createProjectionParameterList(classification);
                 for (int i=0; i<parameters.length; i++) {
                     parameters[i].setParameter(list);
@@ -986,7 +1041,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                                                        classification, list);
                 final Unit unit = createUnit2D(coordSysCode);
                 final CoordinateSystem coordSys;
-                coordSys = factory.createProjectedCoordinateSystem(name, gcs, projection, unit,
+                coordSys = factory.createProjectedCoordinateSystem(prp, gcs, projection, unit,
                                                                    axisInfos[0], axisInfos[1]);
                 returnValue = (CoordinateSystem) ensureSingleton(coordSys, returnValue, code);
             }
@@ -1018,7 +1073,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             stmt = prepareStatement("VerticalCoordinateSystem", "select DIMENSION,"
                                                + " CS.COORD_SYS_CODE,"
                                                + " COORD_REF_SYS_NAME,"
-                                               + " DATUM_CODE"
+                                               + " DATUM_CODE,"
+                                               + " CRS.REMARKS"
                                                + " from [Coordinate Reference System] as CRS,"
                                                + " [Coordinate System] as CS"
                                                + " where COORD_REF_SYS_CODE = ?"
@@ -1035,9 +1091,11 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 final String  coordSysCode = getString(result, 2, code);
                 final String          name = getString(result, 3, code);
                 final String         datum = getString(result, 4, code);
+                final String       remarks = result.getString( 5);
                 final AxisInfo[] axisInfos = getAxisInfo(coordSysCode, dimension);
+                final CharSequence     prp = pack(name, code, remarks);
                 final CoordinateSystem  coordSys;
-                coordSys = factory.createVerticalCoordinateSystem(name,
+                coordSys = factory.createVerticalCoordinateSystem(prp,
                                         createVerticalDatum(datum),
                                         createUnit2D(coordSysCode), axisInfos[0]);
                 returnValue = (VerticalCoordinateSystem)ensureSingleton(coordSys,returnValue,code);
@@ -1070,7 +1128,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             stmt = prepareStatement("CompoundCoordinateSystem", "select COORD_REF_SYS_NAME,"
                                                + " COORD_REF_SYS_KIND,"
                                                + " CMPD_HORIZCRS_CODE,"
-                                               + " CMPD_VERTCRS_CODE"
+                                               + " CMPD_VERTCRS_CODE,"
+                                               + " REMARKS"
                                                + " from [Coordinate Reference System]"
                                                + " where COORD_REF_SYS_CODE = ?");
             stmt.setString(1, code);
@@ -1084,7 +1143,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                 }
                 final CoordinateSystem  cs1 = createCoordinateSystem(getString(result, 3, code));
                 final CoordinateSystem  cs2 = createCoordinateSystem(getString(result, 4, code));
-                CompoundCoordinateSystem cs = factory.createCompoundCoordinateSystem(name, cs1,cs2);
+                final CharSequence      prp = pack(name, code, result.getString(5));
+                CompoundCoordinateSystem cs = factory.createCompoundCoordinateSystem(prp, cs1,cs2);
                 returnValue = (CompoundCoordinateSystem) ensureSingleton(cs, returnValue, code);
             }
             result.close();
@@ -1352,12 +1412,54 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * GEOGCS["Luxembourg 1930", DATUM["Luxembourg 1930", <FONT face="Arial">etc...</FONT>
      * </pre></blockquote>
      *
+     * The following optional arguments are supported:
+     * <ul>
+     *   <li><code>-connection</code> set the EPSG database URL. The URL must conform to
+     *       {@link DriverManager#getConnection(String)} specification. The default value
+     *       is <code>jdbc:odbc:EPSG</code>. The specified URL is stored in system preferences
+     *       and will become the default URL for every calls to {@link #getDefault()}.</li>
+     *   <li><code>-driver</code> set driver class. The default value is
+     *       <code>sun.jdbc.odbc.JdbcOdbcDriver</code>. The specified classname is stored
+     *       in system preferences and will become the default URL for every calls to
+     *       {@link #getDefault()}.</li>
+     *   <li><code>-encoding</code> set the console encoding for this application output.
+     *       This value has no impact on <code>CoordinateSystemEPSGFactory</code> behavior.</li>
+     * </ul>
+     *
      * @param args A list of EPSG code to display.
      *             An arbitrary number of code can be specified on the command line.
      */
-    public static void main(final String [] args) {
+    public static void main(String [] args) {
+        final Arguments  arguments = new Arguments(args);
+        final PrintWriter      out = arguments.out;
+        final String     newDriver = arguments.getOptionalString("-driver");
+        final String newConnection = arguments.getOptionalString("-connection");
+        final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
+        if (newDriver != null) {
+            prefs.put(DRIVER, newDriver);
+        }
+        if (newConnection != null) {
+            prefs.put(CONNECTION, newConnection);
+        }
+        args = arguments.getRemainingArguments(Integer.MAX_VALUE);
+        if (args.length == 0) {
+            final String     driver = prefs.get(DRIVER, DEFAULT_DRIVER);
+            final String    connect = prefs.get(CONNECTION, DEFAULT_CONNECTION);
+            try {
+                final Driver drv = (Driver)Class.forName(driver).newInstance();
+                out.println(Resources.getResources(arguments.locale).getString(
+                            ResourceKeys.LOADED_JDBC_DRIVER_$3, drv.getClass().getName(),
+                                                    new Integer(drv.getMajorVersion()),
+                                                    new Integer(drv.getMinorVersion())));
+            } catch (Exception exception) {
+                out.println(exception);
+            }
+            out.print("Connection: \"");
+            out.print(connect);
+            out.println('"');
+            return;
+        }
         CoordinateSystemAuthorityFactory factory = null;
-        final PrintWriter out = new PrintWriter(System.out);
         try {
             try {
                 factory = CoordinateSystemEPSGFactory.getDefault();
