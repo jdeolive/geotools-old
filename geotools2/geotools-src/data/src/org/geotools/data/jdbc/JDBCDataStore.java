@@ -159,7 +159,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.15 2004/01/08 01:03:22 seangeo Exp $
+ * $Id: JDBCDataStore.java,v 1.16 2004/01/08 01:17:48 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     public static final String FID_GEN_AUTO = "auto";
@@ -446,22 +446,6 @@ public abstract class JDBCDataStore implements DataStore {
         return reader;
     }
 
-    private Set addAll(Set set, Object[] all) {
-        if (set == null) {
-            set = new HashSet();
-        }
-
-        if ((all == null) || (all.length == 0)) {
-            return set;
-        }
-
-        for (int i = 0; i < all.length; i++) {
-            set.add(all[i]);
-        }
-
-        return set;
-    }
-
     /**
      * Gets the list of attribute names required for both featureType and filter
      *
@@ -493,8 +477,8 @@ public abstract class JDBCDataStore implements DataStore {
         }
 
         Set set = new HashSet();
-        addAll(set, typeAttributes);
-        addAll(set, filterAttributes);
+        set.addAll(Arrays.asList(typeAttributes));
+        set.addAll(Arrays.asList(filterAttributes));
 
         if (set.size() == typeAttributes.length) {
             // filter required a subset of featureType attributes
@@ -549,8 +533,8 @@ public abstract class JDBCDataStore implements DataStore {
             String[] filterNames = DataUtilities.attributeNames(postFilter);
 
             Set set = new HashSet();
-            addAll(set, requestedNames);
-            addAll(set, filterNames);
+            set.addAll(Arrays.asList(requestedNames));
+            set.addAll(Arrays.asList(filterNames));
 
             if (set.size() == requestedNames.length) {
                 propertyNames = requestedNames;
