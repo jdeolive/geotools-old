@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultLayerModel.java,v 1.2 2002/08/01 21:54:33 camerons Exp $
+ * @version $Id: DefaultLayerModel.java,v 1.3 2002/08/04 10:49:09 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -150,14 +150,25 @@ public class DefaultLayerModel implements LayerModel {
     public void removeLayers(
             FeatureCollection[] layer)
     {
-        for (int i = 0; i < layer.length; i++) {
-            this.layers.remove(layer[i]);
+        if (layer!=null){
+            for (int i = 0; i < layer.length; i++) {
+                this.layers.remove(layer[i]);
+            }
+            fireLayerListChangedListener();
         }
-        fireLayerListChangedListener();
     }
-    
+
+    /**
+     * Return this model's list of layers.  If no layers are present, then
+     * null is returned.
+     * @return This model's list of layers.
+     */
     public FeatureCollection[] getLayers()
     {
-        return (FeatureCollection[])this.layers.toArray();
+        if (this.layers==null){
+            return null;
+        } else {
+            return (FeatureCollection[])this.layers.toArray();
+        }
     }
 }
