@@ -34,7 +34,6 @@ import org.geotools.shapefile.shapefile.*;
 
 import java.io.IOException;
 
-
 import java.net.URL;
 import java.util.*;
 
@@ -45,7 +44,7 @@ import java.util.Date;
 
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.19 2003/03/03 21:40:57 aaime Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.20 2003/03/04 21:22:52 ianschneider Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
