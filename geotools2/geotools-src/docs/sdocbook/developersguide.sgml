@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/10 21:26:14 $</date>
+    <date>$Date: 2002/12/10 23:08:37 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -178,7 +178,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: developersguide.sgml,v 1.22 2002/12/10 21:26:14 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: developersguide.sgml,v 1.23 2002/12/10 23:08:37 cholmesny Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -299,8 +299,9 @@ public class ThisClass {
 
               <mediaobject>
                 <imageobject>
-                  <imagedata format="PNG"
-                  fileref="images/developersguide/dir_structure.png" />
+                  <imagedata
+                  fileref="images/developersguide/dir_structure.png"
+                  format="PNG" />
                 </imageobject>
 
                 <textobject>
@@ -709,10 +710,12 @@ org.geotools.cts.level = INFO</programlisting>
           operate then this is the place to put it, the naming convention is:
           projectname/jars/jarname-version.jar</para>
 
-          <para>You can find the remote repository on the shell sever at
+          <para>You can find the remote repository on the shell sever
+          (shell.sourceforge.net) at
           /home/groups/g/ge/geotools/htdocs/gt2modules/extbin it has group
           permissions set so you should be able to modify it if you have
-          developer rights.</para>
+          developer rights. Be sure to set the appropriate permissions so all
+          can download it, and so other developers can modify it.</para>
 
           <para>So, for example, we use JTS verion 1.0 in a number of modules,
           you can find this jar online at:<ulink
@@ -732,6 +735,27 @@ org.geotools.cts.level = INFO</programlisting>
   &#60;version&#62;1.0&#60;/version&#62;
 &#60;/dependency&#62;</programlisting>
           </example>
+        </section>
+
+        <section>
+          <title>Testing with Maven</title>
+
+          <para>Maven complicates things on the logging front, as it does a
+          lot of redirection. By default the logs from testing end up in
+          /target/test-reports of each module sub-directory. There should be
+          xml and txt files for the results of each test. Be sure to check
+          both, as one of the wrinkles of maven makes it so the output
+          isn&#39;t always exactly the same. To have maven display the logging
+          as it tests instead of just writing to files set the
+          maven.junit.usefile property to false. To set a property, you can
+          either pass it in from the command line with the -D flag (maven
+          -Dmaven.junit.usefile=false) or set it in the build.properties file
+          (just add the line &#39;maven.junit.usefile=false&#39;). Another
+          helpful testing hint: in order to run only one test, call &#39;maven
+          test:single&#39; and set the testcase property to the full name
+          (org.geotools.package.ClassTest) of the test to run. If you are
+          having problems with logging output levels be sure to read section
+          2.5 on logging.</para>
         </section>
       </section>
     </section>
@@ -1371,78 +1395,6 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
 
       <para>Poseidon can be installed into <emphasis>Netbeans</emphasis> as a
       module. Refer to Poseidon download instructions for more details.</para>
-    </section>
-
-    <section>
-      <title>Maven</title>
-
-      <section>
-        <title>Introduction</title>
-
-        <para>To do</para>
-      </section>
-
-      <section>
-        <title>Basics</title>
-
-        <para>To do</para>
-      </section>
-
-      <section>
-        <title>Testing with Maven</title>
-
-        <para>Maven complicates things on the logging front, as it does a lot
-        of redirection. By default the logs from testing end up in
-        /target/test-reports of each module sub-directory. There should be xml
-        and txt files for the results of each test. Be sure to check both, as
-        one of the wrinkles of maven makes it so the output isn&#39;t always
-        exactly the same. To have maven display the logging as it tests
-        instead of just writing to files set the maven.junit.usefile property
-        to false. To set a property, you can either pass it in from the
-        command line with the -D flag (maven -Dmaven.junit.usefile=false) or
-        set it in the build.properties file (just add the line
-        &#39;maven.junit.usefile=false&#39;). Another helpful testing hint: in
-        order to run only one test, call &#39;maven test:single&#39; and set
-        the testcase property to the full name
-        (org.geotools.package.ClassTest) of the test to run. If you are having
-        problems with logging output levels be sure to read section 2.5 on
-        logging.</para>
-      </section>
-
-      <section>
-        <title>Adding jars to Maven</title>
-
-        <para>Maven handles jars by putting them in its repository, located at
-        MAVEN_HOME/repository. In order to add a jar locally, you must add the
-        jar to the proper directory structure in the repository and then add a
-        dependancy in your project.xml file. For example, for a jar named
-        myJar-2.1.jar, first create a folder named myJar in
-        MAVEN_HOME/repository directory. Then create a directory called jars
-        under myJar, and copy myJar-2.1.jar into that directory. Then in the
-        project.xml file for the directory, find the dependencies section and
-        add another dependancy tag, with &#60;id&#62;myJar&#60;/id&#62; and
-        &#60;version&#62;2.1&#60;/version&#62;. The id and name tags must
-        reflect the jar stored in the repository.</para>
-
-        <para>To add jars to the central geotools repository, so that others
-        can download the jar with maven, you must have developer access. If
-        you don&#39;t, then email geotools-devel@lists.sourceforge.net with
-        your contribution, and a kind geotools developer will help you out.
-        With developer access you need to scp the jar to
-        /home/groups/g/ge/geotools/htdocs/gt2modules/extbin/&#39;jarname&#39;/jars/&#39;jarname-x.y.z.jar&#39;.
-        The easiest way to do this is to scp the jar to your homespace at
-        sourceforge: username@shell.sourceforge.net. Then ssh to
-        shell.sourceforge.net, and navigate to
-        /home/groups/g/ge/geotools/htdocs/gt2modules/extbin. Create a
-        directory with the same name as your jar, and then create a directory
-        named jars within it. Then copy the uploaded jar from your home
-        directory to the jars directory. Be sure to change the group to
-        geotools (chgrp -R &#39;jarname&#39; from the extbin directory) and
-        the permissions on the jar (chmod 775 &#39;jarname-x.y.z.jar&#39;) so
-        that it can be properly downloaded and manipulated by other geotools
-        developers. And be sure to commit your project.xml file, with the
-        updated dependency.</para>
-      </section>
     </section>
   </section>
 </article>
