@@ -14,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/08/16 11:32:52 $</date>
+    <date>$Date: 2002/08/18 21:53:23 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -397,16 +397,16 @@ public class ThisClass {
       url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/overview.html">Sun&#39;s
       SDK documentation</ulink>.</para>
 
-      <para>Geotools use one logger per module. Logger is named using the
-      <filename>org.geotools</filename> prefix followed by the short module
-      name. For example the logger name for the GML Data Source module is
+      <para>Geotools uses one logger per module. Logger is named using the
+      <filename>org.geotools</filename> prefix followed by the module name.
+      For example the logger name for the GML Data Source module is
       <filename>org.geotools.gml</filename>. The logger name for the
       Coordinate Transformation Services module is <filename>org.geotools.cts</filename>.</para>
 
       <para>The logger should be declared in the class&#39;s static fields.</para>
 
       <example>
-        <title>Logger declaration</title>
+        <title>Logger declaratio</title>
 
         <programlisting>// J2SE dependencies
 import java.util.logging.Logger;
@@ -873,22 +873,31 @@ void example(int i) {
 
         <itemizedlist>
           <listitem>
-            <para>&#34;View over Filesystem&#34; is a &#34;must have&#34;
-            module of Netbeans. It allows you to mount each module within CVS
-            and is almost essential for geotools development within Netbeans.
-            The default Netbeans only allows you to mount one source directory
-            but geotools has a source directory for each geotools module.</para>
+            <para><filename>View over Filesystem</filename> is a &#34;must
+            have&#34; module of Netbeans. It allows you to mount each module
+            within CVS and is almost essential for geotools development within
+            Netbeans. The default Netbeans only allows you to mount one source
+            directory but geotools has a source directory for each geotools
+            module.</para>
           </listitem>
 
           <listitem>
-            <para>&#34;XML Editor&#34; is useful for editing and validating
-            documentation and Geographic Markup Language (GML) files.</para>
+            <para><filename>XML Editor</filename> is useful for editing and
+            validating documentation and Geographic Markup Language (GML)
+            files.</para>
           </listitem>
 
           <listitem>
-            <para>&#34;Poseidon&#34;. This is a Universal Markup Language
-            (UML) editor which we occasionally use to explain ideas about
-            design. You can get away without installing this.</para>
+            <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
+            is a Universal Markup Language (UML) editor which we occasionally
+            use to explain ideas about design. You can get away without
+            installing this.</para>
+          </listitem>
+
+          <listitem>
+            <para><filename>RefactorIt</filename> is a useful module for
+            changing many packages at once. See <xref linkend="refactorit" />
+            for more details.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -933,6 +942,40 @@ void example(int i) {
         modules will take precedance over the jar files and you will not need
         to do a full build during development.</para>
       </section>
+    </section>
+
+    <section>
+      <title id="refactorit">RefactorIt</title>
+
+      <para><ulink url="http://www.refactorit.com/">RefactorIt</ulink>
+      provides tools to:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para> research, probe and understand existing souce code,</para>
+        </listitem>
+
+        <listitem>
+          <para>move, organise and transform existing code,</para>
+        </listitem>
+
+        <listitem>
+          <para>and provide code metrics.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>More details can be found from the online help.</para>
+
+      <para>RefactorIt is commerial, but provides free licences for Open
+      Source projects like Geotools. See the RefactorIt web pages for details.
+      It can be plugged into a variety of IDEs, including
+      <filename>Netbeans</filename>.</para>
+
+      <para>Installation is fairly strait forward through <command>Tools
+      -&#62; RefactorIt -&#62; Project Options</command> in
+      <filename>netbeans</filename>, although setting up soucepath and
+      classpath is a bit of a pain in the arse if some of the geotools files
+      don&#39;t compile.</para>
     </section>
   </section>
 </article>
