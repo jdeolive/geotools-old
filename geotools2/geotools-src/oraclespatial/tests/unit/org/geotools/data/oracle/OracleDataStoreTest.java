@@ -64,8 +64,9 @@ public class OracleDataStoreTest extends TestCase {
         super.setUp();
         properties = new Properties();
         properties.load(new FileInputStream("test.properties"));
-        OracleConnectionFactory fact = new OracleConnectionFactory(properties.getProperty("host"), "1521", "TORAK");
-        fact.setLogin("sean", "sean");
+        OracleConnectionFactory fact = new OracleConnectionFactory(properties.getProperty("host"), 
+                properties.getProperty("port"), properties.getProperty("instance"));
+        fact.setLogin(properties.getProperty("user"), properties.getProperty("passwd"));
         cPool = fact.getConnectionPool();
         Connection conn = cPool.getConnection();
         System.out.println(conn.getTypeMap());
@@ -89,7 +90,7 @@ public class OracleDataStoreTest extends TestCase {
 
     public void testGetFeatureTypes() throws IOException {
         try {
-            DataStore ds = new OracleDataStore(cPool, "SEAN");
+            DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
             String[] fts = ds.getTypeNames();
             System.out.println(Arrays.asList(fts));
             assertEquals(3, fts.length);
@@ -101,7 +102,7 @@ public class OracleDataStoreTest extends TestCase {
 
     public void testGetSchema() throws Exception {
         try {
-            DataStore ds = new OracleDataStore(cPool, "SEAN");
+            DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
             FeatureType ft = ds.getSchema("ORA_TEST_POINTS");
             assertNotNull(ft);
             System.out.println(ft);
@@ -113,7 +114,7 @@ public class OracleDataStoreTest extends TestCase {
 
     public void testGetFeatureReader() throws Exception {
         try {
-            DataStore ds = new OracleDataStore(cPool, "SEAN");
+            DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
             FeatureType ft = ds.getSchema("ORA_TEST_POINTS");
             FeatureReader fr = ds.getFeatureReader(ft, null, Transaction.AUTO_COMMIT);
             int count = 0;
@@ -133,7 +134,7 @@ public class OracleDataStoreTest extends TestCase {
     }
 
     public void testGetFeatureWriter() throws Exception {
-        DataStore ds = new OracleDataStore(cPool, "SEAN");
+        DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"));
         FeatureWriter writer = ds.getFeatureWriter("ORA_TEST_POINTS", Filter.NONE, Transaction.AUTO_COMMIT);
         assertNotNull(writer);
 
