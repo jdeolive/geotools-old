@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<section id="corestyling">
+  <title id="styling">styling</title>
+
+  <figure>
+    <title>styling</title>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata fileref="images/core/styling.png" />
+      </imageobject>
+    </mediaobject>
+  </figure>
+</section>
