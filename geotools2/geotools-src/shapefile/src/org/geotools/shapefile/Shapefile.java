@@ -1,12 +1,9 @@
 package org.geotools.shapefile;
 
+import cmp.LEDataStream.LEDataInputStream;
+import com.vividsolutions.jts.geom.Geometry;
+import java.io.IOException;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.lang.*;
-import com.vividsolutions.jts.geom.*;
-import cmp.LEDataStream.*;
 
 /**
  *
@@ -43,53 +40,71 @@ public class Shapefile  {
     public static final int    UNDEFINED = -1;
     //Types 2,4,6,7 and 9 were undefined at time or writeing
     
-    private URL baseURL;
-    
+    private java.net.URL baseURL;
+    private boolean initialized = false;
+    private LEDataInputStream inStream = null;
+    private ShapefileHeader mainHeader = null;
+    private com.vividsolutions.jts.geom.Envelope bounds = null;
     /**
      * Creates and initialises a shapefile from a url
      * @param url The url of the shapefile
      */
-    public Shapefile(URL url){
+    public Shapefile(java.net.URL url){
         baseURL=url;
     }
     
     private LEDataInputStream getInputStream() throws IOException{
-        URLConnection uc = baseURL.openConnection();
+        if(initialized) return inStream;
+        java.net.URLConnection uc = baseURL.openConnection();
         int len = uc.getContentLength();
         if(len <=0){
             return null;
         }
-        BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
+        java.io.BufferedInputStream in = new java.io.BufferedInputStream(uc.getInputStream());
         LEDataInputStream sfile = new LEDataInputStream(in);
         return sfile;
     }
     
-    private LEDataOutputStream getOutputStream() throws IOException{
-        URLConnection connection = baseURL.openConnection();
+    private cmp.LEDataStream.LEDataOutputStream getOutputStream() throws IOException{
+
+        java.net.URLConnection connection = baseURL.openConnection();
         connection.setUseCaches(false);
         connection.setDoInput(true);
         connection.setDoOutput(true);
-        BufferedOutputStream in = new BufferedOutputStream(connection.getOutputStream());
-        LEDataOutputStream sfile = new LEDataOutputStream(in);
+        java.io.BufferedOutputStream in = new java.io.BufferedOutputStream(connection.getOutputStream());
+        cmp.LEDataStream.LEDataOutputStream sfile = new cmp.LEDataStream.LEDataOutputStream(in);
         return sfile;
     }
-        
     
+    private LEDataInputStream setup() throws IOException{
+        if(initialized){
+            return inStream;
+        }
+        inStream = getInputStream();
+        if (inStream == null){
+            throw new IOException("Failed connection or no content for "+baseURL);
+        }
+        mainHeader = new ShapefileHeader(inStream);
+        bounds = mainHeader.getBounds();
+        initialized = true;
+        return inStream;
+    }
     /**
      * Initialises a shapefile from disk.
      * Use Shapefile(String) if you don't want to use LEDataInputStream directly (recomened)
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public GeometryCollection read(GeometryFactory geometryFactory) throws IOException,ShapefileException,TopologyException {
-        LEDataInputStream file = getInputStream();
+    public com.vividsolutions.jts.geom.GeometryCollection read(com.vividsolutions.jts.geom.GeometryFactory geometryFactory) throws IOException, ShapefileException, com.vividsolutions.jts.geom.TopologyException {
+        
+        LEDataInputStream file = setup();
         if(file==null) throw new IOException("Failed connection or no content for "+baseURL);
         
-        ShapefileHeader mainHeader = new ShapefileHeader(file);
+        
         if(mainHeader.getVersion() < VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") older that supported ("+VERSION+"), attempting to read anyway");}
         if(mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") newer that supported ("+VERSION+"), attempting to read anyway");}
         
         Geometry body;
-        ArrayList list = new ArrayList();
+        java.util.ArrayList list = new java.util.ArrayList();
         int type=mainHeader.getShapeType();
         ShapeHandler handler = getShapeHandler(type);
         if(handler==null)throw new ShapeTypeNotSupportedException("Unsuported shape type:"+type);
@@ -102,7 +117,7 @@ public class Shapefile  {
                 list.add(body);
             }
         }
-        catch(EOFException e){
+        catch(java.io.EOFException e){
             
         }
         return geometryFactory.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
@@ -112,8 +127,8 @@ public class Shapefile  {
      * Saves a shapefile to and output stream.
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public  void write(GeometryCollection geometries) throws IOException {
-        LEDataOutputStream file = getOutputStream();
+    public void write(com.vividsolutions.jts.geom.GeometryCollection geometries) throws IOException {
+        cmp.LEDataStream.LEDataOutputStream file = getOutputStream();
         ShapefileHeader mainHeader = new ShapefileHeader(geometries);
         mainHeader.write(file);
         int pos = 50; // header length in WORDS
@@ -138,12 +153,12 @@ public class Shapefile  {
     /*
     public synchronized void writeIndex(GeometryCollection geometries,LEDataOutputStream file) throws IOException {
         ShapefileHeader mainHeader = new ShapefileHeader(geometries);
-        
+     
         mainHeader.writeToIndex(file);
         int pos = 50;
         int len = 0;
         file.setLittleEndianMode(false);
-        
+     
         for(int i=0;i<records.size();i++){
             //if(DEBUG)System.out.println("Writing index Record "+i);
             ShapeRecord item = (ShapeRecord)records.elementAt(i);
@@ -152,16 +167,16 @@ public class Shapefile  {
             file.writeInt(len);
             //System.out.println(pos+" "+len+4);
             pos+=len+4;
-            
+     
         }
         file.flush();
         file.close();
     }
-    */
+     */
     
-   
-  
-   
+    
+    
+    
     
     /**
      * Returns a string for the shape type of index.
@@ -194,18 +209,18 @@ public class Shapefile  {
     }
     
     public static int getShapeType(Geometry geom){
-        if(geom instanceof Point) return Shapefile.POINT;
-        if(geom instanceof Polygon) return Shapefile.POLYGON;
-        if(geom instanceof MultiPolygon) return Shapefile.POLYGON;
-        if(geom instanceof LineString) return Shapefile.ARC;
-        if(geom instanceof MultiLineString) return Shapefile.ARC;
+        if(geom instanceof com.vividsolutions.jts.geom.Point) return Shapefile.POINT;
+        if(geom instanceof com.vividsolutions.jts.geom.Polygon) return Shapefile.POLYGON;
+        if(geom instanceof com.vividsolutions.jts.geom.MultiPolygon) return Shapefile.POLYGON;
+        if(geom instanceof com.vividsolutions.jts.geom.LineString) return Shapefile.ARC;
+        if(geom instanceof com.vividsolutions.jts.geom.MultiLineString) return Shapefile.ARC;
         return Shapefile.UNDEFINED;
     }
     
-    public synchronized void readIndex(InputStream is) throws IOException {
+    public synchronized void readIndex(java.io.InputStream is) throws IOException {
         LEDataInputStream file = null;
         try{
-            BufferedInputStream in = new BufferedInputStream(is);
+            java.io.BufferedInputStream in = new java.io.BufferedInputStream(is);
             file = new LEDataInputStream(in);
         }catch(Exception e){System.err.println(e);}
         ShapefileHeader head = new ShapefileHeader(file);
@@ -214,6 +229,21 @@ public class Shapefile  {
         file.setLittleEndianMode(false);
         file.close();
     }
+    
+    /** Getter for property bounds.
+     * @return Value of property bounds. - null if not known
+     */
+    public com.vividsolutions.jts.geom.Envelope getBounds() {
+        if (!initialized){
+            try {
+                setup();
+            } catch (IOException e){
+                return null;
+            }
+        }
+        return bounds;
+    }
+    
 }
 
 

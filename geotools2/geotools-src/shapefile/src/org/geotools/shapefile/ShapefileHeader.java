@@ -6,9 +6,7 @@
 
 package org.geotools.shapefile;
 
-import cmp.LEDataStream.*;
-import java.io.*;
-import com.vividsolutions.jts.geom.*;
+import com.vividsolutions.jts.geom.Envelope;
 
 /**
  *
@@ -24,7 +22,7 @@ public class ShapefileHeader{
     //private double[] bounds = new double[4];
     private Envelope bounds;
     
-    public ShapefileHeader(LEDataInputStream file) throws IOException {
+    public ShapefileHeader(cmp.LEDataStream.LEDataInputStream file) throws java.io.IOException {
         file.setLittleEndianMode(false);
         fileCode = file.readInt();
         if(DEBUG)System.out.println("Sfh->Filecode "+fileCode);
@@ -41,17 +39,19 @@ public class ShapefileHeader{
         version=file.readInt();
         shapeType=file.readInt();
        
-        //read in and for now ignore the bounding box
+        //read in and store the bounding box
+        double[] coords = new double[4];
         for(int i = 0;i<4;i++){
-            file.readDouble();
+            coords[i]=file.readDouble();
         }
+        bounds = new Envelope(coords[0],coords[2],coords[1],coords[3]);
         
         //skip remaining unused bytes
         file.setLittleEndianMode(false);//well they may not be unused forever...
         file.skipBytes(32);
     }
     
-    public ShapefileHeader(GeometryCollection geometries){
+    public ShapefileHeader(com.vividsolutions.jts.geom.GeometryCollection geometries){
         ShapeHandler handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
         int numShapes = geometries.getNumGeometries();
         shapeType = handle.getShapeType();
@@ -73,7 +73,7 @@ public class ShapefileHeader{
     
  
     
-    public void write(LEDataOutputStream file)throws IOException {
+    public void write(cmp.LEDataStream.LEDataOutputStream file) throws java.io.IOException {
         int pos = 0;
         file.setLittleEndianMode(false);
         file.writeInt(fileCode);

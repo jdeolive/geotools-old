@@ -91,4 +91,25 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
         //can't sorry
     }
     
+    /** gets the extent of this data source using the default speed of
+     * this datasource as set by the implementer.
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent() {
+        return new EnvelopeExtent(shapefile.getBounds());
+    }
+    
+    /** gets the extent of this data source using the speed of
+     * this datasource as set by the parameter.
+     * @param speed if true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but acurate extent
+     * will be returned
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent(boolean speed) {
+        return getExtent();
+    }
+    
 }
