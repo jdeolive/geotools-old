@@ -73,19 +73,6 @@ public class AttributeTypeTest extends TestCase {
         assertTrue(!typeA.equals(typeE));
     }
     
-    public void testClone() {
-        try{
-            AttributeType typeA = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
-            AttributeType typeB = (AttributeType)((DefaultAttributeType)typeA).clone();
-        }
-        catch(CloneNotSupportedException cnse){
-            //it isn't
-        }
-    }
-
-        
-        
-        
     public void testIsNillable(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals(true, type.isNillable());
