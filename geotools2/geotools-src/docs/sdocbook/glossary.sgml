@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet type="text/css"
+href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
+?>
+<!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
+"file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
+<article id="index">
+  <articleinfo>
+    <title>Geotools2 Glossary</title>
+
+    <author>
+      <firstname>Cameron</firstname>
+
+      <surname>Shorter</surname>
+    </author>
+
+    <date>$Date: 2002/10/18 10:35:54 $</date>
+
+    <abstract>
+      <para>Glossary of terms used in the Geotools2 project.</para>
+    </abstract>
+  </articleinfo>
+
+  <table>
+    <title>Glossary</title>
+
+    <tgroup cols="3">
+      <thead>
+        <row>
+          <entry>Term</entry>
+
+          <entry>Expanded Accronym</entry>
+
+          <entry>Description</entry>
+        </row>
+      </thead>
+
+      <tbody>
+        <row>
+          <entry>GT2</entry>
+
+          <entry><ulink url="http://geotools.org">GeoTools 2</ulink></entry>
+        </row>
+
+        <row>
+          <entry>J2ME</entry>
+
+          <entry>Java 2 Micro Edition</entry>
+        </row>
+
+        <row>
+          <entry>JTS</entry>
+
+          <entry><ulink url="http://www.vividsolutions.com/jts/jtshome.htm">Java
+          Topology Suite</ulink></entry>
+        </row>
+
+        <row>
+          <entry>GIS</entry>
+
+          <entry>Geographic Information Systems</entry>
+        </row>
+
+        <row>
+          <entry>GML</entry>
+
+          <entry>Geographic Markup Language</entry>
+
+          <entry>XML format for describing geographic features.</entry>
+        </row>
+
+        <row>
+          <entry>OGC</entry>
+
+          <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
+
+          <entry>Geographic Standards Body</entry>
+        </row>
+
+        <row>
+          <entry>SVG</entry>
+
+          <entry>Scalable Vector Graphics</entry>
+        </row>
+
+        <row>
+          <entry>SLD</entry>
+
+          <entry>Styled Layer Descriptor</entry>
+
+          <entry>XML document which describes how to draw specific features.
+          Eg, A road line may be drawn in red, 3 pixels wide.</entry>
+        </row>
+
+        <row>
+          <entry>WCS</entry>
+
+          <entry>Web Coverage Server</entry>
+        </row>
+
+        <row>
+          <entry>WFS</entry>
+
+          <entry>Web Feature Server</entry>
+
+          <entry>Return vector data about features.</entry>
+        </row>
+
+        <row>
+          <entry>WMS</entry>
+
+          <entry>Web Map Server</entry>
+
+          <entry>Return raster map images and point queries.</entry>
+        </row>
+      </tbody>
+    </tgroup>
+  </table>
+</article>
