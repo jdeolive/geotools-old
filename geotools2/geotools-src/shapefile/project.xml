@@ -24,7 +24,6 @@
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
       <roles>
-        <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
@@ -58,9 +57,10 @@
     <developer>
       <name>Ian Schneider</name>
       <id>en</id>
-      <email>ianschneiderw@ars.usda.gov</email>
+      <email>ian.schneider@ars.usda.gov</email>
       <organization>USDA/ARS</organization>
       <roles>
+        <role>Module Maintainer</role>
         <role>Java Developer</role>
       </roles>
     </developer>
