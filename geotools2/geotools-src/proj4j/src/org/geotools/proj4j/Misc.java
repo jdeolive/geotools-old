@@ -84,9 +84,7 @@ public class Misc {
                         //pj_errno = -16;
                         System.out.println("wrongly placed R: nl="+nl+" s="+s);
                         return Double.MAX_VALUE;
-                    }
-                    
-                    
+                    }                 
                     v = tv;
                     n = 4;
                     continue;
@@ -102,12 +100,6 @@ public class Misc {
             
             v += tv * vm[n];
             if(!tok.hasMoreTokens())return v;
-            //if (n < nl) {
-            //pj_errno = -16;
-            //	return Double.MAX_VALUE;
-            //}
-            //v += tv * vm[n];
-            //++s;
         }
         /* postfix sign */
         char end = work.charAt(work.length()-1);
