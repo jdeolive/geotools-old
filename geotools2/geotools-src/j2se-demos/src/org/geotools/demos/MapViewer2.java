@@ -21,14 +21,32 @@
 
 package org.geotools.demos;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
 import java.net.URL;
 import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import org.opengis.cs.CS_CoordinateSystem;
+import org.geotools.cs.Adapters;
+import org.geotools.cs.CoordinateSystemFactory;
+import org.geotools.cs.Datum;
+import org.geotools.cs.FactoryException;
+import org.geotools.cs.HorizontalDatum;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.MemoryDataSource;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeDefault;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFlat;
+import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.swing.MapPane2;
 import org.geotools.gui.tools.PanTool;
@@ -49,11 +67,14 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.4 2002/12/31 03:45:54 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.5 2003/01/19 11:14:07 camerons Exp $
  *
  */
 
 public class MapViewer2 extends javax.swing.JFrame {
+
+    /** Translates between coordinate systems */
+    private Adapters adapters = Adapters.getDefault();
 
     /**
      * The class used for identifying for logging.
@@ -62,8 +83,8 @@ public class MapViewer2 extends javax.swing.JFrame {
 
     /** Creates new form MapViewer2 */
     public MapViewer2() {
-        LOGGER.info("mapViewer graphics="+this.getGraphics());
         initComponents();
+        LOGGER.info("mapViewer graphics="+this.getGraphics());
         initComponents2();
     }
 
@@ -89,37 +110,147 @@ public class MapViewer2 extends javax.swing.JFrame {
      * Extra initialisation.
      */
     private void initComponents2() {
-        BoundingBox bbox = new BoundingBoxImpl(null,null);
-        LayerList layerList = new DefaultLayerList();
+        BoundingBox bbox;
+        Envelope envelope;
+        MapPane2 mapPane;
+        LayerList layerList;
+        Layer layer;
+        Tool tool;
         try {
-            DataSource datasource = new GMLDataSource(
-                ClassLoader.getSystemResource("org/geotools/demos/simple.gml"));
+            // Create a BoundingBox
+            //envelope=new Envelope(-89.0,89.0,0.0,179.0);
+            envelope=new Envelope(40, 300, 30, 350);
+             CS_CoordinateSystem cs = adapters.export(
+                CoordinateSystemFactory.getDefault(
+                    ).createGeographicCoordinateSystem(
+                        "WGS84",HorizontalDatum.WGS84));
+            bbox=new BoundingBoxImpl(envelope,cs);
+
+            // Create a DataSource
+            MemoryDataSource datasource = new MemoryDataSource();
+            populateDataSource(datasource);
+//            DataSource datasource = new GMLDataSource(
+//                ClassLoader.getSystemResource("/home/cameron/work/geotools2/geotools-src/j2se-demos/src/org/geotools/demos/simple.gml"));
+
+            // Create a Style
             StyleFactory styleFactory=StyleFactory.createStyleFactory();
             SLDStyle sldStyle = new SLDStyle(
                 styleFactory,
                 ClassLoader.getSystemResource("org/geotools/demos/simple.sld"));
             Style style=sldStyle.readXML();
-            Layer layer=new DefaultLayer(datasource,style);
+
+            // Create a LayerList and Layer
+            layerList = new DefaultLayerList();
+            layer=new DefaultLayer(datasource,style);
             layer.setTitle("funky layer");
             layerList.addLayer(layer);
-            Context context=new ContextImpl(
-                bbox,
-                layerList,
-                null,
-                null,
-                null,
-                null);
-            Tool tool=new PanTool();
-            MapPane2 mapPane = new MapPane2(tool, context);
-        } catch (Exception e){
-            LOGGER.warning("Exception: "+e+".  Unable to load GML.");
-        }
-        mapPane.setWidgetSize(new Rectangle(300,300));
 
-        mapPane.setBorder(new javax.swing.border.TitledBorder("MapPane Map"));
-        getContentPane().add(mapPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 300, 420));
-        //mapPane.setSize(400,400);
-        pack();
+            // Create a Context
+            Context context=new ContextImpl(
+                bbox,layerList,"defaultContext",null,null,null);
+
+            // Create MapPane and associate a Tool
+            tool=new PanTool();
+            mapPane = new MapPane2(tool, context);
+            mapPane.setWidgetSize(new Rectangle(300,300));
+            mapPane.setBorder(
+                new javax.swing.border.TitledBorder("MapPane Map"));
+            getContentPane().add(
+                mapPane,
+                new org.netbeans.lib.awtextra.AbsoluteConstraints(
+                    0, 0, 300, 420));
+            //mapPane.setSize(400,400);
+            pack();
+         } catch (Exception e){
+            LOGGER.warning("Exception: "+e+" initialising MapView.");
+        }
+   }
+
+    /**
+     * Create a test LineString.
+     * @param geomFac The geometry factory to use
+     * @param xoff The starting x postion
+     * @param yoff The starting y position
+     */
+    private LineString makeSampleLineString(
+        final GeometryFactory geomFac, 
+        double xoff, 
+        double yoff)
+    {
+        Coordinate[] linestringCoordinates = new Coordinate[8];
+        linestringCoordinates[0] = new Coordinate(50.0d+xoff,50.0d+yoff);
+        linestringCoordinates[1] = new Coordinate(60.0d+xoff,50.0d+yoff);
+        linestringCoordinates[2] = new Coordinate(60.0d+xoff,60.0d+yoff);
+        linestringCoordinates[3] = new Coordinate(70.0d+xoff,60.0d+yoff);
+        linestringCoordinates[4] = new Coordinate(70.0d+xoff,70.0d+yoff);
+        linestringCoordinates[5] = new Coordinate(80.0d+xoff,70.0d+yoff);
+        linestringCoordinates[6] = new Coordinate(80.0d+xoff,80.0d+yoff);
+        linestringCoordinates[7] = new Coordinate(130.0d+xoff,300.0d+yoff);
+        LineString line = geomFac.createLineString(linestringCoordinates);
+        
+        return line;
+    }
+
+    /**
+     * Add some features into a dataSouce
+     * @param dataSource The dataSource to populate
+     */
+    private void populateDataSource(
+        MemoryDataSource dataSource)throws Exception {
+        
+        // Request extent
+        Envelope ex = new Envelope(40, 300, 30, 350);
+        
+        GeometryFactory geomFac = new GeometryFactory();
+        LineString line = makeSampleLineString(geomFac,0,0);
+        AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
+        FeatureFactory lineFac = new FeatureFactory(lineType);
+        Feature lineFeature = lineFac.create(new Object[]{line});
+        
+        LineString line2 = makeSampleLineString(geomFac,100,0);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature2");
+        lineFac = new FeatureFactory(lineType);
+        Feature lineFeature2 = lineFac.create(new Object[]{line2});
+        
+        LineString line3 = makeSampleLineString(geomFac,150,0);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature3");
+        lineFac = new FeatureFactory(lineType);
+        Feature lineFeature3 = lineFac.create(new Object[]{line3});
+        
+//        Polygon polygon = makeSamplePolygon(geomFac,0,0);
+//        
+//        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
+//        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygon");
+//        FeatureFactory polygonFac = new FeatureFactory(polygonType);
+//        
+//        Feature polygonFeature = polygonFac.create(new Object[]{polygon});
+//        
+//        Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
+//        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest2");
+//        polygonFac = new FeatureFactory(polygonType);
+//        Feature polygonFeature2 = polygonFac.create(new Object[]{polygon2});
+//        
+//        Polygon polygon3 = makeSamplePolygon(geomFac,220,100);
+//        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest3");
+//        polygonFac = new FeatureFactory(polygonType);
+//        Feature polygonFeature3 = polygonFac.create(new Object[]{polygon3});
+//        
+//        
+//        Point point = makeSamplePoint(geomFac,140.0,140.0);
+//        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
+//        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
+//        FeatureFactory pointFac = new FeatureFactory(pointType);
+//        
+//        Feature pointFeature = pointFac.create(new Object[]{point});
+//        MemoryDataSource datasource = new MemoryDataSource();
+        dataSource.addFeature(lineFeature);
+        dataSource.addFeature(lineFeature2);
+        dataSource.addFeature(lineFeature3);
+//        datasource.addFeature(polygonFeature);
+//        datasource.addFeature(polygonFeature2);
+//        datasource.addFeature(polygonFeature3);
+//        datasource.addFeature(pointFeature);
     }
 
     /** Exit the Application */
