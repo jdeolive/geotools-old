@@ -144,5 +144,18 @@ public class EnvelopeExtent implements Extent {
         return new String(bounds.getMinX()+","+bounds.getMinY()+
         " "+bounds.getMaxX()+","+bounds.getMaxY());
     }
+    
+     /**
+     * Produces the smallest extent that will hold both the existing extent and that of the extent pased in
+     * TODO: Think about implecation of combining, new extent may contain areas which were in neither.
+     * @param other The extent to combine with this extent
+     * @return The new, larger, extent.
+     **/
+    public Extent combine(Extent other) {
+        Envelope total = new Envelope();
+        total.expandToInclude(this.getBounds());
+        total.expandToInclude(((EnvelopeExtent)other).getBounds());
+        return new EnvelopeExtent(total);
+    }
 }
 
