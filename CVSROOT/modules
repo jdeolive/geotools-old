@@ -26,7 +26,8 @@
 # spread out over the entire source repository.
 main geotools
 gettingstarted website/help
-release &gettingstarted geotools/src
+src geotools/src
+release &gettingstarted &src
 
 
 
