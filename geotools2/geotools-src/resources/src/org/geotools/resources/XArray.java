@@ -33,8 +33,11 @@
 package org.geotools.resources;
 
 // Miscellaneous
+import java.util.Locale;
 import java.lang.System;
 import java.lang.reflect.Array;
+import java.text.FieldPosition;
+import java.text.NumberFormat;
 
 
 /**
@@ -43,7 +46,7 @@ import java.lang.reflect.Array;
  * This class may be removed if JavaSoft provide some language construct
  * functionally equivalent to C/C++'s <code>realloc</code>.
  *
- * @version $Id: XArray.java,v 1.5 2003/05/23 17:57:22 desruisseaux Exp $
+ * @version $Id: XArray.java,v 1.6 2003/10/14 22:06:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XArray {
@@ -1016,5 +1019,30 @@ public final class XArray {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns a string representation of an array of numbers. Current implementation
+     * supports only primitive or subclasses of {@link Number}.
+     *
+     * @param  array The array to format.
+     * @param  locale The locale for formatting.
+     * @return The formatted array.
+     *
+     * @task TODO: The separator should be local-dependent.
+     * @task REVISIT: Should we implements this functionality in LineFormat instead?
+     */
+    public static String toString(final Object array, final Locale locale) {
+        final StringBuffer buffer = new StringBuffer();
+        final NumberFormat format = NumberFormat.getNumberInstance(locale);
+        final FieldPosition dummy = new FieldPosition(0);
+        final int length = Array.getLength(array);
+        for (int i=0; i<length; i++) {
+            if (i != 0) {
+                buffer.append(", "); // TODO: the separator should be local-dependent.
+            }
+            format.format(Array.get(array, i), buffer, dummy);
+        }
+        return buffer.toString();
     }
 }
