@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.6 2002/10/16 17:56:15 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.7 2002/10/28 11:32:39 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisDataSource implements org.geotools.data.DataSource {
@@ -304,7 +304,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    LOGGER.finer("about to encode");
 	    if (filter != null) {
 		try {    
-		    where = encoder.encode((AbstractFilter)filter);   
+		    where = encoder.encode(filter);   
 		} catch (SQLEncoderException e) { 
 		    LOGGER.fine("Encoder error" + e.getMessage());
 		}
