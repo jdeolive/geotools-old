@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/10 08:27:47 $</date>
+    <date>$Id: developersguide.sgml,v 1.8 2002/11/12 10:18:13 camerons Exp $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -246,9 +246,8 @@ public class ThisClass {
 
               <mediaobject>
                 <imageobject>
-                  <imagedata
-                  fileref="images/developersguide/dir_structure.png"
-                  format="PNG" />
+                  <imagedata format="PNG"
+                  fileref="images/developersguide/dir_structure.png" />
                 </imageobject>
 
                 <textobject>
@@ -465,14 +464,6 @@ org.geotools.cts.level = INFO</programlisting>
           <para>Separate out the Code examples from the Configuration
           examples.</para>
         </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
       </itemizedlist>
     </section>
 
@@ -500,10 +491,6 @@ org.geotools.cts.level = INFO</programlisting>
         <listitem>
           <para>insert the &#34;howto-build.html&#34; doc into here</para>
         </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
       </itemizedlist>
     </section>
 
@@ -515,18 +502,6 @@ org.geotools.cts.level = INFO</programlisting>
       <itemizedlist>
         <listitem>
           <para>Explain use of junit. Might be a link to another web site.</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-
-        <listitem>
-          <para></para>
         </listitem>
       </itemizedlist>
     </section>
@@ -929,6 +904,52 @@ void example(int i) {
       <filename>netbeans</filename>, although setting up soucepath and
       classpath is a bit of a pain in the arse if some of the geotools files
       don&#39;t compile.</para>
+    </section>
+
+    <section>
+      <title id="poseidon">Poseidon</title>
+
+      <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
+      is a Universal Markup Language (UML) editor. Using Poseidon you can
+      reverse engineer the Geotools2 code and view class diagrams, javadocs
+      and code using a powerful graphical interface. It is a good way to
+      quickly navigate through the Geotools2 design.</para>
+
+      <para>Poseidon can&#39;t revserse engineer too much of the code at once
+      because it sometimes runs out of memory, and sometimes freezes (which is
+      possibly due to running out of memory). Below is a few tips I used to
+      import Geotools2 files into Poseidon.</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>Increase Poseidon Memory Size</term>
+
+          <listitem>
+            <para>As explained in the <ulink
+            url="http://www.gentleware.de/support/faq.pl#e33">Poseidon FAQ</ulink>,
+            you can increase Poseidon memory by changing the parameter
+            &#34;-Xmx 96m&#34; to &#34;-Xm192 m&#34; in the Poseidon startup
+            script. This changes memory allocation from 96Meg to 192Meg.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Import a few modules at a time</term>
+
+          <listitem>
+            <para>For some reason, the <filename>cts-transform</filename>
+            module has problems being imported with other modules. I imported
+            the other modules by copying <filename>geotools2/geotools-src</filename>
+            to a temporary directory, removed the <filename>geotools2/geotools-src/cts-transform</filename>
+            directory, then imported <filename>geotools2/geotools-src</filename>.
+            Afterwards, I imported <filename>geotools2/geotools-src/cts-transform</filename>
+            seperately.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+
+      <para>Poseidon can be installed into <emphasis>Netbeans</emphasis> as a
+      module. Refer to Poseidon download instructions for more details.</para>
     </section>
   </section>
 </article>
