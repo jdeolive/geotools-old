@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.20 2003/12/19 00:23:37 jive Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.21 2004/01/14 22:34:18 jive Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -643,9 +643,15 @@ public class DefaultAttributeType implements AttributeType {
         public Geometric(String name, Class type, boolean nillable,
             int fieldLength, Object defaultValue, CoordinateReferenceSystem cs) {
             super(name, type, nillable, fieldLength, defaultValue);
+            
+            coordinateSystem = cs;
+            geometryFactory = cs == null ? CSGeometryFactory.DEFAULT : new CSGeometryFactory(cs);
+            
+            /*
             coordinateSystem = (cs != null) ? cs : LocalCoordinateSystem.CARTESIAN;
             geometryFactory = (cs == LocalCoordinateSystem.CARTESIAN)
                 ? CSGeometryFactory.DEFAULT : new CSGeometryFactory(cs);
+             */
         }
 
         public Geometric(GeometryAttributeType copy, CoordinateSystem override) {
@@ -692,7 +698,12 @@ public class DefaultAttributeType implements AttributeType {
  * Helper class used to force CS information on JTS Geometry
  */
 class CSGeometryFactory extends GeometryFactory {
-    static public GeometryFactory DEFAULT = new CSGeometryFactory(LocalCoordinateSystem.CARTESIAN);
+    
+    /**
+     * Temporary remove of CARESIAN as I cannot get LocalCoordinateSystem to work in Geoserver
+     */  
+    //static public GeometryFactory DEFAULT = new CSGeometryFactory(LocalCoordinateSystem.CARTESIAN);
+    static public GeometryFactory DEFAULT = new GeometryFactory();    
     static public PrecisionModel DEFAULT_PRECISON_MODEL = new PrecisionModel();
     private CoordinateReferenceSystem coordinateSystem;
 
