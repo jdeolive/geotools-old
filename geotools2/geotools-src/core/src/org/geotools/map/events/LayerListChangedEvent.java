@@ -23,9 +23,9 @@ import java.util.EventObject;
 import org.geotools.map.Layer;
 
  /**
- * Event data passed when a layer is added or removed from LayerModel.
+ * Event data passed when a layer is added or removed from LayerList.
  *
- * @version $Id: LayerListChangedEvent.java,v 1.2 2002/08/09 12:54:38 camerons Exp $
+ * @version $Id: LayerListChangedEvent.java,v 1.3 2002/08/16 22:07:20 camerons Exp $
  * @author Cameron Shorter
  */
 public class LayerListChangedEvent extends EventObject {

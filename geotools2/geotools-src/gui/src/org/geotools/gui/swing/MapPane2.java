@@ -31,8 +31,8 @@ import org.geotools.map.events.AreaOfInterestChangedListener;
 import org.geotools.map.AreaOfInterestModel;
 import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
-import org.geotools.map.LayerModel;
-import org.geotools.map.LayerModel;
+import org.geotools.map.LayerList;
+import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
 import org.geotools.datasource.extents.EnvelopeExtent;
@@ -43,11 +43,11 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.3 2002/08/04 10:51:01 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.4 2002/08/16 22:07:21 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
- * be stored with the MapModel/LayerModel because a user may want to display
+ * be stored with the MapModel/LayerList because a user may want to display
  * 2 maps which use the same data, but a different style.
  */
 
@@ -67,7 +67,7 @@ public class MapPane2 extends JPanel implements
     /**
      * The model which stores a list of layers.
      */
-    private LayerModel layerModel;
+    private LayerList layerList;
 
     /**
      * The areaOfInterest to be drawn by this map.
@@ -87,18 +87,18 @@ public class MapPane2 extends JPanel implements
      *
      * @param tool The tool to use with the MapPane.
      * parameter should be entered here.
-     * @param layerModel The layerModel where all the layers for this view are
+     * @param layerList The layerList where all the layers for this view are
      * kept.
      * @param areaOfInterestModel The model which stores the area of interest.
      * @param style The style used by this MapPane's renderer.
      */
     public MapPane2(
             Tool tool,
-            LayerModel layerModel,
+            LayerList layerList,
             AreaOfInterestModel areaOfInterestModel,
             Style style) {        
         this.tool=tool;
-        this.layerModel=layerModel;
+        this.layerList=layerList;
         this.areaOfInterestModel=areaOfInterestModel;
         this.style=style;
         this.renderer=new Java2DRenderer();
@@ -154,11 +154,11 @@ public class MapPane2 extends JPanel implements
     public void paintComponent(Graphics graphics)
     {
         renderer.setOutput(graphics, this.getBounds());
-        if ((layerModel!=null) && (layerModel.getLayers()!=null)){
-            for (int i=0;i<layerModel.getLayers().length;i++) {
+        if ((layerList!=null) && (layerList.getLayers()!=null)){
+            for (int i=0;i<layerList.getLayers().length;i++) {
                 try {
                     renderer.render(
-                            layerModel.getLayers()[i].getFeatures(
+                            layerList.getLayers()[i].getFeatures(
                                 new EnvelopeExtent(
                                     areaOfInterestModel.getAreaOfInterest())),
                             areaOfInterestModel.getAreaOfInterest(),

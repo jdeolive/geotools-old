@@ -20,12 +20,12 @@
 package org.geotools.map;
 
 /**
- * LayerModel stores DataSources associated with a geographic map.
+ * LayerList stores DataSources associated with a geographic map.
  * Geotools uses a Model-View-Control (MVC) design to control maps.
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerModel.java,v 1.4 2002/08/09 12:54:38 camerons Exp $
+ * @version $Id: LayerList.java,v 1.1 2002/08/16 22:07:20 camerons Exp $
  * @author Cameron Shorter
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer
  * makeFirst(layer) makLast(Layer)
@@ -35,7 +35,7 @@ import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Layer;
 
-public interface LayerModel {
+public interface LayerList {
     
     /**
      * Register interest in receiving a LayerListChangedEvent.  A
