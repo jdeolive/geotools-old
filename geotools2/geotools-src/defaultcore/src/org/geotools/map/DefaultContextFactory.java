@@ -23,7 +23,6 @@ import com.vividsolutions.jts.geom.Envelope;
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.ct.Adapters;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
 
@@ -36,17 +35,35 @@ import org.opengis.cs.CS_CoordinateSystem;
  * constructed directly; use {@link #createFactory} instead.
  *
  * @author Cameron Shorter
- * @version $Id: DefaultContextFactory.java,v 1.2 2003/08/20 20:51:16 cholmesny Exp $
+ * @version $Id: DefaultContextFactory.java,v 1.3 2003/08/20 21:46:33 desruisseaux Exp $
  */
 public class DefaultContextFactory extends ContextFactory {
-    /** Translates between coordinate systems API. */
-    private Adapters adapters = Adapters.getDefault();
-
     /**
      * Create an instance of ContextFactoryImpl.  Note that this constructor
      * should only be called from {@link #createFactory}.
      */
     public DefaultContextFactory() {
+    }
+
+    /**
+     * Create a bounding box. This method expect a Geotools 2 implementation of
+     * {@linkplain CoordinateSystem coordinate system} as argument, which help
+     * to avoid the creation of RMI objects when not needed.
+     *
+     * @param bounds The extent associated with the bounding box.
+     * @param coordinateSystem The coordinate system associated with the bounding box.
+     *
+     * @return A BoundingBox.
+     *
+     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     *
+     * @task REVISIT: Should we make this method public, or at least protected?
+     */
+    private BoundingBox createBoundingBox(final Envelope bounds,
+                                          final CoordinateSystem coordinateSystem)
+            throws IllegalArgumentException
+    {
+        return new DefaultBoundingBox(bounds, coordinateSystem);
     }
 
     /**
@@ -73,26 +90,18 @@ public class DefaultContextFactory extends ContextFactory {
      * {@inheritDoc}
      */
     public Context createContext() {
-        try {
-            CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
-            org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
-            Envelope envelope2 = new Envelope(envelope.getMinimum(0),
-                    envelope.getMaximum(0), envelope.getMinimum(1),
-                    envelope.getMaximum(1));
+        CoordinateSystem cs = GeographicCoordinateSystem.WGS84;
+        org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
+        Envelope envelope2 = new Envelope(envelope.getMinimum(0),
+                envelope.getMaximum(0), envelope.getMinimum(1),
+                envelope.getMaximum(1));
 
-            CS_CoordinateSystem cs1 = adapters.export(cs);
-
-            return createContext(createBoundingBox(envelope2, cs1),
-                createLayerList(), // empty LayerList
-                "", // title
-                "", // abstract
-                null, // keywords
-                ""); // contactInformation
-        } catch (java.rmi.RemoteException e) {
-            // TODO: We should not eat checked exception.
-            throw new java.lang.reflect.UndeclaredThrowableException(e,
-                "CS RemoteException.");
-        }
+        return createContext(createBoundingBox(envelope2, cs),
+            createLayerList(), // empty LayerList
+            "", // title
+            "", // abstract
+            null, // keywords
+            ""); // contactInformation
     }
 
     /**
