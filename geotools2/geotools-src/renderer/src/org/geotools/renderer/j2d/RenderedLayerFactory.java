@@ -54,7 +54,7 @@ import org.geotools.util.RangeSet;
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @version $Id: RenderedLayerFactory.java,v 1.13 2003/09/30 10:39:51 desruisseaux Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.14 2003/10/17 21:42:09 jmacgill Exp $
  * @author Andrea Aime
  * @author Martin Desruisseaux
  */
@@ -226,7 +226,7 @@ public class RenderedLayerFactory {
         }
 
         // add the current layer if not empty
-        if (geometries.getGeometries().size() > 0) {
+        if (geometries != null && geometries.getGeometries().size() > 0) {
             renderedLayers.add(new SLDRenderedGeometries(geometries));
         }
 
@@ -270,7 +270,17 @@ public class RenderedLayerFactory {
 
                 GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
                 renderedLayers.add(new RenderedGridCoverage(grid));
-            } else {
+            } 
+            else if (symb instanceof PointSymbolizer){
+                System.out.println("found a point symbolizer!");
+                renderedLayers.add(new StyledMark(feature));
+                //if (geometries.getGeometries().size() > 0) {
+                    //renderedLayers.add(new SLDRenderedMarks(geometries));
+                geometries = null;
+                //}
+                //do points
+            }
+            else {
                 SFSGeometry geometry = findGeometry(feature, symb);
 
                 if (geometry != null) {
