@@ -18,7 +18,7 @@ public class GMLFeatureCollectionHandler extends org.geotools.gml.GMLHandler {
     }
 
     public Geometry finish(GeometryFactory gf) {
-        System.out.println("building feature collection");
+        
         return (Geometry)gf.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
     }
     
@@ -27,7 +27,7 @@ public class GMLFeatureCollectionHandler extends org.geotools.gml.GMLHandler {
     }
     
     public void addGeometry(Geometry g) {
-        System.out.println("adding "+g+" to featurecollection");
+
         list.add(g);
     }
     

@@ -26,18 +26,24 @@ public class GMLCoordinatesHandler extends GMLHandler{
     }
     public void parseText(String s){
         StringTokenizer st = new StringTokenizer(s,",");
-        if(st.countTokens()>2){
-            System.out.println("problem parsing coordinate "+s);
+        if(st.countTokens()<2){
+            System.err.println("error parsing coord");
+            return;
         }else{
+            
             double x = Double.parseDouble(st.nextToken());
             double y = Double.parseDouble(st.nextToken());
-            System.out.println("adding coordinate in coords handler");
-            coordList.add(new Coordinate(x,y));
+            if(st.countTokens()==2){
+                coordList.add(new Coordinate(x,y));
+                return;
+            }
+            double z = Double.parseDouble(st.nextToken());
+            coordList.add(new Coordinate(x,y,z));
             
         }
         
     }
     public void addGeometry(Geometry g){}
     public void addCoordinate(Coordinate c){}
-
+    
 }

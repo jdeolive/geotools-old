@@ -18,12 +18,12 @@ public class GMLPointHandler extends GMLHandler {
     }
 
     public void addCoordinate(Coordinate coord){
-        System.out.println("adding coord "+coord+" to point" );
+
         c=coord;
     }
     
     public Geometry finish(GeometryFactory gf){
-        System.out.println("building Point using "+c.toString());
+
         return gf.createPoint(c);
     }
     

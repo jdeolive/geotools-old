@@ -31,12 +31,12 @@ public class GMLPolygonHandler extends org.geotools.gml.GMLHandler {
         if(g.getGeometryType().equalsIgnoreCase("LinearRing")){
             LinearRing ring = (LinearRing)g;
             Coordinate[] points= ring.getCoordinates();
-            if(cga.isCCW(points)){
-                System.out.println("adding hole");
+            if(!cga.isCCW(points)){
+                
                 holes.add(ring);
             }
             else{
-                System.out.println("setting outer");
+                
                 shell=ring;
             }
         }else{
