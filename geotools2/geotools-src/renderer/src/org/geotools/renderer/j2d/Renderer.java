@@ -107,7 +107,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.29 2003/05/28 10:21:46 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.30 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1413,7 +1413,7 @@ public class Renderer implements Renderer2D {
         /*
          * If this map took a long time to renderer, log a message.
          */
-        statistics.finish(this, Level.FINE);
+        statistics.finish(this);
     }
 
     /**

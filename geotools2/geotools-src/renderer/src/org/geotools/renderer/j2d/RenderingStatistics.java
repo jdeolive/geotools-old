@@ -51,7 +51,7 @@ import org.geotools.renderer.geom.Geometry; // For Javadoc
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.7 2003/05/28 10:21:46 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.8 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -62,6 +62,16 @@ final class RenderingStatistics {
      * all paint events.
      */
     private static final int TIME_THRESHOLD = 250;
+
+    /**
+     * The level for logging statistics.
+     */
+    private static final Level LEVEL = Level.FINE;
+
+    /**
+     * <code>true</code> if the statistics are loggable.
+     */
+    private boolean loggable;
 
     /**
      * While a rendering is in process, the starting time in milliseconds ellapsed
@@ -81,6 +91,15 @@ final class RenderingStatistics {
     private double resolution;
 
     /**
+     * A correction factor for the {@link #resolution} value, or 1 is none.
+     * Used when the resolution is provided in degrees: this scale will then
+     * be applied for transforming the resolution from degrees to meters. Of
+     * course, this is only a very approximative transformation, since real
+     * transformations are not linears.
+     */
+    private double resolutionScale = 1;
+
+    /**
      * Default constructor.
      */
     public RenderingStatistics() {
@@ -90,9 +109,22 @@ final class RenderingStatistics {
      * Initialize the statistics. Invoked by {@link Renderer#paint} only.
      */
     final void init() {
-        time = System.currentTimeMillis();
-        recomputed = rendered = total = 0;
-        resolution = 0;
+        loggable        = Renderer.LOGGER.isLoggable(LEVEL);
+        time            = System.currentTimeMillis();
+        recomputed      = rendered = total = 0;
+        resolution      = 0;
+        resolutionScale = 1;
+    }
+
+    /**
+     * Set the multiplication factor for the <code>resolution</code> argument in calls to
+     * {@link #addGeometry}. This is used when the resolution is provided in degrees: this
+     * scale will then be applied for transforming the resolution from degrees to meters.
+     * Of course, this is only a very approximative transformation, since real transformations
+     * are not linears.
+     */
+    final void setResolutionScale(final double scale) {
+        resolutionScale = scale;
     }
 
     /**
@@ -105,7 +137,7 @@ final class RenderingStatistics {
      *        (i.e. decompressed, decimated, projected and transformed).
      * @param resolution The mean resolution of rendered polygons.
      */
-    public void addGeometry(final int total, final int rendered, final int recomputed,
+    final void addGeometry(final int total, final int rendered, final int recomputed,
                             double resolution)
     {
         this.total      += total;
@@ -113,7 +145,7 @@ final class RenderingStatistics {
         this.recomputed += recomputed;
         resolution *= rendered;
         if (!Double.isNaN(resolution)) {
-            this.resolution += resolution;
+            this.resolution += resolution*resolutionScale;
         }
     }
 
@@ -122,21 +154,20 @@ final class RenderingStatistics {
      * a message with the specified level. Invoked by {@link Renderer#paint} only.
      *
      * @param renderer The caller.
-     * @param level The level for the message to be logged.
      */
-    final void finish(final Renderer renderer, final Level level) {
+    final void finish(final Renderer renderer) {
         resolution /= rendered;
         time = System.currentTimeMillis() - time;
-        if (time>=TIME_THRESHOLD && Renderer.LOGGER.isLoggable(level)) {
+        if (isLoggable() && time>=TIME_THRESHOLD) {
             final Locale       locale = renderer.getLocale();
             final Resources resources = Resources.getResources(locale);
             final String         name = renderer.getName(locale);
             final Double         time = new Double(this.time/1000.0);
             final LogRecord    record;
             if (total==0 || rendered==0) {
-                record = resources.getLogRecord(level, ResourceKeys.PAINTING_$2, name, time);
+                record = resources.getLogRecord(LEVEL, ResourceKeys.PAINTING_$2, name, time);
             } else {
-                record = new LogRecord(level,
+                record = new LogRecord(LEVEL,
                          resources.getString(ResourceKeys.PAINTING_$2, name, time) +
                          System.getProperty("line.separator", "\n") +
                          resources.getString(ResourceKeys.POLYGON_CACHE_USE_$3,
@@ -148,5 +179,12 @@ final class RenderingStatistics {
             record.setSourceMethodName("paint");
             Renderer.LOGGER.log(record);
         }
+    }
+
+    /**
+     * Returns <code>true</code> if the statistics are loggable.
+     */
+    final boolean isLoggable() {
+        return loggable;
     }
 }

@@ -89,7 +89,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.3 2003/05/28 18:06:27 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.4 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -533,6 +533,15 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     }
 
     /**
+     * Returns <code>true</code> if we are not allowed to change this geometry. Containers
+     * like {@link GeometryCollection} will test this flag in order to clone a child only
+     * if needed.
+     */
+    boolean isFrozen() {
+        return true;
+    }
+
+    /**
      * Return a clone of this geometry. The returned geometry will have
      * a deep copy semantic. However, subclasses should overrides this
      * method in such a way that both shapes will share as much internal
@@ -548,31 +557,44 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     }
 
     /**
-     * Clone this geometry only if it was not already done. This implementation is used in order to
-     * avoid duplicates clones when a {@link GeometryCollection} contains {@link GeometryProxy}.
+     * Clone this geometry. This method should never been invoked directly excepted only once
+     * in the final <code>clone()</code> method. Invoke {@link #resolveClone(Map)} instead.
+     * The <code>alreadyCloned</code> argument should not be modified inside this method,
+     * but should be passed to all invocation of {@link #resolveClone(Map)}.
+     *
+     * This method needs to be overriden only if the clone operation requires cloning of
+     * child geometries. In such case, the {@link #clone()} method should be overriden
+     * and declared final as below:
+     *
+     * <blockquote><pre>
+     * public final Object clone() {
+     *     return clone(new IdentityHashMap());
+     * }
+     * </pre></blockquote>
+     *
+     * This <code>clone()</code> method needs to be final because user's implementation would be
+     * ignored, since we override <code>clone(Map)</code> in a way which do not call this method
+     * anymore (it usually call <code>super.clone()</code> instead).
+     */
+    Object clone(final Map alreadyCloned) {
+        return clone();
+    }
+
+    /**
+     * Clone this geometry only if it was not already cloned. This implementation is used in order
+     * to avoid duplicate clones when a {@link GeometryCollection} contains {@link GeometryProxy}.
      *
      * @param alreadyCloned Maps the original geometries with their clones.
      *        This map should be an instance of {@link java.util.IdentityHashMap}.
      */
-    final Object clone(final Map alreadyCloned) {
-        if (alreadyCloned == null) {
-            return clone();
-        }
+    final Object resolveClone(final Map alreadyCloned) {
         Object copy = alreadyCloned.get(this);
         if (copy != null) {
             return copy;
         }
-        copy = doClone(alreadyCloned);
+        copy = clone(alreadyCloned);
         alreadyCloned.put(this, copy);
         return copy;
-    }
-
-    /**
-     * Clone this geometry. The <code>alreadyCloned</code> argument should not be modified
-     * inside this method, but should be passed to all invocation of {@link #clone(Map)}.
-     */
-    Object doClone(final Map alreadyCloned) {
-        return clone();
     }
 
     /**

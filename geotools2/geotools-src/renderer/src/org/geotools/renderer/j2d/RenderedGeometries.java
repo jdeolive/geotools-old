@@ -52,6 +52,7 @@ import javax.media.jai.GraphicsJAI;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Collection;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -76,7 +77,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -332,22 +333,6 @@ public class RenderedGeometries extends RenderedLayer {
             return Float.isNaN(z) ? 0 : z;
         }
     }
-
-    /**
-     * Gets the style from a geometry object, or <code>null</code> if none. If the geometry style
-     * is not an instance of of {@link Style2D} (for example if it came from a renderer targeting
-     * an other output device), set it to <code>null</code> in order to lets the garbage collector
-     * do its work. It will not hurt the foreigner rendering device, since the constructor cloned
-     * the geometries.
-     */
-    private static Style2D getStyle(final Geometry geometry) {
-        final Style style = geometry.getStyle();
-        if (style instanceof Style2D) {
-            return (Style2D) style;
-        }
-        geometry.setStyle(null);
-        return null;
-    }
         
     /**
      * Invoked automatically when a polyline is about to be draw. The default implementation
@@ -361,7 +346,7 @@ public class RenderedGeometries extends RenderedLayer {
     protected void paint(final Graphics2D graphics, final Shape polyline, final Style2D style) {
         // HACK: In a future version, the shape may not be a polyline instance.
         //       We should never cast to Polyline.
-        if (((Polyline) polyline).isClosed()) {
+        if ((polyline instanceof Polyline) && ((Polyline)polyline).isClosed()) {
             graphics.setPaint(foreground);
             graphics.fill(polyline);
             if (foreground.equals(contour)) {
@@ -370,6 +355,72 @@ public class RenderedGeometries extends RenderedLayer {
         }
         graphics.setPaint(contour);
         graphics.draw(polyline);
+    }
+
+    /*
+     * Recursively draw all geometries in the given collection. If one geometry is itself a
+     * collection, then this method will be invoked again in order to draw the geometries in
+     * the "child" collection which is in the "parent" collection.
+     */
+    private void paint(final Graphics2D       graphics,
+                       final Shape                clip,
+                       final float       minResolution,
+                       final float       maxResolution,
+                       final GeometryCollection toDraw,
+                       final Style2D      defaultStyle)
+    {
+        double meanResolution = 0;
+        int rendered=0, recomputed=0;
+        final boolean loggable = renderer.statistics.isLoggable();
+        final Collection polylines = toDraw.getGeometries();
+        for (final Iterator it=polylines.iterator(); it.hasNext();) {
+            final Geometry geometry = (Geometry)it.next();
+            if (clip.intersects(geometry.getBounds2D())) {
+                /*
+                 * Gets the style from the geometry object, or set it to the default style if the
+                 * geometry doesn't have a style. If the geometry style is not an instance of
+                 * {@link Style2D} (for example if it came from a renderer targeting an other
+                 * output device), set it to <code>null</code> in order to lets the garbage
+                 * collector do its work. It will not hurt the foreigner rendering device,
+                 * since the constructor cloned the geometries.
+                 */
+                final Style2D style;
+                final Style candidate = geometry.getStyle();
+                if (candidate instanceof Style2D) {
+                    style = (Style2D) candidate;
+                } else {
+                    geometry.setStyle(null);
+                    style = defaultStyle;
+                }
+                /*
+                 * Set the rendering resolution and paint the geometry, which mean invokes
+                 * this method recursively if the geometry is an other collection.
+                 */
+                float resolution = geometry.getRenderingResolution();
+                if (!(resolution>=minResolution && resolution<=maxResolution)) {
+                    resolution = (minResolution + maxResolution)/2;
+                    geometry.setRenderingResolution(resolution);
+                }
+                if (geometry instanceof GeometryCollection) {
+                    paint(graphics, clip, minResolution, maxResolution,
+                          (GeometryCollection)geometry, style);
+                } else {
+                    paint(graphics, geometry, style);
+                    if (loggable && geometry instanceof Polyline) {
+                        final int numPts = ((Polyline)geometry).getCachedPointCount();
+                        rendered += Math.abs(numPts);
+                        if (numPts < 0) {
+                            recomputed -= numPts;
+                        }
+                        meanResolution += resolution * Math.abs(numPts);
+                    }
+                }
+            }
+        }
+        if (rendered != 0) {
+            meanResolution /= rendered;
+            renderer.statistics.addGeometry(numPoints, rendered, recomputed, meanResolution);
+        }
     }
 
     /**
@@ -423,51 +474,30 @@ public class RenderedGeometries extends RenderedLayer {
                  * This factor has no impact on the rendering appareance. It is used for
                  * statistics purpose only, usually for logging.
                  */
-                final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometryCS);
-                if (ellipsoid != null) {
-                    final Unit xUnit = geometryCS.getUnits(0);
-                    final Unit yUnit = geometryCS.getUnits(1);
-                    final double R2I = 0.70710678118654752440084436210485; // sqrt(0.5)
-                    final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
-                    final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
-                    final double  dx = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleX0(tr), xUnit);
-                    final double  dy = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleY0(tr), yUnit);
-                    assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
-                    assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
-                    r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy) / r;
-                } else {
-                    r = 1;
+                if (renderer.statistics.isLoggable()) {
+                    final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(geometryCS);
+                    if (ellipsoid != null) {
+                        final Unit xUnit = geometryCS.getUnits(0);
+                        final Unit yUnit = geometryCS.getUnits(1);
+                        final double R2I = 0.70710678118654752440084436210485; // sqrt(0.5)
+                        final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
+                        final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
+                        final double  dx = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleX0(tr), xUnit);
+                        final double  dy = Unit.DEGREE.convert(R2I/XAffineTransform.getScaleY0(tr), yUnit);
+                        assert !Double.isNaN( x) && !Double.isNaN( y) : bounds;
+                        assert !Double.isNaN(dx) && !Double.isNaN(dy) : tr;
+                        r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy) / r;
+                    } else {
+                        r = 1;
+                    }
+                    renderer.statistics.setResolutionScale(r);
                 }
                 /*
-                 * Now draw all polylines. If polyline's rendering resolution is not in current
-                 * bounds, then a new rendering resolution will be set, which will probably flush
-                 * the cache. 'renderer' and 'recomputed' hold statistics about cache activity.
+                 * Now recursively draw all polylines. If polyline's rendering resolution
+                 * is not in current bounds, then a new rendering resolution will be set,
+                 * which will probably flush the cache.
                  */
-                double meanResolution = 0;
-                int rendered=0, recomputed=0;
-                final List polylines = toDraw.getPolylines();
-                final int count = polylines.size();
-                for (int i=0; i<count; i++) {
-                    final Polyline polyline = (Polyline)polylines.get(i);
-                    synchronized (polyline) {
-                        if (clip.intersects(polyline.getBounds2D())) {
-                            float resolution = polyline.getRenderingResolution();
-                            if (!(resolution>=minResolution && resolution<=maxResolution)) {
-                                resolution = (minResolution + maxResolution)/2;
-                                polyline.setRenderingResolution(resolution);
-                            }
-                            paint(graphics, polyline, getStyle(polyline));
-                            final int numPts = polyline.getCachedPointCount();
-                            rendered += Math.abs(numPts);
-                            if (numPts < 0) {
-                                recomputed -= numPts;
-                            }
-                            meanResolution += resolution * Math.abs(numPts);
-                        }
-                    }
-                }
-                meanResolution /= rendered;
-                renderer.statistics.addGeometry(numPoints, rendered, recomputed, meanResolution*r);
+                paint(graphics, clip, minResolution, maxResolution, toDraw, null);
             }
             graphics.setStroke(oldStroke);
             graphics.setPaint (oldPaint);

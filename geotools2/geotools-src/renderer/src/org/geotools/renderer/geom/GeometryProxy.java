@@ -44,6 +44,7 @@ import java.awt.geom.FlatteningPathIterator;
 // Miscellaneous
 import java.util.Map;
 import java.util.Locale;
+import java.util.IdentityHashMap;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
@@ -58,7 +59,7 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.2 2003/05/28 18:06:27 desruisseaux Exp $
+ * @version $Id: GeometryProxy.java,v 1.3 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeometryProxy extends Geometry {
@@ -338,21 +339,32 @@ public class GeometryProxy extends Geometry {
     }
 
     /**
-     * Return a clone of this geometry. The returned geometry will have
-     * a deep copy semantic. However, subclasses should overrides this
-     * method in such a way that both shapes will share as much internal
-     * arrays as possible, even if they use differents coordinate systems.
+     * Returns <code>true</code> if we are not allowed to change this geometry.
+     * This method forwards the call to the wrapped geometry.
      */
-    public Object clone() {
-        return doClone(null);
+    boolean isFrozen() {
+        return geometry.isFrozen();
+    }
+
+    /**
+     * Return a clone of this geometry. The returned geometry will have a deep copy semantic.
+     * This method is <code>final</code> for implementation reason.
+     */
+    public final Object clone() {
+        /*
+         * This <code>clone()</code> method needs to be final because user's implementation would be
+         * ignored, since we override <code>clone(Map)</code> in a way which do not call this method
+         * anymore. It have to call <code>super.clone()</code> instead.
+         */
+        return clone(new IdentityHashMap());
     }
 
     /**
      * Clone this geometry, trying to avoid cloning twice the wrapped geometry.
      */
-    Object doClone(final Map alreadyCloned) {
+    synchronized Object clone(final Map alreadyCloned) {
         final GeometryProxy copy = (GeometryProxy) super.clone();
-        copy.geometry = (Geometry) geometry.clone(alreadyCloned);
+        copy.geometry = (Geometry) geometry.resolveClone(alreadyCloned);
         return copy;
     }
 }

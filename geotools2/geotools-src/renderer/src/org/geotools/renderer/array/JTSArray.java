@@ -34,6 +34,7 @@ package org.geotools.renderer.array;
 
 // J2SE dependencies
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Coordinate;
@@ -50,7 +51,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  * class wrap directly this {@link LineString} internal array,  in order to avoid object creation
  * and copies.
  *
- * @version $Id: JTSArray.java,v 1.6 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: JTSArray.java,v 1.7 2003/05/29 18:11:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -191,7 +192,32 @@ public final class JTSArray extends PointArray implements RandomAccess {
     public final PointIterator iterator(final int index) {
         return new JTSIterator(coords, index+lower, upper);
     }
-    
+
+    /**
+     * Returns the bounding box of all <var>x</var> and <var>y</var> ordinates.
+     * If this array is empty, then this method returns <code>null</code>.
+     */
+    public final Rectangle2D getBounds2D() {
+        double xmin = Double.POSITIVE_INFINITY;
+        double xmax = Double.NEGATIVE_INFINITY;
+        double ymin = Double.POSITIVE_INFINITY;
+        double ymax = Double.NEGATIVE_INFINITY;
+        for (int i=lower; i<upper; i++) {
+            final Coordinate coord = coords[i];
+            final double x = coord.x;
+            final double y = coord.y;
+            if (x<xmin) xmin=x;
+            if (x>xmax) xmax=x;
+            if (y<ymin) ymin=y;
+            if (y>ymax) ymax=y;
+        }
+        if (xmin<=xmax && ymin<=ymax) {
+            return new Rectangle2D.Double(xmin, ymin, xmax-xmin, ymax-ymin);
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Retourne un tableau enveloppant les mêmes points que le tableau courant,
      * mais des index <code>lower</code> inclusivement jusqu'à <code>upper</code>

@@ -54,7 +54,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.6 2003/05/28 18:06:27 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.7 2003/05/29 18:11:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -64,7 +64,7 @@ public final class Clipper {
      * Map of polylines already clipped. Used in order to avoid clipping the
      * same polyline twice when some {@link GeometryProxy} objects exists.
      */
-    private final Map alreadyClipped = new IdentityHashMap(101);
+    private final Map alreadyClipped = new IdentityHashMap();
 
     /**
      * Coordinate system of {@link #mapClip}.

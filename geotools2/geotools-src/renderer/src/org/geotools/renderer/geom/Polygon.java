@@ -34,13 +34,17 @@
 package org.geotools.renderer.geom;
 
 // J2SE dependencies
-import java.util.Locale;
-import java.util.Arrays;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+
+// Collections
+import java.util.Map;
+import java.util.Locale;
+import java.util.Arrays;
+import java.util.IdentityHashMap;
 
 // Geotools dependencies
 import org.geotools.math.Statistics;
@@ -56,7 +60,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * A polygon bounded by one exterior ring (the &quot;shell&quot;) and zero or more interior rings
  * (the &quot;holes&quot;). Shell and holes are stored as {@link Polyline} objects.
  *
- * @version $Id: Polygon.java,v 1.12 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.13 2003/05/29 18:11:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends Polyline {
@@ -456,6 +460,32 @@ public class Polygon extends Polyline {
                       Arrays.equals(this.holes, that.holes);
         }
         return false;
+    }
+
+    /**
+     * Return a clone of this geometry. The returned geometry will have a deep copy semantic.
+     * This method is <code>final</code> for implementation reason.
+     */
+    public final Object clone() {
+        /*
+         * This <code>clone()</code> method needs to be final because user's implementation would be
+         * ignored, since we override <code>clone(Map)</code> in a way which do not call this method
+         * anymore. It have to call <code>super.clone()</code> instead.
+         */
+        return clone(new IdentityHashMap());
+    }
+
+    /**
+     * Clone this geometry, trying to avoid cloning twice the chlid geometries.
+     */
+    synchronized Object clone(final Map alreadyCloned) {
+        final Polygon copy = (Polygon) super.clone();
+        if (copy.holes != null) {
+            for (int i=copy.holes.length; --i>=0;) {
+                copy.holes[i] = (Polyline) copy.holes[i].resolveClone(alreadyCloned);
+            }
+        }
+        return copy;
     }
 
     /**
