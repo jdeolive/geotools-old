@@ -41,7 +41,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/statepop.shp");
+            URL url = new URL("file:////"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             GeometryCollection shapes = shapefile.read(new GeometryFactory());
@@ -70,7 +70,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/pointtest.shp");
+            URL url = new URL("file:////"+dataFolder+"/pointtest.shp");
             System.out.println("Testing ability to load "+url);
             URLConnection uc = url.openConnection();
             BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
@@ -95,7 +95,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/polygontest.shp");
+            URL url = new URL("file:////"+dataFolder+"/polygontest.shp");
             System.out.println("Testing ability to load "+url);
             
             Shapefile shapefile = new Shapefile(url);
@@ -118,7 +118,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/polygontest.shp");
+            URL url = new URL("file:////"+dataFolder+"/polygontest.shp");
             System.out.println("Testing ability to load "+url);
             
             Shapefile shapefile = new Shapefile(url);
@@ -146,7 +146,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/holeTouchEdge.shp");
+            URL url = new URL("file:////"+dataFolder+"/holeTouchEdge.shp");
             System.out.println("Testing ability to load "+url);
             
             Shapefile shapefile = new Shapefile(url);
@@ -173,7 +173,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/extraAtEnd.shp");
+            URL url = new URL("file:////"+dataFolder+"/extraAtEnd.shp");
             System.out.println("Testing ability to load "+url);
             
             Shapefile shapefile = new Shapefile(url);

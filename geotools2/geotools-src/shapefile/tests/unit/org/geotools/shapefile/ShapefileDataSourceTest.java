@@ -43,7 +43,7 @@ public class ShapefileDataSourceTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/statepop.shp");
+            URL url = new URL("file:////"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
@@ -76,10 +76,10 @@ public class ShapefileDataSourceTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/statepop.shp");
+            URL url = new URL("file:////"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
-            url = new URL("file:///"+dataFolder+"/statepop");
+            url = new URL("file:////"+dataFolder+"/statepop");
             //DbaseFileReader dbf = new DbaseFileReader(url.getFile());
             ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
             FeatureCollection table = new FeatureCollectionDefault();
