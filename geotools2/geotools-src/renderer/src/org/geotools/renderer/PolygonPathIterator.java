@@ -43,7 +43,7 @@ import java.util.Iterator;
 /**
  * Itérateur balayant les points d'un polygone ou d'un isobath.
  *
- * @version $Id: PolygonPathIterator.java,v 1.1 2003/01/14 23:10:44 desruisseaux Exp $
+ * @version $Id: PolygonPathIterator.java,v 1.2 2003/01/29 23:18:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class PolygonPathIterator implements PathIterator {
@@ -59,8 +59,7 @@ final class PolygonPathIterator implements PathIterator {
     private Polygon polygon;
 
     /**
-     * Transformation a appliquer aux coordonnées
-     * (rotation, translation, échelle...)
+     * Transformation a appliquer aux coordonnées (rotation, translation, échelle...).
      */
     private final AffineTransform transform;
 
@@ -71,8 +70,13 @@ final class PolygonPathIterator implements PathIterator {
     private float[] array;
 
     /**
-     * Index de la prochaine valeur à retourner
-     * dans le tableau {@link #array}.
+     * Number of valid elements in {@link #array}. This is twice the number of valid points.
+     */
+    private int length;
+    
+
+    /**
+     * Index de la prochaine valeur à retourner dans le tableau {@link #array}.
      */
     private int index;
 
@@ -83,12 +87,14 @@ final class PolygonPathIterator implements PathIterator {
      * @param transform Transformation affine facultative (peut être nulle).
      */
     public PolygonPathIterator(final Polygon polygon, final AffineTransform transform) {
+        final PolygonCache cache = polygon.getCache();
         this.polygon   = polygon;
         this.polygons  = null;
         this.transform = transform;
-        this.array     = polygon.getDrawingArray(transform);
-        if (array==null || array.length==0) {
-            polygon.releaseDrawingArray(array);
+        this.array     = cache.getRenderingArray(polygon, transform);
+        this.length    = cache.getLength();
+        if (array==null || length==0) {
+            cache.releaseRenderingArray(array);
             array = null;
         }
     }
@@ -104,11 +110,13 @@ final class PolygonPathIterator implements PathIterator {
         this.transform = transform;
         while (polygons.hasNext()) {
             polygon = (Polygon) polygons.next();
-            array   = polygon.getDrawingArray(transform);
-            if (array!=null && array.length!=0) {
+            final PolygonCache cache = polygon.getCache();
+            array  = cache.getRenderingArray(polygon, transform);
+            length = cache.getLength();
+            if (array!=null && length!=0) {
                 break;
             }
-            polygon.releaseDrawingArray(array);
+            cache.releaseRenderingArray(array);
             array = null;
         }
     }
@@ -127,20 +135,25 @@ final class PolygonPathIterator implements PathIterator {
      * more points in that direction.
      */
     public void next() {
-        if (array!=null && (index+=2) >= array.length) {
-            if (index!=array.length || !polygon.isClosed()) {
-                polygon.releaseDrawingArray(array);
-                array = null;
-                index = 0;
+        if (array!=null && (index+=2) >= length) {
+            if (index!=length || !polygon.isClosed()) {
+                synchronized (polygon) {
+                    polygon.getCache().releaseRenderingArray(array);
+                    array = null;
+                    index = 0;
+                }
                 if (polygons != null) {
                     while (polygons.hasNext()) {
                         polygon = (Polygon) polygons.next();
-                        array   = polygon.getDrawingArray(transform);
-                        if (array!=null && array.length!=0) {
-                            return;
+                        synchronized (polygon) {
+                            final PolygonCache cache = polygon.getCache();
+                            array = cache.getRenderingArray(polygon, transform);
+                            if (array!=null && length!=0) {
+                                return;
+                            }
+                            cache.releaseRenderingArray(array);
+                            array = null;
                         }
-                        polygon.releaseDrawingArray(array);
-                        array = null;
                     }
                 }
             }

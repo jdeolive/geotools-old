@@ -44,6 +44,7 @@ import javax.media.jai.JAI;
 import javax.media.jai.PlanarImage; // For Javadoc
 
 // Geotools Dependencies
+import org.geotools.renderer.Isoline;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.CoordinateTransformationFactory;
 
@@ -54,7 +55,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.4 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.5 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -69,11 +70,22 @@ public final class Hints extends RenderingHints.Key {
             org.geotools.gp.Hints.COORDINATE_TRANSFORMATION_FACTORY;
 
     /**
-     * The rendering resolution in unit of view coordinate system (usually "real world" metres).
-     * A larger resolution speed up rendering, while a smaller resolution draw more precise map.
-     * By convention, a resolution of 0 means the finest resolution available.
+     * The finest rendering resolution in unit of dots (1/72 of inch). This is the unit used
+     * by the default {@linkplain RenderingContext#textCS Java2D coordinate system}. If an
+     * {@link Isoline} to be rendered has a finer resolution, it will be decimated in order
+     * to speed up rendering. By convention, a resolution of 0 means the finest resolution
+     * available.
      */
-    public static final RenderingHints.Key RESOLUTION = new Hints(0, Number.class);
+    public static final RenderingHints.Key FINEST_RESOLUTION = new Hints(0, Number.class);
+
+    /**
+     * The required rendering resolution in unit of dots (1/72 of inch). This is the unit
+     * used by the default {@linkplain RenderingContext#textCS Java2D coordinate system}.
+     * If an {@link Isoline} has been decimated to a worst resolution, it will be resampled
+     * in order to gets a more acceptable resolution. This value should be greater than
+     * {@link #FINEST_RESOLUTION}.
+     */
+    public static final RenderingHints.Key REQUIRED_RESOLUTION = new Hints(1, Number.class);
 
     /**
      * {@link Boolean#TRUE} if the renderer is allowed to prefetch data before to

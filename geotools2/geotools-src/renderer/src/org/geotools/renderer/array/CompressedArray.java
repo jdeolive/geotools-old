@@ -34,6 +34,7 @@ package org.geotools.renderer.array;
 
 // Divers
 import java.awt.geom.Point2D;
+import org.geotools.resources.XArray;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
 
@@ -41,7 +42,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Tableaux de points compressés. Les objets de cette classe sont immutables.
  *
- * @version $Id: CompressedArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: CompressedArray.java,v 1.3 2003/01/29 23:18:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CompressedArray extends PointArray {
@@ -60,8 +61,7 @@ class CompressedArray extends PointArray {
 
     /**
      * Coordonnées du point qui précède le premier point.
-     * Les coordonnées du "vrai" premier point seront
-     * obtenus par
+     * Les coordonnées du "vrai" premier point seront obtenues par:
      *
      * <pre>
      *     x = x0 + array[0]*scaleX;
@@ -77,8 +77,7 @@ class CompressedArray extends PointArray {
     protected final float scaleX, scaleY;
 
     /**
-     * Construit un sous-tableau à partir
-     * d'un autre tableau compressé.
+     * Construit un sous-tableau à partir d'un autre tableau compressé.
      *
      * @param  other Tableau source.
      * @param  lower Index de la première coordonnées <var>x</var> à
@@ -179,16 +178,14 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Retourne l'index de la
-     * première coordonnée valide.
+     * Retourne l'index de la première coordonnée valide.
      */
     protected int lower() {
         return 0;
     }
 
     /**
-     * Retourne l'index suivant celui
-     * de la dernière coordonnée valide.
+     * Retourne l'index suivant celui de la dernière coordonnée valide.
      */
     protected int upper() {
         return array.length;
@@ -211,8 +208,7 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Mémorise dans l'objet spécifié
-     * les coordonnées du premier point.
+     * Mémorise dans l'objet spécifié les coordonnées du premier point.
      *
      * @param  point Point dans lequel mémoriser la coordonnée.
      * @return L'argument <code>point</code>, ou un nouveau point
@@ -231,8 +227,7 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Mémorise dans l'objet spécifié
-     * les coordonnées du dernier point.
+     * Mémorise dans l'objet spécifié les coordonnées du dernier point.
      *
      * @param  point Point dans lequel mémoriser la coordonnée.
      * @return L'argument <code>point</code>, ou un nouveau point
@@ -257,8 +252,7 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Retourne un itérateur qui balaiera les
-     * points partir de l'index spécifié.
+     * Retourne un itérateur qui balaiera les points partir de l'index spécifié.
      */
     public final PointIterator iterator(final int index) {
         return new CompressedIterator(this, index);
@@ -329,52 +323,64 @@ class CompressedArray extends PointArray {
     }
 
     /**
-     * Retourne une copie des données de ce tableau. Toutes les données seront copiées
-     * dans le tableau <code>copy</code> à partir de l'index <code>offset</code>.   Si
-     * l'argument <code>n</code> est supérieur à 1, alors une décimation sera faîte en
-     * ne retenant qu'un point sur <code>n</code>. Le tableau <code>copy</code> doit
-     * avoir une longueur d'au moins <code>offset + ceil({@link #length}/n)</code>.
+     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
+     * The destination array will be filled starting at index <code>offset</code>. If
+     * <code>resolution2</code> is greater than 0, then points that are closer than
+     * <code>sqrt(resolution2)</code> from previous one will be skiped.
      *
-     * @param  copy Tableau dans lequel copier les coordonnées. Si cet argument est nul,
-     *         alors cette méthode se contentera de calculer la longueur minimale que
-     *         devrait avoir le tableau <code>copy</code>.
-     * @param  offset Index du premier élément de <code>copy</code>
-     *         dans lequel copier la première coordonnée <var>x</var>.
-     * @param  n Décimation à effectuer (1 pour n'en effectuer aucune).
-     * @return Index suivant celui de la dernière coordonnée <var>y</var>
-     *         copiée dans le tableau <code>copy</code>.
+     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
+     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
+     *         may be expanded if needed.
+     * @param  offset The offset of the first element to fill in <code>array[0]</code>.
+     *         This element will contains the first <var>x</var> ordinate.
+     * @param  resolution2 The minimum squared distance desired between points.
+     * @return The index after the <code>array[0]</code>'s element
+     *         filled with the last <var>y</var> ordinate.
      */
-    public final int toArray(final float[] copy, int offset, final int n) {
-        if (n < 1) {
-            throw new IllegalArgumentException(String.valueOf(n));
+    public final int toArray(final float[][] dest, final int offset, final float resolution2) {
+        if (!(resolution2 >= 0)) {
+            throw new IllegalArgumentException(String.valueOf(resolution2));
         }
-        if (copy == null) {
-            int count = count();
-            count = (count+(n-1)) / n;
-            return offset + 2*count;
-        }
+        float[]   copy  = dest[0];
         final int lower = lower();
         final int upper = upper();
-        int dx=0,dy=0;
-        if (n == 1) {
-            for (int i=lower; i<upper;) {
-                dx += array[i++];
-                dy += array[i++];
-                copy[offset++] = x0 + scaleX*dx;
-                copy[offset++] = y0 + scaleY*dy;
+        int       dst   = offset;
+        int dxi=0, dyi=0;
+        if (resolution2 == 0) {
+            for (int src=lower; src<upper;) {
+                dxi += array[src++];
+                dyi += array[src++];
+                if (copy.length <= dst) {
+                    dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
+                }
+                copy[dst++] = x0 + scaleX*dxi;
+                copy[dst++] = y0 + scaleY*dyi;
             }
-        } else {
-            int c=n-1;
-            for (int i=lower; i<upper;) {
-                dx += array[i++];
-                dy += array[i++];
-                if (++c >= n) {
-                    c=0;
-                    copy[offset++] = x0 + scaleX*dx;
-                    copy[offset++] = y0 + scaleY*dy;
+        } else if (lower < upper) {
+            if (copy.length <= dst) {
+                dest[0] = copy = XArray.resize(copy, capacity(lower, dst, offset));
+            }
+            copy[dst++] = x0;
+            copy[dst++] = y0;
+            float lastX = 0;
+            float lastY = 0;
+            int src = lower + 2;
+            while (src < upper) {
+                dxi += array[src++];
+                dyi += array[src++];
+                final float dxf = scaleX*dxi;
+                final float dyf = scaleY*dyi;
+                final double dx = (double)dxf - (double)lastX;
+                final double dy = (double)dyf - (double)lastY;
+                if ((dx*dx + dy*dy) >= resolution2) {
+                    if (copy.length <= dst) {
+                        dest[0] = copy = XArray.resize(copy, capacity(src, dst, offset));
+                    }
+                    copy[dst++] = x0 + (lastX=dxf);
+                    copy[dst++] = y0 + (lastY=dyf);
                 }
             }
         }
-        return offset;
+        return dst;
     }
 }

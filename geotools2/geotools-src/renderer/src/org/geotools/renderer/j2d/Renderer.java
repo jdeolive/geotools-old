@@ -98,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.9 2003/01/28 16:12:16 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.10 2003/01/29 23:18:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -228,9 +228,10 @@ public class Renderer {
     /**
      * A set of rendering hints. Recognized hints include
      * {@link Hints#COORDINATE_TRANSFORMATION_FACTORY} and
-     * any of {@link Hints#RESOLUTION}.
+     * any of {@link Hints#FINEST_RESOLUTION}.
      *
-     * @see Hints#RESOLUTION
+     * @see Hints#FINEST_RESOLUTION
+     * @see Hints#REQUIRED_RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      * @see Hints#PREFETCH
      * @see RenderingHints#KEY_RENDERING
@@ -247,12 +248,12 @@ public class Renderer {
     private boolean prefetch;
 
     /**
-     * The rendering resolution,  in units of {@link RenderingContext#mapCS} coordinate
-     * system (usually metres or degree). A larger resolution speed up rendering, while
-     * a smaller resolution draw more precise map. The value can be set with
-     * {@link #setRenderingHint}.
+     * The rendering resolutions, in units of {@link RenderingContext#textCS} coordinate system
+     * (usually 1/72 of inch). A larger resolution speed up rendering, while a smaller resolution
+     * draw more precise map. The value can be set with {@link #setRenderingHint}. They are read
+     * only by {@link RenderedIsoline}.
      */
-    private float resolution;
+    float minResolution, maxResolution;
 
     /**
      * The bounding box of all {@link RenderedLayer} in the {@link RenderingContext#mapCS}
@@ -887,11 +888,12 @@ public class Renderer {
     /**
      * Returns a rendering hint.
      *
-     * @param  key The hint key (e.g. {@link Hints#RESOLUTION}).
+     * @param  key The hint key (e.g. {@link Hints#FINEST_RESOLUTION}).
      * @return The hint value for the specified key, or <code>null</code> if there is no
      *         hint for the specified key.
      *
-     * @see Hints#RESOLUTION
+     * @see Hints#FINEST_RESOLUTION
+     * @see Hints#REQUIRED_RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      * @see Hints#PREFETCH
      * @see RenderingHints#KEY_RENDERING
@@ -905,10 +907,11 @@ public class Renderer {
     /**
      * Add a rendering hint. Hints provides optional information used by some rendering code.
      *
-     * @param key   The hint key (e.g. {@link Hints#RESOLUTION}).
+     * @param key   The hint key (e.g. {@link Hints#FINEST_RESOLUTION}).
      * @param value The hint value. A <code>null</code> value remove the hint.
      *
-     * @see Hints#RESOLUTION
+     * @see Hints#FINEST_RESOLUTION
+     * @see Hints#REQUIRED_RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      * @see Hints#PREFETCH
      * @see RenderingHints#KEY_RENDERING
@@ -921,14 +924,30 @@ public class Renderer {
         } else {
             hints.remove(key);
         }
-        if (Hints.RESOLUTION.equals(key)) {
+        if (Hints.FINEST_RESOLUTION.equals(key)) {
             if (value != null) {
-                resolution = ((Number) hints.get(key)).floatValue();
-                if (resolution >= 0) {
+                minResolution = ((Number) hints.get(key)).floatValue();
+                if (minResolution >= 0) {
+                    if (minResolution > maxResolution) {
+                        maxResolution = minResolution;
+                    }
                     return;
                 }
             }
-            resolution = 0;
+            minResolution = 0;
+            return;
+        }
+        if (Hints.REQUIRED_RESOLUTION.equals(key)) {
+            if (value != null) {
+                maxResolution = ((Number) hints.get(key)).floatValue();
+                if (maxResolution >= 0) {
+                    if (maxResolution < minResolution) {
+                        minResolution = maxResolution;
+                    }
+                    return;
+                }
+            }
+            maxResolution = minResolution;
             return;
         }
         if (Hints.PREFETCH.equals(key)) {

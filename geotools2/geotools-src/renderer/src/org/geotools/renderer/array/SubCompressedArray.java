@@ -40,7 +40,7 @@ import org.geotools.resources.renderer.ResourceKeys;
 /**
  * Classe enveloppant une portion seulement d'un tableau {@link CompressedArray}.
  *
- * @version $Id: SubCompressedArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: SubCompressedArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SubCompressedArray extends CompressedArray {
@@ -50,14 +50,12 @@ final class SubCompressedArray extends CompressedArray {
     private static final long serialVersionUID = 4702506646824251468L;
 
     /**
-     * Plage des données valides
-     * du tableau {@link #array}.
+     * Plage des données valides du tableau {@link #array}.
      */
     protected final int lower, upper;
 
     /**
-     * Construit un sous-tableau à partir
-     * d'un autre tableau compressé.
+     * Construit un sous-tableau à partir d'un autre tableau compressé.
      *
      * @param  other Tableau source.
      * @param  lower Index de la première coordonnées <var>x</var> à
@@ -87,16 +85,14 @@ final class SubCompressedArray extends CompressedArray {
     }
 
     /**
-     * Retourne l'index de la
-     * première coordonnée valide.
+     * Retourne l'index de la première coordonnée valide.
      */
     protected final int lower() {
         return lower;
     }
 
     /**
-     * Retourne l'index suivant celui
-     * de la dernière coordonnée valide.
+     * Retourne l'index suivant celui de la dernière coordonnée valide.
      */
     protected final int upper() {
         return upper;

@@ -53,10 +53,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
-// Weak references
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
-
 // Input/Output
 import java.io.Writer;
 import java.io.PrintWriter;
@@ -106,7 +102,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.6 2003/01/29 23:18:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -123,20 +119,6 @@ public class Polygon extends GeoShape {
      * exigent un système de coordonnées cartésien.
      */
     private static final String CARTESIAN_PROJECTION = "Stereographic";
-
-    /**
-     * Cache vers des objets déjà créés. Cette cache utilise des références faibles pour ne
-     * retenir les objets que s'ils sont déjà utilisés ailleurs dans la machine virtuelle.
-     * <strong>Tous les objets placés dans cette cache devraient être immutables.</strong>
-     */
-    private static final WeakHashSet pool = new WeakHashSet();
-
-    /**
-     * Transformation affine identité. Cette transformation affine
-     * sera partagée par plusieurs objets {@link Polygon} et ne doit
-     * pas être modifié.
-     */
-    private static final AffineTransform IDENTITY = new AffineTransform();
 
     /**
      * The enum value for <code>InteriorType == null</code>.
@@ -181,6 +163,12 @@ public class Polygon extends GeoShape {
     private Rectangle2D bounds;
 
     /**
+     * Indique si cette forme a été fermée. Si le polygone a été fermé, alors ce champ
+     * aura la valeur {@link InteriorType#ELEVATION} ou {@link InteriorType#DEPRESSION}.
+     */
+    private byte interiorType = (byte) UNCLOSED;
+
+    /**
      * Résolution moyenne du polygone. Ce champ contient la distance moyenne entre
      * deux points du polygone,  ou 0 ou {@link Float#NaN} si cette résolution n'a
      * pas encore été calculée.
@@ -188,50 +176,22 @@ public class Polygon extends GeoShape {
     private float resolution;
 
     /**
-     * Indique si cette forme a été fermée. Si le polygone a été fermé, alors ce champ
-     * aura la valeur {@link InteriorType#ELEVATION} ou {@link InteriorType#DEPRESSION}.
+     * The resolution to apply at rendering time, as a multiple of
+     * <code>{@link #resolution}/{@link #RESOLUTION_FACTOR}</code>.
+     * The value 0 means that all data should be used.
      */
-    private byte interiorType = (byte) UNCLOSED;
+    private transient byte renderingResolution;
 
     /**
-     * Décimation à appliquer au moment du traçage du polygone. La valeur 1 signifie
-     * qu'aucune décimation n'est faite; la valeur 2 signifie qu'on ne tracera qu'un
-     * point sur 2, etc. Cette information est utilisée uniquement par les implémentation
-     * de {@link PathIterator}. Cette valeur doit être supérieure ou égale à 1.
+     * A constant for compacting {@link #renderingResolution} as a single <code>byte</code>.
      */
-    private byte drawingDecimation = 1;
+    private static final int RESOLUTION_FACTOR = 4;
 
     /**
      * Référence molle vers un tableau <code>float[]</code>. Ce tableau est utilisé
      * pour conserver en mémoire des points qui ont déjà été projetés ou transformés.
      */
-    private transient Cache cache;
-
-    /**
-     * Référence molle vers un tableau <code>float[]</code>
-     * de coordonnées (<var>x</var>,<var>y</var>).
-     */
-    private static final class Cache extends SoftReference {
-        /**
-         * Nombre d'objets {@link PathIterator} qui utilisent le tableau de points de la cache
-         * {@link #cache}. Ce nombre sera incrémenté à chaque appel de {@link #getDrawingArray}
-         * et décrémenté par {@link #releaseDrawingArray}.
-         */
-        public short lockCount;
-
-        /**
-         * Transformation affine qui avait été utilisée pour
-         * transformer les données de {@link #cache}.
-         */
-        public AffineTransform transform = IDENTITY;
-
-        /**
-         * Construit une référence molle vers le tableau spécifié.
-         */
-        public Cache(final float[] array) {
-            super(array);
-        }
-    }
+    private transient PolygonCache cache;
 
     /**
      * Construit un polygone initialement vide.
@@ -497,10 +457,6 @@ public class Polygon extends GeoShape {
         /*
          * Compute bounds now. The getBounds2D(...) method scan every point.
          * Concequently, if a exception must be throws, it will be thrown now.
-         *
-         * Note: There is no change to resolution, since it is computed
-         *       using source coordinate system (which doesn't change).
-         *       No change to 'dataBounds' neither.
          */
         bounds = Polyline.getBounds2D(data, (MathTransform2D)transformCandidate.getMathTransform());
         /*
@@ -1056,12 +1012,12 @@ public class Polygon extends GeoShape {
     /**
      * Returns a path iterator for this polygon.
      */
-    public PathIterator getPathIterator(final AffineTransform transform) {
+    public synchronized PathIterator getPathIterator(final AffineTransform transform) {
         return new PolygonPathIterator(this, transform);
-        // Only polygons internal to Isoline have drawingDecimation!=1.
+        // Only polygons internal to Isoline have renderingResolution!=0.
         // Consequently, public polygons never apply decimation, while
         // Isoline's polgyons may apply a decimation for faster rendering
-        // when painting through the 'Isobath.paint(...)' method.
+        // when painting through the 'Isoline.paint(...)' method.
     }
 
     /**
@@ -1072,98 +1028,33 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne un tableau de coordonnées (<var>x</var>,<var>y</var>) transformée.
-     *
-     * @param  destination Transformation affine à appliquer sur les données. La valeur
-     *         <code>null</code> sera interprétée comme étant la transformation identitée.
-     * @return Un tableau de points (<var>x</var>,<var>y</var>). Cette méthode retourne une
-     *         référence directe vers un tableau interne. En conséquence, aucune modification
-     *         ne doit être faite au tableau retourné.
+     * Returns the cache for rendering data. This cache
+     * is used by the {@link PolygonPathIterator} only.
      */
-    final synchronized float[] getDrawingArray(AffineTransform transform) {
-        if (transform != null) {
-            transform = (AffineTransform) pool.canonicalize(new AffineTransform(transform));
-            // TODO: This line may fill 'pool' with a lot of entries
-            //       (>100) when the user change zoom often (e.g. is
-            //       scrolling). Should we look for an other way?
-        } else {
-            transform = IDENTITY;
+    final PolygonCache getCache() {
+        assert Thread.holdsLock(this);
+        if (cache == null) {
+            cache = new PolygonCache();
         }
-        /*
-         * Tente de récupérer le tableau de points qui a été utilisé la dernière fois. Si la
-         * transformation affine n'a pas changé depuis la dernière fois, alors on pourra retourner
-         * le tableau directement. Sinon, on tentera de modifier les coordonnées en prenant en
-         * compte seulement le <em>changement</em> de {@link AffineTransform} depuis la dernière
-         * fois. Mais cette dernière étape ne sera faite qu'à la condition que le tableau ne soit
-         * pas en cours d'utilisation par un autre itérateur (lockCount==0).
-         */
-        float[] array=null;
-        if (cache != null) {
-            array = (float[]) cache.get();
-            if (array != null) {
-                if (transform.equals(cache.transform)) {
-                    cache.lockCount++;
-                    return array;
-                }
-                if (cache.lockCount == 0) try {
-                    final AffineTransform change = cache.transform.createInverse();
-                    change.preConcatenate(transform);
-                    change.transform(array, 0, array, 0, array.length/2);
-                    cache.transform = transform;
-                    cache.lockCount = 1;
-                    return array;
-                } catch (NoninvertibleTransformException exception) {
-                    Utilities.unexpectedException("org.geotools.renderer", "Polygon",
-                                                  "getDrawingArray", exception);
-                    // Continue... On va simplement reconstruire le tableau à partir de la base.
-                } else {
-                    // Should be uncommon. Doesn't hurt, but may be a memory issue for big polygon.
-                    LOGGER.info(Resources.format(ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
-                    array = null; // {@link #toArray} will allocate a new array.
-                }
-            }
-        }
-        /*
-         * Reconstruit le tableau de points à partir des données de bas niveau.
-         * La projection cartographique sera appliquée par {@link #toArray}.
-         */
-        array = toArray(array, drawingDecimation);
-        assert (array.length & 1) == 0;
-        final int pointCount = array.length/2;
-        transform.transform(array, 0, array, 0, pointCount);
-        cache = new Cache(array);
-        cache.transform = transform;
-        cache.lockCount = 1;
-        return array;
+        return cache;
     }
 
     /**
-     * Indique qu'un tableau de points ne sera plus utilisé.
-     */
-    final synchronized void releaseDrawingArray(final float[] array) {
-        final Cache cache = this.cache;
-        if (cache!=null && cache.get()==array) {
-            cache.lockCount--;
-            assert cache.lockCount >= 0;
-        }
-    }
-
-    /**
-     * Spécifie la décimation à appliquer au moment du traçage du polygone.
-     * La valeur 1 signifie qu'aucune décimation n'est faite;  la valeur 2
-     * signifie qu'on ne tracera qu'un point sur 2, etc. Cette information
-     * n'est utilisée que par les objets {@link PolygonPathIterator}.
+     * Spécifie la résolution à appliquer au moment du traçage du polygone.
+     * Cette information est utilisée par les objets {@link PolygonPathIterator}.
      *
-     * @param  decimation Décimation à appliquer.
+     * @param  resolution Résolution à appliquer.
      * @return Nombre de points qui seront à recalculer, ou 0 si la cache
      *         a pu être réutilisée. Cette information n'est fournie qu'à
      *         des fins de statistiques.
      */
-    final synchronized int setDrawingDecimation(final int decimation) {
-        final byte newDecimation = (byte)Math.max(1, Math.min(Byte.MAX_VALUE, decimation));
-        if (newDecimation != drawingDecimation) {
+    final int setRenderingResolution(final float resolution) {
+        assert Thread.holdsLock(this);
+        int newResolution = (int) ((resolution / getResolution()) * RESOLUTION_FACTOR);
+        newResolution = Math.max(0, Math.min(0xFF, newResolution));
+        if ((byte)newResolution != renderingResolution) {
             cache = null;
-            drawingDecimation = newDecimation;
+            renderingResolution = (byte)newResolution;
             return Polyline.getPointCount(data);
         } else {
             return 0;
@@ -1171,10 +1062,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the drawing decimation.
+     * Returns the rendering resolution.
      */
-    final int getDrawingDecimation() {
-        return drawingDecimation;
+    final float getRenderingResolution() {
+        assert Thread.holdsLock(this);
+        return ((int)renderingResolution & 0xFF) * getResolution() / RESOLUTION_FACTOR;
     }
 
     /**
@@ -1637,33 +1529,84 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Return a copy of all coordinates of this polygon.
-     * Coordinates are (x,y) or (longitude,latitude) pairs.
-     * This method never return <code>null</code>, but may
-     * return an array of length 0 if no data are available.
+     * Return a copy of all coordinates of this polygon. Coordinates are usually
+     * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
+     * pairs, depending of the {@linkplain #getCoordinateSystem coordinate system
+     * in use}.
      *
-     * @param  dest Tableau où mémoriser les données. Si ce tableau
-     *         a exactement la longueur nécessaire, il sera utilisé
-     *         et retourné. Sinon, cet argument sera ignoré et un
-     *         nouveau tableau sera créé. Cet argument peut être nul.
-     * @param  subSampling Décimation à effectuer. La valeur 1 n'effectue
-     *         aucune décimation.  La valeur 2 ne retient qu'un point sur
-     *         2, etc.
-     * @return Tableau dans lequel furent mémorisées les données. Ce
-     *         sera <code>dest</code> s'il avait exactement la longueur
-     *         nécessaire, ou un nouveau tableau sinon.
+     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
+     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
+     *         may be expanded if needed.
+     * @param  resolution The minimum distance desired between points, in this {@linkplain
+     *         #getCoordinateSystem polygon's coordinate system}. If <code>resolution</code>
+     *         is greater than 0, then points that are closer than <code>resolution</code>
+     *         from previous points will be skiped. This method is not required to perform
+     *         precise distances computation.
+     * @return The index after the <code>array[0]</code>'s element
+     *         filled with the last <var>y</var> ordinate.
      */
-    public synchronized float[] toArray(float[] dest, final int subSampling) {
-        dest = Polyline.toArray(data, dest, subSampling);
-        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
-        if (transform!=null) try {
-            transform.transform(dest, 0, dest, 0, dest.length/2);
+    final int toArray(float[][] dest, float resolution) {
+        assert Thread.holdsLock(this);
+        try {
+            /*
+             * Transform the resolution from this polygon's CS to the underlying data CS.
+             * TODO: we should use 'MathTransform.derivative' instead, but it is not yet
+             *       implemented for most transforms.
+             */
+            if (coordinateTransform != null) {
+                final MathTransform tr = coordinateTransform.getMathTransform();
+                if (!tr.isIdentity()) {
+                    final Rectangle2D bounds = getCachedBounds();
+                    final double  centerX = bounds.getCenterX();
+                    final double  centerY = bounds.getCenterY();
+                    final double[] coords = new double[] {
+                        centerX-resolution, centerY,
+                        centerX+resolution, centerY,
+                        centerX,            centerY-resolution,
+                        centerX,            centerY+resolution
+                    };
+                    tr.transform(coords, 0, coords, 0, coords.length/2);
+                    resolution = (float) (0.25*(
+                                          XMath.hypot(coords[2]-coords[0], coords[3]-coords[1]) +
+                                          XMath.hypot(coords[6]-coords[4], coords[7]-coords[5])));
+                }
+            }
+            /*
+             * Gets the array and transform it, if needed.
+             */
+            final int length = Polyline.toArray(data, dest, resolution);
+            final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+            if (transform!=null && !transform.isIdentity()) {
+                final float[] array = dest[0];
+                transform.transform(array, 0, array, 0, length/2);
+            }
+            return length;
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
             // has already successfully projected every points.
             unexpectedException("toArray", exception);
+            return 0;
         }
-        return dest;
+    }
+
+    /**
+     * Return a copy of all coordinates of this polygon. Coordinates are usually
+     * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
+     * pairs, depending of the {@linkplain #getCoordinateSystem coordinate system
+     * in use}. This method never return <code>null</code>, but may return an array
+     * of length 0 if no data are available.
+     *
+     * @param  resolution The minimum distance desired between points, in this {@linkplain
+     *         #getCoordinateSystem polygon's coordinate system}. If <code>resolution</code>
+     *         is greater than 0, then points that are closer than <code>resolution</code>
+     *         from previous points will be skiped. This method is not required to perform
+     *         precise distances computation.
+     * @return The coordinates.
+     */
+    public synchronized float[] toArray(final float resolution) {
+        final float[][] array = new float[][] {new float[64]};
+        final int length = toArray(array, resolution); // Do not inline inside XArray.resize(...).
+        return XArray.resize(array[0], length);
     }
 
     /**
@@ -1840,48 +1783,5 @@ public class Polygon extends GeoShape {
             buffer.append(lineSeparator);
             out.write(buffer.toString());
         } while (hasNext);
-    }
-
-
-
-
-    /**
-     * This interface defines the method required by any object that
-     * would like to be a renderer for polygons in an {@link Isoline}.
-     * The {@link #paint} method is invoked by {@link Isoline#paint}.
-     *
-     * @version $Id: Polygon.java,v 1.5 2003/01/22 23:06:49 desruisseaux Exp $
-     * @author Martin Desruisseaux
-     *
-     * @see Isoline#paint
-     * @see org.geotools.renderer.j2d.RenderedIsoline
-     */
-    public static interface Renderer {
-        /**
-         * Returns the clip area in units of the isoline's coordinate system.
-         * This is usually "real world" metres or degrees of latitude/longitude.
-         *
-         * @see Isoline#getCoordinateSystem
-         */
-        public abstract Shape getClip();
-
-        /**
-         * Returns the rendering resolution, in units of the isoline's coordinate system
-         * (usually metres or degrees). A larger resolution speed up rendering, while a
-         * smaller resolution draw more precise map.
-         *
-         * @see Isoline#getCoordinateSystem
-         */
-        public abstract float getResolution();
-
-        /**
-         * Draw or fill a polygon. {@link Isoline#paint} invokes this method with a decimated and/or
-         * clipped polygon in argument. This polygon expose some internal state of {@link Isoline}.
-         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
-         * in order to avoid unexpected behaviour.
-         *
-         * @param polygon The polygon to draw. <strong>Do not modify.</strong>
-         */
-        public abstract void paint(final Polygon polygon);
     }
 }

@@ -39,7 +39,7 @@ package org.geotools.renderer.array;
  * L'implémentation par défaut de cette classe est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: SubArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: SubArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class SubArray extends DefaultArray {
@@ -49,8 +49,7 @@ class SubArray extends DefaultArray {
     private static final long serialVersionUID = 5172936367826790633L;
 
     /**
-     * Plage des données valides
-     * du tableau {@link #array}.
+     * Plage des données valides du tableau {@link #array}.
      */
     protected int lower, upper;
 
@@ -72,16 +71,14 @@ class SubArray extends DefaultArray {
     }
 
     /**
-     * Retourne l'index de la
-     * première coordonnée valide.
+     * Retourne l'index de la première coordonnée valide.
      */
     protected final int lower() {
         return lower;
     }
 
     /**
-     * Retourne l'index suivant celui
-     * de la dernière coordonnée valide.
+     * Retourne l'index suivant celui de la dernière coordonnée valide.
      */
     protected final int upper() {
         return upper;

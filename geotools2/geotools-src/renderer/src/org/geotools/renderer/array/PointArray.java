@@ -55,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class PointArray implements Serializable {
@@ -104,7 +104,7 @@ public abstract class PointArray implements Serializable {
         if (upper == lower) {
             return null;
         }
-        final float[] newArray=new float[upper-lower];
+        final float[] newArray = new float[upper-lower];
         System.arraycopy(array, lower, newArray, 0, newArray.length);
         return new DefaultArray(newArray);
     }
@@ -144,6 +144,28 @@ public abstract class PointArray implements Serializable {
      * Constructeur par défaut.
      */
     protected PointArray() {
+    }
+
+    /**
+     * Retourne l'index de la première coordonnée valide.
+     * This method is overriden by all <code>PointArray</code> subclasses in this package.
+     * Note that this method is not <code>protected</code> in this <code>PointArray</code>
+     * class because it is used only by {@link #capacity}, which is a package-private helper
+     * method for {@link #toArray} implementations only.
+     */
+    int lower() {
+        return 0;
+    }
+
+    /**
+     * Retourne l'index suivant celui de la dernière coordonnée valide.
+     * This method is overriden by all <code>PointArray</code> subclasses in this package.
+     * Note that this method is not <code>protected</code> in this <code>PointArray</code>
+     * class because it is used only by {@link #capacity}, which is a package-private helper
+     * method for {@link #toArray} implementations only.
+     */
+    int upper() {
+        return 2*count();
     }
 
     /**
@@ -219,7 +241,7 @@ public abstract class PointArray implements Serializable {
      * implémentation qui évite de copier les données avec {@link #toArray()}.
      */
     PointArray insertTo(final PointArray dest, final int index, final boolean reverse) {
-        final float[] array=toArray();
+        final float[] array = toArray();
         return dest.insertAt(index, array, 0, array.length, reverse);
     }
 
@@ -270,32 +292,71 @@ public abstract class PointArray implements Serializable {
     }
 
     /**
-     * Retourne une copie des données de ce tableau. Toutes les données seront copiées
-     * dans le tableau <code>copy</code> à partir de l'index <code>offset</code>.   Si
-     * l'argument <code>n</code> est supérieur à 1, alors une décimation sera faîte en
-     * ne retenant qu'un point sur <code>n</code>. Le tableau <code>copy</code> doit
-     * avoir une longueur d'au moins <code>offset + ceil(2*{@link #count}/n)</code>.
+     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
+     * The destination array will be filled starting at index <code>offset</code>. If
+     * <code>resolution2</code> is greater than 0, then points that are closer than
+     * <code>sqrt(resolution2)</code> from previous one will be skiped.
      *
-     * @param  copy Tableau dans lequel copier les coordonnées. Si cet argument est nul,
-     *         alors cette méthode se contentera de calculer la longueur minimale que
-     *         devrait avoir le tableau <code>copy</code>.
-     * @param  offset Index du premier élément de <code>copy</code>
-     *         dans lequel copier la première coordonnée <var>x</var>.
-     * @param  n Décimation à effectuer (1 pour n'en effectuer aucune).
-     * @return Index suivant celui de la dernière coordonnée <var>y</var>
-     *         copiée dans le tableau <code>copy</code>.
+     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
+     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
+     *         may be expanded if needed.
+     * @param  offset The offset of the first element to fill in <code>array[0]</code>.
+     *         This element will contains the first <var>x</var> ordinate.
+     * @param  resolution2 The minimum squared distance desired between points.
+     * @return The index after the <code>array[0]</code>'s element
+     *         filled with the last <var>y</var> ordinate.
+     *
+     * @task REVISIT: Current implementations compute distance using Pythagoras formulas, which
+     *                is okay for projected coordinates but not right for geographic (longitude
+     *                / latitude) coordinates. This is not a real problem when the rendering CS
+     *                is the same than the data CS,  since the decimation performed here target
+     *                specifically the rendering device  (the important thing is that distances
+     *                look okay to user's eyes). However, it may be a problem when the rendering
+     *                CS is different, since points that are equidistant in the data CS may not
+     *                be equidistant in the rendering CS.
+     *
+     * @task HACK: The <code>float[][]</code> signature could be simplified to a plain
+     *             <code>float[]</code> if RFE #4222792 (multiple return values) gets
+     *             implemented in J2SE 1.5.
      */
-    public abstract int toArray(final float[] copy, final int offset, final int n);
+    public abstract int toArray(final float[][] dest, int offset, float resolution2);
 
     /**
-     * Retourne une copie de toutes les coordonnées
-     * (<var>x</var>,<var>y</var>) de ce tableau.
+     * Retourne une copie de toutes les coordonnées (<var>x</var>,<var>y</var>) de ce tableau.
      */
     public final float[] toArray() {
-        final float[] array=new float[2*count()];
-        final int length = toArray(array, 0, 1);
-        assert length == array.length;
-        return array;
+        final float[][] array = new float[][] {new float[2*count()]};
+        final int length = toArray(array, 0, 0);
+        assert length == array[0].length;
+        return array[0];
+    }
+
+    /**
+     * Used by {@link #toArray}  implementations in order to expand the destination array
+     * as needed.   This method is invoking when <code>toArray</code> has already started
+     * to fill the destination array. The <code>src</code> and <code>dst</code> arguments
+     * refer to the current position in the copy loop.  This method try to guess the size
+     * that the destination array should have based on the proportion of the array filled
+     * up to date, and conservatively expand its guess by about 12%.
+     *
+     * @param  src The index position in the source array.
+     * @param  dst The index position in the destination array.
+     * @param  offset The first element to be filled in the destination array.
+     * @return A guess of the required length for completing the array filling.
+     */
+    final int capacity(int src, int dst, final int offset) {
+        final int lower  = lower();
+        final int length = upper() - lower;
+        int guess;
+        dst -= offset;
+        src -= lower;
+        if (src == 0) {
+            guess = length / 8;
+        } else {
+            guess = (int)(dst * (long)length / src);
+            guess += guess/8;
+        }
+        return offset + Math.min(length, dst+Math.max(guess, 32));
     }
 
     /**

@@ -37,7 +37,7 @@ package org.geotools.renderer.array;
  * Enveloppe un tableau <code>float[]</code> dans
  * lequel des données pourront être ajoutés.
  *
- * @version $Id: DynamicArray.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.4 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -47,8 +47,7 @@ final class DynamicArray extends SubArray {
     private static final long serialVersionUID = 3336921710471431118L;
 
     /**
-     * Construit un tableau qui contiendra une copie
-     * des coordonnées du tableau spécifié.
+     * Construit un tableau qui contiendra une copie des coordonnées du tableau spécifié.
      */
     public DynamicArray(final PointArray points) {
         super(points.toArray(), 0, 2*points.count());

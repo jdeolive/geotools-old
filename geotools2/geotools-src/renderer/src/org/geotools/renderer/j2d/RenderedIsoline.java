@@ -68,7 +68,7 @@ import org.geotools.resources.XAffineTransform;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.1 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -123,17 +123,10 @@ public class RenderedIsoline extends RenderedLayer {
     private Paint foreground = FILL_COLOR;
 
     /**
-     * The desired rendering resolution in points.
-     *
-     * @task TODO: use the RenderingHints instead.
-     */
-    private int resolution = 6;
-
-    /**
      * The renderer to use for painting polygons.
      * Will be created only when first needed.
      */
-    private transient PolygonRenderer polygonRenderer;
+    private transient IsolineRenderer isolineRenderer;
 
     /**
      * Construct a layer for the specified isoline. The layer's coordinate system will be
@@ -232,44 +225,20 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
-     * Sets the rendering resolution in points. A value of 6 means that <code>RenderedIsoline</code>
-     * will try to render polygons with line of about 6 points long. Higher values can speed up
-     * rendering and reduce memory footprint at the expense of quality. The actual number of points
-     * used for rendering will be dynamically computed from the zoom active at drawing time.
-     *
-     * @param resolution The desired rendering resolution in points. When rendering on
-     *        screen, a point is a pixel.  When rendering on printer, a point is about
-     *        1/72 of inch.
-     */
-//    public void setRenderingResolution(final int resolution) {
-//        if (resolution > 0) {
-//            this.resolution=resolution;
-//        } else {
-//            throw new IllegalArgumentException(String.valueOf(resolution));
-//        }
-//    }
-
-    /**
-     * Returns the rendering resolution in points.
-     */
-//    public int getRenderingResolution() {
-//        return resolution;
-//    }
-
-    /**
      * The renderer for polygons. An instance of this class is attached to each instance
      * of {@link RenderedIsoline} when its <code>paint(...)</code> method is invoked for
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.1 2003/01/28 16:12:15 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private final class PolygonRenderer implements Polygon.Renderer {
+    private final class IsolineRenderer implements Isoline.Renderer {
         /**
-         * The rendering resolution in units of the isoline's coordinate system.
+         * The minimum and maximum rendering resolution
+         * in units of the isoline's coordinate system.
          */
-        protected float resolution;
+        protected float minResolution, maxResolution;
 
         /**
          * The {@link Graphics2D} handler where to draw polygons.
@@ -289,9 +258,16 @@ public class RenderedIsoline extends RenderedLayer {
          * Returns the rendering resolution, in units of the isoline's coordinate system
          * (usually metres or degrees).  A larger resolution speed up rendering, while a
          * smaller resolution draw more precise map.
+         *
+         * @param  current The current rendering resolution.
+         * @return the <code>current</code> rendering resolution if it still good enough,
+         *         or a new resolution if a change is needed.
          */
-        public float getResolution() {
-            return resolution;
+        public float getRenderingResolution(float resolution) {
+            if (resolution>=minResolution && resolution<=maxResolution) {
+                return resolution;
+            }
+            return (minResolution + maxResolution)/2;
         }
         
         /**
@@ -363,15 +339,16 @@ public class RenderedIsoline extends RenderedLayer {
                 r = 1/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                 (r=tr.getShearX())*r + (r=tr.getShearY())*r);
             }
-            if (polygonRenderer == null) {
-                polygonRenderer = new PolygonRenderer();
+            if (isolineRenderer == null) {
+                isolineRenderer = new IsolineRenderer();
             }
-            polygonRenderer.resolution = (float)(resolution*r);
-            polygonRenderer.graphics   = graphics;
+            isolineRenderer.minResolution = (float)(renderer.minResolution*r);
+            isolineRenderer.maxResolution = (float)(renderer.maxResolution*r);
+            isolineRenderer.graphics      = graphics;
             try {
-                toDraw.paint(polygonRenderer);
+                toDraw.paint(isolineRenderer);
             } finally {
-                polygonRenderer.graphics = null;
+                isolineRenderer.graphics = null;
             }
             graphics.setStroke(oldStroke);
             graphics.setPaint (oldPaint);
@@ -384,7 +361,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.1 2003/01/28 16:12:15 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

@@ -36,21 +36,17 @@ package org.geotools.renderer.array;
 /**
  * Itérateur balayant les données d'un tableau {@link CompressedArray}.
  *
- * @version $Id: CompressedIterator.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: CompressedIterator.java,v 1.2 2003/01/29 23:18:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class CompressedIterator extends PointIterator {
     /**
-     * Décalages servant à calculer les
-     * valeurs <var>x</var>,<var>y</var>
-     * à retourner.
+     * Décalages servant à calculer les valeurs <var>x</var>,<var>y</var> à retourner.
      */
     private int dx,dy;
 
     /**
-     * Valeurs du premier point à
-     * partir d'où seront fait les
-     * calculs.
+     * Valeurs du premier point à partir d'où seront fait les calculs.
      */
     private final float x0, y0;
 
@@ -66,20 +62,17 @@ final class CompressedIterator extends PointIterator {
     private final byte[] array;
 
     /**
-     * Index de la prochaine
-     * donnée à retourner.
+     * Index de la prochaine donnée à retourner.
      */
     private int index;
 
     /**
-     * Index suivant celui de la
-     * dernière donnée à balayer.
+     * Index suivant celui de la dernière donnée à balayer.
      */
     private final int upper;
 
     /**
-     * Construit un itérateur qui
-     * balaiera des données compressées.
+     * Construit un itérateur qui balaiera des données compressées.
      */
     public CompressedIterator(final CompressedArray data, int pointIndex) {
         this.scaleX = data.scaleX;
@@ -100,8 +93,7 @@ final class CompressedIterator extends PointIterator {
     }
 
     /**
-     * Indique si les méthodes {@link #next}
-     * peuvent retourner d'autres données.
+     * Indique si les méthodes {@link #next} peuvent retourner d'autres données.
      */
     public boolean hasNext() {
         return index < upper;

@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -931,13 +931,12 @@ final class Polyline implements Serializable {
              * degrés de longitudes et latitudes, alors une projection cartographique
              * sera obligatoire afin de faire correctement les calculs de distances.
              */
-            float[] array=points.toArray();
+            float[] array = points.toArray();
             assert (array.length & 1)==0;
-            if (transform!=null) {
+            if (transform!=null && !transform.isIdentity()) {
                 transform.transform(array, 0, array, 0, array.length/2);
             }
-            if (array.length >= 2)
-            {
+            if (array.length >= 2) {
                 /*
                  * Effectue la décimation des coordonnées. La toute première
                  * coordonnée sera conservée inchangée. Il en ira de même de
@@ -1107,52 +1106,32 @@ final class Polyline implements Serializable {
     }
 
     /**
-     * Retourne une copie de toutes les coordonnées des polylignes de la chaîne.
+     * Copy (<var>x</var>,<var>y</var>) coordinates in the specified destination array.
+     * If <code>resolution</code> is greater than 0, then points that are closer than
+     * <code>resolution</code> from previous one will be skiped.
      *
-     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
-     *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  dest Tableau où mémoriser les données. Si ce tableau a exactement la
-     *              longueur nécessaire, il sera utilisé et retourné. Sinon, cet argument
-     *              sera ignoré et un nouveau tableau sera créé. Cet argument peut être nul.
-     * @param  n    Décimation à effectuer. La valeur 1 n'effectue aucune
-     *              décimation. La valeur 2 ne retient qu'une donnée sur 2,
-     *              etc.
-     * @return Tableau dans lequel furent mémorisées les données.
+     * @param  The destination array, wrapped in an array of type <code>float[][]</code>
+     *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
+     *         may be expanded if needed.
+     * @param  resolution The minimum distance desired between points.
+     * @return The index after the <code>array[0]</code>'s element
+     *         filled with the last <var>y</var> ordinates.
      */
-    public static float[] toArray(Polyline poly, final float[] dest, final int n) {
-        poly=getFirst(poly);
-        float[] data=null;
-        while (true) {
-            /*
-             * On fera deux passages dans cette boucle: un premier passage
-             * pour mesurer la longueur qu'aura le tableau, et un second
-             * passage pour copier les coordonnées dans le tableau.
-             */
-            int totalLength=0;
-            for (Polyline scan=poly; scan!=null; scan=scan.next) {
-                for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
-                    final PointArray array=scan.getArray(i);
-                    if (array != null) {
-                        // On ne décime pas les points de bordure (i!=0).
-                        totalLength = array.toArray(data, totalLength, (i==0) ? n : 1);
-                    }
+    public static int toArray(Polyline poly, final float[][] dest, float resolution) {
+        resolution *= resolution;
+        poly = getFirst(poly);
+        int totalLength = 0;
+        for (Polyline scan=poly; scan!=null; scan=scan.next) {
+            for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
+                final PointArray array = scan.getArray(i);
+                if (array != null) {
+                    // On ne décime pas les points de bordure (i!=0).
+                    totalLength = array.toArray(dest, totalLength, (i==0) ? resolution : 0);
                 }
-            }
-            /*
-             * Si on ne faisait que mesurer la longueur nécessaire, vérifie maintenant
-             * que le tableau 'dest' a bien la longueur désirée. Si on vient plutôt de
-             * finir de remplir le tableau 'dest', sort de la boucle.
-             */
-            if (data == null) {
-                data = dest;
-                if (data==null || data.length!=totalLength) {
-                    data=new float[totalLength];
-                }
-            } else {
-                assert data.length == totalLength;
-                return data;
             }
         }
+        assert totalLength <= dest[0].length;
+        return totalLength;
     }
 
     /**
@@ -1259,7 +1238,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1302,7 +1281,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.3 2003/01/20 00:06:34 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

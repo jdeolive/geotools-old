@@ -36,7 +36,7 @@ package org.geotools.renderer.array;
 /**
  * Itérateur balayant les données d'un tableau {@link DefaultArray}.
  *
- * @version $Id: DefaultIterator.java,v 1.1 2003/01/10 23:08:46 desruisseaux Exp $
+ * @version $Id: DefaultIterator.java,v 1.2 2003/01/29 23:18:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DefaultIterator extends PointIterator {
@@ -46,20 +46,17 @@ final class DefaultIterator extends PointIterator {
     private final float[] array;
 
     /**
-     * Index suivant celui de la
-     * dernière donnée à balayer.
+     * Index suivant celui de la dernière donnée à balayer.
      */
     private final int upper;
 
     /**
-     * Index de la prochaine
-     * donnée à retourner.
+     * Index de la prochaine donnée à retourner.
      */
     private int index;
 
     /**
-     * Construit un itérateur qui balaiera la
-     * plage spécifiée d'un tableau de données.
+     * Construit un itérateur qui balaiera la plage spécifiée d'un tableau de données.
      */
     public DefaultIterator(float[] array, int lower, int upper) {
         this.array = array;
@@ -69,8 +66,7 @@ final class DefaultIterator extends PointIterator {
     }
 
     /**
-     * Indique si les méthodes {@link #next}
-     * peuvent retourner d'autres données.
+     * Indique si les méthodes {@link #next} peuvent retourner d'autres données.
      */
     public boolean hasNext() {
         return index < upper;
