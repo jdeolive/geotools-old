@@ -83,7 +83,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
   </goal>
   
   <goal name="build:log">
-    <echo file="../../buildReport.txt" append="false">
+    <echo file="../../buildReport.txt" append="true">
     starting ${pom.id}</echo>
     <splash imageurl="file://${basedir}/xdocs/images/${pom.artifactId}.gif"/>
   </goal> 
@@ -109,7 +109,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       looking for modules in: ${basedir}/geotools-src
       reporting progress to ${gt2home}
     </echo>
-    <echo file="${basedir}/installReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
+    <echo file="${basedir}/buildReport.txt" append="false">GeoTools2 module build report ${DSTAMP}</echo>
     <maven:reactor
       basedir="${basedir}/geotools-src"
       includes="*/project.xml"
@@ -140,8 +140,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
          </j:forEach>
          <echo>Module ${module} : ${status}</echo>
     </j:forEach> -->
-    <echo>The above list is only accurate if you are using Maven Beta 8, from Beta 9 onwards all will report 'installed' even if they failed</echo>
-    <loadfile
+     <loadfile
       property="build.report"
       srcFile="${basedir}/buildReport.txt"
       failonerror="false"/>
