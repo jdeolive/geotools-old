@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.18 2003/08/12 17:05:50 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.19 2003/08/22 15:25:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -204,6 +204,8 @@ public final class RenderingContext {
     /**
      * Set the destination {@link Graphics2D} and other properties.
      * Set it to <code>null</code> once the rendering is finished.
+     * If non-null, <code>graphics</code> transform must be set to
+     * the {@link #mapCS} to {@link #deviceCS} transform.
      *
      * @param graphics   The destination graphics.
      * @param bounds     The drawing area in device coordinates.
@@ -222,6 +224,8 @@ public final class RenderingContext {
      * This method is invoked for switching rendering between different offscreen buffer.
      *
      * @param graphics The destination graphics (never <code>null</code>).
+     *                 Its transform must be set to the {@link #mapCS} to
+     *                 {@link #deviceCS} transform.
      */
     final void setGraphics(final Graphics2D graphics) {
         this.graphics    = graphics;
@@ -243,7 +247,7 @@ public final class RenderingContext {
      * {@link #mapCS} coordinate system. The affine transform can be changed in
      * a convenient way with {@link #setCoordinateSystem}.
      */
-    public Graphics2D getGraphics() {
+    public final Graphics2D getGraphics() {
         return graphics;
     }
 

@@ -118,7 +118,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.39 2003/08/13 22:45:31 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.40 2003/08/22 15:25:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1730,6 +1730,7 @@ public class Renderer implements Renderer2D {
              * drawn. Some layers may spend one or two threads for pre-computing data.
              */
             graphics.addRenderingHints(hints);
+            graphics.transform(zoom); // Must be invoked before 'init'
             clippedContext.init(graphics, zoomableBounds, isPrinting);
             boolean contextInitialized = (clippedContext == context);
             if (prefetch) {
@@ -1740,7 +1741,7 @@ public class Renderer implements Renderer2D {
                 }
             }
             int     offscreenIndex = -1;               // Index of current offscreen buffer.
-            boolean graphicsZoomed = false;            // Is graphics.transform(zoom) applied?
+            boolean graphicsZoomed = true;             // Is graphics.transform(zoom) applied?
             float minZOrder = Float.NEGATIVE_INFINITY; // The minimum z-value for current buffer.
             float maxZOrder = Float.NaN;               // The maximum z-value for current buffer.
             for (int layerIndex=0; layerIndex<layerCount; layerIndex++) {
@@ -1779,6 +1780,10 @@ public class Renderer implements Renderer2D {
                     if (!graphicsZoomed) {
                         graphics.transform(zoom);
                         graphicsZoomed = true;
+                    }
+                    if (clippedContext.getGraphics() == null) {
+                        clippedContext.setGraphics(graphics);
+                        // Must be invoked *after* the 'graphicsZoomed' check.
                     }
                     try {
                         layer.update(clippedContext, clipBounds);
@@ -1921,11 +1926,8 @@ renderOffscreen:while (true) {
                 /*
                  * The offscreen buffer has been successfully rendered (or we failed because
                  * of an exception in user's code). If the ordinary (clipped) context was
-                 * modified, restore it and continue the rendering for next layers.
+                 * modified, it will be restored in the "ordinary" loop when first needed.
                  */
-                if (clippedContext == context) {
-                    clippedContext.setGraphics(graphics);
-                }
                 layerIndex = layerIndexUp-1;
             }
         } finally {
