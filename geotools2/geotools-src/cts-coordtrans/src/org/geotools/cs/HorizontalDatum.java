@@ -51,7 +51,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure positions on the surface of the Earth.
  *
- * @version $Id: HorizontalDatum.java,v 1.7 2003/01/20 23:16:11 desruisseaux Exp $
+ * @version $Id: HorizontalDatum.java,v 1.8 2003/01/23 23:58:46 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -75,7 +75,7 @@ public class HorizontalDatum extends Datum {
     private final Ellipsoid ellipsoid;
     
     /**
-     * Preferred parameters for a Bursa Wolf transformation.
+     * Preferred parameters for a Bursa Wolf transformation, or <code>null</code> if none.
      */
     private final WGS84ConversionInfo parameters;
     
@@ -196,10 +196,13 @@ public class HorizontalDatum extends Datum {
      *         in past or future versions of this class.
      */
     public int hashCode() {
-        return (int)serialVersionUID +
+        int code= (int)serialVersionUID +
             37*(super     .hashCode() +
-            37*(ellipsoid .hashCode() +
-            37*(parameters.hashCode())));
+            37*(ellipsoid .hashCode()));
+        if (parameters != null) {
+            code += parameters.hashCode();
+        }
+        return code;
     }
     
     /**

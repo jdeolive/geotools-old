@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.13 2003/01/20 23:16:14 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.14 2003/01/23 23:58:46 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -327,7 +327,8 @@ public class Projection extends Info {
     public int hashCode() {
         int code = (int)serialVersionUID;
         if (classification!=null) code = code*37 + classification.hashCode();
-        if (parameters    !=null) code = code*37 + parameters.hashCode();
+//      if (parameters    !=null) code = code*37 + parameters.hashCode();
+// ---- We can't take 'parameters' in account since ParameterList do not override hashCode() ----
         return code;
     }
     
