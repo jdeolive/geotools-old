@@ -5,39 +5,63 @@
  */
 
 package org.geotools.styling;
-
+import java.util.ArrayList;
 /**
  *
  * @author  iant
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
+    ArrayList externalGraphics = new ArrayList();
+    ArrayList marks = new ArrayList();
+    
+    double opacity = 1.0;
+    double size = 1;
+    double rotation = 0.0;
     
     /** Creates a new instance of DefaultGraphic */
-    public DefaultGraphic(String url) {
-        // TODO: do something with this 
+    public DefaultGraphic() {
+        
     }
     
     /**
-     * Privides a list of external graphics which can be used to represent this graphic.
-     * Each one should be an equivelent representation but in a different format.
-     * If none are provied, or if none of the formats are supported then the list of Marks should be used instead.
+     * Privides a list of external graphics which can be used to represent
+     * this graphic.
+     * Each one should be an equivelent representation but in a
+     * different format.
+     * If none are provied, or if none of the formats are supported then the
+     * list of Marks should be used instead.
+     *
+     * @return An array of ExternalGraphics objects which should be equivlents
+     *        but in different formats.  If null is returned use
+     *        getMarks instead.
      */
     public ExternalGraphic[] getExternalGraphics() {
-        return null; //TODO provide reall return
+        if(externalGraphics.size()>0){
+            return (ExternalGraphic[])externalGraphics.toArray(new ExternalGraphic[0]);
+        }else{
+            return null;
+        }
     }
     
     /**
-     * Provides a list of suitible marks which can be used to represent this graphic.
-     * These should only be used if not ExternalGraphic is provided, or if none of the external graphics formats
-     * are supported.
+     * Provides a list of suitible marks which can be used to represent this
+     * graphic.
+     * These should only be used if not ExternalGraphic is provided, or if none
+     * of the external graphics formats are supported.
      *
-     * @return An array of marks to use when displaying this Graphic.  By default a "square" with 50% gray fill and black outline with
-     * a size of 6 pixels (unless a size is specifed) is provided.
+     * @return An array of marks to use when displaying this Graphic.
+     * By default a "square" with 50% gray fill and black outline with a size
+     * of 6 pixels (unless a size is specifed) is provided.
      */
     public Mark[] getMarks() {
-        return null; //TODO provide reall return
+        if(marks.size()>0){
+            return (Mark[])marks.toArray(new Mark[0]);
+        }else{
+            return new Mark[]{new DefaultMark()};
+        }
     }
     
+        
     /**
      * This specifies the level of translucency to use when rendering the graphic.<br>
      * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
@@ -48,7 +72,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The opacity of the Graphic, where 0.0 is completly transparent and 1.0 is completly opaque.
      */
     public double getOpacity() {
-        return 0.0; //TODO provide reall return
+        return opacity;
     }
     
     /**
@@ -57,7 +81,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The angle of rotation in decimal degrese, Negative values represent counter-clockwise rotation.  The default is 0.0 (no rotation)
      */
     public double getRotation() {
-        return 0.0; //TODO provide reall return
+        return rotation;
     }
     
     /**
@@ -69,7 +93,28 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The size of the graphic, the default is context specific.  Negative values are not possible.
      */
     public double getSize() {
-        return 0.0; //TODO provide reall return
+        return size;
+    }
+    
+    /** Setter for property opacity.
+     * @param opacity New value of property opacity.
+     */
+    public void setOpacity(double opacity) {
+        this.opacity = opacity;
+    }
+    
+    /** Setter for property rotation.
+     * @param rotation New value of property rotation.
+     */
+    public void setRotation(double rotation) {
+        this.rotation = rotation;
+    }
+    
+    /** Setter for property size.
+     * @param size New value of property size.
+     */
+    public void setSize(double size) {
+        this.size = size;
     }
     
 }
