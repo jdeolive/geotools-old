@@ -1,17 +1,30 @@
 /*
- * Rule.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on March 27, 2002, 2:25 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
 package org.geotools.styling;
 
 /**
- * A rule is used to attach a condition to and group the individual
+ * A rule is used to attach a condition to, and group, the individual
  * symbolizers used for rendering.  The Title and Abstract describe the rule
  * and may be used to generate a legend, as may the LegendGraphic.
  *
- * The Filter, ElseFilter, MinScale, and MaxScale elements allow the selection
+ * The Filter, ElseFilter, MinScale and MaxScale elements allow the selection
  * of features and rendering scales for a rule.  The scale selection works
  * as follows.  When a map is to be rendered, the scale denominator is
  * computed and all rules in all UserStyles that have a scale outside
@@ -33,9 +46,10 @@ package org.geotools.styling;
  * (lim[x->0+](x)), and a missing MaxScale means there is no upper bound
  * (infinity).  0.28mm 
  *
- * TODO: add getFitlers method to interface
- * TODO: add hasElseFilter method to interface
+ * TODO: add getFilters method to interface.
+ * TODO: add hasElseFilter method to interface.
  *
+ * @version $Id: Rule.java,v 1.3 2002/06/04 16:03:10 loxnard Exp $
  * @author James Macgill
  */
 public interface Rule {
@@ -44,8 +58,8 @@ public interface Rule {
      * The smallest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
      *
-     * @return The smallest(inclusive) denomiator value that this rule will be
-     *         active for.
+     * @return The smallest (inclusive) denominator value that this rule will
+     *         be active for.
      **/
     public double getMinScaleDenominator();
     
@@ -53,16 +67,16 @@ public interface Rule {
      * The largest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
      *
-     * @return The largest(exclusive) denomiator value that this rule will be
-     *         active for.
+     * @return The largest (exclusive) denominator value that this rule will
+     *         be active for.
      **/
     public double getMaxScaleDenominator();
     //public Filter[] getFilters();
     //public boolean hasElseFilter();
     
     /**
-     * A set of equivlent Graphics in different formats which can be used
-     * as a legend against features stylalized by the symbolizers in this
+     * A set of equivalent Graphics in different formats which can be used
+     * as a legend against features stylized by the symbolizers in this
      * rule.
      *
      * @return An array of Graphic objects, any of which can be used as
@@ -75,14 +89,14 @@ public interface Rule {
      * geometry types.  A single feature may be rendered by more than one
      * of the symbolizers returned by this method.  It is important that the
      * symbolizers be applied in the order in which they are returned if the
-     * end result is to be as inteded.
+     * end result is to be as intended.
      * All symbolizers should be applied to all features which make it through
-     * the filters in this rule regardless of the features geometry.
+     * the filters in this rule regardless of the features' geometry.
      * For example, a polygon symbolizer should be applied to line geometries
-     * and even points.  If this is not the desired beavior ensure that ether
-     * the filters block inapprorpriate features or that the FeatureTypeStyler
-     * which contains this rull has its FeatureTypeName or 
-     * SymanticTypeIdentifier set appropriatly.
+     * and even points.  If this is not the desired beaviour, ensure that
+     * either the filters block inappropriate features or that the
+     * FeatureTypeStyler which contains this rule has its FeatureTypeName or 
+     * SemanticTypeIdentifier set appropriately.
      *
      * @return An array of symbolizers to be applied, in sequence, to all of
      *         the features addressed by the FeatureTypeStyler which contains
