@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.5 2003/01/18 12:58:33 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.6 2003/01/22 23:08:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -83,19 +83,21 @@ public final class CTSUtilities {
      * coordinate system, then it is returned unchanged. Otherwise, if it is a
      * {@link CompoundCoordinateSystem}, then the head coordinate system is examined.
      *
-     * @param  cs The coordinate system.
-     * @return A two-dimensional coordinate system that represents the two first
-     *         dimensions of <code>cs</code>.
-     * @throws IllegalArgumentException if <code>cs</code> can't be reduced to
-     *         a two-coordinate system.
+     * @param  cs The coordinate system, or <code>null</code>.
+     * @return A two-dimensional coordinate system that represents the two first dimensions of
+     *         <code>cs</code>, or <code>null</code> if <code>cs</code> was <code>null</code>.
+     * @throws TransformException if <code>cs</code> can't be reduced to a two-coordinate system.
+     *         We use this exception class since this method is usually invoked in the context of
+     *         a transformation process.
      */
     public static CoordinateSystem getCoordinateSystem2D(CoordinateSystem cs)
-            throws IllegalArgumentException
+            throws TransformException
     {
         if (cs != null) {
-            while (cs.getDimension()!=2) {
+            while (cs.getDimension() != 2) {
                 if (!(cs instanceof CompoundCoordinateSystem)) {
-                    throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs.getName(null)));
+                    throw new TransformException(Resources.format(
+                            ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs.getName(null)));
                 }
                 cs = ((CompoundCoordinateSystem) cs).getHeadCS();
             }
