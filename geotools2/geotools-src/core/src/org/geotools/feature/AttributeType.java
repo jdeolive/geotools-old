@@ -58,7 +58,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: AttributeType.java,v 1.9 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: AttributeType.java,v 1.10 2003/09/22 17:46:40 cholmesny Exp $
  *
  * @task REVISIT: Think through occurences.  Perhaps a getMinOccurs and
  *       getMaxOccurs, reflecting xml, which would return 1 and 1 for a non
@@ -210,6 +210,7 @@ public interface AttributeType {
      * @throws IllegalArgumentException if the object does not validate.
      */
     void validate(Object obj) throws IllegalArgumentException;
-    
+
+    Object duplicate(Object src) throws IllegalAttributeException;    
 
 }

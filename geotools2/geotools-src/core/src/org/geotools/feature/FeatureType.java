@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.8 2003/08/05 22:48:23 cholmesny Exp $
+ * @version $Id: FeatureType.java,v 1.9 2003/09/22 17:46:40 cholmesny Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -330,4 +330,6 @@ public interface FeatureType extends FeatureFactory {
      * @return An array of ancestors.
      */    
     FeatureType[] getAncestors();
+
+    Feature duplicate(Feature feature) throws IllegalAttributeException;
 }

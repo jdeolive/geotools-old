@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.9 2003/08/20 19:56:18 cholmesny Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.10 2003/09/22 17:47:20 cholmesny Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -111,6 +111,22 @@ public class DefaultFeatureType implements FeatureType {
         return new DefaultFeature(this, attributes, featureID);
     }
 
+    public Feature duplicate(Feature original) throws IllegalAttributeException{
+        if( original == null ) return null;
+        FeatureType featureType = original.getFeatureType();
+        if (!featureType.equals(this)){ 
+	    throw new IllegalAttributeException("Feature type " + featureType
+						+ " does not match " + this);
+	}
+        String id = original.getID();
+        int numAtts = featureType.getAttributeCount();
+        Object attributes[] = new Object[numAtts];
+        for (int i = 0; i < numAtts; i++) {
+	    AttributeType curAttType = getAttributeType(i);
+            attributes[i] = curAttType.duplicate(original.getAttribute(i));
+        }
+        return featureType.create(attributes, id );
+    }
     /**
      * Gets the default geometry AttributeType.  If the FeatureType has more
      * one geometry it is up to the implementor to determine which geometry is
@@ -375,5 +391,6 @@ public class DefaultFeatureType implements FeatureType {
             throws IllegalAttributeException {
             throw new UnsupportedOperationException("Abstract Type");
         }
+
     }
 }
