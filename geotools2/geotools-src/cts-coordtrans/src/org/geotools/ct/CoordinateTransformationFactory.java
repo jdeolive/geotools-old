@@ -85,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.6 2002/10/09 19:36:34 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.7 2002/10/09 19:39:15 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *

@@ -50,7 +50,11 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.2 2002/10/09 19:36:34 desruisseaux Exp $
+<<<<<<< CTSUtilities.java
+ * @version $Id: CTSUtilities.java,v 1.3 2002/10/09 19:42:52 desruisseaux Exp $
+=======
+ * @version $Id: CTSUtilities.java,v 1.3 2002/10/09 19:42:52 desruisseaux Exp $
+>>>>>>> 1.2
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
