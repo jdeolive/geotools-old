@@ -35,12 +35,16 @@
       <version>1.3</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
+    
+    <!-- Use this when you dont have classes12 and sdoapi -->
     <dependency>
       <artifactId>dummy_spatial</artifactId>
       <groupId>oracle</groupId>
       <version>8.1.7</version>
      </dependency>
-     <!-- Commented out so we can build using the dummy_spatial jar
+     <!-- End -->
+     
+     <!-- Commented out so we can build using the dummy_spatial jar 
     <dependency>
       <artifactId>sdoapi</artifactId>
       <groupId>oracle</groupId>
@@ -51,7 +55,8 @@
       <groupId>oracle</groupId>
       <version>12</version>
     </dependency>
-    -->
+	-->
+    
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
@@ -69,12 +74,31 @@
     </dependency>
     </dependencies>
     <build>
-     <unitTest>
+    <unitTest>
+    
+      <!-- This section excludes the tests -->
       <excludes>
-        <exclude>**/OracleTest.java</exclude>
+        <exclude>**/*Test.java</exclude>
       </excludes>
+      <!-- End exclude tests -->
+      
+      <!-- This section includes the tests.
+           Uncomment to run tests.
+      <includes>
+      	<include>**/*Test.java</include>
+      </includes>
+       End test includes -->
+      
+      <resources>
+          <resource>
+              <directory>${basedir}/tests/unit</directory>
+              <includes>
+                  <include>testData/</include>
+              </includes>
+          </resource>
+      </resources>
     </unitTest>
-   </build> 
+    </build>
 
 </project>
 
