@@ -169,6 +169,7 @@ public class SQLUnpacker {
 	Filter subUnSup = null; //for logic iteration
        	Filter retSup = null;   //for return pair
 	Filter retUnSup = null; //for return pair
+	if (filter == null) return new FilterPair(null, null);
 	if (capabilities.fullySupports(filter)) {
 	    retSup = filter;
 	} else {
