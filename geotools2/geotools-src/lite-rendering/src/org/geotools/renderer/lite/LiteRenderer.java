@@ -113,7 +113,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.16 2003/07/27 15:29:47 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.17 2003/07/28 05:46:27 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -666,7 +666,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Shape path = createPath(geom);
 
         if (fill != null) {
-            applyFill(fill, feature);
+            applyFill(graphics, fill, feature);
 
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("paint in renderPoly: " + graphics.getPaint());
@@ -675,7 +675,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             graphics.fill(path);
 
             // shouldn't we reset the graphics when we return finished?
-            resetFill();
+            resetFill(graphics);
         }
 
         if (symbolizer.getStroke() != null) {
@@ -969,7 +969,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             drawHalo(halo, tx, ty, x, y, tl, feature, rotation);
         }
 
-        renderString(tx, ty, x, y, tl, feature, symbolizer.getFill(), rotation);
+        renderString(graphics, tx, ty, x, y, tl, feature, symbolizer.getFill(), rotation);
     }
 
     /**
@@ -1177,9 +1177,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param rotation text rotation
      */
     private void renderString(
-        double x, double y, double dx, double dy, TextLayout tl, Feature feature,
+        Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl, Feature feature,
         Fill fill, double rotation) {
-        AffineTransform temp = graphics.getTransform();
+        AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
 
         Point2D mapCentre = new java.awt.geom.Point2D.Double(x, y);
@@ -1202,9 +1202,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         labelAT.rotate(rotation - originalRotation);
 
-        graphics.setTransform(labelAT);
+        graphic.setTransform(labelAT);
 
-        applyFill(fill, feature);
+        applyFill(graphic, fill, feature);
 
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1214,10 +1214,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 + (y + dy));
         }
 
-        tl.draw(graphics, (float) dx, (float) dy);
+        tl.draw(graphic, (float) dx, (float) dy);
 
-        resetFill();
-        graphics.setTransform(temp);
+        resetFill(graphic);
+        graphic.setTransform(temp);
 
         return;
     }
@@ -1273,12 +1273,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
         at.translate(dx, dy);
 
         Shape sha = tl.getOutline(at);
-        applyFill(halo.getFill(), feature);
+        applyFill(graphics, halo.getFill(), feature);
 
         float radius = ((Number) halo.getRadius().getValue(feature)).floatValue();
         Shape haloShape = new BasicStroke(2f * radius).createStrokedShape(sha);
         graphics.fill(haloShape);
-        resetFill();
+        resetFill(graphics);
         graphics.setTransform(temp);
     }
 
@@ -1567,7 +1567,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("applying fill to mark");
             }
 
-            applyFill(mark.getFill(), null);
+            applyFill(graphic, mark.getFill(), null);
             graphic.fill(shape);
         }
 
@@ -1583,7 +1583,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         graphic.setTransform(temp);
 
         if (mark.getFill() != null) {
-            resetFill();
+            resetFill(graphic);
         }
 
         return;
@@ -1674,7 +1674,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         // TODO: consider if symbols should carry an offset
         double dx = textBounds.getWidth() / 2.0;
         double dy = textBounds.getHeight() / 2.0;
-        renderString(tx, ty, dx, dy, tl, feature, mark.getFill(), rotation);
+        renderString(graphic, tx, ty, dx, dy, tl, feature, mark.getFill(), rotation);
 
         return true;
     }
@@ -1685,27 +1685,27 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param fill how to fill the feature
      * @param feature the feature to be filled
      */
-    private void applyFill(Fill fill, Feature feature) {
+    private void applyFill(Graphics2D graphic, Fill fill, Feature feature) {
         if (fill == null) {
             return;
         }
 
-        graphics.setColor(
+        graphic.setColor(
             Color.decode((String) fill.getColor().getValue(feature)));
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("Setting fill: " + graphics.getColor().toString());
+            LOGGER.finer("Setting fill: " + graphic.getColor().toString());
         }
 
         Number value = (Number) fill.getOpacity().getValue(feature);
         float opacity = value.floatValue();
-        graphics.setComposite(
+        graphic.setComposite(
             AlphaComposite.getInstance(AlphaComposite.SRC_OVER, opacity));
 
         Graphic grd = fill.getGraphicFill();
 
         if (grd != null) {
-            setTexture(grd, feature);
+            setTexture(graphic, grd, feature);
         } else {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("no graphic fill set");
@@ -1719,7 +1719,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param gr the graphic specifiying the texture
      * @param feature the feature to be painted
      */
-    private void setTexture(Graphic gr, Feature feature) {
+    private void setTexture(Graphics2D graphic, Graphic gr, Feature feature) {
         BufferedImage image = getExternalGraphic(gr);
 
         if (image != null) {
@@ -1770,7 +1770,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 + drawSize);
         }
 
-        AffineTransform at = graphics.getTransform();
+        AffineTransform at = graphic.getTransform();
         double scaleX = drawSize / at.getScaleX();
         double scaleY = drawSize / -at.getScaleY();
 
@@ -1790,7 +1790,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         Double rect = new Double(0.0, 0.0, width, height);
         TexturePaint imagePaint = new TexturePaint(image, rect);
-        graphics.setPaint(imagePaint);
+        graphic.setPaint(imagePaint);
 
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("applied TexturePaint " + imagePaint);
@@ -1800,12 +1800,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Resets the current graphics2D fill
      */
-    private void resetFill() {
+    private void resetFill(Graphics2D graphic) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("reseting the graphics");
         }
 
-        graphics.setComposite(
+        graphic.setComposite(
             AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
     }
 
@@ -1931,7 +1931,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Graphic gr = stroke.getGraphicFill();
 
         if (gr != null) {
-            setTexture(gr, feature);
+            setTexture(graphic, gr, feature);
         } else {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("no graphic fill set");
