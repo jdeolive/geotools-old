@@ -23,6 +23,7 @@ import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.MaxFeatureReader;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -88,7 +89,7 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.13 2003/11/10 20:09:47 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.14 2003/11/11 02:37:00 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
@@ -100,6 +101,7 @@ public class FeatureTransformer extends TransformerBase {
     private NamespaceSupport nsLookup = new NamespaceSupport();
     private FeatureTypeNamespaces featureTypeNamespaces = new FeatureTypeNamespaces(nsLookup);
     private SchemaLocationSupport schemaLocation = new SchemaLocationSupport();
+    private int maxFeatures = -1;
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -129,10 +131,23 @@ public class FeatureTransformer extends TransformerBase {
         schemaLocation.setLocation(nsURI, uri);
     }
 
+    /**
+     * HACK ALERT!  This should go in FeatureSource, as all I'm doing right now
+     * is making a MaxFeatureReader from the reader I pass in. I just don't
+     * have time to implement it there.
+     *
+     * @param maxFeatures DOCUMENT ME!
+     */
+    public void setMaxFeatures(int maxFeatures) {
+        this.maxFeatures = maxFeatures;
+    }
+
     public org.geotools.xml.transform.Translator createTranslator(
         ContentHandler handler) {
         FeatureTranslator t = new FeatureTranslator(handler, collectionPrefix,
                 collectionNamespace, featureTypeNamespaces, schemaLocation);
+        t.setMaxFeatures(this.maxFeatures);
+
         java.util.Enumeration prefixes = nsLookup.getPrefixes();
 
         while (prefixes.hasMoreElements()) {
@@ -185,6 +200,7 @@ public class FeatureTransformer extends TransformerBase {
         String memberString;
         String currentPrefix;
         FeatureTypeNamespaces types;
+        int maxFeatures = -1;
 
         /**
          * Constructor with handler.
@@ -209,6 +225,10 @@ public class FeatureTransformer extends TransformerBase {
                 + ":featureMember";
         }
 
+        public void setMaxFeatures(int maxFeatures) {
+            this.maxFeatures = maxFeatures;
+        }
+
         public void encode(Object o) throws IllegalArgumentException {
             if (o instanceof FeatureCollection) {
                 FeatureCollection fc = (FeatureCollection) o;
@@ -216,6 +236,12 @@ public class FeatureTransformer extends TransformerBase {
             } else if (o instanceof FeatureReader) {
                 // THIS IS A HACK FOR QUICK USE
                 FeatureReader r = (FeatureReader) o;
+
+                //HACK: this reader should already be constructed.
+                if (maxFeatures > 0) {
+                    r = new MaxFeatureReader(r, maxFeatures);
+                }
+
                 startFeatureCollection();
 
                 try {
