@@ -24,7 +24,7 @@ import java.awt.Graphics2D;
 import java.awt.Graphics;
 import java.awt.Dimension;
 import java.awt.geom.AffineTransform;
-import java.util.EventObject;
+import org.geotools.map.events.BoundingBoxEvent;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -62,7 +62,7 @@ public class NavigationPane extends javax.swing.JComponent implements org.geotoo
      * Process an AreaOfInterestChangedEvent, probably involves a redraw.
      * @param areaOfInterestChangedEvent The new extent.
      */
-    public void areaOfInterestChanged(EventObject aoiEvent) {
+    public void areaOfInterestChanged(BoundingBoxEvent aoiEvent) {
         subAoi = aoiModel.getAreaOfInterest();
         System.out.println(subAoi);
         repaint();
