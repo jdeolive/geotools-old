@@ -95,7 +95,7 @@ public class RenderStyleTest extends TestCase {
         SLDStyle style = new SLDStyle(f);
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
-        Frame frame = new Frame();
+        Frame frame = new Frame("rendering test");
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
         });

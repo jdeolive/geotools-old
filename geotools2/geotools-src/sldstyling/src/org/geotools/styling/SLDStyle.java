@@ -12,7 +12,7 @@ package org.geotools.styling;
  *
  * @author  iant
  *
- * @version $Id: SLDStyle.java,v 1.5 2002/06/03 10:04:48 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.6 2002/06/03 16:10:13 ianturton Exp $
  */
 
 import org.w3c.dom.*;
@@ -354,7 +354,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         }
         return graphic;
     }
-    private Mark parseMark(Node root){
+    private DefaultMark parseMark(Node root){
         DefaultMark mark = new DefaultMark();
         NodeList children = root.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
@@ -370,9 +370,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             if(child.getNodeName().equalsIgnoreCase("WellKnownName")){
                 _log.debug("setting mark to "+child.getFirstChild().getNodeValue());
-                if(!mark.setWellKnownName(child.getFirstChild().getNodeValue())){
-                    return null;
-                }
+                mark.setWellKnownName(child.getFirstChild().getNodeValue());
             }
         }
         return mark;

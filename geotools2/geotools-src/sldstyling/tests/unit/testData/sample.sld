@@ -32,7 +32,12 @@ that allows you to describe the latyer in more detail
         <LineSymbolizer>
           <Stroke>
             <CssParameter name="stroke">#0000FF</CssParameter>
-            <CssParameter name="width">2</CssParameter>
+            <CssParameter name="width">
+                <Add>
+                    <literal>1</literal>
+                    <literal>2</literal>
+                </Add>
+            </CssParameter>
           </Stroke>
         </LineSymbolizer>
       </Rule>
@@ -44,7 +49,9 @@ that allows you to describe the latyer in more detail
         <!-- like a linesymbolizer but with a fill too -->
         <PolygonSymbolizer>
             <Stroke>
-                <CssParameter name="stroke-width">3</CssParameter>
+                <CssParameter name="stroke-width">
+                <Literal>3 </Literal>
+                </CssParameter>
                 <CssParameter name="stoke">#0000FF</CssParameter>
           </Stroke>
         </PolygonSymbolizer>
@@ -88,6 +95,7 @@ that allows you to describe the latyer in more detail
             <PointSymbolizer>
                 <graphic>
                     <size>10</size>
+                    <rotation>45.0</rotation>
                     <mark>
                     <!-- since cross is not implemented yet should draw next mark -->
                         <wellknownname>cross</wellknownname>
