@@ -4,71 +4,83 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
 ?>
 <!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
 "file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
-<article id="index">
-  <articleinfo>
-    <title>Geotools2 Glossary</title>
-
-    <author>
-      <firstname>Cameron</firstname>
-
-      <surname>Shorter</surname>
-    </author>
-
-    <date>$Date: 2002/10/01 12:08:18 $</date>
-
-    <abstract>
-      <para>Glossary of terms used in the Geotools2 project.</para>
-    </abstract>
-  </articleinfo>
-
-  <table>
-    <title>Glossary</title>
-
-    <tgroup cols="2">
-      <tbody>
-        <row>
-          <entry>GT2</entry>
-
-          <entry>Geotools version 2</entry>
-        </row>
-
-        <row>
-          <entry>J2ME</entry>
-
-          <entry>Java 2 Micro Edition</entry>
-        </row>
-
-        <row>
-          <entry>JTS</entry>
-
-          <entry>Java Topology Suite: (todo, URL)</entry>
-        </row>
-
-        <row>
-          <entry>GML</entry>
-
-          <entry>Geographic Markup Language, as defined by the OGC at (to do:
-          URL)</entry>
-        </row>
-
-        <row>
-          <entry>OGC</entry>
-
-          <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
-        </row>
-
-        <row>
-          <entry>SVG</entry>
-
-          <entry>Scalable Vector Graphics</entry>
-        </row>
-
-        <row>
-          <entry>SLD</entry>
-
-          <entry>Styled Layer Descriptor</entry>
-        </row>
-      </tbody>
-    </tgroup>
-  </table>
-</article>
+<article
+id="index"
+><articleinfo
+><title
+>Geotools2 Glossary</title
+><author
+><firstname
+>Cameron</firstname
+><surname
+>Shorter</surname
+></author
+><date
+>$Date: 2002/10/10 21:23:36 $</date
+><abstract
+><para
+>Glossary of terms used in the Geotools2 project.</para
+></abstract
+></articleinfo
+><table
+><title
+>Glossary</title
+><tgroup
+cols="2"
+><tbody
+><row
+><entry
+>GT2</entry
+><entry
+><ulink
+url="http://geotools.org"
+>Geotools version 2</ulink
+></entry
+></row
+><row
+><entry
+>J2ME</entry
+><entry
+>Java 2 Micro Edition</entry
+></row
+><row
+><entry
+>JTS</entry
+><entry
+><ulink
+url="http://www.vividsolutions.com/jts/jtshome.htm"
+>Java Topology Suite</ulink
+></entry
+></row
+><row
+><entry
+>GML</entry
+><entry
+>Geographic Markup Language, as defined by the OGC at (to do: URL)</entry
+></row
+><row
+><entry
+>OGC</entry
+><entry
+><ulink
+url="http://opengis.org"
+>Open GIS Consortium</ulink
+></entry
+></row
+><row
+><entry
+>SVG</entry
+><entry
+>Scalable Vector Graphics</entry
+></row
+><row
+><entry
+>SLD</entry
+><entry
+>Styled Layer Descriptor</entry
+></row
+></tbody
+></tgroup
+></table
+></article
+>
