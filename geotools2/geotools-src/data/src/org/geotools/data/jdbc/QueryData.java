@@ -1,4 +1,4 @@
-/* $Id: QueryData.java,v 1.1 2003/11/28 08:49:51 seangeo Exp $
+/* $Id: QueryData.java,v 1.2 2004/01/06 23:42:30 seangeo Exp $
  * 
  * Created on 28/11/2003
  */
@@ -394,7 +394,11 @@ public final class QueryData {
         }
         
         public void write(Object o, int position) throws SQLException {
-            rs.updateObject(position, o);
+            if (o == null) {
+                rs.updateNull(position);
+            } else {
+                rs.updateObject(position, o);
+            }
         }
     }
 }
