@@ -28,7 +28,7 @@ import java.awt.event.MouseListener;
 
 /**
  * This is the base widget class that all widgets inherit from.
- * @version $Id: PanelWidgetImpl.java,v 1.3 2003/02/09 09:53:06 camerons Exp $
+ * @version $Id: PanelWidgetImpl.java,v 1.4 2003/02/21 19:27:35 camerons Exp $
  * @author Cameron Shorter
  */
 
@@ -44,9 +44,10 @@ public class PanelWidgetImpl extends JPanel implements PanelWidget
     /**
      * Create a Widget.
      * A MapPane marshals the drawing of maps.
+     * This should only be called from WidgetFactory.
      *
      */
-    public PanelWidgetImpl()
+    protected PanelWidgetImpl()
     {
     }
 
