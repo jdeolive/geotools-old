@@ -707,5 +707,9 @@ public class WMSServlet extends HttpServlet {
         }
     }
     
+    private void clearCache(){
+        allMaps = new LRUMap(200);
+        allMaps = Collections.synchronizedMap(allMaps);
+    }
 }
 
