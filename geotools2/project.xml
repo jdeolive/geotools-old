@@ -39,6 +39,7 @@
       <organization>CCG</organization>
             <roles>
                 <role>Java Developer</role>
+                <role>GT2 Dev Team Member</role>
             </roles>
         </developer>
         
@@ -49,6 +50,7 @@
       <organization>CCG</organization>
             <roles>
                <role>Java Developer</role>
+               <role>GT2 Dev Team Member</role>
             </roles>
         </developer>
         
@@ -59,6 +61,7 @@
       <organization>VFNY</organization>
             <roles>
                 <role>Java Developer</role>
+                <role>GT2 Dev Team Member</role>
             </roles>
         </developer>
         <developer>
@@ -76,8 +79,8 @@
       <email>cameronsl@users.sourceforge.net</email>
       <organization>None</organization>
             <roles>
-                
                 <role>Java Developer</role>
+                <role>GT2 Dev Team Member</role>
             </roles>
         </developer>
         
@@ -87,8 +90,8 @@
       <email>cholmesny@users.sourceforge.net</email>
       <organization>TOPP</organization>
             <roles>
-		<role>Module Maintainer</role>
                 <role>Java Developer</role>
+                <role>GT2 Dev Team Member</role>
             </roles>
         </developer>
         <developer>
@@ -97,8 +100,8 @@
       <email>desruisseaux@users.sourceforge.net</email>
       <organization>Institut de Recherche pour le Developpement (IRD)</organization>
       <roles>
-        <role>Module Maintainer</role>
         <role>Java Developer</role>
+        <role>GT2 Dev Team Member</role>
       </roles>
     </developer>
     </developers>
