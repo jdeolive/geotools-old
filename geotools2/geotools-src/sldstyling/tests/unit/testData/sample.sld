@@ -25,17 +25,6 @@ A styling layer used for the unit tests of sldstyler
                 stroke-linecap, stroke-dasharray and stroke-dashoffset -->
             <CssParameter name="stroke">#FF0000</CssParameter>
             <CssParameter name="stroke-width">10</CssParameter>
-            <GraphicFill>
-                <Graphic>
-                    <mark>
-                        <size>10</size>
-                        <wellknownname>square</wellknownname>
-                        <fill>
-                            <CssParameter name="fill">#00FF00</CssParameter>
-                        </fill>
-                    </mark>
-                </Graphic>
-            </GraphicFill>    
           </Stroke>
         </LineSymbolizer>
         <!-- multiple linesyombolizers are applied one after the other -->
@@ -51,6 +40,62 @@ A styling layer used for the unit tests of sldstyler
           </Stroke>
         </LineSymbolizer>
       </Rule>
+    </FeatureTypeStyle>
+    
+    <FeatureTypeStyle>
+        <!-- this describes the featureTypeName to apply this style to e.g. road -->
+      <FeatureTypeName>linefeature2</FeatureTypeName>
+       <!-- the actual rule describes the style -->
+      <Rule>
+        <!-- these are lines so we need a line symbolizer -->
+        <LineSymbolizer>
+           <!-- A stroke describes how the line looks -->
+          <Stroke>
+            <!-- the CssParameters describe the actual style 
+                you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
+                stroke-linecap, stroke-dasharray and stroke-dashoffset -->
+            <CssParameter name="stroke">#FF0000</CssParameter>
+            <CssParameter name="stroke-width">10</CssParameter>
+            <GraphicFill>
+                <Graphic>
+                    <size>10</size>
+                    <mark>
+                        <wellknownname>triangle</wellknownname>
+                        <fill>
+                            <CssParameter name="fill">#00FF00</CssParameter>
+                        </fill>
+                    </mark>
+                </Graphic>
+            </GraphicFill>    
+          </Stroke>
+        </LineSymbolizer>
+    </Rule>
+    </FeatureTypeStyle>
+    <FeatureTypeStyle>
+        <FeatureTypeName>linefeature3</FeatureTypeName>
+        <Rule>
+        <LineSymbolizer>
+           <!-- A stroke describes how the line looks -->
+          <Stroke>
+            <!-- the CssParameters describe the actual style 
+                you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
+                stroke-linecap, stroke-dasharray and stroke-dashoffset -->
+            <CssParameter name="stroke">#FF0000</CssParameter>
+            <CssParameter name="stroke-width">10</CssParameter>
+            <GraphicStroke>
+                <Graphic>
+                    <size>15</size>
+                    <mark>
+                        <wellknownname>triangle</wellknownname>
+                        <fill>
+                            <CssParameter name="fill">#0000FF</CssParameter>
+                        </fill>
+                    </mark>
+                </Graphic>
+            </GraphicStroke>    
+          </Stroke>
+        </LineSymbolizer>
+    </Rule>
     </FeatureTypeStyle>
     <!-- a feature type for polygons -->
     <FeatureTypeStyle>
