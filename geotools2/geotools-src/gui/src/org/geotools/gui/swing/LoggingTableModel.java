@@ -69,7 +69,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * This model is used by {@link LoggingPanel} for displaying logging messages in
  * a {@link javax.swing.JTable}.
  *
- * @version $Id: LoggingTableModel.java,v 1.2 2002/09/01 22:47:03 desruisseaux Exp $
+ * @version $Id: LoggingTableModel.java,v 1.3 2002/09/04 10:32:54 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LoggingTableModel extends Handler implements TableModel {
@@ -234,7 +234,7 @@ final class LoggingTableModel extends Handler implements TableModel {
         if (row == null) {
             row = new String[getColumnCount()];
             row[0] = record.getLoggerName();
-            row[1] = record.getSourceClassName();
+            row[1] = getShortClassName(record.getSourceClassName());
             row[2] = record.getSourceMethodName();
             row[3] = dateFormat.format(new Date(record.getMillis()));
             row[4] = record.getLevel().getLocalizedName();
@@ -244,6 +244,17 @@ final class LoggingTableModel extends Handler implements TableModel {
         return row[columnIndex];
     }
 
+    /**
+     * Returns the class name in a shorter form (without package).
+     */
+    private static String getShortClassName(String name) {
+        final int dot = name.lastIndexOf('.');
+        if (dot >= 0) {
+            name = name.substring(dot+1);
+        }
+        return name.replace('$','.');
+    }
+    
     /**
      * Do nothing since cells are not editable.
      */
