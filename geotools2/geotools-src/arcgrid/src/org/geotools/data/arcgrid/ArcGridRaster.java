@@ -216,11 +216,11 @@ public class ArcGridRaster {
                 } else if (NROWS.equalsIgnoreCase(key)) {
                     nRows = (int) val;
                 } else if (XLLCORNER.equalsIgnoreCase(key)) {
-                    xllCorner = val;
+                    xllCorner = readHeaderDouble(st);
                 } else if (YLLCORNER.equalsIgnoreCase(key)) {
-                    yllCorner = val;
+                    yllCorner = readHeaderDouble(st);
                 } else if (CELLSIZE.equalsIgnoreCase(key)) {
-                    cellSize = val;
+                    cellSize = readHeaderDouble(st);
                 } else if (NODATA_VALUE.equalsIgnoreCase(key)) {
                     noData = readHeaderDouble(st);
                 } else {
@@ -438,7 +438,7 @@ public class ArcGridRaster {
             // write row to buffer
             for (int j = 0, jj = raster.getWidth(); j < jj; j++) {
                 
-                double v = raster.getSample(j,i,0);
+                double v = raster.getSampleDouble(j,i,0);
                 
                 // no data masking
                 if (Double.isNaN(v)) {
