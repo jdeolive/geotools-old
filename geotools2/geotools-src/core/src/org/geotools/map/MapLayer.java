@@ -17,7 +17,6 @@
 package org.geotools.map;
 
 import org.geotools.data.FeatureSource;
-import org.geotools.map.event.MapLayerEvent; // For Javadoc
 import org.geotools.map.event.MapLayerListener;
 import org.geotools.styling.Style;
 
@@ -28,7 +27,7 @@ import org.geotools.styling.Style;
  *
  * @author Cameron Shorter
  * @author Martin Desruisseaux
- * @version $Id: MapLayer.java,v 1.1 2003/12/04 23:20:33 aaime Exp $
+ * @version $Id: MapLayer.java,v 1.2 2003/12/23 17:21:02 aaime Exp $
  */
 public interface MapLayer {
     /**

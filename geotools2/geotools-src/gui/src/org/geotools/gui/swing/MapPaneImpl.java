@@ -16,40 +16,37 @@
  */
 package org.geotools.gui.swing;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.Adapters;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransformFactory;
-import org.geotools.data.DataSourceException;
-import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.gui.tools.Tool;
-import org.geotools.gui.tools.ToolFactory;
-import org.geotools.gui.tools.ToolList;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.map.Layer;
-import org.geotools.map.LayerList;
-import org.geotools.map.event.BoundingBoxEvent;
-import org.geotools.map.event.BoundingBoxListener;
-import org.geotools.map.event.LayerListListener;
-import org.geotools.gui.tools.event.SelectedToolListener;
-import org.geotools.renderer.lite.LiteRenderer;
-import org.geotools.styling.Style;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
-import java.lang.IllegalArgumentException;
+import java.io.IOException;
 import java.util.EventObject;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.JPanel;
+
+import org.geotools.ct.Adapters;
+import org.geotools.ct.MathTransformFactory;
+import org.geotools.gui.swing.event.GeoMouseEvent;
+import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.ToolList;
+import org.geotools.gui.tools.event.SelectedToolListener;
+import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
+import org.geotools.map.event.MapBoundsEvent;
+import org.geotools.map.event.MapBoundsListener;
+import org.geotools.map.event.MapLayerListEvent;
+import org.geotools.map.event.MapLayerListListener;
 import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.lite.LiteRenderer;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -59,13 +56,13 @@ import org.geotools.renderer.Renderer2D;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.34 2003/09/03 21:34:11 jmacgill Exp $
+ * @version $Id: MapPaneImpl.java,v 1.35 2003/12/23 17:21:02 aaime Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
  */
-public class MapPaneImpl extends JPanel implements BoundingBoxListener,
-    LayerListListener, ComponentListener, SelectedToolListener {
+public class MapPaneImpl extends JPanel implements MapBoundsListener,
+    MapLayerListListener, ComponentListener, SelectedToolListener {
     /** The class used for identifying for logging. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gui.swing.MapPaneImpl");
@@ -74,7 +71,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     Renderer2D renderer;
 
     /** The model which stores a list of layers and BoundingBox. */
-    private Context context;
+    private MapContext context;
 
     /** List of tools which can be used by this class. */
     private ToolList toolList;
@@ -94,8 +91,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @throws IllegalArgumentException when parameters are null.
      */
-    public MapPaneImpl(Context context, ToolList toolList)
-        throws IllegalArgumentException {
+    public MapPaneImpl(MapContext context, ToolList toolList)
+        throws IllegalArgumentException, IOException {
         if ((context == null) || (toolList == null)) {
             throw new IllegalArgumentException();
         } else {
@@ -106,19 +103,19 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             this.context = context;
             
             // auto-zoom if necessary
-            Layer[] layers = context.getLayerList().getLayers();
+            MapLayer[] layers = context.getLayers();
             if(layers != null && layers.length > 0) {
-                Envelope bounds = new Envelope(layers[0].getFeatures().getBounds());
+                Envelope bounds = new Envelope(layers[0].getFeatureSource().getBounds());
                 for(int i = 1; i < layers.length; i++) {
-                    Envelope env = layers[i].getFeatures().getBounds();
+                    Envelope env = layers[i].getFeatureSource().getBounds();
                     bounds.expandToInclude(env);
                 }
-                context.getBoundingBox().setAreaOfInterest(bounds);
+                context.setAreaOfInterest(bounds);
             }
 
             // Request to be notified when map parameters change
-            context.getBbox().addBoundingBoxListener(this);
-            context.getLayerList().addLayerListListener(this);
+            context.addMapBoundsListener(this);
+            context.addMapLayerListListener(this);
             toolList.addSelectedToolListener(this);
             toolList.getSelectedTool().addMouseListener(this, context);
             addComponentListener(this);
@@ -143,7 +140,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @throws IllegalArgumentException when parameters are null.
      */
-    public MapPaneImpl(Context context) throws IllegalArgumentException {
+    public MapPaneImpl(MapContext context) throws IllegalArgumentException, IOException {
         this(context, ToolFactory.createFactory().createDefaultToolList());
     }
 
@@ -157,25 +154,20 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      * @param graphics The graphics object to paint to.
      *
      * @task TODO fill in exception.  This should implement logging.
-     * @task REVISIT Need to create an interface
-     *       features=dataSource.getFeatures(extent)
      * @task REVISIT We should set the AreaOfInterest somewhere other than
      *       here.
-     * @task REVISIT Need to change getBbox(false) to getBbox(true) to speed
-     *       things up.  ch - that method no longer exists, changed to no 
-     *       argument.
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
 
-        if (context.getBbox().getAreaOfInterest() == null) {
-            Envelope bBox = context.getLayerList().getBounds();
+        try {
+        if (context.getAreaOfInterest() == null) {
+            Envelope bounds = context.getLayerBounds();
 
-            if (bBox != null) {
+            if (bounds != null) {
                 LOGGER.info("AreaOfInterest calculated during rendering");
-                context.getBbox().setAreaOfInterest(context.getLayerList()
-                                                           .getBounds(), null);
+                context.setAreaOfInterest(bounds, null);
             }
         }
 
@@ -187,8 +179,6 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             h = 2;
         }
 
-        try {
-            System.out.println(graphics.getClipBounds());
             // paint only what's needed
             renderer.paint((Graphics2D) graphics,  
                 graphics.getClipBounds(),
@@ -196,27 +186,11 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         } catch (java.awt.geom.NoninvertibleTransformException e) {
             LOGGER.warning("Transform error while rendering. Cause is: " +
                 e.getCause());
+        } catch (IOException ioe) {
+        	LOGGER.log(Level.SEVERE, "IOException while rendering data", ioe);
         }
     }
 
-    /**
-     * Process an AreaOfInterestChangedEvent, involves a redraw.
-     *
-     * @param boundingBoxEvent The new extent.
-     */
-    public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
-        updateTransform();
-        repaint(getVisibleRect());
-    }
-
-    /**
-     * Process an LayerListChangedEvent, involves a redraw.
-     *
-     * @param layerListChangedEvent The new extent.
-     */
-    public void layerListChanged(EventObject layerListChangedEvent) {
-        repaint(getVisibleRect());
-    }
 
     /**
      * Processes mouse events occurring on this component. This method
@@ -279,7 +253,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         double newAspectRatio = (double) w / (double) h;
 
         AffineTransform at = new AffineTransform();
-        Envelope aoi = context.getBbox().getAreaOfInterest();
+        Envelope aoi = context.getAreaOfInterest();
 
         double contextAspectRatio = (double) (aoi.getMaxX() - aoi.getMinX()) / (double) (aoi.getMaxY() -
             aoi.getMinY());
@@ -301,16 +275,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             at.translate(0, -(aoi.getMinY() + aoi.getMaxY()) / 2);
         }
 
-        MathTransform transform = MathTransformFactory.getDefault()
-                                                      .createAffineTransform(at);
-
-        try {
-            context.getBbox().transform(adapters.export(transform));
-        } catch (java.rmi.RemoteException exception) {
-            // TODO: We should not hide a checked exception that way.
-            throw new java.lang.reflect.UndeclaredThrowableException(exception,
-                "Remote call failed");
-        }
+        context.transform(at);
     }
 
     /**
@@ -350,7 +315,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      */
     public void updateTransform() {
         //Real World Coordinates
-        Envelope aoi = context.getBbox().getAreaOfInterest();
+        Envelope aoi = context.getAreaOfInterest();
 
         // Scaling
         double scaleX = (aoi.getMaxX() - aoi.getMinX()) / (getWidth() -
@@ -403,4 +368,40 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     public ToolList getToolList() {
         return this.toolList;
     }
+
+	/* (non-Javadoc)
+	 * @see org.geotools.map.event.MapBoundsListener#mapBoundsChanged(org.geotools.map.event.MapBoundsEvent)
+	 */
+	public void mapBoundsChanged(MapBoundsEvent event) {
+		updateTransform();
+		repaint(getVisibleRect());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.geotools.map.event.MapLayerListListener#layerAdded(org.geotools.map.event.MapLayerListEvent)
+	 */
+	public void layerAdded(MapLayerListEvent event) {
+		repaint(getVisibleRect());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.geotools.map.event.MapLayerListListener#layerRemoved(org.geotools.map.event.MapLayerListEvent)
+	 */
+	public void layerRemoved(MapLayerListEvent event) {
+		repaint(getVisibleRect());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.geotools.map.event.MapLayerListListener#layerChanged(org.geotools.map.event.MapLayerListEvent)
+	 */
+	public void layerChanged(MapLayerListEvent event) {
+		repaint(getVisibleRect());
+	}
+
+	/* (non-Javadoc)
+	 * @see org.geotools.map.event.MapLayerListListener#layerMoved(org.geotools.map.event.MapLayerListEvent)
+	 */
+	public void layerMoved(MapLayerListEvent event) {
+		repaint(getVisibleRect());
+	}
 }

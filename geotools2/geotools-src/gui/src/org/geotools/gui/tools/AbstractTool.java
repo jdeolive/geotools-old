@@ -5,17 +5,18 @@ import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import org.geotools.map.Context;
+
+import org.geotools.map.MapContext;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
  * Tools process mouse events on behalf of widgets like MapPane and change
  * data in the Context (like the AreaOfInterest).
- * @version $Id: AbstractTool.java,v 1.3 2003/04/25 07:02:31 camerons Exp $
+ * @version $Id: AbstractTool.java,v 1.4 2003/12/23 17:21:02 aaime Exp $
  * @author Cameron Shorter
  */
 public abstract class AbstractTool
@@ -36,7 +37,7 @@ public abstract class AbstractTool
      * A tool is associated with only one context.  The context stores all data
      * about a mapping model.  This tool will change data in context classes.
      */
-    protected Context context;
+    protected MapContext context;
     
     /** The cursor associated with this tool. */
     private Cursor cursor = new Cursor(Cursor.DEFAULT_CURSOR);
@@ -52,7 +53,7 @@ public abstract class AbstractTool
      */
     protected void addMouseListener(
         Component component,
-        Context context,
+        MapContext context,
         MouseListener listener)
     {
         if ((component==null) || (context==null)
@@ -78,7 +79,7 @@ public abstract class AbstractTool
      */
     protected void addMouseMotionListener(
         Component component,
-        Context context,
+        MapContext context,
         MouseMotionListener listener) throws IllegalArgumentException
     {
         if ((component==null) || (context==null)
@@ -125,7 +126,7 @@ public abstract class AbstractTool
      * Get the context.  If context has not been set yet, then null is returned.
      * @param The context which stores the state data.
      */
-    public Context getContext(){
+    public MapContext getContext(){
         return context;
     }
     

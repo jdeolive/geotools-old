@@ -21,26 +21,27 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.Point;
 import java.awt.Color;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.Layer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
-import org.geotools.renderer.lite.LiteRenderer;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import javax.imageio.ImageIO;
+
 import javax.media.jai.JAI;
+
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.FilterFactory;
-import org.geotools.styling.StyleBuilder;
+import org.geotools.map.Context;
+import org.geotools.map.ContextFactory;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.Layer;
+import org.geotools.map.MapContext;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
+
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -177,7 +178,7 @@ public class DefaultMarkTest extends junit.framework.TestCase {
         TextSymbolizer textSymbolizer = sb.createTextSymbolizer(sb.createFill(Color.BLACK),
                 new Font[] { sb.createFont("Lucida Sans", 10), sb.createFont("Arial", 10) },
                 sb.createHalo(), sb.attributeExpression("name"), pointPlacement, null);
-        Mark circle = sb.createMark(sb.MARK_CIRCLE, Color.RED);
+        Mark circle = sb.createMark(StyleBuilder.MARK_CIRCLE, Color.RED);
         Graphic graph2 = sb.createGraphic(null, circle, null, 1, 4, 0);
         PointSymbolizer pointSymbolizer = sb.createPointSymbolizer(graph2);
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("labelPoint",
@@ -190,24 +191,20 @@ public class DefaultMarkTest extends junit.framework.TestCase {
      * Test lite renderer and style loaded from xml file
      */
     public void testLiteRendererXml() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), loadStyleFromXml());
-        ctx.getLayerList().addLayer(layer);
+        MapContext context = new DefaultMapContext();
+        context.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
-        performTestOnRenderer(new LiteRenderer(ctx), "xml");
+        performTestOnRenderer(new LiteRenderer(context), "xml");
     }
     
     /**
      * Test lite renderer and style created with the style builder
      */
     public void testLiteRendererBuilder() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), buildStyle());
-        ctx.getLayerList().addLayer(layer);
+        MapContext context = new DefaultMapContext();
+        context.addLayer(buildFeatureCollection(), buildStyle());
         
-        performTestOnRenderer(new LiteRenderer(ctx), "builder");
+        performTestOnRenderer(new LiteRenderer(context), "builder");
     }
 
     /**

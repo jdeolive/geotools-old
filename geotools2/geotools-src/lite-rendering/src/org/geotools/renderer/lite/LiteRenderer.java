@@ -16,18 +16,54 @@
  */
 package org.geotools.renderer.lite;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
+import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
+import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Composite;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.MediaTracker;
+import java.awt.Rectangle;
+import java.awt.Shape;
+import java.awt.TexturePaint;
+import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.PathIterator;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+
+import org.geotools.data.DataUtilities;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
-import org.geotools.map.Context;
-import org.geotools.map.Layer;
+import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
 import org.geotools.renderer.Renderer;
 import org.geotools.renderer.Renderer2D;
 import org.geotools.styling.ExternalGraphic;
@@ -51,44 +87,13 @@ import org.geotools.styling.Symbol;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextMark;
 import org.geotools.styling.TextSymbolizer;
-import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Composite;
-import java.awt.FontFormatException;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.MediaTracker;
-import java.awt.Rectangle;
-import java.awt.Shape;
-import java.awt.TexturePaint;
-import java.awt.font.GlyphVector;
-import java.awt.font.TextLayout;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.PathIterator;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.imageio.ImageIO;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -112,7 +117,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.27 2003/11/15 14:13:42 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.28 2003/12/23 17:21:02 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -200,8 +205,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         markCentrePoint = fac.createPoint(c);
     }
 
-    /** Context which contains LayerList, BoundingBox which needs to be rendered. */
-    private Context context;
+    /** Context which contains the layers and the bouning box which needs to be rendered. */
+    private MapContext context;
 
     /**
      * Flag which determines if the renderer is interactive or not. An interactive renderer will
@@ -249,7 +254,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @param context Contains pointers to layers, bounding box, and style required for rendering.
      */
-    public LiteRenderer(Context context) {
+    public LiteRenderer(MapContext context) {
         this.context = context;
     }
 
@@ -358,33 +363,32 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         try {
             // set the passed graphic as the current graphic but
-            // be sure to release it before
+            // be sure to release it before we end up with this request
             this.graphics = graphics;
 
-            Layer[] layers = context.getLayerList().getLayers();
+            MapLayer[] layers = context.getLayers();
 
-            for (int l = 0; l < layers.length; l++) {
-                Layer layer = layers[l];
+            for (int i = 0; i < layers.length; i++) {
+                MapLayer currLayer = layers[i];
 
-                if (!layer.getVisability()) {
+                if (!currLayer.isVisible()) {
                     // Only render layer when layer is visible
                     continue;
                 }
 
-                FeatureCollection fc = layer.getFeatures();
-
                 try {
-                    mapExtent = this.context.getBbox().getAreaOfInterest();
-
-                    if (LOGGER.isLoggable(Level.FINE)) {
-                        LOGGER.fine("renderering " + fc.size() + " features");
-                    }
+                    mapExtent = this.context.getAreaOfInterest();
+                    
+                    // TODO: extract attributes and bounding box so that
+                    // only the needed features with the needed geometries 
+                    // will be loaded
+                    FeatureResults results = currLayer.getFeatureSource().getFeatures();
 
                     // extract the feature type stylers from the style object
                     // and process them
-                    processStylers(fc, layer.getStyle().getFeatureTypeStyles());
+                    processStylers(results, currLayer.getStyle().getFeatureTypeStyles());
                 } catch (Exception exception) {
-                    LOGGER.warning("Exception " + exception + " rendering layer " + layer);
+                    LOGGER.warning("Exception " + exception + " rendering layer " + currLayer);
                     exception.printStackTrace();
                 }
             }
@@ -406,7 +410,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param s A style object.  Contains a set of FeatureTypeStylers that are to be applied in
      *        order to control the rendering process.
      */
-    public void render(FeatureCollection fc, Envelope map, Style s) {
+    public void render(FeatureCollection features, Envelope map, Style s) {
         if (graphics == null) {
             LOGGER.info("renderer passed null graphics");
 
@@ -438,12 +442,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
 
-        processStylers(fc, featureStylers);
+        try {
+			processStylers(DataUtilities.results(features), featureStylers);
+		} catch (IOException ioe) {
+			LOGGER.log(Level.SEVERE, "I/O error while rendering the layer", ioe);
+		} catch (IllegalAttributeException iae) {
+			LOGGER.log(Level.SEVERE, "Illegal attribute exception while rendering the layer", iae);
+		}
 
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
             double elapsed = (endTime - startTime) / 1000.0;
-            LOGGER.fine("Rendered " + fc.size() + " features in " + elapsed + " sec.");
         }
     }
 
@@ -541,8 +550,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
      */
-    private void processStylers(final FeatureCollection features,
-        final FeatureTypeStyle[] featureStylers) {
+    private void processStylers(final FeatureResults features,
+        final FeatureTypeStyle[] featureStylers) throws IOException, IllegalAttributeException {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing " + featureStylers.length + " stylers");
         }
@@ -550,15 +559,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
         for (int i = 0; i < featureStylers.length; i++) {
             FeatureTypeStyle fts = featureStylers[i];
 
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("about to draw " + features.size() + " feature");
-            }
-
             // get rules
             Rule[] rules = fts.getRules();
 
-            for (Iterator it = features.iterator(); it.hasNext();) {
-                Feature feature = (Feature) it.next();
+            FeatureReader reader = features.reader();
+            while(reader.hasNext()) {
+                Feature feature = reader.next();
 
                 for (int k = 0; k < rules.length; k++) {
                     // if this rule applies
@@ -626,9 +632,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * Renders the given feature as a polygon using the specified symbolizer. Geometry types other
      * than inherently area types can be used. If a line is used then the line string is closed
      * for filling (only) by connecting its end point to its start point. This is an internal
-     * method that should only be called by processSymbolizers. TODO: the properties of a
-     * symbolizer may, in part, be dependent on TODO: attributes of the feature.  This is not yet
-     * supported.
+     * method that should only be called by processSymbolizers. 
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
@@ -641,7 +645,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         Fill fill = symbolizer.getFill();
-        String geomName = symbolizer.geometryPropertyName();
+        String geomName = symbolizer.getGeometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
 
         if (geom.isEmpty()) {
@@ -690,9 +694,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * method that should only be called by processSymbolizers Geometry types other than
      * inherently linear types can be used. If a point geometry is used, it should be interpreted
      * as a line of zero length and two end caps.  If a polygon is used (or other "area" type)
-     * then its closed outline will be used as the line string (with no end caps). TODO: the
-     * properties of a symbolizer may, in part, be dependent on TODO: attributes of the feature.
-     * This is not yet supported.
+     * then its closed outline will be used as the line string (with no end caps). 
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
@@ -705,7 +707,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Stroke stroke = symbolizer.getStroke();
         applyStroke(graphics, stroke, feature);
 
-        String geomName = symbolizer.geometryPropertyName();
+        String geomName = symbolizer.getGeometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
 
         if ((geom == null) || geom.isEmpty()) {
@@ -739,7 +741,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             LOGGER.finest("sldgraphic = " + sldgraphic);
         }
 
-        String geomName = symbolizer.geometryPropertyName();
+        String geomName = symbolizer.getGeometryPropertyName();
         Geometry geom = findGeometry(feature, geomName);
 
         if (geom.isEmpty()) {

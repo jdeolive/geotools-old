@@ -16,14 +16,6 @@
  */
 package org.geotools.demos;
 
-import org.geotools.ct.Adapters;
-import org.geotools.data.shapefile.ShapefileDataSource;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.gui.swing.MapPaneImpl;
-import org.geotools.gui.swing.ToolMenu;
-import org.geotools.map.*;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleBuilder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -31,8 +23,21 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.logging.Logger;
+
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+
+import org.geotools.ct.Adapters;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.gui.swing.MapPaneImpl;
+import org.geotools.gui.swing.ToolMenu;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.DefaultMapLayer;
+import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleBuilder;
 
 
 /**
@@ -40,7 +45,7 @@ import javax.swing.JMenuBar;
  *
  * @author Cameron Shorter
  * @author Andrea Aime
- * @version $Id: MapViewer.java,v 1.23 2003/08/07 17:08:48 jmacgill Exp $
+ * @version $Id: MapViewer.java,v 1.24 2003/12/23 17:21:02 aaime Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -51,7 +56,7 @@ public class MapViewer {
     private Adapters adapters = Adapters.getDefault();
 
     /** The context which contains this maps data */
-    private Context context;
+    private MapContext context;
 
     /**
      * Creates new form MapViewer
@@ -71,25 +76,23 @@ public class MapViewer {
      * @param style The style applied to the feature collection
      *
      * @return A demo mapPane
-     *
-     * @task TODO remove references to RemoteException when we can.
      */
-    private MapPaneImpl createMapPane(FeatureCollection fc, Style style) {
-        MapPaneImpl mapPane;
-        Layer layer;
-
-        ContextFactory contextFactory = ContextFactory.createFactory();
+    private MapPaneImpl createMapPane(FeatureCollection fc, Style style)  {
+        MapPaneImpl mapPane = null;
+        MapLayer layer;
 
         // Create a Context
-        context = contextFactory.createContext();
-        layer = contextFactory.createLayer(fc, style);
+        context = new DefaultMapContext();
+        layer = new DefaultMapLayer(fc, style);
         layer.setTitle("Test layer");
-        context.getLayerList().addLayer(layer);
-        System.out.println("Layers: " +
-            context.getLayerList().getLayers().length);
+        context.addLayer(layer);
 
-        // Create MapPane
-        mapPane = new MapPaneImpl(context);
+        try {
+			// Create MapPane
+			mapPane = new MapPaneImpl(context);
+		} catch (Exception e) {
+			// I'm sure they won't be thrown since I'm working with a FeatureCollection
+		}
         mapPane.setBackground(Color.WHITE);
         mapPane.setPreferredSize(new Dimension(300, 300));
 
@@ -140,9 +143,9 @@ public class MapViewer {
 
     public static void mapPane() throws Exception {
         // load data from file (USE SOMETHING ON YOUR LOCAL DISK)
-        ShapefileDataSource sds = new ShapefileDataSource(new File(
+        ShapefileDataStore sds = new ShapefileDataStore(new File(
                     "f:/work/pnnl/data.frame.zone.shp").toURL());
-        FeatureCollection fc = sds.getFeatures();
+        FeatureCollection fc = sds.getFeatureSource(sds.getTypeNames()[0]).getFeatures().collection();
 
         // create the style
         StyleBuilder sb = new StyleBuilder();

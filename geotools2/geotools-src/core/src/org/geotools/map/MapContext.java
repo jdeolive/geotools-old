@@ -16,19 +16,18 @@
  */
 package org.geotools.map;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.FeatureResults;
+import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.util.Iterator;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.map.event.BoundingBoxListener;
-import org.geotools.map.event.LayerListListener;
 import org.geotools.map.event.MapBoundsListener;
 import org.geotools.map.event.MapLayerListListener;
 import org.geotools.styling.Style;
 import org.opengis.sc.CoordinateReferenceSystem;
-import java.awt.geom.AffineTransform;
-import java.io.IOException;
-import java.util.Iterator;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -36,7 +35,7 @@ import java.util.Iterator;
  * Specification.
  *
  * @author Cameron Shorter
- * @version $Id: MapContext.java,v 1.2 2003/12/06 11:15:49 aaime Exp $
+ * @version $Id: MapContext.java,v 1.3 2003/12/23 17:21:02 aaime Exp $
  */
 public interface MapContext {
     /**

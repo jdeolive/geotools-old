@@ -22,15 +22,30 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.Graphics2D;
+import java.awt.Panel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.WritableRaster;
+import java.util.Date;
+
+import javax.media.jai.JAI;
+import javax.media.jai.RasterFactory;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.GeographicCoordinateSystem;
@@ -47,43 +62,20 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
-import org.geotools.filter.FilterFactory;
 import org.geotools.gc.GridCoverage;
 import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
-import org.geotools.renderer.lite.LiteRenderer;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
-import org.geotools.styling.Symbolizer;
-import org.geotools.units.Unit;
-import java.awt.Color;
-import java.awt.Frame;
-import java.awt.Graphics2D;
-import java.awt.Panel;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
-import java.awt.image.WritableRaster;
-import java.util.Date;
-import java.util.logging.Logger;
-import javax.media.jai.JAI;
-import javax.media.jai.OperationRegistry;
-
-//Logging system
-import javax.media.jai.RasterFactory;
-import org.geotools.gp.jai.CombineDescriptor;
-import org.geotools.gp.jai.HysteresisDescriptor;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.MapContext;
 import org.geotools.renderer.Renderer2D;
 import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
+import org.geotools.units.Unit;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 
 /**
@@ -139,9 +131,8 @@ public class RenderingGridCoverageTest extends TestCase {
         FeatureCollection fc = wrapGcInFeatureCollection(createGrid());
         Style style = createEmtpyRasterStyle();
         
-        ContextFactory cfac = ContextFactory.createFactory();
-        Context ctx = cfac.createContext();
-        ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
+        MapContext ctx = new DefaultMapContext();
+        ctx.addLayer(fc, style);
         
         LiteRenderer renderer = new LiteRenderer(ctx);
         performTestOnRenderer(renderer, "", 300, 300, 100, 100);
@@ -194,9 +185,8 @@ public class RenderingGridCoverageTest extends TestCase {
      */
     private void contextArchitectureTest(FeatureCollection fc, Style style)
         throws Exception {
-        ContextFactory cfac = ContextFactory.createFactory();
-        Context ctx = cfac.createContext();
-        ctx.getLayerList().addLayer(cfac.createLayer(fc, style));
+    	MapContext ctx = new DefaultMapContext();
+    	ctx.addLayer(fc, style);
 
         LiteRenderer renderer = new LiteRenderer(ctx);
 

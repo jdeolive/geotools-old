@@ -15,28 +15,28 @@
 package org.geotools.demos;
 
 // J2SE dependencies
-import java.net.URL;
-import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
-import java.io.FileNotFoundException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+
 import javax.swing.JFrame;
 
-// Geotools dependencies
-import org.geotools.map.Layer;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataStore;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.gui.swing.StatusBar;
+import org.geotools.gui.swing.StyledMapPane;
 import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
+import org.geotools.map.Layer;
+import org.geotools.renderer.j2d.RenderedMapScale;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleBuilder;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.shapefile.ShapefileDataSource;
-import org.geotools.renderer.j2d.RenderedMapScale;
-import org.geotools.gui.swing.StyledMapPane;
-import org.geotools.gui.swing.StatusBar;
 
 
 /**
@@ -68,7 +68,7 @@ import org.geotools.gui.swing.StatusBar;
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer2.java,v 1.27 2003/08/20 22:04:06 desruisseaux Exp $
+ * @version $Id: MapViewer2.java,v 1.28 2003/12/23 17:21:02 aaime Exp $
  */
 public class MapViewer2 {
     /**
@@ -117,8 +117,8 @@ public class MapViewer2 {
         if (url == null) {
             throw new FileNotFoundException("Resource not found");
         }
-        final DataSource      datasource = new ShapefileDataSource(url);
-        final FeatureCollection features = datasource.getFeatures();
+        final DataStore store = new ShapefileDataStore(url);
+        final FeatureCollection features = store.getFeatureSource(store.getTypeNames()[0]).getFeatures().collection();
 
         // Create the style
         final StyleBuilder builder = new StyleBuilder();

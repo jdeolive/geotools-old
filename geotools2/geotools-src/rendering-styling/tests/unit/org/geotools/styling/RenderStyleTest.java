@@ -21,32 +21,32 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.Point;
-import org.geotools.feature.*;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.filter.FilterFactory;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.Layer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
-import org.geotools.renderer.lite.LiteRenderer;
-import org.geotools.styling.StyleBuilder;
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.StringWriter;
-import java.net.*;
-import javax.imageio.ImageIO;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import javax.media.jai.JAI;
+
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.map.Context;
+import org.geotools.map.ContextFactory;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.Layer;
+import org.geotools.map.MapContext;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -176,7 +176,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
                 }));
 
         // create line style with graphic fill
-        Mark triangle = sb.createMark(sb.MARK_TRIANGLE, Color.GREEN);
+        Mark triangle = sb.createMark(StyleBuilder.MARK_TRIANGLE, Color.GREEN);
         Stroke gstroke = sb.createStroke(Color.RED, 10);
         gstroke.setGraphicFill(sb.createGraphic(null, triangle, null, 1, 10, 0));
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("linefeature2",
@@ -185,7 +185,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
         // create line style referring to external graphic
         ExternalGraphic ext = sb.createExternalGraphic("http://www.ccg.leeds.ac.uk/ian/geotools/icons/rail.gif",
                 "image/gif");
-        Mark arrow = sb.createMark(sb.MARK_ARROW, Color.BLUE);
+        Mark arrow = sb.createMark(StyleBuilder.MARK_ARROW, Color.BLUE);
         Stroke gstroke2 = sb.createStroke(Color.RED, 10);
         gstroke2.setGraphicStroke(sb.createGraphic(ext, arrow, null, 1, 10, 0));
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("linefeature3",
@@ -194,7 +194,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
                 }));
 
         // create complex fill style for polygons
-        Mark circle = sb.createMark(sb.MARK_CIRCLE, Color.YELLOW);
+        Mark circle = sb.createMark(StyleBuilder.MARK_CIRCLE);
         Fill gfill = sb.createFill(Color.YELLOW, 0.5);
         gfill.setGraphicFill(sb.createGraphic(null, circle, null, 1, 10, 0));
 
@@ -207,7 +207,7 @@ public class RenderStyleTest extends junit.framework.TestCase {
                 }));
 
         // create another one that refers to an external graphic
-        Mark triangle2 = sb.createMark(sb.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
+        Mark triangle2 = sb.createMark(StyleBuilder.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
         ExternalGraphic brick = sb.createExternalGraphic("http://www.ccg.leeds.ac.uk/ian/geotools/icons/brick1.gif",
                 "image/gif");
         Fill gfill2 = sb.createFill(Color.MAGENTA, 0.5);
@@ -216,12 +216,12 @@ public class RenderStyleTest extends junit.framework.TestCase {
         sb.createPolygonSymbolizer(sb.createStroke(), gfill2)));
 
         // create one with graphic stroke
-        Mark triangle3 = sb.createMark(sb.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
+        Mark triangle3 = sb.createMark(StyleBuilder.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
         Fill gfill3 = sb.createFill(Color.MAGENTA, 0.5);
         gfill3.setGraphicFill(sb.createGraphic(null, triangle3, null, 1, 10, 0));
 
         Stroke gstroke3 = sb.createStroke();
-        Mark arrow2 = sb.createMark(sb.MARK_ARROW, new Color(32, 32, 255));
+        Mark arrow2 = sb.createMark(StyleBuilder.MARK_ARROW, new Color(32, 32, 255));
         gstroke3.setGraphicStroke(sb.createGraphic(null, arrow2, null, 1, 8, 0));
         style.addFeatureTypeStyle(sb.createFeatureTypeStyle("polygontest3",
                 sb.createPolygonSymbolizer(gstroke3, gfill3)));
@@ -229,8 +229,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
         // and finally a point style using both graphics and text
         ExternalGraphic blob = sb.createExternalGraphic("http://www.ccg.leeds.ac.uk/ian/geotools/icons/blob.gif",
                 "image/gif");
-        Mark cross = sb.createMark(sb.MARK_TRIANGLE, new Color(255, 0, 255), 0.5);
-        Mark square = sb.createMark(sb.MARK_SQUARE, Color.GREEN, 0.5);
+        Mark cross = sb.createMark(StyleBuilder.MARK_TRIANGLE, new Color(255, 0, 255), 0.5);
+        Mark square = sb.createMark(StyleBuilder.MARK_SQUARE, Color.GREEN, 0.5);
         Graphic gr = sb.createGraphic(new ExternalGraphic[] { blob }, new Mark[] { cross, square },
                 null, 1.0, 10, 45);
         Font font = sb.createFont("Lucida Sans", 10);
@@ -264,10 +264,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
 //    }
     
     private LiteRenderer createLiteRenderedXmlStyle() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), loadStyleFromXml());
-        ctx.getLayerList().addLayer(layer);
+        MapContext ctx = new DefaultMapContext();
+        ctx.addLayer(buildFeatureCollection(), loadStyleFromXml());
 
         LiteRenderer renderer = new LiteRenderer(ctx);
         renderer.setInteractive(false);
@@ -314,10 +312,8 @@ public class RenderStyleTest extends junit.framework.TestCase {
      * Test lite renderer and style created with the style builder
      */
     public void testLiteRendererBuilder() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), buildStyle());
-        ctx.getLayerList().addLayer(layer);
+        MapContext ctx = new DefaultMapContext();
+        ctx.addLayer(buildFeatureCollection(), buildStyle());
 
         LiteRenderer renderer = new LiteRenderer(ctx);
         renderer.setInteractive(false);

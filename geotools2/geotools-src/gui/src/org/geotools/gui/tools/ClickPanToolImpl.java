@@ -17,23 +17,12 @@
 
 package org.geotools.gui.tools;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.TransformException;
-import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
-import javax.swing.event.MouseInputAdapter;
+
+import org.geotools.map.MapContext;
 
 
 /**
@@ -41,7 +30,7 @@ import javax.swing.event.MouseInputAdapter;
  * map and then zoom in/out by the zoomFactor.
  *
  * @author Cameron Shorter
- * @version $Id: ClickPanToolImpl.java,v 1.4 2003/05/02 10:54:57 desruisseaux Exp $
+ * @version $Id: ClickPanToolImpl.java,v 1.5 2003/12/23 17:21:02 aaime Exp $
  */
 public class ClickPanToolImpl extends PanToolImpl implements ClickPanTool {
     private static final Logger LOGGER =
@@ -77,7 +66,7 @@ public class ClickPanToolImpl extends PanToolImpl implements ClickPanTool {
      */
     public void addMouseListener(
         Component component,
-        Context context
+        MapContext context
     ) {
         super.addMouseListener(component, context, this);
     }

@@ -16,9 +16,10 @@
  */
 package org.geotools.gui.tools;
 
-import org.geotools.map.Context;
 import java.awt.Component;
 import java.awt.Cursor;
+
+import org.geotools.map.MapContext;
 
 
 /**
@@ -27,7 +28,7 @@ import java.awt.Cursor;
  * the Context (like the AreaOfInterest).
  *
  * @author Cameron Shorter
- * @version $Id: Tool.java,v 1.5 2003/08/20 21:32:13 cholmesny Exp $
+ * @version $Id: Tool.java,v 1.6 2003/12/23 17:21:02 aaime Exp $
  */
 public abstract interface Tool {
     /**
@@ -41,7 +42,7 @@ public abstract interface Tool {
      * @throws IllegalArgumentException if an argument is <code>null</code> or
      *         the tool is being assigned a different context to before.
      */
-    void addMouseListener(Component component, Context context)
+    void addMouseListener(Component component, MapContext context)
         throws IllegalArgumentException;
 
     /**
@@ -56,7 +57,7 @@ public abstract interface Tool {
      *
      * @return The context of this tool.
      */
-    Context getContext();
+    MapContext getContext();
 
     /**
      * Set the name for the tool, eg "Zoom In", "Zoom Out", "Pan".

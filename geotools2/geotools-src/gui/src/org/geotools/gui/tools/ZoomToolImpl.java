@@ -16,24 +16,17 @@
  */
 package org.geotools.gui.tools;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.TransformException;
-import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.lang.Math;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
-import javax.swing.event.MouseInputAdapter;
+
+import org.geotools.ct.TransformException;
+import org.geotools.gui.swing.event.GeoMouseEvent;
+import org.geotools.map.MapContext;
+import org.geotools.pt.CoordinatePoint;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -45,7 +38,7 @@ import javax.swing.event.MouseInputAdapter;
  * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.12 2003/05/17 23:16:07 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.13 2003/12/23 17:21:02 aaime Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private static final Logger LOGGER = Logger.getLogger(
@@ -128,7 +121,7 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
 
             // Calculate the inverseZoomFactor
             // zoomFactor=min(zoomWidth/displayWidth,zoomHeight/displayHeight)
-            Envelope aoi = context.getBbox().getAreaOfInterest();
+            Envelope aoi = context.getAreaOfInterest();
             double izf = Math.max(Math.abs(pressPoint.getOrdinate(0) -
                         releasePoint.getOrdinate(0)) / (aoi.getMaxX() -
                     aoi.getMinX()),
@@ -149,7 +142,7 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
      * @param component The tool will process mouseEvents from this component.
      * @param context The Context that will be changed by this Tool.
      */
-    public void addMouseListener(Component component, Context context) {
+    public void addMouseListener(Component component, MapContext context) {
         super.addMouseListener(component, context, this);
     }
 

@@ -17,24 +17,19 @@
 
 package org.geotools.gui.tools;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.ct.Adapters;
-import org.geotools.ct.MathTransform;
-import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.TransformException;
-import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.pt.CoordinatePoint;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
 import java.util.logging.Logger;
-import javax.swing.JComponent;
-import javax.swing.event.MouseInputAdapter;
+
+import org.geotools.ct.Adapters;
+import org.geotools.ct.TransformException;
+import org.geotools.gui.swing.event.GeoMouseEvent;
+import org.geotools.map.MapContext;
+import org.geotools.pt.CoordinatePoint;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -43,7 +38,7 @@ import javax.swing.event.MouseInputAdapter;
  * CordinateTransform for the map's Context.
  *
  * @author $author$
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  */
 public class PanToolImpl extends AbstractTool implements PanTool {
     private static final Logger LOGGER =
@@ -93,7 +88,7 @@ public class PanToolImpl extends AbstractTool implements PanTool {
         CoordinatePoint midPoint,
         double inverseZoomFactor
     ) {
-        Envelope aoi = context.getBbox().getAreaOfInterest();
+        Envelope aoi = context.getAreaOfInterest();
 
         at.setToIdentity();
         at.translate(
@@ -106,15 +101,7 @@ public class PanToolImpl extends AbstractTool implements PanTool {
             -(aoi.getMinY() + aoi.getMaxY()) / 2
         );
 
-        MathTransform transform =
-            MathTransformFactory.getDefault().createAffineTransform(at);
-
-        try {
-            context.getBbox().transform(adapters.export(transform));
-        } catch (java.rmi.RemoteException e) {
-            // TODO: We should not hide a checked exception that way.
-            throw new java.lang.reflect.UndeclaredThrowableException(e, "Remote call failed");
-        }
+        context.transform(at);
     }
 
     /**
@@ -153,18 +140,12 @@ public class PanToolImpl extends AbstractTool implements PanTool {
                 pressPoint.getOrdinate(1) - releasePoint.getOrdinate(1)
             );
 
-            MathTransform transform =
-                MathTransformFactory.getDefault().createAffineTransform(at);
-
-            context.getBbox().transform(adapters.export(transform));
+            context.transform(at);
         } catch (TransformException t) {
             LOGGER.warning(
                 "Transform exception prevented mouseClicks from being processed"
             );
-        } catch (java.rmi.RemoteException t) {
-            // TODO: We should not hide a checked exception that way.
-            throw new java.lang.reflect.UndeclaredThrowableException(t, "Remote call failed");
-        }
+        } 
     }
 
     /**
@@ -175,7 +156,7 @@ public class PanToolImpl extends AbstractTool implements PanTool {
      */
     public void addMouseListener(
         Component component,
-        Context context
+        MapContext context
     ) {
         super.addMouseListener(component, context, this);
     }

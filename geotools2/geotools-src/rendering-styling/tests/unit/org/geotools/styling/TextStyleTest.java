@@ -21,31 +21,30 @@
  */
 package org.geotools.styling;
 
-import com.vividsolutions.jts.geom.*;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Point;
 import java.awt.Color;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.Layer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.renderer.j2d.StyledRenderer;
-import org.geotools.renderer.lite.LiteRenderer;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
-import java.util.*;
-import javax.imageio.ImageIO;
+
 import javax.media.jai.JAI;
-import org.geotools.feature.*;
-import org.geotools.filter.*;
-import org.geotools.filter.FilterFactory;
-import org.geotools.styling.StyleBuilder;
+
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.filter.IllegalFilterException;
+import org.geotools.map.Context;
+import org.geotools.map.ContextFactory;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.Layer;
+import org.geotools.map.MapContext;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.renderer.j2d.StyledRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -157,7 +156,7 @@ public class TextStyleTest extends junit.framework.TestCase {
         Style style = sb.createStyle();
         
         // point style
-        Mark triangle = sb.createMark(sb.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
+        Mark triangle = sb.createMark(StyleBuilder.MARK_TRIANGLE, sb.createFill(Color.MAGENTA, 0.5), null);
         PointSymbolizer ps = sb.createPointSymbolizer(sb.createGraphic(null, triangle, null));
         Font font = sb.createFont("Lucida Sans", 10);
         font.setFontSize(sb.attributeExpression("size"));
@@ -186,10 +185,8 @@ public class TextStyleTest extends junit.framework.TestCase {
      * Test lite renderer and style loaded from xml file
      */
     public void testLiteRendererXml() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), loadStyleFromXml());
-        ctx.getLayerList().addLayer(layer);
+        MapContext ctx = new DefaultMapContext();
+        ctx.addLayer(buildFeatureCollection(), loadStyleFromXml());
         
         performTestOnRenderer(new LiteRenderer(ctx), "xml");
     }
@@ -198,10 +195,8 @@ public class TextStyleTest extends junit.framework.TestCase {
      * Test lite renderer and style created with the style builder
      */
     public void testLiteRendererBuilder() throws Exception {
-        ContextFactory cf = ContextFactory.createFactory();
-        Context ctx = cf.createContext();
-        Layer layer = cf.createLayer(buildFeatureCollection(), buildStyle());
-        ctx.getLayerList().addLayer(layer);
+    	MapContext ctx = new DefaultMapContext();
+    	ctx.addLayer(buildFeatureCollection(), buildStyle());
         
         performTestOnRenderer(new LiteRenderer(ctx), "builder");
     }
@@ -280,6 +275,7 @@ public class TextStyleTest extends junit.framework.TestCase {
                 "TextStyleTest_" + renderer.getClass().getName().replace('.', '_') + "_" + fileSuffix + ".png");
         java.io.FileOutputStream out = new java.io.FileOutputStream(file);
         boolean fred = javax.imageio.ImageIO.write(image, "PNG", out);
+        RenderedImage image1 = (RenderedImage) JAI.create("fileload", file.toString());
 
         if (!fred) {
             System.out.println("Failed to write image to " + file.toString());
@@ -292,7 +288,7 @@ public class TextStyleTest extends junit.framework.TestCase {
 
         assertNotNull("Failed to load exemplar image", image2);
 
-        Raster data = image.getData();
+        Raster data = image1.getData();
         Raster data2 = image2.getData();
         int[] pixel1 = null;
         int[] pixel2 = null;
