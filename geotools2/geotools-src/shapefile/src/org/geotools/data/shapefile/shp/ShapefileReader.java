@@ -67,6 +67,7 @@ public class ShapefileReader {
     boolean ready = false;
     /** Fetch the shape stored in this record. */    
     public Object shape() {
+      buffer.order(ByteOrder.LITTLE_ENDIAN);
       return handler.read(buffer,type);
     }
     public int offset() {
@@ -142,12 +143,12 @@ public class ShapefileReader {
       limit *= 2;
     }
     if (limit != buffer.limit()) {
-      if (record.ready) {
+      //if (record.ready) {
         buffer = ByteBuffer.allocateDirect(limit);
-      }
-      else {
-        throw new IllegalArgumentException("next before hasNext");
-      }
+      //}
+      //else {
+      //  throw new IllegalArgumentException("next before hasNext");
+      //}
     }
     return buffer;
   }
@@ -170,6 +171,9 @@ public class ShapefileReader {
     header = readHeader(channel,strict);
     fileShapeType = header.getShapeType();
     handler = fileShapeType.getShapeHandler();
+    
+//    recordHeader = ByteBuffer.allocateDirect(8);
+//    recordHeader.order(ByteOrder.BIG_ENDIAN);
     
     if (handler == null) {
       throw new IOException("Unsuported shape type:" + fileShapeType);
@@ -221,35 +225,26 @@ public class ShapefileReader {
    * @return True if has next record, false otherwise.
    */  
   public boolean hasNext() throws IOException {
+      
+    // mark current position
+    int position = buffer.position();
+      
     // ensure the proper position, regardless of read or handler behavior
     buffer.position(record.end);
     
-    // are there less than eight bytes (record header size) ?
-    if (buffer.remaining() < 8) {
-      
-      if (buffer.isReadOnly()) {
-        return false;
-      }
-      // compact the buffer and fill
-      buffer.compact();
-      if (fill(buffer,channel) == -1) {
-        return false;
-      }
-      // reset
-      buffer.position(0);
-    }
+    // no more data left
+    if (buffer.remaining() < 8) return false;
     
-    buffer.mark();
+    // record headers in big endian
     buffer.order(ByteOrder.BIG_ENDIAN);
-    int number = buffer.getInt();
-    if (number != record.number + 1) {
-      return false;
-    }
-    buffer.reset();
-
-    record.ready = true;
-    // if not must be more stuff
-    return true;
+    
+    // looks good
+    boolean hasNext = buffer.getInt() == record.number + 1;
+    
+    // reset things to as they were
+    buffer.position(position);
+    
+    return hasNext;
   }
   
   /** Fetch the next record information.
@@ -257,6 +252,9 @@ public class ShapefileReader {
    * @return The record instance associated with this reader.
    */  
   public Record nextRecord() throws IOException {
+      
+    // need to update position
+    buffer.position(record.end);
     
     // record header is big endian
     buffer.order(ByteOrder.BIG_ENDIAN);
@@ -268,23 +266,27 @@ public class ShapefileReader {
     // track the record location
     int recordLength = buffer.getInt() * 2;
 
-    // capacity is less than required for the record
+    if (! buffer.isReadOnly() ) {
+        // capacity is less than required for the record
     // copy the old into the newly allocated
-    if (buffer.capacity() < recordLength) {
-      ByteBuffer old = buffer;
-      buffer = ensureCapacity(buffer, recordLength);
-      buffer.put(old);
-      fill(buffer,channel);
-      buffer.position(0);
-    } else 
-    // remaining is less than record length
-    // compact the remaining data and read again
-    if (buffer.remaining() < recordLength) {
-      buffer.compact();
-      fill(buffer,channel);
-      buffer.position(0);
+        if (buffer.capacity() < recordLength + 8) {
+          ByteBuffer old = buffer;
+          // ensure enough capacity for one more record header
+          buffer = ensureCapacity(buffer, recordLength + 8);
+          buffer.put(old);
+          fill(buffer,channel);
+          buffer.position(0);
+        } else 
+        // remaining is less than record length
+        // compact the remaining data and read again,
+        // allowing enough room for one more record header
+        if (buffer.remaining() < recordLength + 8) {
+          buffer.compact();
+          fill(buffer,channel);
+          buffer.position(0);
+        }
     }
-    
+
     // shape record is all little endian
     buffer.order(ByteOrder.LITTLE_ENDIAN);
     
