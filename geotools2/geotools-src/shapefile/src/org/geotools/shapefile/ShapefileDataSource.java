@@ -11,6 +11,7 @@ import java.util.List;
 import java.io.*;
 
 import org.geotools.datasource.*;
+import org.geotools.featuretable.*;
 import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 
@@ -22,7 +23,7 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
     Shapefile shapefile;
     /** Creates a new instance of ShapefileDataSource */
     public ShapefileDataSource(Shapefile shapefile) {
-        
+        this.shapefile = shapefile;
     }
     
     /** gets the Column names (used by FeatureTable) for this DataSource
@@ -33,7 +34,7 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
     
     /** Loads Feature rows for the given Extent from the datasource
      */
-    public List load(Extent ex) throws DataSourceException {
+    public void importFeatures(FeatureTable ft,Extent ex) throws DataSourceException {
         if(ex instanceof EnvelopeExtent){
             List features = new ArrayList();
             EnvelopeExtent ee = (EnvelopeExtent)ex;
@@ -42,13 +43,12 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
                 GeometryCollection shapes = shapefile.read(new GeometryFactory());
                 int count = shapes.getNumGeometries();
                 for(int i=0;i<count;i++){
-                    Feature feat = new Feature();
-                    feat.columnNames = getColumnNames();
+                    DefaultFeature feat = new DefaultFeature();
                     Object [] row = new Object[1];
-                    feat.row = row;
-                    feat.row[0] = shapes.getGeometryN(i);
+                    row[0] = shapes.getGeometryN(i);
+                    feat.setAttributes(row,getColumnNames());
                     if(ex.containsFeature(feat)){
-                        features.add(feat);
+                        ft.addFeature(feat);
                     }
                 }
             }
@@ -62,17 +62,17 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
                 throw new DataSourceException("Topology Exception loading data : "+te.getMessage());
             }
             
-            return features;
+            
         }
-        else{
-            return null;
-        }
+       
     }
     
     /** Saves the given features to the datasource
+     * TODO: write the export code
      */
-    public void save(List features) throws DataSourceException {
-        GeometryFactory fac = new GeometryFactory();
+    public void exportFeatures(FeatureTable ft,Extent ex) throws DataSourceException {
+        throw new DataSourceException("Exporting of shapefiles not yet supported"); 
+       /* GeometryFactory fac = new GeometryFactory();
         GeometryCollection gc = fac.createGeometryCollection((GeometryCollection[])features.toArray(new Geometry[0]));
         try{
             shapefile.write(gc);
@@ -81,7 +81,7 @@ public class ShapefileDataSource implements org.geotools.datasource.DataSource {
             {
                throw new DataSourceException(e.getMessage()); 
             }
-        }
+        }*/
             
     }
     

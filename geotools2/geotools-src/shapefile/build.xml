@@ -10,6 +10,7 @@
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\core\release\"/>
+                <fileset dir="..\defaultcore\release\"/>
             </classpath>
         </javac>
         <javac debug="true" srcdir="tests/unit">
@@ -18,6 +19,7 @@
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
                 <fileset dir="..\core\release\"/>
+                <fileset dir="..\defaultcore\release\"/>
                 <path path="src"/>
             </classpath>
         </javac>
@@ -32,6 +34,7 @@
                 <fileset dir="..\..\extbin\shapefile\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
                 <fileset dir="..\core\release\"/>
+                <fileset dir="..\defaultcore\release\"/>
                 <path path="src"/>
                 <path path="tests/unit/"/>
             </classpath>

@@ -8,6 +8,7 @@
 package org.geotools.shapefile;
 
 import org.geotools.datasource.*;
+import org.geotools.featuretable.*;
 import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
@@ -41,17 +42,23 @@ public class ShapefileDataSourceTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
-            FeatureTable table = new FeatureTable(datasource);
-            
+            DefaultFeatureTable table = new DefaultFeatureTable();
+            table.setDataSource(datasource);
             EnvelopeExtent r = new EnvelopeExtent();
-            r.setBounds(new Envelope(50, 360, 0, 180.0));
-            table.requestExtent(r);
+            r.setBounds(new Envelope(-180, 180, -90, 90));
+            Feature[] features = table.getFeatures(r);
+            System.out.println("No features loaded = "+features.length);
             
         }
-        catch(Exception e){
+        catch(DataSourceException e){
             System.out.println(e);
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
+        }
+        catch(IOException ioe){
+            System.out.println(ioe);
+            ioe.printStackTrace();
+            fail("Load failed because of exception "+ioe.toString());
         }
         
     }
