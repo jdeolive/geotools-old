@@ -159,10 +159,10 @@ public class MemoryDataSourceTest extends TestCase {
         assertNotNull(source.getMetaData());
         assertTrue("should support fast bbox retreval",
             source.getMetaData().hasFastBbox());
-        assertFalse("claims to support abort",
-            source.getMetaData().supportsAbort());
-        assertFalse("claims to support rollback",
-            source.getMetaData().supportsRollbacks());
+        assertTrue("claims to support abort",
+            !source.getMetaData().supportsAbort());
+        assertTrue("claims to support rollback",
+            !source.getMetaData().supportsRollbacks());
     }
 
     public static void main(java.lang.String[] args) {
