@@ -20,4 +20,9 @@
     </target>
     
     
+    <target name="extractDocuments">
+        <copy todir="../../modulePages">
+            <fileset dir=".." includes="*/target/docs/*"/>
+        </copy>
+    </target>
 </project>
