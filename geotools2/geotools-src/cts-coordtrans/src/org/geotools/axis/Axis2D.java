@@ -88,7 +88,7 @@ import org.geotools.resources.XAffineTransform;
  * be used for mapping logical coordinates to pixels coordinates for an arbitrary
  * pair of <code>Axis2D</code> objects, which doesn't need to be perpendicular.
  *
- * @version $Id: Axis2D.java,v 1.1 2003/03/07 23:36:09 desruisseaux Exp $
+ * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see AxisInfo
@@ -128,6 +128,12 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * Modèle qui contient les minimum, maximum et la graduation de l'axe.
      */
     private final Graduation graduation;
+
+    /**
+     * The {@link AxisInfo} object associated to this axis, or <code>null</code> if it has
+     * not been created yet.
+     */
+    private transient AxisInfo information;
 
     /**
      * Compte le nombre de modifications apportées à l'axe,
@@ -224,6 +230,35 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      */
     public Graduation getGraduation() {
         return graduation;
+    }
+
+    /**
+     * Returns this axis name and orientation. Informations include a name (usually
+     * the {@linkplain Graduation#getTitle graduation title}) and an orientation.
+     * The orientation is usually {@linkplain AxisOrientation#NORTH North} or
+     * {@linkplain AxisOrientation#SOUTH South} for vertical axis,
+     * {@linkplain AxisOrientation#EAST East} or {@linkplain AxisOrientation#WEST West}
+     * for horizontal axis, or "{@linkplain AxisOrientation#OTHER other}" otherwise.
+     */
+    public synchronized AxisInfo getAxisInfo() {
+        if (information == null) {
+            AxisOrientation orientation = AxisOrientation.OTHER;
+            if (x1 == x2) {
+                if (y1 < y2) {
+                    orientation = AxisOrientation.NORTH;
+                } else if (y1 > y2) {
+                    orientation = AxisOrientation.SOUTH;
+                }
+            } else if (y1 == y2) {
+                if (x1 < x2) {
+                    orientation = AxisOrientation.EAST;
+                } else if (x1 > x2) {
+                    orientation = AxisOrientation.WEST;
+                }
+            }
+            information = new AxisInfo(graduation.getTitle(false), orientation);
+        }
+        return information;
     }
 
     /**
@@ -446,7 +481,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
         if (graphics != null) {
             clip = graphics.getClip();
             iterator.setFontRenderContext(graphics.getFontRenderContext());
-            iterator.setRenderingHint(graphics, Graduation.LABEL_FONT);
+            iterator.setRenderingHint(graphics, Graduation.AXIS_TITLE_FONT);
             iterator.setRenderingHint(graphics, Graduation.TICK_LABEL_FONT);
             final FontRenderContext context = iterator.getFontRenderContext();
             sameContext = clip!=null && context.equals(lastContext);
@@ -525,10 +560,10 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
          * mais le calcul de l'espace qu'elle occupe sera quand même effectué.
          */
         if (!sameContext || legendBounds==null || clip.intersects(legendBounds)) {
-            final String label = graduation.getLabel(true);
-            if (label != null) {
-                final Font font = iterator.getLabelFont();
-                final GlyphVector glyphs = font.createGlyphVector(iterator.getFontRenderContext(), label);
+            final String title = graduation.getTitle(true);
+            if (title != null) {
+                final Font font = iterator.getTitleFont();
+                final GlyphVector glyphs = font.createGlyphVector(iterator.getFontRenderContext(), title);
                 final AffineTransform rotatedTr = new AffineTransform();
                 final Rectangle2D bounds = iterator.centerAxisLabel(glyphs.getVisualBounds(),
                                                                     rotatedTr, maximumSize);
@@ -558,7 +593,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      *         if no value is associated to the specified key.
      *
      * @see Graduation#TICK_LABEL_FONT
-     * @see Graduation#LABEL_FONT
+     * @see Graduation#AXIS_TITLE_FONT
      */
     public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return (hints!=null) ? hints.get(key) : null;
@@ -574,18 +609,23 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      *              A <code>null</code> value removes any hint for the specified key.
      *
      * @see Graduation#TICK_LABEL_FONT
-     * @see Graduation#LABEL_FONT
+     * @see Graduation#AXIS_TITLE_FONT
      */
     public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         modCount++;
         if (value != null) {
             if (hints == null) {
                 hints = new RenderingHints(key, value);
+                clearCache();
             } else {
-                hints.put(key, value);
+                if (!value.equals(hints.put(key, value))) {
+                    clearCache();
+                }
             }
         } else if (hints != null) {
-            hints.remove(key);
+            if (hints.remove(key) != null) {
+                clearCache();
+            }
             if (hints.isEmpty()) {
                 hints = null;
             }
@@ -601,6 +641,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
         labelBounds  = null;
         legendBounds = null;
         maximumSize  = null;
+        information  = null;
     }
 
     /**
@@ -609,7 +650,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
     public String toString() {
         final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
         buffer.append("[\"");
-        buffer.append(graduation.getLabel(true));
+        buffer.append(graduation.getTitle(true));
         buffer.append("\"]");
         return buffer.toString();
     }
@@ -705,7 +746,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * method, using the iterator after a change in the underlying {@link Axis2D}
      * may thrown a {@link ConcurrentModificationException}.
      *
-     * @version $Id: Axis2D.java,v 1.1 2003/03/07 23:36:09 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public class TickIterator implements org.geotools.axis.TickIterator {
@@ -969,13 +1010,13 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
         }
 
         /**
-         * Returns the font for axis label. This is the font used for drawing the label
-         * formatted by {@link Graduation#getLabel}.
+         * Returns the font for axis title. This is the font used for drawing the title
+         * formatted by {@link Graduation#getTitle}.
          *
          * @return The font (never <code>null</code>).
          */
-        final Font getLabelFont() {
-            Object candidate = hints.get(Graduation.LABEL_FONT);
+        final Font getTitleFont() {
+            Object candidate = hints.get(Graduation.AXIS_TITLE_FONT);
             if (candidate instanceof Font) {
                 return (Font) candidate;
             }
@@ -992,9 +1033,9 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
          * Graphics2D           graphics = ...
          * FontRenderContext fontContext = graphics.getFontRenderContext();
          * TickIterator         iterator = axis.new TickIterator(graphics.getFontRenderContext());
-         * Font                     font = iterator.getLabelFont();
-         * String                  label = axis.getGraduation().getLabel(true);
-         * GlyphVector            glyphs = font.createGlyphVector(fontContext, label);
+         * Font                     font = iterator.getTitleFont();
+         * String                  title = axis.getGraduation().getTitle(true);
+         * GlyphVector            glyphs = font.createGlyphVector(fontContext, title);
          * Rectangle2D            bounds = centerAxisLabel(glyphs.getVisualBounds());
          * graphics.drawGlyphVector(glyphs, (float)bounds.getMinX(), (float)bounds.getMaxY());
          * </pre>
@@ -1181,7 +1222,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * itérateur ne retourne que des droites et jamais de courbes, il ne prend
      * pas d'argument <code>flatness</code>.
      *
-     * @version $Id: Axis2D.java,v 1.1 2003/03/07 23:36:09 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private class TickPathIterator extends TickIterator implements java.awt.geom.PathIterator {
@@ -1381,7 +1422,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
      * Itérateur balayant l'axe et ses barres de graduations pour leur traçage.
      * Cet itérateur balaye aussi les étiquettes de graduations.
      *
-     * @version $Id: Axis2D.java,v 1.1 2003/03/07 23:36:09 desruisseaux Exp $
+     * @version $Id: Axis2D.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class PathIterator extends TickPathIterator {
@@ -1402,8 +1443,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
         private Shape label;
 
         /**
-         * Rectangle englobant l'étiquette
-         * {@link #label} courante.
+         * Rectangle englobant l'étiquette {@link #label} courante.
          */
         private Rectangle2D labelBounds;
 
@@ -1511,10 +1551,10 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
                      * l'écriture de la légende de l'axe.
                      */
                     isDone = true;
-                    final String label = graduation.getLabel(true);
-                    if (label != null) {
+                    final String title = graduation.getTitle(true);
+                    if (title != null) {
                         final GlyphVector glyphs;
-                        glyphs = getLabelFont().createGlyphVector(getFontRenderContext(), label);
+                        glyphs = getTitleFont().createGlyphVector(getFontRenderContext(), title);
                         if (transform != null) {
                             transform = new AffineTransform(transform);
                         } else {
@@ -1540,7 +1580,7 @@ public class Axis2D extends Line2D implements Cloneable, Serializable {
                 final Rectangle2D bounds = currentLabelBounds();
                 if (glyphs!=null && bounds!=null) {
                     if (labelBounds==null || !labelBounds.intersects(bounds)) {
-                        label=glyphs.getOutline((float)bounds.getMinX(), (float)bounds.getMaxY());
+                        label = glyphs.getOutline((float)bounds.getMinX(), (float)bounds.getMaxY());
                         final double width  = bounds.getWidth();
                         final double height = bounds.getHeight();
                         if (width  > maxWidth)  maxWidth =width;

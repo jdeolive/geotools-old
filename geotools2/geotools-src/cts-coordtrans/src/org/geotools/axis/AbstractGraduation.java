@@ -51,7 +51,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Base class for graduation.
  *
- * @version $Id: AbstractGraduation.java,v 1.1 2003/03/07 23:36:08 desruisseaux Exp $
+ * @version $Id: AbstractGraduation.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractGraduation implements Graduation, Serializable {
@@ -66,9 +66,9 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     private Unit unit;
 
     /**
-     * The axis label for this graduation.
+     * The axis title for this graduation.
      */
-    private String label;
+    private String title;
 
     /**
      * The locale for formatting labels.
@@ -123,38 +123,37 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     public abstract boolean setMaximum(final double value) throws IllegalArgumentException;
     
     /**
-     * Returns the axis label. If <code>includeUnits</code> is <code>true</code>,
+     * Returns the axis title. If <code>includeUnits</code> is <code>true</code>,
      * then the returned string will includes units as in "Temperature (°C)". The
      * exact formatting is local-dependent.
      *
-     * @param  includeSymbol <code>true</code> to format unit symbol after the label.
-     * @return The graduation label.
+     * @param  includeSymbol <code>true</code> to format unit symbol after the name.
+     * @return The graduation name (also to be use as axis title).
      */
-    public synchronized String getLabel(final boolean includeSymbol) {
+    public synchronized String getTitle(final boolean includeSymbol) {
         if (includeSymbol) {
             final String symbol = getSymbol();
             if (symbol!=null && symbol.length()!=0) {
                 // TODO: localize if needed.
-                return (label!=null) ? label+" ("+symbol+')' : symbol;
+                return (title!=null) ? title+" ("+symbol+')' : symbol;
             }
         }
-        return label;
+        return title;
     }
 
     /**
-     * Set the axis label name, not including unit symbol.
-     * This method will fire a property change event with
-     * the <code>"label"</code> property name.
+     * Set the axis title, not including unit symbol. This method will fire a
+     * property change event with the <code>"title"</code> property name.
      *
-     * @param label New axis label, or <code>null</code> to remove any previous setting.
+     * @param title New axis title, or <code>null</code> to remove any previous setting.
      */
-    public void setLabel(final String label) {
+    public void setTitle(final String title) {
         final String old;
         synchronized (this) {
-            old = this.label;
-            this.label = label;
+            old = this.title;
+            this.title = title;
         }
-        listenerList.firePropertyChange("label", old, label);
+        listenerList.firePropertyChange("title", old, title);
     }
 
     /**
@@ -218,7 +217,7 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     /**
      * Adds a {@link PropertyChangeListener} to the listener list. The listener is
      * registered for all properties. A {@link PropertyChangeEvent} will get fired
-     * in response to setting a property, such as {@link #setLabel} or {@link #setLocale}.
+     * in response to setting a property, such as {@link #setTitle} or {@link #setLocale}.
      */
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         listenerList.addPropertyChangeListener(listener);
@@ -320,7 +319,7 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
         if (object!=null && object.getClass().equals(getClass())) {
             final AbstractGraduation that = (AbstractGraduation) object;
             return Utilities.equals(this.unit,   that.unit  ) &&
-                   Utilities.equals(this.label,  that.label ) &&
+                   Utilities.equals(this.title,  that.title ) &&
                    Utilities.equals(this.locale, that.locale);
         }
         return false;
@@ -331,8 +330,8 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
      */
     public int hashCode() {
         int code = (int)serialVersionUID;
-        if (label != null) {
-            code ^= label.hashCode();
+        if (title != null) {
+            code ^= title.hashCode();
         }
         if (unit != null) {
             code ^= unit.hashCode();

@@ -52,7 +52,7 @@ import org.geotools.units.Unit;
  * For example a graduation for dates is handled in a different way than a
  * graduation for numbers.
  *
- * @version $Id: Graduation.java,v 1.1 2003/03/07 23:36:12 desruisseaux Exp $
+ * @version $Id: Graduation.java,v 1.2 2003/03/08 21:46:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface Graduation {
@@ -87,12 +87,12 @@ public interface Graduation {
     RenderingHints.Key TICK_LABEL_FONT = new RenderingHintKey(Font.class, 2);
 
     /**
-     * The font to use for rendering labels. Value for this key must be a {@link Font} object.
+     * The font to use for rendering the title. Value for this key must be a {@link Font} object.
      * If this hint is not provided, a default font will be used.
      *
      * @see Axis2D#paint
      */
-    RenderingHints.Key LABEL_FONT = new RenderingHintKey(Font.class, 3);
+    RenderingHints.Key AXIS_TITLE_FONT = new RenderingHintKey(Font.class, 3);
 
     /**
      * Returns the minimal value for this graduation.
@@ -121,14 +121,14 @@ public interface Graduation {
     public abstract double getRange();
 
     /**
-     * Returns the axis label. If <code>includeUnits</code> is <code>true</code>,
+     * Returns the axis title. If <code>includeUnits</code> is <code>true</code>,
      * then the returned string will includes units as in "Temperature (°C)", or
      * time zone as in "Start time (UTC)". The exact formatting is local-dependent.
      *
-     * @param includeSymbol <code>true</code> to format the unit or timezone symbol after the label.
-     * @return The graduation label.
+     * @param  includeSymbol <code>true</code> to format the unit or timezone symbol after the name.
+     * @return The graduation name (also to be use as axis title).
      */
-    public abstract String getLabel(final boolean includeSymbol);
+    public abstract String getTitle(final boolean includeSymbol);
 
     /**
      * Returns the graduation's units, or <code>null</code> if unknow.
@@ -136,7 +136,7 @@ public interface Graduation {
     public abstract Unit getUnit();
 
     /**
-     * Returns the locale to use for formatting labels.
+     * Returns the locale to use for formatting title and labels.
      */
     public abstract Locale getLocale();
 
