@@ -44,7 +44,8 @@ public class Projection {
     public Projection(String[] args) {
         this.params = new ParamSet();
         for(int i=0;i<args.length;i++){
-            params.addParam(
+            params.addParam(args[i]);
+        }
             
     }
     
