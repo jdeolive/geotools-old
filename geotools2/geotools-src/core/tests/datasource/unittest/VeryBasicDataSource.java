@@ -3,10 +3,10 @@ package unittest;
 import com.sun.java.util.collections.*;
 import java.util.StringTokenizer;
 import java.io.*;
-import datasource.*;
+import org.geotools.datasource.*;
 import uk.ac.leeds.ccg.geotools.*;
 
-public class VeryBasicDataSource implements datasource.DataSource
+public class VeryBasicDataSource implements org.geotools.datasource.DataSource
 {
 	String sFilename = null;
 	String [] sColumnNames = null;

@@ -2,7 +2,7 @@ package unittest;
 
 import uk.ac.leeds.ccg.geotools.*;
 import com.sun.java.util.collections.*;
-import datasource.*;
+import org.geotools.datasource.*;
 
 public class testds implements TableChangedListener
 {
