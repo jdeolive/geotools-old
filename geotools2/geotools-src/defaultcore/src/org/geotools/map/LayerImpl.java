@@ -17,7 +17,10 @@
 
 package org.geotools.map;
 
+import java.util.EventObject;
+import javax.swing.event.EventListenerList;
 import org.geotools.data.DataSource;
+import org.geotools.map.events.LayerListener;
 import org.geotools.styling.Style;
 
 
@@ -25,7 +28,7 @@ import org.geotools.styling.Style;
  * Layer is an aggregation of both a FeatureCollection and Style.
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.5 2003/05/16 21:10:19 jmacgill Exp $
+ * @version $Id: LayerImpl.java,v 1.6 2003/07/10 16:03:37 ianturton Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.
@@ -42,7 +45,8 @@ public class LayerImpl implements Layer {
     private boolean visability = true;
     /** The title of this layer for use in Legend and similar. */
     private String title;
-
+    /** Classes to notify if the LayerList changes */
+    private EventListenerList listenerList = new EventListenerList();
     /**
      * Creates a Layer.
      *
@@ -92,6 +96,7 @@ public class LayerImpl implements Layer {
      */
     public void setVisability(boolean visability) {
         this.visability = visability;
+        fireLayerChangedListener();
     }
 
     /**
@@ -125,6 +130,7 @@ public class LayerImpl implements Layer {
      */
     public void setTitle(String title) {
         this.title = title;
+        fireLayerChangedListener();
     }
 
     /**
@@ -138,6 +144,39 @@ public class LayerImpl implements Layer {
             return super.toString();
         } else {
             return title;
+        }
+    }
+    
+    public void addLayerChangedListener(LayerListener llce) { 
+        listenerList.add(LayerListener.class, llce); 
+    }
+
+    /**
+     * Remove interest in receiving an LayerChangedEvent.
+     *
+     * @param llcl The object to stop sending LayerChangedEvents.
+     */
+    public void removeLayerChangedListener(LayerListener llcl) {  
+        listenerList.remove(LayerListener.class, llcl);  
+    }
+
+    /**
+     * Notify all listeners that have registered interest for notification an
+     * LayerChangedEvent.
+     */
+    protected void fireLayerChangedListener() {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+
+        // Process the listeners last to first, notifying
+        // those that are interested in this event
+        EventObject llce = new EventObject(this);
+
+        //(Layer[])layers.toArray(new Layer[0]));
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == LayerListener.class) {
+                ((LayerListener) listeners[i + 1]).LayerChanged(llce);
+            }
         }
     }
 }
