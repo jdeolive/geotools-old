@@ -19,7 +19,6 @@
 
 package org.geotools.vpf.io;
 
-import java.io.PushbackInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -38,6 +37,8 @@ import org.geotools.vpf.exc.VPFHeaderFormatException;
 import org.geotools.vpf.exc.VPFRowDataException;
 import org.geotools.vpf.ifc.DataTypesDefinition;
 import org.geotools.vpf.ifc.FileConstants;
+import org.geotools.vpf.ifc.VPFHeader;
+import org.geotools.vpf.ifc.VPFRow;
 
 /**
  * TableInputStream.java
@@ -48,52 +49,24 @@ import org.geotools.vpf.ifc.FileConstants;
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
  * @version 1.0
  */
-public class TableInputStream extends InputStream
+public class TableInputStream extends VPFInputStream
   implements FileConstants, DataTypesDefinition
 {
   public static final int AHEAD_BUFFER_SIZE = 0;
-  
-  protected String tableFile = null;
-  protected PushbackInputStream input = null;
-  protected TableHeader header = null;
-  protected List rowsReadAhead = new LinkedList();
-  
-  public TableInputStream(File file)
-    throws IOException
-  {
-    tableFile =file.toString();
-    input = new PushbackInputStream(new FileInputStream(file));
-    readHeader();
-  }
-
-  public TableInputStream(FileDescriptor fdObj)
-    throws IOException
-  {
-    input = new PushbackInputStream(new FileInputStream(fdObj));
-    readHeader();
-  }
 
   public TableInputStream(String file)
     throws IOException
   {
-    tableFile = file;
-    input = new PushbackInputStream(new FileInputStream(file));
-    readHeader();
+	super(file);
   }
 
-  public void close()
+  public TableInputStream(String file, char byteOrder)
     throws IOException
   {
-    input.close();
-    input = null;
+	super(file, byteOrder);
   }
-
-  public TableHeader getHeader()
-  {
-    return header;
-  }
-
-  private void readHeader()
+  
+  public VPFHeader readHeader()
     throws IOException
   {
     byte[] fourBytes = new byte[4];
@@ -130,8 +103,8 @@ public class TableInputStream extends InputStream
     {
       colDefs = null;
     } // end of if (colDefs.size() == 0)
-    header = new TableHeader(length, order, description,
-                             narrativeTable, colDefs);
+    return new TableHeader(length, order, description,
+						   narrativeTable, colDefs);
   }
 
   private TableColumnDef readColumnDef()
@@ -175,10 +148,9 @@ public class TableInputStream extends InputStream
                               descTableName, indexFile, narrTable);
   }
 
-  public TableRow readRow()
-    throws IOException
+  public VPFRow readRow() throws IOException
   {
-	List rowsDef = header.getColumnDefs();
+	List rowsDef = ((TableHeader)header).getColumnDefs();
     RowField[] fieldsArr = new RowField[rowsDef.size()];
     HashMap fieldsMap = new HashMap();
 	for (int i = 0; i < rowsDef.size(); i++) {
@@ -194,7 +166,7 @@ public class TableInputStream extends InputStream
 		throw new VPFRowDataException("Insuffitient data in stream: is "+size+
 									  " should be: "+tcd.getColumnSize());
 	  } // end of if (size != tcd.getColumnSize())
-	  if (tcd.isNumeric() && header.getByteOrder() == LITTLE_ENDIAN_ORDER)
+	  if (tcd.isNumeric() && getByteOrder() == LITTLE_ENDIAN_ORDER)
 	  {
 		bytes = DataUtils.toBigEndian(bytes);
 	  } // end of if (tcd.isNumeric() &&
@@ -207,61 +179,9 @@ public class TableInputStream extends InputStream
     return new TableRow(fieldsArr, fieldsMap);
   }
 
-  public int readRows(TableRow[] rows)
-    throws IOException
+  public VPFRow readRow(int index)
   {
-    int counter = 0;
-    TableRow row = readRow();
-    while (row != null && counter < rows.length)
-    {
-      rows[counter++] = row;
-      row = readRow();
-    } // end of while (row != null)
-
-    return counter;
-  }
-
-  public int read()
-  {
-    return -1;
-  }
-
-  public int availableRows()
-  {
-    return rowsReadAhead.size();
-  }
-
-  private char readChar()
-    throws IOException
-  {
-    return (char)input.read();
-  }
-
-  private String readString(String terminators)
-    throws IOException
-  {
-    StringBuffer text = new StringBuffer();
-    char ctrl = readChar();
-	if (terminators.indexOf(ctrl) != -1)
-	{
-	  if (ctrl == VPF_FIELD_SEPARATOR) {
-		input.unread(ctrl);
-	  } // end of if (ctrl == VPF_RECORD_SEPARATOR)
-	  return null;
-	}
-    while (terminators.indexOf(ctrl) == -1)
-    {
-      text.append(ctrl);
-      ctrl = readChar();
-    } // end of while (terminators.indexOf(ctrl) != -1)
-    if (text.toString().equals(STRING_NULL_VALUE))
-    {
-      return null;
-    } // end of if (text.equals("null"))
-    else
-    {
-      return text.toString();
-    } // end of if (text.equals("null")) else
+	return null;
   }
 
   public static void main(String[] args)
@@ -273,10 +193,10 @@ public class TableInputStream extends InputStream
       System.exit(1);
     } // end of if (args.length <> 1)
     TableInputStream testInput = new TableInputStream(args[0]);
-    TableHeader testHeader = testInput.getHeader();
+    TableHeader testHeader = (TableHeader)testInput.getHeader();
     System.out.println(testHeader.toString());
 	List fieldDefs = testHeader.getColumnDefs();
-    TableRow row = testInput.readRow();
+    TableRow row = (TableRow)testInput.readRow();
     int counter = 0;
     while (row != null)
     {
@@ -284,7 +204,7 @@ public class TableInputStream extends InputStream
 		TableColumnDef tcd = (TableColumnDef)fieldDefs.get(i);
 		System.out.println(tcd.getName()+"="+row.get(i).toString());
 	  } // end of for (int i = 0; i < fieldDefs.size(); i++)
-      row = testInput.readRow();
+      row = (TableRow)testInput.readRow();
     } // end of while (row != null)
   } // end of main()
   

@@ -98,7 +98,8 @@ public class TableColumnDefTest extends TestCase
     TableInputStream tis =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/dht");
-    varTableColumnDef = (TableColumnDef)tis.getHeader().getColumnDefs().get(0);
+	TableHeader thead = (TableHeader)tis.getHeader();
+    varTableColumnDef = (TableColumnDef)thead.getColumnDefs().get(0);
     tis.close();
   } // end of setUp()
   

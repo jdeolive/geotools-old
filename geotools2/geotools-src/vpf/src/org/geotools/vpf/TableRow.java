@@ -22,8 +22,7 @@ package org.geotools.vpf;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-
+import org.geotools.vpf.ifc.VPFRow;
 
 /**
  * TableRow.java
@@ -34,7 +33,7 @@ import java.util.Map;
  * @author <a href="mailto:kobit@users.fs.net">Artur Hefczyc</a>
  * @version 1.0
  */
-public class TableRow 
+public class TableRow implements VPFRow
 {
 
   protected RowField[] fieldsArr = null;

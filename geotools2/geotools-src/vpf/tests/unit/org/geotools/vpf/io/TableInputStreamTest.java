@@ -120,7 +120,7 @@ public class TableInputStreamTest extends TestCase
   {
     assertEquals("Cheking available rows in stream buffer, should be 0 - "+
                  "buffer is not implemented yet. "+
-                 varTableInputStream.tableFile,
+                 varTableInputStream.streamFile,
                  0, varTableInputStream.availableRows());
 
   } // end of testAvailableRows()
@@ -134,7 +134,7 @@ public class TableInputStreamTest extends TestCase
   {
     assertNotNull("Checking if header was read from stream, integrity of "+
                   "header is tested in TableHeaderTest unit test "+
-                  varTableInputStream.tableFile,
+                  varTableInputStream.streamFile,
                   varTableInputStream.getHeader());
   } // end of testGetHeader()
 
@@ -148,7 +148,7 @@ public class TableInputStreamTest extends TestCase
     assertEquals("Reading 1 byte from stream, method had to be implemented but"+
                  " it does not make sense for this kind of stream so it does "+
                  "not read byte indeed, but always return -1 "+
-                 varTableInputStream.tableFile,
+                 varTableInputStream.streamFile,
                  -1, varTableInputStream.read());
   } // end of testRead()
 
@@ -161,7 +161,7 @@ public class TableInputStreamTest extends TestCase
     throws IOException
   {
     assertNotNull("Reading 1 row from given table "+
-                 varTableInputStream.tableFile,
+                 varTableInputStream.streamFile,
                  varTableInputStream.readRow());
   } // end of testReadRow()
 
@@ -175,7 +175,7 @@ public class TableInputStreamTest extends TestCase
   {
     TableRow[] rows = new TableRow[5];
     assertEquals("Reading 5 rows into given array from given table "+
-                 varTableInputStream.tableFile,
+                 varTableInputStream.streamFile,
                  5, varTableInputStream.readRows(rows));
   } // end of testReadRows895743446(org.geotools.vpf.TableRow[])
 

@@ -95,7 +95,7 @@ public class TableHeaderTest extends TestCase
     TableInputStream tis =
       new TableInputStream(System.getProperty("basedir")+
                            "/tests/testdata/dnc13/dht");
-    varTableHeader = tis.getHeader();
+    varTableHeader = (TableHeader)tis.getHeader();
     tis.close();
   } // end of setUp()
 

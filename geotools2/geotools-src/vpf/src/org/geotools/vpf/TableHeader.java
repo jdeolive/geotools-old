@@ -20,6 +20,7 @@
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
+import org.geotools.vpf.ifc.VPFHeader;
 import java.util.List;
 import java.util.Collections;
 
@@ -36,7 +37,7 @@ import java.util.Collections;
  * @version 1.0
  */
 public class TableHeader
-  implements DataTypesDefinition
+  implements VPFHeader, DataTypesDefinition
 {
 
   protected int length = -0;
