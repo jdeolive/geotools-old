@@ -104,9 +104,12 @@ public class DataTestCase extends TestCase {
         //     /     rd1     \
         // 1,1+               +5,1
         roadFeatures[0] = roadType.create(new Object[] {
-                    new Integer(1), line(new int[] { 1, 1, 2, 2, 4, 2, 5, 1 }),
-                    "r1",
-                }, "road.rd1");
+                new Integer(1),
+                line(new int[] { 1, 1, 2, 2, 4, 2, 5, 1 }),
+                "r1",
+            },
+            "road.rd1"
+        );
 
         //       + 3,4
         //       + 3,3
@@ -114,16 +117,21 @@ public class DataTestCase extends TestCase {
         //       |
         //    3,0+
         roadFeatures[1] = roadType.create(new Object[] {
-                    new Integer(2), line(new int[] { 3, 0, 3, 2, 3, 3, 3, 4 }),
-                    "r2"
-                }, "road.rd2");
+                new Integer(2), line(new int[] { 3, 0, 3, 2, 3, 3, 3, 4 }),
+                "r2"
+            },
+            "road.rd2"
+        );
 
         //     rd3     + 5,3
         //            / 
         //  3,2 +----+ 4,2
         roadFeatures[2] = roadType.create(new Object[] {
-                    new Integer(3), line(new int[] { 3, 2, 4, 2, 5, 3 }), "r3"
-                }, "road.rd3");
+                new Integer(3),
+                line(new int[] { 3, 2, 4, 2, 5, 3 }), "r3"
+            },
+            "road.rd3"
+        );
         roadBounds = new Envelope(1, 5, 0, 4);
         FilterFactory factory = FilterFactory.createFilterFactory();
         rd1Filter = factory.createFidFilter("road.rd1");

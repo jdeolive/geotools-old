@@ -16,6 +16,7 @@
  */
 package org.geotools.data;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -278,6 +279,16 @@ public class DataUtilitiesTest extends DataTestCase {
 
     public void testCreateAttribute() {
         //      TODO impelment test
+    }
+    public void testSource() throws Exception {
+        FeatureSource s = DataUtilities.source( roadFeatures );
+        assertEquals( -1, s.getCount( Query.ALL ) );
+        assertEquals( 3, s.getFeatures().getCount() );
+        assertEquals( 3, s.getFeatures( Query.ALL ).getCount() );
+        assertEquals( 3, s.getFeatures( Filter.NONE ).getCount() );
+        assertEquals( 0, s.getFeatures( Filter.ALL ).getCount() );
+        assertEquals( 1, s.getFeatures( rd1Filter ).getCount() );
+        assertEquals( 2, s.getFeatures( rd12Filter ).getCount() );                             
     }
 
     

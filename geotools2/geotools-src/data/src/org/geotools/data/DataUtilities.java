@@ -497,6 +497,55 @@ public class DataUtilities {
             }
         };
     }
+    public static FeatureSource source( final Feature featureArray[] ) throws IOException{
+        if (featureArray == null || featureArray.length == 0) {
+            throw new IOException("Provided collection was empty");
+        }        
+        final FeatureType featureType = featureArray[0].getFeatureType();
+        
+        DataStore arrayStore = new AbstractDataStore(){
+            public String[] getTypeNames() {
+                return new String[]{ featureType.getTypeName() };
+            }
+            public FeatureType getSchema(String typeName) throws IOException {
+                if( typeName != null &&
+                    typeName.equals( featureType.getTypeName() ) ){
+                    return featureType;        
+                }
+                throw new IOException( typeName + " not available");
+            }
+            protected FeatureReader getFeatureReader(String typeName) throws IOException {
+                return reader( featureArray );
+            }
+        };
+        return arrayStore.getFeatureSource( arrayStore.getTypeNames()[0]);
+    }
+    public static FeatureSource source( final FeatureCollection collection ) throws IOException{
+        if (collection.size() == 0) {
+            throw new IOException("Provided collection was empty");
+        }        
+        final FeatureType featureType = collection.features().next().getFeatureType();
+        
+        DataStore arrayStore = new AbstractDataStore(){
+            public String[] getTypeNames() {
+                return new String[]{ featureType.getTypeName() };
+            }
+            public FeatureType getSchema(String typeName) throws IOException {
+                if( typeName != null &&
+                    typeName.equals( featureType.getTypeName() ) ){
+                    return featureType;        
+                }
+                throw new IOException( typeName + " not available");
+            }
+            protected FeatureReader getFeatureReader(String typeName) throws IOException {
+                return reader( collection );
+            }
+        };
+        return arrayStore.getFeatureSource( arrayStore.getTypeNames()[0]);
+    }
+    public static FeatureResults results( Feature featureArray[] ) throws IOException{
+        return results( collection( featureArray ));
+    }
     public static FeatureResults results( final FeatureCollection collection ) throws IOException{
         if (collection.size() == 0) {
             throw new IOException("Provided collection was empty");
