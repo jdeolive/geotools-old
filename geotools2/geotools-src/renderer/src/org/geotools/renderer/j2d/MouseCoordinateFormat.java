@@ -53,7 +53,7 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
  * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.3 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.4 2003/01/30 23:34:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MouseCoordinateFormat extends CoordinateFormat {
@@ -73,6 +73,14 @@ public class MouseCoordinateFormat extends CoordinateFormat {
      * Par défaut, les valeurs (si elles sont disponibles) sont écrites.
      */
     private boolean valueVisible = true;
+
+    /**
+     * Construct a coordinate format for the default locale.
+     */
+    public MouseCoordinateFormat() {
+        super();
+    }
+    
 
     /**
      * Construit un objet qui écrira les coordonnées pointées par le

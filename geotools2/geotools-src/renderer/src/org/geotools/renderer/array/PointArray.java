@@ -55,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.3 2003/01/29 23:18:08 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.4 2003/01/30 23:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class PointArray implements Serializable {
@@ -350,11 +350,15 @@ public abstract class PointArray implements Serializable {
         int guess;
         dst -= offset;
         src -= lower;
+        assert (src & 1) == 0 : src;
+        assert (dst & 1) == 0 : dst;
         if (src == 0) {
             guess = length / 8;
         } else {
-            guess = (int)(dst * (long)length / src);
-            guess += guess/8;
+            guess = (int)(dst * (long)length / src);  // Prediction of the total length required.
+            guess -= dst;                             // The amount to growth.
+            guess += guess/8;                         // Conservatively add some space.
+            guess &= ~1;                              // Make sure the length is even.
         }
         return offset + Math.min(length, dst+Math.max(guess, 32));
     }

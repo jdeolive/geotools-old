@@ -49,50 +49,63 @@ import org.geotools.renderer.ShapePanel;
  * Performs a visual check of {@link Geometry} computations. Those computations are
  * an essential part of {@link org.geotools.renderer.Polygon} internal working.
  *
- * @version $Id: GeometryTest.java,v 1.2 2003/01/29 13:04:13 ianturton Exp $
+ * @version $Id: GeometryTest.java,v 1.3 2003/01/30 23:34:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public final class GeometryTest  extends TestCase implements ShapePanel.Producer{
+public final class GeometryTest extends TestCase implements ShapePanel.Producer {
     /**
      * Constante identifiant la méthode à tester.
      */
     private int method;
 
     /**
-     * Coordonnées des points de contrôles
-     * qui ont été explicitement spécifiés.
+     * Coordonnées des points de contrôles qui ont été explicitement spécifiés.
      */
-    private String[] args;
+    private static String[] args;
 
-    public GeometryTest(String testName){
-        super(testName);
-        
+    /**
+     * Default constructor.
+     */
+    public GeometryTest(String testName) {
+        super(testName); 
     }
-    
-    public static void main(java.lang.String[] args) {
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        GeometryTest.args = args;
         junit.textui.TestRunner.run(suite());
     }
-    
+
+    /**
+     * Returns the test suite.
+     */
     public static Test suite() {
         TestSuite suite = new TestSuite(GeometryTest.class);
         return suite;
     }
+
     /**
-     * Construit un objet qui servira à tester visuellement
-     * l'exactitude d'un calcul géométrique.
+     * Affiche dans différentes fenêtres des résultats de calculs géométriques.
+     * Cet affichage sert uniquement à vérifier visuellement l'exactitude des
+     * calculs géométriques. Les fenêtres comprendront:
+     *
+     * <ul>
+     *   <li>Deux droites et leur point d'intersection ({@link #intersectionPoint intersectionPoint}).</li>
+     *   <li>Une parabole avec ses points de contrôle  ({@link #fitParabol        fitParabol}).</li>
+     *   <li>Un cercle passant par trois points        ({@link #fitCircle         fitCircle}).</li>
+     * </ul>
      */
-    private void geometrySet(final String[] args, final int method) {
-        this.args   = args;
-        this.method = method;
-    }
-    
     public void testGeometry(){
         //step through the different methods
         for (int i=0; i<=2; i++) {
-            geometrySet(null, i);
-            ShapePanel.show(this);
+            GeometryTest test = new GeometryTest(null);
+            test.method = i;
+            ShapePanel.show(test);
         }
     }
+
     /**
      * Retourne une liste de points et de courbes à afficher.
      */
@@ -154,24 +167,6 @@ public final class GeometryTest  extends TestCase implements ShapePanel.Producer
                                        points[0], points[1], points[2]
                 };
             }
-        }
-    }
-
-    /**
-     * Affiche dans différentes fenêtres des résultats de calculs géométriques.
-     * Cet affichage sert uniquement à vérifier visuellement l'exactitude des
-     * calculs géométriques. Les fenêtres comprendront:
-     *
-     * <ul>
-     *   <li>Deux droites et leur point d'intersection ({@link #intersectionPoint intersectionPoint}).</li>
-     *   <li>Une parabole avec ses points de contrôle  ({@link #fitParabol        fitParabol}).</li>
-     *   <li>Un cercle passant par trois points        ({@link #fitCircle         fitCircle}).</li>
-     * </ul>
-     */
-    public void run(final String[] args) {
-        for (int i=0; i<=2; i++) {
-            geometrySet(args, i);
-            ShapePanel.show(this);
         }
     }
 }

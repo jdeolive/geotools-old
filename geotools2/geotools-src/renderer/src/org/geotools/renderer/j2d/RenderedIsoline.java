@@ -51,6 +51,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 // Geotools dependencies
+import org.geotools.units.Unit;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
@@ -61,6 +62,7 @@ import org.geotools.renderer.Isoline;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
+import org.geotools.resources.CTSUtilities;
 
 
 /**
@@ -68,7 +70,7 @@ import org.geotools.resources.XAffineTransform;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -136,8 +138,9 @@ public class RenderedIsoline extends RenderedLayer {
     public RenderedIsoline(Isoline isoline) {
         isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
         this.isoline = isoline;
+        final CoordinateSystem isolineCS = isoline.getCoordinateSystem();
         try {
-            setCoordinateSystem(isoline.getCoordinateSystem());
+            setCoordinateSystem(isolineCS);
         } catch (TransformException exception) {
             /*
              * Should not happen, since isoline use 2D coordinate systems. Rethrow it as an
@@ -155,7 +158,7 @@ public class RenderedIsoline extends RenderedLayer {
          */
         final Rectangle2D  bounds = isoline.getBounds2D();
         final float    resolution = isoline.getResolution();
-        final Ellipsoid ellipsoid = isoline.getEllipsoid();
+        final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
         final double dx,dy;
         if (ellipsoid != null) {
             // Transforms the resolution into a pixel size in the middle of 'bounds'.
@@ -230,7 +233,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Isoline.Renderer {
@@ -308,7 +311,8 @@ public class RenderedIsoline extends RenderedLayer {
          * If the rendering coordinate system changed since last time,
          * then reproject the isoline and flush the cache.
          */
-        if (!context.mapCS.equals(isoline.getCoordinateSystem(), false)) {
+        final CoordinateSystem isolineCS = isoline.getCoordinateSystem();
+        if (!context.mapCS.equals(isolineCS, false)) {
             isoline.setCoordinateSystem(context.mapCS);
             if (clipped != null) {
                 clipped.clear();
@@ -326,13 +330,15 @@ public class RenderedIsoline extends RenderedLayer {
             final Graphics2D graphics = context.getGraphics();
             final Paint      oldPaint = graphics.getPaint();
             final Stroke    oldStroke = graphics.getStroke();
-            final Ellipsoid ellipsoid = isoline.getEllipsoid();
-            double r; // Desired resolution (a higher value will lead to faster rendering)
+            final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
+            double r; // Estimation of the "real world" length (usually in meters) of one pixel.
             if (ellipsoid != null) {
-                final double  x = bounds.getCenterX();
-                final double  y = bounds.getCenterY();
-                final double dx = 0.5/XAffineTransform.getScaleX0(tr);
-                final double dy = 0.5/XAffineTransform.getScaleY0(tr);
+                final Unit xUnit = isolineCS.getUnits(0);
+                final Unit yUnit = isolineCS.getUnits(1);
+                final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
+                final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
+                final double  dx = Unit.DEGREE.convert(0.5/XAffineTransform.getScaleX0(tr), xUnit);
+                final double  dy = Unit.DEGREE.convert(0.5/XAffineTransform.getScaleY0(tr), yUnit);
                 r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy);
             } else {
                 // Assume a cartesian coordinate system.
@@ -361,7 +367,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.2 2003/01/29 23:18:09 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

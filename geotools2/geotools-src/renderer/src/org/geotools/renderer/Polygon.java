@@ -65,6 +65,7 @@ import java.text.NumberFormat;
 import java.text.FieldPosition;
 
 // OpenGIS dependencies
+import org.geotools.units.Unit;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.CoordinateSystem;
@@ -102,7 +103,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.6 2003/01/29 23:18:05 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1376,7 +1377,15 @@ public class Polygon extends GeoShape {
      * every pair of consecutive points in this polygon  (ignoring "extra" points used for
      * drawing a border, if there is one). This method try to returns linear units (usually
      * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
-     * or a {@link GeographicCoordinateSystem}.
+     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * <ul>
+     *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
+     *       one, then the resolution is expressed in units of the underlying
+     *       {@linkplain Ellipsoid#getAxisUnit ellipsoid's axis length}.</li>
+     *   <li>Otherwise (especially if the coordinate system is a {@linkplain
+     *       ProjectedCoordinateSystem projected} one), the resolution is expressed in
+     *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
+     * </ul>
      *
      * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
      */
@@ -1402,21 +1411,27 @@ public class Polygon extends GeoShape {
      *         There is no guaranteed on contour's state in case of failure.
      */
     public synchronized void setResolution(final double resolution) throws TransformException {
-        CoordinateSystem sourceCS = getSourceCS();
-        CoordinateSystem targetCS = sourceCS;
-        if (sourceCS instanceof GeographicCoordinateSystem) {
+        CoordinateSystem targetCS = getCoordinateSystem();
+        if (CTSUtilities.getHeadGeoEllipsoid(targetCS) != null) {
             /*
-             * L'algorithme de 'Polyline.setResolution(...)' exige un système de coordonnées
-             * cartésien. Si le système de coordonnées spécifié n'est pas cartésien, on va
-             * utiliser arbitrairement une projection stéréographique pour faire le calcul.
+             * The 'Polyline.setResolution(...)' algorithm require a cartesian coordinate system.
+             * If this polygon's coordinate system is not cartesian, check if the underlying data
+             * used a cartesian CS  (this polygon may be a "view" of the data under an other CS).
+             * If the underlying data are not cartesian neither, create a temporary sterographic
+             * projection for computation purpose.
              */
-            final GeographicCoordinateSystem geoCS = (GeographicCoordinateSystem) sourceCS;
-            final Rectangle2D    bounds = getCachedBounds();
-            final Point2D        center = new Point2D.Double(bounds.getCenterX(), bounds.getCenterY());
-            final Ellipsoid   ellipsoid = geoCS.getHorizontalDatum().getEllipsoid();
-            final Projection projection = new Projection("Generated", CARTESIAN_PROJECTION,
-                                                         ellipsoid, center, null);
-            targetCS = new ProjectedCoordinateSystem("Generated", geoCS, projection);
+            targetCS = getSourceCS();
+            if (targetCS instanceof GeographicCoordinateSystem) {
+                final GeographicCoordinateSystem geoCS = (GeographicCoordinateSystem) targetCS;
+                final Ellipsoid ellipsoid = geoCS.getHorizontalDatum().getEllipsoid();
+                final String         name = "Temporary cartesian";
+                final Rectangle2D  bounds = getCachedBounds();
+                final Point2D      center = new Point2D.Double(bounds.getCenterX(),
+                                                               bounds.getCenterY());
+                final Projection projection = new Projection(name, CARTESIAN_PROJECTION,
+                                                             ellipsoid, center, null);
+                targetCS = new ProjectedCoordinateSystem(name, geoCS, projection);
+            }
         }
         Polyline.setResolution(data, getCoordinateTransformation(targetCS), resolution);
         clearCache(); // Clear everything in the cache.
@@ -1537,17 +1552,38 @@ public class Polygon extends GeoShape {
      * @param  The destination array, wrapped in an array of type <code>float[][]</code>
      *         of length 1. The coordinates will be filled in <code>array[0]</code>, which
      *         may be expanded if needed.
-     * @param  resolution The minimum distance desired between points, in this {@linkplain
-     *         #getCoordinateSystem polygon's coordinate system}. If <code>resolution</code>
-     *         is greater than 0, then points that are closer than <code>resolution</code>
-     *         from previous points will be skiped. This method is not required to perform
-     *         precise distances computation.
+     * @param  resolution The minimum distance desired between points, in the same units
+     *         than for the {@link #getResolution} method  (i.e. linear units as much as
+     *         possible - usually meters - even for geographic coordinate system).
+     *         If <code>resolution</code> is greater than 0, then points that are closer
+     *         than <code>resolution</code> from previous points will be skiped. This method
+     *         is not required to perform precise distances computation.
      * @return The index after the <code>array[0]</code>'s element
      *         filled with the last <var>y</var> ordinate.
      */
     final int toArray(float[][] dest, float resolution) {
         assert Thread.holdsLock(this);
         try {
+            /*
+             * If the polygon's coordinate system is geographic, then we must translate
+             * the resolution (which is in linear unit, usually meters) to angular units.
+             * The formula used below is only an approximation (probably not the best one).
+             * It estimate the average of latitudinal and longitudinal angles corresponding
+             * to the distance 'resolution' in the middle of the polygon's bounds.
+             */
+            final CoordinateSystem cs = getCoordinateSystem();
+            final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(cs);
+            if (ellipsoid != null) {
+                final Unit unit = cs.getUnits(1);
+                double latitude = getCachedBounds().getCenterY();
+                latitude = Unit.RADIAN.convert(latitude, unit);
+                final double sin = Math.sin(latitude);
+                final double cos = Math.cos(latitude);
+                resolution *= (0.5 + 0.5/cos) * XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
+                                                            cos/ellipsoid.getSemiMinorAxis());
+                // Assume that longitude has the same unit than latitude.
+                resolution = (float) unit.convert(resolution, Unit.RADIAN);
+            }
             /*
              * Transform the resolution from this polygon's CS to the underlying data CS.
              * TODO: we should use 'MathTransform.derivative' instead, but it is not yet
@@ -1596,12 +1632,14 @@ public class Polygon extends GeoShape {
      * in use}. This method never return <code>null</code>, but may return an array
      * of length 0 if no data are available.
      *
-     * @param  resolution The minimum distance desired between points, in this {@linkplain
-     *         #getCoordinateSystem polygon's coordinate system}. If <code>resolution</code>
-     *         is greater than 0, then points that are closer than <code>resolution</code>
-     *         from previous points will be skiped. This method is not required to perform
-     *         precise distances computation.
-     * @return The coordinates.
+     * @param  resolution The minimum distance desired between points, in the same units
+     *         than for the {@link #getResolution} method  (i.e. linear units as much as
+     *         possible - usually meters - even for geographic coordinate system).
+     *         If <code>resolution</code> is greater than 0, then points that are closer
+     *         than <code>resolution</code> from previous points will be skiped. This method
+     *         is not required to perform precise distances computation.
+     * @return The coordinates expressed in this
+     *         {@linkplain #getCoordinateSystem polygon's coordinate system}.
      */
     public synchronized float[] toArray(final float resolution) {
         final float[][] array = new float[][] {new float[64]};

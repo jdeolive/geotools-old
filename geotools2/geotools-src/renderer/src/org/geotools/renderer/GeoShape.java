@@ -75,7 +75,7 @@ import org.geotools.resources.Utilities;
  * which can be changed dynamically (i.e. the shapes can be reprojected). Futhermore,
  * <code>GeoShape</code>s can compress and share their data in order to reduce memory footprint.
  *
- * @version $Id: GeoShape.java,v 1.2 2003/01/20 00:06:34 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.3 2003/01/30 23:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -132,19 +132,6 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
      */
     public String getName(final Locale locale) {
         return name;
-    }
-
-    /**
-     * Convenience method returning the {@link GeographicCoordinateSystem}'s ellipsoid.
-     * If the coordinate system is not geographic (for example if it is an instance of
-     * {@link ProjectedCoordinateSystem}), then this method returns <code>null</code>.
-     * Use this method to determine how to compute distances. If <code>getEllipsoid()</code>
-     * returns a non-null value, one can use {@link Ellipsoid#orthodromicDistance}.
-     * Otherwise, one can use the Pythagoras's formula (assuming that the coordinate
-     * system is cartesian).
-     */
-    public Ellipsoid getEllipsoid() {
-        return Polyline.getEllipsoid(getCoordinateSystem());
     }
 
     /**
@@ -275,18 +262,19 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
     /**
      * Returns the shape's mean resolution. This resolution is the mean distance between
      * every pair of consecutive points in this shape  (ignoring "extra" points used for
-     * drawing a border, if there is one). Resolution's units are the same than {@link
-     * #getCoordinateSystem}'s units, <strong>except</strong> if the later use angular units
-     * (this is the case for {@link GeographicCoordinateSystem}). In the later case, this
-     * method will compute orthodromic distances using the coordinate system's {@link Ellipsoid}
-     * (as returned by {@link #getEllipsoid}). In other words, this method try to returns linear
-     * units (usually meters) no matter if the coordinate systems is actually a
-     * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
+     * drawing a border, if there is one). This method try to returns linear units (usually
+     * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
+     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * <ul>
+     *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
+     *       one, then the resolution is expressed in units of the underlying
+     *       {@linkplain Ellipsoid#getAxisUnit ellipsoid's axis length}.</li>
+     *   <li>Otherwise (especially if the coordinate system is a {@linkplain
+     *       ProjectedCoordinateSystem projected} one), the resolution is expressed in
+     *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
+     * </ul>
      *
      * @return The mean resolution, or {@link Float#NaN} if this shape doesn't have any point.
-     *         If {@link #getEllipsoid} returns a non-null value, the resolution is expressed in
-     *         ellipsoid's axis units. Otherwise, resolution is expressed in coordinate system
-     *         units.
      */
     public abstract float getResolution();
 

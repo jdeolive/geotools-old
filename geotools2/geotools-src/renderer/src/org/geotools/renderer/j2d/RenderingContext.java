@@ -84,7 +84,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.7 2003/01/28 16:12:16 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.8 2003/01/30 23:34:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -370,9 +370,12 @@ public final class RenderingContext {
     public void addPaintedArea(Shape area, final CoordinateSystem cs) throws TransformException {
         final Shape userArea = area;
         if (cs != null) {
+            // Note: we invokes 'inverse()' instead of swapping 'sourceCS' and 'targetCS'
+            // arguments in order to give a change to 'Renderer.getMathTransform' to uses
+            // its cache (the cache will never be used if the 'targetCS' is 'deviceCS').
             final MathTransform2D transform = (MathTransform2D)
-                    renderer.getMathTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS,
-                                              "RenderingContext","addPaintedArea");
+                    renderer.getMathTransform(deviceCS, CTSUtilities.getCoordinateSystem2D(cs),
+                                              "RenderingContext","addPaintedArea").inverse();
             if (!transform.isIdentity()) {
                 area = transform.createTransformedShape(area);
             }

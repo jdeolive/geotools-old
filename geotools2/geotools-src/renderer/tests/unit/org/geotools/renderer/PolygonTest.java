@@ -51,24 +51,33 @@ import org.geotools.resources.Arguments;
 /**
  * Visual check of {@link Polygon}.
  *
- * @version $Id: PolygonTest.java,v 1.2 2003/01/29 13:04:13 ianturton Exp $
+ * @version $Id: PolygonTest.java,v 1.3 2003/01/30 23:34:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PolygonTest extends TestCase {
-    
-    public PolygonTest(java.lang.String testName) {
+
+    /**
+     * Construct a test case.
+     */
+    public PolygonTest(String testName) {
         super(testName);
-        
     }
-    
-    public static void main(java.lang.String[] args) {
+
+    /**
+     * Run the test suite from the command line.
+     */
+    public static void main(String[] args) {
         junit.textui.TestRunner.run(suite());
     }
-    
+
+    /**
+     * Returns the test suite.
+     */
     public static Test suite() {
         TestSuite suite = new TestSuite(PolygonTest.class);
         return suite;
     }
+
     /**
      * Vérifie le bon fonctionnement de {@link Polygon}. Cette méthode dessinera
      * une carte imaginaire dans un cadre et placera des points un peu partout.

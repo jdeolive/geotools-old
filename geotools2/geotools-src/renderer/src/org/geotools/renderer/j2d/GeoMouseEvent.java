@@ -63,7 +63,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.5 2003/01/27 22:52:02 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.6 2003/01/30 23:34:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -181,7 +181,7 @@ public final class GeoMouseEvent extends MouseEvent {
              * Note: the following method call is faster when the specified coordinate system is
              * the renderer's CS, since it can reuse pre-computed math transforms from a cache.
              * Inverting the returned transform in this case is both faster and consume less memory
-             * than swaping 'sourceCS' and 'targetCS' arguments.
+             * than swapping 'sourceCS' and 'targetCS' arguments.
              */
             cs = CTSUtilities.getCoordinateSystem2D(cs);
             final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
@@ -249,7 +249,7 @@ public final class GeoMouseEvent extends MouseEvent {
          * Note: the following method call is faster when the specified coordinate system is
          * the renderer's CS, since it can reuse pre-computed math transforms from a cache.
          * Inverting the returned transform in this case is both faster and consume less memory
-         * than swaping 'sourceCS' and 'targetCS' arguments.
+         * than swapping 'sourceCS' and 'targetCS' arguments.
          */
         final MathTransform transform = renderer.getMathTransform(
                                                  cs, renderer.getCoordinateSystem(),

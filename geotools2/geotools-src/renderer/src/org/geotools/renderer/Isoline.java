@@ -32,13 +32,6 @@
  */
 package org.geotools.renderer;
 
-// OpenGIS dependencies (SEAGIS)
-import org.geotools.cs.CoordinateSystem;
-import org.geotools.ct.TransformException;
-import org.geotools.cs.ProjectedCoordinateSystem;
-import org.geotools.cs.GeographicCoordinateSystem;
-import org.geotools.resources.Utilities;
-
 // Geometry and graphics
 import java.awt.Shape;
 import java.awt.Rectangle;
@@ -63,7 +56,15 @@ import java.util.NoSuchElementException;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+// Geotools dependencies
+import org.geotools.cs.Ellipsoid;
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.ct.TransformException;
+import org.geotools.cs.ProjectedCoordinateSystem;
+import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.resources.XArray;
+import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
 
@@ -80,7 +81,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.6 2003/01/29 23:18:03 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -809,10 +810,18 @@ public class Isoline extends GeoShape implements Comparable {
 
     /**
      * Returns the isoline's mean resolution. This resolution is the mean distance between
-     * every pair of consecutive points in this isoline (ignoring "extra" points used for
+     * every pair of consecutive points in this isoline  (ignoring "extra" points used for
      * drawing a border, if there is one). This method try to returns linear units (usually
      * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
-     * or a {@link GeographicCoordinateSystem}.
+     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * <ul>
+     *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
+     *       one, then the resolution is expressed in units of the underlying
+     *       {@linkplain Ellipsoid#getAxisUnit ellipsoid's axis length}.</li>
+     *   <li>Otherwise (especially if the coordinate system is a {@linkplain
+     *       ProjectedCoordinateSystem projected} one), the resolution is expressed in
+     *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
+     * </ul>
      *
      * @return The mean resolution, or {@link Float#NaN} if this isoline doesn't have any point.
      *
@@ -822,8 +831,8 @@ public class Isoline extends GeoShape implements Comparable {
         int    sumCount      = 0;
         double sumResolution = 0;
         for (int i=polygonCount; --i>=0;) {
-            final Polygon polygon = polygons[i];
-            final float resolution=polygon.getResolution();
+            final Polygon polygon  = polygons[i];
+            final float resolution = polygon.getResolution();
             if (!Float.isNaN(resolution)) {
                 final int count = polygon.getPointCount();
                 sumResolution += count*(double)resolution;
@@ -1047,7 +1056,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.6 2003/01/29 23:18:03 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
@@ -1178,7 +1187,7 @@ public class Isoline extends GeoShape implements Comparable {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Isoline.java,v 1.6 2003/01/29 23:18:03 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Isoline#paint

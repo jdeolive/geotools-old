@@ -47,6 +47,7 @@ import org.geotools.renderer.array.PointArray;
 import org.geotools.renderer.array.PointIterator;
 
 // Coordinate systems
+import org.geotools.units.Unit;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
@@ -64,6 +65,7 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Geometry;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.Statistics;
+import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
 
@@ -92,7 +94,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.5 2003/01/30 23:34:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -821,19 +823,23 @@ final class Polyline implements Serializable {
          */
         final MathTransform2D transform;
         final Ellipsoid       ellipsoid;
-        if (transformation!=null) {
+        final Unit         xUnit, yUnit;
+        if (transformation != null) {
             final MathTransform tr = transformation.getMathTransform();
             transform = !tr.isIdentity() ? (MathTransform2D) tr : null;
             final CoordinateSystem targetCS = transformation.getTargetCS();
-            if (!Utilities.equals(targetCS.getUnits(0), targetCS.getUnits(1))) {
+            xUnit = targetCS.getUnits(0);
+            yUnit = targetCS.getUnits(1);
+            if (!Utilities.equals(xUnit, yUnit)) {
                 throw new IllegalArgumentException(Resources.format(
                                             ResourceKeys.ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1,
                                             targetCS.getName(null)));
             }
-            ellipsoid = getEllipsoid(targetCS);
+            ellipsoid = CTSUtilities.getHeadGeoEllipsoid(targetCS);
         } else {
             transform = null;
             ellipsoid = null;
+            xUnit = yUnit = null;
         }
         /*
          * Compute statistics...
@@ -846,16 +852,23 @@ final class Polyline implements Serializable {
             if (array == null) {
                 continue;
             }
-            final PointIterator it=array.iterator(0);
+            final PointIterator it = array.iterator(0);
             if (it.hasNext()) {
                 last.setLocation(it.nextX(), it.nextY());
                 while (it.hasNext()) {
                     point.setLocation(it.nextX(), it.nextY());
                     if (transform != null) {
-                        point=transform.transform(point, point);
+                        point = transform.transform(point, point);
                     }
-                    stats.add(ellipsoid!=null ? ellipsoid.orthodromicDistance(last, point)
-                                              : last.distance(point));
+                    final double distance;
+                    if (ellipsoid != null) {
+                        point.setLocation(Unit.DEGREE.convert(point.getX(), xUnit),
+                                          Unit.DEGREE.convert(point.getY(), yUnit));
+                        distance = ellipsoid.orthodromicDistance(last, point);
+                    } else {
+                        distance = last.distance(point);
+                    }
+                    stats.add(distance);
                     final Point2D swap = last;
                     last = point;
                     point = swap;
@@ -898,7 +911,7 @@ final class Polyline implements Serializable {
         final MathTransform2D inverseTransform;
         if (transformation != null) {
             final CoordinateSystem targetCS = transformation.getTargetCS();
-            if (getEllipsoid(targetCS)!=null ||
+            if (CTSUtilities.getHeadGeoEllipsoid(targetCS)!=null ||
                 !Utilities.equals(targetCS.getUnits(0), targetCS.getUnits(1)))
             {
                 throw new IllegalArgumentException(Resources.format(
@@ -991,30 +1004,6 @@ final class Polyline implements Serializable {
             }
             scan.array = PointArray.getInstance(array);
         }
-    }
-
-    /**
-     * Returns the ellipsoid used by the specified coordinate system,
-     * providing that the two first dimensions use an instance of
-     * {@link GeographicCoordinateSystem}. Otherwise (i.e. if the
-     * two first dimensions are not geographic), returns <code>null</code>.
-     */
-    static Ellipsoid getEllipsoid(final CoordinateSystem coordinateSystem) {
-        if (coordinateSystem instanceof GeographicCoordinateSystem) {
-            final HorizontalDatum datum = ((GeographicCoordinateSystem) coordinateSystem).getHorizontalDatum();
-            if (datum != null) {
-                final Ellipsoid ellipsoid = datum.getEllipsoid();
-                if (ellipsoid!=null) {
-                    return ellipsoid;
-                }
-            }
-            return Ellipsoid.WGS84; // Should not happen with a valid coordinate system.
-        }
-        if (coordinateSystem instanceof CompoundCoordinateSystem) {
-            // Check only head CS. Do not check tail CS!
-            return getEllipsoid(((CompoundCoordinateSystem) coordinateSystem).getHeadCS());
-        }
-        return null;
     }
 
     /**
@@ -1238,7 +1227,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.5 2003/01/30 23:34:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1281,7 +1270,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.4 2003/01/29 23:18:06 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.5 2003/01/30 23:34:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

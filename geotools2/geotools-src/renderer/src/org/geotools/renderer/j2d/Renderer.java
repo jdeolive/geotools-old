@@ -98,7 +98,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.10 2003/01/29 23:18:09 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.11 2003/01/30 23:34:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1001,6 +1001,11 @@ public class Renderer {
                                                       final String sourceMethodName)
             throws CannotCreateTransformException
     {
+        if (sourceCS == targetCS) {
+            // Fast check for a very common case. We will use the more
+            // general (but slower) 'equals(..., false)' version later.
+            return MathTransform2D.IDENTITY;
+        }
         MathTransform tr;
         /*
          * Check if the math transform is available in the cache. A majority of transformations
@@ -1175,7 +1180,7 @@ public class Renderer {
         try {
             for (int i=0; i<layerCount; i++) {
                 try {
-                    layers[i].paint(context);
+                    layers[i].update(context, clipBounds);
                 } catch (TransformException exception) {
                     handleException("RenderedLayer", "paintComponent", exception);
                 } catch (RuntimeException exception) {
@@ -1522,7 +1527,7 @@ public class Renderer {
                 if (area != null) {
                     // Note: the 'getMathTransform(...)' method is faster when the targetCS is
                     //       'context.mapCS'.  This is why we invoke 'MathTransform.inverse()'
-                    //       instead of swaping 'sourceCS' and 'targetCS' arguments.
+                    //       instead of swapping 'sourceCS' and 'targetCS' arguments.
                     final MathTransform2D transform = (MathTransform2D)
                                                getMathTransform(layer.getCoordinateSystem(), cs,
                                                                 "Renderer", "prefetch").inverse();
