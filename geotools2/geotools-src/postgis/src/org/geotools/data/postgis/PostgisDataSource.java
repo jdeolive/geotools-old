@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.13 2003/01/15 19:44:02 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.14 2003/01/16 21:36:54 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -374,7 +374,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @return Full SQL statement.
      */ 
     public String makeSql(Filter filter, String tableName,
-			  FeatureType schema, boolean useLimit) {
+			  FeatureType schema, boolean useLimit) 
+	throws DataSourceException{
         StringBuffer sqlStatement = new StringBuffer("SELECT");
         AttributeType[] attributeTypes = schema.getAttributeTypes();
 
@@ -397,7 +398,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    try {    
 		where = encoder.encode(filter);   
 	    } catch (SQLEncoderException e) { 
-		LOGGER.fine("Encoder error" + e.getMessage());
+		String message = "Encoder error" + e.getMessage();
+		LOGGER.warning(message);
+		LOGGER.warning( e.toString() );
+		throw new DataSourceException(message, e);
 	    }
 	    
 	}
@@ -560,7 +564,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         throws DataSourceException {
         Feature[] featureArr;
         AttributeType[] attributeTypes;
-        int geomPos;
         int curFeature;
         Object[] curAttributes;
         String sql = "";
@@ -579,7 +582,11 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    //TODO: check to make sure schema is same for feature collection
 	    attributeTypes = schema.getAttributeTypes(); 
 	    numAttributes = attributeTypes.length;     
-	    geomPos = schema.getDefaultGeometry().getPosition();
+	    AttributeType geometryAttr = schema.getDefaultGeometry();
+	    int geomPos = -1;
+	    if (geometryAttr != null) {
+		geomPos = geometryAttr.getPosition();
+	    }
 	    try { 
 		Connection dbConnection = db.getConnection();
 		Statement statement = dbConnection.createStatement();
@@ -611,8 +618,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		statement.close();
 		dbConnection.close();
 	    } catch (SQLException e) {
-
-		LOGGER.finer("Some sort of database connection error: " + e.getMessage());
+		String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+		throw new DataSourceException(message, e);
 	    }    
 	}
 
@@ -697,9 +706,15 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    statement.close();
 	    dbConnection.close();    
         } catch (SQLException e) {
-	    LOGGER.fine("Error with sql " + e.getMessage());
+	    String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+		throw new DataSourceException(message, e);
         } catch (SQLEncoderException e) {
-	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
+	    String message = "error encoding sql from filter " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+		throw new DataSourceException(message, e);
 	}
 
     }
@@ -717,44 +732,45 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */
     public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
         throws DataSourceException {
-	if (type.length == value.length) {
-	    Feature[] featureArr;
-	    Object[] curAttributes;
-	    String sql = "";
-	    Object fidValue;
-	    String fid = null;
-	    String fidName = schema.getAttributeTypes()[0].getName();
-	    //check schema with filter???
+	//TODO: throw dse if obect types don't match attribute types.  The postgis
+	//database does this a bit now, but should be more fully implemented.
+	Feature[] featureArr;
+	Object[] curAttributes;
+	String sql = "";
+	Object fidValue;
+	String fid = null;
+	String fidName = schema.getAttributeTypes()[0].getName();
+	//check schema with filter???
+	
+	unpacker.unPackOR(filter);
+	String whereStmt = null;
+	Filter encodableFilter = unpacker.getSupported();
+	Filter unEncodableFilter = unpacker.getUnSupported();
+	
+	try {
+	    Connection dbConnection = db.getConnection();
+	    Statement statement = dbConnection.createStatement();
 	    
-	    unpacker.unPackOR(filter);
-	    String whereStmt = null;
-	    Filter encodableFilter = unpacker.getSupported();
-	    Filter unEncodableFilter = unpacker.getUnSupported();
+	    if (encodableFilter != null) {
+		whereStmt = encoder.encode((AbstractFilter)encodableFilter);
+		sql = makeModifySql(type, value, whereStmt);
+		LOGGER.finer("encoded modify is " + sql);
+		statement.executeUpdate(sql);
+	    }
 	    
-	    try {
-		Connection dbConnection = db.getConnection();
-		Statement statement = dbConnection.createStatement();
+	    if (unEncodableFilter != null) {
 		
-		if (encodableFilter != null) {
-		    whereStmt = encoder.encode((AbstractFilter)encodableFilter);
-		    sql = makeModifySql(type, value, whereStmt);
-		    LOGGER.info("encoded modify is " + sql);
-		    statement.executeUpdate(sql);
-		}
-		
-		if (unEncodableFilter != null) {
-		    
-		    featureArr = getFeatures(unEncodableFilter).getFeatures();
-		    if (featureArr.length > 0) {
-			whereStmt = " WHERE "; 
-			for (int i = 0; i < featureArr.length; i++){
-			    //REVISIT: do away with id, 
-			    // and just query first attribute?
-			    fidValue = featureArr[i].getId();
-			    fid = addQuotes(fidValue);
-			    whereStmt += fidName + " = " + fid;
-			    
-			    if (i < featureArr.length - 1) {
+		featureArr = getFeatures(unEncodableFilter).getFeatures();
+		if (featureArr.length > 0) {
+		    whereStmt = " WHERE "; 
+		    for (int i = 0; i < featureArr.length; i++){
+			//REVISIT: do away with id, 
+			// and just query first attribute?
+			fidValue = featureArr[i].getId();
+			fid = addQuotes(fidValue);
+			whereStmt += fidName + " = " + fid;
+			
+			if (i < featureArr.length - 1) {
 			    whereStmt += " OR ";
 			}	
 		    }
@@ -764,21 +780,22 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		    statement.executeUpdate(sql);
 		}
             }
-
+	    
        
 	    statement.close();
 	    dbConnection.close();    
-        } catch (SQLException e) {
-              LOGGER.fine("Error with sql " + e.getMessage());
-        } catch (SQLEncoderException e) {
-	    LOGGER.fine("error encoding sql from filter " + e.getMessage());
+	} catch (SQLException e) {
+	    String message = "Some sort of database error: " 
+		+ e.getMessage();
+	    LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	} catch (SQLEncoderException e) {
+	    String message = "error encoding sql from filter " 
+		+ e.getMessage();
+	    LOGGER.warning(message);
+		throw new DataSourceException(message, e);
 	}
 
-
-
-	} else {
-	    throw new DataSourceException("Operation not supported.");
-	}
     }
     
     /**
@@ -819,6 +836,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		AttributeType curType = types[i];
 		Object curValue = values[i];
 		String newValue;  
+		//check her to make sure object matches attribute type.
 		if (Geometry.class.isAssignableFrom(curType.getType())) {
 		    //create the text to add geometry
 		    String geoText =  geometryWriter.write((Geometry)curValue);
