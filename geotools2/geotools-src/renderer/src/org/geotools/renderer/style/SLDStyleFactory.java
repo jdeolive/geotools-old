@@ -59,7 +59,6 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.media.jai.util.Range;
 
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.geotools.feature.Feature;
 import org.geotools.filter.Expression;
 import org.geotools.styling.ExternalGraphic;
@@ -209,7 +208,12 @@ public class SLDStyleFactory {
          * @see java.lang.Object#hashCode()
          */
         public int hashCode() {
-            return (new HashCodeBuilder()).append(symbolizer).append(minScale).append(maxScale).toHashCode();
+            return ((17 + symbolizer.hashCode()) * 37 + doubleHash(minScale)) * 37 + doubleHash(maxScale);  
+       }
+        
+        private int doubleHash(double value) {
+            long bits = Double.doubleToLongBits(value);
+            return (int)(bits ^ (bits >>> 32));
         }
 
     }
