@@ -37,6 +37,8 @@ import java.io.Serializable;
 import java.text.NumberFormat;
 import java.text.FieldPosition;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
+import java.awt.geom.Line2D;
 
 
 /**
@@ -47,10 +49,54 @@ import java.awt.geom.Rectangle2D;
  * <code>contains</code> and <code>intersects</code> are faster, which make this
  * class more appropriate for using intensively inside a loop.
  *
- * @version 1.0
+ * @version $Id: XRectangle2D.java,v 1.2 2003/03/15 22:47:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class XRectangle2D extends Rectangle2D implements Serializable {
+    /**
+     * An immutable instance of a {@link Rectangle2D} with bounds extending toward
+     * infinities. The {@link #getMinX} and {@link #getMinY} methods return always
+     * {@link java.lang.Double#NEGATIVE_INFINITY},  while the {@link #getMaxX} and
+     * {@link #getMaxY} methods return always {@link java.lang.Double#POSITIVE_INFINITY}.
+     * This rectangle can be used as argument in the {@link XRectangle2D} constructor for
+     * initializing a new <code>XRectangle2D</code> to infinite bounds.
+     */
+    public static final Rectangle2D INFINITY = new Rectangle2D() {
+        public double getX()       {return java.lang.Double.NEGATIVE_INFINITY;}
+        public double getY()       {return java.lang.Double.NEGATIVE_INFINITY;}
+        public double getMinX()    {return java.lang.Double.NEGATIVE_INFINITY;}
+        public double getMinY()    {return java.lang.Double.NEGATIVE_INFINITY;}
+        public double getMaxX()    {return java.lang.Double.POSITIVE_INFINITY;}
+        public double getMaxY()    {return java.lang.Double.POSITIVE_INFINITY;}
+        public double getWidth()   {return java.lang.Double.POSITIVE_INFINITY;}
+        public double getHeight()  {return java.lang.Double.POSITIVE_INFINITY;}
+        public double getCenterX() {return java.lang.Double.NaN;}
+        public double getCenterY() {return java.lang.Double.NaN;}
+
+        public void        add       (Rectangle2D   rect)                     {            }
+        public void        add       (Point2D      point)                     {            }
+        public void        add       (double x, double y)                     {            }
+        public int     outcode       (double x, double y)                     {return 0;   }
+        public int     outcode       (Point2D      point)                     {return 0;   }
+        public boolean contains      (Point2D      point)                     {return true;}
+        public boolean contains      (Rectangle2D   rect)                     {return true;}
+        public boolean contains      (double x, double y)                     {return true;}
+        public boolean contains      (double x, double y, double w, double h) {return true;}
+        public boolean intersects    (Rectangle2D   rect)                     {return true;}
+        public boolean intersects    (double x, double y, double w, double h) {return true;}
+        public boolean intersectsLine(double x, double y, double u, double v) {return true;}
+        public boolean intersectsLine(Line2D        line)                     {return true;}
+
+        public boolean     isEmpty           ()                 {return false;}
+        public Rectangle2D getFrame          ()                 {return this;}
+        public Rectangle2D getBounds2D       ()                 {return this;}
+        public Rectangle2D createUnion       (Rectangle2D rect) {return this;}
+        public Rectangle2D createIntersection(Rectangle2D rect) {return (Rectangle2D)rect.clone();}
+        public void setRect(double x, double y, double w, double h) {
+            throw new UnsupportedOperationException();
+        }
+    };
+
     /**
      * Serial number for interoperability with different versions.
      */
@@ -62,8 +108,7 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
     /** Maximal <var>y</var> coordinate. */ public double ymax;
 
     /**
-     * Construct a default rectangle.
-     * Initial coordinates are <code>(0,0,0,0)</code>.
+     * Construct a default rectangle. Initial coordinates are <code>(0,0,0,0)</code>.
      */
     public XRectangle2D() {
     }
@@ -79,8 +124,10 @@ public class XRectangle2D extends Rectangle2D implements Serializable {
     }
     
     /**
-     * Construct a rectangle with the same
-     * coordinates than the supplied rectangle.
+     * Construct a rectangle with the same coordinates than the supplied rectangle.
+     *
+     * @param rect The rectangle. Use {@link #INFINITY} for initializing
+     *             this <code>XRectangle2D</code> with infinite bounds.
      */
     public XRectangle2D(final Rectangle2D rect) {
         setRect(rect);
