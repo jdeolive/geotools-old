@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite xmlns="testSuiteSchema" 
+xmlns:gml="http://www.opengis.net/gml" 
+xmlns:ogc="http://www.opengis.net/ogc" 
+xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" 
+xs:schemaLocation="testSuiteSchema /data/capabilities/validate/testSuiteSchema.xsd">
+  <name>RoadTestSuite</name>
+  <description>This test suite checks each road name to see 
+       that they are of appropriate length and checks to 
+       see if they are on the list of possible road names.
+       It also checks to see if any roads are contained in
+       a specified box.
+  </description>
+  <test>
+    <name>NameLookup</name>
+    <description>Checks to see if the road name is in the list of
+              possible names.</description>
+    <plugin>NameExists</plugin>
+  </test>
+  <test>
+    <name>RoadsInbox</name>
+    <description>Checks to see if there are any roads in a given
+       box</description>
+    <plugin>UniqueFID</plugin>
+    <argument final="true">
+      <name>uniqueId</name>
+      <string>name</string>
+    </argument>
+  </test>
+</suite>
