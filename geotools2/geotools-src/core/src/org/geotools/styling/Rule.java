@@ -48,7 +48,7 @@ package org.geotools.styling;
  *
  *
  *
- * @version $Id: Rule.java,v 1.9 2003/08/01 16:54:12 ianturton Exp $
+ * @version $Id: Rule.java,v 1.10 2003/08/03 05:05:23 seangeo Exp $
  * @author James Macgill
  */
 import org.geotools.filter.Filter;
@@ -189,5 +189,7 @@ public interface Rule {
     void setSymbolizers(Symbolizer[] symbolizers);
     
     void accept(StyleVisitor visitor);
+    
+    Object clone() throws CloneNotSupportedException;
 }
 

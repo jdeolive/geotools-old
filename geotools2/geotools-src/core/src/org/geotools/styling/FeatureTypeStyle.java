@@ -29,7 +29,7 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.10 2003/08/01 16:54:21 ianturton Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.11 2003/08/03 05:05:23 seangeo Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
@@ -114,5 +114,12 @@ public interface FeatureTypeStyle {
     void setRules(Rule[] rules);
     void addRule(Rule rule);
     void accept(StyleVisitor visitor);
+    /** Creates a deep copy clone. 
+     * 
+     * @return The deep copy clone.
+     * @throws CloneNotSupportedException If the implementing 
+     * class does not correctly support cloning.
+     */
+    Object clone() throws CloneNotSupportedException;
 }
 
