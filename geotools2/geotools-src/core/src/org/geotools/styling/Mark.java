@@ -34,7 +34,7 @@ import org.geotools.filter.Expression;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.13 2003/08/06 18:11:24 desruisseaux Exp $
+ * @version $Id: Mark.java,v 1.14 2003/08/10 08:33:39 seangeo Exp $
  * @author James Macgill
  */
 public interface Mark extends Symbol {
@@ -92,4 +92,9 @@ public interface Mark extends Symbol {
 
     void accept(StyleVisitor visitor);
         
+    /** Returns a deep copy clone of the Mark
+     * 
+     * @return A deep copy clone of the mark.
+     */
+    Object clone();
 }

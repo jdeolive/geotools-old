@@ -47,7 +47,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.12 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: Stroke.java,v 1.13 2003/08/10 08:33:39 seangeo Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -242,10 +242,19 @@ public interface Stroke {
     void setGraphicStroke(Graphic graphicStroke);
     
     void accept(StyleVisitor visitor);
+    
+    /** Creates a clone of the Stroke.
+     * 
+     * @return A clone of the stroke object.
+     */
+    Object clone();
 }
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.13  2003/08/10 08:33:39  seangeo
+ * Added clone methods
+ *
  * Revision 1.12  2003/08/03 03:28:15  seangeo
  * Removed unneeded imports.
  *

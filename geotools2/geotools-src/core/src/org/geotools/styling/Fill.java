@@ -39,7 +39,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  * 
- * @version $Id: Fill.java,v 1.10 2003/08/01 16:54:21 ianturton Exp $
+ * @version $Id: Fill.java,v 1.11 2003/08/10 08:33:39 seangeo Exp $
  * @author James Macgill, CCG
  */
 public interface Fill {
@@ -127,6 +127,12 @@ public interface Fill {
     void setGraphicFill(Graphic graphicFill);
 
     void accept(StyleVisitor visitor);
+    
+    /** Creates a clone of the Fill object.
+     * 
+     * @return A clone of the fill.
+     */
+    Object clone();
 }
 
 
