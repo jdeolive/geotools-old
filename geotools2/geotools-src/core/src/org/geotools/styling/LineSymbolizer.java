@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: LineSymbolizer.java,v 1.7 2003/08/06 18:11:24 desruisseaux Exp $
+ * @version $Id: LineSymbolizer.java,v 1.8 2003/10/17 22:50:10 ianschneider Exp $
  * @author James Macgill, CCG
  */
 public interface LineSymbolizer extends Symbolizer{
@@ -84,8 +84,33 @@ public interface LineSymbolizer extends Symbolizer{
      *
      * @return The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
+     * @deprecated Misnamed. Use getGeometryPropertyName instead.
      */
     String geometryPropertyName();
+    
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.
+     * 
+     * Geometry types other than inherently linear types can be used. 
+     * If a point geometry is used, it should be interpreted as a line of zero
+     * length and two end caps.  If a polygon is used (or other "area" type)
+     * then its closed outline should be used as the line string
+     * (with no end caps).
+     *
+     * The geometryPropertyName is the name of a geometry property in the
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
+     *
+     * Note: this moves a little away from the SLD spec which provides an XPath
+     * reference to a Geometry object, but does follow it in spirit.
+     *
+     * @return The name of the attribute in the feature being styled 
+     *  that should be used.  If null then the default geometry should be used.
+     * 
+     */
+    String getGeometryPropertyName();
     
     void setGeometryPropertyName(String geometryPropertyName);
     
