@@ -18,7 +18,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: LegendTest.java,v 1.2 2004/03/26 19:06:53 aaime Exp $
+ * $Id: LegendTest.java,v 1.3 2004/05/01 21:18:37 jmacgill Exp $
  */
 package org.geotools.gui.swing;
 
@@ -28,6 +28,7 @@ import java.awt.Dimension;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.util.HashMap;
 
 import javax.swing.JFrame;
@@ -73,7 +74,7 @@ public class LegendTest extends TestCase {
         super(testName);
     }
 
-    public void testLegend() {
+    public void testLegend() throws java.io.UnsupportedEncodingException{
         MapLayer[] layers;
         MapContext context;
 
@@ -95,7 +96,7 @@ public class LegendTest extends TestCase {
 
         URL[] data = new URL[] { shpData0, shpData1, shpData2 };
 
-        File sldFile = new File(base.getPath() + "/color.sld");
+        File sldFile = new File(URLDecoder.decode(base.getPath(),"UTF-8") + "/color.sld");
         SLDStyle sld = null;
         
         SLDEditor.propertyEditorFactory.setInExpertMode(true);
