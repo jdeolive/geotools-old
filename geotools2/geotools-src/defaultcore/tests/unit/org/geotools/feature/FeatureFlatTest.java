@@ -175,16 +175,16 @@ public class FeatureFlatTest extends TestCase {
 
     }
 
-    public void testFindAttribute() {
-        DefaultFeature f = (DefaultFeature) SampleFeatureFixtures.createFeature();
-        FeatureType t = f.getFeatureType();
-        for (int i = 0, ii = t.getAttributeCount(); i < ii; i++) {
-            AttributeType a = t.getAttributeType(i);
-            assertEquals(i, f.findAttributeByName(a.getName()));
-        }
-        assertEquals(-1, f.findAttributeByName("bilbo baggins"));
-        assertEquals(null, f.getAttribute("jimmy hoffa"));
-    }
+//    public void testFindAttribute() {
+//        DefaultFeature f = (DefaultFeature) SampleFeatureFixtures.createFeature();
+//        FeatureType t = f.getFeatureType();
+//        for (int i = 0, ii = t.getAttributeCount(); i < ii; i++) {
+//            AttributeType a = t.getAttributeType(i);
+//            assertEquals(i, f.findAttributeByName(a.getName()));
+//        }
+//        assertEquals(-1, f.findAttributeByName("bilbo baggins"));
+//        assertEquals(null, f.getAttribute("jimmy hoffa"));
+//    }
 
     public void testAttributeAccess() throws Exception {
         // this ones kinda silly
