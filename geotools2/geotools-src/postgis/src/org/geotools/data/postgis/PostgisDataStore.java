@@ -31,6 +31,7 @@ import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.Transaction;
 import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.JDBCDataStore;
@@ -56,8 +57,9 @@ import java.util.logging.Logger;
 
 /**
  * Postgis DataStore implementation.
+ *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.3 2003/11/04 01:44:52 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.4 2003/11/21 00:17:29 cholmesny Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -175,41 +177,42 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         try {
             dbConnection = getConnection(Transaction.AUTO_COMMIT);
 
+            String sqlStatement = "SELECT type FROM GEOMETRY_COLUMNS WHERE "
+                + "f_table_name='" + tableName + "' AND f_geometry_column='"
+                + columnName + "';";
+            LOGGER.fine("geometry sql statement is " + sqlStatement);
+
+            String geometryType = null;
+
+            // retrieve the result set from the JDBC driver
+            Statement statement = dbConnection.createStatement();
+            ResultSet result = statement.executeQuery(sqlStatement);
+
+            if (result.next()) {
+                geometryType = result.getString("type");
+                LOGGER.fine("geometry type is: " + geometryType);
+            }
+
+            if (geometryType == null) {
+                String msg = " no geometry found in the GEOMETRY_COLUMNS table "
+                    + " for " + tableName + " of the postgis install.  A row "
+                    + "for " + columnName + " is required  "
+                    + " for geotools to work correctly";
+                throw new DataSourceException(msg);
+            }
+
+            statement.close();
+
+            Class type = (Class) GEOM_TYPE_MAP.get(geometryType);
+
+            return AttributeTypeFactory.newAttributeType(columnName, type);
+
             //I have no idea why my compiler is complaining about this.
         } catch (IOException ioe) {
             throw new DataSourceException("getting connection", ioe);
+        } finally {
+            JDBCDataStore.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
-
-        String sqlStatement = "SELECT type FROM GEOMETRY_COLUMNS WHERE "
-            + "f_table_name='" + tableName + "' AND f_geometry_column='"
-            + columnName + "';";
-        LOGGER.fine("geometry sql statement is " + sqlStatement);
-
-        String geometryType = null;
-
-        // retrieve the result set from the JDBC driver
-        Statement statement = dbConnection.createStatement();
-        ResultSet result = statement.executeQuery(sqlStatement);
-
-        if (result.next()) {
-            geometryType = result.getString("type");
-            LOGGER.fine("geometry type is: " + geometryType);
-        }
-
-        if (geometryType == null) {
-            String msg = " no geometry found in the GEOMETRY_COLUMNS table "
-                + " for " + tableName + " of the postgis install.  A row "
-                + "for " + columnName + " is required  "
-                + " for geotools to work correctly";
-            throw new DataSourceException(msg);
-        }
-
-        statement.close();
-        JDBCDataStore.close(dbConnection, Transaction.AUTO_COMMIT, null);
-
-        Class type = (Class) GEOM_TYPE_MAP.get(geometryType);
-
-        return AttributeTypeFactory.newAttributeType(columnName, type);
     }
 
     public SQLBuilder getSqlBuilder(String typeName) throws IOException {
@@ -278,11 +281,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
     protected int determineSRID(String tableName, String geometryColumnName)
         throws IOException {
+        Connection dbConnection = null;
+
         try {
             String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE "
                 + "f_table_name='" + tableName + "' AND f_geometry_column='"
                 + geometryColumnName + "';";
-            Connection dbConnection = getConnection(Transaction.AUTO_COMMIT);
+            dbConnection = getConnection(Transaction.AUTO_COMMIT);
+
             Statement statement = dbConnection.createStatement();
             ResultSet result = statement.executeQuery(sqlStatement);
 
@@ -300,6 +306,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             String message = CONN_ERROR + sqle.getMessage();
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
+        } finally {
+            JDBCDataStore.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
     }
 
@@ -319,8 +327,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         } else if (tablename.startsWith("spatial_ref_sys")) {
             return false;
         }
-         //others?
 
+        //others?
         return true;
     }
 
@@ -336,6 +344,31 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         LOGGER.fine("returning postgis feature writer");
 
         return new PostgisFeatureWriter(fReader, writer, queryData);
+    }
+
+    /**
+     * Default implementation based on getFeatureReader and getFeatureWriter.
+     * 
+     * <p>
+     * We should be able to optimize this to only get the RowSet once
+     * </p>
+     *
+     * @see org.geotools.data.DataStore#getFeatureSource(java.lang.String)
+     */
+    public FeatureSource getFeatureSource(String typeName)
+        throws IOException {
+        return new PostgisFeatureStore(this, getSchema(typeName));
+
+        //if (getLockingManager() != null) {
+        // Use default JDBCFeatureLocking that delegates all locking
+        // the getLockingManager
+        // 
+        //  return new JDBCFeatureLocking(this, getSchema(typeName));
+        //} else {
+        // subclass should provide a FeatureLocking implementation
+        // but for now we will simply forgo all locking
+        //  return new JDBCFeatureStore(this, getSchema(typeName));
+        //}
     }
 
     //These are going to be needed by PostgisFeatureStore as well... we also
@@ -416,6 +449,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         return retString;
     }
 
+    String getFidColumn(String typeName) throws IOException {
+        return getFeatureTypeInfo(typeName).getFidColumnName();
+    }
+
+    int getSRID(String typeName, String geomColName) throws IOException {
+        return getFeatureTypeInfo(typeName).getSRID(geomColName);
+    }
+
     protected class PostgisFeatureWriter extends JDBCFeatureWriter {
         public PostgisFeatureWriter(FeatureReader fReader,
             AttributeWriter writer, QueryData queryData)
@@ -448,14 +489,14 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 queryData.close(sqle);
                 throw new DataSourceException(msg, sqle);
             } finally {
-		if ( statement != null) {
-		try {
-		    statement.close();
-		} catch (SQLException e) {
-		    String msg = "Error closing JDBC Statement";
-		    LOGGER.log(Level.WARNING, msg, e);
-		}
-		}
+                if (statement != null) {
+                    try {
+                        statement.close();
+                    } catch (SQLException e) {
+                        String msg = "Error closing JDBC Statement";
+                        LOGGER.log(Level.WARNING, msg, e);
+                    }
+                }
             }
         }
     }
