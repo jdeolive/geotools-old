@@ -48,7 +48,11 @@ import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.XAffineTransform;
 
 // J2SE and JAI dependencies
+import java.io.IOException;
 import java.io.Serializable;
+import java.io.ObjectInputStream;
+
+// JAI dependencies
 import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
@@ -58,7 +62,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -67,7 +71,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -3352045463953828140L;
-    
+
     /**
      * Maximal error tolerance in metres during assertions, in metres. If assertions
      * are enabled (JDK 1.4 only), then every coordinates transformed with
@@ -501,10 +505,18 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private final class Inverse extends AbstractMathTransform.Inverse {
+    private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = 6942084702259211803L;
+
+        /**
+         * Inverse transform an array of points.
+         */
         public void transform(final double[] source, final int srcOffset,
                               final double[] dest,   final int dstOffset, final int length)
             throws TransformException
@@ -512,6 +524,9 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
             GeocentricTransform.this.inverseTransform(source, srcOffset, dest, dstOffset, length);
         }
         
+        /**
+         * Inverse transform an array of points.
+         */
         public void transform(final float[] source, final int srcOffset,
                               final float[] dest,   final int dstOffset, final int length)
             throws TransformException
@@ -519,15 +534,26 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
             GeocentricTransform.this.inverseTransform(source, srcOffset, dest, dstOffset, length);
         }
         
+        /**
+         * Returns a string representation of this transform.
+         */
         public final String toString() {
             return GeocentricTransform.this.toString("Geocentric_To_Ellipsoid");
+        }
+
+        /**
+         * Restore reference to this object after deserialization.
+         */
+        private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+            in.defaultReadObject();
+            GeocentricTransform.this.inverse = this;
         }
     }
     
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.3 2002/08/02 10:11:02 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
