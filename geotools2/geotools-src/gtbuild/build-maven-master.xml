@@ -22,6 +22,7 @@
         <ant antfile="build-maven.xml" dir="..\gmldatasource" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\postgis" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\gui" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:site"/>
     </target>
     
     
