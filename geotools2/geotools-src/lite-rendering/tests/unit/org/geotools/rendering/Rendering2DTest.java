@@ -10,7 +10,6 @@ import com.vividsolutions.jts.geom.*;
 import org.geotools.renderer.*;
 import org.geotools.renderer.lite.*;
 import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
 import org.geotools.styling.*;
 import org.geotools.map.*;
@@ -63,29 +62,28 @@ public class Rendering2DTest extends TestCase {
         //same as the datasource test, load in some features into a table
         System.err.println("starting rendering2DTest");
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
+        Envelope ex = new Envelope(5, 15, 5, 15);
+        
+        AttributeType[] types = new AttributeType[1];
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac);
-        AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
-        FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature = lineFac.create(new Object[]{line});
+        types[0] = AttributeTypeFactory.newAttributeType("centerline", line.getClass());
+        FeatureType lineType = FeatureTypeFactory.newFeatureType(types,"linefeature");
+        Feature lineFeature = lineType.create(new Object[]{line});
         
         com.vividsolutions.jts.geom.Polygon polygon = makeSamplePolygon(geomFac);
         
-        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
-        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute);
-        FlatFeatureFactory polygonFac = new FlatFeatureFactory(polygonType);
+        types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
+        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"polygonFeature");
         
-        Feature polygonFeature = polygonFac.create(new Object[]{polygon});
+        Feature polygonFeature = polygonType.create(new Object[]{polygon});
         
         Point point = makeSamplePoint(geomFac);
-        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
-        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
-        FlatFeatureFactory pointFac = new FlatFeatureFactory(pointType);
+        types[0] = AttributeTypeFactory.newAttributeType("centre", point.getClass());
+        FeatureType pointType = FeatureTypeFactory.newFeatureType(types,"pointfeature");
         
-        Feature pointFeature = pointFac.create(new Object[]{point});
+        Feature pointFeature = pointType.create(new Object[]{point});
         
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
@@ -143,14 +141,14 @@ public class Rendering2DTest extends TestCase {
         frame.setSize(300,300);
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        map.render(renderer,ex);//and finaly try and draw it!
         int w = 300, h = 600;
         BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
         renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        map.render(renderer,ex);//and finaly try and draw it!
         String dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
@@ -170,7 +168,7 @@ public class Rendering2DTest extends TestCase {
         //same as the datasource test, load in some features into a table
         //System.err.println("starting rendering2DTest");
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(0, 10, 0, 10);
+        Envelope ex = new Envelope(0, 10, 0, 10);
         
         
         LiteRenderer renderer = new org.geotools.renderer.lite.LiteRenderer();
@@ -184,7 +182,7 @@ public class Rendering2DTest extends TestCase {
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
        
-        Coordinate c = renderer.pixelToWorld(150,150,ex.getBounds());
+        Coordinate c = renderer.pixelToWorld(150,150,ex);
         LOGGER.info("X Coordinate is " + c.x + " expected is 5 +/- 1.0" );
         LOGGER.info("Y Coordinate is " + c.y + " expected is 5 +/- 1.0" );
         assertEquals(5d, c.x, 1.0);
