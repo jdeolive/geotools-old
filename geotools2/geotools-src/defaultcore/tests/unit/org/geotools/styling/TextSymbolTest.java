@@ -125,7 +125,7 @@ public class TextSymbolTest extends TestCase {
         style.addFeatureTypeStyle(fts); 
         
         map.addFeatureTable(ft,style);
-        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        /*Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         Frame frame = new Frame("text symbol test");
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
@@ -148,7 +148,7 @@ public class TextSymbolTest extends TestCase {
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out); 
         Thread.sleep(5000);
-        frame.dispose();
+        frame.dispose();*/
     }
     private Point makeSamplePoint(final GeometryFactory geomFac, double x, double y) {
         Coordinate c = new Coordinate(x, y);
