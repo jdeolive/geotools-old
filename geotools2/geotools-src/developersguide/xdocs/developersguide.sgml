@@ -19,7 +19,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/24 22:19:37 $</date>
+    <date>$Date: 2002/07/24 22:21:55 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -405,7 +405,9 @@ alternate="yes"
       the javadoc sections to track areas for rework. During the maven build
       process, the tags are extracted to build a report page. Example output
       can be viewed at: <ulink
-      url="http://modules.geotools.org/core/task_list.html">http://modules.geotools.org/core/task_list.html</ulink>.</para>
+      url="http://modules.geotools.org/core/task_list.html">http://modules.geotools.org/core/task_list.html</ulink>.
+      Inline Task Tracking is particularly useful during developement. After
+      code has been released, bugs should be tracked using the Bug Tracker.</para>
 
       <para>The following tags are available:</para>
 
