@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.4 2002/07/13 17:03:36 jmacgill Exp $
+ * @version $Id: TransformationTest.java,v 1.5 2002/07/13 17:05:07 jmacgill Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase
@@ -96,7 +96,7 @@ public class TransformationTest extends TestCase
         double a[] = {10,10};
         double b[] = {10.1,10.1};
         double delta[] = {0.2,0.2};
-        assertPointsEqual(name,a,b,deta);
+        assertPointsEqual(name,a,b,delta);
     }
     
     /**
