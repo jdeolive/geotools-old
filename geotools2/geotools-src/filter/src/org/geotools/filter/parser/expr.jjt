@@ -1,0 +1,277 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+
+options {
+   STATIC=false;
+   NODE_SCOPE_HOOK=true;
+   NODE_DEFAULT_VOID=true;
+   MULTI=false;
+   NODE_PACKAGE="org.geotools.filter.parser";
+}
+
+PARSER_BEGIN(ExpressionParser)
+
+package org.geotools.filter.parser;
+
+/**
+ * ExpressionParser is the result of a javacc jjtree grammar.
+ * 
+ * @author  Ian Schneider
+ */
+public class ExpressionParser {
+  public void jjtreeOpenNodeScope(Node n) throws ParseException {
+ 
+  }
+
+  public void jjtreeCloseNodeScope(Node n) throws ParseException {
+
+  }
+}
+
+PARSER_END(ExpressionParser)
+
+
+SKIP : /* WHITE SPACE */
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| "\f"
+}
+
+MORE:
+{
+  < "'" > : IN_SQ
+| < "\""> : IN_DQ
+}
+
+<IN_SQ>
+TOKEN:
+{ 
+  <SQ_STRING : "'"> { matchedToken.image = image.toString(); } : DEFAULT
+}
+
+<IN_DQ>
+TOKEN:
+{
+  <DQ_STRING : "\""> { matchedToken.image = image.toString(); } : DEFAULT
+}
+
+<IN_SQ>
+MORE:
+{
+  < ("\\" ("\\"|"'")) | ~[]>
+}
+
+<IN_DQ>
+MORE:
+{
+  < ("\\" ("\\"|"\"")) | ~[]>
+}
+
+TOKEN [IGNORE_CASE]:  /* keywords */
+{
+   < AND: "and" | "&&"> |
+   < OR: "or" | "||"> |
+   < NOT: "not" | "!"> |
+   < EQ: "eq" | "==" | "="> |
+   < NEQ: "neq" | "!=" > |
+   < GT: "gt" | ">" > |
+   < LT: "lt" | "<" > |
+   < GTE: "gte" | ">="> |
+   < LTE: "lte" | "<="> |
+   < TRUE: "true"> |
+   < FALSE: "false">
+}
+
+TOKEN : /* Literals */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* > |
+  //< PATH: <IDENTIFIER> ( "/" <IDENTIFIER> )* > |
+  < INTEGER_LITERAL: ("-")? (<DIGIT>)+ > |
+  < FLOATING_LITERAL: 
+    ( <DIGIT> )* "." ( <DIGIT> )* (<EXPONENT>)? |
+    ( <DIGIT> )+ <EXPONENT>
+  > |
+  < #LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
+  < #DIGIT: [ "0"-"9"] > |
+  < #EXPONENT: ["e","E"] (["+","-"])? (<DIGIT>)+ >
+}
+
+/*
+ * Program structuring syntax follows.
+ */
+
+Node CompilationUnit() :
+{}
+{
+   (Expression()) *
+   <EOF>
+   {return jjtree.rootNode();}
+}
+
+void Expression() #void:
+{}
+{
+  OrExpression()
+}
+
+void OrExpression() #void :
+{}
+{
+  AndExpression()
+  ( <OR> AndExpression() #OrNode(2) )*
+}
+
+void AndExpression() #void :
+{}
+{
+  EqualityExpression()
+  ( <AND> EqualityExpression() #AndNode(2) )*
+}
+
+void EqualityExpression() #void :
+{}
+{
+  RelationalExpression()
+  (
+     <EQ> RelationalExpression() #EQNode(2)
+   |
+     <NEQ> RelationalExpression() #NENode(2)
+  )*
+}
+
+void RelationalExpression() #void :
+{}
+{
+  AdditiveExpression()
+  (
+    <LT> AdditiveExpression() #LTNode(2)
+   |
+    <GT> AdditiveExpression() #GTNode(2)
+   |
+    <LTE> AdditiveExpression() #LENode(2)
+   |
+    <GTE> AdditiveExpression() #GENode(2)
+  )*
+}
+
+void AdditiveExpression() #void :
+{}
+{
+  MultiplicativeExpression()
+  (
+    "+" MultiplicativeExpression() #AddNode(2)
+   |
+    "-" MultiplicativeExpression() #SubtractNode(2)
+  )*
+}
+
+void MultiplicativeExpression() #void :
+{}
+{
+  
+  UnaryExpression()
+  (
+    "*" UnaryExpression() #MulNode(2)
+   |
+    "/" UnaryExpression() #DivNode(2)
+  )*
+}
+
+void UnaryExpression() #void:
+{}
+{
+  <NOT> "(" Expression() ")" #NotNode(1)
+  | PrimaryExpression()
+}
+
+void PrimaryExpression() #void :
+{}
+{
+  
+  Literal() |
+  "(" Expression() ")" |
+  Evaluate()
+}
+
+void Evaluate() #void:
+{}
+{
+  LOOKAHEAD(2)
+  Function() |
+  Attribute()
+}
+
+void Attribute() #AttNode:
+{}
+{
+  <IDENTIFIER>
+}
+
+void Literal() #void :
+{}
+{
+  IntegerLiteral() |
+  FloatingLiteral() |
+  BooleanLiteral() |
+  StringLiteral() 
+}
+
+void IntegerLiteral() #IntegerNode:
+{}
+{
+  <INTEGER_LITERAL>
+}
+
+void FloatingLiteral() #FloatingNode:
+{}
+{
+  <FLOATING_LITERAL>
+}
+
+void BooleanLiteral() #void :
+{}
+{
+  <TRUE> #TrueNode |
+  <FALSE> #FalseNode
+}
+
+void StringLiteral() #StringNode :
+{}
+{
+  jjtThis.token = <SQ_STRING> | jjtThis.token = <DQ_STRING>
+}
+
+
+void Function() #FunctionNode:
+{}
+{
+  jjtThis.token = <IDENTIFIER> "(" 
+  FunctionArg() ("," FunctionArg() ) *
+  ")"
+}
+
+void FunctionArg() #void:
+{}
+{
+  Literal() | Attribute()
+}
+
+
+
