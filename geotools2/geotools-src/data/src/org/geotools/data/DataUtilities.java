@@ -67,18 +67,18 @@ public class DataUtilities {
     static Map typeMap = new HashMap();
 
     static {
-        typeMap.put("\"\"", String.class);
         typeMap.put("String", String.class);
         typeMap.put("string", String.class);
-        typeMap.put("0", Integer.class);
+        typeMap.put("\"\"", String.class);        
         typeMap.put("Integer", Integer.class);
         typeMap.put("int", Integer.class);
-        typeMap.put("0.0", Double.class);
+        typeMap.put("0", Integer.class);               
         typeMap.put("Double", Double.class);
         typeMap.put("double", Double.class);
-        typeMap.put("0.0f", Float.class);
+        typeMap.put("0.0", Double.class);
         typeMap.put("Float", Float.class);
         typeMap.put("float", Float.class);
+        typeMap.put("0.0f", Float.class);        
         typeMap.put("Geometry", Geometry.class);
         typeMap.put("Point", Point.class);
         typeMap.put("LineString", LineString.class);
@@ -609,7 +609,7 @@ public class DataUtilities {
             buf.append(":");
             buf.append( typeMap( types[i].getType() ) );
             if(i<types.length-1){
-                buf.append("|");
+                buf.append(",");
             }
         }
         return buf.toString();
