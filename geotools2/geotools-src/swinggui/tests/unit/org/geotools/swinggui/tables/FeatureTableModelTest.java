@@ -9,8 +9,8 @@ package org.geotools.swinggui.tables;
 
 import junit.framework.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.datasource.*;
-import org.geotools.featuretable.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import org.geotools.shapefile.*;
 import com.vividsolutions.jts.geom.*;
 
@@ -45,7 +45,7 @@ public class FeatureTableModelTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             Shapefile shapefile = new Shapefile(url);
             ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
-            DefaultFeatureTable table = new DefaultFeatureTable();
+            FeatureCollectionDefault table = new FeatureCollectionDefault();
             table.setDataSource(datasource);
             EnvelopeExtent r = new EnvelopeExtent();
             r.setBounds(new Envelope(-180, 180, -90, 90));
@@ -54,6 +54,7 @@ public class FeatureTableModelTest extends TestCase {
             ftm.setFeatureTable(table);
             
             JFrame frame = new JFrame();
+            frame.setSize(400,400);
             JTable jtable = new JTable();
             jtable.setModel(ftm);
             JScrollPane scroll = new JScrollPane(jtable);
