@@ -1,5 +1,3 @@
-package org.geotools.gui.swing;
-
 /*
  * Geotools - OpenSource mapping toolkit
  * (C) 2002, Center for Computational Geography
@@ -32,6 +30,7 @@ package org.geotools.gui.swing;
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
+package org.geotools.gui.swing;
 
 // Standards Java classes
 import java.awt.*;
@@ -53,13 +52,14 @@ import org.geotools.styling.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * Demonstration application displaying a triangle and a rectangle in a zoomable
- * pane. The class <CODE>org.geotools.swing.ZoomPane</CODE> take care of most of
- * the internal mechanics. Developers must define only two abstract methods:
- * <CODE>getArea()</CODE>, which returns the logical bounds of the painting area
- * (it doesn't have to be in pixel unit) and <CODE>paintComponent(Graphics2D)</CODE>
- * which performs the actual painting.
+ * Demonstration application displaying a triangle and a rectangle in a
+ * zoomable pane. The class <CODE>org.geotools.swing.ZoomPane</CODE> takes
+ * care of most of the internal mechanics. Developers must define only two
+ * abstract methods: <CODE>getArea()</CODE>, which returns the logical bounds
+ * of the painting area (it doesn't have to be in pixel units) and
+ * <CODE>paintComponent(Graphics2D)</CODE> which performs the actual painting.
  *
+ * $Id: MapPane.java,v 1.3 2002/07/15 11:20:58 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -69,11 +69,11 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
     org.geotools.map.Map map;
     org.geotools.datasource.extents.EnvelopeExtent ext;
     /**
-     * Construct a demonstration zoom pane. This demo allow scale,
+     * Constructs a demonstration zoom pane. This demo allows scale,
      * translation and rotation. Scrolling the pane will repaint
-     * immediately (as opposite to wait for the user to finish adjusting).
+     * immediately (as opposed to waiting for the user to finish adjusting).
      */
-    public MapPane(Map map,EnvelopeExtent ext) {        
+    public MapPane(Map map, EnvelopeExtent ext) {        
         super(UNIFORM_SCALE | TRANSLATE_X | TRANSLATE_Y | ROTATE | RESET | DEFAULT_ZOOM);
         setPaintingWhileAdjusting(true);
         this.map = map;
@@ -85,43 +85,44 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
     }
     
     /**
-     * Returns a bounding box containing the painted area in logical coordinates.
-     * Coordinates don't have to be in pixels. An affine transform will be
-     * automatically computed in order to fit logical coordinate into the frame.
+     * Returns a bounding box containing the painted area in logical
+     * coordinates. Coordinates don't have to be in pixels. An
+     * affine transform will be automatically computed in order to
+     * fit logical coordinates into the frame.
      */
     public Rectangle2D getArea() {
         //return this.getBounds();
         Envelope e = ext.getBounds();
-        return new Rectangle2D.Double(e.getMinX(),e.getMinY(),e.getWidth(),e.getHeight());
+        return new Rectangle2D.Double(e.getMinX(), e.getMinY(), e.getWidth(), e.getHeight());
     }
     
     /**
-     * Paint the area. For this demo, we paint the triangle and its bounding
+     * Paints the area. For this demo, we paint the triangle and its bounding
      * rectangle.  Instruction <CODE>graphics.transform(zoom)</CODE> MUST be
      * executed before painting any zoomable components. Painting is done
-     * in the same logical coordinates than the coordinates system used by
+     * in the same logical coordinates as the coordinates system used by
      * <CODE>getArea()</CODE>. Developers don't have to care about the window's
      * size.
      *
      * If you want to paint a non-zoomable component (e.g. a text of
-     * fixed size and position), you can paint it before to execute
+     * fixed size and position), you can paint it before executing
      * <CODE>graphics.transform(zoom)</CODE>.
      */
     protected void paintComponent(final Graphics2D graphics) {
         // Apply the zoom, which is automatically computed by ZoomPane.
         graphics.transform(zoom);
 
-        renderer.setOutput(graphics,this.getBounds());
-        map.render(renderer,ext.getBounds());//and finaly try and draw it!
+        renderer.setOutput(graphics, this.getBounds());
+        map.render(renderer, ext.getBounds());//and finally try and draw it!
         
     }
     
     /**
-     * Invoked when a zoom changed. Our implementation just apply the same
+     * Invoked when a zoom changes. Our implementation just applies the same
      * transform on this <code>ZoomPane</code>. This simple implementation
-     * is enough when there is only one "master" and one "slave" zoom panes.
-     * If we have two "master" (or two "slaves") zoom panes, then a more
-     * sophesticated implementation is needed to avoid never-ending loop.
+     * is enough when there is only one "master" zoom pane and one "slave".
+     * If we have two "master" (or two "slave") zoom panes, then a more
+     * sophisticated implementation is needed to avoid an infinite loop.
      */
     public void zoomChanged(final ZoomChangeEvent event) {
         transform(event.getChange());

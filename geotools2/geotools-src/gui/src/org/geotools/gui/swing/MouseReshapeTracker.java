@@ -98,7 +98,7 @@ import org.geotools.resources.Utilities;
  * <blockquote><pre>
  * public class MyClass extends JPanel
  * {
- *     private final MouseReshapeTracker <em>slider</em>=new MouseReshapeTracker()
+ *     private final MouseReshapeTracker <em>slider</em> = new MouseReshapeTracker()
  *     {
  *         protected void {@link #clipChangeRequested clipChangeRequested}(double xmin, double xmax, double ymin, double ymax) {
  *             // Indicates what must be done if the user tries to move the
@@ -113,7 +113,7 @@ import org.geotools.resources.Utilities;
  *         }
  *     };
  *
- *     private final AffineTransform transform=AffineTransform.getScaleInstance(10,10);
+ *     private final AffineTransform transform = AffineTransform.getScaleInstance(10, 10);
  *
  *     public MyClass() {
  *         <em>slider</em>.{@link #setFrame     setFrame}(0, 0, 1, 1);
@@ -127,12 +127,13 @@ import org.geotools.resources.Utilities;
  *         AffineTransform tr=...
  *         Graphics2D g = (Graphics2D) graphics;
  *         g.transform(transform);
- *         g.setColor(new Color(128,64,92,64));
+ *         g.setColor(new Color(128, 64, 92, 64));
  *         g.fill    (<em>slider</em>);
  *     }
  * }
  * </pre></blockquote>
  *
+ * $Id: MouseReshapeTracker.java,v 1.2 2002/07/15 11:20:58 loxnard Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -141,19 +142,19 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     /**
      * Minimum width the rectangle should have, in pixels.
      */
-    private static final int MIN_WIDTH=12;
+    private static final int MIN_WIDTH = 12;
 
     /**
      * Minimum height the rectangle should have, in pixels.
      */
-    private static final int MIN_HEIGHT=12;
+    private static final int MIN_HEIGHT = 12;
 
     /**
      * If the user moves the mouse by less than RESIZE_POS, then we assume the
      * user wants to resize rather than move the rectangle. This distance is
      * measured in pixels from one of the rectangle's edges.
      */
-    private static final int RESIZE_POS=4;
+    private static final int RESIZE_POS = 4;
 
     /**
      * Minimum value of the <code>(clipped rectangle size)/(full rectangle
@@ -167,25 +168,25 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * Minimum <var>x</var> coordinate permitted for the rectangle. The default
      * value is {@link java.lang.Double#NEGATIVE_INFINITY}.
      */
-    private double xmin=Double.NEGATIVE_INFINITY;
+    private double xmin = Double.NEGATIVE_INFINITY;
 
     /**
      * Minimum <var>y</var> coordinate permitted for the rectangle. The default
      * value is {@link java.lang.Double#NEGATIVE_INFINITY}.
      */
-    private double ymin=Double.NEGATIVE_INFINITY;
+    private double ymin = Double.NEGATIVE_INFINITY;
 
     /**
      * Maximum <var>x</var> coordinate permitted for the rectangle. The default
      * value is {@link java.lang.Double#POSITIVE_INFINITY}.
      */
-    private double xmax=Double.POSITIVE_INFINITY;
+    private double xmax = Double.POSITIVE_INFINITY;
 
     /**
      * Maximum <var>y</var> coordinate permitted for the rectangle. The default
      * value is {@link java.lang.Double#POSITIVE_INFINITY}.
      */
-    private double ymax=Double.POSITIVE_INFINITY;
+    private double ymax = Double.POSITIVE_INFINITY;
 
     /**
      * The rectangle to control.  The coordinates of this rectangle must be
@@ -211,7 +212,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * coordinates.  It is guaranteed that no method except 
      * {@link #setTransform} will modify this transformation.
      */
-    private final AffineTransform transform=new AffineTransform();
+    private final AffineTransform transform = new AffineTransform();
 
     /**
      * Last <em>relative</em> mouse coordinates. This information is
@@ -240,7 +241,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * Point used internally by certain calculations in order to avoid
      * the frequent creation of several temporary {@link Point2D} objects.
      */
-    private final transient Point2D.Double tmp=new Point2D.Double();
+    private final transient Point2D.Double tmp = new Point2D.Double();
 
     /**
      * Indicates if the user is currently dragging the rectangle.
@@ -303,7 +304,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     /**
      * Cursor codes corresponding to a given {@link adjustingSides} value.
      */
-    private static final int[] CURSORS=new int[]
+    private static final int[] CURSORS = new int[]
     {
         Cursor.     MOVE_CURSOR, // 0000 =       |      |       |
         Cursor. N_RESIZE_CURSOR, // 0001 =       |      |       | NORTH
@@ -332,10 +333,10 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
         SwingConstants.SOUTH,      SOUTH,
         SwingConstants.EAST,       EAST,
         SwingConstants.WEST,       WEST,
-        SwingConstants.NORTH_EAST, NORTH|EAST,
-        SwingConstants.SOUTH_EAST, SOUTH|EAST,
-        SwingConstants.NORTH_WEST, NORTH|WEST,
-        SwingConstants.SOUTH_WEST, SOUTH|WEST
+        SwingConstants.NORTH_EAST, NORTH | EAST,
+        SwingConstants.SOUTH_EAST, SOUTH | EAST,
+        SwingConstants.NORTH_WEST, NORTH | WEST,
+        SwingConstants.SOUTH_WEST, SOUTH | WEST
     };
 
     /**
@@ -378,8 +379,9 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * in order to finish the construction of certain
      * fields.
      */
-    private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
-        drawnShape=logicalShape;
+    private void readObject(final ObjectInputStream in) throws IOException,
+                                                               ClassNotFoundException {
+        drawnShape = logicalShape;
         update();
     }
 
@@ -407,29 +409,29 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          */
         tmp.x = logicalShape.getWidth();
         tmp.y = logicalShape.getHeight();
-        transform.deltaTransform(tmp,tmp);
-        if (Math.abs(tmp.x)<MIN_WIDTH || Math.abs(tmp.y)<MIN_HEIGHT) {
-            if (Math.abs(tmp.x)<MIN_WIDTH ) tmp.x=(tmp.x<0) ? -MIN_WIDTH  : MIN_WIDTH;
-            if (Math.abs(tmp.y)<MIN_HEIGHT) tmp.y=(tmp.y<0) ? -MIN_HEIGHT : MIN_HEIGHT;
+        transform.deltaTransform(tmp, tmp);
+        if (Math.abs(tmp.x) < MIN_WIDTH || Math.abs(tmp.y) < MIN_HEIGHT) {
+            if (Math.abs(tmp.x) < MIN_WIDTH ) tmp.x = (tmp.x < 0) ? -MIN_WIDTH  : MIN_WIDTH;
+            if (Math.abs(tmp.y) < MIN_HEIGHT) tmp.y = (tmp.y < 0) ? -MIN_HEIGHT : MIN_HEIGHT;
             try {
                 XAffineTransform.inverseDeltaTransform(transform, tmp, tmp);
                 double x = logicalShape.getX();
                 double y = logicalShape.getY();
-                if ((adjustingLogicalSides & WEST)!=0) {
-                    x += logicalShape.getWidth()-tmp.x;
+                if ((adjustingLogicalSides & WEST) != 0) {
+                    x += logicalShape.getWidth() - tmp.x;
                 }
-                if ((adjustingLogicalSides & NORTH)!=0) {
-                    y += logicalShape.getHeight()-tmp.y;
+                if ((adjustingLogicalSides & NORTH) != 0) {
+                    y += logicalShape.getHeight() - tmp.y;
                 }
-                if (drawnShape==logicalShape) {
+                if (drawnShape == logicalShape) {
                     drawnShape = (RectangularShape) logicalShape.clone();
                 }
                 drawnShape.setFrame(x, y, tmp.x, tmp.y);
             } catch (NoninvertibleTransformException exception) {
-                drawnShape=logicalShape;
+                drawnShape = logicalShape;
             }
         } else {
-            drawnShape=logicalShape;
+            drawnShape = logicalShape;
         }
         /*
          * NOTE: the condition 'drawnShape==logicalShape' indicates that it has
@@ -439,18 +441,26 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          * Now retains the pixel coordinates of the new position of the 
          * rectangle.
          */
-        double xmin=Double.POSITIVE_INFINITY;
-        double ymin=Double.POSITIVE_INFINITY;
-        double xmax=Double.NEGATIVE_INFINITY;
-        double ymax=Double.NEGATIVE_INFINITY;
-        for (int i=0; i<4; i++) {
-            tmp.x = (i&1)==0 ? drawnShape.getMinX() : drawnShape.getMaxX();
-            tmp.y = (i&2)==0 ? drawnShape.getMinY() : drawnShape.getMaxY();
+        double xmin = Double.POSITIVE_INFINITY;
+        double ymin = Double.POSITIVE_INFINITY;
+        double xmax = Double.NEGATIVE_INFINITY;
+        double ymax = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < 4; i++) {
+            tmp.x = (i&1) == 0 ? drawnShape.getMinX() : drawnShape.getMaxX();
+            tmp.y = (i&2) == 0 ? drawnShape.getMinY() : drawnShape.getMaxY();
             transform.transform(tmp, tmp);
-            if (tmp.x<xmin) xmin=tmp.x;
-            if (tmp.x>xmax) xmax=tmp.x;
-            if (tmp.y<ymin) ymin=tmp.y;
-            if (tmp.y>ymax) ymax=tmp.y;
+            if (tmp.x < xmin) {
+                xmin = tmp.x;
+            }
+            if (tmp.x > xmax) {
+                xmax = tmp.x;
+            }
+            if (tmp.y < ymin) {
+                ymin = tmp.y;
+            }
+            if (tmp.y > ymax) {
+                ymax = tmp.y;
+            }
         }
         x      = (int) Math.floor(xmin)      -1;
         y      = (int) Math.floor(ymin)      -1;
@@ -464,22 +474,22 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      */
     private int inverseTransform(int adjusting)
     {
-        switch (adjusting & (WEST|EAST)) {
+        switch (adjusting & (WEST | EAST)) {
             case WEST: tmp.x=-1; break;
             case EAST: tmp.x=+1; break;
             default  : tmp.x= 0; break;
         }
-        switch (adjusting & (NORTH|SOUTH)) {
+        switch (adjusting & (NORTH | SOUTH)) {
             case NORTH: tmp.y=-1; break;
             case SOUTH: tmp.y=+1; break;
             default   : tmp.y= 0; break;
         }
         try {
             XAffineTransform.inverseDeltaTransform(transform, tmp, tmp);
-            final double normalize=0.25*XMath.hypot(tmp.x, tmp.y);
+            final double normalize = 0.25 * XMath.hypot(tmp.x, tmp.y);
             tmp.x /= normalize;
             tmp.y /= normalize;
-            adjusting=0;
+            adjusting = 0;
             switch (XMath.sgn(Math.rint(tmp.x))) {
                 case -1: adjusting |= WEST; break;
                 case +1: adjusting |= EAST; break;
@@ -578,26 +588,26 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * @see #setY
      */
     public boolean setFrame(double x, double y, double width, double height) {
-        final double oldX=logicalShape.getX();
-        final double oldY=logicalShape.getY();
-        final double oldW=logicalShape.getWidth();
-        final double oldH=logicalShape.getHeight();
-        if (x<xmin) x=xmin;
-        if (y<ymin) y=ymin;
-        if (x+width>xmax) {
-            x=Math.max(xmin, xmax-width);
-            width=xmax-x;
+        final double oldX = logicalShape.getX();
+        final double oldY = logicalShape.getY();
+        final double oldW = logicalShape.getWidth();
+        final double oldH = logicalShape.getHeight();
+        if (x<xmin) x = xmin;
+        if (y<ymin) y = ymin;
+        if (x + width > xmax) {
+            x = Math.max(xmin, xmax - width);
+            width = xmax - x;
         }
-        if (y+height>ymax) {
-            y=Math.max(ymin, ymax-height);
-            height=ymax-y;
+        if (y + height > ymax) {
+            y = Math.max(ymin, ymax - height);
+            height = ymax - y;
         }
         fireStateWillChange();
         logicalShape.setFrame(x, y, width, height);
-        if (oldX!=logicalShape.getX()     ||
-            oldY!=logicalShape.getY()     ||
-            oldW!=logicalShape.getWidth() ||
-            oldH!=logicalShape.getHeight())
+        if (oldX != logicalShape.getX()     ||
+            oldY != logicalShape.getY()     ||
+            oldW != logicalShape.getWidth() ||
+            oldH != logicalShape.getHeight())
         {
             update();
             fireStateChanged();
@@ -630,8 +640,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * @see #getCenterY
      */
     public final void setY(final double min, final double max) {
-        setFrame(logicalShape.getX(), Math.min(min,max),
-                 logicalShape.getWidth(), Math.abs(max-min));
+        setFrame(logicalShape.getX(), Math.min(min, max),
+                 logicalShape.getWidth(), Math.abs(max - min));
     }
 
     /**
@@ -719,7 +729,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * This point should be expressed in logical coordinates.
      */
     public boolean contains(final double x, final double y) {
-        return logicalShape.contains(x,y);
+        return logicalShape.contains(x, y);
     }
 
     /**
@@ -781,7 +791,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * These bounds are specified in logical coordinates.
      */
     public Rectangle2D getClip() {
-        return new Rectangle2D.Double(xmin, ymin, xmax-xmin, ymax-ymin);
+        return new Rectangle2D.Double(xmin, ymin, xmax - xmin, ymax - ymin);
     }
 
     /**
@@ -806,8 +816,9 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * {@link #setClipMinMax setClipMinMax(...)} rather than 
      * <code>setClip(...)</code>.
      */
-    public final void setClip(final double x, final double y, final double width, final double height) {
-        setClipMinMax(x, x+width, y, y+height);
+    public final void setClip(final double x, final double y, final double width,
+                              final double height) {
+        setClipMinMax(x, x + width, y, y + height);
     }
 
     /**
@@ -836,19 +847,28 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * in order to make it fit.
      */
     public void setClipMinMax(double xmin, double xmax, double ymin, double ymax) {
-        if (xmin>xmax) {
-            final double tmp=xmin;
-            xmin=xmax; xmax=tmp;
+        if (xmin > xmax) {
+            final double tmp = xmin;
+            xmin = xmax; xmax = tmp;
         }
-        if (ymin>ymax) {
-            final double tmp=ymin;
-            ymin=ymax; ymax=tmp;
+        if (ymin > ymax) {
+            final double tmp = ymin;
+            ymin = ymax; ymax = tmp;
         }
-        if (!Double.isNaN(xmin)) this.xmin=xmin;
-        if (!Double.isNaN(xmax)) this.xmax=xmax;
-        if (!Double.isNaN(ymin)) this.ymin=ymin;
-        if (!Double.isNaN(ymax)) this.ymax=ymax;
-        setFrame(logicalShape.getX(), logicalShape.getY(), logicalShape.getWidth(), logicalShape.getHeight());
+        if (!Double.isNaN(xmin)) {
+            this.xmin = xmin;
+        }
+        if (!Double.isNaN(xmax)) {
+            this.xmax = xmax;
+        }
+        if (!Double.isNaN(ymin)) {
+            this.ymin = ymin;
+        }
+        if (!Double.isNaN(ymax)) {
+            this.ymax = ymax;
+        }
+        setFrame(logicalShape.getX(), logicalShape.getY(), logicalShape.getWidth(),
+                 logicalShape.getHeight());
     }
 
     /**
@@ -881,7 +901,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * appropriate parameters.
      */
     public void setMoveable(final boolean moveable) {
-        this.moveable=moveable;
+        this.moveable = moveable;
     }
 
     /**
@@ -905,8 +925,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * appear to the North rather than the <var>y</var><sub>min</sub> values.
      */
     public boolean isAdjustable(int side) {
-        side=convertSwingConstant(side);
-        return (adjustableSides & side)==side;
+        side = convertSwingConstant(side);
+        return (adjustableSides & side) == side;
     }
 
     /**
@@ -930,9 +950,13 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * appear to the North rather than the <var>y</var><sub>min</sub> values.
      */
     public void setAdjustable(int side, final boolean adjustable) {
-        side=convertSwingConstant(side);
-        if (adjustable) adjustableSides |=  side;
-        else            adjustableSides &= ~side;
+        side = convertSwingConstant(side);
+        if (adjustable) {
+            adjustableSides |=  side;
+        }
+        else {
+            adjustableSides &= ~side;
+        }
     }
 
     /*
@@ -942,9 +966,9 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * four cardinal corners.
      */
     private int convertSwingConstant(final int side) {
-        for (int i=0; i<SWING_TO_CUSTOM.length; i+=2) {
-            if (SWING_TO_CUSTOM[i]==side) {
-                return SWING_TO_CUSTOM[i+1];
+        for (int i = 0; i < SWING_TO_CUSTOM.length; i += 2) {
+            if (SWING_TO_CUSTOM[i] == side) {
+                return SWING_TO_CUSTOM[i + 1];
             }
         }
         throw new IllegalArgumentException(String.valueOf(side));
@@ -958,53 +982,62 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     public void mouseMoved(final MouseEvent event) {
         if (!isDraging) {
             final Component source=event.getComponent();
-            if (source!=null) {
-                int x=event.getX(); tmp.x=x;
-                int y=event.getY(); tmp.y=y;
+            if (source != null) {
+                int x = event.getX(); tmp.x = x;
+                int y = event.getY(); tmp.y = y;
                 final boolean mouseOverRect;
                 try {
-                    mouseOverRect=drawnShape.contains(transform.inverseTransform(tmp,tmp));
+                    mouseOverRect = drawnShape.contains(transform.inverseTransform(tmp, tmp));
                 } catch (NoninvertibleTransformException exception) {
                     // Ignore this exception.
                     return;
                 }
-                final boolean mouseOverRectChanged = (mouseOverRect!=this.mouseOverRect);
+                final boolean mouseOverRectChanged = (mouseOverRect != this.mouseOverRect);
                 if (mouseOverRect) {
                     /*
                      * We do not use "adjustingLogicalSides" because we are working
                      * with pixel coordinates and not logical coordinates.
                      */
-                    final int old=adjustingSides;
-                    adjustingSides=0;
-                    if (Math.abs(x-=this.x)     <=RESIZE_POS) adjustingSides |= WEST;
-                    if (Math.abs(y-=this.y)     <=RESIZE_POS) adjustingSides |= NORTH;
-                    if (Math.abs(x- this.width) <=RESIZE_POS) adjustingSides |= EAST;
-                    if (Math.abs(y- this.height)<=RESIZE_POS) adjustingSides |= SOUTH;
+                    final int old = adjustingSides;
+                    adjustingSides = 0;
+                    if (Math.abs(x -= this.x)<=RESIZE_POS){
+                        adjustingSides |= WEST;
+                    }
+                    if (Math.abs(y -= this.y)<=RESIZE_POS){
+                        adjustingSides |= NORTH;
+                    }
+                    if (Math.abs(x - this.width)<=RESIZE_POS) {
+                        adjustingSides |= EAST;
+                    }
+                    if (Math.abs(y - this.height)<=RESIZE_POS) {
+                        adjustingSides |= SOUTH;
+                    }
 
                     adjustingSides &= adjustableSides;
-                    if (adjustingSides!=old || mouseOverRectChanged) {
-                        if (adjustingSides==0 && !moveable) {
+                    if (adjustingSides != old || mouseOverRectChanged) {
+                        if (adjustingSides == 0 && !moveable) {
                             source.setCursor(null);
                         } else {
                             adjustingLogicalSides = inverseTransform(adjustingSides);
-                            source.setCursor(Cursor.getPredefinedCursor(adjustingSides<CURSORS.length ?
+                            source.setCursor(Cursor.getPredefinedCursor(adjustingSides < CURSORS.length ?
                                                                         CURSORS[adjustingSides]       :
                                                                         Cursor.DEFAULT_CURSOR));
                         }
                     }
                     if (mouseOverRectChanged) {
-                        // Ajouter et retirer des 'listeners' marchait bien,  mais avait
-                        // l'inconvénient de changer l'ordre des 'listeners'. Ca causait
-                        // problème lorsque cet ordre était important.
+                        // Adding and removing listeners worked well, but had 
+                        // the disadvantage of changing the order of the
+                        // listeners. This caused problems when the order was
+                        // important.
 
                         //source.addMouseListener(this);
-                        this.mouseOverRect=mouseOverRect;
+                        this.mouseOverRect = mouseOverRect;
                     }
                 } else if (mouseOverRectChanged) {
-                    adjustingSides=0;
+                    adjustingSides = 0;
                     source.setCursor(null);
                     //source.removeMouseListener(this);
-                    this.mouseOverRect=mouseOverRect;
+                    this.mouseOverRect = mouseOverRect;
                 }
             }
         }
@@ -1018,15 +1051,15 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * to move or resize the rectangle.
      */
     public void mousePressed(final MouseEvent e) {
-        if (!e.isConsumed() && (e.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
-            if (adjustingSides!=0 || moveable) {
-                tmp.x=e.getX();
-                tmp.y=e.getY();
+        if (!e.isConsumed() && (e.getModifiers() & MouseEvent.BUTTON1_MASK)!= 0) {
+            if (adjustingSides != 0 || moveable) {
+                tmp.x = e.getX();
+                tmp.y = e.getY();
                 try {
-                    if (drawnShape.contains(transform.inverseTransform(tmp,tmp))) {
-                        mouseDX = tmp.x-drawnShape.getX();
-                        mouseDY = tmp.y-drawnShape.getY();
-                        isDraging=true;
+                    if (drawnShape.contains(transform.inverseTransform(tmp, tmp))) {
+                        mouseDX = tmp.x - drawnShape.getX();
+                        mouseDY = tmp.y - drawnShape.getY();
+                        isDraging = true;
                         e.consume();
                     }
                 } catch (NoninvertibleTransformException exception) {
@@ -1040,17 +1073,17 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     /**
      * Method called automatically during mouse drags.  The default
      * implementation applies the mouse movement to the rectangle and notifies
-     * the component where the event which it needs to redraw, at least in part,
-     * came from.
+     * the component where the event which it needs to redraw, at least in
+     * part, came from.
      */
     public void mouseDragged(final MouseEvent e) {
         if (isDraging) {
-            final int adjustingLogicalSides=this.adjustingLogicalSides;
-            final Component source=e.getComponent();
-            if (source!=null) try {
+            final int adjustingLogicalSides = this.adjustingLogicalSides;
+            final Component source = e.getComponent();
+            if (source != null) try {
                 tmp.x = e.getX();
                 tmp.y = e.getY();
-                transform.inverseTransform(tmp,tmp);
+                transform.inverseTransform(tmp, tmp);
                 /*
                  * Calculates the (x0,y0) coordinates of the corner of the
                  * rectangle. The (mouseDX, mouseDY) coordinates represent the
@@ -1061,8 +1094,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                  * the very corner, though in reality they could have clicked
                  * anywhere.
                  */
-                double x0 = tmp.x-mouseDX;
-                double y0 = tmp.y-mouseDY;
+                double x0 = tmp.x - mouseDX;
+                double y0 = tmp.y - mouseDY;
                 double dx = drawnShape.getWidth();
                 double dy = drawnShape.getHeight();
                 final double oldWidth  = dx;
@@ -1071,44 +1104,50 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                  * Deals with cases where, instead of dragging the rectangle,
                  * the user is in the process of resizing it.
                  */
-                switch (adjustingLogicalSides & (EAST|WEST)) {
+                switch (adjustingLogicalSides & (EAST | WEST)) {
                     case WEST: {
-                        if (x0<xmin) x0=xmin;
-                        dx += drawnShape.getX()-x0;
-                        if (!(dx>0)) {
-                            dx=drawnShape.getWidth();
-                            x0=drawnShape.getX();
+                        if (x0 < xmin) {
+                            x0 = xmin;
+                        }
+                        dx += drawnShape.getX() - x0;
+                        if (!(dx > 0)) {
+                            dx = drawnShape.getWidth();
+                            x0 = drawnShape.getX();
                         }
                         break;
                     }
                     case EAST: {
-                        dx += x0 - (x0=drawnShape.getX());
-                        final double limit=xmax-x0;
-                        if (dx>limit) dx=limit;
-                        if (!(dx>0)) {
-                            dx=drawnShape.getWidth();
-                            x0=drawnShape.getX();
+                        dx += x0 - (x0 = drawnShape.getX());
+                        final double limit = xmax - x0;
+                        if (dx > limit) {
+                            dx = limit;
+                        }
+                        if (!(dx > 0)) {
+                            dx = drawnShape.getWidth();
+                            x0 = drawnShape.getX();
                         }
                         break;
                     }
                 }
-                switch (adjustingLogicalSides & (NORTH|SOUTH)) {
+                switch (adjustingLogicalSides & (NORTH | SOUTH)) {
                     case NORTH: {
-                        if (y0<ymin) y0=ymin;
-                        dy += drawnShape.getY()-y0;
-                        if (!(dy>0)) {
-                            dy=drawnShape.getHeight();
-                            y0=drawnShape.getY();
+                        if (y0 < ymin) {
+                            y0=ymin;
+                        }
+                        dy += drawnShape.getY() - y0;
+                        if (!(dy > 0)) {
+                            dy = drawnShape.getHeight();
+                            y0 = drawnShape.getY();
                         }
                         break;
                     }
                     case SOUTH: {
                         dy += y0 - (y0=drawnShape.getY());
-                        final double limit=ymax-y0;
-                        if (dy>limit) dy=limit;
-                        if (!(dy>0)) {
-                            dy=drawnShape.getHeight();
-                            y0=drawnShape.getY();
+                        final double limit = ymax - y0;
+                        if (dy > limit) dy = limit;
+                        if (!(dy > 0)) {
+                            dy = drawnShape.getHeight();
+                            y0 = drawnShape.getY();
                         }
                         break;
                     }
@@ -1122,14 +1161,14 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                  * time as adjusting its right or left edge, which is not at
                  * all practical...)
                  */
-                if ((adjustingLogicalSides & (NORTH|SOUTH))!=0 &&
-                    (adjustingLogicalSides & ( EAST|WEST ))==0)
+                if ((adjustingLogicalSides & (NORTH | SOUTH)) != 0 &&
+                    (adjustingLogicalSides & (EAST | WEST)) == 0)
                 {
                     x0 = drawnShape.getX();
                     dx = drawnShape.getWidth();
                 }
-                if ((adjustingLogicalSides & (NORTH|SOUTH))==0 &&
-                    (adjustingLogicalSides & ( EAST|WEST ))!=0)
+                if ((adjustingLogicalSides & (NORTH | SOUTH)) == 0 &&
+                    (adjustingLogicalSides & (EAST | WEST)) != 0)
                 {
                     y0 = drawnShape.getY();
                     dy = drawnShape.getHeight();
@@ -1150,8 +1189,12 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                 /*
                  * Adjustment for special cases.
                  */
-                if ((adjustingLogicalSides & EAST )!=0) mouseDX += (drawnShape.getWidth() -oldWidth);
-                if ((adjustingLogicalSides & SOUTH)!=0) mouseDY += (drawnShape.getHeight()-oldHeight);
+                if ((adjustingLogicalSides & EAST) != 0) {
+                    mouseDX += (drawnShape.getWidth() - oldWidth);
+                }
+                if ((adjustingLogicalSides & SOUTH) != 0) {
+                    mouseDY += (drawnShape.getHeight() - oldHeight);
+                }
             } catch (NoninvertibleTransformException exception) {
                 // Ignore.
             }
@@ -1165,19 +1208,19 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * that the changes are finished.
      */
     public void mouseReleased(final MouseEvent event) {
-        if (isDraging && (event.getModifiers() & MouseEvent.BUTTON1_MASK)!=0) {
-            isDraging=false;
-            final Component source=event.getComponent();
+        if (isDraging && (event.getModifiers() & MouseEvent.BUTTON1_MASK) != 0) {
+            isDraging = false;
+            final Component source = event.getComponent();
             try {
-                tmp.x=event.getX();
-                tmp.y=event.getY();
-                mouseOverRect=drawnShape.contains(transform.inverseTransform(tmp,tmp));
-                if (!mouseOverRect && source!=null) source.setCursor(null);
+                tmp.x = event.getX();
+                tmp.y = event.getY();
+                mouseOverRect = drawnShape.contains(transform.inverseTransform(tmp, tmp));
+                if (!mouseOverRect && source != null) source.setCursor(null);
                 event.consume();
             } catch (NoninvertibleTransformException exception) {
-                // Ignore cette exception.
+                // Ignore this exception.
             } try {
-                // Il faut que 'isDraging=false'.
+                // It is essential that 'isDraging=false'.
                 fireStateChanged();
             } catch (RuntimeException exception) {
                 ExceptionMonitor.show(source, exception);
@@ -1245,8 +1288,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      */
     public void updateEditors()
     {
-        if (editors!=null) {
-            for (int i=0; i<editors.length; i++) {
+        if (editors != null) {
+            for (int i = 0; i < editors.length; i++) {
                 editors[i].updateText();
             }
         }
@@ -1329,7 +1372,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          */
         editor.setColumns(5);
         editor.setHorizontalAlignment(JTextField.RIGHT);
-        Insets insets=editor.getMargin();
+        Insets insets = editor.getMargin();
         insets.right += 2;
         editor.setMargin(insets);
         /*
@@ -1338,13 +1381,14 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          * but it will do because it is unlikely that we will ever add more
          * than 4 editors.
          */
-        final Control control=new Control(editor, (format instanceof DateFormat), convertSwingConstant(side), toRepaint);
-        if (editors==null) {
+        final Control control = new Control(editor, (format instanceof DateFormat), 
+                                            convertSwingConstant(side), toRepaint);
+        if (editors == null) {
             editors = new Control[1];
         } else {
-            editors = (Control[]) XArray.resize(editors, editors.length+1);
+            editors = (Control[]) XArray.resize(editors, editors.length + 1);
         }
-        editors[editors.length-1]=control;
+        editors[editors.length - 1] = control;
         return component;
     }
 
@@ -1355,8 +1399,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * @param editor Editor to remove.
      */
     public synchronized void removeEditor(final JComponent editor) {
-        if (editors!=null) {
-            for (int i=0; i<editors.length; i++) {
+        if (editors != null) {
+            for (int i = 0; i < editors.length; i++) {
                 if (editors[i].editor == editor) {
                     editors = (Control[])  XArray.remove(editors, i, 1);
                     /*
@@ -1366,8 +1410,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                      */
                 }
             }
-            if (editors.length==0) {
-                editors=null;
+            if (editors.length == 0) {
+                editors = null;
             }
         }       
     }
@@ -1386,10 +1430,11 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * @throws IllegalArgumentException if <code>axis</code>
      *         isn't one of the valid codes.
      */
-    public void setEditorsSynchronized(final int axis, final boolean state) throws IllegalArgumentException {
+    public void setEditorsSynchronized(final int axis, final boolean state)
+                                       throws IllegalArgumentException {
         switch (axis) {
-            case SwingConstants.HORIZONTAL: synchronizeX=state; break;
-            case SwingConstants.VERTICAL:   synchronizeY=state; break;
+            case SwingConstants.HORIZONTAL: synchronizeX = state; break;
+            case SwingConstants.VERTICAL:   synchronizeY = state; break;
             default: throw new IllegalArgumentException();
         }
     }
@@ -1420,7 +1465,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * Returns a character string representing this object.
      */
     public String toString() {
-        return Utilities.getShortClassName(this)+'['+Utilities.getShortClassName(logicalShape)+']';
+        return Utilities.getShortClassName(this) + '[' + Utilities.getShortClassName(logicalShape) + ']';
     }
 
     /**
@@ -1502,14 +1547,14 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          * changes.
          */
         public void propertyChange(final PropertyChangeEvent event) {
-            final Object source=event.getSource();
+            final Object source = event.getSource();
             if (source instanceof JFormattedTextField) {
                 final JFormattedTextField editor = (JFormattedTextField) source;
                 final Object value = editor.getValue();
-                if (value!=null) {
-                    final double v=(value instanceof Date)       ?
-                                   ((Date) value).getTime()      :
-                                   ((Number) value).doubleValue();
+                if (value != null) {
+                    final double v = (value instanceof Date)       ?
+                                     ((Date) value).getTime()      :
+                                     ((Number) value).doubleValue();
                     if (!Double.isNaN(v)) {
                         /*
                          * Obtains the new coordinates of the rectangle, 
@@ -1518,19 +1563,19 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                          * changed.
                          */
                         final int side = inverseTransform(this.side);
-                        double Vxmin=(side &  WEST)==0 ? logicalShape.getMinX() : v;
-                        double Vxmax=(side &  EAST)==0 ? logicalShape.getMaxX() : v;
-                        double Vymin=(side & NORTH)==0 ? logicalShape.getMinY() : v;
-                        double Vymax=(side & SOUTH)==0 ? logicalShape.getMaxY() : v;
-                        if (synchronizeX || Vxmin>Vxmax) {
-                            final double dx=logicalShape.getWidth();
-                            if ((side & WEST)!=0) Vxmax=Vxmin+dx;
-                            if ((side & EAST)!=0) Vxmin=Vxmax-dx;
+                        double Vxmin = (side &  WEST) == 0 ? logicalShape.getMinX() : v;
+                        double Vxmax = (side &  EAST) == 0 ? logicalShape.getMaxX() : v;
+                        double Vymin = (side & NORTH) == 0 ? logicalShape.getMinY() : v;
+                        double Vymax = (side & SOUTH) == 0 ? logicalShape.getMaxY() : v;
+                        if (synchronizeX || Vxmin > Vxmax) {
+                            final double dx = logicalShape.getWidth();
+                            if ((side & WEST) != 0) Vxmax = Vxmin + dx;
+                            if ((side & EAST) != 0) Vxmin = Vxmax - dx;
                         }
-                        if (synchronizeY || Vymin>Vymax) {
-                            final double dy=logicalShape.getHeight();
-                            if ((side & NORTH)!=0) Vymax=Vymin+dy;
-                            if ((side & SOUTH)!=0) Vymin=Vymax-dy;
+                        if (synchronizeY || Vymin > Vymax) {
+                            final double dy = logicalShape.getHeight();
+                            if ((side & NORTH) != 0) Vymax = Vymin + dy;
+                            if ((side & SOUTH) != 0) Vymin = Vymax - dy;
                         }
                         /*
                          * Checks whether the new coordinates need a clip
@@ -1542,30 +1587,30 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
                          * position of the rectangle will still be adjusted
                          * by 'setFrame').
                          */
-                        if (Vxmin<xmin) {
-                            final double dx=Math.max(xmax-xmin, MINSIZE_RATIO*(Vxmax-Vxmin));
-                            final double margin=Vxmax+dx*((MINSIZE_RATIO-1)*0.5);
-                            clipChangeRequested(margin-dx, margin, ymin, ymax);
-                        } else if (Vxmax>xmax) {
-                            final double dx=Math.max(xmax-xmin, MINSIZE_RATIO*(Vxmax-Vxmin));
-                            final double margin=Vxmin-dx*((MINSIZE_RATIO-1)*0.5);
-                            clipChangeRequested(margin, margin+dx, ymin, ymax);
+                        if (Vxmin < xmin) {
+                            final double dx = Math.max(xmax - xmin, MINSIZE_RATIO * (Vxmax - Vxmin));
+                            final double margin = Vxmax + dx * ((MINSIZE_RATIO - 1) * 0.5);
+                            clipChangeRequested(margin - dx, margin, ymin, ymax);
+                        } else if (Vxmax > xmax) {
+                            final double dx = Math.max(xmax - xmin, MINSIZE_RATIO * (Vxmax - Vxmin));
+                            final double margin = Vxmin-dx * ((MINSIZE_RATIO - 1) * 0.5);
+                            clipChangeRequested(margin, margin + dx, ymin, ymax);
                         }
-                        if (Vymin<ymin) {
-                            final double dy=Math.max(ymax-ymin, MINSIZE_RATIO*(Vymax-Vymin));
-                            final double margin=Vymax+dy*((MINSIZE_RATIO-1)*0.5);
-                            clipChangeRequested(xmin, xmax, margin-dy, margin);
-                        } else if (Vymax>ymax) {
-                            final double dy=Math.max(ymax-ymin, MINSIZE_RATIO*(Vymax-Vymin));
-                            final double margin=Vymin-dy*((MINSIZE_RATIO-1)*0.5);
-                            clipChangeRequested(xmin, xmax, margin, margin+dy);
+                        if (Vymin < ymin) {
+                            final double dy = Math.max(ymax - ymin, MINSIZE_RATIO * (Vymax - Vymin));
+                            final double margin = Vymax + dy * ((MINSIZE_RATIO - 1) * 0.5);
+                            clipChangeRequested(xmin, xmax, margin - dy, margin);
+                        } else if (Vymax > ymax) {
+                            final double dy = Math.max(ymax - ymin, MINSIZE_RATIO * (Vymax - Vymin));
+                            final double margin = Vymin - dy * ((MINSIZE_RATIO - 1) * 0.5);
+                            clipChangeRequested(xmin, xmax, margin, margin + dy);
                         }
                         /*
                          * Repositions the rectangle based on the new
                          * coordinates.
                          */
-                        if (setFrame(Vxmin, Vymin, Vxmax-Vxmin, Vymax-Vymin)) {
-                            if (toRepaint!=null) toRepaint.repaint();
+                        if (setFrame(Vxmin, Vymin, Vxmax - Vxmin, Vymax - Vymin)) {
+                            if (toRepaint != null) toRepaint.repaint();
                         }
                     }
                 }
@@ -1581,18 +1626,18 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
         private void updateText(final JFormattedTextField editor) {
             String text;
             if (!logicalShape.isEmpty() ||
-                ((text=editor.getText())!=null && text.trim().length()!=0))
+                ((text = editor.getText()) != null && text.trim().length() != 0))
             {
                 double value;
                 switch (inverseTransform(side)) {
-                    case NORTH: value=logicalShape.getMinY(); break;
-                    case SOUTH: value=logicalShape.getMaxY(); break;
-                    case  WEST: value=logicalShape.getMinX(); break;
-                    case  EAST: value=logicalShape.getMaxX(); break;
+                    case NORTH: value = logicalShape.getMinY(); break;
+                    case SOUTH: value = logicalShape.getMaxY(); break;
+                    case  WEST: value = logicalShape.getMinX(); break;
+                    case  EAST: value = logicalShape.getMaxX(); break;
                     default   : return;
                 }
-                editor.setValue(isDate ? (Object)new Date(Math.round(value))
-                                       : (Object)new Double(value));
+                editor.setValue(isDate ? (Object) new Date(Math.round(value))
+                                       : (Object) new Double(value));
             }
         }
 
