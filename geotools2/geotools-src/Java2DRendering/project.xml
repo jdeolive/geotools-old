@@ -65,6 +65,10 @@
       <id>JTS</id>
       <version>1.0</version>
     </dependency>
+        <dependency>
+      <id>resources</id>
+      <version>0.1</version>
+    </dependency>
     </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
