@@ -131,7 +131,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author James Macgill, CCG
  * @author Rob Hranac, TOPP
  * @author Ian Schneider, USDA-ARS
- * @version $Id: Feature.java,v 1.10 2003/08/05 21:33:26 cholmesny Exp $
+ * @version $Id: Feature.java,v 1.11 2003/11/26 00:30:05 jive Exp $
  *
  * @see org.geotools.feature.FeatureType
  * @see org.geotools.feature.DefaultFeature
@@ -259,8 +259,11 @@ public interface Feature {
 
     /**
      * Gets the default geometry for this feature.
-     *
-     * @return Default geometry for this feature.
+     * <p>
+     * This method will return <code>null</code> if no DefaultGeometry
+     * has been defined by the schema.
+     * </p>
+     * @return Default geometry for this feature, or <code>null</code>
      */
     Geometry getDefaultGeometry();
 
@@ -277,7 +280,10 @@ public interface Feature {
     /**
      * Get the total bounds of this feature which is calculated by doing a
      * union of the bounds of each geometry this feature is associated with.
-     *
+     * <p>
+     * This method will return an empty Envelope if the feature contains no
+     * geometry information.
+     * </p>
      * @return An Envelope containing the total bounds of this Feature.
      */
     Envelope getBounds();
