@@ -139,14 +139,6 @@
       </properties>
     </dependency>
     <dependency>
-      <artifactId>java2drendering</artifactId>
-      <groupId>gt2</groupId>
-      <version>2.0-B2-DEV</version>
-      <properties>
-        <war.bundle.jar>true</war.bundle.jar>
-      </properties>
-    </dependency>
-    <dependency>
       <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2-DEV</version>

@@ -73,7 +73,7 @@
       <version>2.0-B2-DEV</version>
     </dependency>
     <dependency>
-      <artifactId>java2drendering</artifactId>
+      <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
       <version>2.0-B2-DEV</version>
     </dependency>

@@ -3,7 +3,7 @@ core
 algorithms
 shapefile
 defaultcore
-Java2DRendering
+lite-rendering
 gmldatasource
 postgis
 mysql
