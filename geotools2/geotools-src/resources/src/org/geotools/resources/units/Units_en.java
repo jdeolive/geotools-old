@@ -73,7 +73,7 @@ public class Units_en extends Units
         "min",    "minute",
         "h",      "hour",
         "d",      "day",
-        "\u00b0",      "degree of angle",
+        "\u00b0", "degree of angle",
         "'",      "minute of angle",
         "\"",     "seconde of angle",
         "l",      "litre",
@@ -93,7 +93,7 @@ public class Units_en extends Units
         "are",    "are",
         "ha",     "hectare",
         "bar",    "bar",
-        "\u212b",      "\u212bngstr\u00f6m",
+        "\u212B", "\u00E5ngstr\u00F6m",
         "barn",   "barn",
         "erg",    "erg",
         "dyn",    "dyne",
@@ -106,7 +106,7 @@ public class Units_en extends Units
         "ph",     "phot",
         "Gal",    "gal",
         "Ci",     "curie",
-        "R",      "roentgen",
+        "R",      "r\u00F6entgen",
         "rd",     "rad",
         "rem",    "rem",
         "Jy",     "jansky",
@@ -114,8 +114,8 @@ public class Units_en extends Units
         "atm",    "standard atmosphere",
         "pound",  "pound",             // Symbole non-standard
         "onze",   "onze",              // Symbole non-standard
-        "\u00b0C",     "Celcius degree",
-        "\u00b0F",     "fahrenheit"         // Symbole non-standard
+        "\u00b0C","Celcius degree",
+        "\u00b0F","fahrenheit"         // Symbole non-standard
     };
 
     /**
