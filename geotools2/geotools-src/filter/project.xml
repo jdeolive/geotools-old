@@ -34,7 +34,16 @@
       <role>Java Developer</role>
       </roles>
     </developer>
-    </developers>
+     <developer>
+      <name>Sean Geoghegan</name>
+      <id>seangeo</id>
+      <email>seangeo@users.sourceforge.net</email>
+      <organization>Defence Science and Technology Organisation</organization>
+      <roles>
+         <role>Bug Fixer</role>
+      </roles>
+     </developer>     
+    </developers>    
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
