@@ -839,7 +839,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.18 2003/02/21 17:02:58 jmacgill Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.19 2003/02/23 04:10:04 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -1384,6 +1384,68 @@ public class HelloWorldTest extends TestCase {
 
   <section id="documentation">
     <title>Documentation</title>
+
+    <section id="quickstart">
+      <title>Quick Start</title>
+
+      <para>The documentation section has become quite large and daunting, so
+      I&#39;m writing this quick start documentation to make writing
+      documentation as easy and fast as possible in the hope that more people
+      will do it.</para>
+
+      <orderedlist>
+        <title>Simple steps for docbook editing</title>
+
+        <listitem>
+          <para>Download and install a Java Virtual Machine if you have not
+          already done so.</para>
+        </listitem>
+
+        <listitem>
+          <para>Download and install XXE, a WYSIWYM docbook editor.</para>
+        </listitem>
+
+        <listitem>
+          <para>If you creating a new section, then copy an existing section
+          and modify it. If you are updating an existing section - well, that
+          is even easier.</para>
+
+          <example>
+            <title>Edit a docbook section file</title>
+
+            <programlisting>cp license.sgml yoursection.sgml
+xxe yoursection.sgml</programlisting>
+          </example>
+        </listitem>
+
+        <listitem>
+          <figure>
+            <title>Editing with XXE</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/developersguide/xxescreenshot.png" />
+              </imageobject>
+            </mediaobject>
+          </figure>
+
+          <para>XXE is similar to any GUI editor. You type in the main panel
+          and most of the list/table/paragraph/section/figure formatting
+          options are selectable from the toolbar. Remember that simple
+          docbook is structured XML. You will often need to select an XML node
+          so you can specify whether the next paragraph should be part of this
+          section or a new section. Select XML nodes with arrow icons:
+          <inlinemediaobject><imageobject><imagedata
+          fileref="images/developersguide/xxeselecticons.png" /></imageobject></inlinemediaobject></para>
+        </listitem>
+
+        <listitem>
+          <para>To publish your document after editing, either tell the main
+          document author and get them to do it, or read the rest of the
+          documentation section.</para>
+        </listitem>
+      </orderedlist>
+    </section>
 
     <section id="whydocbook">
       <title>Why Docbook?</title>
