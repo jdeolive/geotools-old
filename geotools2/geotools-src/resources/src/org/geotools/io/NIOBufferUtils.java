@@ -34,15 +34,15 @@ public class NIOBufferUtils {
 			public Object run() {
 				try {
 					Method getCleanerMethod =
-						buffer.getClass().getMethod("cleaner", new Class[0]);
+						buffer.getClass().getMethod("cleaner", null);
+                    System.out.println(getCleanerMethod);
 					getCleanerMethod.setAccessible(true);
-					sun.misc.Cleaner cleaner =
-						(sun.misc.Cleaner) getCleanerMethod.invoke(
-							buffer,
-							new Object[0]);
-					cleaner.clean();
+                    Object cleaner = getCleanerMethod.invoke(buffer,  null);
+                    Method clean = cleaner.getClass().getMethod("clean", null);
+                    clean.invoke(cleaner, null);
 				} catch (Exception e) {
-					LOGGER.log(Level.WARNING, "Error attempting to close a mapped byte buffer", e);
+                    // This really is a show stopper on windows
+					LOGGER.log(Level.SEVERE, "Error attempting to close a mapped byte buffer", e);
 				}
 				return null;
 			}
