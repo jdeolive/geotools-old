@@ -38,6 +38,10 @@ public class DefaultTransaction implements Transaction {
     /** Records State by key */
     Map stateLookup = new HashMap();
 
+    /** Records properties by key */
+    Map propertyLookup = new HashMap();
+    
+    /** Handle used to identify Transaction for the user */
     String handle;
     
     /** Records current Authorizations */
@@ -183,6 +187,7 @@ public class DefaultTransaction implements Transaction {
             throw new DataSourceException("Commit encountered " + problemCount
                 + " problems - the first was", io);
         }
+        authorizations.clear();        
     }
 
     /**
@@ -223,6 +228,7 @@ public class DefaultTransaction implements Transaction {
             throw new DataSourceException("Rollback encountered "
                 + problemCount + " problems - the first was", io);
         }
+        authorizations.clear();
     }
     /**
      * Frees all State held by this Transaction.
@@ -236,6 +242,8 @@ public class DefaultTransaction implements Transaction {
         stateLookup = null;
         authorizations.clear();
         authorizations = null;
+        propertyLookup.clear();
+        propertyLookup = null;
     }
     /**
      * The current set of Authorization IDs held by this Transaction.
@@ -257,7 +265,7 @@ public class DefaultTransaction implements Transaction {
      * Provides an authorization ID allowing access to locked Features.
      * 
      * <p>
-     * Details
+     * Remember authorizations are cleared after every commit/rollback.
      * </p>
      *
      * @param authID Provided Authorization ID
@@ -301,6 +309,35 @@ public class DefaultTransaction implements Transaction {
      */
     public String toString() {
         return handle;
+    }
+    /**
+     * Implementation of getProperty.
+     * 
+     * @see org.geotools.data.Transaction#getProperty(java.lang.Object)
+     * 
+     * @param key
+     * @return
+     */
+    public Object getProperty(Object key) {
+        if( propertyLookup == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }        
+        return propertyLookup.get( key );
+    }
+    /**
+     * Implementation of addProperty.
+     * 
+     * @see org.geotools.data.Transaction#addProperty(java.lang.Object, java.lang.Object)
+     * 
+     * @param key
+     * @param value
+     * @throws IOException
+     */
+    public void putProperty(Object key, Object value) throws IOException {
+        if( propertyLookup == null){
+            throw new IllegalStateException("Transaction has been closed");
+        }        
+        propertyLookup.put( key, value );        
     }
 
 }

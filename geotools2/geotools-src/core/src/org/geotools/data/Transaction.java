@@ -43,7 +43,8 @@ import java.util.Set;
  * Example Use:
  * </p>
  * <pre><code>
- * Transaction t = new DefaultTransaction();
+ * Transaction t = new DefaultTransaction("handle");
+ * t.putProperty( "hint", new Integer(7) );
  * try {
  *     FeatureStore road = (FeatureStore) store.getFeatureSource("road");
  *     FeatureStore river = (FeatureStore) store.getFeatureSource("river");
@@ -51,7 +52,7 @@ import java.util.Set;
  *     road.setTransaction( t );
  *     river.setTransaction( t );
  * 
- *     t.addAuthorization( lockID );  // proivde authoriztion
+ *     t.addAuthorization( lockID );  // provide authoriztion
  *     road.removeFeatures( filter ); // opperate against transaction
  *     river.removeFeature( filter ); // opperate against transaction
  * 
@@ -64,19 +65,81 @@ import java.util.Set;
  *     t.close(); // free resources
  * }
  * </code></pre>
- *
+ * <p>
+ * Example code walkthrough from the (perspective of Tranasction):
+ * </p>
+ * <ol>
+ * <li>A new transaction is created (an instanceof DefaultTransaction with a handle)</li>
+ * <li>A hint is provided using Transaction.putProperty( key, value )</li>
+ * <li>Transaction is provided to two FeatureStores, this may result
+ *     in Transaction.State instances being registered</li>
+ *     <ul>
+ *     <li>TransactionStateDiff (stored by DataStore):
+ *         Used for in memory locking is used by many DataStore's
+ *         (like ShapefileDataStore).
+ *         Lazy creation by AbstractDataStore.state(transaction).
+ *         </li>
+ *     <li>JDBCTransactionState (stored by ConnectionPool):
+ *         Used to manage connection rollback/commit.
+ *         Lazy creation as part of JDBCDataStore.getConnection(transaction).
+ *         </li>
+ *     <li>InProcessLockingManager.FeatureLock (stored by LockingManger):
+ *         Used for per transaction FeatureLocks, used to free locked features
+ *         on Transaction commit/rollback.
+ *         </li>  
+ *     </ul>
+ *     These instances of Transaction state may make use of any hint provided
+ *     to Transaction.putProperty( key, value ) when they are connected with
+ *     Transaction.State.setTransaction( transaction ).
+ * <li>t.addAuthorization(lockID) is called, each Transaction.State has its
+ *     addAuthroization(String) callback invoked with the value of lockID</li>
+ * <li>FeatureStore.removeFeatures methods are called on the two DataStores.
+ *     <ul>
+ *     <li>PostgisFeatureStore.removeFeatures(fitler) handles opperation 
+ *         without delegation.
+ *         </li>
+ *     <li>Most removeFeature(filter) implementations use the implementation
+ *         provided by AbstractFeatureStore which delegates to FeatureWriter. 
+ *         </li>
+ *     </ul>
+ *     Any of these opperations may make use of the
+ *     Transaction.putProperty( key, value ).
+ * <li>The transaction is commited, all of the Transaction.State methods have
+ *     there Transaction.State.commit() methods called gicing them a chance
+ *     to applyDiff maps, or commit various connections.
+ *     </li>
+ * <li>The transaction is closed, all of the Transaction.State methods have
+ *     there Transaction.State.setTransaction( null ) called, giving them a 
+ *     chance to clean up diffMaps, or return connections to the pool.
+ *     </li>
+ * </ol>
  * @author Jody Garnett
  * @author Chris Holmes, TOPP
- * @version $Id: Transaction.java,v 1.2 2003/12/01 22:00:49 cholmesny Exp $
+ * @version $Id: Transaction.java,v 1.3 2004/03/02 23:06:26 jive Exp $
  */
 public interface Transaction {
+    
     /** Represents AUTO_COMMIT Mode */
     static final Transaction AUTO_COMMIT = new AutoCommitTransaction();
 
     //
     // External State
     //
-
+    /**
+     * Retrive a Transaction property held by this transaction.
+     * 
+     * <p>
+     * This may be used to provide hints to DataStore implementations, it
+     * opperates as a blackboard for client, FeatureSource communication.
+     * </p>
+     *   
+     * <p>
+     * If this proves successful addAuthorization/getAuthorization will be
+     * replaced with this mechanism.
+     * </p> 
+     */
+    Object getProperty( Object key );
+    
     /**
      * List of Authorizations IDs held by this transaction.
      * 
@@ -229,6 +292,17 @@ public interface Transaction {
      */
     void addAuthorization(String authID) throws IOException;
 
+    /**
+     * Provides a Transaction property for this Transasction.
+     * 
+     * <p>
+     * All proceeding FeatureSource (for FeatureReader/Writer) opperations may
+     * make use of the provided property.
+     * </p>
+     */
+    void putProperty( Object key, Object value ) throws IOException;
+    
+     
     /**
      * Provides an oppertunity for a Transaction to free an State it maintains.
      * <p>
@@ -435,5 +509,35 @@ class AutoCommitTransaction implements Transaction {
     public void addAuthorization(String authID) throws IOException {
         throw new IOException(
             "Authorization IDs are not valid for AutoCommit Transaction");
+    }
+
+    /**
+     * AutoCommit does not save State.
+     * 
+     * <p>
+     * While symetry would be good, state should be commited not stored for
+     * later.
+     * </p>
+     *
+     * @param key Key that is not used to Store Property
+     * @throws UnsupportedOperationException AutoCommit does not support State
+     */
+     public Object getProperty(Object key) {
+         throw new UnsupportedOperationException(
+             "AutoCommit does not support the getProperty opperations");
+    }
+
+    /**
+     * Implementation of addProperty.
+     * 
+     * @see org.geotools.data.Transaction#addProperty(java.lang.Object, java.lang.Object)
+     * 
+     * @param key
+     * @param value
+     * @throws IOException
+     */
+    public void putProperty(Object key, Object value) throws IOException {
+        throw new UnsupportedOperationException(
+            "AutoCommit does not support the addProperty opperations");        
     }
 }
