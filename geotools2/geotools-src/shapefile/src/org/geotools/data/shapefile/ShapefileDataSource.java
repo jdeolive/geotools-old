@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.2 2003/05/14 20:58:58 crotwell Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.3 2003/05/14 23:01:01 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -71,10 +71,10 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     if (url == null)
       throw new NullPointerException("Null URL for ShapefileDataSource");
     try {
-      filename = java.net.URLDecoder.decode(url.toString(),"US-ASCII");
+      filename = java.net.URLDecoder.decode(url.getFile(),"US-ASCII");
     } catch (java.io.UnsupportedEncodingException use) {
       throw new java.net.MalformedURLException(
-        "Unable to decode " + url + " cause " + use.getMessage()
+      "Unable to decode " + url + " cause " + use.getMessage()
       );
     }
     
@@ -83,17 +83,17 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     String shxext = ".shx";
     
     if(filename.endsWith(shpext) || filename.endsWith(dbfext) || filename.endsWith(shxext)) {
-        filename = filename.substring(0, filename.length() - 4);
+      filename = filename.substring(0, filename.length() - 4);
     } else if(filename.endsWith(".SHP") || filename.endsWith(".DBF") || filename.endsWith(".SHX")) {
-        filename = filename.substring(0, filename.length() - 4);
-        shpext = ".SHP";
-        dbfext = ".DBF";
-        shxext = ".SHX";
+      filename = filename.substring(0, filename.length() - 4);
+      shpext = ".SHP";
+      dbfext = ".DBF";
+      shxext = ".SHX";
     }
-
-    shpURL = new URL(filename + shpext);
-    dbfURL = new URL(filename + dbfext);
-    shxURL = new URL(filename + shxext);
+    
+    shpURL = new URL(url, filename + shpext);
+    dbfURL = new URL(url, filename + dbfext);
+    shxURL = new URL(url, filename + shxext);
   }
   
   public IDFactory getIDFactory() {
@@ -104,26 +104,6 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   
   public void setIDFactory(IDFactory f) {
     this.idFactory = f;
-  }
-  
-  /**
-   * Gets the Column names (used by FeatureTable) for this DataSource.
-   * This is poorly thought out on my part (Ian S.), I just took what was there...
-   * @task REVISIT: why is no IOException thrown here?
-   */
-  public String[] getColumnNames() {
-    if (dbfURL == null) {
-      return new String[]{"Geometry"};
-    }
-    
-    try {
-      DbaseFileHeader header = new DbaseFileHeader();
-      header.readHeader(getReadChannel(dbfURL));
-      return getColumnNames(header);
-    } catch (IOException ioe) {
-      // What now? This seems arbitrarily appropriate !
-      throw new RuntimeException("Poorly designed API for DataSource - should be throwing IOException or something",ioe);
-    }
   }
   
   /** Stops this DatataSource from loading.
@@ -167,14 +147,14 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   public void getFeatures(FeatureCollection collection,final Query query) throws DataSourceException {
     try {
       
-	Filter filter = null;
-	if (query != null) {
-	    filter = query.getFilter();
-	}
+      Filter filter = null;
+      if (query != null) {
+        filter = query.getFilter();
+      }
       // Open a channel for our URL
       ReadableByteChannel channel = getReadChannel(shpURL);
       if(channel == null) {
-          throw new DataSourceException("Non existent file or problems opening file: " + shpURL); 
+        throw new DataSourceException("Non existent file or problems opening file: " + shpURL);
       }
       ShapefileReader shp = new ShapefileReader(channel);
       
@@ -182,13 +162,13 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       DbaseFileReader dbf = createDbaseReader();
       
       // Create the FeatureType based on the dbf and shapefile
-      FeatureType type = getSchema( shp, dbf );
+      FeatureType type = getSchema( shp, dbf, query );
       
       // Make a feature factory
       FeatureFactory featureFactory = new FeatureFactory(type);
       
       // FeatureMaker is like an iterator
-      FeatureMaker features = new FeatureMaker(dbf,shp,featureFactory);
+      FeatureMaker features = new FeatureMaker(dbf,shp,featureFactory,type.getAttributeTypes().length);
       
       // an array to copy features into
       Feature[] array = new Feature[1];
@@ -218,87 +198,29 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     }
   }
   
-
- /**************************************************
-    Data source utility methods.
-   **************************************************/
   
-  /**
-   * Gets the DatasSourceMetaData object associated with this datasource.  
-   * This is the preferred way to find out which of the possible datasource
-   * interface methods are actually implemented, query the DataSourceMetaData
-   * about which methods the datasource supports.
-   */
-  public org.geotools.data.DataSourceMetaData getMetaData() {
-      return new DataSourceMetaData() {
-                public boolean supportsTransactions() {
-                    return false;
-                }
-
-                public boolean supportsMultiTransactions() {
-                    return false;
-                }
-
-                public boolean supportsSetFeatures() {
-                    return true;
-                }
-
-                public boolean supportsSetSchema() {
-                    return false;
-                }
-
-                public boolean supportsAbort() {
-                    return false;
-                }
-
-                public boolean supportsGetBbox() {
-                    return true;
-                }
-                
-                public boolean supportsAdd() {
-                    return false;
-                }
-                
-                public boolean supportsRemove() {
-                    return false;
-                }
-                
-                public boolean supportsModify() {
-                    return false;
-                }
-                
-                public boolean supportsRollbacks() {
-                    return false;
-                }
-                
-                public boolean hasFastBbox() {
-                    return true;
-                }
-            };
-  }
-  
-  private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf) 
+  private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf,Query q)
   throws DataSourceException,IOException,InvalidShapefileException {
     if (schema == null) {
-        if (shp == null)
-          shp = new ShapefileReader(getReadChannel(shpURL));
-        if (dbf == null)
-          dbf = createDbaseReader();
-        // Create the FeatureType based on the dbf and shapefile
-        return getFeatureType( dbf,shp );
+      if (shp == null)
+        shp = new ShapefileReader(getReadChannel(shpURL));
+      if (dbf == null)
+        dbf = createDbaseReader();
+      // Create the FeatureType based on the dbf and shapefile
+      return getFeatureType( dbf,shp,q );
     }
     
     return schema;
   }
-    
+  
   
   /**
-    * Retrieves the featureType that features extracted from this datasource
-    * will be created with.
-    */
+   * Retrieves the featureType that features extracted from this datasource
+   * will be created with.
+   */
   public FeatureType getSchema() throws DataSourceException{
     try {
-      return getSchema(null,null);
+      return getSchema(null,null,new QueryImpl());
     } catch (InvalidShapefileException e) {
       throw new DataSourceException("Invalid Shapefile",e);
     } catch (IOException e) {
@@ -306,18 +228,18 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     }
     
   }
-
+  
   /**
-   * Sets the schema that features extrated from this datasource will be 
+   * Sets the schema that features extrated from this datasource will be
    * created with.  This allows the user to obtain the attributes he wants,
-   * by calling getSchema and then creating a new schema using the 
-   * attributeTypes from the currently used schema.  
+   * by calling getSchema and then creating a new schema using the
+   * attributeTypes from the currently used schema.
    * @param schema the new schema to be used to create features.
    */
   public void setSchema(FeatureType schema) throws DataSourceException {
     this.schema = schema;
   }
-    
+  
   
   
   private DbaseFileReader createDbaseReader() throws IOException {
@@ -326,15 +248,6 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     if (channel == null) return null;
     return new DbaseFileReader(channel);
   }
-  
-  private String[] getColumnNames(DbaseFileHeader header) {
-    String[] names = new String[header.getNumFields() + 1];
-    names[0] = "Geometry";
-    for (int i = 1, ii = names.length; i < ii; i++) {
-      names[i] = header.getFieldName(i);
-    }
-    return names;
-  }    
   
   private static ReadableByteChannel getReadChannel(URL url) throws IOException {
     if (url.getProtocol().equals("file")) {
@@ -363,25 +276,23 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     }
   }
   
-  /** Determine and create a feature type.
-   */
-  private FeatureType getFeatureType(DbaseFileReader dbf,ShapefileReader shp) throws IOException, DataSourceException {
-    ShapeType type = shp.getHeader().getShapeType();
+  private AttributeType[] determineAttributeTypes(DbaseFileReader dbf,Query q,ShapeType type) {
     AttributeType geometryAttribute = new org.geotools.feature.AttributeTypeDefault(
-      type.toString(), 
-      JTSUtilities.findBestGeometryClass(type)
+    "_geom",
+    JTSUtilities.findBestGeometryClass(type)
     );
-    FeatureType shapefileType;
-    if(dbf != null) {
-      DbaseFileHeader header = dbf.getHeader();
+    // take care of the case where no dbf and query wants all => geometry only
+    if (dbf == null && q.retrieveAllProperties())
+      return new AttributeType[] {geometryAttribute};
       
-      AttributeType[] types = new AttributeType[ header.getNumFields() + 1];
-      types[0] = geometryAttribute;
-      for (int i = 1, ii = types.length; i < ii; i++) {
-        char c = header.getFieldType(i - 1);
-        String name = header.getFieldName(i - 1);
+      DbaseFileHeader header = dbf.getHeader();
+      ArrayList list = new ArrayList(header.getNumFields());
+      list.add(geometryAttribute);
+      Set atts = new HashSet();
+      atts.add("_geom");
+      for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
         Class clazz = void.class;
-        switch (c) {
+        switch (header.getFieldType(i)) {
           // L,C,D,N,F
           case 'l': case 'L':
             clazz = Boolean.class;
@@ -393,55 +304,51 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
             clazz = java.util.Date.class;
             break;
           case 'n': case 'N':
-            if (header.getFieldDecimalCount(i-1) > 0)
+            if (header.getFieldDecimalCount(i) > 0)
               clazz = Double.class;
-            else              
+            else
               clazz = Integer.class;
             break;
           case 'f': case 'F':
             clazz = Double.class;
             break;
         }
-        types[i] = new org.geotools.feature.AttributeTypeDefault(name, clazz);
+        atts.add(header.getFieldName(i));
+        list.add(new org.geotools.feature.AttributeTypeDefault(header.getFieldName(i), clazz));
       }
-      try{
-        shapefileType = new org.geotools.feature.FeatureTypeFlat(types);
+      
+      AttributeType[] qt = q.getProperties();
+      if (qt == null) qt = new AttributeType[0];
+      for (int i = 0, ii = qt.length; i < ii; i++) {
+        if (! atts.contains( qt[i].getName() ))
+          list.add( qt[i] );
       }
-      catch(org.geotools.feature.SchemaException se){
-        throw new DataSourceException("Schema Error",se);
-      }
+      return (AttributeType[]) list.toArray(new AttributeType[atts.size()]);
+  }
+  
+  /** Determine and create a feature type.
+   */
+  private FeatureType getFeatureType(DbaseFileReader dbf,ShapefileReader shp,Query q) throws IOException, DataSourceException {
+    ShapeType t = shp.getHeader().getShapeType();
+    AttributeType[] types = determineAttributeTypes(dbf, q, t);
+    
+    try{
+      return new org.geotools.feature.FeatureTypeFlat(types);
     }
-    // no dbf file, just return a geometry feature type...
-    else {
-      shapefileType = new org.geotools.feature.FeatureTypeFlat(geometryAttribute);
+    catch(org.geotools.feature.SchemaException se){
+      throw new DataSourceException("Schema Error",se);
     }
-    // Non null typenames may break rendering, which assume that the
-    // type name is either null of equal to the one defined in the
-    // feature type style of the sld descriptor... don't uncomment
-    // until the rendering situation is made clearer
-    // shapefileType = shapefileType.setTypeName(type.toString());
-    return shapefileType;
   }
   
   
-         
-    /**
-     * Creates the a metaData object.  This method should be overridden in any
-     * subclass implementing any functions beyond getFeatures, so that clients
-     * recieve the proper information about the datasource's capabilities.  <p>
-     * 
-     * @return the metadata for this datasource.
-     *
-     * @see #MetaDataSupport
-     */
-    protected DataSourceMetaData createMetaData() {
-	MetaDataSupport shpMeta = new MetaDataSupport();
-	shpMeta.setSupportsGetBbox(true);
-	shpMeta.setFastBbox(true);
-	shpMeta.setSupportsSetFeatures(true);
-	return shpMeta;
-
-    }
+  protected final DataSourceMetaData createMetaData() {
+    MetaDataSupport shpMeta = new MetaDataSupport();
+    shpMeta.setSupportsGetBbox(true);
+    shpMeta.setFastBbox(true);
+    shpMeta.setSupportsSetFeatures(true);
+    return shpMeta;
+    
+  }
   
   
   
@@ -462,16 +369,11 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     // if the dbf is null, we create a 1 length object array,
     // otherwise it is dbf.numFields + 1
     // the extra is for geometry!
-    public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureFactory factory) {
+    public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureFactory factory,int extra) {
       this.dbf = dbf;
       this.shp = shp;
       this.factory = factory;
-      if (dbf != null) {
-        stash = new Object[dbf.getHeader().getNumFields() + 1];
-      }
-      else {
-        stash = new Object[1];
-      }
+      stash = new Object[extra];
       id = getIDFactory();
     }
     
@@ -482,7 +384,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       else if (both == 0)
         return false;
       throw new IllegalStateException(
-        (both == 1 ? "shape" : "dbf") + "file has extra record"
+      (both == 1 ? "shape" : "dbf") + "file has extra record"
       );
     }
     
@@ -507,12 +409,20 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   
   
   public static interface IDFactory {
-    String getFeatureID(int record); 
+    String getFeatureID(int record);
   }
   
   public class DefaultIDFactory implements IDFactory {
+    final String file;
+    public DefaultIDFactory() {
+      String path = ShapefileDataSource.this.shpURL.getPath();
+      int dot = path.lastIndexOf('.');
+      if (dot < 0) dot = path.length();
+      int slash = path.lastIndexOf('/') + 1;
+      file = path.substring(slash,dot);
+    }
     public String getFeatureID(int record) {
-      return ShapefileDataSource.this.shpURL.toString() + "#" + record;
+      return file + "." + record;
     }
     
   }
@@ -558,31 +468,39 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    * @param fname name of the dbf file to write to
    */
   private void writeDbf(FeatureCollection featureCollection) throws DbaseFileException,IOException {
+    // welcome to the nastiest code in shapefile...
+    
     // precondition: all features have the same schema
+    // - currently ignoring this precondition
     Feature[] features = featureCollection.getFeatures();
     AttributeType[] types = features[0].getSchema().getAttributeTypes();
     
     // compute how many supported attributes are there.
     // TODO: handle Calendar, BigDecimal and BigInteger as well
-    int numAttributes = 0;
     
+    // this will track whether the attribute at the given index is supported.
+    // later down the line, we check these values, if > 0, supported
+    int[] supported = new int[types.length];
+    // tracks number supported
+    int numAttributes = 0;
     for(int i = 0; i < types.length; i++) {
       Class currType = types[i].getType();
       
       if((currType == String.class) || (currType == Boolean.class) ||
       Number.class.isAssignableFrom(currType) ||
       Date.class.isAssignableFrom(currType))
-        numAttributes++;
+        supported[i] = ++numAttributes; // mark supported
       else if(Geometry.class.isAssignableFrom(currType)) {
         // do nothing
       } else {
         throw new DbaseFileException(
-          "Shapefile: unsupported type found in feature schema : " + 
-          currType.getName()
+        "Shapefile: unsupported type found in feature schema : " +
+        currType.getName()
         );
       }
     }
     
+    // set up the header
     DbaseFileHeader header = new DbaseFileHeader();
     
     for(int i = 0; i < types.length; i++) {
@@ -616,78 +534,46 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     // write header
     DbaseFileWriter dbf = new DbaseFileWriter(header,getWriteChannel(dbfURL));
     
-    // write rows. Prepare calendar object for null dates
-    Calendar nullCal = Calendar.getInstance();
-    nullCal.clear();
+    // write rows.
+    Object[] dbrow = new Object[numAttributes];
     for(int i = 0; i < features.length; i++) {
-      Feature feature = features[i];
-      Object[] DBFrow = new Object[numAttributes];
-      Object[] atts = feature.getAttributes();
-      
+      Object[] atts = features[i].getAttributes();
+      int idx = 0;
       // make data for each column in this feature (row)
-      int f = 0;
-      for(int j = 0; j < atts.length; j++) {
-        Class colType = types[j].getType();
-        
-        if(colType == Integer.class) {
-          if(atts[j] == null) {
-            DBFrow[f] = new Integer(0);
-          } else {
-            DBFrow[f] = atts[j];
-          }
-          f++;
-          
-        } else if((colType == Short.class) || (colType == Byte.class)) {
-          if(atts[j] == null) {
-            DBFrow[f] = new Integer(0);
-          } else {
-            DBFrow[f] = new Integer(((Number) atts[j]).intValue());
-          }
-          f++;
-          
-        } else if(colType == Double.class) {
-          if(atts[j] == null) {
-            DBFrow[f] = new Double(0.0);
-          } else {
-            DBFrow[f] = atts[j];
-          }
-          f++;
-          
-        } else if(colType == Float.class) {
-          if(atts[j] == null) {
-            DBFrow[f] = new Double(0.0);
-          } else {
-            DBFrow[f] = new Double(((Number) atts[j]).doubleValue());
-          }
-          f++;
-          
-        } else if(colType == String.class) {
-          if(atts[j] == null) {
-            DBFrow[f] = new String("");
-          } else {
-            if(atts[j] instanceof String)
-              DBFrow[f] = atts[j];
-            else
-              DBFrow[f] = atts[j].toString();
-          }
-          f++;
-        } else if(Date.class.isAssignableFrom(colType)) {
-          if(atts[j] == null) {
-            DBFrow[f] = nullCal.getTime();
-          } else {
-            if(atts[j] instanceof Date)
-              DBFrow[f] = atts[j];
-          }
-          f++;
-        }
-        
+      for(int j = 0; j < types.length; j++) {
+        // check for supported...
+        if (supported[j] > 0)
+          dbrow[idx++] = forAttribute(atts[j],types[j].getType());
       }
-      dbf.write(DBFrow);
+      dbf.write(dbrow);
     }
     
     dbf.close();
   }
   
+  /*
+   * Just a place to do marshalling of data.
+   */
+  private Object forAttribute(final Object o,Class colType) {
+    if(colType == Integer.class) {
+      return o;
+    } else if((colType == Short.class) || (colType == Byte.class)) {
+      return new Integer(((Number) o).intValue());
+    } else if(colType == Double.class) {
+      return o;
+    } else if(colType == Float.class) {
+      return new Double(((Number) o).doubleValue());
+    } else if(colType == String.class) {
+      if (o == null)
+        return o;
+      return o.toString();
+    } else if(Date.class.isAssignableFrom(colType)) {
+      if(o instanceof Date)
+        return o;
+    }
+    System.out.println("NULL -> " + colType);
+    return null;
+  }
   
   /**
    *look at all the data in the column of the featurecollection, and find the largest string!
@@ -701,6 +587,8 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     
     for(int i = 0; i < features.length; i++) {
       String s = (String) (features[i].getAttributes())[attributeNumber];
+      if (s == null)
+        continue;
       int len = s.length();
       
       if(len > maxlen) {
@@ -742,54 +630,54 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       geom = features[t].getDefaultGeometry();
       
       if (type == ShapeType.POINT) {
-          
-          if((geom instanceof Point)) {
-            allGeoms[t] = geom;
-          } else {
-            allGeoms[t] = new MultiPoint(null, new PrecisionModel(), 0);
-          }
-          
+        
+        if((geom instanceof Point)) {
+          allGeoms[t] = geom;
+        } else {
+          allGeoms[t] = new MultiPoint(null, new PrecisionModel(), 0);
+        }
+        
       } else if (type == ShapeType.ARC) {
+        
+        if((geom instanceof LineString)) {
+          LineString[] l = new LineString[1];
+          l[0] = (LineString) geom;
           
-          if((geom instanceof LineString)) {
-            LineString[] l = new LineString[1];
-            l[0] = (LineString) geom;
-            
-            allGeoms[t] = new MultiLineString(l, new PrecisionModel(), 0);
-          } else if(geom instanceof MultiLineString) {
-            allGeoms[t] = geom;
-          } else {
-            allGeoms[t] = new MultiLineString(null, new PrecisionModel(), 0);
-          }
+          allGeoms[t] = new MultiLineString(l, new PrecisionModel(), 0);
+        } else if(geom instanceof MultiLineString) {
+          allGeoms[t] = geom;
+        } else {
+          allGeoms[t] = new MultiLineString(null, new PrecisionModel(), 0);
+        }
       } else if (type == ShapeType.POLYGON) {
+        
+        if(geom instanceof Polygon) {
+          //good!
+          Polygon[] p = new Polygon[1];
+          p[0] = (Polygon) geom;
           
-          if(geom instanceof Polygon) {
-            //good!
-            Polygon[] p = new Polygon[1];
-            p[0] = (Polygon) geom;
-            
-            allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon(new MultiPolygon(p,
-            geom.getPrecisionModel(),geom.getSRID()));
-          } else if(geom instanceof MultiPolygon) {
-            allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon((MultiPolygon) geom);
-          } else {
-            allGeoms[t] = new MultiPolygon(null, geom.getPrecisionModel(),geom.getSRID());
-          }
-          
+          allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon(new MultiPolygon(p,
+          geom.getPrecisionModel(),geom.getSRID()));
+        } else if(geom instanceof MultiPolygon) {
+          allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon((MultiPolygon) geom);
+        } else {
+          allGeoms[t] = new MultiPolygon(null, geom.getPrecisionModel(),geom.getSRID());
+        }
+        
       }  else if (type == ShapeType.MULTIPOINT) {
+        
+        if((geom instanceof Point)) {
+          Point[] p = new Point[1];
+          p[0] = (Point) geom;
           
-          if((geom instanceof Point)) {
-            Point[] p = new Point[1];
-            p[0] = (Point) geom;
-            
-            allGeoms[t] = new MultiPoint(p, geom.getPrecisionModel(),geom.getSRID());
-          } else if(geom instanceof MultiPoint) {
-            allGeoms[t] = geom;
-          } else {
-            allGeoms[t] = new MultiPoint(null, geom.getPrecisionModel(),geom.getSRID());
-          }
-          
-         
+          allGeoms[t] = new MultiPoint(p, geom.getPrecisionModel(),geom.getSRID());
+        } else if(geom instanceof MultiPoint) {
+          allGeoms[t] = geom;
+        } else {
+          allGeoms[t] = new MultiPoint(null, geom.getPrecisionModel(),geom.getSRID());
+        }
+        
+        
       }
     } // end big crazy for loop
     
@@ -808,7 +696,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     for (int i = 0, ii = f.length; i < ii; i++) {
       System.out.println(f[i]);
     }
-      
+    
     
     
   }

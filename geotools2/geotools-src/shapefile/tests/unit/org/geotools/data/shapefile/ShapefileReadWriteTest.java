@@ -118,11 +118,11 @@ public class ShapefileReadWriteTest extends TestCaseSupport {
         g1.normalize();
         g2.normalize();
         if (!g1.equalsExact(g2)) {
-          throw new Exception("Different geometries:\n" + g1 + "\n" + g2);
+          throw new Exception("Different geometries (" + i + "):\n" + g1 + "\n" + g2);
         }
       } else {
         if (!atts1[i].equals(atts2[i])) {
-          throw new Exception("Different attribute: [" + atts1[i] + "] - [" + atts2[i] + "]");
+          throw new Exception("Different attribute (" + i + "): [" + atts1[i] + "] - [" + atts2[i] + "]");
         }
       }
     }

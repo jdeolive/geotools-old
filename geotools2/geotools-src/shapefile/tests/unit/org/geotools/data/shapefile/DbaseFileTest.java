@@ -13,8 +13,7 @@ import java.net.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import java.util.ArrayList;
-import org.geotools.data.shapefile.dbf.DbaseFileHeader;
-import org.geotools.data.shapefile.dbf.DbaseFileReader;
+import org.geotools.data.shapefile.dbf.*;
 
 
 /**
@@ -52,6 +51,33 @@ public class DbaseFileTest extends TestCaseSupport {
     dbf.readEntry(attrs);
     assertEquals("Value of Column 0 is wrong",attrs[0],new String("Illinois"));
     assertEquals("Value of Column 4 is wrong",((Double)attrs[4]).doubleValue(),143986.61,0.001);
+  }
+  
+  public void testEmptyFields() throws Exception {
+    DbaseFileHeader header = new DbaseFileHeader();
+    header.addColumn("emptyString", 'C', 20, 0);
+    header.addColumn("emptyInt", 'N', 20, 0);
+    header.addColumn("emptyDouble", 'N',20,5);
+    header.addColumn("emptyFloat", 'F', 20, 5);
+    header.addColumn("emptyLogical", 'L', 1, 0);
+    header.addColumn("emptyDate", 'D', 20, 0);
+    header.setNumRecords(20);
+    File f = new File(System.getProperty("java.io.tmpdir"),"scratchDBF.dbf");
+    FileOutputStream fout = new FileOutputStream(f);
+    DbaseFileWriter dbf = new DbaseFileWriter(header,fout.getChannel());
+    for (int i = 0; i < header.getNumRecords(); i++) {
+      dbf.write(new Object[6]);
+    }
+    dbf.close();
+    FileInputStream in = new FileInputStream(f);
+    DbaseFileReader r = new DbaseFileReader(in.getChannel());
+    int cnt = 0;
+    while (r.hasNext()) {
+      cnt++;
+      Object[] o = r.readEntry(); 
+    }
+    assertEquals("Bad number of records",cnt,20);
+    f.delete();
   }
   
 }

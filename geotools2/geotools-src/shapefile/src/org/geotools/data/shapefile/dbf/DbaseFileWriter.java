@@ -51,6 +51,10 @@ public class DbaseFileWriter  {
   private DbaseFileWriter.FieldFormatter formatter = new DbaseFileWriter.FieldFormatter();
   private WritableByteChannel channel;
   private ByteBuffer buffer;
+  private final Number NULL_NUMBER = new Integer(0);
+  private final String NULL_STRING = new String("");
+  private final Date NULL_DATE = new Date();
+  private final Boolean NULL_LOGICAL = Boolean.FALSE;
   
   /** Create a DbaseFileWriter using the specified header and writing to the given
    * channel.
@@ -58,11 +62,11 @@ public class DbaseFileWriter  {
    * @param out The Channel to write to.
    * @throws IOException If errors occur while initializing.
    */
-  public DbaseFileWriter(DbaseFileHeader header,WritableByteChannel out) throws IOException {    
+  public DbaseFileWriter(DbaseFileHeader header,WritableByteChannel out) throws IOException {
     header.writeHeader(out);
     this.header = header;
     this.channel = out;
-
+    
     init();
   }
   
@@ -95,56 +99,59 @@ public class DbaseFileWriter  {
     buffer.put( (byte) ' ');
     
     for (int i = 0; i < header.getNumFields(); i++) {
-      int len = header.getFieldLength(i);
-      Object o = record[i];
-      String fieldString = null;
-      
-      switch (header.getFieldType(i)) {
-        case 'C':
-        case 'c':
-          
-        case 'L':
-          
-        case 'M':
-          
-        case 'G':
-          fieldString = formatter.getFieldString(header.getFieldLength(i), (String) o);
-          break;
-          
-        case 'N':
-        case 'n':
-          // int?
-          if (header.getFieldDecimalCount(i) == 0) {
-            fieldString = formatter.getFieldString(header.getFieldLength(i), 0, (Number) o);
-            break;
-          }
-          
-        case 'F':
-        case 'f':
-          fieldString = formatter.getFieldString(header.getFieldLength(i),
-          header.getFieldDecimalCount(i),
-          (Number) o);
-          break;
-          
-        case 'D':
-        case 'd':
-          fieldString = formatter.getFieldString((Date) o);
-          break;
-          
-        default:
-          fieldString = formatter.getFieldString(header.getFieldLength(i), o.toString());
-          
-      } // switch
+      String fieldString = fieldString(record[i], i);
       buffer.put(fieldString.getBytes());
     }
     
     write();
   }
   
+  private String fieldString(Object o,final int col) {
+    switch (header.getFieldType(col)) {
+      case 'C':
+      case 'c':
+      case 'L':
+        if (o == null)
+          o = NULL_LOGICAL;
+      case 'M':
+      case 'G':
+        if (o == null)
+          o = NULL_STRING;
+        return formatter.getFieldString(header.getFieldLength(col), o.toString());
+        
+      case 'N':
+      case 'n':
+        // int?
+        if (header.getFieldDecimalCount(col) == 0) {
+          if (o == null)
+            o = NULL_NUMBER;
+          return formatter.getFieldString(header.getFieldLength(col), 0, (Number) o);
+        }
+        
+      case 'F':
+      case 'f':
+        return formatter.getFieldString(header.getFieldLength(col),
+        header.getFieldDecimalCount(col),
+        (Number) o);
+        
+      case 'D':
+      case 'd':
+        if (o == null)
+          o = NULL_DATE;
+        return formatter.getFieldString((Date) o);
+        
+      default:
+        if (o == null)
+          o = NULL_STRING;
+        return formatter.getFieldString(header.getFieldLength(col), o.toString());
+        
+    }
+  }
+  
   /** Release resources associated with this writer.
    * <B>Highly recommended</B>
    * @throws IOException If errors occur.
-   */  
+   */
   public void close() throws IOException {
     buffer.position(0);
     buffer.put((byte) 0).position(0).limit(1);
@@ -153,7 +160,7 @@ public class DbaseFileWriter  {
   }
   
   
-  /** Utility for formatting Dbase fields. */  
+  /** Utility for formatting Dbase fields. */
   public static class FieldFormatter {
     private StringBuffer buffer = new StringBuffer(255);
     private NumberFormat numFormat = NumberFormat.getNumberInstance(Locale.US);

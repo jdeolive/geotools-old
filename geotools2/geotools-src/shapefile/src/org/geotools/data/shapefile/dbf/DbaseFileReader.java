@@ -195,7 +195,7 @@ public class DbaseFileReader {
    * @return The same array passed in.
    */  
   public Object[] readEntry(Object[] entry,final int offset) throws IOException {
-    if (entry.length - offset != header.getNumFields())
+    if (entry.length - offset < header.getNumFields())
       throw new ArrayIndexOutOfBoundsException();
     
     // retrieve the record length
