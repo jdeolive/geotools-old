@@ -44,6 +44,8 @@ package org.geotools.validation.spatial;
 
 import java.beans.PropertyDescriptor;
 
+import org.geotools.validation.DefaultFeatureValidationBeanInfo;
+
 
 /**
  * LineAbstractValidationBeanInfopurpose.
@@ -53,10 +55,10 @@ import java.beans.PropertyDescriptor;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNoSelfOverlappingValidationBeanInfo.java,v 1.1 2004/02/20 18:45:25 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: LineNoSelfOverlappingValidationBeanInfo.java,v 1.2 2004/04/26 21:04:43 jive Exp $
  */
-public class LineNoSelfOverlappingValidationBeanInfo extends LineAbstractValidationBeanInfo{
+public class LineNoSelfOverlappingValidationBeanInfo extends DefaultFeatureValidationBeanInfo{
     /**
      * LineAbstractValidationBeanInfoconstructor.
      * 
@@ -76,6 +78,6 @@ public class LineNoSelfOverlappingValidationBeanInfo extends LineAbstractValidat
      * @see java.beans.BeanInfo#getPropertyDescriptors()
      */
     public PropertyDescriptor[] getPropertyDescriptors() {
-        return super.getPropertyDescriptors();
+    	return super.getPropertyDescriptors();
     }
 }
