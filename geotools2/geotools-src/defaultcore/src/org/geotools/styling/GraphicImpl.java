@@ -36,18 +36,18 @@
 package org.geotools.styling;
 
 // J2SE dependencies
+import java.util.ArrayList;
 import java.util.Iterator;
 
-// Geotools dependencies
-import org.geotools.util.Cloneable;
 import org.geotools.filter.Expression;
+import org.geotools.util.Cloneable;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.15 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: GraphicImpl.java,v 1.16 2003/08/29 12:48:05 seangeo Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
@@ -331,10 +331,7 @@ public class GraphicImpl implements Graphic, Cloneable {
     }
     
     /** Creates a deep copy clone. 
-     * 
-     * TODO: Need to complete the deep copy,
-     * currently only shallow copy.
-     * 
+     *  
      * @return The deep copy clone.
      * 
      */
@@ -342,6 +339,9 @@ public class GraphicImpl implements Graphic, Cloneable {
         GraphicImpl clone;
         try {
             clone = (GraphicImpl) super.clone();
+            clone.marks = new ArrayList();
+            clone.externalGraphics = new ArrayList();
+            clone.symbols = new ArrayList();
             
             // Because ExternalGraphics and Marks are stored twice
             // and we only want to clone them once, we should use
