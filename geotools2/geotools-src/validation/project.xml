@@ -33,6 +33,15 @@
         <role>Module Maintainer</role>
       </roles>
     </developer>
+    <developer>
+      <name>David Zwiers</name>
+      <id>dmzwiers</id>
+      <email>dzwiers@refractions.net</email>
+      <organization>Refractions Research Inc.</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
