@@ -62,6 +62,10 @@ import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.FactoryException;
 
+// Projections
+import org.geotools.ct.proj.Provider;
+import org.geotools.ct.proj.Mercator;
+
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
@@ -107,7 +111,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.18 2003/02/27 14:30:34 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.19 2003/04/18 10:00:41 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -157,7 +161,8 @@ public class MathTransformFactory {
         if (DEFAULT==null) {
             DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
                 new              MatrixTransform.Provider(),      // Affine (default to 4x4)
-                new           MercatorProjection.Provider(),      // Mercator_1SP
+                new                     Mercator.Provider(false), // Mercator_1SP
+                new                     Mercator.Provider(true),  // Mercator_2SP
                 new   LambertConformalProjection.Provider(false, true),  // Lambert_Conformal_Conic_1SP
                 new   LambertConformalProjection.Provider(true,  true),  // Lambert_Conformal_Conic_2SP
                 new   LambertConformalProjection.Provider(false, false), // Lambert_Conic_Conformal_1SP
@@ -174,7 +179,9 @@ public class MathTransformFactory {
             });
             for (int i=DEFAULT.providers.length; --i>=0;) {
                 final MathTransformProvider provider = DEFAULT.providers[i];
-                if (provider instanceof MapProjection.Provider) {
+                if (provider instanceof MapProjection.Provider ||
+                    provider instanceof Provider)
+                {
                     // Register only projections.
                     DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
                                                       provider.getParameterListDescriptor());
@@ -691,7 +698,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.18 2003/02/27 14:30:34 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.19 2003/04/18 10:00:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

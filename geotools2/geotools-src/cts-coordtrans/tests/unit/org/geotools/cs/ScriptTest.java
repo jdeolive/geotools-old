@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.4 2003/03/28 21:55:16 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.5 2003/04/18 10:00:45 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -167,7 +167,7 @@ public class ScriptTest extends TestCase {
      * Set up common objects used for all tests.
      */
     protected void setUp() throws Exception {
-        super.setUp();        
+        super.setUp();
         csFactory    = CoordinateSystemFactory.getDefault();
         ctFactory    = CoordinateTransformationFactory.getDefault();
         mtFactory    = MathTransformFactory.getDefault();
@@ -443,7 +443,7 @@ public class ScriptTest extends TestCase {
                 // Definition line are processed by 'addDefinition'.
                 continue;
             }
-            try{
+            try {
                 runInstruction(line);
             } catch (TransformException exception) {
                 // TODO: We should throw the TransformException instead,
@@ -453,8 +453,9 @@ public class ScriptTest extends TestCase {
         }
         reader.close();
         if (out != null) {
-            out.print("Test passed: ");
-            out.print((int) (100*testPassed/testRun));
+            out.print("Test run    : "); out.println(testRun);
+            out.print("Test passed : "); out.println(testPassed);
+            out.print("Success rate: "); out.print((int) (100*testPassed/testRun));
             out.println('%');
             out.flush();
         }
@@ -483,7 +484,12 @@ public class ScriptTest extends TestCase {
     }
 
     /**
-     * Run the test from the command line.
+     * Run the test from the command line. By default, this method run all tests. In order
+     * to run only one test, use one of the following line:
+     * <ul>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=OpenGIS</li>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=Simple</li>
+     * </ul>
      *
      * @param  args The command-line arguments.
      * @throws Exception if a test failed.

@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.14 2003/01/23 23:58:46 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.15 2003/04/18 10:00:37 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -127,8 +127,13 @@ public class Projection extends Info {
      * Returns a parameter list for the specified classification.
      * If there is no special parameter descriptor for the specified
      * classification, then a default descriptor is used.
+     *
+     * @task HACK: We need to get the default MathTransform factory in order to force it to
+     *             fill DescriptorNaming.PROJECTIONS. We should try to find a way to do the
+     *             same without dependencies to MathTransformFactory.
      */
     static ParameterList getParameterList(final String classification) {
+        org.geotools.ct.MathTransformFactory.getDefault();
         return DescriptorNaming.PROJECTIONS.getParameterList(classification,
                 MathTransformProvider.DEFAULT_PROJECTION_DESCRIPTOR);
     }
