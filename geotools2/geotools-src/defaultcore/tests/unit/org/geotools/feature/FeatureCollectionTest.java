@@ -129,13 +129,13 @@ public class FeatureCollectionTest extends TestCase {
     listen.addAll(features);
     assertEquals(1,counter.changeEvents);
     listen.removeListener(counter);
-    listen.addListener(counter = new ListenerProxy());
     listen.removeAll(features);
-    assertEquals(0,counter.changeEvents);
+    assertEquals(1,counter.changeEvents);
   }
   
   static class ListenerProxy implements CollectionListener {
     int changeEvents = 0;
+    
     public void collectionChanged(org.geotools.feature.CollectionEvent tce) {
       changeEvents++;
     }

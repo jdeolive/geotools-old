@@ -84,7 +84,6 @@ public class AttributeTypeTest extends TestCase {
         
         
         
-        
     public void testIsNillable(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals(true, type.isNillable());
