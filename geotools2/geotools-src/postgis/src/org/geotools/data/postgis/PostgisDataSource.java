@@ -44,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.20 2003/04/09 23:23:02 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.21 2003/04/11 00:31:46 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -123,7 +123,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    throw new DataSourceException("Couldn't make schema: " + e);
 	}
 	this.srid = getSrid();
-	encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	if (schema.getDefaultGeometry() != null) {
+	    encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	}
 	encoder.setSRID(srid);
 
     }
@@ -161,7 +163,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	this.tableName = tableName;
 	this.schema = schema;
 	this.srid = getSrid();
-	encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	if (schema.getDefaultGeometry() != null) {
+	    encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	}
 	encoder.setSRID(srid);
 	this.fidColumn = getFidColumn(dbConnection, tableName);
     }
