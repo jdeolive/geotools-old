@@ -21,13 +21,13 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultRule.java,v 1.6 2002/07/25 16:55:33 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.1 2002/10/14 13:21:20 ianturton Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
 import org.geotools.filter.Filter;
 
-public class DefaultRule implements org.geotools.styling.Rule {
+public class RuleImpl implements org.geotools.styling.Rule {
 
     private Symbolizer[] symbolizers;
     private ArrayList graphics = new ArrayList();
@@ -40,7 +40,7 @@ public class DefaultRule implements org.geotools.styling.Rule {
     private Filter filter = null;
     private boolean hasElseFilter = false;
     /** Creates a new instance of DefaultRule */
-    public DefaultRule() {
+    public RuleImpl() {
         symbolizers = new Symbolizer[0];
     }
 
