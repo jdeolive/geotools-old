@@ -143,6 +143,7 @@ public class DOMParserTest extends TestCase {
         testSchema = testSchema.setAttributeType(stringAttribute);
         _log.debug("added string to feature type");
         
+        GeometryFactory geomFac = new GeometryFactory();
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
         coords[0] = new Coordinate(1,2);
@@ -151,7 +152,7 @@ public class DOMParserTest extends TestCase {
         
         // Builds the test feature
         Object[] attributes = new Object[10];
-        attributes[0] = new LineString(coords, new PrecisionModel(), 1);
+        attributes[0] = geomFac.createLineString(coords);
         attributes[1] = new Boolean(true);
         attributes[2] = new Character('t');
         attributes[3] = new Byte("10");
@@ -170,6 +171,10 @@ public class DOMParserTest extends TestCase {
     
     public void testParser() throws Exception {
         parseDocument(System.getProperty("dataFolder")+"/iantest.xml");
+        for(int i=1;i<11;i++){
+            System.out.println("test number "+i);
+            parseDocument(System.getProperty("dataFolder")+"/test"+i+".xml");
+        }
 
     }
     
