@@ -1,53 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="core">
-    <property file="build.ant.properties"/>
+    
     <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
-
-    <target name="compile">
+    
+    <target depends="prepare-compile" description="compile the code for the package" name="compile">
         <javac debug="true" srcdir="src">
-            <!-- excludes="/datasource/"-->
-            <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <pathelement location="../proj4j/release/proj4j.jar"/>
-            </classpath>
-
-            
+            <classpath refid="compile.path" />
         </javac>
-        </target>
-        <target depends="compile" name="compile-test">
-        <javac debug="true" srcdir="tests/unit">
-         <!-- excludes="org/geotools/datasource/**"-->
+    </target>
+    <target depends="compile" name="compile-test" if="${testsuite}">
+        <javac debug="true" srcdir="tests/unit/org">
             <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
                 <path path="src"/>
+                <path refid="compile.path" />
             </classpath>
         </javac>
     </target>
-    <target depends="compile-test" name="test">
-        <echo message="base dir is ${basedir}"/>
-        <junit fork="false" printsummary="true">
+    <target depends="compile-test" name="test" if="${testsuite}">
+
+        <junit fork="true" printsummary="true">
             <formatter type="plain"/>
             <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
             <classpath>
-                <fileset dir="..\..\extbin\core\lib\"/>
-                <fileset dir="..\..\extbin\shapefile\lib\"/>
-                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                
                 <path path="src"/>
                 <path path="tests/unit/"/>
+                <path refid="compile.path"/>
             </classpath>
+            <test fork="true" name="${testsuite}"/>
         </junit>
-    </target>
-    <target name="clean">
-        <delete>
-            <fileset dir="src" includes="**/*.class"/>
-            <fileset dir="tests/unit/org" includes="**/*.class"/>
-        </delete>
     </target>
     <target depends="test" name="release">
         <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/core.jar"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/${project.name}.jar"/>
+        
+        <property name="has.extbin" value="false"/>
+        <available property="has.extbin" file="${extbin}"/>
+        
+        <antcall target="copy-extlib"/>
+    </target>
+    
+    <target name="copy-extlib" if="has.extbin" depends="init">
+        <copy todir="${releaseFolder}">
+            <fileset dir="${extbin}"/>
+        </copy>
+    </target>
+
+    <target name="clean" depends="init"> 
+        <delete>
+            <fileset dir="src" includes="**/*.class"/>
+            <fileset dir="${releaseFolder}/" includes="*.jar"/>
+            <fileset dir="tests/unit/org/" includes="**/*.class"/>
+        </delete>
+    </target>
+
+    <target name="init">
+        <property file="build.ant.properties"/>
+
+        <path id="netbeans.ext">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
+        </path>
+        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>
+    </target>
+    <target name="prepare-compile" depends="init" >
+        <echo message="Prep-compile: ${project.name}" />
+        <mkdir dir="${releaseFolder}"/>
+
+        <antcall target="dependancies"/>
+        <path id="compile.path">
+            <fileset dir="${extbin}"/>
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="${releaseFolder}"/>
+        </path>
+    </target>
+    <target name="dependancies" depends="init" if="dependancy">
+        <for-each startdir=".." locations="${dependancy}" target="release" inheritAll="false" />
     </target>
 </project>
