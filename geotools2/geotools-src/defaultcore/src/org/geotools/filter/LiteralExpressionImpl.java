@@ -20,7 +20,6 @@
 
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.data.*;
 import org.geotools.feature.*;
@@ -28,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.7 2002/11/12 16:13:43 jmacgill Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.8 2003/05/16 21:10:19 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LiteralExpressionImpl 
@@ -72,6 +71,7 @@ public class LiteralExpressionImpl
         catch(IllegalFilterException ile){
             //this is imposible as this is only thrown for
             //invalid types, and Integer is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Integers");
         }  
     }
     
@@ -91,6 +91,7 @@ public class LiteralExpressionImpl
         catch(IllegalFilterException ile){
             //this is imposible as this is only thrown for
             //invalid types, and Double is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Doubles");
         }  
     }
     
@@ -109,6 +110,7 @@ public class LiteralExpressionImpl
         catch(IllegalFilterException ile){
             //this is imposible as this is only thrown for
             //invalid types, and String is a valid type
+            throw new AssertionError("LiteralExpressionImpl is broken, it should accept Strings");
         }  
     }
 

@@ -21,14 +21,14 @@
 package org.geotools.styling;
 
 // J2SE dependencies
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 // Geotools dependencies
 import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FontImpl.java,v 1.3 2002/10/22 17:01:50 ianturton Exp $
+ * @version $Id: FontImpl.java,v 1.4 2003/05/16 21:10:20 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class FontImpl implements Font {
@@ -36,7 +36,7 @@ public class FontImpl implements Font {
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+    //private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     private Expression fontFamily = null;
     private Expression fontSize = null;

@@ -7,6 +7,7 @@
 package org.geotools.styling;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -14,10 +15,7 @@ import java.util.ArrayList;
  * @author  iant
  */
 public class ColorMapImpl implements ColorMap {
-    ArrayList list = new ArrayList();
-    /** Creates a new instance of ColorMapImpl */
-    public ColorMapImpl() {
-    }
+    List list = new ArrayList();
     
     public void addColorMapEntry(ColorMapEntry entry) {
         list.add(entry);

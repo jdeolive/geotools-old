@@ -22,11 +22,11 @@ package org.geotools.styling;
 import java.util.*;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.4 2002/10/22 10:46:45 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.5 2003/05/16 21:10:20 jmacgill Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
-    private ArrayList ruleList = new ArrayList();// Possibly not the best storage
+    private List ruleList = new ArrayList();// Possibly not the best storage
     private String featureTypeName = "feature";
     String name = "name";
     String title = "title";

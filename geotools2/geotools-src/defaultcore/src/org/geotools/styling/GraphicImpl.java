@@ -22,6 +22,7 @@ package org.geotools.styling;
 
 // J2SE dependencies
 import java.util.*;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
@@ -31,7 +32,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: GraphicImpl.java,v 1.5 2002/10/24 16:54:50 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.6 2003/05/16 21:10:20 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
@@ -42,9 +43,9 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
     String geometryPropertyName = "";
-    ArrayList externalGraphics = new ArrayList();
-    ArrayList marks = new ArrayList();
-    ArrayList symbols = new ArrayList();
+    List externalGraphics = new ArrayList();
+    List marks = new ArrayList();
+    List symbols = new ArrayList();
     private Expression rotation = null;
     private Expression size = null;
     private Expression opacity = null;

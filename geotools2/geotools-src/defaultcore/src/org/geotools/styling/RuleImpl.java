@@ -21,16 +21,17 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.2 2002/10/16 16:57:21 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.3 2003/05/16 21:10:21 jmacgill Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
+import java.util.List;
 import org.geotools.filter.Filter;
 
 public class RuleImpl implements org.geotools.styling.Rule {
 
     private Symbolizer[] symbolizers;
-    private ArrayList graphics = new ArrayList();
+    private List graphics = new ArrayList();
     
     private String name = "name";
     

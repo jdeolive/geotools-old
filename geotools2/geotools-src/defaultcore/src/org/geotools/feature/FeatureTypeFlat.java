@@ -45,7 +45,7 @@ import org.geotools.data.*;
  * @task TODO: Rethink getDefaultGeometry, as we now allow more than one
  * geometry.  Which one is the default?  Currently the first in the array of
  * attributes will be default.
- * @version $Id: FeatureTypeFlat.java,v 1.24 2003/03/14 23:02:49 cholmesny Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.25 2003/05/16 21:10:18 jmacgill Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat 
@@ -72,7 +72,7 @@ public class FeatureTypeFlat
     protected AttributeType[] attributeTypes;
 
     /** Mapping between feature type attribute and names. */
-    protected HashMap nameMap = new HashMap();
+    protected Map nameMap = new HashMap();
 
     /** */
     protected int geometryPosition = -1;

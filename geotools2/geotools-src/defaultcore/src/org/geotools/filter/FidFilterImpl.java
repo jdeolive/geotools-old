@@ -24,7 +24,6 @@ package org.geotools.filter;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // Geotools dependencies
@@ -37,7 +36,7 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilterImpl.java,v 1.5 2002/12/23 21:06:00 cholmesny Exp $
+ * @version $Id: FidFilterImpl.java,v 1.6 2003/05/16 21:10:19 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {

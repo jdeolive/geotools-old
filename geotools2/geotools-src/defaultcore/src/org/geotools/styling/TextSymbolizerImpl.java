@@ -22,13 +22,15 @@ package org.geotools.styling;
 
 import org.geotools.filter.*;
 import java.util.ArrayList;
+import java.util.List;
+
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.7 2003/01/10 13:13:20 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.8 2003/05/16 21:10:22 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
     Fill fill;
-    ArrayList fonts = new ArrayList();
+    List fonts = new ArrayList();
     Halo halo; 
     LabelPlacement labelPlacement;
     String geometryPropertyName = null;

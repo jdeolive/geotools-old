@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.10 2003/04/25 10:40:32 camerons Exp $
+ * @version $Id: DefaultMap.java,v 1.11 2003/05/16 21:10:19 jmacgill Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
@@ -43,10 +43,6 @@ public class DefaultMap implements org.geotools.map.Map {
         Logger.getLogger("org.geotools.defaultcore");
     private Hashtable tables = new Hashtable();
 
-    /**
-     * Creates a new instance of DefaultMap
-     */
-    public DefaultMap() {}
 
     /**
      * DOCUMENT ME!

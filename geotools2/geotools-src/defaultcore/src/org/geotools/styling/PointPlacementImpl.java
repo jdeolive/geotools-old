@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.4 2002/11/13 17:17:05 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.5 2003/05/16 21:10:20 jmacgill Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -87,9 +87,11 @@ public class PointPlacementImpl implements PointPlacement {
      */
     public void setDisplacement(org.geotools.styling.Displacement displacement) {
         if(displacement == null ) {
-            displacement = new DisplacementImpl();
+            this.displacement = new DisplacementImpl();
         }
-        this.displacement = displacement;
+        else{
+            this.displacement = displacement;
+        }
     }
     
     /**

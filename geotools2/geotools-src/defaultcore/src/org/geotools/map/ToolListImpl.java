@@ -17,17 +17,16 @@
 package org.geotools.map;
 
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.events.SelectedToolListener;
-import java.util.EventListener;
 import java.util.EventObject;
 import javax.swing.event.EventListenerList;
+import org.geotools.map.events.SelectedToolListener;
 
 
 /**
  * The tool which will process mouse events on a MapPane.
  *
  * @author Cameron Shorter
- * @version $Id: ToolListImpl.java,v 1.3 2003/05/10 10:11:25 camerons Exp $
+ * @version $Id: ToolListImpl.java,v 1.4 2003/05/16 21:10:20 jmacgill Exp $
  */
 public class ToolListImpl implements ToolList {
     /** The selected tool for this context. */

@@ -20,7 +20,6 @@ import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 

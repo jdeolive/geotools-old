@@ -8,7 +8,8 @@ package org.geotools.styling;
 
 // J2SE dependencies
 import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.util.List;
+//import java.util.logging.Logger;
 
 // Geotools dependencies
 import org.geotools.filter.*;
@@ -22,10 +23,10 @@ public class TextMarkImpl extends MarkImpl implements TextMark {
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+    //private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     Expression wellKnownName = null;
-    ArrayList fonts = new ArrayList();
+    List fonts = new ArrayList();
     Expression symbol;
     /** Creates a new instance of TextMark */
     public TextMarkImpl(Font font, String symbol) {

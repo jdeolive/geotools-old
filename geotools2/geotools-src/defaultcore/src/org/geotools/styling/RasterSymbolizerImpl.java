@@ -6,7 +6,6 @@
 
 package org.geotools.styling;
 
-import java.lang.IllegalArgumentException;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
 

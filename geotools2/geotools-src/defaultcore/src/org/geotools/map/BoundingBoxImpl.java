@@ -42,11 +42,7 @@ import org.opengis.ct.CT_MathTransform;
  *       the GeoAPI project creates and use that.
  */
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Point2D;
-import java.lang.Cloneable;
-import java.lang.IllegalArgumentException;
 import java.rmi.RemoteException;
-import java.util.EventObject;
 import java.util.Vector;
 import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
@@ -57,7 +53,7 @@ import javax.swing.event.EventListenerList;
  * event to interested classes when parameters change.
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxImpl.java,v 1.12 2003/05/02 10:55:18 desruisseaux Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.13 2003/05/16 21:10:19 jmacgill Exp $
  */
 public class BoundingBoxImpl implements BoundingBox {
     private static final Logger LOGGER =

@@ -24,9 +24,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.util.ArrayList;
-import java.util.Arrays;
 /**
- * @version $Id: StyleImpl.java,v 1.6 2002/10/22 17:02:05 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.7 2003/05/16 21:10:21 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {

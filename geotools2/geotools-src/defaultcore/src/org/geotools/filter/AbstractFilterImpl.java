@@ -11,10 +11,7 @@ package org.geotools.filter;
  * @author  iant
  */
 public abstract class AbstractFilterImpl extends org.geotools.filter.AbstractFilter {
-    
-    /** Creates a new instance of AbstractFilterImpl */
-    public AbstractFilterImpl() {
-    }
+   
     
     /**
      * Default implementation for OR - should be sufficient for most filters.

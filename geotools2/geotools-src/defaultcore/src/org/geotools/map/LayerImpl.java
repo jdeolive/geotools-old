@@ -18,7 +18,6 @@
 package org.geotools.map;
 
 import org.geotools.data.DataSource;
-import org.geotools.feature.Feature;
 import org.geotools.styling.Style;
 
 
@@ -26,7 +25,7 @@ import org.geotools.styling.Style;
  * Layer is an aggregation of both a FeatureCollection and Style.
  *
  * @author Cameron Shorter
- * @version $Id: LayerImpl.java,v 1.4 2003/04/25 10:40:32 camerons Exp $
+ * @version $Id: LayerImpl.java,v 1.5 2003/05/16 21:10:19 jmacgill Exp $
  *
  * @task REVISIT: This class maybe should contain CoordinateSystem, which could
  *       either be set externally, or derived from one of its features.

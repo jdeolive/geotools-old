@@ -16,9 +16,6 @@
  */
 package org.geotools.renderer;
 
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.feature.Feature;
-import org.geotools.styling.Style;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
@@ -29,7 +26,7 @@ import java.awt.geom.AffineTransform;
  * draw, BoundingBox, Size, and Style from this.context.
  *
  * @author Cameron Shorter
- * @version $Id: Renderer2D.java,v 1.6 2003/05/05 11:02:31 camerons Exp $
+ * @version $Id: Renderer2D.java,v 1.7 2003/05/16 21:10:20 jmacgill Exp $
  *
  * @task REVISIT Renderer2D should extend Renderer once Renderer has been
  *       cleaned up.

@@ -17,11 +17,6 @@
 
 package org.geotools.map;
 
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.map.LayerList;
-import java.awt.Rectangle;
-import java.lang.Cloneable;
 import java.util.logging.Logger;
 
 
@@ -30,11 +25,11 @@ import java.util.logging.Logger;
  * OGC Web Map Context Specification.
  *
  * @author $author$
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 public class ContextImpl implements Context {
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.map.ContextImpl");
+    //private static final Logger LOGGER =
+    //   Logger.getLogger("org.geotools.map.ContextImpl");
     private BoundingBox bbox;
     private LayerList layerList;
     private String title;

@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EventObject;
 import java.util.List;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 
 
@@ -34,11 +34,11 @@ import javax.swing.event.EventListenerList;
  * data.
  *
  * @author Cameron Shorter
- * @version $Id: LayerListImpl.java,v 1.4 2003/05/10 10:10:23 camerons Exp $
+ * @version $Id: LayerListImpl.java,v 1.5 2003/05/16 21:10:19 jmacgill Exp $
  */
 public class LayerListImpl implements LayerList {
     /** The class used for identifying for logging. */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
+    //private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
 
     /** The layers stored by this LayerList */
     private List layers = Collections.synchronizedList(new ArrayList());
