@@ -31,7 +31,7 @@ package org.geotools.feature;
  * <li>Position: All schemas are ordered, so they store the associated position
  * of the attribute.</li></ol></p>
  *
- * @version $Id: AttributeType.java,v 1.6 2003/02/12 18:48:47 cholmesny Exp $
+ * @version $Id: AttributeType.java,v 1.7 2003/03/14 23:03:29 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public interface AttributeType {
@@ -85,4 +85,12 @@ public interface AttributeType {
      * @return true if nulls are permitted, false otherwise.
      */
     boolean isNillable();
+
+    /**
+     * Whether the attribute is a geometry.
+     *
+     * @return true if the attribute's type is a geometry.
+     */
+    boolean isGeometry();
+
 }
