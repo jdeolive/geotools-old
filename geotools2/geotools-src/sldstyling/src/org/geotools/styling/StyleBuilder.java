@@ -1744,4 +1744,8 @@ public class StyleBuilder {
 
         return Color.decode("" + i);
     }
+    
+    public RasterSymbolizer createRasterSymbolizer() {
+        return sf.getDefaultRasterSymbolizer();
+    }
 }
