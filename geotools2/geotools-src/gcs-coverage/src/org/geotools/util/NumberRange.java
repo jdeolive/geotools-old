@@ -44,7 +44,7 @@ import org.geotools.resources.ClassChanger;
  * A range of numbers. {@linkplain #union Union} and {@linkplain #intersect intersection}
  * are computed as usual, except that widening conversions will be applied as needed.
  *
- * @version $Id: NumberRange.java,v 1.3 2003/07/11 16:57:49 desruisseaux Exp $
+ * @version $Id: NumberRange.java,v 1.4 2003/08/10 20:27:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NumberRange extends Range {
@@ -201,6 +201,19 @@ public class NumberRange extends Range {
     {
         super(Double.class, new Double(minimum), isMinIncluded,
                             new Double(maximum), isMaxIncluded);
+    }
+
+    /**
+     * Construct an inclusive range of {@link Comparable} objects.
+     * This constructor is used by {@link RangeSet#newRange} only.
+     *
+     * @param classe The element class, usually one of {@link Byte}, {@link Short},
+     *               {@link Integer}, {@link Long}, {@link Float} or {@link Double}.
+     * @param minimum The minimum value, inclusive.
+     * @param maximum The maximum value, <strong>inclusive</strong>.
+     */
+    NumberRange(final Class classe, final Comparable minimum, final Comparable maximum) {
+        super(classe, minimum, maximum);
     }
 
     /**

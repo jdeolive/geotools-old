@@ -63,7 +63,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * All entries in this set can be seen as {@link Range} objects.
  * This class is not thread-safe.
  *
- * @version $Id: RangeSet.java,v 1.4 2003/07/23 14:19:00 desruisseaux Exp $
+ * @version $Id: RangeSet.java,v 1.5 2003/08/10 20:27:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Andrea Aime
  */
@@ -182,6 +182,12 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     private final boolean useClassChanger;
 
     /**
+     * <code>true</code> if instances of {@link NumberRange} should be created instead
+     * of {@link Range}.
+     */
+    private final boolean isNumeric;
+
+    /**
      * Construct an empty set of range.
      *
      * @param  type The class of the range elements. It must be a primitive
@@ -206,7 +212,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
                       Utilities.getShortClassName(type)));
         }
         Class elementType = ClassChanger.getTransformedClass(type); // e.g. change Date --> Long
-        useClassChanger   = (elementType!=type);
+        useClassChanger   = (elementType != type);
         // If 'elementType' is a wrapper class,
         // find the corresponding primitive type.
         for (int i=0; i<PRIMITIVES.length; i+=2) {
@@ -220,7 +226,8 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
         this.indexType   = indexType;
         this.elementType = elementType;
         this.isPrimitive = elementType.isPrimitive();
-        this.relaxedType = (!useClassChanger && isPrimitive) ? Number.class : type;
+        this.isNumeric   = Number.class.isAssignableFrom(type);
+        this.relaxedType = isNumeric ? Number.class : type;
     }
 
     /**
@@ -760,6 +767,20 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     }
 
     /**
+     * Returns a new {@link Range} object initialized with the given values.
+     *
+     * @param lower The lower value, inclusive.
+     * @param upper The upper value, inclusive.
+     */
+    private Range newRange(final Comparable lower, final Comparable upper) {
+        if (isNumeric) {
+            return new NumberRange(type, lower, upper);
+        } else {
+            return new Range(type, lower, upper);
+        }
+    }
+
+    /**
      * Returns the value at the specified index.
      * Even index are lower bounds, while odd index are upper bounds.
      */
@@ -814,6 +835,28 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     }
 
     /**
+     * If the specified value is inside a range, returns the index of this range.
+     * Otherwise, returns <code>-1</code>.
+     *
+     * @param  value The value to search.
+     * @return The index of the range which contains this value, or -1 if there is no such range.
+     */
+    public int indexOfRange(final Comparable value) {
+        int index = binarySearch(toNumber(value));
+        if (index < 0) {
+            // Found an insertion point. Make sure that the insertion
+            // point is inside a range (i.e. before the maximum value).
+            index = ~index; // Tild sign, not minus.
+            if ((index & 1) == 0) {
+                return -1;
+            }
+        }
+        index /= 2; // Round toward 0 (odd index are maximum values).
+        assert ((Range) get(index)).contains(value) : value;
+        return index;
+    }
+
+    /**
      * Returns <code>true</code> if this set contains the specified element.
      */
     public boolean contains(final Object object) {
@@ -836,7 +879,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      */
     public Object first() throws NoSuchElementException {
         if (array!=null && Array.getLength(array)!=0) {
-            return new Range(type, get(0), get(1));
+            return newRange(get(0), get(1));
         }
         throw new NoSuchElementException();
     }
@@ -849,8 +892,8 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     public Object last() throws NoSuchElementException {
         if (array != null) {
             final int length = Array.getLength(array);
-            if (length!=0) {
-                return new Range(type, get(length-2), get(length-1));
+            if (length != 0) {
+                return newRange(get(length-2), get(length-1));
             }
         }
         throw new NoSuchElementException();
@@ -903,7 +946,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      * An iterator for iterating through ranges in a {@link RangeSet}.
      * All elements are {@link Range} objects.
      *
-     * @version $Id: RangeSet.java,v 1.4 2003/07/23 14:19:00 desruisseaux Exp $
+     * @version $Id: RangeSet.java,v 1.5 2003/08/10 20:27:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements java.util.Iterator {
@@ -941,7 +984,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
                     // while we was constructing the element.
                     throw new ConcurrentModificationException();
                 }
-                return new Range(type, lower, upper);
+                return newRange(lower, upper);
             }
             throw new NoSuchElementException();
         }
