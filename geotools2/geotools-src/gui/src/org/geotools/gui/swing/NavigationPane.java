@@ -27,7 +27,6 @@ import java.awt.geom.AffineTransform;
 
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.map.events.AreaOfInterestChangedEvent;
-import org.opengis.ct.CT_CoordinateTransformation;
 
 /**
  *
