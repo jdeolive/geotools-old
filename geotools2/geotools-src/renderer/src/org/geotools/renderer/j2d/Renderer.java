@@ -89,7 +89,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.5 2003/01/23 23:26:23 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.6 2003/01/24 23:40:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -156,53 +156,40 @@ public class Renderer {
     };
 
     /**
-     * The "real world" coordinate system for rendering. This is the coordinate system for
-     * what the user will see on the screen.  Data from all {@link RenderedLayer}s will be
-     * projected in this coordinate system before to be rendered.  Units are usually "real
-     * world" metres.
+     * The coordinate systems for rendering. This object contains the following:
+     * <ul>
+     *   <li>The "real world" coordinate system  ({@link RenderingContext#mapCS mapCS}).
+     *       Should never be <code>null</code>, since it is the viewer coordinate system
+     *       as returned by {@link #getCoordinateSystem}.</li>
+     *   <li>The Java2D coordinate system ({@link RenderingContext#textCS textCS}),  which
+     *       is rendering-dependent.   This CS must be the one used for the last rendering
+     *       ({@link GeoMouseEvent rely on it}), or <code>null</code> if the map has never
+     *       been rendered yet.</li>
+     *   <li>The device coordinate system ({@link RenderingContext#deviceCS deviceCS}), which
+     *       is rendering-dependent.  This CS must be the one used for the last rendering, or
+     *       <code>null</code> if the map has never been rendered yet.</li>
+     * </ul>
      *
-     * This coordinate system is usually set once for ever and do not change anymore, except
-     * if the user want to change the projection see on screen.
-     *
-     * @see #textCS
      * @see RenderingContext#mapCS
-     */
-    private CoordinateSystem mapCS = GeographicCoordinateSystem.WGS84;
-
-    /**
-     * The {@linkplain Graphics2D Java2D coordinate system}. Each "unit" is a dot (about
-     * 1/72 of inch). <var>x</var> values increase toward the right of the screen and
-     * <var>y</var> values increase toward the bottom of the screen.  This coordinate
-     * system is appropriate for rendering text and labels.
-     *
-     * This coordinate system change every time the zoom change.
-     * A <code>null</code> value means that it need to be recomputed.
-     *
-     * @see #mapCS
-     * @see #deviceCS
      * @see RenderingContext#textCS
-     */
-    private CoordinateSystem textCS;
-
-    /**
-     * The device coordinate system. Each "unit" is a pixel of device-dependent size. When
-     * rendering on screen, this coordinate system is identical to {@link #textCS}. When
-     * rendering on printer or some other devices, it depends of the device's resolution.
-     * This coordinate system is rarely used.
-     *
-     * A <code>null</code> value means that it need to be recomputed.
-     *
-     * @see #textCS
      * @see RenderingContext#deviceCS
      */
-    private CoordinateSystem deviceCS;
+    private RenderingContext context;
 
     /**
-     * A set of {@link MathTransform}s from various source CS. The target CS must be {@link #mapCS}
-     * for all entries. Keys are source CS. This map is used only in order to avoid the costly call
-     * to {@link CoordinateTransformationFactory#createFromCoordinateSystems} as much as possible.
-     * If a transformation is not available in this collection, then the usual {@link #factory}
-     * will be used.
+     * The affine transform from {@link RenderingContext#mapCS mapCS} to
+     * {@link RenderingContext#textCS textCS} used in the last rendering.
+     * This transform is used by {@link GeoMouseEvent#getMapCoordinate}.
+     */
+    final AffineTransform mapToText = new AffineTransform();
+
+    /**
+     * A set of {@link MathTransform}s from various source CS. The target CS must be
+     * {@link RenderingContext#mapCS} for all entries. Keys are source CS.  This map
+     * is used only in order to avoid the costly call to
+     * {@link CoordinateTransformationFactory#createFromCoordinateSystems} as much as
+     * possible. If a transformation is not available in this collection, then the usual
+     * {@link #factory} will be used.
      */
     private final Map transforms = new WeakHashMap();
 
@@ -230,17 +217,17 @@ public class Renderer {
     private final RenderingHints hints = new RenderingHints(null);
 
     /**
-     * The rendering resolution, in units of {@link #mapCS} coordinate system
-     * (usually metres or degree). A larger resolution speed up rendering, while
+     * The rendering resolution,  in units of {@link RenderingContext#mapCS} coordinate
+     * system (usually metres or degree). A larger resolution speed up rendering, while
      * a smaller resolution draw more precise map. The value can be set with
      * {@link #setRenderingHint}.
      */
     private float resolution;
 
     /**
-     * The bounding box of all {@link RenderedLayer} in the {@link #mapCS} coordinate system.
-     * This box is computed from {@link RenderedLayer#getPreferredArea}. A <code>null</code>
-     * value means that none of them returned a non-null value.
+     * The bounding box of all {@link RenderedLayer} in the {@link RenderingContext#mapCS}
+     * coordinate system. This box is computed from {@link RenderedLayer#getPreferredArea}.
+     * A <code>null</code> value means that none of them returned a non-null value.
      */
     private Rectangle2D preferredArea;
 
@@ -364,6 +351,7 @@ public class Renderer {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
+        context = new RenderingContext(this, GeographicCoordinateSystem.WGS84, null, null);
         listeners = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
@@ -381,7 +369,7 @@ public class Renderer {
      *         Default to {@linkplain GeographicCoordinateSystem#WGS84 WGS 1984}.
      */
     public CoordinateSystem getCoordinateSystem() {
-        return mapCS;
+        return context.mapCS;
     }
 
     /**
@@ -401,11 +389,9 @@ public class Renderer {
         cs = CTSUtilities.getCoordinateSystem2D(cs);
         final CoordinateSystem oldCS;
         synchronized (this) {
-            oldCS = mapCS;
+            oldCS = getCoordinateSystem();
             if (!cs.equals(oldCS)) {
-                mapCS    = cs;
-                textCS   = null;
-                deviceCS = null;
+                context = new RenderingContext(this, cs, null, null);
                 transforms.clear();
             }
         }
@@ -460,7 +446,8 @@ public class Renderer {
                 final CoordinateSystem coordinateSystem = layer.getCoordinateSystem();
                 try {
                     if (lastSystem==null || !lastSystem.equals(coordinateSystem, false)) {
-                        transform  = (MathTransform2D) getMathTransform(coordinateSystem, mapCS,
+                        transform  = (MathTransform2D) getMathTransform(
+                                                       coordinateSystem, getCoordinateSystem(),
                                                        sourceClassName, sourceMethodName);
                         lastSystem = coordinateSystem;
                     }
@@ -499,7 +486,7 @@ public class Renderer {
     {
         try {
             final MathTransform2D transform = (MathTransform2D) getMathTransform(
-                    coordinateSystem, mapCS, sourceClassName, sourceMethodName);
+                    coordinateSystem, getCoordinateSystem(), sourceClassName, sourceMethodName);
             oldSubArea = CTSUtilities.transform(transform, oldSubArea, null);
             newSubArea = CTSUtilities.transform(transform, newSubArea, null);
         } catch (TransformException exception) {
@@ -831,10 +818,11 @@ public class Renderer {
     }
 
     /**
-     * Returns a fitted coordinate system for {@link #textCS} and {@link #deviceCS}.
+     * Returns a fitted coordinate system for {@link RenderingContext#textCS} and
+     * {@link RenderingContext#deviceCS}.
      *
      * @param  name     The coordinate system name (e.g. "text" or "device").
-     * @param  base     The base coordinate system (e.g. {@link #mapCS}).
+     * @param  base     The base coordinate system (e.g. {@link RenderingContext#mapCS}).
      * @param  fromBase The transform from the base CS to the fitted CS.  Note that this is the
      *                  opposite of the usual {@link FittedCoordinateSystem} constructor. We do
      *                  it that way because it is the way we usually gets affine transform from
@@ -889,7 +877,7 @@ public class Renderer {
          * will be from 'layerCS' to 'mapCS' to 'textCS'.  The cache looks for the 'layerCS' to
          * to 'mapCS' transform.
          */
-        final boolean cachedTransform = targetCS.equals(mapCS, false);
+        final boolean cachedTransform = targetCS.equals(context.mapCS, false);
         if (cachedTransform) {
             tr = (MathTransform) transforms.get(sourceCS);
             if (tr != null) {
@@ -1162,6 +1150,40 @@ public class Renderer {
             }
         }
         return (tools!=null) ? tools.getPopupMenu(geoEvent) : null;
+    }
+
+    /**
+     * Construit une chaîne de caractères représentant la valeur pointée par la souris.
+     * En général (mais pas obligatoirement), lorsque cette méthode est appelée, le buffer
+     * <code>toAppendTo</code> contiendra déjà une chaîne de caractères représentant les
+     * coordonnées pontées par la souris. Cette méthode est appelée pour donner une chance
+     * aux couches d'ajouter d'autres informations pertinentes. Par exemple les couches
+     * qui représentent une image satellitaire de température peuvent ajouter à
+     * <code>toAppendTo</code> un texte du genre "12°C" (sans espaces au début).
+     *
+     * @param  event Coordonnées du curseur de la souris.
+     * @param  toAppendTo Le buffer dans lequel ajouter des informations.
+     * @return <code>true</code> si cette méthode a ajouté des informations dans
+     *         <code>toAppendTo</code>.
+     *
+     * @see MouseCoordinateFormat
+     */
+    final boolean getLabel(final GeoMouseEvent event, final StringBuffer toAppendTo) {
+        // On appele pas 'sortLayer' de façon systèmétique afin de gagner un peu en performance.
+        // Cette méthode peut être appelée très souvent (à chaque déplacement de la souris).
+        final int x = event.getX();
+        final int y = event.getY();
+        final RenderedLayer[] layers = this.layers;
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            final Tools tools = layer.getTools();
+            if (tools!=null && layer.contains(x,y)) {
+                if (tools.getLabel(event, toAppendTo)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

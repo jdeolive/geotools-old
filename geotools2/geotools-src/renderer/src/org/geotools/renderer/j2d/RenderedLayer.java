@@ -76,7 +76,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.2 2003/01/23 23:26:22 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.3 2003/01/24 23:40:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -510,7 +510,7 @@ public abstract class RenderedLayer {
      *
      * <blockquote><pre>
      * &nbsp;Shape paint(RenderingContext context) {
-     * &nbsp;    Graphics2D graphics = context.graphics;
+     * &nbsp;    Graphics2D graphics = context.getGraphics();
      * &nbsp;    // <cite>Paint here map features in geographic coordinates (usually m or °)</cite>
      * &nbsp;    context.addPaintedArea(...); // Optional
      * &nbsp;

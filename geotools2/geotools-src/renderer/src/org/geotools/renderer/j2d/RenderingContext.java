@@ -62,8 +62,8 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Informations relatives to a rendering in progress.  A <code>RenderingContext</code> object is
  * automatically created by {@link Renderer#paint} at rendering time. Then the renderer iterates
  * over layers and invokes {@link RenderedLayer#paint} for each of them.   The rendering context
- * is destroyed once the rendering is completed, and recreated for each subsequent ones.
- * <code>RenderingContext</code> contains the following informations:
+ * is disposed once the rendering is completed. <code>RenderingContext</code> contains the
+ * following informations:
  *
  * <ul>
  *   <li>The {@link Graphics2D} handler to use for rendering.</li>
@@ -82,7 +82,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.4 2003/01/23 12:13:20 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.5 2003/01/24 23:40:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -110,14 +110,23 @@ public final class RenderingContext {
      * an affine transform appropriate for rendering geographic features in the
      * {@link #mapCS} coordinate system. The affine transform can be changed in
      * a convenient way with {@link #setCoordinateSystem}.
+     * <br><br>
+     * This graphics is set by {@link Renderer} when a new process in underway.
+     * It is reset to <code>null</code> once the rendering is finished.
+     *
+     * @see #getGraphics
+     * @see Renderer#paint
      */
-    public final Graphics2D graphics;
+    Graphics2D graphics;
 
     /**
      * The "real world" coordinate system for rendering. This is the coordinate system for
      * what the user will see on the screen.  Data from all {@link RenderedLayer}s will be
      * projected in this coordinate system before to be rendered.  Units are usually "real
      * world" metres.
+     * <br><br>
+     * This coordinate system is usually set once for a given {@link Renderer} and do not
+     * change anymore, except if the user want to change the projection see on screen.
      *
      * @see #textCS
      * @see #setCoordinateSystem
@@ -129,6 +138,9 @@ public final class RenderingContext {
      * 1/72 of inch). <var>x</var> values increase toward the right of the screen and
      * <var>y</var> values increase toward the bottom of the screen.  This coordinate
      * system is appropriate for rendering text and labels.
+     * <br><br>
+     * This coordinate system may be different between two different renderings,
+     * especially if the zoom (or map scale) has changed since the last rendering.
      *
      * @see #mapCS
      * @see #deviceCS
@@ -173,20 +185,27 @@ public final class RenderingContext {
 //    private transient Clipper clipper;
 
     /**
-     * Construct a new <code>RenderingContext</code> for the specified {@link Renderer}
-     * and {@link Graphics2D}.
+     * Construct a new <code>RenderingContext</code> for the specified {@link Renderer}.
      */
     RenderingContext(final Renderer         renderer,
-                     final Graphics2D       graphics,
                      final CoordinateSystem    mapCS,
                      final CoordinateSystem   textCS,
                      final CoordinateSystem deviceCS)
     {
         this.renderer = renderer;
-        this.graphics = graphics;
         this.mapCS    =    mapCS;
         this.textCS   =   textCS;
         this.deviceCS = deviceCS;
+    }
+
+    /**
+     * Returns the graphics where painting occurs. This graphics is initialized with
+     * an affine transform appropriate for rendering geographic features in the
+     * {@link #mapCS} coordinate system. The affine transform can be changed in
+     * a convenient way with {@link #setCoordinateSystem}.
+     */
+    public Graphics2D getGraphics() {
+        return graphics;
     }
 
     /**
@@ -198,12 +217,12 @@ public final class RenderingContext {
      * one of {@link #mapCS}, {@link #textCS} or {@link #deviceCS} fields. Other coordinate
      * systems may work, but most of them will thrown an exception.
      *
-     * @param cs The {@link graphics} coordinate system.
+     * @param cs The {@link #getGraphics() graphics} coordinate system.
      *           Should be {@link #mapCS}, {@link #textCS} or {@link #deviceCS}.
      * @throw TransformException if this method failed to find an affine transform from the
      *        specified coordinate system to the device coordinate system ({@link #deviceCS}).
      *
-     * @see #graphics
+     * @see #getGraphics
      * @see #getAffineTransform
      * @see Graphics2D#setTransform
      */
@@ -284,17 +303,17 @@ public final class RenderingContext {
     }
 
     /**
-     * Declares that an area in {@link #graphics} coordinates has been painted. The coordinate
-     * system for <code>area</code>  should be the same than the one just used for painting in
-     * the {@link #graphics} handler, which depends of the {@linkplain Graphics2D#getTransform
-     * affine transform currently set}. This method is equivalents to
+     * Declares that an area in {@link #getGraphics() graphics} coordinates has been painted.
+     * The coordinate system for <code>area</code>  should be the same than the one just used for
+     * painting in the {@link #getGraphics() graphics} handler, which depends of the {@linkplain
+     * Graphics2D#getTransform affine transform currently set}. This method is equivalents to
      * <code>{@link #addPaintedArea(Shape, CoordinateSystem) addPaintedArea}(area, null)</code>.
      *
      * @param area A bounding shape of the area just painted. This shape may be approximative,
      *             as long as it completely encloses the painted area. Simple shape with fast
      *             <code>contains(...)</code> and <code>intersects(...)</code> methods are
      *             encouraged. The coordinate system is infered from the current
-     *             {@link #graphics} state.
+     *             {@link #getGraphics() graphics} state.
      *
      * @see Graphics2D#getTransform
      * @see #addPaintedArea(Shape, CoordinateSystem)
@@ -322,7 +341,7 @@ public final class RenderingContext {
      *         painted area. Simple shape with fast <code>contains(...)</code> and
      *         <code>intersects(...)</code> methods are encouraged.
      * @param  cs The coordinate system for <code>area</code>, or <code>null</code>
-     *         to infer it from the current {@link #graphics} state.
+     *         to infer it from the current {@link #getGraphics() graphics} state.
      * @throws TransformException if <code>area</code> coordinates can't be transformed.
      */
     public void addPaintedArea(Shape area, final CoordinateSystem cs) throws TransformException {

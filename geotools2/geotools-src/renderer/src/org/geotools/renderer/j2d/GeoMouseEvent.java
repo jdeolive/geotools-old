@@ -36,21 +36,21 @@ package org.geotools.renderer.j2d;
 import java.awt.geom.Point2D;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.geom.NoninvertibleTransformException;
 
 // Geotools dependencies
+import org.geotools.pt.CoordinatePoint;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.ct.MathTransform2D;
+import org.geotools.ct.MathTransform;
 import org.geotools.ct.TransformException;
-import org.geotools.ct.CoordinateTransformation;
-import org.geotools.ct.CannotCreateTransformException;
-import org.geotools.ct.NoninvertibleTransformException;
-import org.geotools.resources.CTSUtilities;
+import org.geotools.renderer.DeformableViewer;
+import org.geotools.resources.Utilities;
 
 
 /**
  * An event which indicates that a mouse action occurred in a map component. This event can
- * convert mouse position in geographic coordinates.  All {@link MouseListener}s registered
- * to {@link org.geotools.gui.swing.MapPane} will automatically receive events of this class.
+ * convert mouse position to geographic coordinates.  All {@link MouseListener}s registered
+ * in {@link org.geotools.gui.swing.MapPane} will automatically receive events of this class.
  * Listeners implementations can implements their code as below:
  *
  * <blockquote><pre>
@@ -60,53 +60,44 @@ import org.geotools.resources.CTSUtilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.2 2003/01/22 23:06:49 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.3 2003/01/24 23:40:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class GeoMouseEvent extends MouseEvent {
+public final class GeoMouseEvent extends MouseEvent {
     /**
      * Numéro de version pour compatibilité avec des versions précédentes.
      */
-//    private static final long serialVersionUID = -6195580751022572130L;
+    private static final long serialVersionUID = 2151488551541106023L;
 
     /**
-     * Carte qui a construit cet événement.
+     * The renderer used by the viewer that emmited this event.
      */
-//    private final MapPane mapPane;
+    final Renderer renderer;
 
     /**
-     * The transform most likely to be used by this event. This transform must be equals
-     * to <code>MapPane.commonestTransform.inverse()</code>, or be <code>null</code> if
-     * not yet computed. The <code>getSourceCS()</code> MUST be the map panel's coordinate
-     * system (i.e. the coordinate system used for rendering). The <code>getTargetCS()</code>
-     * is arbitrary, but performance will be better if it is set to the commonest coordinate
-     * system used by layers.
+     * "Real world" coordinate of mouse location, in the user {@link #coordinateSystem}.
+     * Will be computed only when first requested. This coordinate dimension must matches
+     * the {@link #coordinateSystem} dimension.
      */
-    private CoordinateTransformation inverseTransform;
+    private transient CoordinatePoint coordinate;
 
     /**
-     * Coordonnées <var>x</var> et <var>y</var> projetées dans le système
-     * <code>inverseTransform.getTargetCS()</code>.  Ces champs ne sont
-     * valides que si {@link #projected} est <code>true</code>.
+     * The coordinate system for {@link #coordinate},   or <code>null</code> if the coordinates has
+     * not yet been computed. This coordinate system may have an arbitrary number of dimensions (as
+     * long as a transform exists from the two-dimensional {@linkplain Renderer#getCoordinateSystem
+     * renderer's coordinate system}), but is usually two-dimensional.
      */
-    private transient double px, py;
-
-    /**
-     * Indique si les coordonnées {@link #px} et {@link #py}
-     * sont valides. Ces coordonnées ne seront calculées que
-     * la première fois où elle seront demandées.
-     */
-    private transient boolean projected;
+    private transient CoordinateSystem coordinateSystem;
 
     /**
      * Construit un événements qui utilisera les mêmes paramètres que <code>event</code>.
      * Les coordonnées en pixels pourront être converties en coordonnées géographiques en
-     * utilisant les paramètres de l'objet {@link MapPane} spécifié.
+     * utilisant les paramètres de l'objet {@link Renderer} spécifié.
      *
-     * @param event Evénement original.
-     * @param mapPane Carte ayant produit cet événement.
+     * @param event    The original mouse event.
+     * @param renderer The renderer used by the viewer that emmited <code>event</code>.
      */
-    public GeoMouseEvent(final MouseEvent event /*, final MapPane mapPane*/) {
+    GeoMouseEvent(final MouseEvent event, final Renderer renderer) {
         super(event.getComponent(),    // the Component that originated the event
               event.getID(),           // the integer that identifies the event
               event.getWhen(),         // a long int that gives the time the event occurred
@@ -116,135 +107,106 @@ public class GeoMouseEvent extends MouseEvent {
               event.getClickCount(),   // the number of mouse clicks associated with event
               event.isPopupTrigger(),  // a boolean, true if this event is a trigger for a popup-menu
               event.getButton());      // which of the mouse buttons has changed state (JDK 1.4 only).
-//        this.mapPane = mapPane;
+        this.renderer = renderer;
     }
 
     /**
-     * Retourne les coordonnées pixel de cet événement. Cette méthode est à peu
-     * près équivalente à {@link #getPoint}, mais tiendra compte de la présence
-     * de la loupe si elle est affichée.
+     * Returns the mouse's position in pixel units. This method is
+     * similar to {@link #getPoint} except that the mouse location
+     * is corrected for deformations caused by some artifacts like the
+     * {@linkplain org.geotools.gui.swing.ZoomPane#setMagnifierVisible magnifying glass}.
      *
-     * @param  dest Un point pré-aloué dans lequel mémoriser le résultat,
-     *         ou <code>null</code> s'il n'y en a pas.
-     * @return La coordonnée pixel. Si <code>dest</code> était non-nul,
-     *         alors il sera utilisé et retourné.
+     * @param  dest A pre-allocated point that stores the mouse's
+     *              location, or <code>null</code> if none.
+     * @return The mouse's location in pixel coordinates.
      */
-//    public Point2D getPoint2D(Point2D dest) {
-//        if (dest!=null) dest.setLocation(getX(), getY());
-//        else dest=new Point2D.Double(getX(), getY());
-//        mapPane.correctPointForMagnifier(dest);
-//        return dest;
-//    }
+    public Point2D getPixelCoordinate(Point2D dest) {
+        if (dest != null) {
+            dest.setLocation(getX(), getY());
+        } else {
+            dest = new Point2D.Double(getX(), getY());
+        }
+        final Object source = getSource();
+        if (source instanceof DeformableViewer) {
+            ((DeformableViewer) source).correctApparentPixelPosition(dest);
+        }
+        return dest;
+    }
 
     /**
-     * Retourne les coordonnées logiques de l'endroit ou s'est produit l'événement.
-     * Les coordonnées seront exprimées selon le système de coordonnées de l'afficheur
-     * {@link MapPane}. Si la coordonnée n'a pas pu être déterminée, alors
-     * cette méthode retourne <code>null</code>.
+     * Returns the "real world" mouse's position. The coordinates are expressed in
+     * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system} (a.k.a.
+     * {@link RenderingContext#mapCS mapCS}).
      *
-     * @param  dest Un point pré-aloué dans lequel mémoriser le résultat, ou <code>null</code>
-     *         s'il n'y en a pas.
-     * @return La coordonnée logique, ou <code>null</code> si elle n'a pas pu être calculée.
-     *         Si la coordonnée a pu être obtenue et que <code>dest</code> est non-nul, alors
-     *         une nouveau point sera automatiquement créé et retourné.
+     * @param  dest A pre-allocated point that stores the mouse's
+     *              location, or <code>null</code> if none.
+     * @return The mouse's location in map coordinates.
      */
-//    public Point2D getVisualCoordinate(final Point2D dest) {
-//        return mapPane.inverseTransform(getPoint2D(dest));
-//    }
+    public Point2D getMapCoordinate(Point2D dest) {
+        dest = getPixelCoordinate(dest);
+        try {
+            return renderer.mapToText.inverseTransform(dest, dest);
+        } catch (NoninvertibleTransformException exception) {
+            Utilities.unexpectedException("org.geotools.renderer.j2d", "GeoMouseEvent",
+                                          "getMapCoordinate", exception);
+            dest.setLocation(Double.NaN, Double.NaN);
+            return dest;
+        }
+    }
 
     /**
-     * Retourne les coordonnées logiques de l'endroit où s'est produit l'évènement.
-     * Les coordonnées seront exprimées selon le système de coordonnées spécifié.
-     * Si la coordonnée n'a pas pu être déterminée, alors cette méthode retourne
-     * <code>null</code>.
+     * Returns the "real world" mouse's position in the specified coordinate system.
+     * The coordinate system may have an arbitrary number of dimensions (as long as
+     * a transform exists from the two-dimensional {@linkplain Renderer#getCoordinateSystem
+     * renderer's coordinate system}), but is usually two-dimensional.
      *
-     * @param  system Le système de coordonnées selon lequel on veut exprimer la coordonnée.
-     * @param  dest Un point pré-aloué dans lequel mémoriser le résultat, ou <code>null</code>
-     *         s'il n'y en a pas.
-     * @return La coordonnée logique, ou <code>null</code> si elle n'a pas pu être calculée.
-     *         Si la coordonnée a pu être obtenue et que <code>dest</code> est non-nul, alors
-     *         une nouveau point sera automatiquement créé et retourné.
+     * @param  cs   The desired coordinate system.
+     * @param  dest A pre-allocated point that stores the mouse's
+     *              location, or <code>null</code> if none.
+     * @return The mouse's location in map coordinates.
+     * @throws TransformException if the mouse's position can't
+     *         be expressed in the specified coordinate system.
      */
-//    public Point2D getCoordinate(CoordinateSystem system, Point2D dest) {
-//        system = CTSUtilities.getCoordinateSystem2D(system);
-//        try {
-//            if (inverseTransform==null) {
-//                inverseTransform = mapPane.getCommonestTransformation("GeoMouseEvent", "getCoordinate").inverse();
-//            }
-//            /*
-//             * Si le système de coordonnées spécifié n'est pas
-//             * celui que l'on attendait, calcule à la volé les
-//             * coordonnées.
-//             */
-//            if (!system.equals(inverseTransform.getTargetCS(), false)) {
-//                dest=getVisualCoordinate(dest);
-//                if (dest == null) {
-//                    return null;
-//                }
-//                final CoordinateTransformation tr;
-//                tr = Contour.getCoordinateTransformation(mapPane.getCoordinateSystem(), system);
-//                return ((MathTransform2D) tr.getMathTransform()).transform(dest, dest);
-//            }
-//            /*
-//             * Si le système de coordonnées est bien celui que l'on attendait
-//             * et qu'on avait déjà calculé les coordonnées précédemment, utilise
-//             * le résultat qui avait été conservé dans la cache.
-//             */
-//            if (projected) {
-//                if (dest != null) {
-//                    dest.setLocation(px,py);
-//                    return dest;
-//                }
-//                return new Point2D.Double(px,py);
-//            }
-//            /*
-//             * Calcule les coordonnées et conserve le résultat dans
-//             * une cache interne pour les interogations subséquentes.
-//             */
-//            dest=getVisualCoordinate(dest);
-//            if (dest != null) {
-//                dest = ((MathTransform2D) inverseTransform.getMathTransform()).transform(dest, dest);
-//                px=dest.getX();
-//                py=dest.getY();
-//                projected=true;
-//            }
-//            return dest;
-//        } catch (TransformException exception) {
-//            /*
-//             * Si une projection cartographique a échouée, reporte
-//             * l'erreur à l'objet {@link MapPane} qui avait lancé
-//             * cet événement.
-//             */
-//            mapPane.handleException("GeoMouseEvent", "getCoordinate", exception);
-//        }
-//        return null;
-//    }
-
-    /**
-     * Retourne une transformation qui convertira les coordonnées du système de l'affichage
-     * vers le système <code>cached.{@link #getTargetCS() getTargetCS()}</code>. Si la
-     * transformation <code>cached</code> convient déjà, elle sera retournée plutôt que
-     * de créer une nouvelle transformation.
-     */
-//    final CoordinateTransformation getTransformToTarget(final CoordinateTransformation cached) throws CannotCreateTransformException
-//    {
-//        final CoordinateSystem sourceCS = mapPane.getCoordinateSystem();
-//        if (sourceCS.equals(cached.getSourceCS(), false)) {
-//            return cached;
-//        }
-//        final CoordinateSystem targetCS = cached.getTargetCS();
-//        try {
-//            if (inverseTransform == null) {
-//                inverseTransform = mapPane.getCommonestTransformation("MouseCoordinateFormat", "format").inverse();
-//            }
-//            assert sourceCS.equals(inverseTransform.getSourceCS(), false);
-//            if (targetCS.equals(inverseTransform.getTargetCS(), false)) {
-//                return inverseTransform;
-//            }
-//        } catch (NoninvertibleTransformException exception) {
-//            // This method is actually invoked by MouseCoordinateFormat only.
-//            mapPane.handleException("MouseCoordinateFormat", "format", exception);
-//        }
-//        return Contour.getCoordinateTransformation(sourceCS, targetCS, "MouseCoordinateFormat", "format");
-//    }
+    public CoordinatePoint getCoordinate(CoordinateSystem cs, CoordinatePoint dest)
+            throws TransformException
+    {
+        if (!cs.equals(coordinateSystem, false)) {
+            /*
+             * If the specified coordinate system is not the same than the one used the last time
+             * this method was invoked, compute now the transformed coordinates and cache the value.
+             * To keep things simple (and fast), we cache the values for only one coordinate system.
+             * It should be enough for most cases, since a map is likely to use the same coordinate
+             * system for all layers. If layers have mixed coordinate systems, then we will have to
+             * recompute the coordinates each time the CS change.
+             */
+            final Point2D mapPoint = getMapCoordinate(null);
+            final CoordinatePoint mapCoord;
+            if (cs.getDimension() == 2) {
+                if (coordinate != null) {
+                    coordinate.setLocation(mapPoint);
+                } else {
+                    coordinate = new CoordinatePoint(mapPoint);
+                }
+                mapCoord = coordinate;
+            } else {
+                mapCoord = new CoordinatePoint(mapPoint);
+            }
+            /*
+             * Note: the following method call is faster when the specified coordinate system is
+             * the renderer's CS, since it can reuse pre-computed math transforms* from a cache.
+             * Inverting the returned transform in this case is both faster and consume less memory
+             * than swaping 'sourceCS' and 'targetCS' arguments.
+             */
+            final MathTransform transform = renderer.getMathTransform(
+                                                     cs, renderer.getCoordinateSystem(),
+                                                     "GeoMouseEvent", "getCoordinate").inverse();
+            coordinate = transform.transform(coordinate, coordinate);
+            coordinateSystem = cs;
+        }
+        if (dest != null) {
+            dest.setLocation(coordinate);
+            return dest;
+        }
+        return (CoordinatePoint) coordinate.clone();
+    }
 }
