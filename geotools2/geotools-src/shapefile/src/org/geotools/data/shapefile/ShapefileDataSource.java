@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.7 2003/05/23 18:00:08 crotwell Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.8 2003/06/03 20:49:33 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -162,13 +162,21 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       DbaseFileReader dbf = createDbaseReader();
       
       // create a selector set based upon the original fields (not including geometry)
-      BitSet selector = new BitSet(dbf.getHeader().getNumFields());
+      int[] mapping;
+      if (query.retrieveAllProperties()) {
+        mapping = new int[dbf.getHeader().getNumFields() + 1];
+      } else {
+        mapping = new int[query.getProperties().length]; 
+      }
+      //BitSet selector = new BitSet(dbf.getHeader().getNumFields());
       
       // Create the FeatureType based on the dbf and shapefile
-      FeatureType type = getSchema( shp, dbf, query, selector );
+      //FeatureType type = getSchema( shp, dbf, query, selector );
+      FeatureType type = getSchema( shp, dbf, query, mapping );
 
       // FeatureMaker is like an iterator
-      FeatureMaker features = new FeatureMaker(dbf,shp,type,selector);
+      //FeatureMaker features = new FeatureMaker(dbf,shp,type,selector);
+      FeatureMaker features = new FeatureMaker(dbf,shp,type,mapping);
       
       // an array to copy features into
       Feature[] array = new Feature[1];
@@ -201,7 +209,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   /* Just a hook to allow various entry points and caching of schema
    *
    */
-  private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf,Query q,BitSet sel)
+  private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf,Query q,int[] sel)
   throws DataSourceException,IOException,InvalidShapefileException {
     if (schema == null) {
       if (shp == null)
@@ -281,44 +289,32 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    * The key piece of this is that the original types must be in the same
    * order they appear in the dbase header....
    */
-  protected AttributeType[] determineAttributeTypes(AttributeType[] ds,Query q,BitSet sel) {
+  protected AttributeType[] determineAttributeTypes(AttributeType[] ds,Query q,int[] sel) {
     // all properties, remember to flip all bits!!!!!
     if (q.retrieveAllProperties()) {
-      sel.set(0,sel.size() - 1);
+      for (int i = 0, ii = sel.length; i < ii; i++) {
+        sel[i] = i;
+      }
       return ds;
     }
-    
-    // hash all the query properties
+    HashMap positions = new HashMap(ds.length);
+    for (int i = 0, ii = ds.length; i < ii; i++) {
+      positions.put(ds[i].getName(), new Object[] {new Integer(i),ds[i]});
+    }
     AttributeType[] qat = q.getProperties();
-    Map query = new HashMap();
-    if (qat != null) {
-      for (int i = 0, ii = qat.length; i < ii; i++) {
-        query.put(qat[i].getName(), qat[i]); 
+    ArrayList types = new ArrayList(qat.length);
+    for (int i = 0, ii = qat.length; i < ii; i++) {
+      Object[] entry = (Object[]) positions.get(qat[i].getName());
+      sel[i] = entry == null ? -1 : ((Integer) entry[0]).intValue();
+      
+      if (sel[i] == -1) {
+        types.add(qat[i]);
       }
-    }
-    
-    // list of props to return
-    ArrayList props = new ArrayList();
-    // add the geometry
-    props.add(ds[0]);
-    // start with 1, cause geometry is zero
-    for (int i = 1, ii = ds.length; i < ii; i++) {
-      // does query contain original ?
-      AttributeType t = (AttributeType) query.get(ds[i].getName());
-      // yes, remove from query set, add to props, flip bit
-      if (t != null) {
-        query.remove(ds[i].getName());
-        props.add(ds[i]);
-        sel.set(i - 1);
-      }
-      // no, clear bit
       else {
-        sel.clear(i - 1); 
+        types.add(entry[1]);
       }
     }
-    // add the remaining props from the query
-    props.addAll(query.values());
-    return (AttributeType[]) props.toArray(new AttributeType[props.size()]);
+    return (AttributeType[]) types.toArray(new AttributeType[types.size()]);
   }
   
   
@@ -366,12 +362,16 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
   
   /** Determine and create a feature type.
    */
-  private FeatureType getFeatureType(DbaseFileReader dbf,ShapefileReader shp,Query q,BitSet sel) throws IOException, DataSourceException {
+  private FeatureType getFeatureType(DbaseFileReader dbf,ShapefileReader shp,Query q,int[] sel) throws IOException, DataSourceException {
     ShapeType t = shp.getHeader().getShapeType();
     AttributeType[] types = getAttributeTypes(dbf, t);
     if (sel == null) {
-      sel = new BitSet(types.length - 1);
-      sel.set(0,sel.size() - 1,true);
+      sel = new int[types.length];
+      for (int i = 0, ii = sel.length; i < ii; i++) {
+        sel[i] = i; 
+      }
+      //sel = new BitSet(types.length - 1);
+      //sel.set(0,sel.size() - 1,true);
     }
     types = determineAttributeTypes(types, q, sel);
     
@@ -402,7 +402,8 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
    */
   final class FeatureMaker {
     
-    final BitSet selector;
+    //final BitSet selector;
+    final int[] mapping;
     final DbaseFileReader dbf;
     final ShapefileReader shp;
     final FlatFeatureFactory factory;
@@ -414,11 +415,12 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     // if the dbf is null, we create a 1 length object array,
     // otherwise it is dbf.numFields + 1
     // the extra is for geometry!
-    public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureType type,BitSet selector) {
+    public FeatureMaker(DbaseFileReader dbf,ShapefileReader shp,FeatureType type,int[] mapping) {
       this.dbf = dbf;
       this.shp = shp;
       this.factory = new FlatFeatureFactory(type);;
-      this.selector = selector;
+      //this.selector = selector;
+      this.mapping = mapping;
       // must be same size as header, should change dbasereader in future...
       readStash = new Object[dbf.getHeader().getNumFields()];
       // these go to the factory...
@@ -440,7 +442,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     
     public Feature next() throws IOException, IllegalFeatureException {
       // read the geometry
-      writeStash[0] = shp.nextRecord().shape();
+      ShapefileReader.Record record = shp.nextRecord();
       
       // dbf is not null, read the rest of the features
       // System.out.println(current);
@@ -449,9 +451,14 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       }
       
       // the selection routine...
-      for (int i = 1, ii = writeStash.length; i < ii; i++) {
-        if (selector.get(i - 1))
-          writeStash[i] = readStash[i - 1];
+      for (int i = 0, ii = writeStash.length; i < ii; i++) {
+        int idx = mapping[i];
+        if (idx == 0)
+          writeStash[i] = record.shape();
+        else if (idx == -1)
+          writeStash[i] = null;
+        else
+          writeStash[i] = readStash[idx - 1];
       }
       
       // becuase I know that FeatureFlat copies the array,
@@ -483,6 +490,7 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     
   }
   
+
 
   
   
