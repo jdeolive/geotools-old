@@ -45,12 +45,14 @@ import javax.media.jai.Histogram;
 import org.geotools.cv.SampleDimension;
 import org.geotools.cv.SampleDimensionType;
 import org.geotools.cv.ColorInterpretation;
+import org.geotools.resources.gcs.Resources;
+import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.4 2002/10/17 21:11:04 desruisseaux Exp $
+ * @version $Id: GridSampleDimension.java,v 1.5 2003/02/14 15:46:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
@@ -72,13 +74,57 @@ final class GridSampleDimension extends SampleDimension {
      * @param image The image to be wrapped by {@link GridCoverage}.
      * @param bandNumber The band number.
      */
-    public GridSampleDimension(final SampleDimension band,
-                               final RenderedImage   image,
-                               final int             bandNumber)
+    private GridSampleDimension(final SampleDimension band,
+                                final RenderedImage   image,
+                                final int             bandNumber)
     {
         super(band);
         this.band = bandNumber;
         this.type = SampleDimensionType.getEnum(image.getSampleModel(), bandNumber);
+    }
+
+    /**
+     * Create a set of sample dimensions for the given image. The array length of both
+     * arguments must matches the number of bands in the supplied <code>image</code>.
+     *
+     * @param  image The image for which to create a set of sample dimensions.
+     * @param  src   User-provided sample dimensions, or <code>null</code> if none.
+     * @param  dst   The array where to put sample dimensions.
+     * @return <code>true</code> if all sample dimensions are geophysics, or <code>false</code>
+     *         if all sample dimensions are <strong>not</strong> geophysics.
+     * @throws IllegalArgumentException if geophysics and non-geophysics dimensions are mixed.
+     */
+    public static boolean create(final RenderedImage   image,
+                                 final SampleDimension[] src,
+                                 final SampleDimension[] dst)
+    {
+        final int numBands = image.getSampleModel().getNumBands();
+        if (src!=null && src.length!=numBands) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
+                    new Integer(numBands), new Integer(src.length)));
+        }
+        if (dst.length != numBands) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
+                    new Integer(numBands), new Integer(dst.length)));
+        }
+        int nGeo = 0;
+        int nInt = 0;
+        for (int i=0; i<numBands; i++) {
+            SampleDimension sd = (src!=null) ? src[i] : null;
+            sd = new GridSampleDimension(sd, image, i);
+            dst[i] = sd;
+            if (sd.geophysics(true ) == sd) nGeo++;
+            if (sd.geophysics(false) == sd) nInt++;
+        }
+        if (nGeo == numBands) {
+            return true;
+        }
+        if (nInt == numBands) {
+            return false;
+        }
+        throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_MIXED_CATEGORIES));
     }
 
     /**

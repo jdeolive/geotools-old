@@ -106,7 +106,7 @@
     number or until we reach the end of interpolation list. This behavior is convenient
     when processing remote sensing images of geophysics data, for example <I>Sea Surface
     Temperature</I> (SST), in which clouds may mask many pixels (i.e. set them to some
-    <code>NaN</code> values). Because "Bicubic" interpolation needs 4x4 pixels while
+    <code>NaN</code> values). Because "Bicubic" interpolation needs 4&times;4 pixels while
     "Bilinear" interpolation needs only 2x2 pixels, the "Bilinear" interpolation is
     less likely to fails because of clouds (<code>NaN</code> values) than "Bicubic"
     (only one <code>NaN</code> value is enough to make an interpolation fails). One
@@ -178,8 +178,6 @@
         <td align="center">N/A</td>
       </tr>
     </table>
-    <P ALIGN="justify"><STRONG>NOTE: The {@link org.geotools.gc.GridGeometry}
-    parameter is not yet supported in current version.</STRONG></P>
     <P ALIGN="justify">The "Resample" operation use the default
     {@link org.geotools.ct.CoordinateTransformationFactory} for creating a
     transformation from the source to the destination coordinate systems. If

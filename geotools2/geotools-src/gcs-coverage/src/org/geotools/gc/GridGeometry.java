@@ -79,7 +79,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version $Id: GridGeometry.java,v 1.7 2003/02/13 22:58:27 desruisseaux Exp $
+ * @version $Id: GridGeometry.java,v 1.8 2003/02/14 15:46:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -304,6 +304,36 @@ public class GridGeometry implements Dimensioned, Serializable {
             return gridToCoordinateSystem.getDimSource();
         }
         return getGridRange().getDimension();
+    }
+
+    /**
+     * Returns the bounding box of "real world" coordinates in the range of this grid geometry.
+     * The envelope is the {@linkplain #getGridRange grid range} transformed to the "real world"
+     * coordinate system.
+     *
+     * @return The bounding box of the "real world" coordinates.
+     * @throws InvalidGridGeometryException if the envelope can't be computed.
+     *
+     * @see #getGridRange
+     * @see #getGridToCoordinateSystem
+     */
+    final Envelope getEnvelope() throws InvalidGridGeometryException {
+        final int dimension = getDimension();
+        final Envelope envelope = new Envelope(dimension);
+        for (int i=0; i<dimension; i++) {
+            // According OpenGIS specification, GridGeometry maps pixel's center.
+            // We want a bounding box for all pixels, not pixel's centers. Offset by
+            // 0.5 (use -0.5 for maximum too, not +0.5, since maximum is exclusive).
+            envelope.setRange(i, gridRange.getLower(i)-0.5, gridRange.getUpper(i)-0.5);
+        }
+        final MathTransform gridToCoordinateSystem = getGridToCoordinateSystem();
+        try {
+            return CTSUtilities.transform(gridToCoordinateSystem, envelope);
+        } catch (TransformException exception) {
+            throw new InvalidGridGeometryException(Resources.format(
+                    ResourceKeys.ERROR_BAD_TRANSFORM_$1,
+                    Utilities.getShortClassName(gridToCoordinateSystem)), exception);
+        }
     }
     
     /**

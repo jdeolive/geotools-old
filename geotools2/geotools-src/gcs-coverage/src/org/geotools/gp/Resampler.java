@@ -42,14 +42,16 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
-import java.util.List;
+import java.util.logging.Logger;
 import java.util.Locale;
+import java.util.List;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
 import javax.media.jai.Warp;
 import javax.media.jai.RenderedOp;
 import javax.media.jai.PlanarImage;
+import javax.media.jai.ImageLayout;
 import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
@@ -75,6 +77,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -102,11 +105,8 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.9 2002/10/09 19:46:32 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.10 2003/02/14 15:46:48 desruisseaux Exp $
  * @author Martin Desruisseaux
- *
- * @task TODO: The "GridGeometry" parameter is currently not supported.
- *             We should support it.
  */
 final class Resampler extends GridCoverage {
     /**
@@ -115,7 +115,35 @@ final class Resampler extends GridCoverage {
     private static final double EPS = 1E-6;
     
     /**
-     * Construct a new grid coverage for the resampler operation.
+     * Construct a new grid coverage for the specified grid geometry.
+     *
+     * @param source       The source for this grid coverage.
+     * @param image        The image.
+     * @param cs           The coordinate system.
+     * @param envelope     The grid geometry.
+     */
+    private Resampler(final GridCoverage   source,
+                      final RenderedImage   image,
+                      final CoordinateSystem   cs,
+                      final GridGeometry geometry)
+    {
+        super(source.getName(null), image, cs,
+              geometry.getGridToCoordinateSystem(),
+              source.getSampleDimensions(),
+              new GridCoverage[]{source}, null);
+        /*
+         * If the grid geometry has more than 2 dimensions, then the current implementation
+         * of GridCoverage assumes that grid range for all dimensions above 2 is [n..n+1].
+         * TODO: Should we accept the grid geometry as is? (open question...)
+         */
+        if (!geometry.equals(getGridGeometry())) {
+            // TODO: localize this message, if we decide to keep it.
+            Logger.getLogger("org.geotools.gp").warning("Grid geometry has been adjusted.");
+        }
+    }
+    
+    /**
+     * Construct a new grid coverage for the specified envelope.
      *
      * @param source       The source for this grid coverage.
      * @param image        The image.
@@ -124,15 +152,16 @@ final class Resampler extends GridCoverage {
      *                     the image location along <var>x</var> and <var>y</var> axis. The
      *                     other dimensions are optional and may be used to locate the image
      *                     on a vertical axis or on the time axis.
-     * @param bands        Sample dimensions for the image.
      */
     private Resampler(final GridCoverage       source,
                       final RenderedImage       image,
                       final CoordinateSystem       cs,
-                      final Envelope         envelope,
-                      final SampleDimension[]   bands)
+                      final Envelope         envelope)
     {
-        super(source.getName(null), image, cs, envelope, bands, new GridCoverage[]{source}, null);
+        super(source.getName(null),
+              image, cs, envelope,
+              source.getSampleDimensions(),
+              new GridCoverage[]{source}, null);
     }
     
     /**
@@ -140,7 +169,7 @@ final class Resampler extends GridCoverage {
      *
      * @param  sourceCoverage The source grid coverage.
      * @param  targetCS Coordinate system for the new grid coverage, or <code>null</code>.
-     * @param  targetGridGeometry The target grid geometry, or <code>null</code> for default.
+     * @param  targetGG The target grid geometry, or <code>null</code> for default.
      * @param  interpolation The interpolation to use.
      * @param  The rendering hingts. This is usually provided by a {@link GridCoverageProcessor}.
      *         This method will looks for {@link Hints#COORDINATE_TRANSFORMATION_FACTORY}
@@ -148,11 +177,11 @@ final class Resampler extends GridCoverage {
      * @return The new grid coverage, or <code>sourceCoverage</code> if no resampling was needed.
      * @throws TransformException if the grid coverage can't be reprojected.
      */
-    public static GridCoverage reproject(      GridCoverage     sourceCoverage,
-                                         final CoordinateSystem       targetCS,
-                                         final GridGeometry targetGridGeometry,
-                                         final Interpolation     interpolation,
-                                         final RenderingHints            hints)
+    public static GridCoverage reproject(      GridCoverage sourceCoverage,
+                                         final CoordinateSystem   targetCS,
+                                               GridGeometry       targetGG,
+                                         final Interpolation interpolation,
+                                         final RenderingHints        hints)
         throws TransformException
     {
         /*
@@ -175,67 +204,31 @@ final class Resampler extends GridCoverage {
         } else {
             factory = CoordinateTransformationFactory.getDefault();
         }
+        final MathTransformFactory mtFactory = factory.getMathTransformFactory();
         /*
-         * If the user request a new grid geometry with the
-         * same coordinate system, and if the grid geometry
-         * is equivalents to a simple extraction of a sub-area,
-         * delegate the work to the 'scale' method.
+         * If the source coverage is already the result of a "Resample" operation,
+         * go up in the chain and check if a previously computed image could fits.
          */
-        if (targetGridGeometry!=null && targetCS==null) {
-            final MathTransform2D transform = targetGridGeometry.getGridToCoordinateSystem2D();
-            if (transform instanceof AffineTransform) {
-                final AffineTransform at = (AffineTransform) transform;
-                if ((at.getType() & ~(AffineTransform.TYPE_IDENTITY    |
-                                      AffineTransform.TYPE_TRANSLATION |
-                                      AffineTransform.TYPE_MASK_SCALE)) == 0)
-                {
-                    // NO flip, no rotation, no shear.
-                    // TODO: we could make this algorithm slightly
-                    //       more general by accepting flips and 90°
-                    //       rotation, but we need to change 'scale'
-                    //       in order to accept AffineTransform objects.
-                    //       In fact, we NEED to do this since this patch
-                    //       is wrong: GridCoverage may inverse the 'y' axis.
-                    final GridRange range = targetGridGeometry.getGridRange();
-                    final Dimension  size = new Dimension(range.getLength(0), range.getLength(1));
-                    Rectangle2D    bounds = new Rectangle2D.Double(range.getLower(0),
-                                                                   range.getLower(1),
-                                                                   size.width, size.height);
-                    bounds = XAffineTransform.transform(at, bounds, bounds);
-                    return scale(sourceCoverage, bounds, size, processor);
+        GridGeometry     sourceGG; boolean sameGG;
+        CoordinateSystem sourceCS; boolean sameCS;
+        while (true) {
+            sourceGG = sourceCoverage.getGridGeometry();
+            sourceCS = sourceCoverage.getCoordinateSystem();
+            sameGG   = (targetGG==null || targetGG.equals(sourceGG));
+            sameCS   = (targetCS==null || targetCS.equals(sourceCS, false));
+            if (sameGG && sameCS) {
+                return sourceCoverage;
+            }
+            if (sourceCoverage instanceof Resampler) {
+                final GridCoverage[] sources = sourceCoverage.getSources();
+                if (sources.length != 1) {
+                    // Should not happen, but test anyway.
+                    throw new AssertionError(sources.length);
                 }
+                sourceCoverage = sources[0];
+                continue;
             }
-        }
-        /*
-         * If the source coverage is already a projected one,
-         * go up in the chain until the source grid coverage.
-         */
-        while (sourceCoverage instanceof Resampler) {
-            final GridCoverage[] sources = sourceCoverage.getSources();
-            if (sources.length != 1) {
-                // Should not happen, but test always anyway.
-                throw new AssertionError(sources.length);
-            }
-            sourceCoverage = sources[0];
-        }
-        /*
-         * Perform a first argument check. The
-         * most trivial cases are handled now.
-         */
-        final CoordinateSystem sourceCS = sourceCoverage.getCoordinateSystem();
-        if (sourceCS==targetCS && targetGridGeometry==null) { // May be both null.
-            return sourceCoverage;
-        }
-        if (sourceCS==null || targetCS==null) {
-            throw new CannotReprojectException(Resources.format(
-                    ResourceKeys.ERROR_UNSPECIFIED_COORDINATE_SYSTEM));
-        }
-        if (sourceCS.equals(targetCS, false) && targetGridGeometry==null) {
-            return sourceCoverage;
-        }
-        if (targetGridGeometry != null) {
-            // TODO: Implement the "GridGeometry" argument.
-            throw new CannotReprojectException("'GridGeometry' parameter not yet implemented");
+            break;
         }
         /*
          * We use the next two lines mostly as an argument check. If a coordinate system
@@ -259,15 +252,15 @@ final class Resampler extends GridCoverage {
          * is available as a source of the source coverage (i.e. the floating-point image
          * is derived from the integer image, not the converse).
          */
-        Boolean targetCoverageModel = null;
+        Boolean targetGeophysics = null;
         if (interpolation instanceof InterpolationNearest) {
             final GridCoverage candidate = sourceCoverage.geophysics(false);
             if (candidate != sourceCoverage) {
                 final List sources = sourceCoverage.getRenderedImage().getSources();
                 if (sources != null) {
                     if (sources.contains(candidate.getRenderedImage())) {
-                        sourceCoverage = candidate;
-                        targetCoverageModel = Boolean.TRUE;
+                        sourceCoverage   = candidate;
+                        targetGeophysics = Boolean.TRUE;
                     }
                 }
             }
@@ -282,152 +275,186 @@ final class Resampler extends GridCoverage {
         final PlanarImage sourceImage = PlanarImage.wrapRenderedImage(sourceCoverage.getRenderedImage());
         final ParameterBlock paramBlk = new ParameterBlock().addSource(sourceImage);
         RenderingHints    targetHints = ImageUtilities.getRenderingHints(sourceImage);
-        if (hints != null) {
+        if (targetHints == null) {
+            targetHints = hints;
+        } else if (hints != null) {
             targetHints.add(hints);
         }
-        final RenderedOp  targetImage = processor.createNS("Null", paramBlk, targetHints);
+        final RenderedOp targetImage = processor.createNS("Null", paramBlk, targetHints);
+        GridCoverage  targetCoverage = null;
         /*
-         * Gets the math transform.  According our own GridCoverage
-         * specification, only the two first ordinates apply to the
-         * image. Other ordinates are discarted.  The caller should
-         * have make sure that there is no dependency   between the
-         * two first ordinates and the other.
+         * Compute the INVERSE of the math transform from [Source Grid] to [Target Grid].
+         * The transform will be computed using the inverse of the following paths:
          *
-         * Once the math transform is know, we compute the target
-         * envelope and the warp transform.
+         *      Source Grid --> Source CS --> Target CS --> Target Grid
+         *
+         * If source and target CS are equals, a shorter path is used. This special case
+         * is needed because 'targetCS' may be null (which means "same CS than source").
+         * Note that 'sourceCS' may be null as well.
+         *
+         *      Source Grid --> Common CS --> Target Grid
          */
-        final MathTransformFactory     mathFactory = factory.getMathTransformFactory();
-        final CoordinateTransformation transformation;
-        final MathTransform            transform;
-        final MathTransform2D          transform2D;
-        try {
-            transformation = factory.createFromCoordinateSystems(sourceCS, targetCS);
-            transform      = transformation.getMathTransform();
-            transform2D    = (MathTransform2D) mathFactory.createSubMathTransform(0, 2, transform);
-        } catch (ClassCastException exception) {
-            // This catch clause is here in case the (MathTransform2D) cast failed.
-            // It should not happen, except maybe with some implementation outside
-            // the Geotools package. Even in the later case, it should be unusual.
-            throw new TransformException(Resources.format(
-                    ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE), exception);
+        final MathTransform transform, step1, step2, step3;
+        if (sameCS) {
+            step2 = null;
+        } else {
+            if (sourceCS==null || targetCS==null) {
+                throw new CannotReprojectException(Resources.format(
+                        ResourceKeys.ERROR_UNSPECIFIED_COORDINATE_SYSTEM));
+            }
+            final MathTransform step2x, step2r;
+            step2x = factory.createFromCoordinateSystems(sourceCS, targetCS).getMathTransform();
+            step2r = mtFactory.createSubMathTransform(0, 2, step2x);
+            /*
+             * Gets the source and target envelope. It is difficult to check if the first
+             * two dimensions are really independent from other dimensions.   However, if
+             * we get the same 2-dimensional envelope no matter if we took in account the
+             * extra dimensions or not, then we will assume that projecting the image with
+             * a MathTransform2D is safe enough.
+             */
+            final Envelope sourceEnvelope   = sourceCoverage.getEnvelope();
+            final Envelope sourceEnvelope2D = sourceEnvelope.getSubEnvelope(0,2);
+            final Envelope targetEnvelope   = CTSUtilities.transform(step2x, sourceEnvelope  );
+            final Envelope targetEnvelope2D = CTSUtilities.transform(step2r, sourceEnvelope2D);
+            if (!targetEnvelope.getSubEnvelope(0,2).equals(targetEnvelope2D)) {
+                throw new TransformException(Resources.format(
+                        ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
+            }
+            /*
+             * If the target GridGeometry is incomplete, provides default
+             * values for the missing fields. Three cases may occur:
+             *
+             * - User provided no GridGeometry at all. Then, constructs an image of the same size
+             *   than the source image and set an envelope big enough to contains the projected
+             *   coordinates. The transform will derivate from the grid range and the envelope.
+             *
+             * - User provided only a grid range.  Then, set an envelope big enough to contains
+             *   the projected coordinates. The transform will derivate from the grid range and
+             *   the envelope.
+             *
+             * - User provided only a "grid to coordinate system" transform. Then, transform the
+             *   projected envelope to "grid units" using the specified transform,  and create a
+             *   grid range big enough to hold the result.
+             */
+            if (targetGG == null) {
+                targetCoverage=new Resampler(sourceCoverage, targetImage, targetCS, targetEnvelope);
+                targetGG = targetCoverage.getGridGeometry();
+            }
+            else if (!GCSUtilities.hasTransform(targetGG)) {
+                targetGG = new GridGeometry(targetGG.getGridRange(), targetEnvelope, null);
+            }
+            else if (!GCSUtilities.hasGridRange(targetGG)) {
+                final MathTransform step3x = targetGG.getGridToCoordinateSystem();
+                final GridRange  gridRange = GCSUtilities.toGridRange(CTSUtilities.transform(
+                                                          step3x.inverse(), targetEnvelope));
+                targetGG = new GridGeometry(gridRange, step3x);
+            }
+            step2 = step2r.inverse();
         }
         /*
-         * Gets the source and target envelope. It is difficult to check if the first
-         * two dimensions are really independent from other dimensions.   However, if
-         * we get the same 2-dimensional envelope no matter if we took in account the
-         * extra dimensions or not, then we will assume that projecting the image with
-         * a MathTransform2D is safe enough.
+         * Complete the transformation from [Target Grid] to [Source Grid].
          */
-        final Envelope sourceEnvelope   = sourceCoverage.getEnvelope();
-        final Envelope sourceEnvelope2D = sourceEnvelope.getSubEnvelope(0,2);
-        final Envelope targetEnvelope   = CTSUtilities.transform(transform,   sourceEnvelope);
-        final Envelope targetEnvelope2D = CTSUtilities.transform(transform2D, sourceEnvelope2D);
-        if (!targetEnvelope.getSubEnvelope(0,2).equals(targetEnvelope2D)) {
+        step1 = targetGG.getGridToCoordinateSystem2D();
+        step3 = sourceGG.getGridToCoordinateSystem2D().inverse();
+        if (step2 != null) {
+            transform = mtFactory.createConcatenatedTransform(
+                        mtFactory.createConcatenatedTransform(step1, step2), step3);
+        } else {
+            transform = mtFactory.createConcatenatedTransform(step1, step3);
+        }
+        if (!(transform instanceof MathTransform2D)) {
+            // Should not happen with Geotools implementations. May happen
+            // with some external implementations, but should stay unusual.
             throw new TransformException(Resources.format(
-                    ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
+                                         ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
         }
-        // TODO: We should do here a special optimization for the case transform2D.isIdentity().
-        //       Note that the grid geometry may be different if the 'targetGridGeometry!=null'.
         /*
-         * Construct the target grid coverage, and then construct the warp transform.  We
-         * had to set the warp transform last because the construction of 'WarpTransform'
-         * requires the geometry of the target grid coverage. The trick was to initialize
-         * the target image with a null operation, and change the operation here.
+         * If the target coverage has not been created yet, change the image bounding box in
+         * order to matches the grid range. We are not supposed to modify existing coverages
+         * (they are immutable by design),   which is why we don't touch to the bounding box
+         * of an existing coverage. Furthermore, the only case where a coverage will already
+         * exists is when no grid range has been explicitely specified and a default grid range
+         * has been automatically computed (see the 'if (targetGG==null)' case above).
          */
-        final SampleDimension[] bands = sourceCoverage.getSampleDimensions();
-        GridCoverage targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS,
-                                                    targetEnvelope, bands);
-        final Warp warp = new WarpTransform(sourceCoverage.getGridGeometry(), transform2D,
-                                            targetCoverage.getGridGeometry(), mathFactory);
-        final ParameterBlock param = new ParameterBlock().addSource(sourceImage).add(warp)
-                                                                       .add(interpolation);
-        targetImage.setParameterBlock(param); // Must be invoked before setOperationName.
-        targetImage.setOperationName("Warp");
-        
-        final RenderingHints imageLayout = ImageUtilities.getRenderingHints(targetImage);
-        if (imageLayout != null) {
-            targetHints = targetImage.getRenderingHints();
-            targetHints.add(imageLayout);
-            targetImage.setRenderingHints(targetHints);
+        if (targetCoverage == null) {
+            final GridRange gridRange = targetGG.getGridRange();
+            ImageLayout layout= (ImageLayout)targetImage.getRenderingHint(JAI.KEY_IMAGE_LAYOUT);
+            if (layout != null) {
+                layout = (ImageLayout) layout.clone();
+            } else {
+                layout = new ImageLayout();
+            }
+            layout.setMinX  (gridRange.getLower (0));
+            layout.setMinY  (gridRange.getLower (1));
+            layout.setWidth (gridRange.getLength(0));
+            layout.setHeight(gridRange.getLength(1));
+            targetImage.setRenderingHint(JAI.KEY_IMAGE_LAYOUT, layout);
         }
-        if (targetCoverageModel != null) {
-            targetCoverage = targetCoverage.geophysics(targetCoverageModel.booleanValue());
+        /*
+         * If the user request a new grid geometry with the same coordinate system, and if
+         * the grid geometry is equivalents to a simple extraction of a sub-area, delegate
+         * the work to a "Crop" operation.
+         */
+        if (transform.isIdentity()) {
+            final GridRange sourceGR = sourceGG.getGridRange();
+            final GridRange targetGR = targetGG.getGridRange();
+            final int xmin = targetGR.getLower(0);
+            final int xmax = targetGR.getUpper(0);
+            final int ymin = targetGR.getLower(1);
+            final int ymax = targetGR.getUpper(1);
+            if (xmin >= sourceGR.getLower(0) &&
+                xmax <= sourceGR.getUpper(0) &&
+                ymin >= sourceGR.getLower(1) &&
+                ymax <= sourceGR.getUpper(1))
+            {
+                paramBlk.add((float) (xmin));
+                paramBlk.add((float) (ymin));
+                paramBlk.add((float) (xmax-xmin));
+                paramBlk.add((float) (ymax-ymin));
+                targetImage.setParameterBlock(paramBlk);
+                targetImage.setOperationName("Crop");
+            }
         }
-        
-        assert sourceCoverage.getCoordinateSystem().equals(transformation.getSourceCS(), false);
-        assert targetCoverage.getCoordinateSystem().equals(transformation.getTargetCS(), false);
-        assert targetGridGeometry!=null || targetImage.getBounds().equals(sourceImage.getBounds());
-        
+        /*
+         * Special case for the affine transform. Try to use the JAI "Affine" operation instead of
+         * the more general "Warp" one. JAI provides native acceleration for the affine operation.
+         * NOTE: "Affine", "Scale", "Translate", "Rotate" and similar operations ignore the 'xmin',
+         * 'ymin', 'width' and 'height' image layout. Consequently, we can't use this operation if
+         * the user provided explicitely a grid geometry. We use it only for automatically generated
+         * geometry (the 'if (targetGG==null)' case above), in which case the target coverage may
+         * need to be replaced.
+         */
+        if (targetCoverage != null) {
+            if (targetImage.getOperationName().equalsIgnoreCase("Null")) {
+                if (transform instanceof AffineTransform) {
+                    final AffineTransform affine = (AffineTransform) transform.inverse();
+                    paramBlk.add(affine).add(interpolation);
+                    targetImage.setParameterBlock(paramBlk);
+                    targetImage.setOperationName("Affine");
+                    targetCoverage = null;
+                }
+            }
+        }
+        if (targetImage.getOperationName().equalsIgnoreCase("Null")) {
+            /*
+             * General case: construct the warp transform.  We had to set the warp transform
+             * last because the construction of 'WarpTransform' requires the geometry of the
+             * target grid coverage. The trick was to initialize the target image with a null
+             * operation, and change the operation here.
+             */
+            paramBlk.add(new WarpTransform((MathTransform2D) transform)).add(interpolation);
+            targetImage.setParameterBlock(paramBlk); // Must be invoked before setOperationName
+            targetImage.setOperationName("Warp");
+        }
+        if (targetCoverage == null) {
+            targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, targetGG);
+        }
+        if (targetGeophysics != null) {
+            targetCoverage = targetCoverage.geophysics(targetGeophysics.booleanValue());
+        }
+        assert targetCoverage.getCoordinateSystem().equals(targetCS!=null ? targetCS : sourceCS, false);
+        assert targetGG!=null || targetImage.getBounds().equals(sourceImage.getBounds());
         return targetCoverage;
-    }
-    
-    /**
-     * Scale and/or crop a grid coverage in order to keep only a subarea.
-     * The resulting coverage will use the same coordinate system than the
-     * source coverage.
-     *
-     * @param  sourceCoverage The source grid coverage.
-     * @param  area The subarea to extract, in the coordinate system units.
-     * @param  size The size to scale image to, or <code>null</code> if the
-     *         image should not be scaled.
-     * @param  processor The {@link JAI} instance to use for instantiating operations.
-     *         This argument is usually provided by a {@link GridCoverageProcessor}.
-     * @return The resulting grid coverage.
-     *
-     * @task REVISIT: This method must accept an {@link AffineTransform} argument instead
-     *                of a rectangle. Once affine transform are supported, we should fix
-     *                the "scale" hack in the <code>reproject</code> method.
-     */
-    public static GridCoverage scale(GridCoverage sourceCoverage,
-                                     Rectangle2D area, final Dimension size, final JAI processor)
-        throws TransformException
-    {
-        final MathTransform2D  gridToCS = sourceCoverage.getGridGeometry().getGridToCoordinateSystem2D();
-        final RenderedImage sourceImage = sourceCoverage.getRenderedImage();
-        RenderedImage image = sourceImage;
-        /*
-         * Get the grid indices for the destination image.  If the destination indices are
-         * differents from the source indices (i.e. if the user is requesting a subarea of
-         * source coverage), then extract the requested subarea using the "Crop" operation.
-         */
-        boolean changed=false;
-        int tmp;
-        int xmin = image.getMinX();
-        int ymin = image.getMinY();
-        int xmax = image.getWidth()  + xmin;
-        int ymax = image.getHeight() + ymin;
-        final Rectangle2D bounds = CTSUtilities.transform((MathTransform2D)gridToCS.inverse(), area, null);
-        tmp = (int)Math.floor(bounds.getMinX() + EPS); if (tmp>xmin) {xmin=tmp; changed=true;}
-        tmp = (int)Math.floor(bounds.getMinY() + EPS); if (tmp>ymin) {ymin=tmp; changed=true;}
-        tmp = (int)Math.ceil (bounds.getMaxX() - EPS); if (tmp<xmax) {xmax=tmp; changed=true;}
-        tmp = (int)Math.ceil (bounds.getMaxY() - EPS); if (tmp<ymax) {ymax=tmp; changed=true;}
-        bounds.setRect(xmin, ymin, xmax-xmin, ymax-ymin);
-        if (changed) {
-            image = processor.createNS("Crop", new ParameterBlock().addSource(image)
-                             .add((float)bounds.getX    ()).add((float)bounds.getY())
-                             .add((float)bounds.getWidth()).add((float)bounds.getHeight()), null);
-            area = CTSUtilities.transform(gridToCS, bounds, bounds);
-        }
-        /*
-         * If the requested image size is different from current image
-         * size, then scale the image using the "Scale" operation.
-         */
-        if (size!=null && (size.width!=image.getWidth() || size.height!=image.getHeight())) {
-            throw new UnsupportedOperationException("Not yet implemented"); // TODO
-        }
-        /*
-         * Returns the resulting grid coverage.
-         */
-        if (image == sourceImage) {
-            return sourceCoverage;
-        }
-        final Envelope envelope = sourceCoverage.getEnvelope();
-        envelope.setRange(0, area.getMinX(), area.getMaxX());
-        envelope.setRange(1, area.getMinY(), area.getMaxY());
-        return new GridCoverage(sourceCoverage.getName(null),
-                                image, sourceCoverage.getCoordinateSystem(),
-                                envelope, sourceCoverage.getSampleDimensions(),
-                                new GridCoverage[] {sourceCoverage}, null);
     }
     
     /**
@@ -448,7 +475,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.9 2002/10/09 19:46:32 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.10 2003/02/14 15:46:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

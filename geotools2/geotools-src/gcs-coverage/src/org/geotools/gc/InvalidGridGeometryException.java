@@ -37,7 +37,7 @@ package org.geotools.gc;
  * this exception is thrown when {@link GridGeometry#getGridRange() getGridRange()} is
  * invoked while the grid geometry were built with a null {@link GridRange}.
  *
- * @version $Id: InvalidGridGeometryException.java,v 1.1 2003/02/13 22:58:31 desruisseaux Exp $
+ * @version $Id: InvalidGridGeometryException.java,v 1.2 2003/02/14 15:46:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class InvalidGridGeometryException extends IllegalStateException {
@@ -57,5 +57,13 @@ public class InvalidGridGeometryException extends IllegalStateException {
      */
     public InvalidGridGeometryException(final String message) {
         super(message);
+    }
+    
+    /**
+     * Construct an exception with the specified detail message and cause.
+     */
+    public InvalidGridGeometryException(final String message, final Throwable cause) {
+        super(message);
+        initCause(cause);
     }
 }

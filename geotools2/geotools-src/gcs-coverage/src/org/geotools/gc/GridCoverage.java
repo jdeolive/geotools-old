@@ -44,6 +44,7 @@ import java.awt.image.renderable.ParameterBlock;
 
 // Java Advanced Imaging
 import javax.media.jai.JAI;
+import javax.media.jai.RenderedOp;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageFunction;
 import javax.media.jai.Interpolation;
@@ -110,6 +111,7 @@ import org.geotools.util.WeakHashSet;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -126,7 +128,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -249,8 +251,8 @@ public class GridCoverage extends Coverage {
                         final SampleDimension[] bands, final Map properties)
         throws MismatchedDimensionException
     {
-        this(name, getImage(function, gridGeometry), cs, gridGeometry,
-             null, null, bands, null, properties);
+        this(name, getImage(function, gridGeometry),
+             cs, gridGeometry, null, bands, null, properties);
     }
     
     /**
@@ -354,7 +356,7 @@ public class GridCoverage extends Coverage {
         throws MismatchedDimensionException
     {
         this(name, PlanarImage.wrapRenderedImage(image), cs, null,
-             (Envelope)envelope.clone(), null, bands, sources, properties);
+             (Envelope)envelope.clone(), bands, sources, properties);
     }
     
     /**
@@ -389,111 +391,72 @@ public class GridCoverage extends Coverage {
                         final Map properties)
         throws MismatchedDimensionException
     {
-        this(name, PlanarImage.wrapRenderedImage(image), cs, null, null,
-             gridToCS, bands, sources, properties);
+        this(name, PlanarImage.wrapRenderedImage(image), cs,
+             new GridGeometry(null, gridToCS),
+             null, bands, sources, properties);
     }
     
     /**
      * Construct a grid coverage. This private constructor expect an envelope
-     * (<code>envelope</code>), a math transform (<code>transform</code>) and
-     * a grid geometry (<code>gridGeometry</code>).  <strong>One and only one
-     * of those argument</strong> should be non-null. The null arguments will
-     * be computed from the non-null argument.
+     * (<code>envelope</code>) or a grid geometry (<code>gridGeometry</code>).
+     * <strong>One and only one of those argument</strong> should be non-null.
+     * The null arguments will be computed from the non-null argument.
      */
     private GridCoverage(final String               name,
                          final PlanarImage         image,
                          final CoordinateSystem       cs,
-                               GridGeometry gridGeometry, // ONE and  only  one of
-                               Envelope         envelope, // those three arguments
-                               MathTransform   transform, // should be non-null.
+                               GridGeometry gridGeometry, // ONE and  only  one of those
+                               Envelope         envelope, // two arguments should be non-null.
                          final SampleDimension[] sdBands,
                          final GridCoverage[]    sources,
                          final Map            properties)
         throws MismatchedDimensionException
     {
         super(name, cs, image, properties);
-        if ((gridGeometry == null ? 0 : 1) +
-            (envelope     == null ? 0 : 1) +
-            (transform    == null ? 0 : 1) != 1)
-        {
+        if ((gridGeometry==null) == (envelope==null)) {
             // Should not happen
             throw new AssertionError();
         }
-        if (sources!=null) {
+        if (sources != null) {
             this.sources = (GridCoverage[]) sources.clone();
         } else {
             this.sources = EMPTY_LIST;
         }
         this.image = image;
-        
-        /*--------------------------------------------------------
-         * Check sample dimensions. The number of SampleDimensions
-         * must matches the number of image's bands.
+        /*
+         * Check sample dimensions. The number of SampleDimensions must matches the
+         * number of image's bands (this is checked by GridSampleDimension.create).
          */
-        final int numBands = image.getSampleModel().getNumBands();
-        if (sdBands!=null && numBands!=sdBands.length) {
-            throw new IllegalArgumentException(Resources.format(
-                    ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
-                    new Integer(numBands), new Integer(sdBands.length)));
+        sampleDimensions = new SampleDimension[image.getSampleModel().getNumBands()];
+        isGeophysics     = GridSampleDimension.create(image, sdBands, sampleDimensions);
+        /*
+         * Constructs the grid range and the envelope if they were not explicitly provided.
+         * The envelope computation (if needed)  requires  a valid 'gridToCoordinateSystem'
+         * transform in the GridGeometry.  Otherwise, no transform are required.  The range
+         * will be inferred from the image size, if needed. In any cases, the envelope must
+         * be non-empty and its dimension must matches the coordinate system's dimension. A
+         * pool of shared envelopes will be used in order to recycle existing envelopes.
+         */
+        final GridRange gridRange;
+        if (GCSUtilities.hasGridRange(gridGeometry)) {
+            gridRange = gridGeometry.getGridRange();
+        } else {
+            gridRange = new GridRange(image, cs.getDimension());
+            if (GCSUtilities.hasTransform(gridGeometry)) {
+                gridGeometry=new GridGeometry(gridRange, gridGeometry.getGridToCoordinateSystem());
+            }
         }
-        this.sampleDimensions = new SampleDimension[numBands];
+        // Check the GridRange...
         if (true) {
-            int nGeo = 0;
-            int nInt = 0;
-            for (int i=0; i<numBands; i++) {
-                SampleDimension sd = (sdBands!=null) ? sdBands[i] : null;
-                sd = new GridSampleDimension(sd, image, i);
-                sampleDimensions[i] = sd;
-                if (sd.geophysics(true ) == sd) nGeo++;
-                if (sd.geophysics(false) == sd) nInt++;
-            }
-            if (nGeo == numBands) {
-                isGeophysics = true;
-            } else if (nInt == numBands) {
-                isGeophysics = false;
-            } else {
-                throw new IllegalArgumentException(Resources.format(
-                                ResourceKeys.ERROR_MIXED_CATEGORIES));
+            final String error = checkConsistency(image, gridRange);
+            if (error != null) {
+                throw new IllegalArgumentException(error);
             }
         }
-        
-        /*------------------------------------------------------------
-         * Construct the envelope if it was not explicitly provided.
-         * This computation require the MathTransform, which may been
-         * directly specified or indirectly via GridGeometry. One and
-         * only one of MathTransform or GridGeometry can be provided.
-         */
-        if (envelope==null) try {
-            envelope = new Envelope(cs.getDimension());
-            for (int i=envelope.getDimension(); --i>=0;) {
-                final int min, max;
-                switch (i) {
-                    case 0:  min=image.getMinX(); max=min+image.getWidth();  break;
-                    case 1:  min=image.getMinY(); max=min+image.getHeight(); break;
-                    default: min=0; max=1; break;
-                }
-                // According OpenGIS specification, GridGeometry maps pixel's center.
-                // We want a bounding box for all pixels, not pixel's centers. Offset by
-                // 0.5 (use -0.5 for maximum too, not +0.5, since maximum is exclusive).
-                envelope.setRange(i, min-0.5, max-0.5);
-            }
-            if (transform==null) {
-                transform = gridGeometry.getGridToCoordinateSystem();
-            }
-            envelope = CTSUtilities.transform(transform, envelope);
-        } catch (TransformException exception) {
-            final IllegalArgumentException e = new IllegalArgumentException(Resources.format(
-                    ResourceKeys.ERROR_BAD_TRANSFORM_$1, Utilities.getShortClassName(transform)));
-            e.initCause(exception);
-            throw e;
+        // Check the Envelope...
+        if (envelope == null) {
+            envelope = gridGeometry.getEnvelope();
         }
-        
-        /*------------------------------------------------------------
-         * Checks the envelope. The envelope must be non-empty and its
-         * dimension must matches the coordinate system's dimension. A
-         * pool of shared envelopes will be used in order to recycle
-         * existing envelopes.
-         */
         final int dimension = envelope.getDimension();
         if (envelope.isEmpty() || dimension<2) {
             throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_EMPTY_ENVELOPE));
@@ -502,61 +465,68 @@ public class GridCoverage extends Coverage {
             throw new MismatchedDimensionException(cs, envelope);
         }
         this.envelope = (Envelope)pool.canonicalize(envelope);
-        
-        /*------------------------------------------------------------------------
-         * Compute the grid geometry. If the specified math transform is non-null,
-         * it will be used as is. Otherwise, it will be computed from the envelope.
-         * A pool of shared grid geometries will be used in order to recycle existing
-         * objects.
+        /*
+         * Compute the grid geometry. The math transform will be computed from the envelope.
+         * A pool of shared grid geometries will be used in order to recycle existing objects.
+         *
+         * Note: Should we invert some axis? For example, the 'y' axis is often inversed
+         *       (since image use a downward 'y' axis). If all source grid coverages use
+         *       the same axis orientations, we will reuse those orientations. Otherwise,
+         *       we will use default orientations where only the 'y' axis is inversed.
          */
-        if (gridGeometry==null) {
-            final GridRange gridRange=(GridRange)pool.canonicalize(new GridRange(image, dimension));
-            if (transform==null) {
-                // Should we invert some axis? For example, the 'y' axis is often inversed
-                // (since image use a downward 'y' axis). If all source grid coverages use
-                // the same axis orientations, we will reuse those orientations. Otherwise,
-                // we will use default orientations where only the 'y' axis is inversed.
-                boolean[] inverse = null;
-                if (sources!=null) {
-                    for (int i=0; i<sources.length; i++) {
-                        boolean check[] = sources[i].gridGeometry.areAxisInverted();
-                        check = XArray.resize(check, dimension);
-                        if (inverse!=null) {
-                            if (!Arrays.equals(check, inverse)) {
-                                inverse = null;
-                                break;
-                            }
-                        } else {
-                            inverse = check;
+        if (gridGeometry == null) {
+            boolean[] inverse = null;
+            if (sources != null) {
+                for (int i=0; i<sources.length; i++) {
+                    boolean check[] = sources[i].gridGeometry.areAxisInverted();
+                    check = XArray.resize(check, dimension);
+                    if (inverse!=null) {
+                        if (!Arrays.equals(check, inverse)) {
+                            inverse = null;
+                            break;
                         }
+                    } else {
+                        inverse = check;
                     }
                 }
-                if (inverse==null) {
-                    inverse = new boolean[dimension];
-                    for (int i=Math.min(IMAGE_ORIENTATION.length, dimension); --i>=0;) {
-                        final AxisOrientation toInverse = IMAGE_ORIENTATION[i].inverse();
-                        inverse[i] = toInverse.equals(cs.getAxis(1).orientation);
-                    }
-                }
-                gridGeometry = new GridGeometry(gridRange, envelope, inverse);
-            } else {
-                gridGeometry = new GridGeometry(gridRange, transform);
             }
+            if (inverse == null) {
+                inverse = new boolean[dimension];
+                for (int i=Math.min(IMAGE_ORIENTATION.length, dimension); --i>=0;) {
+                    final AxisOrientation toInverse = IMAGE_ORIENTATION[i].inverse();
+                    inverse[i] = toInverse.equals(cs.getAxis(1).orientation);
+                }
+            }
+            gridGeometry = new GridGeometry(gridRange, envelope, inverse);
         }
         this.gridGeometry = (GridGeometry)pool.canonicalize(gridGeometry);
     }
-    
+
     /**
-     * Check if all numbers in <code>bands</code> are
-     * increasing from 0 to <code>bands.length-1</code>.
+     * Check if the boundix box of the specified image is consistents with the specified
+     * grid range. If an inconsistency has been found, then an error string is returned.
+     * This string will be typically used as a message in an exception to be thrown.
+     * <br><br>
+     * Note that a succesful check at construction time may fails later if the image is part
+     * of a JAI chain (i.e. is a {@link RenderedOp}) and its bounds has been edited (i.e the
+     * image node as been re-rendered). Since <code>GridCoverage</code> are immutable by design,
+     * we are not allowed to propagate the image change here. The {@link #getGridGeometry} method
+     * will thrown an {@link IllegalStateException} in this case.
      */
-    private static boolean isIncreasing(final int[] bands) {
-        for (int i=0; i<bands.length; i++) {
-            if (bands[i]!=i) {
-                return false;
+    private static String checkConsistency(final RenderedImage image, final GridRange range) {
+        for (int i=0; i<=1; i++) {
+            final int min, length;
+            final Object label;
+            switch (i) {
+                case 0:  min=image.getMinX(); length=image.getWidth();  label="\"X\"";        break;
+                case 1:  min=image.getMinY(); length=image.getHeight(); label="\"Y\"";        break;
+                default: min=0;               length=1;                 label=new Integer(i); break;
+            }
+            if (range.getLower(i)!=min || range.getLength(i)!=length) {
+                return Resources.format(ResourceKeys.ERROR_BAD_GRID_RANGE_$1, label);
             }
         }
-        return true;
+        return null;
     }
     
     /**
@@ -592,6 +562,10 @@ public class GridCoverage extends Coverage {
      * @see GC_GridCoverage#getGridGeometry
      */
     public GridGeometry getGridGeometry() {
+        final String error = checkConsistency(image, gridGeometry.getGridRange());
+        if (error != null) {
+            throw new IllegalStateException(error);
+        }
         return gridGeometry;
     }
     
@@ -836,6 +810,19 @@ public class GridCoverage extends Coverage {
             image.prefetchTiles(tileIndices);
         }
     }
+    
+    /**
+     * Check if all numbers in <code>bands</code> are increasing from 0 to
+     * <code>bands.length-1</code>. This internal method is used by {@link #geophysics}.
+     */
+    private static boolean isIncreasing(final int[] bands) {
+        for (int i=0; i<bands.length; i++) {
+            if (bands[i]!=i) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * If <code>true</code>, returns a <code>GridCoverage</code> with sample values
@@ -903,7 +890,7 @@ public class GridCoverage extends Coverage {
                     selectedBands[i] = selectedBands[i].geophysics(toGeophysics);
                 }
                 inverse = new GridCoverage(getName(null), selectedImage,
-                                           coordinateSystem, gridGeometry, null, null,
+                                           coordinateSystem, getGridGeometry(), null,
                                            selectedBands, new GridCoverage[]{this}, null);
                 inverse = interpolate(inverse);
                 inverse.inverse = this;
@@ -941,7 +928,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -970,7 +957,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.9 2002/10/17 21:11:03 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.10 2003/02/14 15:46:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

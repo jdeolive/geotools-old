@@ -37,23 +37,17 @@ package org.geotools.gp;
 
 // J2SE and JAI dependencies
 import javax.media.jai.Warp;
-import java.awt.geom.Rectangle2D;
-import java.awt.geom.AffineTransform;
 
 // Geotools dependencies
-import org.geotools.gc.GridGeometry;
-import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
-import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.NoninvertibleTransformException;
 import org.geotools.resources.Utilities;
 
 
 /**
  * An image warp using {@link MathTransform2D}.
  *
- * @version $Id: WarpTransform.java,v 1.2 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: WarpTransform.java,v 1.3 2003/02/14 15:46:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WarpTransform extends Warp {
@@ -64,38 +58,15 @@ final class WarpTransform extends Warp {
     private final MathTransform2D inverse;
     
     /**
-     * Construct a new <code>WarpTransform</code> with an
-     * identity transform. This is a temporary placeholder
-     * during the creation of {@link Resampler} object.
-     *
-     * @param factory The {@link MathTransformFactory} to use.
-     */
-    public WarpTransform(final MathTransformFactory factory) {
-        inverse = factory.createAffineTransform(new AffineTransform());
-    }
-    
-    /**
      * Construct a new <code>WarpTransform</code>.
      *
-     * @param  source The source image's {@link GridGeometry}.
-     * @param  transform The transformation to apply from source to target image.
-     * @param  target The target image's {@link GridGeometry}.
-     * @param  factory The {@link MathTransformFactory} to use.
-     * @throws NoninvertibleTransformException if a transform can't be inversed.
+     * @param inverse The <strong>inverse</strong> of the transformation
+     *                to apply from source to target image.
      */
-    public WarpTransform(final GridGeometry         source,
-                         final MathTransform2D      transform,
-                         final GridGeometry         target,
-                         final MathTransformFactory factory)
-        throws NoninvertibleTransformException
-    {
-        final MathTransform step1 = target.getGridToCoordinateSystem2D();
-        final MathTransform step2 = transform.inverse();
-        final MathTransform step3 = source.getGridToCoordinateSystem2D().inverse();
-        inverse = (MathTransform2D) factory.createConcatenatedTransform(step1,
-        factory.createConcatenatedTransform(step2, step3));
+    public WarpTransform(final MathTransform2D inverse) {
+        this.inverse = inverse;
     }
-    
+
     /**
      * Computes the source pixel positions for a given rectangular
      * destination region, subsampled with an integral period.
