@@ -34,22 +34,12 @@ import org.geotools.styling.Style;
  * Renderer draws a map on behalf on MapPane.  It determines what
  * features to draw, BoundingBox, Size, and Style from this.context.
  *
- * @version $Id: Renderer2D.java,v 1.1 2003/04/26 03:05:22 camerons Exp $
+ * @version $Id: Renderer2D.java,v 1.2 2003/04/26 03:17:39 camerons Exp $
  * @author James Macgill
  * @author Cameron Shorter
  */
 
-public interface Renderer2D {
-
-//    /**
-//     * Flag which determines if the renderer is interactive or not.
-//     * An interactive renderer will return rather than waiting for time
-//     * consuming operations to complete (e.g. Image Loading).
-//     * A non-interactive renderer (e.g. a SVG or PDF renderer) will block
-//     * for these operations.
-//     */
-//     boolean interactive = true;
-    
+public interface Renderer2D {    
     /**
      * Render features based on the LayerList, BoundBox and Style specified
      * in this.context.
@@ -58,18 +48,5 @@ public interface Renderer2D {
      * (eg: pixels).
      */
     void render(Graphics graphics, Rectangle screenSize);
-
-//    /**
-//     * Getter for property interactive.
-//     * @return Value of property interactive.
-//     */
-//    boolean isInteractive();
-//
-//    /**
-//     * Setter for property interactive.
-//     * @param interactive New value of property interactive.
-//     */
-//    void setInteractive(boolean interactive);
-    
 }
 
