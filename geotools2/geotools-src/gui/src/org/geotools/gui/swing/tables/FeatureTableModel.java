@@ -25,7 +25,7 @@ import org.geotools.feature.*;
  * displayed.
  *
  * @author James Macgill, CCG
- * @version $Id: FeatureTableModel.java,v 1.3 2003/07/17 18:53:49 cholmesny Exp $
+ * @version $Id: FeatureTableModel.java,v 1.4 2004/02/27 14:02:00 aaime Exp $
  *
  * @task TODO: It would be excellent if there were custom cell renderers
  *       available for Geometry types.
@@ -39,6 +39,14 @@ public class FeatureTableModel extends javax.swing.table.AbstractTableModel
      * Creates a new instance of FeatureTableModel
      */
     public FeatureTableModel() {
+    }
+    
+    /**
+     * Creates a new instance of FeatureTableModel based on the feature collection provided
+     * @param featureCollection
+     */
+    public FeatureTableModel(FeatureCollection featureCollection) {
+        setFeatureCollection(featureCollection);
     }
 
     /**
