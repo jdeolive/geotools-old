@@ -29,19 +29,22 @@
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
+ *
+ *    This package contains documentation from OpenGIS specifications.
+ *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.cs;
 
 // OpenGIS dependencies
 import org.opengis.cs.CS_AxisOrientationEnum;
 
-// Miscellaneous
+// J2SE and JAI dependencies
+import java.util.Locale;
 import java.io.ObjectStreamException;
 import java.util.NoSuchElementException;
 import javax.media.jai.EnumeratedParameter;
 
-// Resources
-import java.util.Locale;
+// Geotools dependencies
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
