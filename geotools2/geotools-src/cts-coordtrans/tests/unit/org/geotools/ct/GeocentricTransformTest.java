@@ -1,7 +1,7 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2002, Institut de Recherche pour le Développement
+ * Copyright (C) 2002 Geotools Project Management Committee (PMC)
+ *           (C) 2002, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -25,10 +25,6 @@
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
  *             Institut de Recherche pour le Développement / US-Espace
  *             mailto:seasnet@teledetection.fr
- *
- *     CANADA: Observatoire du Saint-Laurent
- *             Institut Maurice-Lamontagne
- *             mailto:osl@osl.gc.ca
  */
 package org.geotools.ct;
 
@@ -58,16 +54,16 @@ import junit.framework.TestSuite;
  *   <li>{@link Ellipsoid}</li>
  * </ul>
  *
- * @version $Id: GeocentricTransformTest.java,v 1.3 2002/07/12 14:37:05 desruisseaux Exp $
+ * @version $Id: GeocentricTransformTest.java,v 1.4 2003/05/12 21:27:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GeocentricTransformTest extends TransformationTest {
     /**
      * Returns the test suite.
      */
-     public static Test suite() {
-         return new TestSuite(GeocentricTransformTest.class);
-     }
+    public static Test suite() {
+        return new TestSuite(GeocentricTransformTest.class);
+    }
     
     /**
      * Constructs a test case with the given name.

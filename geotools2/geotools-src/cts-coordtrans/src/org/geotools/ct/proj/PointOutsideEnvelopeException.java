@@ -33,25 +33,43 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.ct;
+package org.geotools.ct.proj;
+
+// J2SE dependencies
+import java.awt.geom.Point2D;
 
 // Geotools dependencies
-import org.geotools.pt.Matrix;
+import org.geotools.cs.CoordinateSystem;
 
 
 /**
- * Interface for linear {@link MathTransform}s.  A linear transform can be express as an affine
- * transform using a {@linkplain #getMatrix matrix}. The {@linkplain Matrix#getNumCol number of
- * columns} is equals to the number of {@linkplain #getDimSource source dimension} plus 1,  and
- * the {@linkplain #getNumRow number of rows} is equals to the number of {@linkplain #getDimTarget
- * target dimension} plus 1.
+ * Thrown by {@link MapProjection} when a map projection failed because the point is
+ * outside the envelope of validity. Bounds are usually 90°S to 90°N and 180°W to 180°E.
  *
- * @version $Id: LinearTransform.java,v 1.2 2003/05/12 21:27:56 desruisseaux Exp $
+ * @version $Id: PointOutsideEnvelopeException.java,v 1.1 2003/05/12 21:27:56 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see CoordinateSystem#getDefaultEnvelope
  */
-public interface LinearTransform extends MathTransform {
+public class PointOutsideEnvelopeException extends ProjectionException {
     /**
-     * Returns this transform as an affine transform matrix.
+     * Serial number for interoperability with different versions.
      */
-    public abstract Matrix getMatrix();
+    private static final long serialVersionUID = -4384490413772200352L;
+    
+    /**
+     * Constructs a new exception with no detail message.
+     */
+    public PointOutsideEnvelopeException() {
+        super();
+    }
+    
+    /**
+     * Constructs a new exception with the specified detail message.
+     *
+     * @param message The error message.
+     */
+    public PointOutsideEnvelopeException(final String message) {
+        super(message);
+    }
 }

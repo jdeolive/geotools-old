@@ -46,9 +46,10 @@ import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.UnicastRemoteObject;
 
-// JAI and Java3D dependencies
-import javax.media.jai.ParameterList;
+// Java3D and JAI dependencies
 import javax.vecmath.GMatrix;
+import javax.media.jai.ParameterList;
+import javax.media.jai.IntegerSequence;
 
 // OpenGIS dependencies
 import org.opengis.pt.PT_Matrix;
@@ -70,6 +71,7 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.DescriptorNaming;
+import org.geotools.resources.JAIUtilities;
 
 
 /**
@@ -109,11 +111,18 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.21 2003/04/29 18:28:17 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.22 2003/05/12 21:27:56 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
  * @see org.opengis.ct.CT_MathTransformFactory
+ *
+ * @task REVISIT: Consider creating a set of package-privated methods
+ *                in <code>AbstractMathTransform</code>  (for example
+ *                <code>concatenante(MathTransformFactory, ...)</code>) and moves some code in
+ *                <code>AbstractMathTransform</code>'s sub-classes. It would simplify
+ *                <code>MathTransformFactory</code> but would introduces dependencies
+ *                to the factory right inside the abstract math transform.
  */
 public class MathTransformFactory {
     /**
@@ -133,6 +142,13 @@ public class MathTransformFactory {
      * returns instance of existing math transforms when possible.
      */
     static final WeakHashSet pool = new WeakHashSet();
+
+    /**
+     * Identity transforms for dimensions ranging from to 0 to 7. Used only in order to
+     * make the call to {@link #createIdentityTransform} faster and generate less garbages.
+     * Elements in this array will be created only when first requested.
+     */
+    private static final MathTransform[] identities = new MathTransform[8];
     
     /**
      * List of registered math transforms.
@@ -205,8 +221,20 @@ public class MathTransformFactory {
      * @return The identity transform.
      */
     public MathTransform createIdentityTransform(final int dimension) {
+        // No need to synchronize.
+        MathTransform transform;
+        if (dimension < identities.length) {
+            transform = identities[dimension];
+            if (transform != null) {
+                return transform;
+            }
+        }
         // Affine transform has one more row/column than dimension.
-        return createAffineTransform(new Matrix(dimension+1));
+        transform = createAffineTransform(new Matrix(dimension+1));
+        if (dimension < identities.length) {
+            identities[dimension] = transform;
+        }
+        return transform;
     }
     
     /**
@@ -216,6 +244,9 @@ public class MathTransformFactory {
      * @return The affine transform.
      */
     public MathTransform2D createAffineTransform(final AffineTransform matrix) {
+        if (matrix.isIdentity()) {
+            return MathTransform2D.IDENTITY;
+        }
         return (MathTransform2D) pool.canonicalize(new AffineTransform2D(matrix));
     }
     
@@ -296,6 +327,11 @@ public class MathTransformFactory {
      * @return The concatenated transform.
      *
      * @see org.opengis.ct.CT_MathTransformFactory#createConcatenatedTransform
+     *
+     * @task TODO: We could add one more optimisation: if one transform is a matrix and the
+     *             other transform is a PassThroughTransform, and if the matrix as 0 elements
+     *             for all rows matching the PassThrough sub-transform, then we can get ride
+     *             of the whole PassThroughTransform object.
      */
     public MathTransform createConcatenatedTransform(MathTransform tr1, MathTransform tr2) {
         if (tr1.isIdentity()) return tr2;
@@ -305,9 +341,9 @@ public class MathTransformFactory {
          * a single transform using the concatenated matrix.
          */
         final Matrix matrix1 = getMatrix(tr1);
-        if (matrix1!=null) {
+        if (matrix1 != null) {
             final Matrix matrix2 = getMatrix(tr2);
-            if (matrix2!=null) {
+            if (matrix2 != null) {
                 // Compute "matrix = matrix2 * matrix1". Reuse an existing matrix object
                 // if possible, which is always the case when both matrix are square.
                 final int numRow = matrix2.getNumRow();
@@ -368,7 +404,7 @@ public class MathTransformFactory {
         }
         return (MathTransform) pool.canonicalize(ConcatenatedTransform.create(this, tr1, tr2));
     }
-    
+
     /**
      * Creates a transform which passes through a subset of ordinates to another transform.
      * This allows transforms to operate on a subset of ordinates. For example, if you have
@@ -387,6 +423,7 @@ public class MathTransformFactory {
      * Target: firstAffectedOrdinate + subTransform.getDimTarget() + numTrailingOrdinates</pre>
      *
      * @see org.opengis.ct.CT_MathTransformFactory#createPassThroughTransform
+     * @see #createSubTransform
      */
     public MathTransform createPassThroughTransform(final int firstAffectedOrdinate,
                                                     final MathTransform subTransform,
@@ -405,9 +442,9 @@ public class MathTransformFactory {
         if (firstAffectedOrdinate==0 && numTrailingOrdinates==0) {
             return subTransform;
         }
-        //
-        // Optimize the "Identity transform" case.
-        //
+        /*
+         * Optimize the "Identity transform" case.
+         */
         if (subTransform.isIdentity()) {
             final int dimension = subTransform.getDimSource();
             if (dimension == subTransform.getDimTarget()) {
@@ -415,77 +452,288 @@ public class MathTransformFactory {
                 return createIdentityTransform(firstAffectedOrdinate + dimension + numTrailingOrdinates);
             }
         }
-        //
-        // Optimize the "Pass through case": this is done
-        // right into PassThroughTransform's constructor.
-        //
+        /*
+         * Special case for transformation backed by a matrix. Is is possible to use a
+         * new matrix for such transform, instead of wrapping the sub-transform into a
+         * PassThroughTransform object. It is faster and easier to concatenate.
+         */
+        if (subTransform instanceof LinearTransform) {
+            Matrix matrix = ((LinearTransform)subTransform).getMatrix();
+            matrix = PassThroughTransform.expand(matrix, firstAffectedOrdinate, numTrailingOrdinates, 1);
+            return createAffineTransform(matrix);
+        }
+        /*
+         * Construct the general PassThroughTransform object. An optimisation
+         * for the "Pass through case" is done right in the  constructor.
+         */
         return (MathTransform) pool.canonicalize(new PassThroughTransform(
                 firstAffectedOrdinate, subTransform, numTrailingOrdinates));
     }
     
     /**
-     * Creates a transform which retains only a portion of an other transform. For example
-     * if the source coordinate system has (<var>longitude</var>, <var>latitude</var>,
-     * <var>height</var>) values, then a sub-transform may be used to keep only the
-     * (<var>longitude</var>, <var>latitude</var>) part. In most cases, the created
-     * sub-transform is non-invertible since it loose informations.
-     * <br><br>
-     * This transform is a special case of a non-square matrix transform with less
-     * rows than columns, concatenated with <code>transform</code>. However, invoking
-     * <code>createSubMathTransfom(...)</code> allows the optimization of some common
-     * cases.
+     * Creates a transform working on a subset of an other transform's inputs/outputs.
      *
      * @param  lower Index of the first ordinate to keep.
-     * @param  upper Index after the last ordinate to keep.
-     *               Must be greater than <code>lower</code>.
-     * @param  transform The transform. Its dimension must be equals or greater
-     *         than <code>upper</code>.
+     * @param  upper Index after the last ordinate to keep. Must be greater than <code>lower</code>.
+     * @param  transform The transform. Its dimension must not be lower than <code>upper</code>.
      * @return The same transform than <code>transform</code>, but keeping only ordinates
      *         from index <code>lower</code> inclusive to <code>upper</code> exclusive.
+     *
+     * @deprecated This method never specified clearly if it was working on input or output
+     *             dimensions, and actually mixed both of them. This method is Now replaced
+     *             by {@link #createSubTransform} and {@link #createFilterTransform}.
      */
     public MathTransform createSubMathTransform(final int lower, final int upper,
                                                 final MathTransform transform)
     {
+        if (transform instanceof PassThroughTransform) try {
+            // It was the wrong behaviour in the old implementation.
+            // Keep it until we delete this deprecated method.
+            return createSubTransform(transform, JAIUtilities.createSequence(lower, upper-1), null);
+        } catch (FactoryException exception) {
+            throw new RuntimeException(exception.getLocalizedMessage(), exception);
+        }
+        return createFilterTransform(transform, JAIUtilities.createSequence(lower, upper-1));
+    }
+
+    /**
+     * Reduces the number of input dimensions for the specified transform. The remaining output
+     * dimensions will be selected automatically according the specified input dimensions.  For
+     * example if the supplied <code>transform</code> has (<var>x</var>, <var>y</var>, <var>z</var>)
+     * inputs and (<var>longitude</var>, <var>latitude</var>, <var>height</var>) outputs,  then
+     * <code>createSubTransform(transform, new {@linkplain IntegerSequence IntegerSequence}(0,1),
+     * null)</code> will returns a transform with (<var>x</var>, <var>y</var>) inputs and (probably)
+     * (<var>longitude</var>, <var>latitude</var>) outputs. This method can be used in order to
+     * separate a {@linkplain #createConcatenatedTransform concatenation} of
+     * {@linkplain #createPassThroughTransform pass through} transforms.
+     *
+     * @param  transform The transform to reduces.
+     * @param  inputDimensions The input dimension to keep. This sequence can contains any integers
+     *         in the range 0 inclusive to <code>transform.{@linkplain MathTransform#getDimSource
+     *         getDimSource()}</code> exclusive.
+     * @param  outputDimensions An optional sequence in which to store output dimensions. If
+     *         non-null, then this sequence will be filled with output dimensions selected by
+     *         this method. The integers will be in the range 0 inclusive to
+     *         <code>transform.{@linkplain MathTransform#getDimTarget getDimTarget()}</code>
+     *         exclusive.
+     * @return A transform expecting only the specified input dimensions. The following invariant
+     *         should hold:
+     *         <blockquote><pre>
+     *         subTransform.{@linkplain MathTransform#getDimSource getDimSource()} ==  inputDimensions.{@linkplain IntegerSequence#getNumElements getNumElements()};
+     *         subTransform.{@linkplain MathTransform#getDimTarget getDimTarget()} == outputDimensions.{@linkplain IntegerSequence#getNumElements getNumElements()};
+     *         </pre></blockquote>
+     *
+     * @throws FactoryException if the transform is not separable.
+     */
+    public MathTransform createSubTransform(final MathTransform    transform,
+                                            final IntegerSequence  inputDimensions,
+                                            final IntegerSequence outputDimensions)
+            throws FactoryException
+    {
+        final int dimSource = transform.getDimSource();
+        final int dimTarget = transform.getDimTarget();
+        final int dimInput  = inputDimensions.getNumElements();
+        final int lower     = JAIUtilities.getMinimum(inputDimensions);
+        final int upper     = JAIUtilities.getMaximum(inputDimensions)+1;
         if (lower<0 || lower>=upper) {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
-                    "lower", new Integer(lower)));
+                    "minimum(inputDimensions)", new Integer(lower)));
         }
+        if (upper > dimSource) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
+                    "maximum(inputDimensions)", new Integer(upper-1)));
+        }
+        /*
+         * Check for easiest cases: same transform, identity transform or concatenated transforms.
+         */
+        if (dimInput == dimSource) {
+            assert lower==0 && upper==dimSource;
+            JAIUtilities.fill(outputDimensions, 0, dimTarget);
+            return transform;
+        }
+        if (transform.isIdentity()) {
+            JAIUtilities.add(outputDimensions, inputDimensions, 0);
+            return createIdentityTransform(dimInput);
+        }
+        if (transform instanceof ConcatenatedTransform) {
+            final ConcatenatedTransform ctr = (ConcatenatedTransform) transform;
+            final IntegerSequence trans = new IntegerSequence();
+            final MathTransform step1 = createSubTransform(ctr.transform1, inputDimensions, trans);
+            final MathTransform step2 = createSubTransform(ctr.transform2, trans, outputDimensions);
+            return createConcatenatedTransform(step1, step2);
+        }
+        /*
+         * Special case for the pass through transform:  if at least one input dimension
+         * belong to the passthrough's sub-transform, then delegates part of the work to
+         * <code>subTransform(passThrough.transform, ...)</code>
+         */
+        if (transform instanceof PassThroughTransform) {
+            final PassThroughTransform passThrough = (PassThroughTransform) transform;
+            final int dimPass  = passThrough.transform.getDimSource();
+            final int dimDiff  = passThrough.transform.getDimTarget() - dimPass;
+            final int subLower = passThrough.firstAffectedOrdinate;
+            final int subUpper = subLower + dimPass;
+            final IntegerSequence subInputs = new IntegerSequence();
+            for (inputDimensions.startEnumeration(); inputDimensions.hasMoreElements();) {
+                int n = inputDimensions.nextElement();
+                if (n>=subLower && n<subUpper) {
+                    subInputs.insert(n - subLower);
+                } else if (outputDimensions != null) {
+                    if (n >= subUpper) {
+                        n += dimDiff;
+                    }
+                    outputDimensions.insert(n);
+                }
+            }
+            if (subInputs.getNumElements() == 0) {
+                // No input dimension belong to the sub-transform.
+                return createIdentityTransform(dimInput);
+            }
+            final IntegerSequence subOutputs;
+            final MathTransform subTransform;
+            subOutputs = (outputDimensions!=null) ? new IntegerSequence() : null;
+            subTransform = createSubTransform(passThrough.transform, subInputs, subOutputs);
+            JAIUtilities.add(outputDimensions, subOutputs, subLower);
+            if (JAIUtilities.containsAll(inputDimensions, lower, subLower) &&
+                JAIUtilities.containsAll(inputDimensions, subUpper, upper))
+            {
+                final int  firstAffectedOrdinate = Math.max(0, subLower-lower);
+                final int   numTrailingOrdinates = Math.max(0, upper-subUpper);
+                return createPassThroughTransform(firstAffectedOrdinate,
+                                                  subTransform, numTrailingOrdinates);
+            }
+            // TODO: handle more general case here...
+        }
+        /*
+         * If the transformation is specified by a matrix, select all output dimensions which
+         * do not depends on any of the discarted input dimensions.
+         */
+        if (transform instanceof LinearTransform) {
+            int nRows = 0;
+            boolean hasLastRow = false;
+            double[][] rows = ((LinearTransform)transform).getMatrix().getElements();
+            assert rows.length-1 == dimTarget;
+reduce:     for (int j=0; j<rows.length; j++) {
+                final double[] row = rows[j];
+                assert row.length-1 == dimSource : row.length;
+                int nCols = 0;
+                // Stop at row.length-1 because we don't
+                // want to check the translation term.
+                for (int i=0; i<dimSource; i++) {
+                    if (JAIUtilities.contains(inputDimensions, i)) {
+                        row[nCols++] = row[i];
+                    } else if (row[i] != 0) {
+                        // Output dimension 'j' depends on one of discarted input dimension 'i'.
+                        continue reduce;
+                    }
+                }
+                if (j == dimTarget) {
+                    hasLastRow = true;
+                } else if (outputDimensions != null) {
+                    outputDimensions.insert(j);
+                }
+                assert nCols == dimInput : nCols;
+                row [nCols++] = row[dimSource]; // Copy the translation term.
+                rows[nRows++] = XArray.resize(row, nCols);
+            }
+            rows = (double[][]) XArray.resize(rows, nRows);
+            if (hasLastRow) {
+                return createAffineTransform(new Matrix(rows));
+            }
+            // In an affine transform,  the last row is not supposed to have dependency
+            // to any input dimension. But in this particuler case, our matrix has such
+            // dependencies. REVISIT: is there anything we could do about that?
+        }
+        throw new FactoryException(Resources.format(ResourceKeys.ERROR_INSEPARABLE_TRANSFORM));
+    }
+    
+    /**
+     * Creates a transform which retains only a subset of an other transform's outputs. The number
+     * and nature of inputs stay unchanged. For example if the supplied <code>transform</code> has
+     * (<var>longitude</var>, <var>latitude</var>, <var>height</var>) outputs, then a sub-transform
+     * may be used to keep only the (<var>longitude</var>, <var>latitude</var>) part. In most cases,
+     * the created sub-transform is non-invertible since it loose informations.
+     * <br><br>
+     * This transform may be see as a non-square matrix transform with less rows
+     * than columns, concatenated with <code>transform</code>. However, invoking
+     * <code>createFilterTransfom(...)</code> allows the optimization of some common cases.
+     *
+     * @param  transform The transform to reduces.
+     * @param  outputDimensions The output dimension to keep.
+     *         This sequence can contains any integers in the range 0 inclusive to
+     *         <code>transform.{@linkplain MathTransform#getDimTarget getDimTarget()}</code>
+     *         exclusive.
+     * @return The <code>transform</code> keeping only the specified output dimensions.
+     */
+    public MathTransform createFilterTransform(MathTransform transform,
+                                               final IntegerSequence outputDimensions)
+    {
+        final int dimSource = transform.getDimSource();
         final int dimTarget = transform.getDimTarget();
+        final int dimOutput = outputDimensions.getNumElements();
+        final int lower     = JAIUtilities.getMinimum(outputDimensions);
+        final int upper     = JAIUtilities.getMaximum(outputDimensions)+1;
+        if (lower<0 || lower>=upper) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
+                    "minimum(outputDimensions)", new Integer(lower)));
+        }
         if (upper > dimTarget) {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
-                    "upper", new Integer(upper)));
+                    "maximum(outputDimensions)", new Integer(upper)));
         }
-        if (lower==0 && upper==dimTarget) {
+        if (dimOutput == dimTarget) {
+            assert lower==0 && upper==dimTarget;
             return transform;
         }
+        /*
+         * If the transform is an instance of "pass through" transform but no dimension from its
+         * subtransform is requested, then ignore the subtransform (i.e. treat the whole transform
+         * as identity, except for the number of output dimension which may be different from the
+         * number of input dimension).
+         */
+        int dimPass = 0;
+        int dimDiff = 0;
+        int dimStep = dimTarget;
         if (transform instanceof PassThroughTransform) {
-            // Special case for pass through transform:
-            // Compute lower and upper values relatives
-            // to the underlying sub-transform.
             final PassThroughTransform passThrough = (PassThroughTransform) transform;
-            final int lowerTr = lower - passThrough.firstAffectedOrdinate;
-            final int upperTr = upper - passThrough.firstAffectedOrdinate;
-            final int passDim = passThrough.transform.getDimTarget();
-            if (lowerTr>=0 && upperTr<=passDim) {
-                return createSubMathTransform(lowerTr, upperTr, passThrough.transform);
-            }
-            if (lowerTr<=0 && upperTr>=passDim) {
-                return createPassThroughTransform(-lowerTr, passThrough.transform, upperTr-passDim);
+            final int subLower = passThrough.firstAffectedOrdinate;
+            final int subUpper = subLower + passThrough.transform.getDimTarget();
+            if (!JAIUtilities.containsAny(outputDimensions, subLower, subUpper)) {
+                transform = null;
+                dimStep = dimSource;
+                dimPass = subLower;
+                dimDiff = (subLower + passThrough.transform.getDimSource()) - subUpper;
             }
         }
-        // General case: use a matrix.
-        final int dimOutput = upper-lower;
-        final Matrix matrix = new Matrix(dimOutput+1, dimTarget+1);
+        /*
+         * Create the matrix to be used as a filter,        [x']     [1  0  0  0] [x]
+         * and concatenate it to the transform. The         [z']  =  [0  0  1  0] [y]
+         * matrix will contains only a 1 for the output     [1 ]     [0  0  0  1] [z]
+         * dimension to keep, as in the following example:                        [1]
+         */
+        final Matrix matrix = new Matrix(dimOutput+1, dimStep+1);
         matrix.setZero();
-        for (int i=lower; i<upper; i++) {
-            matrix.setElement(i-lower, i, 1);
+        int j=0;
+        for (outputDimensions.startEnumeration(); outputDimensions.hasMoreElements(); j++) {
+            int i = outputDimensions.nextElement();
+            if (i >= dimPass) {
+                i += dimDiff;
+            }
+            matrix.setElement(j, i, 1);
         }
-        matrix.setElement(dimOutput, dimTarget, 1); // Affine transform has one more row/column than dimension.
-        return createConcatenatedTransform(transform, createAffineTransform(matrix));
+        // Affine transform has one more row/column than dimension.
+        matrix.setElement(dimOutput, dimStep, 1);
+        MathTransform filtered = createAffineTransform(matrix);
+        if (transform != null) {
+            filtered = createConcatenatedTransform(transform, filtered);
+        }
+        return filtered;
     }
-    
+
     /**
      * Creates a transform from a classification name and parameters.
      * The client must ensure that all the linear parameters are expressed
@@ -709,7 +957,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.21 2003/04/29 18:28:17 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.22 2003/05/12 21:27:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

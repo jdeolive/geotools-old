@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.6 2003/04/18 15:22:35 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.7 2003/05/12 21:27:56 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -201,6 +201,27 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     }
     
     /**
+     * Convertit en radians une latitude exprimée en degrés. Au passage,
+     * cette méthode vérifiera si la latitude est bien dans les limites
+     * permises (±90°). Cette méthode est utile pour vérifier la validité
+     * des paramètres de la projection, comme {@link #setCentralLongitude}.
+     *
+     * @param  y Latitude à vérifier, en degrés.
+     * @param  edge <code>true</code> pour accepter les latitudes de ±90°.
+     * @return Latitude en radians.
+     * @throws IllegalArgumentException si la latitude est invalide.
+     */
+    static double latitudeToRadians(final double y, boolean edge) throws IllegalArgumentException {
+        if (edge ? (y>=Latitude.MIN_VALUE && y<=Latitude.MAX_VALUE) :
+                   (y> Latitude.MIN_VALUE && y< Latitude.MAX_VALUE))
+        {
+            return Math.toRadians(y);
+        }
+        throw new IllegalArgumentException(Resources.format(
+                ResourceKeys.ERROR_LATITUDE_OUT_OF_RANGE_$1, new Latitude(y)));
+    }
+    
+    /**
      * Convertit en radians une longitude exprimée en degrés. Au passage,
      * cette méthode vérifiera si la longitude est bien dans les limites
      * permises (±180°). Cette méthode est utile pour vérifier la validité
@@ -220,26 +241,30 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         throw new IllegalArgumentException(Resources.format(
                 ResourceKeys.ERROR_LONGITUDE_OUT_OF_RANGE_$1, new Longitude(x)));
     }
-    
+
     /**
-     * Convertit en radians une latitude exprimée en degrés. Au passage,
-     * cette méthode vérifiera si la latitude est bien dans les limites
-     * permises (±90°). Cette méthode est utile pour vérifier la validité
-     * des paramètres de la projection, comme {@link #setCentralLongitude}.
+     * Makes sure that the specified longitude stay within ±180 degrees. This methpod should be
+     * invoked after {@link #centralMeridian} had been added or removed to <var>x</var>. This
+     * method may add or substract an amount of 360° to <var>x</var>.
      *
-     * @param  y Latitude à vérifier, en degrés.
-     * @param  edge <code>true</code> pour accepter les latitudes de ±90°.
-     * @return Latitude en radians.
-     * @throws IllegalArgumentException si la latitude est invalide.
+     * As a special case, we do not check the range if no rotation were applied on <var>x</var>.
+     * This is because the user may have a big area ranging from -180° to +180°. With the slight
+     * rounding errors related to map projections, the 180° longitude may be slightly over the
+     * limit. Doing the check would changes its sign. For example a bounding box from 30° to +180°
+     * would become 30° to -180°, which is probably not what the user wanted.
+     *
+     * @param  x The longitude.
+     * @return The longitude in the range +/- 180°.
      */
-    static double latitudeToRadians(final double y, boolean edge) throws IllegalArgumentException {
-        if (edge ? (y>=Latitude.MIN_VALUE && y<=Latitude.MAX_VALUE) :
-                   (y> Latitude.MIN_VALUE && y< Latitude.MAX_VALUE))
-        {
-            return Math.toRadians(y);
+    final double ensureInRange(double x) {
+        if (centralMeridian != 0) {
+            if (x > Math.PI) {
+                x -= 2*Math.PI;
+            } else if (x < -Math.PI) {
+                x += 2*Math.PI;
+            }
         }
-        throw new IllegalArgumentException(Resources.format(
-                ResourceKeys.ERROR_LATITUDE_OUT_OF_RANGE_$1, new Latitude(y)));
+        return x;
     }
     
     /**
@@ -310,6 +335,8 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     private boolean checkTransform(Point2D point, final Point2D target, final boolean inverse) {
         if (!(point instanceof CheckPoint)) try {
             point = new CheckPoint(point);
+            final double longitude;
+            final double latitude;
             final double distance;
             if (inverse) {
                 // Computes orthodromic distance (spherical model) in metres.
@@ -320,13 +347,19 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
                 double rho = Math.sin(y1)*Math.sin(y2) + Math.cos(y1)*Math.cos(y2)*Math.cos(dx);
                 if (rho>+1) {assert rho<=+(1+EPS) : rho; rho=+1;}
                 if (rho<-1) {assert rho>=-(1+EPS) : rho; rho=-1;}
-                distance = Math.acos(rho)*semiMajor;
+                distance  = Math.acos(rho)*semiMajor;
+                longitude = point.getX();
+                latitude  = point.getY();
             } else {
                 // Computes cartesian distance in metres.
-                point = transform(point, point);
-                distance = point.distance(target);
+                longitude = point.getX();
+                latitude  = point.getY();
+                point     = transform(point, point);
+                distance  = point.distance(target);
             }
-            if (distance > MAX_ERROR) { // Accept NaN values.
+            // Be less strict when the point is near an edge.
+            final boolean edge = (Math.abs(longitude) > 179) || (Math.abs(latitude) > 89);
+            if (distance > (edge ? 5*MAX_ERROR : MAX_ERROR)) { // Do not fail for NaN values.
                 throw new AssertionError(distance);
             }
         } catch (TransformException exception) {
@@ -384,12 +417,12 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     public final Point2D transform(final Point2D ptSrc, Point2D ptDst) throws ProjectionException {
         final double x = ptSrc.getX();
         final double y = ptSrc.getY();
-        if (x<Longitude.MIN_VALUE || x>Longitude.MAX_VALUE) { // Accept NaN values.
-            throw new ProjectionException(Resources.format(
+        if (x<Longitude.MIN_VALUE-EPS || x>Longitude.MAX_VALUE+EPS) { // Do not fail for NaN values.
+            throw new PointOutsideEnvelopeException(Resources.format(
                     ResourceKeys.ERROR_LONGITUDE_OUT_OF_RANGE_$1, new Longitude(x)));
         }
-        if (y<Latitude.MIN_VALUE || y>Latitude.MAX_VALUE) { // Accept NaN values.
-            throw new ProjectionException(Resources.format(
+        if (y<Latitude.MIN_VALUE-EPS || y>Latitude.MAX_VALUE+EPS) { // Do not fail for NaN values.
+            throw new PointOutsideEnvelopeException(Resources.format(
                     ResourceKeys.ERROR_LATITUDE_OUT_OF_RANGE_$1, new Latitude(y)));
         }
         ptDst = transform(Math.toRadians(x), Math.toRadians(y), ptDst);
@@ -501,7 +534,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.6 2003/04/18 15:22:35 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.7 2003/05/12 21:27:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -528,11 +561,11 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
             final double y = Math.toDegrees(ptDst.getY());
             ptDst.setLocation(x,y);
             if (x<Longitude.MIN_VALUE-EPS || x>Longitude.MAX_VALUE+EPS) { // Accept NaN values.
-                throw new ProjectionException(Resources.format(
+                throw new PointOutsideEnvelopeException(Resources.format(
                         ResourceKeys.ERROR_LONGITUDE_OUT_OF_RANGE_$1, new Longitude(x)));
             }
             if (y<Latitude.MIN_VALUE-EPS || y>Latitude.MAX_VALUE+EPS) { // Accept NaN values.
-                throw new ProjectionException(Resources.format(
+                throw new PointOutsideEnvelopeException(Resources.format(
                         ResourceKeys.ERROR_LATITUDE_OUT_OF_RANGE_$1, new Latitude(y)));
             }
             assert checkTransform(ptDst, (ptSrc!=ptDst) ? ptSrc : new Point2D.Double(x0, y0), false);

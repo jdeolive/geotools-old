@@ -80,7 +80,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -109,7 +109,7 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -200,13 +200,7 @@ public class Mercator extends CylindricalProjection {
             throw new ProjectionException(Resources.format(
                     ResourceKeys.ERROR_POLE_PROJECTION_$1, new Latitude(Math.toDegrees(y))));
         }
-        x = (x-centralMeridian);
-        // Stay within +/- 180 degrees
-        if (x > Math.PI) {
-            x -= 2*Math.PI;
-        } else if (x < -Math.PI) {
-            x += 2*Math.PI;
-        }
+        x = ensureInRange(x-centralMeridian);
         x *= ak0;
         y = -ak0*Math.log(tsfn(y, Math.sin(y)));
         x += falseEasting;
@@ -226,13 +220,7 @@ public class Mercator extends CylindricalProjection {
     protected Point2D inverseTransform(double x, double y, final Point2D ptDst)
         throws ProjectionException
     {
-        x = (x-falseEasting)/ak0 + centralMeridian;
-        // Stay within +/- 180 degrees
-        if (x > Math.PI) {
-            x -= 2*Math.PI;
-        } else if (x < -Math.PI) {
-            x += 2*Math.PI;
-        }
+        x = ensureInRange((x-falseEasting)/ak0 + centralMeridian);
         y = Math.exp(-(y-falseNorthing)/ak0);
         y = cphi2(y);
 
@@ -247,7 +235,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.5 2003/05/12 21:27:56 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -280,20 +268,14 @@ public class Mercator extends CylindricalProjection {
             // Compute using ellipsoidal formulas, for comparaison later.
             assert (ptDst = super.transform(x, y, ptDst)) != null;
 
-            x = (x-centralMeridian);
-            // Stay within +/- 180 degrees
-            if (x > Math.PI) {
-                x -= 2*Math.PI;
-            } else if (x < -Math.PI) {
-                x += 2*Math.PI;
-            }
+            x = ensureInRange(x-centralMeridian);
             x *= ak0;
             y  = ak0*Math.log(Math.tan((Math.PI/4) + 0.5*y));
             x += falseEasting;
             y += falseNorthing;
 
-            assert Math.abs(ptDst.getX()/x - 1) < EPS : x;
-            assert Math.abs(ptDst.getY()/y - 1) < EPS : y;
+            assert Math.abs(ptDst.getX()-x)/ak0 <= EPS : x;
+            assert Math.abs(ptDst.getY()-y)/ak0 <= EPS : y;
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;
@@ -311,18 +293,12 @@ public class Mercator extends CylindricalProjection {
             // Compute using ellipsoidal formulas, for comparaison later.
             assert (ptDst = super.inverseTransform(x, y, ptDst)) != null;
 
-	    x = (x-falseEasting)/ak0 + centralMeridian;
-            // Stay within +- 180 degrees
-            if (x > Math.PI) {
-                x -= 2*Math.PI;
-            } else if (x < -Math.PI) {
-                x += 2*Math.PI;
-            }
+	    x = ensureInRange((x-falseEasting)/ak0 + centralMeridian);
             y = Math.exp(-(y-falseNorthing)/ak0);
             y = (Math.PI/2) - 2.0*Math.atan(y);
 
-            assert Math.abs(ptDst.getX() - x) < EPS : x;
-            assert Math.abs(ptDst.getY() - y) < EPS : y;
+            assert Math.abs(ptDst.getX()-x) <= EPS : x;
+            assert Math.abs(ptDst.getY()-y) <= EPS : y;
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
                 return ptDst;

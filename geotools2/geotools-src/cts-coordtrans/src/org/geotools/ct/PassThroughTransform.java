@@ -198,26 +198,48 @@ final class PassThroughTransform extends AbstractMathTransform implements Serial
         }
         final CoordinatePoint subPoint = new CoordinatePoint(transDim);
         System.arraycopy(point.ord, firstAffectedOrdinate, subPoint.ord, 0, transDim);
-        final Matrix subMatrix = transform.derivative(subPoint);
-        final int    numRow = subMatrix.getNumRow();
-        final int    numCol = subMatrix.getNumCol();
-        final Matrix matrix = new Matrix(nSkipped+numRow, nSkipped+numCol);
+        return expand(transform.derivative(subPoint),
+                      firstAffectedOrdinate, numTrailingOrdinates, 0);
+    }
+
+    /**
+     * Create a pass through transform from a matrix. This method is invoked when the
+     * sub-transform can be express as a matrix. It is also invoked for computing the
+     * matrix returned by {@link #derivative}.
+     *
+     * @param subMatrix The sub-transform as a matrix.
+     * @param firstAffectedOrdinate Index of the first affected ordinate.
+     * @param numTrailingOrdinates Number of trailing ordinates to pass through.
+     * @param affine 0 if the matrix do not contains translation terms, or 1 if
+     *        the matrix is an affine transform with translation terms.
+     */
+    static Matrix expand(final Matrix subMatrix,
+                         final int firstAffectedOrdinate,
+                         final int numTrailingOrdinates,
+                         final int affine)
+    {
+        final int  nSkipped = firstAffectedOrdinate + numTrailingOrdinates;
+        final int    numRow = subMatrix.getNumRow() - affine;
+        final int    numCol = subMatrix.getNumCol() - affine;
+        final Matrix matrix = new Matrix(numRow + nSkipped + affine,
+                                         numCol + nSkipped + affine);
         matrix.setZero();
-        
+
         //  Set UL part to 1:   [ 1  0             ]
         //                      [ 0  1             ]
         //                      [                  ]
         //                      [                  ]
         //                      [                  ]
         for (int j=0; j<firstAffectedOrdinate; j++) {
-            matrix.setElement(j,j,1);
+            matrix.setElement(j, j, 1);
         }
         //  Set central part:   [ 1  0  0  0  0  0 ]
         //                      [ 0  1  0  0  0  0 ]
         //                      [ 0  0  ?  ?  ?  0 ]
         //                      [ 0  0  ?  ?  ?  0 ]
         //                      [                  ]
-        subMatrix.copySubMatrix(0,0,numRow,numCol,firstAffectedOrdinate,firstAffectedOrdinate, matrix);
+        subMatrix.copySubMatrix(0, 0, numRow, numCol,
+                                firstAffectedOrdinate, firstAffectedOrdinate, matrix);
         
         //  Set LR part to 1:   [ 1  0  0  0  0  0 ]
         //                      [ 0  1  0  0  0  0 ]
@@ -225,8 +247,20 @@ final class PassThroughTransform extends AbstractMathTransform implements Serial
         //                      [ 0  0  ?  ?  ?  0 ]
         //                      [ 0  0  0  0  0  1 ]
         final int offset = numCol-numRow;
-        for (int j=pointDim-numTrailingOrdinates; j<pointDim; j++) {
+        final int numRowOut = numRow + nSkipped;
+        for (int j=numRowOut-numTrailingOrdinates; j<numRowOut; j++) {
             matrix.setElement(j, j+offset, 1);
+        }
+        if (affine != 0) {
+            // Copy the translation terms in the last column.
+            subMatrix.copySubMatrix(0, numCol, numRow, affine,
+                                    firstAffectedOrdinate, numCol+nSkipped, matrix);
+            // Copy the last row as a safety, but it should contains only 0.
+            subMatrix.copySubMatrix(numRow, 0, affine, numCol,
+                                    numRow+nSkipped, firstAffectedOrdinate, matrix);
+            // Copy the lower right corner, which should contains only 1.
+            subMatrix.copySubMatrix(numRow, numCol, affine, affine,
+                                    numRow+nSkipped, numCol+nSkipped, matrix);
         }
         return matrix;
     }

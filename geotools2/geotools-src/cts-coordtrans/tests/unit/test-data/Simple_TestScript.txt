@@ -9,7 +9,7 @@
 
 // Coordinate systems
 set _WGS84_    =                    GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
-set _Mercator_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 60.0], PARAMETER["standard_parallel", 45.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Mercator_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 60.0], PARAMETER["standard_parallel1", 45.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 set _EPSG:4210_=GEOGCS["Arc 1960",DATUM["Arc_1960",SPHEROID["Clarke 1880 (RGS)",6378249.145,293.465,AUTHORITY["EPSG","7012"]],TOWGS84[-160,-6,-302,0,0,0,0],AUTHORITY["EPSG","6210"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4210"]]
 set _Nad27_=GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4267"]]
 set _Osgb36_=GEOGCS["OSGB 1936",DATUM["OSGB_1936",SPHEROID["Airy 1830",6377563.396,299.3249646,AUTHORITY["EPSG","7001"]],TOWGS84[375,-111,431,0,0,0,0],AUTHORITY["EPSG","6277"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4277"]]
@@ -53,7 +53,7 @@ pt_target=(70, 40)
 // the following test tranforms between different datums (and a few other things) 
 // to track down potential failures in the full test suite. Source to Target points 
 // were calculated with arc/info using user defined datums shift parameters.
-// all coords are in decimal degrees unless stated
+// all coords are in decimal degrees unless stated otherwise
 
 /////////////////Nairobi Test//////////////////
 //lat, long
@@ -131,7 +131,7 @@ pt_source=(0.898844564, -0.002036217)
 pt_target=(-0.11825416, 51.50045749)
 
 
-/////////////////Paris Test////////////////////
+/////////////////Paris Tast////////////////////
 
 //lat, long
 cs_source=_NtfParis_
@@ -153,21 +153,20 @@ pt_target=(48.85, 0)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //Simple test cases for the Mercator Projection
+//Inverse transforms are tested if java assertions are enabled
 //Rueben Schulz
 //April 12, 2003
 
 //Coordinate Systems
-
 set _Mercator1_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_1SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", -20.0], PARAMETER["false_easting", 500000.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
-set _Mercator2_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 45.0], PARAMETER["standard_parallel", 49.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Mercator2_ = PROJCS["Mercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 45.0], PARAMETER["standard_parallel1", 49.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
 
 //these test spherical projections. The CTFactery is taking the semimajor and semiminor 
-//parameters from the source CS (since there is no datum shift they should be 
-//the same). _sphere_ is a attempt to make a sherical source CS
-//(it is probably wrong, but has the desired effect)
+//parameters from the source CS (since there is no datum shift they should be the same).
+// _sphere_ is a attempt to make a sherical source CS (probably wrong, but has the desired effect)
 set _Mercator3_ = PROJCS["Mercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_1SP"], PARAMETER["semi_major", 20902179.37], PARAMETER["semi_minor",20902179.37], PARAMETER["central_meridian", 0.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["feet", 0.304800609601219], AXIS["x",EAST], AXIS["y",NORTH]]
-set _Mercator4_ = PROJCS["Mercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", 180.0], PARAMETER["standard_parallel", 60.0], PARAMETER["false_easting", -500000.0], PARAMETER["false_northing", -1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
-set _sphere_=                        GEOGCS["WGS84",  DATUM["WGS84",  SPHEROID["WGS84",  6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
+set _Mercator4_ = PROJCS["Mercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Mercator_2SP"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", 180.0], PARAMETER["standard_parallel1", 60.0], PARAMETER["false_easting", -500000.0], PARAMETER["false_northing", -1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _sphere_=                    GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]]
 
 ////////////////////////////////////////////
 //Elliptical 1SP tests
@@ -244,3 +243,146 @@ pt_target=(-2096573.0700, -3006560.1789)
 
 pt_source=(-47.95,  -15.75)
 pt_target=(6841641.5746,  -1886900.7321)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//Simple test cases for the Lambert Conic Conformal Projection
+//Rueben Schulz
+//April 26, 2003
+
+set _Lambert1_ = PROJCS["Lambert", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Lambert_Conformal_Conic_1SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", -50.0], PARAMETER["latitude_of_origin", 30.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Lambert2_ = PROJCS["Lambert", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 0.0], PARAMETER["standard_parallel1", -40.0], PARAMETER["standard_parallel2", -40.0], PARAMETER["latitude_of_origin", -50.0], PARAMETER["false_easting", 100000.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Lambert3_ = PROJCS["Lambert", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 180.0], PARAMETER["standard_parallel1", 30.0], PARAMETER["standard_parallel2", 60.0], PARAMETER["latitude_of_origin", -10.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["feet", 0.304800609601219], AXIS["x",EAST], AXIS["y",NORTH]]
+
+//the following are almost spherical CS's (work but may not be correct WKT)
+set _Lambert4_ = PROJCS["Lambert", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Lambert_Conformal_Conic_1SP"], PARAMETER["semi_major", 6370997.0], PARAMETER["semi_minor",6370997.0], PARAMETER["central_meridian", 111.0], PARAMETER["latitude_of_origin", -55.0], PARAMETER["false_easting", 500000.0], PARAMETER["false_northing", 1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Lambert5_ = PROJCS["Lambert", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 10000000000.0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Lambert_Conformal_Conic_2SP"], PARAMETER["semi_major", 6370997.0], PARAMETER["semi_minor",6370997.0], PARAMETER["central_meridian", -120.0], PARAMETER["standard_parallel1", 2.0], PARAMETER["standard_parallel2", 60.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+
+////////////////////////////////////////////
+//Elliptical 1SP tests
+
+cs_source=_WGS84_
+cs_target=_Lambert1_
+test_tolerance=(1e-3, 1e-3)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(-5287947.5666, 3923289.3804 )
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(4185423.6188, 2538710.2320)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(-19525733.2941, 7387672.7862)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(298409.3506, -5622289.0195)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(-10387588.6405, 10172070.1601)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(11174319.1487, -5370575.4103)
+
+
+////////////////////////////////////////////
+//Elliptical 1SP tests (SP1 != lat of origin)
+
+cs_source=_WGS84_
+cs_target=_Lambert2_
+test_tolerance=(1e-3, 1e-3)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(-22820289.5546, -2091996.3436)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(661568.1116, 14923557.2916)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(8321915.5406, -7539430.4248)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(-5216412.4004, 2416218.2440)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(19088312.4822, -6434450.6837)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(1803288.3324, 1616657.7846)
+
+
+////////////////////////////////////////////
+//Elliptical 2SP tests
+
+cs_source=_WGS84_
+cs_target=_Lambert3_
+test_tolerance=(1e-3, 1e-3)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(12079690.7391, 28400620.6811)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(-16233824.7065, 54733007.9166)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(-20584520.8916, -12470944.5767)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(45517278.1919, 46019589.2897)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(-11229968.4483, 22021503.7243)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(-52873049.7228, 67785243.1861)       
+
+
+////////////////////////////////////////////
+//Spherical 1SP tests
+
+cs_source=_sphere_
+cs_target=_Lambert4_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(25653461.6092, -9328874.3177)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(-22649201.8064, -3061747.7330)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(4232963.1816, 2287639.9866)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(-6481665.6402, -9361865.9892)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(8422286.8779, 14726891.2544)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(-6145284.5661, -1781049.8180)
+
+
+////////////////////////////////////////////
+//Spherical 2SP tests
+
+cs_source=_sphere_
+cs_target=_Lambert5_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(-205662.8591, 4976567.1293)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(6914767.9622, 8944877.6421)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(-12528988.3121, 699778.9719)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(8770667.9768, 1149590.9576)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(-6789805.6471, 7107623.6859)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(16288385.6535, 7582342.0136)
+

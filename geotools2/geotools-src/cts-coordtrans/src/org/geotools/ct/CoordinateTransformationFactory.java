@@ -46,6 +46,7 @@ import java.lang.ref.Reference;
 
 // JAI dependencies
 import javax.media.jai.ParameterList;
+import javax.media.jai.IntegerSequence;
 import javax.vecmath.SingularMatrixException;
 
 // OpenGIS dependencies
@@ -78,6 +79,7 @@ import org.geotools.pt.Dimensioned;
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.JAIUtilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
@@ -86,7 +88,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.14 2003/04/29 18:28:17 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.15 2003/05/12 21:27:55 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -398,11 +400,11 @@ public class CoordinateTransformationFactory {
              * will select only the corresponding ordinates from input arrays, and
              * pass them to the transform.
              */
-            final MathTransform step1 = factory.createSubMathTransform(
-                    lower, upper, factory.createIdentityTransform(dimSource));
-            final MathTransform transform = factory.createConcatenatedTransform(
-                    step1, step2.getMathTransform());
-            return createFromMathTransform(sourceCS, targetCS, transform, step2.getTransformType());
+            MathTransform step;
+            step = factory.createIdentityTransform(dimSource);
+            step = factory.createFilterTransform(step, JAIUtilities.createSequence(lower, upper-1));
+            step = factory.createConcatenatedTransform(step, step2.getMathTransform());
+            return createFromMathTransform(sourceCS, targetCS, step, step2.getTransformType());
         }
         throw new CannotCreateTransformException(sourceCS, targetCS);
     }
@@ -874,12 +876,13 @@ public class CoordinateTransformationFactory {
             /*
              * If there is no target CS, then just drop the vertical coordinate. First, gets
              * an identity transform with input and output dimension equals to the source CS
-             * dimension.  Then, reduce the output dimension (with 'createSubMathTransform')
-             * to the target CS dimension. The reduced coordinate points will be used as
+             * dimension.   Then, reduce the output dimension (with 'createFilterTransform')
+             * to the target CS dimension.  The reduced coordinate points will be used as
              * input for the "real" transformation.
              */
+            IntegerSequence outDim = JAIUtilities.createSequence(0, targetCCS.getDimension()-1);
             step = factory.createIdentityTransform(sourceCCS.getDimension());
-            step = factory.createSubMathTransform(0, targetCCS.getDimension(), step);
+            step = factory.createFilterTransform(step, outDim);
             step = factory.createConcatenatedTransform(step, transform.getMathTransform());
             type = transform.getTransformType();
         } else {
