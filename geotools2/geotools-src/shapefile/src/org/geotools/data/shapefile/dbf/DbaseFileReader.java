@@ -296,7 +296,7 @@ public class DbaseFileReader {
     final int fieldLen = fieldLengths[fieldNum];
     Object object = null;
     
-    //System.out.println(charBuffer.subSequence(fieldOffset,fieldOffset + fieldLen));
+    //System.out.println( charBuffer.subSequence(fieldOffset,fieldOffset + fieldLen));
     
     if(fieldLen > 0) {
       
@@ -375,9 +375,11 @@ public class DbaseFileReader {
             }
             // else will fall through to the floating point number
           } catch (NumberFormatException e) {
-            // todo: use progresslistener
-            // e.printStackTrace();
-            object = new Integer(0);
+            // todo: use progresslistener, this isn't a grave error.
+
+            // don't do this!!! the Double parse will be attemted as we fall
+            // through, so no need to create a new Object. -IanS
+            //object = new Integer(0);
           }
           
         case 'f':
@@ -387,9 +389,12 @@ public class DbaseFileReader {
             
             object = new Double(NumberParser.parseDouble(charBuffer,fieldOffset, fieldOffset + fieldLen - 1));
           } catch (NumberFormatException e) {
-            // todo: use progresslistener
-            // e.printStackTrace();
-            object = new Double(0.0);
+              // todo: use progresslistener, this isn't a grave error, though it
+              // does indicate something is wrong
+           
+              // okay, now whatever we got was truly undigestable. Lets go with
+              // a zero Double.
+              object = new Double(0.0);
           }
           break;
         default:
