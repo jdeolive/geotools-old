@@ -17,14 +17,18 @@
 package org.geotools.gui.tools;
 
 import junit.framework.*;
+
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.event.SelectedToolListener;
+
 import org.geotools.map.ContextFactory;
-import org.geotools.map.events.SelectedToolListener;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventListener;
 import java.util.EventObject;
+
 import javax.swing.event.EventListenerList;
 
 
@@ -32,7 +36,7 @@ import javax.swing.event.EventListenerList;
  * ToolListImplTest.java JUnit based test
  *
  * @author Cameron Shorter
- * @version $Id: ToolListImplTest.java,v 1.1 2003/06/03 19:51:11 camerons Exp $
+ * @version $Id: ToolListImplTest.java,v 1.2 2003/06/19 06:54:56 camerons Exp $
  */
 public class ToolListImplTest extends TestCase implements SelectedToolListener {
     private ToolList globalToolList;
