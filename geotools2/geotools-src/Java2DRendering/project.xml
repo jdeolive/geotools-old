@@ -16,7 +16,7 @@
   <shortDescription>java2drendering module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>java2drendering module.</description>
-  <url>http://www.geotols.org/</url>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -75,5 +75,6 @@
     <jarResources/>
     <jars/>
   </build>
+  <logo>/images/java2drendering.gif</logo>
 </project>
 

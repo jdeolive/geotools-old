@@ -21,7 +21,7 @@
     by other modules.  See the defaultcore module for standard implemenations of the interfaces defined
     here.
   </description>
-  <url>http://www.geotols.org/</url>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -92,5 +92,6 @@
     <jarResources/>
     <jars/>
   </build>
+      <logo>/images/core.gif</logo>
 </project>
 

@@ -15,8 +15,8 @@
   <package>org.geotools</package>
   <shortDescription>Coordinate Tranformation System</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>Implementation of OGC Coordinatre Transformation System</description>
-  <url>http://www.geotols.org/</url>
+  <description>Implementation of OGC Coordinate Transformation System</description>
+  <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
   <siteAddress>www.geotools.org</siteAddress>
@@ -38,9 +38,8 @@
       <email>desruisseaux@users.sourceforge.net</email>
       <organization>SeaGIS</organization>
             <roles>
-                
-                <role>Java Developer</role>
                 <role>Module Maintainer</role>
+                <role>Java Developer</role>
             </roles>
         </developer>
         
