@@ -40,14 +40,10 @@ public class Projection {
     double datum_params[] = new double[7];
     boolean is_latlong;
     
-    /** Creates a new instance of Projection from an argument set*/
-    public Projection(String[] args) {
-        this.params = new ParamSet();
-        for(int i=0;i<args.length;i++){
-            params.addParam(args[i]);
-        }
-            
+    public void setParams(ParamSet ps){
+        
     }
+
     
     public boolean isDatumEqual(Projection test){
         if( datum_type != test.datum_type ) {
