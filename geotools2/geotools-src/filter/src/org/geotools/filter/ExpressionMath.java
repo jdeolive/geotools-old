@@ -1,6 +1,23 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import org.geotools.data.*;
@@ -17,11 +34,11 @@ import org.geotools.feature.*;
  *
  * This filter defines left and right values to clarify the sub expression
  * precedence for non-associative operations, such as subtraction and division.
- * For example, the left value is the numerator and the right is the denomenator
- * in an ExpressionMath division operation.
+ * For example, the left value is the numerator and the right is the
+ * denominator in an ExpressionMath division operation.
  *
+ * @version $Id: ExpressionMath.java,v 1.5 2002/06/05 13:16:18 loxnard Exp $
  * @author Rob Hranac, Vision for New York
- * @version 
  */
 public class ExpressionMath extends ExpressionDefault {
 
@@ -53,7 +70,7 @@ public class ExpressionMath extends ExpressionDefault {
      * Adds the 'left' value to this expression.
      *
      * @param leftValue Expression to add to this expression.
-     * @throws IllegalFilterException Attempting add non-math expression.
+     * @throws IllegalFilterException Attempting to add non-math expression.
      */
     public void addLeftValue(Expression leftValue)
         throws IllegalFilterException {
@@ -71,7 +88,7 @@ public class ExpressionMath extends ExpressionDefault {
      * Adds the 'right' value to this expression.
      *
      * @param rightValue Expression to add to this expression.
-     * @throws IllegalFilterException Attempting add non-math expression.
+     * @throws IllegalFilterException Attempting to add non-math expression.
      */
     public void addRightValue(Expression rightValue)
         throws IllegalFilterException {
@@ -126,8 +143,8 @@ public class ExpressionMath extends ExpressionDefault {
             return new Double(leftValueDouble / rightValueDouble);
         }
 
-        // If the type has somehow be mis-set (can't happen externally)
-        //  then throw an exception.
+        // If the type has somehow been mis-set (can't happen externally)
+        // then throw an exception.
         else {
             throw new MalformedFilterException("Attempted read math expression with invalid type (ie. Add, Subtract, etc.).");
         }
