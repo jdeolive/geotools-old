@@ -77,7 +77,7 @@ import java.lang.reflect.Field;
  * don't need to be included in the final JAR file. They are used at
  * compile time only and no other classes should keep reference to them.
  *
- * @version 1.0
+ * @version $Id: ResourceCompiler.java,v 1.3 2002/07/25 13:51:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ResourceCompiler implements Comparator {
@@ -485,23 +485,6 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
     }
 
     /**
-     * Write a multi-line text to the specified output stream.  All
-     * occurrences of '\r' will be replaced with the line separator for
-     * the underlying operating system.
-     *
-     * @param  out  The output stream.
-     * @param  text The text to write.
-     * @throws IOException if an input/output operation failed.
-     */
-    private static void writeMultiLines(final BufferedWriter out, final String text) throws IOException {
-        final StringTokenizer tokr = new StringTokenizer(text, "\n");
-        while (tokr.hasMoreTokens()) {
-            out.write(tokr.nextToken());
-            out.newLine();
-        }
-    }
-
-    /**
      * Create a source file for resource keys.
      *
      * @param  file The destination file.
@@ -510,38 +493,31 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
     private void writeJavaSource(final File file) throws IOException {
         final String packageName = toRelative(file.getParentFile()).replace(File.separatorChar, '.');
         final BufferedWriter out = new BufferedWriter(new FileWriter(file));
-        writeMultiLines(out,
-            "/*\n"                                                             +
-            " * Geotools - OpenSource mapping toolkit\n"                       +
-            " * (C) 2002, Centre for Computational Geography\n"                +
-            " * (C) 2001, Institut de Recherche pour le Développement\n"       +
-            " *\n"                                                             +
-            " *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!\n"   +
-            " *     Generated with: org.geotools.resources.ResourceCompiler\n" +
-            " */\n");
+        out.write("/*\n"                                                             +
+                  " * Geotools - OpenSource mapping toolkit\n"                       +
+                  " * (C) 2002, Centre for Computational Geography\n"                +
+                  " * (C) 2001, Institut de Recherche pour le Développement\n"       +
+                  " *\n"                                                             +
+                  " *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!\n"   +
+                  " *     Generated with: org.geotools.resources.ResourceCompiler\n" +
+                  " */\n");
         out.write("package ");
         out.write(packageName);
-        out.write(";");
-        out.newLine();
-        out.newLine();
-        out.newLine();
-        writeMultiLines(out,
-            "/**\n"                                                                  +
-            " * Resource keys. This interface is used when compiling sources, but\n" +
-            " * no dependencies to <code>ResourceKeys</code> should appear in any\n" +
-            " * resulting class files.  Since Java compiler inlines final integer\n" +
-            " * values, using long identifiers will not bloat constant pools of\n"   +
-            " * classes compiled against the interface, provided that no class\n"    +
-            " * implements this interface.\n"                                        +
-            " *\n"                                                                   +
-            " * @see org.geotools.resources.ResourceBundle\n"                        +
-            " * @see org.geotools.resources.ResourceCompiler\n"                      +
-            " */\n");
+        out.write(";\n\n\n");
+        out.write("/**\n"                                                                  +
+                  " * Resource keys. This interface is used when compiling sources, but\n" +
+                  " * no dependencies to <code>ResourceKeys</code> should appear in any\n" +
+                  " * resulting class files.  Since Java compiler inlines final integer\n" +
+                  " * values, using long identifiers will not bloat constant pools of\n"   +
+                  " * classes compiled against the interface, provided that no class\n"    +
+                  " * implements this interface.\n"                                        +
+                  " *\n"                                                                   +
+                  " * @see org.geotools.resources.ResourceBundle\n"                        +
+                  " * @see org.geotools.resources.ResourceCompiler\n"                      +
+                  " */\n");
         out.write("public interface ");
         out.write(toClassName(file));
-        out.newLine();
-        out.write('{');
-        out.newLine();
+        out.write("\n{\n");
         final Map.Entry[] entries = (Map.Entry[]) allocatedIDs.entrySet().toArray(new Map.Entry[allocatedIDs.size()]);
         Arrays.sort(entries, this);
         int maxLength=0;
@@ -553,7 +529,7 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
             final String key = (String) entries[i].getValue();
             final String ID  = entries[i].getKey().toString();
             if (i!=0 && compare(entries[i-1], key)<-1) {
-                out.newLine();
+                out.write('\n');
             }
             writeWhiteSpaces(out, 4);
             out.write("public static final int ");
@@ -562,11 +538,9 @@ search: for (int i=0; i<buffer.length(); i++) { // Length of 'buffer' will vary.
             out.write(" = ");
             writeWhiteSpaces(out, 5-ID.length());
             out.write(ID);
-            out.write(";");
-            out.newLine();
+            out.write(";\n");
         }
-        out.write('}');
-        out.newLine();
+        out.write("}\n");
         out.close();
     }
 
