@@ -1,0 +1,63 @@
+  <?xml version="1.0" encoding="UTF-8" standalone="no" ?> 
+  <!DOCTYPE WMT_MS_Capabilities SYSTEM "http://www.digitalearth.gov/wmt/xml/capabilities_1_1_1.dtd"> 
+ <WMT_MS_Capabilities version="1.1.1" updateSequence="0">
+ <Service>
+  <Name>OGC:WMS</Name> 
+  <Title>GeoTools Servlet Viewer 1.0</Title> 
+  <Abstract>First version of the WMS 1.1.1 compatible GeoTools Viewer</Abstract> 
+ <KeywordList>
+  <Keyword>GeoTools</Keyword> 
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.geotools.org" xlink:type="simple" xlink:href="http://www.geotools.org/" /> 
+ <ContactInformation>
+ <ContactPersonPrimary>
+  <ContactPerson>James McGill</ContactPerson> 
+  <ContactOrganization>Leeds University</ContactOrganization> 
+  </ContactPersonPrimary>
+  <ContactPosition>Project Lead</ContactPosition> 
+  <ContactElectronicMailAddress>j.macgill@geography.leeds.ac.uk</ContactElectronicMailAddress> 
+  </ContactInformation>
+  <Fees>none</Fees> 
+  <AccessConstraints>none</AccessConstraints> 
+  </Service>
+
+ <Capability>
+<Request>
+
+<GetCapabilities>
+  <Format>application/vnd.ogc.wms_xml</Format> 
+ <DCPType>
+ <HTTP>
+   <Get></Get>
+ </HTTP>
+ </DCPType>
+</GetCapabilities>
+
+<GetMap>
+  <Format>image/jpeg</Format> 
+ <DCPType>
+ <HTTP>
+ <Get>
+  </Get>
+  </HTTP>
+  </DCPType>
+</GetMap>
+</Request>
+
+<Exception>
+  <Format>application/vnd.ogc.se_xml</Format> 
+</Exception>
+
+<VendorSpecificCapabilities /> 
+
+<!-- Layers -->
+
+<Layer queryable="0" opaque="0" noSubsets="0">
+  <Name>WORLD</Name> 
+  <Title>Polygon layer of countries</Title> 
+  <SRS>EPSG:4326</SRS> 
+  <LatLonBoundingBox minx="-180" miny="-90" maxx="180" maxy="90" /> 
+</Layer>
+
+</Capability>
+</WMT_MS_Capabilities>
