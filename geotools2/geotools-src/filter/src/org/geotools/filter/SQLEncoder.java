@@ -153,7 +153,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * @throws SQLEncoderException If there were problems encoding
      */
     public SQLEncoder(Writer out, Filter filter) throws SQLEncoderException {
-        if (capabilities.fullySupports(filter)) {
+        if (getCapabilities().fullySupports(filter)) {
             this.out = out;
 
             try {
@@ -180,7 +180,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      *         were io problems.
      */
     public void encode(Writer out, Filter filter) throws SQLEncoderException {
-        if (capabilities.fullySupports(filter)) {
+        if (getCapabilities().fullySupports(filter)) {
             this.out = out;
 
             try {
