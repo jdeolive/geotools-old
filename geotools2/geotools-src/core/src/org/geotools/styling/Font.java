@@ -28,14 +28,18 @@ import org.geotools.filter.Expression;
  * A system-independent object for holding SLD font infomation.
  * This holds information on the text font to use in text processing.
  * Font-family, font-style, font-weight and font-size.
- * $Id: Font.java,v 1.2 2002/07/12 15:39:30 loxnard Exp $
+ * $Id: Font.java,v 1.3 2002/10/16 16:56:47 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public interface Font {
     
     Expression getFontFamily();
+    void setFontFamily(Expression family);
     Expression getFontStyle();
+    void setFontStyle(Expression style);
     Expression getFontWeight();
+    void setFontWeight(Expression weight);
     Expression getFontSize();
+    void setFontSize(Expression size);
     
 }

@@ -29,13 +29,16 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.7 2002/07/19 16:33:12 jmacgill Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.8 2002/10/16 16:56:47 ianturton Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
-    //public String getName();
-    //public String getTitle();
-    //public String getAbstract();
+    public String getName();
+    void setName(String name);
+    public String getTitle();
+    void setTitle(String title);
+    public String getAbstract();
+    void setAbstract(String abstractStr);
     
     /**
      * Only features with the type name returned by this method should
@@ -65,12 +68,30 @@ public interface FeatureTypeStyle {
      * with the corresponding default geometry type (i.e., no feature 
      * properties are referenced in the feature type style).
      * 
-     * @task TODO: Method name contains typo.  Should be getSemanticTypeIdentifiers
      *
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.
      **/
-    String[] getSymantecTypeIdentifiers();
+    String[] getSemantecTypeIdentifiers();
+    
+        /**
+     * The SemanticTypeIdentifiers is experimental and is intended to be used
+     * to identify, using a community-controlled name(s), what the style is 
+     * suitable to be used for.
+     * For example, a single style may be suitable to use with many
+     * different feature types.  The syntax of the SemanticTypeIdentifiers
+     * string is undefined, but the strings "generic:line_string",
+     * "generic:polygon", "generic:point", "generic:text",
+     * "generic:raster", and "generic:any" are reserved to indicate
+     * that a FeatureTypeStyle may be used with any feature type
+     * with the corresponding default geometry type (i.e., no feature 
+     * properties are referenced in the feature type style).
+     * 
+     *
+     * @param An array of strings representing systematic types which
+     *         could be styled by this instance.
+     **/
+    void setSemantecTypeIdentifiers(String[] types);
     
     /**
      * Rules govern the appearance of any given feature to be styled by
@@ -81,5 +102,15 @@ public interface FeatureTypeStyle {
      * @return The full set of rules contained in this styler.
      */
     Rule[] getRules();
+    
+    /**
+     * Rules govern the appearance of any given feature to be styled by
+     * this styler.  Each rule contains conditions based on scale and
+     * feature attribute values.  In addition, rules contain the symbolizers
+     * which should be applied when the rule holds true.
+     *
+     * @param The set of rules to be set for this styler.
+     */
+    void setRules(Rule[] rules);
 }
 

@@ -26,7 +26,7 @@ import org.geotools.filter.Expression;
 /**
  * A PointPlacement specifies how a text label is positioned relative to a
  * geometric point.
- * $Id: PointPlacement.java,v 1.2 2002/07/12 15:41:52 loxnard Exp $
+ * $Id: PointPlacement.java,v 1.3 2002/10/16 16:56:47 ianturton Exp $
  * @author Ian Turton
  */
 public interface PointPlacement extends LabelPlacement{
@@ -35,13 +35,32 @@ public interface PointPlacement extends LabelPlacement{
      * to use as an "anchor" for positioning it relative to a point geometry.
      */
     AnchorPoint getAnchorPoint();
+    
+    /**
+     * sets the AnchorPoint which identifies the location inside a textlabel
+     * to use as an "anchor" for positioning it relative to a point geometry.
+     */
+    void setAnchorPoint(AnchorPoint anchorPoint);
+    
     /**
      * Returns the Displacement which gives X and Y offset displacements to use
      * for rendering a text label near a point.
      */
     Displacement getDisplacement();
+    
+    /**
+     * sets the Displacement which gives X and Y offset displacements to use
+     * for rendering a text label near a point.
+     */
+    void setDisplacement(Displacement displacement);
+    
     /** 
      * Returns the rotation of the label.
      */
     Expression getRotation();
+    
+    /** 
+     * sets the rotation of the label.
+     */
+    void setRotation(Expression rotation);
 }

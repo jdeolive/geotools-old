@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.8 2002/10/14 17:07:58 ianturton Exp $
+ * @version $Id: Graphic.java,v 1.9 2002/10/16 16:56:46 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -78,7 +78,7 @@ public interface Graphic {
      */
     ExternalGraphic[] getExternalGraphics();
     void setExternalGraphics(ExternalGraphic[] externalGraphics);
-
+    void addExternalGraphic(ExternalGraphic externalGraphic);
     
     /**
      * Provides a list of suitable marks which can be used to represent this
@@ -92,6 +92,7 @@ public interface Graphic {
      */    
     Mark[] getMarks();
     void setMarks(Mark[] marks);
+    void addMark(Mark mark);
     /**
      * Provides a list of all the symbols which can be used to represent this
      * graphic. A symbol is an ExternalGraphic, Mark or any other object which
@@ -104,6 +105,7 @@ public interface Graphic {
      */    
     Symbol[] getSymbols();
     void setSymbols(Symbol[] symbols); 
+    void addSymbol(Symbol symbol);
     /**
      * This specifies the level of translucency to use when rendering the 
      * graphic.<br>
@@ -145,5 +147,18 @@ public interface Graphic {
      */
     Expression getRotation();
     void setRotation(Expression rotation);
+    
+    /** Getter for property geometryPropertyName.
+     * @return Value of property geometryPropertyName.
+     *
+     */
+    public java.lang.String getGeometryPropertyName();
+    
+    /** Setter for property geometryPropertyName.
+     * @param geometryPropertyName New value of property geometryPropertyName.
+     *
+     */
+    public void setGeometryPropertyName(java.lang.String geometryPropertyName);
+    
 }
 

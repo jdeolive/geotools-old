@@ -49,12 +49,15 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Level;
 
+// image handling
+import javax.imageio.ImageIO;
+
 //Logging system
 import java.util.logging.Logger;
 
+//geotools imports
 import org.geotools.data.*;
 
-//geotools imports
 import org.geotools.feature.*;
 
 import org.geotools.filter.*;
@@ -63,7 +66,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.54 2002/10/14 17:10:54 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.55 2002/10/16 16:56:23 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -124,7 +127,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
         /**
          * A list of wellknownshapes that we know about:
-         * square, circle, triangle, star, cross, x.
+         * square, circle, triangle, star, cross, x. 
+         * Note arrow is an implementation specific mark.
          */
         wellKnownMarks.add("Square");
         wellKnownMarks.add("Triangle");
@@ -140,14 +144,18 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         wellKnownMarks.add("star");
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
-
-        supportedGraphicFormats.add("image/gif");
-        supportedGraphicFormats.add("image/jpg");
-        supportedGraphicFormats.add("image/png");
+        String[] types = ImageIO.getReaderMIMETypes();
+        for(int i=0;i<types.length;i++){
+            supportedGraphicFormats.add(types[i]);
+        }
+//        supportedGraphicFormats.add("image/gif");
+//        supportedGraphicFormats.add("image/jpg");
+//        supportedGraphicFormats.add("image/png");
 
         Coordinate c = new Coordinate(100, 100);
         GeometryFactory fac = new GeometryFactory();
         markCentrePoint = fac.createPoint(c);
+        
     }
 
     /**
@@ -542,11 +550,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 }
             }
 
-            if (symbols[i] instanceof MarkImpl) {
+            if (symbols[i] instanceof Mark) {
                 LOGGER.finer("rendering mark @ PointRenderer " + 
                              symbols[i].toString());
                 flag = renderMark(geom, sldgraphic, feature, 
-                                  (MarkImpl) symbols[i]);
+                                  (Mark) symbols[i]);
 
                 if (flag) {
                     return;
@@ -1001,7 +1009,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
         if ((marks == null) || (marks.length == 0)) {
             LOGGER.finer("choosing a default mark as no marks returned");
-            mark = new MarkImpl();
+            mark = StyleFactory.createMark();
 
             return mark;
         }
@@ -1018,7 +1026,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
 
         LOGGER.finer("going for a defaultMark");
-        mark = new MarkImpl();
+        mark = StyleFactory.createMark();
 
         return mark;
     }

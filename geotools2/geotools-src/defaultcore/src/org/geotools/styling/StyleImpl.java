@@ -20,30 +20,34 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: StyleImpl.java,v 1.2 2002/10/14 14:18:37 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.3 2002/10/16 16:57:21 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
 
     FeatureTypeStyle[] featureTypeStyleList = new FeatureTypeStyle[0];
+    String abstractText = "";
+    String name = "Default Styler";
+    String title = "Default Styler";
+    boolean defaultB = true;
     
     /** Creates a new instance of DefaultStyle */
-    public StyleImpl() {
-        featureTypeStyleList = new FeatureTypeStyleImpl[1];
-        featureTypeStyleList[0] = new FeatureTypeStyleImpl();
-        featureTypeStyleList[0].setFeatureTypeName("default");
-        RuleImpl [] rules = new RuleImpl[1];
-        rules[0] = new RuleImpl();
-        Symbolizer[] symbolizers = new Symbolizer[3];
-        symbolizers[0] = new PolygonSymbolizerImpl();
-        symbolizers[1] = new LineSymbolizerImpl();
-        symbolizers[2] = new PointSymbolizerImpl();
-        rules[0].setSymbolizers(symbolizers);
-        ((FeatureTypeStyleImpl)featureTypeStyleList[0]).setRules(rules);
+    protected StyleImpl() {
+//        featureTypeStyleList = new FeatureTypeStyleImpl[1];
+//        featureTypeStyleList[0] = new FeatureTypeStyleImpl();
+//        featureTypeStyleList[0].setFeatureTypeName("default");
+//        RuleImpl [] rules = new RuleImpl[1];
+//        rules[0] = new RuleImpl();
+//        Symbolizer[] symbolizers = new Symbolizer[3];
+//        symbolizers[0] = new PolygonSymbolizerImpl();
+//        symbolizers[1] = new LineSymbolizerImpl();
+//        symbolizers[2] = new PointSymbolizerImpl();
+//        rules[0].setSymbolizers(symbolizers);
+//        ((FeatureTypeStyleImpl)featureTypeStyleList[0]).setRules(rules);
     }
 
     public String getAbstract() {
-        return "A crude implementation of a default style";
+        return abstractText;
     }
     
     public FeatureTypeStyle[] getFeatureTypeStyles() {
@@ -55,15 +59,31 @@ public class StyleImpl implements org.geotools.styling.Style {
     }
     
     public String getName() {
-        return "default style";
+        return name;
     }
     
     public String getTitle() {
-        return "default style";
+        return title;
     }
     
     public boolean isDefault() {
-        return true;
+        return defaultB;
+    }
+    
+    public void setAbstract(String abstractStr) {
+        abstractText = abstractStr;
+    }
+    
+    public void setIsDefault(boolean isDefault) {
+        defaultB = isDefault;
+    }
+    
+    public void setName(String name) {
+        this.name = name;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
     }
     
 }

@@ -28,7 +28,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FontImpl.java,v 1.1 2002/10/14 14:16:11 ianturton Exp $
+ * @version $Id: FontImpl.java,v 1.2 2002/10/16 16:57:21 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class FontImpl implements Font {
@@ -43,7 +43,7 @@ public class FontImpl implements Font {
     private Expression fontStyle = null;
     private Expression fontWeight = null;
     /** Creates a new instance of DefaultFont */
-    public FontImpl() {
+    protected FontImpl() {
         try {
             fontSize = new org.geotools.filter.ExpressionLiteral(new Integer(10));
             fontStyle = new org.geotools.filter.ExpressionLiteral("normal");

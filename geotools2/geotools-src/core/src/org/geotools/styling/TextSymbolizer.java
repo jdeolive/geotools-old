@@ -24,7 +24,7 @@
 package org.geotools.styling;
 import org.geotools.filter.Expression;
 /**
- * $Id: TextSymbolizer.java,v 1.4 2002/07/25 17:07:22 ianturton Exp $
+ * $Id: TextSymbolizer.java,v 1.5 2002/10/16 16:56:47 ianturton Exp $
  * @author Ian Turton, CCG
  */
 
@@ -33,28 +33,49 @@ public interface TextSymbolizer extends Symbolizer {
      * Returns the label expression.
      */
     Expression getLabel();
+        /**
+     * sets the label expression.
+     */
+    void setLabel(Expression label);
     /** 
      * Returns a device independent Font object that is to be used to render
      * the label.
      */
     Font[] getFonts();
+    
+    /** 
+     * sets a list of device independent Font objects to be used to render
+     * the label.
+     */
+    void setFonts(Font[] fonts);
     /**
      * A pointPlacement specifies how a text element should be rendered
      * relative to its geometric point.
      */
     LabelPlacement getLabelPlacement();
-    
+    /**
+     * A pointPlacement specifies how a text element should be rendered
+     * relative to its geometric point.
+     */
+    void setLabelPlacement(LabelPlacement labelPlacement);
     /**
      * A halo fills an extended area outside the glyphs of a rendered
      * text label to make the label easier to read over a background.
      */
     Halo getHalo();
-    
+    /**
+     * A halo fills an extended area outside the glyphs of a rendered
+     * text label to make the label easier to read over a background.
+     */
+    void setHalo(Halo halo);
     /**
      * Returns the fill to be used to fill the text when rendered.
      */
     Fill getFill();
-    
+    /**
+     * sets the fill to be used to fill the text when rendered.
+     */
+    void setFill(Fill fill);
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -73,4 +94,22 @@ public interface TextSymbolizer extends Symbolizer {
      *  that should be used.  If null then the default geometry should be used.
      */
     String getGeometryPropertyName();    
+    /**
+     * This property defines the geometry to be used for styling.<br>
+     * The property is optional and if it is absent (null) then the "default"
+     * geometry property of the feature should be used.
+     * 
+     * Geometry types other than inherently point types can be used. 
+     *
+     * The geometryPropertyName is the name of a geometry property in the
+     * Feature being styled.  Typically, features only have one geometry so,
+     * in general, the need to select one is not required.
+     *
+     * Note: this moves a little away from the SLD spec which provides an XPath
+     * reference to a Geometry object, but does follow it in spirit.
+     *
+     * @param String The name of the attribute in the feature being styled 
+     *  that should be used.  If null then the default geometry should be used.
+     */
+    void setGeometryPropertyName(String name);    
 }

@@ -12,7 +12,7 @@ import org.geotools.filter.*;
  * Factory for creating Styles. All style elements are returned as Interfaces from org.geotools.core as opposed 
  * to Implementations from org.geotools.defaultcore.
  *
- * @version $Id: StyleFactory.java,v 1.1 2002/10/14 17:09:51 ianturton Exp $
+ * @version $Id: StyleFactory.java,v 1.2 2002/10/16 16:57:54 ianturton Exp $
  * @author  iant
  */
 public class StyleFactory {
@@ -64,38 +64,69 @@ public class StyleFactory {
         SLDStyle style = new SLDStyle(in);
         return style;
     }
-    public PointSymbolizer createPointSymbolizer(){
+    
+    public Style createStyle(){
+        return new StyleImpl();
+    }
+    public  PointSymbolizer createPointSymbolizer(){
         return new PointSymbolizerImpl();
     }
     
-    public PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName){
+    public  PointSymbolizer createPointSymbolizer(Graphic graphic, String geometryPropertyName){
         PointSymbolizer pSymb = new PointSymbolizerImpl();
         pSymb.setGeometryPropertyName(geometryPropertyName);
         pSymb.setGraphic(graphic);
         return pSymb;
     }
     
-    public PolygonSymbolizer createPolygonSymbolizer(){
+    public static PolygonSymbolizer createPolygonSymbolizer(){
         return new PolygonSymbolizerImpl();
     }
     
-    public PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName){
+    public  PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName){
         PolygonSymbolizer pSymb = new PolygonSymbolizerImpl();
         pSymb.setGeometryPropertyName(geometryPropertyName);
         pSymb.setStroke(stroke);
         pSymb.setFill(fill);
         return pSymb;
     }
-    public LineSymbolizer createLineSymbolizer(){
+    public  LineSymbolizer createLineSymbolizer(){
         return new LineSymbolizerImpl();
     }
     
-    public LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName){
+    public  LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName){
         LineSymbolizer lSymb = new LineSymbolizerImpl();
         lSymb.setGeometryPropertyName(geometryPropertyName);
         lSymb.setStroke(stroke);
         
         return lSymb;
+    }
+    public  TextSymbolizer createTextSymbolizer(){
+        return new TextSymbolizerImpl();
+    }
+    
+    public  TextSymbolizer createTextSymbolizer(Fill fill, Font[] fonts, Halo halo, Expression label, LabelPlacement labelPlacement, String geometryPropertyName){
+        TextSymbolizer tSymb = new TextSymbolizerImpl();
+        tSymb.setFill(fill);
+        tSymb.setFonts(fonts);
+        tSymb.setGeometryPropertyName(geometryPropertyName);
+        
+        tSymb.setHalo(halo);
+        tSymb.setLabel(label);
+        tSymb.setLabelPlacement(labelPlacement);
+        
+        return tSymb;
+    }
+    public  FeatureTypeStyle createFeatureTypeStyle(){
+        return new FeatureTypeStyleImpl();
+    }
+    
+    public static FeatureTypeStyle createFeatureTypeStyle(Rule[] rules){
+        return new FeatureTypeStyleImpl(rules);
+    }
+    
+    public Rule createRule(){
+        return new RuleImpl();
     }
     /** A convienice method to make a simple stroke
      * @see org.geotools.stroke
@@ -103,7 +134,7 @@ public class StyleFactory {
      * @param width the width of the line
      * @return the stroke object
      */    
-    public Stroke createStroke(Expression color, Expression width){
+    public static Stroke createStroke(Expression color, Expression width){
         return createStroke(color,width,new ExpressionLiteral(1.0));
     }
     /** A convienice method to make a simple stroke
@@ -113,7 +144,7 @@ public class StyleFactory {
      * @param opacity The opacity of the line
      * @return The stroke
      */    
-    public Stroke createStroke(Expression color, Expression width, Expression opacity){
+    public static Stroke createStroke(Expression color, Expression width, Expression opacity){
         return createStroke(color, width,opacity,new ExpressionLiteral("bevel"),
             new ExpressionLiteral("square"),null,new ExpressionLiteral(0.0),null,null);
     }
@@ -131,7 +162,7 @@ public class StyleFactory {
      * @param graphicStroke - a graphic object to draw the line with
      * @return The completed stroke.
      */
-    public Stroke createStroke(Expression color, Expression width, Expression opacity, Expression lineJoin,
+    public static Stroke createStroke(Expression color, Expression width, Expression opacity, Expression lineJoin,
         Expression lineCap, float[] dashArray, Expression dashOffset, Graphic graphicFill, Graphic graphicStroke){
             Stroke stroke = new StrokeImpl();
             stroke.setColor(color);
@@ -146,11 +177,11 @@ public class StyleFactory {
             return stroke;
     }
     
-    public Stroke createStroke(){
+    public static Stroke createStroke(){
         return new StrokeImpl();
     }
     
-    public Fill createFill(Expression color, Expression backgroundColor, Expression opacity, Graphic graphicFill){
+    public static Fill createFill(Expression color, Expression backgroundColor, Expression opacity, Graphic graphicFill){
         Fill fill = new FillImpl();
         fill.setColor(color);
         fill.setBackgroundColor(backgroundColor);
@@ -159,19 +190,19 @@ public class StyleFactory {
         return fill;
     }
     
-    public Fill createFill(Expression color, Expression opacity){
+    public static Fill createFill(Expression color, Expression opacity){
         return createFill(color,null,opacity, null);
     }
     
-    public Fill createFill(Expression color){
+    public static Fill createFill(Expression color){
         return createFill(color,null,new ExpressionLiteral(1.0),null);
     }
     
-    public Fill createFill(){
+    public static Fill createFill(){
         return new FillImpl();
     }
     
-    public Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation){
+    public static Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(wellKnownName);
         mark.setStroke(stroke);
@@ -181,42 +212,42 @@ public class StyleFactory {
         return mark;
     }
     
-    public Mark createSquareMark(){
+    public static Mark createSquareMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("Square"));
         return mark;
     }
-    public Mark createCircleMark(){
+    public static Mark createCircleMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("Circle"));
         return mark;
     }    
-    public Mark createCrossMark(){
+    public static Mark createCrossMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("Cross"));
         return mark;
     }
-    public Mark createXMark(){
+    public static Mark createXMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("X"));
         return mark;
     }
-    public Mark createTriangleMark(){
+    public static Mark createTriangleMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("Triangle"));
         return mark;
     }
-    public Mark createStarMark(){
+    public static Mark createStarMark(){
         Mark mark = new MarkImpl();
         mark.setWellKnownName(new ExpressionLiteral("Star"));
         return mark;
     }
-    public Mark createMark(){
+    public static Mark createMark(){
         Mark mark = new MarkImpl();
         return mark;
     }
     
-    public Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols, 
+    public static Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols, 
         Expression opacity, Expression size, Expression rotation){
             Graphic graphic = new GraphicImpl();
             graphic.setExternalGraphics(externalGraphics);
@@ -227,7 +258,32 @@ public class StyleFactory {
             graphic.setRotation(rotation);
             return graphic;
     }
-    public Graphic createGraphic(){
+    public static Graphic createGraphic(){
         return new GraphicImpl();
+    }
+    
+    public static Font createFont(){
+        return new FontImpl();
+    }
+    
+    public static Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight, Expression fontSize){
+        Font font = new FontImpl();
+        font.setFontFamily(fontFamily);
+        font.setFontSize(fontSize);
+        font.setFontStyle(fontStyle);
+        font.setFontWeight(fontWeight);
+        return font;
+    }
+    
+    public static PointPlacement createPointPlacement(){
+        return new PointPlacementImpl();
+    }
+    
+    public static PointPlacement createPointPlacement(AnchorPoint anchorPoint, Displacement displacement, Expression rotation){
+        PointPlacement pp = new PointPlacementImpl();
+        pp.setAnchorPoint(anchorPoint);
+        pp.setDisplacement(displacement);
+        pp.setRotation(rotation);
+        return pp;
     }
 }

@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: RuleImpl.java,v 1.1 2002/10/14 13:21:20 ianturton Exp $
+ * @version $Id: RuleImpl.java,v 1.2 2002/10/16 16:57:21 ianturton Exp $
  * @author James Macgill
  */
 import java.util.ArrayList;
@@ -39,25 +39,36 @@ public class RuleImpl implements org.geotools.styling.Rule {
     private String abstractStr = "Abstract";
     private Filter filter = null;
     private boolean hasElseFilter = false;
+    private double maxScaleDenominator = Double.POSITIVE_INFINITY;
+    private double minScaleDenominator = 0.0;
     /** Creates a new instance of DefaultRule */
-    public RuleImpl() {
+    protected RuleImpl() {
         symbolizers = new Symbolizer[0];
     }
-
+    /** Creates a new instance of DefaultRule */
+    protected RuleImpl(Symbolizer[] symbolizers) {
+        this.symbolizers = symbolizers;
+    }
     public Graphic[] getLegendGraphic() {
         return (Graphic[]) graphics.toArray(new Graphic[0]);
     }
     public void addLegendGraphic(Graphic g){
         graphics.add(g);
     }
-    
-    public double getMaxScaleDenominator() {
-        return Double.POSITIVE_INFINITY; // this is correct
+    /** A set of equivalent Graphics in different formats which can be used
+     * as a legend against features stylized by the symbolizers in this
+     * rule.
+     *
+     * @param An array of Graphic objects, any of which can be used as
+     *         the legend.
+     *
+     */
+    public void setLegendGraphic(Graphic[] graphics) {
+        for(int i=0;i<graphics.length;i++){
+            addLegendGraphic(graphics[i]);
+        }
     }
     
-    public double getMinScaleDenominator() {
-        return 0.0;
-    }
     
     public void setSymbolizers(Symbolizer[] syms){
         symbolizers = syms;
@@ -126,10 +137,45 @@ public class RuleImpl implements org.geotools.styling.Rule {
     public boolean hasElseFilter() {
         return hasElseFilter;
     }
-    public void setElseFilter(boolean flag){
+    public void setIsElseFilter(boolean flag){
         hasElseFilter = flag;
     }
     public void setHasElseFilter(){
         hasElseFilter = true;
     }
+    
+    /** Getter for property maxScaleDenominator.
+     * @return Value of property maxScaleDenominator.
+     *
+     */
+    public double getMaxScaleDenominator() {
+        return maxScaleDenominator;
+    }
+    
+    /** Setter for property maxScaleDenominator.
+     * @param maxScaleDenominator New value of property maxScaleDenominator.
+     *
+     */
+    public void setMaxScaleDenominator(double maxScaleDenominator) {
+        this.maxScaleDenominator = maxScaleDenominator;
+    }
+    
+    /** Getter for property minScaleDenominator.
+     * @return Value of property minScaleDenominator.
+     *
+     */
+    public double getMinScaleDenominator() {
+        return minScaleDenominator;
+    }
+    
+    /** Setter for property minScaleDenominator.
+     * @param minScaleDenominator New value of property minScaleDenominator.
+     *
+     */
+    public void setMinScaleDenominator(double minScaleDenominator) {
+        this.minScaleDenominator = minScaleDenominator;
+    }
+    
+    
+    
 }

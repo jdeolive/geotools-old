@@ -33,7 +33,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.3 2002/10/14 17:08:58 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.4 2002/10/16 16:57:21 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark, Symbol {
@@ -55,7 +55,7 @@ public class MarkImpl implements Mark, Symbol {
     
     /** Creates a new instance of DefaultMark */
     protected MarkImpl() {
-        LOGGER.info("creating defaultMark");
+        LOGGER.fine("creating defaultMark");
         try {
             wellKnownName = new ExpressionLiteral("square");
             size = new ExpressionLiteral(new Integer(6));

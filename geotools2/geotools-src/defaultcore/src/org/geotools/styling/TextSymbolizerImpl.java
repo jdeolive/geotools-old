@@ -23,19 +23,21 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.2 2002/10/14 14:18:32 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.3 2002/10/16 16:57:21 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
-    FillImpl fill = new FillImpl();
+    Fill fill;
     ArrayList fonts = new ArrayList();
-    Halo halo = new HaloImpl();
-    LabelPlacement labelPlacement = new PointPlacementImpl();
+    Halo halo; 
+    LabelPlacement labelPlacement;
     String geometryPropertyName = null;
     Expression label = null;
     /** Creates a new instance of DefaultTextSymbolizer */
-    public TextSymbolizerImpl() {
-        fill.setColor("#000000"); // default text fill is black
+    protected TextSymbolizerImpl() {
+        fill = StyleFactory.createFill(new ExpressionLiteral("#000000")); // default text fill is black
+        halo = null;
+        labelPlacement = (LabelPlacement) StyleFactory.createPointPlacement(); 
     }
     
     /**
@@ -70,7 +72,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.FillImpl fill) {
+    public void setFill(org.geotools.styling.Fill fill) {
         this.fill = fill;
     }
     /**
@@ -80,7 +82,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
      */
     public Font[] getFonts() {
         if (fonts.size() == 0){
-            fonts.add(new FontImpl());
+            fonts.add(StyleFactory.createFont());
         }
         return (Font[]) fonts.toArray(new Font[]{});
     }
@@ -90,6 +92,12 @@ public class TextSymbolizerImpl implements TextSymbolizer {
      */
     public void addFont(org.geotools.styling.Font font) {
         this.fonts.add(font);
+    }
+    
+    public void setFonts(Font[] fonts){
+        for(int i=0;i<fonts.length;i++){
+            addFont(fonts[i]);
+        }
     }
     /**
      * A halo fills an extended area outside the glyphs of a rendered text
