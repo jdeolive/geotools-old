@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
 /**
  * Test the <code>org.geotools.renderer.array</code> package.
  *
- * @version $Id: PointArrayTest.java,v 1.1 2003/01/11 12:17:48 desruisseaux Exp $
+ * @version $Id: PointArrayTest.java,v 1.2 2003/02/12 21:01:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PointArrayTest extends TestCase {
@@ -98,8 +98,9 @@ public class PointArrayTest extends TestCase {
             if (reverse) {
                 DynamicArray.reverse(toMerge, lower, upper);
             }
-            assert (checkPoints=XArray.insert(toMerge, lower, checkPoints, index, upper-lower)).length == 2*points.count();
-            assert Arrays.equals(points.toArray(), checkPoints);
+            checkPoints = XArray.insert(toMerge, lower, checkPoints, index, upper-lower);
+            assertEquals(checkPoints.length, 2*points.count());
+            assertTrue(Arrays.equals(points.toArray(), checkPoints));
         }
         /*
          * Prépare une liste d'index délimitant des plages de points à
@@ -153,7 +154,7 @@ public class PointArrayTest extends TestCase {
         float dx=0, dy=0;
         final PointIterator iterator=points.iterator(0);
         for (int i=0; i<checkPoints.length;) {
-            assert iterator.hasNext();
+            assertTrue(iterator.hasNext());
             final float dxi = Math.abs(iterator.nextX()-checkPoints[i++]);
             final float dyi = Math.abs(iterator.nextY()-checkPoints[i++]);
             if (dxi > dx) dx=dxi;
