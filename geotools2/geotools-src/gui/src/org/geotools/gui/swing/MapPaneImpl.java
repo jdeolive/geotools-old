@@ -21,9 +21,6 @@ import org.geotools.ct.Adapters;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.data.DataSourceException;
-import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.swing.event.GeoMouseEvent;
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
@@ -62,7 +59,7 @@ import org.geotools.renderer.Renderer2D;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.28 2003/07/12 10:59:33 aaime Exp $
+ * @version $Id: MapPaneImpl.java,v 1.29 2003/07/17 18:35:07 cholmesny Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -152,20 +149,21 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *       features=dataSource.getFeatures(extent)
      * @task REVISIT We should set the AreaOfInterest somewhere other than
      *       here.
-     * @task TODO Need to change getBbox(false) to getBbox(true) to speed
-     *       things up.
+     * @task REVISIT Need to change getBbox(false) to getBbox(true) to speed
+     *       things up.  ch - that method no longer exists, changed to no 
+     *       argument.
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
 
         if (context.getBbox().getAreaOfInterest() == null) {
-            Envelope bBox = context.getLayerList().getBbox(false);
+            Envelope bBox = context.getLayerList().getBbox();
 
             if (bBox != null) {
                 LOGGER.info("AreaOfInterest calculated during rendering");
                 context.getBbox().setAreaOfInterest(context.getLayerList()
-                                                           .getBbox(false), null);
+                                                           .getBbox(), null);
             }
         }
 
