@@ -16,9 +16,9 @@
  */
 package org.geotools.filter;
 
-import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -29,8 +29,7 @@ import java.util.Iterator;
  * @author Chris Holmes, TOPP
  */
 public class FilterCapabilities {
-
-    /** The Filter types (shorts from AbstractFilter) supported.*/
+    /** The Filter types (shorts from AbstractFilter) supported. */
     private List supportTypes;
 
     /**
@@ -76,13 +75,26 @@ public class FilterCapabilities {
     /**
      * Determines if the filter and all its sub filters are supported.  Is most
      * important for logic filters, as they are the only ones with subFilters.
+     * Null filters should not be used here, if nothing should be filtered
+     * than Filter.NONE can be used.  Embedded nulls can be a particular
+     * source of problems, buried in logic filters.
      *
      * @param filter the filter to be tested.
      *
      * @return true if all sub filters are supported, false otherwise.
+     *
+     * @throws IllegalArgumentException If a null filter is passed in.  As this
+     *         function is recursive a null in a logic filter will also cause
+     *         an error.
      */
     public boolean fullySupports(Filter filter) {
         boolean supports = true;
+
+        if (filter == null) {
+            throw new IllegalArgumentException("Null filters can not be "
+                + "unpacked, did you mean " + "Filter.NONE?");
+        }
+
         short filterType = filter.getFilterType();
 
         if (AbstractFilter.isLogicFilter(filterType)) {
