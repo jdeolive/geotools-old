@@ -194,9 +194,4 @@ public interface Rule {
 
     void accept(StyleVisitor visitor);
 
-    /** Creates a deep copy clone of the Rule.
-     * 
-     * @return The deep copy clone of the rule.
-     */
-    Object clone();
 }

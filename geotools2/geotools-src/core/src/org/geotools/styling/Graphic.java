@@ -169,10 +169,4 @@ public interface Graphic {
      */
     void accept(StyleVisitor visitor);
 
-    /**
-     * Creates a deep copy clone.
-     *
-     * @return The deep copy clone.
-     */
-    Object clone();
 }

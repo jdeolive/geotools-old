@@ -44,17 +44,11 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Symbolizer.java,v 1.6 2003/08/07 01:09:07 seangeo Exp $
+ * @version $Id: Symbolizer.java,v 1.7 2003/09/06 04:14:12 seangeo Exp $
  * @author James Macgill, CCG
  */
 public interface Symbolizer {
 
     void accept(StyleVisitor visitor);
-    /** Creates a deep copy clone. 
-     * 
-     * @return The deep copy clone.
-     * 
-     */
-    Object clone();
 }
 
