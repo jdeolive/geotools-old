@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<project name="Geotools2"
+         href="http://www.geotools.org/">
+
+  <title>Geotools2</title>
+
+  <body>
+    <menu name="Home">
+      <item name="Geotools2"       href="/index.html" />
+    </menu>
+
+    <menu name="About Us">
+      <item name="Contributors"           href="/contributors.html"/>
+      <item name="License"                href="/license.html"/>
+    </menu>
+
+    <menu name="Download">
+      <item name="Release"                href="http://jakarta.apache.org/builds/jakarta-commons/release"/>
+      <item name="Nightly"                href="http://jakarta.apache.org/builds/jakarta-commons/nightly"/>
+    </menu>
+
+    <menu name="Information">
+      <item name="Overview"               href="/index.html"/>
+      <item name="Components"             href="/components.html"/>
+      <!-- Yet to come?
+      <item name="Guidelines"             href="/guidelines.html"/>
+      <item name="News"                   href="/news.html"/>
+      -->
+      <!-- deprecated?
+      <item name="Commons Proper"         href="/commons.html"/>
+      <item name="Sandbox"                href="/sandbox.html"/>
+      -->
+    </menu>
+
+    <menu name="Components Repository">
+      #foreach ($reactorProject in $reactorProjects)
+      <item name="$reactorProject.name" href="/$reactorProject.id/index.html"/>
+      #end
+    </menu>
+
+    <menu name="Jakarta Community">
+      <item name="Get Involved"           href="/site/getinvolved.html"/>
+      <item name="Mailing Lists"          href="/site/mail.html"/>
+      <item name="CVS Repositories"       href="/site/cvsindex.html"/>
+    </menu>
+
+    <menu name="Project Docs">
+      <item name="Charter"                href="/charter.html"/>
+      <item name="Releases"               href="/releases.html"/>
+      <item name="Versioning"             href="/versioning.html"/>
+    </menu>
+  </body>
+</project>
+
