@@ -154,13 +154,13 @@ public class GtWmsServer implements WMSServer {
                     LOGGER.fine(host + " " + user + " " + passwd + " " + 
                                 port + " " + database + " " + table);
 
-                    PostgisConnection db = new PostgisConnection(host, port, 
-                                                                 database);
+                    PostgisConnectionFactory db = 
+			new PostgisConnectionFactory(host, port, database);
                     LOGGER.fine("created new db connection");
                     db.setLogin(user, passwd);
                     LOGGER.fine("set the login");
-
-                    PostgisDataSource ds = new PostgisDataSource(db, table);
+		    
+                    PostgisDataSource ds = new PostgisDataSource(db.getConnection(), table);
                     Envelope bbox = ds.getBbox(false);
                     entry.bbox = new double[4];
                     entry.bbox[0] = bbox.getMinX();
