@@ -58,7 +58,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version $Id: DatumType.java,v 1.3 2002/06/05 15:25:37 loxnard Exp $
+ * @version $Id: DatumType.java,v 1.4 2002/09/03 10:17:24 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -211,7 +211,7 @@ public abstract class DatumType extends EnumeratedParameter {
             throw new IllegalArgumentException(String.valueOf(value));
         }
     }
-    
+
     /**
      * Returns the enum for the specified value.
      *
@@ -238,7 +238,47 @@ public abstract class DatumType extends EnumeratedParameter {
         }
         return (DatumType) Info.pool.canonicalize(datum);
     }
-    
+
+    /**
+     * Returns the enum for the specified name.
+     * Search is case and locale insensitive.
+     *
+     * @param name One of the constant values ({@link #GEOCENTRIC}, {@link #ELLIPSOIDAL}, etc.)
+     * @return The enum for the specified name.
+     * @throws NoSuchElementException if there is no enum for the specified name.
+     */
+    public static DatumType getEnum(String name) {
+        name = name.trim().replace(' ', '_');
+        for (int i=0; i<ENUMS.length; i++) {
+            final DatumType candidate = ENUMS[i];
+            if (name.equalsIgnoreCase(candidate.getName())) {
+                return candidate;
+            }
+        }
+        throw new NoSuchElementException(name);
+    }
+
+    /**
+     * Returns the enum for the specified localized name.
+     * Search is case-insensitive.
+     *
+     * @param name The localized name (e.g. "Géocentrique", "Ellipsoïdal", etc.)
+     * @param locale The locale, or <code>null</code> for the default locale.
+     * @return The enum for the specified localized name.
+     * @throws NoSuchElementException if there is no enum for the specified name.
+     */
+    public static DatumType getEnum(String name, final Locale locale) {
+        name = name.trim();
+        final Resources resources = Resources.getResources(locale);
+        for (int i=0; i<ENUMS.length; i++) {
+            final DatumType candidate = ENUMS[i];
+            if (name.equalsIgnoreCase(resources.getString(candidate.key))) {
+                return candidate;
+            }
+        }
+        throw new NoSuchElementException(name);
+    }
+
     /**
      * Returns <code>true</code> if the specified orientation is compatible
      * with this datum type. For example, a vertical datum is compatible only
