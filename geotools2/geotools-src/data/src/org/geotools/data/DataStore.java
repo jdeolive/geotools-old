@@ -79,7 +79,7 @@ import java.io.IOException;
  * 
  *
  * @author Jody Garnett, Refractions Research
- * @version $Id: DataStore.java,v 1.3 2003/11/19 05:56:39 jive Exp $
+ * @version $Id: DataStore.java,v 1.4 2003/11/19 05:57:51 jive Exp $
  */
 public interface DataStore {
     /**
@@ -316,6 +316,7 @@ public interface DataStore {
      *
      * @return FeatureReader Allows Sequential Processing of featureType
      */
+    //FeatureReader getFeatureReader( Query query, Transaction transaction ) throws IOException;
     FeatureReader getFeatureReader(FeatureType featureType, Filter filter,
         Transaction transaction) throws IOException;
 
