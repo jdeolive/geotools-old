@@ -1,16 +1,10 @@
      <property file="build.ant.properties"/>
-    <target depends="release" name="all">
-        <!-- WRITEME -->
+    <target depends="release" name="all"> 
+            <!-- WRITEME -->
     </target>
-    <path id="checkstyle.ext">
-        <fileset dir="..\..\extbin\gtbuild\lib\"/>
-        <pathelement location="..\..\extbin\gtbuild\lib\checkstyle-all.jar"/>
-    </path>
-    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
-        <classpath refid="checkstyle.ext"/>
-    </taskdef>
+
      <!-- TODO: failOnViolation should be set to true eventualy -->
-    <target name="checkstyle">
+    <target name="checkstyle" if="checking">
          <echo message="using ${licence.header} as header check file"/>
          <checkstyle failOnViolation="false"> 
             <fileset dir="src" includes="**/*.java"/>
@@ -20,7 +14,7 @@
     </target>
     <target depends="prepare-compile" description="compile the code for the package" name="compile">
         <javac debug="true" srcdir="src">
-            <classpath refid="compile.path" />
+            <classpath refid="compile.path"/>
         </javac>
     </target>
     <target depends="compile" name="compile-test" if="testsuite">
@@ -58,13 +52,18 @@
     </target>
 
     <target name="clean" depends="init"> 
+        <echo message="${project.name} cleaning src + ${releaseFolder}"/>
         <delete>
             <fileset dir="src" includes="**/*.class"/>
-            <fileset dir="${releaseFolder}/" includes="*.jar"/>
-            <fileset dir="tests/unit/org/" includes="**/*.class"/>
+            <fileset dir="${releaseFolder}/" includes="*.jar"/>            
         </delete>
+        <antcall target="clean-tests"/>
     </target>
-
+        
+    <target name="clean-tests" if="testsuite">
+        <echo message="${project.name} cleaning tests"/>    
+        <fileset dir="tests/unit/org/" includes="**/*.class"/>
+    </target>
     <target name="init">
        
 
@@ -78,14 +77,20 @@
         <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
             <classpath refid="netbeans.ext"/>        
         </taskdef>
-
-        <echo message="${project.name} dependancies = ${dependancy}"/>
+        <path id="checkstyle.ext">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <pathelement location="..\..\extbin\gtbuild\lib\checkstyle-all.jar"/>
+        </path>
+        <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
+            <classpath refid="checkstyle.ext"/>
+        </taskdef>
+        <!--echo message="${project.name} dependancies = ${dependancy}"/-->
         <condition property="has.dependancies" >
             <not>
                 <equals arg1="${dependancy}" arg2="$${dependancy}"/>
             </not>
         </condition>
-        <echo message="${project.name} has dependancies = ${has.dependancies}"/>
+        <!--echo message="${project.name} has dependancies = ${has.dependancies}"/-->
 
 
         <condition property="has.extbin" >           
@@ -93,28 +98,35 @@
                 <equals arg1="${extbin}" arg2="$${extbin}"/>
             </not>            
         </condition>
-        <echo message="${project.name} extbin = ${extbin}"/>
-        <echo message="${project.name} has extbin = ${has.extbin}"/>
+        <!--echo message="${project.name} extbin = ${extbin}"/-->
+        <!--echo message="${project.name} has extbin = ${has.extbin}"/-->
     </target>
-    <target name="prepare-compile" depends="init" >
-        <echo message="Prep-compile: ${project.name}" />
+    <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
+        <!--echo message="Prep-compile: ${project.name}" /-->
         <mkdir dir="${releaseFolder}"/>
-        <echo message="${project.name} about to call dependancies ${has.dependancies}"/>
+        <!--echo message="${project.name} about to call dependancies ${has.dependancies}"/-->
         <antcall target="dependancies"/>
+        <!-- only one of the two following calls will suceed depending on whether the project has 
+         an ext bin or not. if it does we need to add it to the classpath-->
+        <!--antcall target="set-classpath"/-->
+        <!--antcall target="add-extbin"/-->
+    </target>
+    <target name="add-extbin" if="has.extbin">
+        <!--echo message="adding ${extbin} to classpath"/-->
         <path id="compile.path">
             <fileset dir="..\..\extbin\gtbuild\lib\"/>
             <fileset dir="${releaseFolder}"/>
             <fileset dir="${extbin}"/>
         </path>
-        
-        <antcall target="add-extbin"/>
     </target>
-    <target name="add-extbin" if="has.extbin">
-        <echo message="adding ${extbin} to classpath"/>
-        <path refid="compile.path"/>
+    <target name="set-classpath" unless="has.extbin">
+        <path id="compile.path">
+            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="${releaseFolder}"/>
+        </path>
     </target>
     <target name="dependancies" if="has.dependancies" >
-        <echo message="${project.name}: about to build ${dependancy}"/>
+        <!--echo message="${project.name}: about to build ${dependancy}"/-->
         <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
             <property name="releaseFolder" value="${releaseFolder}"/>
         </for-each>

@@ -34,11 +34,11 @@
     </target>
 
     <target name="build" depends="init">
-        <for-each startdir=".." target="release" locations="${modules}"/>
+        <for-each startdir=".." target="release" locations="${modules}" />
     </target>
 
     <target name="clean" depends="init">        
-        <for-each startdir=".." target="clean" locations="${modules}"/>
+        <for-each startdir=".." target="clean" locations="${modules}" inheritall="false"/>
         <delete dir="${releaseFolder}"/>
     </target>
 
