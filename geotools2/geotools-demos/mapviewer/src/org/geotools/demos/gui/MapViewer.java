@@ -40,11 +40,9 @@ import org.geotools.styling.StyleBuilder;
 
 
 /**
- * Load and display a shape file. At the difference of the {@link MapViewer} demo, this demo
- * use {@link MapPane} with the {@linkplain Renderer J2D renderer}. This renderer has the
- * following advantages:
+ * Load and display a shape file. This demo uses {@link MapPane} with the
+ * {@linkplain Renderer J2D renderer}. This renderer has the following capabilities:
  * <ul>
- *   <li>faster;</li>
  *   <li>progressive rendering of tiled image;</li>
  *   <li>supports arbitrary map projections (different geometries to be rendered on the same
  *       map can have different coordinate systems);</li>
@@ -60,17 +58,15 @@ import org.geotools.styling.StyleBuilder;
  *       device (when this information is available);</li>
  * </ul>
  *
- * The inconvenient is a more complex renderer, which is more difficult to modify for new users.
- * <br><br>
  * NOTE: While not essential, it is recommanded to run this demos in server mode, with:
  * <blockquote><pre>
  * java -server org.geotools.demos.MapViewer2 <I>thefile.shp</I>
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer2.java,v 1.1 2003/12/29 15:58:26 jmacgill Exp $
+ * @version $Id: MapViewer.java,v 1.1 2004/02/05 15:38:05 desruisseaux Exp $
  */
-public class MapViewer2 {
+public class MapViewer {
     /**
      * Run the test from the command line. If arguments are provided, then the first
      * argument is understood as the filename of the shapefile to load.
@@ -79,7 +75,7 @@ public class MapViewer2 {
      * @throws DataSource if an error occured while reading the data source.
      */
     public static void main(final String[] args) throws IOException, DataSourceException {
-        final MapViewer2 viewer = new MapViewer2();
+        final MapViewer viewer = new MapViewer();
         final Context context;
         switch (args.length) {
             default: // Fall through
@@ -99,7 +95,7 @@ public class MapViewer2 {
      * @throws DataSource if an error occured while reading the data source.
      */
     protected Context loadContext() throws IOException, DataSourceException {
-        return loadContext(getClass().getClassLoader().getResource("org/geotools/sampleData/statepop.shp"));
+        return loadContext(getClass().getClassLoader().getResource("sample-data/statepop.shp"));
     }
 
     /**
