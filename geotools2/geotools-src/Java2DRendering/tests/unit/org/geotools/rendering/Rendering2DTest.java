@@ -74,7 +74,7 @@ public class Rendering2DTest extends TestCase {
         com.vividsolutions.jts.geom.Polygon polygon = makeSamplePolygon(geomFac);
         
         types[0] = AttributeTypeFactory.newAttributeType("edge", polygon.getClass());
-        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"linefeature");
+        FeatureType polygonType = FeatureTypeFactory.newFeatureType(types,"polygonfeature");
         
         Feature polygonFeature = polygonType.create(new Object[]{polygon});
         
@@ -111,7 +111,7 @@ public class Rendering2DTest extends TestCase {
         Rule rule = sFac.createRule();
         rule.setSymbolizers(new Symbolizer[]{polysym});
         FeatureTypeStyle fts = sFac.createFeatureTypeStyle(new Rule[]{rule});
-        //fts.setRules(new Rule[]{rule});
+        fts.setFeatureTypeName("polygonfeature");
         
         Rule rule2 = sFac.createRule();
         rule2.setSymbolizers(new Symbolizer[]{linesym});
