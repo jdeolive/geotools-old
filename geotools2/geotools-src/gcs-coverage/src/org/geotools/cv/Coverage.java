@@ -144,7 +144,7 @@ import org.geotools.resources.gcs.Resources;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -516,7 +516,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * view of a coverage (which may or may not be a {@linkplain org.geotools.gc.GridCoverage grid
      * coverage}).
      *
-     * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Coverage#getRenderableImage
@@ -811,9 +811,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          * @param  hints The rendering hints, or <code>null</code> if none.
          * @return A render context initialized with an affine transform from the coverage
          *         to the grid coordinate system. This transform is the inverse of
-         *         {@link org.geotools.gc.GridRange#getGridToCoordinateSystem2D}.
+         *         {@link org.geotools.gc.GridGeometry#getGridToCoordinateSystem2D}.
          *
-         * @see org.geotools.gc.GridRange#getGridToCoordinateSystem
+         * @see org.geotools.gc.GridGeometry#getGridToCoordinateSystem
          */
         protected RenderContext createRenderContext(final Rectangle2D gridBounds,
                                                     final RenderingHints hints)
@@ -975,7 +975,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.20 2003/08/09 22:13:11 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.21 2003/08/13 08:59:26 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {
