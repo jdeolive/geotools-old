@@ -7,7 +7,7 @@
     
     
     <gml:Point>
-        <gml:coordinate>141.000000,-38.000000 </gml:coordinate>
+        <gml:coordinates>141.000000,-38.000000 </gml:coordinates>
     </gml:Point>
 </featureCollection>
 
