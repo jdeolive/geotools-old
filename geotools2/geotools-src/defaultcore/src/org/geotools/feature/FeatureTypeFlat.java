@@ -35,18 +35,26 @@ import org.geotools.data.*;
  * A flat feature type enforces the following properties:<ul>
  * <li>Attribute types are restricted to Java primitives and Strings. 
  * <li>Attributes may only have one occurrence.
- * <li>Each feature has a single, non-changing geometry attribute.</ul></p>
+ * <li>Each feature can have 0 or more non-changing geometry attributes.</ul></p>
  *
  * <p>Flat feature types define features types that may be thought of as
  * 'layers' in traditional GIS parlance.  They are called flat because they
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
- * @task HACK:now handle all objects
- * @version $Id: FeatureTypeFlat.java,v 1.20 2002/11/27 00:29:16 robhranac Exp $
+ * @task TODO: Rethink getDefaultGeometry, as we now allow more than one
+ * geometry.  Which one is the default?  Currently the first in the array of
+ * attributes will be default.
+ * @version $Id: FeatureTypeFlat.java,v 1.21 2003/01/15 19:37:33 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat 
     implements FeatureType {
+    /*
+     * FeatureTypeFlat now can handle 0 geometries and more than one
+     * one geometry.  This was changed to allow more flexibility in
+     * features.  Discussion of the change can be found in the log
+     * from the geotools developer chat session on January 14, 2003,
+     * archived on the geotools site (http://www.geotools.org).
     /**
      * The logger for the default core module.
      */
@@ -100,14 +108,14 @@ public class FeatureTypeFlat
 
     /**
      * Constructor with several attributes.  This constructor will fail if the
-     * attribute array does not contain exactly one geometry, the attributes
-     * do not match the allowed types, or any of the attributes have more than
-     * one occurrence.  As one might expect, this constructor ignores
-     * (reassigns) positional information in attributes based on the array
+     * the attributes do not match the allowed types, or any of the attributes 
+     * have more than one occurrence.  As one might expect, this constructor 
+     * ignores (reassigns) positional information in attributes based on the array
      * order.
+     *
      * @param attributeTypes The attribute types for this feature type.
-     * @throws SchemaException If missing geometry, more than one geometry, or
-     * attribute types do not conform to flat feature type definition.
+     * @throws SchemaException If attribute types do not conform to flat 
+     * feature type definition.
      */
     public FeatureTypeFlat(AttributeType[] attributeTypes)
         throws SchemaException {
@@ -390,12 +398,10 @@ public class FeatureTypeFlat
         FeatureTypeFlat schemaCopy = null;
         schemaCopy = (FeatureTypeFlat) this.clone();
 
-        if (hasAttributeType(name) && 
-                !getDefaultGeometry().getName().equals(xPath)) {
-            schemaCopy = removeAttribute(name, schemaCopy);
+        if (hasAttributeType(xPath)) {
+            schemaCopy = removeAttribute(xPath, schemaCopy);
         } else {
-            String message = "Attribute does not exist: " + name + " or " + 
-                             "attempted to remove geometry from flat feature type.";
+            String message = "Attribute does not exist: " + name; 
             throw new SchemaException(message);
         }
 
@@ -498,14 +504,25 @@ public class FeatureTypeFlat
      * Gets the initial geometry.  Features are allowed to change the primary
      * geometry pointer and ignore this method.
      *
-     * @return Path to initial geometry as XPath.
+     * @return Path to initial geometry as XPath, null if there is
+     * no geometry.
      */
-    public AttributeType getDefaultGeometry() {
+      public AttributeType getDefaultGeometry() {
         LOGGER.finer("geometry Position = " + geometryPosition);
-
+	if (geometryPosition == -1) {
+	    return null;
+	} else {
         return this.attributeTypes[geometryPosition];
+	}
     }
 
+    /**
+     * Gets the attribute type of the name xPath.
+     *
+     * @param xPath the name of the attributeType to retrieve.
+     * @return the attribute named xPath, if contained in this
+     * featureType.
+     */
     public AttributeType getAttributeType(String xPath) {
         //LOGGER.finest("has element: " + nameMap.containsValue(attributeTypes[1]));
 
