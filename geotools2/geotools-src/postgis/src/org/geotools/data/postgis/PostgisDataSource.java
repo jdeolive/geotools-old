@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.14 2003/01/16 21:36:54 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.15 2003/01/17 16:36:57 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -562,56 +562,20 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */ 
     public void addFeatures(FeatureCollection collection)
         throws DataSourceException {
-        Feature[] featureArr;
-        AttributeType[] attributeTypes;
-        int curFeature;
-        Object[] curAttributes;
-        String sql = "";
-        String featureID;
-        String geomSql = "";
-        int numAttributes;
-        String attrValue = "";
-	String geoText = "";
+	/* Shouldn't addFeatures return a list of the featureid's of
+	 * the successfully added features?  That would better reflect
+	 * the specs.  And maybe rename insertFeatures? - ch*/
         //int gid;
-        //Geometry curGeom = null;
-       
-	
-	featureArr = collection.getFeatures();
+	Feature[] featureArr = collection.getFeatures();
         if (featureArr.length > 0) {
-	    schema = featureArr[0].getSchema();
-	    //TODO: check to make sure schema is same for feature collection
-	    attributeTypes = schema.getAttributeTypes(); 
-	    numAttributes = attributeTypes.length;     
-	    AttributeType geometryAttr = schema.getDefaultGeometry();
-	    int geomPos = -1;
-	    if (geometryAttr != null) {
-		geomPos = geometryAttr.getPosition();
-	    }
+	    //schema = featureArr[0].getSchema();
+	    //attributeTypes = schema.getAttributeTypes(); 
+	    //numAttributes = attributeTypes.length;     
 	    try { 
 		Connection dbConnection = db.getConnection();
 		Statement statement = dbConnection.createStatement();
 		for (int i = 0; i < featureArr.length; i++){
-		    curAttributes = featureArr[i].getAttributes();
-		    //need to change this...get names of cols from schema
-		    sql = "INSERT INTO " + tableName + 
-			" VALUES(";
-		    //featureID = featureArr[i].getId(); 
-		    //sql += addQuotes(featureID) + ", ";
-		    for (int j = 0; j < curAttributes.length; j++){
-			if (j == geomPos) {
-			    geoText = geometryWriter.write((Geometry)curAttributes[j]);
-			    sql += "GeometryFromText('" + geoText + 
-				"', " + srid + ")"; 
-			} else {
-			    attrValue = addQuotes(curAttributes[j]);
-			    sql += attrValue;
-			}			
-			
-			if (j < curAttributes.length - 1){
-			    sql += ", ";
-			}
-		    }
-		    sql += ");";
+		    String sql = makeInsertSql(tableName, featureArr[i]);
 		    LOGGER.finer("this sql statement = " + sql);
 		    statement.executeUpdate(sql);
 		}
@@ -624,10 +588,50 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		throw new DataSourceException(message, e);
 	    }    
 	}
-
-
     }
 
+    /**
+     * Creates a sql insert statement.  Uses each feature's schema, which
+     * makes it possible to insert out of order, as well as inserting
+     * less than all features.
+     *
+     * @param tableName the name of the feature table being inserted into.
+     * @param feature the feature to add.
+     * @return an insert sql statement.
+     */ 
+    private String makeInsertSql(String tableName, Feature feature){
+	String attrValue = new String();
+	StringBuffer sql = new StringBuffer("INSERT INTO " + tableName + "(");
+	FeatureType featureSchema = feature.getSchema();
+	AttributeType geometryAttr = featureSchema.getDefaultGeometry();
+	int geomPos = -1;
+	if (geometryAttr != null) {
+	    geomPos = geometryAttr.getPosition();
+	}
+	AttributeType[] types = featureSchema.getAttributeTypes();
+	for (int i = 0; i < types.length; i++) {
+	    sql.append(types[i].getName());
+	    sql.append((i < types.length - 1) ? ", " : ") ");
+	} 
+	sql.append("VALUES (");
+	Object[] attributes = feature.getAttributes();
+	for (int j = 0; j < attributes.length; j++){
+	    if (j == geomPos) {
+		String geoText = geometryWriter.write((Geometry)attributes[j]);
+		sql.append("GeometryFromText('" + geoText + 
+		    "', " + srid + ")"); 
+	    } else {
+		attrValue = addQuotes(attributes[j]);
+		sql.append(attrValue);
+	    }			
+	    
+	    if (j < attributes.length - 1){
+		sql.append(", ");
+	    }
+	}
+	sql.append(");");
+	return sql.toString();
+    }
 
     /**
      * Adds quotes to an object for storage in postgis.  The object should
