@@ -23,7 +23,7 @@ package org.geotools.data.postgis;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
-import org.apache.log4j.Category;
+import java.util.logging.Logger;
 
 
 /**
@@ -31,13 +31,13 @@ import org.apache.log4j.Category;
  *
  * This provides a base class to the database transactional classes.  
  *
- * @version $Id: PostgisConnection.java,v 1.2 2002/06/05 12:05:16 loxnard Exp $
+ * @version $Id: PostgisConnection.java,v 1.3 2002/10/25 09:50:38 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class PostgisConnection implements javax.sql.DataSource {
 
-
-    private static Category _log = Category.getInstance(PostgisConnection.class.getName());
+    /** Standard logging instance */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     /** Creates PostGIS-specific JDBC driver class. */ 
     private static final String POSTGIS_DRIVER_CLASS = "org.postgresql.Driver";
