@@ -82,5 +82,15 @@
        </includes>
     </resources>
     <jars/>
+
+    <contributors>
+      <contributor>
+        <name>Yann Cezard</name>
+        <organization>Institut de Recherche pour le Developpement</organization>
+        <roles>
+          <role>Java developper</role>
+        </roles>
+      </contributor>
+    </contributors>
   </build>
 </project>

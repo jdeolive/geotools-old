@@ -9,8 +9,8 @@
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-        <logo>/images/gtLogo.gif</logo>
-    </organization>
+    <logo>/images/gtLogo.gif</logo>
+  </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
   <shortDescription>gcs-coverage module</shortDescription>
@@ -22,44 +22,43 @@
   <siteAddress>www.geotools.org</siteAddress>
   <siteDirectory/>
   <distributionDirectory/>
+
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/gcs-coverage</connection>
-    
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gcs-coverage/</url>
-    </repository>
-  
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gcs-coverage/</url>
+  </repository>
+
 
   <mailingLists/>
+
+
   <developers>
     <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization></organization>
-            <roles>
-                <role>Module Maintainer</role>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
-    
+      <organization>Institut de Recherche pour le Developpement</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
   <dependencies>
     <dependency>
       <id>resources</id>
       <version>0.1</version>
     </dependency>
-    
-    
-        
-        <dependency>
+    <dependency>
       <id>cts-coordtrans</id>
       <version>0.1</version>
     </dependency>
-    </dependencies>
+  </dependencies>
+
+
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
@@ -69,7 +68,16 @@
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
-        <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src</sourceDirectory>
+
+    <contributors>
+      <contributor>
+        <name>Remi Eve</name>
+        <organization>Institut de Recherche pour le Developpement</organization>
+        <roles>
+          <role>Java developper</role>
+        </roles>
+      </contributor>
+    </contributors>
     </build>
 </project>
-
