@@ -60,7 +60,7 @@ import org.geotools.renderer.geom.CompressionLevel;
  * Note: this implementation is not the fastest one. For maximal performance, consider using
  * {@link DefaultArray} instead.
  *
- * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
+ * @version $Id: GenericArray.java,v 1.5 2003/06/03 18:08:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -99,13 +99,36 @@ public class GenericArray extends PointArray implements RandomAccess {
     public GenericArray(final Object x, final Object y) throws ClassCastException,
                                                                MismatchedSizeException
     {
+        this.x = Vector.wrap(x);
+        this.y = Vector.wrap(y);
         this.lower = 0;
         this.upper = Array.getLength(x);
         if (upper != Array.getLength(y)) {
             throw new MismatchedSizeException();
         }
+    }
+
+    /**
+     * Construct a new array of points. The <var>x</var> and <var>y</var> arrays may be an array
+     * of any of Java's primitive types, and doesn't need to be the same type. The array are stored
+     * by reference (i.e. data are not copied).
+     *
+     * @param x <var>x</var> ordinates.
+     * @param y <var>y</var> ordinates.
+     * @param lower Index of lower point, inclusive.
+     * @param upper Index of upper point, exclusive.
+     * @throws ClassCastException if <var>x</var> and <var>y</var> are not arrays
+     *         of a primitive type.
+     * @throws MismatchedSizeException if arrays doesn't have the same length.
+     */
+    public GenericArray(final Object x, final Object y,
+                        final int lower, final int upper) throws ClassCastException
+    {
         this.x = Vector.wrap(x);
         this.y = Vector.wrap(y);
+        this.lower = lower;
+        this.upper = upper;
+        checkRange();
     }
 
     /**
@@ -120,6 +143,19 @@ public class GenericArray extends PointArray implements RandomAccess {
         this.y     = root.y;
         this.lower = lower;
         this.upper = upper;
+        checkRange();
+    }
+
+    /**
+     * Check the [{@link #lower}..{@link #upper}] range.
+     */
+    private void checkRange() {
+        if (lower<0) {
+            throw new IllegalArgumentException(String.valueOf(lower));
+        }
+        if (upper<lower || upper>=Math.min(x.length(), y.length())) {
+            throw new IllegalArgumentException(String.valueOf(upper));
+        }
     }
 
     /**
@@ -357,7 +393,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     /**
      * A path iterator for the data.
      *
-     * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.5 2003/06/03 18:08:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements PathIterator {
@@ -427,7 +463,7 @@ public class GenericArray extends PointArray implements RandomAccess {
      * Wrap an array of <code>double</code>, <code>float</code>, <code>long</code>,
      * <code>int</code>, <code>short</code> or <code>byte</code> data.
      *
-     * @version $Id: GenericArray.java,v 1.4 2003/05/28 18:06:26 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.5 2003/06/03 18:08:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Vector implements Serializable {

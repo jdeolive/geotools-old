@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.17 2003/06/02 21:55:03 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.18 2003/06/03 18:08:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -320,7 +320,7 @@ public class Polyline extends Geometry {
      *         These data will be copied, in such a way that any future modifications of
      *         <code>data</code> will have no impact on the <code>Polyline</code>s created.
      * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
-     * @param  upper Index after of the last <var>y</var> ordinate to add to the polyline.
+     * @param  upper Index after the last <var>y</var> ordinate to add to the polyline.
      * @param  coordinateSystem <code>data</code> point coordinate system.
      *         This argument can be null if the coordinate system is unknown.
      * @return List of <code>Polyline</code> objects. May have 0 length, but will never be null.
@@ -592,7 +592,7 @@ public class Polyline extends Geometry {
      *
      * @param  border Coordinates to add as (x,y) number pairs.
      * @param  lower Index of the first <var>x</var> ordinate to add to the border.
-     * @param  upper Index after of the last <var>y</var> ordinate to add to the border.
+     * @param  upper Index after the last <var>y</var> ordinate to add to the border.
      * @throws TransformException if <code>border</code> contains points that are invalid
      *         for this polyline's native coordinate system.
      * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
@@ -691,7 +691,7 @@ public class Polyline extends Geometry {
      *         These data will be copied, in such a way that any future modifications of
      *         <code>data</code> will have no impact on the <code>Polyline</code>s created.
      * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
-     * @param  upper Index after of the last <var>y</var> ordinate to add to the polyline.
+     * @param  upper Index after the last <var>y</var> ordinate to add to the polyline.
      * @throws TransformException if <code>points</code> contains points that are invalid
      *         for this polyline's native coordinate system.
      * @throws UnmodifiableGeometryException if modifying this geometry would corrupt a container.
