@@ -13,121 +13,14 @@ that allows you to describe the latyer in more detail
   <Name>MyStyle</Name>
     <!-- FeatureTypeStyles describe how to render different features -->
     <FeatureTypeStyle>
-        <FeatureTypeName>testSquare</FeatureTypeName>
+        <FeatureTypeName>testPoint</FeatureTypeName>
         <rule>
             <PointSymbolizer>
                 <graphic>
-                    <size>10</size>
+                    <size><PropertyName>size</PropertyName></size>
+                    <rotation><PropertyName>rotation</PropertyName></rotation>
                     <mark>
-                        <wellknownname>Square</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testCross</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>Cross</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testCircle</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>Circle</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testStar</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>Star</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testTriangle</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>Triangle</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testX</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>X</wellknownname>
-                        <Fill>
-                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-                            <CssParameter name="fill">#FF0000</CssParameter>
-                            <CssParameter name="fill-opacity">0.5</CssParameter>
-                        </Fill>
-                    </mark>
-                </graphic>
-            </PointSymbolizer>
-        </rule>
-    </FeatureTypeStyle>
-    <FeatureTypeStyle>
-        <FeatureTypeName>testArrow</FeatureTypeName>
-        <rule>
-            <PointSymbolizer>
-                <graphic>
-                    <size>10</size>
-                    <mark>
-                        <wellknownname>Arrow</wellknownname>
+                        <wellknownname><PropertyName>name</PropertyName></wellknownname>
                         <Fill>
                             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
                             <CssParameter name="fill">#FF0000</CssParameter>

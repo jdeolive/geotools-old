@@ -25,7 +25,7 @@ import org.geotools.feature.*;
 import org.geotools.data.*;
 import org.geotools.map.Map;
 import org.geotools.styling.*;
-
+import org.geotools.filter.*;
 //Java Topology Suite
 import com.vividsolutions.jts.geom.*;
 
@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.38 2002/07/05 15:30:05 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.39 2002/07/05 20:21:11 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -120,6 +120,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         wellKnownMarks.add("Star");
         wellKnownMarks.add("X");
         wellKnownMarks.add("Arrow");
+        wellKnownMarks.add("square");
+        wellKnownMarks.add("triangle");
+        wellKnownMarks.add("cross");
+        wellKnownMarks.add("circle");
+        wellKnownMarks.add("star");
+        wellKnownMarks.add("x");
+        wellKnownMarks.add("arrow");
         
         supportedGraphicFormats.add("image/gif");
         supportedGraphicFormats.add("image/jpg");
@@ -339,7 +346,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 graphics.draw(path);
             }else{
                 // set up the graphic stroke
-                drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
+                drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke(),feature);
             }
             
         }
@@ -375,7 +382,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             graphics.draw(path);
         }else{
             // set up the graphic stroke
-            drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
+            drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke(),feature);
         }
     }
     
@@ -393,10 +400,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         // TODO: consider if mark and externalgraphic should share an ancestor?
         if(null != (Object)sldgraphic.getExternalGraphics()){
             _log.debug("rendering External graphic");
-            renderExternalGraphic(geom,sldgraphic);
+            renderExternalGraphic(geom,sldgraphic,feature);
         }else{
             _log.debug("rendering mark");
-            renderMark(geom,sldgraphic);
+            renderMark(geom,sldgraphic,feature);
         }
     }
     String[] fontFamilies = null;
@@ -553,13 +560,19 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         }
         
-        private void renderExternalGraphic(Geometry geom, Graphic graphic){
+        private void renderExternalGraphic(Geometry geom, Graphic graphic, Feature feature){
             BufferedImage img = getExternalGraphic(graphic);
             if(img!=null){
-                renderImage((Point)geom,img,(int)graphic.getSize(),graphic.getRotation());
+                try{
+                    int size = ((Number)graphic.getSize().getValue(feature)).intValue();
+                    double rotation =((Number)graphic.getRotation().getValue(feature)).doubleValue();
+                    renderImage((Point)geom,img,size,rotation);
+                } catch (MalformedFilterException mfe){
+                    _log.fatal("",mfe);
+                }
             }else{
                 // if we get to here we need to render the marks;
-                renderMark(geom,graphic);
+                renderMark(geom,graphic,feature);
             }
             return;
 
@@ -588,15 +601,19 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     
-    private void renderMark(Geometry geom, Graphic graphic){
+    private void renderMark(Geometry geom, Graphic graphic,Feature feature){
         int size = 6; // size in pixels
         double rotation = 0.0; // rotation in degrees
-        Mark mark = getMark(graphic);
-        size = (int)graphic.getSize();
-        rotation = graphic.getRotation()*Math.PI/180d;
-        fillDrawMark(graphics,(Point)geom,mark,size,rotation);
+        Mark mark = getMark(graphic,feature);
+        try{
+            size = ((Number)graphic.getSize().getValue(feature)).intValue();
+            rotation = ((Number)graphic.getRotation().getValue(feature)).doubleValue()*Math.PI/180d;
+            fillDrawMark(graphics,(Point)geom,mark,size,rotation,feature);
+        } catch (MalformedFilterException mfe){
+                    _log.fatal("",mfe);
+                }
     }
-    private Mark getMark(Graphic graphic){
+    private Mark getMark(Graphic graphic, Feature feature){
         Mark marks[] = graphic.getMarks();
         Mark mark;
         
@@ -607,9 +624,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         
         for(int i = 0; i<marks.length; i++){
-            if(wellKnownMarks.contains(marks[i].getWellKnownName())){
-                mark = marks[i];
-                return mark;
+            try{
+                String name  = marks[i].getWellKnownName().getValue(feature).toString();
+                if(wellKnownMarks.contains(name)){
+                    mark = marks[i];
+                    return mark;
+                }
+            
+            } catch (MalformedFilterException mfe){
+                    _log.fatal("",mfe);
             }
         }
         _log.debug("going for a defaultMark");
@@ -644,41 +667,44 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         return;
     }
     
-    private void fillDrawMark(Graphics2D graphic,com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
-        fillDrawMark(graphic,point.getX(),point.getY(),mark,size,rotation);
+    private void fillDrawMark(Graphics2D graphic,com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation, Feature feature){
+        fillDrawMark(graphic,point.getX(),point.getY(),mark,size,rotation,feature);
     }
-    private void fillDrawMark(Graphics2D graphic,double tx, double ty,Mark mark, int size, double rotation){
-        AffineTransform temp = graphic.getTransform();
-        AffineTransform markAT = new AffineTransform();
-        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
-        
-        Point2D mapCentre = new Point2D.Double(tx,ty);
-        Point2D graphicCentre = new Point2D.Double();
-        temp.transform(mapCentre,graphicCentre);
-        markAT.translate(graphicCentre.getX(),graphicCentre.getY());
-        markAT.rotate(rotation);
-        double unitSize = 1.0; // getbounds is broken !!!
-        double drawSize = (double)size/unitSize;
-        markAT.scale(drawSize,-drawSize);
-        
-        
-        graphic.setTransform(markAT);
-        if(mark.getFill()!=null){
-            _log.debug("applying fill to mark");
-            applyFill(graphic,mark.getFill(),null);
-            graphic.fill(shape);
+    private void fillDrawMark(Graphics2D graphic,double tx, double ty,Mark mark, int size, double rotation,Feature feature){
+        try{
+            AffineTransform temp = graphic.getTransform();
+            AffineTransform markAT = new AffineTransform();
+            Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().getValue(feature).toString());
+
+            Point2D mapCentre = new Point2D.Double(tx,ty);
+            Point2D graphicCentre = new Point2D.Double();
+            temp.transform(mapCentre,graphicCentre);
+            markAT.translate(graphicCentre.getX(),graphicCentre.getY());
+            markAT.rotate(rotation);
+            double unitSize = 1.0; // getbounds is broken !!!
+            double drawSize = (double)size/unitSize;
+            markAT.scale(drawSize,-drawSize);
+
+
+            graphic.setTransform(markAT);
+            if(mark.getFill()!=null){
+                _log.debug("applying fill to mark");
+                applyFill(graphic,mark.getFill(),null);
+                graphic.fill(shape);
+            }
+            if(mark.getStroke()!=null){
+                _log.debug("applying stroke to mark");
+                applyStroke(graphic,mark.getStroke(),null);
+                graphic.draw(shape);
+            }
+            graphic.setTransform(temp);
+            if(mark.getFill()!=null){
+                resetFill();
+            }
+            return;
+        } catch (MalformedFilterException mfe){
+            _log.fatal("",mfe);
         }
-        if(mark.getStroke()!=null){
-            _log.debug("applying stroke to mark");
-            applyStroke(graphic,mark.getStroke(),null);
-            graphic.draw(shape);
-        }
-        graphic.setTransform(temp);
-        if(mark.getFill()!=null){
-            resetFill();
-        }
-        return;
-        
     }
     static java.awt.Canvas obs = new java.awt.Canvas();
     private void applyFill(Graphics2D graphic, Fill fill, Feature feature){
@@ -699,25 +725,30 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         org.geotools.styling.Graphic gr=fill.getGraphicFill();
         
         if(gr!=null){
-            setTexture(graphic,gr);
+            setTexture(graphic,gr,feature);
         }else{
             _log.debug("no graphic fill set");
         }
     }
-    private void setTexture(Graphics2D graphic,Graphic gr){
+    private void setTexture(Graphics2D graphic,Graphic gr,Feature feature){
         BufferedImage image = getExternalGraphic(gr);
         if(image != null){
             _log.debug("got an image in graphic fill");
         }else{
             _log.debug("going for the mark from graphic fill");
             
-            Mark mark = getMark(gr);
+            Mark mark = getMark(gr,feature);
             int size=200;
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
-            
-            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gr.getRotation());
+            double rotation = 0.0;
+            try{
+                rotation = ((Number)gr.getRotation().getValue(feature)).doubleValue();
+            } catch (MalformedFilterException mfe){
+                _log.fatal("",mfe);
+            }
+            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),rotation,feature);
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image,1);
@@ -729,8 +760,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         int width = image.getWidth();
         int height = image.getHeight();
         double unitSize = Math.max(width,height);
-        double drawSize = (double)gr.getSize()/unitSize;
-        _log.debug("size = "+gr.getSize()+" unitsize "+unitSize+" drawSize "+drawSize);
+        int size = 6;
+        try{
+            size = ((Number)gr.getSize().getValue(feature)).intValue();
+        } catch (MalformedFilterException mfe){
+            _log.fatal("",mfe);
+        }
+        double drawSize = (double)size/unitSize;
+        _log.debug("size = "+size+" unitsize "+unitSize+" drawSize "+drawSize);
         AffineTransform at = graphics.getTransform();
         double scaleX = drawSize/at.getScaleX();
         double scaleY = drawSize/-at.getScaleY();
@@ -830,7 +867,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             graphic.setColor(Color.decode((String)stroke.getColor().getValue(feature)));
             org.geotools.styling.Graphic gr=stroke.getGraphicFill();
             if(gr!=null){
-                setTexture(graphic,gr);
+                setTexture(graphic,gr,feature);
             }else{
                 _log.debug("no graphic fill set");
             }
@@ -847,7 +884,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * @param graphic the Graphics2D to draw on
      * @param path the general path to be drawn
      */
-    private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill){
+    private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill, Feature feature){
         _log.debug("drawing a graphicalStroke");
         
         
@@ -858,13 +895,18 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }else{
             _log.debug("going for the mark from graphic fill");
             
-            Mark mark = getMark(gFill);
+            Mark mark = getMark(gFill,feature);
             int size=200;
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
-            
-            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gFill.getRotation());
+            double rotation =0.0;
+            try{
+               rotation = ((Number)gFill.getRotation().getValue(feature)).doubleValue();
+            } catch (MalformedFilterException mfe){
+                _log.fatal("",mfe);
+            }
+            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),rotation,feature);
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
             track.addImage(image,1);
@@ -873,8 +915,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             } catch (InterruptedException e){}
             
         }
-        
-        int size = (int)gFill.getSize();
+        int size = 6;
+        try{
+            size = ((Number)gFill.getSize().getValue(feature)).intValue();
+        } catch (MalformedFilterException mfe){
+            _log.fatal("",mfe);
+        }
         int imageWidth = size;//image.getWidth();
         int imageHeight = size;//image.getHeight();
         int midx = imageWidth/2;

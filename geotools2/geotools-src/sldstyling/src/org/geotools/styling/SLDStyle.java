@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.16 2002/07/05 15:28:31 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.17 2002/07/05 20:21:11 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -393,13 +393,13 @@ public class SLDStyle implements org.geotools.styling.Style {
                 graphic.addMark(parseMark(child));
             }
             if(child.getNodeName().equalsIgnoreCase("opacity")){
-                graphic.setOpacity(Double.parseDouble(child.getFirstChild().getNodeValue()));
+                graphic.setOpacity(parseCssParameter(child));
             }
             if(child.getNodeName().equalsIgnoreCase("size")){
-                graphic.setSize(Double.parseDouble(child.getFirstChild().getNodeValue()));
+                graphic.setSize(parseCssParameter(child));
             }
             if(child.getNodeName().equalsIgnoreCase("rotation")){
-                graphic.setRotation(Double.parseDouble(child.getFirstChild().getNodeValue()));
+                graphic.setRotation(parseCssParameter(child));
             }
         }
         return graphic;
@@ -423,7 +423,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             if(child.getNodeName().equalsIgnoreCase("WellKnownName")){
                 _log.debug("setting mark to "+child.getFirstChild().getNodeValue());
-                mark.setWellKnownName(child.getFirstChild().getNodeValue());
+                mark.setWellKnownName(parseCssParameter(child));
             }
         }
         return mark;

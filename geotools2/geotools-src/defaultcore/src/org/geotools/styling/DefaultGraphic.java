@@ -20,23 +20,29 @@
 
 package org.geotools.styling;
 import java.util.*;
-
+import org.geotools.filter.*;
 /**
- * @version $Id: DefaultGraphic.java,v 1.7 2002/06/07 16:41:44 ianturton Exp $
+ * @version $Id: DefaultGraphic.java,v 1.8 2002/07/05 20:21:11 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
     private static org.apache.log4j.Category _log = 
-        org.apache.log4j.Category.getInstance("defaultcore.styling");
-    double opacity = 1.0;
-    double size = 6;
-    double rotation = 0.0;
-    
+        org.apache.log4j.Category.getInstance(DefaultGraphic.class);
+    private Expression rotation = null;
+    private Expression size = null;
+    private Expression opacity = null;
     /** Creates a new instance of DefaultGraphic */
     public DefaultGraphic() {
-        
+         try{
+            size = new ExpressionLiteral(new Integer(6));
+            opacity = new ExpressionLiteral(new Double(1.0));
+            rotation = new ExpressionLiteral(new Double(0.0));
+        } catch (IllegalFilterException ife){
+            _log.fatal("Failed to build default graphic: "+ife);
+            System.err.println("Failed to build default graphic: "+ife);
+        }
     }
     
 
@@ -86,6 +92,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         if(m == null) return;
         marks.add(m);
         m.setSize(size);
+        m.setRotation(rotation);
     }
         
     /**
@@ -100,7 +107,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The opacity of the Graphic, where 0.0 is completely transparent
      * and 1.0 is completely opaque.
      */
-    public double getOpacity() {
+    public Expression getOpacity() {
         return opacity;
     }
     
@@ -112,7 +119,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The angle of rotation in decimal degrees. Negative values
      * represent counter-clockwise rotation.  The default is 0.0 (no rotation).
      */
-    public double getRotation() {
+    public Expression getRotation() {
         return rotation;
     }
     
@@ -129,7 +136,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * @return The size of the graphic, the default is context specific.
      * Negative values are not possible.
      */
-    public double getSize() {
+    public Expression getSize() {
         return size;
     }
     
@@ -137,32 +144,51 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
      * Setter for property opacity.
      * @param opacity New value of property opacity.
      */
-    public void setOpacity(double opacity) {
+    public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
     
+    public void setOpacity(double opacity){
+        try{
+            this.opacity = new ExpressionLiteral(new Double(opacity));
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Opacity",mfe);
+        }
+    }
     /**
      * Setter for property rotation.
      * @param rotation New value of property rotation.
      */
-    public void setRotation(double rotation) {
+    public void setRotation(Expression rotation) {
         this.rotation = rotation;
         Iterator i = marks.iterator();
         while(i.hasNext()){
             ((DefaultMark)i.next()).setRotation(rotation);
         }
     }
-    
+    public void setRotation(double rotation){
+        try{
+            setRotation(new ExpressionLiteral(new Double(rotation)));
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Rotation",mfe);
+        }
+    }
     /**
      * Setter for property size.
      * @param size New value of property size.
      */
-    public void setSize(double size) {
+    public void setSize(Expression size) {
         this.size = size;
         Iterator i = marks.iterator();
         while(i.hasNext()){
             ((DefaultMark)i.next()).setSize(size);
         }
     }
-    
+    public void setSize(int size){
+        try{
+            setSize(new ExpressionLiteral(new Integer(size)));
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Opacity",mfe);
+        }
+    }
 }

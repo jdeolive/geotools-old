@@ -23,6 +23,7 @@
 
 package org.geotools.styling;
 
+import org.geotools.filter.Expression;
 /**
  * A Mark element defines a "shape" which has coloring applied to it.
  *
@@ -33,7 +34,7 @@ package org.geotools.styling;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.7 2002/06/04 15:43:01 loxnard Exp $
+ * @version $Id: Mark.java,v 1.8 2002/07/05 20:21:11 ianturton Exp $
  * @author James Macgill
  */
 public interface Mark {
@@ -46,7 +47,7 @@ public interface Mark {
      * 
      * @return The well-known name of a shape.  The default value is "square".
      */
-    public String getWellKnownName();
+    public Expression getWellKnownName();
     
     /**
      * This paramterer defines which stroke style should be used when
@@ -65,7 +66,7 @@ public interface Mark {
     
     
     
-    public double getSize();
-    public double getRotation();
+    public Expression getSize();
+    public Expression getRotation();
 }
 

@@ -51,9 +51,12 @@ package org.geotools.styling;
  *
  * TODO: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.3 2002/06/04 15:37:47 loxnard Exp $
+ * @version $Id: Graphic.java,v 1.4 2002/07/05 20:21:11 ianturton Exp $
  * @author James Macgill, CCG
  */
+
+import org.geotools.filter.Expression;
+
 public interface Graphic {
 
 
@@ -102,7 +105,7 @@ public interface Graphic {
      * @return The opacity of the Graphic, where 0.0 is completely 
      *         transparent and 1.0 is completely opaque.
      */
-    public double getOpacity();
+    public Expression getOpacity();
     
     /**
      * This paramteter gives the absolute size of the graphic in pixels
@@ -117,7 +120,7 @@ public interface Graphic {
      * @return The size of the graphic.  The default is context specific.
      *         Negative values are not possible.
      */
-    public double getSize();
+    public Expression getSize();
     
     /**
      * This parameter defines the rotation of a graphic in the clockwise
@@ -128,7 +131,7 @@ public interface Graphic {
      *         represent counter-clockwise rotation.
      *         The default is 0.0 (no rotation).
      */
-    public double getRotation();
+    public Expression getRotation();
     
 }
 

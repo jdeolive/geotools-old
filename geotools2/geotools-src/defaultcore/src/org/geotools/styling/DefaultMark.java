@@ -22,8 +22,9 @@ package org.geotools.styling;
 
 import com.vividsolutions.jts.geom.*;
 import java.util.StringTokenizer;
+import org.geotools.filter.*;
 /**
- * @version $Id: DefaultMark.java,v 1.6 2002/07/01 11:31:16 ianturton Exp $
+ * @version $Id: DefaultMark.java,v 1.7 2002/07/05 20:21:11 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultMark implements Mark {
@@ -31,14 +32,25 @@ public class DefaultMark implements Mark {
         org.apache.log4j.Logger.getLogger(DefaultMark.class);    
     Fill fill = new DefaultFill();
     Stroke stroke = new DefaultStroke();
-    String wellKnownName = "Square";
-    Polygon shape;
-    double size = 6.0;
-    double rotation = 0.0;
+    
+    //Polygon shape;
+    private Expression wellKnownName = null;
+    private Expression rotation = null;
+    private Expression size = null;
+
+
     private GeometryFactory geometryFactory = new GeometryFactory();
     /** Creates a new instance of DefaultMark */
     public DefaultMark() {
         _log.info("creating defaultMark");
+        try{
+            wellKnownName = new ExpressionLiteral("square");
+            size = new ExpressionLiteral(new Integer(6));
+            rotation = new ExpressionLiteral(new Double(0.0));
+        } catch (IllegalFilterException ife){
+            _log.fatal("Failed to build default mark: "+ife);
+            System.err.println("Failed to build default mark: "+ife);
+        }
     }
     public DefaultMark(String name){
         _log.info("creating "+name+" type mark");
@@ -75,7 +87,7 @@ public class DefaultMark implements Mark {
      *
      * @return The well-known name of a shape.  The default value is "square".
      */
-    public String getWellKnownName() {
+    public Expression getWellKnownName() {
         return wellKnownName;
     }
     
@@ -95,33 +107,46 @@ public class DefaultMark implements Mark {
         this.stroke = stroke;
     }
     
-    public void setSize(double size){
+    public void setSize(Expression size){
         this.size = size;
+    }
+    public void setSize(int size){
+        try{
+            setSize(new ExpressionLiteral(new Integer(size)));
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Opacity",mfe);
+        }
     }
     /**
      * Setter for property wellKnownName.
      * @param wellKnownName New value of property wellKnownName.
      */
-    public void setWellKnownName(java.lang.String wellKnownName) {
-        _log.debug("setting WellKnowName to "+wellKnownName);
-        for(int i = 0;i< WellKnownNames.length; i++){
-            if(wellKnownName.equalsIgnoreCase(WellKnownNames[i])){
-                this.wellKnownName = WellKnownNames[i];
-                _log.debug("set WellKnowName to "+this.wellKnownName);
-                return;
-            }
+    public void setWellKnownName(Expression wellKnownName) {
+        _log.debug("setting WellKnowName");
+        this.wellKnownName = wellKnownName;
+    }
+    public void setWellKnownName(String name){
+        try{
+            setWellKnownName(new ExpressionLiteral(name));
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Rotation",mfe);
         }
     }
-    
-    public void setRotation(double rotation) {
+    public void setRotation(Expression rotation) {
         this.rotation = rotation;
     }
-    
+    public void setRotation(double rotation){
+        try{
+            setRotation(new ExpressionLiteral(new Double(rotation))); 
+        } catch (org.geotools.filter.IllegalFilterException mfe){
+            _log.fatal("Problem setting Rotation",mfe);
+        }
+    }
     /**
      * Getter for property size.
      * @return Value of property size.
      */
-    public double getSize() {
+    public Expression getSize() {
         return size;
     }
     
@@ -129,7 +154,7 @@ public class DefaultMark implements Mark {
      * Getter for property rotation.
      * @return Value of property rotation.
      */
-    public double getRotation() {
+    public Expression getRotation() {
         return rotation;
     }
     private static String[] WellKnownNames = {"Square","Circle","Cross","Triangle","Star","X","Arrow"};

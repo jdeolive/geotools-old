@@ -52,17 +52,28 @@ public class DefaultMarkTest extends TestCase {
         
         GeometryFactory geomFac = new GeometryFactory();
         ArrayList features = new ArrayList();
+        
+        AttributeType[] pointAttribute = new AttributeType[4];
+        pointAttribute[0] = new AttributeTypeDefault("centre", com.vividsolutions.jts.geom.Point.class);
+        pointAttribute[1] = new AttributeTypeDefault("size",Double.class);
+        pointAttribute[2] = new AttributeTypeDefault("rotation",Double.class);
+        pointAttribute[3] = new AttributeTypeDefault("name",String.class);
+        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
+        FeatureFactory pointFac = new FeatureFactory(pointType);
+        
         String[] marks = {"Circle","Triangle","Cross","Star","X","Square","Arrow"};
-        for(int i=0; i<marks.length; i++){
-            
-            Point point = makeSamplePoint(geomFac,(double)i*5.0+2.0, 25.0);
-            
-            AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
-            FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("test"+marks[i]);
-            FeatureFactory pointFac = new FeatureFactory(pointType);
-            Feature pointFeature = pointFac.create(new Object[]{point});
-            System.out.println(""+pointFeature);
-            features.add(pointFeature);
+        double size = 6;
+        double rotation = 0;
+        int rows = 5;
+        for(int j=0;j<rows;j++){
+            for(int i=0; i<marks.length; i++){
+                Point point = makeSamplePoint(geomFac,(double)i*5.0+2.0, 5.0+j*5);
+                Feature pointFeature = pointFac.create(new Object[]{point,new Double(size),new Double(rotation),marks[i]});
+                System.out.println(""+pointFeature);
+                features.add(pointFeature);
+            }
+            size+=2;
+            rotation+=45;
         }
         System.out.println("got "+features.size()+" features");
         FeatureCollectionDefault ft = new FeatureCollectionDefault();
