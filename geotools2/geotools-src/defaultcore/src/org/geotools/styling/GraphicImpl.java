@@ -35,6 +35,8 @@
  */
 package org.geotools.styling;
 
+import java.util.Iterator;
+
 import org.geotools.filter.Expression;
 
 
@@ -42,9 +44,9 @@ import org.geotools.filter.Expression;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.13 2003/08/07 01:11:30 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.14 2003/08/10 08:39:28 seangeo Exp $
  */
-public class GraphicImpl implements org.geotools.styling.Graphic {
+public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
     private static final java.util.logging.Logger LOGGER = 
             java.util.logging.Logger.getLogger("org.geotools.core");
@@ -334,12 +336,126 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      * 
      */
     public Object clone()  {
-        Object clone;
+        GraphicImpl clone;
         try {
-            clone = super.clone();
+            clone = (GraphicImpl) super.clone();
+            
+            // Because ExternalGraphics and Marks are stored twice
+            // and we only want to clone them once, we should use
+            // the setter methods to place them in the proper lists
+            for (Iterator iter = externalGraphics.iterator(); iter.hasNext();) {
+                ExternalGraphic exGraphic = (ExternalGraphic) iter.next();
+                clone.addExternalGraphic((ExternalGraphic) exGraphic.clone());
+            }
+            
+            for (Iterator iter = marks.iterator(); iter.hasNext();) {
+                Mark mark = (Mark) iter.next();
+                clone.addMark((Mark) mark.clone());
+            }
+            
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
         return clone;
     }
+    
+    /** Override of hashcode
+     * 
+     *  @return The hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (geometryPropertyName != null) {
+            result = PRIME * result + geometryPropertyName.hashCode();
+        }
+        if (symbols != null) {
+            result = PRIME * result + symbols.hashCode();
+        }
+        if (rotation != null) {
+            result = PRIME * result + rotation.hashCode();
+        }
+        if (size != null) {
+            result = PRIME * result + size.hashCode();
+        }
+        if (opacity != null) {
+            result = PRIME * result + opacity.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this GraphicImpl with another for equality.
+     * 
+     *  <p>Two graphics are equal if and only if they both
+     *  have the same geometry property name and the same list
+     *  of symbols and the same rotation, size and opacity.
+     * 
+     * @param oth The other GraphicsImpl to compare with.
+     * @return True if this is equal to oth according to the above
+     * conditions.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        GraphicImpl other = (GraphicImpl) oth;
+        if (this.geometryPropertyName == null) {
+            if (other.geometryPropertyName != null) {
+                return false;
+            }
+        } else {
+            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
+                return false;
+            }
+        }
+        if (this.symbols == null) {
+            if (other.symbols != null) {
+                return false;
+            }
+        } else {
+            if (!this.symbols.equals(other.symbols)) {
+                return false;
+            }
+        }
+        if (this.rotation == null) {
+            if (other.rotation != null) {
+                return false;
+            }
+        } else {
+            if (!this.rotation.equals(other.rotation)) {
+                return false;
+            }
+        }
+        if (this.size == null) {
+            if (other.size != null) {
+                return false;
+            }
+        } else {
+            if (!this.size.equals(other.size)) {
+                return false;
+            }
+        }
+        if (this.opacity == null) {
+            if (other.opacity != null) {
+                return false;
+            }
+        } else {
+            if (!this.opacity.equals(other.opacity)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

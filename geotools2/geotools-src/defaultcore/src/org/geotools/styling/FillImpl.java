@@ -31,10 +31,10 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.7 2003/08/01 16:54:49 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.8 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill, CCG
  */
-public class FillImpl implements org.geotools.styling.Fill {
+public class FillImpl implements Fill, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -179,4 +179,106 @@ public class FillImpl implements org.geotools.styling.Fill {
         visitor.visit(this);
     }
     
+    /** Returns a clone of the FillImpl.
+     * 
+     *  
+     * @see org.geotools.styling.Fill#clone()
+     */
+    public Object clone() {
+       try {
+            FillImpl clone = (FillImpl) super.clone();
+            if ( graphicFill != null ) {
+                clone.graphicFill = (Graphic) graphicFill.clone();
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            // This will never happen
+            throw new RuntimeException("Failed to clone FillImpl");
+        }
+    }
+
+    /** Generates a hashcode for the FillImpl.
+     * 
+     *  @return The hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (color != null) {
+            result = PRIME * result + color.hashCode();
+        }
+        if (backgroundColor != null) {
+            result = PRIME * result + backgroundColor.hashCode();
+        }
+        if (opacity != null) {
+            result = PRIME * result + opacity.hashCode();
+        }
+        if (graphicFill != null) {
+            result = PRIME * result + graphicFill.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares a FillImpl with another for equality.
+     * 
+     *  <p>Two FillImpls are equal if they contain the same,
+     *  color, backgroundcolor, opacity and graphicFill.
+     *  
+     *  @param oth The other FillImpl
+     *  @return True if this FillImpl is equal to oth.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        FillImpl other = (FillImpl) oth;
+        if (this.color == null) {
+            if (other.color != null) {
+                return false;
+            }
+        } else {
+            if (!this.color.equals(other.color)) {
+                return false;
+            }
+        }
+        if (this.backgroundColor == null) {
+            if (other.backgroundColor != null) {
+                return false;
+            }
+        } else {
+            if (!this.backgroundColor.equals(other.backgroundColor)) {
+                return false;
+            }
+        }
+        if (this.opacity == null) {
+            if (other.opacity != null) {
+                return false;
+            }
+        } else {
+            if (!this.opacity.equals(other.opacity)) {
+                return false;
+            }
+        }
+        if (this.graphicFill == null) {
+            if (other.graphicFill != null) {
+                return false;
+            }
+        } else {
+            if (!this.graphicFill.equals(other.graphicFill)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

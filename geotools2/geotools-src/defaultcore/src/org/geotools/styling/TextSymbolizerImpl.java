@@ -19,8 +19,10 @@
  */
 package org.geotools.styling;
 
-/**
- * @version $Id: TextSymbolizerImpl.java,v 1.14 2003/08/09 03:05:28 seangeo Exp $
+/** Provides a Java representation of an SLD TextSymbolizer that
+ *  defines how text symbols should be rendered.
+ * 
+ * @version $Id: TextSymbolizerImpl.java,v 1.15 2003/08/10 08:39:28 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
@@ -41,6 +43,10 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
         labelPlacement = new PointPlacementImpl();
     }
 
+    /** Generates a hascode for this TextSymbolizer.
+     * 
+     * @return A haschcode.
+     */
     public int hashcode() {
         int key = 0;
         key = fill.hashCode();
@@ -110,7 +116,13 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
         this.fonts.add(font);
     }
 
+    /** Sets the list of fonts in the TextSymbolizer to the
+     *  provided array of Fonts.
+     * 
+     *  @param fonts The array of fonts to use in the symbolizer.
+     */
     public void setFonts(Font[] fonts) {
+        this.fonts.clear();
         for (int i = 0; i < fonts.length; i++) {
             addFont(fonts[i]);
         }
@@ -181,6 +193,11 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
         this.geometryPropertyName = geometryPropertyName;
     }
     
+    /** Accept a StyleVisitor to perform an operation
+     *  on this symbolizer.
+     * 
+     *  @param visitor The StyleVisitor to accept.
+     */
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }

@@ -19,8 +19,10 @@
  */
 package org.geotools.styling;
 
-/**
- * @version $Id: PointSymbolizerImpl.java,v 1.9 2003/08/09 03:05:28 seangeo Exp $
+/** Provides a Java representation of the PointSymbolizer.
+ *  This defines how points are to be rendered. 
+ * 
+ * @version $Id: PointSymbolizerImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
@@ -29,14 +31,6 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
 
     /** Creates a new instance of DefaultPointSymbolizer */
     protected PointSymbolizerImpl() {
-    }
-
-    public int hashcode() {
-        int key = 0;
-        key = graphic.hashCode();
-        key = (key * 13) + geometryPropertyName.hashCode();
-
-        return key;
     }
 
     /**
@@ -60,6 +54,10 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         return geometryPropertyName;
     }
 
+    /** Sets the Geometry Property Name.
+     * 
+     *  @param name The Geometry Property Name.
+     */
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
@@ -82,25 +80,94 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         this.graphic = graphic;
     }
     
+    /** Accept a StyleVisitor to perform an operation
+     *  on this symbolizer.
+     * 
+     *  @param visitor The StyleVisitor to accept.
+     */
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
     
     /** Creates a deep copy clone. 
      * 
-     * TODO: Need to complete the deep copy,
-     * currently only shallow copy.
-     * 
      * @return The deep copy clone.
-     * 
      */
     public Object clone() {
-        Object clone;
+        PointSymbolizerImpl clone;
         try {
-            clone = super.clone();
+            clone = (PointSymbolizerImpl) super.clone();
+            clone.graphic = (Graphic) this.graphic.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
         return clone;
     }
+    
+    /** Generates the hashcode for the PointSymbolizer
+     * 
+     *  @return the hashcode
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (geometryPropertyName != null) {
+            result = PRIME * result + geometryPropertyName.hashCode();
+        }
+        if (graphic != null) {
+            result = PRIME * result + graphic.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Checks this PointSymbolizerImpl with another for equality.
+     * 
+     *  <p>Two PointSymbolizers are equal if the have the same
+     *  geometry property name and their graphic object is equal.
+     * 
+     *  <p>Note: this method only works for other instances of
+     *  PointSymbolizerImpl, not other implementors of PointSymbolizer
+     * 
+     * @param oth The object to compare with this PointSymbolizerImpl
+     * for equality.
+     * @return True of oth is a PointSymbolizerImpl that is equal.
+     * 
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        PointSymbolizerImpl other = (PointSymbolizerImpl) oth;
+        if (this.geometryPropertyName == null) {
+            if (other.geometryPropertyName != null) {
+                return false;
+            }
+        } else {
+            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
+                return false;
+            }
+        }
+        if (this.graphic == null) {
+            if (other.graphic != null) {
+                return false;
+            }
+        } else {
+            if (!this.graphic.equals(other.graphic)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

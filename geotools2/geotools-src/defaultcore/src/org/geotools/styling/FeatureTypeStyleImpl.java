@@ -20,12 +20,11 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.11 2003/08/07 01:11:30 seangeo Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.12 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill
  */
-public class FeatureTypeStyleImpl
-    implements org.geotools.styling.FeatureTypeStyle, Cloneable {
-    private java.util.List ruleList = new java.util.ArrayList(); // Possibly not the best storage
+public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
+    private java.util.List ruleList = new java.util.ArrayList();
     private String featureTypeName = "feature";
     private String name = "name";
     private String title = "title";
@@ -36,7 +35,7 @@ public class FeatureTypeStyleImpl
     }
 
     /** Creates a new instance of FeatureTypeStyleImpl */
-protected FeatureTypeStyleImpl(Rule[] rules) {
+    protected FeatureTypeStyleImpl(Rule[] rules) {
         setRules(rules);
     }
 
@@ -119,11 +118,11 @@ protected FeatureTypeStyleImpl(Rule[] rules) {
     public void setTitle(java.lang.String title) {
         this.title = title;
     }
-    
+
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /** Creates a deep copy clone of the FeatureTypeStyle.
      * @see org.geotools.styling.FeatureTypeStyle#clone()
      */
@@ -134,14 +133,112 @@ protected FeatureTypeStyleImpl(Rule[] rules) {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
-        
-        Rule[] ruleArray = new Rule[ruleList.size()];        
+
+        Rule[] ruleArray = new Rule[ruleList.size()];
         for (int i = 0; i < ruleArray.length; i++) {
             Rule rule = (Rule) ruleList.get(i);
             ruleArray[i] = (Rule) rule.clone();
-        }        
+        }
         clone.setRules(ruleArray);
-        
+
         return clone;
     }
+    
+    /** Overrides hashCode.
+     * 
+     *  @return The hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (ruleList != null) {
+            result = PRIME * result + ruleList.hashCode();
+        }
+        if (featureTypeName != null) {
+            result = PRIME * result + featureTypeName.hashCode();
+        }
+        if (name != null) {
+            result = PRIME * result + name.hashCode();
+        }
+        if (title != null) {
+            result = PRIME * result + title.hashCode();
+        }
+        if (abstractStr != null) {
+            result = PRIME * result + abstractStr.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this FeatureTypeStyleImpl with another.
+     * 
+     *  <p>Two FeatureTypeStyles are equal if they contain
+     *  equal properties and an equal list of Rules.
+     * 
+     *  @param oth The other FeatureTypeStyleImpl to compare with.
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        FeatureTypeStyleImpl other = (FeatureTypeStyleImpl) oth;
+        if (this.featureTypeName == null) {
+            if (other.featureTypeName != null) {
+                return false;
+            }
+        } else {
+            if (!this.featureTypeName.equals(other.featureTypeName)) {
+                return false;
+            }
+        }
+        if (this.name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else {
+            if (!this.name.equals(other.name)) {
+                return false;
+            }
+        }
+        if (this.title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else {
+            if (!this.title.equals(other.title)) {
+                return false;
+            }
+        }
+        if (this.abstractStr == null) {
+            if (other.abstractStr != null) {
+                return false;
+            }
+        } else {
+            if (!this.abstractStr.equals(other.abstractStr)) {
+                return false;
+            }
+        }
+        if (this.ruleList == null) {
+            if (other.ruleList != null) {
+                return false;
+            }
+        } else {
+            if (!this.ruleList.equals(other.ruleList)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

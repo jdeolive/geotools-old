@@ -19,8 +19,11 @@
  */
 package org.geotools.styling;
 
-/**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.10 2003/08/09 03:05:28 seangeo Exp $
+/** Provides a representation of a PolygonSymbolizer in an SLD
+ *  Document.  A PolygonSymbolizer defines how a polygon geometry should
+ *  be rendered.
+ * 
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.11 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
@@ -30,15 +33,6 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
 
     /** Creates a new instance of DefaultPolygonStyler */
     protected PolygonSymbolizerImpl() {
-    }
-
-    public int hashcode() {
-        int key = 0;
-        key = fill.hashCode();
-        key = (key * 13) + stroke.hashCode();
-        key = (key * 13) + geometryPropertyName.hashCode();
-
-        return key;
     }
 
     /**
@@ -68,6 +62,11 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
         return geometryPropertyName;
     }
 
+    /** Sets the GeometryPropertyName.
+     * 
+     *  @param name The name of the GeometryProperty.
+     *  @see #PolygonSymbolizerImpl.geometryPropertyName()
+     */
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
@@ -111,11 +110,16 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
-    
+
+    /** Accepts a StyleVisitor to perform some operation
+     *  on this LineSymbolizer.
+     * 
+     *  @param visitor The visitor to accept.
+     */
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /** Creates a deep copy clone. 
      * 
      * TODO: Need to complete the deep copy,
@@ -125,12 +129,90 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
      *
      */
     public Object clone() {
-        Object clone;
+        PolygonSymbolizerImpl clone;
         try {
-            clone = super.clone();
+            clone = (PolygonSymbolizerImpl) super.clone();
+            if ( fill != null ) {
+                clone.fill = (Fill) fill.clone();
+            }
+            if ( stroke != null ) {
+                clone.stroke = (Stroke) stroke.clone();
+            }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
         return clone;
     }
+    
+    /** Generates a hashcode for the PolygonSymbolizerImpl.
+     * 
+     *  @return A hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (fill != null) {
+            result = PRIME * result + fill.hashCode();
+        }
+        if (stroke != null) {
+            result = PRIME * result + stroke.hashCode();
+        }
+        if (geometryPropertyName != null) {
+            result = PRIME * result + geometryPropertyName.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this PolygonSymbolizerImpl with another.
+     * 
+     *  <p>Two PolygonSymbolizerImpls are equal if they have
+     *  the same geometryProperty, fill and stroke. 
+     * 
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
+        if (this.geometryPropertyName == null) {
+            if (other.geometryPropertyName != null) {
+                return false;
+            }
+        } else {
+            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
+                return false;
+            }
+        }
+        if (this.fill == null) {
+            if (other.fill != null) {
+                return false;
+            }
+        } else {
+            if (!this.fill.equals(other.fill)) {
+                return false;
+            }
+        }
+        if (this.stroke == null) {
+            if (other.stroke != null) {
+                return false;
+            }
+        } else {
+            if (!this.stroke.equals(other.stroke)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

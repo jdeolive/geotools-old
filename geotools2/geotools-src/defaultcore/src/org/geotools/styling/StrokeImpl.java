@@ -21,13 +21,14 @@ package org.geotools.styling;
 import org.geotools.filter.Expression;
 
 
-/**
+/** Provides a Java representation of the Stroke object in an SLD document.
+ *  A stroke defines how a line is rendered. 
  *
  *
- * @version $Id: StrokeImpl.java,v 1.9 2003/08/01 16:55:04 ianturton Exp $
+ * @version $Id: StrokeImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill, CCG
  */
-public class StrokeImpl implements org.geotools.styling.Stroke {
+public class StrokeImpl implements Stroke, Cloneable {
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression color;
@@ -71,8 +72,11 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      * black ("#000000").
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
+     * 
+     * 
      *
      * @param color The color of the stroke encoded as a hexidecimal RGB value.
+     * This must not be null.
      */
     public void setColor(Expression color) {
         if (color == null) {
@@ -364,4 +368,218 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         visitor.visit(this);
     }
     
+    /** Clone the StrokeImpl object.
+     * 
+     *  <p>The clone is a deep copy of the original, except for
+     *  the expression values which are immutable.
+     *  
+     * @see org.geotools.styling.Stroke#clone()
+     */
+    public Object clone() {
+        try {
+            StrokeImpl clone = (StrokeImpl) super.clone();
+            
+            if ( dashArray != null ) {
+                clone.dashArray = new float[dashArray.length];
+                System.arraycopy(dashArray, 0, clone.dashArray, 0, dashArray.length);
+            }
+            
+            if ( fillGraphic != null ) {
+                clone.fillGraphic = (Graphic) fillGraphic.clone();
+            }
+            
+            if ( strokeGraphic != null ) {
+                clone.strokeGraphic = (Graphic) strokeGraphic.clone();
+            }
+            
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            // This will never happen
+            throw new RuntimeException("Failed to clone StrokeImpl");
+        }
+    }
+    
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (color != null) {
+            result = PRIME * result + color.hashCode();
+        }
+        result = PRIME * result + hashCodeHelper(dashArray);
+        if (dashOffset != null) {
+            result = PRIME * result + dashOffset.hashCode();
+        }
+        if (fillGraphic != null) {
+            result = PRIME * result + fillGraphic.hashCode();
+        }
+        if (strokeGraphic != null) {
+            result = PRIME * result + strokeGraphic.hashCode();
+        }
+        if (lineCap != null) {
+            result = PRIME * result + lineCap.hashCode();
+        }
+        if (lineJoin != null) {
+            result = PRIME * result + lineJoin.hashCode();
+        }
+        if (opacity != null) {
+            result = PRIME * result + opacity.hashCode();
+        }
+        if (width != null) {
+            result = PRIME * result + width.hashCode();
+        }
+
+        return result;
+    }
+
+    /*
+     * Helper method to compute the hashCode of arbitrary arrays.
+     */
+    private int hashCodeHelper(Object a) {
+        final int PRIME = 1000003;
+        if (a == null) {
+            return 0;
+        }
+        if (!a.getClass().isArray()) {
+            return a.hashCode();
+        }
+
+        int result = 0;
+        int aLength = java.lang.reflect.Array.getLength(a);
+        for (int i = 0; i < aLength; i++) {
+            result = PRIME * result + hashCodeHelper(java.lang.reflect.Array.get(a, i));
+        }
+
+        return result;
+    }
+
+   /** Compares this stroke with another stroke for equality.
+    *  
+    *  @param oth The other StrokeImpl to compare
+    *  @return True if this and oth are equal.
+    */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        StrokeImpl other = (StrokeImpl) oth;
+        // check the color first - most likely to change
+        if (this.color == null) {
+            if (other.color != null) {
+                return false;
+            }
+        } else {
+            if (!this.color.equals(other.color)) {
+                return false;
+            }
+        }  
+        // check the width 
+        if (this.width == null) {
+            if (other.width != null) {
+                return false;
+            }
+        } else {
+            if (!this.width.equals(other.width)) {
+                return false;
+            }
+        }      
+        // check the dashOffset
+        if (this.dashOffset == null) {
+            if (other.dashOffset != null) {
+                return false;
+            }
+        } else {
+            if (!this.dashOffset.equals(other.dashOffset)) {
+                return false;
+            }
+        }        
+        if (this.lineCap == null) {
+            if (other.lineCap != null) {
+                return false;
+            }
+        } else {
+            if (!this.lineCap.equals(other.lineCap)) {
+                return false;
+            }
+        }
+        if (this.lineJoin == null) {
+            if (other.lineJoin != null) {
+                return false;
+            }
+        } else {
+            if (!this.lineJoin.equals(other.lineJoin)) {
+                return false;
+            }
+        }
+        if (this.opacity == null) {
+            if (other.opacity != null) {
+                return false;
+            }
+        } else {
+            if (!this.opacity.equals(other.opacity)) {
+                return false;
+            }
+        }
+        if (this.fillGraphic == null) {
+            if (other.fillGraphic != null) {
+                return false;
+            }
+        } else {
+            if (!this.fillGraphic.equals(other.fillGraphic)) {
+                return false;
+            }
+        }
+        if (this.strokeGraphic == null) {
+            if (other.strokeGraphic != null) {
+                return false;
+            }
+        } else {
+            if (!this.strokeGraphic.equals(other.strokeGraphic)) {
+                return false;
+            }
+        }
+        if (!equalsHelper(dashArray, other.dashArray)) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    /*
+     * Helper method to compare two arbitrary arrays.
+     */
+    private boolean equalsHelper(Object a, Object b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+
+        if (!a.getClass().isArray() || !b.getClass().isArray()) {
+            return a.equals(b);
+        }
+
+        int aLength = java.lang.reflect.Array.getLength(a);
+        if (aLength != java.lang.reflect.Array.getLength(b)) {
+            return false;
+        }
+
+        for (int i = 0; i < aLength; i++) {
+            if (!equalsHelper(java.lang.reflect.Array.get(a, i), java.lang.reflect.Array.get(b, i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

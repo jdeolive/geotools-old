@@ -19,17 +19,18 @@
  */
 package org.geotools.styling;
 
-/**
- * @version $Id: RuleImpl.java,v 1.9 2003/08/07 01:11:29 seangeo Exp $
- * @author James Macgill
- */
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.geotools.filter.Filter;
 
-
-public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
+/** Provides the default implementation of Rule.
+ * 
+ * @version $Id: RuleImpl.java,v 1.10 2003/08/10 08:39:28 seangeo Exp $
+ * @author James Macgill
+ */
+public class RuleImpl implements Rule, Cloneable {
     private Symbolizer[] symbolizers;
     private List graphics = new ArrayList();
     private String name = "name";
@@ -211,6 +212,179 @@ public class RuleImpl implements org.geotools.styling.Rule, Cloneable {
         clone.setSymbolizers(symbArray);
         
         return clone;
+    }
+
+    /** Generates a hashcode for the Rule.
+     * 
+     *  @return The hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        result = PRIME * result + hashCodeHelper(symbolizers);
+        if (graphics != null) {
+            result = PRIME * result + graphics.hashCode();
+        }
+        if (name != null) {
+            result = PRIME * result + name.hashCode();
+        }
+        if (title != null) {
+            result = PRIME * result + title.hashCode();
+        }
+        if (abstractStr != null) {
+            result = PRIME * result + abstractStr.hashCode();
+        }
+        if (filter != null) {
+            result = PRIME * result + filter.hashCode();
+        }
+        result = PRIME * result + (hasElseFilter ? 1 : 0);
+        long temp = Double.doubleToLongBits(maxScaleDenominator);
+        result = PRIME * result + (int) (temp >>> 32);
+        result = PRIME * result + (int) (temp & 0xFFFFFFFF);
+        temp = Double.doubleToLongBits(minScaleDenominator);
+        result = PRIME * result + (int) (temp >>> 32);
+        result = PRIME * result + (int) (temp & 0xFFFFFFFF);
+
+        return result;
+    }
+
+    /*
+     * Helper method to compute the hashCode of arbitrary arrays.
+     */
+    private int hashCodeHelper(Object a) {
+        final int PRIME = 1000003;
+        if (a == null) {
+            return 0;
+        }
+        if (!a.getClass().isArray()) {
+            return a.hashCode();
+        }
+
+        int result = 0;
+        int aLength = java.lang.reflect.Array.getLength(a);
+        for (int i = 0; i < aLength; i++) {
+            result = PRIME * result + hashCodeHelper(java.lang.reflect.Array.get(a, i));
+        }
+
+        return result;
+    }
+
+    /** Compares this Rule with another for equality.
+     *  
+     *  <p>Two RuleImpls are equal if all their properties
+     *  are equal.
+     * 
+     *  @param oth The other rule to compare with.
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        RuleImpl other = (RuleImpl) oth;
+        
+        if (this.name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else {
+            if (!this.name.equals(other.name)) {
+                return false;
+            }
+        }
+        if (this.title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else {
+            if (!this.title.equals(other.title)) {
+                return false;
+            }
+        }
+        if (this.abstractStr == null) {
+            if (other.abstractStr != null) {
+                return false;
+            }
+        } else {
+            if (!this.abstractStr.equals(other.abstractStr)) {
+                return false;
+            }
+        }
+        if (this.filter == null) {
+            if (other.filter != null) {
+                return false;
+            }
+        } else {
+            if (!this.filter.equals(other.filter)) {
+                return false;
+            }
+        }
+
+        if (this.hasElseFilter != other.hasElseFilter) {
+            return false;
+        }
+
+        if (Double.doubleToLongBits(maxScaleDenominator) != 
+                Double.doubleToLongBits(other.maxScaleDenominator)) {
+            return false;
+        }
+
+        if (Double.doubleToLongBits(minScaleDenominator) != 
+                Double.doubleToLongBits(other.minScaleDenominator)) {
+            return false;
+        }
+        if (!equalsHelper(symbolizers, other.symbolizers)) {
+            return false;
+        }
+        if (this.graphics == null) {
+            if (other.graphics != null) {
+                return false;
+            }
+        } else {
+            if (!this.graphics.equals(other.graphics)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /*
+     * Helper method to compare two arbitrary arrays.
+     */
+    private boolean equalsHelper(Object a, Object b) {
+        if (a == b) {
+            return true;
+        }
+        if (a == null || b == null) {
+            return false;
+        }
+
+        if (!a.getClass().isArray() || !b.getClass().isArray()) {
+            return a.equals(b);
+        }
+
+        int aLength = java.lang.reflect.Array.getLength(a);
+        if (aLength != java.lang.reflect.Array.getLength(b)) {
+            return false;
+        }
+
+        for (int i = 0; i < aLength; i++) {
+            if (!equalsHelper(java.lang.reflect.Array.get(a, i), java.lang.reflect.Array.get(b, i))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

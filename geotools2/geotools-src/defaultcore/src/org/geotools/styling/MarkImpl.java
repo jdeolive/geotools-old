@@ -21,19 +21,17 @@ package org.geotools.styling;
 
 import org.geotools.filter.Expression;
 
-
 /**
- * @version $Id: MarkImpl.java,v 1.10 2003/08/01 16:55:04 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.11 2003/08/10 08:39:28 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class MarkImpl implements Mark {
+public class MarkImpl implements Mark, Cloneable {
     /**
      * The logger for the default core module.
      */
-    private static final java.util.logging.Logger LOGGER = 
-            java.util.logging.Logger.getLogger("org.geotools.styling");
-    private static final org.geotools.filter.FilterFactory filterFactory = 
-            org.geotools.filter.FilterFactory.createFilterFactory();
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger.getLogger("org.geotools.styling");
+    private static final org.geotools.filter.FilterFactory filterFactory =
+        org.geotools.filter.FilterFactory.createFilterFactory();
     private Fill fill;
     private Stroke stroke;
 
@@ -41,7 +39,6 @@ public class MarkImpl implements Mark {
     private Expression wellKnownName = null;
     private Expression rotation = null;
     private Expression size = null;
-    
 
     /** Creates a new instance of DefaultMark */
     protected MarkImpl() {
@@ -69,11 +66,9 @@ public class MarkImpl implements Mark {
     /**
      * Convenience method for logging a message with an exception.
      */
-    private static void severe(final String method, final String message, 
-                               final Exception exception) {
-        final java.util.logging.LogRecord record = new java.util.logging.LogRecord(
-                                                           java.util.logging.Level.SEVERE, 
-                                                           message);
+    private static void severe(final String method, final String message, final Exception exception) {
+        final java.util.logging.LogRecord record =
+            new java.util.logging.LogRecord(java.util.logging.Level.SEVERE, message);
         record.setSourceMethodName(method);
         record.setThrown(exception);
         LOGGER.log(record);
@@ -157,8 +152,7 @@ public class MarkImpl implements Mark {
 
     public void setRotation(double rotation) {
         try {
-            setRotation(filterFactory.createLiteralExpression(
-                                new Double(rotation)));
+            setRotation(filterFactory.createLiteralExpression(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe) {
             severe("setRotation", "Problem setting Rotation", mfe);
         }
@@ -183,9 +177,127 @@ public class MarkImpl implements Mark {
     public String toString() {
         return wellKnownName.toString();
     }
-    
+
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
+
+    /** Creates a deep copy of the Mark.
+     * 
+     *  <p>Only the fill and stroke are cloned since
+     *  Expressions should be immutable.
+     * 
+     * @see org.geotools.styling.Mark#clone()
+     */
+    public Object clone() {
+        try {
+            MarkImpl clone = (MarkImpl) super.clone();
+            clone.fill = (Fill) fill.clone();
+            clone.stroke = (Stroke) stroke.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            // this will never happend
+            throw new RuntimeException("Failed to clone MarkImpl");
+        }
+    }
+
+    /** The hashcode override for the MarkImpl.
+     * 
+     *  @return the Hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (fill != null) {
+            result = PRIME * result + fill.hashCode();
+        }
+        if (stroke != null) {
+            result = PRIME * result + stroke.hashCode();
+        }
+        if (wellKnownName != null) {
+            result = PRIME * result + wellKnownName.hashCode();
+        }
+        if (rotation != null) {
+            result = PRIME * result + rotation.hashCode();
+        }
+        if (size != null) {
+            result = PRIME * result + size.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this MarkImpl with another for equality.
+     * 
+     *  <p>Two MarkImpls are equal if they have the same well
+     *  Known Name, the same size and rotation and the same
+     *  stroke and fill.
+     * 
+     *  @param oth The Other MarkImpl to compare with.
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        MarkImpl other = (MarkImpl) oth;
+        // check expressions first - easiest
+        if (this.wellKnownName == null) {
+            if (other.wellKnownName != null) {
+                return false;
+            }
+        } else {
+            if (!this.wellKnownName.equals(other.wellKnownName)) {
+                return false;
+            }
+        }
+        if (this.rotation == null) {
+            if (other.rotation != null) {
+                return false;
+            }
+        } else {
+            if (!this.rotation.equals(other.rotation)) {
+                return false;
+            }
+        }
+        if (this.size == null) {
+            if (other.size != null) {
+                return false;
+            }
+        } else {
+            if (!this.size.equals(other.size)) {
+                return false;
+            }
+        }
+        if (this.fill == null) {
+            if (other.fill != null) {
+                return false;
+            }
+        } else {
+            if (!this.fill.equals(other.fill)) {
+                return false;
+            }
+        }
+        if (this.stroke == null) {
+            if (other.stroke != null) {
+                return false;
+            }
+        } else {
+            if (!this.stroke.equals(other.stroke)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

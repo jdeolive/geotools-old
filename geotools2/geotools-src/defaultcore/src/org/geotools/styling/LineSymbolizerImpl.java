@@ -19,8 +19,11 @@
  */
 package org.geotools.styling;
 
-/**
- * @version $Id: LineSymbolizerImpl.java,v 1.11 2003/08/09 03:05:28 seangeo Exp $
+/** Provides a representation of a LineSymbolizer in an SLD
+ *  Document.  A LineSymbolizer defines how a line geometry should
+ *  be rendered.
+ * 
+ * @version $Id: LineSymbolizerImpl.java,v 1.12 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
@@ -29,14 +32,6 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
 
     /** Creates a new instance of DefaultLineSymbolizer */
     protected LineSymbolizerImpl() {
-    }
-
-    public int hashcode() {
-        int key = 0;
-        key = stroke.hashCode();
-        key = (key * 13) + geometryName.hashCode();
-
-        return key;
     }
 
     /**
@@ -64,6 +59,11 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
         return geometryName;
     }
 
+    /** Sets the GeometryPropertyName.
+     * 
+     *  @param name The name of the geometryProperty.
+     *  @see #LineSymbolizerImpl.geometryPropertyName()
+     */
     public void setGeometryPropertyName(String name) {
         geometryName = name;
     }
@@ -87,28 +87,93 @@ public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     public void setStroke(Stroke stroke) {
         this.stroke = stroke;
     }
-    
+
+    /** Accepts a StyleVisitor to perform some operation
+     *  on this LineSymbolizer.
+     * 
+     *  @param visitor The visitor to accept.
+     */
     public void accept(StyleVisitor visitor) {
         visitor.visit(this);
     }
-    
+
     /** Creates a deep copy clone. 
-     * 
-     * TODO: Need to complete the deep copy,
-     * currently only shallow copy.
-     * 
-     * @return The deep copy clone.
-     * 
+     *  
+     * @return The deep copy clone.     
      */
     public Object clone() {
-        Object clone;
+        LineSymbolizerImpl clone;
         try {
-            clone = super.clone();
+            clone = (LineSymbolizerImpl) super.clone();
+            if ( stroke != null ) {
+                clone.stroke = (Stroke) stroke.clone();
+            }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
         return clone;
     }
 
-    
+    /** Generates a hashcode for the LineSymbolizerImpl.
+     * 
+     *  @return A hashcode.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (stroke != null) {
+            result = PRIME * result + stroke.hashCode();
+        }
+        if (geometryName != null) {
+            result = PRIME * result + geometryName.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this LineSymbolizerImpl with another for 
+     *  equality.
+     * 
+     *  <p>Two LineSymbolizerImpls are equal if they have the same
+     *  geometryPropertyName and the same stroke.
+     * 
+     *  @param oth The other LineSymbolizerImpl
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        LineSymbolizerImpl other = (LineSymbolizerImpl) oth;
+        if (this.geometryName == null) {
+            if (other.geometryName != null) {
+                return false;
+            }
+        } else {
+            if (!this.geometryName.equals(other.geometryName)) {
+                return false;
+            }
+        }
+        if (this.stroke == null) {
+            if (other.stroke != null) {
+                return false;
+            }
+        } else {
+            if (!this.stroke.equals(other.stroke)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 }

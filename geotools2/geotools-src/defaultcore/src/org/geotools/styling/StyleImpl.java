@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.15 2003/08/07 01:11:30 seangeo Exp $
+ * @version $Id: StyleImpl.java,v 1.16 2003/08/10 08:39:28 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {
@@ -147,6 +147,96 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
         clone.setFeatureTypeStyles(ftsArray);
         
         return clone;
+    }
+
+    /** Overrides hashcode.
+     *  
+     *  @return The hash code.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (featureTypeStyleList != null) {
+            result = PRIME * result + featureTypeStyleList.hashCode();
+        }
+        if (abstractText != null) {
+            result = PRIME * result + abstractText.hashCode();
+        }
+        if (name != null) {
+            result = PRIME * result + name.hashCode();
+        }
+        if (title != null) {
+            result = PRIME * result + title.hashCode();
+        }
+        result = PRIME * result + (defaultB ? 1 : 0);
+
+        return result;
+    }
+
+    /** Compares this Style with another.
+     * 
+     *  <p>Two StyleImpl are equal if they have the same
+     *  properties and the same list of FeatureTypeStyles.
+     * 
+     *  @param oth The object to compare with this for equality.
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth.getClass() != getClass()) {
+            return false;
+        }
+
+        StyleImpl other = (StyleImpl) oth;
+        
+        if (this.abstractText == null) {
+            if (other.abstractText != null) {
+                return false;
+            }
+        } else {
+            if (!this.abstractText.equals(other.abstractText)) {
+                return false;
+            }
+        }
+        if (this.name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else {
+            if (!this.name.equals(other.name)) {
+                return false;
+            }
+        }
+        if (this.title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else {
+            if (!this.title.equals(other.title)) {
+                return false;
+            }
+        }
+        if (this.defaultB != other.defaultB) {
+            return false;
+        }
+        if (this.featureTypeStyleList == null) {
+            if (other.featureTypeStyleList != null) {
+                return false;
+            }
+        } else {
+            if (!this.featureTypeStyleList.equals(other.featureTypeStyleList)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 
 }
