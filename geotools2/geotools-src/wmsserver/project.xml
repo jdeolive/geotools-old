@@ -82,7 +82,20 @@
          <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>   
-        
+     <dependency>
+      <id>postgis-driver</id>
+      <version>1.0</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>  
+    <dependency>
+      <id>postgresql</id>
+      <version>1.0</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>       
         <dependency>
       <id>filter</id>
       <version>0.1</version>
