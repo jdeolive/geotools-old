@@ -43,7 +43,7 @@ import java.lang.reflect.Array;
  * This class may be removed if JavaSoft provide some language construct
  * functionally equivalent to C/C++'s <code>realloc</code>.
  *
- * @version $Id: XArray.java,v 1.4 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: XArray.java,v 1.5 2003/05/23 17:57:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XArray {
@@ -903,6 +903,17 @@ public final class XArray {
      * Returns <code>true</code> if all elements in the specified array are in increasing order.
      * This method is usefull in assertions.
      */
+    public static boolean isSorted(final char[] array) {
+        for (int i=1; i<array.length; i++)
+            if (array[i] < array[i-1])
+                return false;
+        return true;
+    }
+
+    /**
+     * Returns <code>true</code> if all elements in the specified array are in increasing order.
+     * This method is usefull in assertions.
+     */
     public static boolean isSorted(final byte[] array) {
         for (int i=1; i<array.length; i++)
             if (array[i] < array[i-1])
@@ -979,5 +990,31 @@ public final class XArray {
             }
         }
         return true;
+    }
+
+    /**
+     * Returns <code>true</code> if the specified array contains at least one
+     * {@link Double#NaN NaN} value.
+     */
+    public static boolean hasNaN(final double[] array) {
+        for (int i=0; i<array.length; i++) {
+            if (Double.isNaN(array[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns <code>true</code> if the specified array contains at least one
+     * {@link Float#NaN NaN} value.
+     */
+    public static boolean hasNaN(final float[] array) {
+        for (int i=0; i<array.length; i++) {
+            if (Float.isNaN(array[i])) {
+                return true;
+            }
+        }
+        return false;
     }
 }
