@@ -123,4 +123,20 @@ public class ComponentColorModelJAI extends ComponentColorModel {
             }
         }
     }
+    
+    /**
+     * Returns the <code>String</code> representation of the contents of
+     * this <code>ColorModel</code>object.
+     * @return a <code>String</code> representing the contents of this
+     * <code>ColorModel</code> object.
+     */
+    public String toString() {
+       return new String("ComponentColorModelJAI: #pixelBits = "+pixel_bits
+                         + " numComponents = "+ super.getNumComponents()
+                         + " color space = "+ super.getColorSpace()
+                         + " transparency = "+ super.getTransparency()
+                         + " has alpha = "+ super.hasAlpha()
+                         + " isAlphaPre = "+ super.isAlphaPremultiplied()
+                         );
+    }
 }
