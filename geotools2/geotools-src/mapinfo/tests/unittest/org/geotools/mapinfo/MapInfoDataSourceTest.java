@@ -52,23 +52,22 @@ public class MapInfoDataSourceTest extends TestCase {
         dsMapInfo = new MapInfoDataSource();
     }
     String dataFolder;
-    public void testLoad() {
-        try {
-            // Load file
-            dataFolder = System.getProperty("dataFolder");
+    public void testLoad() throws Exception{
+
+        // Load file
+        dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
         }
-            String miffile = dataFolder + "/statepop.mif";
-            Vector objects = dsMapInfo.readMifMid(miffile);
-            System.out.println("Read "+objects.size()+" object");
-        }
-        catch(DataSourceException dsexp) {
-            dsexp.printStackTrace();
-            fail("Exception : "+dsexp.getMessage());
-        }
+
+        String miffile = dataFolder + "/statepop.mif";
+        Vector objects = dsMapInfo.readMifMid(miffile);
+        System.out.println("Read "+objects.size()+" features");
+        assertEquals("Wrong number of features read ",49,objects.size());
+        assertEquals("First feature name is wrong","Illinois",((Feature)objects.get(0)).getAttribute("STATE_NAME"));
+        
     }
   /*
     /** Test of readMifMid method, of class org.geotools.mapinfo.MapInfoDataSource.
