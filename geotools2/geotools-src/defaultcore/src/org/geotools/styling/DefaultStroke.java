@@ -88,6 +88,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @return The dash pattern as an array of float values in the form "dashlength gaplength ..."
      */
     public float[] getDashArray() {
+        if(dashArray == null) return new float[0];
         float[] newArray = new float[dashArray.length];
         System.arraycopy(dashArray,0,newArray,0,dashArray.length);
         return newArray;
