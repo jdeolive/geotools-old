@@ -83,7 +83,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
   </goal>
   
   <goal name="build:log">
-    <echo file="../../buildReport.txt" append="true">
+    <echo file="../../buildReport.txt" append="false">
     starting ${pom.id}</echo>
     <splash imageurl="file://${basedir}/xdocs/images/${pom.artifactId}.gif"/>
   </goal> 
