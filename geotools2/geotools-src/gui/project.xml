@@ -68,7 +68,7 @@
     </dependency>
         
         <dependency>
-      <id>Java2DRendering</id>
+      <id>java2drendering</id>
       <version>0.1</version>
     </dependency>
         <dependency>
