@@ -36,7 +36,7 @@ package org.geotools.resources.gui;
 /**
  * Greek language resource.
  *
- * @version $Id: Resources_el.java,v 1.1 2002/07/25 13:55:03 desruisseaux Exp $
+ * @version $Id: Resources_el.java,v 1.2 2002/08/01 10:49:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Resources_el extends Resources {
@@ -46,7 +46,7 @@ public class Resources_el extends Resources {
     static final String FILEPATH = "org/geotools/resources/gui/resources_el.utf";
 
     /**
-     * Construct resources for French.
+     * Construct resources for Greek.
      */
     public Resources_el() {
         super(FILEPATH);
