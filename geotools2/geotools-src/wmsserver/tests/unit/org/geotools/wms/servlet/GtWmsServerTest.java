@@ -109,6 +109,40 @@ public class GtWmsServerTest extends TestCase {
         }
     }
     
+    public void testGetMapTwice() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"USA"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
+            map = server.getMap(new String[] {"USA"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 18, -60, 50}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "testGetMapTwice");
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    public void testGetMapNullStyle() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"USA"}, null, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "testGetMapNullStyle");
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
+     public void testGetMapNullStyleTwice() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"USA"}, null, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
+            map = server.getMap(new String[] {"USA"}, null, "EPSG:4326", new double[] {-130, 18, -60, 50}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "testGetMapNullStyleTwice");
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
      public void testGetFeatureInfo() {
         try {
             Feature[] features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 300, 150);
