@@ -4,16 +4,16 @@
  * Created on February 19, 2002, 4:20 PM
  */
 
-package proj4j.src.org.geotools.proj4j;
+package org.geotools.proj4j;
 
 /**
  *
  * @author  jamesm
  */
 public class Unit {
-    String id;          /* units keyword */
-    double to_meter;	/* multiply by value to get meters */
-    String name;        /* comments */
+    public String id;          /* units keyword */
+    public double to_meter;	/* multiply by value to get meters */
+    public String name;        /* comments */
     /** Creates a new instance of Unit */
     public Unit(String id,double to_meter,String name) {
         this.id = id;
@@ -21,6 +21,14 @@ public class Unit {
         this.name = name;
     }
     
+    public static Unit getUnit(String id){
+        for(int i=0;i<units.length;i++){
+            if(id.equalsIgnoreCase(units[i].id)){
+                return units[i];
+            }
+        }
+        return null;
+    }
     
     static final Unit[] units={
         new Unit("km",1000,	"Kilometer"),
