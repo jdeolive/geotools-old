@@ -47,7 +47,7 @@ import org.geotools.styling.*;
 /**
  * 
  * 
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @author $author$
  */
 public class MapInfoDataSource implements DataSource {
@@ -195,7 +195,7 @@ public class MapInfoDataSource implements DataSource {
                 midFile = setExtension(filename, "mid");
                 mid = new File(midFile);
                 if(!mid.exists()){
-                    midFile = setExtension(filename.toLowerCase(), "mim");
+                    midFile = setExtension(filename.toLowerCase(), "mid");
                     mid = new File(midFile);
                     if(!mid.exists()){
                         midFile = setExtension(filename.toUpperCase(), "MID");
