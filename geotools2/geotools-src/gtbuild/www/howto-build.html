@@ -1,0 +1,140 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- $Id: howto-build.html,v 1.1 2002/04/03 15:25:26 ianturton Exp $ -->
+<HTML>
+  <HEAD>
+    <TITLE>How to Build GeoTools2</TITLE>
+  </HEAD>
+  <BODY>
+    <h1>How to Build GeoTools2</H1>
+    <h2 id='toc'>Table of Contents</H2>
+        <h3><a href='#intro'>Introduction</A></h2>
+        <H3> <a href='#single'>Building a single module</a></H3>
+        <h3> <a href='#all'>Building all of GeoTools</A></H3>
+        <h3> <a href='#some'>Changing aspects of the build process</A></H3>
+        <h3> <a href='#new'>Adding a new module</a></H3>
+    <hr>
+    <h2 id='intro'>Introduction</H2>
+        <p>GeoTools2 uses a system of modules to allow users to build only the component modules required for
+        thier project. The structure of the modules is similar to the one used by <a href="http://www.netbeans.org">netbeans</a>
+        To make the build process as easy as possible we have used <a href="http://jakarta.apache.org/ant/">ant</A>.
+        Apache Ant is a Java-based build tool. In theory, it is kind of like Make, but without Make's wrinkles. </p>
+    <a href='#toc'>back to contents</A>
+    <H2 id='single'>Building a single module</H2>
+        <p>Inside each module is a pair of files that control the build process, <CODE>build.xml</code>
+        and <CODE>build.ant.properties</CODE>. If you simply want to build the module then run <br><code>ant release</code><br>
+        This will compile the code, run the unit tests, generate a jar and then place the jar and any other
+        jars required for its use in the release directory (folder) of the module.</p>
+        <p>If you are making changes to the code then you will probably want to use the ant targets compile and test
+        which do what you would expect from thier names. Before you commit code back into the <a href='http://sourceforge.net/cvs/?group_id=4091'>cvs tree</A>
+        please make sure that it passes the tests rather than just compiling. This makes sure you have not broken
+        something else while you were adding a new feature or fixing a bug.</p> 
+    <a href='#toc'>back to contents</A>
+    <h2 id='all'>Building all of GeoTools</H2>
+        <p>The way you build all of GeoTools2 is very similar to building a single module. You go to the <code>gtbuild</code> 
+        directory (folder) and run <br><code>ant release</CODE><br> exactly as before. This will build
+        a release of each module and place each module's jar and required support jars into the system
+        release directory (folder).</P>
+        <p>If you want to change which modules are built or where the final results are placed then see
+        <a href='#some'>Changing aspects of the build process</a> section.</p>
+    <a href='#toc'>back to contents</A>
+    <h2 id='some'>Changing aspects of the build process</H2>
+        <p>If you want to control the modules that are built when using the project build (<code>gtbuild/build.xm</CODE>)
+        then you need to know a little more of how the build works.</p>
+        <p>What controls the build process is the <code>build.ant.properties</CODE> file. If you open this file then
+        it should look something like this:<br>
+            <pre>
+            #Ant Properties File
+            #Tue Jan 29 19:13:46 GMT 2002
+
+            #Path to folder where release will be placed
+            releaseFolder=../../release
+
+            #path to external binaries folder
+            extbin-extra=../../extbin/gtbuild/lib
+
+            #module set to include
+            modules=core,defaultcore,gmldatasource,shapefile
+            </PRE><br>
+        The lines which start <code>#</CODE> are comments, the other lines are setting variables.
+        Ant loads this file in during the <code>init</code> target, once set these variables are used to 
+        control parts of the build process. </P>
+        <p>In this case <code>releaseFolder</code> determines where 
+        the output of the build process (jars etc) is put. Currently this points to a folder (directory)
+        two folders "up" from the gtbuild folder and called release. <strong>Note: make sure you use 
+        unix style /'s instead of windows \'s</STRONG> it will still work on windows if you use the wrong
+        type but will fail on unix boxes, the right way round works on all machines. (I haven't tested this 
+        on a Mac I'm afraid, but I guess it will work ok.)</P>
+        <p>The variable <code>extbin-extra</CODE> points to where the extra jars needed for the build
+        process are stored and you probably should <STRONG>not</STRONG> change this.</P>
+        <p>The variable you are most likely want to change is <CODE>modules</CODE>. This contains a 
+        comma separated list of the modules you want to build. So if for example you only want to build 
+        the gmldatasource and shapefile modules, you would set modules to be gmldatasource,shapefile.
+        The build process will call ant in each of the modules with the <code>release</CODE> target.
+        But by overriding the <code>releaseFolder</CODE> variable used in each case to the one set in the gtbuild
+        process, the outputs are all placed in that folder. You may be suprised to see that during the build
+        other modules that you didn't set are built, this is because some modules depend on others being
+        built before thier build.</P>
+
+    <a href='#toc'>back to contents</A>
+    <h2 id='new'>Adding a new module</H2>
+        <p>If you are developing a new module, you are probably feeling despondant about the amount 
+        of work you will need to do to get the build process right. Don't be! The system is quite easy 
+        to use allowing you to concentrate on the coding.</p>
+        <ol>
+            <LI><b>Directory Structure</b> Your module must have a name, so create a directory with 
+            that name in the <code>geotools-src</code> folder. Then within that directory make a src folder 
+            containing an org folder, containing a geotools folder, containing a folder with the name of 
+            your package. <STRONG>Note: your package name does not have to be the same as your module name,
+            see gmldatasource for an example.
+            In fact it doesn't even need to be unique, see defaultcore for an example.</STRONG> Then put 
+            your source code within the package folder as usual.</P>
+            <p>Then add a tests/unit folder, inside this make a testData folder and an org/geotools/<i>packagename</i> folder.
+            This is where you put your unit tests, any data files you need for your tests to run go in the testData folder.</P></li>
+            <li><b>Build file</b> This is the easy bit either copy an existing <code>build.xml</code> file
+            from another module and edit its name, or create a new one that looks like this:<br>
+            <pre>
+            &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+            &lt;!DOCTYPE project [
+                &lt;!ENTITY common SYSTEM "../gtbuild/common.xml"&gt;
+            ]&gt;
+
+            &lt;project basedir="." default="all" name="modulename"&gt;
+                &common;
+            &lt;/project&gt;
+            </pre>
+            <br>This tells ant to use the file ../gtbuild/common.xml as the body of the ant file. This 
+            allows all modules to have the same structure and to all be formed in the same way. </p>
+            </li>
+            <li><b>build.ant.properties</B> This file controls how the package is built. Again either copy 
+            one from another module and edit or create one that looks like this:<br>
+            <pre>
+            #Ant Properties File
+            #Thu Mar 21 14:29:15 GMT 2002
+            releaseFolder=../${project.name}/release
+            dependancy=core,defaultcore
+
+            #the name of the project
+            project.name=gmldatasource
+
+            #where external binaries live
+            extbin=../../extbin/${project.name}/lib/
+
+            #name of testsuite
+            testsuite=org.geotools.gml.GmlSuite
+            </pre><br>These variables control different parts of the build process:
+            <ul><li>releaseFolder: where the finished jar and any supporting jars are put by the release target.</li>
+            <li>dependancy: Any modules which must be built before this module. If there are none then do <strong>NOT</STRONG>
+            set this variable remove it completly.</li>
+            <li>project.name: the name of the module</li>
+            <li>extbin: where any extra jars that are <STRONG>not part</strong> of geotools go. This is for 
+            jars like the JTS or an xml parser. If there are no extra jars then do <strong>NOT</STRONG>
+            set this variable remove it completly.</li>
+            <li>testsuite: the full classname of your main unit test suite. If you do not have a test suite write one now!</li>
+            </ul>
+            Once you have set all of these parameters then you can build your module just by running ant.
+            Targets of most interest to you are clean, compile, test and release. Just sit back and let the magic of ant make your life simple.
+            </li>
+        </ol>
+    <a href='#toc'>back to contents</A>
+  </BODY>
+</HTML>
