@@ -23,10 +23,11 @@ package org.geotools.feature;
 import java.util.*;
 
 /**
- * Simple, immutable class to store attributes.  This class should be sufficient 
- * for all simple (ie. non-schema) attribute implementations of this interface.
+ * Simple, immutable class to store attributes.  This class should be
+ * sufficient for all simple (ie. non-schema) attribute implementations
+ * of this interface.
  *
- * @version $Id: AttributeTypeDefault.java,v 1.4 2002/07/04 10:50:08 ianturton Exp $
+ * @version $Id: AttributeTypeDefault.java,v 1.5 2002/07/11 16:44:08 loxnard Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -134,13 +135,12 @@ public class AttributeTypeDefault implements AttributeType {
     }
 
     /**
-     * Gets the number of occurrences of this attribute.
+     * Gets a representation of this object as a string.
      *
-     * @return Number of occurrences.
-     * @throws SchemaException If the attribute does not exist.
+     * @return A representation of this object as a string
      */
     public String toString() {
-        StringBuffer returnString = new StringBuffer("position:"+this.position + ". ");
+        StringBuffer returnString = new StringBuffer("position:" + this.position + ". ");
         returnString.append(this.name);
         returnString.append(" [type:" + this.type + "]");
         returnString.append(" - occurences:" + this.occurrences);

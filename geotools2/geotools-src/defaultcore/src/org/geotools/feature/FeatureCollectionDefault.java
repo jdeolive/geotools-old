@@ -29,7 +29,7 @@ import org.geotools.datasource.extents.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.3 2002/06/04 16:34:28 loxnard Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.4 2002/07/11 16:39:46 loxnard Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -151,24 +151,24 @@ public class FeatureCollectionDefault implements FeatureCollection {
         // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
         //  idiom.  I think?
         Extent toLoad[];
-        if(loadedExtent!=null){
+        if (loadedExtent != null){
             toLoad = loadedExtent.difference(ex);
         }
-        else{
+        else {
             toLoad = new Extent[]{ex};
         }
         
-        for(int i=0;i<toLoad.length;i++){
+        for (int i = 0; i < toLoad.length; i++){
             //TODO: move this code to its own method?
-            if(toLoad[i]!=null){
-                if(data != null ){
-                    System.out.println("loading "+i);
-                    data.importFeatures(this,toLoad[i]);
+            if (toLoad[i] != null){
+                if (data != null){
+                    System.out.println("loading " + i);
+                    data.importFeatures(this, toLoad[i]);
                 }
-                if(loadedExtent==null){
+                if (loadedExtent == null){
                     loadedExtent = toLoad[i];
                 }
-                else{
+                else {
                     loadedExtent = loadedExtent.combine(toLoad[i]);
                 }
             }
@@ -180,8 +180,9 @@ public class FeatureCollectionDefault implements FeatureCollection {
     
 
     /** 
-     * Removes the features from this FeatureTable which fall into the specified
-     * extent, notifying TableChangedListeners that the table has changed.
+     * Removes the features from this FeatureTable which fall into the
+     * specified extent, notifying TableChangedListeners that the table has
+     * changed.
      * @param ex The extent defining which features to remove
      */
     public void removeFeatures(Extent ex) {
@@ -191,7 +192,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
     /**
      * Removes the features from this FeatureTable, notifying
      * TableChangedListeners that the table has changed.
-     * @param f The Features to remove
+     * @param features The Features to remove
      */ 
     public void removeFeatures(Feature[] features) {
         //TODO: remove the features
@@ -203,7 +204,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
      * @param features The List of Features to add
      */
     public void addFeatures(Feature[] features) {
-        this.features.addAll( Arrays.asList(features) );
+        this.features.addAll(Arrays.asList(features));
     }
     public void addFeatures(List features){
         this.features.addAll(features);
