@@ -19,31 +19,32 @@
  */
 
 package org.geotools.styling;
+import java.util.*;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.2 2002/10/17 16:54:55 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.3 2002/10/21 16:10:18 ianturton Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
-    private Rule[] ruleList;// Possibly not the best storage
+    private ArrayList ruleList = new ArrayList();// Possibly not the best storage
     private String featureTypeName = "feature";
     String name = "name";
     String title = "title";
     String abstractStr = "abstract";
     /** Creates a new instance of DefaultFeatureTypeStyle */
     protected FeatureTypeStyleImpl() {
-        ruleList = new Rule[0];
+        
     }
     protected FeatureTypeStyleImpl(Rule[] rules) {
-        ruleList = rules;
+        setRules(rules);
     }
     
     public String getFeatureTypeName() {
-        return featureTypeName;//HACK: - generic, catch all type name
+        return featureTypeName;
     }
     
     public Rule[] getRules() {
-        return ruleList;
+        return (Rule[]) ruleList.toArray(new Rule[0]);
     }
     
     public String[] getSemantecTypeIdentifiers() {
@@ -54,7 +55,11 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     }
     
     public void setRules(Rule[] rules){
-        ruleList = rules;
+        ruleList.add( Arrays.asList(rules));
+    }
+    
+    public void addRule(Rule rule){
+        ruleList.add(rule);
     }
     
     public void setFeatureTypeName(String name) {

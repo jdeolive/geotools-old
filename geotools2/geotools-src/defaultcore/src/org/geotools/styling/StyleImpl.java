@@ -19,13 +19,15 @@
 
 package org.geotools.styling;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 /**
- * @version $Id: StyleImpl.java,v 1.3 2002/10/16 16:57:21 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.4 2002/10/21 16:10:18 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
 
-    FeatureTypeStyle[] featureTypeStyleList = new FeatureTypeStyle[0];
+    ArrayList featureTypeStyleList = new ArrayList();
     String abstractText = "";
     String name = "Default Styler";
     String title = "Default Styler";
@@ -51,11 +53,16 @@ public class StyleImpl implements org.geotools.styling.Style {
     }
     
     public FeatureTypeStyle[] getFeatureTypeStyles() {
-       return featureTypeStyleList;
+       if( featureTypeStyleList.size() == 0){
+           return new FeatureTypeStyle[0];
+       }
+       
+       return (FeatureTypeStyle[]) featureTypeStyleList.toArray(new FeatureTypeStyle[0]);
+       
     }
     
     public void setFeatureTypeStyles(FeatureTypeStyle[] featureTypeStyles){
-        featureTypeStyleList = featureTypeStyles;
+        featureTypeStyleList.add(java.util.Arrays.asList(featureTypeStyles));
     }
     
     public String getName() {
@@ -84,6 +91,10 @@ public class StyleImpl implements org.geotools.styling.Style {
     
     public void setTitle(String title) {
         this.title = title;
+    }
+    
+    public void addFeatureTypeStyle(FeatureTypeStyle type) {
+        featureTypeStyleList.add(type);
     }
     
 }
