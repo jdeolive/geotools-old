@@ -82,7 +82,7 @@ public class RenderedMark implements RenderedObject {
     
     public void render(Graphics2D graphics) {
         if(!isRenderable()) return ;
-        utils.renderMark(graphics, x, y, fill, stroke, size, rotation, shape);
+        utils.renderMark(graphics, x, y, fill, stroke, size, rotation, shape, feature);
     }
     
 }
