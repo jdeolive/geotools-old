@@ -20,6 +20,7 @@
 package org.geotools.vpf.io;
 
 import java.io.ByteArrayInputStream;
+import java.io.PushbackInputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileDescriptor;
@@ -53,28 +54,28 @@ public class TableInputStream extends InputStream
 {
   public static final int AHEAD_BUFFER_SIZE = 0;
   
-  protected DataInputStream input = null;
+  protected PushbackInputStream input = null;
   protected TableHeader header = null;
   protected List rowsReadAhead = new LinkedList();
   
   public TableInputStream(File file)
     throws IOException
   {
-    input = new DataInputStream(new FileInputStream(file));
+    input = new PushbackInputStream(new FileInputStream(file));
     readHeader();
   }
 
   public TableInputStream(FileDescriptor fdObj)
     throws IOException
   {
-    input = new DataInputStream(new FileInputStream(fdObj));
+    input = new PushbackInputStream(new FileInputStream(fdObj));
     readHeader();
   }
 
   public TableInputStream(String file)
     throws IOException
   {
-    input = new DataInputStream(new FileInputStream(file));
+    input = new PushbackInputStream(new FileInputStream(file));
     readHeader();
   }
 
@@ -106,7 +107,7 @@ public class TableInputStream extends InputStream
     TableColumnDef colDef = readColumnDef();
     while (colDef != null)
     {
-	  System.out.println(colDef.toString());
+	  //	  System.out.println(colDef.toString());
       colDefs.add(colDef);
       ctrl = readChar();
       if (ctrl != VPF_FIELD_SEPARATOR)
@@ -148,10 +149,14 @@ public class TableInputStream extends InputStream
       throw new VPFHeaderFormatException("Header format does not fit VPF"+
                                          " file definition.");
     } // end of if (ctrl != VPF_RECORD_SEPARATOR)
-    String colDesc = readString(""+VPF_ELEMENT_SEPARATOR);
-    String descTableName = readString(""+VPF_ELEMENT_SEPARATOR);
-    String indexFile = readString(""+VPF_ELEMENT_SEPARATOR);
-    String narrTable = readString(""+VPF_ELEMENT_SEPARATOR);
+    String colDesc =
+	  readString(""+VPF_ELEMENT_SEPARATOR+VPF_FIELD_SEPARATOR);
+    String descTableName =
+	  readString(""+VPF_ELEMENT_SEPARATOR+VPF_FIELD_SEPARATOR);
+    String indexFile =
+	  readString(""+VPF_ELEMENT_SEPARATOR+VPF_FIELD_SEPARATOR);
+    String narrTable =
+	  readString(""+VPF_ELEMENT_SEPARATOR+VPF_FIELD_SEPARATOR);
     return new TableColumnDef(name, type, elements, key, colDesc,
                               descTableName, indexFile, narrTable);
   }
@@ -206,7 +211,7 @@ public class TableInputStream extends InputStream
   protected char readChar()
     throws IOException
   {
-    return (char)input.readByte();
+    return (char)input.read();
   }
 
   protected String readString(String terminators)
@@ -214,6 +219,13 @@ public class TableInputStream extends InputStream
   {
     StringBuffer text = new StringBuffer();
     char ctrl = readChar();
+	if (terminators.indexOf(ctrl) != -1)
+	{
+	  if (ctrl == VPF_FIELD_SEPARATOR) {
+		input.unread(ctrl);
+	  } // end of if (ctrl == VPF_RECORD_SEPARATOR)
+	  return null;
+	}
     while (terminators.indexOf(ctrl) == -1)
     {
       text.append(ctrl);
