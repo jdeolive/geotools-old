@@ -258,6 +258,7 @@ public class DbaseFileHeader {
     
     // set the new fields.
     fields = tempFieldDescriptors;
+    fieldCnt = fields.length;
     headerLength = MINIMUM_HEADER+32*fields.length;
     recordLength=tempLength;
   }
