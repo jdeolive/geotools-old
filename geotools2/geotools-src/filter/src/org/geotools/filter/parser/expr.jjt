@@ -1,4 +1,4 @@
-/*
+  /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
  *    (C) 2002, Geotools Project Managment Committee (PMC)
@@ -349,37 +349,37 @@ void CoordsList() #void:
 void Point() #WKTNode:
 {} 
 {
-  jjtThis.token = <POINT> ( "(" Coord() ")" )
+  jjtThis.token = <POINT> "(" Coord() ")"
 }
 
 void LineString() #WKTNode:
 {}
 {
-  jjtThis.token = <LINESTRING> ( Coords() ) 
+  jjtThis.token = <LINESTRING> Coords() 
 }
 
 void Polygon() #WKTNode:
 {}
 {
-  jjtThis.token = <POLYGON> ( Coords() ) 
+  jjtThis.token = <POLYGON> CoordsList() 
 }
 
 void MultiPoint() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTIPOINT> ( CoordsList() ) 
+  jjtThis.token = <MULTIPOINT> CoordsList()
 }
 
 void MultiLineString() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTILINESTRING> ( CoordsList() )
+  jjtThis.token = <MULTILINESTRING> CoordsList()
 }
 
 void MultiPolygon() #WKTNode:
 {}
 {
-  jjtThis.token = <MULTIPOLYGON> ( CoordsList() )
+  jjtThis.token = <MULTIPOLYGON> CoordsList()
 }
 
 void GeometryCollection() #WKTNode:
