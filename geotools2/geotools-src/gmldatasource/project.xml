@@ -83,6 +83,11 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
         <dependency>
       <id>JTS</id>
       <version>1.3</version>
