@@ -17,61 +17,57 @@ public class Transformer {
     }
     //instead of thowing, it should probably just set MAX_VALUE for all that fail
     public void transform( Projection srcdefn, Projection dstdefn, int point_count, int point_offset,
-                  double x[], double y[], double z[] ) throws ProjectionException
-
-{
-    boolean       needDatumShift;
-
-    if( point_offset == 0 )
-        point_offset = 1;//erm, why? (could be to avoid mult by 0)
-
-/* -------------------------------------------------------------------- */
-/*      Transform source points to lat/long, if they aren't             */
-/*      already.                                                        */
-/* -------------------------------------------------------------------- */
-    if( !srcdefn.isLatLong )
-    {
-        for(int i = 0; i < point_count; i++ )
-        {
-            XY  projected_loc = new XY();
-            LP	geodetic_loc = new LP();
-
-            projected_loc.x = x[point_offset*i];
-            projected_loc.y = y[point_offset*i];
-
-            geodetic_loc = srcdefn.inverse( projected_loc );
-
-            x[point_offset*i] = geodetic_loc.lam;
-            y[point_offset*i] = geodetic_loc.phi;
-        }
-    }
+    double x[], double y[], double z[] ) throws ProjectionException
     
-// -------------------------------------------------------------------- 
-//      Convert datums if needed, and possible.                         
-// -------------------------------------------------------------------- 
-    datumTransform( srcdefn, dstdefn, point_count, point_offset,x, y, z );
-
-//-------------------------------------------------------------------- 
-//      Transform destination points to projection coordinates, if      
-//      desired.                                                        
-// -------------------------------------------------------------------- 
-    if( !dstdefn.isLatLong )
     {
-        for( int i = 0; i < point_count; i++ )
-        {
-            XY         projected_loc;
-            LP	       geodetic_loc = new LP();
-
-            geodetic_loc.lam = x[point_offset*i];
-            geodetic_loc.phi = y[point_offset*i];
-
-            projected_loc = dstdefn.forward( geodetic_loc );
-
-            x[point_offset*i] = projected_loc.x;
-            y[point_offset*i] = projected_loc.y;
+        boolean       needDatumShift;
+        
+        if( point_offset == 0 )
+            point_offset = 1;//erm, why? (could be to avoid mult by 0)
+        
+        /* -------------------------------------------------------------------- */
+        /*      Transform source points to lat/long, if they aren't             */
+        /*      already.                                                        */
+        /* -------------------------------------------------------------------- */
+        if( !srcdefn.isLatLong ) {
+            for(int i = 0; i < point_count; i++ ) {
+                XY  projected_loc = new XY();
+                LP	geodetic_loc = new LP();
+                
+                projected_loc.x = x[point_offset*i];
+                projected_loc.y = y[point_offset*i];
+                
+                geodetic_loc = srcdefn.inverse( projected_loc );
+                
+                x[point_offset*i] = geodetic_loc.lam;
+                y[point_offset*i] = geodetic_loc.phi;
+            }
+        }
+        
+        // --------------------------------------------------------------------
+        //      Convert datums if needed, and possible.
+        // --------------------------------------------------------------------
+        datumTransform( srcdefn, dstdefn, point_count, point_offset,x, y, z );
+        
+        //--------------------------------------------------------------------
+        //      Transform destination points to projection coordinates, if
+        //      desired.
+        // --------------------------------------------------------------------
+        if( !dstdefn.isLatLong ) {
+            for( int i = 0; i < point_count; i++ ) {
+                XY         projected_loc;
+                LP	       geodetic_loc = new LP();
+                
+                geodetic_loc.lam = x[point_offset*i];
+                geodetic_loc.phi = y[point_offset*i];
+                
+                projected_loc = dstdefn.forward( geodetic_loc );
+                
+                x[point_offset*i] = projected_loc.x;
+                y[point_offset*i] = projected_loc.y;
+            }
         }
     }
-}
     
     
     
@@ -134,11 +130,11 @@ public class Transformer {
     /*      FALSE.                                                          */
     /************************************************************************/
     
-    public boolean compareDatums( Projection srcdefn,Projection dstdefn ) {
+    private boolean compareDatums( Projection srcdefn,Projection dstdefn ) {
         return srcdefn.isDatumEqual(dstdefn);
     }
     
-    public void geocentricToWSG84( Projection defn,
+    private void geocentricToWSG84( Projection defn,
     int point_count, int point_offset,
     double x[], double y[], double z[] )
     
@@ -177,7 +173,7 @@ public class Transformer {
         
     }
     
-    public void geocentricFromWSG84( Projection defn,
+    private void geocentricFromWSG84( Projection defn,
     int point_count, int point_offset,
     double x[], double y[], double z[] ) {
         
@@ -219,7 +215,7 @@ public class Transformer {
     /*                         pj_datum_transform()                         */
     /************************************************************************/
     
-    public void datumTransform( Projection srcdefn, Projection dstdefn,
+    private void datumTransform( Projection srcdefn, Projection dstdefn,
     int point_count, int point_offset,
     double x[], double y[], double z[] )throws ProjectionException,GeocentricException
     
