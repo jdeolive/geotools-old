@@ -12,7 +12,7 @@ import org.geotools.filter.*;
  * Factory for creating Styles. All style elements are returned as Interfaces from org.geotools.core as opposed
  * to Implementations from org.geotools.defaultcore.
  *
- * @version $Id: StyleFactoryImpl.java,v 1.4 2002/10/24 16:54:50 ianturton Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.5 2002/11/13 17:17:05 ianturton Exp $
  * @author  iant
  */
 public class StyleFactoryImpl extends StyleFactory {
@@ -121,10 +121,15 @@ public class StyleFactoryImpl extends StyleFactory {
     public Stroke createStroke(Expression color, Expression width, Expression opacity, Expression lineJoin,
     Expression lineCap, float[] dashArray, Expression dashOffset, Graphic graphicFill, Graphic graphicStroke){
         Stroke stroke = new StrokeImpl();
+        if(color == null) throw new IllegalArgumentException("Color may not be null in a stroke");
         stroke.setColor(color);
+        if(width == null) throw new IllegalArgumentException("Width may not be null in a stroke");
         stroke.setWidth(width);
+        if(opacity == null) throw new IllegalArgumentException("Opacity may not be null in a stroke");
         stroke.setOpacity(opacity);
+        if(lineJoin == null) throw new IllegalArgumentException("LineJoin may not be null in a stroke");
         stroke.setLineJoin(lineJoin);
+        if(lineCap == null) throw new IllegalArgumentException("LineCap may not be null in a stroke");
         stroke.setLineCap(lineCap);
         stroke.setDashArray(dashArray);
         stroke.setDashOffset(dashOffset);
@@ -133,14 +138,15 @@ public class StyleFactoryImpl extends StyleFactory {
         return stroke;
     }
     
-    public Stroke createStroke(){
-        return new StrokeImpl();
-    }
+
     
     public Fill createFill(Expression color, Expression backgroundColor, Expression opacity, Graphic graphicFill){
         Fill fill = new FillImpl();
+        if(color == null) throw new IllegalArgumentException("Color may not be null in a fill");
         fill.setColor(color);
         fill.setBackgroundColor(backgroundColor);
+        if(opacity == null) throw new IllegalArgumentException("Opacity may not be null in a fill");
+        // would be nice to check if this was within bounds but we have to wait until use since it may depend on an attribute
         fill.setOpacity(opacity);
         fill.setGraphicFill(graphicFill);
         return fill;
@@ -157,16 +163,24 @@ public class StyleFactoryImpl extends StyleFactory {
     
     public Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation){
         Mark mark = new MarkImpl();
+        if(wellKnownName == null) throw new IllegalArgumentException("WellKnownName can not be null in mark");
         mark.setWellKnownName(wellKnownName);
         mark.setStroke(stroke);
         mark.setFill(fill);
+        if(size == null) throw new IllegalArgumentException("Size can not be null in mark");
         mark.setSize(size);
+        if(rotation == null) throw new IllegalArgumentException("Rotation can not be null in mark");
         mark.setRotation(rotation);
+        
         return mark;
     }
     
     public Mark getSquareMark(){
-        Mark mark = getDefaultMark();
+        Mark mark = createMark(filterFactory.createLiteralExpression("Square"),
+            getDefaultStroke(),
+            getDefaultFill(),
+            filterFactory.createLiteralExpression(6),
+            filterFactory.createLiteralExpression(0));
         return mark;
     }
     public Mark getCircleMark(){
@@ -205,8 +219,11 @@ public class StyleFactoryImpl extends StyleFactory {
         graphic.setExternalGraphics(externalGraphics);
         graphic.setMarks(marks);
         graphic.setSymbols(symbols);
+        if(opacity == null) throw new IllegalArgumentException("Opacity can not be null in graphic");
         graphic.setOpacity(opacity);
+        if(size == null) throw new IllegalArgumentException("Size can not be null in graphic");
         graphic.setSize(size);
+        if(rotation == null) throw new IllegalArgumentException("Rotation can not be null in graphic");
         graphic.setRotation(rotation);
         return graphic;
     }
@@ -228,16 +245,21 @@ public class StyleFactoryImpl extends StyleFactory {
     
     public Font createFont(Expression fontFamily, Expression fontStyle, Expression fontWeight, Expression fontSize){
         Font font = new FontImpl();
+        
+        if(fontFamily == null) throw new IllegalArgumentException("Null font family specified");
         font.setFontFamily(fontFamily);
+        if(fontSize == null) throw new IllegalArgumentException("Null font size specified");
         font.setFontSize(fontSize);
+        if(fontStyle == null) throw new IllegalArgumentException("Null font Style specified");
         font.setFontStyle(fontStyle);
+        if(fontWeight == null) throw new IllegalArgumentException("Null font weight specified");
         font.setFontWeight(fontWeight);
         return font;
     }
     
-    public LinePlacement createLinePlacement(){
-        return new LinePlacementImpl();
-    }
+//    public LinePlacement createLinePlacement(){
+//        return new LinePlacementImpl();
+//    }
     
     public LinePlacement createLinePlacement(Expression offset){
         LinePlacement lp = new LinePlacementImpl();
@@ -245,9 +267,9 @@ public class StyleFactoryImpl extends StyleFactory {
         return lp;
     }
     
-    public PointPlacement createPointPlacement(){
-        return new PointPlacementImpl();
-    }
+//    public PointPlacement createPointPlacement(){
+//        return new PointPlacementImpl();
+//    }
     
     public PointPlacement createPointPlacement(AnchorPoint anchorPoint, Displacement displacement, Expression rotation){
         PointPlacement pp = new PointPlacementImpl();
@@ -358,4 +380,42 @@ public class StyleFactoryImpl extends StyleFactory {
         
         return gr;
     }
+    
+    public RasterSymbolizer createRasterSymbolizer(String geometryPropertyName, Expression opacity, 
+        ChannelSelection channel, Expression overlap, ColorMap colorMap, ContrastEnhancement ce, ShadedRelief relief,
+        Symbolizer outline) {
+        RasterSymbolizer rs =  new RasterSymbolizerImpl();
+        if(geometryPropertyName!= null) rs.setGeometryPropertyName(geometryPropertyName);
+        if(opacity != null) rs.setOpacity(opacity);
+        if(channel != null) rs.setChannelSelection(channel);
+        if(overlap != null) rs.setOverlap(overlap);
+        if(colorMap != null) rs.setColorMap(colorMap); 
+        if(ce != null) rs.setContrastEnhancement(ce);
+        if(relief != null) rs.setShadedRelief(relief);
+        if(outline != null) rs.setImageOutline(outline);
+        return rs;
+    }
+    
+    public RasterSymbolizer getDefaultRasterSymbolizer(){
+        return createRasterSymbolizer("geom", filterFactory.createLiteralExpression(1.0), null,
+        null, null, null, null, null);
+    }
+    
+    public ChannelSelection createChannelSelection(SelectedChannelType[] channels) {
+        ChannelSelection cs = new ChannelSelectionImpl();
+        if(channels != null&& channels.length> 0) cs.setSelectedChannels(channels);
+        return cs;
+    }
+    
+    public ColorMap createColorMap() {
+        return new ColorMapImpl();
+    }
+    
+    public SelectedChannelType createSelectedChannelType(String name, Expression enhancement) {
+        SelectedChannelType sct = new SelectedChannelTypeImpl();
+        sct.setChannelName(name);
+        sct.setContrastEnhancement(enhancement);
+        return sct;
+    }
+    
 }

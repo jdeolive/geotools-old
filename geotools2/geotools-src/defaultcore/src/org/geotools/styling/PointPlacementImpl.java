@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.3 2002/10/24 16:54:40 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.4 2002/11/13 17:17:05 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -65,6 +65,9 @@ public class PointPlacementImpl implements PointPlacement {
      * @param anchorPoint New value of property anchorPoint.
      */
     public void setAnchorPoint(org.geotools.styling.AnchorPoint anchorPoint) {
+        if(anchorPoint == null ) {
+            anchorPoint = new AnchorPointImpl();
+        }
         this.anchorPoint = anchorPoint;
     }
     
@@ -83,6 +86,9 @@ public class PointPlacementImpl implements PointPlacement {
      * @param displacement New value of property displacement.
      */
     public void setDisplacement(org.geotools.styling.Displacement displacement) {
+        if(displacement == null ) {
+            displacement = new DisplacementImpl();
+        }
         this.displacement = displacement;
     }
     

@@ -65,11 +65,11 @@ public abstract class StyleFactory {
 
     public abstract Displacement createDisplacement(Expression x, Expression y);
 
-    public abstract LinePlacement createLinePlacement();
+//    public abstract LinePlacement createLinePlacement();
 
     public abstract PointSymbolizer createPointSymbolizer();
 
-    public abstract PointPlacement createPointPlacement();
+//    public abstract PointPlacement createPointPlacement();
 
     public abstract Mark createMark(Expression wellKnownName, Stroke stroke, Fill fill, Expression size, Expression rotation);
 
@@ -118,7 +118,7 @@ public abstract class StyleFactory {
     public abstract Rule createRule();
 
     public abstract LineSymbolizer createLineSymbolizer(Stroke stroke, String geometryPropertyName);
-
+    
     public abstract FeatureTypeStyle createFeatureTypeStyle();
 
     public abstract Graphic createGraphic(ExternalGraphic[] externalGraphics, Mark[] marks, Symbol[] symbols, Expression opacity, Expression size, Expression rotation);
@@ -129,6 +129,15 @@ public abstract class StyleFactory {
     
     public abstract PolygonSymbolizer createPolygonSymbolizer(Stroke stroke, Fill fill, String geometryPropertyName);
 
+    public abstract RasterSymbolizer createRasterSymbolizer(String geometryPropertyName, Expression opacity, ChannelSelection channel, Expression overlap, ColorMap colorMap, ContrastEnhancement ce, ShadedRelief relief, Symbolizer outline);
+
+    public abstract RasterSymbolizer getDefaultRasterSymbolizer();
+    
+    public abstract ChannelSelection createChannelSelection(SelectedChannelType[] channels);
+    
+    public abstract SelectedChannelType createSelectedChannelType(String name, Expression enhancement);
+    
+    public abstract ColorMap createColorMap();
     public abstract Style getDefaultStyle();
     
     public abstract Stroke getDefaultStroke();
@@ -148,6 +157,8 @@ public abstract class StyleFactory {
     public abstract Graphic getDefaultGraphic();
     
     public abstract Font getDefaultFont();
+    
+    
     
     
     /**
