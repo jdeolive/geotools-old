@@ -14,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/01 00:31:54 $</date>
+    <date>$Date: 2002/10/01 12:09:07 $</date>
 
     <abstract>
       <para>Software Design Description of Geotools2.</para>
@@ -57,8 +57,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD 498
       Software Design Description Data Item Description (SDD DID)</ulink>.
       MIL-STD 498 specifies a software development framework and the SDD DID
-      specifies the heading structure for this document and guidence for the
-      content in each section.</para>
+      specifies the heading structure and content for each section.</para>
     </section>
   </section>
 
@@ -81,7 +80,8 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         </listitem>
 
         <listitem>
-          <para>Implementing Open GIS Standards.</para>
+          <para>Implementing Open GIS Standards. Many of the modules implement
+          specific OGC specifications.</para>
         </listitem>
 
         <listitem>
@@ -139,139 +139,64 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         of these modules is usually required to build an application based on
         GT2.</para>
 
-        <para>Detailed information geotools modules, including JavaDoc API can
-        be found at: modules.geotools.org/core.</para>
-      </section>
+        <figure id="figureoverview">
+          <title>Geotools modules</title>
 
-      <section>
-        <title id="modulecore">core</title>
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/developersguide/overview.png" />
+            </imageobject>
+          </mediaobject>
+        </figure>
 
-        <para>At the hart of GT2 is the core module, this module contains no
-        implementation code, just Java interfaces for all the key modules.</para>
-      </section>
+        <itemizedlist>
+          <title>Geotools systems</title>
 
-      <section>
-        <title id="moduledefaultcore">defaultcore</title>
+          <listitem>
+            <para>core: At the hart of GT2 is the core module, this module
+            contains no implementation code, just Java interfaces for all the
+            key modules.</para>
+          </listitem>
 
-        <para>The next important module is the defaultcore which provides an
-        implementation of the key interfaces found in the core module with the
-        exception of datasource and rendering. The defaultcore module contains
-        code which uses the latest version of Java (1.4) though it is
-        envisioned that alternative implementations of core could be made in
-        future, perhaps to target J2ME.</para>
+          <listitem>
+            <para>defaultcore: The next important module is the defaultcore
+            which provides an implementation of the key interfaces found in
+            the core module with the exception of datasource and rendering.
+            The defaultcore module contains code which uses the latest version
+            of Java (1.4) though it is envisioned that alternative
+            implementations of core could be made in future, perhaps to target
+            J2ME.</para>
 
-        <para>The datasource and rendering interfaces are not implemented by
-        the defaultcore module as there will need to be multiple
-        implementations available so implementation is left to other modules.
-        Note that although the defaultcore module includes a full set of
-        objects for representing the SLD and Filter specification there is no
-        code in these modules for reading or writing such documents, instead
-        an entirely programmatic approach is assumed with IO for such
-        specifications being left to other modules.</para>
-      </section>
+            <para>The datasource and rendering interfaces are not implemented
+            by the defaultcore module as there will need to be multiple
+            implementations available so implementation is left to other
+            modules. Note that although the defaultcore module includes a full
+            set of objects for representing the SLD and Filter specification
+            there is no code in these modules for reading or writing such
+            documents, instead an entirely programmatic approach is assumed
+            with IO for such specifications being left to other modules.</para>
+          </listitem>
 
-      <section>
-        <title id="modulesldstyling">sldstyling</title>
+          <listitem>
+            <para>Rendering: The rendering modules are responsible for
+            rendering geographic data.</para>
+          </listitem>
 
-        <para>An IO module which can read and write SLD XML documents by
-        converting to and from the style objects implemented in defaultcore.</para>
-      </section>
+          <listitem>
+            <para>Transforms: These modules manipulate geographic data.</para>
+          </listitem>
 
-      <section>
-        <title id="modulefilter">filter</title>
+          <listitem>
+            <para>DataSources: These modules read native geographic data
+            formats and convert it to a format usable by geotools2.</para>
+          </listitem>
+        </itemizedlist>
 
-        <para>An IO module which can read and write Filter Encoding XML
-        documents by converting to and from the filter objects implemented in
-        defaultcore.</para>
-      </section>
+        <para>JavaDoc API for modules can be found at:
+        modules.geotools.org/core.</para>
 
-      <section>
-        <title id="modulepostgis">postgis</title>
-
-        <para>A datasource implementation for pulling spatial and attribute
-        data from a PostGIS database. (taking advantage of the spatial
-        capabilities of PostGIS).</para>
-      </section>
-
-      <section>
-        <title id="modulemysql">mysql</title>
-
-        <para>A datasource implementation for pulling spatial and attribute
-        data from a MySQL database. (working around the lack of spatial
-        capability in MySQL).</para>
-      </section>
-
-      <section>
-        <title id="modulegmldatasource">gmldatasource</title>
-
-        <para>A datasource implementation which can parse GML 2 encoded
-        information.</para>
-      </section>
-
-      <section>
-        <title id="modulemapinfo">mapinfo</title>
-
-        <para>A datasource implementation which can read MIF/MID files.</para>
-      </section>
-
-      <section>
-        <title id="moduleshapefile">shapefile</title>
-
-        <para>A datasource implementation which can read Shapefiles.</para>
-      </section>
-
-      <section>
-        <title id="modulejava2drenderer">java2drenderer</title>
-
-        <para>java2drenderer - an implementation of the rendering interface
-        which uses the Java2D API.</para>
-      </section>
-
-      <section>
-        <title id="modulesvgsupport">svgsupport</title>
-
-        <para>A module which extends the java2drenderer so that SVG files can
-        be created.</para>
-      </section>
-
-      <section>
-        <title id="modulects-coordtrans">cts-coordtrans</title>
-
-        <para>cts-coordtrans - an implementation of the Coordinate
-        Transformation specifications.</para>
-      </section>
-
-      <section>
-        <title id="modulegcs-coverage">gcs-coverage</title>
-
-        <para>gcs-coverage - an implementation of the Grid Coverages
-        specification.</para>
-      </section>
-
-      <section>
-        <title id="modulegui">gui</title>
-
-        <para>gui - a suite of visual components for navigating and displaying
-        maps produced by a renderer (e.g. the java2drenderer).</para>
-      </section>
-
-      <section>
-        <title id="modulealgorithms">algorithms</title>
-
-        <para>A suite of algorithms for analyzing and manipulating geographic
-        objects.</para>
-      </section>
-
-      <section>
-        <title id="modulewmsserver">wmsserver</title>
-
-        <para>An implementation of the OGC WMS spec, including support for
-        SLD.</para>
-
-        <para>A WFS has been implemented as a separate project using the GT2
-        codebase and it envisioned that the wmsserver module will soon be
-        extracted and become part of a separate project which still using the
-        GT2 as a base.</para>
+        <para><link linkend="geotoolsdetaileddesign">Detailed Design</link>
+        contains more information about the modules.</para>
       </section>
     </section>
 
@@ -313,6 +238,145 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
   </section>
 
   <section>
+    <title id="geotoolsdetaileddesign">Geotools2 detailed design.</title>
+
+    <section>
+      <title>todo</title>
+
+      <para>The 5.x sections need to be filled out with more detail.</para>
+    </section>
+
+    <section>
+      <title id="modulecore">core</title>
+
+      <para>At the hart of GT2 is the core module, this module contains no
+      implementation code, just Java interfaces for all the key modules.</para>
+    </section>
+
+    <section>
+      <title id="moduledefaultcore">defaultcore</title>
+
+      <para>Defaultcore provides an implementation of the key interfaces found
+      in the core module with the exception of datasource and rendering. The
+      defaultcore module contains code which uses the latest version of Java
+      (1.4) though it is envisioned that alternative implementations of core
+      could be made in future, perhaps to target J2ME.</para>
+
+      <para>The datasource and rendering interfaces are not implemented by the
+      defaultcore module as there will need to be multiple implementations
+      available so implementation is left to other modules. Note that although
+      the defaultcore module includes a full set of objects for representing
+      the SLD and Filter specification there is no code in these modules for
+      reading or writing such documents, instead an entirely programmatic
+      approach is assumed with IO for such specifications being left to other
+      modules.</para>
+    </section>
+
+    <section>
+      <title id="modulesldstyling">sldstyling</title>
+
+      <para>An IO module which can read and write SLD XML documents by
+      converting to and from the style objects implemented in defaultcore.</para>
+    </section>
+
+    <section>
+      <title id="modulefilter">filter</title>
+
+      <para>An IO module which can read and write Filter Encoding XML
+      documents by converting to and from the filter objects implemented in
+      defaultcore.</para>
+    </section>
+
+    <section>
+      <title id="modulepostgis">postgis</title>
+
+      <para>A datasource implementation for pulling spatial and attribute data
+      from a PostGIS database. (taking advantage of the spatial capabilities
+      of PostGIS).</para>
+    </section>
+
+    <section>
+      <title id="modulemysql">mysql</title>
+
+      <para>A datasource implementation for pulling spatial and attribute data
+      from a MySQL database. (working around the lack of spatial capability in
+      MySQL).</para>
+    </section>
+
+    <section>
+      <title id="modulegmldatasource">gmldatasource</title>
+
+      <para>A datasource implementation which can parse GML 2 encoded
+      information.</para>
+    </section>
+
+    <section>
+      <title id="modulemapinfo">mapinfo</title>
+
+      <para>A datasource implementation which can read MIF/MID files.</para>
+    </section>
+
+    <section>
+      <title id="moduleshapefile">shapefile</title>
+
+      <para>A datasource implementation which can read Shapefiles.</para>
+    </section>
+
+    <section>
+      <title id="modulejava2drenderer">java2drenderer</title>
+
+      <para>java2drenderer - an implementation of the rendering interface
+      which uses the Java2D API.</para>
+    </section>
+
+    <section>
+      <title id="modulesvgsupport">svgsupport</title>
+
+      <para>A module which extends the java2drenderer so that SVG files can be
+      created.</para>
+    </section>
+
+    <section>
+      <title id="modulects-coordtrans">cts-coordtrans</title>
+
+      <para>cts-coordtrans - an implementation of the Coordinate
+      Transformation specifications.</para>
+    </section>
+
+    <section>
+      <title id="modulegcs-coverage">gcs-coverage</title>
+
+      <para>gcs-coverage - an implementation of the Grid Coverages
+      specification.</para>
+    </section>
+
+    <section>
+      <title id="modulegui">gui</title>
+
+      <para>gui - a suite of visual components for navigating and displaying
+      maps produced by a renderer (e.g. the java2drenderer).</para>
+    </section>
+
+    <section>
+      <title id="modulealgorithms">algorithms</title>
+
+      <para>A suite of algorithms for analyzing and manipulating geographic
+      objects.</para>
+    </section>
+
+    <section>
+      <title id="modulewmsserver">wmsserver</title>
+
+      <para>An implementation of the OGC WMS spec, including support for SLD.</para>
+
+      <para>A WFS has been implemented as a separate project using the GT2
+      codebase and it envisioned that the wmsserver module will soon be
+      extracted and become part of a separate project which still using the
+      GT2 as a base.</para>
+    </section>
+  </section>
+
+  <section>
     <title id="detaileddesign">Geotools2 detailed design.</title>
 
     <section>
@@ -339,79 +403,6 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
   <section>
     <title id="notes">Notes.</title>
 
-    <para></para>
-  </section>
-
-  <section id="design">
-    <title>Design</title>
-
-    <section>
-      <title id="modulardesign">Modular Design</title>
-
-      <para>Geotools has a modular design. Each module is has it&#39;s own
-      directory structure and build process. Dependancies between modules are
-      described in each module&#39;s <filename>project.xml</filename> file.
-      Low level modules, like DataSource, can be used as base classes by
-      external Geographic Applications.</para>
-
-      <para>Each module has its own home page which provides an overview of
-      the module, contact details for the modules developer, a list of all
-      develoeprs and contributors, dependancy information, full javadocs, unit
-      test reports and lists of outstanding tasks. A full list of the module
-      homepages can be found at <ulink url="http://modules.geotools.org">
-      modules.geotools.org </ulink>.</para>
-
-      <para>Geotools derived its directory structure from <ulink
-      url="http://www.netbeans.org">Netbeans</ulink>.</para>
-
-      <para>There are a few key modules worth noting:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>core</filename></para>
-
-          <para>The core module contains interfaces that may be used by
-          external applications, and key event classes that the core modules
-          depend on.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>defaultcore</filename></para>
-
-          <para>This contains default classes that implement the interfaces in
-          <filename>core</filename>. The default classes generally only
-          contain basic functionallity and are extended by other geotools
-          classes.</para>
-        </listitem>
-      </itemizedlist>
-
-      <para>Within the core module the key packages are set out. Each package
-      contains interfaces which define a major part of the functionality of
-      GeoTools2. Given the intention to follow the OGC standards wherever
-      possible, many of the packages relate to specific OGC specifications.</para>
-
-      <itemizedlist>
-        <listitem>
-          <para><filename>data</filename></para>
-
-          <para>Contains the interface for DataSources. Several GeoTools2
-          modules provide implementations of this interface. Examples include
-          the shapefile module, the postgis module and the gmldatasource
-          module</para>
-
-          <para>Developers familier with formats not yet supported are
-          encurage to write a module to provide access to it.</para>
-        </listitem>
-
-        <listitem>
-          <para><filename>feature</filename></para>
-
-          <para>Provides interfaces for classes which represent OGC features.
-          The defaultcore module provides a simple Flat implementation of the
-          Feature interface. A full implementation is still needed which
-          supports complex nested Feature types.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
+    <para>This section deliberately left blank.</para>
   </section>
 </article>
