@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.11 2004/02/17 21:11:23 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.12 2004/02/23 15:44:07 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -186,7 +186,7 @@ public final class GeoMouseEvent extends MouseEvent {
              * recompute the coordinates each time the CS change.
              */
             Point2D point = getMapCoordinate(null);
-            /*
+            /*geoapi-devel@lists.sourceforge.net
              * Note: the following method call is faster when the target coordinate system is
              * the renderer's CS, since it can reuse pre-computed math transforms from a cache.
              * Inverting the returned transform in this case is both faster and consume less
@@ -272,11 +272,24 @@ public final class GeoMouseEvent extends MouseEvent {
     }
 
     /**
-     * Returns the transform from the widget coordinate system to the
-     * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}.
+     * Returns the transform from the widget coordinate reference system to the
+     * {@linkplain Renderer#getCoordinateSystem renderer's coordinate reference system}.
      * More specifically, this is the transform from {@link RenderingContext#textCS textCS}
      * to {@link RenderingContext#mapCS mapCS}. This transform is usually (but not always)
      * {@linkplain java.awt.geom.AffineTransform affine}.
+     * <br><br>
+     * In order to get the transform from the renderer to the widget's CRS, use the following:
+     * <code>getTextToMap().{@linkplain MathTransform2D#inverse inverse()}</code>. However, this
+     * transform may not be invertible. In general:
+     * <ul>
+     *   <li>A pixel in the widget can always be mapped to one and only one "real world"
+     *       coordinate. Consequently, the <code>textToMap</code> transform always exists.</li>
+     *   <li>A "real world" coordinate may be mapped to more than one widget's pixel in some very
+     *       particular situations (e.g. a magnifier with a scale factor smaller than 1). In this
+     *       particular case, the <code>mapToText</code> transform may not exists and the above
+     *       call to {@link MathTransform2D#inverse inverse()} will fails.</li>
+     * </ul>
+     *
      * <br><br>
      * <strong>IMPLEMENTATION NOTE:</strong> In current implementation, this transform do not
      * apply any correction for {@linkplain DeformableViewer deformable viewer}. For fetching
