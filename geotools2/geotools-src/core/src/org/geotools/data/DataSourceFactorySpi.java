@@ -42,7 +42,7 @@ public interface DataSourceFactorySpi {
      * Note that canProcess() should have returned false if the problem is to do with
      * insuficent parameters.
      */    
-    public DataSource createDataSource(java.util.HashMap params) throws DataSourceException;
+    public DataSource createDataSource(java.util.Map params) throws DataSourceException;
     
     /** 
      * Describe the nature of the datasource constructed by this factory.
@@ -64,6 +64,6 @@ public interface DataSourceFactorySpi {
      * @return booean true if and only if this factory can process the resource indicated by
      * the param set and all the required params are pressent.
      */    
-    public boolean canProcess(java.util.HashMap params);
+    public boolean canProcess(java.util.Map params);
     
 }
