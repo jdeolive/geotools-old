@@ -104,7 +104,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
     PostgisDataStore data;
     ConnectionPool pool;
     String database;
-    String victim = null; //"testGetFeatureStoreModifyFeatures1";
+    String victim = null;//"testGetFeatureWriterRemoveAll";
 
     /**
      * Constructor for MemoryDataStoreTest.
@@ -1018,9 +1018,27 @@ public class PostgisDataStoreAPITest extends DataTestCase {
 
         assertEquals(roadFeatures.length - 1, count("road"));
     }
+    public void testGetFeatureWriterRemoveAll()
+        throws IOException, IllegalAttributeException {
+        FeatureWriter writer = writer("road");
+        Feature feature;
 
+        try {
+            while (writer.hasNext()) {
+                feature = writer.next();
+                writer.remove();            
+            }
+        }
+        finally {
+            writer.close();
+        }
+        assertEquals(0, count("road"));
+    }
+    
     public int count(String typeName) throws IOException {
-        return count(reader(typeName));
+        //return count(reader(typeName));
+        // makes use of optimization if any
+        return data.getFeatureSource( typeName ).getFeatures().getCount();                
     }
 
     public void testGetFeaturesWriterAdd()
@@ -1462,17 +1480,21 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         FeatureStore road = (FeatureStore) data.getFeatureSource("road");
 
         road.addFeatures(reader);
-        assertEquals(roadFeatures.length + 1, road.getFeatures().getCount());
+        assertEquals(roadFeatures.length + 1, count("road") );
     }
 
-    public void testGetFeatureStoreSetFeatures() throws IOException {
+    public void testGetFeatureStoreSetFeatures() throws NoSuchElementException, IOException, IllegalAttributeException {
         FeatureReader reader = DataUtilities.reader(new Feature[] { newRoad, });
+        
         FeatureStore road = (FeatureStore) data.getFeatureSource("road");
 
-        road.setFeatures(reader);
-        assertEquals(1, data.getFeatureSource("road").getFeatures().getCount());
+        assertEquals(3, count( "road" ));
+        
+        road.setFeatures( reader );
+        
+        assertEquals(1, count( "road" ));
     }
-
+    
     public void testGetFeatureStoreTransactionSupport()
         throws Exception {
         Transaction t1 = new DefaultTransaction();
