@@ -18,6 +18,7 @@ package org.geotools.gml;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import junit.framework.*;
 
 /*
@@ -62,6 +63,38 @@ public class GmlTest extends TestCase {
         return suite;
     }
 
+    public void testParsingHoles() throws Exception {
+         String dataFolder = System.getProperty("dataFolder");
+
+        if (dataFolder == null) {
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder += "/tests/unit/testData";
+        }
+
+        URL url = new URL("file:///" + dataFolder + "/testGML11Hole.gml");
+        System.out.println("Testing ability to load " + url
+            + " as Feature datasource");
+
+        DataSource ds = new GMLDataSource(url);
+
+        table = ds.getFeatures(Query.ALL);
+
+        LOGGER.fine("first feature is " + table.features().next());
+        assertEquals(1, table.size());
+
+        // TODO: add more tests here
+        Iterator i = table.iterator();
+        LOGGER.fine("Got " + table.size() + " features");
+
+        while (i.hasNext()) {
+            Feature f = (Feature)i.next();
+            Polygon geom = (Polygon)f.getDefaultGeometry();
+            assertEquals(2,geom.getNumInteriorRing());
+            //LOGGER.fine("feature is " + i.next());
+        }
+    }
+    
     public void testGMLDataSource() throws Exception {
         // no try block, a thrown exception will cause it a fail and should
         //print the trace to the output.
