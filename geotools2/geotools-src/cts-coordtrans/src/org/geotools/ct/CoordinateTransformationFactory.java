@@ -55,6 +55,7 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
+import org.geotools.cs.AxisInfo;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.PrimeMeridian;
@@ -85,7 +86,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.17 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.18 2003/08/07 11:14:44 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -186,7 +187,7 @@ public class CoordinateTransformationFactory {
     {
         if (sourceCS.equals(targetCS, false)) {
             final int dim = sourceCS.getDimension();
-            assert   dim == targetCS.getDimension();
+            assert   dim == targetCS.getDimension() : dim;
             return createFromMathTransform(sourceCS, targetCS, factory.createIdentityTransform(dim));
         }
         /////////////////////////////////////////////////////////////////////
@@ -367,7 +368,7 @@ public class CoordinateTransformationFactory {
             final CoordinateSystem tailSourceCS = source.getTailCS();
             final int dimHeadCS = headSourceCS.getDimension();
             final int dimSource = source.getDimension();
-            assert (dimHeadCS < dimSource);
+            assert (dimHeadCS < dimSource) : dimHeadCS;
             CoordinateTransformation step2;
             int lower, upper;
             try {
@@ -451,10 +452,22 @@ public class CoordinateTransformationFactory {
     {
         if (step1==null) return step2;
         if (step2==null) return step1;
-        assert step1.getTargetCS().equals(step2.getSourceCS(), false) : step1;
+        // Note: we sometime get this assertion failure if the user provided CS with two
+        //       different ellipsoid but an identical TOWGS84 conversion infos (which is
+        //       wrong).
+        assert step1.getTargetCS().equals(step2.getSourceCS(), false) :
+               "CS1=" + step1.getTargetCS() + '\n' +
+               "CS2=" + step2.getSourceCS();
 
-        final MathTransform step = factory.createConcatenatedTransform(step1.getMathTransform(),
-                                                                       step2.getMathTransform());
+        final MathTransform mt1 = step1.getMathTransform();
+        if (mt1.isIdentity() && step1.getSourceCS().equals(step2.getSourceCS(), false)) {
+            return step2;
+        }
+        final MathTransform mt2 = step2.getMathTransform();
+        if (mt2.isIdentity() && step1.getTargetCS().equals(step2.getTargetCS(), false)) {
+            return step1;
+        }
+        final MathTransform step = factory.createConcatenatedTransform(mt1, mt2);
         final TransformType type = step1.getTransformType().concatenate(
                                    step2.getTransformType());
         return createFromMathTransform(step1.getSourceCS(), step2.getTargetCS(), step, type);
@@ -474,13 +487,24 @@ public class CoordinateTransformationFactory {
     {
         if (step1==null) return concatenate(step2, step3);
         if (step2==null) return concatenate(step1, step3);
-        if (step3==null) return concatenate(step2, step3);
+        if (step3==null) return concatenate(step1, step2);
         assert step1.getTargetCS().equals(step2.getSourceCS(), false) : step1;
         assert step2.getTargetCS().equals(step3.getSourceCS(), false) : step3;
 
-        final MathTransform step = factory.createConcatenatedTransform(step1.getMathTransform(),
-                                   factory.createConcatenatedTransform(step2.getMathTransform(),
-                                                                       step3.getMathTransform()));
+        final MathTransform mt1 = step1.getMathTransform();
+        if (mt1.isIdentity() && step1.getSourceCS().equals(step2.getSourceCS(), false)) {
+            return concatenate(step2, step3);
+        }
+        final MathTransform mt2 = step2.getMathTransform();
+        if (mt2.isIdentity()) {
+            return concatenate(step1, step3);
+        }
+        final MathTransform mt3 = step3.getMathTransform();
+        if (mt3.isIdentity() && step2.getTargetCS().equals(step3.getTargetCS(), false)) {
+            return concatenate(step1, step2);
+        }
+        final MathTransform step = factory.createConcatenatedTransform(mt1,
+                                   factory.createConcatenatedTransform(mt2, mt3));
         final TransformType type = step1.getTransformType().concatenate(
                                    step2.getTransformType().concatenate(
                                    step3.getTransformType()));
@@ -614,7 +638,7 @@ public class CoordinateTransformationFactory {
                 case 0:  break;
             }
         }
-        assert axis.length == dimension.getDimension();
+        assert axis.length == dimension.getDimension() : dimension;
         return axis;
     }
     
@@ -656,7 +680,7 @@ public class CoordinateTransformationFactory {
             e.initCause(exception);
             throw e;
         }
-        assert Arrays.equals(sourceAxis, targetAxis) == matrix.isIdentity();
+        assert Arrays.equals(sourceAxis, targetAxis) == matrix.isIdentity() : matrix;
         /*
          * The previous code computed a matrix for swapping axis. Usually, this
          * matrix contains only 0 and 1 values with only one "1" value by row.
@@ -674,8 +698,8 @@ public class CoordinateTransformationFactory {
          */
         final int sourceDim = matrix.getNumCol()-1;
         final int targetDim = matrix.getNumRow()-1;
-        assert sourceDim == sourceCS.getDimension();
-        assert targetDim == targetCS.getDimension();
+        assert sourceDim == sourceCS.getDimension() : sourceCS;
+        assert targetDim == targetCS.getDimension() : targetCS;
         for (int j=0; j<targetDim; j++) {
             final Unit targetUnit = targetCS.getUnits(j);
             for (int i=0; i<sourceDim; i++) {
@@ -991,7 +1015,9 @@ public class CoordinateTransformationFactory {
         throws CannotCreateTransformException
     {
         if (sourceCS.getProjection()     .equals(targetCS.getProjection(),      false) &&
-            sourceCS.getHorizontalDatum().equals(targetCS.getHorizontalDatum(), false))
+            sourceCS.getHorizontalDatum().equals(targetCS.getHorizontalDatum(), false) &&
+            sourceCS.getGeographicCoordinateSystem().getPrimeMeridian().equals(
+            targetCS.getGeographicCoordinateSystem().getPrimeMeridian(), false))
         {
             /*
              * If both projected CS use the same projection and the same horizontal datum,
@@ -1001,8 +1027,6 @@ public class CoordinateTransformationFactory {
              *
              * This shorter path is essential for proper working of 
              * createTransformationStep(GeographicCS,ProjectedCS).
-             *
-             * TODO: What to do about prime meridian here?
              */
             final CoordinateTransformation horizontalStep;
             final Matrix matrix = swapAndScaleAxis(sourceCS, targetCS);
@@ -1036,16 +1060,18 @@ public class CoordinateTransformationFactory {
     
     /**
      * Makes sure that the specified {@link GeographicCoordinateSystem} use standard axis
-     * (longitude and latitude in degrees), Greenwich prime meridian and an ellipsoid
-     * matching projection's parameters. If <code>cs</code> already meets all those conditions,
-     * then it is returned unchanged. Otherwise, a new normalized geographic coordinate system
-     * is created and returned.
+     * (longitude and latitude in degrees), the specified prime meridian (usually Greenwich)
+     * and an ellipsoid matching projection's parameters. If <code>cs</code> already meets all
+     * those conditions, then it is returned unchanged. Otherwise, a new normalized geographic
+     * coordinate system is created and returned.
      *
      * @param  cs The geographic coordinate system to normalize.
+     * @param  meridian The target prime meridian (usually {@link PrimeMeridian#GREENWICH}).
      * @param  projection The projection to apply, or <code>null</code> to bypass the check.
      * @return The normalized coordinate system.
      */
     private static GeographicCoordinateSystem normalize(GeographicCoordinateSystem cs,
+                                                        final PrimeMeridian meridian,
                                                         final Projection projection)
     {
         HorizontalDatum datum = cs.getHorizontalDatum();
@@ -1068,16 +1094,17 @@ public class CoordinateTransformationFactory {
             }
         }
         if (cs==null || !hasStandardAxis(cs, Unit.DEGREE) ||
-            cs.getPrimeMeridian().getLongitude(Unit.DEGREE)!=0)
+            !meridian.equals(cs.getPrimeMeridian(), false))
         {
             /*
              * The specified geographic coordinate system doesn't use standard axis
-             * (EAST, NORTH) or Greenwich meridian, or the datum need to be changed.
+             * (EAST, NORTH) or expected meridian, or the datum need to be changed.
              */
             if (name == null) {
                 name = getTemporaryName(cs);
             }
-            cs = new GeographicCoordinateSystem(name, datum);
+            cs = new GeographicCoordinateSystem(name, Unit.DEGREE, datum, meridian,
+                                                AxisInfo.LONGITUDE, AxisInfo.LATITUDE);
         }
         return cs;
     }
@@ -1095,10 +1122,11 @@ public class CoordinateTransformationFactory {
     private static ProjectedCoordinateSystem normalize(final ProjectedCoordinateSystem cs) {
         final Projection                      projection = cs.getProjection();
         final GeographicCoordinateSystem           geoCS = cs.getGeographicCoordinateSystem();
-        final GeographicCoordinateSystem normalizedGeoCS = normalize(geoCS, projection);
-        assert normalize(normalizedGeoCS, projection) == normalizedGeoCS;
+        final PrimeMeridian                     meridian = geoCS.getPrimeMeridian();
+        final GeographicCoordinateSystem normalizedGeoCS = normalize(geoCS, meridian, projection);
+        assert normalize(normalizedGeoCS, meridian, projection) == normalizedGeoCS : normalizedGeoCS;
         
-        if (hasStandardAxis(cs, Unit.METRE) && normalizedGeoCS==geoCS) {
+        if (normalizedGeoCS==geoCS && hasStandardAxis(cs, Unit.METRE)) {
             return cs;
         }
         final String name = getTemporaryName(cs, normalizedGeoCS);
@@ -1125,9 +1153,9 @@ public class CoordinateTransformationFactory {
         final ProjectedCoordinateSystem stepProjCS = normalize(targetCS);
         final GeographicCoordinateSystem stepGeoCS = stepProjCS.getGeographicCoordinateSystem();
         final Projection                projection = stepProjCS.getProjection();
-        assert normalize(stepProjCS) == stepProjCS;
-        assert normalize(stepGeoCS, projection) == stepGeoCS;
-        assert projection.equals(targetCS.getProjection(), false);
+        assert normalize(stepProjCS) == stepProjCS : stepProjCS;
+        assert normalize(stepGeoCS, stepGeoCS.getPrimeMeridian(), projection)==stepGeoCS : stepGeoCS;
+        assert projection.equals(targetCS.getProjection(), false) : projection;
         /*
          * Apply the projection with the following steps
          * (step #2 is the actual map projection):
@@ -1286,7 +1314,7 @@ public class CoordinateTransformationFactory {
          */
         final CoordinateTransformation step1, step2, step3;
         final HorizontalDatum              datum = sourceCS.getHorizontalDatum();
-        final GeographicCoordinateSystem stepCS1 = normalize(sourceCS, null);
+        final GeographicCoordinateSystem stepCS1 = normalize(sourceCS, PrimeMeridian.GREENWICH, null);
         final GeocentricCoordinateSystem stepCS2 = new GeocentricCoordinateSystem(
                                                    getTemporaryName(sourceCS, stepCS1), datum);
         /*
@@ -1489,7 +1517,22 @@ public class CoordinateTransformationFactory {
      * @param source The coordinate system to base name on, or <code>null</code> if none.
      */
     private static String getTemporaryName(final CoordinateSystem source) {
-        return "Temporary-" + (++temporaryID);
+        final StringBuffer buffer = new StringBuffer("Temporary-");
+        buffer.append(++temporaryID);
+        String name = source.getName(null);
+        if (name != null) {
+            final String suffix = " derived from ";
+            name = name.trim();
+            final int index = name.indexOf(suffix);
+            if (index >= 0) {
+                name = name.substring(index+suffix.length()).trim();
+            }
+            if (name.length() > 0) {
+                buffer.append(suffix);
+                buffer.append(name);
+            }
+        }
+        return buffer.toString();
     }
     
     /**
@@ -1497,7 +1540,7 @@ public class CoordinateTransformationFactory {
      * has a name like "Temporary-1", the second is "Temporary-2", etc.
      *
      * @param source   The coordinate system to base name on, or <code>null</code> if none.
-     * @param existing The coordinate system which may (or may not) has been used already
+     * @param existing The coordinate system which may (or may not) has been already
      *                 created with a temporary name from <code>source</code>.
      */
     private static String getTemporaryName(final CoordinateSystem source,
