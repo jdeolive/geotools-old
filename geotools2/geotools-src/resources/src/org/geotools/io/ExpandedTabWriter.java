@@ -37,7 +37,7 @@ import java.io.Writer;
 import java.io.FilterWriter;
 import java.io.IOException;
 
-// Miscellaneous
+// Geotools dependencies
 import org.geotools.resources.Utilities;
 
 
@@ -79,7 +79,7 @@ public class ExpandedTabWriter extends FilterWriter {
      * @throws IllegalArgumentException if <code>tabWidth</code>
      * is not greater than 0.
      */
-    public ExpandedTabWriter(final Writer out, final int tabWidth) throws IllegalArgumentException {
+    public ExpandedTabWriter(Writer out, int tabWidth) throws IllegalArgumentException {
         super(out);
         setTabWidth(tabWidth);
     }
