@@ -17,7 +17,7 @@ import junit.framework.*;
 import org.geotools.map.*;
 import org.geotools.styling.*;
 import org.geotools.data.*;
-import org.geotools.gml.*;
+import org.geotools.data.gml.*;
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.feature.FeatureCollection;
 
