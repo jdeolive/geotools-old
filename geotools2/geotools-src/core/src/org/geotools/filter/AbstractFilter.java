@@ -16,11 +16,10 @@
  */
 package org.geotools.filter;
 
+import org.geotools.feature.Feature;
 
 // Geotools dependencies
 import java.util.logging.Logger;
-
-import org.geotools.feature.Feature;
 
 
 /**
@@ -28,7 +27,7 @@ import org.geotools.feature.Feature;
  * methods.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: AbstractFilter.java,v 1.9 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: AbstractFilter.java,v 1.10 2003/08/07 19:55:21 cholmesny Exp $
  */
 public abstract class AbstractFilter implements Filter {
     /** The logger for the default core module. */
@@ -156,8 +155,8 @@ public abstract class AbstractFilter implements Filter {
     protected static boolean isLogicFilter(short filterType) {
         LOGGER.entering("AbstractFilter", "isLogicFilter", new Short(filterType));
 
-        return ((filterType == LOGIC_OR) || (filterType == LOGIC_AND) ||
-        (filterType == LOGIC_NOT));
+        return ((filterType == LOGIC_OR) || (filterType == LOGIC_AND)
+        || (filterType == LOGIC_NOT));
     }
 
     /**
@@ -168,10 +167,10 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a math filter type.
      */
     protected static boolean isMathFilter(short filterType) {
-        return ((filterType == COMPARE_LESS_THAN) ||
-        (filterType == COMPARE_GREATER_THAN) ||
-        (filterType == COMPARE_LESS_THAN_EQUAL) ||
-        (filterType == COMPARE_GREATER_THAN_EQUAL));
+        return ((filterType == COMPARE_LESS_THAN)
+        || (filterType == COMPARE_GREATER_THAN)
+        || (filterType == COMPARE_LESS_THAN_EQUAL)
+        || (filterType == COMPARE_GREATER_THAN_EQUAL));
     }
 
     /**
@@ -182,8 +181,8 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a compare filter type.
      */
     protected static boolean isCompareFilter(short filterType) {
-        return ((isMathFilter(filterType)) || (filterType == COMPARE_EQUALS) ||
-        (filterType == BETWEEN) || (filterType == COMPARE_NOT_EQUALS));
+        return ((isMathFilter(filterType)) || (filterType == COMPARE_EQUALS)
+        || (filterType == BETWEEN) || (filterType == COMPARE_NOT_EQUALS));
     }
 
     /**
@@ -194,13 +193,14 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a geometry filter type.
      */
     protected static boolean isGeometryFilter(short filterType) {
-        return ((filterType == GEOMETRY_BBOX) ||
-        (filterType == GEOMETRY_EQUALS) || (filterType == GEOMETRY_DISJOINT) ||
-        (filterType == GEOMETRY_TOUCHES) ||
-        (filterType == GEOMETRY_INTERSECTS) ||
-        (filterType == GEOMETRY_CROSSES) || (filterType == GEOMETRY_WITHIN) ||
-        (filterType == GEOMETRY_CONTAINS) || (filterType == GEOMETRY_OVERLAPS) ||
-        (filterType == GEOMETRY_DWITHIN) || (filterType == GEOMETRY_BEYOND));
+        return ((filterType == GEOMETRY_BBOX)
+        || (filterType == GEOMETRY_EQUALS) || (filterType == GEOMETRY_DISJOINT)
+        || (filterType == GEOMETRY_TOUCHES)
+        || (filterType == GEOMETRY_INTERSECTS)
+        || (filterType == GEOMETRY_CROSSES) || (filterType == GEOMETRY_WITHIN)
+        || (filterType == GEOMETRY_CONTAINS)
+        || (filterType == GEOMETRY_OVERLAPS)
+        || (filterType == GEOMETRY_DWITHIN) || (filterType == GEOMETRY_BEYOND));
     }
 
     /**
@@ -211,8 +211,8 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a geometry filter type.
      */
     protected static boolean isGeometryDistanceFilter(short filterType) {
-        return ((filterType == GEOMETRY_DWITHIN) ||
-        (filterType == GEOMETRY_BEYOND));
+        return ((filterType == GEOMETRY_DWITHIN)
+        || (filterType == GEOMETRY_BEYOND));
     }
 
     /**
@@ -223,10 +223,15 @@ public abstract class AbstractFilter implements Filter {
      * @return Whether or not this is a logic filter type.
      */
     protected static boolean isSimpleFilter(short filterType) {
-        return (isCompareFilter(filterType) || isGeometryFilter(filterType) ||
-        (filterType == NULL) || (filterType == FID) || (filterType == LIKE));
+        return (isCompareFilter(filterType) || isGeometryFilter(filterType)
+        || (filterType == NULL) || (filterType == FID) || (filterType == LIKE));
     }
 
+    /**
+     * Retrieves the type of filter.
+     *
+     * @return a short representation of the filter type.
+     */
     public short getFilterType() {
         return filterType;
     }

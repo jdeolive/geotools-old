@@ -5,7 +5,7 @@ import org.geotools.feature.Feature;
 
 public interface LikeFilter extends Filter{
     void setPattern(String pattern, String wildcardMulti, String wildcardSingle, String escape);
-    String toString();
+    //String toString();
 
     String getWildcardMulti();
 
@@ -19,7 +19,7 @@ public interface LikeFilter extends Filter{
 
     Expression getValue();
 
-    boolean equals(Object obj);
+    //boolean equals(Object obj);
 
     String getWildcardSingle();
 

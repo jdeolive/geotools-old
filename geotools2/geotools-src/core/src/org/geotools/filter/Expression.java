@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,28 +13,21 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
-
 package org.geotools.filter;
 
 import org.geotools.feature.Feature;
 
+
 /**
- * Defines a complex filter (could also be called logical filter).
+ * Defines an expression, the units that make up Filters.   This filter holds
+ * one or more filters together and relates them logically in an internally
+ * defined manner.
  *
- * This filter holds one or more filters together and relates
- * them logically in an internally defined manner.
- *
- * @version $Id: Expression.java,v 1.8 2002/10/25 11:38:30 ianturton Exp $
  * @author Rob Hranac, Vision for New York
+ * @version $Id: Expression.java,v 1.9 2003/08/07 19:55:22 cholmesny Exp $
  */
 public interface Expression {
-
-
     /**
      * Gets the type of this expression.
      *
@@ -41,27 +35,29 @@ public interface Expression {
      */
     short getType();
 
-
     /**
-     * Returns a value for this expression.
+     * Returns a value for this expression.  The feature argument is used if a
+     * feature is needed to evaluate the expression, as in the case of an
+     * AttributeExpression.
      *
-     * @param feature Specified feature to use when returning value.
-     * @return Value of the feature object.
+     * @param feature Specified feature to use when returning value.   Some
+     *        expressions, such as LiteralExpressions, may ignore this as it
+     *        does not affect their return value.
+     *
+     * @return Value of the expression, evaluated with the feature object if
+     *         necessary.
      */
     Object getValue(Feature feature);
-    
-       /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
+
+    /**
+     * Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing
+     * which needs infomration from filter structure. Implementations should
+     * always call: visitor.visit(this); It is importatant that this is not
+     * left to a parent class unless the parents API is identical.
      *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
+     * @param visitor The visitor which requires access to this filter, the
+     *        method must call visitor.visit(this);
      */
-    public void accept(FilterVisitor visitor);    
+    void accept(FilterVisitor visitor);
 }
