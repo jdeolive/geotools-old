@@ -18,6 +18,11 @@ public abstract class StyleFactory {
      * @return an instance of the style factory
      */   
     
+    /**
+     * Create an instance of the factory.
+     * @return An instance of the Factory, or null if the Factory could not
+     * be created.
+     */
     public static StyleFactory createStyleFactory(){ // throws StyleFactoryCreationException{ 
         if(factory != null ){
             return factory;
@@ -39,6 +44,13 @@ public abstract class StyleFactory {
         return sf;
     }
     
+    /**
+     * Create an instance of the factory.
+     * @return An instance of the Factory, or null if the Factory could not
+     * be created.
+     * @param factoryClass The name of the factory, eg:
+     * "org.geotools.styling.StyleFactoryImpl".
+     */
     public static StyleFactory createStyleFactory(String factoryClass) { //throws StyleFactoryCreationException{
         try{
             return factory = (StyleFactory)Class.forName(factoryClass).newInstance();
