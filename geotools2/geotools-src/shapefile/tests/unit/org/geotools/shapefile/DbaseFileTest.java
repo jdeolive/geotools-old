@@ -42,7 +42,7 @@ public class DbaseFileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/statepop");
+            URL url = new URL("file:////"+dataFolder+"/statepop");
             System.out.println("Testing ability to load "+url);
             DbaseFileReader dbf = new DbaseFileReader(url.getFile());
             ArrayList attribs = dbf.read();
