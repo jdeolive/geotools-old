@@ -737,8 +737,8 @@ public class MemoryDataStoreTest extends DataTestCase {
 
         assertSame(roadType, road.getSchema());
         assertSame(data, road.getDataStore());
-        assertEquals(-1, road.getCount(Query.ALL));
-        assertEquals(null, road.getBounds(Query.ALL));
+        assertEquals(3, road.getCount(Query.ALL));
+        assertEquals(new Envelope(1, 5, 0, 4), road.getBounds(Query.ALL));
 
         FeatureResults all = road.getFeatures();
         assertEquals(3, all.getCount());
@@ -775,7 +775,7 @@ public class MemoryDataStoreTest extends DataTestCase {
         assertEquals( type, actual );
         try {
             Envelope b = half.getBounds();
-            assertTrue( b == null || b.isNull() );                                    
+            assertEquals(new Envelope(1, 5, 0, 4), b);                                    
         }
         catch( IOException io ){            
         }
