@@ -36,9 +36,9 @@ public class TmercTest extends TestCase {
    //}
     
     public void testForwards() throws ProjectionException {
-        System.out.println("Testing forwards");
+        System.out.println("Testing tmerc forwards");
         Projection p = ProjectionFactory.createProjection(new String[]{"proj=tmerc"});
-        System.out.println("testing forward() call on created projection");
+        System.out.println("testing tmerc forward() call on created projection");
         LP lp = new LP("12d32'12\"S 45d24'1\"E");
         XY xy;
         xy = p.forward(lp);
