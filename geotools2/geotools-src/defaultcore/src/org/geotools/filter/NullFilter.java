@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Defines a null filter, which checks to see if an attribute is null.
  *
- * @version $Id: NullFilter.java,v 1.6 2002/07/23 16:16:35 jmacgill Exp $
+ * @version $Id: NullFilter.java,v 1.7 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class NullFilter extends AbstractFilter {
@@ -105,5 +105,24 @@ public class NullFilter extends AbstractFilter {
     public void accept(FilterVisitor visitor) {
         visitor.visit(this);
     }
+    
+    /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this filter.  Checks 
+     * to make sure the filter types, and the NullCheckValue are
+     * the same.
+     *
+     * @param obj - the object to compare this LikeFilter against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */  
+    public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    NullFilter nullFilter = (NullFilter)obj;
+	    return (nullFilter.getFilterType() == this.filterType &&
+		    nullFilter.getNullCheckValue().equals(this.nullCheck));
+	} else {
+	    return false;
+	}
+    }    
     
 }

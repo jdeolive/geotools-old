@@ -34,7 +34,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.8 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: LogicFilter.java,v 1.9 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilter {
@@ -274,6 +274,29 @@ public class LogicFilter extends AbstractFilter {
      */
     public void accept(FilterVisitor visitor) {
         visitor.visit(this);
+    }
+
+    /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this filter.  Checks 
+     * to make sure the filter types are the same, and then checks
+     * that the subFilters lists are the same size and that one
+     * list contains the other.  This means that logic filters with
+     * different internal orders of subfilters are equal.
+     *
+     * @param obj - the object to compare this LogicFilter against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */
+     public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    LogicFilter logFilter = (LogicFilter)obj;
+	    return (logFilter.getFilterType() == this.filterType &&
+		    logFilter.subFilters.size() == this.subFilters.size() &&
+		    logFilter.subFilters.containsAll(this.subFilters));
+
+	} else {
+	    return false;
+	}
     }
     
 }

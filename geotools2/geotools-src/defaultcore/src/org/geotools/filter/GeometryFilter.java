@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.9 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: GeometryFilter.java,v 1.10 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -247,6 +247,24 @@ public class GeometryFilter extends AbstractFilter {
         visitor.visit(this);
     }
     
-    
+    /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this filter.  Checks 
+     * to make sure the filter types are the same as well as the
+     * left and right geometries.
+     *
+     * @param obj - the object to compare this GeometryFilter against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */
+    public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    GeometryFilter geomFilter = (GeometryFilter)obj;
+	    return (geomFilter.getFilterType() == this.filterType &&
+		    geomFilter.getLeftGeometry().equals(this.leftGeometry) &&
+		    geomFilter.getRightGeometry().equals(this.rightGeometry));
+	} else {
+	    return false;
+	}
+    }
     
 }

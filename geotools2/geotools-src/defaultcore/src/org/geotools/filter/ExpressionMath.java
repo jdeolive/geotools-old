@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: ExpressionMath.java,v 1.5 2002/07/23 14:49:45 jmacgill Exp $
+ * @version $Id: ExpressionMath.java,v 1.6 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionMath extends ExpressionDefault {
@@ -175,4 +175,23 @@ public class ExpressionMath extends ExpressionDefault {
         visitor.visit(this);
     }    
     
+    /** 
+     * Compares this expression to the specified object.  Returns true 
+     * if the passed in object is the same as this expression.  Checks 
+     * to make sure the expression types as well as the left and right
+     * values are equal.
+     *
+     * @param obj - the object to compare this ExpressionLiteral against.
+     * @return true if specified object is equal to this expression; false otherwise.
+     */
+     public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    ExpressionMath expMath = (ExpressionMath)obj;
+	    return (expMath.getType() == this.expressionType &&
+		    expMath.getLeftValue().equals(this.leftValue) &&
+		    expMath.getRightValue().equals(this.rightValue));
+	} else {
+	    return false;
+	}
+     }    
 }

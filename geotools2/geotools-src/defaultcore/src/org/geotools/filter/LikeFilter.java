@@ -31,7 +31,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.12 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: LikeFilter.java,v 1.13 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -299,5 +299,26 @@ public class LikeFilter extends AbstractFilter {
         }
         return tmp.toString();
     }
-                
+
+      
+    /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this filter.  Checks 
+     * to make sure the filter types, the value, and the pattern are
+     * the same.
+     &
+     * @param obj - the object to compare this LikeFilter against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */           
+     public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    LikeFilter lFilter = (LikeFilter)obj;
+	    return (lFilter.getFilterType() == this.filterType &&
+		    lFilter.getValue().equals(this.attribute) &&
+		    lFilter.getPattern().equals(this.pattern));
+	} else {
+	    return false;
+	}
+    }
+
 }

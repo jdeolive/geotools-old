@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.6 2002/08/09 16:19:46 jmacgill Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.7 2002/08/14 20:38:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -186,6 +186,19 @@ public class ExpressionLiteral extends ExpressionDefault {
      */
     public void accept(FilterVisitor visitor) {
         visitor.visit(this);
+    }
+
+       /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this expression.  Checks 
+     * to make sure the expression types are the same as well as the literals.
+     *
+     * @param obj - the object to compare this ExpressionLiteral against.
+     * @return true if specified object is equal to this expression; false otherwise.
+     */
+    public boolean equals(Object obj) {
+	return (obj.getClass() == this.getClass() && 
+		     this.literal.equals(((ExpressionLiteral)obj).getLiteral()));
     }
     
 }
