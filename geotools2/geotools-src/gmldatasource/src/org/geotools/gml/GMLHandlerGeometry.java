@@ -14,42 +14,40 @@ import com.vividsolutions.jts.geom.*;
 /**
  * LEVEL2 saxGML4j GML handler: Gets basic alerts from GMLFilterDocument.
  *
- * <p>This filter simply seperates and passes GML events to a GMLGeometryFilter.  The main
- * simplification that it performs is to pass along coordinates as an abstracted CoordType,
- * regardless of their notation in the GML (Coord vs. Coordinates).</p>
+ * <p>This handler is required for any parent of a GMLFilterDocument filter.  It recieves
+ * basic element notifications and coordinates.</p>
  * 
  * @author Rob Hranac, Vision for New York
  * @version alpha, 12/01/01
- *
  */
 public interface GMLHandlerGeometry extends XMLFilter {
 
 
 		/**
-		 * Sets content handler and passes along start warning.
+		 * Recieves a geometry start element from the parent.
 		 */
 		public void geometryStart(String localName, Attributes atts) throws SAXException;
 
 
 		/**
-		 * Sets content handler and passes along start warning.
+		 * Recieves a geometry end element from the parent.
 		 */
 		public void geometryEnd(String localName) throws SAXException;
 
 
 		/**
-		 * Sets content handler and passes along start warning.
+		 * Recieves a geometry sub element from the parent.
 		 */
 		public void geometrySub(String localName) throws SAXException;
 
 
 		/**
-		 * Sets content handler and passes along start warning.
+		 * Recieves a finished coordinate from the parent (2-valued).
 		 */
 		public void gmlCoordinates( double x, double y )	throws SAXException;
 
 		/**
-		 * Sets content handler and passes along start warning.
+		 * Recieves a finished coordinate from the parent (3-valued).
 		 */
 		public void gmlCoordinates( double x, double y, double z ) throws SAXException;
 
