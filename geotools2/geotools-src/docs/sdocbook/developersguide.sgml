@@ -14,7 +14,7 @@
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: developersguide.sgml,v 1.12 2002/11/21 10:38:57 camerons Exp $</date>
+    <date>$Id: developersguide.sgml,v 1.13 2002/11/21 19:36:04 robhranac Exp $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -956,7 +956,7 @@ void example(int i) {
       <title id="poseidon">Poseidon</title>
 
       <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
-      is a Universal Markup Language (UML) editor. Using Poseidon you can
+      is a Universal Modeling Language (UML) editor. Using Poseidon you can
       reverse engineer the Geotools2 code and view class diagrams, javadocs
       and code using a powerful graphical interface. It is a good way to
       quickly navigate through the Geotools2 design.</para>
