@@ -105,7 +105,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.25 2003/04/23 10:12:45 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.26 2003/04/23 10:33:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -267,7 +267,7 @@ public class Renderer {
      * paint layers.   Prefetching data may speed up rendering on machine with
      * more than one processor.
      */
-    private boolean prefetch;
+    private boolean prefetch = (Runtime.getRuntime().availableProcessors() >= 2);
 
     /**
      * The rendering resolutions, in units of {@link RenderingContext#textCS} coordinate system
@@ -1095,7 +1095,11 @@ public class Renderer {
             return;
         }
         if (Hints.PREFETCH.equals(key)) {
-            prefetch = (value!=null) && ((Boolean) value).booleanValue();
+            if (value != null) {
+                prefetch = ((Boolean) value).booleanValue();
+            } else {
+                prefetch = (Runtime.getRuntime().availableProcessors() >= 2);
+            }
             return;
         }
         if (Hints.GRID_COVERAGE_PROCESSOR.equals(key) &&

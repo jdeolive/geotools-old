@@ -36,6 +36,7 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.util.Locale;
+import java.lang.Runtime; // For Javadoc
 import java.awt.Graphics2D; // For Javadoc
 import java.awt.RenderingHints;
 
@@ -57,7 +58,7 @@ import org.geotools.ct.CoordinateTransformationFactory;
  * Rendering hints can be used to control some low-level details, like the expected
  * resolution.
  *
- * @version $Id: Hints.java,v 1.10 2003/03/25 22:50:28 desruisseaux Exp $
+ * @version $Id: Hints.java,v 1.11 2003/04/23 10:33:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Hints extends RenderingHints.Key {
@@ -111,12 +112,14 @@ public final class Hints extends RenderingHints.Key {
     public static final RenderingHints.Key REQUIRED_RESOLUTION = new Hints(2, Number.class);
 
     /**
-     * {@link Boolean#TRUE} if the renderer is allowed to prefetch data before to
-     * paint layers. Prefetching data may speed up rendering on machine with more
-     * than one processor.
+     * {@link Boolean#TRUE} if the renderer is allowed to prefetch data before to paint layers.
+     * Prefetching data may speed up rendering on machine with more than one processor. If this
+     * hint is not provided,  then the {@linkplain Renderer renderer} will prefetch data if and
+     * only if the machine has at least two processors.
      *
      * @see RenderedLayer#prefetch
      * @see PlanarImage#prefetchTiles
+     * @see Runtime#availableProcessors
      */
     public static final RenderingHints.Key PREFETCH = new Hints(3, Boolean.class);
 
