@@ -1,6 +1,6 @@
 /*
  *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Center for Computational Geography
+ *    (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -18,7 +18,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
 
 package org.geotools.styling;
@@ -26,8 +26,8 @@ package org.geotools.styling;
 /**
  * This is the parent interface of all Symbolizers.
  * 
- * A symbolizer describes how a feature should appeare ona map.  
- * The symbolizer not just the shape that should appear but also 
+ * A symbolizer describes how a feature should appear on a map.
+ * The symbolizer describes not just the shape that should appear but also 
  * such graphical properties as color and opacity.
  * 
  * A symbolizer is obtained by specifying one of a small number of 
@@ -35,16 +35,17 @@ package org.geotools.styling;
  * its default behaviour.
  * 
  * The details of this object are taken from the 
- * OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features, 
+ * OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2.
+ * Renderers can use this information when displaying styled features, 
  * though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity 
+ * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @author  jamesm
+ * @version $Id: Symbolizer.java,v 1.3 2002/06/04 16:11:10 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public interface Symbolizer {
 

@@ -23,7 +23,8 @@ package org.geotools.styling;
 import org.geotools.filter.Expression;
 
 /**
- * The Stroke object encapsulates the graphical-symbolization parameters for linear geometries.<br>
+ * The Stroke object encapsulates the graphical-symbolization parameters for
+ * linear geometries.<br>
  *
  * There are three basic types of stroke: solid color, graphic fill (stipple),
  * and repeated linear graphic stroke.
@@ -43,8 +44,8 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
+ * @version $Id: Stroke.java,v 1.7 2002/06/04 16:08:34 loxnard Exp $
  * @author James Macgill
- * @version $Revision: 1.6 $ $Date: 2002/05/30 18:10:49 $
  */
 public interface Stroke {
     
@@ -123,7 +124,7 @@ public interface Stroke {
     public float[] getDashArray();
     
    /**
-    * A dash array need not start from the begining, this method allows for
+    * A dash array need not start from the beginning.  This method allows for
     * an offset into the dash array before starting it.
     *
     * @return The distance, in pixels, that any dash array should start from.
@@ -160,6 +161,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.7  2002/06/04 16:08:34  loxnard
+ * Misc JavaDoc
+ *
  * Revision 1.6  2002/05/30 18:10:49  ianturton
  * added expressions to stroke
  *
