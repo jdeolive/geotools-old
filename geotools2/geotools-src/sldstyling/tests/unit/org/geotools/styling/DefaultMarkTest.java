@@ -25,8 +25,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -36,7 +35,7 @@ public class DefaultMarkTest extends TestCase {
     
     public DefaultMarkTest(java.lang.String testName) {
         super(testName);
-        //BasicConfigurator.configure();
+        
     }
     
     public static void main(java.lang.String[] args) {
