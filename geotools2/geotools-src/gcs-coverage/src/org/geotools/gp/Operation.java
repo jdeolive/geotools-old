@@ -51,6 +51,7 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.ParameterListDescriptorImpl;
 import javax.media.jai.EnumeratedParameter;
 
 // OpenGIS dependencies
@@ -75,7 +76,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.15 2003/07/31 17:08:34 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.16 2003/08/01 10:41:53 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -84,6 +85,23 @@ public abstract class Operation implements Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -1280778129220703728L;
+
+    /**
+     * Convenience constant for constructing monadic operation. This parameter list descriptor
+     * takes only one {@link GridCoverage} source with no parameter.
+     */
+    public static final ParameterListDescriptor MONADIC = new ParameterListDescriptorImpl(
+          null,          // the object to be reflected upon for enumerated values.
+          new String[] { // the names of each parameter.
+              "Source"
+          },
+          new Class[] {  // the class of each parameter.
+              GridCoverage.class
+          },
+          new Object[] { // The default values for each parameter.
+              ParameterListDescriptor.NO_PARAMETER_DEFAULT
+          },
+          null); // Defines the valid values for each parameter.
     
     /**
      * List of valid names. Note: the "Optimal" type is not

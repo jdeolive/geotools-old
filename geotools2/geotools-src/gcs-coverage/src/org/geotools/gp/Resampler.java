@@ -68,6 +68,7 @@ import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
 import org.geotools.cv.SampleDimension;
+import org.geotools.gc.InvalidGridGeometryException;
 
 // Geotools (CTS) dependencies
 import org.geotools.pt.Matrix;
@@ -113,7 +114,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.17 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.18 2003/08/01 10:41:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -226,7 +227,7 @@ final class Resampler extends GridCoverage {
         while (true) {
             sourceGG = sourceCoverage.getGridGeometry();
             sourceCS = sourceCoverage.getCoordinateSystem();
-            sameGG   = (targetGG==null || targetGG.equals(sourceGG));
+            sameGG   = (targetGG==null || equivalent(targetGG, sourceGG));
             sameCS   = (targetCS==null || targetCS.equals(sourceCS, false));
             if (sameGG && sameCS) {
                 return sourceCoverage;
@@ -408,10 +409,15 @@ final class Resampler extends GridCoverage {
                 xtr = mtFactory.createConcatenatedTransform(
                       mtFactory.createConcatenatedTransform(step1x, step2x), step3x);
             }
-            assert getMathTransform2D(xtr, mtFactory).equals(transform) : xtr;
-            Envelope envelope = GCSUtilities.toEnvelope(sourceGG.getGridRange());
-            envelope = CTSUtilities.transform(xtr.inverse(), envelope);
-            targetGG = new GridGeometry(GCSUtilities.toGridRange(envelope), step1x);
+            if (xtr != null) {
+                assert getMathTransform2D(xtr, mtFactory).equals(transform) : xtr;
+                Envelope envelope = GCSUtilities.toEnvelope(sourceGG.getGridRange());
+                envelope = CTSUtilities.transform(xtr.inverse(), envelope);
+                targetGG = new GridGeometry(GCSUtilities.toGridRange(envelope), step1x);
+            } else {
+                assert transform.isIdentity() : transform;
+                targetGG = sourceGG;
+            }
         }
         /*
          * If the target coverage has not been created yet, change the image bounding box in
@@ -632,6 +638,39 @@ final class Resampler extends GridCoverage {
         }
         throw new FactoryException(Resources.format(ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
     }
+
+    /**
+     * Check if two geometries are equal, ignoring unspecified fields. If one or both geometries
+     * has no &quot;gridToCoordinateSystem&quot; transform, then this properties is not taken in
+     * account. Same apply for the grid range.
+     * 
+     *
+     * @param  range1 The first range.
+     * @param  range2 The second range.
+     * @return <code>true</code> if the two geometries are equal, ignoring unspecified fields.
+     */
+    private static boolean equivalent(final GridGeometry geom1, final GridGeometry geom2) {
+        if (geom1.equals(geom2)) {
+            return true;
+        }
+        try {
+            if (!geom1.getGridRange().equals(geom2.getGridRange())) {
+                return false;
+            }
+        } catch (InvalidGridGeometryException exception) {
+            // One geometry doesn't have a grid range.
+            // Do not compare this properties.
+        }
+        try {
+            if (!geom1.getGridToCoordinateSystem().equals(geom2.getGridToCoordinateSystem())) {
+                return false;
+            }
+        } catch (InvalidGridGeometryException exception) {
+            // One geometry doesn't have a transform.
+            // Do not compare this properties.
+        }
+        return true;
+    }
     
     /**
      * Returns the coverage name, localized for the supplied locale.
@@ -651,7 +690,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.17 2003/07/30 17:45:22 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.18 2003/08/01 10:41:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

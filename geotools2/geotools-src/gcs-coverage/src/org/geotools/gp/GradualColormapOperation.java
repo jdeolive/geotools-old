@@ -39,7 +39,6 @@ import java.util.List;
 import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
-import javax.media.jai.ParameterListDescriptorImpl;
 
 // Geotools dependencies
 import org.geotools.cv.Category;
@@ -73,7 +72,7 @@ import org.geotools.cv.SampleDimension;
  *     08    0000FF        0000FF
  * </pre></blockquote>
  *
- * @version $Id: GradualColormapOperation.java,v 1.4 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: GradualColormapOperation.java,v 1.5 2003/08/01 10:41:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradualColormapOperation extends IndexColorOperation {
@@ -110,22 +109,7 @@ final class GradualColormapOperation extends IndexColorOperation {
      *             sera donc la plus affectée).
      */
     public GradualColormapOperation() {
-        super("GradualColormap", new ParameterListDescriptorImpl(
-              null,         // the object to be reflected upon for enumerated values.
-              new String[]  // the names of each parameter.
-              {
-                  "Source"
-              },
-              new Class[]   // the class of each parameter.
-              {
-                  GridCoverage.class
-              },
-              new Object[] // The default values for each parameter.
-              {
-                  ParameterListDescriptor.NO_PARAMETER_DEFAULT
-              },
-              null // Defines the valid values for each parameter.
-        ));
+        super("GradualColormap", MONADIC);
     }
 
     /**

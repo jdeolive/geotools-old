@@ -61,7 +61,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.8 2003/07/22 15:24:54 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.9 2003/08/01 10:41:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -156,6 +156,7 @@ public class OperationTest extends GridCoverageTest {
     }
 
     /**
+     * Make sure that all sample values in the given coverage are equals to the given value.
      */
     private static void assertEquals(final double value, final GridCoverage coverage) {
         final Raster data = coverage.getRenderedImage().getData();
