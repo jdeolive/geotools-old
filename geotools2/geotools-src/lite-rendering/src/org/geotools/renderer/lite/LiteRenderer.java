@@ -24,7 +24,6 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.map.Context;
@@ -65,6 +64,7 @@ import java.awt.MediaTracker;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.TexturePaint;
+import java.awt.font.GlyphVector;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
@@ -112,7 +112,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.24 2003/08/11 20:29:46 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.25 2003/11/02 21:03:06 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -858,12 +858,13 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         LabelPlacement placement = symbolizer.getLabelPlacement();
 
-        if (javaFont != null) {
-            graphics.setFont(javaFont);
-        }
+//        if (javaFont != null) {
+//            graphics.setFont(javaFont);
+//        }
 
-        TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
-        Rectangle2D textBounds = tl.getBounds();
+        // TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
+        GlyphVector gv = javaFont.createGlyphVector(graphics.getFontRenderContext(), label);
+        Rectangle2D textBounds = gv.getLogicalBounds();
         double x = 0;
         double y = 0;
         double rotation = 0;
@@ -940,10 +941,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
         Halo halo = symbolizer.getHalo();
 
         if (halo != null) {
-            drawHalo(halo, tx, ty, x, y, tl, feature, rotation);
+            drawHalo(halo, tx, ty, x, y, gv, feature, rotation);
         }
 
-        renderString(graphics, tx, ty, x, y, tl, feature, symbolizer.getFill(), rotation);
+        renderString(graphics, tx, ty, x, y, gv, feature, symbolizer.getFill(), rotation);
     }
 
     /**
@@ -1124,7 +1125,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param fill eventual feature filling
      * @param rotation text rotation
      */
-    void renderString(Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl,
+    void renderString(Graphics2D graphic, double x, double y, double dx, double dy, GlyphVector gv,
         Feature feature, Fill fill, double rotation) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
@@ -1161,7 +1162,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 + (x + dx) + "," + (y + dy));
         }
 
-        tl.draw(graphic, (float) dx, (float) dy);
+        graphic.drawGlyphVector(gv, (float) dx, (float) dy);
+        // tl.draw(graphic, (float) dx, (float) dy);
 
         //graphics.drawString(label,(float)x,(float)y);
         resetFill(graphic);
@@ -1182,7 +1184,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param feature the feature whose string is associated
      * @param rotation text rotation
      */
-    private void drawHalo(Halo halo, double x, double y, double dx, double dy, TextLayout tl,
+    private void drawHalo(Halo halo, double x, double y, double dx, double dy, GlyphVector gv,
         Feature feature, double rotation) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("doing halo");
@@ -1193,6 +1195,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
          */
         AffineTransform temp = graphics.getTransform();
         AffineTransform labelAT = new AffineTransform();
+        float radius = ((Number) halo.getRadius().getValue(feature)).floatValue();
 
         Point2D mapCentre = new java.awt.geom.Point2D.Double(x, y);
         Point2D graphicCentre = new java.awt.geom.Point2D.Double();
@@ -1219,11 +1222,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
         AffineTransform at = new AffineTransform();
         at.translate(dx, dy);
 
-        Shape sha = tl.getOutline(at);
+        // Shape sha = tl.getOutline(at);
         applyFill(graphics, halo.getFill(), feature);
 
-        float radius = ((Number) halo.getRadius().getValue(feature)).floatValue();
-        Shape haloShape = new BasicStroke(2f * radius).createStrokedShape(sha);
+        Shape haloShape = new BasicStroke(2f * radius, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND).createStrokedShape(gv.getOutline((float) dx, (float) dy));
         graphics.fill(haloShape);
         resetFill(graphics);
         graphics.setTransform(temp);
@@ -1489,7 +1491,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         markAT.rotate(rotation - originalRotation);
 
-        double unitSize = 1.0; // getbounds is broken !!!
+        Rectangle2D bounds = shape.getBounds2D();
+        // getbounds is broken, but getBounds2D is not :-)
+        double unitSize = Math.max(bounds.getWidth(), bounds.getHeight()); 
         double drawSize = (double) size / unitSize;
         markAT.scale(drawSize, -drawSize);
 
@@ -1594,13 +1598,14 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         String symbol = mark.getSymbol().getValue(feature).toString();
-        TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
-        Rectangle2D textBounds = tl.getBounds();
+        // TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
+        GlyphVector gv = javaFont.createGlyphVector(graphic.getFontRenderContext(), symbol);
+        Rectangle2D textBounds = gv.getVisualBounds();
 
         // TODO: consider if symbols should carry an offset
         double dx = textBounds.getWidth() / 2.0;
         double dy = textBounds.getHeight() / 2.0;
-        renderString(graphic, tx, ty, dx, dy, tl, feature, mark.getFill(), rotation);
+        renderString(graphic, tx, ty, dx, dy, gv, feature, mark.getFill(), rotation);
 
         return true;
     }
