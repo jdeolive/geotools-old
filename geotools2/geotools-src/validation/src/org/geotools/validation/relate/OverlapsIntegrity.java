@@ -22,23 +22,40 @@ package org.geotools.validation.relate;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.logging.Logger;
 
 import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
-import org.geotools.feature.IllegalAttributeException;
+import org.geotools.filter.Filter;
+import org.geotools.filter.FilterFactory;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
+
 /**
- * @author bowens
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * OverlapsIntegrity<br>
+ * @author bowens<br>
+ * Created Apr 27, 2004<br>
+ * @version <br>
+ * 
+ * <b>Puropse:</b><br>
+ * <p>
+ * 
+ * </p>
+ * 
+ * <b>Description:</b><br>
+ * <p>
+ * 
+ * </p>
+ * 
+ * <b>Usage:</b><br>
+ * <p>
+ * 
+ * </p>
  */
 public class OverlapsIntegrity extends RelationIntegrity 
 {
@@ -46,6 +63,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	
 	
 	/**
+	 * OverlapsIntegrity Constructor
 	 * 
 	 */
 	public OverlapsIntegrity()
@@ -54,6 +72,9 @@ public class OverlapsIntegrity extends RelationIntegrity
 	}
 	
 	
+	/* (non-Javadoc)
+	 * @see org.geotools.validation.IntegrityValidation#validate(java.util.Map, com.vividsolutions.jts.geom.Envelope, org.geotools.validation.ValidationResults)
+	 */
 	public boolean validate(Map layers, Envelope envelope,
 			ValidationResults results) throws Exception 
 	{
@@ -65,100 +86,153 @@ public class OverlapsIntegrity extends RelationIntegrity
 		
 		String typeRef2 = getGeomTypeRefB();
 		if (typeRef2 == EMPTY || typeRef1.equals(typeRef2))
-			return validateSingleLayer(geomSource1, false, results);	//TODO fixme not to be false, grab actual expected value from beaninfo
+			return validateSingleLayer(geomSource1, isExpected(), results, envelope);
 		else
 		{
 			LOGGER.finer( typeRef2 +": looking up FeatureSource " );        
 			FeatureSource geomSource2 = (FeatureSource) layers.get( typeRef2 );
 			LOGGER.finer( typeRef2 +": found "+ geomSource2.getSchema().getTypeName() );
-			return validateMultipleLayers(geomSource1, geomSource2, false, results);
+			return validateMultipleLayers(geomSource1, geomSource2, isExpected(), results, envelope);
 		}	
 	
 	}
 
 
 	/**
-	 * @param featureReaderA
-	 * @param featureReaderB
+	 * <b>validateMultipleLayers Purpose:</b> <br>
+	 * <p>
+	 * DOCUMENT ME!!
+	 * </p>
+	 * 
+	 * <b>Description:</b><br>
+	 * <p>
+	 * DOCUMENT ME!!
+	 * </p>
+	 * 
+	 * Author: bowens<br>
+	 * Created on: Apr 27, 2004<br>
+	 * @param featureSourceA
+	 * @param featureSourceB
+	 * @param expected
+	 * @param results
+	 * @param bBox
 	 * @return
+	 * @throws Exception
 	 */
-	private boolean validateMultipleLayers(FeatureSource featureSourceA, FeatureSource featureSourceB, boolean expected, ValidationResults results) 
+	private boolean validateMultipleLayers(	FeatureSource featureSourceA, 
+											FeatureSource featureSourceB, 
+											boolean expected, 
+											ValidationResults results, 
+											Envelope bBox) 
+	throws Exception
 	{
 		boolean success = true;
 		
-		FeatureReader featureReader1 = null;
-		try {
-			featureReader1 = featureSourceA.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		FilterFactory ff = FilterFactory.createFilterFactory();
+		Filter filter = null;
 
-		FeatureReader featureReader2 = null;
-		try {
-			featureReader2 = featureSourceB.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
+		filter = (Filter) ff.createBBoxExpression(bBox);
+
+		FeatureResults featureResultsA = featureSourceA.getFeatures(filter);
+		FeatureResults featureResultsB = featureSourceB.getFeatures(filter);
 		
+		FeatureReader fr1 = null;
+		FeatureReader fr2 = null;
 		try 
 		{
-			while (featureReader1.hasNext())
+			fr1 = featureResultsA.reader();
+
+			if (fr1 == null)
+				return false;
+						
+			while (fr1.hasNext())
 			{
-				Feature f1 = featureReader1.next();
+				Feature f1 = fr1.next();
 				Geometry g1 = f1.getDefaultGeometry();
-				while (featureReader2.hasNext())
+				fr2 = featureResultsB.reader();
+				
+				while (fr2 != null && fr2.hasNext())
 				{
-					Feature f2 = featureReader2.next();
+					Feature f2 = fr2.next();
 					Geometry g2 = f2.getDefaultGeometry();
 					if(g1.overlaps(g2) != expected || g1.contains(g2) != expected)
 					{
-						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefA()+"("+f2.getID()+"), Result was not "+expected );
+						results.error( f1, f1.getDefaultGeometry().getGeometryType()+" "+getGeomTypeRefA()+" overlapped "+getGeomTypeRefB()+"("+f2.getID()+"), Result was not "+expected );
 						success = false;
 					}
 				}		
 			}
-		} catch (NoSuchElementException e2) {
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		} catch (IllegalAttributeException e2) {
-			e2.printStackTrace();
+		}finally
+		{
+			/** Close the connections too the feature readers*/
+			try {
+				fr1.close();
+				if (fr2 != null)
+					fr2.close();
+			} catch (IOException e4) {
+				e4.printStackTrace();
+				throw e4;
+			}
 		}
 				
 		return success;
 	}
 
 
+
 	/**
+	 * <b>validateSingleLayer Purpose:</b> <br>
+	 * <p>
+	 * DOCUMENT ME!!
+	 * </p>
+	 * 
+	 * <b>Description:</b><br>
+	 * <p>
+	 * DOCUMENT ME!!
+	 * </p>
+	 * 
+	 * Author: bowens<br>
+	 * Created on: Apr 27, 2004<br>
+	 * @param featureSourceA
+	 * @param expected
+	 * @param results
+	 * @param bBox
 	 * @return
+	 * @throws Exception
 	 */
-	private boolean validateSingleLayer(FeatureSource featureSourceA, boolean expected, ValidationResults results) 
+	private boolean validateSingleLayer(FeatureSource featureSourceA, 
+										boolean expected, 
+										ValidationResults results, 
+										Envelope bBox) 
+	throws Exception
 	{
 		boolean success = true;
 		
-		FeatureReader featureReader1 = null;
-		try {
-			featureReader1 = featureSourceA.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		FilterFactory ff = FilterFactory.createFilterFactory();
+		Filter filter = null;
+
+		filter = (Filter) ff.createBBoxExpression(bBox);
+
+		FeatureResults featureResults = featureSourceA.getFeatures(filter);
 		
-		FeatureReader featureReader2 = null;
-		try {
-			featureReader2 = featureSourceA.getDataStore().getFeatureReader(null, null);//TODO fixme (jody)
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-		
+		FeatureReader fr1 = null;
+		FeatureReader fr2 = null;
 		try 
 		{
-			while (featureReader1.hasNext())
+			fr1 = featureResults.reader();
+
+			if (fr1 == null)
+				return false;
+						
+			while (fr1.hasNext())
 			{
-				Feature f1 = featureReader1.next();
+				Feature f1 = fr1.next();
 				Geometry g1 = f1.getDefaultGeometry();
-				while (featureReader2.hasNext())
+				fr2 = featureResults.reader();
+				
+				while (fr2 != null && fr2.hasNext())
 				{
-					Feature f2 = featureReader2.next();
+					Feature f2 = fr2.next();
 					Geometry g2 = f2.getDefaultGeometry();
 					if (!f1.getID().equals(f2.getID()))	// if they are the same feature, move onto the next one
 					{
@@ -170,12 +244,17 @@ public class OverlapsIntegrity extends RelationIntegrity
 					}
 				}		
 			}
-		} catch (NoSuchElementException e2) {
-			e2.printStackTrace();
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		} catch (IllegalAttributeException e2) {
-			e2.printStackTrace();
+		}finally
+		{
+			/** Close the connections too the feature readers*/
+			try {
+				fr1.close();
+				if (fr2 != null)
+					fr2.close();
+			} catch (IOException e4) {
+				e4.printStackTrace();
+				throw e4;
+			}
 		}
 		
 		return success;
