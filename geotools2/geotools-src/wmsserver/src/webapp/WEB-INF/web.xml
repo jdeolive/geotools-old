@@ -23,6 +23,10 @@
       <param-name>layersxml</param-name>
       <param-value>layers.xml</param-value>
     </init-param>
+    <init-param>
+        <param-name>cachesize</param-name>
+        <param-value>20</param-value>
+    </init-param>
   </servlet>
   <servlet-mapping>
     <servlet-name>WMSServlet</servlet-name>

@@ -65,7 +65,9 @@ public class WMSServlet extends HttpServlet {
     public static final String PARAM_EXCEPTIONS		= "EXCEPTIONS";
     public static final String PARAM_TIME			= "TIME";
     public static final String PARAM_ELEVATION		= "ELEVATION";
+    // cache controls
     public static final String PARAM_USECACHE       = "USECACHE";
+    public static final String PARAM_CACHESIZE       = "CACHESIZE";
     // GetFeatureInfo parameters
     public static final String PARAM_QUERY_LAYERS	= "QUERY_LAYERS";
     public static final String PARAM_INFO_FORMAT	= "INFO_FORMAT";
@@ -91,7 +93,8 @@ public class WMSServlet extends HttpServlet {
     private Vector featureFormatters;
     private String getUrl;
     private static final int CACHE_SIZE = 200;
-    private static Map allMaps = new LRUMap(CACHE_SIZE);
+    private int cacheSize = CACHE_SIZE;
+    private static Map allMaps;
     private static Map nationalMaps = new HashMap();
     private static final Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
     
@@ -100,8 +103,7 @@ public class WMSServlet extends HttpServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        allMaps = Collections.synchronizedMap(allMaps);
-        nationalMaps = Collections.synchronizedMap(nationalMaps);
+        
         // save servlet context
         context = config.getServletContext();
         
@@ -143,6 +145,20 @@ public class WMSServlet extends HttpServlet {
         catch(Exception exp) {
             throw new ServletException("Cannot instantiate WMSFeatureFormater class specified in WEB.XML", exp);
         }
+        
+        // set up the cache
+        String cachep = config.getInitParameter("cachesize");
+        if(cachep != null){
+            try{
+                cacheSize = Integer.parseInt(cachep);
+            }catch(NumberFormatException e){
+                LOGGER.warning("Bad cache size in setup: "+e);
+            }
+        }
+        LOGGER.fine("Setting cache to " + cacheSize);
+        allMaps = new LRUMap(cacheSize);
+        allMaps = Collections.synchronizedMap(allMaps);
+        nationalMaps = Collections.synchronizedMap(nationalMaps);
     }
     
     /**
@@ -169,6 +185,11 @@ public class WMSServlet extends HttpServlet {
         }
         else if (sRequest.trim().equalsIgnoreCase("GetFeatureInfo")) {
             doGetFeatureInfo(request, response);
+        } else if (sRequest.trim().equalsIgnoreCase("ClearCache")){
+            // note unpublished request to prevent users clearing the cache for fun.
+            clearCache();
+        } else if (sRequest.trim().equalsIgnoreCase("SetCache")){
+            resetCache(request,response);
         }
     }
     
@@ -223,6 +244,7 @@ public class WMSServlet extends HttpServlet {
         BufferedImage image;
         String exceptions = getParameter(request, PARAM_EXCEPTIONS);
         String format = getParameter(request, PARAM_FORMAT);
+        // note this is not a published param to prevent users avoiding the cache for fun!
         String nocache = getParameter(request, PARAM_USECACHE); 
         boolean useCache = true;
         if(nocache!=null && nocache.trim().equalsIgnoreCase("false")) useCache=false;
@@ -694,7 +716,7 @@ public class WMSServlet extends HttpServlet {
         color = color.replace('#', ' ');
         color = color.replaceAll("0x",""); // incase they passed in 0XFFFFFF instead like cubewerx do
         try {
-            LOGGER.fine("decoding "+color);
+            LOGGER.finest("decoding "+color);
             return new Color(Integer.parseInt(color.trim(), 16));
         }
         catch(NumberFormatException nfexp) {
@@ -704,14 +726,26 @@ public class WMSServlet extends HttpServlet {
     }
     
     private void clearCache(){
-        allMaps = new LRUMap(CACHE_SIZE);
+        allMaps = new LRUMap(cacheSize);
         allMaps = Collections.synchronizedMap(allMaps);
         nationalMaps = new HashMap();
         nationalMaps = Collections.synchronizedMap(nationalMaps);
     }
     
+    private void resetCache(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int size = posIntParam(getParameter(request, PARAM_CACHESIZE));
+        cacheSize = size;
+        LOGGER.info("Setting cacheSize to " + size);
+        clearCache(); 
+    }
+    /** 
+     * a Key for wms requests which ignores case and ordering of layers, styles parameters etc.
+     */
     class CacheKey{
         int key;
+        /** construct a probably unique key for this wms request
+         * @param request the WMS request
+         */
          CacheKey(HttpServletRequest request){
             
             String tmp = getParameter(request, PARAM_LAYERS);
@@ -754,11 +788,15 @@ public class WMSServlet extends HttpServlet {
             
             LOGGER.finest("Key = " + key);
          }
-         
+         /**
+          * return the hashcode of this key
+          */
          public int hashCode(){
              return key; 
          }
          
+         /** checks if this key is equal to the object passed in
+          */
          public boolean equals(Object k){
              if(k == null){
                 return false;
@@ -772,7 +810,8 @@ public class WMSServlet extends HttpServlet {
              
              return true;
          }
-         
+         /** converts the key to a string
+          */
          public String toString(){
              return ""+key;
          }
