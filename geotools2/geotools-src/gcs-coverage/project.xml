@@ -44,6 +44,10 @@
       <id>opengis+css</id>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <id>vecmath</id>
+      <version>1.2.1</version>
+    </dependency>
   </dependencies>
 
 
