@@ -50,6 +50,7 @@ public interface ResourceKeys
     public static final int IMAGE_CLASS_$1           =    95;
     public static final int IMAGE_SIZE               =    87;
     public static final int IMAGE_SIZE_$3            =    77;
+    public static final int IMPLEMENTATIONS          =   101;
     public static final int INDEX                    =    97;
     public static final int INFORMATIONS             =    94;
     public static final int JAVA_VENDOR_$1           =    68;

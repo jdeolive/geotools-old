@@ -55,6 +55,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import java.awt.image.renderable.ParameterBlock; // For javadoc
 import java.awt.image.renderable.RenderedImageFactory;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -69,6 +70,7 @@ import javax.media.jai.registry.RenderedRegistryMode;
 
 // Geotools dependencies
 import org.geotools.resources.Arguments;
+import org.geotools.resources.Utilities;
 import org.geotools.gui.swing.tree.Trees;
 import org.geotools.gui.swing.tree.TreeNode;
 import org.geotools.gui.swing.tree.NamedTreeNode;
@@ -79,9 +81,27 @@ import org.geotools.resources.gui.Resources;
 
 
 /**
- * Browse through the registered JAI operations.
+ * Browse through the registered JAI operations. This widget display a tree build from a
+ * JAI's {@link OperationRegistry}. The tree has the following hierarchy:
  *
- * @version $Id: RegisteredOperationBrowser.java,v 1.2 2003/07/28 22:36:53 desruisseaux Exp $
+ * <ul>
+ *   <li>At the first level, all {@linkplain OperationRegistry#getRegistryModes() registry modes}
+ *       (e.g. &quot;rendered&quot;, &quot;renderable&quot;, etc.) in alphabetical order.</li>
+ *   <li>At the second level, all {@linkplain OperationRegistry#getDescriptors(String) operation
+ *       descriptors} (e.g. &quot;Affine&quot;, &quot;Multiply&quot;, etc.) registered to each
+ *       registry mode, in alphabetical order. This is the operation name to be given to
+ *       {@link JAI#create(String,ParameterBlock) JAI.create(...)} methods.</li>
+ *   <li>At the third level, a list of
+ *       {@linkplain RegistryElementDescriptor#getParameterListDescriptor(String) parameters}
+ *       as leafs, and the list of
+ *       {@linkplain OperationRegistry#getOrderedProductList implementing products} as nodes.
+ *       This level is not sorted in alphabetical order, since the ordering is relevant.</li>
+ *   <li>At the last level, a list of {@linkplain OperationRegistry#getOrderedFactoryList
+ *       factories} as leafs. This level is not sorted in alphabetical order, since the ordering
+ *       is relevant.</li>
+ * </ul>
+ *
+ * @version $Id: RegisteredOperationBrowser.java,v 1.3 2003/07/30 17:44:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RegisteredOperationBrowser extends JPanel {
@@ -99,8 +119,26 @@ public class RegisteredOperationBrowser extends JPanel {
      * Construct a new operation browser for the default {@link JAI} instance.
      */
     public RegisteredOperationBrowser() {
+        this(getTree());
+    }
+    
+    /**
+     * Construct a new operation browser for the specified operation registry.
+     *
+     * @param registry The operation registry to use for fetching operations.
+     */
+    public RegisteredOperationBrowser(final OperationRegistry registry) {
+        this(getTree(registry, getDefaultLocale()));
+    }
+
+    /**
+     * Construct a new operation browser for operations from the specified tree.
+     *
+     * @param model The tree model built by one of {@link #getTree} methods.
+     */
+    private RegisteredOperationBrowser(final TreeModel model) {
         super(new BorderLayout());
-        final JTree tree = new JTree(getTree());
+        final JTree tree = new JTree(model);
         tree.setBorder(BorderFactory.createEmptyBorder(6, 6, 0, 0));
         add(new JScrollPane(tree), BorderLayout.CENTER);
         /*
@@ -150,7 +188,8 @@ public class RegisteredOperationBrowser extends JPanel {
                         final javax.swing.tree.TreeNode node = (javax.swing.tree.TreeNode)component;
                         final Object leaf = path.getLastPathComponent();
                         for (index=node.getChildCount(); --index>=0;) {
-                            if (node.getChildAt(index) == leaf) {
+                            final javax.swing.tree.TreeNode param = node.getChildAt(index);
+                            if (param==leaf && !param.getAllowsChildren()) {
                                 break;
                             }
                         }
@@ -254,7 +293,7 @@ public class RegisteredOperationBrowser extends JPanel {
                 final DefaultMutableTreeNode descriptorNode;
                 final ParameterListDescriptor param;
                 descriptor     = (RegistryElementDescriptor)it.next();
-                descriptorNode = new NamedTreeNode(descriptor.getName(), descriptor);
+                descriptorNode = new NamedTreeNode(getName(descriptor, locale), descriptor);
                 param          = descriptor.getParameterListDescriptor(mode);
                 if (param != null) {
                     final String[] names = param.getParamNames();
@@ -265,11 +304,56 @@ public class RegisteredOperationBrowser extends JPanel {
                         }
                     }
                 }
+                /*
+                 * Add the implementing products and the factories, if any.
+                 */
+                final String operationName = descriptor.getName();
+                final List products = registry.getOrderedProductList(mode, operationName);
+                if (products != null) {
+                    final DefaultMutableTreeNode productsNode;
+                    productsNode = new DefaultMutableTreeNode(
+                                   resources.getString(ResourceKeys.IMPLEMENTATIONS));
+                    for (final Iterator itp=products.iterator(); itp.hasNext();) {
+                        final String product = (String) itp.next();
+                        final DefaultMutableTreeNode productNode;
+                        productNode = new DefaultMutableTreeNode(product);
+
+                        final List factories;
+                        factories = registry.getOrderedFactoryList(mode, operationName, product);
+                        if (factories != null) {
+                            for (final Iterator itf=factories.iterator(); itf.hasNext();) {
+                                final Object factory = itf.next();
+                                productNode.add(new NamedTreeNode(
+                                        Utilities.getShortClassName(factory), factory, false));
+                            }
+                        }
+                        productsNode.add(productNode);
+                    }
+                    descriptorNode.add(productsNode);
+                }
                 modeNode.add(descriptorNode);
             }
             root.add(modeNode);
         }
         return new DefaultTreeModel(root, true);
+    }
+
+    /**
+     * Returns the localized name for the given descriptor. The name will be fecth from the
+     * &quot;{@link OperationDescriptor#getResourceBundle LocalName}&quot; resource, if available.
+     * Otherwise, the {@linkplain RegistryElementDescriptor#getName non-localized name} is returned.
+     */
+    private static String getName(final RegistryElementDescriptor descriptor, final Locale locale) {
+        if (descriptor instanceof OperationDescriptor) {
+            ResourceBundle resources = ((OperationDescriptor)descriptor).getResourceBundle(locale);
+            if (resources != null) try {
+                return resources.getString("LocalName");
+            } catch (MissingResourceException exception) {
+                // No localized name. Fallback on the default (non-localized) descriptor name.
+                // No warning to report here, this exception is really not a problem.
+            }
+        }
+        return descriptor.getName();
     }
 
     /**

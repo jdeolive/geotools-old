@@ -45,6 +45,8 @@ import javax.swing.event.TreeSelectionListener;
 import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderableImage;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel; // For javadoc
+import java.awt.image.ColorModel;  // For javadoc
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
@@ -52,8 +54,10 @@ import java.awt.Component;
 import java.awt.Dimension;
 
 // JAI dependencies
-import javax.media.jai.KernelJAI;
-import javax.media.jai.LookupTableJAI;
+import javax.media.jai.KernelJAI;      // For javadoc
+import javax.media.jai.RenderedOp;     // For javadoc
+import javax.media.jai.RenderableOp;   // For javadoc
+import javax.media.jai.LookupTableJAI; // For javadoc
 import javax.media.jai.PropertySource;
 import javax.media.jai.OperationNode;
 import javax.media.jai.ParameterList;
@@ -71,15 +75,32 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
 
 
 /**
- * Display a chain of {@link RenderedImage} as a tree. The specified image is the root of the
- * tree. Each source image is a children node (with potentially their own source images and/or
- * parameters) and each parameter is a children leaf.
+ * Display a chain of images as a tree. It may be a chain of {@link RenderedImage} or a chain of
+ * {@link RenderableImage}. Those images are often the result of some operation (i.e. are actually
+ * instances of {@link RenderedOp} or {@link RenderableOp}). The image given to the constructor is
+ * the root of the tree. The root contains the following children nodes:
+ *
+ * <ul>
+ *   <li>One node for each {@linkplain RenderedImage#getSources source image}, if any.</li>
+ *   <li>One node for each {@linkplain OperationNode#getParameterBlock image parameter}, if any.</li>
+ * </ul>
+ *
+ * Each source image can have its own source and parameters. In an analogy to a file system,
+ * {@linkplain RenderedImage#getSources source images} are like directories and
+ * {@linkplain OperationNode#getParameterBlock image parameters} are like files.
+ *
+ * When a tree node is selected in the left pane, the content of the right pane is adjusted
+ * accordingly. If the node is an image, a &quot;preview&quot; tab is show together with an
+ * &quot;information&quot; tab. Informations include the {@linkplain ColorModel color model},
+ * {@linkplain SampleModel sample model}, data type, etc. If the selected tree node is a
+ * parameter, then the right pane show the parameter value in {@linkplain ParameterEditor
+ * some widget} appropriate for the parameter type.
  *
  * <p>&nbsp;</p>
  * <p align="center"><img src="doc-files/OperationTreeBrowser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: OperationTreeBrowser.java,v 1.5 2003/07/29 18:04:37 desruisseaux Exp $
+ * @version $Id: OperationTreeBrowser.java,v 1.6 2003/07/30 17:44:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
  *
@@ -114,14 +135,32 @@ public class OperationTreeBrowser extends JPanel {
     private final Container cards = new JPanel(new CardLayout());
 
     /**
-     * Construct a new browser for the given image.
+     * Construct a new browser for the given rendered image.
      *
      * @param source The last image from the rendering chain to browse.
      */
     public OperationTreeBrowser(final RenderedImage source) {
+        this(getTree(source, getDefaultLocale()));
+    }
+
+    /**
+     * Construct a new browser for the given renderable image.
+     *
+     * @param source The last image from the rendering chain to browse.
+     */
+    public OperationTreeBrowser(final RenderableImage source) {
+        this(getTree(source, getDefaultLocale()));
+    }
+
+    /**
+     * Construct a new browser for the tree.
+     *
+     * @param model The tree model built from the rendering chain to browse.
+     */
+    private OperationTreeBrowser(final TreeModel model) {
         super(new BorderLayout());
         final Listeners listeners = new Listeners();
-        final JTree tree = new JTree(getTree(source, getDefaultLocale()));
+        final JTree tree = new JTree(model);
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setBorder(BorderFactory.createEmptyBorder(6,6,0,0));
         tree.addTreeSelectionListener(listeners);
@@ -150,13 +189,24 @@ public class OperationTreeBrowser extends JPanel {
     }
 
     /**
-     * Returns a tree with all sources and parameters for the given source.
+     * Returns a tree with all sources and parameters for the given rendered image.
      *
      * @param  image The last image from an operation chain.
      * @param  locale The locale for tree node names.
      * @return The tree for the given image and all its sources.
      */
     public static TreeModel getTree(final RenderedImage image, final Locale locale) {
+        return new DefaultTreeModel(getNode(image, locale));
+    }
+
+    /**
+     * Returns a tree with all sources and parameters for the given renderable image.
+     *
+     * @param  image The last image from an operation chain.
+     * @param  locale The locale for tree node names.
+     * @return The tree for the given image and all its sources.
+     */
+    public static TreeModel getTree(final RenderableImage image, final Locale locale) {
         return new DefaultTreeModel(getNode(image, locale));
     }
 
@@ -174,6 +224,28 @@ public class OperationTreeBrowser extends JPanel {
             final int n = sources.size();
             for (int i=0; i<n; i++) {
                 root.add(getNode((RenderedImage)sources.get(i), locale));
+            }
+        }
+        if (image instanceof OperationNode) {
+            addParameters(root, (OperationNode)image, locale);
+        }
+        return root;
+    }
+
+    /**
+     * Returns the root node of a tree with all sources and parameters for the given source.
+     *
+     * @param  image The last image from an operation chain.
+     * @param  locale The locale for tree node names.
+     * @return The tree for the given image and all its sources.
+     */
+    private static MutableTreeNode getNode(final RenderableImage image, final Locale locale) {
+        final DefaultMutableTreeNode root = new NamedTreeNode(getName(image), image);
+        final List sources = image.getSources();
+        if (sources != null) {
+            final int n = sources.size();
+            for (int i=0; i<n; i++) {
+                root.add(getNode((RenderableImage)sources.get(i), locale));
             }
         }
         if (image instanceof OperationNode) {
@@ -224,7 +296,7 @@ public class OperationTreeBrowser extends JPanel {
     /**
      * The listener for various event in the {@link OperationTreeBrowser} widget.
      *
-     * @version $Id: OperationTreeBrowser.java,v 1.5 2003/07/29 18:04:37 desruisseaux Exp $
+     * @version $Id: OperationTreeBrowser.java,v 1.6 2003/07/30 17:44:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements TreeSelectionListener {
