@@ -56,7 +56,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.5 2003/02/18 19:28:49 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.6 2003/03/20 13:03:51 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -112,10 +112,10 @@ public class OperationTest extends GridCoverageTest {
     }
 
     /**
-     * Test the "Colormap" operation.
+     * Test the "Recolor" operation.
      */
-    public void testColormap() {
-        final Operation   operation = new ColormapOperation();
+    public void testRecolor() {
+        final Operation   operation = new RecolorOperation();
         final GridCoverage coverage = getRandomCoverage();
         final ParameterList   param = operation.getParameterList().setParameter("Source", coverage);
         final GridCoverage   result = operation.doOperation(param, null);
