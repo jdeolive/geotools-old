@@ -160,17 +160,17 @@ public class StyleFactoryImplTest extends TestCase {
         f = styleFactory.createFill(filterFactory.createLiteralExpression("#808080"),
             filterFactory.createLiteralExpression(1.0));
         assertNotNull("Failed to build fill",f);
-//        try{
-//            f = styleFactory.createFill(null);
-//        } catch (IllegalArgumentException iae){
-//            try{
-//                f = styleFactory.createFill(filterFactory.createLiteralExpression("#808080"),null);
-//            } catch (IllegalArgumentException ae){
-//               return ;
-//            }
-//            fail("Failed to catch broken fill");
-//        }
-//        fail("Failed to catch broken color");
+        try{
+            f = styleFactory.createFill(null);
+        } catch (IllegalArgumentException iae){
+            try{
+                f = styleFactory.createFill(filterFactory.createLiteralExpression("#808080"),null);
+            } catch (IllegalArgumentException ae){
+               return ;
+            }
+            fail("Failed to catch broken fill");
+        }
+        fail("Failed to catch broken color");
         
         
     }
