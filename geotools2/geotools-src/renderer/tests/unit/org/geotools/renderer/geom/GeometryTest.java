@@ -39,6 +39,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
+
+// JUnit dependencies
 import junit.framework.*;
 
 // Geotools dependencies
@@ -50,7 +52,7 @@ import org.geotools.renderer.geom.ShapePanel;
  * Performs a visual check of {@link Geometry} computations. Those computations are
  * an essential part of {@link org.geotools.renderer.geom.Polygon} internal working.
  *
- * @version $Id: GeometryTest.java,v 1.2 2003/05/13 11:00:48 desruisseaux Exp $
+ * @version $Id: GeometryTest.java,v 1.3 2003/08/11 20:04:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeometryTest extends TestCase implements ShapePanel.Producer {

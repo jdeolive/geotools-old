@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.25 2003/08/10 20:27:48 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.26 2003/08/11 20:04:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -478,7 +478,7 @@ public abstract class RenderedLayer {
             }
             this.zOrder = zOrder;
             if (renderer != null) {
-                renderer.clearOffscreenBuffer(oldZOrder);
+                renderer.flushOffscreenBuffer(oldZOrder);
             }
             repaint();
         }
@@ -593,7 +593,7 @@ public abstract class RenderedLayer {
         if (renderer == null) {
             return;
         }
-        renderer.clearOffscreenBuffer(zOrder);
+        renderer.flushOffscreenBuffer(zOrder);
         final Component mapPane = renderer.mapPane;
         if (mapPane == null) {
             return;

@@ -79,7 +79,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.7 2003/06/16 22:04:54 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.8 2003/08/11 20:04:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -459,7 +459,7 @@ public class RenderedGeometries extends RenderedLayer {
         final Collection polylines = toDraw.getGeometries();
         for (final Iterator it=polylines.iterator(); it.hasNext();) {
             final Geometry geometry = (Geometry)it.next();
-            if (clip.intersects(geometry.getBounds2D())) {
+            if (clip==null || clip.intersects(geometry.getBounds2D())) {
                 final Style2D style = getStyle(geometry, defaultStyle);
                 if (geometry instanceof GeometryCollection) {
                     paint(graphics, clip, (GeometryCollection)geometry, style);
@@ -535,7 +535,7 @@ public class RenderedGeometries extends RenderedLayer {
             final Paint        oldPaint = graphics.getPaint();
             final Stroke      oldStroke = graphics.getStroke();
             final Shape            clip = graphics.getClip();
-            if (clip.intersects(toDraw.getBounds2D())) {
+            if (clip==null || clip.intersects(toDraw.getBounds2D())) {
                 final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
                 double r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
                                         (r=tr.getShearX())*r + (r=tr.getShearY())*r);

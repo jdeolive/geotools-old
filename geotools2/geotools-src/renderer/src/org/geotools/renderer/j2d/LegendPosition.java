@@ -54,7 +54,7 @@ import javax.media.jai.EnumeratedParameter;
  * <tr><td>{@link #SOUTH_WEST}</td>  <td>{@link  #SOUTH}</td>  <td>{@link #SOUTH_EAST}</td></tr>
  * </table>
  *
- * @version $Id: LegendPosition.java,v 1.4 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: LegendPosition.java,v 1.5 2003/08/11 20:04:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LegendPosition extends EnumeratedParameter {
@@ -118,7 +118,7 @@ public final class LegendPosition extends EnumeratedParameter {
                         new LegendPosition("NORTH_WEST", SwingConstants.NORTH_WEST);
 
     /**
-     * Axis orientations by value. Used to canonicalize after deserialization.
+     * Legen positions by value. Used to canonicalize after deserialization.
      */
     private static final LegendPosition[] ENUMS =
                          {CENTER,NORTH,NORTH_EAST,EAST,SOUTH_EAST,SOUTH,SOUTH_WEST,WEST,NORTH_WEST};

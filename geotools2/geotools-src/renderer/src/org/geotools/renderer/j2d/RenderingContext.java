@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.16 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.17 2003/08/11 20:04:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -202,11 +202,12 @@ public final class RenderingContext {
     }
 
     /**
-     * Set the destination {@link Graphics2D}.
+     * Set the destination {@link Graphics2D} and other properties.
      * Set it to <code>null</code> once the rendering is finished.
      *
-     * @param graphics The destination graphics.
-     * @param bounds   The drawing area in device coordinates.
+     * @param graphics   The destination graphics.
+     * @param bounds     The drawing area in device coordinates.
+     * @param isPrinting <code>true</code> if this context is used for printing.
      */
     final void init(final Graphics2D graphics, final Rectangle bounds, final boolean isPrinting) {
         this.graphics    = graphics;
@@ -214,6 +215,25 @@ public final class RenderingContext {
         this.bounds      = bounds;
         this.mapBounds   = null;
         this.mapToDevice = (graphics!=null) ? graphics.getTransform() : null;
+    }
+
+    /**
+     * Set the destination {@link Graphics2D}. Other properties are left unchanged.
+     * This method is invoked for switching rendering between different offscreen buffer.
+     *
+     * @param graphics The destination graphics.
+     */
+    final void setGraphics(final Graphics2D graphics) {
+        this.graphics = graphics;
+    }
+
+    /**
+     * Dispose the {@link Graphics2D}. This method is invoked only when the graphics
+     * was used for offscreen rendering.
+     */
+    final void disposeGraphics() {
+        graphics.dispose();
+        graphics = null;
     }
 
     /**
