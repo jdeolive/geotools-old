@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: design.sgml,v 1.4 2002/11/04 11:07:48 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.5 2002/11/08 11:02:11 camerons Exp $</date>
   </articleinfo>
 
   <section>
@@ -54,16 +54,40 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       MIL-STD 498 specifies a software development framework and the SDD DID
       specifies the heading structure and content for each section.</para>
 
-      <para>This document has been written to help Geotools 2 users develop a
-      high level understanding of the full Geotools system to help with
-      design, code and maintainence of Geotools 2 and derrived products.</para>
+      <para>This document aims to help developers and users understand
+      Geotools2. It aims to show design patterns between modules, relevance of
+      key classes within each module and reasons for design decisions.
+      Detailed information about classes can be found in the Geotools2
+      <emphasis>javadocs</emphasis>.</para>
+
+      <para>Class diagrams in this document were created using <ulink
+      url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>.
+      You can download <emphasis>Poseidon</emphasis>, reverse engineer the
+      code and interactively view diagrams, javadocs and code.</para>
     </section>
   </section>
 
   <section>
     <title id="referencedocuments">Reference documents.</title>
 
-    <para>To Do:</para>
+    <itemizedlist>
+      <listitem>
+        <para><citetitle>Design Patterns, Elements of Reusable Object-Oriented
+        Software</citetitle>, Erich Gamma, Richard Helm, Ralph Johnson, John
+        Vlissides. An excellent book describing reusable design patterns, some
+        of which are referenced in this document.</para>
+      </listitem>
+
+      <listitem>
+        <para><citetitle>Geotools2 Javadocs</citetitle>.</para>
+      </listitem>
+
+      <listitem>
+        <para><ulink url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD
+        498 Software Design Description Data Item Description (SDD DID)</ulink>.
+        This template was loosely used to structure this document.</para>
+      </listitem>
+    </itemizedlist>
   </section>
 
   <section>
@@ -90,16 +114,16 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         <title>Systems Geotools2 interacts with</title>
 
         <listitem>
-          <para>Applications are geographic applications which use geotools2
-          primitives. They are generally end products like Map Viewers, Web
-          Map Servers and so on.</para>
+          <para><emphasis>Applications</emphasis> are geographic applications
+          which use geotools2 primitives. They are generally end products like
+          Map Viewers, Web Map Servers and so on.</para>
         </listitem>
 
         <listitem>
-          <para>GeoInterfaces contains interfaces for all the key geographic
-          primitives like a Feature, Extent, Data Source and so on. Geotools2
-          key purpose is to provide implementations for some of the these
-          interfaces.</para>
+          <para><emphasis>GeoInterfaces</emphasis> contains interfaces for all
+          the key geographic primitives like a Feature, Extent, Data Source
+          and so on. Geotools2 key purpose is to provide implementations for
+          some of the these interfaces.</para>
 
           <para>Not all interfaces are implemented, some functionality is
           imported from external vendors. For instance, Geotools2 uses the
@@ -110,15 +134,61 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         </listitem>
 
         <listitem>
-          <para>Data is the geographic data that geotools2 manipulates. These
-          may be in a database, ESRI shapefile or some other format.</para>
+          <para><emphasis>Data</emphasis> is the geographic data that
+          geotools2 manipulates. These may be in a database, ESRI shapefile or
+          some other format.</para>
         </listitem>
 
         <listitem>
-          <para>Geographic Objects are the core geographic primitives provided
-          by the Java Topology Suite (JTS).</para>
+          <para><emphasis>Geographic Objects</emphasis> are the core
+          geographic primitives provided by the Java Topology Suite (JTS).</para>
         </listitem>
       </itemizedlist>
+    </section>
+
+    <section>
+      <title id="scope">Design Goals</title>
+
+      <variablelist>
+        <varlistentry>
+          <term>Toolkit</term>
+
+          <listitem>
+            <para>Geotools2 is a toolkit to be used by multiple applications,
+            it is not designed to be an application itself. Geotools2 aims to
+            implement all the common elements used by GIS applications.</para>
+
+            <para>Most applications only require need to include a subset of
+            the Geotools modules to cover their functional requirements.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OGC Compliant</term>
+
+          <listitem>
+            <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
+            specifications as they become available. Most specifications are
+            implemented in their own module.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Modular</term>
+
+          <listitem>
+            <para></para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Open Source</term>
+
+          <listitem>
+            <para></para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
     </section>
 
     <section>
@@ -360,7 +430,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       </section>
 
       <section>
-        <title>GeoWidgets</title>
+        <title id="geowidgets">GeoWidgets</title>
 
         <figure>
           <title>Widget Factory</title>
@@ -402,7 +472,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       </section>
 
       <section>
-        <title>Rendering</title>
+        <title id="rendering">Rendering</title>
 
         <para>Rendering objects in Geotools2 are independant of data objects
         and the calling applications. This design allows multiple
@@ -426,7 +496,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       </section>
 
       <section>
-        <title>Tools</title>
+        <title id="tools">Tools</title>
 
         <figure>
           <title>Tools</title>
@@ -450,7 +520,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
     </section>
 
     <section>
-      <title>map</title>
+      <title id="map">map</title>
 
       <figure>
         <title>Map Context</title>
