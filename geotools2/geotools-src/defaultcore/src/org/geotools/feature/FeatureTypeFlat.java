@@ -45,7 +45,7 @@ import org.geotools.data.*;
  * @task TODO: Rethink getDefaultGeometry, as we now allow more than one
  * geometry.  Which one is the default?  Currently the first in the array of
  * attributes will be default.
- * @version $Id: FeatureTypeFlat.java,v 1.23 2003/03/12 07:33:38 aaime Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.24 2003/03/14 23:02:49 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat 
@@ -84,7 +84,10 @@ public class FeatureTypeFlat
 
     /** The name of this type, within the namespace. */
     private String name = "feature"; //hack:? prevents null from being returned 
-
+   /** Indicates if this featureType could be represented as a null in another
+    featureType */
+    private boolean nillable = true;
+    
     /** Number of instances of this feature type allowed. */
     private int occurrences = 1;
 
@@ -299,7 +302,7 @@ public class FeatureTypeFlat
         return schemaCopy;
     }
 
-
+  
     /* ***********************************************************************
      * Handles all global feature type modifications.                        *
      * ***********************************************************************/
@@ -555,8 +558,27 @@ public class FeatureTypeFlat
         return attributeTypes[position];
     }
     
+    /**
+     * Returns whether this can be represented as null in a nested FeatureType.
+     *
+     * @return true if nulls are permitted, false otherwise.
+     * REVISIT: if a non-flat feature type that uses FeatureTypeFlat as
+     * non-nillable sub-elements than a setNillable will be needed.
+     */
     public boolean isNillable() {
-        return false;
+        return nillable;
+    }
+
+
+     /**
+     * Returns whether the attribute is a geometry.
+     *
+     * @return true if this featureFlat only has one attribute and it is
+     * a geometry, false otherwise.
+     */
+    public boolean isGeometry() {
+	return (attributeTypes.length == 1) && 
+	    (attributeTypes[0].isGeometry());
     }
 
     public Object clone() {

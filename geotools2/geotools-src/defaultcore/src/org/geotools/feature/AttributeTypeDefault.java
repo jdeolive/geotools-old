@@ -21,13 +21,14 @@
 package org.geotools.feature;
 
 import java.util.*;
+import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Simple, immutable class to store attributes.  This class should be
  * sufficient for all simple (ie. non-schema) attribute implementations
  * of this interface.
  *
- * @version $Id: AttributeTypeDefault.java,v 1.7 2003/02/12 18:55:23 cholmesny Exp $
+ * @version $Id: AttributeTypeDefault.java,v 1.8 2003/03/14 23:02:50 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class AttributeTypeDefault implements AttributeType {
@@ -147,6 +148,15 @@ public class AttributeTypeDefault implements AttributeType {
      */
     public void setNillable(boolean nillable) {
 	this.nillable = nillable;
+    }
+
+    /**
+     * Returns whether the attribute is a geometry.
+     *
+     * @return true if the attribute's type is a geometry.
+     */
+    public boolean isGeometry(){
+	return Geometry.class.isAssignableFrom(this.type);
     }
 
     public Object clone()
