@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/12 20:05:41 $</date>
+    <date>$Date: 2002/12/13 20:09:00 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -54,36 +54,11 @@ id="index">
       order to keep the project consistent.</para>
     </section>
 
-    <section>
-      <title id="systemoverview">System overview.</title>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+        href="systemoverview.sgml"/>
 
-      <para>Geotools 2 is an open source, java GIS toolkit for developing
-      standards compliant solutions. It&#39;s modular architecture allows
-      extra functionality to be easily incorporated. Geotools 2 aims to
-      support Open GIS and other relevant standards as they are developed.</para>
-
-      <para>GeoTools 2 code is built using the latest Java tools and
-      environments (Java 1.4.1 at time of writing) and will continue to
-      leverage the capabilities of future Java environments and official
-      extensions as and when the technologies are released and have been
-      through the first maintenance cycle (i.e. version 1.x.1).</para>
-
-      <para>The GeoTools2 project is divided into separate modules, each of
-      which implements a specific requirement. Only a subset of these modules
-      is usually required to build an application based on Geotools2.</para>
-    </section>
-
-    <section>
-      <title id="licence">Licence</title>
-
-      <para>Copyright (c) 2002 Cameron Shorter. Permission is granted to copy,
-      distribute and/or modify this document under the terms of the <ulink
-      url="http://www.fsf.org/copyleft/fdl.html">GNU Free Documentation
-      License</ulink>, Version 1.1 or any later version published by the Free
-      Software Foundation; with the Invariant Sections being with no Invariant
-      Sections, with the Front-Cover Texts being no Front-Cover Texts, and
-      with the Back-Cover Texts being no Back-Cover Texts.</para>
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+        href="license.sgml"/>
   </section>
 
   <section id="development">
@@ -178,7 +153,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: developersguide.xml,v 1.2 2002/12/12 20:05:41 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: developersguide.xml,v 1.3 2002/12/13 20:09:00 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -1455,4 +1430,6 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
       module. Refer to Poseidon download instructions for more details.</para>
     </section>
   </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+    href="glossary.sgml"/>
 </article>

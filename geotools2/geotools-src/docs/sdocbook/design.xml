@@ -10,28 +10,34 @@ id="index">
     <authorgroup>
       <author>
         <firstname>Cameron</firstname>
+
         <surname>Shorter</surname>
       </author>
 
       <author>
         <firstname>James</firstname>
+
         <surname>Macgill</surname>
       </author>
 
       <author>
         <firstname>Martin</firstname>
+
         <surname>Desruisseaux</surname>
       </author>
 
       <author>
         <firstname>Rob</firstname>
+
         <surname>Hranac</surname>
       </author>
 
       <author>
         <firstname>Ian</firstname>
+
         <surname>Turton</surname>
       </author>
+
       <editor>
         <firstname>Cameron</firstname>
 
@@ -39,9 +45,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.xml,v 1.2 2002/12/12 11:31:12 camerons Exp $</date>
+    <date>$Id: design.xml,v 1.3 2002/12/13 20:08:59 camerons Exp $</date>
 
-    <edition>$Id: design.xml,v 1.2 2002/12/12 11:31:12 camerons Exp $</edition>
+    <edition>$Id: design.xml,v 1.3 2002/12/13 20:08:59 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -55,419 +61,19 @@ id="index">
     </section>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-        href="systemoverview.sgml"/>
-
-    <section>
-      <title id="documentoverview">Document overview.</title>
-
-      <para>This Software Design Document is based on the <ulink
-      url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD 498
-      Software Design Description Data Item Description (SDD DID)</ulink>.
-      MIL-STD 498 specifies a software development framework and the SDD DID
-      specifies the heading structure and content for each section.</para>
-
-      <para>This document aims to help developers and users understand
-      Geotools2. It aims to show design patterns between modules, relevance of
-      key classes within each module and reasons for design decisions.
-      Detailed information about classes can be found in the Geotools2
-      <emphasis>javadocs</emphasis>.</para>
-
-      <para>UML Class diagrams in this document were created using <ulink
-      url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>.
-      For further insight into the design you can download
-      <emphasis>Poseidon</emphasis>, reverse engineer the code and
-      interactively view diagrams, javadocs and code.</para>
-
-      <table role="" colsep="0" rowsep="0">
-        <title>Legend for UML class diagrams</title>
-
-        <tgroup cols="2" colsep="0" rowsep="0">
-          <tbody>
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/PackageIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Package</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata
-              fileref="images/design/DependencyIcon.png" /></imageobject></mediaobject></entry>
-
-              <entry>Dependencies between packages. This expresses that
-              classes within a package use classes from the package it depends
-              on.</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/InterfaceIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Interfaces. An Interface is restricted to only contain
-              operations but no attributes. Also, operations are abstract and
-              have no implementation.</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/ClassIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Classes. Classes hold operations and attributes and have
-              relations to other classes via association or inheritance
-              relations.</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/InheritanceIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Inheritance relations. Between interfaces or between
-              classes.</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/RealizationIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Implementation relations. Only between interfaces and
-              classes.</entry>
-            </row>
-
-            <row>
-              <entry><mediaobject><imageobject><imagedata format="PNG"
-              align="left" fileref="images/design/AssociationIcon.png"
-              revisionflag="off" /></imageobject></mediaobject></entry>
-
-              <entry>Association relations. Associations are relations between
-              classes. They often include navigation arrows, and multiplicity
-              (eg 1..*).</entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-    </section>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-        href="license.sgml"/>
-
+  href="systemoverview.sgml"></xi:include> <xi:include
+  xmlns:xi="http://www.w3.org/2001/XInclude" href="designoverview.sgml"></xi:include>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="license.sgml"></xi:include>
   </section>
 
-  <section>
-    <title id="referencedocuments">Reference documents.</title>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+  href="referencedocs.sgml"></xi:include>
 
-    <itemizedlist>
-      <listitem>
-        <para><citetitle>Design Patterns, Elements of Reusable Object-Oriented
-        Software</citetitle>, Erich Gamma, Richard Helm, Ralph Johnson, John
-        Vlissides. An excellent book describing reusable design patterns, some
-        of which are referenced in this document.</para>
-      </listitem>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+  href="designdecisions.sgml"></xi:include>
 
-      <listitem>
-        <para><citetitle>Geotools2 Javadocs</citetitle>.</para>
-      </listitem>
-
-      <listitem>
-        <para><ulink url="http://www.pogner.demon.co.uk/mil_498/sdd-did.htm">MIL-STD
-        498 Software Design Description Data Item Description (SDD DID)</ulink>.
-        This template was loosely used to structure this document.</para>
-      </listitem>
-    </itemizedlist>
-  </section>
-
-  <section>
-    <title id="designdecisions">Geotools2 wide design decisions.</title>
-
-    <section>
-      <title>Geotools2 in Context</title>
-
-      <figure>
-        <title>Geotools2 in Context</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="images/design/context.png" />
-          </imageobject>
-        </mediaobject>
-
-        <blockquote>
-          <para>Geotools2 and the systems it interacts with.</para>
-        </blockquote>
-      </figure>
-
-      <variablelist>
-        <varlistentry>
-          <term>Applications</term>
-
-          <listitem>
-            <para>Applications are geographic applications which use geotools2
-            primitives. They are generally end products like Map Viewers, Web
-            Map Servers and so on.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>GeoInterfaces</term>
-
-          <listitem>
-            <para>GeoInterfaces contains interfaces for all the key geographic
-            primitives like a Feature, Extent, Data Source and so on.
-            Geotools2 key purpose is to provide implementations for some of
-            the these interfaces.</para>
-
-            <para>Not all interfaces are implemented, some functionality is
-            imported from external vendors. For instance, Geotools2 uses the
-            Java Topology Suite (JTS) to store core geographic primitives.</para>
-
-            <para>At the time of writing (October 10, 2002), the GeoInterfaces
-            project was still at the proposal stage.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Data</term>
-
-          <listitem>
-            <para>Data is the geographic data that geotools2 manipulates.
-            These may be in a database, ESRI shapefile or some other format.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Geographic Objects</term>
-
-          <listitem>
-            <para>Geographic Objects are the core geographic primitives
-            provided by the Java Topology Suite (JTS).</para>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-    </section>
-
-    <section>
-      <title id="designdrivers">Design Drivers</title>
-
-      <variablelist>
-        <varlistentry>
-          <term>Toolkit</term>
-
-          <listitem>
-            <para>Geotools2 is a toolkit to be used by multiple applications,
-            it is not designed to be an application itself. Geotools2 aims to
-            implement all the common elements used by GIS applications.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>OGC Compliant</term>
-
-          <listitem>
-            <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
-            specifications as they become available. Since the specifications
-            are continuously evolving, Geotools2 needs to provide a flexable
-            design which can easilly be refactored.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Implements GeoInterfaces</term>
-
-          <listitem>
-            <para>The <emphasis>GeoInterfaces</emphasis> project defines
-            geographic components and Geotools2 provides implimentations of
-            these interfaces.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Multiple implimentations</term>
-
-          <listitem>
-            <para>Different applications have different design goals. One may
-            require fast rendering while anothe require small source code.
-            Geotools2 allows two different modules to impliment the same
-            functionality.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Open Source</term>
-
-          <listitem>
-            <para>Geotools2 is released under the LGPL Open Source licence.
-            External packages Geotools2 depends upon must use a similar
-            licence to ensure users can use Geotools2 under the LGPL licence.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Modular</term>
-
-          <listitem>
-            <para>Geotools2 uses a modular design. The benefits of this
-            include:</para>
-
-            <itemizedlist>
-              <listitem>
-                <para>The design is easier to understand.</para>
-              </listitem>
-
-              <listitem>
-                <para>Extra functionality can be incorporated easilly because
-                a developer only needs to understand the module they are
-                working on.</para>
-              </listitem>
-
-              <listitem>
-                <para>Existing modules can be reworked with minimal effect on
-                the rest of Geotools2.</para>
-              </listitem>
-
-              <listitem>
-                <para>Applications which use Geotools2 only need to include
-                the subset of the modules required.</para>
-              </listitem>
-            </itemizedlist>
-          </listitem>
-        </varlistentry>
-      </variablelist>
-    </section>
-  </section>
-
-  <section>
-    <title id="architecturaldesign">Geotools2 architectural design.</title>
-
-    <section>
-      <title id="geotoolscomponents">Geotools2 components.</title>
-
-      <section>
-        <title id="modulesoverview">Modules overview</title>
-
-        <para>to do:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>explain the reasoning behind having a core/defaultcore
-            implementation.</para>
-          </listitem>
-
-          <listitem>
-            <para>Expand the module sections to explain each module&#39;s
-            design.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>The GeoTools2 (GT2) project is divided into a number of separate
-        module, each of which implements a specific requirement. Only a subset
-        of these modules is usually required to build an application based on
-        GT2.</para>
-
-        <figure id="figureoverview">
-          <title>Geotools2 modules</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/design/overview.png" />
-            </imageobject>
-          </mediaobject>
-
-          <blockquote>
-            <para>The hierarchy of the Geotools2 internal modules.</para>
-          </blockquote>
-        </figure>
-
-        <itemizedlist>
-          <title>Geotools modules</title>
-
-          <listitem>
-            <para>core: At the hart of GT2 is the core module, this module
-            contains no implementation code, just Java interfaces for all the
-            key modules.</para>
-          </listitem>
-
-          <listitem>
-            <para>defaultcore: The next important module is the defaultcore
-            which provides an implementation of the key interfaces found in
-            the core module with the exception of datasource and rendering.
-            The defaultcore module contains code which uses the latest version
-            of Java (1.4) though it is envisioned that alternative
-            implementations of core could be made in future, perhaps to target
-            J2ME.</para>
-
-            <para>The datasource and rendering interfaces are not implemented
-            by the defaultcore module as there will need to be multiple
-            implementations available so implementation is left to other
-            modules. Note that although the defaultcore module includes a full
-            set of objects for representing the SLD and Filter specification
-            there is no code in these modules for reading or writing such
-            documents, instead an entirely programmatic approach is assumed
-            with IO for such specifications being left to other modules.</para>
-          </listitem>
-
-          <listitem>
-            <para>Rendering: The rendering modules are responsible for
-            rendering geographic data.</para>
-          </listitem>
-
-          <listitem>
-            <para>Transforms: These modules manipulate geographic data.</para>
-          </listitem>
-
-          <listitem>
-            <para>DataSources: These modules read native geographic data
-            formats and convert it to a format usable by geotools2.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>JavaDoc API for modules can be found at:
-        modules.geotools.org/core.</para>
-
-        <para><link linkend="geotoolsdetaileddesign">Detailed Design</link>
-        contains more information about the modules.</para>
-      </section>
-    </section>
-
-    <section>
-      <title id="conceptofexecution">Concept of execution.</title>
-
-      <itemizedlist>
-        <listitem>
-          <para>Sequence Diagrams/Collaberation Diagrams showing the
-          relationships between modules.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title id="interfacedesign">Interface design.</title>
-
-      <para></para>
-
-      <section>
-        <title id="interfaceidentificationanddiagrams">Interface
-        identification and diagrams.</title>
-
-        <para></para>
-      </section>
-
-      <section>
-        <title>Module XXX</title>
-
-        <para></para>
-      </section>
-
-      <section>
-        <title>Module YYY</title>
-
-        <para></para>
-      </section>
-    </section>
-  </section>
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+      href="architecture.sgml"></xi:include>
 
   <section>
     <title id="geotoolsdetaileddesign">Geotools2 detailed design.</title>
@@ -500,330 +106,16 @@ id="index">
       modules.</para>
     </section>
 
-    <section>
-      <title id="gui">gui</title>
-
-      <para>gui - a suite of visual components for navigating and displaying
-      maps produced by a renderer.</para>
-
-      <section>
-        <title>Model-View-Controller</title>
-
-        <figure>
-          <title>Model View Controller</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/design/ModelViewController.png" />
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para>The Geotools2 dispay objects use a <emphasis>Model-View-Controller</emphasis>
-        design pattern. Context is the model, GeoWidgets like MapPane are the
-        viewers, and Tools like the ZoomTool are the controllers.</para>
-
-        <para>This design ensures the same data can be displayed in many ways
-        and the rendering technology is independant of the data.</para>
-
-        <para><emphasis>GeoWidgets</emphasis> register with data objects they
-        are interested in then redraw themselves when they recieve
-        <emphasis>dataChangedEvents</emphasis>. For example, the
-        <emphasis>Legend</emphasis> widget registers interest with the
-        <emphasis>LayerList</emphasis> object. When a new Layer is added,
-        removed or selected, the <emphasis>Legend</emphasis> recieves a
-        <emphasis>LayerListChangedEvent</emphasis> and redraws itself.</para>
-      </section>
-
-      <section>
-        <title id="geowidgets">GeoWidgets</title>
-
-        <figure>
-          <title>Widget Factory</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/design/WidgetFactory.png" />
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para>Classes that display Geotools data are called
-        <emphasis>GeoWidgets</emphasis>. Examples include:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>MapPane, this is the main widget which displays an image of
-            geographic map.</para>
-          </listitem>
-
-          <listitem>
-            <para>LocatorMap, similar to the MapPane, but has a static basemap
-            and shows a box showing the <emphasis>area of interest</emphasis>.</para>
-          </listitem>
-
-          <listitem>
-            <para>Legend, shows a list of layers.</para>
-          </listitem>
-
-          <listitem>
-            <para>etc.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>To create GeoWidgets, applications should use
-        <emphasis>WidgetFactory</emphasis>. This uses an Abstract Factory
-        design pattern which ensures that calling applications are not
-        dependant the rendering technology chosen.</para>
-      </section>
-
-      <section>
-        <title id="rendering">Rendering</title>
-
-        <para>Rendering objects in Geotools2 are independant of data objects
-        and the calling applications. This design allows multiple
-        <emphasis>rendering</emphasis> implimentations. Consequently Geotools
-        can have rendering for Swing, AWT, and Palm Pilot technologies.</para>
-
-        <figure>
-          <title>Rendering</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/design/Rendering.png" />
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para>The swing rendering model uses cached RenderedFeatures to speed
-        up rendering. <emphasis>RenderedFeature</emphasis> speeds up rendering
-        by ensuring styling and coordinate transforms are only applied to
-        features one.</para>
-      </section>
-
-      <section>
-        <title id="tools">Tools</title>
-
-        <figure>
-          <title>Tools</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/design/Tools.png" />
-            </imageobject>
-          </mediaobject>
-        </figure>
-
-        <para><emphasis>Tools</emphasis> process key and mouse action events
-        for <emphasis>GeoWidgets</emphasis>. Different Tools can be applied to
-        <emphasis>GeoWidgets</emphasis> to trigger different behaviour. For
-        example, when a <emphasis>ZoomTool</emphasis> is applied to
-        <emphasis>MapPane</emphasis>, mouse click and drag will create a box
-        and then zoom the extent into that box. When <emphasis>PanTool</emphasis>
-        is used, the entire map drags around the screen during a click and
-        drag.</para>
-      </section>
-    </section>
-
-    <section>
-      <title id="map">map</title>
-
-      <figure>
-        <title>Map Context</title>
-
-        <mediaobject>
-          <imageobject>
-            <imagedata fileref="images/design/MapContext.png" />
-          </imageobject>
-        </mediaobject>
-      </figure>
-
-      <para><emphasis>MapContext</emphasis> stores geographic information in a
-      series of <emphasis>MapState</emphasis> classes: Layers, Area of
-      Interest, Coordinate System etc. <emphasis>MapState</emphasis> classes
-      send events to interested objects when it&#39;s data changes.</para>
-
-      <para>Multiple <emphasis>MapContext</emphasis> objects can be created
-      using similar components in order to create widgets which share common
-      components. For example. A display may contain two <emphasis>MapPanes</emphasis>
-      which show the same area but use different basemaps. This would be
-      achieved by building two <emphasis>MapContexts</emphasis> which use the
-      same extent <emphasis>Envelope</emphasis> but use different
-      <emphasis>LayerLists</emphasis>.</para>
-
-      <para><emphasis>MapContext</emphasis> is based on the OGC Web Map
-      Context Specification which means <emphasis>MapContext</emphasis> can be
-      stored as XML and recreated by other applications which implement the
-      OGC Web Map Context Specification.</para>
-    </section>
-
-    <section>
-      <title id="modulejava2drenderer">java2drenderer</title>
-
-      <para>java2drenderer - an implementation of the rendering interface
-      which uses the Java2D API.</para>
-    </section>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-        href="../../sldstyling/xdocs/SLDStyling.sgml"/>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/gui.sgml"></xi:include>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/map.sgml"></xi:include>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/filter.sgml"></xi:include>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../sldstyling/xdocs/SLDStyling.sgml"></xi:include>
 
     <section>
       <title id="modulesvgsupport">svgsupport</title>
 
       <para>A module which extends the java2drenderer so that SVG files can be
       created.</para>
-    </section>
-
-    <section>
-      <title id="modulefilter">filter</title>
-
-      <section>
-        <title>Overview</title>
-
-        <para>This package establishes a common internal feature model for
-        GeoTools2 code. A common internal feature model is important as a
-        target for data sources and all common functionality for vector data
-        found within GT2. The most generic approach would be to pass all
-        feature attributes as objects and use Java variable and method
-        references to access them. However, this is also the most useless
-        approach because it establishes no unified methods for getting and
-        setting attribute information (since it is totally Object dependent),
-        without elaborate (and inefficient) reflection and introspection. The
-        GT2 feature model roughly (and imperfectly) follows the <ulink
-        url="http://www.isotc211.org/pow.htm">ISO TC211</ulink> standards for
-        geographic features: it most closely resembles the Geography Markup
-        Language actualization of abstract ISO standards. The GT2 feature
-        model also borrows heavily from the design of existing open source
-        feature-oriented toolkits. In particular, the design of the excellent
-        C++ <ulink url="http://remotesensing.org/gdal/">GDAL</ulink> library
-        and advice from Frank Warnerdam (its creator) were influential in the
-        GT2 design.</para>
-
-        <para>This package answers the question: How do we represent features
-        within GT2? Of course, the most general answer would be: features can
-        be any Java object. However, this is also the least useful solution
-        because it means that users of features have essentially no way to
-        find out about the meaning of features via GT2. This is too cumbersome
-        and is insufficient for the goal of creating a simple framework for
-        manipulating and accessing generic geographic data.The opposite
-        approach might be to define a very constrained set of possible
-        attributes (that, for example, mirrored Java primitives and OGC simple
-        geometries) and only allow features of this type. This package takes a
-        different approach: it defines a minimal ontology for representing a
-        feature and serves as a consistent framework for defining more
-        constrained (and, therefore, often more meaningful) feature types.
-        Furthermore, it creates a simple baseline implementation of the
-        feature interface (known as the flat feature) for use in GT2.</para>
-
-        <figure>
-          <title>Feature Model Class Diagram</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata format="PNG" align="right" width="100"
-              fileref="images/design/feature.png" />
-            </imageobject>
-          </mediaobject>
-        </figure>
-      </section>
-
-      <section>
-        <title>Feature</title>
-
-        <para>The feature interface forms a flexible framework to define and
-        consistently access feature attributes. Unlike its FeatureType
-        counterpart, this interface does not attempt to serve as a typing
-        framework. The feature interface is intended to be as simple as
-        possible. The slightly more complex FeatureType and Feature interfaces
-        work together to give implementers a framework for constraining and
-        enforcing constraints (respectively) on allowed feature types. As
-        such, this interface is as general as possible in terms of the types
-        of objects to which it provides access. All features contain zero or
-        more attributes, which can have one or more occurrences inside the
-        feature. Attributes may be any valid Java object. If attributes are
-        instances of Feature, they are handled specially by the Feature
-        methods, in that their attributes may be accessed directly by their
-        containing feature. All other object variables and methods must be
-        accessed through the objects themselves. A feature will never reach a
-        state where its attributes (or sub-attributes) do not conform to their
-        FeatureType definitions.</para>
-      </section>
-
-      <section>
-        <title>Feature Types</title>
-
-        <para>Feature types serve as a metadata template for a feature of
-        arbitrary complexity. FeatureType represent features as an object that
-        contains zero or more attribute objects, one of which should be a
-        geometry. Note that instances of implementations of this class are
-        henceforth referred to as schemas. With one exception, the type of an
-        attribute is considered to be its cannonical definition by the
-        FeatureType. For example, an attribute type might be a
-        javax.sound.midi.Sequence object, which contains a float public field
-        called PPQ.The fact that this attribute exists is not known by the
-        FeatureType itself. If a caller asks this FeatureType for all of its
-        attributes, the FeatureType will tell the caller that it has an
-        attribute of type javax.sound.midi.Sequence, but not that this
-        attribute has a sub-attribute (field) called PPQ. It is the
-        responsibility of the callers to understand the objects it is asking
-        for and manipulate them appropriately. The sole exception is if the
-        type stored in the FeatureType is a org.geotools.datasource.Feature
-        type.In this case, all information about sub-attributes are stored and
-        passed to calling classes upon request. The style of reference (XPath)
-        is defined in and mediated by FeatureType implementations.</para>
-
-        <para>FeatureTypes are be implemented as immutable objects. All
-        setting methods return schemas that are clones of the schema object,
-        rather than the object itself. This is the reason that the FeatureType
-        interface extends the Cloneable interface. FeatureType contains two
-        special methods for handling geometries. The primary geometry
-        retrieval methods are in Feature because they may change over the life
-        of the feature, while the schema may not. XPath is the standard used
-        to access all attributes (flat, nested, and multiple), via a single,
-        unified string. Using XPath to access attributes has the convenient
-        side-benefit of making them appear to be non-nested and non-multiple
-        to callers with no awareness of XPath. This greatly simplifies
-        accessing and manipulating data.</para>
-      </section>
-
-      <section>
-        <title>Geometry Model</title>
-
-        <para>For James Macgill to write.</para>
-      </section>
-
-      <section>
-        <title>Flat Features</title>
-
-        <para>Because of their extreme flexibility, forcing all GT2 code to
-        support all possible feature types would require a near-infinite
-        amount of work. For example, all features may theoretically contain
-        media objects, or other similarly complex types that would be
-        impossible to serialize to GML. Or features, may contain arbitrarily
-        deep nesting of attributes, which would make importing or exporting to
-        most types of data sources (for example, Shapefiles), an
-        impossibility. For this reason, the only current implementation of the
-        feature interface is what the GT2 team terms a &#39;flat&#39;
-        implementation. This implementation is more or less akin to an ESRI
-        shapefile in structure. It has the following constraints:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Each flat feature has a single geometry.</para>
-          </listitem>
-        </itemizedlist>
-
-        <itemizedlist>
-          <listitem>
-            <para>Each flat feature has zero or more other non-nested
-            attributes, which are Java primitives.</para>
-          </listitem>
-        </itemizedlist>
-
-        <para>The vast majority of GT2 code is geared to operate on flat
-        features, but due to the generality of the feature interfaces, the GT2
-        core retains the capability to deal with more complex feature models.</para>
-      </section>
     </section>
 
     <section>
@@ -889,8 +181,8 @@ id="index">
 
       <para>A WFS has been implemented as a separate project using the GT2
       code base and it envisioned that the wmsserver module will soon be
-      extracted and become part of a separate project which still using the
-      GT2 as a base.</para>
+      extracted and become part of a separate project which still uses the GT2
+      as a base.</para>
     </section>
   </section>
 
@@ -907,7 +199,8 @@ id="index">
 
     <para>This section deliberately left blank.</para>
   </section>
-  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-    href="glossary.sgml"/>
 
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="glossary.sgml"></xi:include>
+
+  <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="umllegend.sgml"></xi:include>
 </article>
