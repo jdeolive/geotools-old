@@ -45,7 +45,7 @@ public class FeatureFlat implements Feature {
      * @throws IllegalFeatureException Attribtues do not conform to feature type
      * schema
      */
-    public FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
+    protected FeatureFlat (FeatureTypeFlat schema, Object[] attributes) 
         throws IllegalFeatureException {
 
         // Set the feature type reference
