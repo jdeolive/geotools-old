@@ -26,4 +26,15 @@
             processor="trax"
             classpath="bin"/>
     </target>
+    <target name="anakia">
+        <!-- Convert docbook to anakia -->
+        <style
+            basedir="${sourceDocsDir}"
+            destdir="${destinationDocs}"
+            extension=".sgml"
+            style="../../../extbin/docbook/docbook2document.xsl"
+            includes="*.sgml"
+            processor="trax"
+            classpath="bin"/>
+    </target>
 </project>
