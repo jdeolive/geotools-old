@@ -21,6 +21,7 @@
 package org.geotools.filter;
 
 import java.util.*;
+import java.util.logging.Logger;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -37,12 +38,17 @@ import org.geotools.feature.*;
 public class AreaFunctionTest extends TestCase {
     
 
+      /** Standard logging instance */
+    protected static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.filter");
+    protected static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
+    
     /** Feature on which to preform tests */
     private static Feature testFeature = null;
 
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
-    boolean set = false;
+    boolean setup = false;
     /** Test suite for this test case */
     TestSuite suite = null;
 
@@ -79,68 +85,71 @@ public class AreaFunctionTest extends TestCase {
      * @throws SchemaException If there is a problem setting up the schema.
      * @throws IllegalFeatureException If problem setting up the feature.
      */
-    protected void setUp() 
-        throws SchemaException, IllegalFeatureException {
-        if(set) return;
-        set = true;
+    protected void setUp() throws SchemaException, IllegalAttributeException {
+        if (setup) {
+            return;
+        } else {
+            prepareFeatures();
+        }
+
+        setup = true;
+    }
+
+    //HACK - this is cut and pasted from filter module tests.  Should be 
+    //in a test support module.
+    protected void prepareFeatures()
+        throws SchemaException, IllegalAttributeException {
+        //_log.getLoggerRepository().setThreshold(Level.INFO);
         // Create the schema attributes
-     //   _log.debug("creating flat feature...");
-        AttributeType geometryAttribute = 
-            new AttributeTypeDefault("testGeometry", Geometry.class);
-     //   _log.debug("created geometry attribute");
-        AttributeType booleanAttribute = 
-            new AttributeTypeDefault("testBoolean", Boolean.class);
-      //  _log.debug("created boolean attribute");
-        AttributeType charAttribute = 
-            new AttributeTypeDefault("testCharacter", Character.class);
-        AttributeType byteAttribute = 
-            new AttributeTypeDefault("testByte", Byte.class);
-        AttributeType shortAttribute = 
-            new AttributeTypeDefault("testShort", Short.class);
-        AttributeType intAttribute = 
-            new AttributeTypeDefault("testInteger", Integer.class);
-        AttributeType longAttribute = 
-            new AttributeTypeDefault("testLong", Long.class);
-        AttributeType floatAttribute = 
-            new AttributeTypeDefault("testFloat", Float.class);
-        AttributeType doubleAttribute = 
-            new AttributeTypeDefault("testDouble", Double.class);
-        AttributeType stringAttribute = 
-            new AttributeTypeDefault("testString", String.class);
-        
+        LOGGER.finer("creating flat feature...");
+
+        AttributeType geometryAttribute = attFactory.newAttributeType("testGeometry",
+                Polygon.class);
+        LOGGER.finer("created geometry attribute");
+
+        AttributeType booleanAttribute = attFactory.newAttributeType("testBoolean",
+                Boolean.class);
+        LOGGER.finer("created boolean attribute");
+
+        AttributeType charAttribute = attFactory.newAttributeType("testCharacter",
+                Character.class);
+        AttributeType byteAttribute = attFactory.newAttributeType("testByte",
+                Byte.class);
+        AttributeType shortAttribute = attFactory.newAttributeType("testShort",
+                Short.class);
+        AttributeType intAttribute = attFactory.newAttributeType("testInteger",
+                Integer.class);
+        AttributeType longAttribute = attFactory.newAttributeType("testLong",
+                Long.class);
+        AttributeType floatAttribute = attFactory.newAttributeType("testFloat",
+                Float.class);
+        AttributeType doubleAttribute = attFactory.newAttributeType("testDouble",
+                Double.class);
+        AttributeType stringAttribute = attFactory.newAttributeType("testString",
+                String.class);
+
+        AttributeType[] types = {
+            geometryAttribute, booleanAttribute, charAttribute, byteAttribute,
+            shortAttribute, intAttribute, longAttribute, floatAttribute,
+            doubleAttribute, stringAttribute
+        };
+
         // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute); 
-  //      _log.debug("created feature type and added geometry");
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-  //      _log.debug("added boolean to feature type");
-        testSchema = testSchema.setAttributeType(charAttribute);
-   //     _log.debug("added character to feature type");
-        testSchema = testSchema.setAttributeType(byteAttribute);
-   //     _log.debug("added byte to feature type");
-        testSchema = testSchema.setAttributeType(shortAttribute);
-   //     _log.debug("added short to feature type");
-        testSchema = testSchema.setAttributeType(intAttribute);
-   //     _log.debug("added int to feature type");
-        testSchema = testSchema.setAttributeType(longAttribute);
-   //     _log.debug("added long to feature type");
-        testSchema = testSchema.setAttributeType(floatAttribute);
-   //     _log.debug("added float to feature type");
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-   //     _log.debug("added double to feature type");
-        testSchema = testSchema.setAttributeType(stringAttribute);
-   //     _log.debug("added string to feature type");
-        
-        // Creates coordinates for the polygon
+        testSchema = FeatureTypeFactory.newFeatureType(types,"testSchema");
+
+        GeometryFactory geomFac = new GeometryFactory();
+
+        // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[5];
-        coords[0] = new Coordinate(0,0);
-        coords[1] = new Coordinate(10,0);
-        coords[2] = new Coordinate(10,10);
-        coords[3] = new Coordinate(0,10);
-        coords[4] = new Coordinate(0,0);
-        
+        coords[0] = new Coordinate(0, 0);
+        coords[1] = new Coordinate(10, 0);
+        coords[2] = new Coordinate(10, 10);
+        coords[3] = new Coordinate(0, 10);
+        coords[4] = new Coordinate(0, 0);
+
         // Builds the test feature
         Object[] attributes = new Object[10];
-        LinearRing ring = new LinearRing(coords, new PrecisionModel(), 1);
+	LinearRing ring = new LinearRing(coords, new PrecisionModel(), 1);
         attributes[0] = new Polygon(ring, new PrecisionModel(), 1);
         attributes[1] = new Boolean(true);
         attributes[2] = new Character('t');
@@ -151,11 +160,12 @@ public class AreaFunctionTest extends TestCase {
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
         attributes[9] = "test string data";
-        
+
         // Creates the feature itself
-        FeatureFactory factory = new FlatFeatureFactory(testSchema);
-        testFeature = factory.create(attributes);
-     //   _log.debug("...flat feature created");
+        testFeature = testSchema.create(attributes);
+        LOGGER.finer("...flat feature created");
+
+        //_log.getLoggerRepository().setThreshold(Level.DEBUG);
     }
 
     static FilterFactory filterFactory = FilterFactory.createFilterFactory();
