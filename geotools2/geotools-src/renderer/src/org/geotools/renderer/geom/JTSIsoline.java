@@ -57,7 +57,7 @@ import org.geotools.renderer.array.JTSArray;
 /**
  * An {@link Isoline} backed by one or many JTS {@link Geometry} objects.
  *
- * @version $Id: JTSIsoline.java,v 1.1 2003/02/11 16:02:31 desruisseaux Exp $
+ * @version $Id: JTSIsoline.java,v 1.2 2003/02/28 22:26:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSIsoline extends Isoline {
@@ -68,19 +68,26 @@ public class JTSIsoline extends Isoline {
     private static final long serialVersionUID = 1313504311244991561L;
 
     /**
-     * Construct an initialy empty isoline. Polygon may be added using one
-     * of <code>add(...)</code> methods.
+     * Construct an initially empty isoline using the
+     * {@linkplain org.geotools.cs.GeographicCoordinateSystem#WGS84 default}
+     * geographic coordinate system. Polygons can be added using {@link #add}.
+     * method.
+     *
+     * @param value The value for this isoline. In the case
+     *        of isobath, the value is the altitude.
+     */
+    public JTSIsoline(final float value) {
+        super(value);
+    }
+
+    /**
+     * Construct an initialy empty isoline. Polygon may be added using
+     * {@link #add} method.
      *
      * @param value The value for this isoline. In the case
      *        of isobath, the value is the altitude.
      * @param coordinateSystem The coordinate system to use for all
      *        points in this isoline, or <code>null</code> if unknow.
-     *
-     * @see #add(SFSPoint)
-     * @see #add(SFSLineString)
-     * @see #add(SFSPolygon)
-     * @see #add(SFSGeometry)
-     * @see #add(SFSGeometryCollection)
      */
     public JTSIsoline(final float value, final CoordinateSystem cs) {
         super(value, cs);
@@ -90,7 +97,7 @@ public class JTSIsoline extends Isoline {
      * Returns the coordinate system for the specified JTS geometry.
      *
      * @task TODO: We should construct the coordinate system from SRID using
-     *             {@link CoordinateSystemFactory}.
+     *             {@link org.geotools.cs.CoordinateSystemAuthorityFactory}.
      */
     private CoordinateSystem getCoordinateSystem(final SFSGeometry geometry) {
         final int id = geometry.getSRID();
@@ -106,7 +113,7 @@ public class JTSIsoline extends Isoline {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this isoline's coordinate system.
      */
-    public void add(final SFSPoint geometry) throws TransformException {
+    private void addSF(final SFSPoint geometry) throws TransformException {
         final Coordinate[] coords;
         if (geometry instanceof Point) {
             coords = ((Point) geometry).getCoordinates();
@@ -123,8 +130,8 @@ public class JTSIsoline extends Isoline {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this isoline's coordinate system.
      */
-    public void add(final SFSLineString geometry) throws TransformException {
-        add(geometry, InteriorType.ELEVATION);
+    private void addSF(final SFSLineString geometry) throws TransformException {
+        addSF(geometry, InteriorType.ELEVATION);
     }
 
     /**
@@ -137,7 +144,7 @@ public class JTSIsoline extends Isoline {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this isoline's coordinate system.
      */
-    private void add(final SFSLineString geometry, final InteriorType type)
+    private void addSF(final SFSLineString geometry, final InteriorType type)
             throws TransformException
     {
         final Coordinate[] coords;
@@ -163,11 +170,11 @@ public class JTSIsoline extends Isoline {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this isoline's coordinate system.
      */
-    public void add(final SFSPolygon geometry) throws TransformException {
-        add(geometry.getExteriorRing());
+    private void addSF(final SFSPolygon geometry) throws TransformException {
+        addSF(geometry.getExteriorRing());
         final int n = geometry.getNumInteriorRing();
         for (int i=1; i<n; i++) {
-            add(geometry.getInteriorRingN(i), InteriorType.DEPRESSION);
+            addSF(geometry.getInteriorRingN(i), InteriorType.DEPRESSION);
         }
     }
 
@@ -178,17 +185,49 @@ public class JTSIsoline extends Isoline {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this isoline's coordinate system.
      */
-    public void add(final SFSGeometryCollection geometry) throws TransformException {
+    private void addSF(final SFSGeometryCollection geometry) throws TransformException {
         final int n = geometry.getNumGeometries();
         for (int i=0; i<n; i++) {
-            add(geometry.getGeometryN(i));
+            addAny(geometry.getGeometryN(i));
         }
     }
 
     /**
-     * Add the specified geometry to this isoline. The geometry must be one of the following
-     * classes: {@link SFSPoint}, {@link SFSLineString}, {@link SFSPolygon} or
-     * {@link SFSGeometryCollection}.
+     * Add the specified geometry to this isoline. The geometry must be one
+     * of the following classes: {@link SFSPoint}, {@link SFSLineString},
+     * {@link SFSPolygon} or {@link SFSGeometryCollection}.
+     *
+     * @param  geometry The geometry to add.
+     * @throws TransformException if the specified geometry can't
+     *         be transformed in this isoline's coordinate system.
+     * @throws IllegalArgumentException if the geometry is not a a valid class.
+     */
+    private void addAny(final SFSGeometry geometry) throws TransformException,
+                                                           IllegalArgumentException
+    {
+        if (geometry instanceof SFSPoint) {
+            addSF((SFSPoint) geometry);
+            return;
+        }
+        if (geometry instanceof SFSLineString) {
+            addSF((SFSLineString) geometry);
+            return;
+        }
+        if (geometry instanceof SFSPolygon) {
+            addSF((SFSPolygon) geometry);
+            return;
+        }
+        if (geometry instanceof SFSGeometryCollection) {
+            addSF((SFSGeometryCollection) geometry);
+            return;
+        }
+        throw new IllegalArgumentException(Utilities.getShortClassName(geometry));
+    }
+
+    /**
+     * Add the specified geometry to this isoline. The geometry must be one
+     * of the following classes: {@link SFSPoint}, {@link SFSLineString},
+     * {@link SFSPolygon} or {@link SFSGeometryCollection}.
      *
      * @param  geometry The geometry to add.
      * @throws TransformException if the specified geometry can't
@@ -197,22 +236,9 @@ public class JTSIsoline extends Isoline {
      */
     public void add(final SFSGeometry geometry) throws TransformException, IllegalArgumentException
     {
-        if (geometry instanceof SFSPoint) {
-            add((SFSPoint) geometry);
-            return;
-        }
-        if (geometry instanceof SFSLineString) {
-            add((SFSLineString) geometry);
-            return;
-        }
-        if (geometry instanceof SFSPolygon) {
-            add((SFSPolygon) geometry);
-            return;
-        }
-        if (geometry instanceof SFSGeometryCollection) {
-            add((SFSGeometryCollection) geometry);
-            return;
-        }
-        throw new IllegalArgumentException(Utilities.getShortClassName(geometry));
+        addAny(geometry);
+        /*
+         * TODO: If we want to keep reference to Geometry objects, keep them here (NOT in addAny).
+         */
     }
 }

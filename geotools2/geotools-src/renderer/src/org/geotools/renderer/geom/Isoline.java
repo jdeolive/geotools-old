@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.10 2003/02/28 22:26:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -164,8 +164,25 @@ public class Isoline extends GeoShape implements Comparable {
     private Statistics resolution;
 
     /**
-     * Construct an initially empty isoline. Polygons may be added using one
-     * of the <code>add(...)</code> methods.
+     * Construct an initially empty isoline using the {@linkplain GeographicCoordinateSystem#WGS84
+     * default} geographic coordinate system.
+     * Polygons can be added using one of the <code>add(...)</code> methods.
+     *
+     * @param value The value for this isoline. In the case
+     *        of isobath, the value is the altitude.
+     *
+     * @see #add(float[])
+     * @see #add(Shape)
+     * @see #add(Polygon)
+     * @see #add(Isoline)
+     */
+    public Isoline(final float value) {
+        this(value, GeographicCoordinateSystem.WGS84);
+    }
+
+    /**
+     * Construct an initially empty isoline.
+     * Polygons can be added using one of the <code>add(...)</code> methods.
      *
      * @param value The value for this isoline. In the case
      *        of isobath, the value is the altitude.
@@ -1184,7 +1201,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.9 2003/02/20 11:18:08 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.10 2003/02/28 22:26:05 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
