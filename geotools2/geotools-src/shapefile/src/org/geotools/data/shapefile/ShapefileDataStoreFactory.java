@@ -30,13 +30,10 @@ import java.util.logging.Logger;
  * Implementation of the DataStore service provider interface for Shapefiles.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: ShapefileDataStoreFactory.java,v 1.1 2003/12/03 20:00:33 cholmesny Exp $
+ * @version $Id: ShapefileDataStoreFactory.java,v 1.2 2004/01/07 16:10:17 ianschneider Exp $
  */
 public class ShapefileDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
-    /** Class logger */
-    private static Logger LOGGER = Logger.getLogger(
-            "org.geotools.data.shapefile");
 
     /**
      * Takes a list of params which describes how to access a restore and
@@ -55,8 +52,6 @@ public class ShapefileDataStoreFactory
             String url = (String) params.get("url");
             accept = url.toUpperCase().endsWith("SHP");
         }
-
-        LOGGER.finer("can process called on " + params + " returning " + accept);
 
         return accept;
     }
