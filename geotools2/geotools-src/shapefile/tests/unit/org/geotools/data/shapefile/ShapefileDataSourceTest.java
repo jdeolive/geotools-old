@@ -45,6 +45,14 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     loadFeatures(STATE_POP,null);
   }
   
+  public void testSchema() throws Exception {
+    URL url = getTestResource(STATE_POP);
+    ShapefileDataSource s = new ShapefileDataSource(url);
+    FeatureType schema = s.getSchema();
+    AttributeType[] types = schema.getAttributeTypes();
+    assertEquals("Number of Attributes",253,types.length);
+  }
+  
   public void testLoadAndVerify() throws Exception {
     Feature[] features = loadFeatures(STATE_POP,null);
     
@@ -66,24 +74,47 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
     assertEquals("Number of Features loaded",49,features.length);
     FeatureType schema = features[0].getSchema();
     
-    assertEquals("Number of Attributes",2,schema.getAttributeTypes().length);
+    assertEquals("Number of Attributes",1,schema.getAttributeTypes().length);
   }
   
-//  public void testQueryFill() throws Exception {
-//    QueryImpl qi = new QueryImpl();
-//    qi.setProperties(new AttributeTypeDefault[] {new AttributeTypeDefault("Billy",String.class)});
-//    Feature[] features = loadFeatures(STATE_POP,qi);
-//    assertEquals("Number of Features loaded",49,features.length);
-//    
-//    FeatureType schema = features[0].getSchema();
-//    assertNotNull(schema.getDefaultGeometry());
-//    assertEquals("Number of Attributes",254,schema.getAttributeTypes().length);
-//    assertEquals("Value of statename is wrong",features[0].getAttribute("STATE_NAME"),"Illinois");
-//    assertEquals("Value of land area is wrong",((Double)features[0].getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
-//    
-//    for (int i = 0, ii = features.length; i < ii; i++) {
-//      assertNull(features[i].getAttribute("Billy")); 
-//    }
-//    
-//  }
+  public void testQueryFill() throws Exception {
+    QueryImpl qi = new QueryImpl();
+    qi.setProperties(new AttributeTypeDefault[] {
+      new AttributeTypeDefault("Billy",String.class),
+      new AttributeTypeDefault("STATE_NAME",String.class),
+      new AttributeTypeDefault("LAND_KM",Double.class),
+      new AttributeTypeDefault("the_geom",Geometry.class)});
+    Feature[] features = loadFeatures(STATE_POP,qi);
+    assertEquals("Number of Features loaded",49,features.length);
+    
+    FeatureType schema = features[0].getSchema();
+    assertNotNull(schema.getDefaultGeometry());
+    assertEquals("Number of Attributes",4,schema.getAttributeTypes().length);
+    assertEquals("Value of statename is wrong",features[0].getAttribute("STATE_NAME"),"Illinois");
+    assertEquals("Value of land area is wrong",((Double)features[0].getAttribute("LAND_KM")).doubleValue(),143986.61,0.001);
+    
+    for (int i = 0, ii = features.length; i < ii; i++) {
+      assertNull(features[i].getAttribute("Billy")); 
+    }
+  }
+  
+  public void testQuerying() throws Exception {
+    URL url = getTestResource(STATE_POP);
+    ShapefileDataSource s = new ShapefileDataSource(url);
+    FeatureType schema = s.getSchema();
+    AttributeType[] types = schema.getAttributeTypes();
+    for (int i = 0, ii = types.length; i < ii; i++) {
+      AttributeType[] queryAtts = new AttributeType[1];
+      queryAtts[0] = types[i];
+      QueryImpl q = new QueryImpl();
+      q.setProperties(queryAtts);
+      FeatureCollection fc = s.getFeatures(q);
+      Feature[] f = fc.getFeatures();
+      assertEquals("Number of Features",49,f.length);
+      assertEquals("Number of Attributes",1,f[0].getAttributes().length);
+      assertEquals("Attribute Name",f[0].getSchema().getAttributeType(0).getName(),queryAtts[0].getName());
+      assertEquals("Attribute Type",f[0].getSchema().getAttributeType(0).getType(),queryAtts[0].getType());
+      if (i % 5 == 0) System.out.print(".");
+    }
+  }
 }
