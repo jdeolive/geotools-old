@@ -61,7 +61,7 @@ public class PostgisTest extends TestCase {
         LOGGER.info("created new db connection");
         db.setLogin("postgis_ro", "postgis_ro");
         LOGGER.info("set the login");
-	postgis = new PostgisDataSource(db, FEATURE_TABLE);
+
         LOGGER.info("created new datasource");
 
 	try {
@@ -76,7 +76,8 @@ public class PostgisTest extends TestCase {
 	    fail("Illegal Filter Exception " + e);
 	}
 	try {
-	    schema = PostgisDataSource.makeSchema(FEATURE_TABLE, db);
+	    postgis = new PostgisDataSource(db, FEATURE_TABLE);
+	    schema = ((PostgisDataSource)postgis).getSchema();
 	} catch (Exception e) {
 	    LOGGER.info("exception while making schema" + e.getMessage());
 	}
