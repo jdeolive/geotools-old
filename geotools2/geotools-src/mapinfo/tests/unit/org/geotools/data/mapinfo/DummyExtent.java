@@ -1,4 +1,4 @@
-package org.geotools.mapinfo;
+package org.geotools.data.mapinfo;
 
 import org.geotools.data.Extent;
 import org.geotools.feature.Feature;

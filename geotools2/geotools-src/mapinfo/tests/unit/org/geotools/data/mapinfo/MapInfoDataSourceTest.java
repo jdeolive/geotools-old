@@ -5,7 +5,7 @@
  * Created on 29 July 2002, 12:13
  */
 
-package org.geotools.mapinfo;
+package org.geotools.data.mapinfo;
 
 import junit.framework.*;
 import org.geotools.data.mapinfo.*;
