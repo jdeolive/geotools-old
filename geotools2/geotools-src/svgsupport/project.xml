@@ -46,6 +46,14 @@
       <version>0.1</version>
     </dependency>
     <dependency>
+      <id>gcs-coverage</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
     </dependency>
@@ -69,7 +77,10 @@
       <id>batik+svggen</id>
       <version>1.1.1</version>
     </dependency>
-    
+        <dependency>
+        <id>commons-collections</id>
+        <version>2.1</version>
+    </dependency>
     
     <dependency>
       <id>batik+awt+util</id>
