@@ -28,7 +28,6 @@ import org.geotools.data.DataUtilities;
 import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
-import org.geotools.filter.BBoxExpression;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
 import org.geotools.validation.RoadValidationResults;
@@ -90,17 +89,17 @@ public class SpatialTestCase extends TestCase
 	 * 
 	 * <code><pre>
 	 * 
-	 * 				 (1,2)			(2.5,2)
-	 * 			  	   x				x
-	 * 				   |				|
-	 * 				   |ls1				|ls2
-	 * 				   |	 			|
+	 * 			 (0,2)				(2.6,2)
+	 * 			    x					x
+	 * 				 \  				|
+	 * 				  \ls1				|ls2
+	 * 				   \	 			|
 	 * 			  (1,1)+				+
 	 * 				   |				|
 	 * 				   |				|
-	 * 		ls0		   |		(2,0)	|						ls3
+	 * 		ls0		   |	   (2,0.1)	|						ls3
 	 * (0,0)x----------+----------+----------+==========x----------x
-	 * 				   |				|			  (4,0)		 (0,5)
+	 * 				   |				|			  (4,0)		 (5,0.1)
 	 * 				   |				|
 	 * 				   |				|
 	 * 				   x				x
@@ -117,19 +116,19 @@ public class SpatialTestCase extends TestCase
 		
 		lineFeatures = new Feature[4];
 		ls0 = gf.createLineString(new Coordinate[]{	new Coordinate(0,0),
-													new Coordinate(2,0),
+													new Coordinate(2,0.1),
 													new Coordinate(3,0),
 													new Coordinate(4,0)} );
-		ls1 = gf.createLineString(new Coordinate[]{	new Coordinate(1,2),
+		ls1 = gf.createLineString(new Coordinate[]{	new Coordinate(0,2),
 													new Coordinate(1,1),
 													new Coordinate(1,0),
 													new Coordinate(1,-1)} );
-		ls2 = gf.createLineString(new Coordinate[]{	new Coordinate(2.5,2),
+		ls2 = gf.createLineString(new Coordinate[]{	new Coordinate(2.6,2),
 													new Coordinate(2.5,1),
 													new Coordinate(2.5,-1)} );
 		ls3 = gf.createLineString(new Coordinate[]{	new Coordinate(3,0),
 													new Coordinate(4,0),
-													new Coordinate(5,0)} );
+													new Coordinate(5,0.1)} );
 		
 		lineType = DataUtilities.createType("my.line",
 											"id:0,geom:LineString,name:String");
