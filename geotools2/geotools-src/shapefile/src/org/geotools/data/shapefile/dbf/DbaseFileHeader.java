@@ -261,6 +261,7 @@ public class DbaseFileHeader {
   }
   
   /** Remove a column from this DbaseFileHeader.
+   * @todo This is really ugly, don't know who wrote it, but it needs fixin...
    * @param inFieldName The name of the field, will ignore case and trim.
    * @return index of the removed column, -1 if no found
    */
@@ -274,8 +275,7 @@ public class DbaseFileHeader {
       if (!inFieldName.equalsIgnoreCase(fields[i].fieldName.trim())) {
         // if this is the last field and we still haven't found the
         // named field
-        if (i == j &&
-        i == fields.length - 1) {
+        if (i == j && i == fields.length - 1) {
           System.err.println("Could not find a field named '" +
           inFieldName + "' for removal");
           return retCol;

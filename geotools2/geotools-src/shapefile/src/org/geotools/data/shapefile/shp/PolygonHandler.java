@@ -200,6 +200,7 @@ public class PolygonHandler implements ShapeHandler {
         JTSUtilities.reverseRing( (LinearRing) holes.get(0) )
       );
     } else {
+
       // build an association between shells and holes
       final ArrayList holesForShells = assignHolesToShells(shells, holes);
       
@@ -264,12 +265,13 @@ public class PolygonHandler implements ShapeHandler {
       return g;
   }
 
-  /**
+  /** 
+   * <b>Package private for testing</b>
    * @param shells
    * @param holes
    * @return
    */
-  private ArrayList assignHolesToShells(final ArrayList shells, final ArrayList holes) {
+  ArrayList assignHolesToShells(final ArrayList shells, final ArrayList holes) {
       ArrayList holesForShells = new ArrayList(shells.size());
       for (int i = 0; i < shells.size(); i++) {
         holesForShells.add(new ArrayList());
@@ -444,6 +446,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.8  2003/07/24 19:10:02  ianschneider
+ * *** empty log message ***
+ *
  * Revision 1.7  2003/07/24 18:32:10  ianschneider
  * more test updates, fixed Z type writing
  *

@@ -76,6 +76,7 @@ public class JTSUtilities {
     result[0] = (zmin);
     result[1] = (zmax);
     
+    
     return result;
   }
   

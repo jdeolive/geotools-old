@@ -107,9 +107,7 @@ public class ShapefileWriter {
       shapeBuffer.putInt(type.id);
       handler.write(shapeBuffer,g);
       
-      if (length * 2 != (shapeBuffer.position() - lp) - 8) {
-        throw new RuntimeException("expected " + length * 2 + " got " + (shapeBuffer.position() - lp));
-      }
+      assert (length * 2 == (shapeBuffer.position() - lp) - 8);
 
       lp = shapeBuffer.position();
       System.out.flush();

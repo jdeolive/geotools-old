@@ -179,7 +179,7 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
   private void make3D(Geometry g) {
     Coordinate[] c = g.getCoordinates();
     for (int i = 0, ii = c.length; i < ii; i++) {
-      c[i].z = 42;
+      c[i].z = 42 + i;
     }
   }
   

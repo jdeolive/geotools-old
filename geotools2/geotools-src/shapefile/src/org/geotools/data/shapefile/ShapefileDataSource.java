@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.18 2003/07/23 23:41:08 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.19 2003/07/24 19:10:02 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -346,18 +346,22 @@ public class ShapefileDataSource extends AbstractDataSource {
     "the_geom",
     JTSUtilities.findBestGeometryClass(type)
     );
-    // take care of the case where no dbf and query wants all => geometry only
-    if (dbf == null) {
-      return new AttributeType[] {geometryAttribute};
-    }
-    DbaseFileHeader header = dbf.getHeader();
-    AttributeType[] atts = new AttributeType[header.getNumFields() + 1];
-    atts[0] = geometryAttribute;
     
-    for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
-      Class clazz = header.getFieldClass(i);
-      atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
+    AttributeType[] atts;
+    
+    // take care of the case where no dbf and query wants all => geometry only
+    if (dbf != null) {
+      DbaseFileHeader header = dbf.getHeader();
+      atts = new AttributeType[header.getNumFields() + 1];
+      atts[0] = geometryAttribute;
       
+      for (int i = 0, ii = header.getNumFields(); i < ii; i++) {
+        Class clazz = header.getFieldClass(i);
+        atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
+        
+      }
+    } else {
+      atts = new AttributeType[] {geometryAttribute};
     }
     return atts;
   }
