@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.4 2002/12/13 19:58:19 camerons Exp $
+# $Id: gtpublish,v 1.5 2003/02/22 11:25:55 camerons Exp $
 #
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
@@ -16,6 +16,7 @@
 # Directories are relative to the root directory of this script
 imageSource="sdocbook/images \
     ../defaultcore/sdocbook/images \
+    ../core/sdocbook/images \
     ../sldstyling/xdocs/images"
 docbookSource="sdocbook"
 target="www"
