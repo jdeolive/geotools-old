@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.21 2003/10/31 18:21:55 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.22 2003/11/05 16:21:05 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -609,7 +609,9 @@ public class ShapefileDataSource extends AbstractDataSource {
           "Shapefile does not support strings longer than 255 characters");
         }
         
-        header.addColumn(colName, 'C', maxlength, 0);
+        // Possible fix for GEOT-42 : ArcExplorer doesn't like 0 length
+        // ensure that maxLength is at least 1
+        header.addColumn(colName, 'C', Math.max(1,maxlength), 0);
       } else if (Geometry.class.isAssignableFrom(colType)) {
         continue;
       } else {

@@ -193,9 +193,11 @@ public class DbaseFileHeader {
     if (tempFieldName == null) {
       tempFieldName = "NoName";
     }
-    if (tempFieldName.length() > 11) {
-      tempFieldName = tempFieldName.substring(0,11);
-      warn("FieldName "+inFieldName+" is longer than 11 characters, truncating to "+tempFieldName);
+    // Fix for GEOT-42, ArcExplorer will not handle field names > 10 chars
+    // Sorry folks.
+    if (tempFieldName.length() > 10) {
+      tempFieldName = tempFieldName.substring(0,10);
+      warn("FieldName "+inFieldName+" is longer than 10 characters, truncating to "+tempFieldName);
     }
     tempFieldDescriptors[fields.length].fieldName = tempFieldName;
     
