@@ -49,11 +49,11 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.1 2003/05/08 19:02:24 cholmesny Exp $
+ * @version $Id: AbstractDataSource.java,v 1.2 2003/05/12 18:44:44 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
-    protected DataSourceMetaData metaData;
+    protected DataSourceMetaData metaData = createMetaData();
 
     ////////////////////////////////////////////////////////////////////////
     // Feature retrieval methods.
