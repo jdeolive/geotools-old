@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="defaultcore">
+    <property environment="env"/>
     <target name="init">
     <condition property="mavenbat">
         <os family="windows"/>
@@ -14,7 +15,7 @@
       </not>
     </and>
   </condition>
-  <condition property="maven" value="maven.bat">
+  <condition property="maven" value="${env.MAVEN_HOME}\bin\maven.bat">
     <not>
         <equals arg1="${mavenbat}" arg2="$${mavenbat}"/>
     </not>
