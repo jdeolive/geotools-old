@@ -45,7 +45,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.StyleFactory;
-import org.geotools.styling.StyledLayerDescriptor;
 
 
 /**
@@ -77,7 +76,7 @@ import org.geotools.styling.StyledLayerDescriptor;
  * </pre></blockquote>
  *
  * @author Martin Desruisseaux
- * @version $Id: MapViewer.java,v 1.4 2004/04/05 13:55:20 jmacgill Exp $
+ * @version $Id: MapViewer.java,v 1.5 2004/04/10 16:03:18 aaime Exp $
  */
 public class MapViewer {
     /**
