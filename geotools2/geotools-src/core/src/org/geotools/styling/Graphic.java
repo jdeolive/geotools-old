@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.11 2003/08/03 05:05:23 seangeo Exp $
+ * @version $Id: Graphic.java,v 1.12 2003/08/07 01:09:07 seangeo Exp $
  * @author James Macgill, CCG
  */
 
@@ -164,9 +164,8 @@ public interface Graphic {
     /** Creates a deep copy clone. 
      * 
      * @return The deep copy clone.
-     * @throws CloneNotSupportedException If the implementing 
-     * class does not correctly support cloning.
+     *
      */
-    Object clone() throws CloneNotSupportedException;
+    Object clone();
 }
 

@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: Style.java,v 1.9 2003/08/03 05:05:23 seangeo Exp $
+ * @version $Id: Style.java,v 1.10 2003/08/07 01:09:07 seangeo Exp $
  * @author James Macgill
  */
 public interface Style {
@@ -38,12 +38,13 @@ public interface Style {
     void setFeatureTypeStyles(FeatureTypeStyle[] types);
     void addFeatureTypeStyle(FeatureTypeStyle type);
     void accept(StyleVisitor visitor);
+    
     /** Creates a deep copy clone. 
      * 
      * @return The deep copy clone.
      * @throws CloneNotSupportedException If the implementing 
      * class does not correctly support cloning.
      */
-    Object clone() throws CloneNotSupportedException;
+    Object clone();
 }
 

@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Symbolizer.java,v 1.5 2003/08/03 05:05:23 seangeo Exp $
+ * @version $Id: Symbolizer.java,v 1.6 2003/08/07 01:09:07 seangeo Exp $
  * @author James Macgill, CCG
  */
 public interface Symbolizer {
@@ -53,9 +53,8 @@ public interface Symbolizer {
     /** Creates a deep copy clone. 
      * 
      * @return The deep copy clone.
-     * @throws CloneNotSupportedException If the implementing 
-     * class does not correctly support cloning.
+     * 
      */
-    Object clone() throws CloneNotSupportedException;
+    Object clone();
 }
 
