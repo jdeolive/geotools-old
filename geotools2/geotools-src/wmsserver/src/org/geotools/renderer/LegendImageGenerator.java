@@ -18,6 +18,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.logging.Logger;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
@@ -50,6 +51,10 @@ import org.geotools.styling.TextSymbolizer;
  * @author  iant
  */
 public class LegendImageGenerator {
+    
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.wmsserver");
+    
     /** The style to use **/
     Style[] styles;
     /** the current renderer object **/
@@ -115,12 +120,14 @@ public class LegendImageGenerator {
         return getLegend(null);
     }
     public BufferedImage getLegend(Color background){
-        BufferedImage image = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_ARGB);
+        BufferedImage image = new BufferedImage(getWidth(),getHeight(),BufferedImage.TYPE_INT_RGB);
         
         Graphics2D graphics = image.createGraphics();
+        LOGGER.fine("bgcolor "+background);
         if(!(background==null)){
-            graphics.setBackground(background);
+            graphics.setColor(background);
             graphics.fillRect(0,0, getWidth(),getHeight());
+            
         }
         renderer.setScaleDenominator(getScale());
         renderer.render(graphics, new java.awt.Rectangle(0,0,getWidth(),getHeight()));
@@ -233,7 +240,7 @@ public class LegendImageGenerator {
                         }
                         if(feature == null) continue;
                         //System.out.println("feature "+feature);
-                        renderer.processSymbolizers(rendered,feature, syms);
+                        renderer.processSymbolizers(rendered,feature, syms); 
                         
                     }
 
@@ -248,7 +255,7 @@ public class LegendImageGenerator {
                 }
                 textSym.setLabel(filFac.createLiteralExpression(name));
                 
-                renderer.processSymbolizers(rendered,labelFeature,new Symbolizer[]{textSym});
+                renderer.processSymbolizers(rendered,labelFeature,new Symbolizer[]{textSym}); 
     
                 offset += symbolHeight+vpadding;
                 }
@@ -259,9 +266,10 @@ public class LegendImageGenerator {
         while (it.hasNext()) {
           
             RenderedObject r = (RenderedObject) it.next();
-            System.out.println("DRAWING : " + r);
+            System.out.println("DRAWING : " + r); 
             r.render(graphics);
         }
+        LOGGER.fine("Image = "+image);
         return image;
     }
     /** Getter for property style.
