@@ -185,13 +185,13 @@ AttributeType shortAttribute =
     
     public void test1()
         throws Exception {
-	    GeometryFilter gf =
-            new GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-            LiteralExpression right =
-            new BBoxExpression(new Envelope(0,300,0,300));
+	    GeometryFilterImpl gf =
+            new GeometryFilterImpl(AbstractFilter.GEOMETRY_BBOX);
+            LiteralExpressionImpl right =
+            new BBoxExpressionImpl(new Envelope(0,300,0,300));
             gf.addRightGeometry(right);
-	    AttributeExpression left = 
-		new AttributeExpression(testSchema, "testGeometry");
+	    AttributeExpressionImpl left = 
+		new AttributeExpressionImpl(testSchema, "testGeometry");
 	    gf.addLeftGeometry(left);
 
 	 SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
@@ -205,13 +205,13 @@ AttributeType shortAttribute =
     }
     
     public void test2() throws Exception {
-	GeometryFilter gf =
-            new GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-	LiteralExpression left =
-            new BBoxExpression(new Envelope(10,300,10,300));
+	GeometryFilterImpl gf =
+            new GeometryFilterImpl(AbstractFilter.GEOMETRY_BBOX);
+	LiteralExpressionImpl left =
+            new BBoxExpressionImpl(new Envelope(10,300,10,300));
 	gf.addLeftGeometry(left);
-	AttributeExpression right = 
-	    new AttributeExpression(testSchema, "testGeometry");
+	AttributeExpressionImpl right = 
+	    new AttributeExpressionImpl(testSchema, "testGeometry");
 	gf.addRightGeometry(right);
 	
 	SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
@@ -224,13 +224,13 @@ AttributeType shortAttribute =
     }
 
     public void testException() throws Exception {
-	GeometryFilter gf =
-            new GeometryFilter(AbstractFilter.GEOMETRY_BEYOND);
-	LiteralExpression right =
-            new BBoxExpression(new Envelope(10,10,300,300));
+	GeometryFilterImpl gf =
+            new GeometryFilterImpl(AbstractFilter.GEOMETRY_BEYOND);
+	LiteralExpressionImpl right =
+            new BBoxExpressionImpl(new Envelope(10,10,300,300));
 	gf.addRightGeometry(right);
-	AttributeExpression left = 
-	    new AttributeExpression(testSchema, "testGeometry");
+	AttributeExpressionImpl left = 
+	    new AttributeExpressionImpl(testSchema, "testGeometry");
 	gf.addLeftGeometry(left);
 	try {
 	    SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);

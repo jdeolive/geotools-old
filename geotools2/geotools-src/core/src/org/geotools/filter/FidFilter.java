@@ -4,7 +4,7 @@ import java.util.Iterator;
 import org.geotools.feature.Feature;
 
 
-public interface FidFilter {
+public interface FidFilter extends Filter{
     boolean contains(Feature feature);
     String toString();
 

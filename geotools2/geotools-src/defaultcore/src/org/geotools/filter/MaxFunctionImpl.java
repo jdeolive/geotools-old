@@ -17,7 +17,7 @@ public class MaxFunctionImpl extends MathExpressionImpl implements MaxFunction {
     Expression a,b;
     
     /** Creates a new instance of MinFunction */
-    public MaxFunctionImpl() { 
+    protected MaxFunctionImpl() { 
     }
     
     

@@ -33,7 +33,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.6 2002/10/23 17:03:40 ianturton Exp $
+ * @version $Id: MarkImpl.java,v 1.7 2002/10/24 16:54:40 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark  {
@@ -42,7 +42,7 @@ public class MarkImpl implements Mark  {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.styling");
-    
+    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
     Fill fill;
     Stroke stroke;
     
@@ -61,9 +61,9 @@ public class MarkImpl implements Mark  {
             fill = sf.getDefaultFill();
             stroke = sf.getDefaultStroke();
             
-            wellKnownName = new LiteralExpression("square");
-            size = new LiteralExpression(new Integer(6));
-            rotation = new LiteralExpression(new Double(0.0));
+            wellKnownName = filterFactory.createLiteralExpression("square"); 
+            size = filterFactory.createLiteralExpression(new Integer(6));
+            rotation = filterFactory.createLiteralExpression(new Double(0.0));
         } catch (IllegalFilterException ife){
             severe("<init>", "Failed to build default mark: ", ife);
         } 
@@ -140,7 +140,7 @@ public class MarkImpl implements Mark  {
     }
     public void setSize(int size){
         try {
-            setSize(new LiteralExpression(new Integer(size)));
+            setSize(filterFactory.createLiteralExpression(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setSize", "Problem setting Opacity", mfe);
         }
@@ -154,14 +154,14 @@ public class MarkImpl implements Mark  {
         this.wellKnownName = wellKnownName;
     }
     public void setWellKnownName(String name){
-        setWellKnownName(new LiteralExpression(name));
+        setWellKnownName(filterFactory.createLiteralExpression(name));
     }
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
     }
     public void setRotation(double rotation){
         try {
-            setRotation(new LiteralExpression(new Double(rotation)));
+            setRotation(filterFactory.createLiteralExpression(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setRotation", "Problem setting Rotation", mfe);
         }

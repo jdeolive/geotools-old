@@ -28,7 +28,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: LinePlacementImpl.java,v 1.2 2002/10/23 17:04:37 ianturton Exp $
+ * @version $Id: LinePlacementImpl.java,v 1.3 2002/10/24 16:54:40 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class LinePlacementImpl implements LinePlacement {
@@ -37,13 +37,13 @@ public class LinePlacementImpl implements LinePlacement {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression perpendicularOffset = null;
     
     /** Creates a new instance of DefaultLinePlacement */
     public LinePlacementImpl() {
         try {
-            perpendicularOffset = new org.geotools.filter.LiteralExpression(new Integer(0));
+            perpendicularOffset = filterFactory.createLiteralExpression(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultLinePlacement: " + ife);
         }

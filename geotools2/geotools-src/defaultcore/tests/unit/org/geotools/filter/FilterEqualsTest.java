@@ -165,16 +165,16 @@ public class FilterEqualsTest extends TestCase {
 
     }
 
-    public void testLiteralExpression(){
+    public void testLiteralExpressionImpl(){
 	try {
-	    testExp1 = new LiteralExpression("test literal");
-	    testExp2 = new LiteralExpression("test literal");
+	    testExp1 = new LiteralExpressionImpl("test literal");
+	    testExp2 = new LiteralExpressionImpl("test literal");
 	    assertTrue(testExp1.equals(testExp2));
-	    testExp2 = new LiteralExpression("not test literal");
+	    testExp2 = new LiteralExpressionImpl("not test literal");
 	    assertTrue(!testExp1.equals(testExp2));
-	    testExp3 = new LiteralExpression(new Integer(34));
+	    testExp3 = new LiteralExpressionImpl(new Integer(34));
 	    assertTrue(!testExp1.equals(testExp3));
-	    testExp1 = new LiteralExpression(new Integer(34));
+	    testExp1 = new LiteralExpressionImpl(new Integer(34));
 	    assertTrue(testExp1.equals(testExp3));
 	}  catch (IllegalFilterException e) {
 	    LOGGER.warning("bad filter " + e.getMessage());
@@ -183,24 +183,24 @@ public class FilterEqualsTest extends TestCase {
 
     public void testExpressionMath(){
 	try {
-	    MathExpression testMath1;
-	    MathExpression testMath2;
-	    testExp1 = new LiteralExpression(new Double(5));
-	    testExp2 = new LiteralExpression(new Double(5));
-	    testMath1 = new MathExpression(DefaultExpression.MATH_ADD);
+	    MathExpressionImpl testMath1;
+	    MathExpressionImpl testMath2;
+	    testExp1 = new LiteralExpressionImpl(new Double(5));
+	    testExp2 = new LiteralExpressionImpl(new Double(5));
+	    testMath1 = new MathExpressionImpl(DefaultExpression.MATH_ADD);
 	    testMath1.addLeftValue(testExp1);
 	    testMath1.addRightValue(testExp2);
-	    testMath2 =  new MathExpression(DefaultExpression.MATH_ADD);
+	    testMath2 =  new MathExpressionImpl(DefaultExpression.MATH_ADD);
 	    testMath2.addLeftValue(testExp2);
 	    testMath2.addRightValue(testExp1);
 	    assertTrue(testMath1.equals(testMath2));
-	    testExp3 = new LiteralExpression(new Integer(4));
-	    testExp4 = new LiteralExpression(new Integer(4));
+	    testExp3 = new LiteralExpressionImpl(new Integer(4));
+	    testExp4 = new LiteralExpressionImpl(new Integer(4));
 	    testMath2.addLeftValue(testExp3);
 	    assertTrue(!testMath1.equals(testMath2));
 	    testMath1.addLeftValue(testExp4);
 	    assertTrue(testMath1.equals(testMath2));
-	    testMath1 = new MathExpression(DefaultExpression.MATH_SUBTRACT);
+	    testMath1 = new MathExpressionImpl(DefaultExpression.MATH_SUBTRACT);
 	    testMath1.addLeftValue(testExp4);
 	    testMath1.addLeftValue(testExp2);
 	    assertTrue(!testMath1.equals(testMath2));
@@ -216,26 +216,26 @@ public class FilterEqualsTest extends TestCase {
 	    new AttributeTypeDefault("testString", String.class)
 		};
 	FeatureType testSchema2 = new FeatureTypeFlat(testAttr2); 
-	testExp1 = new AttributeExpression(testSchema, "testBoolean");
-	testExp2 = new AttributeExpression(testSchema, "testBoolean");
+	testExp1 = new AttributeExpressionImpl(testSchema, "testBoolean");
+	testExp2 = new AttributeExpressionImpl(testSchema, "testBoolean");
 	assertTrue(testExp1.equals(testExp2));
-	testExp3 = new AttributeExpression(testSchema, "testString");
+	testExp3 = new AttributeExpressionImpl(testSchema, "testString");
 	assertTrue(!testExp1.equals(testExp3));
-	testExp4 = new AttributeExpression(testSchema2, "testBoolean");
+	testExp4 = new AttributeExpressionImpl(testSchema2, "testBoolean");
 	assertTrue(!testExp1.equals(testExp4));
-	testExp1 = new AttributeExpression(testSchema2, "testBoolean");
+	testExp1 = new AttributeExpressionImpl(testSchema2, "testBoolean");
 	assertTrue(testExp1.equals(testExp4));
 		   
     }
 
     public void testCompareFilter()
 	throws IllegalFilterException {
-	CompareFilter cFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	CompareFilter cFilter2 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	testExp1 = new LiteralExpression(new Integer(45));
-	testExp2 = new LiteralExpression(new Integer(45));
-	testExp3 = new AttributeExpression(testSchema, "testInteger");
-	testExp4 = new AttributeExpression(testSchema, "testInteger");
+	CompareFilterImpl cFilter1 = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+	CompareFilterImpl cFilter2 = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+	testExp1 = new LiteralExpressionImpl(new Integer(45));
+	testExp2 = new LiteralExpressionImpl(new Integer(45));
+	testExp3 = new AttributeExpressionImpl(testSchema, "testInteger");
+	testExp4 = new AttributeExpressionImpl(testSchema, "testInteger");
 	cFilter1.addLeftValue(testExp1);
 	cFilter2.addLeftValue(testExp1);
 	cFilter1.addRightValue(testExp3);
@@ -244,22 +244,22 @@ public class FilterEqualsTest extends TestCase {
 	cFilter2.addLeftValue(testExp2);
 	cFilter2.addRightValue(testExp4);
 	assertTrue(cFilter1.equals(cFilter2));
-	cFilter2.addRightValue(new LiteralExpression(new Double(45)));
+	cFilter2.addRightValue(new LiteralExpressionImpl(new Double(45)));
 	assertTrue(!cFilter1.equals(cFilter2));
-	tFilter1 = new BetweenFilter();
+	tFilter1 = new BetweenFilterImpl();
 	assertTrue(!cFilter1.equals(tFilter1));
     }	
     
     public void testBetweenFilter()
 	throws IllegalFilterException {
-	BetweenFilter bFilter1 = new BetweenFilter();
-	BetweenFilter bFilter2 = new BetweenFilter();
-	LiteralExpression testLit1 = new LiteralExpression(new Integer(55));
-	LiteralExpression testLit2 = new LiteralExpression(new Integer(55));
-	testExp1 = new LiteralExpression(new Integer(45));
-	testExp2 = new LiteralExpression(new Integer(45));
-	testExp3 = new AttributeExpression(testSchema, "testInteger");
-	testExp4 = new AttributeExpression(testSchema, "testInteger");
+	BetweenFilterImpl bFilter1 = new BetweenFilterImpl();
+	BetweenFilterImpl bFilter2 = new BetweenFilterImpl();
+	LiteralExpressionImpl testLit1 = new LiteralExpressionImpl(new Integer(55));
+	LiteralExpressionImpl testLit2 = new LiteralExpressionImpl(new Integer(55));
+	testExp1 = new LiteralExpressionImpl(new Integer(45));
+	testExp2 = new LiteralExpressionImpl(new Integer(45));
+	testExp3 = new AttributeExpressionImpl(testSchema, "testInteger");
+	testExp4 = new AttributeExpressionImpl(testSchema, "testInteger");
 	bFilter1.addLeftValue(testExp1);
 	bFilter2.addLeftValue(testExp2);
 	bFilter1.addMiddleValue(testExp3);
@@ -267,23 +267,23 @@ public class FilterEqualsTest extends TestCase {
 	bFilter1.addRightValue(testLit1);
 	bFilter2.addRightValue(testLit2);
 	assertTrue(bFilter2.equals(bFilter1));
-	tFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
+	tFilter1 = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
 	assertTrue(!bFilter2.equals(tFilter1));
-	bFilter2.addRightValue(new LiteralExpression(new Integer(65)));
+	bFilter2.addRightValue(new LiteralExpressionImpl(new Integer(65)));
 	assertTrue(!bFilter2.equals(bFilter1));
     }
     
      public void testLikeFilter()
 	throws IllegalFilterException {
-	 LikeFilter lFilter1 = new LikeFilter();
-	 LikeFilter lFilter2 = new LikeFilter();
+	 LikeFilterImpl lFilter1 = new LikeFilterImpl();
+	 LikeFilterImpl lFilter2 = new LikeFilterImpl();
 	 String pattern = "te_st!";
 	 String wcMulti = "!";
 	 String wcSingle = "_";
 	 String escape = "#";
-	 testExp2 = new LiteralExpression(new Integer(45));
-	testExp3 = new AttributeExpression(testSchema, "testInteger");
-	testExp4 = new AttributeExpression(testSchema, "testInteger");
+	 testExp2 = new LiteralExpressionImpl(new Integer(45));
+	testExp3 = new AttributeExpressionImpl(testSchema, "testInteger");
+	testExp4 = new AttributeExpressionImpl(testSchema, "testInteger");
 	lFilter1.setValue(testExp3);
 	lFilter2.setValue(testExp4);
 	lFilter1.setPattern(pattern, wcMulti, wcSingle, escape);
@@ -298,28 +298,28 @@ public class FilterEqualsTest extends TestCase {
 
     public void testLogicFilter()
 	throws IllegalFilterException{
-	CompareFilter cFilter1 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	CompareFilter cFilter2 = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
-	testExp1 = new LiteralExpression(new Integer(45));
-	testExp2 = new LiteralExpression(new Integer(45));
-	testExp3 = new AttributeExpression(testSchema, "testInteger");
-	testExp4 = new AttributeExpression(testSchema, "testInteger");
+	CompareFilterImpl cFilter1 = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+	CompareFilterImpl cFilter2 = new CompareFilterImpl(AbstractFilter.COMPARE_EQUALS);
+	testExp1 = new LiteralExpressionImpl(new Integer(45));
+	testExp2 = new LiteralExpressionImpl(new Integer(45));
+	testExp3 = new AttributeExpressionImpl(testSchema, "testInteger");
+	testExp4 = new AttributeExpressionImpl(testSchema, "testInteger");
 	cFilter1.addLeftValue(testExp1);
 	cFilter2.addLeftValue(testExp2);
 	cFilter1.addRightValue(testExp2);
 	cFilter2.addRightValue(testExp4);
-	LogicFilter logFilter1 = new LogicFilter(cFilter1, cFilter2, AbstractFilter.LOGIC_AND);
-	LogicFilter logFilter2 = new LogicFilter(cFilter1, cFilter2, AbstractFilter.LOGIC_AND);
+	LogicFilterImpl logFilter1 = new LogicFilterImpl(cFilter1, cFilter2, AbstractFilter.LOGIC_AND);
+	LogicFilterImpl logFilter2 = new LogicFilterImpl(cFilter1, cFilter2, AbstractFilter.LOGIC_AND);
 	assertTrue(logFilter1.equals(logFilter2));
 	
-	logFilter1 = new LogicFilter(cFilter2, AbstractFilter.LOGIC_NOT);
+	logFilter1 = new LogicFilterImpl(cFilter2, AbstractFilter.LOGIC_NOT);
 	assertTrue(!logFilter1.equals(logFilter2));
 	cFilter1.addRightValue(testExp3);
-	logFilter2 = new LogicFilter(cFilter1, AbstractFilter.LOGIC_NOT);
+	logFilter2 = new LogicFilterImpl(cFilter1, AbstractFilter.LOGIC_NOT);
 	assertTrue(logFilter1.equals(logFilter2));
-        assertTrue(!logFilter1.equals(new BetweenFilter()));
-	Filter logFilter3 = new LogicFilter(logFilter1, logFilter2, AbstractFilter.LOGIC_OR);
-	Filter logFilter4 = new LogicFilter(logFilter1, logFilter2, AbstractFilter.LOGIC_OR);
+        assertTrue(!logFilter1.equals(new BetweenFilterImpl()));
+	Filter logFilter3 = new LogicFilterImpl(logFilter1, logFilter2, AbstractFilter.LOGIC_OR);
+	Filter logFilter4 = new LogicFilterImpl(logFilter1, logFilter2, AbstractFilter.LOGIC_OR);
 	assertTrue(logFilter3.equals(logFilter4));
 
 	//Questionable behavior.  Is this what we want?
@@ -339,35 +339,35 @@ public class FilterEqualsTest extends TestCase {
 
     public void testNullFilter()
 	throws IllegalFilterException{
-	    testExp1 = new AttributeExpression(testSchema, "testDouble");
-	    testExp2 = new AttributeExpression(testSchema, "testDouble");
-	    testExp3 = new  AttributeExpression(testSchema, "testBoolean");
-	    NullFilter nullFilter1 = new NullFilter();
-	    NullFilter nullFilter2 = new NullFilter();
+	    testExp1 = new AttributeExpressionImpl(testSchema, "testDouble");
+	    testExp2 = new AttributeExpressionImpl(testSchema, "testDouble");
+	    testExp3 = new  AttributeExpressionImpl(testSchema, "testBoolean");
+	    NullFilterImpl nullFilter1 = new NullFilterImpl();
+	    NullFilterImpl nullFilter2 = new NullFilterImpl();
 	    nullFilter1.nullCheckValue(testExp1);
 	    nullFilter2.nullCheckValue(testExp2);
 	    assertTrue(nullFilter1.equals(nullFilter2));
 	    nullFilter1.nullCheckValue(testExp3);
 	    assertTrue(!nullFilter1.equals(nullFilter2));
-	    assertTrue(!nullFilter1.equals(new BetweenFilter()));
+	    assertTrue(!nullFilter1.equals(new BetweenFilterImpl()));
 	}
 
      public void testGeometryFilter()
 	throws IllegalFilterException {
-	GeometryFilter geomFilter1 = new GeometryFilter(AbstractFilter.GEOMETRY_DISJOINT);
-	GeometryFilter geomFilter2 = new GeometryFilter(AbstractFilter.GEOMETRY_DISJOINT);
-	testExp1 = new LiteralExpression(new Integer(45));
-	testExp2 = new LiteralExpression(new Integer(45));
-	testExp3 = new AttributeExpression(testSchema, "testGeometry");
-	testExp4 = new AttributeExpression(testSchema, "testGeometry");
+	GeometryFilterImpl geomFilter1 = new GeometryFilterImpl(AbstractFilter.GEOMETRY_DISJOINT);
+	GeometryFilterImpl geomFilter2 = new GeometryFilterImpl(AbstractFilter.GEOMETRY_DISJOINT);
+	testExp1 = new LiteralExpressionImpl(new Integer(45));
+	testExp2 = new LiteralExpressionImpl(new Integer(45));
+	testExp3 = new AttributeExpressionImpl(testSchema, "testGeometry");
+	testExp4 = new AttributeExpressionImpl(testSchema, "testGeometry");
 	geomFilter1.addLeftGeometry(testExp1);
 	geomFilter2.addLeftGeometry(testExp2);
 	geomFilter1.addRightGeometry(testExp3);
 	geomFilter2.addRightGeometry(testExp4);
 	assertTrue(geomFilter1.equals(geomFilter2));
-	geomFilter2.addRightGeometry(new LiteralExpression(new Double(45)));
+	geomFilter2.addRightGeometry(new LiteralExpressionImpl(new Double(45)));
 	assertTrue(!geomFilter1.equals(geomFilter2));
-	tFilter1 = new BetweenFilter();
+	tFilter1 = new BetweenFilterImpl();
 	assertTrue(!geomFilter1.equals(tFilter1));
     }	
     

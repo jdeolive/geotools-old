@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: PointPlacementImpl.java,v 1.2 2002/10/23 17:03:39 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.3 2002/10/24 16:54:40 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
@@ -37,14 +37,14 @@ public class PointPlacementImpl implements PointPlacement {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     AnchorPoint anchorPoint = new AnchorPointImpl();
     Displacement displacement = new DisplacementImpl();
     Expression rotation = null;
     /** Creates a new instance of DefaultPointPlacement */
     public PointPlacementImpl() {
         try {
-            rotation = new org.geotools.filter.LiteralExpression(new Integer(0));
+            rotation = filterFactory.createLiteralExpression(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultPointPlacement: " + ife);
         }

@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.5 2002/07/22 21:01:34 jmacgill Exp $
+ * @version $Id: Filter.java,v 1.6 2002/10/24 16:51:43 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
@@ -86,5 +86,6 @@ public interface Filter {
      * @return Combined filter.
      */
     Filter not();    
-
+    
+    short getFilterType();
 }

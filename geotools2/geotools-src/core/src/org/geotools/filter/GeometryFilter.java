@@ -4,7 +4,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.Feature;
 
 
-public interface GeometryFilter {
+public interface GeometryFilter extends Filter{
     boolean equals(Object obj);
     void addRightGeometry(Expression rightGeometry) throws IllegalFilterException;
 

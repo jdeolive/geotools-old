@@ -34,7 +34,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.3 2002/10/24 16:53:56 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class AttributeExpressionImpl extends DefaultExpression implements AttributeExpression {  
@@ -56,7 +56,7 @@ public class AttributeExpressionImpl extends DefaultExpression implements Attrib
      *
      * @param schema The schema for this attribute.
      */
-    public AttributeExpressionImpl (FeatureType schema) {
+    protected AttributeExpressionImpl(FeatureType schema) {
         this.schema = schema;
     }
 
@@ -65,8 +65,7 @@ public class AttributeExpressionImpl extends DefaultExpression implements Attrib
      *
      * @param attributePath The initial (required) sub filter.
      */
-    public AttributeExpressionImpl (FeatureType schema, String attributePath)
-        throws IllegalFilterException {
+    protected AttributeExpressionImpl(FeatureType schema, String attributePath) throws IllegalFilterException {
 
         this.schema = schema;
         this.expressionType = ATTRIBUTE;

@@ -31,7 +31,7 @@ import java.io.Writer;
  * @task TODO: Support full header information for new XML file
  * @author  jamesm
  */
-public class XMLEncoder implements org.geotools.filter.FilterVisitorImpl {
+public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     /**
      * The logger for the filter module.
@@ -110,7 +110,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitorImpl {
             out.write("<"+type+">\n");
             java.util.Iterator list = filter.getFilterIterator();
             while(list.hasNext()){
-                ((AbstractFilterImpl)list.next()).accept(this);
+                ((AbstractFilter)list.next()).accept(this);
             }
             out.write("</"+type+">\n");
         }

@@ -4,7 +4,7 @@ import java.util.regex.Pattern;
 import org.geotools.feature.Feature;
 
 
-public interface LikeFilter {
+public interface LikeFilter extends Filter{
     void setPattern(String pattern, String wildcardMulti, String wildcardSingle, String escape);
     String toString();
 

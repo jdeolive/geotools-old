@@ -1,10 +1,10 @@
 package org.geotools.filter;
 
-import java.util.logging.Level;
+
 import org.geotools.feature.Feature;
 
 
-public interface CompareFilter {
+public interface CompareFilter extends Filter{
     String toString();
     void addLeftValue(Expression leftValue)  throws IllegalFilterException;
 

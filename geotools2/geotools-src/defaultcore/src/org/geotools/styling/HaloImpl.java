@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: HaloImpl.java,v 1.3 2002/10/23 17:02:19 ianturton Exp $
+ * @version $Id: HaloImpl.java,v 1.4 2002/10/24 16:54:50 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class HaloImpl implements Halo {
@@ -37,17 +37,17 @@ public class HaloImpl implements Halo {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     private Fill fill = new FillImpl();
     private Expression radius = null;
     /** Creates a new instance of DefaultHalo */
     public HaloImpl() {
         try {
-            radius = new org.geotools.filter.LiteralExpression(new Integer(1));
+            radius = filterFactory.createLiteralExpression(new Integer(1));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultHalo: " + ife);
         }
-        fill.setColor(new LiteralExpression("#FFFFFF")); // default halo is white
+        fill.setColor(filterFactory.createLiteralExpression("#FFFFFF")); // default halo is white
     }
     
     /** Getter for property fill.

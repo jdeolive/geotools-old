@@ -34,14 +34,14 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionSAXParser.java,v 1.2 2002/10/23 17:04:35 ianturton Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.3 2002/10/24 16:55:31 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionSAXParser {
 
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** The attribute value, which must be an attribute expression. */
     private ExpressionSAXParser expressionFactory = null;
 
@@ -88,18 +88,18 @@ public class ExpressionSAXParser {
             // sub expressions, otherwise just instantiate the main expression
             if( DefaultExpression.isMathExpression( convertType(declaredType) ) ) {
                 expressionFactory = new ExpressionSAXParser(schema);
-                currentExpression = new MathExpression(convertType(declaredType));
+                currentExpression = filterFactory.createMathExpression(convertType(declaredType));
                 LOGGER.finer("is math expression");
             }
             else if( DefaultExpression.
                      isLiteralExpression( convertType(declaredType) ) ) {
-                currentExpression = new LiteralExpression();
+                currentExpression = filterFactory.createLiteralExpression();
                 readCharacters = true;
                 LOGGER.finer("is literal expression");
             }
             else if( DefaultExpression.
                      isAttributeExpression( convertType(declaredType) ) ) {
-                currentExpression = new AttributeExpression(schema);
+                currentExpression = filterFactory.createAttributeExpression(schema);
                 readCharacters = true;
                 LOGGER.finer("is attribute expression");
             }
@@ -258,7 +258,7 @@ public class ExpressionSAXParser {
         LOGGER.finer("got geometry: " + geometry.toString());
         //if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
         //LOGGER.finer("got geometry: ");
-        currentExpression = new LiteralExpression();
+        currentExpression = filterFactory.createLiteralExpression();
         ((LiteralExpression) currentExpression).setLiteral(geometry);
         LOGGER.finer("set expression: " + currentExpression.toString());
         currentState = "complete";

@@ -40,12 +40,13 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.27 2002/10/23 17:03:53 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.28 2002/10/24 17:01:33 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle {
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.styling");
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     private InputStream instream;
     private Document dom;
     private StyleFactory factory;
@@ -1066,7 +1067,7 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing halo");
         }
-        Halo halo = factory.createHalo(factory.getDefaultFill(),new LiteralExpression(0));
+        Halo halo = factory.createHalo(factory.getDefaultFill(),filterFactory.createLiteralExpression(0.0));
        
         NodeList children = root.getChildNodes();
 

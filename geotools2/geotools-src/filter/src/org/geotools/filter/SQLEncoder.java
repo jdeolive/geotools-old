@@ -42,7 +42,7 @@ import java.io.StringWriter;
  *
  * @author Chris Holmes, TOPP
  */
-public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
+public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     
     /** The standard SQL multicharacter wild card.*/
     private static String SQL_WILD_MULTI = "%";  
@@ -91,13 +91,13 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public SQLEncoder(Writer out, AbstractFilterImpl filter)
+    public SQLEncoder(Writer out, AbstractFilter filter)
 	throws SQLEncoderException {
         if (capabilities.fullySupports(filter)) {
 	    this.out = out;
 	    try{
 		out.write("WHERE ");
-		filter.accept(this);
+		filter.accept(this); 
 		//out.write(";"); this should probably be added by client.
 	    }
 	    catch(java.io.IOException ioe){
@@ -115,7 +115,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
      * @param out the writer to encode the SQL to.
      * @param filter the Filter to be encoded.
      */
-    public void encode(Writer out, AbstractFilterImpl filter) 
+    public void encode(Writer out, AbstractFilter filter) 
 	throws SQLEncoderException {
 	if (capabilities.fullySupports(filter)) {
 	    this.out = out;
@@ -139,7 +139,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
      * @param filter the Filter to be encoded.
      * @return the string of the SQL where statement.
      */
-    public String encode(AbstractFilterImpl filter)
+    public String encode(AbstractFilter filter)
 	throws SQLEncoderException {
 	StringWriter output = new StringWriter();
 	encode(output, filter);
@@ -172,14 +172,14 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
      *
      * @param filter the  Filter to be visited.  
      */
-    public void visit(BetweenFilter filter) {
+    public void visit(BetweenFilter filter) { 
         log.finer("exporting BetweenFilter");
         DefaultExpression left = (DefaultExpression)filter.getLeftValue();
         DefaultExpression right = (DefaultExpression)filter.getRightValue();
         DefaultExpression mid = (DefaultExpression)filter.getMiddleValue();
-        log.finer("Filter type id is "+filter.getFilterType());
-        log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
-        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        log.finer("Filter type id is "+filter.getFilterType());  
+        log.finer("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));  
+        String type = (String)comparisions.get(new Integer(filter.getFilterType())); 
         try{
 	    mid.accept(this);
             out.write(" BETWEEN ");
@@ -232,19 +232,19 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitorImpl {
     public void visit(LogicFilter filter){
         log.finer("exporting LogicFilter");
         
-        filter.getFilterType();
+        filter.getFilterType(); 
         
         String type = (String)logical.get(new Integer(filter.getFilterType()));
         try{
 	    java.util.Iterator list = filter.getFilterIterator();
             if(filter.getFilterType() == AbstractFilter.LOGIC_NOT){
 		out.write(" NOT ("); 
-		((AbstractFilterImpl)list.next()).accept(this);
+		((AbstractFilter)list.next()).accept(this);
 		out.write(")");
 	    } else { //AND or OR
 		out.write("("); 
 		while(list.hasNext()){ 
-		    ((AbstractFilterImpl)list.next()).accept(this);
+		    ((AbstractFilter)list.next()).accept(this);
 		    if (list.hasNext()){
 			out.write(" " + type + " ");
 		    }

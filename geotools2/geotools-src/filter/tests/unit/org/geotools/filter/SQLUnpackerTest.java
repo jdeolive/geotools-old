@@ -46,16 +46,16 @@ public class SQLUnpackerTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.defaultcore");
     
     /** Filters on which to perform tests*/
-    private BetweenFilter btwnFilter;
-    private CompareFilter compFilter;
-    private GeometryFilter geomFilter;
-    private LikeFilter likeFilter;
-    private NullFilter nullFilter;
-    private AttributeExpression attrExp1;
-    private AttributeExpression attrExp2;
-    private LiteralExpression litExp1;
-    private LiteralExpression litExp2;
-    private MathExpression mathExp1;
+    private BetweenFilterImpl btwnFilter;
+    private CompareFilterImpl compFilter;
+    private GeometryFilterImpl geomFilter;
+    private LikeFilterImpl likeFilter;
+    private NullFilterImpl nullFilter;
+    private AttributeExpressionImpl attrExp1;
+    private AttributeExpressionImpl attrExp2;
+    private LiteralExpressionImpl litExp1;
+    private LiteralExpressionImpl litExp2;
+    private MathExpressionImpl mathExp1;
 
     /** strings for Like filter */
     private String pattern = "te_st!";
@@ -181,32 +181,32 @@ public class SQLUnpackerTest extends TestCase {
         testSchema = testSchema.setAttributeType(stringAttribute);
         LOGGER.finer("added string to feature type");
         
-	attrExp1 = new AttributeExpression(testSchema, "testInteger");
-	attrExp2 = new AttributeExpression(testSchema, "testGeometry");
-	litExp1 = new LiteralExpression(new Integer(65));
-	litExp2 = new LiteralExpression(new Integer(35));
-	mathExp1 = new MathExpression(DefaultExpression.MATH_ADD);
+	attrExp1 = new AttributeExpressionImpl(testSchema, "testInteger");
+	attrExp2 = new AttributeExpressionImpl(testSchema, "testGeometry");
+	litExp1 = new LiteralExpressionImpl(new Integer(65));
+	litExp2 = new LiteralExpressionImpl(new Integer(35));
+	mathExp1 = new MathExpressionImpl(DefaultExpression.MATH_ADD);
 	mathExp1.addLeftValue(litExp1);
 	mathExp1.addRightValue(litExp2);
 
-	btwnFilter = new BetweenFilter();
+	btwnFilter = new BetweenFilterImpl();
 	btwnFilter.addLeftValue(litExp1);
 	btwnFilter.addMiddleValue(attrExp1);
 	btwnFilter.addRightValue(mathExp1);
 
-	compFilter = new CompareFilter(AbstractFilter.COMPARE_LESS_THAN);
+	compFilter = new CompareFilterImpl(AbstractFilter.COMPARE_LESS_THAN);
 	compFilter.addLeftValue(attrExp1);
 	compFilter.addRightValue(litExp2);
 
-	geomFilter = new GeometryFilter(AbstractFilter.GEOMETRY_TOUCHES);
+	geomFilter = new GeometryFilterImpl(AbstractFilter.GEOMETRY_TOUCHES);
 	geomFilter.addLeftGeometry(attrExp2);
 	geomFilter.addRightGeometry(litExp2);
 
-	likeFilter = new LikeFilter();
+	likeFilter = new LikeFilterImpl();
 	likeFilter.setValue(attrExp1);
 	likeFilter.setPattern(pattern, wcMulti, wcSingle, escape);
 
-	nullFilter = new NullFilter();
+	nullFilter = new NullFilterImpl();
 	nullFilter.nullCheckValue(attrExp2);
 
     

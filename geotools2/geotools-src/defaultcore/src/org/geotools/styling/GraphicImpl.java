@@ -31,7 +31,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: GraphicImpl.java,v 1.4 2002/10/23 17:03:58 ianturton Exp $
+ * @version $Id: GraphicImpl.java,v 1.5 2002/10/24 16:54:50 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
@@ -40,6 +40,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
+    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
     String geometryPropertyName = "";
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
@@ -216,7 +217,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     
     public void setOpacity(double opacity){
         try {
-            this.opacity = new LiteralExpression(new Double(opacity));
+            this.opacity = filterFactory.createLiteralExpression(new Double(opacity));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setOpacity", "Problem setting Opacity", mfe);
         }
@@ -235,7 +236,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
     public void setRotation(double rotation){
         try {
-            setRotation(new LiteralExpression(new Double(rotation)));
+            setRotation(filterFactory.createLiteralExpression(new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setRotation", "Problem setting Rotation", mfe);
         }
@@ -255,7 +256,7 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
     public void setSize(int size){
         try {
-            setSize(new LiteralExpression(new Integer(size)));
+            setSize(filterFactory.createLiteralExpression(new Integer(size)));
         } catch (org.geotools.filter.IllegalFilterException mfe){
             severe("setSize", "Problem setting Size", mfe);
         }

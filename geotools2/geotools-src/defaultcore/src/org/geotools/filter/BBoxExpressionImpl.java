@@ -16,10 +16,10 @@ import com.vividsolutions.jts.geom.*;
 public class BBoxExpressionImpl extends org.geotools.filter.LiteralExpressionImpl implements BBoxExpression { 
     private GeometryFactory gfac = new GeometryFactory();
     /** Creates a new instance of BBoxExpression */
-    public BBoxExpressionImpl() throws IllegalFilterException{
+    protected BBoxExpressionImpl() throws IllegalFilterException{
         this(new Envelope());
     }
-    public BBoxExpressionImpl(Envelope env) throws IllegalFilterException{
+    protected BBoxExpressionImpl(Envelope env) throws IllegalFilterException{
         expressionType = DefaultExpression.LITERAL_GEOMETRY;
         setBounds(env);
     }

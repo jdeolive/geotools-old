@@ -4,7 +4,7 @@ import java.util.Iterator;
 import org.geotools.feature.Feature;
 
 
-public interface LogicFilter {
+public interface LogicFilter extends Filter{
     boolean contains(Feature feature);
     Filter not();
 

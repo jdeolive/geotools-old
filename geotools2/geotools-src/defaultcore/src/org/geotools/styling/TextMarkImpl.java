@@ -23,7 +23,7 @@ public class TextMarkImpl extends MarkImpl implements TextMark {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     Expression wellKnownName = null;
     ArrayList fonts = new ArrayList();
     Expression symbol;
@@ -32,14 +32,14 @@ public class TextMarkImpl extends MarkImpl implements TextMark {
         super();
         addFont(font);
         setSymbol(symbol);
-        wellKnownName = new LiteralExpression("Symbol");
+        wellKnownName = filterFactory.createLiteralExpression("Symbol");
     }
     
     public TextMarkImpl(Font font, Expression symbol) {
         super();
         addFont(font);
         setSymbol(symbol);
-        wellKnownName = new LiteralExpression("Symbol");
+        wellKnownName = filterFactory.createLiteralExpression("Symbol");
     }
     
     /** This parameter gives the well-known name of the symbol of the mark.<br>
@@ -75,7 +75,7 @@ public class TextMarkImpl extends MarkImpl implements TextMark {
      * @param symbol New value of property symbol.
      */
     public void setSymbol(java.lang.String symbol) {
-        this.symbol = new LiteralExpression(symbol);
+        this.symbol = filterFactory.createLiteralExpression(symbol);
     }
     
     public void setSymbol(Expression symbol){

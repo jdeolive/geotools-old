@@ -32,7 +32,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.4 2002/10/23 17:04:37 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.5 2002/10/24 16:54:40 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -48,7 +48,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     private Expression opacity = null;
     
     private Graphic graphicFill = null;
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** Creates a new instance of DefaultFill */
     protected FillImpl() {
         
@@ -88,7 +88,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         color = rgb;
     }
     public void setColor(String rgb){
-        color = new org.geotools.filter.LiteralExpression(rgb);
+        color = filterFactory.createLiteralExpression(rgb);
     }
     
     /**
@@ -124,7 +124,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         backgroundColor = rgb;
     }
     public void setBackgroundColor(String rgb){
-        backgroundColor = new org.geotools.filter.LiteralExpression(rgb);
+        backgroundColor = filterFactory.createLiteralExpression(rgb);
     }
     
     /**
@@ -151,7 +151,7 @@ public class FillImpl implements org.geotools.styling.Fill {
         this.opacity = opacity;
     }
     public void setOpacity(String opacity){
-        this.opacity = new org.geotools.filter.LiteralExpression(opacity);
+        this.opacity = filterFactory.createLiteralExpression(opacity);
     }
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be

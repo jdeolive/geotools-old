@@ -23,7 +23,7 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.5 2002/10/23 17:02:19 ianturton Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.6 2002/10/24 16:54:50 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
@@ -33,10 +33,11 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     LabelPlacement labelPlacement;
     String geometryPropertyName = null;
     Expression label = null;
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** Creates a new instance of DefaultTextSymbolizer */
     protected TextSymbolizerImpl() {
         fill = new FillImpl();
-        fill.setColor(new LiteralExpression("#000000")); // default text fill is black
+        fill.setColor(filterFactory.createLiteralExpression("#000000")); // default text fill is black
         halo = null;
         labelPlacement = new PointPlacementImpl(); 
     }

@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.3 2002/10/24 16:54:07 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFilter {
@@ -65,8 +65,7 @@ public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFi
      * @param filterType The type of comparison.
      * @throws IllegalFilterException Non-geometry type.
      */
-    public GeometryFilterImpl (short filterType) 
-        throws IllegalFilterException {
+    protected GeometryFilterImpl(short filterType) throws IllegalFilterException {
         
         if (isGeometryFilter(filterType)) {
             this.filterType = filterType;

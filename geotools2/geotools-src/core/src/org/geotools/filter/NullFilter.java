@@ -3,7 +3,7 @@ package org.geotools.filter;
 import org.geotools.feature.Feature;
 
 
-public interface NullFilter {
+public interface NullFilter extends Filter{
     boolean equals(Object obj);
     void nullCheckValue(Expression nullCheck) throws IllegalFilterException;
 

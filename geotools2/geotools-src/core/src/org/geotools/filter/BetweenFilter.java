@@ -3,7 +3,7 @@ package org.geotools.filter;
 import org.geotools.feature.Feature;
 
 
-public interface BetweenFilter {
+public interface BetweenFilter extends CompareFilter{
     boolean equals(Object oFilter);
     String toString();
 

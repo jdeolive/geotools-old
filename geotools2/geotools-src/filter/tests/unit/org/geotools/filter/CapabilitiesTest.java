@@ -97,8 +97,8 @@ public class CapabilitiesTest extends TestCase {
         setup=true;
 	capabilities = new FilterCapabilities();
 	try {
-	    gFilter = new GeometryFilter(AbstractFilter.GEOMETRY_WITHIN);
-	    compFilter = new CompareFilter(AbstractFilter.COMPARE_LESS_THAN);
+	    gFilter = new GeometryFilterImpl(AbstractFilter.GEOMETRY_WITHIN);
+	    compFilter = new CompareFilterImpl(AbstractFilter.COMPARE_LESS_THAN);
 	} catch (IllegalFilterException e) {
 	    LOGGER.info("Bad filter " + e);
 	}
@@ -136,9 +136,9 @@ public class CapabilitiesTest extends TestCase {
 	    assertTrue(capabilities.fullySupports(compFilter));
 	    assertTrue(!(capabilities.fullySupports(gFilter)));
 	    assertTrue(!(capabilities.fullySupports(logFilter)));
-	    logFilter = compFilter.and(new BetweenFilter());
+	    logFilter = compFilter.and(new BetweenFilterImpl());
 	    assertTrue(capabilities.fullySupports(logFilter));
-	    logFilter = logFilter.or(new BetweenFilter());
+	    logFilter = logFilter.or(new BetweenFilterImpl());
 	    assertTrue(capabilities.fullySupports(logFilter));
 	    logFilter = logFilter.and(gFilter);
 	    assertTrue(!(capabilities.fullySupports(logFilter)));

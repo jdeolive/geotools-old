@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LogicSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
+ * @version $Id: LogicSAXParser.java,v 1.2 2002/10/24 16:55:31 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LogicSAXParser {
@@ -37,7 +37,7 @@ public class LogicSAXParser {
      * The logger for the filter module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** The (limited) REGEXP pattern. */
     private short logicType = -1;
 
@@ -143,10 +143,10 @@ public class LogicSAXParser {
         if( isComplete()) {
             LOGGER.finer("filter is complete, with type: " + this.logicType);
             if( logicType == AbstractFilter.LOGIC_NOT) {
-                filter = new LogicFilter((Filter) subFilters.get(0), this.logicType);                 
+                filter = filterFactory.createLogicFilter((Filter) subFilters.get(0), this.logicType);                 
             }
             else {
-                filter = new LogicFilter(this.logicType); 
+                filter = filterFactory.createLogicFilter(this.logicType); 
                 Iterator iterator = subFilters.iterator();
                 while( iterator.hasNext()) {
                     filter.addFilter( (Filter) iterator.next());

@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.3 2002/10/24 16:54:07 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilter { 
@@ -68,8 +68,7 @@ public class CompareFilterImpl extends AbstractFilterImpl implements CompareFilt
      * @param filterType The type of comparison.
      * @throws IllegalFilterException Non-compare type.
      */
-    public CompareFilterImpl (short filterType)
-        throws IllegalFilterException {
+    protected CompareFilterImpl(short filterType) throws IllegalFilterException {
         
         if (isCompareFilter(filterType)) {
             this.filterType = filterType;

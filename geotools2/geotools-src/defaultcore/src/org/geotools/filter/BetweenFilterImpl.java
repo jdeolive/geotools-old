@@ -36,7 +36,7 @@ import org.geotools.feature.*;
  * is enforced by the FilterAbstract class, which considers a BETWEEN operator
  * to be a math filter.
  * 
- * @version $Id: BetweenFilterImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
+ * @version $Id: BetweenFilterImpl.java,v 1.3 2002/10/24 16:54:07 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class BetweenFilterImpl extends CompareFilterImpl implements BetweenFilter {
@@ -48,8 +48,7 @@ public class BetweenFilterImpl extends CompareFilterImpl implements BetweenFilte
     /**
      * Constructor which flags the operator as between.
      */
-    public BetweenFilterImpl () 
-        throws IllegalFilterException {
+    protected BetweenFilterImpl() throws IllegalFilterException {
         super(BETWEEN);
     }
 

@@ -35,7 +35,7 @@ import org.geotools.filter.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.9 2002/10/23 17:02:58 ianturton Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.10 2002/10/24 17:05:30 ianturton Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -152,7 +152,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
         return list;
     }
     
-
+    private static FilterFactory factory;
     /** 
      * Gets the features in the datasource inside the Extent ex.
      * This may trigger a load on the datasource.
@@ -160,6 +160,7 @@ public class FeatureCollectionDefault implements FeatureCollection {
     public Feature[] getFeatures(Extent ex) 
         throws DataSourceException {
         try{
+            factory = FilterFactory.createFilterFactory();
             // TODO: 2
             // Replace this idiom with a loadedExtent = loadedExtent.or(extent)
             //  idiom.  I think?
@@ -176,10 +177,10 @@ public class FeatureCollectionDefault implements FeatureCollection {
                 if (toLoad[i] != null){
                     if (data != null){
                         LOGGER.finer("loading " + i);
-                        org.geotools.filter.GeometryFilter gf =
-                          new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+                        GeometryFilter gf =
+                          factory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
                         LiteralExpression right = 
-                          new BBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
+                          factory.createBBoxExpression(((EnvelopeExtent)toLoad[i]).getBounds());
                         gf.addRightGeometry(right);
                         data.getFeatures(this,gf);
                     }

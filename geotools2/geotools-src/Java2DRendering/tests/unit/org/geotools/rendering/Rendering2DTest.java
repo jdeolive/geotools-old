@@ -38,6 +38,7 @@ public class Rendering2DTest extends TestCase {
      */
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.rendering");
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     public Rendering2DTest(java.lang.String testName) {
         super(testName);
     }
@@ -95,14 +96,14 @@ public class Rendering2DTest extends TestCase {
         
         LineSymbolizer linesym = sFac.createLineSymbolizer();
         Stroke myStroke = sFac.getDefaultStroke();
-        myStroke.setColor(new LiteralExpression("#0000ff"));
-        myStroke.setWidth(new LiteralExpression(new Integer(5)));
+        myStroke.setColor(filterFactory.createLiteralExpression("#0000ff"));
+        myStroke.setWidth(filterFactory.createLiteralExpression(new Integer(5)));
         LOGGER.info("got new Stroke " + myStroke);
         linesym.setStroke(myStroke);
         
         PolygonSymbolizer polysym = sFac.createPolygonSymbolizer();
         Fill myFill = sFac.getDefaultFill();
-        myFill.setColor(new LiteralExpression("#ff0000"));
+        myFill.setColor(filterFactory.createLiteralExpression("#ff0000"));
         polysym.setFill(myFill);
         polysym.setStroke(sFac.getDefaultStroke());
         Rule rule = sFac.createRule();

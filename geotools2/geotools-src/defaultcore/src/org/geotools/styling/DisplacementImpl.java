@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DisplacementImpl.java,v 1.2 2002/10/23 17:02:18 ianturton Exp $
+ * @version $Id: DisplacementImpl.java,v 1.3 2002/10/24 16:54:50 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DisplacementImpl implements Displacement {
@@ -37,14 +37,14 @@ public class DisplacementImpl implements Displacement {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
     private Expression displacementX = null;
     private Expression displacementY = null;
     /** Creates a new instance of DefaultDisplacement */
     public DisplacementImpl() {
         try {
-            displacementX = new org.geotools.filter.LiteralExpression(new Integer(0));
-            displacementY = new org.geotools.filter.LiteralExpression(new Integer(0));
+            displacementX = filterFactory.createLiteralExpression(new Integer(0));
+            displacementY = filterFactory.createLiteralExpression(new Integer(0));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultDisplacement: " + ife);
         }

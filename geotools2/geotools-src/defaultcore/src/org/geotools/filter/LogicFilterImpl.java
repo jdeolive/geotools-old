@@ -34,7 +34,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilterImpl.java,v 1.2 2002/10/24 14:53:07 ianturton Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.3 2002/10/24 16:53:56 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
@@ -51,8 +51,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      *
      * @param filterType The final relation between all sub filters. 
      */
-    public LogicFilterImpl (short filterType)
-        throws IllegalFilterException {
+    protected LogicFilterImpl(short filterType) throws IllegalFilterException {
         LOGGER.finest("filtertype "+filterType);
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
@@ -69,8 +68,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      * @param filterType The final relation between all sub filters.
      * @throws IllegalFilterException Does not conform to logic filter structure
      */
-    public LogicFilterImpl (Filter filter, short filterType)
-        throws IllegalFilterException {
+    protected LogicFilterImpl(Filter filter, short filterType) throws IllegalFilterException {
 
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;
@@ -89,8 +87,7 @@ public class LogicFilterImpl extends AbstractFilterImpl implements LogicFilter {
      * @param filterType The final relation between all sub filters.
      * @throws IllegalFilterException Does not conform to logic filter structure
      */
-    public LogicFilterImpl (Filter filter1, Filter filter2, short filterType)
-        throws IllegalFilterException {
+    protected LogicFilterImpl(Filter filter1, Filter filter2, short filterType) throws IllegalFilterException {
 
         if (isLogicFilter(filterType)) {
             this.filterType = filterType;

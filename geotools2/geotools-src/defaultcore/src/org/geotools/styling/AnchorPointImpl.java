@@ -28,7 +28,7 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: AnchorPointImpl.java,v 1.2 2002/10/23 17:02:57 ianturton Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.3 2002/10/24 16:54:40 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class AnchorPointImpl implements AnchorPoint {
@@ -37,14 +37,14 @@ public class AnchorPointImpl implements AnchorPoint {
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
+    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
     private Expression anchorPointX = null;
     private Expression anchorPointY = null;
     /** Creates a new instance of DefaultAnchorPoint */
     public AnchorPointImpl() {
         try {
-            anchorPointX = new org.geotools.filter.LiteralExpression(new Double(0.0));
-            anchorPointY = new org.geotools.filter.LiteralExpression(new Double(0.5));
+            anchorPointX = filterFactory.createLiteralExpression(new Double(0.0));
+            anchorPointY = filterFactory.createLiteralExpression(new Double(0.5));
         } catch (org.geotools.filter.IllegalFilterException ife){
             LOGGER.severe("Failed to build defaultAnchorPoint: " + ife);
         }

@@ -17,7 +17,7 @@ public class MinFunctionImpl extends org.geotools.filter.MathExpressionImpl impl
     Expression a,b;
     
     /** Creates a new instance of MinFunction */
-    public MinFunctionImpl() {
+    protected MinFunctionImpl() {
     }
     
     

@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.2 2002/10/24 14:53:17 ianturton Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.3 2002/10/24 16:54:07 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LiteralExpressionImpl extends DefaultExpression implements LiteralExpression { 
@@ -41,7 +41,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
     /**
      * Constructor with literal.
      */
-    public LiteralExpressionImpl () {
+    protected LiteralExpressionImpl() {
     }
 
 
@@ -51,8 +51,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
      * @param literal The literal to store inside this expression.
      * @throws IllegalFilterException This literal type is not in scope.
      */
-    public LiteralExpressionImpl (Object literal)
-        throws IllegalFilterException {
+    protected LiteralExpressionImpl(Object literal) throws IllegalFilterException {
         
         this.setLiteral(literal);
     }
@@ -65,7 +64,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
      *
      * @param literal The integer to store inside this expression.
      */
-    public LiteralExpressionImpl (int value){
+    protected LiteralExpressionImpl(int value){
         try{
             this.setLiteral(new Integer(value));
         }
@@ -84,7 +83,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
      *
      * @param literal The double to store inside this expression.
      */
-    public LiteralExpressionImpl (double value){
+    protected LiteralExpressionImpl(double value){
         try{
             this.setLiteral(new Double(value));
         }
@@ -102,7 +101,7 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
      *
      * @param literal The double to store inside this expression.
      */
-    public LiteralExpressionImpl (String value){
+    protected LiteralExpressionImpl(String value){
         try{
             this.setLiteral(value);
         }

@@ -61,8 +61,8 @@ public class AttributeTest extends TestCase {
         Feature[] f = sampleFeatures();
         
         //the following are intentionaly backwards
-        AttributeExpression e1 = new AttributeExpression(schema,"value");
-        AttributeExpression e2 = new AttributeExpression(schema,"name");
+        AttributeExpressionImpl e1 = new AttributeExpressionImpl(schema,"value");
+        AttributeExpressionImpl e2 = new AttributeExpressionImpl(schema,"name");
         boolean pass=false;
         Object value = null;
             value = e1.getValue(f[0]);
@@ -84,8 +84,8 @@ public class AttributeTest extends TestCase {
         
         Feature[] f = sampleFeatures();
         
-        AttributeExpression e1 = new AttributeExpression(schema,"value");
-        AttributeExpression e2 = new AttributeExpression(schema,"name");
+        AttributeExpressionImpl e1 = new AttributeExpressionImpl(schema,"value");
+        AttributeExpressionImpl e2 = new AttributeExpressionImpl(schema,"name");
         
         assertEquals(12d,((Integer)e1.getValue(f[0])).doubleValue(),0);
         assertEquals(3d,((Integer)e1.getValue(f[1])).doubleValue(),0);

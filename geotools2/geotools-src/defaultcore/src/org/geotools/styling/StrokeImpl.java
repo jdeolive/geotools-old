@@ -25,7 +25,7 @@ package org.geotools.styling;
   * TODO:This is unfinished as it currently returns fixed values with no way
   * to change them.
   *
-  * @version $Id: StrokeImpl.java,v 1.4 2002/10/23 17:04:37 ianturton Exp $
+  * @version $Id: StrokeImpl.java,v 1.5 2002/10/24 16:54:40 ianturton Exp $
   * @author James Macgill, CCG
   */
 
@@ -41,7 +41,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     private Expression lineJoin;
     private Expression opacity;
     private Expression width;
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** Creates a new instance of Stroke */
     protected StrokeImpl() {
 //        try {
@@ -112,7 +112,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
     public void setColor(String c) {
-            setColor(new LiteralExpression(c));
+            setColor(filterFactory.createLiteralExpression(c));
     }
     
     

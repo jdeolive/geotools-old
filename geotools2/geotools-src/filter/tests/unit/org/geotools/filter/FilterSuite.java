@@ -17,9 +17,9 @@ import java.util.logging.Level;
  */
 public class FilterSuite extends TestCase {
     
-    static {
-        org.geotools.resources.Geotools.init("Log4JFormatter", Level.ALL);
-    }
+//    static {
+//        org.geotools.resources.Geotools.init("Log4JFormatter", Level.ALL);
+//    }
 
     public FilterSuite(java.lang.String testName) {
         super(testName);

@@ -35,14 +35,14 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterSAXParser.java,v 1.1 2002/10/23 15:32:23 ianturton Exp $
+ * @version $Id: FilterSAXParser.java,v 1.2 2002/10/24 16:55:31 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterSAXParser {
 
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** The (limited) REGEXP pattern. */
     private Filter currentFilter = null;
 
@@ -74,22 +74,22 @@ public class FilterSAXParser {
 
         if( filterType == AbstractFilter.FID &&
             !currentState.equals("fid") ) {
-            currentFilter = new FidFilter();            
+            currentFilter = filterFactory.createFidFilter();            
         }
         else if( AbstractFilter.isGeometryFilter(filterType) ) {
-            currentFilter = new GeometryFilter(filterType);            
+            currentFilter = filterFactory.createGeometryFilter(filterType);            
         }
         else if( filterType == AbstractFilter.BETWEEN ) {
-            currentFilter = new BetweenFilter();            
+            currentFilter = filterFactory.createBetweenFilter();            
         }
         else if( AbstractFilter.isCompareFilter(filterType) ) {
-            currentFilter = new CompareFilter(filterType);            
+            currentFilter = filterFactory.createCompareFilter(filterType);            
         }
         else if( filterType == AbstractFilter.NULL ) {
-            currentFilter = new NullFilter();            
+            currentFilter = filterFactory.createNullFilter();            
         }
         else if( filterType == AbstractFilter.LIKE ) {
-            currentFilter = new LikeFilter();            
+            currentFilter = filterFactory.createLikeFilter();            
         }
         else {
             throw new IllegalFilterException

@@ -22,7 +22,7 @@ public class FilterDOMParser {
      * The logger for the filter module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** Creates a new instance of FilterXMLParser */
     public FilterDOMParser() {
     }
@@ -47,7 +47,7 @@ public class FilterDOMParser {
                 short type = ((Integer)comparisions.get(childName)).shortValue();
                 CompareFilter filter = null;
                 if(type == AbstractFilter.BETWEEN) {
-                    BetweenFilter bfilter = new BetweenFilter();
+                    BetweenFilter bfilter = filterFactory.createBetweenFilter();
                     
                     NodeList kids = child.getChildNodes();
                     for(int i=0;i<kids.getLength();i++){
@@ -104,7 +104,7 @@ public class FilterDOMParser {
                         }
                     }
                     if(!(wildcard==null||single==null||escape==null||pattern==null)){
-                        LikeFilter lfilter = new LikeFilter();
+                        LikeFilter lfilter = filterFactory.createLikeFilter();
                         LOGGER.finer("Building like filter "+value.toString()+"\n"+pattern+" "+wildcard+" "+single+" "+escape);
                         lfilter.setValue(value);
                         lfilter.setPattern(pattern,wildcard,single,escape);
@@ -113,7 +113,7 @@ public class FilterDOMParser {
                     LOGGER.finer("Problem building like filter\n"+pattern+" "+wildcard+" "+single+" "+escape);
                     return null;
                 }else{                    
-                    filter = new CompareFilter(type);
+                    filter = new CompareFilterImpl(type);
                 }
 
                 // find and parse left and right values 
@@ -137,7 +137,7 @@ public class FilterDOMParser {
             LOGGER.finer("a spatial filter "+childName);
             try{
                 short type = ((Integer)spatial.get(childName)).shortValue();
-                GeometryFilter filter = new GeometryFilter(type);
+                GeometryFilter filter = filterFactory.createGeometryFilter(type);
                 Node value = child.getFirstChild();
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                     LOGGER.finer("add left value -> "+value+"<-");
@@ -166,7 +166,7 @@ public class FilterDOMParser {
             try{
                 short type = ((Integer)logical.get(childName)).shortValue();
                 LOGGER.finer("logic type "+type);
-                LogicFilter filter = new LogicFilter(type);
+                LogicFilter filter = filterFactory.createLogicFilter(type);
                 NodeList map = child.getChildNodes();
                 for(int i=0;i<map.getLength();i++){
                     Node kid=map.item(i);

@@ -24,7 +24,7 @@ public class ExpressionDOMParser {
      * The logger for the filter module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
-
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     /** Creates a new instance of ExpressionXmlParser */
     public ExpressionDOMParser() {
     }
@@ -45,7 +45,7 @@ public class ExpressionDOMParser {
                 LOGGER.fine("processing an Add");
                 Node left=null,right=null;
                 
-                MathExpression math = new MathExpression(MathExpression.MATH_ADD);
+                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_ADD);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -63,7 +63,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("sub")){
             try{
                 NodeList kids = child.getChildNodes();
-                MathExpression math = new MathExpression(MathExpression.MATH_SUBTRACT);
+                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_SUBTRACT);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -81,7 +81,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("mul")){
             try{
                 NodeList kids = child.getChildNodes();
-                MathExpression math = new MathExpression(MathExpression.MATH_MULTIPLY);
+                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_MULTIPLY);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -99,7 +99,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("div")){
             try{
                 
-                MathExpression math = new MathExpression(MathExpression.MATH_DIVIDE);
+                MathExpression math = filterFactory.createMathExpression(DefaultExpression.MATH_DIVIDE);
                 Node value = child.getFirstChild();
                 while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                 LOGGER.finer("add left value -> "+value+"<-");
@@ -141,7 +141,7 @@ public class ExpressionDOMParser {
                         }else{
                             LOGGER.finer("got a null geometry back from gml parser");
                         }
-                        return new LiteralExpression(geom);
+                        return filterFactory.createLiteralExpression(geom);
                     } catch (IllegalFilterException ife){
                         LOGGER.warning("Problem building GML/JTS object: " + ife);
                     }
@@ -179,7 +179,7 @@ public class ExpressionDOMParser {
                     try{
                         Integer I = new Integer(nodeValue);
                         LOGGER.finer("An integer");
-                        return new LiteralExpression(I);
+                        return filterFactory.createLiteralExpression(I);
                     } catch (NumberFormatException e){
                         /* really empty */
                     }
@@ -187,13 +187,13 @@ public class ExpressionDOMParser {
                     try{
                         Double D = new Double(nodeValue);
                         LOGGER.finer("A double");
-                        return new LiteralExpression(D);
+                        return filterFactory.createLiteralExpression(D);
                     } catch (NumberFormatException e){
                         /* really empty */
                     }
                     // must be a string (or we have a problem)
                     LOGGER.finer("defaulting to string");
-                    return new LiteralExpression(nodeValue);
+                    return filterFactory.createLiteralExpression(nodeValue);
                 } catch (IllegalFilterException ife){
                     LOGGER.finer("Unable to build expression " + ife);
                     return null;
@@ -204,7 +204,7 @@ public class ExpressionDOMParser {
         if(child.getNodeName().equalsIgnoreCase("PropertyName")){
             try{
                 NodeList kids = child.getChildNodes();
-                AttributeExpression attribute = new AttributeExpression(null);
+                AttributeExpression attribute = filterFactory.createAttributeExpression(null);
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
                 return attribute;
             }catch (IllegalFilterException ife){
@@ -227,17 +227,17 @@ public class ExpressionDOMParser {
             try{
                 try{
                     Integer I = new Integer(nodeValue);
-                    return new LiteralExpression(I);
+                    return filterFactory.createLiteralExpression(I);
                 } catch (NumberFormatException e){
                     /* really empty */
                 }
                 try{
                     Double D = new Double(nodeValue);
-                    return new LiteralExpression(D);
+                    return filterFactory.createLiteralExpression(D);
                 } catch (NumberFormatException e){
                     /* really empty */
                 }
-                return new LiteralExpression(nodeValue);
+                return filterFactory.createLiteralExpression(nodeValue);
             } catch (IllegalFilterException ife){
                 LOGGER.finer("Unable to build expression " + ife);
             }
