@@ -20,7 +20,7 @@ package org.geotools.feature;
  * Indicates client class has attempted to create an invalid feature.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: IllegalAttributeException.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: IllegalAttributeException.java,v 1.3 2003/07/20 15:58:23 aaime Exp $
  */
 public class IllegalAttributeException extends Exception {
   
@@ -58,7 +58,7 @@ public class IllegalAttributeException extends Exception {
   
   static String errorMessage(AttributeType expected,Object invalid) {
     String message = "expected " + expected.getType().getName();
-    message += " , but got " + invalid == null ? "null" : invalid.getClass().getName();
+    message += " , but got " + ((invalid == null) ? "null" : invalid.getClass().getName());
     return message;
   }
 }
