@@ -33,11 +33,14 @@ package org.geotools.gp;
 
 // J2SE and JAI dependencies
 import java.util.Map;
+import java.util.logging.Logger;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
+import java.awt.geom.AffineTransform;
+import javax.media.jai.RenderedOp;
 import javax.imageio.ImageIO;
 
 // Geotools dependencies
@@ -45,12 +48,17 @@ import org.geotools.pt.Envelope;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.FittedCoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.ct.MathTransformFactory;
+import org.geotools.ct.MathTransform;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridCoverageTest;
 import org.geotools.gc.GridCoverage;
+import org.geotools.gc.GridGeometry;
+import org.geotools.gc.GridRange;
 import org.geotools.gc.Viewer;
 
 // JUnit dependencies
@@ -63,7 +71,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.1 2003/02/13 23:01:04 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.2 2003/02/15 13:24:24 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -89,23 +97,65 @@ public final class ResampleTest extends GridCoverageTest {
     }
 
     /**
-     * Projete l'image dans le systeme de coordonnees
+     * Projète l'image dans le systeme de coordonnées
      * spécifié et affiche le résultat à l'écran.
      *
-     * @param cs Le systeme de coordonees de destination.
+     * @param cs Le systeme de coordonées de destination.
      */
-    private void projectTo(final CoordinateSystem cs) {
+    private void projectTo(final CoordinateSystem cs, final GridGeometry geometry) {
         final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
-        final GridCoverage projected = processor.doOperation("Resample", coverage,
-                                                             "CoordinateSystem", cs);
-        Viewer.show(projected);
+        final String arg1; final Object value1;
+        final String arg2; final Object value2;
+        if (cs != null) {
+            arg1="CoordinateSystem"; value1=cs;
+            if (geometry != null) {
+                arg2="GridGeometry"; value2=geometry;
+            } else {
+                arg2="InterpolationType"; value2="bilinear";
+            }
+        } else {
+            arg1="GridGeometry";      value1=geometry;
+            arg2="InterpolationType"; value2="bilinear";
+        }
+        final GridCoverage projected = processor.doOperation("Resample", coverage.geophysics(true),
+                                                              arg1, value1, arg2, value2);
+        Viewer.show(projected.geophysics(false));
+        final RenderedImage image = projected.getRenderedImage();
+        if (image instanceof RenderedOp) {
+            Logger.getLogger("org.geotools.gp")
+                .info("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
+        }
     }
 
     /**
      * Test the "Resample" operation with an identity transform.
      */
     public void testIdentity() {
-        projectTo(coverage.getCoordinateSystem());
+        projectTo(coverage.getCoordinateSystem(), null);
+    }
+
+    /**
+     * Test the "Resample" operation with a "Crop" transform.
+     */
+    public void testCrop() {
+        projectTo(null, new GridGeometry(new GridRange(new Rectangle(50,50,200,200)), null));
+    }
+
+
+    /**
+     * Test the "Resample" operation with an "Affine" transform.
+     *
+     * Note: if the <code>REUSE_SOURCE_IMAGE_ALLOWED</code> optimization is allowed in the
+     *       {@link Resampler} implementation, then the affine transform effect will not be
+     *       visible with the simple viewer used here. It would be visible however with more
+     *       elaborated viewer like the one provided in the <code>org.geotools.renderer</code>
+     *       package.
+     */
+    public void testAffine() {
+        AffineTransform atr = AffineTransform.getRotateInstance(Math.toRadians(45), 200, 200);
+        MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
+        CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
+        projectTo(cs, null);
     }
 
     /**
@@ -114,8 +164,8 @@ public final class ResampleTest extends GridCoverageTest {
     public void testStereographic() {
         final CoordinateSystem cs = new ProjectedCoordinateSystem("Stereographic",
                 GeographicCoordinateSystem.WGS84,
-                new Projection("Stereographic", "Oblique_Stereographic", Ellipsoid.WGS84, null, null));
-        projectTo(cs);
+                new Projection("Stereographic","Oblique_Stereographic",Ellipsoid.WGS84,null,null));
+        projectTo(cs, null);
     }
 
     /**
