@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+
+<WMSServer>
+
+  <!-- The list of installed Layers. Each layer contains a datasource definition, and a list of params to initialize each one -->
+    <layer id="my layer">
+      <description>A Layer I made</description>
+      <datasource class="Shapefile">
+        <type>Shapefile</type>
+        <param name="filename" value="D:\geotools\Task1\src\demonstrations\maps\statepop.zip" />
+      </datasource>
+    </layer>
+
+</WMSServer>
