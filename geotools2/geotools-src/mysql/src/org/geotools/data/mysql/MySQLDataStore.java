@@ -311,20 +311,19 @@ public class MySQLDataStore extends JDBCDataStore {
         
     }
     
-    /** TODO fix this doc
+    /**
      * Constructs an AttributeType from a row in a ResultSet. The ResultSet
      * contains the information retrieved by a call to  getColumns() on the
      * DatabaseMetaData object.  This information  can be used to construct an
      * Attribute Type.
      * 
      * <p>
-     * The default implementation construct an AttributeType using the default
-     * JDBC type mappings defined in JDBCDataStore.  These type mappings only
-     * handle native Java classes and SQL standard column types, so to handle
-     * Geometry columns, sub classes should override this to check if a column
-     * is a geometry column, if it is a geometry column the appropriate
-     * determination of the geometry type can be performed. Otherwise,
-     * overriding methods should call super.buildAttributeType.
+     * In addition to standard SQL types, this method identifies MySQL 4.1's geometric
+     * datatypes and creates attribute types accordingly.  This happens when the
+     * datatype, identified by column 5 of the ResultSet parameter, is equal to
+     * java.sql.Types.OTHER.  If a Types.OTHER ends up not being geometric, this
+     * method simply calls the parent class's buildAttributeType method to do something
+     * with it.
      * </p>
      * 
      * <p>
@@ -351,7 +350,7 @@ public class MySQLDataStore extends JDBCDataStore {
 
         int dataType = rs.getInt(DATA_TYPE);
         if (dataType == Types.OTHER) {
-            //TODO this is MySQL-specific; handle it
+            //this is MySQL-specific; handle it
             String typeName = rs.getString(TYPE_NAME);
             String typeNameLower = typeName.toLowerCase();
             
