@@ -35,17 +35,26 @@ package org.geotools.gui.swing;
 
 // J2SE dependencies
 import java.awt.EventQueue;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.ToolTipManager;
+import javax.swing.JPopupMenu;
+import javax.swing.Action;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.renderer.j2d.Tools;
 import org.geotools.renderer.j2d.Renderer;
 import org.geotools.renderer.j2d.RenderedLayer;
+import org.geotools.renderer.j2d.GeoMouseEvent;
 import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
 
@@ -57,14 +66,26 @@ import org.geotools.gui.swing.event.ZoomChangeListener;
  * to zoom, translate and rotate around the map (Remind: <code>MapPanel</code> has
  * no scrollbar. To display scrollbars, use {@link #createScrollPane}).
  *
- * @version $Id: MapPane.java,v 1.8 2003/01/23 12:14:00 desruisseaux Exp $
+ * @version $Id: MapPane.java,v 1.9 2003/01/23 23:25:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MapPane extends ZoomPane {
     /**
+     * The maximal number of {@link JPopupMenu}s to cache in {@link cachedMenus}.
+     */
+    private static final int MAX_CACHED_MENUS = 5;
+
+    /**
      * The renderer targeting Java2D.
      */
     private final Renderer renderer;
+
+    /**
+     * List of popup menus created lately. The last menu used must appears first in the list.
+     * This is used only as a cache for avoiding creating a popup menu too often. The maximal
+     * number of popup menus to cache is {@link #MAX_CACHED_MENUS}.
+     */
+    private transient LinkedList cachedMenus;
 
     /**
      * Objet "listener" ayant la charge de réagir aux différents
@@ -250,5 +271,143 @@ public abstract class MapPane extends ZoomPane {
      */
     public int getLayerCount() {
         return renderer.getLayerCount();
+    }
+
+    /**
+     * Returns the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * can do the job. If no default tools has been set, then returns <code>null</code>.
+     *
+     * @see Tools#getToolTipText
+     * @see Tools#getPopupMenu
+     * @see Tools#mouseClicked
+     */
+    public Tools getTools() {
+        return renderer.getTools();
+    }
+
+    /**
+     * Set the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * can do the job.
+     *
+     * @param tools The new tools, or <code>null</code> for removing any set of tools.
+     */
+    public void setTools(final Tools tools) {
+        renderer.setTools(tools);
+    }
+
+    /**
+     * Registers the default text to display in a tool tip. The text displays
+     * when the cursor lingers over the component and no layer has proposed a
+     * tool tip (i.e. {@link RenderedLayer#getToolTipText} returned <code>null</code>
+     * for all registered layers).
+     *
+     * @param tooltip The default tooltip, or <code>null</code> if none.
+     */
+    public void setToolTipText(final String tooltip) {
+        super.setToolTipText(tooltip);
+        if (tooltip == null) {
+            /*
+             * If the tool tip text is set to null, then JComponent unregister itself.
+             * We need to be re-registered it if we want tool tips for rendered layers.
+             */
+            final Object hasTools = getClientProperty("RendererHasTools");
+            if ((hasTools instanceof Boolean) && ((Boolean)hasTools).booleanValue()) {
+                ToolTipManager.sharedInstance().registerComponent(this);
+            }
+        }
+    }
+
+    /**
+     * Returns the string to be used as the tooltip for a given mouse event. This method
+     * invokes {@link Tools#getToolTipText} for some registered {@linkplain RenderedLayer
+     * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found
+     * to returns a non-null string. If no layer has a tool tip for this event, then returns
+     * the last tooltip string set by {@link #setToolTipText}.
+     *
+     * @param  event The mouse event.
+     * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.
+     *
+     * @see #setToolTipText
+     * @see Renderer#getToolTipText
+     * @see Tools#getToolTipText
+     */
+    public String getToolTipText(final MouseEvent event) {
+        final String text = renderer.getToolTipText(event);
+        return (text!=null) ? text : super.getToolTipText(event);
+    }
+
+    /**
+     * Returns the popup menu to appears for a given mouse event. This method invokes
+     * {@link Tools#getPopupMenu} for some registered {@linkplain RenderedLayer layers}
+     * in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found to
+     * returns a non-null menu. If no layer has a popup menu for this event, then this
+     * method returns {@link #getDefaultPopupMenu}.
+     *
+     * @param  event The mouse event.
+     * @return The popup menu for this event, or <code>null</code> if there is none.
+     *
+     * @see Renderer#getPopupMenu
+     * @see Tools#getPopupMenu
+     * @see #getDefaultPopupMenu
+     */
+    protected JPopupMenu getPopupMenu(final MouseEvent event) {
+        final Action[] actions = renderer.getPopupMenu(event);
+        if (actions == null) {
+            return getDefaultPopupMenu((GeoMouseEvent) event);
+        }
+        /*
+         * Check if a menu exists for the specified actions. Most recently
+         * used menus appears first in the cache and are check first.
+         */
+        if (cachedMenus != null) {
+            for (final Iterator it=cachedMenus.iterator(); it.hasNext();) {
+                final JPopupMenu menu = (JPopupMenu) it.next();
+                final Object prop = menu.getClientProperty("LayerActions");
+                if (!(prop instanceof Action[])) {
+                    it.remove();
+                    continue;
+                }
+                if (Arrays.equals((Action[])prop, actions)) {
+                    if (menu != cachedMenus.getFirst()) {
+                        it.remove();
+                        cachedMenus.addFirst(menu);
+                    }
+                    return menu;
+                }
+            }
+        } else {
+            cachedMenus = new LinkedList();
+        }
+        /*
+         * The menu was not in the cache. Built it now and add it to the cache.
+         */
+        final JPopupMenu menu = new JPopupMenu();
+        for (int i=0; i<actions.length; i++) {
+            final Action action = actions[i];
+            if (action != null) {
+                menu.add(action);
+            } else {
+                menu.addSeparator();
+            }
+        }
+        menu.putClientProperty("LayerActions", actions);
+        cachedMenus.addFirst(menu);
+        while (cachedMenus.size() > MAX_CACHED_MENUS) {
+            // Should not loops more than 1 time.
+            cachedMenus.removeLast();
+        }
+        return menu;
+    }
+
+    /**
+     * Returns a default popup menu for the given mouse event. This method
+     * is invoked when no layers proposed a popup menu for this event. The
+     * default implementation returns a menu with navigation options.
+     *
+     * @see #getPopupMenu
+     * @see ZoomPane#getPopupMenu
+     */
+    protected JPopupMenu getDefaultPopupMenu(final GeoMouseEvent event) {
+        return super.getPopupMenu(event);
     }
 }

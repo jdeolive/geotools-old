@@ -50,6 +50,7 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
+import javax.swing.Action;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.Locale;
@@ -88,7 +89,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverageLayer}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.4 2003/01/23 12:13:20 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.5 2003/01/23 23:26:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -251,6 +252,12 @@ public class Renderer {
     ////////                                                  ////////
     //////////////////////////////////////////////////////////////////
     /**
+     * Default tools to use if there is no {@link RenderedLayer#getTools} for a specific job.
+     * Can be <code>null</code> if no default tools has been set.
+     */
+    private Tools tools;
+
+    /**
      * The component owner, or <code>null</code> if none. This is used for managing
      * repaint request (see {@link RenderedLayer#repaint}) or mouse events.
      */
@@ -264,15 +271,15 @@ public class Renderer {
     protected final PropertyChangeSupport listeners;
 
     /**
-     * <code>true</code> if {@link #proxy} is currently registered into {@link #mapPane}.
+     * <code>true</code> if {@link #proxyListener} is currently registered into {@link #mapPane}.
      */
     private boolean listenerRegistered;
 
     /**
-     * Objet "listener" ayant la charge de réagir aux différents
-     * événements qui intéressent cet objet <code>Renderer</code>.
+     * Listener for events of interest to this renderer. Events may come
+     * from any {@link RenderedLayer} or from the {@link Component}.
      */
-    private final Listeners proxy = new Listeners();
+    private final ProxyListener proxyListener = new ProxyListener();
 
     /**
      * Classe ayant la charge de réagir aux différents événements qui intéressent cet
@@ -280,12 +287,12 @@ public class Renderer {
      * de l'ordre <var>z</var> ainsi qu'aux changements des coordonnées géographiques
      * d'une couche.
      */
-    private final class Listeners extends MouseAdapter implements ComponentListener,
-                                                                  PropertyChangeListener
+    private final class ProxyListener extends MouseAdapter implements ComponentListener,
+                                                                      PropertyChangeListener
     {
         /** Invoked when the mouse has been clicked on a component. */
         public void mouseClicked(final MouseEvent event) {
-//            Renderer.this.mouseClicked(event);
+            Renderer.this.mouseClicked(event);
         }
 
         /** Invoked when the component's size changes. */
@@ -318,26 +325,39 @@ public class Renderer {
                 return;
             }
             final String propertyName = event.getPropertyName();
-            if (propertyName.equalsIgnoreCase("preferredArea")) {
-                changePreferredArea((Rectangle2D)    event.getOldValue(),
-                                    (Rectangle2D)    event.getNewValue(),
-                                    ((RenderedLayer) event.getSource()).getCoordinateSystem(),
-                                    "RenderedLayer", "setPreferredArea");
-                return;
-            }
-            if (propertyName.equalsIgnoreCase("zOrder")) {
-                layerSorted = false;
-                return;
-            }
-            if (propertyName.equalsIgnoreCase("tools")) {
-                if ((event.getOldValue()==null) != (event.getNewValue()==null)) {
-                    updateListenerRegistration();
+            synchronized (Renderer.this) {
+                if (propertyName.equalsIgnoreCase("preferredArea")) {
+                    changePreferredArea((Rectangle2D)    event.getOldValue(),
+                                        (Rectangle2D)    event.getNewValue(),
+                                        ((RenderedLayer) event.getSource()).getCoordinateSystem(),
+                                        "RenderedLayer", "setPreferredArea");
+                    return;
                 }
-                return;
+                if (propertyName.equalsIgnoreCase("zOrder")) {
+                    layerSorted = false;
+                    return;
+                }
+                if (propertyName.equalsIgnoreCase("tools")) {
+                    if ((event.getOldValue()==null) != (event.getNewValue()==null)) {
+                        updateListenerRegistration();
+                    }
+                    return;
+                }
+                if (propertyName.equalsIgnoreCase("coordinateSystem")) {
+                    computePreferredArea("RenderedLayer", "setCoordinateSystem");
+                    return;
+                }
             }
         }
     }
 
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////      Constructors and essential properties       ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
      * Construct a new renderer for the specified component.
      *
@@ -347,7 +367,7 @@ public class Renderer {
         listeners = new PropertyChangeSupport(this);
         this.mapPane = owner;
         if (mapPane != null) {
-            mapPane.addComponentListener(proxy);
+            mapPane.addComponentListener(proxyListener);
         }
     }
 
@@ -379,12 +399,17 @@ public class Renderer {
      */
     public void setCoordinateSystem(CoordinateSystem cs) throws TransformException {
         cs = CTSUtilities.getCoordinateSystem2D(cs);
-        if (!cs.equals(mapCS)) {
-            mapCS    = cs;
-            textCS   = null;
-            deviceCS = null;
-            transforms.clear();
+        final CoordinateSystem oldCS;
+        synchronized (this) {
+            oldCS = mapCS;
+            if (!cs.equals(oldCS)) {
+                mapCS    = cs;
+                textCS   = null;
+                deviceCS = null;
+                transforms.clear();
+            }
         }
+        listeners.firePropertyChange("coordinateSystem", oldCS, cs);
     }
 
     /**
@@ -596,6 +621,13 @@ public class Renderer {
                       (small.getMinX()> big.getMinX() && small.getMaxX()< big.getMaxX() && small.getMinY()> big.getMinY() && small.getMaxY()< big.getMaxY());
     }
 
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////          add/remove/get rendered layers          ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
      * Add a new layer to this renderer. A <code>Renderer</code> do not draw anything as long
      * as at least one layer hasn't be added.    A {@link RenderedLayer} can be anything like
@@ -616,32 +648,30 @@ public class Renderer {
      * @see #getLayerCount
      */
     public synchronized void addLayer(final RenderedLayer layer) throws IllegalArgumentException {
-        synchronized (layer) {
-            if (layer.renderer == this) {
-                return;
-            }
-            if (layer.renderer != null) {
-                throw new IllegalArgumentException(
-                            Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
-            }
-            layer.renderer = this;
-            /*
-             * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
-             * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
-             */
-            if (layers == null) {
-                layers = new RenderedLayer[16];
-            }
-            if (layerCount >= layers.length) {
-                layers = (RenderedLayer[]) XArray.resize(layers, Math.max(layerCount,8) << 1);
-            }
-            layers[layerCount++] = layer;
-            layerSorted = false;
-            layer.setVisible(true);
-            changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
-                                "Renderer", "addLayer");
-            layer.addPropertyChangeListener(proxy);
+        if (layer.renderer == this) {
+            return;
         }
+        if (layer.renderer != null) {
+            throw new IllegalArgumentException(
+                        Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
+        }
+        layer.renderer = this;
+        /*
+         * Ajoute la nouvelle couche dans le tableau {@link #layers}. Le tableau
+         * sera agrandit si nécessaire et on déclarera qu'il a besoin d'être reclassé.
+         */
+        if (layers == null) {
+            layers = new RenderedLayer[16];
+        }
+        if (layerCount >= layers.length) {
+            layers = (RenderedLayer[]) XArray.resize(layers, Math.max(layerCount,8) << 1);
+        }
+        layers[layerCount++] = layer;
+        layerSorted = false;
+        layer.setVisible(true);
+        changePreferredArea(null, layer.getPreferredArea(), layer.getCoordinateSystem(),
+                            "Renderer", "addLayer");
+        layer.addPropertyChangeListener(proxyListener);
     }
 
     /**
@@ -662,34 +692,32 @@ public class Renderer {
      */
     public synchronized void removeLayer(final RenderedLayer layer) throws IllegalArgumentException
     {
-        synchronized (layer) {
-            if (layer.renderer == null) {
-                return;
-            }
-            if (layer.renderer != this) {
-                throw new IllegalArgumentException(
-                            Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
-            }
-            layer.removePropertyChangeListener(proxy);
-            final CoordinateSystem layerCS = layer.getCoordinateSystem();
-            final Rectangle2D    layerArea = layer.getPreferredArea();
-            layer.setVisible(false);
-            layer.clearCache();
-            layer.renderer = null;
-            /*
-             * Retire cette couche de la liste {@link #layers}. On recherchera
-             * toutes les occurences de cette couche, même si en principe elle ne
-             * devrait apparaître qu'une et une seule fois.
-             */
-            for (int i=layerCount; --i>=0;) {
-                final RenderedLayer scan = layers[i];
-                if (scan == layer) {
-                    System.arraycopy(layers, i+1, layers, i, (--layerCount)-i);
-                    layers[layerCount] = null;
-                }
-            }
-            changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
+        if (layer.renderer == null) {
+            return;
         }
+        if (layer.renderer != this) {
+            throw new IllegalArgumentException(
+                        Resources.format(ResourceKeys.ERROR_RENDERER_NOT_OWNER_$1, layer));
+        }
+        layer.removePropertyChangeListener(proxyListener);
+        final CoordinateSystem layerCS = layer.getCoordinateSystem();
+        final Rectangle2D    layerArea = layer.getPreferredArea();
+        layer.setVisible(false);
+        layer.clearCache();
+        layer.renderer = null;
+        /*
+         * Retire cette couche de la liste {@link #layers}. On recherchera
+         * toutes les occurences de cette couche, même si en principe elle ne
+         * devrait apparaître qu'une et une seule fois.
+         */
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer scan = layers[i];
+            if (scan == layer) {
+                System.arraycopy(layers, i+1, layers, i, (--layerCount)-i);
+                layers[layerCount] = null;
+            }
+        }
+        changePreferredArea(layerArea, null, layerCS, "Renderer", "removeLayer");
     }
 
     /**
@@ -703,12 +731,10 @@ public class Renderer {
     public synchronized void removeAllLayers() {
         while (--layerCount>=0) {
             final RenderedLayer layer = layers[layerCount];
-            synchronized (layer) {
-                layer.removePropertyChangeListener(proxy);
-                layer.setVisible(false);
-                layer.clearCache();
-                layer.renderer = null;
-            }
+            layer.removePropertyChangeListener(proxyListener);
+            layer.setVisible(false);
+            layer.clearCache();
+            layer.renderer = null;
             layers[layerCount] = null;
         }
         layerCount = 0;
@@ -764,6 +790,11 @@ public class Renderer {
         }
     }
 
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////                    Rendering                     ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
      * Returns a rendering hints.
      *
@@ -773,7 +804,7 @@ public class Renderer {
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    public Object getRenderingHints(final RenderingHints.Key key) {
+    public synchronized Object getRenderingHints(final RenderingHints.Key key) {
         return hints.get(key);
     }
 
@@ -786,7 +817,7 @@ public class Renderer {
      * @see Hints#RESOLUTION
      * @see Hints#COORDINATE_TRANSFORMATION_FACTORY
      */
-    public void setRenderingHint(final RenderingHints.Key key, final Object value) {
+    public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         hints.put(key, value);
         if (Hints.RESOLUTION.equals(key)) {
             resolution = ((Number) hints.get(key)).floatValue();
@@ -926,9 +957,9 @@ public class Renderer {
      * @param  sourceMethodName The caller's method name, for logging purpose.
      * @param  exception        The transform exception.
      */
-    private void handleException(final String className,
-                                 final String methodName,
-                                 final TransformException exception)
+    private static void handleException(final String className,
+                                        final String methodName,
+                                        final TransformException exception)
     {
         Utilities.unexpectedException("org.geotools.renderer.j2d", className, methodName, exception);
     }
@@ -950,18 +981,27 @@ public class Renderer {
         return buffer.toString();
     }
 
+
+
+    //////////////////////////////////////////////////////////////////
+    ////////                                                  ////////
+    ////////                     Events                       ////////
+    ////////                                                  ////////
+    //////////////////////////////////////////////////////////////////
     /**
-     * Register {@link #proxy} if at least one layer has a tool, or unregister it
-     * if no layer has tools. This method is automatically invoked when the "tools"
+     * Register {@link #proxyListener} if at least one layer has a tool, or unregister
+     * it if no layer has tools. This method is automatically invoked when the "tools"
      * property change in a {@link RenderedLayer}.
      */
     private void updateListenerRegistration() {
         if (mapPane != null) {
-            boolean hasTools = false;
-            for (int i=layerCount; --i>=0;) {
-                if (layers[i].getTools() != null) {
-                    hasTools = true;
-                    break;
+            boolean hasTools = (tools != null);
+            if (!hasTools) {
+                for (int i=layerCount; --i>=0;) {
+                    if (layers[i].getTools() != null) {
+                        hasTools = true;
+                        break;
+                    }
                 }
             }
             if (hasTools != listenerRegistered) {
@@ -969,11 +1009,12 @@ public class Renderer {
                  * Before to register any listener, unregister unconditionnaly in order
                  * to make sure we don't register the same listener twice.  It is safer
                  * to do this because {@link javax.swing.event.EventListenerList} doesn't
-                 * do this check.
+                 * do this check. It is not damageable to unregister twice, but it is
+                 * damageable to register twice.
                  */
-                mapPane.removeMouseListener(proxy);
+                mapPane.removeMouseListener(proxyListener);
                 if (hasTools) {
-                    mapPane.addMouseListener(proxy);
+                    mapPane.addMouseListener(proxyListener);
                 }
                 /*
                  * Special processing for Swing's tool tip text. If there is no default
@@ -982,13 +1023,11 @@ public class Renderer {
                  */
                 if (mapPane instanceof JComponent) {
                     final JComponent swing = (JComponent) mapPane;
-                    if (swing.getToolTipText() == null) {
-                        final ToolTipManager manager = ToolTipManager.sharedInstance();
-                        manager.unregisterComponent(swing);
-                        if (hasTools) {
-                            manager.registerComponent(swing);
-                        }
+                    if (hasTools && swing.getToolTipText()==null) {
+                        ToolTipManager.sharedInstance().registerComponent(swing);
                     }
+                    // Store an information usefull to org.geotools.gui.swing.MapPane
+                    swing.putClientProperty("RendererHasTools", Boolean.valueOf(hasTools));
                 }
                 listenerRegistered = hasTools;
             }
@@ -1009,6 +1048,120 @@ public class Renderer {
             // Not yet added to a containment hierarchy. Ignore...
         }
         return JComponent.getDefaultLocale();
+    }
+
+    /**
+     * Returns the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * can do the job. If no default tools has been set, then returns <code>null</code>.
+     *
+     * @see Tools#getToolTipText
+     * @see Tools#getPopupMenu
+     * @see Tools#mouseClicked
+     */
+    public Tools getTools() {
+        return tools;
+    }
+
+    /**
+     * Set the default tools to use when no {@linkplain RendererLayer#getTools layer's tools}
+     * can do the job.
+     *
+     * @param tools The new tools, or <code>null</code> for removing any set of tools.
+     */
+    public void setTools(final Tools tools) {
+        final Tools oldTools;
+        synchronized (this) {
+            oldTools = this.tools;
+            this.tools = tools;
+        }
+        listeners.firePropertyChange("tools", oldTools, tools);
+    }
+
+    /**
+     * Returns the string to be used as the tooltip for a given mouse event. This method
+     * invokes {@link Tools#getToolTipText} for some registered {@linkplain RenderedLayer
+     * layers} in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is
+     * found to returns a non-null string.
+     *
+     * @param  event The mouse event.
+     * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.
+     */
+    public synchronized String getToolTipText(final MouseEvent event) {
+        sortLayers();
+        final int                  x = event.getX();
+        final int                  y = event.getY();
+        final RenderedLayer[] layers = this.layers;
+        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            final Tools tools = layer.getTools();
+            if (tools!=null && layer.contains(x,y)) {
+                final String tooltip = tools.getToolTipText(geoEvent);
+                if (tooltip != null) {
+                    return tooltip;
+                }
+            }
+        }
+        return (tools!=null) ? tools.getToolTipText(geoEvent) : null;
+    }
+
+    /**
+     * Invoked when user clicks on this <code>Renderer</code>. The default implementation
+     * invokes {@link Tools#mouseClicked} for some {@linkplain RenderedLayer layers} in
+     * decreasing {@linkplain RenderedLayer#getZOrder z-order} until one of them
+     * {@linkplain MouseEvent#consume consume} the event.
+     *
+     * @param  event The mouse event.
+     */
+    private synchronized void mouseClicked(final MouseEvent event) {
+        sortLayers();
+        final int                  x = event.getX();
+        final int                  y = event.getY();
+        final RenderedLayer[] layers = this.layers;
+        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            final Tools tools = layer.getTools();
+            if (tools!=null && layer.contains(x,y)) {
+                tools.mouseClicked(geoEvent);
+                if (geoEvent.isConsumed()) {
+                    break;
+                }
+            }
+        }
+        if (tools != null) {
+            tools.mouseClicked(geoEvent);
+        }
+    }
+
+    /**
+     * Returns the popup menu to appears for a given mouse event. This method invokes
+     * {@link Tools#getPopupMenu} for some registered {@linkplain RenderedLayer layers}
+     * in decreasing {@linkplain RenderedLayer#getZOrder z-order} until one is found to
+     * returns a non-null menu.
+     *
+     * @param  event The mouse event.
+     * @return Actions for the popup menu, or <code>null</code> if there is none.
+     *         If the returned array is non-null but contains null elements,
+     *         then the null elements will be understood as menu separator.
+     */
+    public synchronized Action[] getPopupMenu(final MouseEvent event) {
+        sortLayers();
+        final int                  x = event.getX();
+        final int                  y = event.getY();
+        final RenderedLayer[] layers = this.layers;
+        final GeoMouseEvent geoEvent = (GeoMouseEvent) event; // TODO: use static method.
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            final Tools tools = layer.getTools();
+            if (tools!=null && layer.contains(x,y)) {
+                final Action[] menu = tools.getPopupMenu(geoEvent);
+                if (menu != null) {
+                    return menu;
+                }
+            }
+        }
+        return (tools!=null) ? tools.getPopupMenu(geoEvent) : null;
     }
 
     /**
@@ -1043,7 +1196,7 @@ public class Renderer {
      * traçage sera plus lent, le temps que <code>Renderer</code> reconstruise les
      * caches internes.
      */
-    private void clearCache() {
+    private synchronized void clearCache() {
         for (int i=layerCount; --i>=0;) {
             layers[i].clearCache();
         }
@@ -1057,7 +1210,7 @@ public class Renderer {
      * son travail. Après l'appel de cette méthode, on ne doit plus utiliser ni cet objet
      * <code>Renderer</code> ni aucune des couches <code>RenderedLayer</code> qu'il contenait.
      */
-    public void dispose() {
+    public synchronized void dispose() {
         final RenderedLayer[] layers = new RenderedLayer[layerCount];
         System.arraycopy(this.layers, 0, layers, 0, layerCount);
         removeAllLayers();

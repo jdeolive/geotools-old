@@ -43,6 +43,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.AffineTransform;
+import javax.swing.JComponent;
 
 // User interface and Java2D rendering
 import java.awt.Component;
@@ -75,7 +76,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@link RendereringContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.1 2003/01/23 12:13:20 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.2 2003/01/23 23:26:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
@@ -193,6 +194,13 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Returns the lock for synchronisation.
+     */
+    private Object getTreeLock() {
+        return (renderer!=null) ? (Object)renderer : (Object)this;
+    }
+
+    /**
      * Returns this layer's name. Default implementation returns class name and its z-order.
      *
      * @param  locale The desired locale, or <code>null</code> for a default locale.
@@ -203,6 +211,19 @@ public abstract class RenderedLayer {
      */
     public String getName(final Locale locale) {
         return Utilities.getShortClassName(this) + '[' + getZOrder() + ']';
+    }
+
+    /**
+     * Returns to locale for this layer. The renderer will inherit
+     * the locale of its {@link Renderer}, if he have one. Otherwise,
+     * a default locale will be returned.
+     *
+     * @see Renderer#getLocale
+     * @see Component#getLocale
+     */
+    public Locale getLocale() {
+        final Renderer renderer = this.renderer;
+        return (renderer!=null) ? renderer.getLocale() : JComponent.getDefaultLocale();
     }
 
     /**
@@ -229,11 +250,9 @@ public abstract class RenderedLayer {
      * @throws TransformException If <code>cs</code> can't be reduced to a two-dimensional
      *         coordinate system., or if data can't be transformed for some other reason.
      */
-    public void setCoordinateSystem(final CoordinateSystem cs)
-            throws TransformException
-    {
+    protected void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
         final CoordinateSystem oldCS;
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             oldCS = coordinateSystem;
             coordinateSystem = CTSUtilities.getCoordinateSystem2D(cs);
         }
@@ -269,7 +288,7 @@ public abstract class RenderedLayer {
      */
     public void setPreferredArea(final Rectangle2D area) {
         final Rectangle2D oldArea;
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             paintedArea = null;
             oldArea = preferredArea;
             preferredArea = (area!=null) ? (Rectangle2D)area.clone() : null;
@@ -305,7 +324,7 @@ public abstract class RenderedLayer {
      */
     public void setPreferredPixelSize(final Dimension2D size) {
         final Dimension2D oldSize;
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             stroke = null;
             oldSize = preferredPixelSize;
             preferredPixelSize = (size!=null) ? (Dimension2D)size.clone() : null;
@@ -337,7 +356,7 @@ public abstract class RenderedLayer {
             throw new IllegalArgumentException(String.valueOf(zOrder));
         }
         final float oldZOrder;
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             oldZOrder = this.zOrder;
             if (zOrder == oldZOrder) {
                 return;
@@ -368,7 +387,7 @@ public abstract class RenderedLayer {
      */
     public void setTools(final Tools tools) {
         final Tools oldTools;
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             oldTools = this.tools;
             this.tools = tools;
         }
@@ -404,7 +423,7 @@ public abstract class RenderedLayer {
      * </ul>
      */
     public void setVisible(final boolean visible) {
-        synchronized (this) {
+        synchronized (getTreeLock()) {
             if (visible == this.visible) {
                 return;
             }
@@ -529,11 +548,11 @@ public abstract class RenderedLayer {
      * @param clipBounds The area to paint, in device coordinates
      *        ({@link RenderingContext#deviceCS}).
      */
-    final synchronized void update(final RenderingContext context,
+    final void update(final RenderingContext context,
                                    final Rectangle clipBounds)
             throws TransformException
     {
-        if (visible) {
+        if (visible) synchronized (getTreeLock()) {
             if (paintedArea==null || clipBounds==null || paintedArea.intersects(clipBounds)) {
                 long time = System.currentTimeMillis();
                 context.paintedArea = null;
@@ -563,6 +582,25 @@ public abstract class RenderedLayer {
     }
 
     /**
+     * Tells if this layer <strong>may</strong> contains the specified point. This method
+     * performs only a fast check. Subclasses will have to perform a more exhautive check
+     * in their {@link #mouseClicked}, {@link #getPopupMenu} and similar methods. The
+     * coordinate system is the {@link RenderingContext#textCS} used the last time this
+     * layer was rendered.
+     *
+     * @param  x <var>x</var> coordinate.
+     * @param  y <var>y</var> coordinate.
+     * @return <code>true</code> if this layer is visible and may contains the specified point.
+     */
+    final boolean contains(final int x, final int y) {
+        if (visible) {
+            final Shape paintedArea = this.paintedArea;
+            return (paintedArea==null) || paintedArea.contains(x,y);
+        }
+        return false;
+    }
+
+    /**
      * Add a property change listener to the listener list. The listener is registered
      * for all properties. For example, methods {@link #setVisible}, {@link #setZOrder},
      * {@link #setPreferredArea}, {@link #setPreferredPixelSize} and {@link #setTools}
@@ -584,32 +622,6 @@ public abstract class RenderedLayer {
      */
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         listeners.removePropertyChangeListener(listener);
-    }
-
-    /**
-     * Efface les données qui avaient été conservées dans une cache interne. L'appel
-     * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
-     * sera appelée lorsque qu'on aura déterminé que la couche <code>this</code>  ne
-     * sera plus affichée avant un certain temps.  Cette méthode ne doit pas changer
-     * le paramétrage de cette couche; son seul impact sera de rendre le prochain
-     * traçage un peu plus lent.
-     */
-    void clearCache() {
-        stroke = null;
-    }
-
-    /**
-     * Libère les ressources occupées par cette couche. Cette méthode est appelée automatiquement
-     * lorsqu'il a été déterminé que cette couche sera bientôt détruite.   Elle permet de libérer
-     * les ressources plus rapidement que si l'on attend que le ramasse-miettes fasse son travail.
-     */
-    protected synchronized void dispose() {
-        clearCache();
-        paintedArea = null;
-        final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
-        for (int i=list.length; --i>=0;) {
-            listeners.removePropertyChangeListener(list[i]);
-        }
     }
 
     /**
@@ -669,21 +681,30 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Tells if this layer <strong>may</strong> contains the specified point. This method
-     * performs only a fast check. Subclasses will have to perform a more exhautive check
-     * in their {@link #mouseClicked}, {@link #getPopupMenu} and similar methods. The
-     * coordinate system is the {@link RenderingContext#textCS} used the last time this
-     * layer was rendered.
-     *
-     * @param  x <var>x</var> coordinate.
-     * @param  y <var>y</var> coordinate.
-     * @return <code>true</code> if this layer is visible and may contains the specified point.
+     * Efface les données qui avaient été conservées dans une cache interne. L'appel
+     * de cette méthode permettra de libérer un peu de mémoire à d'autres fins. Elle
+     * sera appelée lorsque qu'on aura déterminé que la couche <code>this</code>  ne
+     * sera plus affichée avant un certain temps.  Cette méthode ne doit pas changer
+     * le paramétrage de cette couche; son seul impact sera de rendre le prochain
+     * traçage un peu plus lent.
      */
-    final boolean contains(final int x, final int y) {
-        if (visible) {
-            final Shape paintedArea = this.paintedArea;
-            return (paintedArea==null) || paintedArea.contains(x,y);
+    void clearCache() {
+        stroke = null;
+    }
+
+    /**
+     * Libère les ressources occupées par cette couche. Cette méthode est appelée automatiquement
+     * lorsqu'il a été déterminé que cette couche sera bientôt détruite.   Elle permet de libérer
+     * les ressources plus rapidement que si l'on attend que le ramasse-miettes fasse son travail.
+     */
+    protected void dispose() {
+        synchronized (getTreeLock()) {
+            clearCache();
+            paintedArea = null;
+            final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
+            for (int i=list.length; --i>=0;) {
+                listeners.removePropertyChangeListener(list[i]);
+            }
         }
-        return false;
     }
 }
