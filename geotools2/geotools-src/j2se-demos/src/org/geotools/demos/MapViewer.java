@@ -34,7 +34,7 @@ import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
 import org.geotools.feature.IllegalFeatureException;
 import org.geotools.gui.swing.MapPaneImpl;
-//import org.geotools.gui.swing.ToolMenu;
+import org.geotools.gui.swing.ToolMenu;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
@@ -60,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.17 2003/05/20 17:05:46 jmacgill Exp $
+ * @version $Id: MapViewer.java,v 1.18 2003/05/23 10:54:13 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -144,6 +144,7 @@ public class MapViewer {
     private void initComponents(MapPaneImpl mapPane) {
         // Create Menu for tools
         JMenuBar menuBar = new javax.swing.JMenuBar();
+
         // Create frame
         JFrame frame = new JFrame();
         frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -152,7 +153,7 @@ public class MapViewer {
                 }
             });
 
-//        ToolMenu toolMenu=new ToolMenu(context.getToolList());
+        ToolMenu toolMenu = new ToolMenu(context.getToolList());
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
         frame.getContentPane().setLayout(new BorderLayout());
@@ -160,36 +161,6 @@ public class MapViewer {
         frame.setTitle("Map Viewer");
         frame.pack();
         frame.show();
-    }
-
-    private void panActionPerformed(java.awt.event.ActionEvent evt) {
-        ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setSelectedTool(toolFactory.createPanTool());
-        LOGGER.info("Tool Event=" + evt.getActionCommand());
-    }
-
-    private void zoomInActionPerformed(java.awt.event.ActionEvent evt) {
-        ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setSelectedTool(toolFactory.createZoomTool(2));
-        LOGGER.info("Tool Event=" + evt.getActionCommand());
-    }
-
-    private void zoomOutActionPerformed(java.awt.event.ActionEvent evt) {
-        ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setSelectedTool(toolFactory.createZoomTool(0.5));
-        LOGGER.info("Tool Event=" + evt.getActionCommand());
-    }
-
-    private void zoomPanActionPerformed(java.awt.event.ActionEvent evt) {
-        ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setSelectedTool(toolFactory.createZoomTool(1));
-        LOGGER.info("Tool Event=" + evt.getActionCommand());
-    }
-
-    private void noToolActionPerformed(java.awt.event.ActionEvent evt) {
-        ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setSelectedTool(null);
-        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     /**
@@ -275,41 +246,10 @@ public class MapViewer {
 
         Feature lineFeature4 = lineFac.create(new Object[] { line4 });
 
-        //        Polygon polygon = makeSamplePolygon(geomFac,0,0);
-        //        
-        //        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
-        //        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygon");
-        //        FeatureFactory polygonFac = new FeatureFactory(polygonType);
-        //        
-        //        Feature polygonFeature = polygonFac.create(new Object[]{polygon});
-        //        
-        //        Polygon polygon2 = makeSamplePolygon(geomFac,0,150);
-        //        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest2");
-        //        polygonFac = new FeatureFactory(polygonType);
-        //        Feature polygonFeature2 = polygonFac.create(new Object[]{polygon2});
-        //        
-        //        Polygon polygon3 = makeSamplePolygon(geomFac,220,100);
-        //        polygonType = new FeatureTypeFlat(polygonAttribute).setTypeName("polygontest3");
-        //        polygonFac = new FeatureFactory(polygonType);
-        //        Feature polygonFeature3 = polygonFac.create(new Object[]{polygon3});
-        //        
-        //        
-        //        Point point = makeSamplePoint(geomFac,140.0,140.0);
-        //        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
-        //        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
-        //        FeatureFactory pointFac = new FeatureFactory(pointType);
-        //        
-        //        Feature pointFeature = pointFac.create(new Object[]{point});
-        //        MemoryDataSource datasource = new MemoryDataSource();
         dataSource.addFeature(lineFeature);
         dataSource.addFeature(lineFeature2);
         dataSource.addFeature(lineFeature3);
         dataSource.addFeature(lineFeature4);
-
-        //        datasource.addFeature(polygonFeature);
-        //        datasource.addFeature(polygonFeature2);
-        //        datasource.addFeature(polygonFeature3);
-        //        datasource.addFeature(pointFeature);
     }
 
     /**
