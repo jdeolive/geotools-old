@@ -63,8 +63,9 @@
       <version>1.0</version>
     </dependency>
     <dependency>
-      <id>mm.mysql-2.0.14-bin</id>
-    </dependency>   
+      <id>mm.mysql</id>
+            <version>2.0.14</version>
+        </dependency>   
         <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
