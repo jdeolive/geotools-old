@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="gtbuild">
-
-<!-- Allow any user specific values to override the defaults -->
-<property file="${user.home}/build.properties"/>
-<!-- Allow user defaults for this project -->
-<property file="build.properties"/>
-<!-- Allow meta-project defaults for this project -->
-<property file="../gtbuild/build.properties"/>
-<!-- Set default values for the build -->
-<property file="project.properties"/>
-    <!-- once the reactor in maven is ready, this file will no longer be needed -->
     
     <target depends="install,sites" name="all">
         <!-- WRITEME -->
@@ -20,6 +10,7 @@
         <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:install-jar"/>
     </target>
     
     <target name="sites">
@@ -27,6 +18,7 @@
         <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:site"/>
     </target>
     
     
