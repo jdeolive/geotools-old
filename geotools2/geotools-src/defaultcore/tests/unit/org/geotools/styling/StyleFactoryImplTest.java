@@ -192,7 +192,7 @@ public class StyleFactoryImplTest extends TestCase {
         String[] names = {"Square", "Circle", "Triangle", "Star", "X", "Cross"};
         for(int i=0;i<names.length;i++){
             try{
-                java.lang.Class target = styleFactory.getClass();
+                Class target = styleFactory.getClass();
 //                System.out.println("About to load get"+names[i]+"Mark");
                 Method method = target.getMethod("get"+names[i]+"Mark",null);
 //                System.out.println("got method back " + method.toString());
