@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.7 2003/11/17 17:12:41 groldan Exp $
+ * @version $Id: SdeDataStore.java,v 1.8 2003/11/19 07:43:51 jive Exp $
  */
 public class SdeDataStore
 implements DataStore
@@ -55,6 +55,13 @@ implements DataStore
             throw new NullPointerException("null argument is not valid");
 
         this.connectionPool = connPool;
+    }
+    /**
+     * Not supported.
+     */
+    public void updateSchema(String typeName, FeatureType featureType)
+        throws IOException {
+        throw new UnsupportedOperationException("Arcsde does allow CS modifications");    
     }
 
     /**
@@ -366,6 +373,8 @@ implements DataStore
      *
      * @throws IOException DOCUMENT ME!
      */
+    // Jody - considering the following
+    // public FeatureReader getFeatureReader( Query, Transaction ) throws IOException, SchemaException
     public FeatureReader getFeatureReader(FeatureType featureType,
         Filter filter, Transaction transaction) throws IOException
     {
@@ -389,6 +398,8 @@ implements DataStore
         return sdeReader;
     }
 
+    // Jody - considering the following
+    // public FeatureSource getView( Query );
     /**
      * DOCUMENT ME!
      *
@@ -397,7 +408,7 @@ implements DataStore
      * @return DOCUMENT ME!
      *
      * @throws IOException DOCUMENT ME!
-     */
+     */        
     public FeatureSource getFeatureSource(String featureType)
         throws IOException
     {
