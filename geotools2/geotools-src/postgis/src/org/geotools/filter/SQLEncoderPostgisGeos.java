@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  * installed with GEOS support, to handle all the advanced spatial queries.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: SQLEncoderPostgisGeos.java,v 1.1 2003/10/31 18:51:23 cholmesny Exp $
+ * @version $Id: SQLEncoderPostgisGeos.java,v 1.2 2003/12/03 22:49:54 cholmesny Exp $
  */
 public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
     implements org.geotools.filter.FilterVisitor {
@@ -147,11 +147,31 @@ public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
         DefaultExpression left = (DefaultExpression) filter.getLeftGeometry();
         DefaultExpression right = (DefaultExpression) filter.getRightGeometry();
 
+        // Figure out if we need to constrain this query with the && constraint.
+        int literalGeometryCount = 0;
+
+        if ((left != null)
+                && (left.getType() == DefaultExpression.LITERAL_GEOMETRY)) {
+            literalGeometryCount++;
+        }
+
+        if ((right != null)
+                && (right.getType() == DefaultExpression.LITERAL_GEOMETRY)) {
+            literalGeometryCount++;
+        }
+
+        boolean constrainBBOX = (literalGeometryCount == 1);
+
         try {
+            out.write("(");
+
+            String closingParenthesis = ")";
+
             if (filterType == AbstractFilter.GEOMETRY_EQUALS) {
                 out.write("equals");
             } else if (filterType == AbstractFilter.GEOMETRY_DISJOINT) {
-                out.write("disjoint");
+                out.write("NOT (intersects");
+                closingParenthesis += ")";
             } else if (filterType == AbstractFilter.GEOMETRY_INTERSECTS) {
                 out.write("intersects");
             } else if (filterType == AbstractFilter.GEOMETRY_CROSSES) {
@@ -163,7 +183,7 @@ public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
             } else if (filterType == AbstractFilter.GEOMETRY_OVERLAPS) {
                 out.write("overlaps");
             } else if (filterType == AbstractFilter.GEOMETRY_BBOX) {
-                out.write("NOT disjoint");
+                out.write("intersects");
             } else if (filterType == AbstractFilter.GEOMETRY_TOUCHES) {
                 out.write("touches");
             } else {
@@ -189,6 +209,26 @@ public class SQLEncoderPostgisGeos extends SQLEncoderPostgis
             }
 
             out.write(")");
+
+            if (constrainBBOX) {
+                out.write(" AND ");
+
+                if (left == null) {
+                    out.write("\"" + defaultGeom + "\"");
+                } else {
+                    left.accept(this);
+                }
+
+                out.write(" && ");
+
+                if (right == null) {
+                    out.write("\"" + defaultGeom + "\"");
+                } else {
+                    right.accept(this);
+                }
+            }
+
+            out.write(closingParenthesis);
         } catch (java.io.IOException ioe) {
             log.warning("Unable to export filter" + ioe);
             throw new RuntimeException("io error while writing", ioe);
