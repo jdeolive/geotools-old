@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.2 2002/07/12 15:18:15 loxnard Exp $
+ * @version $Id: Filter.java,v 1.3 2002/07/22 16:31:07 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
@@ -87,5 +87,19 @@ public interface Filter {
      */
     Filter not();    
 
-    
+    /**
+     * Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     * 
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter, 
+     *                the method must call visitor.visit(this);
+     *                
+     */
+    void Accept(FilterVisitor visitor);
 }

@@ -36,7 +36,7 @@ import org.geotools.feature.*;
  * is enforced by the FilterAbstract class, which considers a BETWEEN operator
  * to be a math filter.
  * 
- * @version $Id: BetweenFilter.java,v 1.2 2002/07/12 12:44:29 loxnard Exp $
+ * @version $Id: BetweenFilter.java,v 1.3 2002/07/22 16:31:36 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class BetweenFilter extends CompareFilter {
@@ -71,6 +71,10 @@ public class BetweenFilter extends CompareFilter {
         }
     }
 
+    public Expression getMiddleValue(){
+        return middleValue;
+    }
+    
     /**
      * Determines whether or not a given feature is 'inside' this filter.
      *
@@ -95,9 +99,27 @@ public class BetweenFilter extends CompareFilter {
      * Returns a string representation of this filter.
      *
      * @return String representation of the between filter.
-     */
+     */ 
     public String toString() {
         return "[ " + leftValue.toString() + " < " + middleValue.toString() + " < " + rightValue.toString() + " ]";
+    }
+    
+    /** 
+     * Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void Accept(FilterVisitor visitor) {
+        visitor.visit(this);
     }
     
 }

@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.4 2002/07/15 11:47:36 ianturton Exp $
+ * @version $Id: LogicFilter.java,v 1.5 2002/07/22 16:31:36 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilter {
@@ -249,6 +249,23 @@ public class LogicFilter extends AbstractFilter {
         }
 
         return returnString;
+    }
+    
+    /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void Accept(FilterVisitor visitor) {
+        visitor.visit(this);
     }
     
 }

@@ -41,7 +41,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.2 2002/07/12 12:47:18 loxnard Exp $
+ * @version $Id: CompareFilter.java,v 1.3 2002/07/22 16:31:36 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilter extends AbstractFilter {
@@ -127,6 +127,14 @@ public class CompareFilter extends AbstractFilter {
 
     }
 
+    public Expression getLeftValue(){
+        return this.leftValue;
+    }
+    
+    public Expression getRightValue(){
+        return this.rightValue;
+    }
+    
     /**
      * Determines whether or not a given feature is 'inside' this filter.
      *
@@ -201,4 +209,21 @@ public class CompareFilter extends AbstractFilter {
         return "[ " + leftValue.toString() + operator + rightValue.toString() + " ]";        
     }
             
+    /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     */
+    public void Accept(FilterVisitor visitor) {
+        visitor.visit(this);
+    }
+
 }
