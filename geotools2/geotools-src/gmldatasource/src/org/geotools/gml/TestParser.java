@@ -42,10 +42,11 @@ public class TestParser {
     public static void main (String[] args) {
         
         // set URI from the command line and echo the submitted URI
-        if( args[0].equals("-g") ) {
+
+        if((args.length > 0) && args[0].equals("-g")) {
             parseGeometries(args[1]);
         }
-        else if( args[0].equals("-f") ) {
+        else if((args.length > 0) && args[0].equals("-f")) {
             parseFeatures(args[1]);
         }
         else {
