@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.8 2003/06/01 20:24:52 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.9 2003/06/02 21:55:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -261,7 +261,9 @@ final class PolygonAssembler implements Comparator {
     private void updateGeometryCollection() throws TransformException {
         collection.removeAll();
         for (int i=0; i<polylines.length; i++) {
-            collection.add(polylines[i]);
+            if (!polylines[i].isEmpty()) {
+                collection.add(polylines[i]);
+            }
         }
     }
 
@@ -966,7 +968,7 @@ final class PolygonAssembler implements Comparator {
             if (closed) break;
         }
         Polyline.LOGGER.log(LEVEL, "Reference point: "+startingPoint);
-        if (startingPoint.minDistanceSq > flatness) {
+        if (startingPoint.minDistanceSq > flatness*flatness) {
             throw new IllegalStateException("Reference point is too far away"); // TODO: localize
         }
         updateFermions();
@@ -987,6 +989,9 @@ final class PolygonAssembler implements Comparator {
         intersections.clear();
         for (int i=0; i<polylines.length; i++) {
             final Polyline iPath = polylines[i];
+            if (iPath.getPointCount() < 2) {
+                continue;
+            }
             /*
              * Met à jour la boîte de dialogue informant des
              * progrès de l'opération. Les progrès seront à
@@ -1320,6 +1325,9 @@ final class PolygonAssembler implements Comparator {
                 final Iterator iterator = getPolylines(otherIsoline).iterator();
                 while (iterator.hasNext()) {
                     final Polyline jPath=(Polyline) iterator.next();
+                    if (jPath.isEmpty()) {
+                        continue;
+                    }
                     boolean first = true;
                     do { // Cette boucle sera exécutée deux fois
                         double distanceSq;
@@ -1380,11 +1388,11 @@ final class PolygonAssembler implements Comparator {
             final List   collections = parent.extractCollections();
             final float  parentValue = parent.getValue();
             GeometryCollection refer = parent;
-            float delta = 0;
+            float delta = Float.POSITIVE_INFINITY;
             for (final Iterator it=references.iterator(); it.hasNext();) {
                 final GeometryCollection candidate = (GeometryCollection) it.next();
                 final float check = Math.abs(candidate.getValue() - parentValue);
-                if (check > delta) {
+                if (check>0 && check<delta) {
                     refer = candidate;
                     delta = check;
                 }

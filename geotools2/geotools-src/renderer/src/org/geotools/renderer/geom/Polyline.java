@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.16 2003/06/02 16:32:40 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.17 2003/06/02 21:55:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -419,7 +419,10 @@ public class Polyline extends Geometry {
      */
     static double getFlatness(final Shape shape) {
         final Rectangle2D bounds = shape.getBounds2D();
-        return 0.025*Math.max(bounds.getHeight(), bounds.getWidth());
+        final double dx = bounds.getWidth();
+        final double dy = bounds.getHeight();
+        return Math.max(0.025*Math.min(dx, dy),
+                        0.001*Math.max(dx, dy));
     }
 
 
@@ -2048,7 +2051,7 @@ public class Polyline extends Geometry {
      * Freeze this polyline. Once this method is invoked, no more points can
      * be added to the polyline and the coordinate system can't be changed.
      */
-    final void freeze() {
+    final synchronized void freeze() {
         frozen = true;
     }
 
