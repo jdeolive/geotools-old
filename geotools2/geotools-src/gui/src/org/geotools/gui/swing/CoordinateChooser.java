@@ -92,7 +92,6 @@ import org.geotools.pt.AngleFormat;
 
 // Resources
 import org.geotools.resources.XDimension2D;
-import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.SwingUtilities;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
@@ -108,7 +107,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.5 2003/05/30 18:26:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
@@ -179,7 +178,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.5 2003/05/30 18:26:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -420,8 +419,8 @@ public class CoordinateChooser extends JPanel {
         final double ymin = degrees(this.ymin,  true);
         final double xmax = degrees(this.xmax, false);
         final double ymax = degrees(this.ymax,  true);
-        return new XRectangle2D.Double(Math.min(xmin,xmax), Math.min(ymin,ymax),
-                                       Math.abs(xmax-xmin), Math.abs(ymax-ymin));
+        return new Rectangle2D.Double(Math.min(xmin,xmax), Math.min(ymin,ymax),
+                                      Math.abs(xmax-xmin), Math.abs(ymax-ymin));
     }
 
     /**
