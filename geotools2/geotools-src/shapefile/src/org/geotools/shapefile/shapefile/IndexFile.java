@@ -23,7 +23,7 @@ package org.geotools.shapefile.shapefile;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
-
+import java.lang.ref.SoftReference;
 
 
 /** IndexFile parser for .shx files.<br>
@@ -38,7 +38,6 @@ import java.nio.channels.*;
 public class IndexFile {
   
   private ShapefileHeader header = null;
-  private ReadableByteChannel channel;
   private int[] content;
 
   /** Load the index file from the given channel.
@@ -46,9 +45,8 @@ public class IndexFile {
    * @throws IOException If an error occurs.
    */  
   public IndexFile( ReadableByteChannel channel ) throws IOException {
-    this.channel = channel;
-    readHeader();
-    readRecords();
+    readHeader(channel);
+    readRecords(channel);
   }
   
   /** Get the header of this index file.
@@ -58,7 +56,7 @@ public class IndexFile {
     return header;
   }
   
-  private void readHeader() throws IOException {
+  private void readHeader(ReadableByteChannel channel) throws IOException {
     ByteBuffer buffer = ByteBuffer.allocateDirect(100);
     while (buffer.remaining() > 0)
       channel.read(buffer);
@@ -67,7 +65,7 @@ public class IndexFile {
     header.read(buffer, true);
   }
   
-  private void readRecords() throws IOException {
+  private void readRecords(ReadableByteChannel channel) throws IOException {
     int remaining = (header.getFileLength() * 2) - 100;
     ByteBuffer buffer = ByteBuffer.allocateDirect(remaining);
     buffer.order(ByteOrder.BIG_ENDIAN);
