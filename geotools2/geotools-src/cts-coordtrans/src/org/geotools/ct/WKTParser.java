@@ -49,6 +49,7 @@ import javax.media.jai.util.CaselessStringKey;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
+import org.geotools.cs.FactoryException;
 import org.geotools.resources.WKTFormat;
 import org.geotools.resources.WKTElement;
 import org.geotools.resources.cts.Resources;
@@ -60,7 +61,7 @@ import org.geotools.resources.DescriptorNaming;
  * Parser for <cite>Well Know Text</cite> (WKT).
  * Instances of this class are thread-safe.
  *
- * @version $Id: WKTParser.java,v 1.1 2002/10/10 14:44:21 desruisseaux Exp $
+ * @version $Id: WKTParser.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -95,7 +96,12 @@ final class WKTParser extends WKTFormat {
     private MathTransform parseParamMT(final WKTElement parent) throws ParseException {       
         final WKTElement    element = parent.pullElement("PARAM_MT");
         final String classification = element.pullString("classification");
-        ParameterList parameters = factory.getMathTransformProvider(classification).getParameterList();
+        ParameterList parameters;
+        try {
+            parameters = factory.getMathTransformProvider(classification).getParameterList();
+        } catch (FactoryException exception) {
+            throw element.parseFailed(exception, null);
+        }
         /*
          * Gets the list of parameters expecting an integer value.
          * All other parameters will be given a double value.
@@ -129,7 +135,11 @@ final class WKTParser extends WKTFormat {
             param.close();
         }
         element.close();
-        return factory.createParameterizedTransform(classification, parameters);
+        try {
+            return factory.createParameterizedTransform(classification, parameters);
+        } catch (FactoryException exception) {
+            throw element.parseFailed(exception, null);
+        }
     }    
     
     /**

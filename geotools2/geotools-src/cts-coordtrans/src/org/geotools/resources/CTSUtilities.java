@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.4 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.5 2003/01/18 12:58:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -286,22 +286,22 @@ public final class CTSUtilities {
      * forme peut varier.
      */
     public static String toWGS84String(final CoordinateSystem cs, Rectangle2D bounds) {
-        StringBuffer buffer=new StringBuffer();
+        StringBuffer buffer = new StringBuffer();
         try {
             if (!GeographicCoordinateSystem.WGS84.equals(cs, false)) {
                 final CoordinateTransformation tr = CoordinateTransformationFactory.getDefault().
                                createFromCoordinateSystems(cs, GeographicCoordinateSystem.WGS84);
                 bounds = transform((MathTransform2D) tr.getMathTransform(), bounds, null);
             }
-            final AngleFormat fmt=new AngleFormat("DD°MM.m'");
-            buffer=fmt.format(new  Latitude(bounds.getMinY()), buffer, null); buffer.append('-');
-            buffer=fmt.format(new  Latitude(bounds.getMaxY()), buffer, null); buffer.append(' ');
-            buffer=fmt.format(new Longitude(bounds.getMinX()), buffer, null); buffer.append('-');
-            buffer=fmt.format(new Longitude(bounds.getMaxX()), buffer, null);
+            final AngleFormat fmt = new AngleFormat("DD°MM.m'");
+            buffer = fmt.format(new  Latitude(bounds.getMinY()), buffer, null); buffer.append('-');
+            buffer = fmt.format(new  Latitude(bounds.getMaxY()), buffer, null); buffer.append(' ');
+            buffer = fmt.format(new Longitude(bounds.getMinX()), buffer, null); buffer.append('-');
+            buffer = fmt.format(new Longitude(bounds.getMaxX()), buffer, null);
         } catch (TransformException exception) {
             buffer.append(Utilities.getShortClassName(exception));
-            final String message=exception.getLocalizedMessage();
-            if (message!=null) {
+            final String message = exception.getLocalizedMessage();
+            if (message != null) {
                 buffer.append(": ");
                 buffer.append(message);
             }

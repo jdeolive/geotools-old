@@ -35,6 +35,7 @@ import junit.framework.TestSuite;
 /**
  * Test serialization of a {@link CoordinateTransformation} class.
  *
+ * @version $Id: SerializationTest.java,v 1.3 2003/01/18 12:58:33 desruisseaux Exp $
  * @author Vadim Semenov
  * @author Martin Desruisseaux
  */
@@ -75,6 +76,58 @@ public class SerializationTest extends TestCase {
             record.setSourceMethodName("testCoordinateTransformation");
             record.setThrown(exception);
             Logger.getLogger("org.geotools.ct").log(record);
+        }
+    }
+
+    /**
+     * Tests the serialization of many {@link CoordinateTransformation} objects.
+     */
+    public static void testCoordinateTransformations() throws Exception {
+        final String cs1_name  = "4326";
+        final int cs2_ranges[] = {4326,  4326,
+                                  4322,  4322,
+                                  4269,  4269,
+                                  4267,  4267,
+                                  4230,  4230,
+                                 32601, 32661,
+                                 32701, 32761,
+                                  2759,  2930};
+
+        CoordinateSystem cs1=null, cs2=null;
+        for (int irange=0; irange<cs2_ranges.length; irange+=2) {
+            int range_start = cs2_ranges[irange  ];
+            int range_end   = cs2_ranges[irange+1];
+            for (int isystem2=range_start; isystem2<=range_end; isystem2++) {
+                try {
+                    CoordinateSystemAuthorityFactory csf = CoordinateSystemEPSGFactory.getDefault();
+                    CoordinateTransformationFactory  ctf = CoordinateTransformationFactory.getDefault();
+                    if (cs1 == null) {
+                        System.out.println("Create base CoordinateSystem "+cs1_name);
+                        cs1 = csf.createCoordinateSystem(cs1_name);
+                    }
+                    String cs2_name = Integer.toString(isystem2);
+                    System.out.println("Create CoordinateSystem "+cs2_name);
+                    cs2 = csf.createCoordinateSystem(cs2_name);
+
+                    System.out.println("Create CoordinateTransform "+cs1_name+" -> "+cs2_name);
+                    CoordinateTransformation ct = ctf.createFromCoordinateSystems(cs1, cs2);
+
+                    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                    ObjectOutputStream so = new ObjectOutputStream(buffer);
+                    so.writeObject(ct);
+                    so.close();
+
+                    ObjectInputStream si = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()));
+                    Object obj = si.readObject();
+                    si.close();
+
+                    assertEquals("Serialized object not the same", ct, obj);
+                } catch (Exception e) {
+                    // Do not throw the exception for now, since
+                    // this test is not yet fully successful.
+                    e.printStackTrace(System.out);
+                }
+            }
         }
     }
 }

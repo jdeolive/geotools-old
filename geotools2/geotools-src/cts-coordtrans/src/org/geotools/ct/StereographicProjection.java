@@ -60,7 +60,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version 1.0
+ * @version $Id: StereographicProjection.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -514,7 +514,7 @@ choice: switch (mode) {
     /**
      * Informations about a {@link StereographicProjection}.
      *
-     * @version 1.0
+     * @version $Id: StereographicProjection.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MapProjection.Provider {
@@ -561,7 +561,7 @@ choice: switch (mode) {
         /**
          * Create a new map projection.
          */
-        protected Object create(final Projection parameters) {
+        protected Object create(final Projection parameters) throws MissingParameterException {
             return new StereographicProjection(parameters, polar, auto);
         }
     }

@@ -41,13 +41,20 @@ import org.geotools.resources.cts.ResourceKeys;
 
 
 /**
- * Thrown if {@link CoordinateSystemAuthorityFactory}
+ * Thrown when a {@link CoordinateSystemAuthorityFactory}
  * can't find a requested authority code.
  *
- * @version $Id: NoSuchAuthorityCodeException.java,v 1.3 2002/07/29 18:00:24 desruisseaux Exp $
+ * @version $Id: NoSuchAuthorityCodeException.java,v 1.4 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see CoordinateSystemAuthorityFactory#createCoordinateSystem
  */
 public class NoSuchAuthorityCodeException extends FactoryException {
+    /**
+     * Serial number for interoperability with different versions.
+     */
+    private static final long serialVersionUID = -1493339637440326131L;
+
     /**
      * Constructs an exception with no message.
      */

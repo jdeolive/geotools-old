@@ -37,7 +37,6 @@ package org.geotools.ct;
 
 // J2SE dependencies
 import java.util.Locale;
-import java.util.NoSuchElementException;
 import java.text.ParseException;
 import java.awt.geom.Point2D;
 import java.awt.geom.AffineTransform;
@@ -108,7 +107,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.15 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.16 2003/01/18 12:58:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -482,15 +481,17 @@ public class MathTransformFactory {
      *         are ignored, and comparaison is case-insensitive.
      * @param  parameters The parameter values in standard units.
      * @return The parameterized transform.
-     * @throws NoSuchElementException if there is no transform for the specified classification.
+     * @throws NoSuchClassificationException if there is no transform for the specified
+     *         classification.
      * @throws MissingParameterException if a parameter was required but not found.
+     * @throws FactoryException if the math transform creation failed from some other reason.
      *
      * @see org.opengis.ct.CT_MathTransformFactory#createParameterizedTransform
      * @see #getAvailableTransforms
      */
     public MathTransform createParameterizedTransform(String classification,
                                                       final ParameterList parameters)
-        throws NoSuchElementException, MissingParameterException
+            throws FactoryException
     {
         final MathTransform transform;
         classification = classification.trim();
@@ -506,11 +507,12 @@ public class MathTransformFactory {
      *
      * @param  projection The projection.
      * @return The parameterized transform.
-     * @throws NoSuchElementException if there is no transform for the specified projection.
+     * @throws NoSuchClassificationException if there is no transform for the specified projection.
      * @throws MissingParameterException if a parameter was required but not found.
+     * @throws FactoryException if the math transform creation failed from some other reason.
      */
     public MathTransform createParameterizedTransform(final Projection projection)
-            throws NoSuchElementException, MissingParameterException
+            throws FactoryException
     {
         return createParameterizedTransform(projection.getClassName(),
                                             projection.getParameters());
@@ -542,11 +544,11 @@ public class MathTransformFactory {
      *         returned by {@link #getAvailableTransforms}. Leading and
      *         trailing spaces are ignored. Comparisons are case-insensitive.
      * @return The provider for a math transform.
-     * @throws NoSuchElementException if there is no provider registered
+     * @throws NoSuchClassificationException if there is no provider registered
      *         with the specified classification name.
      */
     public MathTransformProvider getMathTransformProvider(String classification)
-            throws NoSuchElementException
+            throws NoSuchClassificationException
     {
         classification = classification.trim();
         for (int i=0; i<providers.length; i++) {
@@ -554,8 +556,7 @@ public class MathTransformFactory {
                 return providers[i];
             }
         }
-        throw new NoSuchElementException(Resources.format(
-                ResourceKeys.ERROR_NO_TRANSFORM_FOR_CLASSIFICATION_$1, classification));
+        throw new NoSuchClassificationException(null, classification);
     }
     
     /**
@@ -586,13 +587,14 @@ public class MathTransformFactory {
      * @return The provider for an affine transform.
      * @throws IllegalArgumentException if <code>numRow</code>
      *         or <code>numCol</code> is not a positive number.
+     * @throws FactoryException if the provider can't be created from some other reason.
      *
      * @deprecated Use {@link #getMathTransformProvider} instead. The generic method now
      *             use an "extensible" {@link ParameterList}, which may growth or shrink
      *             according the change in matrix size.
      */
     public MathTransformProvider getAffineTransformProvider(final int numRow, final int numCol)
-            throws IllegalArgumentException
+            throws IllegalArgumentException, FactoryException
     {
         return new MatrixTransform.Provider();
     }
@@ -686,7 +688,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.15 2003/01/15 21:46:34 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.16 2003/01/18 12:58:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
@@ -741,8 +743,12 @@ public class MathTransformFactory {
                                                              final CT_Parameter[] parameters)
             throws RemoteException
         {
-            return adapters.export(MathTransformFactory.this.createParameterizedTransform(
-                    classification, adapters.wrap(parameters)));
+            try {
+                return adapters.export(MathTransformFactory.this.createParameterizedTransform(
+                        classification, adapters.wrap(parameters)));
+            } catch (FactoryException exception) {
+                throw serverException(exception);
+            }
         }
         
         /**

@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.11 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.12 2003/01/18 12:58:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -215,8 +215,7 @@ public class Projection extends Info {
      *
      * @param  name Parameter to look for.
      * @return The parameter value.
-     * @throws MissingParameterException if parameter <code>name</code> is
-     *         not found.
+     * @throws MissingParameterException if parameter <code>name</code> is not found.
      */
     public double getValue(final String name) throws MissingParameterException {
         return getValue(parameters, name, Double.NaN, true);
@@ -233,7 +232,12 @@ public class Projection extends Info {
      *         if the parameter <code>name</code> is not found.
      */
     public double getValue(final String name, final double defaultValue) {
-        return getValue(parameters, name, defaultValue, false);
+        try {
+            return getValue(parameters, name, defaultValue, false);
+        } catch (MissingParameterException exception) {
+            // Should not happen
+            throw new AssertionError(exception);
+        }
     }
     
     /**
@@ -252,7 +256,10 @@ public class Projection extends Info {
      * @throws MissingParameterException if <code>required</code> is <code>true</code>
      *         and parameter <code>name</code> is not found.
      */
-    private static double getValue(final ParameterList parameters, String name, final double defaultValue, final boolean required) throws MissingParameterException {
+    private static double getValue(final ParameterList parameters, String name,
+                                   final double defaultValue, final boolean required)
+            throws MissingParameterException
+    {
         name = name.trim();
         RuntimeException cause=null;
         if (parameters!=null) {
@@ -279,7 +286,7 @@ public class Projection extends Info {
             return defaultValue;
         }
         final MissingParameterException exception = new MissingParameterException(null, name);
-        if (cause!=null) {
+        if (cause != null) {
             exception.initCause(cause);
         }
         throw exception;

@@ -36,9 +36,10 @@
 package org.geotools.ct;
 
 // Geotools dependencies
-import org.geotools.cs.Projection;
-import org.geotools.pt.Longitude;
 import org.geotools.pt.Latitude;
+import org.geotools.pt.Longitude;
+import org.geotools.cs.Projection;
+import org.geotools.cs.FactoryException;
 
 // Resources
 import org.geotools.resources.XArray;
@@ -65,7 +66,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <strong>Note: this class is not part of OpenGIS specification and
  * may change in a future version. Do not rely strongly on it.</strong>
  *
- * @version $Id: MathTransformProvider.java,v 1.3 2002/10/10 14:44:21 desruisseaux Exp $
+ * @version $Id: MathTransformProvider.java,v 1.4 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MathTransformProvider {
@@ -399,10 +400,11 @@ public abstract class MathTransformProvider {
      *
      * @param  parameters The parameter values in standard units.
      * @return A {@link MathTransform} object of this classification.
+     * @throws FactoryException if the transform can't be created.
      *
      * @task REVISIT: Should it be protected?
      */
-    public abstract MathTransform create(final ParameterList parameters);
+    public abstract MathTransform create(final ParameterList parameters) throws FactoryException;
     
     /**
      * Returns a string representation for this provider.

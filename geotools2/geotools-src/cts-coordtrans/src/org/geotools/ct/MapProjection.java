@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.5 2003/01/18 12:58:32 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -791,7 +791,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.5 2003/01/18 12:58:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -823,7 +823,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.5 2003/01/18 12:58:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
@@ -841,7 +841,9 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
         /**
          * Create a new map projection for a parameter list.
          */
-        public final MathTransform create(final ParameterList parameters) {
+        public final MathTransform create(final ParameterList parameters)
+                throws MissingParameterException
+        {
             return (MathTransform)create(new Projection("Generated", getClassName(), parameters));
         }
         
@@ -852,6 +854,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
          * etc.) before than necessary. Changing the returns type to
          * Object is a trick to avoid too early class loading...
          */
-        protected abstract Object create(final Projection parameters);
+        protected abstract Object create(final Projection parameters)
+                throws MissingParameterException;
     }
 }

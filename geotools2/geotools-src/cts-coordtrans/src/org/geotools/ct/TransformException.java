@@ -38,13 +38,22 @@ package org.geotools.ct;
 
 /**
  * Common superclass for a number of transformation-related exceptions.
- * It may be thrown by {@link MathTransform} when a coordinate can't be
- * transformed. It may also be thrown when a coordinate transformation
- * can't be created or inverted.
+ * <code>TransformException</code> are thrown by {@link MathTransform} when a coordinate
+ * transformation can't be {@linkplain MathTransform#inverse inverted}
+ * ({@link NoninvertibleTransformException}), when the
+ * {@linkplain MathTransform#derivative derivative} can't be computed or when a coordinate
+ * can't be {@linkplain MathTransform#transform(CoordinatePoint,CoordinatePoint) transformed}.
+ * It is also thrown when {@link CoordinateTransformationFactory} fails to find a path
+ * between two coordinate systems.
  *
- * @version 1.0
+ * @version $Id: TransformException.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
+ *
+ * @see MathTransform#inverse
+ * @see MathTransform#derivative
+ * @see MathTransform#transform(CoordinatePoint,CoordinatePoint)
+ * @see CoordinateTransformationFactory#createFromCoordinateSystems
  */
 public class TransformException extends Exception {
     /**

@@ -38,6 +38,7 @@ package org.geotools.ct;
 // Geotools dependences
 import org.geotools.cs.Datum;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.FactoryException;
 
 // Resources
 import org.geotools.resources.Utilities;
@@ -50,7 +51,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * It may be because there is no known path between source and coordinate systems,
  * or because the requested transformation is not available in the environment.
  *
- * @version $Id: CannotCreateTransformException.java,v 1.2 2002/10/07 22:49:55 desruisseaux Exp $
+ * @version $Id: CannotCreateTransformException.java,v 1.3 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CannotCreateTransformException extends TransformException {
@@ -71,23 +72,35 @@ public class CannotCreateTransformException extends TransformException {
     public CannotCreateTransformException(final String message) {
         super(message);
     }
-    
-    /**
-     * Construct an exception with the specified cause.
-     */
-    CannotCreateTransformException(final Exception cause) {
-        super(cause.getLocalizedMessage(), cause);
-    }
-    
+
     /**
      * Construct an exception with a message stating that no transformation
-     * path has been found between the specified coordinate system.
+     * path has been found between the specified coordinate systems.
+     *
+     * @param sourceCS The source coordinate system.
+     * @param targetCS The target coordinate system.
      */
     public CannotCreateTransformException(final CoordinateSystem sourceCS,
                                           final CoordinateSystem targetCS)
     {
-        this(Resources.format(ResourceKeys.ERROR_NO_TRANSFORMATION_PATH_$2,
-                              getName(sourceCS), getName(targetCS)));
+        super(Resources.format(ResourceKeys.ERROR_NO_TRANSFORMATION_PATH_$2,
+                               getName(sourceCS), getName(targetCS)));
+    }
+    
+    /**
+     * Construct an exception with a message stating that no transformation
+     * path has been found between the specified coordinate systems.
+     *
+     * @param sourceCS The source coordinate system.
+     * @param targetCS The target coordinate system.
+     * @param cause    The cause for the failure.
+     */
+    public CannotCreateTransformException(final CoordinateSystem sourceCS,
+                                          final CoordinateSystem targetCS,
+                                          final Throwable           cause)
+    {
+        super(Resources.format(ResourceKeys.ERROR_NO_TRANSFORMATION_PATH_$2,
+                               getName(sourceCS), getName(targetCS)), cause);
     }
     
     /**

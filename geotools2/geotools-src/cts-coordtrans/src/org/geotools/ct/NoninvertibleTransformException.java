@@ -37,11 +37,13 @@ package org.geotools.ct;
 
 
 /**
- * Thrown when {@link MathTransform#inverse}
- * is invoked but the transform can't be inverted.
+ * Thrown when {@link MathTransform#inverse} is
+ * invoked but the transform can't be inverted.
  *
- * @version 1.0
+ * @version $Id: NoninvertibleTransformException.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see MathTransform#inverse
  */
 public class NoninvertibleTransformException extends TransformException {
     /**

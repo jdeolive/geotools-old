@@ -37,15 +37,19 @@ package org.geotools.cs;
 
 
 /**
- * Thrown to indicate that a factory operation could not complete because of
+ * Thrown to indicate that a factory operation could not complete. The reason may
+ * be a failure to find the authority code ({@link NoSuchAuthorityCodeException}),
  * a failure in the backing store, or a failure to contact the backing store.
- * The most common reason is a failure to find the authority code, which is
- * indicated by {@link NoSuchAuthorityCodeException}.
  *
- * @version $Id: FactoryException.java,v 1.2 2002/06/05 15:39:57 loxnard Exp $
+ * @version $Id: FactoryException.java,v 1.3 2003/01/18 12:58:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class FactoryException extends Exception {
+    /**
+     * Serial number for interoperability with different versions.
+     */
+    private static final long serialVersionUID = -5005950435657697280L;
+
     /**
      * Constructs an exception with no message.
      */

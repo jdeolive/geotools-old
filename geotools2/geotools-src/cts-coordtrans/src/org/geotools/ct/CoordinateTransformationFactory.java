@@ -40,7 +40,6 @@ import java.util.Arrays;
 import java.rmi.RemoteException;
 import java.rmi.ServerException;
 import java.rmi.server.RemoteObject;
-import java.util.NoSuchElementException;
 import java.awt.geom.AffineTransform;
 import java.lang.ref.WeakReference;
 import java.lang.ref.Reference;
@@ -72,6 +71,7 @@ import org.geotools.cs.GeocentricCoordinateSystem;
 import org.geotools.cs.HorizontalCoordinateSystem;
 import org.geotools.cs.VerticalCoordinateSystem;
 import org.geotools.cs.TemporalCoordinateSystem;
+import org.geotools.cs.FactoryException;
 import org.geotools.pt.Dimensioned;
 
 // Resources
@@ -85,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.11 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.12 2003/01/18 12:58:32 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1108,9 +1108,8 @@ public class CoordinateTransformationFactory {
         MathTransform mapProjection;
         try {
             mapProjection = factory.createParameterizedTransform(projection);
-        } catch (NoSuchElementException exception) {
-            // REVISIT: Should MathTransform throws FactoryException instead?
-            throw new CannotCreateTransformException(exception);
+        } catch (FactoryException exception) {
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
         }
         final CoordinateTransformation step1 = createTransformationStep(sourceCS,   sourceVCS,
                                                                         stepGeoCS,  targetVCS);
@@ -1149,9 +1148,7 @@ public class CoordinateTransformationFactory {
         try {
             return createTransformationStep(targetCS, targetVCS, sourceCS, sourceVCS).inverse();
         } catch (NoninvertibleTransformException exception) {
-            final CannotCreateTransformException e = new CannotCreateTransformException(sourceCS, targetCS);
-            e.initCause(exception);
-            throw e;
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
         }
     }
     
@@ -1220,9 +1217,7 @@ public class CoordinateTransformationFactory {
             step4.mul(step2); // step4 = step4*step3*step2
             step4.mul(step1); // step4 = step4*step3*step2*step1
         } catch (SingularMatrixException exception) {
-            final CannotCreateTransformException e = new CannotCreateTransformException(sourceCS, targetCS);
-            e.initCause(exception);
-            throw e;
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
         }
         final MathTransform transform = factory.createAffineTransform(step4);
         return createFromMathTransform(sourceCS, targetCS, transform);
@@ -1279,7 +1274,12 @@ public class CoordinateTransformationFactory {
         final Ellipsoid   ellipsoid = datum.getEllipsoid();
         final Unit             unit = ellipsoid.getAxisUnit();
         final int   sourceDimension = step1.getTargetCS().getDimension();
-        ParameterList param = factory.getMathTransformProvider(classification).getParameterList();
+        ParameterList param;
+        try {
+            param = factory.getMathTransformProvider(classification).getParameterList();
+        } catch (NoSuchClassificationException exception) {
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
+        }
         param = param.setParameter("semi_major", Unit.METRE.convert(ellipsoid.getSemiMajorAxis(), unit));
         param = param.setParameter("semi_minor", Unit.METRE.convert(ellipsoid.getSemiMinorAxis(), unit));
         try {
@@ -1293,7 +1293,12 @@ public class CoordinateTransformationFactory {
                 throw exception;
             }
         }
-        final MathTransform transform = factory.createParameterizedTransform(classification, param);
+        final MathTransform transform;
+        try {
+            transform = factory.createParameterizedTransform(classification, param);
+        } catch (FactoryException exception) {
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
+        }
         /*
          * Last steps: create the transformation from the "standardized"
          * to the target geocentric coordinate systems.
@@ -1325,9 +1330,7 @@ public class CoordinateTransformationFactory {
         try {
             return createTransformationStep(targetCS, verticalCS, sourceCS).inverse();
         } catch (NoninvertibleTransformException exception) {
-            final CannotCreateTransformException e = new CannotCreateTransformException(sourceCS, targetCS);
-            e.initCause(exception);
-            throw e;
+            throw new CannotCreateTransformException(sourceCS, targetCS, exception);
         }
     }
     
