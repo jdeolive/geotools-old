@@ -118,6 +118,7 @@ public class StyleBuilder {
         PolygonSymbolizer ps = sf.createPolygonSymbolizer();
         ps.setStroke(stroke);
         ps.setFill(fill);
+        
 
         return ps;
     }
@@ -167,7 +168,7 @@ public class StyleBuilder {
         fts.setRules(new Rule[] { r });
 
         if (featureTypeStyleName != null) {
-            fts.setName(featureTypeStyleName);
+            fts.setFeatureTypeName(featureTypeStyleName);
         }
 
         // and finally create the style
