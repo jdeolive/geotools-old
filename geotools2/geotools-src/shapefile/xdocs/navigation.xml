@@ -19,7 +19,7 @@
         <links>
       <item name="core" href="http://core.geotools.org"></item>
       <item name="defaultcore" href="http://defaultcore.geotools.org"></item>
-      <item name="filter" href="http://shapefile.geotools.org"></item>
+      <item name="shapefile" href="http://shapefile.geotools.org"></item>
     </links>
     </body>
 </project>
