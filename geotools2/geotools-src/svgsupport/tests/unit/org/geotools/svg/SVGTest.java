@@ -22,6 +22,7 @@ import org.geotools.feature.FeatureCollectionDefault;
 
 import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.datasource.extents.EnvelopeExtent;
+import org.geotools.feature.FeatureCollection;
 
 
 
@@ -58,6 +59,13 @@ public class SVGTest extends TestCase {
        
    }
    
+   public void testBlueLake(){
+      String stylefile = "bluelake.sld"; 
+      String gmlfile = "bluelake.gml";
+  createSVG(stylefile,gmlfile,"bluelake.svg");
+       
+   }
+   
    public void testNameFilterSVG(){
       createSVG("nameFilter.sld", "simple.gml", "nameFilter.svg");       
    }
@@ -72,11 +80,10 @@ public class SVGTest extends TestCase {
             GenerateSVG gen = new GenerateSVG();
             URL url = new URL("file:///"+dataFolder+"/"+gmlfile);
             DataSource ds = new GMLDataSource(url);
-            FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-
+            FeatureCollection fc = ds.getFeatures(Query.ALL);
             
             
-            //EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
+            EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
             //r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
 
             //fc.getFeatures(r);
@@ -86,13 +93,14 @@ public class SVGTest extends TestCase {
             Map map = new DefaultMap();
             StyleFactory sFac = StyleFactory.createStyleFactory();
             SLDStyle reader = new SLDStyle(sFac,f);
-            Style[] style = reader.readXML();
+            Style style[] = reader.readXML();
             map.addFeatureTable(fc,style[0]);
-            System.out.println("schema for first feature is " + fc.getFeatures(new EnvelopeExtent(new Envelope(0,30,0,30)))[1].getSchema());
+            
+            System.out.println("schema for first feature is " + fc.getFeatures(r)[0].getSchema());
             //fc.getFeatures(new Extent())[0].getSchema();
             url = new URL("file:///"+dataFolder+"/"+outfile);
             FileOutputStream out = new FileOutputStream(url.getFile());
-            gen.go(map,new Envelope(0,30,0,30),out);
+            gen.go(map,r.getBounds(),out);
             
             
         

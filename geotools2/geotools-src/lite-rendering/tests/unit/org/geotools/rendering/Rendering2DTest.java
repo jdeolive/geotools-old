@@ -92,7 +92,7 @@ public class Rendering2DTest extends TestCase {
         datasource.addFeature(polygonFeature);
         datasource.addFeature(pointFeature);
         
-        FeatureCollection ft = new FeatureCollectionDefault(datasource);
+        FeatureCollection ft = datasource.getFeatures(Query.ALL);
         
         org.geotools.map.Map map = new DefaultMap();
         StyleFactory sFac = StyleFactory.createStyleFactory();

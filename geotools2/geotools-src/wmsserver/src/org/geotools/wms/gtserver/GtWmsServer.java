@@ -44,6 +44,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 import org.apache.commons.collections.LRUMap;
+import org.geotools.data.Query;
 import org.geotools.renderer.LegendImageGenerator;
 
 
@@ -148,7 +149,7 @@ public class GtWmsServer implements WMSServer {
                     continue;
                 }
                 
-                Feature[] list = temp.getFeatures();
+                Feature[] list = (Feature[])temp.toArray(new Feature[0]);
                 
                 if (list.length == 0) {
                     LOGGER.warning("Layer from " + url +
@@ -271,7 +272,7 @@ public class GtWmsServer implements WMSServer {
                 //LOGGER.fine("style object is a " + layerstyle[0]);
                 
                 DataSource ds = (DataSource) features.get(layers[i]);
-                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
+                FeatureCollection fc = ds.getFeatures(Query.ALL);
                 map.addFeatureTable(fc, layerstyle[0]);
             }
             
