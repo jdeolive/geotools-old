@@ -97,13 +97,7 @@ public class TextTest extends junit.framework.TestCase {
         ft.addAll(features);
         
         org.geotools.map.Map map = new org.geotools.map.DefaultMap();
-        //        String dataFolder = System.getProperty("dataFolder");
-        //        if(dataFolder==null){
-        //            //then we are being run by maven
-        //            dataFolder = System.getProperty("basedir");
-        //            if(dataFolder == null) dataFolder = ".";
-        //            dataFolder+="/tests/unit/testData";
-        //        }
+        
         java.net.URL url = getClass().getResource("testData/");
         java.io.File f = new java.io.File(url.getPath(),"textTest.sld");
         System.out.println("testing reader using "+f.toString());
@@ -135,9 +129,9 @@ public class TextTest extends junit.framework.TestCase {
         System.out.println("about to load "+file2+" to carry out checks");
         
         RenderedImage image2 = (RenderedImage) JAI.create("fileload", file2.toString());
-        
-        
         /*
+        
+        
         assertNotNull("Failed to load exemplar image",image2); 
         Raster data = image.getData();
         Raster data2 = image2.getData(); 
