@@ -25,6 +25,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.*;
 import javax.imageio.stream.ImageOutputStream;
@@ -88,9 +89,9 @@ public class WMSServlet extends HttpServlet {
     public static final String XML_VENDORSPECIFIC = "<?GEO VENDORSPECIFICCAPABILITIES ?>";
     public static final String XML_LAYERS = "<?GEO LAYERS ?>";
     public static final String XML_GETURL = "<?GEO GETURL ?>";
-    private static final int CACHE_SIZE = 200;
+    private static final int CACHE_SIZE = 20;
     private static Map allMaps;
-    private static Map nationalMaps = new HashMap();
+    private static Map nationalMaps;// = new HashMap();
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.wmsserver");
     ServletContext context = null;
@@ -98,7 +99,7 @@ public class WMSServlet extends HttpServlet {
     private Vector featureFormatters;
     private String getUrl;
     private int cacheSize = CACHE_SIZE;
-
+    private String[] outputTypes;
     /**
      * Override init() to set up data used by invocations of this servlet.
      *
@@ -168,11 +169,14 @@ public class WMSServlet extends HttpServlet {
                 LOGGER.warning("Bad cache size in setup: " + e);
             }
         }
-
-        LOGGER.fine("Setting cache to " + cacheSize);
-        allMaps = new LRUMap(cacheSize);
-        allMaps = Collections.synchronizedMap(allMaps);
-        nationalMaps = Collections.synchronizedMap(nationalMaps);
+        
+        LOGGER.info("Setting cache to " + cacheSize);
+        LRUMap allMapsBase = new LRUMap(cacheSize);
+        allMaps = Collections.synchronizedMap(allMapsBase);
+        LRUMap nationalMapsBase = new LRUMap(cacheSize);
+        nationalMaps = Collections.synchronizedMap(nationalMapsBase);
+        
+        outputTypes = ImageIO.getWriterMIMETypes();
     }
 
     /**
@@ -366,13 +370,23 @@ public class WMSServlet extends HttpServlet {
                 // instead of a default format we should try to give them the best image we can
                 // so check accept to see what they'll take
                 String accept = request.getHeader("Accept");
-                LOGGER.fine("browser accepts: " + accept);
-                LOGGER.fine("JAI supports: " + ImageIO.getWriterMIMETypes());
-
-                if (accept.indexOf("image/png") != -1) {
-                    format = "image/png";
+                if(LOGGER.getLevel()==Level.FINE){
+                    LOGGER.fine("browser accepts: " + accept);
+                    LOGGER.fine("JAI supports: ");
+                    for(int i=0;i<outputTypes.length;i++){
+                        LOGGER.fine("\t"+outputTypes[i]);
+                    }
+                }
+                // now we need to find the best overlap between these two lists;
+                if(accept !=null){
+                    for(int i=0;i<outputTypes.length;i++){
+                        if (accept.indexOf(outputTypes[i]) != -1) {
+                            format = outputTypes[i];
+                            break;
+                        }
+                    }
                 } else {
-                    // we should really check they grok jpegs too and check we're serving pngs
+                    // now might be a good time to throw an exception ??
                     format = DEFAULT_FORMAT;
                 }
             }
@@ -391,46 +405,48 @@ public class WMSServlet extends HttpServlet {
                 dBbox[i] = doubleParam(sBbox[i]);
 
             LOGGER.fine("Params check out - getting image");
-
-            CacheKey key = new CacheKey(request);
-            LOGGER.fine("About to request map with key = " + key +
-                " usecache " + useCache);
-
-            if ((((image = (BufferedImage) nationalMaps.get(key)) == null) &&
-                    ((image = (BufferedImage) allMaps.get(key)) == null)) ||
-                    (useCache == false)) {
+            CacheKey key = null;
+            if(useCache==true){
+                key = new CacheKey(request);
+            
+                LOGGER.fine("About to request map with key = " + key +
+                    " usecache " + useCache);
+            }
+            if ((useCache == false)||(((image = (BufferedImage) nationalMaps.get(key)) == null) &&
+                    ((image = (BufferedImage) allMaps.get(key)) == null))) {
                 // Get the image
                 image = server.getMap(layers, styles, srs, dBbox, width,
                         height, trans, bgcolor);
+                if(useCache == true){
+                    //if requested bbox = layer bbox then cache in nationalMaps
+                    Capabilities capabilities = server.getCapabilities();
+                    Rectangle2D rect = null;
 
-                //if requested bbox = layer bbox then cache in nationalMaps
-                Capabilities capabilities = server.getCapabilities();
-                Rectangle2D rect = null;
+                    for (int i = 0; i < layers.length; i++) {
+                        Capabilities.Layer l = capabilities.getLayer(layers[i]);
+                        double[] box = l.getBbox();
 
-                for (int i = 0; i < layers.length; i++) {
-                    Capabilities.Layer l = capabilities.getLayer(layers[i]);
-                    double[] box = l.getBbox();
-
-                    if (rect == null) {
-                        rect = new Rectangle2D.Double(box[0], box[1],
-                                box[2] - box[0], box[3] - box[1]);
-                    } else {
-                        rect.add(box[0], box[1]);
-                        rect.add(box[2], box[3]);
+                        if (rect == null) {
+                            rect = new Rectangle2D.Double(box[0], box[1],
+                                    box[2] - box[0], box[3] - box[1]);
+                        } else {
+                            rect.add(box[0], box[1]);
+                            rect.add(box[2], box[3]);
+                        }
                     }
-                }
 
-                Rectangle2D rbbox = new Rectangle2D.Double(dBbox[0], dBbox[1],
-                        dBbox[2] - dBbox[0], dBbox[3] - dBbox[1]);
-                LOGGER.fine("layers " + rect + " request " + rbbox);
+                    Rectangle2D rbbox = new Rectangle2D.Double(dBbox[0], dBbox[1],
+                            dBbox[2] - dBbox[0], dBbox[3] - dBbox[1]);
+                    LOGGER.fine("layers " + rect + " request " + rbbox);
 
-                if ((rbbox.getCenterX() == rect.getCenterX()) &&
-                        (rbbox.getCenterY() == rect.getCenterY())) {
-                    LOGGER.fine("Caching a national map with key " + key);
-                    nationalMaps.put(key, image);
-                } else {
-                    LOGGER.fine("all maps cache with key " + key);
-                    allMaps.put(key, image);
+                    if ((rbbox.getCenterX() == rect.getCenterX()) &&
+                            (rbbox.getCenterY() == rect.getCenterY())&&useCache==true) {
+                        LOGGER.fine("Caching a national map with key " + key);
+                        nationalMaps.put(key, image);
+                    } else if(useCache==true){
+                        LOGGER.fine("all maps cache with key " + key);
+                        allMaps.put(key, image);
+                    }
                 }
 
                 LOGGER.fine("Got image - sending response as " + format + " (" +
@@ -477,14 +493,16 @@ public class WMSServlet extends HttpServlet {
                     "Image generation failed because of: " +
                     exp.getStackTrace()[0] + "Check JAI configuration");
             }
-        }
+        }finally{
 
-        out.close();
+            out.close();
+            image = null;
+        }
     }
 
     /**
      * Gets an outputstream of the given image, formatted to the given mime
-     * format Currently only supports "image/jpeg"
+     * format 
      *
      * @param format The mime-type of the format for the image (image/jpeg)
      * @param image The image to be formatted
@@ -506,13 +524,19 @@ public class WMSServlet extends HttpServlet {
         }
 
         ImageWriter writer = (ImageWriter) it.next();
-
+        ImageOutputStream ioutstream = null;
         try {
-            ImageOutputStream ioutstream = ImageIO.createImageOutputStream(outStream);
+            ioutstream = ImageIO.createImageOutputStream(outStream);
             writer.setOutput(ioutstream);
             writer.write(image);
+            writer.dispose();
+            ioutstream.close();
         } catch (IOException ioexp) {
             throw new WMSException(null, "IOException : " + ioexp.getMessage());
+        } finally{
+            writer = null;
+            
+            ioutstream = null;
         }
     }
 
@@ -772,10 +796,10 @@ public class WMSServlet extends HttpServlet {
 
             // Map formats
             String mapFormats = "";
-            String[] types = ImageIO.getWriterMIMETypes();
+            
 
-            for (int i = 0; i < types.length; i++) {
-                mapFormats += ("<Format>" + types[i] + "</Format>");
+            for (int i = 0; i < outputTypes.length; i++) {
+                mapFormats += ("<Format>" + outputTypes[i] + "</Format>");
             }
 
             xml.replace(xml.toString().indexOf(XML_MAPFORMATS),
@@ -872,21 +896,21 @@ public class WMSServlet extends HttpServlet {
         for (int t = 0; t < tabIndex; t++)
             tab += "\t";
 
-        String xml = tab + "<Layer queryable=\"1\">\n";
+        StringBuffer xml = new StringBuffer(tab + "<Layer queryable=\"1\">\n");
 
         // Tab in a little
         if (root.name != null) {
-            xml += (tab + "<Name>" + root.name + "</Name>\n");
+            xml.append(tab + "<Name>" + root.name + "</Name>\n");
         }
 
-        xml += (tab + "<Title>" + root.title + "</Title>\n");
-        xml += (tab + "<Abstract></Abstract>\n");
-        xml += (tab + "<LatLonBoundingBox minx=\"" + root.bbox[0] +
+        xml.append(tab + "<Title>" + root.title + "</Title>\n");
+        xml.append(tab + "<Abstract></Abstract>\n");
+        xml.append(tab + "<LatLonBoundingBox minx=\"" + root.bbox[0] +
         "\" miny=\"" + root.bbox[1] + "\" maxx=\"" + root.bbox[2] +
         "\" maxy=\"" + root.bbox[3] + "\" />\n");
 
         if (root.srs != null) {
-            xml += (tab + "<SRS>" + root.srs + "</SRS>\n");
+            xml.append(tab + "<SRS>" + root.srs + "</SRS>\n");
         }
 
         // Styles
@@ -895,24 +919,24 @@ public class WMSServlet extends HttpServlet {
 
             while (styles.hasMoreElements()) {
                 Capabilities.Style s = (Capabilities.Style) styles.nextElement();
-                xml += (tab + "<Style>\n");
-                xml += (tab + "<Name>" + s.name + "</Name>\n");
-                xml += (tab + "<Title>" + s.title + "</Title>\n");
+                xml.append(tab + "<Style>\n");
+                xml.append(tab + "<Name>" + s.name + "</Name>\n");
+                xml.append(tab + "<Title>" + s.title + "</Title>\n");
 
                 //xml += tab+"<LegendUrl>"+s.legendUrl+"</LegenUrl>\n";
-                xml += (tab + "</Style>\n");
+                xml.append(tab + "</Style>\n");
             }
         }
 
         // Recurse child nodes
         for (int i = 0; i < root.layers.size(); i++) {
             Capabilities.Layer l = (Capabilities.Layer) root.layers.elementAt(i);
-            xml += layersToXml(l, tabIndex + 1);
+            xml.append(layersToXml(l, tabIndex + 1));
         }
 
-        xml += (tab + "</Layer>\n");
+        xml.append(tab + "</Layer>\n");
 
-        return xml;
+        return xml.toString();
     }
 
     /**
@@ -1047,10 +1071,11 @@ public class WMSServlet extends HttpServlet {
     }
 
     private void clearCache() {
-        allMaps = new LRUMap(cacheSize);
-        allMaps = Collections.synchronizedMap(allMaps);
-        nationalMaps = new HashMap();
-        nationalMaps = Collections.synchronizedMap(nationalMaps);
+        LRUMap allMapsBase = new LRUMap(cacheSize);
+        
+        allMaps = Collections.synchronizedMap(allMapsBase);
+        LRUMap nationalMapsBase = new LRUMap(cacheSize);
+        nationalMaps = Collections.synchronizedMap(nationalMapsBase);
     }
 
     private void resetCache(HttpServletRequest request,
@@ -1123,13 +1148,13 @@ public class WMSServlet extends HttpServlet {
             LOGGER.finest("bbox " + bbox + " key = " + key);
             key += (((width * 37) + height) * 37);
 
-            LOGGER.finest("Key = " + key);
+            LOGGER.fine("Key = " + key);
         }
 
         /**
          * return the hashcode of this key
          *
-         * @return DOCUMENT ME!
+         * @return the key value
          */
         public int hashCode() {
             return key;
@@ -1138,9 +1163,9 @@ public class WMSServlet extends HttpServlet {
         /**
          * checks if this key is equal to the object passed in
          *
-         * @param k DOCUMENT ME!
+         * @param k - Object to test for equality
          *
-         * @return DOCUMENT ME!
+         * @return true if k equals this object, false if not
          */
         public boolean equals(Object k) {
             if (k == null) {
@@ -1161,7 +1186,7 @@ public class WMSServlet extends HttpServlet {
         /**
          * converts the key to a string
          *
-         * @return DOCUMENT ME!
+         * @return the string representation of the key
          */
         public String toString() {
             return "" + key;
