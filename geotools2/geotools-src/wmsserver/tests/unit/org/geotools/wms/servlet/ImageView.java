@@ -7,7 +7,7 @@ public class ImageView extends Panel
 {
 	private Image img;
 	private String name;
-	
+	private Frame f;
 	public ImageView(Image img, String name)
 	{
 		this.img = img;
@@ -25,7 +25,7 @@ public class ImageView extends Panel
 	
 	public void createFrame()
 	{
-        Frame f = new Frame(name);
+        f = new Frame(name);
         f.setSize(img.getWidth(f),img.getHeight(f));
         f.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent e) { e.getWindow().dispose(); }
@@ -33,5 +33,8 @@ public class ImageView extends Panel
         f.add(this);
         f.setVisible(true);
 	}
+    public void close(){
+        f.dispose();
+    }
 }
 
