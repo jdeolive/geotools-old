@@ -110,7 +110,7 @@ set _EPSG:4311Z_=COMPD_CS["EPSG:4311 with sea-level Z",_EPSG:4311_,_Vmslh_]
 // Math transforms
 set _Add7_=PARAM_MT["Affine",PARAMETER["num_row",2],PARAMETER["num_col",2],PARAMETER["elt_0_1",7]]
 set _AddYtoXAndShift23_=PARAM_MT["Affine",PARAMETER["num_row",3],PARAMETER["num_col",3],PARAMETER["elt_0_1",1],PARAMETER["elt_0_2",2],PARAMETER["elt_1_2",3]]
-set _Molodenski_=PARAM_MT["Molodenski",PARAMETER["dim",3],PARAMETER["dx",-13],PARAMETER["dy",165],PARAMETER["dz",185],PARAMETER["src_semi_major",6378206.4],PARAMETER["src_semi_minor",6356583.79999898],PARAMETER["tgt_semi_major",6378137],PARAMETER["tgt_semi_minor",6356752.314243]]
+set _Molodenski_=PARAM_MT["Abridged_Molodenski",PARAMETER["dim",3],PARAMETER["dx",-13],PARAMETER["dy",165],PARAMETER["dz",185],PARAMETER["src_semi_major",6378206.4],PARAMETER["src_semi_minor",6356583.79999898],PARAMETER["tgt_semi_major",6378137],PARAMETER["tgt_semi_minor",6356752.314243]]
 
 // Fitted coordinate systems, and compounded fitted coordinate systems.
 set _FitOsgb36_=FITTED_CS["Fitted OSGB36",_AddYtoXAndShift23_,_Osgb36_]
