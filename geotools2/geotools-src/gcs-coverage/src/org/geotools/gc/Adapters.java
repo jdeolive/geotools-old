@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -228,7 +228,7 @@ public class Adapters extends org.geotools.cv.Adapters {
             final GridCoverage gridCoverage = new GridCoverage(
                     bands[0].getDescription(null),
                     new ImageProxy(image, getPropertySource(grid)),
-                    CS.wrap(grid.getCoordinateSystem()),
+                    CT.wrap(grid.getCoordinateSystem()),
                     wrap(grid.getGridGeometry()).getGridToCoordinateSystem(),
                     bands,
                     null,   // Sources GridCoverage (ignored)
@@ -250,7 +250,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {

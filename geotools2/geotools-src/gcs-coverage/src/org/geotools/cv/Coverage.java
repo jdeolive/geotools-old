@@ -141,7 +141,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.12 2003/01/15 21:47:19 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -324,7 +324,6 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * the no data values, minimum and maximum values and a color table if one is associated
      * with the dimension. A coverage must have at least one sample dimension.
      *
-     * @param  Index Index for sample dimension to retrieve. Indices are numbered 0 to (n-1).
      * @return Sample dimension information for the coverage.
      *
      * @see CV_Coverage#getNumSampleDimensions()
@@ -759,7 +758,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.11 2002/10/17 21:11:03 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.12 2003/01/15 21:47:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends RemoteObject implements CV_Coverage, PropertySource {
@@ -937,7 +936,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public CS_CoordinateSystem getCoordinateSystem() throws RemoteException {
-            return adapters.CS.export(Coverage.this.getCoordinateSystem());
+            return adapters.CT.export(Coverage.this.getCoordinateSystem());
         }
 
         /**
@@ -949,7 +948,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public PT_Envelope getEnvelope() throws RemoteException {
-            return adapters.PT.export(Coverage.this.getEnvelope());
+            return adapters.CT.export(Coverage.this.getEnvelope());
         }
 
         /**
@@ -978,7 +977,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public boolean[] evaluateAsBoolean(PT_CoordinatePoint point) throws RemoteException {
-            return Coverage.this.evaluate(adapters.PT.wrap(point), (boolean[]) null);
+            return Coverage.this.evaluate(adapters.CT.wrap(point), (boolean[]) null);
         }
 
         /**
@@ -991,7 +990,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public byte[] evaluateAsByte(PT_CoordinatePoint point) throws RemoteException {
-            return Coverage.this.evaluate(adapters.PT.wrap(point), (byte[]) null);
+            return Coverage.this.evaluate(adapters.CT.wrap(point), (byte[]) null);
         }
 
         /**
@@ -1004,7 +1003,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public int[] evaluateAsInteger(PT_CoordinatePoint point) throws RemoteException {
-            return Coverage.this.evaluate(adapters.PT.wrap(point), (int[]) null);
+            return Coverage.this.evaluate(adapters.CT.wrap(point), (int[]) null);
         }
 
         /**
@@ -1017,7 +1016,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          *         be an instance of {@link ServerException} if an error occurs on the server side.
          */
         public double[] evaluateAsDouble(PT_CoordinatePoint point) throws RemoteException {
-            return Coverage.this.evaluate(adapters.PT.wrap(point), (double[]) null);
+            return Coverage.this.evaluate(adapters.CT.wrap(point), (double[]) null);
         }
     }
 }

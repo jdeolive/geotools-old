@@ -96,14 +96,14 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.7 2002/07/29 15:15:27 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.8 2003/01/15 21:47:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = 3718595090877043700L;
+    private static final long serialVersionUID = -6965856602415518413L;
 
     /**
      * A set of {@link Category} or {@link CategoryList} objects. Used in order to
@@ -139,7 +139,8 @@ public class Category implements Serializable {
 
     /**
      * The range of values <code>[minimum..maximum]</code>.
-     * May be computed only when first requested.
+     * May be computed only when first requested, or may be
+     * user-supplied (which is why it must be serialized).
      */
     Range range;
 
@@ -161,7 +162,7 @@ public class Category implements Serializable {
      * instance of {@link GeophysicsCategory}, then <code>inverse</code> is a reference
      * to the {@link Category} object that own it.
      */
-    transient Category inverse;
+    final Category inverse;
     
     /**
      * Codes ARGB des couleurs de la catégorie. Les couleurs par
@@ -351,6 +352,8 @@ public class Category implements Serializable {
     {
         this(name, colors, sampleValueRange,
              createLinearTransform(sampleValueRange, geophysicsValueRange));
+        inverse.range = geophysicsValueRange;
+        assert range.equals(sampleValueRange);
     }
     
     /**
@@ -508,16 +511,44 @@ public class Category implements Serializable {
     private static MathTransform1D createLinearTransform(final Range sampleValueRange,
                                                          final Range geophysicsValueRange)
     {
-        if (sampleValueRange.isMinIncluded() != geophysicsValueRange.isMinIncluded() ||
-            sampleValueRange.isMaxIncluded() != geophysicsValueRange.isMaxIncluded())
-        {
-            throw new IllegalArgumentException();
+        final Class sType =     sampleValueRange.getElementClass();
+        final Class gType = geophysicsValueRange.getElementClass();
+        /*
+         * First, find the direction of the adjustment to apply to the ranges if we wanted
+         * all values to be inclusives. Then, check if the adjustment is really needed: if
+         * the values of both ranges are inclusive or exclusive, then there is no need for
+         * an adjustment before computing the coefficient of a linear relation.
+         */
+        int sMinInc =     sampleValueRange.isMinIncluded() ? 0 : +1;
+        int sMaxInc =     sampleValueRange.isMaxIncluded() ? 0 : -1;
+        int gMinInc = geophysicsValueRange.isMinIncluded() ? 0 : +1;
+        int gMaxInc = geophysicsValueRange.isMaxIncluded() ? 0 : -1;
+        if (sMinInc == gMinInc) sMinInc = gMinInc = 0;
+        if (sMaxInc == gMaxInc) sMaxInc = gMaxInc = 0;
+        /*
+         * The minimum value of only zero of one range will be adjusted, and the same for
+         * maximum value (see code above). Now, choose the range to adjust:  If one range
+         * uses integer values while the other uses floating point values, then the integer
+         * range will be adjusted. Otherwise, the range of geophysics values will be adjusted.
+         */
+        final boolean adjustSamples = (isInteger(sType) && !isInteger(gType));
+        if ((adjustSamples ? gMinInc : sMinInc) != 0) {
+            int swap = sMinInc;
+            sMinInc = -gMinInc;
+            gMinInc = -swap;
         }
-        final Class  type      = sampleValueRange.getElementClass();
-        final double minSample = doubleValue(type,     sampleValueRange.getMinValue(), 0);
-        final double maxSample = doubleValue(type,     sampleValueRange.getMaxValue(), 0);
-        final double minValue  = doubleValue(type, geophysicsValueRange.getMinValue(), 0);
-        final double maxValue  = doubleValue(type, geophysicsValueRange.getMaxValue(), 0);
+        if ((adjustSamples ? gMaxInc : sMaxInc) != 0) {
+            int swap = sMaxInc;
+            sMaxInc = -gMaxInc;
+            gMaxInc = -swap;
+        }
+        /*
+         * Now, extract the minimal and maximal values and compute the linear coefficients.
+         */
+        final double minSample = doubleValue(sType,     sampleValueRange.getMinValue(), sMinInc);
+        final double maxSample = doubleValue(sType,     sampleValueRange.getMaxValue(), sMaxInc);
+        final double minValue  = doubleValue(gType, geophysicsValueRange.getMinValue(), gMinInc);
+        final double maxValue  = doubleValue(gType, geophysicsValueRange.getMaxValue(), gMaxInc);
         final double scale     = (maxValue-minValue) / (maxSample-minSample);
         final double offset    = minValue - scale*minSample;
         return createLinearTransform(scale, offset);
@@ -539,6 +570,7 @@ public class Category implements Serializable {
                                       final Comparable number,
                                       final int     direction)
     {
+        assert (direction >= -1) && (direction <= +1);
         double value = ((Number) number).doubleValue();
         if (direction != 0) {
             if (Float.class.isAssignableFrom(type)) {
@@ -667,6 +699,7 @@ public class Category implements Serializable {
      * @see SampleDimension#getMaximumValue()
      */
     public Range getRange() {
+        assert range != null;
         return range;
     }
 

@@ -71,37 +71,25 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
  */
 public class Adapters {
     /**
-     * The underlying adapters from the <code>org.geotools.cs</code> package.
-     */
-    public final org.geotools.cs.Adapters CS;
-
-    /**
      * The underlying adapters from the <code>org.geotools.ct</code> package.
      */
     public final org.geotools.ct.Adapters CT;
-
-    /**
-     * The underlying adapters from the <code>org.geotools.pt</code> package.
-     */
-    public final org.geotools.pt.Adapters PT;
     
     /**
      * Default constructor. A shared instance of <code>Adapters</code> can
      * be obtained with {@link org.geotools.gp.Adapters#getDefault()}.
      *
-     * @param CS The underlying adapters from the <code>org.geotools.ct</code> package.
+     * @param CT The underlying adapters from the <code>org.geotools.ct</code> package.
      */
     protected Adapters(final org.geotools.ct.Adapters CT) {
         this.CT = CT;
-        this.CS = CT.CS;
-        this.PT = CT.PT;
     }
 
     /**
@@ -411,7 +399,7 @@ public class Adapters {
          * dimension appropriate for the kind of palette used.
          */
         final Category[] categories = (Category[]) categoryList.toArray(new Category[categoryList.size()]);
-        final Unit unit = CS.wrap(dimension.getUnits());
+        final Unit unit = CT.wrap(dimension.getUnits());
         switch (dimension.getPaletteInterpretation().value) {
             case CV_PaletteInterpretation.CV_RGB: {
                 switch (dimension.getColorInterpretation().value) {
@@ -509,7 +497,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.7 2003/01/15 21:47:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {
@@ -546,10 +534,10 @@ public class Adapters {
          *         if applicable.
          */
         CoverageProxy(CV_Coverage coverage) throws RemoteException {
-            super(null, CS.wrap(coverage.getCoordinateSystem()), getPropertySource(coverage), null);
+            super(null, CT.wrap(coverage.getCoordinateSystem()), getPropertySource(coverage), null);
             this.coverage  = coverage;
             this.proxy     = coverage;
-            this.envelope  = PT.wrap(coverage.getEnvelope());
+            this.envelope  = CT.wrap(coverage.getEnvelope());
             dimensionNames = coverage.getDimensionNames();
         }
 
@@ -592,7 +580,7 @@ public class Adapters {
                 throws CannotEvaluateException
         {
             try {
-                final boolean[] result = coverage.evaluateAsBoolean(PT.export(coord));
+                final boolean[] result = coverage.evaluateAsBoolean(CT.export(coord));
                 if (dest != null) {
                     System.arraycopy(result, 0, dest, 0, result.length);
                     return dest;
@@ -614,7 +602,7 @@ public class Adapters {
                 throws PointOutsideCoverageException
         {
             try {
-                final byte[] result = coverage.evaluateAsByte(PT.export(coord));
+                final byte[] result = coverage.evaluateAsByte(CT.export(coord));
                 if (dest != null) {
                     System.arraycopy(result, 0, dest, 0, result.length);
                     return dest;
@@ -636,7 +624,7 @@ public class Adapters {
                 throws PointOutsideCoverageException
         {
             try {
-                final int[] result = coverage.evaluateAsInteger(PT.export(coord));
+                final int[] result = coverage.evaluateAsInteger(CT.export(coord));
                 if (dest != null) {
                     System.arraycopy(result, 0, dest, 0, result.length);
                     return dest;
@@ -658,7 +646,7 @@ public class Adapters {
                 throws PointOutsideCoverageException
         {
             try {
-                final double[] result = coverage.evaluateAsDouble(PT.export(coord));
+                final double[] result = coverage.evaluateAsDouble(CT.export(coord));
                 if (dest != null) {
                     System.arraycopy(result, 0, dest, 0, result.length);
                     return dest;
