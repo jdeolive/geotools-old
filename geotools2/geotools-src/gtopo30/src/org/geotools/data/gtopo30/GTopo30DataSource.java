@@ -234,20 +234,6 @@ public class GTopo30DataSource extends AbstractDataSource
         com.vividsolutions.jts.geom.Envelope env = getBbox();
         ImageReadParam irp = null;
         
-        // the following is a failed tentative to use an ImageReadParam instead of the
-        // crop operation
-//        if(cropEnvelope != null) {
-//            env = intersectEnvelope(env, cropEnvelope);
-//            
-//            irp = new ImageReadParam();
-//            int x = (int) Math.floor((env.getMinX() - minx) / xdim);
-//            int y = (int) Math.floor(nrows - (env.getMaxY() - (env.getMinY() - miny) - env.getHeight()) / ydim);
-//            int width = (int) Math.ceil(env.getWidth() / xdim);
-//            readCols = width;
-//            int heigth = (int) Math.ceil(env.getHeight() / ydim);
-//            irp.setSourceRegion(new Rectangle(x, y, width, heigth));
-//        }
-                
         // Make some decision about tiling. Let's say that, for the moment, I want
         // to read approximately a meg at a time
         int tileRows = (int) Math.ceil((1024 * 1024) / (ncols * 2));
@@ -258,7 +244,11 @@ public class GTopo30DataSource extends AbstractDataSource
         pbj.setParameter("Input", raw);
         pbj.setParameter("ReadParam", irp);
 
+        // Do not cache these tiles: the file is memory mapped anyway by virtue of
+        // using NIO and these tiles are very big and fill up rapidly the cache:
+        // better use it to avoid operations down the rendering chaing
         RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, il);
+        hints.add(new RenderingHints(JAI.KEY_TILE_CACHE, null));
 
         RenderedOp image = JAI.create("ImageRead", pbj, hints);
 
@@ -267,18 +257,26 @@ public class GTopo30DataSource extends AbstractDataSource
         if (cropEnvelope != null) {
             env = intersectEnvelope(env, cropEnvelope);
 
+            float cxmin = (float) Math.round((env.getMinX() - minx) / xdim);
+            float cymin = (float) Math.round((env.getMinY() - miny) / ydim);
+            float cwidth = (float) Math.round(env.getWidth() / xdim);
+            float cheight = (float) Math.round(env.getHeight() / ydim);
+            cymin = nrows - cymin - cheight;
+
             ParameterBlock pb = new ParameterBlock();
             pb.addSource(image);
-            float cxmin = (float) ((env.getMinX() - minx) / xdim);
-            float cymin = (float) ((env.getMinY() - miny) / ydim);
-            float cwidth = (float) (env.getWidth() / xdim);
-            float cheight = (float) (env.getHeight() / ydim);
-            cymin = nrows - cymin - cheight;
             pb.add(cxmin);
             pb.add(cymin);
             pb.add(cwidth);
             pb.add(cheight);
-            image = JAI.create("Crop", pb);
+            hints = new RenderingHints(JAI.KEY_TILE_CACHE, null);
+            image = JAI.create("Crop", pb, hints);
+
+            pb = new ParameterBlock();
+            pb.addSource(image);
+            pb.add(-cxmin);
+            pb.add(-cymin);
+            image = JAI.create("Translate", pb, hints);
         }
 
         // Build the coordinate system
@@ -342,7 +340,7 @@ public class GTopo30DataSource extends AbstractDataSource
         schema = new FeatureTypeFlat(new AttributeType[] { geom, grid });
 
         // create the feature
-        FeatureFactory factory = new FeatureFactory(schema);
+        FeatureFactory factory = new FlatFeatureFactory(schema);
         Feature feature = factory.create(new Object[] { bounds, gc });
 
         return feature;
