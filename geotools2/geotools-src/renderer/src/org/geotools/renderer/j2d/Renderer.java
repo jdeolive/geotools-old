@@ -118,7 +118,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.38 2003/08/13 15:40:51 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.39 2003/08/13 22:45:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -131,12 +131,6 @@ public class Renderer implements Renderer2D {
      * Small value for avoiding rounding error.
      */
     private static final double EPS = 1E-6;
-
-    /**
-     * A transparent color. Used for cleaning the background
-     * of a damaged offscreen buffer before to repaint it.
-     */
-    private static final Color TRANSPARENT = new Color(0,0,0,0);
 
 
 
@@ -1846,6 +1840,7 @@ renderOffscreen:while (true) {
                                     graphics.setTransform(toDevice);
                                     graphicsZoomed = false;
                                 }
+                                // REVISIT: Which AlphaComposite to use here?
                                 graphics.drawImage(buffer, zoomableBounds.x,
                                                            zoomableBounds.y, mapPane);
                                 if (contentsLost(buffer)) {
@@ -1876,19 +1871,19 @@ renderOffscreen:while (true) {
                     final Composite oldComposite = graphicsOff.getComposite();
                     graphicsOff.addRenderingHints(hints);
                     graphicsOff.translate(-zoomableBounds.x, -zoomableBounds.y);
-                    graphicsOff.setComposite(AlphaComposite.Src);
                     if (offscreenIsVolatile[offscreenIndex]) {
                         // HACK: We should use the transparent color in all cases. However,
                         //       as of J2SE 1.4, VolatileImage doesn't supports transparency.
                         //       We have to use some opaque color in the main time.
                         // TODO: Delete this hack when J2SE 1.5 will be available.
                         //       Avoid filling if the image has just been created.
-                        graphicsOff.setColor(mapPane!=null ? mapPane.getBackground() : Color.WHITE);
+                        graphicsOff.setComposite(AlphaComposite.Src);
                     } else {
-                        graphicsOff.setColor(TRANSPARENT);
+                        graphicsOff.setComposite(AlphaComposite.Clear);
                     }
+                    graphicsOff.setColor(mapPane!=null ? mapPane.getBackground() : Color.WHITE);
                     graphicsOff.fill(bufferClip);
-                    graphicsOff.setComposite(oldComposite);
+                    graphicsOff.setComposite(oldComposite); // REVISIT: is it the best composite?
                     graphicsOff.setColor(mapPane!=null ? mapPane.getForeground() : Color.BLACK);
                     graphicsOff.clip(bufferClip); // Information needed by some layers.
                     graphicsOff.transform(zoom);
