@@ -39,6 +39,9 @@ import java.util.Collection;
 import java.io.PrintWriter;
 import java.awt.geom.Point2D;
 import java.awt.geom.GeneralPath;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 // Geotools dependencies
 import org.geotools.renderer.Polygon;
@@ -48,10 +51,24 @@ import org.geotools.resources.Arguments;
 /**
  * Visual check of {@link Polygon}.
  *
- * @version $Id: PolygonTest.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
+ * @version $Id: PolygonTest.java,v 1.2 2003/01/29 13:04:13 ianturton Exp $
  * @author Martin Desruisseaux
  */
-public class PolygonTest {
+public class PolygonTest extends TestCase {
+    
+    public PolygonTest(java.lang.String testName) {
+        super(testName);
+        
+    }
+    
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(PolygonTest.class);
+        return suite;
+    }
     /**
      * Vérifie le bon fonctionnement de {@link Polygon}. Cette méthode dessinera
      * une carte imaginaire dans un cadre et placera des points un peu partout.
@@ -63,7 +80,8 @@ public class PolygonTest {
      *           plus grossière, tandis qu'une valeur plus faible se traduira par
      *           une île plus finement tracée.
      */
-    public static void main(final String[] args) throws Exception {
+    public void testPolygon() throws Exception {
+        String[] args = new String[0];
         final Arguments arguments = new Arguments(args);
         final int firstPointCount = 4;
         final int  lastPointCount = 4;

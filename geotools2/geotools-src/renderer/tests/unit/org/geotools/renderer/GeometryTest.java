@@ -38,6 +38,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
+import junit.framework.*;
 
 // Geotools dependencies
 import org.geotools.resources.Geometry;
@@ -48,14 +49,14 @@ import org.geotools.renderer.ShapePanel;
  * Performs a visual check of {@link Geometry} computations. Those computations are
  * an essential part of {@link org.geotools.renderer.Polygon} internal working.
  *
- * @version $Id: GeometryTest.java,v 1.1 2003/01/20 00:06:35 desruisseaux Exp $
+ * @version $Id: GeometryTest.java,v 1.2 2003/01/29 13:04:13 ianturton Exp $
  * @author Martin Desruisseaux
  */
-public final class GeometryTest implements ShapePanel.Producer {
+public final class GeometryTest  extends TestCase implements ShapePanel.Producer{
     /**
      * Constante identifiant la méthode à tester.
      */
-    private final int method;
+    private int method;
 
     /**
      * Coordonnées des points de contrôles
@@ -63,15 +64,35 @@ public final class GeometryTest implements ShapePanel.Producer {
      */
     private String[] args;
 
+    public GeometryTest(String testName){
+        super(testName);
+        
+    }
+    
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(GeometryTest.class);
+        return suite;
+    }
     /**
      * Construit un objet qui servira à tester visuellement
      * l'exactitude d'un calcul géométrique.
      */
-    private GeometryTest(final String[] args, final int method) {
+    private void geometrySet(final String[] args, final int method) {
         this.args   = args;
         this.method = method;
     }
-
+    
+    public void testGeometry(){
+        //step through the different methods
+        for (int i=0; i<=2; i++) {
+            geometrySet(null, i);
+            ShapePanel.show(this);
+        }
+    }
     /**
      * Retourne une liste de points et de courbes à afficher.
      */
@@ -147,9 +168,10 @@ public final class GeometryTest implements ShapePanel.Producer {
      *   <li>Un cercle passant par trois points        ({@link #fitCircle         fitCircle}).</li>
      * </ul>
      */
-    public static void main(final String[] args) {
+    public void run(final String[] args) {
         for (int i=0; i<=2; i++) {
-            ShapePanel.show(new GeometryTest(args, i));
+            geometrySet(args, i);
+            ShapePanel.show(this);
         }
     }
 }
