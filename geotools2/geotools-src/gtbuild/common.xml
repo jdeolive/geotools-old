@@ -68,8 +68,8 @@
        
 
         <path id="netbeans.ext">
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
         </path>
         <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
             <classpath refid="netbeans.ext"/>        
@@ -78,8 +78,8 @@
             <classpath refid="netbeans.ext"/>        
         </taskdef>
         <path id="checkstyle.ext">
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            <pathelement location="..\..\extbin\gtbuild\lib\checkstyle-all.jar"/>
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
         </path>
         <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
             <classpath refid="checkstyle.ext"/>
@@ -114,14 +114,14 @@
     <target name="add-extbin" if="has.extbin">
         <!--echo message="adding ${extbin} to classpath"/-->
         <path id="compile.path">
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="../../extbin/gtbuild/lib/"/>
             <fileset dir="${releaseFolder}"/>
             <fileset dir="${extbin}"/>
         </path>
     </target>
     <target name="set-classpath" unless="has.extbin">
         <path id="compile.path">
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
+            <fileset dir="../../extbin/gtbuild/lib/"/>
             <fileset dir="${releaseFolder}"/>
         </path>
     </target>
