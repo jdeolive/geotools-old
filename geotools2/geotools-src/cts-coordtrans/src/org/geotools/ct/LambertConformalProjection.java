@@ -60,7 +60,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version $Id: LambertConformalProjection.java,v 1.3 2003/02/27 14:30:34 desruisseaux Exp $
+ * @version $Id: LambertConformalProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -271,7 +271,7 @@ final class LambertConformalProjection extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformalProjection.java,v 1.3 2003/02/27 14:30:34 desruisseaux Exp $
+     * @version $Id: LambertConformalProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MapProjection.Provider {
@@ -303,7 +303,7 @@ final class LambertConformalProjection extends ConicProjection {
         /**
          * Create a new map projection.
          */
-        protected Object create(final Projection parameters) throws MissingParameterException {
+        protected MathTransform create(final Projection parameters) throws MissingParameterException {
             if (!sp2) {
                 java.util.logging.Logger.getLogger("org.geotools.ct")
                     .warning("Lambert_Conformal_Conic_1SP is broken in current implementation. "+

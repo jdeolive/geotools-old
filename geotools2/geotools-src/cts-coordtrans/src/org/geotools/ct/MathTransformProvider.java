@@ -59,14 +59,13 @@ import javax.media.jai.ParameterListDescriptorImpl;
 
 
 /**
- * Base class for {@link MathTransform} providers.
- * Instance of this class allow the creation of transform
- * objects from a classification name.
+ * Base class for {@link MathTransform} providers. Instance of this class
+ * allow the creation of transform objects from a classification name.
  * <br><br>
  * <strong>Note: this class is not part of OpenGIS specification and
  * may change in a future version. Do not rely strongly on it.</strong>
  *
- * @version $Id: MathTransformProvider.java,v 1.4 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: MathTransformProvider.java,v 1.5 2003/04/18 15:22:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MathTransformProvider {
@@ -376,9 +375,10 @@ public abstract class MathTransformProvider {
     }
     
     /**
-     * Returns the parameter list descriptor.
+     * Returns the parameter list descriptor. The default implementation build the
+     * descriptor from the parameters specified by the constructor with {@link #put}.
      */
-    final synchronized ParameterListDescriptor getParameterListDescriptor() {
+    public synchronized ParameterListDescriptor getParameterListDescriptor() {
         if (descriptor==null) {
             descriptor = getDescriptor(properties);
             properties = null; // No longer needed.
@@ -400,11 +400,26 @@ public abstract class MathTransformProvider {
      *
      * @param  parameters The parameter values in standard units.
      * @return A {@link MathTransform} object of this classification.
+     * @throws MissingParameterException if a mandatory parameter is missing.
      * @throws FactoryException if the transform can't be created.
-     *
-     * @task REVISIT: Should it be protected?
      */
-    public abstract MathTransform create(final ParameterList parameters) throws FactoryException;
+    public abstract MathTransform create(final ParameterList parameters)
+            throws MissingParameterException, FactoryException;
+    
+    /**
+     * Returns a transform for the specified projection. The default implementation
+     * invokes {@link #create(ParameterList)} with the projection's parameters.
+     *
+     * @param  projection The projection.
+     * @return A {@link MathTransform} object of this classification.
+     * @throws MissingParameterException if a mandatory parameter is missing.
+     * @throws FactoryException if the transform can't be created for some other reason.
+     */
+    protected MathTransform create(final Projection projection)
+            throws MissingParameterException, FactoryException
+    {
+        return create(projection.getParameters());
+    }
     
     /**
      * Returns a string representation for this provider.

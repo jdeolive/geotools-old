@@ -62,7 +62,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version $Id: TransverseMercatorProjection.java,v 1.3 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: TransverseMercatorProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -399,7 +399,7 @@ final class TransverseMercatorProjection extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercatorProjection}.
      *
-     * @version $Id: TransverseMercatorProjection.java,v 1.3 2003/01/18 12:58:32 desruisseaux Exp $
+     * @version $Id: TransverseMercatorProjection.java,v 1.4 2003/04/18 15:22:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MapProjection.Provider {
@@ -442,7 +442,7 @@ final class TransverseMercatorProjection extends CylindricalProjection {
         /**
          * Create a new map projection.
          */
-        protected Object create(final Projection parameters) throws MissingParameterException {
+        protected MathTransform create(final Projection parameters) throws MissingParameterException {
             return new TransverseMercatorProjection(parameters);
         }
     }

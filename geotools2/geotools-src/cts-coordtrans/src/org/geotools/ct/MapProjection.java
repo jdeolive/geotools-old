@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.9 2003/04/18 15:22:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -791,7 +791,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.9 2003/04/18 15:22:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -823,7 +823,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.8 2003/03/06 23:06:41 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.9 2003/04/18 15:22:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
@@ -848,13 +848,9 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
         }
         
         /**
-         * Create a new map projection.  NOTE: The returns type should
-         * be {@link MathTransform}, but as of JDK 1.4-beta3, it force
-         * class loading for all projection classes (MercatorProjection,
-         * etc.) before than necessary. Changing the returns type to
-         * Object is a trick to avoid too early class loading...
+         * Create a new map projection.
          */
-        protected abstract Object create(final Projection parameters)
+        protected abstract MathTransform create(final Projection parameters)
                 throws MissingParameterException;
     }
 }

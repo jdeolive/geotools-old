@@ -61,14 +61,12 @@ import org.geotools.pt.Matrix;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.Projection;
 import org.geotools.cs.FactoryException;
-
-// Projections
 import org.geotools.ct.proj.Provider;
-import org.geotools.ct.proj.Mercator;
 
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
+import org.geotools.resources.XArray;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.resources.DescriptorNaming;
@@ -111,7 +109,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.19 2003/04/18 10:00:41 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.20 2003/04/18 15:22:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -158,11 +156,9 @@ public class MathTransformFactory {
      * Returns the default math transform factory.
      */
     public static synchronized MathTransformFactory getDefault() {
-        if (DEFAULT==null) {
-            DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
+        if (DEFAULT == null) {
+            MathTransformProvider[] transforms = new MathTransformProvider[] {
                 new              MatrixTransform.Provider(),      // Affine (default to 4x4)
-                new                     Mercator.Provider(false), // Mercator_1SP
-                new                     Mercator.Provider(true),  // Mercator_2SP
                 new   LambertConformalProjection.Provider(false, true),  // Lambert_Conformal_Conic_1SP
                 new   LambertConformalProjection.Provider(true,  true),  // Lambert_Conformal_Conic_2SP
                 new   LambertConformalProjection.Provider(false, false), // Lambert_Conic_Conformal_1SP
@@ -176,9 +172,20 @@ public class MathTransformFactory {
                 new  AbridgedMolodenskiTransform.Provider(),      // Abridged_Molodenski
                 new       ExponentialTransform1D.Provider(false), // Exponential
                 new       ExponentialTransform1D.Provider(true)   // Logarithmic
-            });
-            for (int i=DEFAULT.providers.length; --i>=0;) {
-                final MathTransformProvider provider = DEFAULT.providers[i];
+            };
+            final int offset = transforms.length;
+            final MathTransformProvider[] projections = Provider.getDefaults();
+            transforms = (MathTransformProvider[])XArray.resize(transforms, offset+projections.length);
+            System.arraycopy(projections, 0, transforms, offset, projections.length);
+            DEFAULT = new MathTransformFactory(transforms);
+            /*
+             * Register the projections. This temporary hack will be removed when we will have
+             * finished to move all projections in the 'proj' package. Then, the binding should
+             * be enabled in 'org.geotools.ct.proj.Provider' and the dependency should be changed
+             * in DescriptorNaming from MathTransformFactory to Provider.
+             */
+            for (int i=transforms.length; --i>=0;) {
+                final MathTransformProvider provider = transforms[i];
                 if (provider instanceof MapProjection.Provider ||
                     provider instanceof Provider)
                 {
@@ -501,7 +508,7 @@ public class MathTransformFactory {
      */
     public MathTransform createParameterizedTransform(String classification,
                                                       final ParameterList parameters)
-            throws FactoryException
+            throws MissingParameterException, FactoryException
     {
         final MathTransform transform;
         classification = classification.trim();
@@ -513,7 +520,10 @@ public class MathTransformFactory {
     }
     
     /**
-     * Convenience method for creating a transform from a projection.
+     * Creates a transform from a projection. The client must ensure that all the linear
+     * parameters are expressed in meters, and all the angular parameters are expressed
+     * in degrees. Also, they must supply "semi_major" and "semi_minor" parameters for
+     * cartographic projection transforms.
      *
      * @param  projection The projection.
      * @return The parameterized transform.
@@ -522,10 +532,11 @@ public class MathTransformFactory {
      * @throws FactoryException if the math transform creation failed from some other reason.
      */
     public MathTransform createParameterizedTransform(final Projection projection)
-            throws FactoryException
+            throws MissingParameterException, FactoryException
     {
-        return createParameterizedTransform(projection.getClassName(),
-                                            projection.getParameters());
+        final MathTransform transform;
+        transform = getMathTransformProvider(projection.getClassName()).create(projection);
+        return (MathTransform) pool.canonicalize(transform);
     }
     
     /**
@@ -698,7 +709,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.19 2003/04/18 10:00:41 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.20 2003/04/18 15:22:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.5 2003/04/16 19:26:59 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.6 2003/04/18 15:22:35 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -149,9 +149,11 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     protected double latitudeOfOrigin;
     
     /**
-     * The scale factor.
+     * The scale factor. Default value is 1.
+     * <strong>Consider this field as final</strong>. It is not final only
+     * because some class need to modify it at construction time.
      */
-    protected final double scaleFactor;
+    protected double scaleFactor;
     
     /**
      * False easting, in metres. Default value is 0.
@@ -499,7 +501,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.5 2003/04/16 19:26:59 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.6 2003/04/18 15:22:35 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {

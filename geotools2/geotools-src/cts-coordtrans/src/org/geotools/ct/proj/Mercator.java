@@ -80,28 +80,23 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.3 2003/04/18 10:00:44 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
  */
 public class Mercator extends CylindricalProjection {
     /**
-     * Global scale factor. Value <code>ak0</code>
-     * is equals to <code>{@link #semiMajor}*k0</code>.
+     * Global scale factor. Value <code>ak0</code> is equals
+     * to {@link #semiMajor}&times;{@link #scaleFactor}.
      */
     protected final double ak0;
     
     /**
-     * Standard Parallel used for the Mercator_2SP case.
+     * Standard Parallel used for the <code>Mercator_2SP</code> case.
+     * Set to {@link Double#NaN} for the <code>Mercator_1SP</code> case.
      */
     protected final double standardParallel;
-    
-    /**
-     * <code>true</code> for 2SP, or <code>false</code> for 1SP projection.
-     * Only used by toString().
-     */
-    private final boolean sp2;
 
 
     /**
@@ -114,11 +109,11 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.3 2003/04/18 10:00:44 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
-    public static final class Provider extends org.geotools.ct.proj.Provider {
+    static final class Provider extends org.geotools.ct.proj.Provider {
         /**
          * <code>true</code> for 2SP, or <code>false</code> for 1SP projection.
          */
@@ -159,26 +154,33 @@ public class Mercator extends CylindricalProjection {
      * @param  parameters The parameter values in standard units.
      * @param  sp2 Indicates if this is a 1 or 2 standard parallel case of the mercator projection.
      * @throws MissingParameterException if a mandatory parameter is missing.
+     *
+     * @task TODO: If a future version, we may infer the <code>sp2</code> argument directly
+     *             from the projection name in the <code>parameters</code> argument.
      */
     protected Mercator(final Projection parameters, final boolean sp2)
         throws MissingParameterException
     {
         //Fetch parameters 
         super(parameters);
-        this.sp2 = sp2;
-        
-        //This will be 0 in the 1SP case when this parameter is not set
-        standardParallel = latitudeToRadians(Math.abs(parameters.getValue("standard_parallel", 0)), false);
-
-        // Compute constants 
-        if (isSpherical()) {
-            ak0 = scaleFactor * semiMajor*Math.cos(standardParallel);
-        }  else {
-            ak0 = scaleFactor * semiMajor*msfn(Math.sin(standardParallel), Math.cos(standardParallel));
+        if (sp2) {
+            // No scale factor. Compute it from the standard parallel.
+            standardParallel = latitudeToRadians(Math.abs(
+                               parameters.getValue("standard_parallel", 0)), false);
+            if (isSpherical()) {
+                scaleFactor *= Math.cos(standardParallel);
+            }  else {
+                scaleFactor *= msfn(Math.sin(standardParallel),
+                                    Math.cos(standardParallel));
+            }
+        } else {
+            // No standard parallel. Instead, uses the scale factor explicitely provided.
+            standardParallel = Double.NaN;
         }
+        ak0 = scaleFactor * semiMajor;
         assert latitudeOfOrigin == 0 : latitudeOfOrigin;
     }
-        
+
     /**
      * Returns a human readable name localized for the specified locale.
      */
@@ -245,7 +247,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.3 2003/04/18 10:00:44 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -360,7 +362,7 @@ public class Mercator extends CylindricalProjection {
      */
     void toString(final StringBuffer buffer) {
         super.toString(buffer);
-        if (sp2) {
+        if (!Double.isNaN(standardParallel)) {
             addParameter(buffer, "standard_parallel", Math.toDegrees(standardParallel));
         }
     }

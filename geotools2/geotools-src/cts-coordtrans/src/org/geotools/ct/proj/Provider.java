@@ -41,16 +41,51 @@ import org.geotools.cs.Projection;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransformProvider;
 import org.geotools.ct.MissingParameterException;
+import org.geotools.resources.DescriptorNaming;
 import org.geotools.resources.cts.Resources;
 
     
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.3 2003/03/29 20:25:51 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.4 2003/04/18 15:22:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
+    /**
+     * A set of default providers to be returned by {@link #getDefaults()}.
+     * Will be created only when first needed.
+     */
+    private static Provider[] DEFAULT;
+
+    /**
+     * Returns a set of default providers for map projections. This is used for
+     * the initialization of a {@link org.geotools.ct.MathTransformFactory}.
+     *
+     * @task HACK: Binding temporarily disabled.
+     */
+    public static synchronized Provider[] getDefaults() {
+        if (DEFAULT == null) {
+            DEFAULT = new Provider[] {
+                new Mercator.Provider(false), // Mercator_1SP
+                new Mercator.Provider(true )  // Mercator_2SP
+            };
+            /*
+             * Disabled for now. Will be enabled only when we will have finished to move all
+             * projections to the 'proj' package. Then, DescriptorNaming.bindDefaults should
+             * be modified in order to invokes this method instead of MathTransformFactory.
+             */
+            if (false) {
+                for (int i=DEFAULT.length; --i>=0;) {
+                    final Provider provider = DEFAULT[i];
+                    DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
+                                                      provider.getParameterListDescriptor());
+                }
+            }
+        }
+        return (Provider[]) DEFAULT.clone();
+    }
+
     /**
      * Resources key for a human readable name. This
      * is used for {@link #getName} implementation.
@@ -87,7 +122,8 @@ public abstract class Provider extends MathTransformProvider {
     }
 
     /**
-     * Create a new map projection from a parameter list.
+     * Create a new map projection from a parameter list. This method should not be invoked
+     * for creating projection transform. Use {@link #create(Projection)} instead.
      *
      * @param  parameters The parameters list.
      * @throws MissingParameterException if a mandatory parameter is missing.
@@ -104,7 +140,7 @@ public abstract class Provider extends MathTransformProvider {
      * @param  parameters The projection.
      * @throws MissingParameterException if a mandatory parameter is missing.
      */
-    public abstract MathTransform create(final Projection parameters)
+    public abstract MathTransform create(final Projection projection)
             throws MissingParameterException;
 
     /**
@@ -114,7 +150,7 @@ public abstract class Provider extends MathTransformProvider {
      *          or <code>false</code> if it is ellipsoidal.
      * @throws MissingParameterException if a mandatory parameter is missing.
      */
-    protected static boolean isSpherical(final Projection parameters)
+    static boolean isSpherical(final Projection parameters)
             throws MissingParameterException
     {
         return parameters.getValue("semi_major") ==
