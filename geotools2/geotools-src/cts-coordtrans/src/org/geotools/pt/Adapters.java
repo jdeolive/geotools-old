@@ -39,34 +39,23 @@ import org.opengis.pt.PT_CoordinatePoint;
 
 
 /**
- * <FONT COLOR="#FF6633">Provide methods for interoperability
- * with <code>org.opengis.pt</code> package.</FONT>
- * All methods accept null argument.
+ * <FONT COLOR="#FF6633">Provide methods for interoperability with
+ * <code>org.opengis.pt</code> package.</FONT>  All methods accept
+ * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version 1.0
+ * A default instance of the <code>Adapters</code> classes is provided in the
+ * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
+ *
+ * @version $Id: Adapters.java,v 1.2 2003/01/15 21:46:35 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see org.geotools.ct.Adapters#getDefault()
  */
 public class Adapters {
-    /**
-     * Default adapters. Will be constructed
-     * only when first requested.
-     */
-    private static Adapters DEFAULT;
-    
     /**
      * Default constructor.
      */
     protected Adapters() {
-    }
-    
-    /**
-     * Returns the default adapters.
-     */
-    public static synchronized Adapters getDefault() {
-        if (DEFAULT==null) {
-            DEFAULT = new Adapters();
-        }
-        return DEFAULT;
     }
     
     /**

@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.10 2002/10/18 20:14:44 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.11 2003/01/15 21:46:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -420,7 +420,7 @@ public class Projection extends Info {
          */
         private synchronized CS_ProjectionParameter[] getParameters() {
             if (parameters==null) {
-                parameters = adapters.export(Projection.this.getParameters());
+                parameters = adapters.exportProjectionParameters(Projection.this.getParameters());
             }
             return parameters;
         }

@@ -60,10 +60,10 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <code>org.opengis.ct</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version 1.0
+ * @version $Id: Adapters.java,v 1.3 2003/01/15 21:46:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class Adapters {
+public class Adapters extends org.geotools.cs.Adapters {
     /**
      * Default adapters. Will be constructed
      * only when first requested.
@@ -71,23 +71,9 @@ public class Adapters {
     private static Adapters DEFAULT;
     
     /**
-     * The underlying adapters from the <code>org.geotools.cs</code> package.
-     */
-    public final org.geotools.cs.Adapters CS;
-    
-    /**
-     * The underlying adapters from the <code>org.geotools.pt</code> package.
-     */
-    public final org.geotools.pt.Adapters PT;
-    
-    /**
      * Default constructor.
-     *
-     * @param CS The underlying adapters from the <code>org.geotools.cs</code> package.
      */
-    protected Adapters(final org.geotools.cs.Adapters CS) {
-        this.CS = CS;
-        this.PT = CS.PT;
+    protected Adapters() {
     }
     
     /**
@@ -95,7 +81,7 @@ public class Adapters {
      */
     public static synchronized Adapters getDefault() {
         if (DEFAULT==null) {
-            DEFAULT = new Adapters(org.geotools.cs.Adapters.getDefault());
+            DEFAULT = new Adapters();
         }
         return DEFAULT;
     }
@@ -214,8 +200,8 @@ public class Adapters {
             return (CoordinateTransformation) ((CoordinateTransformation.Export)transform).unwrap();
         }
         return new CoordinateTransformation(null,
-                                            CS.wrap(transform.getSourceCS()),
-                                            CS.wrap(transform.getTargetCS()),
+                                            wrap(transform.getSourceCS()),
+                                            wrap(transform.getTargetCS()),
                                             wrap(transform.getTransformType()),
                                             wrap(transform.getMathTransform()));
     }

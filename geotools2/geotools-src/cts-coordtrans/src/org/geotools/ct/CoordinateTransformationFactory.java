@@ -85,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.10 2002/10/13 19:57:29 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.11 2003/01/15 21:46:34 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1533,7 +1533,7 @@ public class CoordinateTransformationFactory {
             throws RemoteException
         {
             try {
-                return adapters.export(CoordinateTransformationFactory.this.createFromCoordinateSystems(adapters.CS.wrap(sourceCS), adapters.CS.wrap(targetCS)));
+                return adapters.export(CoordinateTransformationFactory.this.createFromCoordinateSystems(adapters.wrap(sourceCS), adapters.wrap(targetCS)));
             } catch (CannotCreateTransformException exception) {
                 throw new ServerException(exception.getLocalizedMessage(), exception);
             }

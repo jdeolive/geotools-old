@@ -72,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
+ * @version $Id: CoordinateSystem.java,v 1.5 2003/01/15 21:46:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -275,7 +275,7 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
          * Gets default envelope of coordinate system.
          */
         public PT_Envelope getDefaultEnvelope() throws RemoteException {
-            return adapters.PT.export(CoordinateSystem.this.getDefaultEnvelope());
+            return adapters.export(CoordinateSystem.this.getDefaultEnvelope());
         }
     }
 }

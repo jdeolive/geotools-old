@@ -90,39 +90,19 @@ import org.geotools.resources.cts.ResourceKeys;
  * <code>org.opengis.cs</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.7 2002/10/17 18:14:36 desruisseaux Exp $
+ * A default instance of the <code>Adapters</code> classes is provided in the
+ * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
+ *
+ * @version $Id: Adapters.java,v 1.8 2003/01/15 21:46:34 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see org.geotools.ct.Adapters#getDefault()
  */
-public class Adapters {
-    /**
-     * Default adapters. Will be constructed
-     * only when first requested.
-     */
-    private static Adapters DEFAULT;
-    
-    /**
-     * The underlying adapters for the <code>org.geotools.pt</code> package.
-     */
-    public final org.geotools.pt.Adapters PT;
-    
+public class Adapters extends org.geotools.pt.Adapters {
     /**
      * Default constructor.
-     *
-     * @param PT The underlying adapters for the <code>org.geotools.pt</code>
-     * package.
      */
-    protected Adapters(final org.geotools.pt.Adapters PT) {
-        this.PT = PT;
-    }
-    
-    /**
-     * Gets the default adapters.
-     */
-    public static synchronized Adapters getDefault() {
-        if (DEFAULT == null) {
-            DEFAULT = new Adapters(org.geotools.pt.Adapters.getDefault());
-        }
-        return DEFAULT;
+    protected Adapters() {
     }
     
     /**
@@ -217,8 +197,10 @@ public class Adapters {
     
     /**
      * Constructs an array of OpenGIS structures from a parameters list.
+     * This method is named <code>exportProjectionParameters</code> in
+     * order to avoid conflict with {@link org.geotools.ct.Adapters#export(ParameterList)}.
      */
-    public CS_ProjectionParameter[] export(final ParameterList parameters) {
+    final CS_ProjectionParameter[] exportProjectionParameters(final ParameterList parameters) {
         if (parameters == null) {
             return null;
         }

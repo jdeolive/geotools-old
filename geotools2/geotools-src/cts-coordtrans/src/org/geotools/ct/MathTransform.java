@@ -67,7 +67,7 @@ import javax.media.jai.PerspectiveTransform;
  * from observations, the transformation is accurate to within the
  * limitations of those observations.
  *
- * @version $Id: MathTransform.java,v 1.3 2002/07/24 17:34:20 desruisseaux Exp $
+ * @version $Id: MathTransform.java,v 1.4 2003/01/15 21:46:34 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -404,7 +404,7 @@ final class MathTransformExport extends RemoteObject implements CT_MathTransform
      */
     public PT_Matrix derivative(PT_CoordinatePoint cp) throws RemoteException {
         try {
-            return adapters.PT.export(transform.derivative(adapters.PT.wrap(cp)));
+            return adapters.export(transform.derivative(adapters.wrap(cp)));
         } catch (TransformException exception) {
             throw new ServerException(exception.getLocalizedMessage(), exception);
         }

@@ -70,7 +70,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version $Id: CoordinateTransformation.java,v 1.4 2002/10/13 00:17:37 desruisseaux Exp $
+ * @version $Id: CoordinateTransformation.java,v 1.5 2003/01/15 21:46:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -441,14 +441,14 @@ public class CoordinateTransformation extends Info {
          * Source coordinate system.
          */
         public CS_CoordinateSystem getSourceCS() throws RemoteException {
-            return adapters.CS.export(CoordinateTransformation.this.getSourceCS());
+            return adapters.export(CoordinateTransformation.this.getSourceCS());
         }
         
         /**
          * Target coordinate system.
          */
         public CS_CoordinateSystem getTargetCS() throws RemoteException {
-            return adapters.CS.export(CoordinateTransformation.this.getTargetCS());
+            return adapters.export(CoordinateTransformation.this.getTargetCS());
         }
         
         /**
