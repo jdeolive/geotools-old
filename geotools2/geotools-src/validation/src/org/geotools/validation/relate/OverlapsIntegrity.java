@@ -111,7 +111,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * <b>Description:</b><br>
 	 * <p>
 	 * The function filters the FeatureSources using the given bounding box.
-	 * It creates iterators over both filtered FeatureSources. It calls overlaps() using the
+	 * It creates iterators over both filtered FeatureSources. It calls overlaps() and contains()using the
 	 * geometries in the FeatureSource layers. Tests the results of the method call against
 	 * the given expected results. Returns true if the returned results and the expected results 
 	 * are true, false otherwise.
@@ -124,7 +124,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * @param featureSourceB - the FeatureSource to pull the other geometries from - these geometries will be those that may overlap the first geometry
 	 * @param expected - boolean value representing the user's expected outcome of the test
 	 * @param results - ValidationResults
-	 * @param bBox - Envelope - the bounding box within which to perform the overlaps()
+	 * @param bBox - Envelope - the bounding box within which to perform the overlaps() and contains()
 	 * @return boolean result of the test
 	 * @throws Exception - IOException if iterators improperly closed
 	 */
@@ -200,8 +200,8 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * <b>Description:</b><br>
 	 * <p>
 	 * The function filters the FeatureSource using the given bounding box.
-	 * It creates iterators over the filtered FeatureSource. It calls overlaps() using the
-	 * geometries in the FeatureSource layer. Tests the results of the method call against
+	 * It creates iterators over the filtered FeatureSource. It calls overlaps() and contains() using the
+	 * geometries in the FeatureSource layer. Tests the results of the method calls against
 	 * the given expected results. Returns true if the returned results and the expected results 
 	 * are true, false otherwise.
 	 * 
@@ -211,7 +211,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * @param featureSourceA - the FeatureSource to pull the original geometries from. This geometry is the one that is tested for overlapping itself
 	 * @param expected - boolean value representing the user's expected outcome of the test
 	 * @param results - ValidationResults
-	 * @param bBox - Envelope - the bounding box within which to perform the overlaps()
+	 * @param bBox - Envelope - the bounding box within which to perform the overlaps() and contains()
 	 * @return boolean result of the test
 	 * @throws Exception - IOException if iterators improperly closed
 	 */
