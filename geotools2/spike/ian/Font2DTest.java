@@ -60,7 +60,7 @@ import com.sun.image.codec.jpeg.*;
  */
 public class Font2DTest extends Applet implements ActionListener, ItemListener {
 
-    Font2DCanvas symbols;
+    Font2DCanvas1 symbols;
     TextField tfBaseText;
     TextField tfFontSize;
     TextArea taUnicodeText;
@@ -255,7 +255,7 @@ public class Font2DTest extends Applet implements ActionListener, ItemListener {
         Panel panelCenter = new Panel();
         panelCenter.setLayout(new GridLayout(1, 1));
         ScrollPane spLeft = new ScrollPane();
-        symbols = new Font2DCanvas(this, defaultFont, ASCII_BASE);
+        symbols = new Font2DCanvas1(this, defaultFont, ASCII_BASE);
         spLeft.add(symbols);
         panelCenter.add(spLeft);
         add("Center", panelCenter);
@@ -663,7 +663,7 @@ public class Font2DTest extends Applet implements ActionListener, ItemListener {
     }
 }
 
-class Font2DCanvas extends Canvas implements Printable {
+class Font2DCanvas1 extends Canvas implements Printable {
     Font font;
     int charHeight;
     int charWidth;
@@ -693,7 +693,7 @@ class Font2DCanvas extends Canvas implements Printable {
     static final int DISPLAY_GLYPHS    = 2;
     static final int DISPLAY_RESOURCES = 3;
 
-    public Font2DCanvas(Font2DTest f2dt, Font font, int base) {
+    public Font2DCanvas1(Font2DTest f2dt, Font font, int base) {
         this.font2dtest = f2dt;
         this.font     = font;
         charWidth     = 1;

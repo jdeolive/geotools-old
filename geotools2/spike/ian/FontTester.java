@@ -51,7 +51,9 @@ public class FontTester extends JFrame{
             
             FileInputStream is = new FileInputStream(file);
             font = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT,is);
-            f2dc.setFont(font.deriveFont(20f)); 
+            f2dc.setFont(font.deriveFont(20f));
+            System.out.println("number of glyphs " + font.getNumGlyphs());
+            
             
         } catch (IOException e){
             System.out.println("IO error " + e.toString());
@@ -63,9 +65,10 @@ public class FontTester extends JFrame{
     }
     
     public void display(){
-        this.setSize(400,150);
-        
-        this.getContentPane().add(f2dc);
+        this.setSize(400,400);
+        ScrollPane sp = new ScrollPane();
+        sp.add(f2dc);
+        this.getContentPane().add(sp);
         show();
     }
     
@@ -75,7 +78,7 @@ public class FontTester extends JFrame{
      */
     public static void main(String[] args) {
         FontTester ft = new FontTester();
-        if(!ft.loadFont("geography.ttf")){
+        if(!ft.loadFont("geog.ttf")){
             System.out.println("Unable to load file");
             return;
         }

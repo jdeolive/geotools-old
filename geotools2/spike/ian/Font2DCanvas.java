@@ -505,7 +505,7 @@ public class Font2DCanvas extends Canvas implements Printable {
         boolean modified = false;
 
         g2d.setFont(labelFont);
-        int startx = (int)g2d.getFont().getStringBounds("0000", frc).getWidth() 
+        int startx = (int)g2d.getFont().getStringBounds("0000 (0000)", frc).getWidth() 
                          + charWidth;
         g2d.setFont(g2dFont);
 
@@ -530,7 +530,7 @@ public class Font2DCanvas extends Canvas implements Printable {
             }
 
             g2d.setFont(labelFont);
-            g2d.drawString(Integer.toHexString(h * 16), 10, y);
+            g2d.drawString(Integer.toHexString(h * 16) + " (" + (h * 16) + ")" , 10, y);
             g2d.setFont(g2dFont);
             x = startx;
 
