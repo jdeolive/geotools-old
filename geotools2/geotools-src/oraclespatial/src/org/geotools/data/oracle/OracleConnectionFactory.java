@@ -1,25 +1,19 @@
 /* *    Geotools2 - OpenSource mapping toolkit *    http://geotools.org *    (C) 2002, Geotools Project Managment Committee (PMC) * *    This library is free software; you can redistribute it and/or *    modify it under the terms of the GNU Lesser General Public *    License as published by the Free Software Foundation; *    version 2.1 of the License. * *    This library is distributed in the hope that it will be useful, *    but WITHOUT ANY WARRANTY; without even the implied warranty of *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU *    Lesser General Public License for more details. * */
 package org.geotools.data.oracle;
 
-import oracle.jdbc.pool.OracleConnectionPoolDataSource;
-import org.geotools.data.jdbc.ConnectionPool;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
+import java.sql.SQLException;import java.util.HashMap;import java.util.Map;import oracle.jdbc.pool.OracleConnectionPoolDataSource;import org.geotools.data.jdbc.ConnectionPool;import org.geotools.data.jdbc.ConnectionPoolManager;
 
 /**
  * Provides javax.sql.DataSource wrapper around an OracleConnection object.
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleConnectionFactory.java,v 1.4 2003/08/08 07:37:18 seangeo Exp $
+ * @version $Id: OracleConnectionFactory.java,v 1.5 2003/08/15 00:42:47 seangeo Exp $
  */
 public class OracleConnectionFactory {
     /** The prefix of an Oracle JDBC url */
-    private static final String JDBC_PATH = "jdbc:oracle:thin:@";
-    private static Map connectionPools = Collections.synchronizedMap(new HashMap());
+    private static final String JDBC_PATH = "jdbc:oracle:thin:@";    /** Map that contains Connection Pool Data Sources */
+    private static Map dataSources = new HashMap();
 
     /** The url to the DB */
     private String dbUrl;
@@ -54,21 +48,20 @@ public class OracleConnectionFactory {
      */
     public ConnectionPool getConnectionPool(String user, String pass)
         throws SQLException {
-        ConnectionPool pool = null;
         String poolKey = dbUrl + user + pass;
+        OracleConnectionPoolDataSource poolDataSource =                     (OracleConnectionPoolDataSource) dataSources.get(poolKey);
 
-        if ((pool = (ConnectionPool) connectionPools.get(poolKey)) == null) {
-            OracleConnectionPoolDataSource cpDataSource = new OracleConnectionPoolDataSource();
+        if (poolDataSource  == null) {
+            poolDataSource = new OracleConnectionPoolDataSource();
 
-            cpDataSource.setURL(dbUrl);
-            cpDataSource.setUser(user);
-            cpDataSource.setPassword(pass);
+            poolDataSource.setURL(dbUrl);
+            poolDataSource.setUser(user);
+            poolDataSource.setPassword(pass);
 
-            pool = new ConnectionPool(cpDataSource);
-            connectionPools.put(poolKey, pool);
+            dataSources.put(poolKey, poolDataSource);
         }
-
-        return pool;
+        ConnectionPoolManager manager = ConnectionPoolManager.getInstance();        ConnectionPool connectionPool = manager.getConnectionPool(poolDataSource);
+        return connectionPool;
     }
 
     /**

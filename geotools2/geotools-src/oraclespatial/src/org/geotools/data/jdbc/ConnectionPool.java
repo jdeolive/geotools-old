@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.sql.ConnectionEvent;
 import javax.sql.ConnectionEventListener;
 import javax.sql.ConnectionPoolDataSource;
@@ -38,7 +39,7 @@ import javax.sql.PooledConnection;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: ConnectionPool.java,v 1.1 2003/08/08 07:36:06 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:36:06 $
+ * @version $Id: ConnectionPool.java,v 1.2 2003/08/15 00:42:47 seangeo Exp $ Last Modified: $Date: 2003/08/15 00:42:47 $
  */
 public final class ConnectionPool {
     /** A logger */
@@ -57,6 +58,10 @@ public final class ConnectionPool {
     private ConnectionListManager listManager = new ConnectionListManager();
     /** Cleans the list of dead connections */
     private ConnectionPoolCleaner poolCleaner;
+    /** Indicates that this Connection Pool is closed and it should not
+     *  return connections on calls to getConnection()
+     */
+    private boolean closed = false;
 
     /**
      * Creates a new Connection Pool using a ConnectionPoolDataSource.
@@ -87,9 +92,14 @@ public final class ConnectionPool {
      *
      * @return A Connection from the ConnectionPool.
      *
-     * @throws SQLException If an error occurs getting the connection.
+     * @throws SQLException If an error occurs getting the connection or if the 
+     * connection pool has been closed by a previous call to close().
      */
     public Connection getConnection() throws SQLException {
+        if (closed) {
+            throw new SQLException("The ConnectionPool has been closed.");
+        }
+        
         Connection conn = null;
 
         synchronized (mutex) {
@@ -145,17 +155,56 @@ public final class ConnectionPool {
         return returnConn;
     }
 
-    /* ?? Do I want this ??
-    public void destroy() {
+    /** Closes all the PooledConnections in the the ConnectionPool.
+     *  The current behaviour is to first close all the used connections,
+     *  then close all the available connections.  This method will also set
+     *  the state of the ConnectionPool to closed, caused any future calls
+     *  to getConnection to throw an SQLException.
+     */
+    public void close() {
+        synchronized (mutex) {
+            int size = usedConnections.size();
+            for (int i = 0; i < size; i++) {
+                ManagedPooledConnection mPool = 
+                    (ManagedPooledConnection) usedConnections.removeFirst();
+                mPool.pooledConn.removeConnectionEventListener(listManager);
+                try {
+                    mPool.pooledConn.close();
+                } catch (SQLException e) {
+                    LOGGER.warning("Failed to close PooledConnection: " + e);
+                }
+            }
+            
+            size = availableConnections.size();
+            for (int i = 0; i < size; i++) {
+                ManagedPooledConnection mPool = 
+                    (ManagedPooledConnection) availableConnections.removeFirst();
+                mPool.pooledConn.removeConnectionEventListener(listManager);
+                try {
+                    mPool.pooledConn.close();
+                } catch (SQLException e) {
+                    LOGGER.warning("Failed to close PooledConnection: " + e);
+                }
+            }
+            closed = true;
+        }
     }
-    */
 
+    /** Checks whether the ConnectionPool has been closed.
+     * 
+     * @return True if the connection pool is closed. If the Pool is closed
+     * future calls to getConnection will throw an SQLException.
+     */
+    public boolean isClosed() {
+        return closed;
+    }
+    
     /**
      * A ConnectionEventListener for managing the list of connections in the pool.
      *
      * @author Sean Geoghegan, Defence Science and Technology Organisation
      * @author $Author: seangeo $
-     * @version $Id: ConnectionPool.java,v 1.1 2003/08/08 07:36:06 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:36:06 $
+     * @version $Id: ConnectionPool.java,v 1.2 2003/08/15 00:42:47 seangeo Exp $ Last Modified: $Date: 2003/08/15 00:42:47 $
      */
     private class ConnectionListManager implements ConnectionEventListener {
         /**
@@ -219,7 +268,7 @@ public final class ConnectionPool {
      *
      * @author Sean Geoghegan, Defence Science and Technology Organisation
      * @author $Author: seangeo $
-     * @version $Id: ConnectionPool.java,v 1.1 2003/08/08 07:36:06 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:36:06 $
+     * @version $Id: ConnectionPool.java,v 1.2 2003/08/15 00:42:47 seangeo Exp $ Last Modified: $Date: 2003/08/15 00:42:47 $
      */
     private class ConnectionPoolCleaner implements Runnable {
         /** Time to wait between cleaning */
