@@ -83,12 +83,14 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.5 2003/12/02 22:08:13 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.6 2003/12/30 01:42:34 cholmesny Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: make individual operations truly atomic.  If the transaction is
  *       an auto-commit one, then it should make a a new jdbc transaction that
  *       rollsback if there are errors while performing its action.
+ * @task TODO: don't use encoder at all, only access it through
+ *       PostgisSQLBuilder
  */
 public class PostgisFeatureStore extends JDBCFeatureStore {
     /** The logger for the postgis module. */
@@ -108,7 +110,8 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
     protected static final String CONN_ERROR = "Some sort of database connection error: ";
 
     /** To create the sql where statement */
-    protected SQLEncoderPostgis encoder = new SQLEncoderPostgis();
+    protected SQLBuilder sqlBuilder;
+    protected SQLEncoderPostgis encoder;
     protected String tableName;
 
     /** the name of the column to use for the featureId */
@@ -119,14 +122,17 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         super(postgisDataStore, featureType);
         tableName = featureType.getTypeName();
         fidColumn = postgisDataStore.getFidColumn(tableName);
+        sqlBuilder = postgisDataStore.getSqlBuilder(tableName);
 
         AttributeType geomType = featureType.getDefaultGeometry();
+        encoder = new SQLEncoderPostgis();
 
         if (geomType != null) {
             //HACK: encoder should be set for each geometry.
             int srid = getSRID(geomType.getName());
             encoder.setDefaultGeometry(geomType.getName());
             encoder.setSRID(srid);
+            encoder.setFidColumn(fidColumn);
         }
     }
 
@@ -377,7 +383,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
             if (encodableFilter != null) {
                 whereStmt = encoder.encode((AbstractFilter) encodableFilter);
-                sql = "DELETE from " + tableName + " " + whereStmt + ";";
+                sql = "DELETE from \"" + tableName + "\" " + whereStmt + ";";
 
                 //do actual delete
                 LOGGER.fine("sql statment is " + sql);
@@ -646,7 +652,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
        //commit();
        //setAutoCommit(originalAutoCommit);
        }*/
-
     protected PostgisDataStore getPostgisDataStore() {
         return (PostgisDataStore) super.getJDBCDataStore();
     }
