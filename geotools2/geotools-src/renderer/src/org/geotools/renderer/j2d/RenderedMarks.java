@@ -71,7 +71,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.14 2003/07/11 16:59:02 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.15 2003/10/09 09:41:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -204,10 +204,23 @@ public abstract class RenderedMarks extends RenderedLayer {
     private transient TransformedShape transformedShape;
 
     /**
-     * Construct a new layer of marks.
+     * Construct a new layer of marks using a default
+     * {@linkplain org.geotools.cs.LocalCoordinateSystem#CARTESIAN cartesian coordinate system}.
      */
     public RenderedMarks() {
         super();
+    }
+
+    /**
+     * Construct a new layer of marks using the specified coordinate system.
+     *
+     * @param  cs The coordinate system. If the specified coordinate system has more than
+     *            two dimensions, then it must be a {@link CompoundCoordinateSystem} with
+     *            a two dimensional {@link CompoundCoordinateSystem#getHeadCS headCS}.
+     * @throws IllegalArgumentException if <code>cs</code> is nul.
+     */
+    public RenderedMarks(final CoordinateSystem cs) {
+        super(cs);
     }
 
     /**

@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.28 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.29 2003/10/09 09:41:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -123,11 +123,12 @@ public abstract class RenderedLayer {
     transient Renderer renderer;
 
     /**
-     * Système de coordonnées utilisé pour cette couche. Les méthodes {@link #getPreferredArea}
-     * et {@link #setPreferredArea} utilisent ce système de coordonnées. Ce champ ne doit jamais
-     * être nul.
+     * The coordinate system for this layer. Methods {@link #getPreferredArea} and
+     * {@link #setPreferredArea} uses this coordinate system. This field must never
+     * be nul. The default constructor initialize it to a
+     * {@linkplain LocalCoordinateSystem#CARTESIAN cartesian coordinate system}.
      */
-    private CoordinateSystem coordinateSystem = LocalCoordinateSystem.CARTESIAN;
+    private CoordinateSystem coordinateSystem;
 
     /**
      * The widget area (in screen coordinates) enqueued for painting, or <code>null</code>
@@ -245,6 +246,31 @@ public abstract class RenderedLayer {
      * @see #setZOrder
      */
     public RenderedLayer() {
+        this(LocalCoordinateSystem.CARTESIAN);
+    }
+
+    /**
+     * Construct a new rendered layer using the specified coordinate system. The
+     * {@linkplain #getZOrder z-order} default to positive infinity (i.e. this layer
+     * is drawn on top of everything else). Subclasses should invokes <code>setXXX</code>
+     * methods in order to define properly this layer's properties.
+     *
+     * @param  cs The coordinate system. If the specified coordinate system has more than
+     *            two dimensions, then it must be a {@link CompoundCoordinateSystem} with
+     *            a two dimensional {@link CompoundCoordinateSystem#getHeadCS headCS}.
+     * @throws IllegalArgumentException if <code>cs</code> is nul.
+     *
+     * @see #setCoordinateSystem
+     * @see #setPreferredArea
+     * @see #setPreferredPixelSize
+     * @see #setZOrder
+     */
+    public RenderedLayer(final CoordinateSystem cs) {
+        if (cs == null) {
+            throw new IllegalArgumentException(Resources.getResources(getLocale())
+                      .getString(ResourceKeys.ERROR_BAD_ARGUMENT_$2, "cs", cs));
+        }
+        coordinateSystem = cs;
         listeners = new PropertyChangeSupport(this);
     }
 
