@@ -50,14 +50,45 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.2 2002/07/23 17:57:25 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.3 2002/07/24 18:15:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
     /**
+     * The categories making the sample dimension to test.
+     */
+    private static final String[] CATEGORIES = {
+        "No data",
+        "Clouds",
+        "Lands"
+    };
+
+    /**
+     * The "no data" values making the sample dimension to test.
+     * There is one for each category in {@link #CATEGORIES}.
+     */
+    private static final int[] NO_DATA = {0, 1, 255};
+
+    /**
+     * The scale factor for the sample dimension to test.
+     */
+    private static final double scale  = 0.1;
+
+    /**
+     * The offset value for the sample dimension to test.
+     */
+    private static final double offset = 5.0;
+
+
+    /**
+     * The sample dimension to test.
+     */
+    private SampleDimension test;
+
+    /**
      * Random number generator for this test.
      */
-    private final Random random = new Random();
+    private Random random;
 
     /**
      * Returns the test suite.
@@ -74,30 +105,28 @@ public class SampleDimensionTest extends TestCase {
     }
 
     /**
-     * Test the creation of a dummy sample dimension.
+     * Set up common objects used for all tests.
+     */
+    protected void setUp() throws Exception {
+        super.setUp();
+        random = new Random();
+
+        assertEquals("setUp", CATEGORIES.length, NO_DATA.length);
+        final Category[] categories = new Category[CATEGORIES.length+1];
+        for (int i=0; i<CATEGORIES.length; i++) {
+            categories[i] = new Category(CATEGORIES[i], null, NO_DATA[i]);
+        }
+        categories[CATEGORIES.length] = new Category("SST", null, 10, 200, scale, offset);
+        test = new SampleDimension(categories, null);
+    }
+
+    /**
+     * Test the consistency of the sample dimension.
      */
     public void testSampleDimension() {
-        final String[] CATEGORY = {
-            "No data",
-            "Clouds",
-            "Lands"
-        };
-        final int[] NO_DATA = {0, 1, 255};
-        assertEquals("<init>", CATEGORY.length, NO_DATA.length);
-        final Category[] categories = new Category[CATEGORY.length+1];
-        for (int i=0; i<CATEGORY.length; i++) {
-            categories[i] = new Category(CATEGORY[i], null, NO_DATA[i]);
-        }
-        final double scale  = 0.1;
-        final double offset = 5.0;
-        categories[CATEGORY.length] = new Category("SST", null, 10, 200, scale, offset);
-        final SampleDimension test = new SampleDimension(categories, null);
-        /*
-         * Finished initialization. Test now...
-         */
         final double[] nodataValues = test.getNoDataValue();
-        assertEquals("nodataValues.length", CATEGORY.length, nodataValues.length);
-        for (int i=0; i<CATEGORY.length; i++) {
+        assertEquals("nodataValues.length", CATEGORIES.length, nodataValues.length);
+        for (int i=0; i<CATEGORIES.length; i++) {
             assertEquals("nodataValues["+i+']', NO_DATA[i], nodataValues[i], 0);
         }
         assertEquals("scale",   test.getScale(),     scale,  0);

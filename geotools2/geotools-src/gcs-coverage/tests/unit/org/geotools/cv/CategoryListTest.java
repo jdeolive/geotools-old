@@ -53,7 +53,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link CategoryList} implementation.
  *
- * @version $Id: CategoryListTest.java,v 1.1 2002/07/23 17:57:25 desruisseaux Exp $
+ * @version $Id: CategoryListTest.java,v 1.2 2002/07/24 18:15:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryListTest extends TestCase {
@@ -120,7 +120,7 @@ public class CategoryListTest extends TestCase {
             for (int i=0; i<categories.length; i++) {
                 categories[i] = new Category(String.valueOf(i), null, random.nextInt(100)).inverse;
             }
-            Arrays.sort(categories, new CategoryList(new Category[0]));
+            Arrays.sort(categories, new CategoryList(new Category[0], null));
             assertTrue("isSorted", CategoryList.isSorted(categories));
             for (int i=0; i<categories.length; i++) {
                 array[i] = categories[i].inverse.minimum;
@@ -146,7 +146,7 @@ public class CategoryListTest extends TestCase {
             new Category("Land again",  null, 10) // Range overlaps.
         };
         try {
-            new CategoryList(categories);
+            new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getLocalizedMessage());
@@ -158,7 +158,7 @@ public class CategoryListTest extends TestCase {
             categories[i] = cat.rescale(true);
         }
         try {
-            new CategoryList(categories);
+            new CategoryList(categories, null);
             fail("Argument check");
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getLocalizedMessage());
@@ -166,7 +166,7 @@ public class CategoryListTest extends TestCase {
         }
         // Remove the wrong category. Now, construction should succed.
         categories = (Category[]) XArray.resize(categories, categories.length-1);
-        new CategoryList(categories);
+        new CategoryList(categories, null);
     }
 
     /**

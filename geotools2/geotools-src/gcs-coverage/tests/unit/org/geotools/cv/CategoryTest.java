@@ -49,7 +49,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Category} implementation.
  *
- * @version $Id: CategoryTest.java,v 1.2 2002/07/23 17:57:25 desruisseaux Exp $
+ * @version $Id: CategoryTest.java,v 1.3 2002/07/24 18:15:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CategoryTest extends TestCase {
@@ -125,12 +125,7 @@ public class CategoryTest extends TestCase {
             assertEquals("<init>", category1, category2);
             assertEquals("lower",  category1.rescale(false).getRange().getMinValue(), sample);
             assertEquals("upper",  category1.rescale(false).getRange().getMaxValue(), sample);
-            try {
-                category1.rescale(true).getRange();
-                fail(); // Should not happen
-            } catch (IllegalStateException exception) {
-                // This is the expected exception.
-            }
+
             assertNull("rescale(false).transform", category1.rescale(false).getSampleToGeophysics());
             assertNull("rescale(true).transform",  category1.rescale(true ).getSampleToGeophysics());
             for (int i=0; i<200; i++) {

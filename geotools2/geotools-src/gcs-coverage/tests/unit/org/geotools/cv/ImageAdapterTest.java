@@ -50,7 +50,7 @@ import junit.framework.TestSuite;
  * Test the {@link ImageAdapter} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: ImageAdapterTest.java,v 1.1 2002/07/23 17:57:25 desruisseaux Exp $
+ * @version $Id: ImageAdapterTest.java,v 1.2 2002/07/24 18:15:05 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ImageAdapterTest extends TestCase {
@@ -96,7 +96,7 @@ public class ImageAdapterTest extends TestCase {
             new Category("Temperature", null, 3, 100, 0.1, 5),
             new Category("Foo",         null, 100, 120, -1, 3),
             new Category("Tarzan",      null, 120)
-        });
+        }, null);
     }
 
     /**
