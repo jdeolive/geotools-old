@@ -2,16 +2,11 @@
 
 <project name="Algorithms">
 
-  <title>Algorithms</title>
+  <title>defaultcore</title>
 
   
     <body>
-    <links>
-      <item name="core" href="/../../../core/target/docs/"></item>
-      <item name="defaultcore" href="/../../../defaultcore/target/docs/"></item>
-      <item name="filter" href="/../../../filter/target/docs/"></item>
-            <item name="algorithms" href="/../../../algorithms/target/docs/"></item>
-        </links>
+    
     <!-- <menu name="Overview">
       <item name="Goals" href="/goals.html"/>
       <item name="Features" href="/features.html"/>
@@ -21,6 +16,11 @@
       <item name="Plugins" href="/plugins/index.html"/>
       <item name="Powered By" href="/powered.html"/>
     </menu> -->
-  </body>
+        <links>
+      <item name="core" href="http://core.geotools.org"></item>
+      <item name="defaultcore" href="http://defaultcore.geotools.org"></item>
+      <item name="filter" href="http://shapefile.geotools.org"></item>
+    </links>
+    </body>
 </project>
 
