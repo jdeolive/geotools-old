@@ -38,7 +38,8 @@ module: geotools2
 
 You can find out more information about each of the major modules by going to
 http://modules.geotools.org  Each module has its own homepage with full javadoc
-and lists of tasks which need completing. 
+and lists of tasks which need completing.  The design document is being fleshed
+out is can give you a general overview (despite being incomplete).
 
 If you are interested in the future development of geotools2 then feel free to join
 the geotools-devel mailing list and join in the on the frequent IRC sessions
@@ -56,6 +57,7 @@ The GeoTools2 development team.
 
 
 ----
-The following link points to a recent build of the geotools 2 dev guide:
+The following link points to a recent build of the geotools 2 dev guide and
+design documents:
 http://www.geotools.org/gt2docs/
 
