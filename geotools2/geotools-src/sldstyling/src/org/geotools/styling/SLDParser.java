@@ -170,6 +170,9 @@ public class SLDParser {
         // for our next trick do something with the dom.
         NodeList nodes = findElements(document, "UserStyle");
         
+        if(nodes == null)
+        	return new Style[0];
+        
         Style[] styles = new Style[nodes.getLength()];
         
         for (int i = 0; i < nodes.getLength(); i++) {
