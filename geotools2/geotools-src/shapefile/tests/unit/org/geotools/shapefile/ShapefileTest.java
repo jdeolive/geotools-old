@@ -67,9 +67,6 @@ public class ShapefileTest extends TestCase {
             LEDataInputStream sfile = new LEDataInputStream(in);
             GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",10,shapes.getNumGeometries());
-            //Geometry bounds = shapes.getEnvelope();
-            //bounds.
-            //System.out.println(""+bounds.getMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
         }
         catch(Exception e){
             System.out.println(e);
@@ -90,9 +87,6 @@ public class ShapefileTest extends TestCase {
             LEDataInputStream sfile = new LEDataInputStream(in);
             GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
-            //Geometry bounds = shapes.getEnvelope();
-            //bounds.
-            //System.out.println(""+bounds.getMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
         }
         catch(Exception e){
             System.out.println(e);
