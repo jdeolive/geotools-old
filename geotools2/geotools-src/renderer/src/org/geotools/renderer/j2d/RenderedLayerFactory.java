@@ -16,20 +16,18 @@
  */
 package org.geotools.renderer.j2d;
 
-
-// JTS dependencies
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Point;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.cv.Category;
+import org.geotools.cv.SampleDimension;
 import org.geotools.data.FeatureEvent;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureSource;
-
-// Geotools dependencies
 import org.geotools.feature.Feature;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
@@ -40,6 +38,8 @@ import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
 import org.geotools.resources.XArray;
+import org.geotools.styling.ColorMap;
+import org.geotools.styling.ColorMapEntry;
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.LineSymbolizer;
 import org.geotools.styling.PointSymbolizer;
@@ -50,14 +50,17 @@ import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
 import org.geotools.util.NumberRange;
 import org.geotools.util.RangeSet;
-import java.io.IOException;
 
-// J2SE dependencies
+// JTS dependencies
+import java.awt.Color;
+import java.awt.image.RenderedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.logging.Logger;
@@ -68,7 +71,7 @@ import java.util.logging.Logger;
  *
  * @author Andrea Aime
  * @author Martin Desruisseaux
- * @version $Id: RenderedLayerFactory.java,v 1.20 2004/02/13 14:28:05 aaime Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.21 2004/03/01 15:47:05 aaime Exp $
  */
 public class RenderedLayerFactory {
     /** The logger. */
@@ -456,8 +459,8 @@ public class RenderedLayerFactory {
                     geometries = new JTSGeometries(coordinateSystem);
                 }
 
-                GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
-                renderedLayers.add(new RenderedGridCoverage(grid));
+                GridCoverage recoloredGrid = createRecoloredGrid(feature, (RasterSymbolizer) symb);
+                renderedLayers.add(new RenderedGridCoverage(recoloredGrid));
             } else {
                 String id = feature.getID();
                 Geometry g = geometryMap.get(id, symb);
@@ -470,7 +473,8 @@ public class RenderedLayerFactory {
 
                     if (geometry != null) {
                         g = geometries.add(geometry);
-                        if(!(geometry instanceof Point)) {
+
+                        if (!(geometry instanceof Point)) {
                             geometryMap.put(id, symb, g);
                         }
                     }
@@ -484,6 +488,100 @@ public class RenderedLayerFactory {
         }
 
         return geometries;
+    }
+
+    /**
+     * Applies the symbolizer to the grid coverage, effectively creating a new coverage with a new
+     * set of mappings from geophysics to non geophysics categories
+     *
+     * @param feature
+     * @param symbolizer
+     *
+     * @return
+     */
+    private GridCoverage createRecoloredGrid(Feature feature, RasterSymbolizer symbolizer) {
+        ColorMap colorMap = symbolizer.getColorMap();
+        GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
+
+        if (colorMap == null) {
+            return grid;
+        }
+
+        SampleDimension sampleDimension = null;
+
+        if (colorMap.getType() == ColorMap.TYPE_RAMP || colorMap.getType() == ColorMap.TYPE_INTERVALS) {
+            ColorMapEntry[] entries = colorMap.getColorMapEntries();
+            int rangeStart = 1;
+            double rangeStep = 254 / (entries.length - 1);
+            Category[] categories = new Category[entries.length];
+
+            for (int i = 0; i < (entries.length - 1); i++) {
+                // get the entries
+                ColorMapEntry curr = entries[i];
+                ColorMapEntry next = entries[i + 1];
+                // compute the colors
+                Color colorCurr = decodeColor(curr, feature);
+                Color colorNext = decodeColor(next, feature);
+                // compute the sample range
+                int rangeEnd = (int) Math.round(1 + ((i + 1) * rangeStep));
+                NumberRange sampleRange = new NumberRange(rangeStart, rangeEnd);
+                // compute the geophisics range
+                float gprStart = ((Number) curr.getQuantity().getValue(feature)).floatValue();
+                float gprEnd = ((Number) next.getQuantity().getValue(feature)).floatValue();
+                NumberRange geophisicsRange = new NumberRange(gprStart, true, gprEnd, false);
+                // create the category according to the color map style
+                if(colorMap.getType() == ColorMap.TYPE_RAMP) {
+                    categories[i] = new Category(curr.getLabel(), new Color[] { colorCurr, colorNext },
+                        sampleRange, geophisicsRange);
+                } else {
+                    categories[i] = new Category(curr.getLabel(), new Color[] { colorCurr, colorCurr },
+                                            sampleRange, geophisicsRange);
+                }
+
+                // new range start, avoid overlap
+                rangeStart = rangeEnd + 1;
+            }
+
+            // TODO: stupid hack, find a way to avoid drawing pixels above the max value...
+            float maxValue = ((Number) entries[entries.length - 1].getQuantity().getValue(feature))
+                .floatValue();
+            
+            categories[entries.length - 1] = new Category("trailing nulls",
+                    new Color[] { new Color(0, 0, 0, 0) }, new NumberRange(rangeStart, 255),
+                    new NumberRange(maxValue, true, Integer.MAX_VALUE, false));
+            sampleDimension = new SampleDimension(categories,
+                    grid.getSampleDimensions()[0].getUnits());
+        } else if (colorMap.getType() == ColorMap.TYPE_VALUES) {
+            // TODO: damn, this does not work!
+            ColorMapEntry[] entries = colorMap.getColorMapEntries();
+            Category[] categories = new Category[entries.length];
+
+            for (int i = 0; i < entries.length; i++) {
+                ColorMapEntry curr = entries[i];
+                Color colorCurr = Color.decode((String) curr.getColor().getValue(feature));
+                float value = ((Number) curr.getQuantity().getValue(feature)).floatValue();
+                categories[i] = new Category(curr.getLabel(), colorCurr, value);
+            }
+            sampleDimension = new SampleDimension(categories, grid.getSampleDimensions()[0].getUnits());
+        }
+
+        // create the new sample dimension and finally the converted grid coverage
+        SampleDimension geoSd = sampleDimension.geophysics(true);
+        SampleDimension[] bands = new SampleDimension[] { geoSd };
+        String gridName = "Rendered " + grid.getName(Locale.getDefault());
+        RenderedImage image = grid.geophysics(true).getRenderedImage();
+        GridCoverage newGrid = new GridCoverage(gridName, image, grid.getCoordinateSystem(),
+                grid.getGridGeometry().getGridToCoordinateSystem(), bands,
+                new GridCoverage[] { grid }, grid.getProperties());
+
+        return newGrid;
+    }
+    
+    private Color decodeColor(ColorMapEntry entry, Feature feature) {
+        Color color = Color.decode((String) entry.getColor().getValue(feature));
+        double opacity = ((Number) entry.getOpacity().getValue(feature)).doubleValue();
+        int alpha = (int) Math.round(opacity * 255.0);
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
 
     /**
@@ -610,18 +708,20 @@ public class RenderedLayerFactory {
         }
 
         public void put(String ID, Symbolizer symb, Geometry renderedGeometry) {
-            if(symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
+            if (symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
                 return; // do not cache with these symbolizers, they are problematic
             } else {
-                geometryMap.put(new RenderedFeatureKey(ID, getGeometryPropertyName(symb)), renderedGeometry);
+                geometryMap.put(new RenderedFeatureKey(ID, getGeometryPropertyName(symb)),
+                    renderedGeometry);
             }
         }
 
         public Geometry get(String ID, Symbolizer symb) {
-            if(symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
-                return null; 
+            if (symb instanceof PointSymbolizer || symb instanceof TextSymbolizer) {
+                return null;
             } else {
                 rfk.init(ID, getGeometryPropertyName(symb));
+
                 return (Geometry) geometryMap.get(rfk);
             }
         }
@@ -679,7 +779,8 @@ public class RenderedLayerFactory {
          * @see java.lang.Object#hashCode()
          */
         public int hashCode() {
-           return 37 * (17 * ID.hashCode()) + (geomPropName == null ? 0 : geomPropName.hashCode());
+            return (37 * (17 * ID.hashCode()))
+            + ((geomPropName == null) ? 0 : geomPropName.hashCode());
         }
     }
 }
