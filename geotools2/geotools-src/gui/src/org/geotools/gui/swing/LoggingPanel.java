@@ -79,14 +79,14 @@ import org.geotools.resources.SwingUtilities;
  * A panel displaying logging messages. The windows displaying Geotools's logging messages
  * can be constructed with the following code:
  *
- * <blockquote>
+ * <blockquote><pre>
  * new LoggingPanel("org.geotools").{@link #show(Component) show}(null);
- * </blockquote>
+ * </pre></blockquote>
  *
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.5 2002/09/04 10:32:18 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.6 2002/09/04 15:24:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
