@@ -72,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version 1.00
+ * @version $Id: CoordinateSystem.java,v 1.2 2002/06/05 14:44:52 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -85,7 +85,7 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     private static final long serialVersionUID = -4539963180028417479L;
     
     /**
-     * Construct a coordinate system.
+     * Constructs a coordinate system.
      *
      * @param name The coordinate system name.
      */
@@ -94,12 +94,12 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     }
     
     /**
-     * Make sure there is no axis among the same direction
-     * (e.g. two north axis, or a east and a west axis).
-     * This methods may be invoked from subclasses constructors.
+     * Makes sure there is no axis along the same direction
+     * (e.g. two north axes, or an east and a west axis).
+     * These methods may be invoked from subclass constructors.
      *
-     * @param  type The datum type, or <code>null</code> if unknow.
-     * @throws IllegalArgumentException if two axis have the same direction.
+     * @param  type The datum type, or <code>null</code> if unknown.
+     * @throws IllegalArgumentException if two axes have the same direction.
      */
     final void checkAxis(final DatumType type) throws IllegalArgumentException {
         final int  dimension = getDimension();
@@ -152,7 +152,7 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     public abstract Unit getUnits(int dimension);
     
     /**
-     * If all dimensions use the same units, returns this
+     * If all dimensions use the same units, returns these
      * units. Otherwise, returns <code>null</code>.
      */
     final Unit getUnits() {
@@ -199,13 +199,13 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link net.seagis.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The <code>equivalents</code> method is less strict than <code>equals</code>
-     * in that it doesn't compare names, alias, authority codes or others similar
-     * informations.
+     * The <code>equivalents</code> method is less strict than
+     * <code>equals</code> in that it doesn't compare names, alias, authority
+     * codes or other similar information.
      *
      * @param  cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
@@ -231,7 +231,7 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -249,13 +249,10 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     /**
      * Wrap a {@link CoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     class Export extends Info.Export implements CS_CoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

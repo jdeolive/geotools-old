@@ -53,11 +53,11 @@ import java.rmi.RemoteException;
 
 /**
  * An aggregate of two coordinate systems.
- * One of these is usually a two dimensional coordinate system such as a
+ * One of these is usually a two-dimensional coordinate system such as a
  * geographic or a projected coordinate system with a horizontal datum.
- * The other is one-dimensional coordinate system with a vertical datum.
+ * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version 1.00
+ * @version $Id: CompoundCoordinateSystem.java,v 1.3 2002/06/05 14:40:31 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -203,12 +203,12 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns  <code>true</code> if this coordinate system is equivalents to
+     * Returns <code>true</code> if this coordinate system is equivalent to
      * the specified coordinate system. Two coordinate systems are considered
      * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
      * <code>this</code> to <code>cs</code> would be the identity transform.
      *
-     * @param  cs The coordinate system (may be <code>null</code>).
+     * @param cs The coordinate system (may be <code>null</code>).
      * @return <code>true</code> if both coordinate systems are equivalent.
      */
     public boolean equivalents(final CoordinateSystem cs) {
@@ -241,7 +241,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
     
     /**
      * Fill the part inside "[...]".
-     * Used for formatting Well Know Text (WKT).
+     * Used for formatting Well Known Text (WKT).
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
@@ -256,7 +256,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
      * system. The returned object is suitable for RMI use.
      *
      * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     *       to avoid premature class loading of OpenGIS interface.
      */
     final Object toOpenGIS(final Object adapters) {
         return new Export(adapters);
@@ -274,13 +274,10 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
     /**
      * Wrap a {@link CompoundCoordinateSystem} object for use with OpenGIS.
      * This class is suitable for RMI use.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private final class Export extends CoordinateSystem.Export implements CS_CompoundCoordinateSystem {
         /**
-         * Construct a remote object.
+         * Constructs a remote object.
          */
         protected Export(final Object adapters) {
             super(adapters);

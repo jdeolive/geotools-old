@@ -49,7 +49,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version 1.00
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.2 2002/06/05 14:47:13 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -62,7 +62,7 @@ public abstract class CoordinateSystemAuthorityFactory {
     protected final CoordinateSystemFactory factory;
     
     /**
-     * Construct an authority factory using the
+     * Constructs an authority factory using the
      * specified coordinate system factory.
      *
      * @param factory The underlying factory used for objects creation.
@@ -82,10 +82,11 @@ public abstract class CoordinateSystemAuthorityFactory {
      *
      * @param  code Value allocated by authority.
      * @return The ellipsoid object.
-     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
-     * @throws FactoryException if some other kind of failure occured in the backing
-     *         store. Most common failure cause include {@link java.sql.SQLException} or
-     *         {@link java.io.IOException}.
+     * @throws NoSuchAuthorityCodeException if this method can't find the
+     *         requested code.
+     * @throws FactoryException if some other kind of failure occurred in
+     *         the backing store. Most common failure causes include
+     *         {@link java.sql.SQLException} or {@link java.io.IOException}.
      *
      * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createEllipsoid
      */
@@ -98,10 +99,11 @@ public abstract class CoordinateSystemAuthorityFactory {
      *
      * @param  code Value allocated by authority.
      * @return The unit object.
-     * @throws NoSuchAuthorityCodeException if this method can't find the requested code.
-     * @throws FactoryException if some other kind of failure occured in the backing
-     *         store. Most common failure cause include {@link java.sql.SQLException} or
-     *         {@link java.io.IOException}.
+     * @throws NoSuchAuthorityCodeException if this method can't find the
+     *         requested code.
+     * @throws FactoryException if some other kind of failure occurred in
+     *         the backing store. Most common failure causes include
+     *         {@link java.sql.SQLException} or {@link java.io.IOException}.
      *
      * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createLinearUnit
      * @see org.opengis.cs.CS_CoordinateSystemAuthorityFactory#createAngularUnit
@@ -111,7 +113,7 @@ public abstract class CoordinateSystemAuthorityFactory {
     }
     
     /**
-     * Set the properties for an {@link Info} object. This method
+     * Sets the properties for an {@link Info} object. This method
      * should be invoked from all <code>create*</code> methods.
      *
      * @param info         The {@link Info} object to set properties.

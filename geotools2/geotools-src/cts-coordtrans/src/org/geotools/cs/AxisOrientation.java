@@ -60,15 +60,16 @@ import org.geotools.resources.cts.ResourceKeys;
  * the ordering for a (<var>x</var>,<var>y</var>,<var>z</var>,<var>t</var>)
  * coordinate system. This means that when an array of <code>AxisOrientation</code>s
  * is sorted using {@link java.util.Arrays#sort(Object[])}, EAST and WEST
- * orientations will appears first. NORTH and SOUTH will be next, followed
+ * orientations will appear first. NORTH and SOUTH will be next, followed
  * by UP and DOWN, etc.
  *
- * Care should be exercised if <code>AxisOrientation</code>s are to be used as keys in
- * a sorted map or elements in a sorted set, as <code>AxisOrientation</code>'s natural
- * ordering is inconsistent with equals. See {@link java.lang.Comparable},
- * {@link java.util.SortedMap} or {@link java.util.SortedSet} for more information.
+ * Care should be exercised if <code>AxisOrientation</code>s are to be used as
+ * keys in a sorted map or elements in a sorted set, as
+ * <code>AxisOrientation</code>'s natural ordering is inconsistent with equals.
+ * See {@link java.lang.Comparable}, {@link java.util.SortedMap} or
+ * {@link java.util.SortedSet} for more information.
  *
- * @version 1.00
+ * @version $Id: AxisOrientation.java,v 1.3 2002/06/05 14:37:35 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -151,7 +152,7 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     public static final AxisOrientation PAST = new AxisOrientation("PAST", 8, ResourceKeys.PAST);
     
     /**
-     * The last paired value. Paired value are NORTH-SOUTH, EAST-WEST,
+     * The last paired value. Paired values are NORTH-SOUTH, EAST-WEST,
      * UP-DOWN, FUTURE-PAST.
      */
     private static final int LAST_PAIRED_VALUE = 8;
@@ -176,14 +177,15 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     
     /**
      * Resource key, used for building localized name. This key doesn't need to
-     * be serialized, since {@link #readResolve} canonicalize enums according their
-     * {@link #value}. Furthermore, its value is implementation-dependent (which is
-     * an other raison why it should not be serialized).
+     * be serialized, since {@link #readResolve} canonicalizes enums according
+     * to their {@link #value}. Furthermore, its value is
+     * implementation-dependent (which is another raison why it should not be
+     * serialized).
      */
     private transient final int key;
     
     /**
-     * Construct a new enum with the specified value.
+     * Constructs a new enum with the specified value.
      */
     private AxisOrientation(final String name, final int value, final int key) {
         super(name, value);
@@ -191,11 +193,11 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     }
     
     /**
-     * Return the enum for the specified value.
+     * Returns the enum for the specified value.
      * This method is provided for compatibility with
      * {@link org.opengis.cs.CS_AxisOrientationEnum}.
      *
-     * @param  value The enum value.
+     * @param value The enum value.
      * @return The enum for the specified value.
      * @throws NoSuchElementException if there is no enum for the specified value.
      */
@@ -206,9 +208,10 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     
     /**
      * Returns this enum's name in the specified locale.
-     * If no name is available for the specified locale, a default one will be used.
+     * If no name is available for the specified locale, a default one will
+     * be used.
      *
-     * @param  locale The locale, or <code>null</code> for the default locale.
+     * @param locale The locale, or <code>null</code> for the default locale.
      * @return Enum's name in the specified locale.
      */
     public String getName(final Locale locale) {
@@ -218,8 +221,8 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     /**
      * Returns the opposite orientation of this axis.
      * The opposite of North is South, and the opposite of South is North.
-     * The same apply to East-West, Up-Down and Future-Past.
-     * Other axis orientation are returned inchanged.
+     * The same applies to East-West, Up-Down and Future-Past.
+     * Other axis orientations are returned unchanged.
      */
     public AxisOrientation inverse() {
         final int value=getValue()-1;
@@ -232,10 +235,11 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     
     /**
      * Returns the "absolute" orientation of this axis.
-     * This "absolute" operation is similar to the <code>Math.abs(int)</code> method
-     * in that "negative" orientation (<code>SOUTH</code>, <code>WEST</code>, <code>DOWN</code>,
-     * <code>PAST</code>) are changed for their positive counterpart (<code>NORTH</code>,
-     * <code>EAST</code>, <code>UP</code>, <code>FUTURE</code>). More specifically, the
+     * This "absolute" operation is similar to the <code>Math.abs(int)</code>
+     * method in that "negative" orientations (<code>SOUTH</code>,
+     * <code>WEST</code>, <code>DOWN</code>, <code>PAST</code>) are changed
+     * for their positive counterparts (<code>NORTH</code>, <code>EAST</code>,
+     * <code>UP</code>, <code>FUTURE</code>). More specifically, the
      * following conversion table is applied.
      * <br>&nbsp;
      * <table align="center" cellpadding="3" border="1" bgcolor="F4F8FF">
@@ -264,15 +268,18 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     }
     
     /**
-     * Compares this <code>AxisOrientation</code> with the specified orientation.
-     * The <em>natural ordering</em> is defined as (EAST-WEST), (NORTH-SOUTH),
-     * (UP-DOWN), (FUTURE-PAST) and OTHER, which is the ordering for a
+     * Compares this <code>AxisOrientation</code> with the specified
+     * orientation.  The <em>natural ordering</em> is defined as
+     * (EAST-WEST), (NORTH-SOUTH), (UP-DOWN), (FUTURE-PAST) and OTHER,
+     * which is the ordering for a
      * (<var>x</var>,<var>y</var>,<var>z</var>,<var>t</var>) coordinate system.
-     * Two <code>AxisOrientation</code> that are among the same axis but with an
-     * opposite direction (e.g. EAST vs WEST) are considered equal by this method.
+     * Two <code>AxisOrientation</code>s that are along the same axis but with
+     * an opposite direction (e.g. EAST vs WEST) are considered equal by this
+     * method.
      *
      * @param  ao An <code>AxisOrientation</code> object to be compared with.
-     * @throws ClassCastException if <code>ao</code> is not an <code>AxisOrientation</code> object.
+     * @throws ClassCastException if <code>ao</code> is not an
+     *         <code>AxisOrientation</code> object.
      */
     public int compareTo(final Object ao) {
         final AxisOrientation that = (AxisOrientation)ao;
@@ -298,12 +305,12 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
     }
     
     /**
-     * Use a single instance of {@link AxisOrientation} after deserialization.
-     * It allow client code to test <code>enum1==enum2</code> instead of
+     * Uses a single instance of {@link AxisOrientation} after deserialization.
+     * It allows client code to test <code>enum1==enum2</code> instead of
      * <code>enum1.equals(enum2)</code>.
      *
      * @return A single instance of this enum.
-     * @throws ObjectStreamException is deserialization failed.
+     * @throws ObjectStreamException if deserialization failed.
      */
     private Object readResolve() throws ObjectStreamException {
         final int value = getValue();
@@ -311,7 +318,7 @@ public final class AxisOrientation extends EnumeratedParameter implements Compar
             // Canonicalize
             return ENUMS[value];
         } else {
-            // Collapse unknow value to a single canonical one
+            // Collapse unknown value to a single canonical one
             return ENUMS[0]; 
         }
     }
