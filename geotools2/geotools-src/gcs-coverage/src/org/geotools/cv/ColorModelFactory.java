@@ -45,7 +45,6 @@ import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.image.ComponentColorModel;
@@ -60,6 +59,7 @@ import org.geotools.util.WeakValueHashMap;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 import org.geotools.resources.ImageUtilities;
+import org.geotools.resources.ComponentColorModelJAI;
 
 
 /**
@@ -67,7 +67,7 @@ import org.geotools.resources.ImageUtilities;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.3 2002/08/09 23:06:12 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.4 2002/08/10 12:33:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -195,7 +195,7 @@ final class ColorModelFactory {
                 // Our patched color model extends J2SE's ComponentColorModel (which work correctly
                 // with our custom ColorSpace), but create JAI's SampleModel instead of J2SE's one.
                 // It make RectIter happy and display colors correctly.
-                return new PatchedColorModel(colors, false, false, transparency, type);
+                return new ComponentColorModelJAI(colors, false, false, transparency, type);
             }
             // This factory is not really different from a direct construction of
             // FloatDoubleColorModel. We provide it here just because we must end
@@ -262,52 +262,5 @@ final class ColorModelFactory {
                    Arrays.equals(this.categories, that.categories);
         }
         return false;
-    }
-
-    /**
-     * A color model which create {@link ComponentSampleModelJAI}.
-     * This patch exist only because {@link javax.media.jai.iterator.RectIter}
-     * doesn't accept the J2SE's float and double {@link DataBuffer}. We can't
-     * use the {@link FloatDoubleColorModel} work around because it ignores our
-     * custom {@link ColorSpace}, since we use a J2SE 1.4 API while JAI is only
-     * J2SE 1.3 aware.
-     *
-     * @TODO PATCH: Remove this patch when JAI will recognize J2SE 1.4 classes.
-     */
-    private static final class PatchedColorModel extends ComponentColorModel {
-        /**
-         * Construct a new color model.
-         */
-        public PatchedColorModel(final ColorSpace colorSpace,
-                                 final boolean hasAlpha,
-                                 final boolean isAlphaPremultiplied,
-                                 final int transparency,
-                                 final int transferType)
-        {
-            super(colorSpace, hasAlpha, isAlphaPremultiplied, transparency, transferType);
-        }
-
-        /**
-         * Returns a compatible sample model. This implementation is nearly identical
-         * to default J2SE's implementation, except that it construct a JAI color model
-         * instead of a J2SE one.
-         */
-        public SampleModel createCompatibleSampleModel(final int w, final int h) {
-            switch (transferType) {
-                default: {
-                    return super.createCompatibleSampleModel(w, h);
-                }
-                case DataBuffer.TYPE_FLOAT:   // fall through
-                case DataBuffer.TYPE_DOUBLE: {
-                    final int numComponents = getNumComponents();
-                    final int[] bandOffsets = new int[numComponents];
-                    for (int i=0; i<numComponents; i++) {
-                        bandOffsets[i] = i;
-                    }
-                    return new ComponentSampleModelJAI(transferType, w, h, numComponents,
-                                                       w*numComponents, bandOffsets);
-                }
-            }
-        }
     }
 }
