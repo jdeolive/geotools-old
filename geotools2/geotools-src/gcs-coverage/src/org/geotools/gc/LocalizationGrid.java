@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.4 2002/08/06 14:19:40 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.5 2002/08/08 15:55:10 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -399,48 +399,49 @@ public class LocalizationGrid {
      *                  <code>coeff[4 + offset] = c;</code>
      */
     private void fitPlane(final int offset, final double[] coeff) {
-        double sum_x;     // Mathematical identity (arithmetic series): 1+2+3...+n = n*(n+1)/2
-        double sum_y;     // Mathematical identity (arithmetic series): 1+2+3...+n = n*(n+1)/2
-        double sum_z = 0; // To be computed in the loop.
-        double xx = 0;    // TODO: Which mathematical identity for this one?
-        double yy = 0;    // TODO: Which mathematical identity for this one?
-        double xy;        // Mathematical identity (multiplication of two arithmetic series)
-        double zx = 0;
-        double zy = 0;
-
+        /*
+         * Compute the sum of x, y and z values. Compute also the sum of x*x, y*y, x*y, z*x and z*y
+         * values. When possible, we will avoid to compute the sum inside the loop and use the
+         * following identities instead:
+         *
+         *           1 + 2 + 3 ... + n    =    n*(n+1)/2              (arithmetic series)
+         *        1² + 2² + 3² ... + n²   =    n*(n+0.5)*(n+1)/3
+         */
+        double x,y,z, xx,yy, xy, zx,zy;
+        z = zx = zy = 0; // To be computed in the loop.
         int n=offset;
-        for (int y=0; y<height; y++) {
-            for (int x=0; x<width; x++) {
-                assert computeOffset(x,y)+offset == n : n;
-                final double z = grid[n];
-                sum_z  += z;
-                xx += x*x;
-                yy += y*y;
-                zx += z*x;
-                zy += z*y;
-                n += CP_LENGTH;
+        for (int yi=0; yi<height; yi++) {
+            for (int xi=0; xi<width; xi++) {
+                assert computeOffset(xi,yi)+offset == n : n;
+                final double zi = grid[n];
+                z  += zi;
+                zx += zi*xi;
+                zy += zi*yi;
+                n  += CP_LENGTH;
             }
         }
         n = (n-offset)/CP_LENGTH;
         assert n == width * height : n;
-        sum_x  = (n * (double) (width -1))            / 2;
-        sum_y  = (n * (double) (height-1))            / 2;
-        xy     = (n * (double)((height-1)*(width-1))) / 4;
+        x  = (n * (double) (width -1))            / 2;
+        y  = (n * (double) (height-1))            / 2;
+        xx = (n * (width -0.5) * (width -1))      / 3;
+        yy = (n * (height-0.5) * (height-1))      / 3;
+        xy = (n * (double)((height-1)*(width-1))) / 4;
         /*
          * Solve the following equations for cx and cy:
          *
-         *    ( zx - sum_z*sum_x )  =  cx*(xx - sum_x*sum_x) + cy*(xy - sum_x*sum_y)
-         *    ( zy - sum_z*sum_y )  =  cx*(xy - sum_x*sum_y) + cy*(yy - sum_y*sum_y)
+         *    ( zx - z*x )  =  cx*(xx - x*x) + cy*(xy - x*y)
+         *    ( zy - z*y )  =  cx*(xy - x*y) + cy*(yy - y*y)
          */
-        zx -= sum_z*sum_x/n;
-        zy -= sum_z*sum_y/n;
-        xx -= sum_x*sum_x/n;
-        xy -= sum_x*sum_y/n;
-        yy -= sum_y*sum_y/n;
+        zx -= z*x/n;
+        zy -= z*y/n;
+        xx -= x*x/n;
+        xy -= x*y/n;
+        yy -= y*y/n;
         final double den= (xy*xy - xx*yy);
         final double cy = (zx*xy - zy*xx) / den;
         final double cx = (zy*xy - zx*yy) / den;
-        final double c  = (sum_z - (cx*sum_x + cy*sum_y)) / n;
+        final double c  = (z - (cx*x + cy*y)) / n;
         coeff[0 + offset] = cx;
         coeff[2 + offset] = cy;
         coeff[4 + offset] = c;
