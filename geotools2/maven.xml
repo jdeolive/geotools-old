@@ -329,6 +329,41 @@ Module ${module} : ${status}
             </ant:jar>          
         </goal>
         
+        <goal name="buildBinRelease">
+            <fail unless="release.version" message="release.version not set"/>
+            <j:set var="release.report" value="releaseReport-${release.version}.txt"/>
+            <echo message="release report is set to ${release.report}"/>
+            <echo file="${release.report}" message="release is ${release.version}"/>
+            
+            <maven:reactor basedir="${basedir}/geotools-src" includes="*/project.xml" goals="moveBin" banner="binary release" ignoreFailures="true" postProcessing="true"/>
+            <ant:zip longfile="gnu" basedir="binRelease" destfile="geotools-bin-${release.version}.zip"/>
+        </goal>
+        
+        <goal name="moveBin">
+            <j:set var="stable" value="${maven.module.stable}"/>
+            <j:if test="${stable == true}">
+            <j:set var="release.report" value="releaseReport-${release.version}.txt"/>
+            <echo file="../../${release.report}" append="true">
+            ${pom.id}</echo>
+                <echo message="working on ${pom.id} for binary release"/>
+                <attainGoal name="jar:jar"/> 
+                <ant:copy tofile="../../binRelease/jars/${pom.artifactId}.jar">
+                   <ant:fileset dir="./target">
+                     <ant:include name="${pom.artifactId}-${pom.currentVersion}.jar"/>
+                   </ant:fileset>
+                </ant:copy>
+                <j:forEach var="lib" items="${pom.artifacts}">
+                      <j:set var="dep" value="${lib.dependency}"/>
+                      <j:if test="${dep.getProperty('release.bundle')=='true'}">     
+                         <j:if test="${dep.type =='jar'}"> 
+                              <ant:copy todir="../../binRelease/lib" file="${lib.path}"/>
+                         </j:if> 
+                    </j:if>     
+                </j:forEach>
+                 <echo file="../../${release.report}" append="true">  OK</echo>   
+            </j:if>
+        </goal>
+        
         <goal name="buildSrcRelease">
         <ant:delete dir="${basedir}/srcRelease"/>
         <ant:copy todir="${basedir}/srcRelease">
@@ -343,17 +378,9 @@ Module ${module} : ${status}
         
         </goal>
         <goal name="moveSrc">
-            
-                
-          <!--  <j:if te${maven.stable}</echo> -->
-            <!-- this will be called for each module but only applied to modules which have maven.stable set to true -->
             <j:set var="stable" value="${maven.module.stable}"/>
             <j:if test="${stable == true}">
              <echo message="${pom.id} is stable"/>
-            <!-- <ant:copy todir="../../srcRelease/${pom.artifactId}/src">
-               <ant:fileset dir="src">
-               <ant:include name="**"/>
-             </ant:fileset> -->
              <ant:copy todir="../../srcRelease/geotools-src/${pom.artifactId}/">
                <ant:fileset dir=".">
                  <ant:include name="src/**"/>
@@ -361,8 +388,7 @@ Module ${module} : ${status}
                  <ant:include name="build.properties"/>
                  <ant:include name="run-maven.xml"/>
                </ant:fileset>
-             
-            </ant:copy>
+             </ant:copy>
             </j:if>
     </goal>
 
