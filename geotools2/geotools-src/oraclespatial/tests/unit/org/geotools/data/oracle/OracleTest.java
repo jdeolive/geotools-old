@@ -58,12 +58,12 @@ import java.util.Set;
  * named testData.sql needs to be run on your oracle install.  test.properties
  * in the same directory should be set to the correct properties for your
  * instance. Once you have set up your oracle database, ran the testData.sql
- * script  and set the test.properties, you should rename the file to
- * OracleTest  and uncomment the tests.
+ * script  and set the test.properties, you should remove the exclude lines
+ * at the bottom of the oraclespatial project.xml so that maven runs the
+ * test.
  *
  * @author geoghegs
- * @author $Author: cholmesny $
- * @version $Revision: 1.1 $ Last Modified: $Date: 2003/07/08 16:29:46 $
+ * @version $Revision: 1.2 $ Last Modified: $Date: 2003/07/11 23:47:46 $
  */
 public class OracleTest extends TestCase {
     private OracleConnection conn;
@@ -90,7 +90,7 @@ public class OracleTest extends TestCase {
     public void testDummy() {
     }
 
-    /*public void setUp() {
+    public void setUp() {
        try {
            properties = new Properties();
            properties.load(new FileInputStream("test.properties"));
@@ -109,8 +109,8 @@ public class OracleTest extends TestCase {
        }
        public void tearDown() throws SQLException {
            conn.close();
-           }*/
-    /*
+           }
+    
        public void testGetFeatures() {
            try {
                //OracleDataSource ds = new OracleDataSource(conn,"ORA_TEST_POINTS");
@@ -174,7 +174,7 @@ public class OracleTest extends TestCase {
                fail(e.toString());
            }
        }
-       public void testBBoxFilter() {
+    public void testBBoxFilter() {
            try {
                //OracleDataSource ds = new OracleDataSource(conn,"ORA_TEST_POINTS");
                GeometryFilter filter = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
@@ -318,5 +318,5 @@ public class OracleTest extends TestCase {
            } catch (Exception e) {
                fail(e.getMessage());
            }
-           }*/
+           }
 }
