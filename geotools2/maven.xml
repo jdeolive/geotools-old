@@ -324,8 +324,10 @@ Module ${module} : ${status}
              <ant:fileset dir="${basedir}/geotools-src/lite-rendering/target/classes"/>
              <ant:fileset dir="${basedir}/geotools-src/resources/target/classes"/>
              <ant:fileset dir="${basedir}/geotools-src/sldstyling/target/classes"/>
-             
+             <ant:fileset dir="${basedir}/geotools-src/svgsupport/target/classes"/>
+             <ant:fileset dir="${basedir}/geotools-src/opengis/target/classes"/>             
             </ant:jar>          
         </goal>
 
 </project>
+ 
