@@ -15,7 +15,7 @@ import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
-import org.geotools.feature.Feature;
+import org.geotools.data.jdbc.ConnectionPoolManager;import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureIterator;
@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
 
-
 /**
  * Tests the OracleDataSource. The oracle datasource does not have a publically available instance,
  * so the sql script in oraclespatial/tests/unit/testData named testData.sql needs to be run on
@@ -44,7 +43,7 @@ import java.util.Set;
  * oraclespatial project.xml so that maven runs the test.
  *
  * @author geoghegs
- * @version $Revision: 1.6 $ Last Modified: $Date: 2003/08/08 07:33:04 $
+ * @version $Revision: 1.7 $ Last Modified: $Date: 2003/08/15 00:42:02 $
  */
 public class OracleTest extends TestCase {
     private OracleConnection conn;
@@ -85,7 +84,7 @@ public class OracleTest extends TestCase {
     }
 
     public void tearDown() throws Exception {
-        conn.close();
+        conn.close();        ConnectionPoolManager manager = ConnectionPoolManager.getInstance();        manager.closeAll();
     }
 
     public void testGetFeatures() throws Exception {

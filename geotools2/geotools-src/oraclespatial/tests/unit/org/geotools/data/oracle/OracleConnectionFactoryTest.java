@@ -1,4 +1,4 @@
-/* $Id: OracleConnectionFactoryTest.java,v 1.1 2003/08/08 07:33:04 seangeo Exp $
+/* $Id: OracleConnectionFactoryTest.java,v 1.2 2003/08/15 00:42:02 seangeo Exp $
  *
  * Created on 4/08/2003
  */
@@ -6,6 +6,8 @@ package org.geotools.data.oracle;
 
 import junit.framework.TestCase;
 import org.geotools.data.jdbc.ConnectionPool;
+import org.geotools.data.jdbc.ConnectionPoolManager;
+
 import java.io.FileInputStream;
 import java.util.Properties;
 
@@ -15,7 +17,7 @@ import java.util.Properties;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleConnectionFactoryTest.java,v 1.1 2003/08/08 07:33:04 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:33:04 $
+ * @version $Id: OracleConnectionFactoryTest.java,v 1.2 2003/08/15 00:42:02 seangeo Exp $ Last Modified: $Date: 2003/08/15 00:42:02 $
  */
 public class OracleConnectionFactoryTest extends TestCase {
     /** The Oracle driver class name */
@@ -66,6 +68,8 @@ public class OracleConnectionFactoryTest extends TestCase {
      */
     protected void tearDown() throws Exception {
         super.tearDown();
+        ConnectionPoolManager manager = ConnectionPoolManager.getInstance();
+        manager.closeAll();
         properties = null;
     }
 
