@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.9 2003/03/12 22:46:07 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.10 2003/04/12 00:03:58 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -91,9 +91,18 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
 
     /**
      * Set to <code>true</code> for a conservative (and maybe slower) algorithm
-     * if {@link #inverseTransform}.
+     * in {@link #inverseTransform}.
      */
     private static final boolean CONSERVATIVE = true;
+
+    /**
+     * Set to <code>true</code> for forcing {@link #inverseTransform} to returns
+     * a value instead of throwing an exception if the transform do not converge.
+     * This is a temporary flag until we find why the inverse transform fails to
+     * converge in some case.
+     */
+    private static final boolean MASK_NON_CONVERGENCE =
+        System.getProperty("org.geotools.gcs.patch", "false").equalsIgnoreCase("true");
 
     /**
      * <var>x</var> (usually longitude) offset relative to an entry.
@@ -526,7 +535,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
              * will be returned. It may not be the best approach since we don't
              * know if this point is valid. Otherwise, an exception is thrown.
              */
-            if (false) {
+            if (MASK_NON_CONVERGENCE) {
                 Logger.getLogger("org.geotools.gc").fine("No convergence");
                 if (bestX>=0 && bestX<width && bestY>=0 && bestY<height) {
                     target.x = bestX;
@@ -559,7 +568,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.9 2003/03/12 22:46:07 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.10 2003/04/12 00:03:58 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
