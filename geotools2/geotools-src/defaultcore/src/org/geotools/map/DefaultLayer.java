@@ -26,7 +26,7 @@ import org.geotools.feature.Feature;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: DefaultLayer.java,v 1.1 2002/08/09 12:47:19 camerons Exp $
+ * @version $Id: DefaultLayer.java,v 1.2 2002/08/19 20:34:07 camerons Exp $
  * @author  Cameron Shorter
  * @task REVISIT: This class maybe should contain CoordinateSystem, which
  * could either be set externally, or derived from one of its features.
@@ -49,6 +49,11 @@ public class DefaultLayer implements Layer {
      * initialisation.
      */
     private boolean visability=true;
+    
+    /**
+     * The title of this layer for use in Legend and similar.
+     */
+    private String title=new String("");
     
     /** Creates a new instance of DefaultLayer.
      * @param dataSource The dataSource to query in order to get features for
@@ -105,5 +110,26 @@ public class DefaultLayer implements Layer {
      */
     public boolean getVisability() {
         return visability;
+    }
+
+    /** Get the title of this layer.
+     * @return The title of this layer.
+     */ 
+    public String getTitle() {
+        return this.title;
+    }
+
+    /** Set the title of this layer.
+     * @title The title of this layer.
+     */ 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    /** Return the title of this layer.  This will return an empty string
+     * if no title has been set.
+     */
+    public String toString() {
+        return title;
     }
 }

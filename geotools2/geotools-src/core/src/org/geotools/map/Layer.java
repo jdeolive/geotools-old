@@ -25,7 +25,7 @@ import org.geotools.data.DataSource;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: Layer.java,v 1.1 2002/08/09 12:55:02 camerons Exp $
+ * @version $Id: Layer.java,v 1.2 2002/08/19 20:34:59 camerons Exp $
  * @author  Cameron Shorter
  */
 public interface Layer {
@@ -55,4 +55,9 @@ public interface Layer {
      * @return TRUE if the layer is visable.
      */
     public boolean getVisability();
+
+    /** Set the title of this layer.
+     * @title The title of this layer.
+     */ 
+    public void setTitle(String title);
 }
