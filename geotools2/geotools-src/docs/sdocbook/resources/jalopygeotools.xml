@@ -10,7 +10,7 @@
         </style>
     </general>
     <inspector>
-        <enable>false</enable>
+        <enable>true</enable>
         <naming>
             <classes>
                 <abstract>[A-Z][a-zA-Z0-9]+</abstract>
@@ -167,8 +167,8 @@
             <javadoc>
                 <check>
                     <innerclass>false</innerclass>
-                    <tags>false</tags>
-                    <throwsTags>false</throwsTags>
+                    <tags>true</tags>
+                    <throwsTags>true</throwsTags>
                 </check>
                 <fieldsShort>true</fieldsShort>
                 <generate>
@@ -177,12 +177,20 @@
                     <field>0</field>
                     <method>0</method>
                 </generate>
-                <parseComments>false</parseComments>
+                <parseComments>true</parseComments>
                 <tags>
                     <in-line />
-                    <standard />
+                    <standard>@task</standard>
                 </tags>
                 <templates>
+                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.5 $| */</class>
+                    <constructor>
+                        <bottom> */</bottom>
+                        <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
+                        <param> * @param $paramType$ DOCUMENT ME!</param>
+                        <top>/**| * Creates a new $objectType$ object.</top>
+                    </constructor>
+                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.5 $| */</interface>
                     <method>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
@@ -190,6 +198,7 @@
                         <return> * @return DOCUMENT ME!</return>
                         <top>/**| * DOCUMENT ME!</top>
                     </method>
+                    <variable>/** DOCUMENT ME!  */</variable>
                 </templates>
             </javadoc>
             <remove>
@@ -221,6 +230,7 @@
         <header>
             <keys />
             <smartMode>0</smartMode>
+            <text>/*| *    Geotools2 - OpenSource mapping toolkit| *    http://geotools.org| *    (C) 2002, Geotools Project Managment Committee (PMC)| *| *    This library is free software; you can redistribute it and/or| *    modify it under the terms of the GNU Lesser General Public| *    License as published by the Free Software Foundation;| *    version 2.1 of the License.| *| *    This library is distributed in the hope that it will be useful,| *    but WITHOUT ANY WARRANTY; without even the implied warranty of| *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU| *    Lesser General Public License for more details.| *| */</text>
             <use>false</use>
         </header>
         <history>
@@ -228,7 +238,7 @@
         </history>
         <imports>
             <grouping>
-                <defaultDepth>3</defaultDepth>
+                <defaultDepth>0</defaultDepth>
                 <packages>*:0|gnu:2|java:2|javax:2</packages>
             </grouping>
             <policy>disabled</policy>
