@@ -19,6 +19,7 @@
  */
 package org.geotools.wms.gtserver;
 
+import org.geotools.wms.gtserver.LayerEntry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -119,14 +120,14 @@ public class GtWmsServer implements WMSServer {
                 URL url;
                 try{
                     url = new URL(entry.properties.getProperty(
-                                                 "url"));
+                    "url"));
                 }
                 catch(MalformedURLException mue){
                     url = new URL(home,entry.properties.getProperty("url"));
                     entry.properties.setProperty("url", url.toExternalForm());
                 }
                 LOGGER.fine("after mod url is " + url);
-
+                
                 HashMap props = new HashMap(entry.properties);
                 DataSource ds = DataSourceFinder.getDataSource(props);
                 LOGGER.fine("Loading layer with " + ds);
@@ -263,22 +264,22 @@ public class GtWmsServer implements WMSServer {
      * @param bgcolor The background color of the map
      * @return A java.awt.Image object of the drawn map.
      */
-    public BufferedImage getMap(String[] layer, String[] style, String srs,
+    public BufferedImage getMap(String[] layers, String[] styleNames, String srs,
     double[] bbox, int width, int height,
     boolean transparent, Color bgcolor)
     throws WMSException {
         LOGGER.fine("layers : ");
         
-        for (int i = 0; i < layer.length; i++)
-            LOGGER.fine(layer[i]);
+        for (int i = 0; i < layers.length; i++)
+            LOGGER.fine(layers[i]);
         
         LOGGER.fine("available : ");
         
         // Make sure the requested layers exist on this server
-        for (int i = 0; i < layer.length; i++) {
-            if (features.get(layer[i]) == null) {
+        for (int i = 0; i < layers.length; i++) {
+            if (features.get(layers[i]) == null) {
                 throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED,
-                "The Layer '" + layer[i] +
+                "The Layer '" + layers[i] +
                 "' does not exist on this server");
             }
         }
@@ -291,77 +292,12 @@ public class GtWmsServer implements WMSServer {
             
             org.geotools.map.Map map = new DefaultMap();
             
-            for (int i = 0; i < layer.length; i++) {
-                Style[] layerstyle = new Style[1];
-                LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
-                
-                if ((style != null) && (style[i] != "")) {
-                    String sldpath = (String) layerdefn.styles.get(style[i]);
-                    
-                    if (sldpath == null) {
-                        throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED,
-                        "The Style '" + style[i] +
-                        "' does not exist for " +
-                        layerdefn.id);
-                    }
-                    layerstyle[0] =  (Style)styles.get(sldpath);
-                    if(layerstyle[0] == null){
-                        //LOGGER.fine("looking for " + sldpath);
-                        File file = new File(sldpath);
-                        URL url;
-                        
-                        if (base != null) {
-                            url = new URL(base, file.toString());
-                        } else {
-                            url = file.toURL();
-                        }
-                        
-                        LOGGER.fine("loading sld from " + url);
-                        
-                        StyleFactory factory = StyleFactory.createStyleFactory();
-                        SLDStyle stylereader = new SLDStyle(factory, url);
-                        layerstyle = stylereader.readXML();
-                        styles.put(sldpath, layerstyle[0]);
-                        LOGGER.fine("sld loaded");
-                        if(layerstyle[0].isDefault()){
-                            layerdefn.defaultStyle = sldpath;
-                        }
-                    }
-                } else {
-                    if (layerdefn.defaultStyle != null) {
-                        String sldpath = (String) layerdefn.styles.get(
-                        layerdefn.defaultStyle);
-                        LOGGER.fine("looking for default:" + sldpath);
-                        layerstyle[0] =  (Style)styles.get(sldpath);
-                        if(sldpath!=null&&layerstyle[0] == null){
-                            File file = new File(sldpath);
-                            URL url;
-                            
-                            if (base != null) {
-                                url = new URL(base, file.toString());
-                            } else {
-                                url = file.toURL();
-                            }
-                            
-                            //LOGGER.fine("loading sld from " + url);
-                            StyleFactory factory = StyleFactory.createStyleFactory();
-                            SLDStyle stylereader = new SLDStyle(factory, url);
-                            layerstyle = stylereader.readXML();
-                            styles.put(sldpath, layerstyle[0]);
-                            //LOGGER.fine("sld loaded");
-                        }else{
-                            layerstyle[0] = (org.geotools.styling.Style) styles.get(
-                            layer[i]);
-                        }
-                    } else {
-                        layerstyle[0] = (org.geotools.styling.Style) styles.get(
-                        layer[i]);
-                    }
-                }
+            for (int i = 0; i < layers.length; i++) {
+                Style[] layerstyle = findStyles(layers, styleNames, i);
                 
                 LOGGER.fine("style object is a " + layerstyle[0]);
                 
-                DataSource ds = (DataSource) features.get(layer[i]);
+                DataSource ds = (DataSource) features.get(layers[i]);
                 FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
                 map.addFeatureTable(fc, layerstyle[0]);
             }
@@ -394,6 +330,120 @@ public class GtWmsServer implements WMSServer {
             throw new WMSException(null, "Internal error : " +
             exp.getMessage());
         }
+    }
+
+    /**
+     * @param layer
+     * @param style
+     * @param i
+     * @return
+     * @throws MalformedURLException
+     * @throws WMSException
+     */
+    private Style[] findStyles(final String[] layer, final String[] style, final int i)
+            throws MalformedURLException, WMSException {
+
+        Style[] layerstyle = new Style[1];
+        LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
+        
+        if ((style != null) && (style[i] != "")) {
+            layerstyle = loadStyle(style, i, layerstyle, layerdefn);
+        } else {
+            if (layerdefn.defaultStyle != null) {
+                layerstyle = useDefaultStyle(layer, i, layerstyle, layerdefn);
+            } else {
+                layerstyle[0] = (org.geotools.styling.Style) styles.get(
+                layer[i]);
+            }
+        }
+
+        return layerstyle;
+    }
+
+    /**
+     * @param layer
+     * @param i
+     * @param layerstyle
+     * @param layerdefn
+     * @return
+     * @throws MalformedURLException
+     */
+    private Style[] useDefaultStyle(final String[] layer, final int i, Style[] layerstyle, final LayerEntry layerdefn)
+            throws MalformedURLException {
+
+        String sldpath = (String) layerdefn.styles.get(
+        layerdefn.defaultStyle);
+        LOGGER.fine("looking for default:" + sldpath);
+        layerstyle[0] =  (Style)styles.get(sldpath);
+        if(sldpath!=null&&layerstyle[0] == null){
+            File file = new File(sldpath);
+            URL url;
+            
+            if (base != null) {
+                url = new URL(base, file.toString());
+            } else {
+                url = file.toURL();
+            }
+            
+            //LOGGER.fine("loading sld from " + url);
+            StyleFactory factory = StyleFactory.createStyleFactory();
+            SLDStyle stylereader = new SLDStyle(factory, url);
+            layerstyle = stylereader.readXML();
+            styles.put(sldpath, layerstyle[0]);
+            //LOGGER.fine("sld loaded");
+        }else{
+            layerstyle[0] = (org.geotools.styling.Style) styles.get(
+            sldpath);
+        }
+
+        return layerstyle;
+    }
+
+    /**
+     * @param style
+     * @param i
+     * @param layerstyle
+     * @param layerdefn
+     * @return
+     * @throws MalformedURLException
+     * @throws WMSException
+     */
+    private Style[] loadStyle(final String[] style, final int i, Style[] layerstyle, final LayerEntry layerdefn)
+            throws MalformedURLException, WMSException {
+
+        String sldpath = (String) layerdefn.styles.get(style[i]);
+        LOGGER.finest("style != null, style[i] != null");
+        if (sldpath == null) {
+            throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED,
+            "The Style '" + style[i] +
+            "' does not exist for " +
+            layerdefn.id);
+        }
+        layerstyle[0] =  (Style)styles.get(sldpath);
+        if(layerstyle[0] == null){
+            //LOGGER.fine("looking for " + sldpath);
+            File file = new File(sldpath);
+            URL url;
+            
+            if (base != null) {
+                url = new URL(base, file.toString());
+            } else {
+                url = file.toURL();
+            }
+            
+            LOGGER.fine("loading sld from " + url);
+            
+            StyleFactory factory = StyleFactory.createStyleFactory();
+            SLDStyle stylereader = new SLDStyle(factory, url);
+            layerstyle = stylereader.readXML();
+            styles.put(sldpath, layerstyle[0]);
+            LOGGER.fine("sld loaded");
+            if(layerstyle[0].isDefault()){
+                layerdefn.defaultStyle = sldpath;
+            }
+        }
+
+        return layerstyle;
     }
     
     /** Gets the capabilites of this server as an XML-formatted string.
