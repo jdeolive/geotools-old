@@ -70,19 +70,19 @@ import org.geotools.resources.renderer.ResourceKeys;
 
 /**
  * Ligne tracée sans lever le crayon. Cette ligne ne représente par forcément une forme fermée
- * (un polygone). Les objets <code>Segment</code> ont deux caractéristiques particulières:
+ * (un polygone). Les objets <code>Polyline</code> ont deux caractéristiques particulières:
  *
  * <ul>
  *   <li>Ils mémorisent séparément les points qui ne font que former une bordure. Par exemple, si
  *       seulement la moitié d'une île apparaît sur une carte, les points qui servent à joindre
- *       les deux extrémités du segment (en suivant la bordure de la carte là où l'île est coupée)
- *       n'ont pas de réalité géographique. Dans chaque objet <code>Segment</code>, il doit y avoir
- *       une distinction claire entre les véritable points géographique les "points de bordure". Ces
- *       points sont mémorisés séparéments dans les tableaux {@link #prefix}/{@link #suffix} et
- *       {@link #array} respectivement.</li>
+ *       les deux extrémités des polylignes (en suivant la bordure de la carte là où l'île est
+ *       coupée) n'ont pas de réalité géographique. Dans chaque objet <code>Polyline</code>, il doit
+ *       y avoir une distinction claire entre les véritable points géographique les "points de
+ *       bordure". Ces points sont mémorisés séparéments dans les tableaux
+ *       {@link #prefix}/{@link #suffix} et {@link #array} respectivement.</li>
  *
- *   <li>Ils peuvent être chaînés avec d'autres objets <code>Segment</code>. Former une chaîne
- *       d'objets <code>Segment</code> peut être utile lorsque les coordonnées d'une côte ont été
+ *   <li>Ils peuvent être chaînés avec d'autres objets <code>Polyline</code>. Former une chaîne
+ *       d'objets <code>Polyline</code> peut être utile lorsque les coordonnées d'une côte ont été
  *       obtenues à partir de la digitalisation de plusieurs cartes bathymétriques, que l'on joindra
  *       en une ligne continue au moment du traçage. Elle peut aussi se produire lorsqu'une ligne
  *       qui se trouve près du bord de la carte entre, sort, réentre et resort plusieurs fois du
@@ -90,12 +90,12 @@ import org.geotools.resources.renderer.ResourceKeys;
  * </ul>
  *
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
- * sur une chaîne d'objets {@link Segment} plutôt que sur une seule instance.
+ * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Segment.java,v 1.1 2003/01/12 17:54:37 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class Segment implements Serializable {
+final class Polyline implements Serializable {
     /**
      * Numéro de version pour compatibilité avec des bathymétries
      * enregistrées sous d'anciennes versions.
@@ -103,20 +103,20 @@ final class Segment implements Serializable {
 //    private static final long serialVersionUID = 3657087955800630894L;
 
     /**
-     * Segments précédent et suivant. La classe <code>Segment</code> implémente une liste à double
-     * liens. Chaque objet <code>Segment</code> est capable d'accéder et d'agir sur les autres
-     * éléments de la liste à laquelle il appartient. En conséquent, il n'est pas nécessaire
+     * Polylignes précédentes et suivantes. La classe <code>Polyline</code> implémente une liste à
+     * double liens. Chaque objet <code>Polyline</code> est capable d'accéder et d'agir sur les
+     * autres éléments de la liste à laquelle il appartient. En conséquent, il n'est pas nécessaire
      * d'utiliser une classe séparée (par exemple {@link java.util.LinkedList}) comme conteneur.
      * Il ne s'agit pas forcément d'un bon concept de programmation, mais il est pratique dans le
-     * cas particulier de la classe <code>Segment</code> et offre de bonnes performances.
+     * cas particulier de la classe <code>Polyline</code> et offre de bonnes performances.
      */
-    private Segment previous, next;
+    private Polyline previous, next;
 
     /**
-     * Coordonnées formant le segment. Ces coordonnées doivent être celles d'un trait de côte ou de
-     * toute autre forme géométrique ayant une signification cartographique. Les points qui servent
-     * à "couper" un polygone (par exemple des points longeant la bordure de la carte) doivent être
-     * mémorisés séparément dans le tableau <code>suffix</code>.
+     * Coordonnées formant la polyligne. Ces coordonnées doivent être celles d'un trait de côte ou
+     * de toute autre forme géométrique ayant une signification cartographique. Les points qui
+     * servent à "couper" un polygone (par exemple des points longeant la bordure de la carte)
+     * doivent être mémorisés séparément dans le tableau <code>suffix</code>.
      */
     private PointArray array;
 
@@ -144,21 +144,21 @@ final class Segment implements Serializable {
 
     /**
      * Construit un objet qui enveloppera les points spécifiés.
-     * Ce segment fera initialement partie d'aucune liste.
+     * Cette polyligne fera initialement partie d'aucune liste.
      */
-    private Segment(final PointArray array) {
+    private Polyline(final PointArray array) {
         this.array = array;
     }
 
     /**
      * Construit des objets mémorisant les coordonnées <code>data</code>. Les valeurs
      * <code>NaN</code> au début et à la fin de <code>data</code> seront ignorées. Celles
-     * qui apparaissent au milieu auront pour effet de séparer le trait en plusieurs segments.
+     * qui apparaissent au milieu auront pour effet de séparer le trait en plusieurs polylignes.
      *
      * @param data   Tableau de coordonnées (peut contenir des NaN).
-     * @return       Tableau de segments. Peut avoir une longueur de 0, mais ne sera jamais nul.
+     * @return       Tableau de polylignes. Peut avoir une longueur de 0, mais ne sera jamais nul.
      */
-    public static Segment[] getInstances(final float[] data) {
+    public static Polyline[] getInstances(final float[] data) {
         return getInstances(data, 0, data.length);
     }
 
@@ -168,15 +168,15 @@ final class Segment implements Serializable {
      * index doivent se référer à la position absolue dans le tableau <code>data</code>,
      * c'est-à-dire être le double de l'index de la coordonnée. Les valeurs <code>NaN</code>
      * au début et à la fin de <code>data</code> seront ignorées. Celles qui apparaissent au
-     * milieu auront pour effet de séparer le trait en plusieurs segments.
+     * milieu auront pour effet de séparer le trait en plusieurs polylignes.
      *
      * @param data   Tableau de coordonnées (peut contenir des NaN).
      * @param lower  Index de la première donnée à considérer.
      * @param upper  Index suivant celui de la dernière donnée.
-     * @return       Tableau de segments. Peut avoir une longueur de 0, mais ne sera jamais nul.
+     * @return       Tableau de polylignes. Peut avoir une longueur de 0, mais ne sera jamais nul.
      */
-    public static Segment[] getInstances(final float[] data, final int lower, final int upper) {
-        final List segments=new ArrayList();
+    public static Polyline[] getInstances(final float[] data, final int lower, final int upper) {
+        final List polylines = new ArrayList();
         for (int i=lower; i<upper; i+=2) {
             if (!Float.isNaN(data[i]) && !Float.isNaN(data[i+1])) {
                 final int lowerValid = i;
@@ -187,20 +187,20 @@ final class Segment implements Serializable {
                 }
                 final PointArray points = PointArray.getInstance(data, lowerValid, i);
                 if (points != null) {
-                    segments.add(new Segment(points));
+                    polylines.add(new Polyline(points));
                 }
             }
         }
-        return (Segment[]) segments.toArray(new Segment[segments.size()]);
+        return (Polyline[]) polylines.toArray(new Polyline[polylines.size()]);
     }
 
     /**
-     * Renvoie le premier élément de la liste à laquelle appartient le
-     * segment.   Cette méthode peut retourner <code>scan</code>, mais
+     * Renvoie le premier élément de la liste à laquelle appartient la
+     * polyligne. Cette méthode peut retourner <code>scan</code>, mais
      * jamais <code>null</code>  (sauf si l'argument <code>scan</code>
      * est nul).
      */
-    private static Segment getFirst(Segment scan) {
+    private static Polyline getFirst(Polyline scan) {
         if (scan != null) {
             while (scan.previous != null) {
                 scan = scan.previous;
@@ -212,12 +212,12 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Renvoie le dernier élément de la liste à laquelle appartient le
-     * segment.   Cette méthode peut retourner <code>scan</code>, mais
+     * Renvoie le dernier élément de la liste à laquelle appartient la
+     * polyligne. Cette méthode peut retourner <code>scan</code>, mais
      * jamais <code>null</code>  (sauf si l'argument <code>scan</code>
      * est nul).
      */
-    private static Segment getLast(Segment scan) {
+    private static Polyline getLast(Polyline scan) {
         if (scan != null) {
             while (scan.next != null) {
                 scan = scan.next;
@@ -229,24 +229,24 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Ajoute le segment <code>toAdd</code> à la fin du segment <code>queue</code>.
+     * Ajoute la polyligne <code>toAdd</code> à la fin de la polyligne <code>queue</code>.
      * Les arguments <code>queue</code> et <code>toAdd</code> peuvent être n'importe
      * quel maillon d'une chaîne, mais cette méthode sera plus rapide si <code>queue</code>
      * est le dernier maillon.
      *
-     * @param  queue <code>Segment</code> à la fin duquel ajouter <code>toAdd</code>. Si cet
+     * @param  queue <code>Polyline</code> à la fin duquel ajouter <code>toAdd</code>. Si cet
      *               argument est nul, alors cette méthode retourne directement <code>toAdd</code>.
-     * @param  toAdd <code>Segment</code> à ajouter à <code>queue</code>. Cet objet sera ajouté
+     * @param  toAdd <code>Polyline</code> à ajouter à <code>queue</code>. Cet objet sera ajouté
      *               même s'il est vide. Si cet argument est nul, alors cette méthode retourne
      *               <code>queue</code> sans rien faire.
-     * @return <code>Segment</code> résultant de la fusion. Les anciens objets <code>queue</code>
+     * @return <code>Polyline</code> résultant de la fusion. Les anciens objets <code>queue</code>
      *         et <code>toAdd</code> peuvent avoir été modifiés et ne devraient plus être utilisés.
      * @throws IllegalArgumentException si <code>toAdd</code> avait déjà été ajouté à
      *         <code>queue</code>.
      */
-    public static Segment append(Segment queue, Segment toAdd) throws IllegalArgumentException {
+    public static Polyline append(Polyline queue, Polyline toAdd) throws IllegalArgumentException {
         // On doit faire l'ajout même si 'toAdd' est vide.
-        final Segment veryLast = getLast(toAdd);
+        final Polyline veryLast = getLast(toAdd);
         toAdd = getFirst(toAdd);
         queue = getLast (queue);
         if (toAdd == null) return queue;
@@ -281,16 +281,16 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Indique si ce segment est vide. Un segment est vide si tous
-     * ces tableaux sont nuls. Cette méthode ne vérifie pas l'état
-     * des autres maillons de la chaîne.
+     * Indique si cette polyligne est vide. Une polyligne est vide si tous
+     * ces tableaux sont nuls. Cette méthode ne vérifie pas l'état des
+     * autres maillons de la chaîne.
      */
     private boolean isEmpty() {
         return array==null && suffix==null;
     }
 
     /**
-     * Retourne un des tableaux de données de ce segment. Le tableau retourné
+     * Retourne un des tableaux de données de cette polyligne. Le tableau retourné
      * peut être {@link #prefix}, {@link #array} ou {@link #suffix} selon que
      * l'argument est -1, 0 ou +1 respectivement. Toute autre valeur lancera
      * une exception.
@@ -308,7 +308,7 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Modifie un des tableaux de données de ce segment.   Le tableau modifié
+     * Modifie un des tableaux de données de cette polyligne. Le tableau modifié
      * peut être {@link #prefix}, {@link #array} ou {@link #suffix} selon que
      * l'argument est -1, 0 ou +1 respectivement.  Toute autre valeur lancera
      * une exception.
@@ -326,13 +326,13 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Retourne le nombre de points du segment spécifié
-     * ainsi que de tous les segments qui le suivent.
+     * Retourne le nombre de points de la polyligne spécifiée
+     * ainsi que de tous les polylignes qui le suivent.
      *
-     * @param scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *             mais cette méthode sera plus rapide si c'est le premier maillon.
      */
-    public static int getPointCount(Segment scan) {
+    public static int getPointCount(Polyline scan) {
         scan = getFirst(scan);
         int count=0;
         while (scan!=null) {
@@ -350,10 +350,10 @@ final class Segment implements Serializable {
     /**
      * Donne à la coordonnée spécifiée la valeur du premier point. Si une bordure a été
      * ajoutée avec la méthode {@link #prepend}, elle sera pris en compte. Si cet objet
-     * <code>Segment</code> ne contient aucun point, l'objet qui suit dans la chaîne
+     * <code>Polyline</code> ne contient aucun point, l'objet qui suit dans la chaîne
      * sera automatiquement interrogé.
      *
-     * @param  scan  Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *               mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param  point Point dans lequel mémoriser la coordonnée.
      * @return L'argument <code>point</code>, ou un nouveau point
@@ -364,7 +364,7 @@ final class Segment implements Serializable {
      * @see #getFirstPoints
      * @see #getLastPoint
      */
-    public static Point2D getFirstPoint(Segment scan, final Point2D point)
+    public static Point2D getFirstPoint(Polyline scan, final Point2D point)
             throws NoSuchElementException
     {
         scan = getFirst(scan);
@@ -383,10 +383,10 @@ final class Segment implements Serializable {
     /**
      * Donne à la coordonnée spécifiée la valeur du dernier point. Si une bordure a été
      * ajoutée avec la méthode {@link #append}, elle sera pris en compte.  Si cet objet
-     * <code>Segment</code> ne contient aucun point, l'objet qui précède dans la chaîne
+     * <code>Polyline</code> ne contient aucun point, l'objet qui précède dans la chaîne
      * sera automatiquement interrogé.
      *
-     * @param  scan  Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *               mais cette méthode sera plus rapide si c'est le dernier maillon.
      * @param  point Point dans lequel mémoriser la coordonnée.
      * @return L'argument <code>point</code>, ou un nouveau point
@@ -397,7 +397,7 @@ final class Segment implements Serializable {
      * @see #getLastPoints
      * @see #getFirstPoint
      */
-    public static Point2D getLastPoint(Segment scan, final Point2D point)
+    public static Point2D getLastPoint(Polyline scan, final Point2D point)
             throws NoSuchElementException
     {
         scan = getLast(scan);
@@ -417,7 +417,7 @@ final class Segment implements Serializable {
     /**
      * Donne aux coordonnées spécifiées les valeurs des premiers points.
      *
-     * @param scan   Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param scan   Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *               mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param points Tableau dans lequel mémoriser les premières coordonnées. <code>points[0]</code>
      *               contiendra la première coordonnée, <code>points[1]</code> la seconde, etc. Si
@@ -427,7 +427,7 @@ final class Segment implements Serializable {
      * @throws NoSuchElementException Si <code>scan</code> est nul ou
      *         s'il ne reste pas suffisament de points dans la chaîne.
      */
-    public static void getFirstPoints(Segment scan, final Point2D points[])
+    public static void getFirstPoints(Polyline scan, final Point2D points[])
             throws NoSuchElementException
     {
         scan = getFirst(scan);
@@ -466,7 +466,7 @@ final class Segment implements Serializable {
     /**
      * Donne aux coordonnées spécifiées les valeurs des derniers points.
      *
-     * @param scan   Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param scan   Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *               mais cette méthode sera plus rapide si c'est le dernier maillon.
      * @param points Tableau dans lequel mémoriser les dernières coordonnées.
      *               <code>points[length-1]</code> contiendra la dernière coordonnée,
@@ -476,7 +476,7 @@ final class Segment implements Serializable {
      * @throws NoSuchElementException Si <code>scan</code> est nul ou
      *         s'il ne reste pas suffisament de points dans la chaîne.
      */
-    public static void getLastPoints(Segment scan, final Point2D points[])
+    public static void getLastPoints(Polyline scan, final Point2D points[])
             throws NoSuchElementException
     {
         scan=getLast(scan);
@@ -539,19 +539,19 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Retourne un segment qui couvrira les données de ce segment,
+     * Retourne une polyligne qui couvrira les données de cette polyligne
      * de l'index <code>lower</code> inclusivement jusqu'à l'index
      * <code>upper</code> exclusivement.
      *
-     * @param scan  Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param lower Index du premier point à retenir.
      * @param upper Index suivant celui du dernier point à retenir.
-     * @return      Une chaîne de nouveaux segments, ou <code>scan</code> si aucun
-     *              point n'a été ignorés.  Si le segment obtenu ne contient aucun
+     * @return      Une chaîne de nouvelles polylignes, ou <code>scan</code> si aucun
+     *              point n'a été ignorés. Si la polyligne obtenu ne contient aucun
      *              point, alors cette méthode retourne <code>null</code>.
      */
-    public static Segment subpoly(Segment scan, int lower, int upper) {
+    public static Polyline subpoly(Polyline scan, int lower, int upper) {
         scan = getFirst(scan);
         if (lower == upper) {
             return null;
@@ -559,9 +559,9 @@ final class Segment implements Serializable {
         if (lower==0 && upper==getPointCount(scan)) {
             return scan;
         }
-        Segment queue=null;
+        Polyline queue=null;
         while (scan!=null) {
-            Segment toAdd = null;
+            Polyline toAdd = null;
             for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
                 PointArray data = scan.getArray(i);
                 if (data == null) {
@@ -589,7 +589,7 @@ final class Segment implements Serializable {
                 data = data.subarray(lower, count);
                 if (data != null) {
                     if (toAdd == null) {
-                        toAdd = new Segment(null);
+                        toAdd = new Polyline(null);
                         queue = append(queue, toAdd);
                     }
                     assert toAdd.getArray(i)==null;
@@ -607,7 +607,7 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Ajoute des points à la bordure de ce segment. Cette méthode est réservée
+     * Ajoute des points à la bordure de cette polyligne. Cette méthode est réservée
      * à un usage interne par {@link #prependBorder} et {@link #appendBorder}.
      */
     private void addBorder(final float[] data, final int lower, final int upper, boolean toEnd) {
@@ -619,22 +619,22 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Ajoute des points au début de ce segment.   Ces points seront considérés comme
+     * Ajoute des points au début de cette polyligne. Ces points seront considérés comme
      * faisant partie de la bordure de la carte, et non comme des points représentant
      * une structure géographique.
      *
-     * @param  scan  Segment. Cet argument peut être n'importe quel maillon d'une chaîne.
+     * @param  scan  Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne.
      * @param  data  Coordonnées à ajouter sous forme de paires de nombres (x,y).
      * @param  lower Index du premier <var>x</var> à ajouter à la bordure.
      * @param  upper Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @return Segment résultant. Ca sera en général <code>scan</code>.
+     * @return Polyline résultant. Ca sera en général <code>scan</code>.
      */
-    public static Segment prependBorder(Segment scan, final float[] data, int lower, int upper) {
+    public static Polyline prependBorder(Polyline scan, final float[] data, int lower, int upper) {
         final int length = upper-lower;
         if (length > 0) {
             scan = getFirst(scan);
             if (scan==null || scan.array!=null) {
-                scan = getFirst(append(new Segment(null), scan));
+                scan = getFirst(append(new Polyline(null), scan));
                 assert scan.array==null;
             }
             scan.addBorder(data, lower, upper, false);
@@ -643,22 +643,22 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Ajoute des points à la fin de ce segment.   Ces points seront considérés comme
+     * Ajoute des points à la fin de cette polyligne. Ces points seront considérés comme
      * faisant partie de la bordure de la carte, et non comme des points représentant
      * une structure géographique.
      *
-     * @param  scan  Segment. Cet argument peut être n'importe quel maillon d'une chaîne.
+     * @param  scan  Polyline. Cet argument peut être n'importe quel maillon d'une chaîne.
      * @param  data  Coordonnées à ajouter sous forme de paires de nombres (x,y).
      * @param  lower Index du premier <var>x</var> à ajouter à la bordure.
      * @param  upper Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @return Segment résultant. Ca sera en général <code>scan</code>.
+     * @return Polyligne résultante. Ca sera en général <code>scan</code>.
      */
-    public static Segment appendBorder(Segment scan, final float[] data, int lower, int upper) {
+    public static Polyline appendBorder(Polyline scan, final float[] data, int lower, int upper) {
         final int length = upper-lower;
         if (length > 0) {
             scan = getLast(scan);
             if (scan == null) {
-                scan = new Segment(null);
+                scan = new Polyline(null);
             }
             scan.addBorder(data, lower, upper, true);
         }
@@ -667,14 +667,14 @@ final class Segment implements Serializable {
 
     /**
      * Inverse l'ordre de tous les points.  Cette méthode retournera le
-     * premier maillon d'une nouvelle chaîne de segments qui contiendra
+     * premier maillon d'une nouvelle chaîne de polylignes qui contiendra
      * les données en ordre inverse.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le dernier maillon.
      */
-    public static Segment reverse(Segment scan) {
-        Segment queue=null;
+    public static Polyline reverse(Polyline scan) {
+        Polyline queue=null;
         for (scan=getLast(scan); scan!=null; scan=scan.previous) {
             for (int arrayID=LAST_ARRAY; arrayID>=FIRST_ARRAY; arrayID--) {
                 PointArray array = scan.getArray(arrayID);
@@ -687,11 +687,11 @@ final class Segment implements Serializable {
                      * des préfix.
                      */
                     if (arrayID == 0) {
-                        queue = append(queue, new Segment(array));
+                        queue = append(queue, new Polyline(array));
                     } else {
                         queue = getLast(queue); // Par précaution.
                         if (queue == null) {
-                            queue = new Segment(null);
+                            queue = new Polyline(null);
                         }
                         assert queue.suffix==null;
                         queue.suffix=array;
@@ -704,17 +704,17 @@ final class Segment implements Serializable {
 
     /**
      * Retourne les coordonnées d'une boîte qui englobe complètement tous
-     * les points du segment. Si ce segment ne contient aucun point, alors
-     * cette méthode retourne <code>null</code>.
+     * les points de la polyligne. Si cette polyligne ne contient aucun point,
+     * alors cette méthode retourne <code>null</code>.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param  transform Transformation à appliquer sur les données (nulle pour aucune).
-     * @return Un rectangle englobeant toutes les coordonnées de ce segment et de ceux qui le
-     *         suivent.
+     * @return Un rectangle englobeant toutes les coordonnées de cette polyligne et de
+     *         ceux qui la suivent.
      * @throws TransformException Si une projection cartographique a échoué.
      */
-    public static Rectangle2D getBounds2D(Segment scan, final MathTransform2D transform)
+    public static Rectangle2D getBounds2D(Polyline scan, final MathTransform2D transform)
             throws TransformException
     {
         float xmin = Float.POSITIVE_INFINITY;
@@ -774,11 +774,11 @@ final class Segment implements Serializable {
      * peu importe que le système de coordonnées soit {@link ProjectedCoordinateSystem}
      * ou {@link GeographicCoordinateSystem}.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *         mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param  transformation Systèmes de coordonnées source et destination.
      *         <code>getSourceCS()</code> doit être le système interne des points
-     *         des segments,  tandis que  <code>getTargetCS()</code> doit être le
+     *         des polylignes, tandis que  <code>getTargetCS()</code> doit être le
      *         système dans lequel faire le calcul. C'est <code>getTargetCS()</code>
      *         qui déterminera les unités du résultat. Cet argument peut être nul
      *         si aucune transformation n'est nécessaire. Dans ce cas, le système
@@ -788,7 +788,7 @@ final class Segment implements Serializable {
      *         point. Voir la description de cette méthode pour les unités.
      * @throws TransformException Si une transformation de coordonnées a échouée.
      */
-    static Statistics getResolution(Segment scan, final CoordinateTransformation transformation)
+    static Statistics getResolution(Polyline scan, final CoordinateTransformation transformation)
             throws TransformException
     {
         /*
@@ -849,9 +849,9 @@ final class Segment implements Serializable {
      * une seconde fois avec une résolution plus fine gonflera la taille des tableaux internes,
      * mais sans amélioration réelle de la précision.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *         mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  transformation Transformation permettant de convertir les coordonnées des segments
+     * @param  transformation Transformation permettant de convertir les coordonnées des polylignes
      *         vers des coordonnées cartésiennes. Cet argument peut être nul si les coordonnées de
      *         <code>this</code> sont déjà exprimées selon un système de coordonnées cartésiennes.
      * @param  resolution Résolution désirée, selon les mêmes unités que {@link #getResolution}.
@@ -859,7 +859,7 @@ final class Segment implements Serializable {
      *
      * @see #getResolution
      */
-    public static void setResolution(Segment scan, final CoordinateTransformation transformation,
+    public static void setResolution(Polyline scan, final CoordinateTransformation transformation,
                                      double resolution)
             throws TransformException
     {
@@ -995,21 +995,21 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Déclare que les données de ce segment ne vont plus changer. Cette
+     * Déclare que les données de cette polyligne ne vont plus changer. Cette
      * méthode peut réaranger les tableaux de points d'une façon plus compacte.
      *
-     * @param  scan     Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan     Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *                  mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param  close    <code>true</code> pour indiquer que ces segments représentent une
+     * @param  close    <code>true</code> pour indiquer que ces polylignes représentent une
      *                  forme géométrique fermée (donc un polygone).
      * @param  compress <code>true</code> pour compresser les données,  ou <code>false</code>
      *                  pour les laisser telle qu'elles sont (ce qui signifie que les données
      *                  déjà compressées ne seront pas décompressées).
      *
-     * @return Le segment compressé (habituellement <code>scan</code> lui-même),
-     *         ou <code>null</code> si le segment ne contenait aucune donnée.
+     * @return La polyligne compressée (habituellement <code>scan</code> lui-même),
+     *         ou <code>null</code> si la polyligne ne contenait aucune donnée.
      */
-    public static Segment freeze(Segment scan, final boolean close, final boolean compress) {
+    public static Polyline freeze(Polyline scan, final boolean close, final boolean compress) {
         scan = getFirst(scan);
         /*
          * Etape 1: Si on a demandé à fermer le polygone, vérifie si le premier maillon de
@@ -1017,21 +1017,21 @@ final class Segment implements Serializable {
          *          cette bordure à la fin du dernier maillon.
          */
         if (close && scan!=null && scan.suffix!=null && scan.array==null) {
-            Segment last = getLast(scan);
+            Polyline last = getLast(scan);
             if (last != scan) {
                 last.suffix = (last.suffix!=null) ? last.suffix.insertAt(last.suffix.count(), scan.suffix, false) : scan.suffix;
                 scan.suffix = null;
             }
         }
         /*
-         * Etape 2: Fusionne ensemble des segments qui peuvent l'être.
-         *          Deux segments peuvent être fusionnés ensemble s'ils
-         *          ne sont séparés par aucune bordure, ou s'il sont tous
+         * Etape 2: Fusionne ensemble des polylignes qui peuvent l'être.
+         *          Deux polylignes peuvent être fusionnées ensemble si elles
+         *          ne sont séparées par aucune bordure, ou si elle sont toutes
          *          deux des bordures.
          */
         if (scan != null) {
-            Segment previous = scan;
-            Segment current  = scan;
+            Polyline previous = scan;
+            Polyline current  = scan;
             while ((current=current.next) != null) {
                 if (previous.suffix == null) {
                     if (previous.array != null) {
@@ -1053,7 +1053,7 @@ final class Segment implements Serializable {
          * Etape 3: Gèle et compresse les tableaux de points, et
          *          élimine les éventuels tableaux devenus inutile.
          */
-        Segment root=scan;
+        Polyline root=scan;
         while (scan!=null) {
             /*
              * Comprime tous les tableaux d'un maillon de la chaîne.
@@ -1070,7 +1070,7 @@ final class Segment implements Serializable {
              * Supprime les maillons devenus vides. Ca peut avoir pour effet
              * de changer de maillon ("root") pour le début de la chaîne.
              */
-            Segment current=scan;
+            Polyline current=scan;
             scan = scan.next;
             if (current.isEmpty()) {
                 current.remove();
@@ -1083,10 +1083,9 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Retourne une copie de toutes les coordonnées
-     * des segments de la chaîne.
+     * Retourne une copie de toutes les coordonnées des polylignes de la chaîne.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
      * @param  dest Tableau où mémoriser les données. Si ce tableau a exactement la
      *              longueur nécessaire, il sera utilisé et retourné. Sinon, cet argument
@@ -1096,7 +1095,7 @@ final class Segment implements Serializable {
      *              etc.
      * @return Tableau dans lequel furent mémorisées les données.
      */
-    public static float[] toArray(Segment poly, final float[] dest, final int n) {
+    public static float[] toArray(Polyline poly, final float[] dest, final int n) {
         poly=getFirst(poly);
         float[] data=null;
         while (true) {
@@ -1106,7 +1105,7 @@ final class Segment implements Serializable {
              * passage pour copier les coordonnées dans le tableau.
              */
             int totalLength=0;
-            for (Segment scan=poly; scan!=null; scan=scan.next) {
+            for (Polyline scan=poly; scan!=null; scan=scan.next) {
                 for (int i=FIRST_ARRAY; i<=LAST_ARRAY; i++) {
                     final PointArray array=scan.getArray(i);
                     if (array != null) {
@@ -1135,17 +1134,17 @@ final class Segment implements Serializable {
     /**
      * Retourne une représentation de cet objet sous forme
      * de chaîne de caractères.  Cette représentation sera
-     * de la forme <code>"Segment[3 of 4; 47 pts]"</code>.
+     * de la forme <code>"Polyline[3 of 4; 47 pts]"</code>.
      */
     public String toString() {
         final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
         buffer.append('[');
         int index=1;
-        for (Segment scan=previous; scan!=null; scan=scan.previous) {
+        for (Polyline scan=previous; scan!=null; scan=scan.previous) {
             index++;
         }
         buffer.append(index);
-        for (Segment scan=next; scan!=null; scan=scan.next) {
+        for (Polyline scan=next; scan!=null; scan=scan.next) {
             index++;
         }
         buffer.append(" of ");
@@ -1157,13 +1156,13 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Retourne un code représentant le segment spécifié.
+     * Retourne un code représentant la polyligne spécifiée.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @return Un code calculé à partir de quelques points du segment spécifié.
+     * @return Un code calculé à partir de quelques points de la polyligne spécifiée.
      */
-    public static int hashCode(Segment scan) {
+    public static int hashCode(Polyline scan) {
         int code = 0;
         for (scan=getFirst(scan); scan!=null; scan=scan.next) {
             if (scan.array != null) {
@@ -1174,15 +1173,15 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Indique si deux segments contiennent les mêmes points. Cette méthode
+     * Indique si deux polylignes contiennent les mêmes points. Cette méthode
      * retourne aussi <code>true</code> si les deux arguments sont nuls.
      *
-     * @param poly1 Premier segment. Cet argument peut être n'importe quel maillon d'une
+     * @param poly1 Première polyligne. Cet argument peut être n'importe quel maillon d'une
      *              chaîne, mais cette méthode sera plus rapide si c'est le premier maillon.
-     * @param poly2 Second segment. Cet argument peut être n'importe quel maillon d'une
+     * @param poly2 Seconde polyligne. Cet argument peut être n'importe quel maillon d'une
      *              chaîne, mais cette méthode sera plus rapide si c'est le premier maillon.
      */
-    public static boolean equals(Segment poly1, Segment poly2) {
+    public static boolean equals(Polyline poly1, Polyline poly2) {
         poly1 = getFirst(poly1);
         poly2 = getFirst(poly2);
         while (poly1 != poly2) {
@@ -1203,18 +1202,18 @@ final class Segment implements Serializable {
     }
 
     /**
-     * Retourne une copie du segment spécifié.  Cette méthode ne copie que les références
+     * Retourne une copie de la polyligne spécifiée. Cette méthode ne copie que les références
      * vers une version immutable des tableaux de points. Les points eux-mêmes ne sont pas
      * copiés, ce qui permet d'éviter de consommer une quantité excessive de mémoire.
      *
-     * @param  scan Segment. Cet argument peut être n'importe quel maillon d'une chaîne,
+     * @param  scan Polyligne. Cet argument peut être n'importe quel maillon d'une chaîne,
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
      * @return Copie de la chaîne <code>scan</code>.
      */
-    public static Object clone(Segment scan) {
-        Segment queue=null;
+    public static Object clone(Polyline scan) {
+        Polyline queue=null;
         for (scan=getFirst(scan); scan!=null; scan=scan.next) {
-            final Segment toMerge = new Segment(null);
+            final Polyline toMerge = new Polyline(null);
             for (int arrayID=FIRST_ARRAY; arrayID<=LAST_ARRAY; arrayID++) {
                 PointArray array = scan.getArray(arrayID);
                 if (array != null) {
@@ -1236,14 +1235,14 @@ final class Segment implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Segment.java,v 1.1 2003/01/12 17:54:37 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
         /**
-         * Premier segment de la chaîne de points à balayer.
+         * Première polyligne de la chaîne de points à balayer.
          */
-        private final Segment data;
+        private final Polyline data;
 
         /**
          * Transformation à appliquer sur chacun des points.
@@ -1253,7 +1252,7 @@ final class Segment implements Serializable {
         /**
          * Construit un ensemble de points.
          */
-        public Collection(final Segment data, final MathTransform2D transform) {
+        public Collection(final Polyline data, final MathTransform2D transform) {
             this.data = data;
             this.transform = transform;
         }
@@ -1279,29 +1278,29 @@ final class Segment implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Segment.java,v 1.1 2003/01/12 17:54:37 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {
         /**
-         * Segment qui sert de point de départ à cet itérateur.
+         * Polyligne qui sert de point de départ à cet itérateur.
          * Cette informations est utilisée par {@link #rewind}.
          */
-        private final Segment start;
+        private final Polyline start;
 
         /**
-         * Segment qui sera balayé par les prochains appels de {@link #next}.
-         * Ce champs sera mis à jour au fur et à mesure que l'on passera d'un
-         * segment à l'autre.
+         * Polyligne qui sera balayée par les prochains appels de {@link #next}.
+         * Ce champs sera mis à jour au fur et à mesure que l'on passera d'une
+         * polyligne à l'autre.
          */
-        private Segment current;
+        private Polyline current;
 
         /**
          * Code indiquant quel champs de {@link #current} est présentement en cours d'examen:
          *
-         *    -1 pour {@link Segment#prefix},
-         *     0 pour {@link Segment#array} et
-         *    +1 pour {@link Segment#suffix}.
+         *    -1 pour {@link Polyline#prefix},
+         *     0 pour {@link Polyline#array} et
+         *    +1 pour {@link Polyline#suffix}.
          */
         private int arrayID = FIRST_ARRAY-1;;
 
@@ -1324,15 +1323,14 @@ final class Segment implements Serializable {
 
         /**
          * Initialise l'itérateur de façon à démarrer
-         * les balayages à partir du segment spécifié.
+         * les balayages à partir de la polyligne spécifiée.
          *
-         * @param segment Segment (peut être nul).
+         * @param start Polyligne (peut être nul).
          * @param transform Transformation à appliquer sur les
-         *        coordonnées, ou <code>null</code> s'il n'y en
-         *        a pas.
+         *        coordonnées, ou <code>null</code> s'il n'y en a pas.
          */
-        public Iterator(final Segment segment, final MathTransform2D transform) {
-            start = current = getFirst(segment);
+        public Iterator(final Polyline start, final MathTransform2D transform) {
+            this.start = current = getFirst(start);
             this.transform = (transform!=null && !transform.isIdentity()) ? transform : null;
             nextArray();
         }
@@ -1351,7 +1349,7 @@ final class Segment implements Serializable {
                         }
                     }
                 }
-                arrayID = Segment.FIRST_ARRAY-1;
+                arrayID = Polyline.FIRST_ARRAY-1;
                 current = current.next;
             }
             iterator = null;
@@ -1383,7 +1381,7 @@ final class Segment implements Serializable {
                 } catch (TransformException exception) {
                     // Should not happen, since {@link Polygon#setCoordinateSystem}
                     // has already successfully projected every points.
-                    unexpectedException("Segment", "next", exception);
+                    unexpectedException("Polyline", "next", exception);
                     return null;
                 }
                 return point;
@@ -1418,7 +1416,7 @@ final class Segment implements Serializable {
                 } catch (TransformException exception) {
                     // Should not happen, since {@link Polygon#setCoordinateSystem}
                     // has already successfully projected every points.
-                    unexpectedException("Segment", "next", exception);
+                    unexpectedException("Polyline", "next", exception);
                     continue;
                 }
                 return dest;
@@ -1454,7 +1452,7 @@ final class Segment implements Serializable {
                 } catch (TransformException exception) {
                     // Should not happen, since {@link Polygon#setCoordinateSystem}
                     // has already successfully projected every points.
-                    unexpectedException("Segment", "next", exception);
+                    unexpectedException("Polyline", "next", exception);
                     continue;
                 }
                 return true;
