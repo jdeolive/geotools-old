@@ -76,7 +76,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.30 2003/07/24 19:15:06 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.31 2003/07/24 21:41:07 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -515,12 +515,12 @@ public class PostgisDataSource extends AbstractDataSource
                 if (attNames.contains(schemaTypeName)) {
                     retAttTypes[j] = schemaTypes[i];
                     j++;
-                    attNames.remove(schemaTypeName);
+                    //attNames.remove(schemaTypeName);
                 }
             }
 
             //TODO: better error reporting, and completely test this method.
-            if (attNames.size() > 0) {
+            if (attNames.size() != j) {
                 String msg = "attempted to request a property, "
                     + attNames.get(0) + " that is not part of the schema ";
                 throw new DataSourceException(msg);
