@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="html-docs" name="developersguide">
+<project basedir="." default="html-docs" name="${project.name}">
     <property file="build.ant.properties"/>
 
     <!-- Build html documentation from docbook -->
     <target name="html-docs">
 
+        <!-- Copy this projects images into the release docs directory -->
+        <copy todir="${destinationDocs}/images/${project.name}">
+            <fileset dir="${sourceDocsDir}/images/${project.name}"/>
+        </copy>
+
+        <!-- Copy docbook XSL images into the release docs directory -->
+        <copy todir="${destinationDocs}/images">
+            <fileset dir="${docbookImages}"/>
+        </copy>
+
+        <!-- Convert docbook to html -->
         <style
             basedir="${sourceDocsDir}"
             destdir="${destinationDocs}"
@@ -13,8 +24,6 @@
             style="${docbookXSL}"
             includes="*.sgml"
             processor="xalan"
-            classpath="bin"
-            />
+            classpath="bin"/>
     </target>
-
 </project>

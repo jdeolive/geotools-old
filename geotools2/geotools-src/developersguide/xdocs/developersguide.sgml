@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!--
 <?xml-stylesheet type="text/css"
 href="file:/usr/java/xxe-m13p1-bin/css/docbook41.css"
 ?>
@@ -7,15 +8,19 @@ href="file:/usr/java/xxe-m13p1-bin/css/docbook.css"
 title="Previous docbook stylesheet"
 alternate="yes"
 ?>
+-->
+
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
-"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd">
-<!--"file:/usr/share/apps/ksgmltools2/docbook/xml-dtd-4.1.2/docbookx.dtd"-->
+"file:/usr/java/xxe-m13p1-bin/dtd/docbook/docbookx.dtd">
+<!--"http://www.oasis-open.org/docbook/xml/4.1.2/docbookx.dtd"-->
+
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
 
     <author>
       <firstname>Cameron</firstname>
+
       <surname>Shorter</surname>
     </author>
 
@@ -39,6 +44,16 @@ alternate="yes"
 
   <sect1 id="design">
     <title>Design</title>
+    <figure>
+        <title>Geotools Logo</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="images/developersguide/geotools_logo.png"
+                    format="PNG"/>
+                </imageobject>
+            <textobject><phrase>Geotools Logo</phrase></textobject>
+        </mediaobject>
+    </figure>
 
     <para>To do: Explain<itemizedlist><listitem><para>Key design structure
     (core interfaces, data sources, rendering, tools)</para></listitem><listitem><para>Design
