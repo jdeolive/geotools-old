@@ -28,13 +28,18 @@
  */
 package org.geotools.gui.swing;
 
-// J2Se dependencies
+// J2SE dependencies
 import java.awt.*;
+import java.awt.geom.*;
+import java.awt.image.*;
 import javax.swing.*;
 import java.util.Random;
 import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
+
+// JAI dependencies
+import javax.media.jai.operator.*;
 
 // JUnit dependencies
 import junit.framework.*;
@@ -47,7 +52,7 @@ import org.geotools.resources.ColorUtilities;
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.6 2003/07/22 15:26:10 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.7 2003/08/07 16:03:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
@@ -59,7 +64,7 @@ public class MiscellaneousWidgetTest extends TestCase {
     /**
      * The location of the next frame to show.
      */
-    private int location;
+    private static volatile int location = 60;
 
     /**
      * The list of widget created up to date.
@@ -107,15 +112,27 @@ public class MiscellaneousWidgetTest extends TestCase {
      */
     private void show(final Component component, final String title) {
         final JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().add(component);
         frame.setLocation(location, location);
         frame.pack();
         frame.show();
-        location += 15;
         if (!keep) {
             widgets.add(frame);
         }
+        location += 30;
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException exception) {
+            // Ignore
+        }
+    }
+
+    /**
+     * Test the {@link About} dialog.
+     */
+    public void testAbout() {
+        show(new About(), "About");
     }
 
     /**
@@ -168,6 +185,21 @@ public class MiscellaneousWidgetTest extends TestCase {
     }
 
     /**
+     * Test the {@link ProgressWindow}.
+     */
+    public void testProgress() throws InterruptedException {
+        if (!keep) {
+            return;
+        }
+        final ProgressWindow progress = new ProgressWindow(null);
+        progress.setDescription("Some progress");
+        progress.started();
+        progress.progress(75);
+        progress.warningOccurred("File foo.txt", "(47)", "Some warning");
+        progress.complete();
+    }
+
+    /**
      * Test the {@link Plot2D}.
      */
     public void testPlot2D() {
@@ -189,5 +221,49 @@ public class MiscellaneousWidgetTest extends TestCase {
         }
         test.setPaintingWhileAdjusting(true);
         show(test.createScrollPane(), "Plot2D");
+    }
+
+    /**
+     * Test the {@link ZoomPane}.
+     */
+    public void testZoomPane() {
+        final Rectangle rect = new Rectangle(100,200,100,93);
+        final Polygon   poly = new Polygon(new int[] {125,175,150}, new int[] {225,225,268}, 3);
+        final ZoomPane  pane = new ZoomPane(ZoomPane.UNIFORM_SCALE |
+                                            ZoomPane.TRANSLATE_X   |
+                                            ZoomPane.TRANSLATE_Y   |
+                                            ZoomPane.ROTATE        |
+                                            ZoomPane.RESET         |
+                                            ZoomPane.DEFAULT_ZOOM)
+        {
+            public Rectangle2D getArea() {
+                return rect;
+            }
+
+            protected void paintComponent(final Graphics2D graphics) {
+                graphics.transform(zoom);
+                graphics.setColor(Color.RED);
+                graphics.fill(poly);
+                graphics.setColor(Color.BLUE);
+                graphics.draw(poly);
+                graphics.draw(rect);
+            }
+        };
+        pane.setPaintingWhileAdjusting(true);
+        show(pane, "ZoomPane");
+    }
+
+    /**
+     * Test the {@link OperationTreeBrowser}.
+     */
+    public void testOperationTree() {
+        RenderedImage image;
+        final Float size = new Float(200);
+        final Byte value = new Byte((byte)10);
+        image = ConstantDescriptor.create(size,size, new Byte[]{value}, null);
+        image = MultiplyConstDescriptor.create(image, new double[] {2}, null);
+        image = GradientMagnitudeDescriptor.create(image, null, null, null);
+        image = AddConstDescriptor.create(image, new double[] {35}, null);
+        show(new OperationTreeBrowser(image), "OperationTreeBrowser");
     }
 }
