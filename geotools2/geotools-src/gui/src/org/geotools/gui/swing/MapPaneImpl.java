@@ -17,6 +17,33 @@
 
 package org.geotools.gui.swing;
 
+import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.ct.Adapters;
+import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransformFactory;
+import org.geotools.data.DataSourceException;
+import org.geotools.datasource.extents.EnvelopeExtent;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.gui.swing.event.GeoMouseEvent;
+import org.geotools.gui.tools.Tool;
+import org.geotools.map.BoundingBox;
+import org.geotools.map.Context;
+import org.geotools.map.Layer;
+import org.geotools.map.LayerList;
+import org.geotools.map.events.BoundingBoxEvent;
+import org.geotools.map.events.BoundingBoxListener;
+import org.geotools.map.events.LayerListListener;
+import org.geotools.map.events.SelectedToolListener;
+import org.geotools.renderer.Java2DRenderer;
+import org.geotools.styling.Style;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 /*
  * Geotools - OpenSource mapping toolkit
@@ -38,29 +65,7 @@ package org.geotools.gui.swing;
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.DataSourceException;
-import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollectionDefault;
-import org.geotools.gui.swing.event.GeoMouseEvent;
-import org.geotools.gui.tools.Tool;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.map.Layer;
-import org.geotools.map.LayerList;
-import org.geotools.map.events.BoundingBoxListener;
-import org.geotools.map.events.LayerListListener;
-import org.geotools.map.events.SelectedToolListener;
-import org.geotools.renderer.Java2DRenderer;
-import org.geotools.styling.Style;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.geom.AffineTransform;
 import java.lang.IllegalArgumentException;
 import java.util.EventObject;
 import java.util.logging.Logger;
@@ -68,15 +73,16 @@ import javax.swing.JPanel;
 
 
 /**
- * This class provides core functionality for drawing a map. At the moment,
- * this package is still experimental.  I expect that it will be removed, and
- * the functionality will be moved into other classes like MapPane.
+ * This widget is responsible for marshalling the rendering of a map.
+ * It processes Listener events and calls the Renderer as required.
+ * It maintains the correct aspect ratio by resizing the Context's
+ * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.17 2003/04/03 09:57:49 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.18 2003/04/22 20:32:39 camerons Exp $
  *
- * @task REVISIT: We probably should have a StyleModel which sends
- *       StyleModelEvents when the Style changes.
+ * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
+ * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
  */
 public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     LayerListListener, ComponentListener, SelectedToolListener {
@@ -89,6 +95,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
     /** The model which stores a list of layers and BoundingBox. */
     private Context context;
+    private Adapters adapters = Adapters.getDefault();
 
     /** A transform from screen coordinates to real world coordinates. */
     private DotToCoordinateTransformImpl dotToCoordinateTransform;
@@ -109,9 +116,13 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         } else {
             this.renderer = new Java2DRenderer(context);
             this.context = context;
+            
+            // Request to be notified when map parameters change
             context.getBbox().addAreaOfInterestChangedListener(this);
+            context.getLayerList().addLayerListChangedListener(this);
             context.getToolList().addSelectedToolListener(this);
             context.getToolList().getTool().addMouseListener(this, context);
+            addComponentListener(this);
 
             // Create a transform for this mapPane.
             this.dotToCoordinateTransform =
@@ -158,14 +169,17 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
                 );
             }
         }
-
+        int w=getWidth() - getInsets().left - getInsets().right;
+        int h=getHeight() - getInsets().top - getInsets().bottom;
+        
+        // prevent divide by zero errors
+        if (h==0){
+            h=2;
+        }
+        
         renderer.render(
             graphics,
-            new Rectangle(
-                getInsets().left, getInsets().top,
-                getWidth() - getInsets().left - getInsets().right,
-                getHeight() - getInsets().top - getInsets().bottom
-            )
+            new Rectangle(getInsets().left, getInsets().top,w,h)
         );
     }
 
@@ -174,7 +188,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @param areaOfInterestChangedEvent The new extent.
      */
-    public void areaOfInterestChanged(EventObject areaOfInterestChangedEvent) {
+    public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
         dotToCoordinateTransform.updateTransform();
         repaint(getVisibleRect());
     }
@@ -239,13 +253,47 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     public void componentMoved(ComponentEvent e) {}
 
     /**
-     * Invoked when the component's size changes, update the
-     * screenToCoordinateTransform.
+     * Invoked when the component's size changes, change the AreaOfInterest so
+     * that the aspect ratio remains the same.  One axis will remain the same
+     * width/height while the other axis will expand to fit the new aspect
+     * ratio.<br>
+     * The method will trigger an AreaOfInterestEvent which in turn will
+     * cause a repaint.
      *
      * @param e ComponentEvent.
      */
     public void componentResized(ComponentEvent e) {
-        dotToCoordinateTransform.updateTransform();
+        int w=getWidth() - getInsets().left - getInsets().right;
+        int h=getHeight() - getInsets().top - getInsets().bottom;
+        double newAspectRatio = (double)w/(double)h;
+        
+        AffineTransform at = new AffineTransform();
+        Envelope aoi = context.getBbox().getAreaOfInterest();
+        
+        double contextAspectRatio=
+            (double)(aoi.getMaxX() - aoi.getMinX())
+            /(double)(aoi.getMaxY() - aoi.getMinY());
+        
+        // No need to resize if the aspect ratio is correct.
+        if (contextAspectRatio==newAspectRatio){
+            return;
+        }
+
+        if (newAspectRatio > contextAspectRatio) {
+            // Increase the width to fit new aspect ratio
+            at.translate((aoi.getMinX() + aoi.getMaxX()) / 2, 0);
+            at.scale(newAspectRatio / contextAspectRatio, 1);
+            at.translate(-(aoi.getMinX() + aoi.getMaxX()) / 2, 0);
+        } else {
+            // Increase the height to fit new aspect ratio
+            at.translate(0, (aoi.getMinY() + aoi.getMaxY()) / 2);
+            at.scale(1, contextAspectRatio / newAspectRatio);
+            at.translate(0, -(aoi.getMinY() + aoi.getMaxY()) / 2);
+        }
+
+        MathTransform transform =
+            MathTransformFactory.getDefault().createAffineTransform(at);
+        context.getBbox().transform(adapters.export(transform));
     }
 
     /**
