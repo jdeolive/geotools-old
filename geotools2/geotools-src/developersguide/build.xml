@@ -23,7 +23,7 @@
             extension=".html"
             style="${docbookXSL}"
             includes="*.sgml"
-            processor="xalan"
+            processor="trax"
             classpath="bin"/>
     </target>
 </project>
