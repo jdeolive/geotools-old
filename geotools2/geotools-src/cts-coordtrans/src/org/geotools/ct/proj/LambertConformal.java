@@ -83,7 +83,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp.html">lambert_conic_conformal_2sp</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/lambert_conic_conformal_2sp_belgium.html">lambert_conic_conformal_2sp_belgium</A>
  *
- * @version $Id: LambertConformal.java,v 1.1 2003/05/14 10:15:40 desruisseaux Exp $
+ * @version $Id: LambertConformal.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -123,7 +123,7 @@ public class LambertConformal extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformal.java,v 1.1 2003/05/14 10:15:40 desruisseaux Exp $
+     * @version $Id: LambertConformal.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -363,12 +363,12 @@ public class LambertConformal extends ConicProjection {
         if (super.equals(object)) {
             final LambertConformal that = (LambertConformal) object;
             return (this.sp2 == that.sp2) && (this.belgium == that.belgium) &&
-                   Double.doubleToLongBits(this.n)    == Double.doubleToLongBits(that.n)    &&
-                   Double.doubleToLongBits(this.F)    == Double.doubleToLongBits(that.F)    &&
-                   Double.doubleToLongBits(this.rho0) == Double.doubleToLongBits(that.rho0) &&
-                   Double.doubleToLongBits(this.ak0)  == Double.doubleToLongBits(that.ak0)  &&
-                   Double.doubleToLongBits(this.phi1) == Double.doubleToLongBits(that.phi1) &&
-                   Double.doubleToLongBits(this.phi2) == Double.doubleToLongBits(that.phi2);
+                   equals(this.n,      that.n)    &&
+                   equals(this.F,      that.F)    &&
+                   equals(this.rho0,   that.rho0) &&
+                   equals(this.ak0,    that.ak0)  &&
+                   equals(this.phi1,   that.phi1) &&
+                   equals(this.phi2,   that.phi2);
         }
         return false;
     }

@@ -34,6 +34,26 @@
  *    This package contains formulas from the PROJ package of USGS.
  *    USGS's work is fully acknowledged here.
  */
+/*
+** Permission is hereby granted, free of charge, to any person obtaining
+** a copy of this software and associated documentation files (the
+** "Software"), to deal in the Software without restriction, including
+** without limitation the rights to use, copy, modify, merge, publish,
+** distribute, sublicense, and/or sell copies of the Software, and to
+** permit persons to whom the Software is furnished to do so, subject to
+** the following conditions:
+**
+** The above copyright notice and this permission notice shall be
+** included in all copies or substantial portions of the Software.
+**
+** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+** EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+** MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+** IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+** CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+** SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
 package org.geotools.ct.proj;
 
 // J2SE dependencies
@@ -66,16 +86,16 @@ import org.geotools.resources.cts.ResourceKeys;
  * including the Universal (UTM) and Modified (MTM) Transverses Mercator 
  * projections. In these cases the earth is divided into zones. For the UTM
  * the zones are 6 degrees wide, numbered from 1 to 60 proceeding east from 
- * 180 degrees longitude, and between lats 84 degrees N and 80 
- * degrees S. The central meridian is taken as the center of the zone
+ * 180 degrees longitude, and between lats 84 degrees North and 80 
+ * degrees South. The central meridian is taken as the center of the zone
  * and the latitude of origin is the equator. A scale factor of 0.9996 and 
  * false easting of 500000m is used for all zones and a false northing of 10000000m
  * is used for zones in the southern hemisphere.
  * <br><br>
  *
- * NOTE: formulae used below are not those of Snyder, but rather those
- *       from the 'proj' package of the USGS survey, which have been
- *       reproduced verbatim. USGS work is acknowledged here.
+ * NOTE: formulas used below are not those of Snyder, but rather those
+ *       from the <code>proj<.code> package of the USGS survey, which
+ *       have been reproduced verbatim. USGS work is acknowledged here.
  * <br><br>
  *
  * <strong>References:</strong><ul>
@@ -90,7 +110,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://mathworld.wolfram.com/MercatorProjection.html">Transverse Mercator projection on MathWorld</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/transverse_mercator.html">&quot;Transverse_Mercator&quot; on Remote Sensing</A>
  *
- * @version $Id: TransverseMercator.java,v 1.1 2003/06/01 16:34:46 desruisseaux Exp $
+ * @version $Id: TransverseMercator.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -159,7 +179,7 @@ public class TransverseMercator extends CylindricalProjection {
     /**
      * Informations about a {@link TransverseMercator}.
      *
-     * @version $Id: TransverseMercator.java,v 1.1 2003/06/01 16:34:46 desruisseaux Exp $
+     * @version $Id: TransverseMercator.java,v 1.2 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

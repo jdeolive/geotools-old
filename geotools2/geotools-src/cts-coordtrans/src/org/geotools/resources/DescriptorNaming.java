@@ -60,7 +60,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * {@link org.geotools.cs.Projection} using this class for binding classification
  * name to parameter list descriptors.
  *
- * @version $Id: DescriptorNaming.java,v 1.5 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: DescriptorNaming.java,v 1.6 2003/08/04 13:53:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class DescriptorNaming {
@@ -69,7 +69,7 @@ public final class DescriptorNaming {
      * classification name to parameter descriptor.
      */
     public static final DescriptorNaming PROJECTIONS = new DescriptorNaming(
-                "org.geotools.ct.MathTransformFactory", "org.geotools.cts");
+                "org.geotools.ct.proj.Provider", "org.geotools.ct");
 
     /**
      * The parameters using linear units.
@@ -133,7 +133,7 @@ public final class DescriptorNaming {
 
     /**
      * Try to bind a set of default projections. Those default projections are binded
-     * during the static initialization of {org.geotools.ct.MathTransformFactory} class.
+     * during the static initialization of {@link org.geotools.ct.proj.Provider} class.
      * If the operation fail, a warning is logged but the process continue.
      */
     private void bindDefaults(final String method) {

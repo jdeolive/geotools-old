@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.11 2003/07/23 10:20:44 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.12 2003/08/04 13:53:16 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -568,7 +568,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.11 2003/07/23 10:20:44 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.12 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -754,17 +754,25 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
         // optimization is usually done in subclasses.
         if (super.equals(object)) {
             final MapProjection that = (MapProjection) object;
-            return Double.doubleToLongBits(this.semiMajor)        == Double.doubleToLongBits(that.semiMajor)        &&
-                   Double.doubleToLongBits(this.semiMinor)        == Double.doubleToLongBits(that.semiMinor)        &&
-                   Double.doubleToLongBits(this.centralMeridian)  == Double.doubleToLongBits(that.centralMeridian)  &&
-                   Double.doubleToLongBits(this.latitudeOfOrigin) == Double.doubleToLongBits(that.latitudeOfOrigin) &&
-                   Double.doubleToLongBits(this.scaleFactor)      == Double.doubleToLongBits(that.scaleFactor)      &&
-                   Double.doubleToLongBits(this.falseEasting)     == Double.doubleToLongBits(that.falseEasting)     &&
-                   Double.doubleToLongBits(this.falseNorthing)    == Double.doubleToLongBits(that.falseNorthing);
+            return equals(this.semiMajor,        that.semiMajor)        &&
+                   equals(this.semiMinor,        that.semiMinor)        &&
+                   equals(this.centralMeridian,  that.centralMeridian)  &&
+                   equals(this.latitudeOfOrigin, that.latitudeOfOrigin) &&
+                   equals(this.scaleFactor,      that.scaleFactor)      &&
+                   equals(this.falseEasting,     that.falseEasting)     &&
+                   equals(this.falseNorthing,    that.falseNorthing);
         }
         return false;
     }
-    
+
+    /**
+     * Returns <code>true</code> if the two specified value are equals.
+     * Two {@link Double#NaN NaN} values are considered equals.
+     */
+    static boolean equals(final double value1, final double value2) {
+        return Double.doubleToLongBits(value1) == Double.doubleToLongBits(value2);
+    }
+
     /**
      * Retourne une chaîne de caractères représentant cette projection cartographique.
      * Cette chaîne de caractères contiendra entre autres le nom de la projection, les

@@ -80,16 +80,21 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.6 2003/05/13 10:58:50 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.7 2003/08/04 13:53:16 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public class ScriptTest extends TestCase {
     /**
-     * A simple test file to parse and execute
+     * A simple test file to parse and execute.
      */
     private static final String SIMPLE_SCRIPT = "test-data/Simple_TestScript.txt";
+
+    /**
+     * A test file to parse and execute for stereographic projection.
+     */
+    private static final String STEREOGRAPHIC_SCRIPT = "test-data/Stereographic_TestScript.txt";
     
     /**
      * The OpenGIS test file to parse and execute.
@@ -473,6 +478,17 @@ public class ScriptTest extends TestCase {
     }
 
     /**
+     * Run the {@link #STEREOGRAPHIC_SCRIPT}.
+     *
+     * @throws IOException If {@link #STEREOGRAPHIC_SCRIPT} can't be read.
+     * @throws FactoryException if a line can't be parsed.
+     * @throws TransformException if the transformation can't be run.
+     */
+    public void testStereographicScript() throws IOException, FactoryException {
+        runScript(STEREOGRAPHIC_SCRIPT);
+    }
+
+    /**
      * Run the {@link #CT_SCRIPT}.
      *
      * @throws IOException If {@link #CT_SCRIPT} can't be read.
@@ -487,8 +503,9 @@ public class ScriptTest extends TestCase {
      * Run the test from the command line. By default, this method run all tests. In order
      * to run only one test, use one of the following line:
      * <ul>
-     *     <li>java -ea org.geotools.cs.ScriptTest -test=OpenGIS</li>
      *     <li>java -ea org.geotools.cs.ScriptTest -test=Simple</li>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=Stereographic</li>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=OpenGIS</li>
      * </ul>
      *
      * @param  args The command-line arguments.
@@ -502,6 +519,9 @@ public class ScriptTest extends TestCase {
         test.setUp();
         if (script==null || script.equalsIgnoreCase("Simple")) {
             test.testSimpleScript();
+        }
+        if (script==null || script.equalsIgnoreCase("Stereographic")) {
+            test.testStereographicScript();
         }
         if (script==null || script.equalsIgnoreCase("OpenGIS")) {
             test.testOpenGIS();

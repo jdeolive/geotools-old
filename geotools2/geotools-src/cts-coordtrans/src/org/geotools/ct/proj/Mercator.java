@@ -80,7 +80,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_1sp.html">&quot;mercator_1sp&quot; on Remote Sensing</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
  * 
- * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
+ * @version $Id: Mercator.java,v 1.8 2003/08/04 13:53:16 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -108,7 +108,7 @@ public class Mercator extends CylindricalProjection {
      * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/mercator_2sp.html">&quot;mercator_2sp&quot; on Remote Sensing</A>
      * @see org.geotools.ct.MathTransformFactory
      *
-     * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.8 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -238,7 +238,7 @@ public class Mercator extends CylindricalProjection {
     /**
      * Provides the transform equations for the spherical case of the Mercator projection.
      *
-     * @version $Id: Mercator.java,v 1.7 2003/05/14 10:15:41 desruisseaux Exp $
+     * @version $Id: Mercator.java,v 1.8 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -329,9 +329,8 @@ public class Mercator extends CylindricalProjection {
         }
         if (super.equals(object)) {
             final Mercator that = (Mercator) object;
-            return Double.doubleToLongBits(this.ak0) == Double.doubleToLongBits(that.ak0) &&
-                   Double.doubleToLongBits(this.standardParallel) ==
-                   Double.doubleToLongBits(that.standardParallel);
+            return equals(this.ak0,                that.ak0) &&
+                   equals(this.standardParallel,   that.standardParallel);
         }
         return false;
     }

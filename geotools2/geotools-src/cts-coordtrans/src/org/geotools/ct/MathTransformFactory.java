@@ -111,7 +111,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.26 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.27 2003/08/04 13:53:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -175,9 +175,6 @@ public class MathTransformFactory {
         if (DEFAULT == null) {
             MathTransformProvider[] transforms = new MathTransformProvider[] {
                 new              MatrixTransform.Provider(),      // Affine (default to 4x4)
-                new      StereographicProjection.Provider(),      // Stereographic
-                new      StereographicProjection.Provider(true),  // Polar_Stereographic
-                new      StereographicProjection.Provider(false), // Oblique_Stereographic
                 new          GeocentricTransform.Provider(false), // Ellipsoid_To_Geocentric
                 new          GeocentricTransform.Provider(true),  // Geocentric_To_Ellipsoid
                 new  AbridgedMolodenskiTransform.Provider(),      // Abridged_Molodenski
@@ -189,22 +186,6 @@ public class MathTransformFactory {
             transforms = (MathTransformProvider[])XArray.resize(transforms, offset+projections.length);
             System.arraycopy(projections, 0, transforms, offset, projections.length);
             DEFAULT = new MathTransformFactory(transforms);
-            /*
-             * Register the projections. This temporary hack will be removed when we will have
-             * finished to move all projections in the 'proj' package. Then, the binding should
-             * be enabled in 'org.geotools.ct.proj.Provider' and the dependency should be changed
-             * in DescriptorNaming from MathTransformFactory to Provider.
-             */
-            for (int i=transforms.length; --i>=0;) {
-                final MathTransformProvider provider = transforms[i];
-                if (provider instanceof MapProjection.Provider ||
-                    provider instanceof Provider)
-                {
-                    // Register only projections.
-                    DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
-                                                      provider.getParameterListDescriptor());
-                }
-            }
         }
         return DEFAULT;
     }
@@ -952,7 +933,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.26 2003/07/11 16:57:18 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.27 2003/08/04 13:53:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

@@ -48,7 +48,7 @@ import org.geotools.resources.cts.Resources;
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.7 2003/05/31 21:31:14 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.8 2003/08/04 13:53:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
@@ -61,8 +61,6 @@ public abstract class Provider extends MathTransformProvider {
     /**
      * Returns a set of default providers for map projections. This is used for
      * the initialization of a {@link org.geotools.ct.MathTransformFactory}.
-     *
-     * @task HACK: Binding temporarily disabled.
      */
     public static synchronized Provider[] getDefaults() {
         if (DEFAULT == null) {
@@ -75,19 +73,16 @@ public abstract class Provider extends MathTransformProvider {
                 new LambertConformal.Provider(true,  true,  false), // Lambert_Conic_Conformal_2SP_Belgium
                 new Mercator        .Provider(false),               // Mercator_1SP
                 new Mercator        .Provider(true ),               // Mercator_2SP
-                new TransverseMercator.Provider()                   // Transverse_Mercator
+                new TransverseMercator.Provider(),                  // Transverse_Mercator
+                new Stereographic   .Provider(false, false),        // Oblique_Stereographic
+                new Stereographic   .Provider(true,  false),        // Polar_Stereographic
+                new Stereographic   .Provider(false, true),         // Oblique_Stereographic_EPSG
+                new Stereographic   .Provider(true,  true)          // Polar_Stereographic_EPSG
             };
-            /*
-             * Disabled for now. Will be enabled only when we will have finished to move all
-             * projections to the 'proj' package. Then, DescriptorNaming.bindDefaults should
-             * be modified in order to invokes this method instead of MathTransformFactory.
-             */
-            if (false) {
-                for (int i=DEFAULT.length; --i>=0;) {
-                    final Provider provider = DEFAULT[i];
-                    DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
-                                                      provider.getParameterListDescriptor());
-                }
+            for (int i=0; i<DEFAULT.length; i++) {
+                final Provider provider = DEFAULT[i];
+                DescriptorNaming.PROJECTIONS.bind(provider.getClassName(),
+                                                  provider.getParameterListDescriptor());
             }
         }
         return (Provider[]) DEFAULT.clone();
