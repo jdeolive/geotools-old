@@ -309,5 +309,9 @@ public abstract class Projection implements Constants {
     }
     
     
+    public boolean isLatLong(){
+        return isLatLong;
+    }
+    
     
 }
