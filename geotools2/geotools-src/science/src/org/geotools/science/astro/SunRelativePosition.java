@@ -49,6 +49,7 @@ import java.text.ParseException;
  * Cette classe reçoit en entrés les coordonnées spatio-temporelles de
  * l'observateur, soit:
  *
+ * <TABLE border='0'><TR><TD>
  * <UL>
  *   <LI>La longitude (en degrées) de l'observateur;</LI>
  *   <LI>La latitude (en degrées) de l'observateur;</LI>
@@ -61,6 +62,10 @@ import java.text.ParseException;
  *   <LI>L'azimuth du soleil (en degrés dans le sens des aiguilles d'une montre depuis le nord);</LI>
  *   <LI>L'élévation du soleil (en degrés par rapport a l'horizon).</LI>
  * </UL>
+ * </TD>
+ *
+ * <TD><img src="doc-files/CelestialSphere.png"></TD>
+ * </TR></TABLE>
  *
  * Les algorithmes utilisés dans cette classe sont des adaptations des algorithmes
  * en javascript écrit par le "National Oceanic and Atmospheric Administration,
@@ -74,11 +79,22 @@ import java.text.ParseException;
  * from -1000 to 3000. Outside of this range, results will be given, but the
  * potential for error is higher.
  *
- * @version $Id: SunRelativePosition.java,v 1.1 2003/04/16 22:05:40 desruisseaux Exp $
+ * @version $Id: SunRelativePosition.java,v 1.2 2003/04/17 13:58:31 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
 public final class SunRelativePosition {
+    /**
+     * Number of milliseconds in a day.
+     */
+    private static final int DAY_MILLIS = 24*60*60*1000;
+
+    /**
+     * Heure à laquelle le soleil est au plus haut dans la journée en millisecondes
+     * écoulées depuis le 1er janvier 1970.
+     */
+    private long noonTime;
+    
     /**
      * Azimuth du soleil, en degrés dans le sens des
      * aiguilles d'une montre depuis le nord.
@@ -278,6 +294,18 @@ public final class SunRelativePosition {
         return Math.toDegrees(theta);
     }
 
+   /**
+    * Calculate the Universal Coordinated Time (UTC) of solar noon for the given day
+    * at the given location on earth.
+    *
+    * @param  lon       longitude of observer in degrees.                               
+    * @param  eqTime    Equation of time.
+    * @return Time in minutes from beginnning of day in UTC.
+    */
+    private static double solarNoonTime(final double lon, final double eqTime) { 
+        return 720.0 + (lon * 4.0) - eqTime;
+    }
+
     /**
      * Calculate the difference between true solar time and mean. The "equation
      * of time" is a term accounting for changes in the time of solar noon for
@@ -375,6 +403,8 @@ public final class SunRelativePosition {
 
         double solarDec = sunDeclination(time);
         double eqTime   = equationOfTime(time);
+        this.noonTime   = Math.round(solarNoonTime(longitude, eqTime) * (60*1000)) +
+                          (date.getTime()/DAY_MILLIS)*DAY_MILLIS;
 
         // Formula below use longitude in degrees. Steps are:
         //   1) Extract the time part of the date, in minutes.
@@ -454,6 +484,24 @@ public final class SunRelativePosition {
     }
 
     /**
+     * Retourne l'heure à laquelle le soleil est au plus haut. L'heure est
+     * retournée en nombre de millisecondes écoulées depuis le debut de la
+     * journée (minuit) en heure UTC.
+     */
+    public long getNoonTime() {
+        return noonTime % DAY_MILLIS;
+    }
+
+    /**
+     * Retourne la date à laquelle le soleil est au plus haut dans la journée.
+     * Cette méthode est équivalente à {@link #getNoonTime} mais inclue le jour
+     * de la date qui avait été spécifiée à la méthode {@link #compute}.
+     */
+    public Date getNoonDate() {
+        return new Date(noonTime);
+    }
+
+    /**
      * Affiche la position du soleil à la date et coordonnées spécifiée.
      * Cette application peut être lancée avec la syntaxe suivante:
      *
@@ -480,5 +528,6 @@ public final class SunRelativePosition {
         System.out.print("Latitude:   "); System.out.println(latitude);
         System.out.print("Elevation:  "); System.out.println(calculator.getElevation());
         System.out.print("Azimuth:    "); System.out.println(calculator.getAzimuth());
+        System.out.print("Noon date:  "); System.out.println(format.format(calculator.getNoonDate()));
     }
 }

@@ -56,7 +56,7 @@ import java.text.ParseException;
  * <a href="http://webexhibits.org/calendars/year-astronomy.html">http://webexhibits.org/calendars/year-astronomy.html</a> ainsi que
  * <a href="http://www.treasure-troves.com/astro/TropicalYear.html">http://www.treasure-troves.com/astro/TropicalYear.html</a>.</p>
  *
- * @version $Id: Calendar.java,v 1.1 2003/04/16 22:05:40 desruisseaux Exp $
+ * @version $Id: Calendar.java,v 1.2 2003/04/17 13:58:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class Calendar {
@@ -85,7 +85,7 @@ public final class Calendar {
 
     /**
      * Retourne le jour julien d'une date. Il ne s'agit pas du jour julien dans
-     * une année. Ce jour julien là (nommé ainsi pour <i>Julius Scaliger<i>, et
+     * une année. Ce jour julien là (nommé ainsi pour <i>Julius Scaliger</i>, et
      * non <i>Julius Caesar</i>)  est le nombre de jours écoulés depuis midi le
      * 1er janvier 4713 avant Jésus-Christ.
      */
