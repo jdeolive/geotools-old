@@ -57,7 +57,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version $Id: AbridgedMolodenskiTransform.java,v 1.4 2002/10/08 15:36:10 desruisseaux Exp $
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.5 2002/10/09 08:45:00 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -65,7 +65,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * Serial number for interoperability with different versions.
      */
-    //private static final long serialVersionUID = ?;
+    private static final long serialVersionUID = 1759367353860977791L;
 
     /**
      * <code>true</code> for a 3D transformation, or
@@ -147,8 +147,8 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
         tb = parameters.getDoubleParameter("tgt_semi_minor");
         da = a - ta;
         db = b - tb;
-        f  = a/(a-b);
-        df = f - ta/(ta-tb);
+        f  = (a-b)/a;
+        df = f - (ta-tb)/ta;
         e2  = 1 - (b*b)/(a*a);
         adf = (a*df) + (f*da);
     }
@@ -289,7 +289,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version $Id: AbridgedMolodenskiTransform.java,v 1.4 2002/10/08 15:36:10 desruisseaux Exp $
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.5 2002/10/09 08:45:00 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
