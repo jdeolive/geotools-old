@@ -940,9 +940,18 @@ public final class NumberParser {
     
     parseNumber:
       try{
+        //
+        // This is the source of the problem for gt bug #750294
+        // the length calc was wrong, needed to add 1
+        // IanSchneider
+        //
+        int	l = end - start + 1;
+        //
+        // Removed the default parsing of a zero length string
+        // IanSchneider
+        //
         
-        int	l = end - start;
-        if ( l == 0 ) return new NumberParser(0);
+        //if ( l == 0 ) return new NumberParser(0);
         int	i = 0;
         switch ( c = in.charAt(start + i ) ){
           case '-':
@@ -1144,7 +1153,7 @@ public final class NumberParser {
                 // for expVal > (MAX+N), where N >= abs(decExp)
                 decExp = decExp + expSign*expVal;
               }
-              
+
               // if we saw something not a digit ( or end of string )
               // after the [Ee][+-], without seeing any digits at all
               // assume the exponent is 0
@@ -2124,5 +2133,6 @@ public final class NumberParser {
         }
       }
       
+
 }
 
