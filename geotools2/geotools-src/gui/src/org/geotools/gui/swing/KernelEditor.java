@@ -92,7 +92,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/KernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: KernelEditor.java,v 1.1 2003/03/28 16:45:55 desruisseaux Exp $
+ * @version $Id: KernelEditor.java,v 1.2 2003/03/30 22:44:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see GradientKernelEditor
@@ -239,13 +239,13 @@ public class KernelEditor extends JComponent {
                                              1.0f,  1.0f,  1.0f,
                                             -1.0f,  1.0f, -1.0f});
 
-        addKernel("Laplace 1", new float[] {-1.0f, -1.0f, -1.0f,
-                                            -1.0f,  8.0f, -1.0f,
-                                            -1.0f, -1.0f, -1.0f});
-
-        addKernel("Laplace 2", new float[] { 0.0f, -1.0f,  0.0f,
+        addKernel("Laplace 1", new float[] { 0.0f, -1.0f,  0.0f,
                                             -1.0f,  4.0f, -1.0f,
                                              0.0f, -1.0f,  0.0f});
+
+        addKernel("Laplace 2", new float[] {-1.0f, -1.0f, -1.0f,
+                                            -1.0f,  8.0f, -1.0f,
+                                            -1.0f, -1.0f, -1.0f});
 
         addKernel("Box",       new float[] { 1.0f,  1.0f,  1.0f,
                                              1.0f,  1.0f,  1.0f,
@@ -254,6 +254,10 @@ public class KernelEditor extends JComponent {
         addKernel("Low pass",  new float[] { 1.0f,  2.0f,  1.0f,
                                              2.0f,  4.0f,  2.0f,
                                              1.0f,  2.0f,  1.0f});
+
+        if (model.getRowCount()*model.getColumnCount() == 0) {
+            setKernel("Box");
+        }
     }
 
     /**
@@ -426,7 +430,7 @@ public class KernelEditor extends JComponent {
      * currently selected kernel. This object is also a listener for various
      * events (like changing the size of the table).
      *
-     * @version $Id: KernelEditor.java,v 1.1 2003/03/28 16:45:55 desruisseaux Exp $
+     * @version $Id: KernelEditor.java,v 1.2 2003/03/30 22:44:24 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Model extends AbstractTableModel implements ComboBoxModel,
