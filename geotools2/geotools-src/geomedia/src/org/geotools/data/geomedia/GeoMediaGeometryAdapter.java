@@ -1,6 +1,6 @@
 /*
- *    GeoLBS - OpenSource Location Based Servces toolkit
- *    (C) 2004, Julian J. Ray, All Rights Reserved
+ *    GeoLBS - OpenSource LocationReference Based Servces toolkit
+ *    Copyright (C) 2003-2004, Julian J. Ray, All Rights Reserved
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,12 @@
 
 package org.geotools.data.geomedia;
 
-import com.mindprod.ledatastream.LEDataInputStream;
-import com.mindprod.ledatastream.LEDataOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Hashtable;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.CoordinateArrays;
 import com.vividsolutions.jts.geom.CoordinateList;
@@ -30,11 +34,6 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
 
 
 /**
@@ -148,20 +147,22 @@ public class GeoMediaGeometryAdapter {
             return geom;
         }
 
-        ByteArrayInputStream byteInputStream = new ByteArrayInputStream(input);
-        LEDataInputStream    binaryReader = new LEDataInputStream(byteInputStream);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(input.length);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        byteBuffer.put(input);
+        byteBuffer.position(0);
 
         // Extract the 16 byte GUID on the front end
-        // First 2 bytes (short) is the index into the type map
-        int   uidNum = binaryReader.readUnsignedShort(); // reads first byte
+        // First 2 bytes (short) is the index into the type map as an unsigned short
+        int uidNum = (int) (byteBuffer.getShort() & 0xffff);
+
+        // Skip the next 14 bytes
         int[] vals = new int[14];
 
         for (int i = 0; i < 14; i++) {
-            vals[i] = binaryReader.readUnsignedByte();
+            vals[i] = byteBuffer.get();
         }
 
-        //byte[] temp = new byte[14]; // Read the rest of the 16 byte GUID header
-        //binaryReader.readFully(temp);
         Class geomType = (Class) mTypeMapping.get(new Integer(uidNum));
 
         if (geomType == null) {
@@ -170,15 +171,15 @@ public class GeoMediaGeometryAdapter {
 
         // Delegate to the appropriate de-serializer. Throw exceptions if we come across a geometry we have not yet supported
         if (geomType == Point.class) {
-            geom = createPointGeometry(binaryReader);
+            geom = createPointGeometry(byteBuffer);
         } else if (geomType == LineString.class) {
-            geom = createLineStringGeometry(uidNum, binaryReader);
+            geom = createLineStringGeometry(uidNum, byteBuffer);
         } else if (geomType == MultiLineString.class) {
-            geom = createMultiLineStringGeometry(uidNum, binaryReader);
+            geom = createMultiLineStringGeometry(uidNum, byteBuffer);
         } else if (geomType == Polygon.class) {
-            geom = createPolygonGeometry(uidNum, binaryReader);
+            geom = createPolygonGeometry(uidNum, byteBuffer);
         } else if (geomType == GeometryCollection.class) {
-            geom = createGeometryCollectionGeometry(binaryReader);
+            geom = createGeometryCollectionGeometry(byteBuffer);
         } else if (geomType == MultiPolygon.class) { // TODO: Support this type
             throw new GeoMediaUnsupportedGeometryTypeException();
         }
@@ -194,23 +195,23 @@ public class GeoMediaGeometryAdapter {
      *
      * @throws IOException DOCUMENT ME!
      */
-    private void writeGUID(Geometry input, LEDataOutputStream binaryWriter)
+    private void writeGUID(Geometry input, ByteBuffer binaryWriter)
         throws IOException {
-        short guidFlag = 0;
+        int guidFlag = 0;
 
         if (input instanceof Point) {
-            guidFlag = (short) 65472;
+            guidFlag = 65472;
         } else if (input instanceof LineString) {
-            guidFlag = (short) 65474;
+            guidFlag = 65474;
         } else if (input instanceof Polygon) {
-            guidFlag = (short) 65475;
+            guidFlag = 65475;
         }
 
-        // No need to worry about anything else as the calling function takes care of unsupported types
-        binaryWriter.writeShort(guidFlag);
+        // Notice that the short has to be unsigned
+        binaryWriter.putShort((short) (guidFlag & 0xffff));
 
         for (int i = 0; i < mGdoGuidByteArray.length; i++) {
-            binaryWriter.writeByte(mGdoGuidByteArray[i]);
+            binaryWriter.put((byte) mGdoGuidByteArray[i]);
         }
     }
 
@@ -227,60 +228,64 @@ public class GeoMediaGeometryAdapter {
      * @todo Figure out how to write the GDO_BOUNDS_XHI etc. bounding box for SQL Server data stores
      */
     public byte[] serialize(Geometry input) throws IOException, GeoMediaUnsupportedGeometryTypeException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        LEDataOutputStream    binaryWriter = new LEDataOutputStream(outputStream);
+        ByteBuffer byteBuffer = ByteBuffer.allocate(65535);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        byteBuffer.position(0);
 
         if (input instanceof Point) {
-            Point      geom = (Point) input;
+            Point geom = (Point) input;
             Coordinate c = geom.getCoordinate();
 
-            writeGUID(input, binaryWriter);
-            binaryWriter.writeDouble(c.x);
-            binaryWriter.writeDouble(c.y);
-            binaryWriter.writeDouble((double) 0.0);
+            writeGUID(input, byteBuffer);
+            byteBuffer.putDouble(c.x);
+            byteBuffer.putDouble(c.y);
+            byteBuffer.putDouble((double) 0.0);
         } else if (input instanceof LineString) {
-            LineString   geom = (LineString) input;
+            LineString geom = (LineString) input;
             Coordinate[] coords = geom.getCoordinates();
 
-            writeGUID(input, binaryWriter);
-            binaryWriter.writeInt(coords.length);
+            writeGUID(input, byteBuffer);
+            byteBuffer.putInt(coords.length);
 
             for (int i = 0; i < coords.length; i++) {
-                binaryWriter.writeDouble(coords[i].x);
-                binaryWriter.writeDouble(coords[i].y);
-                binaryWriter.writeDouble((double) 0.0);
+                byteBuffer.putDouble(coords[i].x);
+                byteBuffer.putDouble(coords[i].y);
+                byteBuffer.putDouble((double) 0.0);
             }
         } else if (input instanceof MultiLineString) {
             MultiLineString geom = (MultiLineString) input;
-            int             numGeoms = geom.getNumGeometries();
+            int numGeoms = geom.getNumGeometries();
 
-            writeGUID(input, binaryWriter);
-            binaryWriter.writeInt(numGeoms);
+            writeGUID(input, byteBuffer);
+            byteBuffer.putInt(numGeoms);
 
             for (int i = 0; i < numGeoms; i++) {
                 // Use recursion to serialize all the sub-geometries
                 byte[] b = serialize(geom.getGeometryN(i));
-                binaryWriter.writeInt(b.length);
-                binaryWriter.write(b);
+                byteBuffer.putInt(b.length);
+
+                for (int j = 0; j < b.length; j++) {
+                    byteBuffer.put(b[j]);
+                }
             }
         } else if (input instanceof Polygon) {
-            Polygon      geom = (Polygon) input;
+            Polygon geom = (Polygon) input;
             Coordinate[] coords = geom.getExteriorRing().getCoordinates();
 
-            writeGUID(input, binaryWriter);
-            binaryWriter.writeInt(coords.length);
+            writeGUID(input, byteBuffer);
+            byteBuffer.putInt(coords.length);
 
             for (int i = 0; i < coords.length; i++) {
-                binaryWriter.writeDouble(coords[i].x);
-                binaryWriter.writeDouble(coords[i].y);
-                binaryWriter.writeDouble((double) 0.0);
+                byteBuffer.putDouble(coords[i].x);
+                byteBuffer.putDouble(coords[i].y);
+                byteBuffer.putDouble((double) 0.0);
             }
         } else {
             // Choke if we can't handle the geometry type yet...
             throw new GeoMediaUnsupportedGeometryTypeException();
         }
 
-        return outputStream.toByteArray();
+        return byteBuffer.array();
     }
 
     /**
@@ -304,9 +309,9 @@ public class GeoMediaGeometryAdapter {
      *
      * @throws IOException
      */
-    private Point createPointGeometry(LEDataInputStream reader)
+    private Point createPointGeometry(ByteBuffer reader)
         throws IOException {
-        return createPointGeometry(reader.readDouble(), reader.readDouble());
+        return createPointGeometry(reader.getDouble(), reader.getDouble());
     }
 
     /**
@@ -347,26 +352,26 @@ public class GeoMediaGeometryAdapter {
      *
      * @throws IOException
      */
-    private LineString createLineStringGeometry(int guid, LEDataInputStream reader)
+    private LineString createLineStringGeometry(int guid, ByteBuffer reader)
         throws IOException {
         double[] a = null;
 
         if (guid == 65473) { // GDO Line Geometry
             a = new double[4];
-            a[0] = reader.readDouble(); // x1
-            a[1] = reader.readDouble(); // y1
-            reader.readDouble(); // z1;
-            a[2] = reader.readDouble(); // x2
-            a[3] = reader.readDouble(); // y2
+            a[0] = reader.getDouble(); // x1
+            a[1] = reader.getDouble(); // y1
+            reader.getDouble(); // z1;
+            a[2] = reader.getDouble(); // x2
+            a[3] = reader.getDouble(); // y2
         } else { // GDO Polyline Geometry
 
-            int numOrdinates = reader.readInt();
+            int numOrdinates = reader.getInt();
             a = new double[numOrdinates * 2];
 
             for (int i = 0; i < numOrdinates; i++) {
-                a[2 * i] = reader.readDouble(); // xn
-                a[(2 * i) + 1] = reader.readDouble(); // yn
-                reader.readDouble(); // zn
+                a[2 * i] = reader.getDouble(); // xn
+                a[(2 * i) + 1] = reader.getDouble(); // yn
+                reader.getDouble(); // zn
             }
         }
 
@@ -402,21 +407,24 @@ public class GeoMediaGeometryAdapter {
      * @throws GeoMediaUnsupportedGeometryTypeException DOCUMENT ME!
      * @throws GeoMediaGeometryTypeNotKnownException DOCUMENT ME!
      */
-    private MultiLineString createMultiLineStringGeometry(int guid, LEDataInputStream reader)
+    private MultiLineString createMultiLineStringGeometry(int guid, ByteBuffer reader)
         throws IOException, GeoMediaUnsupportedGeometryTypeException, GeoMediaGeometryTypeNotKnownException {
         // get the number of items in the collection
-        int numItems = reader.readInt();
+        int numItems = reader.getInt();
 
         // This is to hold the geometries from the collection
         ArrayList array = new ArrayList();
 
         for (int i = 0; i < numItems; i++) {
             // Read the size of the next blob
-            int elemSize = reader.readInt();
+            int elemSize = reader.getInt();
 
             // Recursively create a geometry from this blob
             byte[] elem = new byte[elemSize];
-            reader.readFully(elem);
+
+            for (int j = 0; j < elemSize; j++) {
+                elem[j] = reader.get();
+            }
 
             Geometry g = deSerialize(elem);
             array.add(g);
@@ -466,28 +474,28 @@ public class GeoMediaGeometryAdapter {
      *
      * @throws IOException DOCUMENT ME!
      */
-    private Polygon createPolygonGeometry(int guid, LEDataInputStream reader)
+    private Polygon createPolygonGeometry(int guid, ByteBuffer reader)
         throws IOException {
         double[] a = null;
 
         if (guid == 65475) { // Polygon Geometry
 
-            int numOrdinates = reader.readInt();
+            int numOrdinates = reader.getInt();
             a = new double[numOrdinates * 2];
 
             for (int i = 0; i < numOrdinates; i++) {
-                a[2 * i] = reader.readDouble();
-                a[(2 * i) + 1] = reader.readDouble();
-                reader.readDouble();
+                a[2 * i] = reader.getDouble();
+                a[(2 * i) + 1] = reader.getDouble();
+                reader.getDouble();
             }
         } else if (guid == 65479) { // Rectangle geomety
 
             // x, y, z, width, height
-            double x = reader.readDouble();
-            double y = reader.readDouble();
-            double z = reader.readDouble();
-            double w = reader.readDouble();
-            double h = reader.readDouble();
+            double x = reader.getDouble();
+            double y = reader.getDouble();
+            double z = reader.getDouble();
+            double w = reader.getDouble();
+            double h = reader.getDouble();
 
             a = new double[8];
             a[0] = x;
@@ -514,21 +522,24 @@ public class GeoMediaGeometryAdapter {
      * @throws GeoMediaUnsupportedGeometryTypeException DOCUMENT ME!
      * @throws GeoMediaGeometryTypeNotKnownException DOCUMENT ME!
      */
-    private GeometryCollection createGeometryCollectionGeometry(LEDataInputStream reader)
+    private GeometryCollection createGeometryCollectionGeometry(ByteBuffer reader)
         throws IOException, GeoMediaUnsupportedGeometryTypeException, GeoMediaGeometryTypeNotKnownException {
         // get the number of items in the collection
-        int numItems = reader.readInt();
+        int numItems = reader.getInt();
 
         // This is to hold the geometries from the collection
         ArrayList array = new ArrayList();
 
         for (int i = 0; i < numItems; i++) {
             // Read the size of the next blob
-            int elemSize = reader.readInt();
+            int elemSize = reader.getInt();
 
             // Recursively create a geometry from this blob
             byte[] elem = new byte[elemSize];
-            reader.readFully(elem);
+
+            for (int j = 0; j < elemSize; j++) {
+                elem[j] = reader.get();
+            }
 
             Geometry g = deSerialize(elem);
 
