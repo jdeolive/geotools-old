@@ -33,9 +33,10 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/11/23 03:51:29 $</date>
+    <date>$Date: 2002/12/01 10:29:22 $</date>
 
-    <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp $</edition>
+    <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
+    $</edition>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -385,31 +386,31 @@ public class GMLDataSource {
 
       <itemizedlist>
         <listitem>
-          <para>SEVERE (highest value)</para>
+          <para>severe (highest value)</para>
         </listitem>
 
         <listitem>
-          <para>WARNING</para>
+          <para>warning</para>
         </listitem>
 
         <listitem>
-          <para>INFO</para>
+          <para>info</para>
         </listitem>
 
         <listitem>
-          <para>CONFIG</para>
+          <para>config</para>
         </listitem>
 
         <listitem>
-          <para>FINE</para>
+          <para>fine</para>
         </listitem>
 
         <listitem>
-          <para>FINER</para>
+          <para>finer</para>
         </listitem>
 
         <listitem>
-          <para>FINEST (lowest value)</para>
+          <para>finest (lowest value)</para>
         </listitem>
       </itemizedlist>
 
