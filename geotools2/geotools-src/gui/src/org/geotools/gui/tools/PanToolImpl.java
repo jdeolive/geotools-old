@@ -4,12 +4,14 @@ import com.vividsolutions.jts.geom.Envelope;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.logging.Logger;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.JComponent;
 import org.geotools.ct.MathTransformFactory;
-import org.geotools.ct.MathTransform2D;
+import org.geotools.ct.MathTransform;
 import org.geotools.ct.TransformException;
+import org.geotools.gui.swing.event.GeoMouseEvent;
 import org.geotools.gui.tools.MouseToolImpl;
 import org.geotools.gui.widget.Widget;
 import org.geotools.map.BoundingBox;
@@ -32,7 +34,7 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
      * Pan the map so that the new extent has the click point in the middle
      * of the map.
      * @param e The mouse clicked event.
-     * @throws IllegalStateException If widget or context has not been
+     * @throws IllegalStateException If context has not been
      * initialized yet.
      * @task HACK The transform doesn't seem to take account of CoordinateSystem
      * so it would be possible to create Coordinates which are outside real
@@ -40,57 +42,45 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
      * @task TODO Use an AffineTransform type interface to Bbox instead of
      * setAreaOfInterest
      */
-     public void mouseClicked(MouseEvent e)
-     {
-        if ((widget==null)||(context==null)){
-            LOGGER.warning("Widget or Context is NULL");
-        }else{
-            CoordinatePoint maxP = new CoordinatePoint(
-                context.getBbox().getAreaOfInterest().getMaxX(),
-                context.getBbox().getAreaOfInterest().getMaxY());
-            CoordinatePoint minP = new CoordinatePoint(
-                context.getBbox().getAreaOfInterest().getMinX(),
-                context.getBbox().getAreaOfInterest().getMinY());
+    public void mouseClicked(MouseEvent e) {
+        GeoMouseEvent geoMouseEvent=(GeoMouseEvent)e;
+        AffineTransform at = new AffineTransform();
+        Envelope aoi=context.getBbox().getAreaOfInterest();
+        
+        try {
+            // The real world coordinates of the mouse click
+            CoordinatePoint mousePoint=geoMouseEvent.getMapCoordinate(null);
 
-            AffineTransform at = new AffineTransform();
-            // xScaleFactor=
-            //    =1+screenScaleFactor*CSwidth/CSmaxX
-            //    =1+((clickX-screenWidth/2)/screenWidth)*CSwidth/CSmidX
-            // where:
-            //  CS_Param=Param in Coordinate System units
-            // note:
-            //   (0,0) in screenCoords is top left of screen, while
-            //   (0,0) in Cordinate System Coords is bottom left.
-            at.scale(
-                1+
-                ((double)e.getX()-(double)widget.getWidth()/2)
-                /widget.getWidth()
-                *(maxP.getOrdinate(0)-minP.getOrdinate(0))
-                /((minP.getOrdinate(0)+maxP.getOrdinate(0))/2),
-            
-                1+
-                ((double)widget.getWidth()/2-(double)e.getY())
-                /widget.getWidth()
-                *(maxP.getOrdinate(1)-minP.getOrdinate(1))
-                /((minP.getOrdinate(1)+maxP.getOrdinate(1))/2)
-            );
-             
-           MathTransform2D mt=
+            // The real world coordinates of the AreaOfInterest
+            Point2D minP=new Point2D.Double(aoi.getMinX(),aoi.getMinY());
+            Point2D maxP=new Point2D.Double(aoi.getMaxX(),aoi.getMaxY());
+
+            // Calculate the panning translation.
+            // PannedPoint=OrigPoint+ClickedPoint-Midpoint
+            at.translate(
+                mousePoint.getOrdinate(0)-(minP.getX()+maxP.getX())/2,
+                mousePoint.getOrdinate(1)-(minP.getY()+maxP.getY())/2);
+
+            MathTransform transform=
                 MathTransformFactory.getDefault().createAffineTransform(at);
+            
+            context.getBbox().transform(transform);
 
-            try {
-                mt.transform(maxP,maxP);
-                mt.transform(minP, minP);
-
-                context.getBbox().setAreaOfInterest(
-                    new Envelope(
-                        minP.getOrdinate(0),   // minX
-                        maxP.getOrdinate(0),   // maxX
-                        minP.getOrdinate(1),   // minY
-                        maxP.getOrdinate(1))); // maxY
-            } catch (TransformException ex){
-                LOGGER.warning("Exception: "+ex+" while transforming coordinates");
-            }
+//            at.transform(minP,minP);
+//            at.transform(maxP,maxP);
+//
+//            // Set the new AreaOfInterest
+//            // Todo: Call context with a transform interface instead of setting
+//            // the absolute AreaOfInterest.
+//            context.getBbox().setAreaOfInterest(
+//                new Envelope(
+//                    minP.getX(), 
+//                    maxP.getX(), 
+//                    minP.getY(),
+//                    maxP.getY()));
+        } catch (TransformException t) {
+            LOGGER.warning(
+            "Transform exception prevented mouseClicks from being processed");
         }
     }
 
@@ -101,9 +91,8 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
     
     
     /**
-     * Set the Widget which sends MouseEvents and contains widget size
-     * information.
-     * @param widget The widget to get size information from.
+     * Register for mouse events from the widget.
+     * @param widget The widget.
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
