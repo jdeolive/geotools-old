@@ -32,6 +32,7 @@ public class Proj4jSuite extends TestCase {
         suite.addTest(ProjectionsSuite.suite());
         suite.addTestSuite(LPTest.class);
         suite.addTestSuite(EllipseTest.class);
+        suite.addTestSuite(TransformerTest.class);
         return suite;
     }
 }
