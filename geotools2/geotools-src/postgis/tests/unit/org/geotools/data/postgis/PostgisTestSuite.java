@@ -2,18 +2,18 @@ package org.geotools.data.postgis;
 
 import java.util.*;
 import junit.framework.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.geom.*;
+import java.util.logging.Logger;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.*;
 
 public class PostgisTestSuite extends TestCase {
 
-    /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(PostgisTestSuite.class);
+     /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.postgis");
 
     DataSource postgis = null;
 
@@ -24,7 +24,6 @@ public class PostgisTestSuite extends TestCase {
     }
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
     

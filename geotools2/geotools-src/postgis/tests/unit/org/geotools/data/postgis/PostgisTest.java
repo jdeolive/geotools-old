@@ -1,8 +1,6 @@
 package org.geotools.data.postgis;
 
 import junit.framework.*;
-import org.apache.log4j.Category;
-import org.apache.log4j.BasicConfigurator;
 import com.vividsolutions.jts.geom.*;
 import java.util.*;
 import org.geotools.data.*;
@@ -10,11 +8,15 @@ import org.geotools.feature.*;
 import org.geotools.filter.*;
 import org.geotools.datasource.extents.*;
 import java.sql.*;
+import java.util.logging.Logger;
+import org.geotools.filter.FilterFactory;
 
 public class PostgisTest extends TestCase {
-    
-    /** Standard logging instance */
-    private static Category _log = Category.getInstance(PostgisTest.class.getName());
+    FilterFactory filterFac = FilterFactory.createFilterFactory();
+    /**
+     * The logger for the filter module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.postgis");
     
     private static String FEATURE_TABLE = "testset";
 
@@ -35,32 +37,29 @@ public class PostgisTest extends TestCase {
     }
     
     public static void main(String[] args) {
-        BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
     
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.info("starting suite...");
+        LOGGER.info("starting suite...");
         TestSuite suite = new TestSuite(PostgisTest.class);
-        _log.info("made suite...");
+        LOGGER.info("made suite...");
         return suite;
     }
     
     public void setUp() {
-        BasicConfigurator.configure();
-        _log.info("creating postgis connection...");
+        LOGGER.info("creating postgis connection...");
 	db = new PostgisConnection("feathers.leeds.ac.uk","5432","postgis_test");
-        _log.info("created new db connection");
+        LOGGER.info("created new db connection");
         db.setLogin("postgis_ro", "postgis_ro");
-        _log.info("set the login");
+        LOGGER.info("set the login");
 	postgis = new PostgisDataSource(db, FEATURE_TABLE);
-        _log.info("created new datasource");
+        LOGGER.info("created new datasource");
 
 	try {
-	    tFilter = new CompareFilter(AbstractFilter.COMPARE_EQUALS);
+	    tFilter = filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
 	    Integer testInt = new Integer(5);
-	    Expression testLiteral = new ExpressionLiteral(testInt);
+	    Expression testLiteral = filterFac.createLiteralExpression(testInt);
 	    tFilter.addLeftValue(testLiteral);
 	    tFilter.addRightValue(testLiteral);
 	} catch (IllegalFilterException e) {
@@ -69,39 +68,39 @@ public class PostgisTest extends TestCase {
 	try {
 	    schema = PostgisDataSource.makeSchema(FEATURE_TABLE, db);
 	} catch (Exception e) {
-	    _log.info("exception while making schema" + e.getMessage());
+	    LOGGER.info("exception while making schema" + e.getMessage());
 	}
  }
     
     
     public void testImport() {
-        _log.info("starting type enforcement tests...");
+        LOGGER.info("starting type enforcement tests...");
         try {
 	postgis.getFeatures(collection,tFilter);
 	assertEquals(10,collection.getFeatures().length);
 	org.geotools.filter.GeometryFilter gf =
-	    new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-	ExpressionLiteral right =
-            new BBoxExpression(new Envelope(428500,430000,428500,440000));
+	    filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+	LiteralExpression right =
+            filterFac.createBBoxExpression(new Envelope(428500,430000,428500,440000));
 	gf.addRightGeometry(right);
-	gf.addLeftGeometry(new ExpressionAttribute(schema, "the_geom"));
+	gf.addLeftGeometry(filterFac.createAttributeExpression(schema, "the_geom"));
 	FeatureCollection geomCollection = new FeatureCollectionDefault(); 
 	postgis.getFeatures(geomCollection, gf);
-	_log.info("we have this number of features: " + collection.getFeatures().length);
-	_log.info("we have this number of filtered features: " + geomCollection.getFeatures().length);
+	LOGGER.info("we have this number of features: " + collection.getFeatures().length);
+	LOGGER.info("we have this number of filtered features: " + geomCollection.getFeatures().length);
 	assertEquals(4, geomCollection.getFeatures().length);
 
         }
         catch(DataSourceException dse) {
-            _log.info("...threw data source exception",dse);
+            LOGGER.info("...threw data source exception" + dse);
             this.fail("...threw data source exception");
         }
         catch(IllegalFilterException fe) {
-            _log.info("...threw filter exception",fe);
+            LOGGER.info("...threw filter exception" + fe);
             this.fail("...threw filter exception");
         }
         
-        _log.info("...ending type enforcement tests");
+        LOGGER.info("...ending type enforcement tests");
     }
 
     public void testAdd() {
@@ -133,11 +132,11 @@ public class PostgisTest extends TestCase {
 	    collection.addFeatures(features);
 	    postgis.addFeatures(collection);
 	} catch(DataSourceException e){
-	    _log.info("threw data source exception");
+	    LOGGER.info("threw data source exception");
 	    fail();
 	    //} catch(SchemaException e){
 	    //fail();
-	    //_log.info("trouble creating feature type");
+	    //LOGGER.info("trouble creating feature type");
 	} catch(IllegalFeatureException e){
 	    fail("illegal feature " + e);
 	}
@@ -157,27 +156,27 @@ public class PostgisTest extends TestCase {
 	    statement.close();
 	    dbConnection.close();
 	} catch(SQLException e){
-	    _log.info("we had some sql trouble " + e.getMessage());
+	    LOGGER.info("we had some sql trouble " + e.getMessage());
 	    fail();
 	}
     
     }
  
         public void testRemove() {
-	        _log.info("starting type enforcement tests...");
+	        LOGGER.info("starting type enforcement tests...");
         try {
             org.geotools.filter.GeometryFilter gf =
-            new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-            ExpressionLiteral right =
+            filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+            LiteralExpression right =
 		//new BBoxExpression(new Envelope(235,305,235,305));		
-	       new BBoxExpression(new Envelope(429500,430000,429000,440000));
+	       filterFac.createBBoxExpression(new Envelope(429500,430000,429000,440000));
             gf.addRightGeometry(right);
-            gf.addLeftGeometry(new ExpressionAttribute(schema, "the_geom"));
+            gf.addLeftGeometry(filterFac.createAttributeExpression(schema, "the_geom"));
 	    doRemoveTest(gf, 2);
 
-		LikeFilter likeFilter = new LikeFilter();
-		likeFilter.setValue(new ExpressionAttribute(schema, "name"));        
-		likeFilter.setPattern(new ExpressionLiteral("*8*"),"*",".","!");
+		LikeFilter likeFilter = filterFac.createLikeFilter();
+		likeFilter.setValue(filterFac.createAttributeExpression(schema, "name"));        
+		likeFilter.setPattern(filterFac.createLiteralExpression("*8*"),"*",".","!");
 		doRemoveTest(likeFilter, 3);
 
 	Filter andFilter = likeFilter.and(gf);
@@ -199,15 +198,15 @@ public class PostgisTest extends TestCase {
    
 	}
         catch(DataSourceException dse) {
-            _log.info("...threw data source exception",dse);
+            LOGGER.info("...threw data source exception " + dse);
             this.fail("...threw data source exception");
         }
         catch(IllegalFilterException fe) {
-            _log.info("...threw filter exception",fe);
+            LOGGER.info("...threw filter exception " + fe);
             this.fail("...threw filter exception");
         }
         //assertEquals(2,collection.getFeatures().length);
-        _log.info("...ending type enforcement tests");
+        LOGGER.info("...ending type enforcement tests");
  	    
 	}
 /*
@@ -246,7 +245,7 @@ public class PostgisTest extends TestCase {
 		      
 
 	} catch(IllegalFilterException fe) {
-	    _log.info("...threw filter exception" + fe.getMessage());
+	    LOGGER.info("...threw filter exception" + fe.getMessage());
 	    this.fail("...threw filter exception");	  
 	}
 	    
@@ -264,7 +263,7 @@ public class PostgisTest extends TestCase {
 	postgis.removeFeatures(filter);
 	FeatureCollection collection = postgis.getFeatures(tFilter); 
 	int numRemainingFeatures = collection.getFeatures().length;
-	_log.info(expectedDel + " total features = " + totNumFeatures + " and remaining feat " 
+	LOGGER.info(expectedDel + " total features = " + totNumFeatures + " and remaining feat " 
 		  + numRemainingFeatures + " and num deleted (from filt) = " + numDelFeatures);
 	assertEquals(totNumFeatures - numRemainingFeatures, expectedDel); 
 	            //make sure proper number deleted.
@@ -291,13 +290,13 @@ public class PostgisTest extends TestCase {
 		assertTrue(newValue.equals(modified)); 
 	    }
 	} catch(DataSourceException dse) {
-	    _log.info("...threw data source exception",dse);
+	    LOGGER.info("...threw data source exception "+ dse);
 	    this.fail("...threw data source exception");
 	}    catch(SchemaException se) {
-	    _log.info("...threw schema exception",se);
+	    LOGGER.info("...threw schema exception " + se);
 	    this.fail("...threw schema exception");
 	}   catch(IllegalFeatureException fe) {
-	    _log.info("...threw feature exception",fe);
+	    LOGGER.info("...threw feature exception" + fe);
 	    this.fail("...threw feature exception");
 	} 
 
