@@ -16,7 +16,7 @@ import com.vividsolutions.jts.geom.*;
  * The source of data for Features. Shapefiles, database, etc. are referenced through this 
  * interface.
  * 
- *@version $Id: GMLGeometryDataSource.java,v 1.1 2002/04/26 16:32:44 ianturton Exp $
+ *@version $Id: GMLGeometryDataSource.java,v 1.2 2002/05/02 17:02:54 ianturton Exp $
  */
 public class GMLGeometryDataSource extends XMLFilterImpl implements DataSource, GMLHandlerJTS {
 
@@ -121,6 +121,31 @@ public class GMLGeometryDataSource extends XMLFilterImpl implements DataSource, 
      */
     public void geometry(Geometry geometry) {
         geoms.add(geometry);
+    }
+    
+    /** gets the extent of this data source using the speed of
+     * this datasource as set by the parameter.
+     * @param quick if true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but acurate extent
+     * will be returned
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent(boolean speed) {
+        if(speed == true ){
+            return getExtent();
+        } else {
+            return null;
+        }
+    }
+    
+    /** gets the extent of this data source using the a fastish method
+     * of scanning the file for a boundingBox
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent() {
+        return null;
     }
     
 }

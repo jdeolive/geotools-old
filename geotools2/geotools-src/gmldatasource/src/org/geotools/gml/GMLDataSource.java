@@ -15,7 +15,7 @@ import org.geotools.datasource.*;
  * The source of data for Features. Shapefiles, database, etc. are referenced 
  * through this interface.
  * 
- *@version $Id: GMLDataSource.java,v 1.11 2002/04/26 18:13:45 robhranac Exp $
+ *@version $Id: GMLDataSource.java,v 1.12 2002/05/02 17:02:55 ianturton Exp $
  */
 public class GMLDataSource extends XMLFilterImpl 
     implements DataSource, GMLHandlerFeature {
@@ -108,6 +108,32 @@ public class GMLDataSource extends XMLFilterImpl
     public void stopLoading() {
     }
     
+    /** gets the extent of this data source using the speed of
+     * this datasource as set by the parameter.
+     * @param quick if true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but acurate extent
+     * will be returned
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent(boolean quick) {
+        if (quick == true ){
+            return getExtent();
+        } else {
+            //scan whole file
+            return null;
+        }
+    }    
 			
+    /** gets the extent of this data source using the quicker  
+     * method of scanning the file for a boundingbox statement
+     *
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent() {
+        return null;
+    }
+    
 }
 
