@@ -19,4 +19,8 @@ public class ToolFactoryImpl extends ToolFactory {
     public PanTool createPanTool() {
         return new PanToolImpl();
     }
+    
+    public ZoomTool createZoomTool() {
+        return new ZoomToolImpl();
+    }
 }
