@@ -15,7 +15,7 @@ import junit.framework.*;
  * TODO: Test results with different PrecisionModels and SRIDs
  *
  * @author andyt
- * @version $Revision: 1.4 $ $Date: 2002/03/11 15:34:54 $
+ * @version $Revision: 1.5 $ $Date: 2002/03/12 10:30:34 $
  */
 public class RobustGeometryPropertiesTest extends TestCase {
     
@@ -76,20 +76,30 @@ public class RobustGeometryPropertiesTest extends TestCase {
 
     public void testPolygon() {
         System.out.println("Testing "+polygons1[0]);
+        System.out.println("Area of polygons1[0] "+geometryProperties1.getArea(polygons1[0]));
         assertEquals(8.0d,geometryProperties1.getArea(polygons1[0]),0.0d);
         assertEquals(16.0d,geometryProperties1.getPerimeter(polygons1[0]),0.0d);
+        System.out.println("Testing "+polygons1[1]);
+        System.out.println("Area of polygons1[1] "+geometryProperties1.getArea(polygons1[1]));
+        assertEquals(Math.PI,geometryProperties1.getArea(polygons1[1]),0.05d);
+        assertEquals((2 * Math.PI),geometryProperties1.getPerimeter(polygons1[1]),0.3d);
+        System.out.println("Testing "+polygons1[2]);
+        System.out.println("Area of polygons1[2] "+geometryProperties1.getArea(polygons1[2]));
+        assertEquals(9.0d,geometryProperties1.getArea(polygons1[2]),0.0d);
+        assertEquals(12.0d,geometryProperties1.getPerimeter(polygons1[2]),0.0d);
     }
 
     public void testMultiPolygon() {
         System.out.println("Testing "+multiPolygon1);
-        assertEquals((8.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.0d);
-        assertEquals((16.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
+        System.out.println("Area "+geometryProperties1.getArea(multiPolygon1));
+        assertEquals((17.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.05d);
+        assertEquals((28.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
     }
 
     public void testGeometryCollection() {
         System.out.println("Testing "+geometryCollection1);
-        assertEquals((8.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.0d);
-        assertEquals((27.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
+        assertEquals((17.0d + Math.PI),geometryProperties1.getArea(geometryCollection1),0.05d);
+        assertEquals((39.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(geometryCollection1),0.3d);
     }
     
     public void setUp() {
@@ -159,7 +169,7 @@ public class RobustGeometryPropertiesTest extends TestCase {
         multiLineString1 = geometryFactory1.createMultiLineString(lineStrings1);
 
         // Generate Polygon[] and MultiPolygon
-        polygons1 = new Polygon[2];
+        polygons1 = new Polygon[3];
         coordinates1 = new Coordinate[5];
         coordinates1[0] = new Coordinate(0.0d,0.0d);
         coordinates1[1] = new Coordinate(3.0d,0.0d);
@@ -178,8 +188,7 @@ public class RobustGeometryPropertiesTest extends TestCase {
             linearRing1 = geometryFactory1.createLinearRing(coordinates1);
             linearRings1[0] = geometryFactory1.createLinearRing(coordinates2);
         } catch (TopologyException te1) {
-            System.out.println(te1+" Exiting");
-            System.exit(0);
+            fail(te1.toString());
         }
         // polygons1[0]
         //
@@ -193,6 +202,18 @@ public class RobustGeometryPropertiesTest extends TestCase {
         //        0.0   1.0   2.0   3.0    X
         polygons1[0] = geometryFactory1.createPolygon(linearRing1,linearRings1);
         polygons1[1] = (Polygon) geometryFactory1.createPoint(new Coordinate(0.0d,0.0d)).buffer(1.0d);
+        coordinates1 = new Coordinate[5];
+        coordinates1[0] = new Coordinate(0.0d,0.0d);
+        coordinates1[1] = new Coordinate(0.0d,3.0d);
+        coordinates1[2] = new Coordinate(3.0d,3.0d);
+        coordinates1[3] = new Coordinate(3.0d,0.0d);
+        coordinates1[4] = new Coordinate(0.0d,0.0d);
+        try {
+            linearRing1 = geometryFactory1.createLinearRing(coordinates1);
+        } catch (TopologyException te1) {
+            fail(te1.toString());
+        }
+        polygons1[2] = geometryFactory1.createPolygon(linearRing1,null);
         multiPolygon1 = geometryFactory1.createMultiPolygon(polygons1);
         
         // Generate Geometry[] and GeometryCollection
