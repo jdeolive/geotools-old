@@ -56,41 +56,17 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.3</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
-    </dependency>
-        <dependency>
-      <artifactId>resources</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.1</version>
-    </dependency>
-    <dependency>
-      <artifactId>cts-coordtrans</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.6</version>
-    </dependency>
-    <dependency>
-      <artifactId>gcs-coverage</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.6</version>
     </dependency>
     <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
-    <dependency>
-      <id>opengis+css</id>
-      <version>0.1</version>
-      <url>http://www.opengis.org</url>
-    </dependency>
-    <dependency>
-      <id>vecmath</id>
-      <version>1.2.1</version>
-      <url>http://java.sun.com/products/java-media/3D/</url>
-    </dependency>
+    
     </dependencies>
 
     <build>

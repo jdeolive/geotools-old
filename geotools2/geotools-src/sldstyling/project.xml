@@ -27,11 +27,11 @@
         </developer>
   </developers>
   <dependencies>
-       <dependency>
+   <dependency>
       <id>commons-collections</id>
       <version>2.1</version>
     </dependency>  
-        <dependency>
+    <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
@@ -43,36 +43,17 @@
     </dependency>
        
         
-        <dependency>
+    <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.3</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
-        <dependency>
-      <artifactId>lite-rendering</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.1</version>
-    </dependency>
-    <dependency>
-      <artifactId>java2drendering</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.1</version>
-    </dependency>
-        <dependency>
-      <artifactId>gcs-coverage</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.6</version>
-    </dependency>
-        <dependency>
-      <artifactId>cts-coordtrans</artifactId>
-      <groupId>gt2</groupId>
-      <version>0.6</version>
-    </dependency>
+
     </dependencies>
 
     <build>
