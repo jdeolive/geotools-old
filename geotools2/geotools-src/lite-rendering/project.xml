@@ -10,7 +10,7 @@
   
   <shortDescription>lite-rendering module</shortDescription>
   
-  <description>lite-rendering module.</description>
+  <description>lite-rendering module</description>
   
   
 
@@ -21,7 +21,6 @@
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
         </developer>
@@ -40,6 +39,7 @@
       <email>aaime@users.sourceforge.net</email>
       <organization>SATA</organization>
             <roles>
+                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
         </developer>
@@ -76,7 +76,43 @@
       <groupId>gt2</groupId>
       <version>0.6</version>
     </dependency>
+    <dependency>
+      <artifactId>filter</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>opengis+css</id>
+      <version>0.1</version>
+      <url>http://www.opengis.org</url>
+    </dependency>
+    <dependency>
+      <id>vecmath</id>
+      <version>1.2.1</version>
+      <url>http://java.sun.com/products/java-media/3D/</url>
+    </dependency>
     </dependencies>
+
+    <build>
+      <unitTest>
+        <includes>
+          <include>**/*Test.java</include>
+        </includes>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/tests/unit</directory>
+              <includes>
+                 <include>**/*</include>
+              </includes>
+              <excludes>
+                 <exclude>**/*.class</exclude>
+              </excludes>
+          </resource>
+        </resources>
+      </unitTest>
+    </build>
+
   
 </project>
 
