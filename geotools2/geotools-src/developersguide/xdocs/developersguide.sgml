@@ -19,7 +19,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/13 06:02:53 $</date>
+    <date>$Date: 2002/07/18 21:34:07 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -494,20 +494,20 @@ alternate="yes"
       </section>
     </section>
 
-    <section>
-      <title id="ssh">ssh</title>
-
-      <para></para>
-    </section>
-
     <section id="cvs">
-      <title>Code Versioning (using CVS)</title>
+      <title>Code Versioning (using CVS with ssh)</title>
+
+      <para>To edit geotools files you will need to set up CVS and ssh on your
+      computer so that you can access the files stored on <ulink
+      url="http://sourceforge.net">http://sourceforge.net</ulink>. How to
+      setup ssh and cvs for use with Sourceforge is explained in the documents
+      at: <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>.</para>
 
       <para>To do:</para>
 
       <itemizedlist>
         <listitem>
-          <para>Point to sourceforge CVS howto links.</para>
+          <para></para>
         </listitem>
 
         <listitem>
