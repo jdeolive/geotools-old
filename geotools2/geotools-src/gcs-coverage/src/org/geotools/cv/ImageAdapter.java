@@ -38,6 +38,7 @@ package org.geotools.cv;
 // J2SE dependencies
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
 import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
@@ -46,6 +47,7 @@ import java.awt.image.IndexColorModel;
 import java.awt.image.ComponentSampleModel;
 import java.awt.image.RasterFormatException;
 import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.image.renderable.ParameterBlock;
 
 // JAI dependencies
 import javax.media.jai.JAI;
@@ -60,15 +62,19 @@ import javax.media.jai.iterator.WritableRectIter;
 import javax.media.jai.iterator.RectIterFactory;
 
 // Geotools dependencies
+import org.geotools.ct.MathTransform1D;
+import org.geotools.ct.TransformException;
 import org.geotools.resources.DualRectIter;
 import org.geotools.resources.ImageUtilities;
 
 
 /**
  * An image that contains transformed pixels. It may be sample values after their
- * transformation in geophyics values, or the converse.
+ * transformation in geophyics values, or the converse.  Images are created using
+ * the {@link #getInstance} method, which is invoked by <code>SampleDimension.CRIF</code>.
+ * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
  *
- * @version $Id: ImageAdapter.java,v 1.4 2002/07/24 18:16:05 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.5 2002/07/25 22:31:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -81,39 +87,98 @@ final class ImageAdapter extends PointOpImage {
     private final CategoryList[] categories;
 
     /**
-     * Transform an image. 
+     * Transform an image.
+     *
+     * @task HACK: This method provides an optimisation for the case of a strictly linear
+     *             transformation: it use the JAI's "Rescale" operation, which is hardware
+     *             accelerated. Unfortunatly, bug #???? prevent us to use this optimisation
+     *             here. The optimisation is temporarly disabled, waiting for Sun to fix the
+     *             bug.
      *
      * @param  image      The source image, or <code>null</code>.
      * @param  categories The category lists, one for each image's band.
+     * @param  jai        The instance of {@link JAI} to use.
      * @return The transformed image.
      */
-    public static RenderedImage getInstance(RenderedImage image, final CategoryList[] categories) {
+    public static RenderedImage getInstance(RenderedImage image,
+                                            final CategoryList[] categories,
+                                            final JAI jai)
+    {
         if (image==null) {
             return null;
         }
+        /*
+         * Slight optimisation: Skip the "Null" operations.
+         * Such image may be the result of a "Colormap" operation.
+         */
         while (image instanceof NullOpImage) {
-            // Optimization for images that doesn't change
-            // pixel value. Such an image may be the result
-            // of a "Colormap" operation.
             final NullOpImage op = (NullOpImage) image;
             if (op.getNumSources() != 1) {
                 break;
             }
             image = op.getSourceImage(0);
         }
+        /*
+         * If this operation is the inverse of a previous operation,
+         * returns the source image instead of recomputing the original data.
+         */
         if (image instanceof ImageAdapter) {
             final ImageAdapter other = (ImageAdapter) image;
             if (categories.length == other.categories.length) {
+                boolean valid = true;
                 for (int i=0; i<categories.length; i++) {
                     if (!categories[i].equals(other.categories[i].inverse())) {
-                        // If enter here, we are not undoing a previous ImageAdapter.
-                        return new ImageAdapter(image, categories);
+                        valid = false;
+                        break;
                     }
                 }
-                return other.getSourceImage(0);
+                if (valid) {
+                    return other.getSourceImage(0);
+                }
             }
         }
-        return new ImageAdapter(image, categories);
+        /*
+         * The image must be rescaled. Check if the rescale operation is only a linear
+         * transformation.  If yes, we can use the JAI's "Rescale" operation, which is
+         * hardware accelerated.
+         */
+        try {
+            boolean valid = true;
+            boolean identity = true;
+            final double[] scale  = new double[categories.length];
+            final double[] offset = new double[categories.length];
+            for (int i=0; i<categories.length; i++) {
+                final CategoryList c = categories[i];
+                if (c.size()==1) {
+                    final MathTransform1D transform = ((Category) c.get(0)).transform;
+                    scale[i]  = transform.derivative(Double.NaN);
+                    offset[i] = transform.transform(0);
+                    if (!Double.isNaN(scale[i]) && !Double.isNaN(offset[i])) {
+                        identity &= (scale[i]==1 && offset[i]==0);
+                        continue;
+                    }
+                }
+                valid = false;
+                break;
+            }
+            if (valid) {
+                if (identity) {
+                    return image;
+                }
+                if (false) { // TODO: Here is the optimisation that we would like to enable.
+                    final ParameterBlock param;
+                    final RenderingHints hints;
+                    param = new ParameterBlock().addSource(image).add(scale).add(offset);
+                    hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, getLayout(image, categories));
+                    return jai.createNS("Rescale", param, hints);
+                }
+            }
+        }
+        catch (TransformException exception) {
+            // At least one band don't use a linear relation.
+            // Ignore the exception and fallback on the general case.
+        }
+        return new ImageAdapter(image, categories, jai);
     }
     
     /**
@@ -121,16 +186,15 @@ final class ImageAdapter extends PointOpImage {
      *
      * @param image      The source image.
      * @param categories The category lists, one for each image's band.
+     * @param jai        Instance of JAI to use.
      */
-    private ImageAdapter(final RenderedImage image,
-                         final CategoryList[] categories)
+    private ImageAdapter(final RenderedImage image, final CategoryList[] categories, final JAI jai)
     {
-        super(image, getLayout(image, (CategoryList) categories[0].inverse()),
-              JAI.getDefaultInstance().getRenderingHints(), false);
+        super(image, getLayout(image, categories), jai.getRenderingHints(), false);
         this.categories = categories;
-        final int numBands = image.getSampleModel().getNumBands();
-        if (categories.length != numBands) {
-            throw new RasterFormatException(String.valueOf(categories.length)+"!="+numBands);
+        if (categories.length != image.getSampleModel().getNumBands()) {
+            // Should not happen, since SampleDimension$Descriptor has already checked it.
+            throw new RasterFormatException(String.valueOf(categories.length));
         }
         permitInPlaceOperation();
     }
@@ -139,7 +203,7 @@ final class ImageAdapter extends PointOpImage {
      * Returns the destination image layout.
      *
      * @param  image The source image.
-     * @param  categories The destination category list.
+     * @param  categories The list of category.
      * @return Layout for the destination image.
      *
      * @task TODO: IndexColorModel seems to badly choose his sample model. As of JDK 1.4-rc1, it
@@ -148,11 +212,13 @@ final class ImageAdapter extends PointOpImage {
      *             model used by BufferedImage for TYPE_BYTE_INDEXED. We should check if this is
      *             fixed in future J2SE release.
      */
-    private static ImageLayout getLayout(final RenderedImage     image,
-                                         final CategoryList categories)
+    private static ImageLayout getLayout(final RenderedImage       image,
+                                         final CategoryList[] categories)
     {
+        final int     band = 0; // The visible band.
+        CategoryList categ = (CategoryList) categories[band].inverse();
         ImageLayout layout = ImageUtilities.getImageLayout(image);
-        ColorModel  colors = categories.getColorModel(0, image.getSampleModel().getNumBands());
+        ColorModel  colors = categ.getColorModel(band, image.getSampleModel().getNumBands());
         SampleModel  model = colors.createCompatibleSampleModel(image.getWidth(), image.getHeight());
         if (colors instanceof IndexColorModel && model.getClass().equals(ComponentSampleModel.class))
         {

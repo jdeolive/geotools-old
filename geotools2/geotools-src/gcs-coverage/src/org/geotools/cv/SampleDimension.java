@@ -41,11 +41,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Arrays;
 import java.io.Serializable;
+import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
+import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.renderable.RenderedImageFactory;
 
 // JAI dependencies
+import javax.media.jai.JAI;
+import javax.media.jai.CRIFImpl;
 import javax.media.jai.util.Range;
+import javax.media.jai.OperationRegistry;
+import javax.media.jai.OperationDescriptorImpl;
+import javax.media.jai.registry.RenderedRegistryMode;
 
 // OpenGIS dependencies
 import org.opengis.cv.CV_SampleDimension;
@@ -80,7 +88,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.5 2002/07/24 18:16:05 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.6 2002/07/25 22:31:19 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -599,57 +607,6 @@ public class SampleDimension implements Serializable {
         return categories;
     }
     
-    /**
-     * Returns a view of an image in which all pixels have been transformed into
-     * floating-point values as with the {@link #toGeophysicsValue} method. The resulting
-     * image usually represents some geophysics parameter in "real world" scientific
-     * and engineering units (e.g. temperature in °C).
-     *
-     * @param image Image to convert. This image usually store pixel values as integers.
-     * @param bands The list of sample dimension to use for transforming pixel values into
-     *              geophysics parameters. This array's length must matches the number
-     *              of bands in <code>image</code>.
-     * @return      The converted image. This image store geophysics values as floating-point
-     *              numbers. This method returns <code>null</code> if <code>image</code> was null.
-     */
-    public static RenderedImage toGeophysicsValues(final RenderedImage     image,
-                                                   final SampleDimension[] bands)
-    {
-        return ImageAdapter.getInstance(image, getCategories(bands));
-    }
-    
-    /**
-     * Returns a view of an image in which all geophysics values have been transformed
-     * into indexed pixel as with the {@link #toSampleValue} method. The resulting
-     * image is more suitable for rendering than the geophysics image (since Java2D
-     * do a better job with integer pixels than floating-point pixels).
-     *
-     * @param image  Image to convert. This image usually represents some geophysics
-     *               parameter in "real world" scientific and engineering units (e.g.
-     *               temperature in °C).
-     * @param bands  The list of sample dimension to use for transforming floating-point values
-     *               into sample values. This array's length must matches the number of
-     *               bands in <code>image</code>.
-     * @return       The converted image. This image store sample values as integer.
-     *               This method returns <code>null</code> if <code>image</code> was null.
-     */
-    public static RenderedImage toSampleValues(final RenderedImage     image,
-                                               final SampleDimension[] bands)
-    {
-        return ImageAdapter.getInstance(image, getCategories(bands));
-    }
-
-    /**
-     * Convert an array of {@link SampleDimension} into an array of {@link CategoryList}.
-     */
-    private static CategoryList[] getCategories(final SampleDimension[] bands) {
-        final CategoryList[] categories = new CategoryList[bands.length];
-        for (int i=0; i<categories.length; i++) {
-            categories[i] = bands[i].categories;
-        }
-        return categories;
-    }
-    
     // NOTE: "getPaletteInterpretation()" is not available in Geotools since
     //       palette are backed by IndexColorModel, which support only RGB.
     
@@ -687,5 +644,114 @@ public class SampleDimension implements Serializable {
             return categories.getColorModel(visibleBand, numBands);
         }
         return null;
+    }
+
+
+
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    ////////                                                                    ////////
+    ////////        REGISTRATION OF "SampleToGeophysics" IMAGE OPERATION        ////////
+    ////////                                                                    ////////
+    ////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * The operation description for the "SampleToGeophysics" operation.
+     */
+    private static final class Descriptor extends OperationDescriptorImpl {
+        /**
+         * Construct the description.
+         */
+        public Descriptor() {
+            super(new String[][]{{"GlobalName",  "SampleToGeophysics"},
+                                 {"LocalName",   "SampleToGeophysics"},
+                                 {"Vendor",      "geotools.org"},
+                                 {"Description", "Transformation from sample to geophysics values"},
+                                 {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
+                                 {"Version",     "1.0"}},
+                  new String[]   {RenderedRegistryMode.MODE_NAME}, 1,
+                  new String[]   {"sampleDimensions"},      // Argument names
+                  new Class []   {SampleDimension[].class}, // Argument classes
+                  new Object[]   {NO_PARAMETER_DEFAULT},    // Default values for parameters,
+                  null // No restriction on valid parameter values.
+            );
+        }
+
+        /**
+         * Returne <code>true</code> if the parameters are valids. This implementation check
+         * that the number of bands in the source image is equals to the number of supplied
+         * sample dimensions, and that all sample dimensions has categories.
+         */
+        protected boolean validateParameters(final String modeName,
+                                             final ParameterBlock args,
+                                             final StringBuffer msg)
+        {
+            if (!super.validateParameters(modeName, args, msg)) {
+                return false;
+            }
+            final RenderedImage  source = (RenderedImage)     args.getSource(0);
+            final SampleDimension[] dim = (SampleDimension[]) args.getObjectParameter(0);
+            final int numBands = source.getSampleModel().getNumBands();
+            if (numBands != dim.length) {
+                msg.append(Resources.format(ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
+                                            new Integer(numBands), new Integer(dim.length)));
+                return false;
+            }
+            for (int i=0; i<numBands; i++) {
+                if (dim[i].categories == null) {
+                    msg.append(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_$2,
+                                                "sampleDimension["+i+']', "categories=null"));
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * The {@link RenderedImageFactory} for the "SampleToGeophysics" operation.
+     */
+    private static final class CRIF extends CRIFImpl {
+        /**
+         * Creates a {@link RenderedImage} representing the results of an imaging
+         * operation for a given {@link ParameterBlock} and {@link RenderingHints}.
+         */
+        public RenderedImage create(final ParameterBlock paramBlock,
+                                    final RenderingHints renderHints)
+        {
+            final RenderedImage  source = (RenderedImage) paramBlock.getSource(0);
+            final SampleDimension[] dim = (SampleDimension[]) paramBlock.getObjectParameter(0);
+            final CategoryList[]   list = new CategoryList[dim.length];
+            for (int i=0; i<list.length; i++) {
+                list[i] = dim[i].categories;
+            }
+            return ImageAdapter.getInstance(source, list, JAI.getDefaultInstance());
+        }
+    }
+
+    /**
+     * Register the "SampleToGeophysics" image operation.
+     * Registration is done when the class is first loaded.
+     *
+     * @task REVISIT: This static initializer will imply immediate class loading of a lot of
+     *                JAI dependencies.  This is a pretty high overhead if JAI is not wanted
+     *                right now. The correct approach is to declare the image operation into
+     *                the <code>META-INF/registryFile.jai</code> file, which is automatically
+     *                parsed during JAI initialization. Unfortunatly, it can't access private
+     *                classes and we don't want to make our registration classes public. We
+     *                can't move our registration classes into a hidden "resources" package
+     *                neither because we need package-private access to <code>CategoryList</code>.
+     *                For now, we assume that people using the GCS package probably want to work
+     *                with {@link org.geotools.gc.GridCoverage}, which make extensive use of JAI.
+     *                Peoples just working with {@link org.geotools.cv.Coverage} are stuck with
+     *                the overhead. Note that we register the image operation here because the
+     *                only operation's argument is of type <code>SampleDimension[]</code>.
+     *                Consequently, the image operation may be invoked at any time after class
+     *                loading of {@link SampleDimension}.
+     */
+    static {
+        final OperationRegistry registry = JAI.getDefaultInstance().getOperationRegistry();
+        registry.registerDescriptor(new Descriptor());
+        registry.registerFactory(RenderedRegistryMode.MODE_NAME, "SampleToGeophysics",
+                                 "geotools.org", new CRIF());
     }
 }
