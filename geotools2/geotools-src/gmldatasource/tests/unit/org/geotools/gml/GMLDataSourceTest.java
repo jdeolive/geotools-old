@@ -110,8 +110,9 @@ public class GMLDataSourceTest extends junit.framework.TestCase {
                 
                 table.getFeatures(r);
                
-            }catch(Exception exp) {
+            }catch(DataSourceException exp) {
                 System.out.println("Exception requesting Extent : "+exp.getClass().getName()+" : "+exp.getMessage());
+                exp.printStackTrace();
             }
 
             assertEquals(5,table.getFeatures().length);
