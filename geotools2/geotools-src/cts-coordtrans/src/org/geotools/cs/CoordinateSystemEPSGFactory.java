@@ -89,7 +89,7 @@ import org.geotools.resources.cts.ResourceKeys;
  *       button to select it.</li>
  * </ul>
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.3 2002/07/30 17:08:56 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.4 2002/07/30 17:17:49 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -1338,7 +1338,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * the standard output. This method can be invoked from the command line. For example:
      *
      * <blockquote><pre>
-     * java org.geotools.cs.CoordinateSystemEPSGFactoryTest 4181
+     * java org.geotools.cs.CoordinateSystemEPSGFactory 4181
      * </pre></blockquote>
      *
      * Should print:
