@@ -73,14 +73,25 @@
     <aspectSourceDirectories/>
     
     <integrationUnitTestPatterns/>
-    <jarResources/>
+    <sourceDirectory>src</sourceDirectory>
+    <resourcesSourceDirectory>src</resourcesSourceDirectory>
+    <resources>
+    
+        <includes>
+            <include>**/*.serialized</include> 
+            <include>**/*.txt</include> 
+             <include>**/*.utf</include> 
+        </includes>
+    </resources>
+
+    
     <jars/>
-        <sourceDirectory>src</sourceDirectory>
-        <unitTest>
+
+    <unitTest>
       <includes>
         <include>**/*Test.java</include>
       </includes>
     </unitTest>
-    </build>
+  </build>
 </project>
 

@@ -2,34 +2,18 @@
 
 <project>
   <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
   <name>geotools-java2drendering</name>
   <id>java2drendering</id>
-  <logo>/images/java2drendering.gif</logo>
+ 
   <currentVersion>0.1</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
-  </organization>
-  <inceptionYear>1996</inceptionYear>
-  <package>org.geotools</package>
-  <shortDescription>java2drendering module</shortDescription>
-  <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>java2drendering module.</description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/java2drendering</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/java2drendering/</url>
-  </repository>
+  <shortDescription>java2drendering module</shortDescription>
+  
+  <description>java2drendering module.</description>
+  
   
 
-  <mailingLists/>
   <developers>
     <developer>
       <name>James Macgill</name>
@@ -69,20 +53,15 @@
       <id>resources</id>
       <version>0.1</version>
     </dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
+      <id>gcs-coverage</id>
+      <version>0.6</version>
+    </dependency>
     </dependencies>
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      <sourceDirectory>src/</sourceDirectory>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-  </build>
-  <logo>/images/java2drendering.gif</logo>
+  
 </project>
 
