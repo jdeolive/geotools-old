@@ -159,7 +159,7 @@ cvs tag -R r2_3_4</programlisting>
       <para>Geotools developers meet regulary to discuss issues such as
       design. Meeting times are anounced on the geotools-dvlp email list. At
       the time of writing, developers meet weekly at <emphasis>17:30 Tuesday
-      GMT</emphasis>. There is usually help for newbies for 30 minutes before
+      UTC</emphasis>. There is usually help for newbies for 30 minutes before
       the main session. Check <ulink
       url="http://www.timeanddate.com/worldclock/">http://www.timeanddate.com/worldclock/</ulink>
       to find what this time translates to in your part of the world.</para>
@@ -167,7 +167,7 @@ cvs tag -R r2_3_4</programlisting>
       <para>If you are new to IRC, you will need to find an IRC client. The
       later versions of Netscape and Mozilla have IRC built in, and you can
       connect to a geotools meeting simply by using the URL: <ulink
-      url="irc://irc.au.freenode.net#getools">irc://irc.au.freenode.net#getools</ulink>.</para>
+      url="irc://irc.au.freenode.net#getools">irc://irc.au.freenode.net#geotools</ulink>.</para>
 
       <para>The information you need to configure your IRC client are:</para>
 
@@ -812,7 +812,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.14 2003/01/19 11:24:24 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.15 2003/01/22 19:42:56 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
