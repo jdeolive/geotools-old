@@ -30,7 +30,7 @@ import org.geotools.filter.Expression;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.11 2003/08/28 22:17:28 aaime Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.12 2003/11/08 11:36:02 aaime Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final org.geotools.filter.FilterFactory filterFactory = 
@@ -572,7 +572,7 @@ public class StyleFactoryImpl extends StyleFactory {
     public PointPlacement getDefaultPointPlacement() {
         return this.createPointPlacement(this.createAnchorPoint(
                                                  filterFactory.createLiteralExpression(0), 
-                                                 filterFactory.createLiteralExpression(0)), 
+                                                 filterFactory.createLiteralExpression(0.5)), 
                                          this.createDisplacement(
                                                  filterFactory.createLiteralExpression(0), 
                                                  filterFactory.createLiteralExpression(0)), 
