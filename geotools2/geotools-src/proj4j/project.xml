@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-proj4j</name>
+  <id>proj4j</id>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+        <logo>/images/gtLogo.gif</logo>
+    </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>proj4j module</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>proj4j module</description>
+  <url>http://www.geotools.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/proj4j</connection>
+    
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/proj4j/</url>
+    </repository>
+  
+
+  <mailingLists/>
+  <developers>
+            
+        <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+            <roles>
+               <role>Module Maintainer</role>
+               <role>Java Developer</role>
+            </roles>
+        </developer>
+  </developers>
+  <dependencies>
+  </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
+    <logo>/images/proj4j.gif</logo>
+</project>
+
