@@ -34,9 +34,8 @@ public abstract class MouseToolImpl extends AbstractToolImpl
     
     
     /**
-     * Set the Widget which sends MouseEvents and contains widget size
-     * information.  Registers for mouseEvents.
-     * @param widget The widget to get size information from.
+     * Register for mouseEvents from the widget.
+     * @param widget The widget.
      * @param listener The widget to send mouseEvents to, usually the child of
      * this class.
      * @throws IllegalStateException if the widget has already been set to
