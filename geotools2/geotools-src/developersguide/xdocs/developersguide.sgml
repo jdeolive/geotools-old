@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?xml-stylesheet type="text/css"
-href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
+href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
 ?>
 <!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
-"file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
+"file:../../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
@@ -14,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/26 23:10:36 $</date>
+    <date>$Date: 2002/07/27 02:31:50 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -314,11 +314,11 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.21 2002/07/26 23:10:36 camerons Exp $</emphasis>.
+          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.22 2002/07/27 02:31:50 camerons Exp $</emphasis>.
           When you commit your file into CVS, this will be expanded to
           something like:</para>
 
-          <para>$Id: developersguide.sgml,v 1.21 2002/07/26 23:10:36 camerons Exp $</para>
+          <para>$Id: developersguide.sgml,v 1.22 2002/07/27 02:31:50 camerons Exp $</para>
         </listitem>
       </orderedlist>
     </section>
