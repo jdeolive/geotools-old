@@ -754,14 +754,20 @@ ant</programlisting>
           <listitem>
             <para>External packages need to be mounted. In the Explorer
             window, right click <command>FileSystems</command> and select
-            <command>Mount-&#62;Archive Files</command> <filename>geotools2/extbin/&#60;module&#62;/lib/*.jar</filename>.</para>
+            <command>Mount-&#62;Archive Files</command>.</para>
+
+            <para>Previously, jar files were located at:
+            geotools2/extbin/&#60;module&#62;/lib/*.jar. In future we will be
+            using <literal>maven</literal> to obtain the jar files instead of
+            keeping them in the CVS repository. So after running
+            <literal>maven,</literal> you will be able to find jar files at:
+            <filename>$MAVEN_HOME/repository/&#60;module&#62;/jars/*.jar</filename>.</para>
+
+            <para>To do: Reword above paragraph once we have moved completely
+            to <literal>maven</literal>.</para>
           </listitem>
         </varlistentry>
       </variablelist>
-
-      <para>It is a good idea to update the Parser Database after mounting the
-      geotools directories. This enables filename auto-completion and &#34;go
-      to declaration&#34;.</para>
     </section>
 
     <section id="netbeansprojects">
@@ -839,7 +845,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.19 2003/02/23 04:10:04 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.20 2003/02/23 20:06:53 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
