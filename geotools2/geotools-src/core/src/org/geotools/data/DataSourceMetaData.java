@@ -30,7 +30,7 @@ package org.geotools.data;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: DataSourceMetaData.java,v 1.3 2003/05/14 22:30:25 cholmesny Exp $
+ * @version $Id: DataSourceMetaData.java,v 1.4 2003/05/16 15:49:06 jmacgill Exp $
  */
 public interface DataSourceMetaData {
     /**
@@ -92,8 +92,8 @@ public interface DataSourceMetaData {
      * Retrieves whether this datasource returns meaningful results when
      * getBBox is called.
      *
-     * @return <tt>true</tt> if the getBbox method is supported,
-     *         <tt>false</tt> otherwise.
+     * @return <tt>true</tt> if the getBbox method is supported, <tt>false</tt>
+     *         otherwise.
      */
     boolean supportsGetBbox();
 

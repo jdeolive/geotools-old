@@ -32,41 +32,46 @@ import org.geotools.filter.Filter;
  * and discarding when the max is reached.
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.3 2003/05/14 23:23:13 cholmesny Exp $
+ * @version $Id: Query.java,v 1.4 2003/05/16 15:49:06 jmacgill Exp $
  */
 public interface Query {
-    
-    /** So getMaxFeatures does not return null we use a very large number.*/
+    /** So getMaxFeatures does not return null we use a very large number. */
     public static final int DEFAULT_MAX = 100000000;
 
     /**
-     * Implements a query that will fetch all features from a datasource.
-     * This query should retrieve all properties, with no maxFeatures,
-     * no filtering, and the default featureType.
+     * Implements a query that will fetch all features from a datasource. This
+     * query should retrieve all properties, with no maxFeatures, no
+     * filtering, and the default featureType.
      */
     static final Query ALL = new Query() {
-	    public final AttributeType[] getProperties(){
-		return null;
-	    }
-	    public final boolean retrieveAllProperties(){
-		return true;
-	    }
-	    public final int getMaxFeatures() {
-		return DEFAULT_MAX;
-	    }
-	    public final Filter getFilter() {
-		return Filter.NONE;
-	    }
-	    public final String getTypeName() {
-		return null;
-	    }
-	    public final String getHandle() {
-		return null;
-	    }
-	    public final String getVersion(){
-		return null;
-	    }
-	};
+            public final AttributeType[] getProperties() {
+                return null;
+            }
+
+            public final boolean retrieveAllProperties() {
+                return true;
+            }
+
+            public final int getMaxFeatures() {
+                return DEFAULT_MAX;
+            }
+
+            public final Filter getFilter() {
+                return Filter.NONE;
+            }
+
+            public final String getTypeName() {
+                return null;
+            }
+
+            public final String getHandle() {
+                return null;
+            }
+
+            public final String getVersion() {
+                return null;
+            }
+        };
 
     /**
      * The properties array is used to specify the attributes that should be
@@ -74,9 +79,9 @@ public interface Query {
      * specified (getProperties returns null) then the full schema should  be
      * used (all attributes). If getProperties returns an array of size 0,
      * then the datasource should return features with no attributes,  only
-     * their ids.  The available properties can be determined with a
-     * getSchema call from the DataSource interface.  A datasource can use
-     * {@link #retrieveAllProperties()} as a shortcut to determine if all its
+     * their ids.  The available properties can be determined with a getSchema
+     * call from the DataSource interface.  A datasource can use {@link
+     * #retrieveAllProperties()} as a shortcut to determine if all its
      * available properties should be returned (same as checking to see if
      * getProperties is null, but clearer)
      * 
@@ -111,8 +116,8 @@ public interface Query {
      * need to examine and use null values.  All Query implementations should
      * return true for this function if getProperties returns null.
      *
-     * @return if all datasource attributes should be included in the schema
-     *         of the returned FeatureCollection.
+     * @return if all datasource attributes should be included in the schema of
+     *         the returned FeatureCollection.
      */
     boolean retrieveAllProperties();
 

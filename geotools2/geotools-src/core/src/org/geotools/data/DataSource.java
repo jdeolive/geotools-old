@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.11 2003/05/14 23:22:53 cholmesny Exp $
+ * @version $Id: DataSource.java,v 1.12 2003/05/16 15:49:06 jmacgill Exp $
  */
 public interface DataSource {
     /**
@@ -82,7 +82,7 @@ public interface DataSource {
      * on the passed filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
-     *               <tt>null</tt> is not allowed, use Filter.NONE instead.
+     *        <tt>null</tt> is not allowed, use Filter.NONE instead.
      *
      * @return Collection The collection to put the features into.
      *
