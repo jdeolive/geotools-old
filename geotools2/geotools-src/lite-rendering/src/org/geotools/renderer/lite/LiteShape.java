@@ -30,7 +30,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.Rectangle2D.Double;
 
 
 /**
@@ -38,7 +37,7 @@ import java.awt.geom.Rectangle2D.Double;
  * geometry can be used by java2d without coordinate cloning
  *
  * @author Andrea Aime
- * @version $Id: LiteShape.java,v 1.5 2003/08/05 05:16:18 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.6 2003/08/10 15:18:17 aaime Exp $
  */
 class LiteShape implements Shape {
     /** The floating precision model */

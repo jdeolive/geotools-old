@@ -112,7 +112,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.22 2003/08/10 15:07:06 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.23 2003/08/10 15:18:17 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -2112,9 +2112,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Sets the interactive status of the renderer
+     * Sets the interactive status of the renderer. An interactive renderer won't wait
+     * for long image loading, preferring an alternative mark instead
      *
-     * @param interactive
+     * @param interactive new value for the interactive property
      */
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
