@@ -76,6 +76,11 @@
       <id>littleEndian</id>
       <version>1.0</version>
     </dependency>
+        <dependency>
+      <id>resources</id>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
        
     </dependencies>
  
