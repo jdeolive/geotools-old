@@ -37,7 +37,7 @@ public abstract class ContextFactory {
             }
             if (factory==null) {
                 factory = createFactory(
-                    "org.geotools.gui.tools.ContextFactoryImpl");
+                    "org.geotools.map.ContextFactoryImpl");
             }
         }
         return factory;
