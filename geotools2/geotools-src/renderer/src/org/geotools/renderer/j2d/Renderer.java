@@ -119,7 +119,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.44 2003/11/12 14:14:08 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.45 2003/12/04 23:19:08 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -2022,11 +2022,11 @@ renderOffscreen:while (true) {
      *
      * @param  sourceClassName  The caller's class name, for logging purpose.
      * @param  sourceMethodName The caller's method name, for logging purpose.
-     * @param  exception        The transform exception.
+     * @param  exception        The exception.
      */
     static void handleException(final String className,
                                 final String methodName,
-                                final TransformException exception)
+                                final Exception exception)
     {
         Utilities.unexpectedException("org.geotools.renderer.j2d", className, methodName, exception);
     }
