@@ -508,7 +508,7 @@ public class ShapefileDataStore extends AbstractDataStore {
          */
         protected File getStorageFile(URL url) {
             String f = url.getFile();
-            f = f.substring(f.lastIndexOf("/") + 1) + temp;
+            f = temp + f.substring(f.lastIndexOf("/") + 1);
             File tf = new File(System.getProperty("java.io.tmpdir"),f) ;
             return tf;
         }
