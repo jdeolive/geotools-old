@@ -76,7 +76,7 @@ import java.util.Arrays;
  * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.11 2003/12/09 18:51:13 jive Exp $
+ * @version $Id: Query.java,v 1.12 2004/01/05 08:09:02 jive Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -95,7 +95,18 @@ public interface Query {
      * filtering, and the a featureType with no attribtues.
      */
     final Query FIDS = new FIDSQuery();
+    
+    /**
+     * Ask for no properties when used with setPropertyNames.
+     * <p>
+     * Note the query will still return a result - limited to FeatureIDs.
+     * </p>
+     */
     final String[] NO_NAMES = new String[0];
+    
+    /**
+     * Ask for all properties when used with setPropertyNames.
+     */
     final String[] ALL_NAMES = null;
 
     /**
