@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="geotools">
+    <property file="build.ant.properties"/>
+    <target name="all">
+        <!-- WRITEME -->
+    </target>
+    <target name="build">
+        <ant antfile="../core/build.xml" inheritall="true"/>
+    </target>
+    <target name="clean">
+        <delete dir="${releaseFolder}"/>
+    </target>
+    <target name="prepareReleaseFolder">
+        <mkdir dir="${releaseFolder}"/>
+        
+        
+    </target>
+</project>
