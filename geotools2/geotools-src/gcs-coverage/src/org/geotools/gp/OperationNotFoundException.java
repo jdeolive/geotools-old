@@ -40,7 +40,7 @@ package org.geotools.gp;
  * Thrown by {@link GridCoverageProcessor} when an operation is queried
  * but has not been found.
  *
- * @version 1.0
+ * @version $Id: OperationNotFoundException.java,v 1.2 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationNotFoundException extends IllegalArgumentException {

@@ -35,8 +35,16 @@
  */
 package org.geotools.gp;
 
-// Images
+// J2SE dependencies
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.awt.image.Raster;
+import java.awt.RenderingHints;
+import java.lang.reflect.Array;
+
+// JAI dependencies
 import javax.media.jai.PlanarImage;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
@@ -47,15 +55,6 @@ import javax.media.jai.iterator.RectIterFactory;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
-
-// Geometry
-import java.awt.Rectangle;
-import java.awt.geom.Point2D;
-
-// Miscellaneous
-import java.util.List;
-import java.util.ArrayList;
-import java.lang.reflect.Array;
 
 // Geotools dependencies
 import org.geotools.gc.GridCoverage;
@@ -75,13 +74,13 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version 1.0
+ * @version $Id: Interpolator.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
     /**
      * The greatest value smaller than 1 representable as a <code>float</code> number.
-     * This value can be obtained with <code>net.seas.util.XMath.previous(1f)</code>.
+     * This value can be obtained with <code>org.geotools.resources.XMath.previous(1f)</code>.
      */
     private static final float ONE_EPSILON = 0.99999994f;
     
@@ -165,7 +164,10 @@ final class Interpolator extends GridCoverage {
      *         (if any). This array must have at least 1 element.
      * @param  index The index of interpolation to use in the <code>interpolations</code> array.
      */
-    private Interpolator(final GridCoverage coverage, final Interpolation[] interpolations, final int index) {
+    private Interpolator(final GridCoverage    coverage,
+                         final Interpolation[] interpolations,
+                         final int             index)
+    {
         super(coverage);
         this.interpolation = interpolations[index];
         if (index+1 < interpolations.length) {
@@ -226,15 +228,24 @@ final class Interpolator extends GridCoverage {
         this.top  = top;
         this.left = left;
         
-        final int x = data.getMinX();
-        final int y = data.getMinY();
+        final int x = image.getMinX();
+        final int y = image.getMinY();
         
         this.xmin = x + left;
         this.ymin = y + top;
-        this.xmax = x + data.getWidth()  - right;
-        this.ymax = y + data.getHeight() - bottom;
+        this.xmax = x + image.getWidth()  - right;
+        this.ymax = y + image.getHeight() - bottom;
         
         bounds = new Rectangle(0, 0, interpolation.getWidth(), interpolation.getHeight());
+    }
+
+    /**
+     * Invoked when a new <code>GridCoverage</code> is derivate from this one.
+     * This is usually a result of a call to {@link #geophysics}. This method
+     * gives a chance to subclasses to create an instance of their own class.
+     */
+    protected GridCoverage createReplace(final GridCoverage coverage) {
+        return create(coverage, getInterpolations());
     }
     
     /**
@@ -247,13 +258,13 @@ final class Interpolator extends GridCoverage {
         Interpolator scan = this;
         do {
             interp.add(interpolation);
-            if (scan.fallback==scan) {
+            if (scan.fallback == scan) {
                 interp.add(Interpolation.getInstance(Interpolation.INTERP_NEAREST));
                 break;
             }
             scan = scan.fallback;
         }
-        while (scan!=null);
+        while (scan != null);
         return (Interpolation[]) interp.toArray(new Interpolation[interp.size()]);
     }
     
@@ -274,7 +285,7 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, data.getNumBands())) {
+                if (interpolate(x, y, dest, 0, image.getNumBands())) {
                     return dest;
                 }
             }
@@ -303,7 +314,7 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, data.getNumBands())) {
+                if (interpolate(x, y, dest, 0, image.getNumBands())) {
                     return dest;
                 }
             }
@@ -332,7 +343,7 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, data.getNumBands())) {
+                if (interpolate(x, y, dest, 0, image.getNumBands())) {
                     return dest;
                 }
             }
@@ -391,7 +402,7 @@ final class Interpolator extends GridCoverage {
          */
         bounds.x = ix - left;
         bounds.y = iy - top;
-        final RectIter iter = RectIterFactory.create(data, bounds);
+        final RectIter iter = RectIterFactory.create(image, bounds);
         for (; band<bandUp; band++) {
             iter.startLines();
             int j=0; do {
@@ -457,7 +468,7 @@ final class Interpolator extends GridCoverage {
          */
         bounds.x = ix - left;
         bounds.y = iy - top;
-        final RectIter iter = RectIterFactory.create(data, bounds);
+        final RectIter iter = RectIterFactory.create(image, bounds);
         for (; band<bandUp; band++) {
             iter.startLines();
             int j=0; do {
@@ -534,7 +545,7 @@ final class Interpolator extends GridCoverage {
          */
         bounds.x = ix - left;
         bounds.y = iy - top;
-        final RectIter iter = RectIterFactory.create(data, bounds);
+        final RectIter iter = RectIterFactory.create(image, bounds);
         for (; band<bandUp; band++) {
             iter.startLines();
             int j=0; do {
@@ -575,7 +586,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version 1.0
+     * @version $Id: Interpolator.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
@@ -608,8 +619,8 @@ final class Interpolator extends GridCoverage {
          * Apply an interpolation to a grid coverage. This method is invoked
          * by {@link GridCoverageProcessor} for the "Interpolate" operation.
          */
-        protected GridCoverage doOperation(final ParameterList         parameters,
-                                           final GridCoverageProcessor processor)
+        protected GridCoverage doOperation(final ParameterList  parameters,
+                                           final RenderingHints hints)
         {
             final GridCoverage   source = (GridCoverage)parameters.getObjectParameter("Source");
             final Object           type =               parameters.getObjectParameter("Type"  );

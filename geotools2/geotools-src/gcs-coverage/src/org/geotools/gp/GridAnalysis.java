@@ -43,7 +43,7 @@ import org.geotools.gc.GridCoverage;
  * Performs various analysis operations on a grid coverage.
  * Note: this class is not yet implemented.
  *
- * @version 1.0
+ * @version $Id: GridAnalysis.java,v 1.2 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class GridAnalysis extends GridCoverage {

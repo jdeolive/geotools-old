@@ -37,6 +37,7 @@ package org.geotools.gp;
 
 // J2SE dependencies
 import java.awt.Color;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
 // Java Advanced Imaging
@@ -51,7 +52,6 @@ import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cv.SampleInterpretation;
 
 // Resources
 import org.geotools.units.Unit;
@@ -66,7 +66,7 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version $Id: GradientMagnitude.java,v 1.3 2002/07/17 23:30:56 desruisseaux Exp $
+ * @version $Id: GradientMagnitude.java,v 1.4 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradientMagnitude extends OperationJAI {
@@ -210,7 +210,7 @@ final class GradientMagnitude extends OperationJAI {
      */
     protected GridCoverage doOperation(final GridCoverage[]    sources,
                                        final ParameterBlockJAI parameters,
-                                       final JAI               processor)
+                                       final RenderingHints    hints)
     {
         if (sources.length!=0) {
             KernelJAI mask1 = (KernelJAI) parameters.getObjectParameter("mask1");
@@ -248,7 +248,7 @@ final class GradientMagnitude extends OperationJAI {
             parameters.setParameter("mask1", divide(mask1, factor/scaleMask1));
             parameters.setParameter("mask2", divide(mask2, factor/scaleMask2));
         }
-        return super.doOperation(sources, parameters, processor);
+        return super.doOperation(sources, parameters, hints);
     }
     
     /**
@@ -260,19 +260,21 @@ final class GradientMagnitude extends OperationJAI {
                                       final CoordinateSystem cs,
                                       final ParameterList parameters)
     {
-        final Category category = categories[0];
+        Category category = categories[0];
+        final boolean isGeophysics = (category == category.geophysics(true));
         final KernelJAI   mask1 = (KernelJAI) parameters.getObjectParameter("mask1");
         final KernelJAI   mask2 = (KernelJAI) parameters.getObjectParameter("mask2");
         double factor = getNormalizationFactor(mask1, mask2);
         if (factor > 0) {
-            final Range range = category.getRange(SampleInterpretation.GEOPHYSICS);
+            final Range range = category.geophysics(true).getRange();
             final double minimum = ((Number) range.getMinValue()).doubleValue();
             final double maximum = ((Number) range.getMaxValue()).doubleValue();
             factor *= (maximum - minimum) * DEFAULT_RANGE_SCALE;
-            return Category.create(category.getName(null),
-                                   DEFAULT_COLOR_PALETTE,
-                                   category.getRange(SampleInterpretation.INDEXED),
-                                   new Range(Double.class, new Double(0), new Double(factor)));
+            category = new Category(category.getName(null),
+                                    DEFAULT_COLOR_PALETTE,
+                                    category.geophysics(false).getRange(),
+                                    new Range(Double.class, new Double(0), new Double(factor)));
+            return category.geophysics(isGeophysics);
         }
         return super.deriveCategory(categories, cs, parameters);
     }

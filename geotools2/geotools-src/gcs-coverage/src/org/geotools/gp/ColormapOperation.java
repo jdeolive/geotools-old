@@ -48,7 +48,6 @@ import javax.media.jai.ParameterListDescriptorImpl;
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
-import org.geotools.cv.SampleInterpretation;
 
 
 /**
@@ -57,7 +56,7 @@ import org.geotools.cv.SampleInterpretation;
  * ramp will have colors ranging from <code>lowerColor</code> to
  * <code>upperColor</code>.
  *
- * @version $Id: ColormapOperation.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
+ * @version $Id: ColormapOperation.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColormapOperation extends IndexColorOperation {
@@ -100,16 +99,16 @@ final class ColormapOperation extends IndexColorOperation {
     {
         final Color lowerColor = (Color) parameters.getObjectParameter("LowerColor");
         final Color upperColor = (Color) parameters.getObjectParameter("UpperColor");
-        final Category categories[] = band.getCategories();
+        final Category categories[] = (Category[]) band.getCategories().toArray();
         for (int j=categories.length; --j>=0;) {
             final Category category = categories[j];
             if (category.isQuantitative()) {
-                final Range range = category.getRange(SampleInterpretation.INDEXED);
+                final Range range = category.getRange();
                 int lower = ((Number) range.getMinValue()).intValue();
                 int upper = ((Number) range.getMaxValue()).intValue();
                 if (!range.isMinIncluded()) lower++;
                 if (!range.isMaxIncluded()) upper--;
-                if (upper>lower) { // No change if there is only 1 color.
+                if (upper > lower) { // No change if there is only 1 color.
                     final double di = (double)(upper-lower);
                     final int    Ri =  lowerColor.getRed  ();
                     final int    Gi =  lowerColor.getGreen();

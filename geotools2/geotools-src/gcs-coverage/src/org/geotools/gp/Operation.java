@@ -35,22 +35,25 @@
  */
 package org.geotools.gp;
 
+// J2SE dependencies
+import java.io.Writer;
+import java.io.IOException;
+import java.io.Serializable;
+import java.awt.RenderingHints;
+import java.util.Locale;
+
 // JAI dependencies
+import javax.media.jai.JAI;
 import javax.media.jai.util.Range;
 import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
 
-// Input/output
-import java.io.Writer;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Locale;
-
 // Geotools Dependencies
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.ParameterInfo;
+import org.geotools.ct.CoordinateTransformationFactory;
 
 // Resources
 import org.geotools.io.TableWriter;
@@ -65,8 +68,8 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: Operation.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
+ * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
 public abstract class Operation implements Serializable {
@@ -74,6 +77,21 @@ public abstract class Operation implements Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -1280778129220703728L;
+
+    /**
+     * Key for setting a {@link CoordinateTransformationFactory} object other
+     * than the default one when coordinate transformations must be performed
+     * at rendering time.
+     */
+    public static final RenderingHints.Key COORDINATE_TRANSFORMATION_FACTORY =
+            new Key(0, CoordinateTransformationFactory.class);
+
+    /**
+     * Key for setting a {@link JAI} instance other than the default one when
+     * JAI operation must be performed at rendering time.
+     */
+    public static final RenderingHints.Key JAI_INSTANCE =
+            new Key(1, JAI.class);
     
     /**
      * List of valid names. Note: the "Optimal" type is not
@@ -212,18 +230,20 @@ public abstract class Operation implements Serializable {
     }
     
     /**
-     * Apply a process operation to a grid coverage. This method
-     * is invoked by {@link GridCoverageProcessor}.
+     * Apply a process operation to a grid coverage. This method is invoked by
+     * {@link GridCoverageProcessor}.
      *
      * @param  parameters List of name value pairs for the parameters
      *         required for the operation.
-     * @param  processor The originating {@link GridCoverageProcessor}
-     *         (i.e. the instance that invoked this method).
+     * @param  A set of rendering hints, or <code>null</code> if none. The
+     *         <code>GridCoverageProcessor</code> will usually provides hints
+     *         for the following keys: {@link #COORDINATE_TRANSFORMATION_FACTORY}
+     *         and {@link #JAI_INSTANCE}.
      * @return The result as a grid coverage.
      */
-    protected abstract GridCoverage doOperation(final ParameterList         parameters,
-                                                final GridCoverageProcessor processor);
-    
+    protected abstract GridCoverage doOperation(final ParameterList  parameters,
+                                                final RenderingHints hints);
+
     /**
      * Returns a hash value for this operation.
      * This value need not remain consistent between
@@ -296,5 +316,42 @@ public abstract class Operation implements Serializable {
         }
         table.writeHorizontalSeparator();
         table.flush();
+    }
+
+    /**
+     * Class of all rendering hint keys defined.
+     */
+    private static final class Key extends RenderingHints.Key
+    {
+        /**
+         * Base class of all values for this key.
+         *
+         * @task TODO: We could use only the class name (as a string)
+         *             here in order to defer class loading.
+         */
+        private final Class valueClass;
+
+        /**
+         * Construct a new key.
+         *
+         * @param id An ID. Must be unique for all instances of {@link Key}.
+         * @param valueClass Base class of all valid values.
+         */
+        Key(final int id, final Class valueClass) {
+            super(id);
+            this.valueClass = valueClass;
+        }
+
+        /**
+         * Returns <code>true</code> if the specified object is a valid
+         * value for this Key.
+         *
+         * @param  value The object to test for validity.
+         * @return <code>true</code> if the value is valid;
+         *         <code>false</code> otherwise.
+         */
+        public boolean isCompatibleValue(final Object value) {
+            return (value != null) && valueClass.isAssignableFrom(value.getClass());
+        }
     }
 }

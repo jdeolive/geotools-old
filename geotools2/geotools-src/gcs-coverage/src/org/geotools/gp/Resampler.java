@@ -102,8 +102,8 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.5 2002/07/17 23:30:56 desruisseaux Exp $
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: Resampler.java,v 1.6 2002/07/27 12:40:49 desruisseaux Exp $
+ * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
@@ -123,19 +123,14 @@ final class Resampler extends GridCoverage {
      *                     other dimensions are optional and may be used to locate the image
      *                     on a vertical axis or on the time axis.
      * @param bands        Sample dimensions for the image.
-     * @param isGeophysics <code>true</code> if pixel's values are already geophysics values, or
-     *                     <code>false</code> if transformation described in <code>bands</code>
-     *                     must be applied first.
      */
     private Resampler(final GridCoverage       source,
                       final RenderedImage       image,
                       final CoordinateSystem       cs,
                       final Envelope         envelope,
-                      final SampleDimension[]   bands,
-                      final boolean      isGeophysics)
+                      final SampleDimension[]   bands)
     {
-        super(source.getName(null), image, cs, envelope, bands, isGeophysics,
-              new GridCoverage[] {source}, null);
+        super(source.getName(null), image, cs, envelope, bands, new GridCoverage[]{source}, null);
     }
     
     /**
@@ -145,8 +140,9 @@ final class Resampler extends GridCoverage {
      * @param  targetCS Coordinate system for the new grid coverage, or <code>null</code>.
      * @param  targetGridGeometry The target grid geometry, or <code>null</code> for default.
      * @param  interpolation The interpolation to use.
-     * @param  processor The {@link JAI} instance to use for instantiating operations.
-     *         This argument is usually provided by a {@link GridCoverageProcessor}.
+     * @param  The rendering hingts. This is usually provided by a {@link GridCoverageProcessor}.
+     *         This method will looks for {@link Operation#COORDINATE_TRANSFORMATION_FACTORY}
+     *         and {@link Operation#JAI_INSTANCE} keys.
      * @return The new grid coverage, or <code>sourceCoverage</code> if no resampling was needed.
      * @throws TransformException if the grid coverage can't be reprojected.
      */
@@ -154,16 +150,23 @@ final class Resampler extends GridCoverage {
                                          final CoordinateSystem       targetCS,
                                          final GridGeometry targetGridGeometry,
                                          final Interpolation     interpolation,
-                                         final JAI                   processor)
+                                         final RenderingHints            hints)
         throws TransformException
     {
         /*
-         * Gets the {@link CoordinateTransformationFactory}
-         * to use from the rendering hints.
+         * Gets the {@link JAI} instance to use from the rendering hints.
          */
-        final Object property = processor.getRenderingHint(
-                GridCoverageProcessor.COORDINATE_TRANSFORMATION_FACTORY);
-
+        Object property = (hints!=null) ? hints.get(Operation.JAI_INSTANCE) : null;
+        final JAI processor;
+        if (property instanceof JAI) {
+            processor = (JAI) property;
+        } else {
+            processor = JAI.getDefaultInstance();
+        }
+        /*
+         * Gets the {@link CoordinateTransformationFactory} to use from the rendering hints.
+         */
+        property = (hints!=null) ? hints.get(Operation.COORDINATE_TRANSFORMATION_FACTORY) : null;
         final CoordinateTransformationFactory factory;
         if (property instanceof CoordinateTransformationFactory) {
             factory = (CoordinateTransformationFactory) property;
@@ -245,8 +248,8 @@ final class Resampler extends GridCoverage {
          *
          *    1) The interpolation type is "nearest neighbor". Since this
          *       is not really an interpolation, the "NaN" issue vanish.
-         *    2) The coverage have at most one category, and this category is
-         *       quantifiable. In this case, the image should not contains
+         *    2) The coverage have at most one category, and this category use
+         *       a linear relation. In this case, the image should not contains
          *       any NaN value since there is no category for handling NaN.
          *
          * If one of those conditions apply, then we will check if the indexed image
@@ -257,10 +260,12 @@ final class Resampler extends GridCoverage {
          */
         boolean geophysics = true;
         if (interpolation instanceof InterpolationNearest || areLinears(bands)) {
-            final List sources = sourceCoverage.getRenderedImage(true).getSources();
-            if (sources!=null) {
-                final RenderedImage indexed = sourceCoverage.getRenderedImage(false);
-                if (sources.contains(indexed)) geophysics = false;
+            final List sources = sourceCoverage.geophysics(true).getRenderedImage().getSources();
+            if (sources != null) {
+                final RenderedImage indexed = sourceCoverage.geophysics(false).getRenderedImage();
+                if (sources.contains(indexed)) {
+                    geophysics = false;
+                }
             }
         }
         /*
@@ -270,7 +275,7 @@ final class Resampler extends GridCoverage {
          * now because we will know the envelope only after creating the GridCoverage.
          * Note: RenderingHints contain mostly indications about tiles layout.
          */
-        final PlanarImage sourceImage = PlanarImage.wrapRenderedImage(sourceCoverage.getRenderedImage(geophysics));
+        final PlanarImage sourceImage = PlanarImage.wrapRenderedImage(sourceCoverage.geophysics(geophysics).getRenderedImage());
         final ParameterBlock paramBlk = new ParameterBlock().addSource(sourceImage);
         final RenderedOp  targetImage = processor.createNS("Null", paramBlk, ImageUtilities.getRenderingHints(sourceImage));
         final GridCoverage targetCoverage;
@@ -322,7 +327,7 @@ final class Resampler extends GridCoverage {
          * requires the geometry of the target grid coverage. The trick was to initialize
          * the target image with a null operation, and change the operation here.
          */
-        targetCoverage  = new Resampler(sourceCoverage, targetImage, targetCS, targetEnvelope, bands, geophysics);
+        targetCoverage  = new Resampler(sourceCoverage, targetImage, targetCS, targetEnvelope, bands);
         final Warp warp = new WarpTransform(sourceCoverage.getGridGeometry(), transform2D,
         targetCoverage.getGridGeometry(), mathFactory);
         final ParameterBlock param = new ParameterBlock().addSource(sourceImage).add(warp).add(interpolation);
@@ -331,9 +336,9 @@ final class Resampler extends GridCoverage {
         
         final RenderingHints imageLayout = ImageUtilities.getRenderingHints(targetImage);
         if (imageLayout != null) {
-            final RenderingHints hints = targetImage.getRenderingHints();
-            hints.add(imageLayout);
-            targetImage.setRenderingHints(hints);
+            final RenderingHints targetHints = targetImage.getRenderingHints();
+            targetHints.add(imageLayout);
+            targetImage.setRenderingHints(targetHints);
         }
         
         assert sourceCoverage.getCoordinateSystem().equivalents(transformation.getSourceCS());
@@ -362,7 +367,7 @@ final class Resampler extends GridCoverage {
         throws TransformException
     {
         final MathTransform2D  gridToCS = sourceCoverage.getGridGeometry().getGridToCoordinateSystem2D();
-        final RenderedImage sourceImage = sourceCoverage.getRenderedImage(true);
+        final RenderedImage sourceImage = sourceCoverage.geophysics(true).getRenderedImage();
         RenderedImage image=sourceImage;
         /*
          * Get the grid indices for the destination image.  If the destination indices are
@@ -405,7 +410,7 @@ final class Resampler extends GridCoverage {
         envelope.setRange(1, area.getMinY(), area.getMaxY());
         return new GridCoverage(sourceCoverage.getName(null),
                                 image, sourceCoverage.getCoordinateSystem(),
-                                envelope, sourceCoverage.getSampleDimensions(), true,
+                                envelope, sourceCoverage.getSampleDimensions(),
                                 new GridCoverage[] {sourceCoverage}, null);
     }
     
@@ -455,7 +460,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version 1.0
+     * @version $Id: Resampler.java,v 1.6 2002/07/27 12:40:49 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
@@ -494,8 +499,8 @@ final class Resampler extends GridCoverage {
          * Resample a grid coverage. This method is invoked by
          * {@link GridCoverageProcessor} for the "Resample" operation.
          */
-        protected GridCoverage doOperation(final ParameterList         parameters,
-                                           final GridCoverageProcessor processor)
+        protected GridCoverage doOperation(final ParameterList  parameters,
+                                           final RenderingHints hints)
         {
             GridCoverage   source = (GridCoverage)     parameters.getObjectParameter("Source");
             Interpolation  interp = toInterpolation   (parameters.getObjectParameter("InterpolationType"));
@@ -505,7 +510,7 @@ final class Resampler extends GridCoverage {
                 cs = source.getCoordinateSystem();
             }
             try {
-                return reproject(source, cs, gridGeom, interp, processor.processor);
+                return reproject(source, cs, gridGeom, interp, hints);
             } catch (TransformException exception) {
                 throw new CannotReprojectException(Resources.format(
                         ResourceKeys.ERROR_CANT_REPROJECT_$1,

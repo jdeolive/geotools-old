@@ -44,6 +44,7 @@ import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.OperationDescriptor;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
+import javax.media.jai.registry.RenderedRegistryMode;
 
 // Image (Java2D) and collections
 import java.awt.Color;
@@ -59,7 +60,6 @@ import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.cv.SampleInterpretation;
 
 // Resources
 import org.geotools.units.Unit;
@@ -83,8 +83,8 @@ import org.geotools.resources.gcs.ResourceKeys;
  * different bits of tasks, resulting in the following chain of calls:
  *
  * <ol>
- *   <li>{@link #doOperation(ParameterList, GridCoverageProcessor)}</li>
- *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI, JAI)}</li>
+ *   <li>{@link #doOperation(ParameterList, RenderingHints)}</li>
+ *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)}</li>
  *   <li>{@link #deriveSampleDimension}</li>
  *   <li>{@link #deriveCategory}</li>
  *   <li>{@link #deriveUnit}</li>
@@ -93,14 +93,14 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.4 2002/07/17 23:30:56 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.5 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
     /**
      * The rendered mode for JAI operation.
      */
-    private static final String RENDERED_MODE = "rendered";
+    private static final String RENDERED_MODE = RenderedRegistryMode.MODE_NAME;
     
     /**
      * Index of the source {@link GridCoverage} to use as a model. The
@@ -159,7 +159,9 @@ public class OperationJAI extends Operation {
      * {@link OperationDescriptor} parameter list do not include sources.
      * This method will add them in front of the parameter list.
      */
-    private static ParameterListDescriptor getParameterListDescriptor(final OperationDescriptor descriptor) {
+    private static ParameterListDescriptor getParameterListDescriptor
+                                (final OperationDescriptor descriptor)
+    {
         ensureValid(descriptor.getDestClass(RENDERED_MODE));
         final Class[] sourceClasses = descriptor.getSourceClasses(RENDERED_MODE);
         for (int i=0; i<sourceClasses.length; i++) {
@@ -226,14 +228,13 @@ public class OperationJAI extends Operation {
      *
      * @param  parameters List of name value pairs for the
      *         parameters required for the operation.
-     * @param processor The originating {@link GridCoverageProcessor}
-     *        (i.e. the instance that invoked this method).
+     * @param  A set of rendering hints, or <code>null</code> if none.
      * @return The result as a grid coverage.
      *
-     * @see #doOperation(GridCoverage[], ParameterBlockJAI, JAI)
+     * @see #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)
      */
-    protected GridCoverage doOperation(final ParameterList         parameters,
-                                       final GridCoverageProcessor processor)
+    protected GridCoverage doOperation(final ParameterList  parameters,
+                                       final RenderingHints hints)
     {
         final ParameterBlockJAI block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
         final String[]     paramNames = parameters.getParameterListDescriptor().getParamNames();
@@ -243,42 +244,43 @@ public class OperationJAI extends Operation {
             final String name  = paramNames[i];
             final Object param = parameters.getObjectParameter(name);
             if (contains(sourceNames, name)) {
-                GridCoverage source = (GridCoverage) param;
-                block.addSource(source.getRenderedImage(true));
+                GridCoverage source = ((GridCoverage) param).geophysics(true);
+                block.addSource(source.getRenderedImage());
                 sources[srcCount++] = source;
             } else {
                 block.setParameter(name, param);
             }
         }
-        return doOperation(sources, block, processor.processor);
+        final GridCoverage master = sources[MASTER_SOURCE_INDEX];
+        final GridCoverage result = doOperation(sources, block, hints);
+        return result.geophysics(master == master.geophysics(true));
     }
     
     /**
      * Apply a JAI operation to a grid coverage.  The default implementation
      * ensure that every sources use the same coordinate system and have the
-     * same envelope. Then, it construct a new mapping between sample values
-     * and geophysics values with new units. This mapping is get by invoking
-     * the {@link #deriveSampleDimension deriveSampleDimension} method.
-     * Finally, it apply the operation using the following pseudo-code:
+     * same envelope. Then, it invokes the {@link #deriveSampleDimension deriveSampleDimension}
+     * method. Finally, it apply the operation using the following pseudo-code:
      *
      * <blockquote><pre>
-     * {@link JAI#createNS processor.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
+     * {@link JAI#createNS JAI.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
      * </pre></blockquote>
      *
      * @param  sources The source coverages.
-     * @param  processor The {@link JAI} instance to use for instantiating operations.
-     *         This argument is usually fetch from a {@link GridCoverageProcessor}.
+     * @param  A set of rendering hints, or <code>null</code> if none.  The JAI
+     *         instance to use for the <code>createNS</code> call will be fetch
+     *         from the {@link #JAI_INSTANCE} key.
      * @param  parameters List of name value pairs for the
      *         parameters required for the operation.
      * @return The result as a grid coverage.
      *
-     * @see #doOperation(ParameterList, GridCoverageProcessor)
+     * @see #doOperation(ParameterList, RenderingHints)
      * @see #deriveSampleDimension
      * @see JAI#createNS
      */
     protected GridCoverage doOperation(final GridCoverage[]    sources,
                                        final ParameterBlockJAI parameters,
-                                       final JAI               processor)
+                                       final RenderingHints    hints)
     {
         final int band = 0; // TODO: The band to examine.
         final GridCoverage source = sources[MASTER_SOURCE_INDEX];
@@ -309,20 +311,27 @@ public class OperationJAI extends Operation {
         final SampleDimension[] sampleDims = deriveSampleDimension(list, cs, parameters);
         ImageLayout layout = new ImageLayout();
         if (sampleDims!=null && sampleDims.length>band) {
-            layout = layout.setColorModel(sampleDims[band].getColorModel(SampleInterpretation.GEOPHYSICS, 0, sampleDims.length));
+            layout = layout.setColorModel(sampleDims[band].getColorModel(0, sampleDims.length));
         }
         /*
          * Perform the operation using JAI and
          * construct the new grid coverage.
          */
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        final RenderedImage   data = processor.createNS(descriptor.getName(), parameters, hints);
+        JAI processor = JAI.getDefaultInstance();
+        if (hints != null) {
+            final Object value = hints.get(JAI_INSTANCE);
+            if (value instanceof JAI) {
+                processor = (JAI) value;
+            }
+        }
+        final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+        exHints.putAll(hints);
+        final RenderedImage data = processor.createNS(descriptor.getName(), parameters, exHints);
         return new GridCoverage(source.getName(null), // The grid coverage name
                                 data,                 // The underlying data
                                 cs,                   // The coordinate system.
                                 envelope,             // The coverage envelope.
                                 sampleDims,           // The sample dimensions
-                                true,                 // Data are geophysics values.
                                 sources,              // The source grid coverages.
                                 null);                // Properties
     }
@@ -415,7 +424,7 @@ public class OperationJAI extends Operation {
                  */
                 final SampleDimension[] allBands = bandLists[i];
                 sampleDim           = allBands[allBands.length==1 ? 0 : numBands];
-                categoryArray       = sampleDim.getCategories();
+                categoryArray       = (Category[]) sampleDim.getCategories().toArray();
                 indexOfQuantitative = getQuantitative(categoryArray);
                 if (indexOfQuantitative < 0) {
                     return null;

@@ -37,6 +37,7 @@ package org.geotools.gp;
 
 // J2SE dependencies
 import java.util.Arrays;
+import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.IndexColorModel;
@@ -57,7 +58,7 @@ import org.geotools.cv.SampleDimension;
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version 1.0
+ * @version $Id: IndexColorOperation.java,v 1.4 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -78,41 +79,52 @@ abstract class IndexColorOperation extends Operation {
      * supplied parameters.
      *
      * @param parameters The parameters.
-     * @param processor The originating {@link GridCoverageProcessor}
-     *        (i.e. the instance that invoked this method).
+     * @param hints Rendering hints (ignored in this implementation).
      */
-    protected GridCoverage doOperation(final ParameterList         parameters,
-                                       final GridCoverageProcessor processor)
+    protected GridCoverage doOperation(final ParameterList  parameters,
+                                       final RenderingHints hints)
     {
         final GridCoverage source = (GridCoverage) parameters.getObjectParameter("Source");
-        final RenderedImage image = source.getRenderedImage(false);
+        final GridCoverage visual = source.geophysics(false);
+        final RenderedImage image = visual.getRenderedImage();
         final ColorModel    model = image.getColorModel();
-        if (model instanceof IndexColorModel) {
-            final int band = 0; // Always 0 in this implementation.
-            final SampleDimension[] bands = source.getSampleDimensions();
-            final IndexColorModel  colors = (IndexColorModel) model;
-            final int             mapSize = colors.getMapSize();
-            final byte[] R=new byte[mapSize]; colors.getReds  (R);
-            final byte[] G=new byte[mapSize]; colors.getGreens(G);
-            final byte[] B=new byte[mapSize]; colors.getBlues(B);
-            transformColormap(R,G,B, bands[band], parameters);
-            if (!compare(colors, R,G,B)) {
-                final int computeType = (image instanceof OpImage) ?
-                ((OpImage)image).getOperationComputeType() :
-                    OpImage.OP_COMPUTE_BOUND;
-                    final IndexColorModel newModel = new IndexColorModel(colors.getComponentSize()[band], mapSize, R,G,B);
-                    final ImageLayout       layout = new ImageLayout().setColorModel(newModel);
-                    final RenderedImage   newImage = new NullOpImage(image, layout, null, computeType);
-                    return new GridCoverage(source.getName(null), newImage,
-                    source.getCoordinateSystem(),
-                    source.getEnvelope(),
-                    new SampleDimension[] {bands[band]},
-                    false,
-                    new GridCoverage[] {source},
-                    null);
-            }
+        if (!(model instanceof IndexColorModel)) {
+            /*
+             * Source don't use an index color model.
+             */
+            // TODO: localize this message.
+            throw new IllegalArgumentException("Need an IndexColorModel");
         }
-        return source;
+        final int band = 0; // Always 0 in this implementation.
+        final SampleDimension[] bands = visual.getSampleDimensions();
+        final IndexColorModel  colors = (IndexColorModel) model;
+        final int             mapSize = colors.getMapSize();
+        final byte[] R=new byte[mapSize]; colors.getReds  (R);
+        final byte[] G=new byte[mapSize]; colors.getGreens(G);
+        final byte[] B=new byte[mapSize]; colors.getBlues(B);
+        transformColormap(R,G,B, bands[band], parameters);
+        if (compare(colors, R,G,B)) {
+            /*
+             * No color change: returns the source.
+             */
+            return source;
+        }
+        final int computeType = (image instanceof OpImage) ?
+                ((OpImage)image).getOperationComputeType() : OpImage.OP_COMPUTE_BOUND;
+
+        final int              numBits = colors.getComponentSize()[band];
+        final IndexColorModel newModel = new IndexColorModel(numBits, mapSize, R,G,B);
+        final ImageLayout       layout = new ImageLayout().setColorModel(newModel);
+        final RenderedImage   newImage = new NullOpImage(image, layout, null, computeType);
+        GridCoverage target = new GridCoverage(visual.getName(null), newImage,
+                                               visual.getCoordinateSystem(),
+                                               visual.getEnvelope(),
+                                               new SampleDimension[] {bands[band]},
+                                               new GridCoverage[] {visual}, null);
+        if (source != visual) {
+            target = target.geophysics(true);
+        }
+        return target;
     }
     
     /**

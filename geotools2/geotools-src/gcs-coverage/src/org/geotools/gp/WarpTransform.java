@@ -53,7 +53,7 @@ import org.geotools.resources.Utilities;
 /**
  * An image warp using {@link MathTransform2D}.
  *
- * @version 1.0
+ * @version $Id: WarpTransform.java,v 1.2 2002/07/27 12:40:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WarpTransform extends Warp {

@@ -40,7 +40,7 @@ package org.geotools.gp;
  * Throws when a "resample" operation has been requested
  * but the specified grid coverage can't be reprojected.
  *
- * @version 1.0
+ * @version $Id: CannotReprojectException.java,v 1.2 2002/07/27 12:40:48 desruisseaux Exp $
  * @author  Martin Desruisseaux
  */
 public class CannotReprojectException extends RuntimeException {
