@@ -48,10 +48,11 @@ import java.net.URL;
 public class SVGTest extends TestCase {
     String dataFolder;
 
-    public SVGTest(java.lang.String testName) {
+    public SVGTest(java.lang.String testName) throws Exception{
         super(testName);
 
-        dataFolder = new File(getResourcePath("/testData/bluelake.svg")).getParent();
+        dataFolder = new File( java.net.URLDecoder.decode(getResourcePath("/testData/bluelake.svg"),"UTF-8")).getParent();
+
     }
 
     private String getResourcePath(String resourceName) {
@@ -114,7 +115,8 @@ public class SVGTest extends TestCase {
 
             url = new URL("file:///" + dataFolder + "/" + outfile);
 
-            FileOutputStream out = new FileOutputStream(url.getFile());
+            FileOutputStream out = new FileOutputStream(java.net.URLDecoder.decode(url.getPath(),"UTF-8")); 
+
 
             gen.setCanvasSize(new Dimension(500, 500));
             gen.go(mapContext, fc.getBounds(), out);
