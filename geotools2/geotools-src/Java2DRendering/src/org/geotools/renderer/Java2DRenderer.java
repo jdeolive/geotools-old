@@ -68,9 +68,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     public Java2DRenderer() {
     }
     
-   public void setOutput(Graphics g,Rectangle bounds){
-       graphics = (Graphics2D)g;
-       screenSize = bounds;
+    public void setOutput(Graphics g,Rectangle bounds){
+        graphics = (Graphics2D)g;
+        screenSize = bounds;
     }
     
     public void render(Feature features[], Envelope map,Style s){
@@ -80,10 +80,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         AffineTransform at = new AffineTransform();
         
-
+        
         double scale = Math.min(screenSize.getHeight()/map.getHeight(),
-                screenSize.getWidth()/map.getWidth());
-  
+        screenSize.getWidth()/map.getWidth());
+        
         double angle = 0;//-Math.PI/8d;// rotation angle
         double tx = -map.getMinX()*scale; // x translation - mod by ian
         double ty = map.getMinY()*scale + screenSize.getHeight();// y translation
@@ -97,68 +97,72 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         testPoint.setLocation(map.getMinX(),map.getMinY());
         at.transform(testPoint,testPoint);
         System.out.println("origin "+map.getMinX()+","+map.getMinY()+"\ntrans "
-            +testPoint.toString());
+        +testPoint.toString());
         graphics.setTransform(at);
         
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
     }
-
+    
     private void processStylers(final Feature[] features, final FeatureTypeStyle[] featureStylers) {
-      for(int i=0;i<featureStylers.length;i++){
-          FeatureTypeStyle fts = featureStylers[i];
-          for(int j=0;j<features.length;j++){
-              Feature feature = features[j];
-              if(feature.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
-                  //this styler is for this type of feature
-                  //now find which rule applies
-                  Rule[] rules = fts.getRules();
-                  for(int k=0;k<rules.length;k++){
-                      //does this rule apply?
-                      if(rules[k].getMinScaleDenominator()<scaleDenominator && rules[k].getMaxScaleDenominator()>scaleDenominator){
-                          //yes it does
-                          //this gives us a list of symbolizers
-                          Symbolizer[] symbolizers = rules[k].getSymbolizers();
-                          //HACK: now this gets a little tricky...
-                          //HACK: each symbolizer could be a point, line, text, raster or polygon symboliser
-                          //HACK: but, if need be, a line symboliser can symbolise a polygon
-                          //HACK: this code ingores this potential problem for the moment
-                          processSymbolizers(feature, symbolizers);
-                      }
-                  }
-              }
-          }
-      }
+        for(int i=0;i<featureStylers.length;i++){
+            FeatureTypeStyle fts = featureStylers[i];
+            for(int j=0;j<features.length;j++){
+                Feature feature = features[j];
+                if(feature.getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
+                    //this styler is for this type of feature
+                    //now find which rule applies
+                    Rule[] rules = fts.getRules();
+                    for(int k=0;k<rules.length;k++){
+                        //does this rule apply?
+                        if(rules[k].getMinScaleDenominator()<scaleDenominator && rules[k].getMaxScaleDenominator()>scaleDenominator){
+                            //yes it does
+                            //this gives us a list of symbolizers
+                            Symbolizer[] symbolizers = rules[k].getSymbolizers();
+                            //HACK: now this gets a little tricky...
+                            //HACK: each symbolizer could be a point, line, text, raster or polygon symboliser
+                            //HACK: but, if need be, a line symboliser can symbolise a polygon
+                            //HACK: this code ingores this potential problem for the moment
+                            processSymbolizers(feature, symbolizers);
+                        }
+                    }
+                }
+            }
+        }
     }
-
+    
     private void processSymbolizers(final Feature feature, final Symbolizer[] symbolizers) {
-      for(int m =0;m<symbolizers.length;m++){
-          System.out.println("Using symbolizer "+symbolizers[m]);
-          if (symbolizers[m] instanceof PolygonSymbolizer){
-              renderPolygon(feature,(PolygonSymbolizer)symbolizers[m]);
-          }
-          else if(symbolizers[m] instanceof LineSymbolizer){
-              renderLine(feature,(LineSymbolizer)symbolizers[m]);
-          }
-          //else if...
-      }
+        for(int m =0;m<symbolizers.length;m++){
+            System.out.println("Using symbolizer "+symbolizers[m]);
+            if (symbolizers[m] instanceof PolygonSymbolizer){
+                renderPolygon(feature,(PolygonSymbolizer)symbolizers[m]);
+            }
+            else if(symbolizers[m] instanceof LineSymbolizer){
+                renderLine(feature,(LineSymbolizer)symbolizers[m]);
+            }
+            //else if...
+        }
     }
     
     private void renderPolygon(Feature feature, PolygonSymbolizer symbolizer){
         Fill fill = symbolizer.getFill();
         String geomName = symbolizer.geometryPropertyName();
         Geometry geom = findGeometry(feature,geomName);
-       // Geometry scaled = transform.transformGeometry(geom);
+        // Geometry scaled = transform.transformGeometry(geom);
         GeneralPath path = createGeneralPath(geom.getCoordinates());
         //path.closePath();
-        graphics.setColor(Color.decode(fill.getColor()));
-        graphics.fill(path);
-        
-        applyStroke(symbolizer.getStroke());
-        //path = createGeneralPath(geom.getCoordinates());
-        graphics.draw(path);
-//        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
-//            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
+        if(fill!=null){
+            graphics.setColor(Color.decode(fill.getColor()));
+            graphics.fill(path);
+        }
+        if(symbolizer.getStroke() != null) {
+            applyStroke(symbolizer.getStroke());
+            
+            //path = createGeneralPath(geom.getCoordinates());
+            graphics.draw(path);
+        }
+        //        System.out.println("Rendering a polygon with an outline colour of "+stroke.getColor()+
+        //            "and a fill colour of "+fill.getColor()+"\n at "+path.getCurrentPoint().toString());
     }
     
     private void applyStroke(org.geotools.styling.Stroke stroke){
@@ -185,22 +189,25 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         else{
             capCode = java.awt.BasicStroke.CAP_SQUARE;
         }
-            
+        float[] dashes = stroke.getDashArray();
+        for(int i = 0;i<dashes.length;i++){
+            dashes[i] /= (float)scale;
+        }
         BasicStroke stroke2d = new BasicStroke(
-            (float)stroke.getWidth()/(float)scale, capCode, joinCode,
-            10,stroke.getDashArray(), (float)stroke.getDashOffset());
-        
+        (float)stroke.getWidth()/(float)scale, capCode, joinCode,
+        (float)(Math.max(1,10/scale)),dashes, (float)stroke.getDashOffset()/(float)scale);
+        graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)stroke.getOpacity()));
         graphics.setStroke(stroke2d);
         graphics.setColor(Color.decode(stroke.getColor()));
     }
-
+    
     private GeneralPath createGeneralPath(final Coordinate[] coords) {
-      GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-      path.moveTo((float)coords[0].x,(float)coords[0].y);
-      for(int i=1;i<coords.length;i++){
-          path.lineTo((float)coords[i].x,(float)coords[i].y);
-      }
-      return path;
+        GeneralPath path = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
+        path.moveTo((float)coords[0].x,(float)coords[0].y);
+        for(int i=1;i<coords.length;i++){
+            path.lineTo((float)coords[i].x,(float)coords[i].y);
+        }
+        return path;
     }
     
     private void renderLine(Feature feature, LineSymbolizer symbolizer){
@@ -213,22 +220,22 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         //System.out.println(path.getBounds());
         
         graphics.draw(path);
-       // System.out.println("Rendering a line with a colour of "+stroke.getColor());
+        // System.out.println("Rendering a line with a colour of "+stroke.getColor());
     }
-
+    
     private Geometry findGeometry(final Feature feature, final String geomName) {
-      Geometry geom = null;
-      if(geomName==null){
-          geom = feature.getGeometry();
-      }
-      else{
-          String names[] =  feature.getAttributeNames();
-          for(int i=0;i<names.length;i++){
-              if(names[i].equalsIgnoreCase(geomName)){
-                  geom=(Geometry)feature.getAttributes()[i];
-              }
-          }
-      }
-      return geom;
+        Geometry geom = null;
+        if(geomName==null){
+            geom = feature.getGeometry();
+        }
+        else{
+            String names[] =  feature.getAttributeNames();
+            for(int i=0;i<names.length;i++){
+                if(names[i].equalsIgnoreCase(geomName)){
+                    geom=(Geometry)feature.getAttributes()[i];
+                }
+            }
+        }
+        return geom;
     }
 }
