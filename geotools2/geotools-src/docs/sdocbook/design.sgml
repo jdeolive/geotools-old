@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<?xml-stylesheet type="text/css"
-href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
-?><!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
-"file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+<!-- Use the following if you want to use ant to style this file when offline
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"-->
+
 <article id="index">
   <articleinfo>
     <title>Geotools2 Software Design Description</title>
@@ -13,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Id: design.sgml,v 1.7 2002/11/16 09:40:25 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.8 2002/11/21 10:38:57 camerons Exp $</date>
   </articleinfo>
 
   <section>
