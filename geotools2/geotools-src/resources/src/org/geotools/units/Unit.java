@@ -56,7 +56,7 @@ import org.geotools.resources.units.Units;
  * <strong>IMPORTANT: future version will NOT be compatible
  * will this one. Remind, this is a temporary class!</strong>
  *
- * @version $Id: Unit.java,v 1.4 2002/08/23 15:09:59 desruisseaux Exp $
+ * @version $Id: Unit.java,v 1.5 2002/11/04 20:38:59 crotwell Exp $
  * @author Steven R. Emmerson
  * @author Bill Hibbard
  * @author Martin Desruisseaux
@@ -88,7 +88,7 @@ public abstract class Unit implements Serializable {
      * Convenience constant for unit of angle.
      * Not a SI unit, but provides here for convenience.
      */
-    public static final Unit DEGREE = get("°");
+    public static final Unit DEGREE = get("\u00b0");
     
     /**
      * Convenience constant for base unit of length.
