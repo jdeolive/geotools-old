@@ -48,7 +48,7 @@ import org.geotools.resources.cts.Resources;
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.6 2003/05/14 10:15:41 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.7 2003/05/31 21:31:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
@@ -73,8 +73,9 @@ public abstract class Provider extends MathTransformProvider {
                 new LambertConformal.Provider(false, false, false), // Lambert_Conic_Conformal_1SP
                 new LambertConformal.Provider(true,  false, false), // Lambert_Conic_Conformal_2SP
                 new LambertConformal.Provider(true,  true,  false), // Lambert_Conic_Conformal_2SP_Belgium
-                new Mercator.Provider(false), // Mercator_1SP
-                new Mercator.Provider(true )  // Mercator_2SP
+                new Mercator        .Provider(false),               // Mercator_1SP
+                new Mercator        .Provider(true ),               // Mercator_2SP
+                new TransverseMercator.Provider()                   // Transverse_Mercator
             };
             /*
              * Disabled for now. Will be enabled only when we will have finished to move all

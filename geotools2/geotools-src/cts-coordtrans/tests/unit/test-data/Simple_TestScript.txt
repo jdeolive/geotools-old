@@ -385,3 +385,193 @@ pt_target=(-6789805.6471, 7107623.6859)
 pt_source=(18.45, -33.9166666666)
 pt_target=(16288385.6535, 7582342.0136)
 
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//Simple test cases for the Transverse Mercator Projection
+//note that the calculation of meridian distances is only accurate for values near the central meridian.
+//Therefore, tests that are too far away for accurat computations are  commented out.
+//Rueben Schulz
+//May 24, 2003
+
+set _Tmerc1_ = PROJCS["TransverseMercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", -117.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 0.9996], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Tmerc2_ = PROJCS["TransverseMercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 3.0], PARAMETER["latitude_of_origin", 0.0], PARAMETER["scale_factor", 0.9996], PARAMETER["false_easting", 500000.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Tmerc3_ = PROJCS["TransverseMercator", GEOGCS["WGS84", DATUM["WGS84", SPHEROID["WGS84", 6378137.0, 298.257223563]], PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6378137.0], PARAMETER["semi_minor", 6356752.314245179], PARAMETER["central_meridian", 150.0], PARAMETER["latitude_of_origin", -30.0], PARAMETER["scale_factor", 0.9], PARAMETER["false_easting", 500000.0], PARAMETER["false_northing", 1000000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Tmerc4_ = PROJCS["TransverseMercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", 170.0], PARAMETER["latitude_of_origin", 50.0], PARAMETER["scale_factor", 0.95], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 0.0], UNIT["feet", 0.304800609601219], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Tmerc5_ = PROJCS["TransverseMercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", 5.0], PARAMETER["latitude_of_origin", -60.0], PARAMETER["scale_factor", 1.0], PARAMETER["false_easting", 0.0], PARAMETER["false_northing", 150000.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+set _Tmerc6_ = PROJCS["TransverseMercator", GEOGCS["Sphere", DATUM["Sphere", SPHEROID["Sphere", 6370997.0, 0],TOWGS84[0,0,0,0,0,0,0]],PRIMEM["Greenwich", 0.0], UNIT["degree",0.017453292519943295], AXIS["Longitude",EAST], AXIS["Latitude",NORTH]], PROJECTION["Transverse_Mercator"], PARAMETER["semi_major", 6370997], PARAMETER["semi_minor", 6370997], PARAMETER["central_meridian", -63.0], PARAMETER["latitude_of_origin", 70.0], PARAMETER["scale_factor", 0.86], PARAMETER["false_easting", 15000.0], PARAMETER["false_northing", 0.0], UNIT["metre",1.0], AXIS["x",EAST], AXIS["y",NORTH]]
+
+
+////////////////////////////////////////////
+//Elliptical  tests
+
+cs_source=_WGS84_
+cs_target=_Tmerc1_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(-444107.3188,        5469474.1590)
+
+
+//pt_source=(2.33656753, 43.96499314)
+//pt_target=(5395779.7395,       17860740.2883)
+
+//pt_source=(151.283333333, -33.916666666)
+//pt_target=(-9197909.7926,      -11258764.2868)
+
+//pt_source=(-47.95,  -15.75)
+//pt_target=(9339271.6317,       -3978502.4742)
+
+//pt_source=(139.733333333, 35.6833333333)
+//pt_target=(-9513492.7251,       14822536.2027)
+
+//pt_source=(18.45, -33.9166666666)
+//pt_target=(12336608.1818,      -36243900.7093)
+
+
+cs_source=_WGS84_
+cs_target=_Tmerc2_
+test_tolerance=(1e-2, 1e-2)
+
+//pt_source=(-123.1, 49.2166666666)
+//pt_target=(-1863536.1421,       16536799.6090)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=( 446778.5824,        4868198.6309)
+
+//pt_source=(151.283333333, -33.916666666)
+//pt_target=(12761995.7679,      -51898991.5706)
+
+//pt_source=(-47.95,  -15.75)
+//pt_target=(-5664090.2726,       -2656961.6849)
+
+//pt_source=(139.733333333, 35.6833333333)
+//pt_target=(10709202.7967,       35498422.8616)
+
+test_tolerance=(10.0, 1e-1)
+pt_source=(18.45, -33.9166666666)
+pt_target=(1934662.0613,       -3862443.5840)
+
+
+cs_source=_WGS84_
+cs_target=_Tmerc3_
+test_tolerance=(1e-2, 1e-2)
+
+//pt_source=(-123.1, 49.2166666666)
+//pt_target=(5076741.2088,       13016760.9637)
+
+//pt_source=(2.33656753, 43.96499314)
+//pt_target=(982645.8596,       31573829.2872)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(606811.9106,         608458.3480)
+
+//pt_source=(-47.95,  -15.75)
+//pt_target=( 60000156.1174,      -75011942.9212)
+
+test_tolerance=(1.0, 1.0)
+pt_source=(139.733333333, 35.6833333333)
+pt_target=( -337860.8646,        7587531.0000)
+
+//pt_source=(18.45, -33.9166666666)
+//pt_target=(-10513068.6892,      -25266994.8562)
+
+////////////////////////////////////////////
+//Spherical  tests
+
+cs_source=_sphere_
+cs_target=_Tmerc4_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=(13789574.5387,        7382397.5079)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=( -3078047.1496,       29585391.1514)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(-5418312.9234,      -29587617.9880)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(13513964.5111,      -72890895.6259)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(-8635552.8787,       -3554945.9672)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(-8302359.9726,      -66747202.7054)
+
+
+cs_source=_sphere_
+cs_target=_Tmerc5_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=( -3619915.0181,       19945609.9069)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=(-213168.1101,       11713815.2013)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(3173530.0030,       -8862237.9436)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(-6471578.8363,        4032504.5688)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(4191980.4525,      21768824.9670)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(1245355.0800,        2967869.4896)
+
+
+cs_source=_sphere_
+cs_target=_Tmerc6_
+test_tolerance=(1e-2, 1e-2)
+
+pt_source=(-123.1, 49.2166666666)
+pt_target=( -3502534.6252,        -312621.9017)
+
+pt_source=(2.33656753, 43.96499314)
+pt_target=( 4302018.4925,        -324688.6686)
+
+pt_source=(151.283333333, -33.916666666)
+pt_target=(-2761747.7005,      -20164229.4262)
+
+pt_source=(-47.95,  -15.75)
+pt_target=(1413912.6201,       -8250773.3255)
+
+pt_source=(139.733333333, 35.6833333333)
+pt_target=(-1764893.7690,        6894266.7345)
+
+pt_source=(18.45, -33.9166666666)
+pt_target=(6363780.1590,      -14108128.9456)
+
+
+////////////////////////////////////////////
+//Tests for an OGC test case that fails
+
+//set _NAD27Idaho_=PROJCS["NAD27 / Idaho Central",GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4267"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",41.6666666666666],PARAMETER["central_meridian",-114],PARAMETER["scale_factor",0.999947368],PARAMETER["false_easting",152400.30480061],PARAMETER["false_northing",0],UNIT["US survey foot",0.304800609601219,AUTHORITY["EPSG","9003"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","26769"]]
+//set _NAD83Idaho_=PROJCS["NAD83 / Idaho  Central",GEOGCS["NAD83",DATUM["North_American_Datum_1983",SPHEROID["GRS 1980",6378137,298.257222101,AUTHORITY["EPSG","7019"]],TOWGS84[0,0,0,0,0,0,0],AUTHORITY["EPSG","6269"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4269"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",41.6666666666666],PARAMETER["central_meridian",-114],PARAMETER["scale_factor",0.999947368],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","26969"]]
+
+//the source CS with the FE in feet (assuming it is incorrectly given in meters in the original)
+//152400.30480061m == 500000.0 feet
+set _NAD27IdahoFeet_=PROJCS["NAD27 / Idaho Central",GEOGCS["NAD27",DATUM["North_American_Datum_1927",SPHEROID["Clarke 1866",6378206.4,294.978698213901,AUTHORITY["EPSG","7008"]],TOWGS84[-3,142,183,0,0,0,0],AUTHORITY["EPSG","6267"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["DMSH",0.0174532925199433,AUTHORITY["EPSG","9108"]],AXIS["Lat",NORTH],AXIS["Long",EAST],AUTHORITY["EPSG","4267"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",41.6666666666666],PARAMETER["central_meridian",-114],PARAMETER["scale_factor",0.999947368],PARAMETER["false_easting",500000.0],PARAMETER["false_northing",0],UNIT["US survey foot",0.304800609601219,AUTHORITY["EPSG","9003"]],AXIS["X",EAST],AXIS["Y",NORTH],AUTHORITY["EPSG","26769"]]
+
+cs_source=_NAD27Idaho_
+cs_target=_NAD83Idaho_
+test_tolerance=(1e-2, 1e-2)
+
+//the original test (fails)
+pt_source=(30000.0, 40000.0)
+pt_target=(356672.14701, 12183.56326)
+
+//the target as calculated with arcInfo (FE in source assumed to be correctly given as feet)
+pt_source=(30000.0, 40000.0)
+pt_target=( 462631.7604,   12177.9660)
+
+cs_source=_NAD27IdahoFeet_
+cs_target=_NAD83Idaho_
+
+//source FE assumed to be given in meters (target calculated with arcinfo)
+pt_source=(30000.0, 40000.0)
+pt_target=(356682.9969,  12177.9631)

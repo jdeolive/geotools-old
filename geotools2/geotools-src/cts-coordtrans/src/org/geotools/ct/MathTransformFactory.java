@@ -111,7 +111,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.24 2003/05/14 10:15:40 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.25 2003/05/31 21:31:14 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -178,7 +178,6 @@ public class MathTransformFactory {
                 new      StereographicProjection.Provider(),      // Stereographic
                 new      StereographicProjection.Provider(true),  // Polar_Stereographic
                 new      StereographicProjection.Provider(false), // Oblique_Stereographic
-                new TransverseMercatorProjection.Provider(),      // Transverse_Mercator
                 new          GeocentricTransform.Provider(false), // Ellipsoid_To_Geocentric
                 new          GeocentricTransform.Provider(true),  // Geocentric_To_Ellipsoid
                 new  AbridgedMolodenskiTransform.Provider(),      // Abridged_Molodenski
@@ -953,7 +952,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.24 2003/05/14 10:15:40 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.25 2003/05/31 21:31:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {
