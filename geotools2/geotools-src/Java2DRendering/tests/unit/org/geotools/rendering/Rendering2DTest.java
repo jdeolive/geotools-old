@@ -7,10 +7,10 @@
 
 package org.geotools.rendering;
 import org.geotools.renderer.*;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 import org.geotools.styling.*;
 import org.geotools.map.*;
 import java.util.*;
@@ -46,36 +46,52 @@ public class Rendering2DTest extends TestCase {
         
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
-        Feature lineFeature = new DefaultFeature();
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac);
-        lineFeature.setAttributes(new Object[]{line});
-        Feature polygonFeature = new DefaultFeature();
+        AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature"); 
+        Feature lineFeature = new FeatureFlat((FeatureTypeFlat) lineType, new Object[]{line});
         
-        polygonFeature.setAttributes(new Object[]{makeSamplePolygon(geomFac)});
+        Polygon polygon = makeSamplePolygon(geomFac);
+        
+        AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
+        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute); 
+        Feature polygonFeature = new FeatureFlat((FeatureTypeFlat) polygonType, new Object[]{polygon});
+    
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
         datasource.addFeature(polygonFeature);
         
-        FeatureTable ft = new DefaultFeatureTable(datasource);
+        FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
         org.geotools.map.Map map = new DefaultMap();
         
         //The following is complex, and should be built from
         //an SLD document and not by hand
-        LineSymbolizer linesym = new DefaultLineSymbolizer();
+        DefaultLineSymbolizer linesym = new DefaultLineSymbolizer();
+        DefaultStroke myStroke = new DefaultStroke();
+        myStroke.setColor("#0000ff");
+        myStroke.setWidth(5);
+        linesym.setStroke(myStroke);
+        
         DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
         DefaultFill myFill = new DefaultFill();
         myFill.setColor("#ff0000");
         polysym.setFill(myFill);
         DefaultRule rule = new DefaultRule();
-        rule.setSymbolizers(new Symbolizer[]{polysym,linesym});
+        rule.setSymbolizers(new Symbolizer[]{polysym});
         DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
         fts.setRules(new Rule[]{rule});
         
+        DefaultRule rule2 = new DefaultRule();
+        rule2.setSymbolizers(new Symbolizer[]{linesym});
+        DefaultFeatureTypeStyle fts2 = new DefaultFeatureTypeStyle();
+        fts2.setRules(new Rule[]{rule2});
+        fts2.setFeatureTypeName("linefeature");
+        
         DefaultStyle style = new DefaultStyle();
-        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
+        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2});
         
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
