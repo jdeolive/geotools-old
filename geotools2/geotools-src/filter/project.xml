@@ -14,13 +14,22 @@
   <description>Classes for reading OGC Filters which are encoded in their standard XML format.</description>
   
   <developers>
+   <developer>
+      <name>Chris Holmes</name>
+      <id>cholmesny</id>
+      <email>cholmesny@users.sourceforge.net</email>
+      <organization>TOPP</organization>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
     <developer>
       <name>Rob Hranac</name>
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
-      <organization>VFNY</organization>
+      <organization>TOPP</organization>
             <roles>
-                <role>Module Maintainer</role>
                 <role>Java Developer</role>
             </roles>
         </developer>
