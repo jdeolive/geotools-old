@@ -17,173 +17,191 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.wms.gtserver;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.logging.Logger;
-
-import org.geotools.shapefile.*;
-import org.geotools.shapefile.DbaseFileReader;
-import org.geotools.data.postgis.*;
-import org.geotools.map.*;
-import org.geotools.renderer.*;
-import org.geotools.styling.*;
-
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollectionDefault;
-import org.geotools.feature.FeatureCollection;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
+import java.io.*;
+
+import java.net.*;
+
+import java.util.*;
+import java.util.logging.Logger;
+
 import org.geotools.data.DataSource;
 import org.geotools.data.MemoryDataSource;
+import org.geotools.data.postgis.*;
+
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollectionDefault;
+
 import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
 import org.geotools.filter.GeometryFilter;
 
+import org.geotools.map.*;
+
+import org.geotools.renderer.*;
+
+import org.geotools.shapefile.*;
+import org.geotools.shapefile.DbaseFileReader;
+
+import org.geotools.styling.*;
+
 import org.geotools.wms.*;
 
+
 public class GtWmsServer implements WMSServer {
+    //org.geotools.map.Map map;
+    public static final String LAYERS_PROPERTY = "layersxml";
+    private static final Logger LOGGER = Logger.getLogger(
+                                                 "org.geotools.wmsserver");
+
     /** The LayerEntry objects - one for each entry in the layers.xml file */
     HashMap layerEntries = new HashMap();
     HashMap features = new HashMap();
     HashMap styles = new HashMap();
-    
     URL base;
-    
-    //org.geotools.map.Map map;
-    
-    public static final String LAYERS_PROPERTY = "layersxml";
-    
-    private static final Logger LOGGER = Logger.getLogger(
-    "org.geotools.wmsserver");
     Java2DRenderer renderer = new Java2DRenderer();
+
     public GtWmsServer() {
         //		loadLayers();
     }
-    
-    
-    
+
     /** Loads the layers from layers.xml. Currently support the following data sources:
-     * 	Shapefile (uk.ac.leeds.ccg.geotools.io.ShapefileReader).
+     *         Shapefile (uk.ac.leeds.ccg.geotools.io.ShapefileReader).
      */
     private void loadLayers(String filename) {
         LayerReader reader = new LayerReader();
-        
+
         try {
-            
-            if(base != null){
-                URL url = new URL(base,filename);
+            if (base != null) {
+                URL url = new URL(base, filename);
                 LOGGER.fine("loading " + url.toString());
                 layerEntries = reader.read(url.openStream());
+            } else {
+                LOGGER.fine("loading without base " + 
+                            new File(filename).toURL());
+                layerEntries = reader.read((new File(filename)).toURL()
+                                                               .openStream());
             }
-            else {
-                LOGGER.fine("loading without base " + new File(filename).toURL());
-                layerEntries = reader.read((new File(filename)).toURL().openStream());
-            }
+
             // For each one, create and load a theme
             Iterator loop = layerEntries.keySet().iterator();
-            while(loop.hasNext()){
-                LayerEntry entry = (LayerEntry)layerEntries.get((String) loop.next());
-                LOGGER.fine("Layer : "+entry.id);
-                
+
+            while (loop.hasNext()) {
+                LayerEntry entry = (LayerEntry) layerEntries.get(
+                                           (String) loop.next());
+                LOGGER.fine("Layer : " + entry.id);
+
                 // Get the type of datasource
                 if (entry.datasource.equalsIgnoreCase("Shapefile")) {
-                    File file = new File(entry.properties.getProperty("filename"));
+                    File file = new File(entry.properties.getProperty(
+                                                 "filename"));
                     URL url;
-                    if(base != null){
-                        url = new URL(base,file.toString());
-                    }
-                    else {
+
+                    if (base != null) {
+                        url = new URL(base, file.toString());
+                    } else {
                         url = file.toURL();
                     }
+
                     ShapefileDataSource sds = new ShapefileDataSource(url);
                     Envelope bbox = sds.getBbox(false);
-                    entry.bbox = new double[4]; 
-                    entry.bbox[0]=bbox.getMinX();
-                    entry.bbox[1]=bbox.getMinY();
-                    entry.bbox[2]=bbox.getMaxX();
-                    entry.bbox[3]=bbox.getMaxY();
-                    
+                    entry.bbox = new double[4];
+                    entry.bbox[0] = bbox.getMinX();
+                    entry.bbox[1] = bbox.getMinY();
+                    entry.bbox[2] = bbox.getMaxX();
+                    entry.bbox[3] = bbox.getMaxY();
+
                     MemoryDataSource cache = new MemoryDataSource();
-                    GeometryFilter filter = FilterFactory.createFilterFactory().createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-                    filter.addLeftGeometry(FilterFactory.createFilterFactory().createBBoxExpression(bbox));
+                    GeometryFilter filter = FilterFactory.createFilterFactory()
+                                                         .createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+                    filter.addLeftGeometry(FilterFactory.createFilterFactory()
+                                                        .createBBoxExpression(bbox));
+
                     FeatureCollection temp = sds.getFeatures(filter);
                     Feature[] list = temp.getFeatures();
-                    LOGGER.info("Caching " +list.length + " features for region " + bbox.getMinX() );
-                    for(int i = 0; i < list.length; i++){
+                    LOGGER.info("Caching " + list.length + 
+                                " features for region " + bbox.getMinX());
+
+                    for (int i = 0; i < list.length; i++) {
                         cache.addFeature(list[i]);
                     }
-                    
-                    Style style = new BasicPolygonStyle();//bad
-                    
-                    features.put(entry.id,cache);
-                    styles.put(entry.id,style);
+
+                    Style style = new BasicPolygonStyle(); //bad
+
+                    features.put(entry.id, cache);
+                    styles.put(entry.id, style);
                 }
-                
-                
-                
+
                 if (entry.datasource.equalsIgnoreCase("PostGIS")) {
                     LOGGER.fine("pulling proeprties");
+
                     String host = entry.properties.getProperty("host");
                     String user = entry.properties.getProperty("user");
                     String passwd = entry.properties.getProperty("passwd");
                     String port = entry.properties.getProperty("port");
                     String database = entry.properties.getProperty("database");
                     String table = entry.properties.getProperty("table");
-                    LOGGER.fine(host+" "+user+" "+passwd+" "+port+" "+database+" "+table);
-                    
-                    PostgisConnection db = new PostgisConnection(host,port,database);
+                    LOGGER.fine(host + " " + user + " " + passwd + " " + 
+                                port + " " + database + " " + table);
+
+                    PostgisConnection db = new PostgisConnection(host, port, 
+                                                                 database);
                     LOGGER.fine("created new db connection");
-                    db.setLogin(user,passwd);
+                    db.setLogin(user, passwd);
                     LOGGER.fine("set the login");
+
                     PostgisDataSource ds = new PostgisDataSource(db, table);
                     Envelope bbox = ds.getBbox(false);
-                    entry.bbox = new double[4]; 
-                    entry.bbox[0]=bbox.getMinX();
-                    entry.bbox[1]=bbox.getMinY();
-                    entry.bbox[2]=bbox.getMaxX();
-                    entry.bbox[3]=bbox.getMaxY();
-                    
-                    Style style = new BasicPolygonStyle();//bad
-                    
-                    features.put(entry.id,ds);
-                    styles.put(entry.id,style);
+                    entry.bbox = new double[4];
+                    entry.bbox[0] = bbox.getMinX();
+                    entry.bbox[1] = bbox.getMinY();
+                    entry.bbox[2] = bbox.getMaxX();
+                    entry.bbox[3] = bbox.getMaxY();
+
+                    Style style = new BasicPolygonStyle(); //bad
+
+                    features.put(entry.id, ds);
+                    styles.put(entry.id, style);
                 }
-                
             }
-        }
-        catch (Exception exp) {
-            LOGGER.severe("Exception loading layers "+exp.getClass().getName()+" : "+exp.getMessage());
+        } catch (Exception exp) {
+            LOGGER.severe("Exception loading layers " + 
+                          exp.getClass().getName() + " : " + 
+                          exp.getMessage());
         }
     }
-    
+
     /** Initialize this server
      */
     public void init(Properties properties) throws WMSException {
         // Load the layers from xml on the given path
         String filename = properties.getProperty(LAYERS_PROPERTY);
-        LOGGER.fine("Loading layers.xml from : "+filename);
+        LOGGER.fine("Loading layers.xml from : " + filename);
+
         String home = properties.getProperty("base.url");
-        try{
-            if(home != null){
+
+        try {
+            if (home != null) {
                 base = new File(home).toURL();
                 LOGGER.fine("base set to " + base);
             }
+        } catch (MalformedURLException mue) {
+            throw new WMSException("Initialization error", mue.toString());
         }
-        catch(MalformedURLException mue){
-            throw new WMSException("Initialization error",mue.toString());
-        }
+
         loadLayers(filename);
     }
-    
+
     /** Gets a map image
      * @param layers The Identifying names of the Layers to display. These Layers are assumed to be installed and ready on the server.
      * @param styles The styles to use for each Layer - one for one
@@ -195,101 +213,132 @@ public class GtWmsServer implements WMSServer {
      * @param bgcolor The background color of the map
      * @return A java.awt.Image object of the drawn map.
      */
-    public BufferedImage getMap(String [] layer, String [] style, String srs, double [] bbox, int width, int height, boolean transparent, Color bgcolor) throws WMSException {
+    public BufferedImage getMap(String[] layer, String[] style, String srs, 
+                                double[] bbox, int width, int height, 
+                                boolean transparent, Color bgcolor)
+                         throws WMSException {
         LOGGER.fine("layers : ");
-        for (int i=0;i<layer.length;i++)
+
+        for (int i = 0; i < layer.length; i++)
             LOGGER.fine(layer[i]);
+
         LOGGER.fine("available : ");
-        
+
         // Make sure the requested layers exist on this server
-        for (int i=0;i<layer.length;i++){
-            if (features.get(layer[i])==null)
-                throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED, "The Layer '"+layer[i]+"' does not exist on this server");
+        for (int i = 0; i < layer.length; i++) {
+            if (features.get(layer[i]) == null) {
+                throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED, 
+                                       "The Layer '" + layer[i] + 
+                                       "' does not exist on this server");
+            }
         }
+
         // Check the SRS
         //if (!srs.equalsIgnoreCase("EPSG:4326"))
         //    throw new WMSException(WMSException.WMSCODE_INVALIDSRS, "This server only supports EPSG:4326");
-        
-        
         try {
             LOGGER.fine("setting up map");
-            org.geotools.map.Map map = new DefaultMap();
-            for(int i = 0; i < layer.length; i++){
-                Style layerstyle;
-                LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
-                if (style != null && style[i] != ""){
-                    
-                    String sldpath = (String)layerdefn.styles.get(style[i]);
-                    if (sldpath==null)
-                            throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED, "The Style '"+style[i]+"' does not exist for " + layerdefn.id);
 
-                    //LOGGER.fine("looking for " + sldpath);
-                    File file = new File(sldpath);
-                    URL url;
-                    if(base != null){
-                        url = new URL(base,file.toString());
+            org.geotools.map.Map map = new DefaultMap();
+
+            for (int i = 0; i < layer.length; i++) {
+                Style layerstyle;
+                
+                LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
+
+                if ((style != null) && (style[i] != "")) {
+                    String sldpath = (String) layerdefn.styles.get(style[i]);
+
+                    if (sldpath == null) {
+                        throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED, 
+                                               "The Style '" + style[i] + 
+                                               "' does not exist for " + 
+                                               layerdefn.id);
                     }
-                    else {
-                        url = file.toURL();
-                    }
-                    LOGGER.fine("loading sld from " + url);
-                    StyleFactory factory = StyleFactory.createStyleFactory();
-                    SLDStyle stylereader = new SLDStyle(factory,url);
-                    layerstyle = stylereader.readXML();
-                    
-                    LOGGER.fine("sld loaded");
-                }
-                else{
-                    if(layerdefn.defaultStyle != null){
-                        String sldpath = (String)layerdefn.styles.get(layerdefn.defaultStyle);
-                        LOGGER.fine("looking for default:" + sldpath);
-                        
+                    layerstyle =  (Style)styles.get(sldpath);
+                    if(layerstyle == null){
+                        //LOGGER.fine("looking for " + sldpath);
                         File file = new File(sldpath);
                         URL url;
-                        if(base != null){
-                            url = new URL(base,file.toString());
-                        }
-                        else {
+
+                        if (base != null) {
+                            url = new URL(base, file.toString());
+                        } else {
                             url = file.toURL();
                         }
-                        //LOGGER.fine("loading sld from " + url);
-                        StyleFactory factory = StyleFactory.createStyleFactory();
-                        SLDStyle stylereader = new SLDStyle(factory,url);
-                        layerstyle = stylereader.readXML();
 
-                        //LOGGER.fine("sld loaded");
+                        LOGGER.fine("loading sld from " + url);
+
+                        StyleFactory factory = StyleFactory.createStyleFactory();
+                        SLDStyle stylereader = new SLDStyle(factory, url);
+                        layerstyle = stylereader.readXML();
+                        styles.put(sldpath, layerstyle);
+                        LOGGER.fine("sld loaded");
                     }
-                    else{
-                        layerstyle = (org.geotools.styling.Style)styles.get(layer[i]);
+                } else {
+                    if (layerdefn.defaultStyle != null) {
+                        String sldpath = (String) layerdefn.styles.get(
+                                                 layerdefn.defaultStyle);
+                        LOGGER.fine("looking for default:" + sldpath);
+                        layerstyle =  (Style)styles.get(sldpath);
+                        if(layerstyle == null){
+                            File file = new File(sldpath);
+                            URL url;
+
+                            if (base != null) {
+                                url = new URL(base, file.toString());
+                            } else {
+                                url = file.toURL();
+                            }
+
+                            //LOGGER.fine("loading sld from " + url);
+                            StyleFactory factory = StyleFactory.createStyleFactory();
+                            SLDStyle stylereader = new SLDStyle(factory, url);
+                            layerstyle = stylereader.readXML();
+                            styles.put(sldpath, layerstyle);
+                            //LOGGER.fine("sld loaded");
+                        }
+                    } else {
+                        layerstyle = (org.geotools.styling.Style) styles.get(
+                                             layer[i]);
                     }
                 }
+
                 LOGGER.fine("style object is a " + layerstyle);
-                DataSource ds = (DataSource)features.get(layer[i]);
+
+                DataSource ds = (DataSource) features.get(layer[i]);
                 FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-                map.addFeatureTable(fc,layerstyle);
+                map.addFeatureTable(fc, layerstyle);
             }
+
             LOGGER.fine("map setup");
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+
+            BufferedImage image = new BufferedImage(width, height, 
+                                                    BufferedImage.TYPE_INT_RGB);
+            Envelope env = new Envelope(bbox[0], bbox[2], bbox[1], bbox[3]);
             LOGGER.fine("setting up renderer");
-            
+
             java.awt.Graphics g = image.getGraphics();
             g.setColor(bgcolor);
-            if(!transparent){
-                g.fillRect(0,0,width,height);
+
+            if (!transparent) {
+                g.fillRect(0, 0, width, height);
             }
-            renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+
+            renderer.setOutput(image.getGraphics(), 
+                               new java.awt.Rectangle(width, height));
             LOGGER.fine("calling renderer");
             map.render(renderer, env);
             LOGGER.fine("returning image");
+
             return image;
-        }
-        catch(Exception exp) {
+        } catch (Exception exp) {
             exp.printStackTrace();
-            throw new WMSException(null, "Internal error : "+exp.getMessage());
+            throw new WMSException(null, "Internal error : " + 
+                                   exp.getMessage());
         }
     }
-    
+
     /** Gets the capabilites of this server as an XML-formatted string.
      * @param version The requested version of the Capabilities XML - used for version Negotiation. This verion of the Geotools server allows a version of it's own "GT 1.0", which sends back the capabilities string as text, not xml (for use with non XML-happy scripting languages like php).
      * @return The capabilites of this server. The string must conform to the OGC WMS spec at http://www.digitalearth.gov/wmt/xml/capabilities_1_1_1.dtd
@@ -297,29 +346,34 @@ public class GtWmsServer implements WMSServer {
     public Capabilities getCapabilities() throws WMSException {
         try {
             Capabilities cap = new Capabilities();
-            
+
             // Add the layers to the capabilities object
             Iterator layers = layerEntries.keySet().iterator();
+
             while (layers.hasNext()) {
                 LayerEntry layer = (LayerEntry) layerEntries.get(layers.next());
                 cap.addLayer(layer.id, layer.description, layer.srs, layer.bbox);
-                if (layer.styles != null){
+
+                if (layer.styles != null) {
                     Iterator loop = layer.styles.keySet().iterator();
-                    while (loop.hasNext()){
-                        String styleid = (String)loop.next();
+
+                    while (loop.hasNext()) {
+                        String styleid = (String) loop.next();
                         cap.addStyle(layer.id, styleid, styleid, null);
                     }
                 }
             }
+
             cap.setSupportsGetFeatureInfo(true);
+
             // Send result back to server
             return cap;
-        }
-        catch(Exception exp) {
-            throw new WMSException(null, "Internal error : "+exp.getMessage());
+        } catch (Exception exp) {
+            throw new WMSException(null, "Internal error : " + 
+                                   exp.getMessage());
         }
     }
-    
+
     /** Gets the Feature info for given Layers. The first 5 parameters are the same as those in the call to getMap. Feature Info can only be returned for
      * those layers for which the attribute queryable=1
      * @param layers The Identifying names of the Layers to display. These Layers are assumed to be installed and ready on the server.
@@ -331,47 +385,52 @@ public class GtWmsServer implements WMSServer {
      * @param x A point of interest around which the request is centered - based on the returned bounding box (in transformed pixels) given to bbox.
      * @return An array of Feature objects.
      */
-    public Feature [] getFeatureInfo(String [] layer, String srs, double [] bbox, int width, int height, int featureCount, int x, int y) throws WMSException {
+    public Feature[] getFeatureInfo(String[] layer, String srs, double[] bbox, 
+                                    int width, int height, int featureCount, 
+                                    int x, int y) throws WMSException {
         // throw new WMSException(null, "getFeatureInfo not supported");
         try {
             LOGGER.fine("setting up map");
+
             org.geotools.map.Map map = new DefaultMap();
-            for(int i = 0; i < layer.length; i++){
-                
-                
-                DataSource ds = (DataSource)features.get(layer[i]);
-                
-                
+
+            for (int i = 0; i < layer.length; i++) {
+                DataSource ds = (DataSource) features.get(layer[i]);
+
                 LOGGER.fine("map setup");
-                BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-                Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+
+                BufferedImage image = new BufferedImage(width, height, 
+                                                        BufferedImage.TYPE_INT_RGB);
+                Envelope env = new Envelope(bbox[0], bbox[2], bbox[1], bbox[3]);
                 LOGGER.fine("setting up renderer");
+
                 Java2DRenderer renderer = new Java2DRenderer();
-                
-                renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+
+                renderer.setOutput(image.getGraphics(), 
+                                   new java.awt.Rectangle(width, height));
                 LOGGER.fine("inverting coordinate");
-                Coordinate c = renderer.pixelToWorld(x,y,env);
-               
+
+                Coordinate c = renderer.pixelToWorld(x, y, env);
+
                 FilterFactory filterFac = FilterFactory.createFilterFactory();
-                GeometryFilter filter = filterFac.createGeometryFilter(AbstractFilter.GEOMETRY_WITHIN);
+                GeometryFilter filter = filterFac.createGeometryFilter(
+                                                AbstractFilter.GEOMETRY_WITHIN);
                 GeometryFactory geomFac = new GeometryFactory();
 
-                filter.addLeftGeometry(filterFac.createLiteralExpression(geomFac.createPoint(c)));
+                filter.addLeftGeometry(filterFac.createLiteralExpression(
+                                               geomFac.createPoint(c)));
+
                 FeatureCollection fc = ds.getFeatures(filter);
                 Feature[] features = fc.getFeatures();
+
                 return features;
             }
-            
+
             return null;
-        }
-        catch(Exception exp) {
+        } catch (Exception exp) {
             exp.printStackTrace();
-            throw new WMSException(null, "Internal error : "+exp.getMessage());
+            throw new WMSException(null, "Internal error : " + 
+                                   exp.getMessage());
         }
-        
     }
-    
-    
 }
-
-
