@@ -18,7 +18,8 @@
         
         
         
-        <links>
+        
+        <links><item name="geotools.org" href="http://www.geotools.org"></item>
       <item name="core" href="/../core"></item>
       <item name="defaultcore" href="/../defaultcore"></item>
       <item name="shapefile" href="/../shapefile"></item>
@@ -27,6 +28,10 @@
             <item name="algorithms" href="/../algorithms"></item>
             <item name="postgis" href="/../postgis"></item>
             <item name="gui" href="/../gui"></item>
+            <item name="filter" href="/../filter">
+                
+            </item>
+            
         </links>
     </body>
 </project>
