@@ -110,7 +110,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * then a subclass could override {@link #get(String,Object)} in order to translate
  * on the fly <code>"Projection"</code> key name into <code>"Projection Name"</code>.
  *
- * @version $Id: PropertyParser.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -765,17 +765,6 @@ public class PropertyParser {
      */
     public SampleDimension[] getSampleDimensions() {
         return null;
-    }
-    
-    /**
-     * Tells if pixel values map directly geophysics values. This method
-     * returns <code>true</code> if pixel values map directly geophysics
-     * values, or <code>false</code> if they must be translated first
-     * using {@link SampleDimension}. The default implementation returns
-     * <code>true</code>.
-     */
-    public boolean isGeophysics() {
-        return true;
     }
     
     /**

@@ -90,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version $Id: GridCoverageReader.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
+ * @version $Id: GridCoverageReader.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
@@ -378,25 +378,6 @@ public abstract class GridCoverageReader {
     }
     
     /**
-     * Tells if pixel values map directly geophysics values. This method
-     * Returns <code>true</code> if pixel values map directly geophysics
-     * values, or <code>false</code> if they must be translated first
-     * using {@link SampleDimension}. The default implementation returns
-     * <code>true</code>.
-     *
-     * @param  index The index of the image to be queried.
-     * @return <code>true</code> if pixel values map directly geophysics values.
-     * @throws IllegalStateException if the input source has not been set.
-     * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
-     * @throws IOException if an error occurs reading the width information from
-     *         the input source.
-     */
-    public synchronized boolean isGeophysics(final int index) throws IOException {
-        checkImageIndex(index);
-        return true;
-    }
-    
-    /**
      * Read the grid coverage. The default implementation gets the
      * default {@link ImageReadParam} and checks if it is an instance of
      * {@link RawBinaryImageReadParam}. If it is, this method then invokes
@@ -425,9 +406,8 @@ public abstract class GridCoverageReader {
         final Envelope    envelope = getEnvelope(index);
         final CoordinateSystem  cs = getCoordinateSystem(index);
         final SampleDimension[] sd = getSampleDimensions(index);
-        final boolean isGeophysics = isGeophysics(index);
         final RenderedImage  image = reader.readAsRenderedImage(index, param);
-        return new GridCoverage(name, image, cs, envelope, sd, isGeophysics, null, null);
+        return new GridCoverage(name, image, cs, envelope, sd, null, null);
     }
     
     /**

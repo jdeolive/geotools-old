@@ -67,7 +67,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * object, while the pixel values are read by a {@link ImageReader}
  * object.
  *
- * @version $Id: ExoreferencedGridCoverageReader.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
+ * @version $Id: ExoreferencedGridCoverageReader.java,v 1.3 2002/07/28 19:25:09 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExoreferencedGridCoverageReader extends GridCoverageReader {
@@ -284,30 +284,6 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
         checkImageIndex(index);
         try {
             return properties.getSampleDimensions();
-        } catch (RuntimeException exception) {
-            // RuntimeException includes many potential
-            // errors due to badly formatted input file.
-            // Failing to parse the properties is really
-            // a checked exception.
-            throw new IIOException(getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY), exception);
-        }
-    }
-    
-    /**
-     * Tells if pixel values map directly geophysics values. The default implementation
-     * invokes <code>{@link #properties}.{@link PropertyParser#isGeophysics() isGeophysics()}</code>.
-     *
-     * @param  index The index of the image to be queried.
-     * @return <code>true</code> if pixel values map directly geophysics values.
-     * @throws IllegalStateException if the input source has not been set.
-     * @throws IndexOutOfBoundsException if the supplied index is out of bounds.
-     * @throws IOException if an error occurs reading the width information from
-     *         the input source.
-     */
-    public synchronized boolean isGeophysics(final int index) throws IOException {
-        checkImageIndex(index);
-        try {
-            return properties.isGeophysics();
         } catch (RuntimeException exception) {
             // RuntimeException includes many potential
             // errors due to badly formatted input file.
