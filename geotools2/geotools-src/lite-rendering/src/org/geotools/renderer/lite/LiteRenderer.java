@@ -113,7 +113,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.17 2003/07/28 05:46:27 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.18 2003/08/02 14:52:35 jmacgill Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -1567,7 +1567,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 LOGGER.finer("applying fill to mark");
             }
 
-            applyFill(graphic, mark.getFill(), null);
+            applyFill(graphic, mark.getFill(), feature);
             graphic.fill(shape);
         }
 
