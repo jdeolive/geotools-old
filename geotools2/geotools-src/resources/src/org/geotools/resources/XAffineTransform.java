@@ -333,6 +333,16 @@ public abstract class XAffineTransform extends AffineTransform {
     }
 
     /**
+     * Returns a global scale factor for the specified affine transform.
+     * This scale factor will combines {@link #getScaleX0} and {@link #getScaleY0}.
+     * The way to compute such a "global" scale is somewhat arbitrary and may change
+     * in a future version.
+     */
+    public static double getScale(final AffineTransform zoom) {
+        return 0.5 * (getScaleX0(zoom) + getScaleY0(zoom));
+    }
+
+    /**
      * Returns an affine transform representing a zoom carried out around a
      * central point (<var>x</var>,<var>y</var>). The transforms will leave
      * the specified (<var>x</var>,<var>y</var>) coordinate unchanged.
