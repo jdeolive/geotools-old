@@ -14,6 +14,7 @@ import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Color;
 import java.io.Writer;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.IOException;
 import org.apache.batik.svggen.SVGGraphics2D;
@@ -37,7 +38,7 @@ public class GenerateSVG {
     public GenerateSVG() {
     }
     
-    public void go(Map map){
+    public void go(Map map,OutputStream out) throws IOException{
         // Get a DOMImplementation
         DOMImplementation domImpl =
         GenericDOMImplementation.getDOMImplementation();
@@ -59,6 +60,7 @@ public class GenerateSVG {
         
         map.render(renderer,new Envelope(0,0,100,100));
         
+        g2d.stream(new OutputStreamWriter(out));
         
     }
     
