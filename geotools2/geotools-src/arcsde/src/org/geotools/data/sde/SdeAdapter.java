@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * from geotool's Query's, mapping SDE types to Java ones and JTS Geometries, etc.
  *
  * @author Gabriel Roldán
- * @version $Id: SdeAdapter.java,v 1.8 2003/11/17 17:12:41 groldan Exp $
+ * @version $Id: SdeAdapter.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
  */
 public class SdeAdapter
 {
@@ -399,7 +399,7 @@ public class SdeAdapter
             }
             catch (SQLEncoderException sqle)
             {
-                String message = "Encoder error" + sqle.getMessage();
+                String message = "Geometry encoder error: " + sqle.getMessage();
                 LOGGER.warning(message);
                 throw new DataSourceException(message, sqle);
             }
@@ -602,7 +602,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  */
 class SdeTypeDef
 {

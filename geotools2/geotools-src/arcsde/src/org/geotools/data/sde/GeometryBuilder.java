@@ -71,7 +71,7 @@ import java.util.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 public abstract class GeometryBuilder
 {
@@ -92,12 +92,12 @@ public abstract class GeometryBuilder
         builders.put(Polygon.class, PolygonBuilder.class);
         builders.put(MultiPolygon.class, MultiPolygonBuilder.class);
 
-        nullGeometries.put(Point.class, PointBuilder.getEmpty());
-        nullGeometries.put(MultiPoint.class, MultiPointBuilder.getEmpty());
-        nullGeometries.put(LineString.class, LineStringBuilder.getEmpty());
-        nullGeometries.put(MultiLineString.class, MultiLineStringBuilder.getEmpty());
-        nullGeometries.put(Polygon.class, PolygonBuilder.getEmpty());
-        nullGeometries.put(MultiPolygon.class, MultiPolygonBuilder.getEmpty());
+        nullGeometries.put(Point.class, new PointBuilder().getEmpty());
+        nullGeometries.put(MultiPoint.class, new MultiPointBuilder().getEmpty());
+        nullGeometries.put(LineString.class, new LineStringBuilder().getEmpty());
+        nullGeometries.put(MultiLineString.class, new MultiLineStringBuilder().getEmpty());
+        nullGeometries.put(Polygon.class, new PolygonBuilder().getEmpty());
+        nullGeometries.put(MultiPolygon.class, new MultiPolygonBuilder().getEmpty());
     }
 
     /** JTS geometry factory subclasses use to map SeShapes to JTS ones */
@@ -146,14 +146,18 @@ public abstract class GeometryBuilder
      *
      * @throws GeometryBuildingException DOCUMENT ME!
      */
-    public SeShape construct(Geometry geometry, SeCoordinateReference seSrs)
+    public SeShape constructShape(Geometry geometry, SeCoordinateReference seSrs)
         throws GeometryBuildingException
     {
         try
         {
             SeShape shape = new SeShape(seSrs);
+            //SeShape shape = new SeShape();
 
-            generateShape(geometry, shape);
+            if(!geometry.isEmpty())
+            {
+              generateShape(geometry, shape);
+            }
 
             return shape;
         }
@@ -308,7 +312,7 @@ public abstract class GeometryBuilder
      *
      * @return an empty JTS geometry
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
       throw new UnsupportedOperationException(
         "this method sholdn't be called directly, it's intended pourpose" +
@@ -427,7 +431,7 @@ public abstract class GeometryBuilder
  * <code>Point</code>s from <code>SeShape</code> points and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class PointBuilder extends GeometryBuilder
 {
@@ -439,7 +443,7 @@ class PointBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -485,6 +489,7 @@ class PointBuilder extends GeometryBuilder
         SDEPoint[] sdePoint = new SDEPoint[1];
         sdePoint[0] = new SDEPoint(pointArg.getX(), pointArg.getY());
         dest.generatePoint(1, sdePoint);
+        dest = dest.asPoint();
     }
 }
 
@@ -495,7 +500,7 @@ class PointBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class MultiPointBuilder extends GeometryBuilder
 {
@@ -507,7 +512,7 @@ class MultiPointBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -581,19 +586,22 @@ class MultiPointBuilder extends GeometryBuilder
  * <code>LineString</code>s from <code>SeShape</code> linestring and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class LineStringBuilder extends GeometryBuilder
 {
     /** the empty linestring singleton */
     private static Geometry EMPTY;
 
+    private static int numParts = 1; //it's allways 1 for geoms other than multipolygons
+
+    private static int[] partOffsets = { 0 };
     /**
      * DOCUMENT ME!
      *
      * @return DOCUMENT ME!
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -654,10 +662,6 @@ class LineStringBuilder extends GeometryBuilder
 
         int numPoints = sdePoints.length;
 
-        int numParts = 1; //it's allways 1 for geoms other than multipolygons
-
-        int[] partOffsets = { 0 };
-
         dest.generateLine(numPoints, numParts, partOffsets, sdePoints);
     }
 }
@@ -669,7 +673,7 @@ class LineStringBuilder extends GeometryBuilder
  * and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class MultiLineStringBuilder extends LineStringBuilder
 {
@@ -681,7 +685,7 @@ class MultiLineStringBuilder extends LineStringBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -718,6 +722,46 @@ class MultiLineStringBuilder extends LineStringBuilder
 
         return mls;
     }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param geometry DOCUMENT ME!
+     * @param dest DOCUMENT ME!
+     *
+     * @throws SeException DOCUMENT ME!
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    protected void generateShape(Geometry geometry, SeShape dest)
+        throws SeException
+    {
+        if (!(geometry instanceof MultiLineString))
+        {
+            throw new IllegalArgumentException("argument mus be a LineString");
+        }
+
+        MultiLineString mlineString = (MultiLineString) geometry;
+        LineString lineString;
+        int numParts = 1; //it's allways 1 for geoms other than multipolygons
+        int numSubparts = mlineString.getNumGeometries();
+        int[] partOffsets = new int[numSubparts];
+        List allPoints = new LinkedList();
+        int numPoints = 0;
+        SDEPoint[] sdePoints = null;
+        for(int i = 0; i < numSubparts; i++)
+        {
+          lineString = (LineString)mlineString.getGeometryN(i);
+          sdePoints = toPointsArray(lineString.getCoordinates());
+          numPoints += sdePoints.length;
+          partOffsets[i] = allPoints.size();
+          allPoints.addAll(Arrays.asList(sdePoints));
+        }
+
+        sdePoints = new SDEPoint[numPoints];
+        sdePoints = (SDEPoint[])allPoints.toArray(sdePoints);
+
+        dest.generateLine(numPoints, numParts, partOffsets, sdePoints);
+    }
 }
 
 
@@ -726,7 +770,7 @@ class MultiLineStringBuilder extends LineStringBuilder
  * <code>Polygon</code>s from <code>SeShape</code> polygon and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class PolygonBuilder extends GeometryBuilder
 {
@@ -738,7 +782,7 @@ class PolygonBuilder extends GeometryBuilder
      *
      * @return DOCUMENT ME!
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -867,7 +911,7 @@ class PolygonBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.5 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
  */
 class MultiPolygonBuilder extends PolygonBuilder
 {
@@ -879,7 +923,7 @@ class MultiPolygonBuilder extends PolygonBuilder
      *
      * @return an empty multipolygon
      */
-    protected static Geometry getEmpty()
+    protected Geometry getEmpty()
     {
         if (EMPTY == null)
         {
@@ -917,9 +961,9 @@ class MultiPolygonBuilder extends PolygonBuilder
             {
                 polys[i] = buildPolygon(coords[i]);
             }
-            catch (Exception ex1)
+            catch (Exception ex)
             {
-                ex1.printStackTrace();
+                throw new DataSourceException(ex.getMessage(), ex);
             }
         }
 

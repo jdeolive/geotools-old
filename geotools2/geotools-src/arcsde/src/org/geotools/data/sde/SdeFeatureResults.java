@@ -29,7 +29,7 @@ import java.util.*;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeFeatureResults.java,v 1.8 2003/11/17 17:12:41 groldan Exp $
+ * @version $Id: SdeFeatureResults.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
  */
 public class SdeFeatureResults implements FeatureResults
 {
@@ -141,6 +141,20 @@ public class SdeFeatureResults implements FeatureResults
      */
     public Envelope getBounds() throws IOException
     {
+        if(resultBounds == null)
+        {
+          SDEQuery sdeQuery = null;
+          try {
+            sdeQuery = source.createSeQuery(query);
+            resultBounds = sdeQuery.calculateLayerExtent();
+          }
+          catch (DataSourceException ex) {
+            throw ex;
+          }finally{
+            if(sdeQuery != null)
+              sdeQuery.close();
+          }
+        }
         return resultBounds;
     }
 

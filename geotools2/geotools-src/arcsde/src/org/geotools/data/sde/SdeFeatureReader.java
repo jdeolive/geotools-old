@@ -27,9 +27,9 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author not attributable
- * @version $Id: SdeFeatureReader.java,v 1.8 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: SdeFeatureReader.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
  */
-public class SdeFeatureReader implements org.geotools.data.FeatureReader
+public class SdeFeatureReader implements FeatureReader
 {
     /** DOCUMENT ME! */
     private static final Logger LOGGER = Logger.getLogger(
@@ -146,6 +146,8 @@ public class SdeFeatureReader implements org.geotools.data.FeatureReader
      */
     public boolean hasNext() throws java.io.IOException
     {
+        if(stream == null)
+          close();
         return stream != null;
     }
 

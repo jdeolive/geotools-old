@@ -34,7 +34,7 @@ import java.util.logging.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPool.java,v 1.8 2003/11/16 12:40:18 groldan Exp $
+ * @version $Id: SdeConnectionPool.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
  *
  * @task TODO: make it read a properties file to get connection pool
  *       information, such as min/max connections, expire time, etc.
@@ -292,7 +292,7 @@ public class SdeConnectionPool {
 
         SeConnection conn = (SeConnection) availableConnections.removeFirst();
         usedConnections.add(conn);
-        LOGGER.finer(conn + " now in use");
+        LOGGER.fine(conn + " now in use");
 
         return conn;
     }
@@ -443,6 +443,12 @@ public class SdeConnectionPool {
 
             try {
                 databaseLayers = sdeConn.getLayers();
+                /*
+                for(Iterator it = databaseLayers.iterator(); it.hasNext();)
+                {
+                  System.out.println(((SeLayer)it.next()).getCoordRef().getCoordSysDescription());
+                }
+                */
             } catch (SeException ex) {
                 throw new DataSourceException("Error getting table list:"
                     + ex.getMessage(), ex);
