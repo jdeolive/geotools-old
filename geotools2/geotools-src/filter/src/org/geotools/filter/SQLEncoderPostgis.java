@@ -37,7 +37,7 @@ public class SQLEncoderPostgis extends SQLEncoder
      * The filters that this encoder can processed.
      * (Note this value shadows private capabilities in superclass)
      */
-    private static FilterCapabilities capabilities = new FilterCapabilities();
+    private FilterCapabilities capabilities = new FilterCapabilities();
 
     /** Standard java logger */
     private static Logger log = Logger.getLogger("org.geotools.filter");
@@ -46,8 +46,24 @@ public class SQLEncoderPostgis extends SQLEncoder
     private static WKTWriter wkt = new WKTWriter();
 
     
-    static {
-        capabilities.addType(AbstractFilter.LOGIC_OR);
+    /**
+     * The srid of the schema, so the bbox conforms.  Could be better to have
+     * it in the bbox filter itself, but this works for now.
+     */
+    private int srid;
+
+    /** The geometry attribute to use if none is specified. */
+    private String defaultGeom;
+
+    private boolean useGeos;
+
+    /**
+     * Empty constructor TODO: rethink empty constructor, as BBOXes _need_ an
+     * SRID, must make client set it somehow.  Maybe detect when encode is
+     * called? 
+     */
+    public SQLEncoderPostgis() {
+	    capabilities.addType(AbstractFilter.LOGIC_OR);
         capabilities.addType(AbstractFilter.LOGIC_AND);
         capabilities.addType(AbstractFilter.LOGIC_NOT);
         capabilities.addType(AbstractFilter.COMPARE_EQUALS);
@@ -60,26 +76,17 @@ public class SQLEncoderPostgis extends SQLEncoder
         capabilities.addType(AbstractFilter.BETWEEN);
         capabilities.addType((short) 12345);
         capabilities.addType((short) -12345);        
-        capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
+	capabilities.addType(AbstractFilter.GEOMETRY_BBOX);
+
     }
 
-    /**
-     * The srid of the schema, so the bbox conforms.  Could be better to have
-     * it in the bbox filter itself, but this works for now.
-     */
-    private int srid;
-
-    /** The geometry attribute to use if none is specified. */
-    private String defaultGeom;
-
-    /**
-     * Empty constructor TODO: rethink empty constructor, as BBOXes _need_ an
-     * SRID, must make client set it somehow.  Maybe detect when encode is
-     * called?
-     */
-    public SQLEncoderPostgis() {
+    public SQLEncoderPostgis(boolean looseBbox) {
+	this();
+	if (!looseBbox) {
+	    this.useGeos = true;
+	}
     }
-
+	    
     /**
      * Capabilities of this encoder.
      * 
@@ -96,7 +103,8 @@ public class SQLEncoderPostgis extends SQLEncoder
      * @param srid spatial reference id to encode geometries with.
      */
     public SQLEncoderPostgis(int srid) {
-        this.srid = srid;
+	this(true);
+	this.srid = srid;
     }
 
     /**
@@ -142,21 +150,31 @@ public class SQLEncoderPostgis extends SQLEncoder
             DefaultExpression right = (DefaultExpression) filter
                 .getRightGeometry();
 
-            try {
-                if (left == null) {
-                    out.write("\"" + defaultGeom + "\"");
-                } else {
-                    left.accept(this);
-                }
+	    try {	    
+		if (useGeos) {
+		    out.write("NOT disjoint(");
+		}
+		if (left == null) {
+		    out.write("\"" + defaultGeom + "\"");
+		} else {
+		    left.accept(this);
+		}
+		
+		if (useGeos) {
+		    out.write(", ");
+		} else {
+		    out.write(" && ");
+		}		    
+		if (right == null) {
+		    out.write("\"" + defaultGeom + "\"");
+		} else {
+		    right.accept(this);
+		}
+		if (useGeos) {
+		    out.write(")");
+		}
 
-                out.write(" && ");
-
-                if (right == null) {
-                    out.write("\"" + defaultGeom + "\"");
-                } else {
-                    right.accept(this);
-                }
-            } catch (java.io.IOException ioe) {
+	    } catch (java.io.IOException ioe) {
                 log.warning("Unable to export filter" + ioe);
                 throw new RuntimeException("io error while writing", ioe);
             }
