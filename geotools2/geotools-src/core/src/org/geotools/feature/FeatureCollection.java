@@ -25,7 +25,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSource;
 
 /**
- * @version $Id: FeatureCollection.java,v 1.5 2002/07/19 16:33:12 jmacgill Exp $
+ * @version $Id: FeatureCollection.java,v 1.6 2002/08/01 21:56:44 camerons Exp $
  * @author  Ian Turton, CCG<br>
  * @author  Rob Hranac, VFNY
  */
@@ -35,21 +35,21 @@ public interface FeatureCollection {
      * Managing data source and extents.
      * ***********************************************************************/
     /** 
-     * Gets the DataSource being used by this FeatureTable.
+     * Gets the DataSource being used by this FeatureCollection.
      * 
      * @param data The datasource for this feature collection to mediate.
      */
     void setDataSource(DataSource data);
 
     /** 
-     * Gets the DataSource being used by this FeatureTable.
+     * Gets the DataSource being used by this FeatureCollection.
      * 
      * @return Datasource used by this feature collection.
      */
     DataSource getDataSource();
 
     /** 
-     * Gets the loaded Extent of this FeatureTable.
+     * Gets the loaded Extent of this FeatureCollection.
      * The Extent of current loaded Features in this table.
      *
      * @param extent The datasource for this feature collection to mediate.
@@ -57,7 +57,7 @@ public interface FeatureCollection {
     void setExtent(Extent extent);
 
     /** 
-     * Gets the loaded Extent of this FeatureTable.
+     * Gets the loaded Extent of this FeatureCollection.
      * The Extent of current loaded Features in this table.
      *
      * @return Datasource used by this feature collection.
@@ -108,7 +108,7 @@ public interface FeatureCollection {
     void removeFeatures(Extent extent);
 
     /** 
-     * Adds the given List of Features to this FeatureTable.
+     * Adds the given List of Features to this FeatureCollection.
      *
      * @param features The List of Features to add
      */
