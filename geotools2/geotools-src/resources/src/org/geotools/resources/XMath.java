@@ -206,4 +206,84 @@ public final class XMath
         if (x<0) return (byte) -1;
         else     return (byte)  0;
     }
+
+    /**
+     * Finds the least float greater than d (if positive == true),
+     * or the greatest float less than d (if positive == false).
+     * If NaN, returns same value. This code is an adaptation of
+     * {@link java.text.ChoiceFormat#nextDouble}.
+     */
+    private static float next(final float f, final boolean positive)
+    {
+        final int SIGN             = 0x80000000;
+        final int POSITIVEINFINITY = 0x7F800000;
+
+        // Filter out NaN's
+        if (Float.isNaN(f)) {
+            return f;
+        }
+
+        // Zero's are also a special case
+        if (f == 0f) {
+            final float smallestPositiveFloat = Float.intBitsToFloat(1);
+            return (positive) ? smallestPositiveFloat : -smallestPositiveFloat;
+        }
+
+        // If entering here, d is a nonzero value.
+        // Hold all bits in a int for later use.
+        final int bits = Float.floatToIntBits(f);
+
+        // Strip off the sign bit.
+        int magnitude = bits & ~SIGN;
+
+        // If next float away from zero, increase magnitude.
+        // Else decrease magnitude
+        if ((bits > 0) == positive) {
+            if (magnitude != POSITIVEINFINITY) {
+                magnitude++;
+            }
+        } else {
+            magnitude--;
+        }
+
+        // Restore sign bit and return.
+        final int signbit = bits & SIGN;
+        return Float.intBitsToFloat(magnitude | signbit);
+    }
+
+    /**
+     * Finds the least float greater than <var>f</var>.
+     * If <code>NaN</code>, returns same value.
+     */
+    public static float next(final float f) {
+        return next(f, true);
+    }
+
+    /**
+     * Finds the greatest float less than <var>f</var>.
+     * If <code>NaN</code>, returns same value.
+     */
+    public static float previous(final float f) {
+        return next(f, false);
+    }
+
+    /**
+     * Finds the least double greater than <var>f</var>.
+     * If <code>NaN</code>, returns same value.
+     *
+     * @see java.text.ChoiceFormat#nextDouble
+     */
+    public static double next(final double f) {
+        return ChoiceFormat.nextDouble(f);
+    }
+
+    /**
+     * Finds the greatest double less than <var>f</var>.
+     * If <code>NaN</code>, returns same value.
+     *
+     * @see java.text.ChoiceFormat#previousDouble
+     */
+    public static double previous(final double f) {
+        return ChoiceFormat.previousDouble(f);
+    }
 }
