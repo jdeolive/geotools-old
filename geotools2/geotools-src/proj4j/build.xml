@@ -11,14 +11,19 @@
         <javac debug="true" srcdir="tests/unit">
             <classpath>
                 <path path="src"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
             </classpath>
         </javac>
     </target>
     <target depends="compile" name="test">
-        <echo message="base dir is ${basedir}"/>
-        <junit fork="true" printsummary="true">
-            <test name="org.geotools.proj4j.ParamSetTest"/>
-            <test name="org.geotools.proj4j.GeocentricTest"/>
+        <junit fork="false" printsummary="true">
+        <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <path path="src/"/>
+                <path path="tests/unit/"/>
+            </classpath>
+            <test name="org.geotools.proj4j.Proj4jSuite"/>
         </junit>
     </target>
 </project>
