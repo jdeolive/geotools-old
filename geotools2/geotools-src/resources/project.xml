@@ -44,6 +44,12 @@
         </developer>
   </developers>
   <dependencies>
+  <dependency>
+      <id>junit</id>
+      <version>3.7</version>
+      <type>test</type>
+      <url>http://junit.org/</url>
+    </dependency>
   </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
