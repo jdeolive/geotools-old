@@ -61,7 +61,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.8 2003/11/23 05:06:15 jive Exp $
+ * @version $Id: PostgisDataStore.java,v 1.9 2003/11/24 03:07:09 jive Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -415,8 +415,17 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         AttributeType[] types = featureSchema.getAttributeTypes();
 
+        if(ftInfo.getFidColumnName() != null){
+            sql.append('"');
+            sql.append( ftInfo.getFidColumnName() );
+            sql.append('"');            
+            sql.append(", ");
+        }
+
         for (int i = 0; i < types.length; i++) {
-            sql.append("\"" + types[i].getName() + "\"");
+            sql.append('"');
+            sql.append( types[i].getName() );
+            sql.append('"');
             sql.append((i < (types.length - 1)) ? ", " : ") ");
         }
 
@@ -424,6 +433,33 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
         Object[] attributes = feature.getAttributes(null);
 
+        if(ftInfo.getFidColumnName() != null){
+            String fid = feature.getID();
+            int split = fid.indexOf('.');
+            if( split != -1 && fid.substring(0,split).equals( tableName )){
+                fid = fid.substring( split+1);
+            }
+            char ch = fid.charAt(0);
+            
+            if( Character.isLetter(ch) || ch == '_'){
+                sql.append("'");
+                sql.append( fid );
+                sql.append("'");     
+            }
+            else if (Character.isDigit( ch )){
+                try {
+                    long number = Long.parseLong( fid );
+                    sql.append( number );                    
+                }
+                catch( NumberFormatException badNumber ){
+                    sql.append( fid );                      
+                }
+            }
+            else {
+                sql.append( fid );                                
+            }
+            sql.append(", ");
+        }        
         for (int j = 0; j < attributes.length; j++) {
             if (types[j].isGeometry()) {
                 String geomName = types[j].getName();
@@ -500,6 +536,7 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
 
                 String sql = makeInsertSql(current,
                         queryData.getFeatureTypeInfo());
+                LOGGER.info( sql );                        
                 statement.executeUpdate(sql);
 
                 //} catch (IllegalAttributeException e) {
