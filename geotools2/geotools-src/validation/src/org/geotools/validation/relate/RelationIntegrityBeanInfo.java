@@ -31,7 +31,7 @@ import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
  * @author bowens
  *
  */
-public class RelationIntegrityBeanInfo
+public abstract class RelationIntegrityBeanInfo
 		extends DefaultIntegrityValidationBeanInfo 
 {
 	
