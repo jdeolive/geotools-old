@@ -219,6 +219,8 @@ public abstract class StyleFactory implements Factory {
         Expression enhancement);
 
     public abstract ColorMap createColorMap();
+    
+    public abstract ColorMapEntry createColorMapEntry();
 
     public abstract Style getDefaultStyle();
 

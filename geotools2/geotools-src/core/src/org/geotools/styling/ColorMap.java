@@ -23,8 +23,13 @@ package org.geotools.styling;
 
 public interface ColorMap {
     
+    public static final int TYPE_RAMP = 1;
+    public static final int TYPE_INTERVALS = 2;
+    public static final int TYPE_VALUES = 3;
+    
     public void addColorMapEntry(ColorMapEntry entry);
     public ColorMapEntry[] getColorMapEntries();
     public ColorMapEntry getColorMapEntry(int i);
-    
+    public int getType();
+    public void setType(int type);
 }

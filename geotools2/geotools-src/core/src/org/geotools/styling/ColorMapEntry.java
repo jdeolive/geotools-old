@@ -25,8 +25,6 @@ public interface ColorMapEntry {
 
     void setColor(Expression color);
 
-    void setColor(Color color);
-    
     Expression getColor();
     
     void setOpacity(Expression opacity);

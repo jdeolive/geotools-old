@@ -30,7 +30,7 @@ import org.geotools.filter.Expression;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.14 2004/02/12 14:25:14 aaime Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.15 2004/03/01 15:41:59 aaime Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final org.geotools.filter.FilterFactory filterFactory = 
@@ -642,6 +642,10 @@ public class StyleFactoryImpl extends StyleFactory {
 
     public ColorMap createColorMap() {
         return new ColorMapImpl();
+    }
+    
+    public ColorMapEntry createColorMapEntry() {
+        return new ColorMapEntryImpl();
     }
 
     public SelectedChannelType createSelectedChannelType(String name, 
