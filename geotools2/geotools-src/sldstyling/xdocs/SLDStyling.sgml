@@ -1,8 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?xml-stylesheet type="text/css"
 href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
-?>
-<!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
+?><!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
 "file:../../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
 <article id="sld">
   <articleinfo>
@@ -14,7 +13,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Turton</surname>
     </author>
 
-    <date>$Date: 2002/07/27 02:36:00 $</date>
+    <date>$Date: 2002/12/12 10:22:25 $</date>
 
     <abstract>
       <para>This document provides a simple overview of the Styled Layer
@@ -39,7 +38,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
     output device. Since different renderers have different capabilities the
     descriptions of the symbolization are necessarily platform independent and
     a bit absract in places. A symbolizer is also resposnsible for determining
-    what sort of symbol is drawn. </para>
+    what sort of symbol is drawn.</para>
 
     <para>There are, currently, five types of symbolizer defined in the SLD
     spec. These are</para>
@@ -86,7 +85,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
     symbolizer is a an optional geometry and an optional graphic. The geometry
     element is to tell the symbolizer which geometry attribute of the feature
     to use. If it is missing then the default geometry of the feature will be
-    used. </para>
+    used.</para>
 
     <para>A graphic (<ulink
     url="../../defaultcore/org/geotools/styling/DefaultGraphic.java">org.geotools.styling.DefaultGraphic.java</ulink>)
@@ -98,8 +97,7 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
     next external graphic in the list will be tryed. If the list of external
     graphics is exhausted the renderer will begin to work through the list of
     <link linkend="marks">marks</link> agian checking if it can render each
-    mark in turn, if that fails a default mark of a square will be used.
-    </para>
+    mark in turn, if that fails a default mark of a square will be used.</para>
 
     <para>The size parameter sets what size the external graphic or mark will
     be drawn. If it is not set then external graphics will be drawn at thier
@@ -118,30 +116,27 @@ href="file:../../../extbin/gtbuild/xxe/css/docbook41.css"
       (org.geotools.styling.DefaultExternalGraphic.java) simply holds a url
       refering to the image to be drawn (using xlink) and a format string that
       describes the image&#39;s mime type. The format string allows the
-      renderer to determine if it can render an image of that type. </para>
+      renderer to determine if it can render an image of that type.</para>
     </section>
 
     <section id="marks">
-      <title> Marks</title>
+      <title>Marks</title>
 
       <para>A mark describes a shape which can be <link linkend="fill">filled</link>
       and <link linkend="stroke">stroked.</link> Basically the fill describes
-      the colour of the mark and the stroke describes the outline of it.
-      </para>
+      the colour of the mark and the stroke describes the outline of it.</para>
 
       <para>Figure <systemitem>1</systemitem> shows a collection of marks
-      rendered using the following sld </para>
+      rendered using the following sld</para>
 
       <programlisting> this is a program list </programlisting>
 
-      <figure float="1"
-              id="fig:mark">
+      <figure float="1" id="figmark">
         <title>Example of Marks</title>
 
         <mediaobject>
           <imageobject>
-            <imagedata fileref="images/marks.gif"
-                       width="100" />
+            <imagedata width="100" fileref="images/marks.gif" />
           </imageobject>
         </mediaobject>
       </figure>
