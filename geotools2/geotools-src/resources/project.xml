@@ -4,7 +4,7 @@
   <name>geotools-resources</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>resources</id>
-  <currentVersion>2.0-B2</currentVersion>
+  <currentVersion>2.0-B3-DEV</currentVersion>
   <versions>
     <version>
       <id>b1</id>

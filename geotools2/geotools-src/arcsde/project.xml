@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-arcsde</name>
   <id>arcsde</id>
-  <currentVersion>2.0-B2</currentVersion>
+  <currentVersion>2.0-B3-DEV</currentVersion>
   <package>org.geotools</package>
   <shortDescription>arcsde datasource module</shortDescription>
   <description>arcsde datasource module</description>
@@ -24,38 +24,38 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>opengis</artifactId>
       <groupId>opengis</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>data</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <!-- just for testing pourposes... -->
       <artifactId>gmldatasource</artifactId>
       <groupId>gt2</groupId>
-      <version>2.0-B2</version>
+      <version>2.0-B3-DEV</version>
     </dependency>
     <dependency>
       <artifactId>jsde_sdk</artifactId>
