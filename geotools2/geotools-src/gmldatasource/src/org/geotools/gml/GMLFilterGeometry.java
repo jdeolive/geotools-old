@@ -33,7 +33,7 @@ import org.xml.sax.SAXException;
  * The parent of this filter must implement GMLHandlerJTS in order to receive
  * the JTS objects passed by this filter.</p>
  *
- * @version $Id: GMLFilterGeometry.java,v 1.5 2002/06/05 11:04:40 loxnard Exp $
+ * @version $Id: GMLFilterGeometry.java,v 1.6 2002/07/12 16:57:03 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterGeometry extends org.xml.sax.helpers.XMLFilterImpl
@@ -79,13 +79,13 @@ public class GMLFilterGeometry extends org.xml.sax.helpers.XMLFilterImpl
      */
     public void geometryStart(String localName, org.xml.sax.Attributes atts) throws SAXException {
         
-        for ( int i = 0; i < atts.getLength() ; i++ ) {
+        for (int i = 0; i < atts.getLength(); i++) {
             //getName(i);
         }
         
-        if ( currentHandler == null ) {
+        if (currentHandler == null) {
             currentHandler = handlerFactory.create(localName); 
-        }else{
+        } else {
             currentHandler.subGeometry(localName, currentHandler.GEOMETRY_START); 
         }
         
@@ -106,10 +106,10 @@ public class GMLFilterGeometry extends org.xml.sax.helpers.XMLFilterImpl
     public void geometryEnd(String localName)
     throws SAXException {
         
-        if ( currentHandler.isComplete(localName) ) {
-            parent.geometry( currentHandler.create(geometryFactory) );
+        if (currentHandler.isComplete(localName)) {
+            parent.geometry(currentHandler.create(geometryFactory));
             currentHandler = null;
-        }else {
+        } else {
             currentHandler.subGeometry(localName, currentHandler.GEOMETRY_END);
         }
         
@@ -139,10 +139,10 @@ public class GMLFilterGeometry extends org.xml.sax.helpers.XMLFilterImpl
      * @param y The Y coordinate of the received coordinate.
      * @throws SAXException parser error.
      */
-    public void gmlCoordinates( double x, double y )
+    public void gmlCoordinates(double x, double y)
     throws SAXException {
         
-        currentHandler.addCoordinate( new com.vividsolutions.jts.geom.Coordinate(x, y) );
+        currentHandler.addCoordinate(new com.vividsolutions.jts.geom.Coordinate(x, y));
         
     }
     
@@ -159,7 +159,7 @@ public class GMLFilterGeometry extends org.xml.sax.helpers.XMLFilterImpl
     public void gmlCoordinates( double x, double y, double z )
     throws SAXException {
         
-        currentHandler.addCoordinate( new com.vividsolutions.jts.geom.Coordinate(x, y, z) );
+        currentHandler.addCoordinate(new com.vividsolutions.jts.geom.Coordinate(x, y, z));
         
     }
     

@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.7 2002/06/05 10:45:50 loxnard Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.8 2002/07/12 16:55:15 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -73,7 +73,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     private String NAMESPACE;
     /** Some sort of feature name. */
     private String FEATURE_MEMBER_NAME = "featureMember";
-    private String typeName="GenericFeature";
+    private String typeName = "GenericFeature";
     
     
     /**
@@ -87,11 +87,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     }
     
     
-    /**
-     * Constructor with parent, which must implement GMLHandlerJTS.
-     *
-     * @param parent The parent of this filter.
-     */
+    
     public void setSchema(String uri) {
     }
     
@@ -107,7 +103,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
      */
     public void geometry(Geometry geometry) {
         //insideGeometry = true;
-        attributeNames.addElement(attName /*"geometry"*/ );
+        attributeNames.addElement(attName /*"geometry"*/);
         attributes.addElement(geometry);
         //currentFeature.setGeometry(geometry);
     }
@@ -123,7 +119,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
      * @param localName The local name of the element.
      * @param qName The full name of the element, including namespace prefix.
      * @param atts The element attributes.
-     * @throws SAXException Some parsing error occured while reading coordinates.
+     * @throws SAXException Some parsing error occured while reading
+     * coordinates.
      */
     public void startElement(String namespaceURI, String localName,
     String qName, Attributes atts)
@@ -141,9 +138,9 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             attributeNames = new Vector();
             //currentFeature = new FeatureFlat();
             insideFeature = true;
-            tempValue=null;
+            tempValue = null;
         } else if (insideFeature) {
-            for(int i = 0; i<atts.getLength(); i++){
+            for (int i = 0; i < atts.getLength(); i++){
                 String name = atts.getLocalName(i);
                 if (name.equalsIgnoreCase("fid")){
                     //currentFeature.setTypeName(localName);
@@ -157,8 +154,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             insideAttribute = true;
             return;
         } else {
-            System.out.println("Start of something that is not a Feature"+
-            " or Attribute\n"+ qName);
+            System.out.println("Start of something that is not a Feature" + 
+            " or Attribute\n" + qName);
         }
     }
     
@@ -182,13 +179,13 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
         // See the documentation for CoordinatesReader to see what this entails
         String rawAttribute = new String(ch, start, length);
         
-        if( insideAttribute ) {
+        if (insideAttribute) {
             try {
                 tempValue = new Integer(rawAttribute);
-            } catch ( NumberFormatException e1 ){
+            } catch (NumberFormatException e1){
                 try {
                     tempValue = new Double(rawAttribute);
-                } catch ( NumberFormatException e2 ){
+                } catch (NumberFormatException e2){
                     tempValue = new String(rawAttribute);
                 }
             }
@@ -211,30 +208,30 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     public void endElement(String namespaceURI, String localName, String qName)
     throws SAXException {
         
-        if ( localName.endsWith("Member") ) {
+        if (localName.endsWith("Member")) {
             AttributeType attDef[] = new AttributeTypeDefault[attributes.size()];
-            for(int i=0;i<attributes.size();i++){
-                attDef[i] = new AttributeTypeDefault((String)attributeNames.get(i),attributes.get(i).getClass());
+            for (int i = 0; i < attributes.size(); i++){
+                attDef[i] = new AttributeTypeDefault((String) attributeNames.get(i),attributes.get(i).getClass());
             }
-            try{
+            try {
                 FeatureType schema = FeatureTypeFactory.create(attDef).setTypeName(typeName);
                 schema.setNamespace(namespaceURI);
                 FeatureFactory fac = new FeatureFactory(schema);
                 Feature feature = fac.create((Object []) attributes.toArray());
                 //currentFeature.setAttributes((Object []) attributes.toArray());
-                parent.feature( feature );
+                parent.feature(feature);
             }
-            catch(org.geotools.feature.SchemaException sve){
+            catch (org.geotools.feature.SchemaException sve){
                 //TODO: work out what to do in this case!
             }
-            catch(org.geotools.feature.IllegalFeatureException ife){
+            catch (org.geotools.feature.IllegalFeatureException ife){
                 //TODO: work out what to do in this case!
             }
             insideFeature = false;
             
         } else if (insideAttribute) {
-            if(tempValue != null) {
-                attributes.add( tempValue );
+            if (tempValue != null) {
+                attributes.add(tempValue);
                 attributeNames.add(attName);
             }
             insideAttribute = false;

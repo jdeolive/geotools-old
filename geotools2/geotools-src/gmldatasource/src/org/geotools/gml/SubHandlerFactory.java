@@ -25,7 +25,7 @@ package org.geotools.gml;
  * Creates the appropriate SubHandler element for a given OGC simple geometry
  * type.
  *
- * @version $Id: SubHandlerFactory.java,v 1.4 2002/06/05 11:19:27 loxnard Exp $
+ * @version $Id: SubHandlerFactory.java,v 1.5 2002/07/12 16:59:55 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class SubHandlerFactory {
@@ -33,8 +33,8 @@ public class SubHandlerFactory {
     
     /** List of all valid OGC multi geometry types. */
     private static final java.util.Collection BASE_GEOMETRY_TYPES = 
-        new java.util.Vector( java.util.Arrays.asList(
-            new String[] {"MultiPoint","MultiLineString","MultiPolygon"}) 
+        new java.util.Vector(java.util.Arrays.asList(
+                             new String[] {"MultiPoint", "MultiLineString", "MultiPolygon"}) 
         );
     
     
@@ -52,19 +52,19 @@ public class SubHandlerFactory {
      */
     public SubHandler create(String type) {
         
-        if ( type.equals("Point") ){
+        if (type.equals("Point")){
             return new SubHandlerPoint(); 
-        }else if ( type.equals("LineString") ){
+        } else if (type.equals("LineString")){
             return new SubHandlerLineString(); 
-        }else if ( type.equals("LinearRing") ){
+        } else if (type.equals("LinearRing")){
             return new SubHandlerLinearRing(); 
-        }else if ( type.equals("Polygon") ){
+        } else if (type.equals("Polygon")){
             return new SubHandlerPolygon(); 
-        }else if ( type.equals("Box") ){
+        } else if (type.equals("Box")){
             return new SubHandlerBox(); 
-        }else if ( BASE_GEOMETRY_TYPES.contains(type) ) {
+        } else if (BASE_GEOMETRY_TYPES.contains(type)) {
             return new SubHandlerMulti(); 
-        }else{
+        } else{
             return null; 
         }
     }

@@ -28,7 +28,7 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Creates a simple OGC LineString element.
  *
- * @version $Id: SubHandlerLineString.java,v 1.4 2002/06/05 11:32:43 loxnard Exp $
+ * @version $Id: SubHandlerLineString.java,v 1.5 2002/07/12 17:01:42 loxnard Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
  
@@ -62,9 +62,9 @@ public class SubHandlerLineString extends SubHandler {
      */
     public boolean isComplete(String message){
         
-        if ( coordinateList.size() > 1) {
+        if (coordinateList.size() > 1) {
             return true; 
-        }else{
+        } else {
             return false; 
         }
     }

@@ -34,7 +34,7 @@ import com.vividsolutions.jts.geom.*;
  * <p>This handler is required for any parent of a GMLFilterDocument filter.
  * It receives basic element notifications and coordinates.</p>
  * 
- * @version $Id: GMLHandlerGeometry.java,v 1.5 2002/07/12 16:50:43 loxnard Exp $
+ * @version $Id: GMLHandlerGeometry.java,v 1.6 2002/07/12 16:51:24 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface GMLHandlerGeometry extends ContentHandler {
@@ -61,12 +61,12 @@ public interface GMLHandlerGeometry extends ContentHandler {
                 /**
                  * Receives a finished coordinate from the parent (2-valued).
                  */
-		abstract void gmlCoordinates( double x, double y )	throws SAXException;
+		abstract void gmlCoordinates(double x, double y) throws SAXException;
 
                 /**
                  * Receives a finished coordinate from the parent (3-valued).
                  */
-		abstract void gmlCoordinates( double x, double y, double z ) throws SAXException;
+		abstract void gmlCoordinates(double x, double y, double z) throws SAXException;
 
 
 }

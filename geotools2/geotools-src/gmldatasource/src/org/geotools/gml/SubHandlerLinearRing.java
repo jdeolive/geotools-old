@@ -22,19 +22,18 @@ package org.geotools.gml;
 
 import java.util.*;
 import com.vividsolutions.jts.geom.*;
-import org.geotools.gml.*;
 
 /** 
  * Creates a simple OGC LinearRing (a closed LineString).
  * 
- * @version $Id: SubHandlerLinearRing.java,v 1.4 2002/06/05 11:36:45 loxnard Exp $
+ * @version $Id: SubHandlerLinearRing.java,v 1.5 2002/07/12 17:05:57 loxnard Exp $
  * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
  */
 public class SubHandlerLinearRing extends SubHandler {
 
 
-		/** Internal coordinate list. */
+    /** Internal coordinate list. */
     private ArrayList coordinateList = new ArrayList();
 
 
@@ -60,18 +59,18 @@ public class SubHandlerLinearRing extends SubHandler {
      */    
     public boolean isComplete(String message){
 
-				// makes sure that this LinearRing has more than one coordinate and its first and last are identical
-				if( coordinateList.size() > 1 ) {
-						Coordinate firstCoordinate = (Coordinate) coordinateList.get(0);
-						Coordinate lastCoordinate = (Coordinate) coordinateList.get( coordinateList.size() - 1 );
-						if( lastCoordinate.equals2D(firstCoordinate) ) { 
-								return true;
-						} else {
-								return false;
-						}
-				} else { 
-						return false; 
-				}
+                                // makes sure that this LinearRing has more than one coordinate and its first and last are identical
+                                if (coordinateList.size() > 1) {
+                                Coordinate firstCoordinate = (Coordinate) coordinateList.get(0);
+                                Coordinate lastCoordinate = (Coordinate) coordinateList.get( coordinateList.size() - 1 );
+                                           if (lastCoordinate.equals2D(firstCoordinate)) { 
+                                               return true;
+                                           } else {
+                                                   return false;
+                                             }
+                                } else { 
+                                       return false; 
+				  }
     }
 
 
@@ -82,7 +81,7 @@ public class SubHandlerLinearRing extends SubHandler {
      * @return LinearRing geometry created.
      */    
     public Geometry create(GeometryFactory geometryFactory) {
-        try{
+        try {
             return geometryFactory.createLinearRing((Coordinate[])coordinateList.toArray(new Coordinate[]{}));
         } catch(TopologyException e){
             System.err.println("Caught Topology exception in GMLLinearRingHandler");
