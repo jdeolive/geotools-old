@@ -273,13 +273,20 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
-   
- /*   public void test15()
+
+    public void test15()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test15.xml");
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
-    }    */
+    }    
+
+    public void test16()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test16.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }    
         
     public Filter parseDocument(String uri) 
         throws Exception {
@@ -291,7 +298,7 @@ public class ParserTest
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
         TestFilterHandler filterHandler = new TestFilterHandler();
-        FilterFilter filterFilter = new FilterFilter(filterHandler, testSchema);
+        FilterFilter filterFilter = new FilterFilter(filterHandler, null);
         GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);
         GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
 

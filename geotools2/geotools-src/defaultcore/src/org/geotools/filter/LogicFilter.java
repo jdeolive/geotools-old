@@ -34,14 +34,12 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.10 2002/10/23 16:56:12 ianturton Exp $
+ * @version $Id: LogicFilter.java,v 1.11 2002/10/23 17:15:24 robhranac Exp $
  * @author Rob Hranac, TOPP
  */
 public class LogicFilter extends AbstractFilterImpl {
 
-    /**
-     * The logger for the default core module.
-     */
+    /** The logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Holds all sub filters of this filter. */
@@ -270,16 +268,24 @@ public class LogicFilter extends AbstractFilterImpl {
      * @param obj - the object to compare this LogicFilter against.
      * @return true if specified object is equal to this filter; false otherwise.
      */
-     public boolean equals(Object obj) {
-	if (obj.getClass() == this.getClass()){
-	    LogicFilter logFilter = (LogicFilter)obj;
-	    return (logFilter.getFilterType() == this.filterType &&
-		    logFilter.subFilters.size() == this.subFilters.size() &&
-		    logFilter.subFilters.containsAll(this.subFilters));
-
-	} else {
-	    return false;
-	}
-    }
-    
+    public boolean equals(Object obj) {
+        if (obj != null && 
+            obj.getClass() == this.getClass()){
+            LogicFilter logFilter = (LogicFilter)obj;
+            LOGGER.finest("filter type match:"  + 
+                          (logFilter.getFilterType() == this.filterType));
+            LOGGER.finest("same size:"  + 
+                          (logFilter.subFilters.size() == this.subFilters.size()) +
+                          "; inner size: " + logFilter.subFilters.size() + 
+                          "; outer size: " + this.subFilters.size());
+            LOGGER.finest("contains:"  + 
+                          logFilter.subFilters.containsAll(this.subFilters));
+            return (logFilter.getFilterType() == this.filterType &&
+                    logFilter.subFilters.size() == this.subFilters.size() &&
+                    logFilter.subFilters.containsAll(this.subFilters));
+            
+        } else {
+             return false;
+        }
+    }   
 }

@@ -20,8 +20,8 @@
 
 package org.geotools.filter;
 
+import java.util.logging.Logger;
 import com.vividsolutions.jts.geom.*;
-
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
@@ -44,10 +44,13 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.12 2002/10/23 16:52:40 ianturton Exp $
+ * @version $Id: GeometryFilter.java,v 1.13 2002/10/23 17:14:51 robhranac Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilterImpl {
+
+    /** Class logger */
+    private static final Logger LOGGER =  Logger.getLogger("org.geotools.filter");
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftGeometry = null;
@@ -69,7 +72,8 @@ public class GeometryFilter extends AbstractFilterImpl {
             this.filterType = filterType;
         }
         else {
-            throw new IllegalFilterException("Attempted to create geometry filter with non-geometry type.");
+            throw new IllegalFilterException("Attempted to create geometry " +
+                                             "filter with non-geometry type.");
         }
     }
 
@@ -243,6 +247,12 @@ public class GeometryFilter extends AbstractFilterImpl {
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
 	    GeometryFilter geomFilter = (GeometryFilter)obj;
+            LOGGER.finest("filter type match:"  + 
+                          (geomFilter.getFilterType() == this.filterType));
+            LOGGER.finest("left geom match:"  + 
+                          geomFilter.getLeftGeometry().equals(this.leftGeometry));
+            LOGGER.finest("right geom match:"  + 
+                          geomFilter.getRightGeometry().equals(this.rightGeometry));
 	    return (geomFilter.getFilterType() == this.filterType &&
 		    geomFilter.getLeftGeometry().equals(this.leftGeometry) &&
 		    geomFilter.getRightGeometry().equals(this.rightGeometry));
