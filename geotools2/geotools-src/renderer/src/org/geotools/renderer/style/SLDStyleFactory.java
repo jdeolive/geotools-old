@@ -247,7 +247,7 @@ public class SLDStyleFactory {
         Graphic sldGraphic = symbolizer.getGraphic();
         float opacity = ((Number) sldGraphic.getOpacity().getValue(feature)).floatValue();
         int size = ((Number) sldGraphic.getSize().getValue(feature)).intValue();
-        float rotation = ((Number) sldGraphic.getRotation().getValue(feature)).floatValue();
+        float rotation = (float) ((((Number) sldGraphic.getRotation().getValue(feature)).floatValue() * Math.PI) / 180);
 
         // Extract the sequence of external graphics and symbols and process them in order
         // to recognize which one will be used for rendering
@@ -791,6 +791,7 @@ public class SLDStyleFactory {
             double rotation = 0.0;
 
             rotation = ((Number) gr.getRotation().getValue(feature)).doubleValue();
+            rotation *= (Math.PI / 180.0);
 
             fillDrawMark(g2d, markCentrePoint, mark, (int) (size * .9), rotation, feature);
 
