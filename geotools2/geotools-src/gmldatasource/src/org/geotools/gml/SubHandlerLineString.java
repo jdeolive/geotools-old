@@ -1,7 +1,21 @@
 /*
- * GMLLineStringHandler.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 06 March 2002, 10:31
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
 
 package org.geotools.gml;
@@ -14,9 +28,10 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Creates a simple OGC LineString element.
  *
- * @author Ian Turton, CCG Leeds
+ * @version $Id: SubHandlerLineString.java,v 1.4 2002/06/05 11:32:43 loxnard Exp $
+ * @author Ian Turton, CCG
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerLineString.java,v 1.3 2002/05/01 14:29:17 ianturton Exp $
+ 
  */
 public class SubHandlerLineString extends SubHandler {
     
@@ -43,7 +58,7 @@ public class SubHandlerLineString extends SubHandler {
      * Determine whether or not this LineString is ready to be created.
      *
      * @param message The geometry type.
-     * @return Ready for creation flag
+     * @return Ready for creation flag.
      */
     public boolean isComplete(String message){
         
@@ -58,8 +73,8 @@ public class SubHandlerLineString extends SubHandler {
     /**
      * Create the LineString.
      *
-     * @param geometryFactory The geomerty factory needed to do the build.
-     * @return JTS LineString geometry
+     * @param geometryFactory The geometry factory needed to do the build.
+     * @return JTS LineString geometry.
      */
     public Geometry create(GeometryFactory geometryFactory) {
         return geometryFactory.createLineString(
