@@ -4,7 +4,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-arcsde</name>
   <id>arcsde</id>
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>SNAPSHOT</currentVersion>
   <package>org.geotools</package>
   <shortDescription>arcsde datasource module</shortDescription>
   <description>arcsde datasource module</description>
