@@ -29,7 +29,7 @@ public class RenderedRaster implements RenderedObject {
     public RenderedRaster(Feature feature, RasterSymbolizer symbolizer) {
         try {
             GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
-            GridCoverageRenderer gcr = new GridCoverageRenderer(grid);
+            gcr = new GridCoverageRenderer(grid);
             
         } catch (IllegalFeatureException ife) {
             LOGGER.severe("No grid in feature " + ife.getMessage());
