@@ -65,7 +65,7 @@ import org.geotools.ct.Adapters;
  * This renderer listen for {@linkplain CollectionEvent feature collection changes}
  * and invokes {@link RenderedLayer#repaint} automatically on changes.
  *
- * @version $Id: StyledRenderer.java,v 1.5 2003/09/01 13:54:02 desruisseaux Exp $
+ * @version $Id: StyledRenderer.java,v 1.6 2003/11/20 20:05:30 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class StyledRenderer extends Renderer {
@@ -200,6 +200,9 @@ public class StyledRenderer extends Renderer {
      * Remove all layers from this renderer.
      */
     public synchronized void removeAllLayers() {
+        if(renderedLayers.size() == 0)
+            return;
+        
         for (final Iterator it=renderedLayers.values().iterator(); it.hasNext();) {
             final LayerEntry entry = (LayerEntry) it.next();
             entry.layer.getFeatures().removeListener(entry);
@@ -212,7 +215,7 @@ public class StyledRenderer extends Renderer {
      * Map a {@link Layer} to a set of {@link RenderedLayer} and to the listeners
      * needed for catching changes in collection and visibility.
      *
-     * @version $Id: StyledRenderer.java,v 1.5 2003/09/01 13:54:02 desruisseaux Exp $
+     * @version $Id: StyledRenderer.java,v 1.6 2003/11/20 20:05:30 aaime Exp $
      * @author Martin Desruisseaux
      */
     private final class LayerEntry implements CollectionListener {
