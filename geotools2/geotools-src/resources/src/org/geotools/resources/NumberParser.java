@@ -1147,12 +1147,10 @@ public final class NumberParser {
               
               // if we saw something not a digit ( or end of string )
               // after the [Ee][+-], without seeing any digits at all
-              // this is certainly an error. If we saw some digits,
-              // but then some trailing garbage, that might be ok.
-              // so we just fall through in that case.
+              // assume the exponent is 0
               // HUMBUG
-              if ( i == expAt )
-                break parseNumber; // certainly bad
+//              if ( i == expAt )
+//                break parseNumber; // certainly bad
           }
       /*
        * We parsed everything we could.
@@ -1164,7 +1162,7 @@ public final class NumberParser {
           (in.charAt(loc) != 'f' &&
           in.charAt(loc) != 'F' &&
           in.charAt(loc) != 'd' &&
-          in.charAt(loc) != 'D'))) {
+          in.charAt(loc) != 'D' ))) {
             break parseNumber; // go throw exception
           }
           
