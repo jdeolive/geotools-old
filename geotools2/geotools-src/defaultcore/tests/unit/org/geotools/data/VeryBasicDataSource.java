@@ -88,7 +88,7 @@ public class VeryBasicDataSource implements DataSource {
      * @throws DataSourceException If anything goes wrong or if exporting is
      * not supported.
      */
-    public void addFeatures(FeatureCollection collection) throws DataSourceException {
+    public Set addFeatures(FeatureCollection collection) throws DataSourceException { return null;
     }
     
     /** Gets the bounding box of this datasource using the default speed of
@@ -264,5 +264,78 @@ public class VeryBasicDataSource implements DataSource {
     public void removeFeatures(Filter filter) throws DataSourceException {
     }
     
+         /**
+     * Begins a transaction(add, remove or modify) that does not commit as 
+     * each modification call is made.  If an error occurs during a transaction
+     * after this method has been called then the datasource should rollback: 
+     * none of the transactions performed after this method was called should
+     * go through.
+     * @task TODO: implement this method.
+     */
+    public void startMultiTransaction() throws DataSourceException{
+	throw new DataSourceException("multi transactions not supported");
+    }
+
+    /**
+     * Ends a transaction after startMultiTransaction has been called.  Similar
+     * to a commit call in sql, it finalizes all of the transactions called
+     * after a startMultiTransaction.
+     * @task TODO: implement this method.
+     */
+    public void endMultiTransaction() throws DataSourceException {
+	throw new DataSourceException("multi transactions not supported");
+    }
+    /**************************************************
+      Data source utility methods.
+     **************************************************/
+
+    /**
+     * Gets the DatasSourceMetaData object associated with this datasource.  
+     * This is the preferred way to find out which of the possible datasource
+     * interface methods are actually implemented, query the DataSourceMetaData
+     * about which methods the datasource supports.
+     */
+    public DataSourceMetaData getMetaData(){
+	return new DataSourceMetaData() {
+		public boolean supportsTransactions(){ return false; }
+		public boolean supportsMultiTransactions(){ return false; }
+		public boolean supportsSetFeatures(){return false;}
+		public boolean supportsSetSchema(){return false;}
+		public boolean supportsAbort(){return false;}
+		public boolean supportsGetBbox(){return false;}
+	    };
+    }
+	    
+    /**
+     * Deletes the all the current Features of this datasource and adds the
+     * new collection.  Primarily used as a convenience method for file 
+     * datasources.  
+     * @param collection - the collection to be written
+     * @task TODO: implement this method.
+     */
+    public void setFeatures(FeatureCollection collection) throws DataSourceException{
+	throw new DataSourceException("set feature not supported");
+    }
+
+    /**
+     * Retrieves the featureType that features extracted from this datasource
+     * will be created with.
+     * @tasks TODO: implement this method.
+     */
+    public FeatureType getSchema(){
+	return null;
+    }
+
+    /**
+     * Sets the schema that features extrated from this datasource will be 
+     * created with.  This allows the user to obtain the attributes he wants,
+     * by calling getSchema and then creating a new schema using the 
+     * attributeTypes from the currently used schema.  
+     * @param schema the new schema to be used to create features.
+     * @task TODO: implement this method.
+     */
+    public void setSchema(FeatureType schema) throws DataSourceException {
+	throw new DataSourceException("set schema method not supported");
+    }
 }
 

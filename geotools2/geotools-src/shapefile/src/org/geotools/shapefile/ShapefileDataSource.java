@@ -22,6 +22,7 @@ package org.geotools.shapefile;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.algorithm.*;
 
+import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DataSourceException;
 
 import org.geotools.feature.*;
@@ -44,7 +45,7 @@ import java.util.Date;
 
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.20 2003/03/04 21:22:52 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.21 2003/03/28 19:24:48 cholmesny Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -154,7 +155,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * not supported.
      * @task TODO: Implement addFeatures method
      */
-    public void addFeatures(org.geotools.feature.FeatureCollection collection)
+    public Set addFeatures(org.geotools.feature.FeatureCollection collection)
     throws DataSourceException {
         throw new DataSourceException("Removal of features is not supported by this datasource");
     }
@@ -386,6 +387,69 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
         }
     }
     
+      /**
+     * Begins a transaction(add, remove or modify) that does not commit as 
+     * each modification call is made.  If an error occurs during a transaction
+     * after this method has been called then the datasource should rollback: 
+     * none of the transactions performed after this method was called should
+     * go through.
+     */
+    public void startMultiTransaction() throws DataSourceException{
+	throw new DataSourceException("multi transactions not supported");
+    }
+
+    /**
+     * Ends a transaction after startMultiTransaction has been called.  Similar
+     * to a commit call in sql, it finalizes all of the transactions called
+     * after a startMultiTransaction.
+     */
+    public void endMultiTransaction() throws DataSourceException {
+	throw new DataSourceException("multi transactions not supported");
+    }
+    /**************************************************
+      Data source utility methods.
+     **************************************************/
+
+    /**
+     * Gets the DatasSourceMetaData object associated with this datasource.  
+     * This is the preferred way to find out which of the possible datasource
+     * interface methods are actually implemented, query the DataSourceMetaData
+     * about which methods the datasource supports.
+     */
+    public DataSourceMetaData getMetaData(){
+	return new DataSourceMetaData() {
+		public boolean supportsTransactions(){ return false; }
+		public boolean supportsMultiTransactions(){ return false; }
+		public boolean supportsSetFeatures(){return true;}
+		public boolean supportsSetSchema(){return false;}
+		public boolean supportsAbort(){return false;}
+		public boolean supportsGetBbox(){return true;}
+	    };
+    }
+	    
+
+    /**
+     * Retrieves the featureType that features extracted from this datasource
+     * will be created with.
+     * @tasks TODO: implement this, as all datasources _should_ have this 
+     * method.
+     */
+    public FeatureType getSchema(){
+	return null;
+    }
+
+    /**
+     * Sets the schema that features extrated from this datasource will be 
+     * created with.  This allows the user to obtain the attributes he wants,
+     * by calling getSchema and then creating a new schema using the 
+     * attributeTypes from the currently used schema.  
+     * @param schema the new schema to be used to create features.
+     */
+    public void setSchema(FeatureType schema) throws DataSourceException {
+	throw new DataSourceException("schema methods not supported");
+    }
+    
+
     
     /**
      * Write a dbf file with the information from the featureCollection.

@@ -42,7 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.20 2002/08/07 08:10:35 desruisseaux Exp $
+ * @version $Id: GMLDataSource.java,v 1.21 2003/03/28 19:20:50 cholmesny Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
@@ -125,7 +125,7 @@ implements DataSource, GMLHandlerFeature {
      * not supported.
      * @task TODO: Implement addFeatures method
      */
-    public void addFeatures(FeatureCollection collection) throws DataSourceException {
+    public Set addFeatures(FeatureCollection collection) throws DataSourceException {
          throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
     
@@ -136,7 +136,7 @@ implements DataSource, GMLHandlerFeature {
      * expensive for the method to calculate.
      */
     public Envelope getBbox() {
-        return null;
+        return getBbox(false);
     }
     
     /** Gets the bounding box of this datasource using the speed of
@@ -147,6 +147,7 @@ implements DataSource, GMLHandlerFeature {
      * will be returned
      * @return The extent of the datasource or null if unknown and too
      * expensive for the method to calculate.
+     * @task TODO: implement quick bbox.  This will return slow no matter what.
      */
     public Envelope getBbox(boolean quick) {
         if (quick == true){
@@ -295,6 +296,77 @@ implements DataSource, GMLHandlerFeature {
         return new InputSource(in);
     }
         
+       /**
+     * Begins a transaction(add, remove or modify) that does not commit as 
+     * each modification call is made.  If an error occurs during a transaction
+     * after this method has been called then the datasource should rollback: 
+     * none of the transactions performed after this method was called should
+     * go through.
+     */
+    public void startMultiTransaction() throws DataSourceException{
+	throw new DataSourceException("multi transactions not supported");
+    }
+
+    /**
+     * Ends a transaction after startMultiTransaction has been called.  Similar
+     * to a commit call in sql, it finalizes all of the transactions called
+     * after a startMultiTransaction.
+     */
+    public void endMultiTransaction() throws DataSourceException {
+	throw new DataSourceException("multi transactions not supported");
+    }
+    /**************************************************
+      Data source utility methods.
+     **************************************************/
+
+    /**
+     * Gets the DatasSourceMetaData object associated with this datasource.  
+     * This is the preferred way to find out which of the possible datasource
+     * interface methods are actually implemented, query the DataSourceMetaData
+     * about which methods the datasource supports.
+     */
+    public DataSourceMetaData getMetaData(){
+	return new DataSourceMetaData() {
+		public boolean supportsTransactions(){ return false; }
+		public boolean supportsMultiTransactions(){ return false; }
+		public boolean supportsSetFeatures(){return false;}
+		public boolean supportsSetSchema(){return false;}
+		public boolean supportsAbort(){return false;}
+		public boolean supportsGetBbox(){return true;}
+	    };
+    }
+	    
+    /**
+     * Deletes the all the current Features of this datasource and adds the
+     * new collection.  Primarily used as a convenience method for file 
+     * datasources.  
+     * @param collection - the collection to be written
+     */
+    public void setFeatures(FeatureCollection collection) throws DataSourceException{
+	throw new DataSourceException("set feature not supported");
+    }
+
+    /**
+     * Retrieves the featureType that features extracted from this datasource
+     * will be created with.
+     * @tasks TODO: implement this, as all datasources _should_ have this 
+     * method.
+     */
+    public FeatureType getSchema(){
+	return null;
+    }
+
+    /**
+     * Sets the schema that features extrated from this datasource will be 
+     * created with.  This allows the user to obtain the attributes he wants,
+     * by calling getSchema and then creating a new schema using the 
+     * attributeTypes from the currently used schema.  
+     * @param schema the new schema to be used to create features.
+     */
+    public void setSchema(FeatureType schema) throws DataSourceException {
+	throw new DataSourceException("schema methods not supported");
+    }
+    
         
     
 }

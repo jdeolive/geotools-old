@@ -44,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.18 2003/03/15 00:00:20 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.19 2003/03/28 19:24:17 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -631,7 +631,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * Or if the fid is supposed to be part of the insert (which doesn't make
      * sense if we return fids), then we should check for uniqueness.
      */ 
-    public void addFeatures(FeatureCollection collection)
+    public Set addFeatures(FeatureCollection collection)
         throws DataSourceException {
 	Feature[] featureArr = collection.getFeatures();
         if (featureArr.length > 0) {
@@ -650,6 +650,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		throw new DataSourceException(message, e);
 	    }    
 	}
+	return null;
     }
 
     /**
@@ -915,6 +916,42 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	return schema;
     }
 
+    public void setSchema(FeatureType schema) {
+	this.schema = schema;
+    }
+
+    public void setFeatures(FeatureCollection features) 
+	throws DataSourceException{
+	removeFeatures(null);
+	addFeatures(features);
+    }
+
+    public void startMultiTransaction() throws DataSourceException{
+	try {
+	    dbConnection.setAutoCommit(false);
+	} catch (SQLException e) {
+	    String message = "Some sort of database error: " 
+		+ e.getMessage();
+	    LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+	
+    }
+
+    public void endMultiTransaction() throws DataSourceException{
+	try {
+	    dbConnection.commit();
+	} catch (SQLException e) {
+	    String message = "Some sort of database error: " 
+		+ e.getMessage();
+	    LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+    }
+
+    public DataSourceMetaData getMetaData(){
+	return new PostgisMetaData();
+    }
 
     /**
      * Stops this DataSource from loading.
@@ -948,5 +985,5 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     public Envelope getBbox(boolean speed) {
         return new Envelope();
     }    
-    
+
 }
