@@ -39,8 +39,8 @@ import java.util.logging.Logger;
  * Encoded filters get written to the protected Writer called <code>out</code>
  * </p>
  *
- * @author $Author: jive $
- * @version $Id: SQLEncoderOracle.java,v 1.11 2003/11/04 01:07:38 jive Exp $
+ * @author $Author: seangeo $
+ * @version $Id: SQLEncoderOracle.java,v 1.12 2003/11/26 22:57:45 seangeo Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
@@ -472,7 +472,15 @@ public class SQLEncoderOracle extends SQLEncoder {
             try {
                 out.write(fidColumn);
                 out.write(" = '");
-                out.write(fids[i]);
+                
+                int pos;
+                
+                if ((pos = fids[i].indexOf('.')) != -1) {
+                	out.write(fids[i].substring(pos + 1));
+                } else {
+					out.write(fids[i]);
+                }
+                
                 out.write("'");
 
                 if (i < (fids.length - 1)) {

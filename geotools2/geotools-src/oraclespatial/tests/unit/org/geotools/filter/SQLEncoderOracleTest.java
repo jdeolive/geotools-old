@@ -1,4 +1,4 @@
-/* $Id: SQLEncoderOracleTest.java,v 1.4 2003/11/04 00:46:12 cholmesny Exp $
+/* $Id: SQLEncoderOracleTest.java,v 1.5 2003/11/26 22:57:45 seangeo Exp $
  *
  * Created on 31/07/2003
  */
@@ -18,8 +18,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * DOCUMENT ME!
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: cholmesny $
- * @version $Id: SQLEncoderOracleTest.java,v 1.4 2003/11/04 00:46:12 cholmesny Exp $ Last Modified: $Date: 2003/11/04 00:46:12 $
+ * @author $Author: seangeo $
+ * @version $Id: SQLEncoderOracleTest.java,v 1.5 2003/11/26 22:57:45 seangeo Exp $ Last Modified: $Date: 2003/11/26 22:57:45 $
  */
 public class SQLEncoderOracleTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
@@ -89,12 +89,12 @@ public class SQLEncoderOracleTest extends TestCase {
         
         Filter filter = filterFactory.createFidFilter("FID.1");
         String value = encoder.encode(filter);
-        assertEquals("WHERE FID = 'FID.1'",value);
+        assertEquals("WHERE FID = '1'",value);
         
         FidFilter fidFilter = filterFactory.createFidFilter();
         fidFilter.addFid("FID.1");
         fidFilter.addFid("FID.3");
         value = encoder.encode(fidFilter);
-        assertEquals("WHERE FID = 'FID.3' OR FID = 'FID.1'",value);
+        assertEquals("WHERE FID = '3' OR FID = '1'",value);
     }
 }
