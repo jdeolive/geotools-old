@@ -197,6 +197,40 @@ public class ExpressionTest extends TestCase {
         assertEquals("test string data", testLiteral.getValue(testFeature));
     }
     
+     /** 
+     * Tests the min function expression.
+     */
+    public void testMinFunction()
+        throws IllegalFilterException {
+        Expression a = new ExpressionAttribute(testSchema, "testInteger");          
+        Expression b = new ExpressionLiteral(new Double(1004));
+        
+        MinFunction min = new MinFunction();
+        min.setArgs(new Expression[]{a,b});         
+        assertEquals(1002d,((Double)min.getValue(testFeature)).doubleValue(),0);
+        
+        b = new ExpressionLiteral(new Double(-100.001));
+        min.setArgs(new Expression[]{a,b});      
+        assertEquals(-100.001,((Double)min.getValue(testFeature)).doubleValue(),0);
+    }
+    
+    /** 
+     * Tests the max function expression.
+     */
+    public void testMaxFunction()
+        throws IllegalFilterException {
+        Expression a = new ExpressionAttribute(testSchema, "testInteger");          
+        Expression b = new ExpressionLiteral(new Double(1004));
+        
+        MaxFunction max = new MaxFunction();
+        max.setArgs(new Expression[]{a,b});         
+        assertEquals(1004d,((Double)max.getValue(testFeature)).doubleValue(),0);
+        
+        b = new ExpressionLiteral(new Double(-100.001));
+        max.setArgs(new Expression[]{a,b});      
+        assertEquals(1002d,((Double)max.getValue(testFeature)).doubleValue(),0);
+    }
+    
     /** 
      * Tests the math expression.
      */
