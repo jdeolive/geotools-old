@@ -108,7 +108,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -119,6 +119,12 @@ public class Polygon extends GeoShape {
      * bathymétries enregistrées sous d'anciennes versions.
      */
     private static final long serialVersionUID = -6195580751022572130L;
+
+    /**
+     * Small number for comparaisons (mostly in assertions).
+     * Should be in the range of precision of <code>float</code> type.
+     */
+    private static final double EPS = 1E-6;
 
     /**
      * Projection à utiliser pour les calculs qui
@@ -156,7 +162,7 @@ public class Polygon extends GeoShape {
      * <strong>Le rectangle {@link Rectangle2D} référencé par ce champ ne doit jamais être
      * modifié</strong>, car il peut être partagé par plusieurs objets {@link Polygon}.
      */
-    private Rectangle2D dataBounds;
+    private transient Rectangle2D dataBounds;
 
     /**
      * Rectangle englobant complètement les coordonnées projetées de ce polygone.
@@ -166,7 +172,7 @@ public class Polygon extends GeoShape {
      * <strong>Le rectangle {@link Rectangle2D} référencé par ce champ ne doit jamais être
      * modifié</strong>, car il peut être partagé par plusieurs objets {@link Polygon}.
      */
-    private Rectangle2D bounds;
+    private transient Rectangle2D bounds;
 
     /**
      * Indique si cette forme a été fermée. Si le polygone a été fermé, alors ce champ
@@ -176,10 +182,10 @@ public class Polygon extends GeoShape {
 
     /**
      * Résolution moyenne du polygone. Ce champ contient la distance moyenne entre
-     * deux points du polygone,  ou 0 ou {@link Float#NaN} si cette résolution n'a
-     * pas encore été calculée.
+     * deux points du polygone, ou {@link Float#NaN} si cette résolution n'a pas
+     * encore été calculée.
      */
-    private float resolution;
+    private float resolution = Float.NaN;
 
     /**
      * The resolution to apply at rendering time, as a multiple of
@@ -534,12 +540,14 @@ public class Polygon extends GeoShape {
      *         Ce rectangle peut être vide, mais ne sera jamais nul.
      */
     private Rectangle2D getDataBounds() {
+        assert Thread.holdsLock(this);
         if (dataBounds == null) {
             dataBounds = getBounds(data, null);
             if (isIdentity(coordinateTransform)) {
                 bounds = dataBounds; // Avoid computing the same rectangle two times
             }
         }
+        assert equalsEps(getBounds(data, null), dataBounds) : dataBounds;
         return dataBounds;
     }
 
@@ -556,6 +564,7 @@ public class Polygon extends GeoShape {
                 dataBounds = bounds; // Avoid computing the same rectangle two times
             }
         }
+        assert equalsEps(getBounds(data, coordinateTransform), bounds) : bounds;
         return bounds;
     }
 
@@ -573,9 +582,10 @@ public class Polygon extends GeoShape {
     private Rectangle2D getCachedBounds(final CoordinateSystem coordinateSystem)
             throws TransformException
     {
+        assert Thread.holdsLock(this);
         if (Utilities.equals(getInternalCS(),       coordinateSystem)) return getDataBounds();
         if (Utilities.equals(getCoordinateSystem(), coordinateSystem)) return getCachedBounds();
-        Rectangle2D bounds=Polyline.getBounds2D(data, getMathTransform2D(coordinateTransform));
+        Rectangle2D bounds = Polyline.getBounds2D(data, getMathTransform2D(coordinateTransform));
         if (bounds == null) {
             bounds = new Rectangle2D.Float();
         }
@@ -609,6 +619,23 @@ public class Polygon extends GeoShape {
             bounds = null;
         }
         return bounds;
+    }
+
+    /**
+     * Check if two rectangles are almost equals (except for an epsilon value).    If one or
+     * both argument is <code>null</code>, then this method does nothing. This method occurs
+     * when one rectangle come from the cache and hasn't been computed yet.   This method is
+     * used for assertions only.
+     */
+    private static boolean equalsEps(final Rectangle2D expected, final Rectangle2D actual) {
+        if (expected==null || actual==null) {
+            return true;
+        }
+        final double eps = EPS * XMath.hypot(expected.getCenterX(), expected.getCenterY());
+        return Math.abs(expected.getMinX() - actual.getMinX()) <= eps &&
+               Math.abs(expected.getMinY() - actual.getMinY()) <= eps &&
+               Math.abs(expected.getMaxX() - actual.getMaxX()) <= eps &&
+               Math.abs(expected.getMaxY() - actual.getMaxY()) <= eps;
     }
 
     /**
@@ -1061,9 +1088,16 @@ public class Polygon extends GeoShape {
      * @param  resolution Résolution à appliquer.
      */
     final void setRenderingResolution(final float resolution) {
-        assert Thread.holdsLock(this);
-        int newResolution = (int) ((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
-        newResolution = Math.max(0, Math.min(0xFF, newResolution));
+        int newResolution = 0;
+        if (resolution != 0) {
+            // We could execute this code inconditionnaly, but 'setRenderingResolution(0)'
+            // is sometime invoked from non-synchronized block, immediately after cloning.
+            // The 'if' condition avoid the 'assert' in this methods and its dependencies,
+            // as well as the execution of the (potentially heavy) 'getMeanResolution()'.
+            assert Thread.holdsLock(this);
+            newResolution = (int) ((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
+            newResolution = Math.max(0, Math.min(0xFF, newResolution));
+        }
         if ((byte)newResolution != renderingResolution) {
             cache = null;
             renderingResolution = (byte)newResolution;
@@ -1133,6 +1167,7 @@ public class Polygon extends GeoShape {
             // has already successfully projected every points.
             unexpectedException("getFirstPoint", exception);
         }
+        assert !Double.isNaN(point.getX()) && !Double.isNaN(point.getY());
         return point;
     }
 
@@ -1156,6 +1191,7 @@ public class Polygon extends GeoShape {
             // has already successfully projected every points.
             unexpectedException("getLastPoint", exception);
         }
+        assert !Double.isNaN(point.getX()) && !Double.isNaN(point.getY());
         return point;
     }
 
@@ -1174,6 +1210,7 @@ public class Polygon extends GeoShape {
         if (transform!=null) try {
             for (int i=0; i<points.length; i++) {
                 points[i] = transform.transform(points[i], points[i]);
+                assert !Double.isNaN(points[i].getX()) && !Double.isNaN(points[i].getY());
             }
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
@@ -1198,6 +1235,7 @@ public class Polygon extends GeoShape {
         if (transform!=null) try {
             for (int i=0; i<points.length; i++) {
                 points[i] = transform.transform(points[i], points[i]);
+                assert !Double.isNaN(points[i].getX()) && !Double.isNaN(points[i].getY());
             }
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
@@ -1252,27 +1290,26 @@ public class Polygon extends GeoShape {
     private synchronized void addBorder(float[] border, int lower, int upper, final boolean append)
             throws TransformException
     {
-        if (interiorType == UNCLOSED) {
-            final MathTransform2D transform = getMathTransform2D(coordinateTransform);
-            if (transform != null) {
-                final float[] oldBorder = border;
-                border = new float[upper-lower];
-                transform.inverse().transform(oldBorder, lower, border, 0, border.length);
-                lower = 0;
-                upper = border.length;
-            }
-            if (append) {
-                data   = Polyline.appendBorder(data, border, lower, upper);
-            } else {
-                data   = Polyline.prependBorder(data, border, lower, upper);
-            }
-            dataBounds = null;
-            bounds     = null;
-            cache      = null;
-            // No change to resolution, since its doesn't take border in account.
-        } else {
+        if (interiorType != UNCLOSED) {
             throw new IllegalStateException(Resources.format(ResourceKeys.ERROR_POLYGON_CLOSED));
         }
+        final MathTransform2D transform = getMathTransform2D(coordinateTransform);
+        if (transform != null) {
+            final float[] oldBorder = border;
+            border = new float[upper-lower];
+            transform.inverse().transform(oldBorder, lower, border, 0, border.length);
+            lower = 0;
+            upper = border.length;
+        }
+        if (append) {
+            data = Polyline.appendBorder(data, border, lower, upper);
+        } else {
+            data = Polyline.prependBorder(data, border, lower, upper);
+        }
+        dataBounds = null;
+        bounds     = null;
+        cache      = null;
+        // No change to resolution, since its doesn't take border in account.
     }
 
     /**
@@ -1300,8 +1337,9 @@ public class Polygon extends GeoShape {
         if (dataBounds != null) {
             if (toAppend.dataBounds != null) {
                 dataBounds.add(toAppend.dataBounds);
+                assert equalsEps(dataBounds, getDataBounds()) : dataBounds;
             } else {
-                dataBounds=null;
+                dataBounds = null;
             }
         }
         bounds = null;
@@ -1312,8 +1350,10 @@ public class Polygon extends GeoShape {
                 final int thatCount = toAppend.getPointCount();
                 resolution = (resolution*thisCount + toAppend.resolution*thatCount) / (thisCount + thatCount);
                 assert resolution > 0;
+                return;
             }
         }
+        resolution = Float.NaN;
     }
 
     /**
@@ -1401,6 +1441,9 @@ public class Polygon extends GeoShape {
             final Statistics stats = getResolution();
             resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
         }
+        assert Float.isNaN(resolution) ?
+               getResolution() == null :
+               Math.abs(getResolution().mean()-resolution) <= EPS*resolution : resolution;
         return resolution;
     }
 
@@ -1422,7 +1465,8 @@ public class Polygon extends GeoShape {
      */
     public synchronized Statistics getResolution() {
         try {
-            Statistics stats = Polyline.getResolution(data, coordinateTransform);
+            final Statistics stats = Polyline.getResolution(data, coordinateTransform);
+            assert !(stats!=null && Math.abs(resolution-stats.mean())>EPS*resolution) : resolution;
             resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
             return stats;
         } catch (TransformException exception) {
@@ -1870,7 +1914,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon

@@ -71,7 +71,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.7 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.8 2003/02/05 22:58:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -243,7 +243,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.7 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.8 2003/02/05 22:58:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -333,13 +333,14 @@ public class RenderedIsoline extends RenderedLayer {
          * If the rendering coordinate system changed since last time,
          * then reproject the isoline and flush the cache.
          */
-        final CoordinateSystem isolineCS = isoline.getCoordinateSystem();
+        CoordinateSystem isolineCS = isoline.getCoordinateSystem();
         if (!context.mapCS.equals(isolineCS, false)) {
             isoline.setCoordinateSystem(context.mapCS);
             if (clipped != null) {
                 clipped.clear();
                 clipped.add(isoline);
             }
+            isolineCS = isoline.getCoordinateSystem();
         }
         /*
          * Rendering acceleration: First performs the clip (if enabled),
@@ -391,7 +392,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.7 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.8 2003/02/05 22:58:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

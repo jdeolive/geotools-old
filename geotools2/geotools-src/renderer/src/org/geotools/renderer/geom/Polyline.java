@@ -94,7 +94,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -103,6 +103,13 @@ final class Polyline implements Serializable {
      * enregistrées sous d'anciennes versions.
      */
     private static final long serialVersionUID = -18866207694621371L;
+
+    /**
+     * Set to <code>true</code> for disallow two consecutive points with the same value.
+     * Some algorithms in this class and in {@link PathAnalyser} require the distance
+     * between two points to never be 0.
+     */
+    private static final boolean REMOVE_DOUBLONS = true;
 
     /**
      * Polylignes précédentes et suivantes. La classe <code>Polyline</code> implémente une liste à
@@ -177,7 +184,15 @@ final class Polyline implements Serializable {
      * @param upper  Index suivant celui de la dernière donnée.
      * @return       Tableau de polylignes. Peut avoir une longueur de 0, mais ne sera jamais nul.
      */
-    public static Polyline[] getInstances(final float[] data, final int lower, final int upper) {
+    public static Polyline[] getInstances(float[] data, int lower, int upper) {
+        if (REMOVE_DOUBLONS) {
+            final float[] candidate = removeDoublons(data, lower, upper);
+            if (candidate != null) {
+                data  = candidate;
+                lower = 0;
+                upper = data.length;
+            }
+        }
         final List polylines = new ArrayList();
         for (int i=lower; i<upper; i+=2) {
             if (!Float.isNaN(data[i]) && !Float.isNaN(data[i+1])) {
@@ -194,6 +209,39 @@ final class Polyline implements Serializable {
             }
         }
         return (Polyline[]) polylines.toArray(new Polyline[polylines.size()]);
+    }
+
+    /**
+     * Remove consecutive identical points, since it hurt many algorithms in this
+     * package. {@link Float#NaN} values are ignored (they may have doublons).
+     *
+     * @param  data  The data to examine.
+     * @param  lower The lower index to examine in <code>data</code>, inclusive.
+     * @param  upper The upper index to examine in <code>data</code>, inclusive.
+     * @return <code>null</code> if no doublons was found in <code>data</code>,
+     *         otherwise a new array without doublons.
+     */
+    private static float[] removeDoublons(final float[] data, final int lower, final int upper) {
+        int dest = 0;
+        float[] copy = null;
+        for (int i=lower; (i+=2)<upper;) {
+            if (data[i-2]==data[i] && data[i-1]==data[i+1]) {
+                if (copy == null) {
+                    dest = i-lower;
+                    copy = new float[upper-lower-2];
+                    System.arraycopy(data, lower, copy, 0, dest);
+                }
+                continue;
+            }
+            if (copy != null) {
+                copy[dest++] = data[i  ];
+                copy[dest++] = data[i+1];
+            }
+        }
+        if (copy != null) {
+            copy = XArray.resize(copy, dest);
+        }
+        return copy;
     }
 
     /**
@@ -427,8 +475,7 @@ final class Polyline implements Serializable {
             throws NoSuchElementException
     {
         scan = getLast(scan);
-        while (scan!=null)
-        {
+        while (scan != null) {
             for (int i=LAST_ARRAY; i>=FIRST_ARRAY; i--) {
                 PointArray data=scan.getArray(i);
                 if (data != null) {
@@ -636,7 +683,15 @@ final class Polyline implements Serializable {
      * Ajoute des points à la bordure de cette polyligne. Cette méthode est réservée
      * à un usage interne par {@link #prependBorder} et {@link #appendBorder}.
      */
-    private void addBorder(final float[] data, final int lower, final int upper, boolean toEnd) {
+    private void addBorder(float[] data, int lower, int upper, final boolean toEnd) {
+        if (REMOVE_DOUBLONS) {
+            final float[] candidate = removeDoublons(data, lower, upper);
+            if (candidate != null) {
+                data  = candidate;
+                lower = 0;
+                upper = data.length;
+            }
+        }
         if (suffix == null) {
             suffix = PointArray.getInstance(data, lower, upper);
         } else {
@@ -656,6 +711,18 @@ final class Polyline implements Serializable {
      * @return Polyline résultant. Ca sera en général <code>scan</code>.
      */
     public static Polyline prependBorder(Polyline scan, final float[] data, int lower, int upper) {
+        if (REMOVE_DOUBLONS) {
+            try {
+                final Point2D check = getFirstPoint(scan, null);
+                final float x = (float)check.getX();
+                final float y = (float)check.getY();
+                while (lower<upper && data[upper-2]==x && data[upper-1]==y) {
+                    upper -= 2;
+                }
+            } catch (NoSuchElementException exception) {
+                // No points in this polyline, no doublons, no problem. Continue...
+            }
+        }
         final int length = upper-lower;
         if (length > 0) {
             scan = getFirst(scan);
@@ -680,6 +747,18 @@ final class Polyline implements Serializable {
      * @return Polyligne résultante. Ca sera en général <code>scan</code>.
      */
     public static Polyline appendBorder(Polyline scan, final float[] data, int lower, int upper) {
+        if (REMOVE_DOUBLONS) {
+            try {
+                final Point2D check = getLastPoint(scan, null);
+                final float x = (float)check.getX();
+                final float y = (float)check.getY();
+                while (lower<upper && data[lower]==x && data[lower+1]==y) {
+                    lower += 2;
+                }
+            } catch (NoSuchElementException exception) {
+                // No points in this polyline, no doublons, no problem. Continue...
+            }
+        }
         final int length = upper-lower;
         if (length > 0) {
             scan = getLast(scan);
@@ -1234,7 +1313,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1277,7 +1356,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.2 2003/02/04 12:30:52 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

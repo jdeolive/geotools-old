@@ -91,7 +91,7 @@ import org.geotools.resources.XArray;
  *           d'un seul point).
  * </blockquote>
  *
- * @version $Id: PolygonAssembler.java,v 1.2 2003/02/04 23:16:51 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.3 2003/02/05 22:58:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Localize logging and progress messages.
@@ -120,10 +120,9 @@ final class PolygonAssembler implements Comparator {
     private final double flatness;
 
     /**
-     * The list of polygons to process. May have a length of 0, but should never be null
-     * after {@link #setIsoline} has been invoked.
+     * The list of polygons to process. May have a length of 0, but will never be null.
      */
-    private Polygon[] polygons;
+    private Polygon[] polygons = new Polygon[16];
 
     /**
      * Isoligne présentement en cours d'analyse.
@@ -987,6 +986,9 @@ final class PolygonAssembler implements Comparator {
                 FermionPair info = null;
                 IntersectionPoint intersectPoint = null;
                 interpole.setLine(iFirstPoint, iLastPoint);
+                assert !Double.isNaN(interpole.getSlope()) &&
+                       !Double.isNaN(interpole.getX0   ()) &&
+                       !Double.isNaN(interpole.getY0()) : iFirstPoint + "  " + iLastPoint;
                 double minDistanceSq = Double.POSITIVE_INFINITY;
                 pit = clip.getPathIterator(null, flatness);
                 for (int border=0; !pit.isDone(); border++) {

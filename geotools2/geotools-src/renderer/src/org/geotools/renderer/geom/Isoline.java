@@ -71,20 +71,26 @@ import org.geotools.resources.renderer.ResourceKeys;
  * An isoline built from a set of polylgons. An isoline is initially built with a {@linkplain
  * #value} (for example "50" for the 50 meters isobath) and a {@linkplain CoordinateSystem
  * coordinate system}. An arbitrary amount of {@linkplain Polygon polygons} can be added after
- * construction using {@link #add(Polygon)} or {@link #add(float[])}.
- * <br><br>
+ * construction using {@link #add(Polygon)} or {@link #add(float[])}. If polygons are broken
+ * in many pieces (as in the figure below), the
+ * {@link #assemble(Isoline[],float[],Shape,ProgressListener) assemble(...)} method may help
+ * assemble them before rendering.
+ *
+ * <p align="center"><img src="doc-files/splitted.png"></p>
+ *
  * Note: this class has a natural ordering that is inconsistent with equals.
  * The {@link #compareTo} method compare only the isoline's values, while
  * {@link #equals} compares also all polygon points. The natural ordering
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
+ * <br><br>
  * <TABLE WIDTH="80%" ALIGN="center" CELLPADDING="18" BORDER="4" BGCOLOR="#FFE0B0"><TR><TD>
  * <P ALIGN="justify"><STRONG>This class may change in a future version, hopefully toward
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Isoline.java,v 1.3 2003/02/04 23:16:50 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.4 2003/02/05 22:58:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -139,13 +145,13 @@ public class Isoline extends GeoShape implements Comparable {
      * calculé une fois pour toute et conservée dans une cache interne
      * pour accélérer certaines vérifications.
      */
-    private Rectangle2D bounds;
+    private transient Rectangle2D bounds;
 
     /**
      * The statistics about resolution, or <code>null</code> if none.
      * This object is computed when first requested and cached for next uses.
      */
-    private Statistics resolution;
+    private transient Statistics resolution;
 
     /**
      * Construct an initialy empty isoline. Polygon may be added using one
@@ -203,9 +209,10 @@ public class Isoline extends GeoShape implements Comparable {
     public synchronized void setCoordinateSystem(final CoordinateSystem coordinateSystem)
             throws TransformException
     {
-        bounds = null;
         final CoordinateSystem oldCoordinateSystem = this.coordinateSystem;
         if (Utilities.equals(oldCoordinateSystem, coordinateSystem)) return;
+        bounds     = null;
+        resolution = null;
         int i=polygonCount;
         try {
             while (--i>=0) {
@@ -825,6 +832,7 @@ public class Isoline extends GeoShape implements Comparable {
      */
     public synchronized void removeAll() {
         polygons = null;
+        polygonCount = 0;
         clearCache();
     }
 
@@ -975,7 +983,7 @@ public class Isoline extends GeoShape implements Comparable {
      * Returns a hash value for this isoline.
      */
     public synchronized int hashCode() {
-        int code = 4782135;
+        int code = (int)serialVersionUID;
         for (int i=0; i<polygonCount; i++) {
             // Must be insensitive to order.
             code += polygons[i].hashCode();
@@ -1115,7 +1123,7 @@ public class Isoline extends GeoShape implements Comparable {
     /**
      * Assemble all polygons in the specified set of isolines. This is a convenience method for
      * <code>{@link #assemble(Isoline[],float[],Shape,ProgressListener) assemble}(isolines,
-     * new float[]{0}, null, progress)</code>.
+     * new float[]{-0f,0f}, null, progress)</code>.
      *
      * @param  isolines Isolines to assemble. Isolines are updated in place.
      * @param  progress An optional progress listener (<code>null</code> in none).
@@ -1125,7 +1133,7 @@ public class Isoline extends GeoShape implements Comparable {
                                 final ProgressListener progress)
             throws TransformException
     {
-        assemble(isolines, new float[]{0}, null, progress);
+        assemble(isolines, new float[]{-0f,0f}, null, progress);
     }
 
 
@@ -1134,7 +1142,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.3 2003/02/04 23:16:50 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.4 2003/02/05 22:58:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
