@@ -23,8 +23,9 @@
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/filter</connection>
-    <url>http://address.of.geotools/cvsviewer/</url>
-  </repository>
+    
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/filter/</url>
+    </repository>
   
 
   <mailingLists/>
@@ -34,7 +35,11 @@
       <id>robhranac</id>
       <email>robhranac@users.sourceforge.net</email>
       <organization>VFNY</organization>
-    </developer>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
     
   </developers>
   <dependencies>
@@ -68,5 +73,6 @@
     <jars/>
         <sourceDirectory>src</sourceDirectory>
     </build>
+    <logo>/images/filter.gif</logo>
 </project>
 
