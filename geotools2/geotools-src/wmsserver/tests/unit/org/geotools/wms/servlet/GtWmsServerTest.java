@@ -86,6 +86,18 @@ public class GtWmsServerTest extends TestCase {
         }
     }*/
     
+    public void testBlueLakeData() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"ShpBuildings"}, new String[] {"green"}, "EPSG:4326", new double[] {-0.004,-0.003,0.004,0.003}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "the map");
+            view.setSize(500,500);
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
     public void testGetMap() {
         try {
             BufferedImage map = server.getMap(new String[] {"USA"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
@@ -99,16 +111,16 @@ public class GtWmsServerTest extends TestCase {
     
      public void testGetFeatureInfo() {
         try {
-            Feature[] features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400,1 , 210, 250);
+            Feature[] features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 300, 150);
             assertNotNull("No features returned", features);
             assertEquals("Wrong number of features found",1,features.length);
             Object atrib[] = features[0].getAttributes();
-            assertEquals("New Mexico",atrib[1].toString());
-            features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400,1 , 210, 150);
+            assertEquals("Oklahoma",atrib[1].toString());
+            features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 210, 150);
             assertNotNull("No features returned", features);
             assertEquals("Wrong number of features found",1,features.length);
             atrib = features[0].getAttributes();
-            assertEquals("Wyoming",atrib[1].toString());
+            assertEquals("New Mexico",atrib[1].toString());
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());

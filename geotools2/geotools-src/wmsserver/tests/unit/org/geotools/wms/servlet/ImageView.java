@@ -26,7 +26,7 @@ public class ImageView extends Panel
 	public void createFrame()
 	{
         Frame f = new Frame(name);
-        f.setSize(320,300);
+        f.setSize(img.getWidth(f),img.getHeight(f));
         f.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(WindowEvent e) { e.getWindow().dispose(); }
         });
