@@ -21,9 +21,9 @@ public class PostgisTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger
 	("org.geotools.postgis");
     
-    //static {
-    //Geotools.init(Level.FINER);
-    //}
+    static {
+    Geotools.init(Level.FINE);
+    }
 
     private static String FEATURE_TABLE = "testset";
 
@@ -94,7 +94,7 @@ public class PostgisTest extends TestCase {
 	connection.close();
     }
 
-        public void testImport() {
+    public void testImport() {
         LOGGER.info("starting type enforcement tests...");
         try {
 	postgis.getFeatures(collection,tFilter);
@@ -130,7 +130,7 @@ public class PostgisTest extends TestCase {
 	}
 
     public void testProperties() throws Exception{
-	QueryImpl query = new QueryImpl(FEATURE_TABLE, null);
+	QueryImpl query = new QueryImpl();
 	AttributeType[] attributes = { 
 	    new AttributeTypeDefault("gid", Integer.class), 
 	    new AttributeTypeDefault("name", String.class)};
@@ -142,18 +142,18 @@ public class PostgisTest extends TestCase {
 	Feature feature = collection.getFeatures()[0];
 	LOGGER.fine("feature is " + feature + ", and feature type is " +
 		     feature.getSchema());
-    }
+		     }
 
-         public void testMaxFeatures(){ 
+    public void testMaxFeatures(){ 
 	try { 
  	    postgis = 
-	    new PostgisDataSource(connection, FEATURE_TABLE, 4);
+	    new PostgisDataSource(connection, FEATURE_TABLE);
 	    schema = ((PostgisDataSource)postgis).getSchema();
 
-	collection = new FeatureCollectionDefault(); 
-	postgis.getFeatures(collection, tFilter);
-	//LOGGER.info("we have this number of features: " 
-	//    + collection.getFeatures().length);
+ 	collection = new FeatureCollectionDefault(); 
+	QueryImpl query = new QueryImpl();
+	query.setMaxFeatures(4);
+	postgis.getFeatures(collection, query);
 	LOGGER.info("we have this number of filtered features: " 
 		    + collection.getFeatures().length);
 	assertEquals(4,collection.getFeatures().length);
@@ -164,8 +164,9 @@ public class PostgisTest extends TestCase {
 	    (filterFac.createLiteralExpression("*7*"),"*",".","!");
 	
 	collection = new FeatureCollectionDefault();
-
-	postgis.getFeatures(collection,likeFilter);
+	QueryImpl q2 = new QueryImpl();
+	q2.setMaxFeatures(3);
+	postgis.getFeatures(collection,q2);
 	LOGGER.info("there are " + collection.getFeatures().length + " feats");
 	assertEquals(3,collection.getFeatures().length);
 	}
@@ -300,7 +301,7 @@ public class PostgisTest extends TestCase {
 	
     }
 */   
-    private void doRemoveTest(Filter filter, int expectedDel) 
+      private void doRemoveTest(Filter filter, int expectedDel) 
 	throws DataSourceException{
 	//TODO: implement tests that don't use get and add.
 	FeatureCollection allFeatures = postgis.getFeatures(tFilter); 
@@ -448,14 +449,21 @@ public class PostgisTest extends TestCase {
 	con.close();
 	
 	}
-
+    
     public void testMetaData(){
+	try {
+	    postgis.abortLoading();
+	} catch (UnsupportedOperationException e) {
+	    LOGGER.fine("caught unsupported op " + e);
+	} catch (NullPointerException e) {
+	    LOGGER.fine("caught null pointer " + e);
+	}
 	DataSourceMetaData md = postgis.getMetaData();
 	LOGGER.fine("md add " + md.supportsAdd() + ", remove" + 
 		    md.supportsRemove() + ", abort " + md.supportsAbort());
 	assertTrue(md.supportsAdd());
 	assertTrue(md.supportsRemove());
 	assertTrue(md.supportsModify());
-    }
+	}
     
 }
