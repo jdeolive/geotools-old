@@ -95,7 +95,7 @@ import java.util.Set;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.3 2004/04/15 23:51:29 dmzwiers Exp $
+ * @version $Id: ValidationProcessor.java,v 1.4 2004/04/20 23:07:05 dmzwiers Exp $
  */
 public class ValidationProcessor {
     // These are no longer used for Integrity Validation tests
@@ -316,7 +316,11 @@ public class ValidationProcessor {
                 while (it.hasNext()) // iterate through each feature and run the test on it
                  {
                     Feature feature = (Feature) it.next();
-                    validator.validate(feature, type, results);
+                    try{
+                    	validator.validate(feature, type, results);
+                    }catch(Throwable e){
+                    	results.error(feature,e.getMessage());
+                    }
                 }
             }
         }
@@ -391,7 +395,11 @@ public class ValidationProcessor {
                     IntegrityValidation validator = (IntegrityValidation) tests
                         .get(j);
                     results.setValidation(validator);
-                    validator.validate(stores, envelope, results);
+					try{
+						validator.validate(stores, envelope, results);
+					}catch(Throwable e){
+						results.error(null,e.getMessage());
+					}
                 }
             }
         }
