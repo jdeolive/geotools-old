@@ -55,10 +55,10 @@ import java.io.Serializable;
 /**
  * Transforms two-dimensional coordinate points using an {@link AffineTransform}.
  *
- * @version 1.00
+ * @version $Id: AffineTransform2D.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class AffineTransform2D extends XAffineTransform implements MathTransform2D {
+final class AffineTransform2D extends XAffineTransform implements MathTransform2D, LinearTransform {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -109,6 +109,13 @@ final class AffineTransform2D extends XAffineTransform implements MathTransform2
         }
         transform(ptSrc.ord, 0, ptDst.ord, 0, 1);
         return ptDst;
+    }
+    
+    /**
+     * Returns this transform as an affine transform matrix.
+     */
+    public Matrix getMatrix() {
+        return new Matrix(this);
     }
     
     /**

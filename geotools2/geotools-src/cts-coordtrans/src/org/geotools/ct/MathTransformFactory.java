@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version 1.00
+ * @version $Id: MathTransformFactory.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -137,15 +137,15 @@ public class MathTransformFactory {
     public static synchronized MathTransformFactory getDefault() {
         if (DEFAULT==null) {
             DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
-                new              MatrixTransform.Provider(4,4), // Default to 4x4 matrix
-                new           MercatorProjection.Provider(),
-                new   LambertConformalProjection.Provider(),
-                new      StereographicProjection.Provider(),      // Automatic
-                new      StereographicProjection.Provider(true),  // Polar
-                new      StereographicProjection.Provider(false), // Oblique
-                new TransverseMercatorProjection.Provider(),      // Transverse Mercator
-                new          GeocentricTransform.Provider(false), // Geographic to Geocentric
-                new          GeocentricTransform.Provider(true)   // Geocentric to Geographic
+                new              MatrixTransform.Provider(4,4),   // Affine (default to 4x4)
+                new           MercatorProjection.Provider(),      // Mercator_1SP
+                new   LambertConformalProjection.Provider(),      // Lambert_Conformal_Conic_2SP
+                new      StereographicProjection.Provider(),      // Stereographic
+                new      StereographicProjection.Provider(true),  // Polar_Stereographic
+                new      StereographicProjection.Provider(false), // Oblique_Stereographic
+                new TransverseMercatorProjection.Provider(),      // Transverse_Mercator
+                new          GeocentricTransform.Provider(false), // Ellipsoid_To_Geocentric
+                new          GeocentricTransform.Provider(true)   // Geocentric_To_Ellipsoid
             });
             for (int i=DEFAULT.providers.length; --i>=0;) {
                 final MathTransformProvider provider = DEFAULT.providers[i];
@@ -193,9 +193,14 @@ public class MathTransformFactory {
          * If the user is requesting a 2D transform, delegate to the
          * highly optimized java.awt.geom.AffineTransform class.
          */
-        if (matrix.getNumRow()==3 && matrix.isAffine()) {
+        if (matrix.isAffine()) {
             // Affine transform are square.
-            return createAffineTransform(matrix.toAffineTransform2D());
+            switch (matrix.getNumRow()) {
+                case 2: return (MathTransform) pool.canonicalize(
+                            new LinearTransform1D(matrix.getElement(0,0),   // scale
+                                                  matrix.getElement(0,1))); // offset
+                case 3: return createAffineTransform(matrix.toAffineTransform2D());
+            }
         }
         /*
          * General case (slower). May not be a real
@@ -209,11 +214,11 @@ public class MathTransformFactory {
      * or <code>null</code> if the matrix is unavailable.
      */
     private static Matrix getMatrix(final MathTransform transform) {
+        if (transform instanceof LinearTransform) {
+            return ((LinearTransform) transform).getMatrix();
+        }
         if (transform instanceof AffineTransform) {
             return new Matrix((AffineTransform) transform);
-        }
-        if (transform instanceof MatrixTransform) {
-            return ((MatrixTransform) transform).getMatrix();
         }
         return null;
     }
@@ -573,7 +578,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version 1.0
+     * @version $Id: MathTransformFactory.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

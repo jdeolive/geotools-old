@@ -75,7 +75,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version 1.0
+ * @version $Id: AbstractMathTransform.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -115,6 +115,14 @@ public abstract class AbstractMathTransform implements MathTransform {
      */
     protected String getName(final Locale locale) {
         return null;
+    }
+    
+    /**
+     * Tests whether this transform does not move any points.
+     * The default implementation always returns <code>false</code>.
+     */
+    public boolean isIdentity() {
+        return false;
     }
     
     /**
@@ -385,17 +393,39 @@ public abstract class AbstractMathTransform implements MathTransform {
     }
     
     /**
-     * Gets the derivative of this transform at a point. The default
-     * implementation throws an {@link UnsupportedOperationException}
-     * <strong>(note: this default implementation may change in a future
-     * version)</strong>.
+     * Gets the derivative of this transform at a point. The default implementation
+     * ensure that <code>point</code> has a valid dimension. Next, if this object is
+     * an instance of {@link MathTransform1D}, then this method delegates the work to
+     * {@link MathTransform1D#derivative(double) derivative(double)}. Otherwise, a
+     * {@link TransformException} is thrown.
      *
      * @param  point The coordinate point where to evaluate the derivative.
      * @return The derivative at the specified point (never <code>null</code>).
-     * @throws TransformException if the derivative can't be evaluated at the specified point.
+     * @throws NullPointerException if the derivative dependents on coordinate
+     *         and <code>point</code> is <code>null</code>.
+     * @throws MismatchedDimensionException if <code>point</code> doesn't have
+     *         the expected dimension.
+     * @throws TransformException if the derivative can't be evaluated at the
+     *         specified point.
      */
     public Matrix derivative(final CoordinatePoint point) throws TransformException {
-        throw new UnsupportedOperationException("Matrix derivative not yet implemented");
+        if (point != null) {
+            final int  pointDim = point.getDimension();
+            final int sourceDim = getDimSource();
+            if (pointDim != sourceDim) {
+                throw new MismatchedDimensionException(pointDim, sourceDim);
+            }
+        }
+        if (this instanceof MathTransform1D) {
+            final double  input = (point!=null) ? point.ord[0] : Double.NaN;
+            final double output = ((MathTransform1D) this).derivative(input);
+            if (!Double.isNaN(output) || point!=null) {
+                return new Matrix(1, 1, new double[] {output});
+            } else {
+                throw new NullPointerException("A coordinate point is required"); // TODO: localize
+            }
+        }
+        throw new TransformException("Can't compute derivative"); // TODO: localize this message.
     }
     
     /**
@@ -532,7 +562,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * This inner class is the inverse of the enclosing
      * math transform.
      *
-     * @version 1.0
+     * @version $Id: AbstractMathTransform.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform {
@@ -566,7 +596,7 @@ public abstract class AbstractMathTransform implements MathTransform {
          * the enclosing math transform.
          */
         public Matrix derivative(final Point2D point) throws TransformException {
-            return invert(AbstractMathTransform.this.derivative(point));
+            return invert(AbstractMathTransform.this.derivative(this.transform(point, null)));
         }
         
         /**
@@ -575,7 +605,7 @@ public abstract class AbstractMathTransform implements MathTransform {
          * the enclosing math transform.
          */
         public Matrix derivative(final CoordinatePoint point) throws TransformException {
-            return invert(AbstractMathTransform.this.derivative(point));
+            return invert(AbstractMathTransform.this.derivative(this.transform(point, null)));
         }
         
         /**

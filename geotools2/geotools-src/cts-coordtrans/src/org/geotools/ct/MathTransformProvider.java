@@ -65,7 +65,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <strong>Note: this class is not part of OpenGIS specification and
  * may change in a future version. Do not rely strongly on it.</strong>
  *
- * @version 1.0
+ * @version $Id: MathTransformProvider.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MathTransformProvider {
@@ -242,14 +242,29 @@ public abstract class MathTransformProvider {
     {
         put(parameter, Integer.class, new Integer(defaultValue), range);
     }
+
+    /**
+     * Add of changes an object parameter to this math transform provider.  The parameter will
+     * have no default value. This method is used for the construction of some math transforms
+     * that are not part of OpenGIS specification (e.g. "Power" and "Logarithm").  The OpenGIS
+     * specification allows only <code>double</code> parameter values, which is why this method
+     * is not yet public.
+     *
+     * @param parameter The parameter name.
+     * @param type      The parameter type.
+     */
+    final void putObject(final String parameter, final Class type) throws IllegalStateException {
+        put(parameter, type, ParameterListDescriptor.NO_PARAMETER_DEFAULT, null);
+    }
     
     /**
      * Adds or changes a parameter to this math transform provider.
      *
      * @param parameter    The parameter name.
      * @param type         The parameter type.
-     * @param defaultValue The default value for this parameter.
-     * @param range        The range of legal values.
+     * @param defaultValue The default value for this parameter, or
+     *                     {@link  ParameterListDescriptor#NO_PARAMETER_DEFAULT} if none.
+     * @param range        The range of legal values, or <code>null</code> if none.
      *
      * @throws IllegalStateException If {@link #getParameterList}
      *         has already been invoked prior to this call.

@@ -57,11 +57,11 @@ import javax.media.jai.util.Range;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version 1.00
+ * @version $Id: MatrixTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
-final class MatrixTransform extends AbstractMathTransform implements Serializable {
+final class MatrixTransform extends AbstractMathTransform implements LinearTransform, Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -385,7 +385,7 @@ final class MatrixTransform extends AbstractMathTransform implements Serializabl
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version 1.0
+     * @version $Id: MatrixTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
