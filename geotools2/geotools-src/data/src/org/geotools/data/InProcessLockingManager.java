@@ -377,6 +377,31 @@ public class InProcessLockingManager implements LockingManager {
     }
 
     /**
+     * Implment lockExists.
+     * <p>
+     * Remeber lock may have expired.
+     * </p>
+     * @see org.geotools.data.LockingManager#lockExists(java.lang.String)
+     * 
+     * @param authID
+     * @return true if lock exists for authID
+     */
+    public boolean lockExists(String authID) {
+        Lock lock;
+
+        for (Iterator i = allLocks().iterator(); i.hasNext();) {
+            lock = (Lock) i.next();
+
+            if (lock.isExpired()) {
+                i.remove();
+            } else if (lock.isMatch(authID)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Used by test cases
      *
      * @param typeName
@@ -612,4 +637,5 @@ public class InProcessLockingManager implements LockingManager {
             return "MemoryLock(" + authID + "|" + delta + "ms|" + dur + "ms)";
         }
     }
+    
 }

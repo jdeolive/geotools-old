@@ -26,6 +26,10 @@ import java.io.IOException;
  * AbstractFeatureLocking, and others, may use this API to request locks on the
  * basis of FeatureID.
  * </p>
+ * 
+ * <p>
+ * This class is also used as a public api to manage locks.
+ * </p> 
  *
  * @author Jody Garnett, Refractions Research
  */
@@ -52,11 +56,11 @@ public interface LockingManager {
      * FeatureID based unlocking.
      *
      * @param typeName
-     * @param string
+     * @param authID
      * @param transaction
      * @param featureLock
      */
-    void unLockFeatureID(String typeName, String string,
+    void unLockFeatureID(String typeName, String authID,
         Transaction transaction, FeatureLock featureLock)
         throws IOException;
 
@@ -64,10 +68,20 @@ public interface LockingManager {
      * FeatureID based locking.
      *
      * @param typeName
-     * @param string
+     * @param autID
      * @param transaction
      * @param featureLock
      */
-    void lockFeatureID(String typeName, String string, Transaction transaction,
+    void lockFeatureID(String typeName, String authID, Transaction transaction,
         FeatureLock featureLock) throws IOException;
+        
+    /**
+     * Check if lock exists on this DataStore.
+     * <p>
+     * Remember that the lock may have expired.
+     * </p>
+     * @param authID
+     * @return
+     */
+    boolean lockExists( String authID );
 }
