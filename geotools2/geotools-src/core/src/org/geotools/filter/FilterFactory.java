@@ -1,7 +1,22 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.Envelope;
-
 import org.geotools.feature.FeatureType;
 
 // J2SE dependencies
@@ -11,16 +26,16 @@ import java.util.logging.Logger;
 
 
 public abstract class FilterFactory {
-    /**
- * The logger 
- */
+    /** The logger */
     protected static final Logger LOGGER = Logger.getLogger(
             "org.geotools.filter");
     private static FilterFactory factory = null;
 
-    /** creates an instance of a Filter factory
- * @return an instance of the Filter factory
- */
+    /**
+     * creates an instance of a Filter factory
+     *
+     * @return an instance of the Filter factory
+     */
     public static FilterFactory createFilterFactory() { //throws FilterFactoryCreationException{ 
 
         if (factory != null) {
@@ -126,6 +141,9 @@ public abstract class FilterFactory {
     public abstract GeometryFilter createGeometryFilter(short filterType)
         throws IllegalFilterException;
 
+    public abstract GeometryDistanceFilter createGeometryDistanceFilter(
+        short filterType) throws IllegalFilterException;
+
     public abstract FidFilter createFidFilter(String fid);
 
     public abstract LikeFilter createLikeFilter();
@@ -133,8 +151,12 @@ public abstract class FilterFactory {
     public abstract FunctionExpression createFunctionExpression(String name);
 
     /**
- * Convenience method for logging a message with an exception.
- */
+     * Convenience method for logging a message with an exception.
+     *
+     * @param method where occured
+     * @param message to report
+     * @param exception what the problem is.
+     */
     protected static void severe(final String method, final String message,
         final Exception exception) {
         final LogRecord record = new LogRecord(Level.SEVERE, message);
