@@ -57,6 +57,8 @@ public class DbaseFileHeader {
   
   private int largestFieldSize = 0;
   
+  public static boolean loudAndAnnoying = false;
+  
   /**
    * Class for holding the information assicated with a record.
    */
@@ -282,6 +284,7 @@ public class DbaseFileHeader {
    * @todo addProgessListener handling
    */
   private void warn(String inWarn){
+    if (!loudAndAnnoying) return;
     System.out.print("WARNING: ");
     System.out.println(inWarn);
   }
