@@ -76,6 +76,8 @@ public class ArcGridDataSource extends AbstractDataSource {
 
     /** The name of the file, used as the schema name */
     private String name = null;
+    
+    static boolean forceStream = false;
 
     /**
      * Creates a new instance of ArcGridDataSource
@@ -98,11 +100,11 @@ public class ArcGridDataSource extends AbstractDataSource {
         String arcext = ".arc";
         String ascext = ".asc";
 
-        if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
-            throw new MalformedURLException("file extension not recognized: " + filename);
-        } else {
+//        if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
+//            throw new MalformedURLException("file extension not recognized: " + filename);
+//        } else {
             name = filename.substring(0, filename.length() - 4);
-        }
+//        }
 
         srcURL = new URL(url, filename);
 
@@ -222,7 +224,12 @@ public class ArcGridDataSource extends AbstractDataSource {
         SampleDimension geoSd = sd.geophysics(true);
         SampleDimension[] bands = new SampleDimension[] {geoSd};
 
-        RenderedImage image = arcGridRaster.getImage();
+        RenderedImage image = null;
+        try {
+            image = arcGridRaster.getImage();
+        } catch (java.io.IOException ioe) {
+            throw new DataSourceException("Error loading data",ioe);
+        }
 
         gridCoverage = new GridCoverage("ArcGrid Coverage", image, coordinateSystem,
                 convertEnvelope(getBounds()), bands, null, null);
