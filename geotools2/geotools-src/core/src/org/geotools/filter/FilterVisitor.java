@@ -33,11 +33,11 @@ package org.geotools.filter;
  * e.g. XML or SQL.  Alternativly it may be to extract specific infomration
  * from the Filter strucure, for example a list of all bboxes.
  *
- * @version $Id: FilterVisitor.java,v 1.6 2002/10/25 13:45:34 ianturton Exp $
+ * @version $Id: FilterVisitor.java,v 1.7 2003/06/18 10:09:52 seangeo Exp $
  * @author James Macgill
  */
 public interface FilterVisitor {
-    
+
     /**
      * Called when accept is called on an AbstractFilter.
      * As it is imposible to create an instance of AbstractFilter this should
@@ -48,24 +48,25 @@ public interface FilterVisitor {
      * @param filter The filter to visit
      */
     void visit(Filter filter);
-    
+
     /**
      * Called when accept is called on a BetweenFilter.
      * Implementers will want to access the left, middle and right expresions.
      *
      * @param filter The filter to visit
-     */ 
+     */
     void visit(BetweenFilter filter);
     void visit(CompareFilter filter);
     void visit(GeometryFilter filter);
     void visit(LikeFilter filter);
     void visit(LogicFilter filter);
     void visit(NullFilter filter);
-    
+    void visit(FidFilter filter);
+
     void visit(AttributeExpression expression);
     void visit(Expression expression);
     void visit(LiteralExpression expression);
     void visit(MathExpression expression);
     void visit(FunctionExpression expression);
-    
+
 }
