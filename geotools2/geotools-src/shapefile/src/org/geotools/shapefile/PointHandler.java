@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Wrapper for a Shapefile point.
  */
-public class ShapePoint  implements ShapefileShape{
+public class PointHandler implements ShapeHandler{
     
     public Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException{
         file.setLittleEndianMode(true);

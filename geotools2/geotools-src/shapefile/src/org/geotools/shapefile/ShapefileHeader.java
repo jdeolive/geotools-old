@@ -52,7 +52,7 @@ public class ShapefileHeader{
     }
     
     public ShapefileHeader(GeometryCollection geometries){
-        ShapefileShape handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
+        ShapeHandler handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
         int numShapes = geometries.getNumGeometries();
         shapeType = handle.getShapeType();
         version = Shapefile.VERSION;

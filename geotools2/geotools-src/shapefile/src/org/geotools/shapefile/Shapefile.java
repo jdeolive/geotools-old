@@ -81,13 +81,14 @@ public class Shapefile  {
         Geometry body;
         ArrayList list = new ArrayList();
         int type=mainHeader.getShapeType();
-        ShapefileShape handle = getShapeHandler(type);
+        ShapeHandler handler = getShapeHandler(type);
+        if(handler==null)throw new ShapeTypeNotSupportedException("Unsuported shape type:"+type);
         try{
             while(true){
                 file.setLittleEndianMode(false);
                 int recordNumber=file.readInt();
                 int contentLength=file.readInt();
-                body = handle.read(file,geometryFactory);
+                body = handler.read(file,geometryFactory);
                 list.add(body);
             }
         }
@@ -111,18 +112,18 @@ public class Shapefile  {
         //header;
         int numShapes = geometries.getNumGeometries();
         Geometry body;
-        ShapefileShape handle = Shapefile.getShapeHandler(geometries.getGeometryN(0));
+        ShapeHandler handler = Shapefile.getShapeHandler(geometries.getGeometryN(0));
         for(int i=0;i<numShapes;i++){
             //System.out.println("Writing Record");
             //ShapeRecord item = (ShapeRecord)records.elementAt(i);
             body = geometries.getGeometryN(i);
             file.setLittleEndianMode(false);
             file.writeInt(i);
-            file.writeInt(handle.getLength(body));
+            file.writeInt(handler.getLength(body));
             pos+=4; // length of header in WORDS
            // handle.write(
-            handle.write(body,file);
-            pos+=handle.getLength(body); // length of shape in WORDS
+            handler.write(body,file);
+            pos+=handler.getLength(body); // length of shape in WORDS
         }
         file.flush();
         file.close();
@@ -172,23 +173,17 @@ public class Shapefile  {
         }
     }
     
-    public static ShapefileShape getShapeHandler(Geometry geom){
-        if(geom instanceof Polygon) return new ShapePolygon();
-        if(geom instanceof MultiPolygon) return new ShapePolygon();
-        if(geom instanceof MultiLineString) return new ShapeMultiLine();
-        if(geom instanceof LineString) return new ShapeMultiLine();
-        
-        return null;
+    public static ShapeHandler getShapeHandler(Geometry geom){
+        return getShapeHandler(getShapeType(geom));
     }
     
-    public static ShapefileShape getShapeHandler(int type){
+    public static ShapeHandler getShapeHandler(int type){
         switch(type){
-            case Shapefile.POINT: return new ShapePoint();
-            case Shapefile.POLYGON: return new ShapePolygon();
-            case Shapefile.ARC: return new ShapeMultiLine();
-           
+            case Shapefile.POINT: return new PointHandler();
+            case Shapefile.POLYGON: return new PolygonHandler();
+            case Shapefile.ARC: return new MultiLineHandler();
         }
-         return null;
+        return null;
     }
     
     public static int getShapeType(Geometry geom){

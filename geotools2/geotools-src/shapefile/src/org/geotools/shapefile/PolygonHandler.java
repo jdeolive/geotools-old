@@ -9,10 +9,10 @@ import java.util.ArrayList;
 /**
  * Wrapper for a Shapefile polygon.
  */
-public class ShapePolygon implements ShapefileShape{
+public class PolygonHandler implements ShapeHandler{
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
     
-    public ShapePolygon(){};
+    public PolygonHandler(){};
     
     public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
     throws IOException, InvalidShapefileException, TopologyException {
@@ -164,7 +164,10 @@ public class ShapePolygon implements ShapefileShape{
 }
 
 /*
- * $Log: ShapePolygon.java,v $
+ * $Log: PolygonHandler.java,v $
+ * Revision 1.1  2002/02/28 00:38:50  jmacgill
+ * Renamed files to more intuitve names
+ *
  * Revision 1.4  2002/02/13 00:23:53  jmacgill
  * First semi working JTS version of Shapefile code
  *

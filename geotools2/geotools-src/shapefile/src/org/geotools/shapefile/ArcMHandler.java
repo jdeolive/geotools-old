@@ -6,7 +6,7 @@ import cmp.LEDataStream.*;
 /**
  * Wrapper for a Shapefile arc, yet to be updated to JTS.
  */
-public class ShapeArcM  {
+public class ArcMHandler  {
     
     /**
      * Get the type of shape stored (Shapefile.ARC)

@@ -1,5 +1,5 @@
 /*
- * $Id: ShapeMultiLine.java,v 1.3 2002/02/13 00:23:53 jmacgill Exp $
+ * $Id: MultiLineHandler.java,v 1.1 2002/02/28 00:38:50 jmacgill Exp $
  *
  */
 
@@ -12,8 +12,8 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Wrapper for a Shapefile arc.
  */
-public class ShapeMultiLine implements ShapefileShape{
-    public ShapeMultiLine(){};
+public class MultiLineHandler implements ShapeHandler{
+    public MultiLineHandler(){};
     public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException {
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();//ignored
@@ -99,7 +99,10 @@ public class ShapeMultiLine implements ShapefileShape{
 }
 
 /*
- * $Log: ShapeMultiLine.java,v $
+ * $Log: MultiLineHandler.java,v $
+ * Revision 1.1  2002/02/28 00:38:50  jmacgill
+ * Renamed files to more intuitve names
+ *
  * Revision 1.3  2002/02/13 00:23:53  jmacgill
  * First semi working JTS version of Shapefile code
  *
