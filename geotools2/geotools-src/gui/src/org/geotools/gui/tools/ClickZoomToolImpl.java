@@ -22,7 +22,7 @@ import org.geotools.pt.CoordinatePoint;
 /**
  * Pan the map so that the new extent has the click point in the middle
  * of the map and then zoom in/out by the zoomFactor.
- * @version $Id: ClickZoomToolImpl.java,v 1.3 2003/05/02 10:54:57 desruisseaux Exp $
+ * @version $Id: ClickZoomToolImpl.java,v 1.4 2003/05/17 23:16:07 camerons Exp $
  * @author Cameron Shorter
  */
 public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
@@ -48,14 +48,14 @@ public class ClickZoomToolImpl extends AbstractTool implements ClickZoomTool
 
     /**
      * Construct a ZoomTool.
-    /* @parma zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means
-     * zoom in, zoomFactor=2 means zoom out.
+    /* @parma zoomFactor he factor to zoom in/out by, zoomFactor=2 means
+     * zoom in, zoomFactor=0.5 means zoom out.
      */
     public ClickZoomToolImpl(double zoomFactor){
         this.inverseZoomFactor=1/zoomFactor;
         if (zoomFactor==1){
             setName("Pan");
-        }else if (zoomFactor<1){
+        }else if (zoomFactor>1){
             setName("Click Zoom In");
         }else{
             setName("Click Zoom Out");

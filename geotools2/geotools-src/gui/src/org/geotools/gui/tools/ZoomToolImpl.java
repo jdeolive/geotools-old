@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.gui.tools;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -38,28 +37,23 @@ import javax.swing.event.MouseInputAdapter;
 
 
 /**
- * Provides both Click/Zoom and Drag/Zoom functionality.
- * Processes MouseEvents on behalf of MapPane and constructs a
- * CordinateTransform for the map's Context.<br>
-
- * For Click/Zoom, pan the map so that the new extent has the click point in 
- * the middle of the
- * map and then zoom in/out by the zoomFactor.<br>
- *
+ * Provides both Click/Zoom and Drag/Zoom functionality. Processes MouseEvents
+ * on behalf of MapPane and constructs a CordinateTransform for the map's Context.<br>
+ * For Click/Zoom, pan the map so that the new extent has the click point in
+ * the middle of the map and then zoom in/out by the zoomFactor.<br>
  * For Drag/Zoom, pan to the center of the dragged area and zoom in to include
  * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.11 2003/05/02 10:54:57 desruisseaux Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.12 2003/05/17 23:16:07 camerons Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.gui.tools.ZoomToolImpl");
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.gui.tools.ZoomToolImpl");
 
     /**
      * The factor to zoom in/out by when using click/zoom. zoomFactor=0.5 means
-     * zoom in, zoomFactor=2
-     * means zoom out. Defaults to 2.
+     * zoom in, zoomFactor=2 means zoom out. Defaults to 2.
      */
     private double inverseZoomFactor = 0.5;
 
@@ -74,8 +68,8 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     /**
      * Construct a ZoomTool. /
      *
-     * @param zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means zoom
-     *        in, zoomFactor=2 means zoom out.
+     * @param zoomFactor the factor to zoom in/out by, zoomFactor=2 means
+     *        zoom in, zoomFactor=0.5 means zoom out.
      */
     public ZoomToolImpl(double zoomFactor) {
         this.inverseZoomFactor = 1 / zoomFactor;
@@ -83,7 +77,7 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
         if (zoomFactor == 1) {
             setName("Pan");
             setCursor(new Cursor(Cursor.MOVE_CURSOR));
-        } else if (zoomFactor < 1) {
+        } else if (zoomFactor > 1) {
             setName("Zoom In");
             setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
         } else {
@@ -101,21 +95,19 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     public void mouseClicked(MouseEvent e) {
         try {
             // The real world coordinates of the mouse click
-            releasePoint =
-                ((GeoMouseEvent) e).getMapCoordinate(releasePoint);
+            releasePoint = ((GeoMouseEvent) e).getMapCoordinate(releasePoint);
             applyZoomTransform(releasePoint, inverseZoomFactor);
         } catch (TransformException t) {
             LOGGER.warning(
-                "Transform exception prevented mouseClicks from being processed"
-            );
+                "Transform exception prevented mouseClicks from being processed");
         }
     }
 
     /**
      * Set the release point in a click-drag operation and process the drag
-     * operation.  The new areaOfInterest will be centered round the middle
-     * of the dragged area and zoomed in to include the all the dragged box.
-     * The aspect ratio of the old area of interest is maintained.  That means,
+     * operation.  The new areaOfInterest will be centered round the middle of
+     * the dragged area and zoomed in to include the all the dragged box. The
+     * aspect ratio of the old area of interest is maintained.  That means,
      * you cannot cause the map to become skinny or fat.
      *
      * @param e contains the mouse click.
@@ -130,24 +122,24 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
             }
 
             // Calculate midpoint of the zoom rectangle.
-            CoordinatePoint midpoint=new CoordinatePoint(
-                (pressPoint.getOrdinate(0)+releasePoint.getOrdinate(0))/2,
-                (pressPoint.getOrdinate(1)+releasePoint.getOrdinate(1))/2);
-            
+            CoordinatePoint midpoint = new CoordinatePoint((pressPoint.getOrdinate(
+                        0) + releasePoint.getOrdinate(0)) / 2,
+                    (pressPoint.getOrdinate(1) + releasePoint.getOrdinate(1)) / 2);
+
             // Calculate the inverseZoomFactor
             // zoomFactor=min(zoomWidth/displayWidth,zoomHeight/displayHeight)
             Envelope aoi = context.getBbox().getAreaOfInterest();
-            double izf=Math.max(
-                Math.abs(pressPoint.getOrdinate(0)-releasePoint.getOrdinate(0))/
-                (aoi.getMaxX()-aoi.getMinX()),
-                Math.abs(pressPoint.getOrdinate(1)-releasePoint.getOrdinate(1))/
-                (aoi.getMaxY()-aoi.getMinY()));
-            
-            applyZoomTransform(midpoint,izf);
+            double izf = Math.max(Math.abs(pressPoint.getOrdinate(0) -
+                        releasePoint.getOrdinate(0)) / (aoi.getMaxX() -
+                    aoi.getMinX()),
+                    Math.abs(pressPoint.getOrdinate(1) -
+                        releasePoint.getOrdinate(1)) / (aoi.getMaxY() -
+                    aoi.getMinY()));
+
+            applyZoomTransform(midpoint, izf);
         } catch (TransformException t) {
             LOGGER.warning(
-                "Transform exception prevented mouseClicks from being processed"
-            );
+                "Transform exception prevented mouseClicks from being processed");
         }
     }
 
@@ -157,17 +149,13 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
      * @param component The tool will process mouseEvents from this component.
      * @param context The Context that will be changed by this Tool.
      */
-    public void addMouseListener(
-        Component component,
-        Context context
-    ) {
+    public void addMouseListener(Component component, Context context) {
         super.addMouseListener(component, context, this);
     }
 
     /**
-     * The factor to zoom in out by when processing mouseClicks.
-     * zoomFactor=0.5 means zoom in, zoomFactor=2
-     * means zoom out. Defaults to 2.
+     * The factor to zoom in out by when processing mouseClicks. zoomFactor=0.5
+     * means zoom in, zoomFactor=2 means zoom out. Defaults to 2.
      *
      * @param zoomFactor The factor to zoom in/out by.
      */
