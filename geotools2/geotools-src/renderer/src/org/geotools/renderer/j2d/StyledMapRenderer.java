@@ -49,39 +49,24 @@
 package org.geotools.renderer.j2d;
 
 
-// JTS dependencies
-import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Component;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.geotools.cs.CoordinateSystem;
-import org.geotools.ct.Adapters;
 import org.geotools.ct.TransformException;
 import org.geotools.data.FeatureSource;
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-
-// Geotools dependencies
-import org.geotools.map.Layer;
-import org.geotools.map.LayerList;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.map.event.MapLayerListener;
 import org.geotools.resources.XMath;
-import org.geotools.resources.renderer.ResourceKeys;
-import org.geotools.resources.renderer.Resources;
 import org.geotools.styling.Style;
-import java.awt.Component;
-import java.io.IOException;
-import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.Iterator;
 
-// J2SE dependencies
-import java.util.Map;
-import org.geotools.feature.IllegalAttributeException;
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -90,7 +75,7 @@ import org.geotools.feature.IllegalAttributeException;
  * RenderedLayer#repaint} automatically on changes.
  *
  * @author Martin Desruisseaux
- * @version $Id: StyledMapRenderer.java,v 1.1 2003/12/04 23:21:02 aaime Exp $
+ * @version $Id: StyledMapRenderer.java,v 1.2 2004/01/09 16:22:58 aaime Exp $
  */
 public class StyledMapRenderer extends Renderer {
     /** The factory for rendered layers. */
@@ -238,7 +223,7 @@ public class StyledMapRenderer extends Renderer {
      * catching changes in collection and visibility.
      *
      * @author Martin Desruisseaux
-     * @version $Id: StyledMapRenderer.java,v 1.1 2003/12/04 23:21:02 aaime Exp $
+     * @version $Id: StyledMapRenderer.java,v 1.2 2004/01/09 16:22:58 aaime Exp $
      */
     private final class LayerEntry implements MapLayerListener {
         /** The layer. */
