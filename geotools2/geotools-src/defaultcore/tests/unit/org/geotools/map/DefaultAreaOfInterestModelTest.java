@@ -91,6 +91,11 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
         } catch (org.geotools.cs.FactoryException e) {
             LOGGER.warning("FactoryException in setup");
         }
+        try {
+            bbox=new DefaultAreaOfInterestModel(envelope,cs);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warning("Cannot create bbox");
+        }
     }
 
 
@@ -132,16 +137,32 @@ public class DefaultAreaOfInterestModelTest extends TestCase implements AreaOfIn
     }
     
      /** Test change of envelope triggers an event. */
-//    public void testSetEnvelope(){
-//        changeEventSent=false;
-//        bbox.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
-//        //delay 0.5 secs to allow a new thread to call
-//        //areaOfInterestChangedEvent.
-//        //assert("Event not sent after bbox change",changeEventSent);
-//        assert(changeEventSent);
-//    }
+    public void testChangeEvent(){
+        changeEventSent=false;
+        bbox.addAreaOfInterestChangedListener(this);
+        bbox.setAreaOfInterest(new Envelope(5.0, 5.0, 10.0,10.0));
+        try{
+            this.wait(1000); //delay 1 sec to allow a new thread to call
+                             //areaOfInterestChangedEvent.
+        }catch (java.lang.InterruptedException e){}
+        this.assertTrue("Event not sent after bbox change",changeEventSent);
+    }
     
     /** Test set/get Envelope */
+    /*
+    public void testSetGetEnvelope(){
+        Envelope envelope1=new Envelope(10.0,10.0,20.0,20.0);
+        bbox.setAreaOfInterest(envelope1);
+        Envelope envelope2=bbox.getAreaOfInterest();
+        if((envelope1.getMaxX()!=envelope2.getMaxX())
+            || (envelope1.getMinX()!=envelope2.getMinX())
+            || (envelope1.getMaxY()!=envelope2.getMaxY())
+            || (envelope1.getMinY()!=envelope2.getMinY()))
+        {
+            this.fail("set/get Envelope not working");
+        }
+    }
+     */
     
     /* Test change of coordinate system works, ensure there is no dependance
      * on transforms.
