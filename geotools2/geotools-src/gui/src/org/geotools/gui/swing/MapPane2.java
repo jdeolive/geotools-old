@@ -49,7 +49,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.17 2003/01/27 21:01:59 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.18 2003/01/28 10:18:11 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -153,7 +153,6 @@ public class MapPane2 extends JPanel implements
      * @task TODO Need to change getBbox(false) to getBbox(true) to speed
      * things up.
      * @task TODO create a layerList.getCoordinateSystem method
-     * @task TODO Use a smaller rendering area and make room for the borders.
      */
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
@@ -166,15 +165,14 @@ public class MapPane2 extends JPanel implements
                     null);
             }
         }
-        renderer.setOutput(graphics,this.getVisibleRect());
-        // TODO Use a smaller rendering area and make room for the borders.
-        //renderer.setOutput(
-        //    graphics,
-        //    new Rectangle(
-        //        getInserts.left,
-        //        getInserts.top,
-        //        getWidth()-getInserts.left-getInserts.right,
-        //        getHeight()-getInserts.top-getInserts.bottom));
+        //renderer.setOutput(graphics,this.getVisibleRect());
+        renderer.setOutput(
+            graphics,
+            new Rectangle(
+                getInsets().left,
+                getInsets().top,
+                getWidth()-getInsets().left-getInsets().right,
+                getHeight()-getInsets().top-getInsets().bottom));
 
         for (int i=0;i<context.getLayerList().getLayers().length;i++) {
             if (context.getLayerList().getLayers()[i].getVisability())
