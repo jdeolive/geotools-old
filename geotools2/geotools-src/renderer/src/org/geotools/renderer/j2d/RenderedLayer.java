@@ -58,6 +58,9 @@ import java.beans.PropertyChangeListener;
 import java.util.Locale;
 import java.util.EventListener;
 import java.text.NumberFormat;
+import java.text.FieldPosition;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 // Java Advanced Imaging
 import javax.media.jai.PlanarImage; // For Javadoc
@@ -87,7 +90,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.17 2003/03/16 22:28:37 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.18 2003/03/20 22:49:35 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -256,7 +259,8 @@ public abstract class RenderedLayer {
         if (format==null || !format.locale.equals(locale)) {
             this.format = format = new Format(locale);
         }
-        return format.format.format(getZOrder());
+        final StringBuffer buffer = new StringBuffer("z=");
+        return format.format.format(getZOrder(), buffer, new FieldPosition(0)).toString();
     }
 
     /**
@@ -827,6 +831,22 @@ public abstract class RenderedLayer {
     protected final Object getTreeLock() {
         final Renderer renderer = this.renderer;
         return (renderer!=null) ? (Object)renderer : (Object)this;
+    }
+
+    /**
+     * Log a message saying that this layer is rebuilding its cache.
+     *
+     * @param classname The caller class name.
+     */
+    final void logUpdateCache(final String classname) {
+        if (Renderer.LOGGER.isLoggable(Level.FINER)) {
+            final Locale locale = getLocale();
+            final LogRecord record = Resources.getResources(locale).getLogRecord(Level.FINER,
+                                              ResourceKeys.UPDATE_CACHE_$1, getName(locale));
+            record.setSourceClassName(classname);
+            record.setSourceMethodName("paint");
+            Renderer.LOGGER.log(record);
+        }
     }
 
     /**

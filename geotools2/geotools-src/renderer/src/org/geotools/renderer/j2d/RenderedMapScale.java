@@ -50,6 +50,7 @@ import java.text.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.Arrays;
+import java.util.Locale;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -84,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.4 2003/03/16 22:28:37 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.5 2003/03/20 22:49:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -200,6 +201,29 @@ public class RenderedMapScale extends RenderedLegend {
     public RenderedMapScale() {
         setPosition(LegendPosition.SOUTH_WEST);
         setMargin(new Insets(8,16,8,16)); // top, left, bottom, right
+    }
+
+    /**
+     * Returns this layer's name. The default implementation returns the scale factor.
+     *
+     * @param  locale The desired locale, or <code>null</code> for a default locale.
+     * @return This layer's name.
+     */
+    public String getName(final Locale locale) {
+        if (renderer != null) {
+            float scale = renderer.getScale();
+            if (!Float.isNaN(scale)) {
+                if (true) {
+                    // Keep only 3 significant digits. Our scale is
+                    // not accurate enough for displaying all digits.
+                    final double factor = XMath.pow10((int)Math.floor(XMath.log10(scale))-2);
+                    scale = (float) (Math.rint(scale/factor) * factor);
+                }
+                return Resources.getResources(locale).getString(ResourceKeys.SCALE_$1,
+                                                                     new Float(scale));
+            }
+        }
+        return null;
     }
 
     /**
@@ -520,6 +544,7 @@ public class RenderedMapScale extends RenderedLegend {
              * Glyph vectors will be saved for faster rendering during the next
              * paint event.
              */
+            logUpdateCache("RenderedMapScale");
             final FontRenderContext fontContext = graphics.getFontRenderContext();
             final Font           font = graphics.getFont();
             final StringBuffer buffer = new StringBuffer(16);
@@ -658,18 +683,9 @@ public class RenderedMapScale extends RenderedLegend {
      * Returns the map scale as a tool tip text.
      */
     String getToolTipText(final GeoMouseEvent event) {
-        if (renderer != null) {
-            float scale = renderer.getScale();
-            if (!Float.isNaN(scale)) {
-                if (true) {
-                    // Keep only 3 significant digits. Our scale is
-                    // not accurate enough for displaying all digits.
-                    final double factor = XMath.pow10((int)Math.floor(XMath.log10(scale))-2);
-                    scale = (float) (Math.rint(scale/factor) * factor);
-                }
-                return Resources.getResources(getLocale()).getString(ResourceKeys.SCALE_$1,
-                                                                     new Float(scale));
-            }
+        final String name = getName(getLocale());
+        if (name != null) {
+            return name;
         }
         return super.getToolTipText(event);
     }

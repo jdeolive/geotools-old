@@ -77,7 +77,7 @@ import org.geotools.ct.TransformException;
  *   <li>{@link #labelPosition}</li>
  * </ul>
  *
- * @version $Id: MarkIterator.java,v 1.2 2003/03/19 23:50:49 desruisseaux Exp $
+ * @version $Id: MarkIterator.java,v 1.3 2003/03/20 22:49:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MarkIterator {
@@ -198,20 +198,27 @@ public abstract class MarkIterator {
 
     /**
      * Returns the geometric shape for the current mark. This shape may be mark dependent, or be
-     * the same for all marks. This shape must be centred at the origin (0,0) et its coordinates
+     * the same for all marks. This shape must be centred at the origin (0,0) and its coordinates
      * must be expressed in dots (1/72 of inch). For example in order to paint wind arrows, this
-     * shape should be oriented toward positives <var>x</var> positifs (i.e. toward 0 arithmetic
-     * radians), has a base centred at (0,0) and have a raisonable size (for example 16&times;4
-     * pixels). The method {@link RenderedMarks#paint(RenderingContext)} will automatically takes
-     * care of rotation, translation and scale in order to adjust this model to each mark
-     * properties. The default implementation returns a circle centred at (0,0) with a diameter
-     * of 10 dots.
+     * shape should be oriented toward positives <var>x</var> (i.e. toward 0 arithmetic radians),
+     * has a base centred at (0,0) and have a raisonable size (for example 16&times;4 pixels).
+     * The method {@link RenderedMarks#paint(RenderingContext)} will automatically takes care of
+     * rotation, translation and scale in order to adjust this model to each mark properties.
+     * The default implementation returns a circle centred at (0,0) with a diameter of 10 dots.
      * <br><br>
      * The returned shape should be treated as immutable. Implementations are encouraged
      * to return shared instances as much as possible.
      */
     public Shape markShape() {
         return DEFAULT_SHAPE;
+    }
+
+    /**
+     * Returns the icon for the current mark, or <code>null</code> if none.
+     * The default implementation returns always <code>null</code>.
+     */
+    public RenderedImage markIcon() {
+        return null;
     }
 
     /**
@@ -289,10 +296,10 @@ public abstract class MarkIterator {
      * @param markShape The shape for the mark, or <code>null</code> if none. This shape is already
      *                  transformed in the Java2D coordinate system.
      * @param markIcon  The icon for the mark, or <code>null</code> if none.
-     * @param iconXY    The affine transform to apply on <code>markIcon</code>, or <code>null</code>
-     *                  if <code>markIcon</code> was <code>null</code>.
+     * @param iconXY    The affine transform to apply on <code>markIcon</code>. May be
+     *                  <code>null</code> if <code>markIcon</code> was <code>null</code>.
      * @param label     The label to draw, or <code>null</code> if none.
-     * @param labelXY   The label position, or <code>null</code> if <code>label</code> was
+     * @param labelXY   The label position. May be <code>null</code> if <code>label</code> was
      *                  <code>null</code>.
      */
     protected void paint(final Graphics2D      graphics,

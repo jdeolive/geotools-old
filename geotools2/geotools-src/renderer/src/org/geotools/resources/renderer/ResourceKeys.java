@@ -31,6 +31,7 @@ public interface ResourceKeys
     public static final int POLYGON_CACHE_USE_$3                     =     9;
     public static final int RESSAMPLING_RENDERED_IMAGE_$3            =    15;
     public static final int SCALE_$1                                 =    18;
+    public static final int UPDATE_CACHE_$1                          =    19;
 
     public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;
     public static final int WARNING_UNEXPECTED_UNIT_$1               =    17;

@@ -42,11 +42,15 @@ import java.awt.Graphics2D;
 import java.awt.BasicStroke;
 import java.awt.font.GlyphVector;
 import java.awt.font.FontRenderContext;
+import java.awt.image.RenderedImage;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.GeneralPath;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
+import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Map;
 
 // Geotools dependencies
 import org.geotools.cs.CoordinateSystem;
@@ -66,7 +70,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.9 2003/03/19 23:50:49 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.10 2003/03/20 22:49:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -76,34 +80,51 @@ public abstract class RenderedMarks extends RenderedLayer {
     private static final int TRANSFORM_RECORD_LENGTH = 6;
 
     /**
-     * The bit to set in {@link #validMask} if the following arrays are valids:
-     * {@link #markShapes} and {@link #markTransforms}.
+     * A bitmask to specify the validity of {@linkplain MarkIterator#geographicArea
+     * geographic areas}.
      *
-     * @task TODO: Current implementation doesn't yet support "partial" revalidation (e.g.
-     *             revalidating MARKS_MASK without GLYPHS_MASK). We invalidate/revalidate
-     *             everything or nothing. Future implementations may add more fine grain
-     *             validations.
+     * @see #invalidate(int)
      */
-    private static final int MARKS_MASK = 1;
+    protected static final int AREAS_MASK = 1;   // Used for 'areaShapes'
 
     /**
-     * The bit to set in {@link #validMask} if the following arrays are valids:
-     * {@link #glyphVectors} and {@link #glyphPositions}.
+     * A bitmask to specify the validity of mark's {@linkplain MarkIterator#markShape shapes},
+     * {@linkplain MarkIterator#position position}, {@linkplain MarkIterator#amplitude amplitude}
+     * and {@linkplain MarkIterator#direction direction}.
      *
-     * @task TODO: Current implementation doesn't yet support "partial" revalidation (e.g.
-     *             revalidating MARKS_MASK without GLYPHS_MASK). We invalidate/revalidate
-     *             everything or nothing. Future implementations may add more fine grain
-     *             validations.
+     * @see #invalidate(int)
      */
-    private static final int GLYPHS_MASK = 2;
+    protected static final int MARKS_MASK = 2;  // Used for 'markShapes' and 'markTransforms'
+
+    /**
+     * A bitmask to specify the validity of mark's {@linkplain MarkIterator#markIcon icon}.
+     *
+     * @see #invalidate(int)
+     */
+    protected static final int ICONS_MASK = 4;  // Used for 'markShapes' and 'markTransforms'
+
+    /**
+     * A bitmask to specify the validity of {@linkplain MarkIterator#label labels} and their
+     * {@linkplain MarkIterator#labelPosition positions}.
+     *
+     * @see #invalidate(int)
+     */
+    protected static final int GLYPHS_MASK = 8;  // Used for 'glyphVectors' and 'glyphPositions'.
 
     /**
      * The 'or'-ed together valid bitmasks. Specify if arrays {@link #markShapes},
      * {@link #markTransforms}, {@link #glyphVectors} and {@link #glyphPositions}
      * are valids.
      *
+     * @task TODO: Current implementation doesn't yet support "partial" revalidation (e.g.
+     *             revalidating MARKS_MASK without GLYPHS_MASK). We invalidate/revalidate
+     *             everything or nothing. Future implementations may add more fine grain
+     *             validations.
+     *
      * @see #isValid
+     * @see #AREAS_MASK
      * @see #MARKS_MASK
+     * @see #ICONS_MASK
      * @see #GLYPHS_MASK
      */
     private transient int validMask;
@@ -114,9 +135,21 @@ public abstract class RenderedMarks extends RenderedLayer {
     private transient int[] markIndex;
 
     /**
+     * The transformed shape returned by {@link MarkIterator#geographicArea} for each mark.
+     * Geographic areas usually delimit the land which belong to some building. We are unlikely
+     * to find the same geographic area for two different marks. Consequently, this array consume
+     * much more memory than {@link #markShapes}.
+     *
+     * @see #AREAS_MASK
+     */
+    private transient Shape[] areaShapes;
+
+    /**
      * The shape returned by {@link MarkIterator#markShape} for each mark. In most cases, each
      * references in this array point to the same {@link Shape} instance, or to a small amount
      * of {@link Shape} instances. Consequently, the amount of memory used here should be low.
+     *
+     * @see #MARKS_MASK
      */
     private transient Shape[] markShapes;
 
@@ -124,18 +157,24 @@ public abstract class RenderedMarks extends RenderedLayer {
      * The {@link AffineTransform} to apply on each shapes in {@link #markShapes}. Each record
      * in this array is {@link #TRANSFORM_RECORD_LENGTH} entries long. Entries are given to
      * {@link AffineTransform#setTransform(double,double,double,double,double,double)}
+     *
+     * @see #MARKS_MASK
      */
     private transient double[] markTransforms;
 
     /**
      * The gylphs for each labels to be rendered, or <code>null</code> if there is no glyphs
      * for this layer. Position for each glyph vectors will be stored in {@link #glyphPositions}.
+     *
+     * @see #GLYPHS_MASK
      */
     private transient GlyphVector[] glyphVectors;
 
     /**
      * (<var>x</var>,<var>y</var>) positions for each glyphs, or <code>null</code> if there
      * is no glyphs for this layer.
+     *
+     * @see #GLYPHS_MASK
      */
     private transient float[] glyphPositions;
 
@@ -181,8 +220,8 @@ public abstract class RenderedMarks extends RenderedLayer {
     /**
      * Returns an iterator for iterating through the marks. Whenever it is invoked on the same
      * <code>RenderedMarks</code> more than once, the mark iterator must consistently iterates
-     * through the same marks in the same order, unless {@link #repaint()} has been invoked.
-     * If some marks are added, removed or changed, then {@link #repaint()} must be invoked
+     * through the same marks in the same order, unless {@link #invalidate()} has been invoked.
+     * If some marks are added, removed or changed, then {@link #invalidate()} must be invoked
      * first (usually by the methods implementing the addition, change or removal of marks).
      *
      * @return An iterator for iterating through the marks.
@@ -252,15 +291,14 @@ public abstract class RenderedMarks extends RenderedLayer {
      *
      * @throws TransformException if a coordinate transformation was required and failed.
      *
-     * @see MarkIterator#visible
      * @see MarkIterator#position
-     * @see MarkIterator#geographicArea
      * @see MarkIterator#markShape
-     * @see MarkIterator#direction
-     * @see MarkIterator#amplitude
+     * @see MarkIterator#markIcon
+     * @see MarkIterator#geographicArea
+     * @see MarkIterator#label
      * @see #getTypicalAmplitude
      * @see #getAmplitudeUnit
-     * @see MarkIterator#paint(Graphics2D, Shape)
+     * @see MarkIterator#paint
      */
     protected void paint(final RenderingContext context) throws TransformException {
         assert Thread.holdsLock(getTreeLock());
@@ -277,18 +315,22 @@ public abstract class RenderedMarks extends RenderedLayer {
         try {
             context.setCoordinateSystem(context.textCS);
             graphics.setStroke(DEFAULT_STROKE);
+
+            final MathTransform2D  csToMap;
+            final AffineTransform mapToTxt;
+            mapToTxt = context.getAffineTransform(context.mapCS, context.textCS);
+            csToMap  = (MathTransform2D)context.getMathTransform(getCoordinateSystem(), context.mapCS);
             /*
              * If the transforms are not valids, compute them now. We will compute one affine
              * transform for each mark to be rendered. Affine transforms will be used for all
-             * subsequent repaints, including repaints after zoom changes, unless the repaint
-             * was trigged programatically through the {@link #repaint()} method.
+             * subsequent repaints, including repaints after zoom changes, unless the cache
+             * were cleared programmatically through the {@link #clearCache()} method.
              */
-            if (!isValid(MARKS_MASK|GLYPHS_MASK)) {
-                final MathTransform2D  csToMap;
-                final AffineTransform mapToTxt;
-                mapToTxt = context.getAffineTransform(context.mapCS, context.textCS);
-                csToMap  = (MathTransform2D)context.getMathTransform(getCoordinateSystem(), context.mapCS);
-                final Rectangle gridClip = getGridClip(zoomableBounds, csToMap, mapToTxt);
+            if (!isValid(AREAS_MASK|MARKS_MASK|ICONS_MASK|GLYPHS_MASK)) {
+                logUpdateCache("RenderedMarks");
+                final Rectangle            gridClip = getGridClip(zoomableBounds, csToMap, mapToTxt);
+                final FontRenderContext fontContext = graphics.getFontRenderContext();
+                final double           typicalScale = getTypicalAmplitude();
                 /*
                  * On veut utiliser une transformation affine identitée (donc en utilisant
                  * une échelle basée sur les pixels plutôt que les coordonnées utilisateur),
@@ -313,15 +355,18 @@ public abstract class RenderedMarks extends RenderedLayer {
                  * Iterates through each mark while performing the following steps:
                  * (results will be saved for reuse during next rendering)
                  *
-                 *   - Computes the glyph vectors and the positions of each labels (if any).
+                 *   - Gets and transforms the geographic area (if any).
                  *   - Setup an affine transform taking in account the translation, scale and
                  *     rotation of the mark (if any).
+                 *   - Gets the mark icon (if any).
+                 *   - Computes the glyph vectors and the positions of each labels (if any).
                  */
-                final double           typicalScale = getTypicalAmplitude();
-                final FontRenderContext fontContext = graphics.getFontRenderContext();
-                boolean hasMarks  = false;
-                boolean hasLabels = false;
-                int numShapes = 0;
+                Map   iconBoundsPool = null;
+                Rectangle iconBounds = null;
+                boolean    hasAreas  = false;
+                boolean    hasMarks  = false;
+                boolean    hasLabels = false;
+                int        numShapes = 0;
                 while (iterator.next()) {
                     if (!iterator.visible(gridClip)) {
                         continue;
@@ -335,7 +380,109 @@ public abstract class RenderedMarks extends RenderedLayer {
                     if (Double.isNaN(matrix[5] = position.getY())) continue;
                     mapToTxt.transform(matrix, 4, matrix, 4, 1);
                     /*
-                     * Step 1 - Creates the glyph vector
+                     * STEP 1  -  Gets and transforms the geographic area. Transforming each shapes
+                     *            make sense if geographic areas are different for each mark. It is
+                     *            usually the case when geographic areas delimit the land which
+                     *            belong to some building (two lands are unlikely to have the same
+                     *            shape). Note that we will take an opposite strategy for mark
+                     *            shapes, since many marks usually use the same shape.
+                     */
+                    Shape geographicArea = iterator.geographicArea();
+                    if (geographicArea != null) {
+                        final Shape oldShape = geographicArea;
+                        geographicArea = csToMap.createTransformedShape(geographicArea);
+                        if (oldShape!=geographicArea && (geographicArea instanceof GeneralPath)) {
+                            ((GeneralPath) geographicArea).transform(mapToTxt);
+                        } else {
+                            geographicArea = mapToTxt.createTransformedShape(geographicArea);
+                        }
+                        if (!geographicArea.intersects(zoomableBounds)) {
+                            geographicArea = null;
+                        } else {
+                            final Rectangle bounds = geographicArea.getBounds();
+                            if (boundingBox == null) {
+                                boundingBox = bounds;
+                            } else {
+                                boundingBox.add(bounds);
+                            }
+                            hasAreas = true;
+                        }
+                    }
+                    /*
+                     * STEP 2  -  Computes the transform for the mark.  We do not really transform
+                     *            the mark. Instead, we keep a reference to the untransformed mark
+                     *            (which is usually the same reference for all marks) and store the
+                     *            affine transform to be used later.  Storing the affine transform
+                     *            always uses 6 floats, no matter how complex de shape is. Storing
+                     *            a transformed mark would take more memory for any kind of mark
+                     *            with more then 3 points (plus the overhead for each new objects).
+                     */
+                    transformedShape.shape = iterator.markShape();
+                    if (transformedShape.shape != null) {
+                        final double amplitude = iterator.amplitude();
+                        if (Double.isNaN(amplitude) || amplitude==0) {
+                            transformedShape.shape = null;
+                        } else {
+                            transformedShape.setTransform(matrix, 0);
+                            transformedShape.scale(amplitude/typicalScale);
+                            transformedShape.rotate(iterator.direction());
+                            if (!transformedShape.intersects(zoomableBounds)) {
+                                transformedShape.shape = null;
+                            } else {
+                                final Rectangle bounds = transformedShape.getBounds();
+                                if (boundingBox == null) {
+                                    boundingBox = bounds;
+                                } else {
+                                    boundingBox.add(bounds);
+                                }
+                                hasMarks = true;
+                            }
+                        }
+                    }
+                    /*
+                     * STEP 3  -  Gets the mark icon. The bounding box for the icon is computed and
+                     *            will be used for hit detection (e.g. tooltips) if no mark shape
+                     *            exists for the current mark. If a mark shape exists, then the icon
+                     *            bounding box will not be used for hit detection since the mark
+                     *            shape should be more accurate.
+                     */
+                    final RenderedImage markIcon = iterator.markIcon();
+                    if (markIcon != null) {
+                        if (iconBounds == null) {
+                            iconBounds = new Rectangle();
+                        }
+                        iconBounds.setBounds(markIcon.getMinX(),  markIcon.getMinY(),
+                                             markIcon.getWidth(), markIcon.getHeight());
+                        iconBounds.x -= iconBounds.width /2;
+                        iconBounds.y -= iconBounds.height/2;
+                        if (transformedShape.shape == null) {
+                            if (iconBoundsPool == null) {
+                                iconBoundsPool = new HashMap();
+                            }
+                            Rectangle bounds = (Rectangle) iconBoundsPool.get(iconBounds);
+                            if (bounds == null) {
+                                bounds = new Rectangle(iconBounds);
+                                iconBoundsPool.put(bounds, bounds);
+                            }
+                            transformedShape.shape = bounds;
+                            transformedShape.setTransform(matrix, 0);
+                        }
+                        iconBounds.x += (int)Math.round(matrix[4]);
+                        iconBounds.y += (int)Math.round(matrix[5]);
+                        iconBounds.width++;
+                        iconBounds.height++;
+                        if (boundingBox == null) {
+                            boundingBox = new Rectangle(iconBounds);
+                        } else {
+                            boundingBox.add(iconBounds);
+                        }
+                        hasMarks = true;
+                    }
+                    /*
+                     * STEP 4  -  Creates the glyph vector. We need to extract the 'GlyphVector' in
+                     *            order to compute its location.  Furthermore, drawing GlyphVectors
+                     *            is faster than drawing Strings. Consequently, we stores the glyph
+                     *            vectors references for next paint events.
                      */
                     GlyphVector glyphs = null;
                     float       glyphX = Float.NaN;
@@ -360,51 +507,50 @@ public abstract class RenderedMarks extends RenderedLayer {
                         }
                     }
                     /*
-                     * Step 2 - Computes the transform for the mark
+                     * FINAL STEP  -  Stores the result for future use. Arrays will be created only
+                     *                if needed (for example we could create the 'markShapes' array
+                     *                but never create the 'glyphVectors' array). But once an array
+                     *                is created, it must have the same capacity than every others.
                      */
-                    transformedShape.shape = iterator.markShape();
-                    if (transformedShape.shape != null) {
-                        final double amplitude = iterator.amplitude();
-                        if (!Double.isNaN(amplitude) && amplitude!=0) {
-                            transformedShape.setTransform(matrix, 0);
-                            transformedShape.scale(amplitude/typicalScale);
-                            transformedShape.rotate(iterator.direction());
-                            if (transformedShape.intersects(zoomableBounds)) {
-                                final Rectangle bounds = transformedShape.getBounds();
-                                if (boundingBox == null) {
-                                    boundingBox = bounds;
-                                } else {
-                                    boundingBox.add(bounds);
-                                }
-                                hasMarks = true;
-                            } else {
-                                transformedShape.shape = null;
-                            }
-                        } else {
-                            transformedShape.shape = null;
-                        }
-                    }
-                    /*
-                     * Final step - stores the result for future use.
-                     */
-                    if (glyphs==null && transformedShape.shape==null) {
+                    if (glyphs==null && transformedShape.shape==null && markIcon==null) {
                         continue;
                     }
                     if (markIndex == null) {
                         markIndex = new int[getCount()];
                     }
                     if (numShapes >= markIndex.length) {
+                        // Augment the capacity
                         final int capacity = numShapes + Math.min(Math.max(numShapes, 8), 2048);
                         markIndex = XArray.resize(markIndex, capacity);
-                        if (glyphVectors != null) {
-                            glyphVectors   = (GlyphVector[]) XArray.resize(glyphVectors, capacity);
-                            glyphPositions = XArray.resize(glyphPositions, capacity*2);
+                        if (areaShapes != null) {
+                            areaShapes = (Shape[])XArray.resize(areaShapes, capacity);
                         }
                         if (markShapes != null) {
                             markShapes     = (Shape[])XArray.resize(markShapes, capacity);
                             markTransforms = XArray.resize(markTransforms, capacity*TRANSFORM_RECORD_LENGTH);
                         }
+                        if (glyphVectors != null) {
+                            glyphVectors   = (GlyphVector[]) XArray.resize(glyphVectors, capacity);
+                            glyphPositions = XArray.resize(glyphPositions, capacity*2);
+                        }
                     }
+                    // STEP 1  -  Geographic areas
+                    if (areaShapes != null) {
+                        if (areaShapes == null) {
+                            areaShapes = new Shape[markIndex.length];
+                        }
+                        areaShapes[numShapes] = geographicArea;
+                    }
+                    // STEP 2,3  -  Mark shapes or icons bounding box
+                    if (transformedShape.shape != null) {
+                        if (markShapes == null) {
+                            markShapes     = new Shape[markIndex.length];
+                            markTransforms = new double[markIndex.length*TRANSFORM_RECORD_LENGTH];
+                        }
+                        transformedShape.getMatrix(markTransforms, numShapes*TRANSFORM_RECORD_LENGTH);
+                        markShapes[numShapes] = transformedShape.shape;
+                    }
+                    // STEP 4  - Gylph vectors
                     if (glyphs != null) {
                         if (glyphVectors == null) {
                             glyphVectors   = new GlyphVector[markIndex.length];
@@ -414,16 +560,13 @@ public abstract class RenderedMarks extends RenderedLayer {
                         glyphPositions[2*numShapes+0] = glyphX;
                         glyphPositions[2*numShapes+1] = glyphY;
                     }
-                    if (transformedShape.shape != null) {
-                        if (markShapes == null) {
-                            markShapes     = new Shape[markIndex.length];
-                            markTransforms = new double[markIndex.length*TRANSFORM_RECORD_LENGTH];
-                        }
-                        transformedShape.getMatrix(markTransforms, numShapes*TRANSFORM_RECORD_LENGTH);
-                        markShapes[numShapes] = transformedShape.shape;
-                        markIndex [numShapes] = iterator.getIteratorPosition();
-                    }
-                    numShapes++;
+                    markIndex[numShapes++] = iterator.getIteratorPosition();
+                }
+                //
+                // LOOP FINISHED  -  Trim to size and clear unused arrays.
+                //
+                if (!hasAreas) {
+                    areaShapes = null;
                 }
                 if (!hasMarks) {
                     markShapes     = null;
@@ -436,25 +579,35 @@ public abstract class RenderedMarks extends RenderedLayer {
                 if (markIndex != null) {
                     markIndex = XArray.resize(markIndex, numShapes);
                 }
-                if (glyphVectors != null) {
-                    glyphVectors   = (GlyphVector[]) XArray.resize(glyphVectors, numShapes);
-                    glyphPositions = XArray.resize(glyphPositions, numShapes*2);
+                if (areaShapes != null) {
+                    areaShapes = (Shape[])XArray.resize(areaShapes, numShapes);
                 }
                 if (markShapes != null) {
                     markShapes = (Shape[])XArray.resize(markShapes, numShapes);
                     markTransforms = XArray.resize(markTransforms, numShapes*TRANSFORM_RECORD_LENGTH);
                 }
-                validMask |= MARKS_MASK|GLYPHS_MASK;
+                if (glyphVectors != null) {
+                    glyphVectors   = (GlyphVector[]) XArray.resize(glyphVectors, numShapes);
+                    glyphPositions = XArray.resize(glyphPositions, numShapes*2);
+                }
+                validMask |= AREAS_MASK|MARKS_MASK|ICONS_MASK|GLYPHS_MASK;
             }
             /*
-             * Now, paints the marks. 
+             * FINISHED LAYER VALIDATION. Now all marks, icons and labels are ready for rendering.
+             * Loops over all rendered marks (which may not be all marks know to the MarkIterator)
+             * and gets the arguments to be sent to MarkIterator.paint(...).
              */
-            final Point2D.Float labelXY = new Point2D.Float();
+            Point2D.Float  labelXY = null;
+            AffineTransform iconXY = null;
             for (int i=0; i<markIndex.length; i++) {
+                iterator.setIteratorPosition(markIndex[i]);
+                RenderedImage   icon = iterator.markIcon();
                 Shape geographicArea = null;
                 Shape      markShape = null;
                 GlyphVector    label = null;
-                iterator.setIteratorPosition(markIndex[i]);
+                if (areaShapes != null) {
+                    geographicArea = areaShapes[i];
+                }
                 if (markShapes != null) {
                     transformedShape.shape = markShapes[i];
                     if (transformedShape.shape != null) {
@@ -462,13 +615,22 @@ public abstract class RenderedMarks extends RenderedLayer {
                         markShape = transformedShape;
                     }
                 }
+                if (icon != null) {
+                    if (iconXY == null) {
+                        iconXY = new AffineTransform();
+                    }
+                    iconXY.setToTranslation(transformedShape.getTranslateX() -0.5*icon.getWidth(),
+                                            transformedShape.getTranslateY() -0.5*icon.getHeight());
+                }
                 if (glyphVectors!=null && glyphVectors[i]!=null) {
-                    label = glyphVectors[i];
+                    if (labelXY == null) {
+                        labelXY = new Point2D.Float();
+                    }
+                    label     = glyphVectors  [  i  ];
                     labelXY.x = glyphPositions[2*i+0];
                     labelXY.y = glyphPositions[2*i+1];
                 }
-                // TODO: geographic area and icon not yet implemented.
-                iterator.paint(graphics, null, markShape, null, null, label, labelXY);
+                iterator.paint(graphics, geographicArea, markShape, icon, iconXY, label, labelXY);
             }
         } finally {
             graphics.setTransform(graphicsTr);
@@ -479,22 +641,9 @@ public abstract class RenderedMarks extends RenderedLayer {
     }
 
     /**
-     * Tells that some marks may have been added, removed or changed and that this layer need
-     * to be repainted. This method can be invoked from any thread; it doesn't need to be the
-     * <cite>Swing</cite> thread.
-     */
-    public void repaint() {
-        synchronized (getTreeLock()) {
-            clearCache();
-        }
-        super.repaint();
-    }
-
-    /**
      * Tells that a single mark need to be repainted. This method can be invoked iteratively when
      * few marks changed,  and when the change was slight  (e.g. a change of color).  If a lot of
-     * marks changed, of if the changes are importants (e.g. marks were added, removed or moved),
-     * then invoking {@link #repaint()} may be more effective.
+     * marks changed, then invoking {@link #repaint()} may be more effective.
      *
      * @param An iterator over the mark to be repainted.
      *        Only the current mark will be repainted.
@@ -505,7 +654,7 @@ public abstract class RenderedMarks extends RenderedLayer {
      */
     protected void repaint(final MarkIterator iterator) {
         synchronized (getTreeLock()) {
-            if (isValid(MARKS_MASK)) {
+            if (markShapes!=null && isValid(AREAS_MASK|MARKS_MASK)) {
                 final int i = Arrays.binarySearch(markIndex, iterator.getIteratorPosition());
                 if (i < 0) {
                     // The mark doesn't appear in current clip.
@@ -528,8 +677,10 @@ public abstract class RenderedMarks extends RenderedLayer {
     /**
      * Test is all the specified bits are set in {@link #validMask}.
      *
+     * @see #AREAS_MASK
      * @see #MARKS_MASK
-     * @see #GLPYHS_MASK
+     * @see #ICONS_MASK
+     * @see #GLYPHS_MASK
      */
     private boolean isValid(final int mask) {
         assert (markShapes  !=null) == (markTransforms!=null) : validMask;
@@ -538,21 +689,49 @@ public abstract class RenderedMarks extends RenderedLayer {
     }
 
     /**
-     * Declares that some data need to be recomputed.
-     * The mask -1 invalidate all.
+     * Tells that some data has changed. This method must be invoked when the internal state
+     * of this object changed in such a way that its {@link #getMarkIterator MarkIterator} will
+     * iterates through marks in a different order, returns different geographic areas, mark
+     * shapes, icons and/or labels. This method do <strong>not</strong> invokes {@link #repaint}.
+     * This is the caller's responsability to invokes <code>repaint()</code> after an
+     * <code>invalidate(...)</code> call, if needed.
+     *
+     * @param mask A bitwise combinaison of {@link #AREAS_MASK}, {@link #MARKS_MASK},
+     *        {@link #ICONS_MASK} and/or {@link #GLYPHS_MASK}.
+     *
+     * @see #AREAS_MASK
+     * @see #MARKS_MASK
+     * @see #ICONS_MASK
+     * @see #GLYPHS_MASK
      */
-    private void invalidate(final int mask) {
-        final int toClear = validMask & mask;
-        validMask &= ~mask;
-        if ((toClear & MARKS_MASK)!=0 && markShapes!=null) {
-            Arrays.fill(markShapes,  null);
-            Arrays.fill(markTransforms, 0);
-            boundingBox = null;
+    protected void invalidate(final int mask) {
+        synchronized (getTreeLock()) {
+            final int toClear = validMask & mask;
+            validMask &= ~mask;
+            if ((toClear & AREAS_MASK)!=0 && areaShapes!=null) {
+                Arrays.fill(areaShapes,  null);
+            }
+            if ((toClear & MARKS_MASK)!=0 && markShapes!=null) {
+                Arrays.fill(markShapes,  null);
+                Arrays.fill(markTransforms, 0);
+            }
+            if ((toClear & GLYPHS_MASK)!=0 && glyphVectors!=null) {
+                Arrays.fill(glyphVectors, null);
+                Arrays.fill(glyphPositions,  0);
+            }
+            if (toClear != 0) {
+                boundingBox = null;
+            }
         }
-        if ((toClear & GLYPHS_MASK)!=0 && glyphVectors!=null) {
-            Arrays.fill(glyphVectors, null);
-            Arrays.fill(glyphPositions,  0);
-        }
+    }
+
+    /**
+     * Tells that some data has changed in all aspects of marks.
+     * This method invokes {@link #invalidate(int)} with all flags set.
+     */
+    protected void invalidate() {
+        invalidate(AREAS_MASK | MARKS_MASK | ICONS_MASK | GLYPHS_MASK);
+        assert validMask == 0 : validMask;
     }
 
     /**
@@ -565,8 +744,7 @@ public abstract class RenderedMarks extends RenderedLayer {
     void zoomChanged(final AffineTransform change) {
         super.zoomChanged(change);
         if (change == null) {
-            invalidate(-1);
-            boundingBox = null;
+            invalidate();
         } else if (!change.isIdentity()) {
             /*
              * TODO: We could add an optimization here:  apply the change on all transforms
@@ -588,8 +766,7 @@ public abstract class RenderedMarks extends RenderedLayer {
              *       'Renderer' implementation does not give us exactly the "change" transform, but
              *       rather a slightly scaled one.
              */
-            invalidate(-1);
-            boundingBox = null;
+            invalidate();
         }
     }
 
@@ -604,6 +781,7 @@ public abstract class RenderedMarks extends RenderedLayer {
         glyphVectors     = null;
         glyphPositions   = null;
         markIndex        = null;
+        areaShapes       = null;
         markShapes       = null;
         markTransforms   = null;
         transformedShape = null;
@@ -635,17 +813,34 @@ public abstract class RenderedMarks extends RenderedLayer {
      */
     final String getToolTipText(final GeoMouseEvent event) {
         synchronized (getTreeLock()) {
-            if (isValid(MARKS_MASK)) {
-                MarkIterator iterator = null;
+            MarkIterator iterator = null;
+            final Point2D point = this.point = event.getPixelCoordinate(this.point);
+            if (markShapes!=null && isValid(MARKS_MASK)) {
                 if (transformedShape == null) {
                     transformedShape = new TransformedShape();
                 }
-                final Point2D point = this.point = event.getPixelCoordinate(this.point);
                 for (int i=markIndex.length; --i>=0;) {
                     transformedShape.shape = markShapes[i];
                     if (transformedShape.shape != null) {
                         transformedShape.setTransform(markTransforms, i*TRANSFORM_RECORD_LENGTH);
                         if (transformedShape.contains(point)) {
+                            if (iterator == null) {
+                                iterator = getMarkIterator();
+                            }
+                            iterator.setIteratorPosition(markIndex[i]);
+                            final String text = iterator.getToolTipText(event);
+                            if (text != null) {
+                                return text;
+                            }
+                        }
+                    }
+                }
+            }
+            if (areaShapes!=null && isValid(AREAS_MASK)) {
+                for (int i=markIndex.length; --i>=0;) {
+                    final Shape geographicArea = areaShapes[i];
+                    if (geographicArea != null) {
+                        if (geographicArea.contains(point)) {
                             if (iterator == null) {
                                 iterator = getMarkIterator();
                             }

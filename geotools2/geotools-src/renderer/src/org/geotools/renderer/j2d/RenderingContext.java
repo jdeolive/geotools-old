@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.12 2003/03/12 22:44:42 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.13 2003/03/20 22:49:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -153,6 +153,14 @@ public final class RenderingContext {
     public final CoordinateSystem deviceCS;
 
     /**
+     * The affine transform from {@link #mapCS} to {@link #deviceCS}. Used by
+     * {@link #setCoordinateSystem} when the coordinate system is {@link #mapCS}.
+     * This is a pretty common case, and unfortunatly one that is badly optimized
+     * by {@link Renderer#getMathTransform}.
+     */
+    private AffineTransform mapToDevice;
+
+    /**
      * The painted area in the {@linkplain #textCS Java2D coordinate system}, or
      * <code>null</code> if unknow. This field is built by {@link #addPaintedArea}
      * at rendering time.  The package-private method {@link RenderedLayer#update}
@@ -193,9 +201,10 @@ public final class RenderingContext {
      * @param bounds   The drawing area in device coordinates.
      */
     final void init(final Graphics2D graphics, final Rectangle bounds) {
-        this.graphics  = graphics;
-        this.bounds    = bounds;
-        this.mapBounds = null;
+        this.graphics    = graphics;
+        this.bounds      = bounds;
+        this.mapBounds   = null;
+        this.mapToDevice = (graphics!=null) ? graphics.getTransform() : null;
     }
 
     /**
@@ -263,7 +272,8 @@ public final class RenderingContext {
      * @see Graphics2D#setTransform
      */
     public void setCoordinateSystem(final CoordinateSystem cs) throws TransformException {
-        graphics.setTransform(getAffineTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS));
+        graphics.setTransform((cs==mapCS) ? mapToDevice : // Optimization for a pretty common case.
+                              getAffineTransform(CTSUtilities.getCoordinateSystem2D(cs), deviceCS));
     }
 
     /**

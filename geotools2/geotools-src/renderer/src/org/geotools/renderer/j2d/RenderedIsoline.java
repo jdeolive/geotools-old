@@ -73,7 +73,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.14 2003/03/20 22:49:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -358,7 +358,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.14 2003/03/20 22:49:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -545,6 +545,7 @@ public class RenderedIsoline extends RenderedLayer {
          * If the isoline covers a widther area than necessary, clip it.
          */
         if (bestRatio >= CLIP_THRESHOLD*CLIP_THRESHOLD) {
+            logUpdateCache("RenderedIsoline");
             scale(clip, 0.5*(CLIP_THRESHOLD+1));
             bestIsoline = bestIsoline.clip(clip);
             if (bestIsoline!=null && CLIP_THRESHOLD>1) {

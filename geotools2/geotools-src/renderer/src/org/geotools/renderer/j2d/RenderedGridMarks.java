@@ -84,7 +84,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.10 2003/03/19 23:50:49 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.11 2003/03/20 22:49:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
@@ -184,7 +184,12 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Couleur des flèches.
      */
-    private Color color = MarkIterator.DEFAULT_COLOR;
+    private Paint markPaint = MarkIterator.DEFAULT_COLOR;
+
+    /**
+     * The shape to use for marks, or <code>null</code> for displaying labels only.
+     */
+    private Shape markShape = DEFAULT_SHAPE_1D;
 
     /**
      * The default {@linkplain #getZOrder z-order} for this layer.
@@ -225,8 +230,9 @@ public class RenderedGridMarks extends RenderedMarks {
         if (coverage != null) try {
             numBands = coverage.getRenderedImage().getSampleModel().getNumBands();
             if (numBands >= 2) {
-                numBands = 2;
-                bandY    = 1;
+                numBands  = 2;
+                bandY     = 1;
+                markShape = DEFAULT_SHAPE_2D;
             }
             setCoordinateSystem(coverage.getCoordinateSystem());
             setGridCoverage(coverage);
@@ -251,7 +257,7 @@ public class RenderedGridMarks extends RenderedMarks {
             if (coverage == null) {
                 return super.getName(locale);
             }
-            return '"' + coverage.getName(locale) + "\": " + super.getName(locale);
+            return coverage.getName(locale) + " (" + super.getName(locale) + ')';
         }
     }
 
@@ -364,9 +370,10 @@ public class RenderedGridMarks extends RenderedMarks {
                 this.mainSD   = sampleX;
                 updatePreferences();
             }
+            clearCache();
+            repaint();
         }
         listeners.firePropertyChange("gridCoverage", oldCoverage, coverage);
-        repaint();
     }
 
     /**
@@ -415,22 +422,32 @@ public class RenderedGridMarks extends RenderedMarks {
                 case 2: {
                     bandX = bands[0];
                     bandY = bands[1];
+                    if (markShape == DEFAULT_SHAPE_1D) {
+                        markShape  = DEFAULT_SHAPE_2D;
+                    }
                     break;
                 }
                 case 1: {
                     bandX = bandY = bands[0];
+                    if (markShape == DEFAULT_SHAPE_2D) {
+                        markShape  = DEFAULT_SHAPE_1D;
+                    }
                     break;
                 }
                 case 0: {
                     bandX = bandY = 0;
                     setVisible(false);
+                    if (markShape == DEFAULT_SHAPE_2D) {
+                        markShape  = DEFAULT_SHAPE_1D;
+                    }
                     break;
                 }
             }
             numBands = bands.length;
+            clearCache();
+            repaint();
         }
         listeners.firePropertyChange("bands", oldBands, bands);
-        repaint();
     }
 
     /**
@@ -471,8 +488,9 @@ public class RenderedGridMarks extends RenderedMarks {
                 this.decimateX = decimateX;
                 this.decimateY = decimateY;
                 decimate = (decimateX!=1 || decimateY!=1);
+                clearCache();
+                repaint();
             }
-            repaint();
         }
     }
 
@@ -499,23 +517,74 @@ public class RenderedGridMarks extends RenderedMarks {
                 this.spaceX  = spaceX;
                 this.spaceY  = spaceY;
                 autoDecimate = (spaceX!=0 || spaceY!=0);
+                clearCache();
+                repaint();
             }
-            repaint();
         }
     }
 
     /**
-     * Set the default fill color.
+     * Returns the shape to use for painting marks. If this layer paint labels rather than
+     * marks, then this method returns <code>null</code>.
+     *
+     * @see #setMarkShape
+     * @see Iterator#markShape
      */
-    public void setColor(final Color color) {
-        this.color = color;
+    public Shape getMarkShape() {
+        return markShape;
     }
 
     /**
-     * Returns the default fill color.
+     * Set the shape to use for painting marks. This shape must be centred at the origin (0,0)
+     * and its coordinates must be expressed in dots (1/72 of inch). For example in order to
+     * paint wind arrows, this shape should be oriented toward positives <var>x</var> (i.e.
+     * toward 0 arithmetic radians), has a base centred at (0,0) and have a raisonable size
+     * (for example 16&times;4 pixels). The method {@link RenderedMarks#paint(RenderingContext)}
+     * will automatically takes care of rotation, translation and scale in order to adjust this
+     * model to each mark properties.
+     * <br><br>
+     * A value of <code>null</code> is legal. In this case, this layer will renderer amplitudes
+     * as labels rather than marks.
+     *
+     * @see #getMarkShape
+     * @see Iterator#markShape
      */
-    public Color getColor() {
-        return color;
+    public void setMarkShape(final Shape shape) {
+        final Shape oldShape;
+        synchronized (getTreeLock()) {
+            oldShape = markShape;
+            markShape = shape;
+        }
+        listeners.firePropertyChange("markShape", oldShape, shape);
+    }
+
+    /**
+     * Returns the default fill paint for marks.
+     *
+     * @see #setMarkPaint
+     * @see Iterator#markPaint
+     */
+    public Paint getMarkPaint() {
+        return markPaint;
+    }
+
+    /**
+     * Set the default fill paint for marks.
+     *
+     * @see #getMarkPaint
+     * @see Iterator#markPaint
+     */
+    public void setMarkPaint(final Paint paint) {
+        if (paint == null) {
+            throw new IllegalArgumentException(
+                            Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2, "paint", paint));
+        }
+        final Paint oldPaint;
+        synchronized (getTreeLock()) {
+            oldPaint = markPaint;
+            markPaint = paint;
+        }
+        listeners.firePropertyChange("markPaint", oldPaint, paint);
     }
 
     /**
@@ -681,7 +750,7 @@ public class RenderedGridMarks extends RenderedMarks {
                 this.decimateX = decimateX;
                 this.decimateY = decimateY;
                 decimate = (decimateX!=1 || decimateY!=1);
-                clearCache();
+                invalidate();
             }
         }
         super.paint(context);
@@ -719,7 +788,7 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Iterates through all marks in a {@link RenderedGridMarks}.
      *
-     * @version $Id: RenderedGridMarks.java,v 1.10 2003/03/19 23:50:49 desruisseaux Exp $
+     * @version $Id: RenderedGridMarks.java,v 1.11 2003/03/20 22:49:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Iterator extends MarkIterator {
@@ -903,16 +972,38 @@ public class RenderedGridMarks extends RenderedMarks {
          * Lorsque deux bandes sont utilisées, la forme par défaut sera une flèche
          * dont l'origine est à (0,0) et qui pointe dans la direction des <var>x</var>
          * positifs (soit à un angle de 0 radians arithmétiques).
+         *
+         * @see RenderedGridMarks#getMarkShape
+         * @see RenderedGridMarks#setMarkShape
          */
         public Shape markShape() {
-            return (numBands>=2) ? DEFAULT_SHAPE_2D : DEFAULT_SHAPE_1D;
+            return markShape;
         }
 
         /**
          * Returns the paint for current mark.
+         *
+         * @see RenderedGridMarks#getMarkPaint
+         * @see RenderedGridMarks#setMarkPaint
          */
         public Paint markPaint() {
-            return color;
+            return markPaint;
+        }
+
+        /**
+         * Returns the label for the current mark, or <code>null</code> if none.
+         */
+        public String label() {
+            if (markShape == null) {
+                double amplitude = amplitude();
+                if (numBands == 1) {
+                    // 'getAmplitude' took the square root of amplitude.
+                    // Overrides with the plain amplitude.
+                    amplitude = x;
+                }
+                return mainSD.getLabel(amplitude, getLocale());
+            }
+            return super.label();
         }
 
         /**
@@ -923,7 +1014,7 @@ public class RenderedGridMarks extends RenderedMarks {
          * @param  event The mouse event.
          * @return The tool tip text for the current mark, or <code>null</code> if none.
          */
-        protected String getToolTipText(GeoMouseEvent event) {
+        protected String getToolTipText(final GeoMouseEvent event) {
             assert Thread.holdsLock(getTreeLock());
             double amplitude = amplitude();
             if (numBands == 1) {
