@@ -48,9 +48,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.xml,v 1.6 2003/02/17 21:16:39 camerons Exp $</date>
+    <date>$Id: design.xml,v 1.7 2003/02/22 11:34:16 camerons Exp $</date>
 
-    <edition>$Id: design.xml,v 1.6 2003/02/17 21:16:39 camerons Exp $</edition>
+    <edition>$Id: design.xml,v 1.7 2003/02/22 11:34:16 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -81,78 +81,81 @@ id="index">
   <section>
     <title id="geotoolsdetaileddesign">Geotools2 detailed design.</title>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/gui.sgml"></xi:include>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/map.sgml"></xi:include>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/filter.sgml"></xi:include>
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../sldstyling/xdocs/SLDStyling.sgml"></xi:include>
-
-    <section>
-      <title id="modulesvgsupport">svgsupport</title>
-
-      <para>A module which extends the java2drenderer so that SVG files can be
-      created.</para>
-    </section>
-
-    <section>
-      <title id="modulepostgis">postgis</title>
-
-      <para>A datasource implementation for pulling spatial and attribute data
-      from a PostGIS database. (taking advantage of the spatial capabilities
-      of PostGIS).</para>
-    </section>
-
-    <section>
-      <title id="modulemysql">mysql</title>
-
-      <para>A datasource implementation for pulling spatial and attribute data
-      from a MySQL database. (working around the lack of spatial capability in
-      MySQL).</para>
-    </section>
-
-    <section>
-      <title id="modulegmldatasource">gmldatasource</title>
-
-      <para>A datasource implementation which can parse GML 2 encoded
-      information.</para>
-    </section>
-
-    <section>
-      <title id="modulemapinfo">mapinfo</title>
-
-      <para>A datasource implementation which can read MIF/MID files.</para>
-    </section>
-
-    <section>
-      <title id="moduleshapefile">shapefile</title>
-
-      <para>A datasource implementation which can read Shapefiles.</para>
-    </section>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../cts-coordtrans/sdocbook/cts-coordtrans.sgml"></xi:include>
-
-    <section>
-      <title id="modulegcs-coverage">gcs-coverage</title>
-
-      <para>gcs-coverage - an implementation of the Grid Coverages
-      specification.</para>
-    </section>
-
-    <section>
-      <title id="modulealgorithms">algorithms</title>
-
-      <para>A suite of algorithms for analysing and manipulating geographic
-      objects.</para>
-    </section>
-
-    <section>
-      <title id="modulewmsserver">wmsserver</title>
-
-      <para>An implementation of the OGC WMS spec, including support for SLD.</para>
-
-      <para>A WFS has been implemented as a separate project using the GT2
-      code base and it envisioned that the wmsserver module will soon be
-      extracted and become part of a separate project which still uses the GT2
-      as a base.</para>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../core/sdocbook/core.xml"></xi:include>
+    <section id="implementation">
+      <title>Implimentation</title>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/gui.sgml"></xi:include>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../defaultcore/sdocbook/filter.sgml"></xi:include>
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../sldstyling/xdocs/SLDStyling.sgml"></xi:include>
+  
+      <section>
+        <title id="modulesvgsupport">svgsupport</title>
+  
+        <para>A module which extends the java2drenderer so that SVG files can be
+        created.</para>
+      </section>
+  
+      <section>
+        <title id="modulepostgis">postgis</title>
+  
+        <para>A datasource implementation for pulling spatial and attribute data
+        from a PostGIS database. (taking advantage of the spatial capabilities
+        of PostGIS).</para>
+      </section>
+  
+      <section>
+        <title id="modulemysql">mysql</title>
+  
+        <para>A datasource implementation for pulling spatial and attribute data
+        from a MySQL database. (working around the lack of spatial capability in
+        MySQL).</para>
+      </section>
+  
+      <section>
+        <title id="modulegmldatasource">gmldatasource</title>
+  
+        <para>A datasource implementation which can parse GML 2 encoded
+        information.</para>
+      </section>
+  
+      <section>
+        <title id="modulemapinfo">mapinfo</title>
+  
+        <para>A datasource implementation which can read MIF/MID files.</para>
+      </section>
+  
+      <section>
+        <title id="moduleshapefile">shapefile</title>
+  
+        <para>A datasource implementation which can read Shapefiles.</para>
+      </section>
+  
+      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="../../cts-coordtrans/sdocbook/cts-coordtrans.sgml"></xi:include>
+  
+      <section>
+        <title id="modulegcs-coverage">gcs-coverage</title>
+  
+        <para>gcs-coverage - an implementation of the Grid Coverages
+        specification.</para>
+      </section>
+  
+      <section>
+        <title id="modulealgorithms">algorithms</title>
+  
+        <para>A suite of algorithms for analysing and manipulating geographic
+        objects.</para>
+      </section>
+  
+      <section>
+        <title id="modulewmsserver">wmsserver</title>
+  
+        <para>An implementation of the OGC WMS spec, including support for SLD.</para>
+  
+        <para>A WFS has been implemented as a separate project using the GT2
+        code base and it envisioned that the wmsserver module will soon be
+        extracted and become part of a separate project which still uses the GT2
+        as a base.</para>
+      </section>
     </section>
   </section>
 
