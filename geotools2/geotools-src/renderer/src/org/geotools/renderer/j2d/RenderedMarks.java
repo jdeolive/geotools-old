@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.5 2003/02/23 21:27:38 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.6 2003/03/01 22:06:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -639,56 +639,6 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
      * Point utilisé temporairement lors des mouvements de la souris.
      */
     private transient Point2D point;
-
-    /**
-     * Format a value for the specified mark. This method doesn't have to format the
-     * mouse coordinate (this is {@link MouseCoordinateFormat#format(GeoMouseEvent)}
-     * business).
-     *
-     * @param  index The mark index.
-     * @param  toAppendTo The destination buffer for formatting a value.
-     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
-     *         otherwise. If this method returns <code>true</code>, then the next layers (with
-     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
-     *
-     * @deprecated This method may be removed in a future version.
-     */
-    boolean formatValue(int index, StringBuffer toAppendTo) {
-        return false;
-    }
-
-    /**
-     * Méthode appelée automatiquement pour construire une chaîne de caractères représentant
-     * la valeur pointée par la souris. Cette méthode identifie sur quelle station pointait
-     * la souris et appelle la méthode {@link #formatValue(int,StringBuffer)}.
-     *
-     * @param  event The mouse event.
-     * @param  toAppendTo The destination buffer for formatting a value.
-     * @return <code>true</code> if this method has formatted a value, or <code>false</code>
-     *         otherwise. If this method returns <code>true</code>, then the next layers (with
-     *         smaller {@linkplain RenderedLayer#getZOrder z-order}) will not be queried.
-     */
-    final boolean formatValue(final GeoMouseEvent event,
-                              final StringBuffer toAppendTo)
-    {
-        synchronized (getTreeLock()) {
-            final Shape[] transformedShapes = RenderedMarks.this.transformedShapes;
-            if (transformedShapes != null) {
-                Shape shape;
-                final Point2D point = this.point = event.getPixelCoordinate(this.point);
-                for (int i=transformedShapes.length; --i>=0;) {
-                    if (isVisible(i) && (shape=transformedShapes[i])!=null) {
-                        if (shape.contains(point)) {
-                            if (formatValue(i, toAppendTo)) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return super.formatValue(event, toAppendTo);
-    }
 
     /**
      * Retourne le texte à afficher dans une bulle lorsque le curseur de la souris traîne
