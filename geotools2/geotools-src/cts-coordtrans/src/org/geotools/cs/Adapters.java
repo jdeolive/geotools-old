@@ -41,6 +41,7 @@ import org.opengis.cs.CS_Ellipsoid;
 import org.opengis.cs.CS_PrimeMeridian;
 import org.opengis.cs.CS_CoordinateSystem;
 import org.opengis.cs.CS_LocalCoordinateSystem;
+import org.opengis.cs.CS_FittedCoordinateSystem;
 import org.opengis.cs.CS_CompoundCoordinateSystem;
 import org.opengis.cs.CS_VerticalCoordinateSystem;
 import org.opengis.cs.CS_HorizontalCoordinateSystem;
@@ -70,6 +71,7 @@ import org.opengis.cs.CS_AngularUnit;
 import java.util.Map;
 import java.util.HashMap;
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 
 // JAI dependencies (parameters)
 import javax.media.jai.ParameterList;
@@ -83,6 +85,8 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
+import org.geotools.ct.MathTransformFactory;
+import org.geotools.ct.MathTransform;
 
 
 /**
@@ -93,17 +97,46 @@ import org.geotools.resources.cts.ResourceKeys;
  * A default instance of the <code>Adapters</code> classes is provided in the
  * {@link org.geotools.ct.Adapters#getDefault() org.geotools.ct} package.
  *
- * @version $Id: Adapters.java,v 1.8 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.9 2003/01/20 23:16:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.ct.Adapters#getDefault()
  */
 public class Adapters extends org.geotools.pt.Adapters {
     /**
-     * Default constructor.
+     * The factory to use for creating {@link CoordinateSystem} objects.
+     */
+    protected final CoordinateSystemFactory csFactory;
+
+    /**
+     * The factory to use for creating {@link MathTransform} objects.
+     * This is used by {@link #wrap(CS_FittedCoordinateSystem)}.
+     *
+     * @task REVISIT: Commented out for now in order to avoid premature class loading.
+     */
+//  protected final MathTransformFactory mtFactory;
+
+    /**
+     * Construct an adapter with default factories.
      */
     protected Adapters() {
+        csFactory = CoordinateSystemFactory.getDefault();
+//      mtFactory = MathTransformFactory.getDefault();
     }
+
+    /**
+     * Construct an adapter with the specified factories.
+     *
+     * @param csFactory The factory to use for creating {@link CoordinateSystem} objects.
+     * @param mtFactory The factory to use for creating {@link MathTransform} objects.
+     *                  This is used by {@link #wrap(CS_FittedCoordinateSystem)}.
+     */
+//  protected Adapters(final CoordinateSystemFactory csFactory,
+//                     final MathTransformFactory    mtFactory)
+//  {
+//      this.csFactory = csFactory;
+//      this.mtFactory = mtFactory;
+//  }
     
     /**
      * Returns an OpenGIS interface for a coordinate system authority factory.
@@ -137,6 +170,13 @@ public class Adapters extends org.geotools.pt.Adapters {
      */
     public CS_CoordinateSystem export(final CoordinateSystem cs) {
         return (cs!=null) ? (CS_CoordinateSystem)cs.cachedOpenGIS(this) : null;
+    }
+    
+    /**
+     * Returns an OpenGIS interface for a fitted coordinate system.
+     */
+    public CS_FittedCoordinateSystem export(final FittedCoordinateSystem cs) {
+        return (cs!=null) ? (CS_FittedCoordinateSystem)cs.cachedOpenGIS(this) : null;
     }
     
     /**
@@ -371,6 +411,9 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (cs == null) {
             return null;
         }
+        if (cs instanceof CS_FittedCoordinateSystem) {
+            return wrap(( CS_FittedCoordinateSystem)cs);
+        }
         if (cs instanceof CS_CompoundCoordinateSystem) {
             return wrap(( CS_CompoundCoordinateSystem)cs);
         }
@@ -394,6 +437,30 @@ public class Adapters extends org.geotools.pt.Adapters {
     }
     
     /**
+     * Returns a fitted coordinate system for an OpenGIS interface.
+     * @throws RemoteException if a remote call fails.
+     */
+    public FittedCoordinateSystem wrap(final CS_FittedCoordinateSystem cs)
+            throws RemoteException
+    {
+        if (cs == null) {
+            return null;
+        }
+        if (cs instanceof RemoteProxy) {
+            return (FittedCoordinateSystem) ((RemoteProxy)cs).getImplementation();
+        }
+        try {
+            return csFactory.createFittedCoordinateSystem(new InfoProperties.Adapter(cs),
+                             wrap(cs.getBaseCoordinateSystem()),
+//                           mtFactory.createFromWKT(cs.getToBase()),
+                             MathTransformFactory.getDefault().createFromWKT(cs.getToBase()),
+                             null);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
+    }
+    
+    /**
      * Returns a compound coordinate system for an OpenGIS interface.
      * @throws RemoteException if a remote call fails.
      */
@@ -406,8 +473,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (cs instanceof RemoteProxy) {
             return (CompoundCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
-        return new CompoundCoordinateSystem(new InfoProperties.Adapter(cs),
-                                            wrap(cs.getHeadCS()), wrap(cs.getTailCS()));
+        try {
+            return csFactory.createCompoundCoordinateSystem(new InfoProperties.Adapter(cs),
+                             wrap(cs.getHeadCS()), wrap(cs.getTailCS()));
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -428,7 +499,12 @@ public class Adapters extends org.geotools.pt.Adapters {
             axes [i] = wrap(cs.getAxis (i));
             units[i] = wrap(cs.getUnits(i));
         }
-        return new LocalCoordinateSystem(new InfoProperties.Adapter(cs), datum, units, axes);
+        try {
+            return csFactory.createLocalCoordinateSystem(new InfoProperties.Adapter(cs),
+                             datum, units, axes);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -453,8 +529,12 @@ public class Adapters extends org.geotools.pt.Adapters {
             axes[i] = wrap(cs.getAxis(i));
             // Accept null value.
         }
-        return new GeocentricCoordinateSystem(new InfoProperties.Adapter(cs),
-                                              unit, datum, meridian, axes);
+        try {
+            return csFactory.createGeocentricCoordinateSystem(new InfoProperties.Adapter(cs),
+                             unit, datum, meridian, axes);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -474,7 +554,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         final VerticalDatum datum = wrap(cs.getVerticalDatum());
         final Unit           unit = wrap(cs.getVerticalUnit());
         final AxisInfo       axis = wrap(cs.getAxis(0));
-        return new VerticalCoordinateSystem(new InfoProperties.Adapter(cs), datum, unit, axis);
+        try {
+            return csFactory.createVerticalCoordinateSystem(new InfoProperties.Adapter(cs),
+                             datum, unit, axis);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -515,8 +600,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         final PrimeMeridian meridian = wrap(cs.getPrimeMeridian());
         final AxisInfo         axis0 = wrap(cs.getAxis(0));
         final AxisInfo         axis1 = wrap(cs.getAxis(1));
-        return new GeographicCoordinateSystem(new InfoProperties.Adapter(cs),
-                                              unit, datum, meridian, axis0, axis1);
+        try {
+            return csFactory.createGeographicCoordinateSystem(new InfoProperties.Adapter(cs),
+                             unit, datum, meridian, axis0, axis1);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -538,8 +627,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         final Unit                      unit = wrap(cs.getLinearUnit());
         final AxisInfo                 axis0 = wrap(cs.getAxis(0));
         final AxisInfo                 axis1 = wrap(cs.getAxis(1));
-        return new ProjectedCoordinateSystem(new InfoProperties.Adapter(cs),
-                                             gcs, projection, unit, axis0, axis1);
+        try {
+            return csFactory.createProjectedCoordinateSystem(new InfoProperties.Adapter(cs),
+                             gcs, projection, unit, axis0, axis1);
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -557,8 +650,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         for (int i=0; i<parameters.length; i++) {
             parameters[i] = projection.getParameter(i);
         }
-        return new Projection(new InfoProperties.Adapter(projection), projection.getClassName(),
-                                                         wrap(parameters));
+        try {
+            return csFactory.createProjection(new InfoProperties.Adapter(projection), projection.getClassName(),
+                             wrap(parameters));
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -572,8 +669,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (meridian instanceof RemoteProxy) {
             return (PrimeMeridian) ((RemoteProxy)meridian).getImplementation();
         }
-        return new PrimeMeridian(new InfoProperties.Adapter(meridian),
-                                 wrap(meridian.getAngularUnit()), meridian.getLongitude());
+        try {
+            return csFactory.createPrimeMeridian(new InfoProperties.Adapter(meridian),
+                             wrap(meridian.getAngularUnit()), meridian.getLongitude());
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -593,13 +694,15 @@ public class Adapters extends org.geotools.pt.Adapters {
         final double inverseFlattening = ellipsoid.getInverseFlattening();
         final boolean    ivfDefinitive = ellipsoid.isIvfDefinitive();
         final Unit               units = wrap(ellipsoid.getAxisUnit());
-        if (inverseFlattening==0 || Double.isInfinite(inverseFlattening) ||
-            semiMajorAxis==semiMinorAxis)
-        {
-            return new Spheroid(name, semiMajorAxis, ivfDefinitive, units);
+        try {
+            if (ivfDefinitive) {
+                return csFactory.createFlattenedSphere(name, semiMajorAxis, inverseFlattening, units);
+            } else {
+                return csFactory.createEllipsoid(name, semiMajorAxis, semiMinorAxis, units);
+            }
+        } catch (FactoryException exception) {
+            throw serverException(exception);
         }
-        return new Ellipsoid(name, semiMajorAxis, semiMinorAxis,
-                             inverseFlattening, ivfDefinitive, units);
     }
     
     /**
@@ -643,8 +746,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (datum instanceof RemoteProxy) {
             return (LocalDatum) ((RemoteProxy)datum).getImplementation();
         }
-        return new LocalDatum(new InfoProperties.Adapter(datum), 
-                              (DatumType.Local) wrap(datum.getDatumType()));
+        try {
+            return csFactory.createLocalDatum(new InfoProperties.Adapter(datum), 
+                             (DatumType.Local) wrap(datum.getDatumType()));
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -658,10 +765,14 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (datum instanceof RemoteProxy) {
             return (HorizontalDatum) ((RemoteProxy)datum).getImplementation();
         }
-        return new HorizontalDatum(new InfoProperties.Adapter(datum),
-                                   (DatumType.Horizontal) wrap(datum.getDatumType()),
-                                   wrap(datum.getEllipsoid()),
-                                   wrap(datum.getWGS84Parameters()));
+        try {
+            return csFactory.createHorizontalDatum(new InfoProperties.Adapter(datum),
+                             (DatumType.Horizontal) wrap(datum.getDatumType()),
+                             wrap(datum.getEllipsoid()),
+                             wrap(datum.getWGS84Parameters()));
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -675,8 +786,12 @@ public class Adapters extends org.geotools.pt.Adapters {
         if (datum instanceof RemoteProxy) {
             return (VerticalDatum) ((RemoteProxy)datum).getImplementation();
         }
-        return new VerticalDatum(new InfoProperties.Adapter(datum),
-                                 (DatumType.Vertical) wrap(datum.getDatumType()));
+        try {
+            return csFactory.createVerticalDatum(new InfoProperties.Adapter(datum),
+                             (DatumType.Vertical) wrap(datum.getDatumType()));
+        } catch (FactoryException exception) {
+            throw serverException(exception);
+        }
     }
     
     /**
@@ -771,5 +886,16 @@ public class Adapters extends org.geotools.pt.Adapters {
             return Unit.RADIAN.scale(radiansPerUnit);
         }
         throw new UnsupportedOperationException("Only meters and degrees are currently implemented");
+    }
+
+    /**
+     * Wrap a {@link FactoryException} into a {@link RemoteException}.
+     */
+    static RemoteException serverException(final FactoryException exception) {
+        final Throwable cause = exception.getCause();
+        if (cause instanceof RemoteException) {
+            return (RemoteException) cause;
+        }
+        return new ServerException("Can't create object", exception);
     }
 }

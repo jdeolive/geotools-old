@@ -58,7 +58,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * for local types. This will allow the OpenGIS Consortium to coordinate the
  * addition of new interoperable codes.
  *
- * @version $Id: DatumType.java,v 1.4 2002/09/03 10:17:24 desruisseaux Exp $
+ * @version $Id: DatumType.java,v 1.5 2003/01/20 23:16:09 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -323,9 +323,12 @@ public abstract class DatumType extends EnumeratedParameter {
 
     /**
      * Returns the enum value as a hash code.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
      */
     public int hashCode() {
-        return getValue();
+        return (int)serialVersionUID + 37*getValue();
     }
 
     /**

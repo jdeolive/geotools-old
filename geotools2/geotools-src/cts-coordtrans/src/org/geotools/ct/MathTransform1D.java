@@ -43,10 +43,15 @@ package org.geotools.ct;
  * <code>MathTransform1D</code> extends {@link MathTransform} by adding a simple method
  * transforming a value without the overhead of creating data array.
  *
- * @version $Id: MathTransform1D.java,v 1.1 2002/07/10 18:24:50 desruisseaux Exp $
+ * @version $Id: MathTransform1D.java,v 1.2 2003/01/20 23:16:17 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface MathTransform1D extends MathTransform {
+    /**
+     * The one dimensional identity transform.
+     */
+    public static final MathTransform1D IDENTITY = IdentityTransform1D.ONE;
+
     /**
      * Transforms the specified value.
      *

@@ -62,7 +62,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.8 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.9 2003/01/20 23:16:09 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -413,11 +413,23 @@ public class Ellipsoid extends Info {
     }
     
     /**
-     * Returns a hash value for this ellipsoid.
+     * Returns a hash value for this ellipsoid. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two ellipsoids
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
      */
     public int hashCode() {
-        final long longCode=Double.doubleToLongBits(getSemiMajorAxis());
-        return (((int)(longCode >>> 32)) ^ (int)longCode) + 37*super.hashCode();
+        long longCode = 37*Double.doubleToLongBits(semiMajorAxis);
+        if (ivfDefinitive) {
+            longCode += inverseFlattening;
+        } else {
+            longCode += semiMinorAxis;
+        }
+        return (((int)(longCode >>> 32)) ^ (int)longCode);
     }
     
     /**

@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.6 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.7 2003/01/20 23:16:10 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -267,6 +267,23 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
                    equals(this.meridian, that.meridian, compareNames);
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for this coordinate system. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two coordinate systems
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        return (int)serialVersionUID +
+            37*(datum   .hashCode() +
+            37*(unit    .hashCode() +
+            37*(meridian.hashCode())));
     }
     
     /**

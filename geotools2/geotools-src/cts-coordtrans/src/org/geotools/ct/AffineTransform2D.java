@@ -55,7 +55,7 @@ import java.io.Serializable;
 /**
  * Transforms two-dimensional coordinate points using an {@link AffineTransform}.
  *
- * @version $Id: AffineTransform2D.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: AffineTransform2D.java,v 1.3 2003/01/20 23:16:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class AffineTransform2D extends XAffineTransform implements MathTransform2D, LinearTransform {
@@ -144,17 +144,18 @@ final class AffineTransform2D extends XAffineTransform implements MathTransform2
     /**
      * Creates the inverse transform of this object.
      */
-    public synchronized MathTransform inverse() throws NoninvertibleTransformException {
-        if (inverse==null) try {
-            if (!isIdentity()) {
-                inverse = new AffineTransform2D(createInverse());
-                inverse.inverse = this;
-            } else {
+    public MathTransform inverse() throws NoninvertibleTransformException {
+        if (inverse == null) {
+            if (isIdentity()) {
                 inverse = this;
+            } else try {
+                synchronized (this) {
+                    inverse = new AffineTransform2D(createInverse());
+                    inverse.inverse = this;
+                }
+            } catch (java.awt.geom.NoninvertibleTransformException exception) {
+                throw new NoninvertibleTransformException(exception.getLocalizedMessage(), exception);
             }
-        }
-        catch (java.awt.geom.NoninvertibleTransformException exception) {
-            throw new NoninvertibleTransformException(exception.getLocalizedMessage(), exception);
         }
         return inverse;
     }

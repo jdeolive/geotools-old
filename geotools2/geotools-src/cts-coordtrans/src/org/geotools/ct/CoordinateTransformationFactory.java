@@ -64,6 +64,7 @@ import org.geotools.cs.HorizontalDatum;
 import org.geotools.cs.AxisOrientation;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.cs.WGS84ConversionInfo;
+import org.geotools.cs.FittedCoordinateSystem;
 import org.geotools.cs.CompoundCoordinateSystem;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
@@ -85,7 +86,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.12 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.13 2003/01/20 23:16:17 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -99,8 +100,9 @@ public class CoordinateTransformationFactory {
     private static CoordinateTransformationFactory DEFAULT;
     
     /**
-     * Number for temporary created objects. This number is incremented
-     * every time {@link #getTemporaryName(CoordinateSystem)} is invoked.
+     * Number for temporary created objects. This number is incremented every
+     * time {@link #getTemporaryName(CoordinateSystem)} is invoked. This is used
+     * only for creating default name for generated coordinate systems.
      */
     private static volatile int temporaryID;
     
@@ -187,6 +189,36 @@ public class CoordinateTransformationFactory {
             final int dim = sourceCS.getDimension();
             assert   dim == targetCS.getDimension();
             return createFromMathTransform(sourceCS, targetCS, factory.createIdentityTransform(dim));
+        }
+        /////////////////////////////////////////////////////////////////////
+        ////                                                             ////
+        ////     Fitted coordinate system -->  Any coordinate system     ////
+        ////                                                             ////
+        /////////////////////////////////////////////////////////////////////
+        if (sourceCS instanceof FittedCoordinateSystem) {
+            final FittedCoordinateSystem source = (FittedCoordinateSystem) sourceCS;
+            final CoordinateSystem         base = source.getBaseCoordinateSystem();
+            final CoordinateTransformation step1, step2;
+            step1 = createFromMathTransform(sourceCS, base, source.getToBase());
+            step2 = createFromCoordinateSystems(base, targetCS);
+            return concatenate(step1, step2);
+        }
+        /////////////////////////////////////////////////////////////////////
+        ////                                                             ////
+        ////     Any coordinate system -->  Fitted coordinate system     ////
+        ////                                                             ////
+        /////////////////////////////////////////////////////////////////////
+        if (targetCS instanceof FittedCoordinateSystem) {
+            final FittedCoordinateSystem target = (FittedCoordinateSystem) targetCS;
+            final CoordinateSystem         base = target.getBaseCoordinateSystem();
+            final CoordinateTransformation step1, step2;
+            try {
+                step1 = createFromCoordinateSystems(sourceCS, base);
+                step2 = createFromMathTransform(base, targetCS, target.getToBase().inverse());
+            } catch (NoninvertibleTransformException exception) {
+                throw new CannotCreateTransformException(sourceCS, targetCS, exception);
+            }
+            return concatenate(step1, step2);
         }
         /////////////////////////////////////////////////////////////////////
         ////                                                             ////

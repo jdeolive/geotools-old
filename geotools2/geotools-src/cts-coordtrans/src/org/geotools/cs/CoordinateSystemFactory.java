@@ -78,6 +78,8 @@ import org.opengis.cs.CS_WGS84ConversionInfo;
 // Geotools dependencies
 import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
+import org.geotools.ct.MathTransform;
+import org.geotools.ct.MathTransformFactory;
 
 
 /**
@@ -97,7 +99,7 @@ import org.geotools.util.WeakHashSet;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.10 2002/10/18 20:14:41 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.11 2003/01/20 23:16:07 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -372,13 +374,42 @@ public class CoordinateSystemFactory {
         return (CompoundCoordinateSystem) pool.canonicalize(
                 new CompoundCoordinateSystem(name, head, tail));
     }
+    /**
+     * Creates a fitted coordinate system. 
+     * The units of the axes in the fitted coordinate system will be inferred
+     * from the units of the base coordinate system. If the affine map performs
+     * a rotation, then any mixed axes must have identical units. For example, a
+     * (<var>lat_deg</var>,<var>lon_deg</var>,<var>height_feet</var>) system can
+     * be rotated in the (<var>lat</var>,<var>lon</var>) plane, since both affected
+     * axes are in degrees.  But you should not rotate this coordinate system in any
+     * other plane.
+     *
+     * @param name   Name to give new object.
+     * @param base   Coordinate system to base the fitted CS on.
+     * @param toBase The transform from created CS to base CS.
+     * @param axes   Axes for fitted coordinate system. The number of axes must match
+     *               the source dimension of the transform <code>toBase</code>. If this
+     *               argument is <code>null</code>, then axes will be infered from the
+     *               base coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     *
+     * @see org.opengis.cs.CS_CoordinateSystemFactory#createFittedCoordinateSystem
+     */
+    public FittedCoordinateSystem createFittedCoordinateSystem(final CharSequence     name,
+                                                               final CoordinateSystem base,
+                                                               final MathTransform  toBase,
+                                                               final AxisInfo[]       axes)
+        throws FactoryException
+    {
+        return (FittedCoordinateSystem) pool.canonicalize(
+                new FittedCoordinateSystem(name, base, toBase, axes));
+    }
     
     /**
      * Creates a local coordinate system.
      * The dimension of the local coordinate system is determined by the size
-     * of the axis array. All the axes will have the same units. If you want
-     * to make a coordinate system with mixed units, then you can make a
-     * compound coordinate system from different local coordinate systems.
+     * of the axis array. All the axes will have the same units.
      *
      * @param name  Name to give new object.
      * @param datum Local datum to use in created CS.
@@ -400,10 +431,36 @@ public class CoordinateSystemFactory {
                                         final AxisInfo[]   axes)
         throws FactoryException
     {
-        return (LocalCoordinateSystem) pool.canonicalize(
-                new LocalCoordinateSystem(name, datum, unit, axes));
+        return createLocalCoordinateSystem(name, datum,
+                LocalCoordinateSystem.expand(unit, axes.length), axes);
     }
-    
+
+    /**
+     * Creates a local coordinate system. The dimension of the local coordinate
+     * system is determined by the size of the axis array.  All the axes will
+     * have the same units.
+     *
+     * @param name  Name to give new object.
+     * @param datum Local datum to use in created coordinate system.
+     * @param units Units to use in created coordinate system.
+     * @param axes  Axes to use in created coordinate system.
+     * @throws IllegalArgumentException if an argument is <code>null</code>
+     *         or incompatible with the object to be created.
+     * @throws FactoryException if an error occurred during the object creation.
+     *         It may be, for example, a network error or a failure on the
+     *         server side.
+     */
+    public LocalCoordinateSystem createLocalCoordinateSystem(
+                                        final CharSequence name,
+                                        final LocalDatum   datum,
+                                        final Unit[]       units,
+                                        final AxisInfo[]   axes)
+        throws FactoryException
+    {
+        return (LocalCoordinateSystem) pool.canonicalize(
+                new LocalCoordinateSystem(name, datum, units, axes));
+    }
+
     /**
      * Creates an ellipsoid from radius values.
      *
@@ -790,7 +847,7 @@ public class CoordinateSystemFactory {
             try {
                 return adapters.export(CoordinateSystemFactory.this.createFromWKT(text));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -807,7 +864,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createCompoundCoordinateSystem(
                         name, adapters.wrap(head), adapters.wrap(tail)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -818,10 +875,18 @@ public class CoordinateSystemFactory {
                                         final String              name,
                                         final CS_CoordinateSystem base,
                                         final String              toBaseWKT,
-                                        final CS_AxisInfo[]       arAxes)
+                                        final CS_AxisInfo[]       axes)
             throws RemoteException
         {
-            throw new UnsupportedOperationException("Fitted CS not yet implemented");
+            try {
+                return adapters.export(CoordinateSystemFactory.this.createFittedCoordinateSystem(
+                        name, adapters.wrap(base),
+//                      adapters.mtFactory.createFromWKT(toBaseWKT),
+                        MathTransformFactory.getDefault().createFromWKT(toBaseWKT),
+                        adapters.wrap(axes)));
+            } catch (FactoryException exception) {
+                throw Adapters.serverException(exception);
+            }
         }
         
         /**
@@ -838,7 +903,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createLocalCoordinateSystem(
                         name, adapters.wrap(datum), adapters.wrap(unit), adapters.wrap(arAxes)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -855,7 +920,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createEllipsoid(
                         name, semiMajorAxis, semiMinorAxis, adapters.wrap(linearUnit)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -872,7 +937,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createFlattenedSphere(
                         name, semiMajorAxis, inverseFlattening, adapters.wrap(linearUnit)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -893,7 +958,7 @@ public class CoordinateSystemFactory {
                         name, adapters.wrap(gcs), adapters.wrap(projection), adapters.wrap(linearUnit),
                         adapters.wrap(axis0), adapters.wrap(axis1)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -909,7 +974,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createProjection(
                         name, wktProjectionClass, adapters.wrap(parameters)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -927,7 +992,7 @@ public class CoordinateSystemFactory {
                         name, (DatumType.Horizontal)adapters.wrap(horizontalDatumType),
                         adapters.wrap(ellipsoid), adapters.wrap(toWGS84)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -943,7 +1008,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createPrimeMeridian(
                         name, adapters.wrap(angularUnit), longitude));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -964,7 +1029,7 @@ public class CoordinateSystemFactory {
                         name, adapters.wrap(angularUnit), adapters.wrap(horizontalDatum),
                         adapters.wrap(primeMeridian), adapters.wrap(axis0), adapters.wrap(axis1)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -979,7 +1044,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createLocalDatum(
                         name, (DatumType.Local)adapters.wrap(localDatumType)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -994,7 +1059,7 @@ public class CoordinateSystemFactory {
                 return adapters.export(CoordinateSystemFactory.this.createVerticalDatum(
                         name, (DatumType.Vertical)adapters.wrap(verticalDatumType)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -1013,19 +1078,8 @@ public class CoordinateSystemFactory {
                         name, adapters.wrap(verticalDatum),
                         adapters.wrap(verticalUnit), adapters.wrap(axis)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
-        }
-
-        /**
-         * Wrap a {@link FactoryException} into a {@link RemoteException}.
-         */
-        private RemoteException serverException(final FactoryException exception) {
-            final Throwable cause = exception.getCause();
-            if (cause instanceof RemoteException) {
-                return (RemoteException) cause;
-            }
-            return new ServerException("Can't create object", exception);
         }
     }
 }

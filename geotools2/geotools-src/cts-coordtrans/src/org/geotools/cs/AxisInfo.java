@@ -49,7 +49,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Details of axis. This is used to label axes,
  * and indicate the orientation.
  *
- * @version $Id: AxisInfo.java,v 1.2 2002/06/05 14:31:07 loxnard Exp $
+ * @version $Id: AxisInfo.java,v 1.3 2003/01/20 23:16:07 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -150,9 +150,12 @@ public class AxisInfo implements Serializable {
     
     /**
      * Returns a hash value for this axis.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
      */
     public int hashCode() {
-        int code=36972167;
+        int code = (int)serialVersionUID;
         if (orientation!=null) code = code*37 + orientation.hashCode();
         if (name       !=null) code = code*37 + name.hashCode();
         return code;

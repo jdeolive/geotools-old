@@ -49,7 +49,7 @@ import java.io.Serializable;
  * where the X axis points towards the Greenwich Prime Meridian, the Y axis
  * points East, and the Z axis points North.
  *
- * @version $Id: WGS84ConversionInfo.java,v 1.3 2002/10/13 19:56:17 desruisseaux Exp $
+ * @version $Id: WGS84ConversionInfo.java,v 1.4 2003/01/20 23:16:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -124,11 +124,12 @@ public class WGS84ConversionInfo implements Cloneable, Serializable {
     
     /**
      * Returns a hash value for this object.
-     * This value need not remain consistent between
-     * different implementations of the same class.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
      */
     public int hashCode() {
-        long code = 14698129;
+        long code = serialVersionUID;
         code = code*37 + Double.doubleToLongBits(dx );
         code = code*37 + Double.doubleToLongBits(dy );
         code = code*37 + Double.doubleToLongBits(dz );

@@ -85,7 +85,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.9 2002/10/18 20:14:44 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.10 2003/01/20 23:16:11 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -319,11 +319,18 @@ public class Info implements Serializable {
     }
     
     /**
-     * Returns a hash value for this info.
+     * Returns a hash value for this info. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two info objects
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
      */
     public int hashCode() {
-        final String name = getName(null);
-        return (name!=null) ? name.hashCode() : 369781;
+        // Subclasses need to override this!!!!
+        return (int)serialVersionUID ^ getClass().hashCode();
     }
     
     /**

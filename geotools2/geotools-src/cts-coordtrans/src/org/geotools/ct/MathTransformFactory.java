@@ -107,7 +107,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.16 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.17 2003/01/20 23:16:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -688,7 +688,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.16 2003/01/18 12:58:32 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.17 2003/01/20 23:16:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {
@@ -747,7 +747,7 @@ public class MathTransformFactory {
                 return adapters.export(MathTransformFactory.this.createParameterizedTransform(
                         classification, adapters.wrap(parameters)));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -760,7 +760,7 @@ public class MathTransformFactory {
             try {
                 return adapters.export(MathTransformFactory.this.createFromWKT(text));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -791,17 +791,6 @@ public class MathTransformFactory {
         {
             final Unit unit = getParameterUnit(parameterName);
             return (unit!=null) && Unit.METRE.canConvert(unit);
-        }
-
-        /**
-         * Wrap a {@link FactoryException} into a {@link RemoteException}.
-         */
-        private RemoteException serverException(final FactoryException exception) {
-            final Throwable cause = exception.getCause();
-            if (cause instanceof RemoteException) {
-                return (RemoteException) cause;
-            }
-            return new ServerException("Can't create object", exception);
         }
     }
 }

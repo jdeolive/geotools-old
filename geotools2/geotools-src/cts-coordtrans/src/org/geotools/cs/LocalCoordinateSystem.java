@@ -66,7 +66,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.6 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.7 2003/01/20 23:16:12 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -98,7 +98,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
      * for this because the constructor needs to invoke it
      * before invoking <code>this(...)</code>.
      */
-    private static Unit[] expand(final Unit unit, final int count) {
+    static Unit[] expand(final Unit unit, final int count) {
         final Unit[] units = new Unit[count];
         Arrays.fill(units, unit);
         return units;
@@ -123,7 +123,7 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     {
         this(name, datum, expand(unit, axes.length), axes);
     }
-    
+
     /**
      * Creates a local coordinate system. The dimension of the local coordinate
      * system is determined by the size of the axis array.  All the axes will
@@ -226,6 +226,22 @@ public class LocalCoordinateSystem extends CoordinateSystem {
                    Arrays.equals(this.axes , that.axes );
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for this coordinate system. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two coordinate systems
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        return (int)serialVersionUID +
+            37*(datum.hashCode());
+        // 'units' and 'axes' would need special handling since they are arrays...
     }
     
     /**

@@ -50,7 +50,7 @@ import java.rmi.RemoteException;
 /**
  * A meridian used to take longitude measurements from.
  *
- * @version $Id: PrimeMeridian.java,v 1.5 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: PrimeMeridian.java,v 1.6 2003/01/20 23:16:12 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -129,14 +129,6 @@ public class PrimeMeridian extends Info {
     }
     
     /**
-     * Returns a hash value for this prime meridian.
-     */
-    public int hashCode() {
-        final long code = Double.doubleToLongBits(longitude);
-        return super.hashCode()*37 + ((int)(code >>> 32) ^ (int)code);
-    }
-    
-    /**
      * Compare this prime meridian with the specified object for equality.
      *
      * @param  object The object to compare to <code>this</code>.
@@ -157,6 +149,22 @@ public class PrimeMeridian extends Info {
                    Utilities.equals(this.unit, that.unit);
         }
         return false;
+    }
+    
+    /**
+     * Returns a hash value for this prime meridian. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two prime meridians
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        long code = serialVersionUID;
+        code ^= Double.doubleToLongBits(longitude);
+        return ((int)(code >>> 32) ^ (int)code);
     }
     
     /**

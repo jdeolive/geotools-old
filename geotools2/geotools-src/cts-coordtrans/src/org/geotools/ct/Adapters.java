@@ -44,11 +44,15 @@ import org.opengis.ct.CT_MathTransformFactory;
 import org.opengis.ct.CT_CoordinateTransformation;
 import org.opengis.ct.CT_CoordinateTransformationFactory;
 
-// Resources
+// Geotools dependencies
 import org.geotools.resources.XArray;
+import org.geotools.cs.FactoryException;
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.CoordinateSystemFactory;
 
 // J2SE and JAI dependencies
 import java.rmi.RemoteException;
+import java.rmi.ServerException;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
@@ -60,7 +64,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
  * <code>org.opengis.ct</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.3 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.4 2003/01/20 23:16:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.cs.Adapters {
@@ -69,18 +73,31 @@ public class Adapters extends org.geotools.cs.Adapters {
      * only when first requested.
      */
     private static Adapters DEFAULT;
-    
+
     /**
-     * Default constructor.
+     * Construct an adapter with default factories.
      */
     protected Adapters() {
+        super();
     }
+
+    /**
+     * Construct an adapter with the specified factories.
+     *
+     * @param csFactory The factory to use for creating {@link CoordinateSystem} objects.
+     * @param mtFactory The factory to use for creating {@link MathTransform} objects.
+     */
+//  protected Adapters(final CoordinateSystemFactory csFactory,
+//                     final MathTransformFactory    mtFactory)
+//  {
+//      super(csFactory, mtFactory);
+//  }
     
     /**
      * Gets the default adapters.
      */
     public static synchronized Adapters getDefault() {
-        if (DEFAULT==null) {
+        if (DEFAULT == null) {
             DEFAULT = new Adapters();
         }
         return DEFAULT;
@@ -90,7 +107,7 @@ public class Adapters extends org.geotools.cs.Adapters {
      * Returns an OpenGIS interface for a math transform.
      */
     public CT_MathTransform export(final MathTransform transform) {
-        if (transform==null) {
+        if (transform == null) {
             return null;
         }
         if (transform instanceof AbstractMathTransform) {
@@ -226,7 +243,8 @@ public class Adapters extends org.geotools.cs.Adapters {
         }
         paramNames   = (String[]) XArray.resize(paramNames,   count);
         paramClasses = (Class []) XArray.resize(paramClasses, count);
-        final ParameterList list = new ParameterListImpl(new ParameterListDescriptorImpl(null, paramNames, paramClasses, null, null));
+        final ParameterList list = new ParameterListImpl(new ParameterListDescriptorImpl(
+                                            null, paramNames, paramClasses, null, null));
         for (int i=0; i<paramNames.length; i++) {
             list.setParameter(paramNames[i], parameters[i].value);
         }
@@ -245,5 +263,16 @@ public class Adapters extends org.geotools.cs.Adapters {
      */
     public DomainFlags wrap(final CT_DomainFlags flags) {
         return (flags!=null) ? DomainFlags.getEnum(flags.value) : null;
+    }
+
+    /**
+     * Wrap a {@link FactoryException} into a {@link RemoteException}.
+     */
+    static RemoteException serverException(final FactoryException exception) {
+        final Throwable cause = exception.getCause();
+        if (cause instanceof RemoteException) {
+            return (RemoteException) cause;
+        }
+        return new ServerException("Can't create object", exception);
     }
 }

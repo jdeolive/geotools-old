@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.12 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.13 2003/01/20 23:16:14 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -293,16 +293,6 @@ public class Projection extends Info {
     }
     
     /**
-     * Returns a hash value for this projection.
-     */
-    public int hashCode() {
-        int code = 45896321;
-        if (classification!=null) code = code*37 + classification.hashCode();
-        if (parameters    !=null) code = code*37 + parameters.hashCode();
-        return code;
-    }
-    
-    /**
      * Compare this projection with the specified object for equality.
      *
      * @param  object The object to compare to <code>this</code>.
@@ -322,6 +312,23 @@ public class Projection extends Info {
                    DescriptorNaming.equals(this.parameters,     that.parameters);
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for this projection. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two projections
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        int code = (int)serialVersionUID;
+        if (classification!=null) code = code*37 + classification.hashCode();
+        if (parameters    !=null) code = code*37 + parameters.hashCode();
+        return code;
     }
     
     /**

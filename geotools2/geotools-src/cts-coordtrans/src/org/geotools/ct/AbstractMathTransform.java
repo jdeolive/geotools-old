@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.8 2003/01/17 22:28:03 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.9 2003/01/20 23:16:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -175,7 +175,7 @@ public abstract class AbstractMathTransform implements MathTransform {
         }
         if (ptDst==null) {
             ptDst = new CoordinatePoint(dimTarget);
-        } else if (ptDst.getDimension()!=dimTarget) {
+        } else if (ptDst.getDimension() != dimTarget) {
             throw new MismatchedDimensionException(ptDst.getDimension(), dimTarget);
         }
         transform(ptSrc.ord, 0, ptDst.ord, 0, 1);
@@ -620,7 +620,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * of the enclosing {@link MathTransform}. It is serializable only if the enclosing
      * math transform is also serializable.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.8 2003/01/17 22:28:03 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.9 2003/01/20 23:16:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform implements Serializable {

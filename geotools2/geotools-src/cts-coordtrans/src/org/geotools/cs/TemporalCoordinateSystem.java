@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.5 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.6 2003/01/20 23:16:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -199,6 +199,23 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
                    equals(this.axis , that.axis               );
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for this coordinate system. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two coordinate systems
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        return (int)serialVersionUID +
+            37*(datum.hashCode() +
+            37*(unit .hashCode() +
+            37*(axis .hashCode())));
     }
     
     /**

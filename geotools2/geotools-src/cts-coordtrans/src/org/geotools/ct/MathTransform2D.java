@@ -66,6 +66,11 @@ import javax.media.jai.PerspectiveTransform;
  */
 public interface MathTransform2D extends MathTransform {
     /**
+     * The two dimensional identity transform.
+     */
+    public static final MathTransform2D IDENTITY = new AffineTransform2D(new AffineTransform());
+
+    /**
      * Transforms the specified <code>ptSrc</code> and stores the result in <code>ptDst</code>.
      * If <code>ptDst</code> is <code>null</code>, a new {@link Point2D} object is allocated
      * and then the result of the transformation is stored in this object. In either case,

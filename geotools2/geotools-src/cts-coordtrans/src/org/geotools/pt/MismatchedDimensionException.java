@@ -41,10 +41,10 @@ import org.geotools.resources.cts.ResourceKeys;
  * Indicates that an operation cannot be completed properly because
  * of a mismatch in the dimensions of object attributes.
  *
- * @version 1.0
+ * @version $Id: MismatchedDimensionException.java,v 1.2 2003/01/20 23:16:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class MismatchedDimensionException extends RuntimeException {
+public class MismatchedDimensionException extends IllegalArgumentException {
     /**
      * Creates new exception without detail message.
      */

@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.5 2002/10/10 23:14:08 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.6 2003/01/20 23:16:07 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -223,7 +223,23 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
         }
         return false;
     }
-    
+
+    /**
+     * Returns a hash value for this coordinate system. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two coordinate systems
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        return (int)serialVersionUID +
+            37*(head.hashCode() +
+            37*(tail.hashCode()));
+    }
+
     /**
      * Fill the part inside "[...]".
      * Used for formatting Well Known Text (WKT).

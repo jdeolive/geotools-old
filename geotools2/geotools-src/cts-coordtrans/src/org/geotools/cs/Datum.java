@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * behavior (such as the rate of change of the orientation of the coordinate
  * axes).
  *
- * @version $Id: Datum.java,v 1.6 2002/10/13 19:56:17 desruisseaux Exp $
+ * @version $Id: Datum.java,v 1.7 2003/01/20 23:16:08 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -99,16 +99,6 @@ public class Datum extends Info {
     }
     
     /**
-     * Returns a hash value for this datum.
-     */
-    public int hashCode() {
-        int code = 37*super.hashCode();
-        final DatumType type  = getDatumType();
-        if (type!=null) code += type.hashCode();
-        return code;
-    }
-    
-    /**
      * Compare this datum with the specified object for equality.
      *
      * @param  object The object to compare to <code>this</code>.
@@ -124,6 +114,25 @@ public class Datum extends Info {
             return Utilities.equals(this.type, that.type);
         }
         return false;
+    }
+
+    /**
+     * Returns a hash value for this datum. {@linkplain #getName Name},
+     * {@linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority code}
+     * and the like are not taken in account. In other words, two datums
+     * will return the same hash value if they are equal in the sense of
+     * <code>{@link #equals equals}(Info, <strong>false</strong>)</code>.
+     *
+     * @return The hash code value. This value doesn't need to be the same
+     *         in past or future versions of this class.
+     */
+    public int hashCode() {
+        int code = (int)serialVersionUID;
+        final DatumType type = getDatumType();
+        if (type != null) {
+            code += type.hashCode();
+        }
+        return code;
     }
     
     /**

@@ -68,7 +68,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.7 2002/10/17 18:14:37 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.8 2003/01/20 23:16:07 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -420,7 +420,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return (CS_AngularUnit) adapters.export(CoordinateSystemAuthorityFactory.this.createUnit(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -431,7 +431,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return (CS_LinearUnit) adapters.export(CoordinateSystemAuthorityFactory.this.createUnit(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -442,7 +442,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createEllipsoid(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -453,7 +453,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createPrimeMeridian(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -464,7 +464,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createHorizontalDatum(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -475,7 +475,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createVerticalDatum(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
 
@@ -486,7 +486,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createHorizontalCoordinateSystem(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -497,7 +497,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createGeographicCoordinateSystem(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -508,7 +508,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createProjectedCoordinateSystem(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -519,7 +519,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createVerticalCoordinateSystem(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -530,7 +530,7 @@ public abstract class CoordinateSystemAuthorityFactory {
             try {
                 return adapters.export(CoordinateSystemAuthorityFactory.this.createCompoundCoordinateSystem(code));
             } catch (FactoryException exception) {
-                throw serverException(exception);
+                throw Adapters.serverException(exception);
             }
         }
         
@@ -554,16 +554,5 @@ public abstract class CoordinateSystemAuthorityFactory {
         public String wktGeoidName(String geoid) throws RemoteException {
             throw new UnsupportedOperationException("WKT formatting not yet implemented");
         }
-
-        /**
-         * Wrap a {@link FactoryException} into a {@link RemoteException}.
-         */
-        private RemoteException serverException(final FactoryException exception) {
-            final Throwable cause = exception.getCause();
-            if (cause instanceof RemoteException) {
-                return (RemoteException) cause;
-            }
-            return new ServerException("Can't create object", exception);
-        }
-    }        
+    }
 }
