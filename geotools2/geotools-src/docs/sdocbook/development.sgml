@@ -20,7 +20,7 @@
       </listitem>
 
       <listitem>
-        <para>maven</para>
+        <para>maven beta 8</para>
       </listitem>
 
       <listitem>
@@ -251,7 +251,7 @@ cvs tag -R r2_3_4</programlisting>
       <section id="gettingmaven">
         <title>Getting Maven</title>
 
-        <para>You will need Maven 1.0 beta 7 or later which you can download
+        <para>You will need Maven 1.0 beta 8 or later which you can download
         from: <ulink url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
       </section>
 
@@ -262,7 +262,7 @@ cvs tag -R r2_3_4</programlisting>
         your machine (c:\program files is good for windoze boxes)</para>
 
         <para>Set an environment variable called MAVEN_HOME to point to this
-        location (e.g. c:\program files\maven-1.0-beta-7)</para>
+        location (e.g. c:\program files\maven-1.0-beta-8)</para>
 
         <para>Add MAVEN_HOME\bin to your systems PATH environment variable.</para>
 
@@ -287,7 +287,7 @@ cvs tag -R r2_3_4</programlisting>
         have a jar from each module installed in your local repository.</para>
 
         <para>Move to the geotools2 directory (the one that contains
-        geotools-src and spike) <command>type &#39;maven&#39;</command></para>
+        geotools-src and spike) <command>type &#39;maven build&#39;</command></para>
 
         <para>All being well maven should startup and proceed to build all the
         modules in the right order, at the end of this process it will display
@@ -308,8 +308,8 @@ cvs tag -R r2_3_4</programlisting>
 
         <para>You should see that any third party jars, such as JTS, will have
         been installed in this repository, you should also see that all
-        successful module builds have had their jars installed here too (e.g.
-        core, defaultcore...)</para>
+        successful module builds have had their jars installed in a directory
+        called gt2 (e.g. core, defaultcore...)</para>
       </section>
 
       <section id="indvidualmavenmodule">
@@ -319,7 +319,7 @@ cvs tag -R r2_3_4</programlisting>
         able to build individual modules.</para>
 
         <para>Change to the modules home directory (e.g.
-        geotools-src\defaultcore) <command> Type &#39;maven&#39;</command></para>
+        geotools-src\defaultcore) <command> Type &#39;maven java:compile&#39;</command></para>
 
         <para>It should do a complete build, note that if you have not done a
         full build yet then the build may fail because it can&#39;t find the
@@ -839,7 +839,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.17 2003/02/09 04:43:45 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.18 2003/02/21 17:02:58 jmacgill Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
