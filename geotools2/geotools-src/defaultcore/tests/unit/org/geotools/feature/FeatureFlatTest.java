@@ -223,19 +223,22 @@ public class FeatureFlatTest extends TestCase {
         }
     }
 
-    public void testEnforceType() {
-        Date d = new Date();
-        Feature f = SampleFeatureFixtures.createFeature();
-        for (int i = 0, ii = f.getNumberOfAttributes(); i < ii; i++) {
-            try {
-                f.setAttribute(i, d);
-            } catch (IllegalAttributeException iae) {
-                continue;
-            }
-            fail("No error thrown during illegal set");
-        }
-
-    }
+    // IanS - this is no longer good, cause we deal with parsing
+//    public void testEnforceType() {
+//        
+//        Date d = new Date();
+//        
+//        Feature f = SampleFeatureFixtures.createFeature();
+//        for (int i = 0, ii = f.getNumberOfAttributes(); i < ii; i++) {
+//            try {
+//                f.setAttribute(i, d);
+//            } catch (IllegalAttributeException iae) {
+//                continue;
+//            }
+//            fail("No error thrown during illegal set");
+//        }
+//
+//    }
 
     public void testEquals() throws Exception {
         Feature f1 = SampleFeatureFixtures.createFeature();
