@@ -113,20 +113,20 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     
     public void visit(Style style){
         try{
-            out.write("<namedlayer>");
+            out.write("<NamedLayer>\n");
             String title = style.getTitle();
             String abs = style.getAbstract();
             String name = style.getName();
-            out.write("<title>"+title+"</title>\n");
-            out.write("<name>"+name+"</name>\n");
-            out.write("<abstract>"+abs+"</abstract>\n");
-            out.write("<userlayer>");
+            out.write("<Title>"+title+"</Title>\n");
+            out.write("<Name>"+name+"</Name>\n");
+            out.write("<Abstract>"+abs+"</Abstract>\n");
+            out.write("<UserLayer>\n");
             FeatureTypeStyle[] fts = style.getFeatureTypeStyles();
             for(int i=0;i<fts.length;i++){
                 visit(fts[i]);
             }
-            out.write("</userlayer>\n");
-            out.write("</namedlayer>\n");
+            out.write("</UserLayer>\n");
+            out.write("</NamedLayer>\n");
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -152,9 +152,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(Rule rule){
         try{
             out.write("<Rule>\n");
-            out.write("<name>"+rule.getName()+"</name>\n");
-            out.write("<abstract>"+rule.getAbstract()+"</abstract>\n");
-            out.write("<title>"+rule.getTitle()+"</title>\n");
+            out.write("<Name>"+rule.getName()+"</Name>\n");
+            out.write("<Abstract>"+rule.getAbstract()+"</Abstract>\n");
+            out.write("<Title>"+rule.getTitle()+"</Title>\n");
             if(rule.getMaxScaleDenominator()!=Double.POSITIVE_INFINITY)out.write("<MaxScaleDenominator>"+rule.getMaxScaleDenominator()+"</MaxScaleDenominator>");
             if(rule.getMinScaleDenominator()!=0.0)out.write("<MinScaleDenominator>"+rule.getMinScaleDenominator()+"</MinScaleDenominator>");
             Filter filter = rule.getFilter();
@@ -183,19 +183,21 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(Graphic gr){
         try{
             out.write("<Graphic>\n");
-            out.write("<geometryproperty>"+gr.getGeometryPropertyName()+"</geometryproperty>\n");
-            out.write("<Size>");
-            System.out.println("size "+gr.getSize());
+            String geom = gr.getGeometryPropertyName();
+            if(geom!=null&&!geom.trim().equals("")){
+                out.write("<GeometryProperty>"+geom+"</GeometryProperty>\n");
+            }
+            out.write("<Size>\n");
+            
             encode(gr.getSize());
-            out.write("</Size>");
+            out.write("</Size>\n");
             
             out.write("<Opacity>\n");
-            System.out.println("opacity "+gr.getOpacity());
             encode(gr.getOpacity());
             out.write("</Opacity>\n");
-            out.write("<Rotation>");
+            out.write("<Rotation>\n");
             encode(gr.getRotation());
-            out.write("</Rotation>");
+            out.write("</Rotation>\n");
             Symbol[] symbols = gr.getSymbols();
             for(int i=0;i<symbols.length;i++){
                 symbols[i].accept(this);
@@ -209,8 +211,10 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(PointSymbolizer sym){
         try{
             out.write("<PointSymbolizer>\n");
-            out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
+            if(sym.geometryPropertyName()!=null){
+                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
             "</ogc:PropertyName>\n</Geometry>\n");
+            }
             sym.getGraphic().accept(this);
             out.write("</PointSymbolizer>\n");
         }catch (IOException e){
@@ -220,8 +224,10 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(LineSymbolizer sym){
         try{
             out.write("<LineSymbolizer>\n");
-            out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
+            if(sym.geometryPropertyName()!=null){
+                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.geometryPropertyName()+
             "</ogc:PropertyName>\n</Geometry>\n");
+            }
             sym.getStroke().accept(this);
             out.write("</LineSymbolizer>\n");
         }catch (IOException e){
@@ -237,11 +243,11 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     
     public void visit(Fill fill){
         try{
-            out.write("<fill>\n");
+            out.write("<Fill>\n");
             if(fill.getGraphicFill()!=null)fill.getGraphicFill().accept(this);
             encodeCssParam("fill",fill.getColor());
             encodeCssParam("fill-opacity",fill.getOpacity());
-            out.write("</fill>\n");
+            out.write("</Fill>\n");
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -249,7 +255,7 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     
     public void visit(Stroke stroke){
         try{
-            out.write("<stroke>\n");
+            out.write("<Stroke>\n");
             if(stroke.getGraphicFill()!=null)stroke.getGraphicFill().accept(this);
             if(stroke.getGraphicStroke()!=null)stroke.getGraphicStroke().accept(this);
             
@@ -265,7 +271,7 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
                 sb.append(dash[i]+" ");
             }
             out.write("<CssParameter name='stroke-dasharray'>"+sb.toString()+"</CssParameter>\n");
-            out.write("</stroke>\n");
+            out.write("</Stroke>\n");
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -274,8 +280,10 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(TextSymbolizer sym){
         try{
             out.write("<TextSymbolizer>\n");
-            out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.getGeometryPropertyName()+
+            if(sym.getGeometryPropertyName()!=null){
+                out.write("<Geometry>\n\t<ogc:PropertyName>"+sym.getGeometryPropertyName()+
             "</ogc:PropertyName>\n</Geometry>\n");
+            }
             out.write("<Label>\n");
             encode(sym.getLabel());
             out.write("</Label>\n");
@@ -314,13 +322,13 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     
     public void visit(Mark mark){
         try{
-            out.write("<mark>\n");
+            out.write("<Mark>\n");
             out.write("<WellKnownName>\n");
             mark.getWellKnownName().accept(filterEncoder);
             out.write("</WellKnownName>\n");
             if(mark.getFill()!=null) mark.getFill().accept(this);
             if(mark.getStroke()!=null) mark.getStroke().accept(this);
-            out.write("</mark>\n");
+            out.write("</Mark>\n");
         }catch (IOException e){
             throw new RuntimeException(e);
         }
@@ -401,8 +409,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(Halo halo){
         try{
             out.write("<Halo>\n");
-            out.write("<Radius>\n");
             halo.getFill().accept(this);
+            out.write("<Radius>\n");
+            encode(halo.getRadius());
             out.write("</Radius>\n");
             out.write("</Halo>\n");
         }catch (IOException e){
