@@ -117,6 +117,10 @@ public abstract class RelationIntegrity extends DefaultIntegrityValidation
     		expected = false;
     }
     
+    public final void setExpected(boolean arg){
+    	expected = arg;
+    }
+    
     public final boolean isExpected() {
    		return expected;
     }

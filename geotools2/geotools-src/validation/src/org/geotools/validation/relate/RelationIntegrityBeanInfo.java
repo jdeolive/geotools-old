@@ -52,7 +52,7 @@ public abstract class RelationIntegrityBeanInfo
 	public PropertyDescriptor[] getPropertyDescriptors() 
 	{
     	PropertyDescriptor[] pd2 = super.getPropertyDescriptors();
-    	ResourceBundle resourceBundle = getResourceBundle();
+    	ResourceBundle resourceBundle = getResourceBundle(RelationIntegrity.class);
     	if (pd2 == null) {
     		pd2 = new PropertyDescriptor[0];
     	}
