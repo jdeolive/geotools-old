@@ -25,7 +25,7 @@ public class AlgorithmsSuite extends TestCase {
     
     public static Test suite() {
         TestSuite suite = new TestSuite("All Tests");
-        //suite.addTestSuite(GeometryProperitesTest.class);
+        suite.addTestSuite(RobustGeometryPropertiesTest.class);
         return suite;
     }
 }
