@@ -23,7 +23,7 @@ package org.geotools.data;
 /**
  * A memory-based datasource.
  *
- * @version $Id: MemoryDataSource.java,v 1.6 2003/05/08 19:03:03 cholmesny Exp $
+ * @version $Id: MemoryDataSource.java,v 1.7 2003/05/16 15:29:20 jmacgill Exp $
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
  */
@@ -116,7 +116,7 @@ public class MemoryDataSource extends AbstractDataSource
 	if (query != null) {
 	    filter = query.getFilter();
 	}
-         for (int i = 0; i < features.size(); i++){
+         for (int i = 0; i < features.size() && i < query.getMaxFeatures(); i++){
             Feature f = (Feature) features.elementAt(i);
             if (filter.contains(f)){
                 collection.addFeatures(new Feature[]{f});
@@ -130,13 +130,15 @@ public class MemoryDataSource extends AbstractDataSource
      * @tasks HACK: we never type check to make sure all the features are
      * of the same type, so this will only return the first feature's
      * schema.  Should this datasource allow features of different types?
+     * @task REVISIT: most of this method was commented out, I've put the lines
+     * back in, but I would like to know the reason they were taken out.
      */
     public FeatureType getSchema() throws DataSourceException {
 	FeatureType featureType = null;
-	//if (features.size() > 0) {
-	//    Feature f = (Feature) features.elementAt(0);
-	//    featureType = f.getSchema();
-	//}
+	if (features.size() > 0) {
+	    Feature f = (Feature) features.elementAt(0);
+	    featureType = f.getSchema();
+	}
 	return featureType;
     }
 
@@ -152,6 +154,7 @@ public class MemoryDataSource extends AbstractDataSource
     protected DataSourceMetaData createMetaData() {
 	MetaDataSupport memMeta = new MetaDataSupport();
 	memMeta.setSupportsAdd(true);
+        memMeta.setFastBbox(true);
 	return memMeta;
     }
 
