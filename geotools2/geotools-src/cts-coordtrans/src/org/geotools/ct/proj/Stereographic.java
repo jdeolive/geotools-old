@@ -54,30 +54,27 @@ import org.geotools.resources.cts.ResourceKeys;
 
 /**
  * Stereographic Projection. The directions starting from the central point are true,
- * but the areas and the lengths become increasingly deformed as
- * one moves away from the center.  This projection is used to represent polar areas.
- * It can be adapted for other areas having a circular form.
+ * but the areas and the lengths become increasingly deformed as one moves away from
+ * the center.  This projection is used to represent polar areas. It can be adapted
+ * for other areas having a circular form.
  * <br><br>
  *
- * This implementation provides transforms for three cases of the  
- * stereographic projection:
+ * This implementation provides transforms for three cases of the stereographic projection:
  * <ul>
  *   <li><code>Polar_Stereographic</code> (EPSG code 9810, uses itteration for the inverse)</li>
  *   <li><code>Oblique_Stereographic</code>(<strong>Similar</strong> to EPSG code 9809</li>
  *   <li><code>Stereographic</code></li>
- *   <li><code>Polar_Stereographic_EPSG</code> (EPSG code 9810, uses a series for the inverse)<li>
+ *   <!--<li><code>Polar_Stereographic_EPSG</code> (EPSG code 9810, uses a series for the inverse)<li>-->
  *   <li><code>Oblique_Stereographic_EPSG</code> (EPSG code 9809)<li>
  * </ul>
- * Both the USGS equations of Snyder and the EPSG equations are implemented here. 
- * For the USGS ellipse case the conformal 
- * latitude of each point on the sphere is computed. The EPSG Polar is the 
- * same, but the Oblique / Equatorial case (EPSG code 9809) uses only a 
- * single conformal sphere at the origin point. The EPSG considers both
- * methods to be valid, but considers the USGS method to be a different 
- * coordinate operation method. 
+ * Both the USGS equations of Snyder and the EPSG equations are implemented here. For the
+ * USGS ellipse case the conformal latitude of each point on the sphere is computed. The
+ * EPSG Polar is the same as the USGS, but the Oblique / Equatorial case (EPSG code 9809)
+ * uses only a single conformal sphere at the origin point. The EPSG considers both methods
+ * to be valid, but considers the USGS method to be a different coordinate operation method. 
  * <br><br>
  * The <code>latitude_true_scale</code> parameter is not specified by the EPSG and is
- * only used for the polar stereographic. 
+ * only used for the Polar_Stereographic. 
  *
  * <strong>References:</strong><ul>
  *   <li>John P. Snyder (Map Projections - A Working Manual,<br>
@@ -92,16 +89,22 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.1 2003/07/15 13:29:28 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.2 2003/07/28 09:43:02 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
  */
 public class Stereographic extends PlanarProjection {
     /**
+     * <code>true</code> if the series form should be used for calculating 
+     * the inverse polar, or <code>false</code> for using the iterations.
+     */
+    private static final boolean OPTIMIZE_FOR_SPEED = false;
+
+    /**
      * Maximum number of itterations for the inverse calculation.
      */
-    private static final int MAX_ITER=10;
+    private static final int MAX_ITER = 10;
 
     /** Projection mode for switch statement. */ private static final int   NORTH      = 0;
     /** Projection mode for switch statement. */ private static final int   SOUTH      = 1;
@@ -110,10 +113,9 @@ public class Stereographic extends PlanarProjection {
     
     /**
      * Projection mode. It must be one of the following constants:
-     * {@link #NORTH}, {@link #SOUTH}.
-     * {@link #OBLIQUE} or {@link #EQUATORIAL}.
+     * {@link #NORTH}, {@link #SOUTH}, {@link #OBLIQUE} or {@link #EQUATORIAL}.
      */
-    protected final int mode;
+    final int mode;
             
     /**
      * Global scale factor. Value <code>a</code>
@@ -149,9 +151,24 @@ public class Stereographic extends PlanarProjection {
     private final boolean EPSG;
     
     /**
-     * Informations about a {@link StereographicProjection}.
+     * Constants used for the inverse polar series
+     */
+    private final double A, B;
+    
+    /**
+     * Constants used for the inverse polar series
+     */
+    private double C, D;
+    
+    /**
+     *  The <code>latitudeTrueScale</code> constant used for the polar series inverse.
+     */
+    private final double k0_series;
+    
+    /**
+     * Informations about a {@link Stereographic} projection.
      *
-     * @version $Id: Stereographic.java,v 1.1 2003/07/15 13:29:28 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.2 2003/07/28 09:43:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -195,14 +212,7 @@ public class Stereographic extends PlanarProjection {
          *              stereographic.
          */
         public Provider(final boolean polar) {
-            super(polar ? "Polar_Stereographic" :
-                        "Oblique_Stereographic", ResourceKeys.STEREOGRAPHIC_PROJECTION);
-            if (polar) {
-                put("latitude_true_scale", polar ? 90.0 : 0.0, LATITUDE_RANGE);
-            }
-            this.polar = polar;
-            this.auto  = false;
-            this.EPSG  = false;
+            this(polar, false);
         }
         
         /**
@@ -215,7 +225,7 @@ public class Stereographic extends PlanarProjection {
          *              <code>false</code> for USGS equations.
          */
         public Provider(final boolean polar, final boolean EPSG) {
-            super(EPSG ? (polar ? "Polar_Stereographic_EPSG" : "Oblique_Stereographic_EPSG") :
+            super(EPSG ? (polar ? "Polar_Stereographic" : "Oblique_Stereographic_EPSG") :
                          (polar ? "Polar_Stereographic" : "Oblique_Stereographic"), 
                           ResourceKeys.STEREOGRAPHIC_PROJECTION);
             if (polar && !EPSG) {
@@ -227,14 +237,14 @@ public class Stereographic extends PlanarProjection {
         }
 
         /**
-         * Create a new map projection.
+         * Create a new stereographic projection.
          */
         public MathTransform create(final Projection parameters) throws MissingParameterException {
             if (isSpherical(parameters)) {
                 return new Spherical(parameters, polar, auto);
             } else {
-                if (EPSG) {
-                    return new EllipseEPSG(parameters, polar, auto);
+                if (EPSG && !polar) {
+                    return new ObliqueEPSG(parameters, polar, auto);
                 } else {
                     return new Stereographic(parameters, polar,auto, false);
                 }
@@ -251,7 +261,7 @@ public class Stereographic extends PlanarProjection {
                   final boolean EPSG) 
             throws MissingParameterException 
     {
-        //Fetch parameters
+        // Fetch parameters
         super(parameters);
         final double defaultLatitude = parameters.getValue("latitude_of_origin", polar ? 90 : 0);
 
@@ -305,7 +315,7 @@ public class Stereographic extends PlanarProjection {
             case SOUTH: {
                 if (Math.abs(latitudeTrueScale-(Math.PI/2)) >= EPS) {
                     final double t = Math.sin(latitudeTrueScale);
-                    k0 =  msfn(t,Math.cos(latitudeTrueScale)) /
+                    k0 = msfn(t,Math.cos(latitudeTrueScale)) /
                     tsfn(latitudeTrueScale, t);  //derives from (21-32 and 21-33)
                 } else {
                     // True scale at pole (part of (21-33))
@@ -323,6 +333,34 @@ public class Stereographic extends PlanarProjection {
         }
         this.a = semiMajor * scaleFactor;
         this.ak0 = k0 * a;
+        
+        //constants for the series form of the polar inverse
+        if (OPTIMIZE_FOR_SPEED) {
+            //See Snyde P. 19, "Computation of Series"
+            final double e6 = es*es*es;
+            final double e8 = es*es*es*es;
+            C = 7.0*e6/120.0 + 81.0*e8/1120.0;
+            D = 4279.0*e8/161280.0;
+            A = es/2.0 + 5.0*es*es/24.0 + e6/12.0 + 13.0*e8/360.0 - C;
+            B = 2.0*(7.0*es*es/48.0 + 29.0*e6/240.0 + 811.0*e8/11520.0) - 4.0*D;
+            C *= 4.0;
+            D *= 8.0;
+            
+            if (Math.abs(latitudeTrueScale-(Math.PI/2)) >= EPS) {
+                final double t = Math.sin(latitudeTrueScale);
+                k0_series = msfn(t,Math.cos(latitudeTrueScale))* Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e)) /
+                (2.0*tsfn(latitudeTrueScale, t));
+            } else {
+                k0_series = 1.0;
+            }
+        } else {
+            A = Double.NaN;
+            B = Double.NaN;
+            C = Double.NaN;
+            D = Double.NaN;
+            k0_series = Double.NaN;
+        }
+       
     }
 
      /**
@@ -414,12 +452,28 @@ choice: switch (mode) {
                 // fallthrough
             }
             case NORTH: {
-                final double t = rho/k0;
-                x = (Math.abs(rho)<TOL) ? centralMeridian :
-                        Math.atan2(x, -y) + centralMeridian;
-                double phi = cphi2(t);  // solves (7-9)
-                y = (mode==NORTH) ? phi : -phi;
-                break;
+                if (OPTIMIZE_FOR_SPEED) {
+                    //the series form                    
+                    final double t = (rho/k0_series) * Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e)) / 2;
+                    final double chi = Math.PI/2 - 2*Math.atan(t);
+
+                    x = (Math.abs(rho)<TOL) ? centralMeridian :
+                            Math.atan2(x, -y) + centralMeridian;
+                        
+                    //See Snyde P. 19, "Computation of Series"               
+                    final double sin2chi = Math.sin(2.0*chi);
+                    final double cos2chi = Math.cos(2.0*chi);
+                    y = chi + sin2chi*(A + cos2chi*(B + cos2chi*(C + D*cos2chi)));
+                    y = (mode==NORTH) ? y : -y;
+                } else {
+                    //uses itteration
+                    final double t = rho/k0;
+                    x = (Math.abs(rho)<TOL) ? centralMeridian :
+                            Math.atan2(x, -y) + centralMeridian;
+                    double phi = cphi2(t);  // solves (7-9)
+                    y = (mode==NORTH) ? phi : -phi;
+                }         
+                break;    
             }
             case OBLIQUE: {
                 // fallthrough
@@ -459,30 +513,29 @@ choice: switch (mode) {
     }
     
     /*
-     * Provides the tranlform equations for the EPSG case. The oblique uses 
-     * the equations from the 'EPSG Guidence Note Number 7'. The polar uses the 
-     * USGS equations and the series form of the inverse. 
+     * Provides the transform equations for the ObliqueEPSG case. Uses 
+     * the equations from the 'EPSG Guidence Note Number 7'. Note that the inverse
+     * fails (calculates longitude - 180 degs) for coordinates greater that 90 
+     * degrees from the central meridian. Also warnings from the EPSG about 
+     * projections centred in the southern hemisphere are not clear and require 
+     * further examination.
      *
-     * @version $Id: Stereographic.java,v 1.1 2003/07/15 13:29:28 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.2 2003/07/28 09:43:02 desruisseaux Exp $
      * @author Rueben Schulz
      */
-    private static final class EllipseEPSG extends Stereographic {
+    private static final class ObliqueEPSG extends Stereographic {
         
         /**
          * Constants used for the Oblique EPSG
          */
         private final double R, n, c, chi0, sinchi0, coschi0;
         
-        /**
-         * Constants used for the inverse polar series
+        /*
+         * Constant used in the oblique transform. Equal to
+         * <code>2*R*scaleFactor</code>.
          */
-        private final double A, B;
-
-        /**
-         * Constants used for the inverse polar series
-         */
-        private double C, D;
-    
+        private final double k0;
+                
         /**
          * Construct a new map projection from the suplied parameters.
          *
@@ -490,7 +543,7 @@ choice: switch (mode) {
          * @param  sp2 Indicates if this is a 1 or 2 standard parallel case of the mercator projection.
          * @throws MissingParameterException if a mandatory parameter is missing.
          */
-        protected EllipseEPSG (final Projection parameters,
+        protected ObliqueEPSG (final Projection parameters,
                             final boolean polar,
                             final boolean auto) 
                 throws MissingParameterException 
@@ -506,27 +559,11 @@ choice: switch (mode) {
                 
                 case NORTH:
                 case SOUTH: {
-                    //constants for the series. See Snyde P. 19, "Computation of Series"
-                    final double e6 = es*es*es;
-                    final double e8 = es*es*es*es;
-                    C = 7.0*e6/120.0 + 81.0*e8/1120.0;
-                    D = 4279.0*e8/161280.0;
-                    A = es/2.0 + 5.0*es*es/24.0 + e6/12.0 + 13.0*e8/360.0 - C;
-                    B = 2.0*(7.0*es*es/48.0 + 29.0*e6/240.0 + 811.0*e8/11520.0) - 4.0*D;
-                    C *= 4.0;
-                    D *= 8.0;
-                    
-                    R = Double.NaN;
-                    n = Double.NaN;
-                    c = Double.NaN;
-                    chi0 = Double.NaN;
-                    sinchi0 = Double.NaN;
-                    coschi0 = Double.NaN;
-                    break;
+                    throw new AssertionError(mode);
                 }
+                
                 case OBLIQUE:
                 case EQUATORIAL: {
-   //could make some simplifications for equatorial (latOfOrigin and chi0 == 0)
                     final double p0 = semiMajor*(1 - es) / Math.pow(1 - es*sinphi0*sinphi0,1.5);
                     final double v0 = semiMajor / Math.sqrt(1 - es*sinphi0*sinphi0);
                     R = Math.sqrt(p0*v0);
@@ -542,13 +579,11 @@ choice: switch (mode) {
                     sinchi0 = Math.sin(chi0);
                     coschi0 = Math.cos(chi0);
 
-                    A = Double.NaN;
-                    B = Double.NaN;
-                    C = Double.NaN;
-                    D = Double.NaN;
+                    k0 = 2*R*scaleFactor;
                     break;
                 }
             }
+
 	}
         
         /**
@@ -558,7 +593,7 @@ choice: switch (mode) {
         protected Point2D transform(double x, double y, Point2D ptDst)
                 throws ProjectionException
         {
-            
+            x = ensureInRange(x-centralMeridian);
             switch (mode) {
                 default: {
                     // Should not happen.
@@ -567,20 +602,13 @@ choice: switch (mode) {
 
                 case NORTH: 
                 case SOUTH: { 
-                    //the EPSG equaitons are the same as the USGS for the polar
-                    super.transform(x,y, ptDst);
-                    x = ptDst.getX();
-                    y = ptDst.getY();
-                    
-                    break;
+                    throw new AssertionError(mode);
                 }
             
                 case OBLIQUE: 
                 case EQUATORIAL: {
- //could add asserts to ensure that this is close to the USGS (~2m?)
-                    x = ensureInRange(x-centralMeridian);
-                    final double sinlat = Math.sin(y);
                     
+                    final double sinlat = Math.sin(y);
                     final double w = c* Math.pow(((1 + sinlat) / (1 - sinlat)) * 
                                              Math.pow((1-e*sinlat) / (1 + e*sinlat),e), n);
                     final double lambda = n*x;
@@ -590,16 +618,15 @@ choice: switch (mode) {
                     final double coslambda = Math.cos(lambda);
                     final double B = 1 + sinchi*sinchi0 + coschi*coschi0*coslambda;
 
-  //consts should be moved (K0?)
-                    x = 2*R*scaleFactor*coschi*Math.sin(lambda) / B + falseEasting;
-                    y = 2*R*scaleFactor*(sinchi*coschi0 - coschi*sinchi0*coslambda) / B + falseNorthing;
+                    x = k0*coschi*Math.sin(lambda) / B;
+                    y = k0*(sinchi*coschi0 - coschi*sinchi0*coslambda) / B;
                     
                     break;
                 }
             }
             
-            //x += falseEasting;
-            //y += falseNorthing;
+            x += falseEasting;
+            y += falseNorthing;
 
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
@@ -625,31 +652,15 @@ choice:     switch (mode) {
                 }
 
                 case SOUTH:
-                    y = -y;        
-                    //fallthrough
                 case NORTH: { 
-                    //this is the same as the USGS equation, but uses the series form instead of itteration
-                    final double rho = Math.sqrt(x*x + y*y);
-                    final double t = rho* Math.sqrt(Math.pow(1+e, 1+e)*Math.pow(1-e, 1-e)) / (2*a);
-                    final double chi = Math.PI/2 - 2*Math.atan(t);
-
-                    x = (Math.abs(rho)<TOL) ? centralMeridian :
-                        Math.atan2(x, -y) + centralMeridian;
-                        
-                    //See Snyde P. 19, "Computation of Series"               
-                    final double sin2chi = Math.sin(2.0*chi);
-                    final double cos2chi = Math.cos(2.0*chi);
-                    y = chi + sin2chi*(A + cos2chi*(B + cos2chi*(C + D*cos2chi)));
-                    y = (mode==NORTH) ? y : -y;
-                    break;
+                    throw new AssertionError(mode);
                 }
             
                 case OBLIQUE: 
                     //fallthrough
                 case EQUATORIAL: {
- //code needs to be cheaked for 'failure' points (opposite point, divide by 0, etc)
-                    final double g = 2*R*scaleFactor*Math.tan(0.5*(Math.PI/2 - chi0));
-                    final double h = 4*R*scaleFactor*Math.tan(chi0) + g;
+                    final double g = k0*Math.tan(0.5*(Math.PI/2 - chi0));
+                    final double h = 2*k0*Math.tan(chi0) + g;
                     final double i = Math.atan(x/(h + y));
                     final double j = Math.atan(x/(g - y)) - i;
                     final double chi = chi0 + 2*Math.atan((y - x*Math.tan(j/2)) / (2*R*scaleFactor));
@@ -659,7 +670,7 @@ choice:     switch (mode) {
                     final double psi0 = 0.5 * Math.log((1+sinchi)/(c*(1-sinchi)))/n;  //isometric latitude
                     double phi0 = 2*Math.atan(Math.exp(psi0)) - Math.PI/2;
                     
-                    for (int count=MAX_ITER; --count>=0;) {
+                    for (int count=MAX_ITER; --count >= 0;) {
                         final double esinphi = e*Math.sin(phi0);
                         final double psi = Math.log(Math.tan(phi0/2 + Math.PI/4)*
                                                     Math.pow((1-esinphi)/(1+esinphi),0.5*e));
@@ -674,6 +685,7 @@ choice:     switch (mode) {
                     throw new ProjectionException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
                 }
             }
+
             x = ensureInRange(x);
             if (ptDst != null) {
                 ptDst.setLocation(x,y);
@@ -687,7 +699,7 @@ choice:     switch (mode) {
     /*
      * Provides the transform equations for the spherical case of the stereographic projection.
      *
-     * @version $Id: Stereographic.java,v 1.1 2003/07/15 13:29:28 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.2 2003/07/28 09:43:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */
@@ -950,7 +962,8 @@ choice:     switch (mode) {
                    Double.doubleToLongBits(this.   chi1) == Double.doubleToLongBits(that.   chi1) &&
                    Double.doubleToLongBits(this.sinChi1) == Double.doubleToLongBits(that.sinChi1) &&
                    Double.doubleToLongBits(this.cosChi1) == Double.doubleToLongBits(that.cosChi1) &&
-                   this.EPSG == that.EPSG;
+                   this.EPSG == that.EPSG &&
+                   this.OPTIMIZE_FOR_SPEED == that.OPTIMIZE_FOR_SPEED;
         }
         return false;
     }
