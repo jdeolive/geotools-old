@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.23 2003/08/28 10:43:06 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.24 2003/08/29 14:31:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -133,8 +133,11 @@ public class Polyline extends Geometry {
     /**
      * Projection to use for calculations that require a Cartesian coordinate system.
      * We prefer "Stereographic" rather than "Mercator", because it can work at poles.
+     * (Note that in Geotools implementation, the difference between "Oblique_Stereographic"
+     * and "Polar_Stereographic" is just a matter of default value; the correct implementation
+     * will be automatically selected according the latitude of origin).
      */
-    private static final String CARTESIAN_PROJECTION = "Stereographic";
+    private static final String CARTESIAN_PROJECTION = "Oblique_Stereographic";
 
     /**
      * Last coordinate transformation used for computing {@link #coordinateTransform}.
