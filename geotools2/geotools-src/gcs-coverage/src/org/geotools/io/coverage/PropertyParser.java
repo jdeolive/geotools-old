@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations. 
  *
- * @version $Id: PropertyParser.java,v 1.5 2002/08/22 11:16:08 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -171,7 +171,6 @@ public class PropertyParser {
      * @see #DATUM
      * @see #ELLIPSOID
      * @see #PROJECTION
-     * @see #COORDINATE_SYSTEM
      */
     public static final Key UNITS = new Key("Units");
 
@@ -183,7 +182,6 @@ public class PropertyParser {
      * @see #UNITS
      * @see #ELLIPSOID
      * @see #PROJECTION
-     * @see #COORDINATE_SYSTEM
      */
     public static final Key DATUM = new Key("Datum");
 
@@ -195,13 +193,12 @@ public class PropertyParser {
      * @see #UNITS
      * @see #DATUM
      * @see #PROJECTION
-     * @see #COORDINATE_SYSTEM
      */
     public static final Key ELLIPSOID = new Key("Ellipsoid");
 
     /**
      * Key for the projection classification. This is the classification name required
-     * by {@link CoordinateSystemFactory#createProjection(String,String,ParameterList)
+     * by {@link CoordinateSystemFactory#createProjection(CharSequence,String,ParameterList)
      * CoordinateSystemFactory.createProjection(...)}. The {@link #getProjection} method
      * looks for this property. Its return value is used by {@link #getCoordinateSystem}.
      *
@@ -221,6 +218,7 @@ public class PropertyParser {
      * classification name.
      *
      * @see #PROJECTION
+     * @see #COORDINATE_SYSTEM_NAME
      */
     public static final Key PROJECTION_NAME = new Key("Projection name");
 
@@ -228,10 +226,7 @@ public class PropertyParser {
      * Optional Key for the coordinate system name.
      * The {@link #getCoordinateSystem} method looks for this property.
      *
-     * @see #PROJECTION
-     * @see #ELLIPSOID
-     * @see #DATUM
-     * @see #UNITS
+     * @see #PROJECTION_NAME
      */
     public static final Key COORDINATE_SYSTEM_NAME = new Key("CoordinateSystem name");
 
@@ -1080,7 +1075,7 @@ public class PropertyParser {
     
     /**
      * Returns the units. The default implementation invokes
-     * <code>{@linkplain #get get}({@linkplain #UNITS}})</code>
+     * <code>{@linkplain #get get}({@linkplain #UNITS})</code>
      * and transform the resulting string into an {@link Unit} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #UNITS} key.
@@ -1119,7 +1114,7 @@ public class PropertyParser {
     
     /**
      * Returns the datum. The default implementation invokes
-     * <code>{@linkplain #get get}({@linkplain #DATUM}})</code>
+     * <code>{@linkplain #get get}({@linkplain #DATUM})</code>
      * and transform the resulting string into a {@link HorizontalDatum} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #DATUM} key.
@@ -1144,7 +1139,7 @@ public class PropertyParser {
     
     /**
      * Returns the ellipsoid. The default implementation invokes
-     * <code>{@linkplain #get get}({@linkplain #ELLIPSOID}})</code>
+     * <code>{@linkplain #get get}({@linkplain #ELLIPSOID})</code>
      * and transform the resulting string into an {@link Ellipsoid} object.
      *
      * @throws MissingPropertyException if no value exists for the {@link #ELLIPSOID} key.
@@ -1199,7 +1194,7 @@ public class PropertyParser {
      *
      * <ul>
      *   <li>Gets the projection classification with
-     *       <code>{@linkplain #get get}({@linkplain #PROJECTION}})</code>.</li>
+     *       <code>{@linkplain #get get}({@linkplain #PROJECTION})</code>.</li>
      *
      *   <li>Gets the list of projection parameters for the above classification with
      *       <code>{@linkplain CoordinateSystemFactory#createProjectionParameterList
@@ -1419,11 +1414,8 @@ public class PropertyParser {
             cache(CACHE_KEY, envelope);
             return (Envelope) envelope.clone();
         } catch (TransformException exception) {
-            final PropertyException e;
-            e = new PropertyException(Resources.getResources(locale).
-                       getString(ResourceKeys.ERROR_CANT_TRANSFORM_ENVELOPE), null, null);
-            e.initCause(exception);
-            throw e;
+            throw new PropertyException(Resources.getResources(locale).
+                      getString(ResourceKeys.ERROR_CANT_TRANSFORM_ENVELOPE), exception);
         }
     }
     
@@ -1721,7 +1713,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.5 2002/08/22 11:16:08 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1784,7 +1776,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.5 2002/08/22 11:16:08 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.6 2002/08/24 22:11:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
