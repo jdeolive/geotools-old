@@ -16,25 +16,7 @@
  */
 package org.geotools.data.jdbc;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+import com.vividsolutions.jts.geom.Envelope;
 import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
@@ -72,8 +54,25 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 import org.geotools.filter.SQLEncoderException;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Abstract helper class for JDBC DataStore implementations.
@@ -264,60 +263,78 @@ public abstract class JDBCDataStore implements DataStore {
         throw new UnsupportedOperationException(
             "Table creation not implemented");
     }
+
     /**
      * Used to provide support for changing the DataStore Schema.
+     * 
      * <p>
-     * Specifically this is intended to address updating the metadata Coordinate
-     * System information.
+     * Specifically this is intended to address updating the metadata
+     * Coordinate System information.
      * </p>
+     * 
      * <p>
-     * If we can figure out the Catalog API for metadata we will not have to use
-     * such a heavy handed approach.
+     * If we can figure out the Catalog API for metadata we will not have to
+     * use such a heavy handed approach.
      * </p>
+     * 
      * <p>
      * Subclasses are free to implement various levels of support:
      * </p>
+     * 
      * <ul>
-     * <li>None - table modification is not supported</li>
-     * <li>CS change - ensure that the attribtue types match and
-     *                 only update metadata but not table structure.</li>
-     * <li>Allow table change opperations</li>
+     * <li>
+     * None - table modification is not supported
+     * </li>
+     * <li>
+     * CS change - ensure that the attribtue types match and only update
+     * metadata but not table structure.
+     * </li>
+     * <li>
+     * Allow table change opperations
+     * </li>
      * </ul>
-     * @see org.geotools.data.DataStore#updateSchema(java.lang.String, org.geotools.feature.FeatureType)
+     * 
+     *
+     * @see org.geotools.data.DataStore#updateSchema(java.lang.String,
+     *      org.geotools.feature.FeatureType)
      */
     public void updateSchema(String typeName, FeatureType featureType)
         throws IOException {
-        throw new UnsupportedOperationException("Table modification not supported");
+        throw new UnsupportedOperationException(
+            "Table modification not supported");
     }
-   
+
     // Jody - This is my recomendation for DataStore
     // in order to support CS reprojection and override 
     public FeatureSource getView(final Query query)
         throws IOException, SchemaException {
         String typeName = query.getTypeName();
-        FeatureType origionalType = getSchema( typeName );
+        FeatureType origionalType = getSchema(typeName);
+
         //CoordinateSystem cs = query.getCoordinateSystem();
         //final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames(), cs );
-        final FeatureType featureType = DataUtilities.createSubType( origionalType, query.getPropertyNames() );
-                
+        final FeatureType featureType = DataUtilities.createSubType(origionalType,
+                query.getPropertyNames());
+
         return new AbstractFeatureSource() {
-            public DataStore getDataStore() {
-                return JDBCDataStore.this;
-            }
+                public DataStore getDataStore() {
+                    return JDBCDataStore.this;
+                }
 
-            public void addFeatureListener(FeatureListener listener) {
-                listenerManager.addFeatureListener(this, listener);
-            }
+                public void addFeatureListener(FeatureListener listener) {
+                    listenerManager.addFeatureListener(this, listener);
+                }
 
-            public void removeFeatureListener(FeatureListener listener) {
-                listenerManager.removeFeatureListener(this, listener);
-            }
+                public void removeFeatureListener(FeatureListener listener) {
+                    listenerManager.removeFeatureListener(this, listener);
+                }
 
-            public FeatureType getSchema() {
-                return featureType;
-            }
-        };        
+                public FeatureType getSchema() {
+                    return featureType;
+                }
+            };
     }
+
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
      * 
@@ -360,53 +377,58 @@ public abstract class JDBCDataStore implements DataStore {
     public FeatureReader getFeatureReader(final FeatureType requestType,
         final Filter filter, final Transaction transaction)
         throws IOException {
-            
         String typeName = requestType.getTypeName();
-        FeatureType schemaType = getSchema( typeName );
-        
+        FeatureType schemaType = getSchema(typeName);
+
         int compare = DataUtilities.compare(requestType, schemaType);
-        
+
         Query query;
-        
+
         if (compare == 0) {
             // they are the same type
             //
-            query = new DefaultQuery( typeName, filter );
+            query = new DefaultQuery(typeName, filter);
         } else if (compare == 1) {
             // featureType is a proper subset and will require reTyping
             //
             String[] names = attributeNames(requestType, filter);
-            query = new DefaultQuery( typeName, filter,
-                    Query.DEFAULT_MAX, names, "getFeatureReader");
+            query = new DefaultQuery(typeName, filter, Query.DEFAULT_MAX,
+                    names, "getFeatureReader");
         } else {
             // featureType is not compatiable
             //
             throw new IOException("Type " + typeName + " does match request");
         }
-        
-        if( filter == Filter.ALL || filter.equals( Filter.ALL )){
-            return new EmptyFeatureReader( requestType );            
+
+        if ((filter == Filter.ALL) || filter.equals(Filter.ALL)) {
+            return new EmptyFeatureReader(requestType);
         }
+
         FeatureReader reader = getFeatureReader(query, transaction);
 
         if (compare == 1) {
-            reader = new ReTypeFeatureReader( reader, requestType );
+            reader = new ReTypeFeatureReader(reader, requestType);
         }
+
         return reader;
     }
-    private Set addAll( Set set, Object all[] ){
-        if( set == null ){
+
+    private Set addAll(Set set, Object[] all) {
+        if (set == null) {
             set = new HashSet();
-        }        
-        if( all == null || all.length == 0){
+        }
+
+        if ((all == null) || (all.length == 0)) {
             return set;
         }
-        
+
         for (int i = 0; i < all.length; i++) {
             set.add(all[i]);
         }
-        return set;        
+
+        return set;
     }
+
     /**
      * Gets the list of attribute names required for both featureType and
      * filter
@@ -439,14 +461,14 @@ public abstract class JDBCDataStore implements DataStore {
         }
 
         Set set = new HashSet();
-        addAll( set, typeAttributes );
-        addAll( set, filterAttributes );
+        addAll(set, typeAttributes);
+        addAll(set, filterAttributes);
 
         if (set.size() == typeAttributes.length) {
             // filter required a subset of featureType attributes
             return typeAttributes;
         } else {
-            return (String[]) set.toArray( new String[set.size()] );
+            return (String[]) set.toArray(new String[set.size()]);
         }
     }
 
@@ -475,54 +497,54 @@ public abstract class JDBCDataStore implements DataStore {
      */
     public FeatureReader getFeatureReader(Query query, Transaction trans)
         throws IOException {
-        
         String typeName = query.getTypeName();
-        FeatureType featureType = getSchema( typeName );
-                
+        FeatureType featureType = getSchema(typeName);
+
         SQLBuilder sqlBuilder = getSqlBuilder(typeName);
         Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
         Filter postFilter = sqlBuilder.getPostQueryFilter(query.getFilter());
-                        
-        String[] requestedNames = propertyNames( query );
-        String propertyNames[];
-        if( requestedNames.length == featureType.getAttributeCount() ){
+
+        String[] requestedNames = propertyNames(query);
+        String[] propertyNames;
+
+        if (requestedNames.length == featureType.getAttributeCount()) {
             // because we have everything, the filter can run
             propertyNames = requestedNames;
-        }
-        else if( requestedNames.length < featureType.getAttributeCount() ){
+        } else if (requestedNames.length < featureType.getAttributeCount()) {
             // we will need to reType this :-)
             //
             // check to make sure we have enough for the filter
             //
-            String[] filterNames = DataUtilities.attributeNames( postFilter );
-                                
+            String[] filterNames = DataUtilities.attributeNames(postFilter);
+
             Set set = new HashSet();
-            addAll( set, requestedNames );
-            addAll( set, filterNames );
-        
-            if( set.size() == requestedNames.length ){
+            addAll(set, requestedNames);
+            addAll(set, filterNames);
+
+            if (set.size() == requestedNames.length) {
                 propertyNames = requestedNames;
+            } else {
+                propertyNames = (String[]) set.toArray(new String[set.size()]);
             }
-            else {
-                propertyNames = (String[]) set.toArray( new String[set.size()]);
-            }
-        } 
-        else {
-            throw new DataSourceException( typeName+" does not contain requested proeprties:"+ query );            
+        } else {
+            throw new DataSourceException(typeName
+                + " does not contain requested proeprties:" + query);
         }
-        
+
         AttributeType[] attrTypes = null;
+
         try {
-            attrTypes = getAttributeTypes( typeName, propertyNames );        
+            attrTypes = getAttributeTypes(typeName, propertyNames);
+        } catch (SchemaException schemaException) {
+            throw new DataSourceException("Could not handle query",
+                schemaException);
         }
-        catch( SchemaException schemaException ){
-            throw new DataSourceException( "Could not handle query", schemaException );
-        }
+
         String sqlQuery = constructQuery(query, attrTypes);
 
         QueryData queryData = executeQuery(typeName, sqlQuery, trans,
                 ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY);
-        
+
         FeatureType schema;
 
         try {
@@ -535,44 +557,52 @@ public abstract class JDBCDataStore implements DataStore {
             throw new DataSourceException("Schema Error when creating schema for FeatureReader",
                 e);
         }
-        
+
         FeatureReader reader;
         reader = createFeatureReader(schema, postFilter, queryData);
-        
-        if( requestedNames.length < propertyNames.length ){
+
+        if (requestedNames.length < propertyNames.length) {
             // need to scale back to what the user asked for
             // (remove the attribtues only used for postFilter)
             //
             try {
-                FeatureType requestType = DataUtilities.createSubType(schema, requestedNames);
-                reader = new ReTypeFeatureReader( reader, requestType );                
+                FeatureType requestType = DataUtilities.createSubType(schema,
+                        requestedNames);
+                reader = new ReTypeFeatureReader(reader, requestType);
             } catch (SchemaException schemaException) {
-                throw new DataSourceException( "Could not handle query", schemaException );                  
-            }                        
-        }        
+                throw new DataSourceException("Could not handle query",
+                    schemaException);
+            }
+        }
+
         return reader;
     }
 
-    /** Used internally to call the subclass hooks that construct the SQL query.
-     * 
+    /**
+     * Used internally to call the subclass hooks that construct the SQL query.
+     *
      * @param query
      * @param attrTypes
+     *
      * @return
+     *
      * @throws IOException
      * @throws DataSourceException
-     */ 
-    private String constructQuery(Query query, AttributeType[] attrTypes) throws IOException, DataSourceException {
+     */
+    private String constructQuery(Query query, AttributeType[] attrTypes)
+        throws IOException, DataSourceException {
         String typeName = query.getTypeName();
         SQLBuilder sqlBuilder = getSqlBuilder(query.getTypeName());
         Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
         Filter postFilter = sqlBuilder.getPostQueryFilter(query.getFilter());
-        
+
         String sqlQuery;
         FeatureTypeInfo info = getFeatureTypeInfo(typeName);
         boolean useMax = (postFilter == null); // not used yet
 
         try {
             LOGGER.fine("calling sql builder with filter " + preFilter);
+
             if (query.getFilter() == Filter.ALL) {
                 StringBuffer buf = new StringBuffer("SELECT ");
                 sqlBuilder.sqlColumns(buf, info.fidColumnName, attrTypes);
@@ -580,13 +610,15 @@ public abstract class JDBCDataStore implements DataStore {
                 buf.append(" WHERE '1' = '0'"); // NO-OP it
                 sqlQuery = buf.toString();
             } else {
-                sqlQuery = sqlBuilder.buildSQLQuery(typeName, info.fidColumnName,
-                                        attrTypes, preFilter);
+                sqlQuery = sqlBuilder.buildSQLQuery(typeName,
+                        info.fidColumnName, attrTypes, preFilter);
             }
+
             LOGGER.info("sql is " + sqlQuery);
         } catch (SQLEncoderException e) {
             throw new DataSourceException("Error building SQL Query", e);
         }
+
         return sqlQuery;
     }
 
@@ -629,7 +661,7 @@ public abstract class JDBCDataStore implements DataStore {
             throw new DataSourceException("Error creating schema", e);
         }
 
-        if ((postFilter != null) && postFilter != Filter.ALL) {
+        if ((postFilter != null) && (postFilter != Filter.ALL)) {
             fReader = new FilteringFeatureReader(fReader, postFilter);
         }
 
@@ -748,6 +780,7 @@ public abstract class JDBCDataStore implements DataStore {
      * @param transaction The Transaction is included here for handling
      *        transaction connections at a later stage.  It is not currently
      *        used.
+     * @param resultSetType DOCUMENT ME!
      * @param concurrency DOCUMENT ME!
      *
      * @return The QueryData object that contains the resources for the query.
@@ -760,7 +793,8 @@ public abstract class JDBCDataStore implements DataStore {
      *       here.
      */
     protected final QueryData executeQuery(String tableName, String sqlQuery,
-        Transaction transaction, int resultSetType, int concurrency) throws IOException {
+        Transaction transaction, int resultSetType, int concurrency)
+        throws IOException {
         LOGGER.info("About to execure query: " + sqlQuery);
 
         Connection conn = null;
@@ -1200,6 +1234,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Retrieve a FeatureWriter over entire dataset.
+     * 
      * <p>
      * Quick notes: This FeatureWriter is often used to add new content, or
      * perform summary calculations over the entire dataset.
@@ -1209,6 +1244,7 @@ public abstract class JDBCDataStore implements DataStore {
      * Subclass may wish to implement an optimized featureWriter for these
      * operations.
      * </p>
+     * 
      * <p>
      * It should provide Feature for next() even when hasNext() is
      * <code>false</code>.
@@ -1220,28 +1256,29 @@ public abstract class JDBCDataStore implements DataStore {
      * </p>
      *
      * @param typeName
-     * @param append
      * @param transaction
      *
      * @return
      *
      * @throws IOException
-     * @throws UnsupportedOperationException DOCUMENT ME!
      *
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String,
      *      boolean, org.geotools.data.Transaction)
      */
-    public FeatureWriter getFeatureWriter(String typeName, Transaction transaction) throws IOException {
-        return getFeatureWriter(typeName,Filter.NONE,transaction);        
+    public FeatureWriter getFeatureWriter(String typeName,
+        Transaction transaction) throws IOException {
+        return getFeatureWriter(typeName, Filter.NONE, transaction);
     }
+
     /**
      * Retrieve a FeatureWriter for creating new content.
      * 
      * <p>
      * Subclass may wish to implement an optimized featureWriter for this
-     * operation. One based on prepaired statemnts is a possibility, as we
-     * do not require a ResultSet.
+     * operation. One based on prepaired statemnts is a possibility, as we do
+     * not require a ResultSet.
      * </p>
+     * 
      * <p>
      * To allow new content the FeatureWriter should provide Feature for next()
      * even when hasNext() is <code>false</code>.
@@ -1253,25 +1290,26 @@ public abstract class JDBCDataStore implements DataStore {
      * </p>
      *
      * @param typeName
-     * @param append
      * @param transaction
      *
      * @return
      *
      * @throws IOException
-     * @throws UnsupportedOperationException DOCUMENT ME!
      *
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String,
      *      boolean, org.geotools.data.Transaction)
-     */    
+     */
     public FeatureWriter getFeatureWriterAppend(String typeName,
-                                              Transaction transaction) throws IOException {
-        FeatureWriter writer = getFeatureWriter( typeName, Filter.ALL, transaction );
-        while( writer.hasNext()){
+        Transaction transaction) throws IOException {
+        FeatureWriter writer = getFeatureWriter(typeName, Filter.ALL,
+                transaction);
+
+        while (writer.hasNext()) {
             writer.next(); // this would be a use for skip then :-)
         }
+
         return writer;
-    }    
+    }
 
     /**
      * Aquire FetureWriter for modification of contents specifed by filter.
@@ -1282,8 +1320,8 @@ public abstract class JDBCDataStore implements DataStore {
      * </p>
      * 
      * <p>
-     * It is not used to provide new content and should return <code>null</code>
-     * for next() when hasNext() returns <code>false</code>.
+     * It is not used to provide new content and should return
+     * <code>null</code> for next() when hasNext() returns <code>false</code>.
      * </p>
      * 
      * <p>
@@ -1299,7 +1337,6 @@ public abstract class JDBCDataStore implements DataStore {
      *
      * @throws IOException If typeName could not be located
      * @throws NullPointerException If the provided filter is null
-     * @throws DataSourceException See IOException
      *
      * @see org.geotools.data.DataStore#getFeatureWriter(java.lang.String,
      *      org.geotools.filter.Filter, org.geotools.data.Transaction)
@@ -1310,11 +1347,13 @@ public abstract class JDBCDataStore implements DataStore {
             throw new NullPointerException("getFeatureReader requires Filter: "
                 + "did you mean Filter.NONE?");
         }
-        
+
         if (transaction == null) {
-            throw new NullPointerException("getFeatureReader requires Transaction: " +
-                    "did you mean Transaction.AUTO_COMMIT");
+            throw new NullPointerException(
+                "getFeatureReader requires Transaction: "
+                + "did you mean Transaction.AUTO_COMMIT");
         }
+
         FeatureType schema = getSchema(typeName);
         FeatureTypeInfo info = getFeatureTypeInfo(typeName);
         LOGGER.fine("getting feature writer for " + typeName + ": " + info);
@@ -1333,23 +1372,24 @@ public abstract class JDBCDataStore implements DataStore {
                 postFilter, queryData);
         AttributeWriter[] writers = buildAttributeWriters(info.getSchema()
                                                               .getAttributeTypes(),
-                                                            queryData);
-        
+                queryData);
+
         AttributeWriter joinedW = new JoiningAttributeWriter(writers);
         FeatureWriter writer = createFeatureWriter(reader, joinedW, queryData);
 
-        if( getLockingManager() != null && getLockingManager() instanceof InProcessLockingManager ){
+        if ((getLockingManager() != null)
+                && getLockingManager() instanceof InProcessLockingManager) {
             InProcessLockingManager inProcess = (InProcessLockingManager) getLockingManager();
-            writer = inProcess.checkedWriter( writer, transaction );
+            writer = inProcess.checkedWriter(writer, transaction);
         }
-        
-        if (postFilter != null && postFilter != Filter.ALL) {
+
+        if ((postFilter != null) && (postFilter != Filter.NONE)) {
             writer = new FilteringFeatureWriter(writer, postFilter);
         }
 
         return writer;
     }
-    
+
     protected JDBCFeatureWriter createFeatureWriter(FeatureReader fReader,
         AttributeWriter writer, QueryData queryData) throws IOException {
         LOGGER.fine("returning jdbc feature writer");
@@ -1449,41 +1489,57 @@ public abstract class JDBCDataStore implements DataStore {
 
         return retAttTypes;
     }
+
     /**
      * Get propertyNames in a safe manner.
+     * 
      * <p>
      * Method wil figure out names from the schema for query.getTypeName(), if
      * query getPropertyNames() is <code>null</code>, or
      * query.retrieveAllProperties is <code>true</code>.
      * </p>
+     *
      * @param query
+     *
      * @return
+     *
      * @throws IOException
      */
-    private String[] propertyNames( Query query ) throws IOException{
-        String names[] = query.getPropertyNames();
-        if( names == null || query.retrieveAllProperties() ){
+    private String[] propertyNames(Query query) throws IOException {
+        String[] names = query.getPropertyNames();
+
+        if ((names == null) || query.retrieveAllProperties()) {
             String typeName = query.getTypeName();
-            FeatureType schema = getSchema( typeName );
-            
-            names = new String[ schema.getAttributeCount() ];
-            for( int i=0; i<schema.getAttributeCount(); i++){
+            FeatureType schema = getSchema(typeName);
+
+            names = new String[schema.getAttributeCount()];
+
+            for (int i = 0; i < schema.getAttributeCount(); i++) {
                 names[i] = schema.getAttributeType(i).getName();
-            }            
-        }    
-        return names;                    
-    }
-    protected AttributeType[] getAttributeTypes( String typeName, String propertyNames[] ) throws IOException, SchemaException{
-        FeatureType schema = getSchema( typeName );
-        AttributeType types[] = new AttributeType[ propertyNames.length ];
-        for( int i=0; i<propertyNames.length;i++){
-            types[i] = schema.getAttributeType( propertyNames[i] );
-            if( types[i] == null ){
-                throw new SchemaException( typeName+" does not contain requested "+propertyNames[i]+" attribute");                            
             }
         }
+
+        return names;
+    }
+
+    protected AttributeType[] getAttributeTypes(String typeName,
+        String[] propertyNames) throws IOException, SchemaException {
+        FeatureType schema = getSchema(typeName);
+        AttributeType[] types = new AttributeType[propertyNames.length];
+
+        for (int i = 0; i < propertyNames.length; i++) {
+            types[i] = schema.getAttributeType(propertyNames[i]);
+
+            if (types[i] == null) {
+                throw new SchemaException(typeName
+                    + " does not contain requested " + propertyNames[i]
+                    + " attribute");
+            }
+        }
+
         return types;
     }
+
     private AttributeType[] getAttTypes(Query query) throws IOException {
         FeatureType schema = getSchema(query.getTypeName());
 
@@ -1538,10 +1594,11 @@ public abstract class JDBCDataStore implements DataStore {
 
         /**
          * Returns the name of FidColumn if we are using one.
+         * 
          * <p>
-         * This is used when we are using a Primary Key for
-         * our Feature ID. If this value is <code>null</code>
-         * we are letting a sequence or OID do the work.
+         * This is used when we are using a Primary Key for our Feature ID. If
+         * this value is <code>null</code> we are letting a sequence or OID do
+         * the work.
          * </p>
          *
          * @return
@@ -1602,7 +1659,8 @@ public abstract class JDBCDataStore implements DataStore {
         }
     }
 
-    protected class JDBCFeatureWriter implements FeatureWriter, QueryDataObserver {
+    protected class JDBCFeatureWriter implements FeatureWriter,
+        QueryDataObserver {
         protected QueryData queryData;
         protected AttributeWriter writer;
         protected Feature live = null; // current for FeatureWriter 
@@ -1641,7 +1699,6 @@ public abstract class JDBCDataStore implements DataStore {
 
             if (hasNext()) {
                 try {
-                    
                     queryData.next(this); // move the FeatureWriter position
                     writer.next(); // move the attribute writer
                     live = fReader.next(); // get existing content
@@ -1659,8 +1716,8 @@ public abstract class JDBCDataStore implements DataStore {
                     fReader.close();
                     fReader = null;
                 }
-                
-                try {                    
+
+                try {
                     current = DataUtilities.template(featureType);
                     queryData.startInsert();
                     queryData.next(this);
@@ -1689,11 +1746,12 @@ public abstract class JDBCDataStore implements DataStore {
 
             if (live != null) {
                 LOGGER.fine("Removing " + live);
+
                 Envelope bounds = live.getBounds();
                 live = null;
                 current = null;
 
-                try {                    
+                try {
                     queryData.deleteCurrentRow();
                     listenerManager.fireFeaturesRemoved(queryData.getFeatureTypeInfo()
                                                                  .getFeatureTypeName(),
@@ -1789,15 +1847,19 @@ public abstract class JDBCDataStore implements DataStore {
          * @throws SQLException DOCUMENT ME!
          * @throws DataSourceException DOCUMENT ME!
          */
-        protected void doInsert(Feature current) throws IOException, SQLException {            
-            try {                
+        protected void doInsert(Feature current)
+            throws IOException, SQLException {
+            try {
                 queryData.startInsert();
+
                 // TODO This is a bit of a hack
                 String fid = current.getID();
-                fid = fid.substring(fid.lastIndexOf("-")+1);
+                fid = fid.substring(fid.lastIndexOf("-") + 1);
+
                 RowData rd = queryData.getRowData(this);
                 rd.write(Integer.valueOf(fid), 1);
-                doUpdate(DataUtilities.template(current.getFeatureType()),current);
+                doUpdate(DataUtilities.template(current.getFeatureType()),
+                    current);
             } catch (IllegalAttributeException e) {
                 throw new DataSourceException("Unable to do insert", e);
             }
@@ -1821,6 +1883,7 @@ public abstract class JDBCDataStore implements DataStore {
                 }
             } catch (IOException ioe) {
                 String message = "problem modifying row";
+
                 if (queryData.getTransaction() != Transaction.AUTO_COMMIT) {
                     queryData.getTransaction().rollback();
                     message += "(transaction canceled)";
@@ -1845,13 +1908,14 @@ public abstract class JDBCDataStore implements DataStore {
             // modifying a feature when the user thinks he's making a new one.
             // Perhaps we should throw an exception if they're not the same
             // length?
-            return fReader.hasNext() && writer.hasNext();
+            return (fReader != null) && fReader.hasNext() && writer.hasNext();
         }
 
         public void close() throws IOException {
-             if (queryData == null) {
+            if (queryData == null) {
                 throw new IOException("FeatureWriter has been closed");
             }
+
             if (fReader != null) {
                 fReader.close();
             }
