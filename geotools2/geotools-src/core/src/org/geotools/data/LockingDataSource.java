@@ -206,7 +206,7 @@ public interface LockingDataSource extends DataSource {
      * 
      * @param locksIds LockIds for Long Transaction operations
      */
-    void setAuthorization(Set authIds);
+    void setAuthorization(Set authIds) throws DataSourceException;
     /**
      * Provides an Authorization ID for this Transaction.     
      * <p>
@@ -224,7 +224,7 @@ public interface LockingDataSource extends DataSource {
      * 
      * @param authID
      */
-    void setAuthorization(String authID);
+    void setAuthorization(String authID) throws DataSourceException;
     
     /**
      * Used to complete release a lock.
