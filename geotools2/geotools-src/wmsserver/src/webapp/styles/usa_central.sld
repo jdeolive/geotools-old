@@ -21,7 +21,7 @@ A styling layer used for the unit tests of sldstyler
         <Filter  xmlns:gml="http://www.opengis.net/gml">
             <Not>
                <Disjoint>
-                    <PropertyName>Polygons</PropertyName>
+                    <PropertyName>Polygon</PropertyName>
                     <gml:Box srsName="http://www.epsg.com">
                         <gml:coordinates>-110,37 -95,40</gml:coordinates>
                     </gml:Box>
