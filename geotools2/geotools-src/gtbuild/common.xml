@@ -81,6 +81,10 @@
             <fileset dir="../../extbin/gtbuild/lib/"/>
             <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
         </path>
+        <path id="cruisecontrol.ext">
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
+        </path>
         <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
             <classpath refid="checkstyle.ext"/>
         </taskdef>
@@ -129,11 +133,15 @@
         <!--echo message="${project.name}: about to build ${dependancy}"/-->
         <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
             <property name="releaseFolder" value="${releaseFolder}"/>
+            <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
         </for-each>
     </target>
+    
     <target name="modificationset" if="${lastBuildAttemptTime}">
-    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
-
-        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
-    </modificationset>
+        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
+            <classpath refid="cruisecontrol.ext"/>        
+        </taskdef>
+        <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
+            <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
+        </modificationset>
     </target>

@@ -9,6 +9,10 @@
             <pathelement location="..\..\extbin\gtbuild\lib\nbantext.jar"/>
 
         </path>
+         <path id="cruisecontrol.ext">
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
+        </path>
         <taskdef classname="org.netbeans.nbbuild.CleanAll" name="cleanall">
             <classpath refid="netbeans.ext"/>        
         </taskdef>
@@ -46,10 +50,11 @@
     <target depends="build" name="release"/>
    
     <target name="modificationset" if="${lastBuildAttemptTime}">
-    <echo message="checking modificationset against ${lastBuildAttemptTime}"/>
-    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
-
-        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
-    </modificationset>
+        <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
+            <classpath refid="cruisecontrol.ext"/>        
+        </taskdef>
+        <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
+            <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
+        </modificationset>
     </target>
 </project>
