@@ -37,7 +37,7 @@ package org.geotools.renderer.array;
  * Enveloppe un tableau <code>float[]</code> dans
  * lequel des données pourront être ajoutés.
  *
- * @version $Id: DynamicArray.java,v 1.5 2003/02/11 16:01:43 desruisseaux Exp $
+ * @version $Id: DynamicArray.java,v 1.6 2003/02/26 12:05:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class DynamicArray extends SubArray {
@@ -61,6 +61,7 @@ final class DynamicArray extends SubArray {
      */
     public DynamicArray(final float[] array, final int lower, final int upper, final int extra) {
         super(new float[(upper-lower) + extra], lower, upper);
+        assert (extra & 1) == 0 : extra;
         final int length = upper-lower;
         this.lower = extra/2;
         this.upper = this.lower + length;

@@ -55,7 +55,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.6 2003/02/11 16:01:44 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.7 2003/02/26 12:05:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class PointArray implements Serializable {
@@ -124,6 +124,9 @@ public abstract class PointArray implements Serializable {
     static void checkRange(final float[] array, final int lower, final int upper)
             throws IllegalArgumentException
     {
+        assert (array.length & 1) == 0 : array.length;
+        assert (lower        & 1) == 0 : lower;
+        assert (upper        & 1) == 0 : upper;
         if (upper < lower) {
             throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_RANGE_$2,
                                                new Integer(lower), new Integer(upper)));

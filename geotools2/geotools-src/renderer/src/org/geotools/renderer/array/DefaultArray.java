@@ -45,7 +45,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * que ce soit. L'implémentation par défaut est imutable. Toutefois, certaines
  * classes dérivées (notamment {@link DynamicArray}) ne le seront pas forcément.
  *
- * @version $Id: DefaultArray.java,v 1.5 2003/02/11 16:01:43 desruisseaux Exp $
+ * @version $Id: DefaultArray.java,v 1.6 2003/02/26 12:05:34 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class DefaultArray extends PointArray {
@@ -204,8 +204,8 @@ class DefaultArray extends PointArray {
         if (count == 0) {
             return this;
         }
-        return new DynamicArray(array, lower(), upper(),
-                                count+Math.min(count, 256)).insertAt(index, toMerge, lower, upper, reverse);
+        return new DynamicArray(array, lower(), upper(), 2*(count+Math.min(count, 256)))
+                        .insertAt(index, toMerge, lower, upper, reverse);
     }
 
     /**
