@@ -57,11 +57,13 @@
   <!-- ===================================================================== -->
   <target depends="taskdefs, modificationset" name="init">
     <mkdir dir="${releaseFolder}"/>
+    <echo message="initializing with testing set to ${testing}"/>
     <condition property="has.dependancies">
       <not>
         <equals arg1="${dependancy}" arg2="$${dependancy}"/>
       </not>
     </condition>
+    
     <condition property="has.extbin">           
       <not>
         <equals arg1="${extbin}" arg2="$${extbin}"/>
@@ -86,6 +88,14 @@
     <condition property="cond.test">
         <equals arg1="${test.check}" arg2="true"/>
     </condition>
+    <condition property="has.testDependancies">
+      <and>
+        <not>
+          <equals arg1="${testDependancy}" arg2="$${testDependancy}"/>
+        </not>
+          <equals arg1="${cond.test}" arg2="true"/>
+        </and> 
+    </condition>
   </target>
 
 
@@ -96,6 +106,11 @@
   <target depends="init,set-classpath,add-extbin" name="prepare-compile">
     <echo message="Prep-compile: ${project.name}"/>
     <antcall target="dependancies"/>
+  </target>
+  
+  <target depends="init,set-classpath,add-extbin" name="prepare-tests">
+    <echo message="Prep-test-compile: ${project.name}"/>
+    <antcall target="testDependancies"/>
   </target>
 
   <!-- build a class path including extbin for this module -->
@@ -119,6 +134,18 @@
   <target if="has.dependancies" name="dependancies">
     <echo message="${project.name} calling dependancies"/>
     <forEach inheritall="false" locations="${dependancy}" startdir="${dir.base}" target="release">
+      <property name="releaseFolder" value="${releaseFolder}"/>
+      <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
+      <property name="checking" value="false"/>
+      <property name="testing" value="false"/>
+    </forEach>
+    <echo message="done depenancies for ${project.name}"/>
+  </target>
+  
+  <!-- Recursively prepare dependencies for tests-->
+  <target if="has.testDependancies" name="testDependancies">
+    <echo message="${project.name} calling dependancies for tests into ${releaseFolder}"/>
+    <forEach inheritall="false" locations="${testDependancy}" startdir="${dir.base}" target="release">
       <property name="releaseFolder" value="${releaseFolder}"/>
       <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
       <property name="checking" value="false"/>
@@ -168,7 +195,8 @@
   </target>
 
   <!-- Compiles all test code for the module. -->
-  <target depends="compile" if="cond.test" name="compile-test">
+  <target depends="compile,prepare-tests" if="cond.test" name="compile-test">
+   <echo message="compiling test code, cond.test=${cond.test} whilst testing=${testing} and testDependancies = ${has.testDependancies}"/>
     <javac debug="true" srcdir="${dir.test}">
             <classpath>
                 <path path="${dir.module}/src"/>
@@ -210,7 +238,8 @@
   <target depends="release" name="all"/>
 
   <!-- Prepares a jar for this module. -->
-  <target depends="test" name="release">
+  <target depends="init,compile,test" name="release">
+    <echo message="release of ${project.name} targeted at ${releaseFolder}"/>
     <mkdir dir="${releaseFolder}"/>
     <jar basedir="${dir.source}" jarfile="${releaseFolder}/${project.name}.jar"/>
     <antcall target="copy-extlib"/>
@@ -251,4 +280,5 @@
       <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
     </modificationset>
   </target>
+    
 </project>
