@@ -36,7 +36,7 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.15 2002/08/09 09:50:29 ianturton Exp $
+ * @version $Id: FeatureFlat.java,v 1.16 2002/11/06 15:49:07 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
@@ -115,22 +115,24 @@ public class FeatureFlat implements Feature {
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
         LOGGER.finest("schema attributes: " + n);
-        LOGGER.finer ("passed attributes: " + attributes.length);
+        LOGGER.finest ("passed attributes: " + attributes.length);
         LOGGER.finer ("is right length: " + isValid);
-
+        if(!isValid){
+            throw new IllegalFeatureException("Wrong number of attributes expected " + n + " got " + attributes.length);
+        }
         // Check to ensure that all attributes are valid
         for (int i = 0; i < n ; i++) {
             isValid =  schema.getAttributeType(i).getType().
-                isAssignableFrom(attributes[i].getClass()) &&
-                isValid;
+                isAssignableFrom(attributes[i].getClass()); 
             if(!isValid){
+                
 
                 String existingType = schema.getAttributeType(i).getType().toString();
                 String targetType = attributes[i].getClass().getName();
-                LOGGER.finer("target type:" + attributes[i].toString());
-                LOGGER.finer("validity check:" + schema.getAttributeType(i).getName());
-                LOGGER.finer("existing type:" + existingType );
-                LOGGER.finer("target type:" + targetType );
+                LOGGER.warning("target type:" + attributes[i].toString());
+                LOGGER.warning("validity check:" + schema.getAttributeType(i).getName());
+                LOGGER.warning("existing type:" + existingType );
+                LOGGER.warning("target type:" + targetType );
                 throw new IllegalFeatureException("Attribute[" + i + "] is of wrong type.\n" +
                                            "expected " + existingType + " got " + targetType);
             }
