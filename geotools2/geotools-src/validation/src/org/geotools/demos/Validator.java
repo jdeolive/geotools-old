@@ -12,17 +12,25 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
+import org.geotools.validation.FeatureValidation;
+import org.geotools.validation.IntegrityValidation;
+import org.geotools.validation.PlugIn;
 import org.geotools.validation.Validation;
 import org.geotools.validation.ValidationProcessor;
 import org.geotools.validation.ValidationResults;
+import org.geotools.validation.dto.ArgumentDTO;
+import org.geotools.validation.dto.PlugInDTO;
+import org.geotools.validation.dto.TestDTO;
 import org.geotools.validation.dto.TestSuiteDTO;
 import org.geotools.validation.xml.ValidationException;
 import org.geotools.validation.xml.XMLReader;
@@ -36,8 +44,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  * 
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: Validator.java,v 1.1 2004/02/13 03:08:00 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: Validator.java,v 1.2 2004/02/13 18:14:15 dmzwiers Exp $
  */
 public class Validator {
 	
@@ -396,7 +404,161 @@ public class Validator {
         // processing
         // (for starters it should use a custom FeatureResults
         //  that logs fail/warning information)
-		// GeoValidator gv = new GeoValidator(mt,m);
-		return null;
+		BatchValidator gv = new BatchValidator(mt,m);
+		return gv;
+	}
+}
+
+/*
+ * Created on Feb 9, 2004
+ *
+ * To change the template for this generated file go to
+ * Window - Preferences - Java - Code Generation - Code and Comments
+ */
+
+class BatchValidator extends ValidationProcessor {
+
+	/**
+	 * BatchValidator constructor.
+	 * <p>
+	 * super();
+	 * </p>
+	 * 
+	 */
+	public BatchValidator() {
+		super();
+	}
+
+	/**
+	 * ValidationProcessor constructor.
+	 * 
+	 * <p>
+	 * Builds a ValidationProcessor with the DTO provided.
+	 * </p>
+	 *
+	 * @see load(Map,Map) 
+	 * @param testSuites Map a map of names -> TestSuiteDTO objects
+	 * @param plugIns Map a map of names -> PlugInDTO objects
+	 */
+	public BatchValidator(Map testSuites, Map plugIns) {
+		super();
+		load(testSuites,plugIns);
+	}
+	
+	/**
+	 * load purpose.
+	 * <p>
+	 * loads this instance data into this instance.
+	 * </p>
+	 * @param testSuites
+	 * @param plugIns
+	 */
+	public void load(Map testSuites, Map plugIns){
+		
+		// step 1 make a list required plug-ins
+		Set plugInNames = new HashSet();
+		Iterator i = testSuites.keySet().iterator();
+
+		while (i.hasNext()) {
+			TestSuiteDTO dto = (TestSuiteDTO) testSuites.get(i.next());
+			Iterator j = dto.getTests().keySet().iterator();
+			while (j.hasNext()) {
+				TestDTO tdto = (TestDTO) dto.getTests().get(j.next());
+				plugInNames.add(tdto.getPlugIn().getName());
+			}
+		}
+
+		i = plugIns.values().iterator();
+		while(i.hasNext())
+			errors.put(i.next(),Boolean.FALSE);
+		
+		// step 2 configure plug-ins with defaults
+		Map defaultPlugIns = new HashMap(plugInNames.size());
+		i = plugInNames.iterator();
+
+		while (i.hasNext()) {
+			String plugInName = (String) i.next();
+			PlugInDTO dto = (PlugInDTO) plugIns.get(plugInName);
+			Class plugInClass = null;
+
+			try {
+				plugInClass = Class.forName(dto.getClassName());
+			} catch (ClassNotFoundException e) {
+				//Error, using default.
+				errors.put(dto,e);
+				e.printStackTrace();
+			}
+
+			if (plugInClass == null) {
+				plugInClass = Validation.class;
+			}
+
+			Map plugInArgs = dto.getArgs();
+
+			if (plugInArgs == null) {
+				plugInArgs = new HashMap();
+			}
+
+			try {
+				PlugIn plugIn = new org.geotools.validation.PlugIn(plugInName,
+						plugInClass, dto.getDescription(), plugInArgs);
+				defaultPlugIns.put(plugInName, plugIn);
+			} catch (ValidationException e) {
+				e.printStackTrace();
+				errors.put(dto,e);
+				//error should log here
+				continue;
+			}
+			errors.put(dto,Boolean.TRUE);
+		}
+
+		// step 3 configure plug-ins with tests + add to processor
+		i = testSuites.keySet().iterator();
+
+		while (i.hasNext()) {
+			TestSuiteDTO tdto = (TestSuiteDTO) testSuites.get(i.next());
+			Iterator j = tdto.getTests().keySet().iterator();
+
+			while (j.hasNext()) {
+				TestDTO dto = (TestDTO) tdto.getTests().get(j.next());
+
+				// deal with test
+				Map testArgs = dto.getArgs();
+
+				if (testArgs == null) {
+					testArgs = new HashMap();
+				}else{
+					Map m = new HashMap();
+					Iterator k = testArgs.keySet().iterator();
+					while(k.hasNext()){
+						ArgumentDTO adto = (ArgumentDTO)testArgs.get(k.next());
+						m.put(adto.getName(),adto.getValue());
+					}
+					testArgs = m;
+				}
+
+				try {
+					PlugIn plugIn = (org.geotools.validation.PlugIn) defaultPlugIns
+					.get(dto.getPlugIn().getName());
+					Validation validation = plugIn.createValidation(dto.getName(),
+							dto.getDescription(), testArgs);
+
+					if (validation instanceof FeatureValidation) {
+						addValidation((FeatureValidation) validation);
+					}
+
+					if (validation instanceof IntegrityValidation) {
+						addValidation((IntegrityValidation) validation);
+					}
+				} catch (ValidationException e) {
+					e.printStackTrace();
+					errors.put(dto,e);
+					//error should log here
+					continue;
+				}
+				errors.put(dto,Boolean.TRUE);
+			}
+			errors.put(tdto,Boolean.TRUE);
+		}
 	}
 }

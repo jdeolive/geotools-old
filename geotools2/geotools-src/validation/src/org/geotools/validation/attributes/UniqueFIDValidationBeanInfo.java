@@ -19,8 +19,8 @@ import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
  * </p>
  * 
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: UniqueFIDValidationBeanInfo.java,v 1.1 2004/02/13 03:08:00 jive Exp $
+ * @author $Author: dmzwiers $ (last modification)
+ * @version $Id: UniqueFIDValidationBeanInfo.java,v 1.2 2004/02/13 18:18:20 dmzwiers Exp $
  */
 public class UniqueFIDValidationBeanInfo extends DefaultIntegrityValidationBeanInfo {
 	
@@ -52,7 +52,7 @@ public class UniqueFIDValidationBeanInfo extends DefaultIntegrityValidationBeanI
 			for(;i<pd2.length;i++)
 				pd[i] = pd2[i];
 			try{
-				pd[i] = createPropertyDescriptor("uniqueID",UniqueFIDValidation.class,resourceBundle);
+				pd[i] = createPropertyDescriptor("typeRef",UniqueFIDValidation.class,resourceBundle);
 				pd[i].setExpert(false);
 
 			}catch(IntrospectionException e){
