@@ -41,7 +41,7 @@
 
     <target depends="init" name="clean">        
         <for-each inheritall="false" locations="${modules}" startdir=".." target="clean"/>
-        <delete dir="${releaseFolder}"/>
+        <delete quiet="true" dir="${releaseFolder}"/>
     </target>
 
     <target depends="build" name="release"/>
