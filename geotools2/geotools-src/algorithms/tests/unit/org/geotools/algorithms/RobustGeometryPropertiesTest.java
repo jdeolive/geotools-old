@@ -11,8 +11,11 @@ import com.vividsolutions.jts.geom.*;
 import junit.framework.*;
 
 /**
+ * Test suite for RobustGeometryProperties class
+ * TODO: Test results with different PrecisionModels and SRIDs
  *
  * @author andyt
+ * @version $Revision: 1.4 $ $Date: 2002/03/11 15:34:54 $
  */
 public class RobustGeometryPropertiesTest extends TestCase {
     
@@ -79,14 +82,14 @@ public class RobustGeometryPropertiesTest extends TestCase {
 
     public void testMultiPolygon() {
         System.out.println("Testing "+multiPolygon1);
-        //assertEquals((8.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.0d);
+        assertEquals((8.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.0d);
         assertEquals((16.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
     }
 
     public void testGeometryCollection() {
         System.out.println("Testing "+geometryCollection1);
         assertEquals((8.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.0d);
-        assertEquals((27.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.0d);
+        assertEquals((27.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
     }
     
     public void setUp() {
