@@ -1,8 +1,23 @@
 /*
- * Feature.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on April 29, 2002, 3:46 PM
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -16,8 +31,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * is also the most useless approach because it establishes no unified methods
  * for getting attribute information (since it is totally Object dependent),
  * without elaborate reflection/introspection, which is inconvenient to use.
- * Unlike, its <code>FeatureType</code> counterpart, this interface does not attempt
- * to serve as a typing framework.  Rather, multiple implementations of
+ * Unlike its <code>FeatureType</code> counterpart, this interface does not
+ * attempt to serve as a typing framework.  Rather, multiple implementations of
  * this interface should generally be for performance reasons.</p>
  *
  * <p>This interface serves two important purposes.  Most obviously, it
@@ -46,9 +61,10 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <p><b>Notes for Feature Implementers:</b><br>
  * It is the responsibility of the implementing class to ensure that the
- * <code>Feature</code> attributes stay synchronized with its FeatureType definition.
- * <i>Features should never get out of synch with thier declared schemas and
- * should never alter thier schemas!</i>  There are a four conventions to which
+ * <code>Feature</code> attributes stay synchronized with its FeatureType
+ * definition.
+ * <i>Features should never get out of synch with their declared schemas and
+ * should never alter their schemas!</i>  There are four conventions of which
  * implementers of this interface must be aware in order to successfully manage
  * a <code>Feature</code>:</p><ol>
  *
@@ -57,7 +73,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * reference and this reference should not be altered after a feature
  * has been created.  To ensure this, is is strongly recommended that features
  * take a valid reference to an existing immutable schema in its constructor and
- * declaure that reference final.</li>
+ * declare that reference final.</li>
  *
  * <li><b>Default Geometry</b><br>
  * Each feature must have a default geometry, but this primary geometry may
@@ -69,22 +85,22 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * <li><b>Attributes</b><br>
  * All features contain zero or more attributes, which can have one or more
- * occurences inside the feature.  Attributes may be any valid Java object.
+ * occurrences inside the feature.  Attributes may be any valid Java object.
  * If attributes are instances of <code>Feature</code>, they are handled
  * specially by the <code>Feature</code> methods, in that their attributes
- * may be accessed directly by thier containing feature.  All other object
+ * may be accessed directly by their containing feature.  All other object
  * variables and methods must be accessed through the objects themselves.
  * It is up to implementers of <code>Feature</code> to make sure that each
  * attribute value conforms to its internal schema.  A feature should never
  * reach a state where its attributes (or sub-attributes) do not conform to
- * thier <code>FeatureType</code> definitions.  There are three ways to implement
+ * their <code>FeatureType</code> definitions.  There are three ways to implement
  * this.  The first is to simply make features immutable; however, given the
  * ubiquity and required flexibility of features, this is likely not possible.
  * The second (and second easiest), is to make all feature attributes immutable.
  * For most cases, this is probably the best way to handle this issue.  The
  * third way, is to never give out a reference that would allow a client to 
  * change an attribute object's class (most obviously, an array reference).
- * Generally speaking features should attempt to minimize external object
+ * Generally speaking, features should attempt to minimize external object
  * references by attempting to clone incoming attributes before
  * adding them and outgoing attributes before sending them.  For features with
  * non-cloneable attributes, of course, this is not possible, so this is left
@@ -96,8 +112,9 @@ import com.vividsolutions.jts.geom.Geometry;
  * valid schema that can be used to check the proposed attributes.  This
  * is necessary to ensure that the feature is always in a valid state,
  * relative to its schema.</ol>
-
- * @author James MacGill, CCG<br>
+ *
+ * @version $Id: Feature.java,v 1.3 2002/06/04 14:55:59 loxnard Exp $
+ * @author James Macgill, CCG<br>
  * @author Rob Hranac, VFNY
  * @see org.geotools.datasource.FeatureType 
  * @see org.geotools.datasource.FeatureFlat
@@ -112,9 +129,9 @@ public interface Feature {
     public FeatureType getSchema();
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Attribute extraction methods.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
      * Gets all attributes from this feature, returned as a complex object
      * array.  This array comes with no metadata, so to interpret this 
@@ -136,7 +153,7 @@ public interface Feature {
 
     /** 
      * Gets an attribute for this feature at the location specified by xPath
-     * and assumes that the attribute has multiple occurances.  If it does
+     * and assumes that the attribute has multiple occurrences.  If it does
      * not, will throw an exception.
      *
      * @param xPath XPath representation of attribute location.
@@ -148,9 +165,9 @@ public interface Feature {
         throws IllegalFeatureException;
 
 
-    /* ************************************************************************
+    /* ***********************************************************************
      * Attribute setting methods.
-     * ************************************************************************/
+     * ***********************************************************************/
     /** 
      * Sets all attributes for this feature, passed as a complex object
      * array.  Note that this array must conform to the internal schema
@@ -175,15 +192,15 @@ public interface Feature {
      *
      * @param xPath XPath representation of attribute location.
      * @param attribute Feature attribute to set.
-     * @throws IllegalFeatureException Passed attribute does not match schema
+     * @throws IllegalFeatureException Passed attribute does not match schema.
      */
     public void setAttribute(String xPath, Object attribute)
         throws IllegalFeatureException;
 
 
-    /* ************************************************************************
-     * Geometry handling methods - for convenience only.                      *
-     * ************************************************************************/
+    /* ***********************************************************************
+     * Geometry handling methods - for convenience only.                     *
+     * ***********************************************************************/
     /** 
      * Gets the default geometry for this feature.
      *
@@ -196,7 +213,7 @@ public interface Feature {
      *
      * @param geometry The geometry to set.
      * @throws IllegalFeatureException should this cause the Feature to become
-     *         illigal or if change is forbiden
+     *         illegal or if change is forbidden.
      */
     public void setDefaultGeometry(Geometry geometry)
         throws IllegalFeatureException;
