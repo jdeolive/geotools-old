@@ -30,10 +30,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /** 
  * Robust implementation of the GeometryProperties interface.
- * TODO: Update comments
- * TODO: Add in calculation for area of a Polygon
+ * @task TODO: Update comments
  *
- * @version $Id: RobustGeometryProperties.java,v 1.5 2002/06/05 11:56:35 loxnard Exp $
+ * @version $Id: RobustGeometryProperties.java,v 1.6 2002/07/19 19:08:38 jmacgill Exp $
  * @author Andy Turner, CCG
  */
 public class RobustGeometryProperties implements org.geotools.algorithms.GeometryProperties {
