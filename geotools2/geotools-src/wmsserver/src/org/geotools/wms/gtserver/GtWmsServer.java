@@ -151,7 +151,7 @@ public class GtWmsServer implements WMSServer {
                 
                 
                 LOGGER.info("Caching " + list.length + " features for region ");
-           
+                
                 for (int i = 0; i < list.length; i++) {
                     cache.addFeature(list[i]);
                 }
@@ -171,78 +171,7 @@ public class GtWmsServer implements WMSServer {
                 features.put(entry.id, cache);
                 styles.put(entry.id, style);
                 
-                // Get the type of datasource
-               /* if (entry.datasource.equalsIgnoreCase("Shapefile")) {
-                    File file = new File(entry.properties.getProperty(
-                                                 "filename"));
-                    URL url;
                 
-                    if (base != null) {
-                        url = new URL(base, file.toString());
-                    } else {
-                        url = file.toURL();
-                    }
-                
-                    ShapefileDataSource sds = new ShapefileDataSource(url);
-                    Envelope bbox = sds.getBbox(false);
-                    entry.bbox = new double[4];
-                    entry.bbox[0] = bbox.getMinX();
-                    entry.bbox[1] = bbox.getMinY();
-                    entry.bbox[2] = bbox.getMaxX();
-                    entry.bbox[3] = bbox.getMaxY();
-                
-                    MemoryDataSource cache = new MemoryDataSource();
-                    GeometryFilter filter = FilterFactory.createFilterFactory()
-                                                         .createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-                    filter.addLeftGeometry(FilterFactory.createFilterFactory()
-                                                        .createBBoxExpression(bbox));
-                
-                    FeatureCollection temp = sds.getFeatures(filter);
-                    Feature[] list = temp.getFeatures();
-                    LOGGER.info("Caching " + list.length +
-                                " features for region " + bbox.getMinX());
-                
-                    for (int i = 0; i < list.length; i++) {
-                        cache.addFeature(list[i]);
-                    }
-                
-                    Style style = new BasicPolygonStyle(); //bad
-                
-                    features.put(entry.id, cache);
-                    styles.put(entry.id, style);
-                }
-                
-                if (entry.datasource.equalsIgnoreCase("PostGIS")) {
-                    LOGGER.fine("pulling proeprties");
-                
-                    String host = entry.properties.getProperty("host");
-                    String user = entry.properties.getProperty("user");
-                    String passwd = entry.properties.getProperty("passwd");
-                    String port = entry.properties.getProperty("port");
-                    String database = entry.properties.getProperty("database");
-                    String table = entry.properties.getProperty("table");
-                    LOGGER.fine(host + " " + user + " " + passwd + " " +
-                                port + " " + database + " " + table);
-                
-                    PostgisConnectionFactory db =
-                        new PostgisConnectionFactory(host, port, database);
-                    LOGGER.fine("created new db connection");
-                    db.setLogin(user, passwd);
-                    LOGGER.fine("set the login");
-                
-                    PostgisDataSource ds = new PostgisDataSource(db.getConnection(), table);
-                    Envelope bbox = ds.getBbox(false);
-                    entry.bbox = new double[4];
-                    entry.bbox[0] = bbox.getMinX();
-                    entry.bbox[1] = bbox.getMinY();
-                    entry.bbox[2] = bbox.getMaxX();
-                    entry.bbox[3] = bbox.getMaxY();
-                
-                    Style style = new BasicPolygonStyle(); //bad
-                
-                    features.put(entry.id, ds);
-                    styles.put(entry.id, style);
-                }*/
             }
         } catch (Exception exp) {
             exp.printStackTrace();
@@ -351,7 +280,7 @@ public class GtWmsServer implements WMSServer {
             exp.getMessage());
         }
     }
-
+    
     /**
      * @param layer
      * @param style
@@ -361,8 +290,8 @@ public class GtWmsServer implements WMSServer {
      * @throws WMSException
      */
     private Style[] findStyles(final String[] layer, final String[] style, final int i)
-            throws MalformedURLException, WMSException {
-
+    throws MalformedURLException, WMSException {
+        
         Style[] layerstyle = new Style[1];
         LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
         
@@ -376,10 +305,10 @@ public class GtWmsServer implements WMSServer {
                 layer[i]);
             }
         }
-
+        
         return layerstyle;
     }
-
+    
     /**
      * @param layer
      * @param i
@@ -389,8 +318,8 @@ public class GtWmsServer implements WMSServer {
      * @throws MalformedURLException
      */
     private Style[] useDefaultStyle(final String[] layer, final int i, Style[] layerstyle, final LayerEntry layerdefn)
-            throws MalformedURLException {
-
+    throws MalformedURLException {
+        
         String sldpath = (String) layerdefn.styles.get(
         layerdefn.defaultStyle);
         LOGGER.fine("looking for default:" + sldpath);
@@ -415,10 +344,10 @@ public class GtWmsServer implements WMSServer {
             layerstyle[0] = (org.geotools.styling.Style) styles.get(
             sldpath);
         }
-
+        
         return layerstyle;
     }
-
+    
     /**
      * @param style
      * @param i
@@ -429,8 +358,8 @@ public class GtWmsServer implements WMSServer {
      * @throws WMSException
      */
     private Style[] loadStyle(final String[] style, final int i, Style[] layerstyle, final LayerEntry layerdefn)
-            throws MalformedURLException, WMSException {
-
+    throws MalformedURLException, WMSException {
+        
         String sldpath = (String) layerdefn.styles.get(style[i]);
         LOGGER.finest("style != null, style[i] != null");
         if (sldpath == null) {
@@ -462,7 +391,7 @@ public class GtWmsServer implements WMSServer {
                 layerdefn.defaultStyle = sldpath;
             }
         }
-
+        
         return layerstyle;
     }
     
