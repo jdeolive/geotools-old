@@ -23,6 +23,7 @@
 
 package org.geotools.styling;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
@@ -38,7 +39,7 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @version $Id: ExternalGraphic.java,v 1.7 2003/08/06 18:11:24 desruisseaux Exp $
+ * @version $Id: ExternalGraphic.java,v 1.8 2003/08/10 08:34:12 seangeo Exp $
  * @author James Macgill, CCG
  */
 public interface ExternalGraphic {
@@ -50,8 +51,10 @@ public interface ExternalGraphic {
     /**
      * Provides the URL for where the external graphic resource can be located.
      * @return The URL of the ExternalGraphic
+     * @throws MalformedURLException If the url held in
+     * the ExternalGraphic is malformed.
      */
-    URL getLocation();
+    URL getLocation() throws MalformedURLException;
     /**
      * Provides the URL for where the external graphic resource can be located.
      * @param url The URL of the ExternalGraphic
@@ -71,5 +74,11 @@ public interface ExternalGraphic {
     void setFormat(String format);
     
     void accept(StyleVisitor visitor);
+    
+    /** Creates a clone of the ExternalGraphic
+     * 
+     *  @return The clone of the ExternalGraphic.
+     */
+    Object clone();
 }
 
