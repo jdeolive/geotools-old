@@ -632,7 +632,7 @@ public class AngleFormat extends Format {
      * only as a convenient way to format altitude numbers together
      * with longitude and latitude angles.
      *
-     * @param  angle      {@link Angle} or {@link Number} object to format.
+     * @param  obj        {@link Angle} or {@link Number} object to format.
      * @param  toAppendTo Where the text is to be appended.
      * @param  pos        An optional {@link FieldPosition} identifying a field
      *                    in the formatted text, or <code>null</code> if this

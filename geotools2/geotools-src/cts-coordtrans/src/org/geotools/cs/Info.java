@@ -85,7 +85,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.12 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.13 2003/07/11 16:57:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -311,7 +311,7 @@ public class Info implements Serializable {
      * Compares the specified object with this info for equality.
      * The default implementation invokes {@link #equals(Info, boolean)}.
      *
-     * @param  info The other object (may be <code>null</code>).
+     * @param  object The other object (may be <code>null</code>).
      * @return <code>true</code> if both objects are equal.
      */
     public final boolean equals(final Object object) {

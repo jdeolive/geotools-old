@@ -52,7 +52,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Base class for graduation.
  *
- * @version $Id: AbstractGraduation.java,v 1.3 2003/05/13 10:58:46 desruisseaux Exp $
+ * @version $Id: AbstractGraduation.java,v 1.4 2003/07/11 16:57:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractGraduation implements Graduation, Serializable {
@@ -84,7 +84,7 @@ public abstract class AbstractGraduation implements Graduation, Serializable {
     /**
      * Construct a graduation with the supplied units.
      *
-     * @param units The axis's units, or <code>null</code> if unknow.
+     * @param unit The axis's units, or <code>null</code> if unknow.
      */
     public AbstractGraduation(final Unit unit) {
         listenerList = new PropertyChangeSupport(this);

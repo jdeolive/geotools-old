@@ -111,7 +111,7 @@ import org.geotools.resources.JAIUtilities;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.25 2003/05/31 21:31:14 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.26 2003/07/11 16:57:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -408,7 +408,7 @@ public class MathTransformFactory {
      * latitude and longitude values.
      *
      * @param  firstAffectedOrdinate Index of the first affected ordinate.
-     * @param  transform The sub transform.
+     * @param  subTransform The sub transform.
      * @param  numTrailingOrdinates Number of trailing ordinates to pass through.
      *         Affected ordinates will range from <code>firstAffectedOrdinate</code>
      *         inclusive to <code>dimTarget-numTrailingOrdinates</code> exclusive.
@@ -875,8 +875,8 @@ reduce:     for (int j=0; j<rows.length; j++) {
      *       <code>null</code>.</li>
      * </ul>
      *
-     * @param  name The parameter name (e.g. <code>"false_easting"</code>
-     *         or <code>"central_meridian"</code>).
+     * @param  parameter The parameter name (e.g. <code>"false_easting"</code>
+     *                   or <code>"central_meridian"</code>).
      * @return The parameter unit, or <code>null</code>.
      */
     public Unit getParameterUnit(final String parameter) {
@@ -952,7 +952,7 @@ reduce:     for (int j=0; j<rows.length; j++) {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.25 2003/05/31 21:31:14 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.26 2003/07/11 16:57:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends UnicastRemoteObject implements CT_MathTransformFactory {

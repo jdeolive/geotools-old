@@ -48,7 +48,7 @@ import org.geotools.resources.Utilities;
 /**
  * A graduation using numbers on a linear axis.
  *
- * @version $Id: NumberGraduation.java,v 1.2 2003/05/13 10:58:46 desruisseaux Exp $
+ * @version $Id: NumberGraduation.java,v 1.3 2003/07/11 16:57:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NumberGraduation extends AbstractGraduation {
@@ -70,7 +70,7 @@ public class NumberGraduation extends AbstractGraduation {
     /**
      * Construct a graduation with the supplied units.
      *
-     * @param units The axis's units, or <code>null</code> if unknow.
+     * @param unit The axis's units, or <code>null</code> if unknow.
      */
     public NumberGraduation(final Unit unit) {
         super(unit);

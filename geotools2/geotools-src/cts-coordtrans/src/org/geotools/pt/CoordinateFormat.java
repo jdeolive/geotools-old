@@ -70,7 +70,7 @@ import org.geotools.resources.CTSUtilities;
  *
  * <strong>Note:</strong> parsing is not yet implemented in this version.
  *
- * @version $Id: CoordinateFormat.java,v 1.3 2003/05/13 10:58:49 desruisseaux Exp $
+ * @version $Id: CoordinateFormat.java,v 1.4 2003/07/11 16:57:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateFormat extends Format {
@@ -151,7 +151,7 @@ public class CoordinateFormat extends Format {
     /**
      * Returns the coordinate system for points to be formatted.
      *
-     * @param output The output coordinate system.
+     * @return The output coordinate system.
      */
     public CoordinateSystem getCoordinateSystem() {
         return coordinateSystem;

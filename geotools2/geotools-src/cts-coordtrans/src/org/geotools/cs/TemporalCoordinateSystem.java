@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.9 2003/06/25 13:22:49 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.10 2003/07/11 16:57:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -197,7 +197,7 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
      * Convert the given {@linkplain Date date} into a value in this axis unit.
      * This method is the converse of {@link #toDate}.
      *
-     * @param  The value as a {@linkplain Date date}.
+     * @param  time The value as a {@linkplain Date date}.
      * @return value A value in this axis unit.
      */
     public double toValue(final Date time) {

@@ -76,10 +76,10 @@ public final class Latitude extends Angle {
      * (e.g. 45.5°) or degrees with minutes and seconds (e.g. 45°30').
      * The hemisphere (N or S) is optional (default to North).
      *
-     * @param  string A string to be converted to a <code>Latitude</code>.
+     * @param  theta A string to be converted to a <code>Latitude</code>.
      * @throws NumberFormatException if the string does not contain a parsable latitude.
      */
-    public Latitude(final String source) throws NumberFormatException {
-        super(source);
+    public Latitude(final String theta) throws NumberFormatException {
+        super(theta);
     }
 }

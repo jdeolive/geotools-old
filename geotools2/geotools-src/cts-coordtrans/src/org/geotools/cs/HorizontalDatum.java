@@ -51,7 +51,7 @@ import java.rmi.RemoteException;
 /**
  * Procedure used to measure positions on the surface of the Earth.
  *
- * @version $Id: HorizontalDatum.java,v 1.10 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: HorizontalDatum.java,v 1.11 2003/07/11 16:57:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -104,11 +104,11 @@ public class HorizontalDatum extends Datum {
     public HorizontalDatum(final CharSequence         name,
                            final DatumType.Horizontal type,
                            final Ellipsoid            ellipsoid,
-                           final WGS84ConversionInfo  parameters)
+                           final WGS84ConversionInfo  toWGS84)
     {
         super(name, type);
         this.ellipsoid  = ellipsoid;
-        this.parameters = (parameters!=null) ? (WGS84ConversionInfo)parameters.clone() : null;
+        this.parameters = (toWGS84!=null) ? (WGS84ConversionInfo)toWGS84.clone() : null;
         ensureNonNull("ellipsoid", ellipsoid);
     }
     

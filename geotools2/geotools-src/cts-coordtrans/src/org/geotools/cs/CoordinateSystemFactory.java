@@ -99,7 +99,7 @@ import org.geotools.ct.MathTransformFactory;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.15 2003/05/30 18:21:32 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.16 2003/07/11 16:57:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -701,8 +701,8 @@ public class CoordinateSystemFactory {
     /**
      * Creates a local datum.
      *
-     * @param name Name to give new object.
-     * @param localDatumType Type of local datum to create.
+     * @param  name Name to give new object.
+     * @param  type Type of local datum to create.
      * @return The datum.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.

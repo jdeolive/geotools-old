@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
  * between two different local coordinate systems, as long as they are based
  * on the same local datum.
  *
- * @version $Id: LocalDatum.java,v 1.5 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: LocalDatum.java,v 1.6 2003/07/11 16:57:18 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -68,7 +68,7 @@ public class LocalDatum extends Datum {
      * Creates a local datum.
      *
      * @param name Name to give new object.
-     * @param localDatumType Type of local datum to create.
+     * @param type Type of local datum to create.
      *
      * @see org.opengis.cs.CS_CoordinateSystemFactory#createLocalDatum
      */

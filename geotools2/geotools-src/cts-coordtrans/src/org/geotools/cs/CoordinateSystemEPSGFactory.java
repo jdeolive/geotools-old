@@ -120,7 +120,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.13 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.14 2003/07/11 16:57:18 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -1235,15 +1235,15 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         int i = 0;
         while (result.next()) {
             final String name = getString(result, 1, code);
-            final AxisOrientation enum;
+            final AxisOrientation orientation;
             try {
-                enum = AxisOrientation.getEnum(getString(result, 2, code));
+                orientation = AxisOrientation.getEnum(getString(result, 2, code));
             } catch (NoSuchElementException exception) {
                 throw new FactoryException(Resources.format(
                                            ResourceKeys.ERROR_UNKNOW_TYPE_$1, name), exception);
             }
             if (i < axis.length) {
-                axis[i++] = new AxisInfo(name, enum);
+                axis[i++] = new AxisInfo(name, orientation);
             }
         }
         result.close();
@@ -1295,7 +1295,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * If sexagesimal degrees are really wanted, subclasses can override this method
      * and just returns <code>unit</code> with no change.
      *
-     * @param  The unit declared in the EPSG database for a coordinate system.
+     * @param  unit The unit declared in the EPSG database for a coordinate system.
      * @return The unit to use: <code>unit</code> with no change, or a substitute
      *         if <code>unit</code> was a multi-radix unit (e.g. sexagesimal degree).
      */
