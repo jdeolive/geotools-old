@@ -78,10 +78,11 @@ public class Aeqd extends Projection implements Constants{
 		}
 		t = Math.atan2(ellipse.one_es * sinphi + ellipse.es * N1 * sinph0 *
 			Math.sqrt(1. - ellipse.es * sinphi * sinphi), cosphi);
+    
 		ct = Math.cos(t); st = Math.sin(t);
 		Az = Math.atan2(Math.sin(lp.lam) * ct, cosph0 * st - sinph0 * coslam * ct);
 		cA = Math.cos(Az); sA = Math.sin(Az);
-		s = Math.sin( Math.abs(sA) < TOL ?
+		s = Math.asin( Math.abs(sA) < TOL ?
 			(cosph0 * st - sinph0 * coslam * ct) / cA :
 			Math.sin(lp.lam) * ct / sA );//TODO: sin should be tolerent of small values above 1, look at aasin
 		H = He * cA;
@@ -167,15 +168,15 @@ protected LP eInverse(XY xy)throws ProjectionException{ /* elliptical */
 		D = c / N1;
 		E = D * (1. - D * D * (A * (1. + A) / 6. + B * (1. + 3.*A) * D / 24.));
 		F = 1. - E * E * (A / 2. + B * E / 6.);
-		psi = Math.sin(sinph0 * Math.cos(E) + t * Math.sin(E));//TODO: see aasin
-		lp.lam = Math.sin(Math.sin(Az) * Math.sin(E) / Math.cos(psi));//TODO: see aasin
+		psi = Math.asin(sinph0 * Math.cos(E) + t * Math.sin(E));//TODO: see aasin
+		lp.lam = Math.asin(Math.sin(Az) * Math.sin(E) / Math.cos(psi));//TODO: see aasin
 		if ((t = Math.abs(psi)) < EPS)
 			lp.phi = 0.;
 		else if (Math.abs(t - HALFPI) < 0.)
 			lp.phi = HALFPI;
 		else
-			lp.phi = Math.tan((1. - ellipse.es * F * sinph0 / Math.sin(psi)) * Math.tan(psi) /
-				ellipse.one_es);//TODO: see aasin
+			lp.phi = Math.atan((1. - ellipse.es * F * sinph0 / Math.sin(psi)) * Math.tan(psi) /
+				ellipse.one_es);//TODO: see aatan
 	} else { /* Polar */
 		lp.phi = MeridinalDistance.invMlfn(mode == N_POLE ? Mp - c : Mp + c,
 			ellipse.es, en);
@@ -199,7 +200,7 @@ protected LP sInverse(XY xy)throws ProjectionException{ /* spherical */
 		sinc = Math.sin(c_rh);
 		cosc = Math.cos(c_rh);
 		if (mode == EQUIT) {
-			lp.phi = Math.sin(xy.y * sinc / c_rh);//TODO: see aasin
+			lp.phi = Math.asin(xy.y * sinc / c_rh);//TODO: see aasin
 			xy.x *= sinc;
 			xy.y = cosc * c_rh;
 		} else {
@@ -235,7 +236,7 @@ public void setParams(ParamSet params)throws ProjectionException{
 		sinph0 = Math.sin(phi0);
 		cosph0 = Math.cos(phi0);
 	}
-	if (ellipse.es!=0) {
+	if (ellipse.es==0) {
             type=SPHERE;
 	} else {
                 en = MeridinalDistance.enfn(ellipse.es);
