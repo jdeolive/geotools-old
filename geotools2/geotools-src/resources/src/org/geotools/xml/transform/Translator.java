@@ -17,6 +17,7 @@
 package org.geotools.xml.transform;
 
 import org.xml.sax.helpers.NamespaceSupport;
+import org.geotools.xml.transform.TransformerBase.SchemaLocationSupport;
 
 /**
  * A Translator is used in an XMLEncoding process by the FeatureTransformer 
@@ -48,5 +49,10 @@ public interface Translator {
      * @throws IllegalArgumentException if the Object is not encodeable.
      */
     void encode(Object o) throws IllegalArgumentException;
+
+    /**
+     * Gets the location of the schemas used in this translator.  Optional.
+     */
+    SchemaLocationSupport getSchemaLocationSupport();
     
 }
