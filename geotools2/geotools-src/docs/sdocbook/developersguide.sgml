@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/10/27 09:54:45 $</date>
+    <date>$Date: 2002/10/27 11:04:26 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -90,7 +90,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
     <section id="templates">
       <title>Template File</title>
 
-      <para>Below is a sample template file which we will explain upond in the
+      <para>Below is a sample template file which we will explain upon in the
       following sections:</para>
 
       <example>
@@ -461,7 +461,7 @@ org.geotools.cts.level = INFO</programlisting>
         </listitem>
 
         <listitem>
-          <para>Seperate out the Code examples from the Configuration
+          <para>Separate out the Code examples from the Configuration
           examples.</para>
         </listitem>
 
@@ -538,7 +538,7 @@ org.geotools.cts.level = INFO</programlisting>
       process, the tags are extracted to build a report page. Example output
       can be viewed at: <ulink
       url="http://modules.geotools.org/core/task_list.html">http://modules.geotools.org/core/task_list.html</ulink>.
-      Inline Task Tracking is particularly useful during developement. After
+      Inline Task Tracking is particularly useful during development. After
       code has been released, bugs should be tracked using the Bug Tracker.</para>
 
       <para>The following tags are available:</para>
@@ -640,7 +640,7 @@ void example(int i) {
           </listitem>
 
           <listitem>
-            <para>Viewing Docbook: Tomas has written a useful webpage for
+            <para>Viewing Docbook: Tomas has written a useful web page for
             viewing Docbook pages at <ulink url="???">http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index</ulink>.</para>
           </listitem>
         </itemizedlist>
@@ -810,7 +810,7 @@ void example(int i) {
 
         <itemizedlist>
           <listitem>
-            <para><filename>View over Filesystem</filename> is a &#34;must
+            <para><filename>View over File system</filename> is a &#34;must
             have&#34; module of Netbeans. It allows you to mount each module
             within CVS and is almost essential for geotools development within
             Netbeans. The default Netbeans only allows you to mount one source
@@ -877,7 +877,7 @@ void example(int i) {
         <para>Make sure you mount the jar files after you mount the module
         directories to ensure that Netbeans CLASSPATH looks at the module
         directories first. This means that compiled code in the Netbeans
-        modules will take precedance over the jar files and you will not need
+        modules will take precedence over the jar files and you will not need
         to do a full build during development.</para>
       </section>
 
@@ -886,7 +886,7 @@ void example(int i) {
 
         <para>After mounting all the directories from the previous section,
         your netbeans window explorer may be a bit crowded. You can create a
-        managable view of your classes by creating a project.</para>
+        manageable view of your classes by creating a project.</para>
 
         <para>Right click on your files or modules in the windows explorer,
         then select <command>Tools-&#62;Add to Project</command>.</para>
@@ -904,7 +904,7 @@ void example(int i) {
 
       <itemizedlist>
         <listitem>
-          <para>research, probe and understand existing souce code,</para>
+          <para>research, probe and understand existing source code,</para>
         </listitem>
 
         <listitem>
@@ -918,7 +918,7 @@ void example(int i) {
 
       <para>More details can be found from the online help.</para>
 
-      <para>RefactorIt is commerial, but provides free licences for Open
+      <para>RefactorIt is commercial, but provides free licences for Open
       Source projects like Geotools. See the RefactorIt web pages for details.
       It can be plugged into a variety of IDEs, including
       <filename>Netbeans</filename>.</para>
