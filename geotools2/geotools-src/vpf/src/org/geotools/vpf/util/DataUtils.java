@@ -35,7 +35,7 @@ import org.geotools.vpf.Coordinate3DDouble;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.2 2003/01/30 12:51:16 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.3 2003/02/05 08:44:50 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -119,80 +119,59 @@ public class DataUtils implements DataTypesDefinition
 
   public static short decodeShort(byte[] bytes)
   {
-    try 
+    short res = 0;
+    int shift = 8;
+    for (int i = 0; i < bytes.length && shift >= 0; i++)
     {
-      DataInputStream dis =
-        new DataInputStream(new ByteArrayInputStream(bytes));
-      return dis.readShort();
+      res |= ((short)(bytes[i] & 0xff)) << shift;
+      shift -= 8;
     }
-    catch (IOException e)
-    {
-      throw new VPFDataFormatException("Incorrect data for decoding", e);
-    } // end of try-catch
+    return res;
   }
 
   public static int decodeInt(byte[] bytes)
   {
-    try 
+    int res = 0;
+    int shift = 24;
+    for (int i = 0; i < bytes.length && shift >= 0; i++)
     {
-      DataInputStream dis =
-        new DataInputStream(new ByteArrayInputStream(bytes));
-      return dis.readInt();
+      res |= (bytes[i] & 0xff) << shift;
+      shift -= 8;
     }
-    catch (IOException e)
-    {
-      throw new VPFDataFormatException("Incorrect data for decoding", e);
-    } // end of try-catch
+    return res;
   }
   
   public static float decodeFloat(byte[] bytes)
   {
-    try 
+    int res = 0;
+    int shift = 24;
+    for (int i = 0; i < bytes.length && shift >= 0; i++)
     {
-      DataInputStream dis =
-        new DataInputStream(new ByteArrayInputStream(bytes));
-      return dis.readFloat();
+      res |= (bytes[i] & 0xff) << shift;
+      shift -= 8;
     }
-    catch (IOException e)
-    {
-      throw new VPFDataFormatException("Incorrect data for decoding", e);
-    } // end of try-catch
+    return Float.intBitsToFloat(res);
   }
   
   public static double decodeDouble(byte[] bytes)
   {
-    try 
+    long res = 0;
+    int shift = 56;
+    for (int i = 0; i < bytes.length && shift >= 0; i++)
     {
-      DataInputStream dis =
-        new DataInputStream(new ByteArrayInputStream(bytes));
-      return dis.readDouble();
+      res |= ((long)(bytes[i] & 0xff)) << shift;
+      shift -= 8;
     }
-    catch (IOException e)
-    {
-      throw new VPFDataFormatException("Incorrect data for decoding", e);
-    } // end of try-catch
+    return Double.longBitsToDouble(res);
   }
   
   public static int littleEndianToInt(byte[] fourBytes)
   {
     int res = 0;
     int limit = Math.min(fourBytes.length, 4);
-    for (int i = 0; i < limit-1; i++)
+    for (int i = 0; i < limit; i++)
     {
-      res += unsigByteToInt(fourBytes[i]) << (i*8);
-    } // end of for (int i = 0; i < limit-1; i++)
-    res += (int)fourBytes[limit-1] << ((limit-1)*8);
-    return res;
-  }
-
-  public static int bigEndianToInt(byte[] fourBytes)
-  {
-    int res = 0;
-    int limit = Math.min(fourBytes.length, 4);
-  	res += (int)fourBytes[0] << ((limit-1)*8);
-    for (int i = 1; i < limit; i++)
-    {
-      res += unsigByteToInt(fourBytes[i]) << ((limit-(i+1))*8);
+      res |= (fourBytes[i] & 0xFF) << (i*8);
     } // end of for (int i = 0; i < limit-1; i++)
     return res;
   }

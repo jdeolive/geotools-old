@@ -133,21 +133,6 @@ public class DataUtilsTest extends TestCase
 
   /**
    * Method for testing original source method:
-   * int bigEndianToInt(byte[])
-   * from tested class
-   */
-  public void testBigEndianToInt1374008726()
-  {
-	for (int i = 0; i < TEST_SAMPLES.length; i++)
-	{
-	  assertEquals("Testing big endian converions from bytes to java int",
-				   TEST_RESULTS[i][0],
-				   DataUtils.bigEndianToInt(TEST_SAMPLES[i]));
-	} // end of for (int i = 0; i < TEST_SAMPLES.length; i++)
-  } // end of testBigEndianToInt1374008726(byte[])
-
-  /**
-   * Method for testing original source method:
    * int littleEndianToInt(byte[])
    * from tested class
    */
