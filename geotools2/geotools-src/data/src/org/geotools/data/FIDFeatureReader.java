@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FIDFeatureReader.java,v 1.3 2003/11/06 19:03:51 ianschneider Exp $
+ * @version $Id: FIDFeatureReader.java,v 1.4 2003/11/20 23:27:41 cholmesny Exp $
  */
 public class FIDFeatureReader implements FeatureReader {
     /** The logger for the data module. */
@@ -129,6 +129,6 @@ public class FIDFeatureReader implements FeatureReader {
     }
 
     public boolean hasNext() throws IOException {
-        return attributeReader.hasNext();
+        return attributeReader.hasNext() && fidReader.hasNext();
     }
 }
