@@ -20,13 +20,15 @@
 package org.geotools.styling;
 
 import org.geotools.filter.Expression;
+import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: DisplacementImpl.java,v 1.5 2003/08/01 16:55:16 ianturton Exp $
+ * @version $Id: DisplacementImpl.java,v 1.6 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class DisplacementImpl implements Displacement {
+public class DisplacementImpl implements Displacement, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -81,4 +83,50 @@ public class DisplacementImpl implements Displacement {
         visitor.visit(this);
     }
     
+    /* (non-Javadoc)
+     * @see org.geotools.util.Cloneable#clone()
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Will not happen");
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj instanceof DisplacementImpl) {
+            DisplacementImpl other = (DisplacementImpl) obj;
+            return EqualsUtils.equals(displacementX, other.displacementX) &&
+                EqualsUtils.equals(displacementY, other.displacementY);
+        }
+        
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 17;
+        
+        if (displacementX != null) {
+            result = result * PRIME + displacementX.hashCode();
+        }
+        
+        if (displacementY != null) {
+            result = result * PRIME + displacementY.hashCode();
+        }
+        
+        return result;
+    }
+
 }

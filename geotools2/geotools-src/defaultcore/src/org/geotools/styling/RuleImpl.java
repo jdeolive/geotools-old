@@ -26,13 +26,14 @@ import java.util.List;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 import org.geotools.filter.Filter;
 
 
 /**
  * Provides the default implementation of Rule.
  * 
- * @version $Id: RuleImpl.java,v 1.12 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: RuleImpl.java,v 1.13 2003/09/06 04:52:31 seangeo Exp $
  * @author James Macgill
  */
 public class RuleImpl implements Rule, Cloneable {
@@ -202,29 +203,30 @@ public class RuleImpl implements Rule, Cloneable {
      * Creates a deep copy clone of the rule.
      * @see org.geotools.styling.Rule#clone()
      */
-    public Object clone() {
-        Rule clone;
+    public Object clone() {        
         try {
-            clone = (Rule) super.clone();
+            RuleImpl clone = (RuleImpl) super.clone();
+            clone.graphics = new ArrayList();
+            clone.symbolizers = new ArrayList();  
+            
+            Graphic[] legends = new Graphic[graphics.size()];
+            for (int i = 0; i < legends.length; i++) {
+                Graphic legend = (Graphic) graphics.get(i);
+                legends[i] = (Graphic) ((Cloneable)legend).clone();
+            } 
+            clone.setLegendGraphic(legends);
+            
+            Symbolizer[] symbArray = new Symbolizer[symbolizers.size()];
+            for (int i = 0; i < symbArray.length; i++) {
+                Symbolizer symb = (Symbolizer) symbolizers.get(i);
+                symbArray[i] = (Symbolizer) ((Cloneable)symb).clone();
+            }
+            clone.setSymbolizers(symbArray);
+            
+            return clone;
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(e); // this should never happen.
+            throw new RuntimeException("This will never happen",e);
         }
-        
-        Graphic[] legends = new Graphic[graphics.size()];
-        for (int i = 0; i < legends.length; i++) {
-            Graphic legend = (Graphic) graphics.get(i);
-            legends[i] = (Graphic) legend.clone();
-        } 
-        clone.setLegendGraphic(legends);
-        
-        Symbolizer[] symbArray = new Symbolizer[symbolizers.size()];
-        for (int i = 0; i < symbArray.length; i++) {
-            Symbolizer symb = (Symbolizer) symbolizers.get(i);
-            symbArray[i] = (Symbolizer) symb.clone();
-        }
-        clone.setSymbolizers(symbArray);
-        
-        return clone;
     }
 
     /** Generates a hashcode for the Rule.
@@ -281,80 +283,23 @@ public class RuleImpl implements Rule, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof RuleImpl) {
+            RuleImpl other = (RuleImpl) oth;
+            return EqualsUtils.equals(name, other.name) && 
+                EqualsUtils.equals(title, other.title) &&
+                EqualsUtils.equals(abstractStr, other.abstractStr) &&
+                EqualsUtils.equals(filter, other.filter) &&
+                hasElseFilter == other.hasElseFilter &&
+                EqualsUtils.equals(graphics, other.graphics) &&
+                EqualsUtils.equals(symbolizers, other.symbolizers) &&
+                Double.doubleToLongBits(maxScaleDenominator) == 
+                    Double.doubleToLongBits(other.maxScaleDenominator) &&
+                Double.doubleToLongBits(minScaleDenominator) ==
+                    Double.doubleToLongBits(other.minScaleDenominator);
+                
         }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        RuleImpl other = (RuleImpl) oth;
         
-        if (this.name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else {
-            if (!this.name.equals(other.name)) {
-                return false;
-            }
-        }
-        if (this.title == null) {
-            if (other.title != null) {
-                return false;
-            }
-        } else {
-            if (!this.title.equals(other.title)) {
-                return false;
-            }
-        }
-        if (this.abstractStr == null) {
-            if (other.abstractStr != null) {
-                return false;
-            }
-        } else {
-            if (!this.abstractStr.equals(other.abstractStr)) {
-                return false;
-            }
-        }
-        if (this.filter == null) {
-            if (other.filter != null) {
-                return false;
-            }
-        } else {
-            if (!this.filter.equals(other.filter)) {
-                return false;
-            }
-        }
-
-        if (this.hasElseFilter != other.hasElseFilter) {
-            return false;
-        }
-
-        if (Double.doubleToLongBits(maxScaleDenominator) != 
-                Double.doubleToLongBits(other.maxScaleDenominator)) {
-            return false;
-        }
-
-        if (Double.doubleToLongBits(minScaleDenominator) != 
-                Double.doubleToLongBits(other.minScaleDenominator)) {
-            return false;
-        }
-        if (!symbolizers.equals(other.symbolizers)) {
-            return false;
-        }
-        if (this.graphics == null) {
-            if (other.graphics != null) {
-                return false;
-            }
-        } else {
-            if (!this.graphics.equals(other.graphics)) {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 
 }

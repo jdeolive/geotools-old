@@ -29,7 +29,7 @@ import org.geotools.filter.Expression;
  * stroke defines how a line is rendered.
  *
  * @author James Macgill, CCG
- * @version $Id: StrokeImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: StrokeImpl.java,v 1.14 2003/09/06 04:52:31 seangeo Exp $
  */
 public class StrokeImpl implements Stroke, Cloneable {
     private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory
@@ -379,11 +379,11 @@ public class StrokeImpl implements Stroke, Cloneable {
             }
 
             if (fillGraphic != null) {
-                clone.fillGraphic = (Graphic) fillGraphic.clone();
+                clone.fillGraphic = (Graphic) ((Cloneable)fillGraphic).clone();
             }
 
             if (strokeGraphic != null) {
-                clone.strokeGraphic = (Graphic) strokeGraphic.clone();
+                clone.strokeGraphic = (Graphic) ((Cloneable)strokeGraphic).clone();
             }
 
             return clone;

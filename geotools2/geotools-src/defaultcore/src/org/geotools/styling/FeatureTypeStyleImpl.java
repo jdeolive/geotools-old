@@ -21,10 +21,11 @@ package org.geotools.styling;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.14 2003/09/06 04:52:31 seangeo Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
@@ -142,7 +143,7 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
         Rule[] ruleArray = new Rule[ruleList.size()];
         for (int i = 0; i < ruleArray.length; i++) {
             Rule rule = (Rule) ruleList.get(i);
-            ruleArray[i] = (Rule) rule.clone();
+            ruleArray[i] = (Rule) ((Cloneable)rule).clone();
         }
         clone.setRules(ruleArray);
 
@@ -189,62 +190,16 @@ public class FeatureTypeStyleImpl implements FeatureTypeStyle, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof FeatureTypeStyleImpl) {
+            FeatureTypeStyleImpl other = (FeatureTypeStyleImpl) oth;
+            return EqualsUtils.equals(name, other.name) &&
+                EqualsUtils.equals(title, other.title) &&
+                EqualsUtils.equals(abstractStr, other.abstractStr) &&
+                EqualsUtils.equals(featureTypeName, other.featureTypeName) &&
+                EqualsUtils.equals(ruleList, other.ruleList);
         }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        FeatureTypeStyleImpl other = (FeatureTypeStyleImpl) oth;
-        if (this.featureTypeName == null) {
-            if (other.featureTypeName != null) {
-                return false;
-            }
-        } else {
-            if (!this.featureTypeName.equals(other.featureTypeName)) {
-                return false;
-            }
-        }
-        if (this.name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else {
-            if (!this.name.equals(other.name)) {
-                return false;
-            }
-        }
-        if (this.title == null) {
-            if (other.title != null) {
-                return false;
-            }
-        } else {
-            if (!this.title.equals(other.title)) {
-                return false;
-            }
-        }
-        if (this.abstractStr == null) {
-            if (other.abstractStr != null) {
-                return false;
-            }
-        } else {
-            if (!this.abstractStr.equals(other.abstractStr)) {
-                return false;
-            }
-        }
-        if (this.ruleList == null) {
-            if (other.ruleList != null) {
-                return false;
-            }
-        } else {
-            if (!this.ruleList.equals(other.ruleList)) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return false;
     }
 
 }

@@ -41,13 +41,14 @@ import java.util.Iterator;
 
 import org.geotools.filter.Expression;
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.16 2003/08/29 12:48:05 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.17 2003/09/06 04:52:31 seangeo Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
@@ -348,12 +349,12 @@ public class GraphicImpl implements Graphic, Cloneable {
             // the setter methods to place them in the proper lists
             for (Iterator iter = externalGraphics.iterator(); iter.hasNext();) {
                 ExternalGraphic exGraphic = (ExternalGraphic) iter.next();
-                clone.addExternalGraphic((ExternalGraphic) exGraphic.clone());
+                clone.addExternalGraphic((ExternalGraphic) ((Cloneable)exGraphic).clone());
             }
             
             for (Iterator iter = marks.iterator(); iter.hasNext();) {
                 Mark mark = (Mark) iter.next();
-                clone.addMark((Mark) mark.clone());
+                clone.addMark((Mark) ((Cloneable)mark).clone());
             }
             
         } catch (CloneNotSupportedException e) {
@@ -403,62 +404,16 @@ public class GraphicImpl implements Graphic, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof GraphicImpl) {
+            GraphicImpl other = (GraphicImpl) oth;
+            return EqualsUtils.equals(this.geometryPropertyName, other.geometryPropertyName) &&
+                EqualsUtils.equals(this.size, other.size) &&
+                EqualsUtils.equals(this.rotation, other.rotation) &&
+                EqualsUtils.equals(this.opacity, other.opacity) &&
+                EqualsUtils.equals(this.symbols, other.symbols);
         }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        GraphicImpl other = (GraphicImpl) oth;
-        if (this.geometryPropertyName == null) {
-            if (other.geometryPropertyName != null) {
-                return false;
-            }
-        } else {
-            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
-                return false;
-            }
-        }
-        if (this.symbols == null) {
-            if (other.symbols != null) {
-                return false;
-            }
-        } else {
-            if (!this.symbols.equals(other.symbols)) {
-                return false;
-            }
-        }
-        if (this.rotation == null) {
-            if (other.rotation != null) {
-                return false;
-            }
-        } else {
-            if (!this.rotation.equals(other.rotation)) {
-                return false;
-            }
-        }
-        if (this.size == null) {
-            if (other.size != null) {
-                return false;
-            }
-        } else {
-            if (!this.size.equals(other.size)) {
-                return false;
-            }
-        }
-        if (this.opacity == null) {
-            if (other.opacity != null) {
-                return false;
-            }
-        } else {
-            if (!this.opacity.equals(other.opacity)) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return false;
     }
 
 }

@@ -23,13 +23,15 @@ package org.geotools.styling;
 //import java.util.logging.Logger;
 // Geotools dependencies
 import org.geotools.filter.Expression;
+import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
-
-/**
- * @version $Id: FontImpl.java,v 1.5 2003/07/22 15:52:10 ianturton Exp $
+/** Provides a Java representation of the Font element of an SLD.
+ * 
+ * @version $Id: FontImpl.java,v 1.6 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class FontImpl implements Font {
+public class FontImpl implements Font, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -99,4 +101,69 @@ public class FontImpl implements Font {
     public void setFontWeight(Expression fontWeight) {
         this.fontWeight = fontWeight;
     }
+    
+    /** Creates a clone of the font.
+     * 
+     * @see org.geotools.util.Cloneable#clone()
+     */
+    public Object clone() {        
+        try {
+            // all the members are immutable expression
+            // super.clone() is enough.
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("This should not happen",e);
+        }        
+    }
+
+    /** Generates the hashcode for the font.
+     *  
+     *  @return the hash code.
+     */
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (fontFamily != null) {
+            result = PRIME * result + fontFamily.hashCode();
+        }
+        if (fontSize != null) {
+            result = PRIME * result + fontSize.hashCode();
+        }
+        if (fontStyle != null) {
+            result = PRIME * result + fontStyle.hashCode();
+        }
+        if (fontWeight != null) {
+            result = PRIME * result + fontWeight.hashCode();
+        }
+
+        return result;
+    }
+
+    /** Compares this font with another for equality.
+     * 
+     *  Two fonts are equal if their family, style, weight 
+     *  and size are equal.
+     * 
+     *  @return True if this and oth are equal.
+     */
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth instanceof FontImpl) {
+            FontImpl other = (FontImpl) oth;
+            return EqualsUtils.equals(this.fontFamily, other.fontFamily) &&
+                    EqualsUtils.equals(this.fontSize, other.fontSize) &&
+                    EqualsUtils.equals(this.fontStyle, other.fontStyle) &&
+                    EqualsUtils.equals(this.fontWeight, other.fontWeight);
+        }
+
+        return false;
+    }
+
 }

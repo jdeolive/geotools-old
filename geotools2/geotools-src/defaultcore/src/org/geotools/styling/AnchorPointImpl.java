@@ -20,13 +20,15 @@
 package org.geotools.styling;
 
 import org.geotools.filter.Expression;
+import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: AnchorPointImpl.java,v 1.6 2003/08/01 16:54:49 ianturton Exp $
+ * @version $Id: AnchorPointImpl.java,v 1.7 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class AnchorPointImpl implements AnchorPoint {
+public class AnchorPointImpl implements AnchorPoint, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -81,4 +83,50 @@ public class AnchorPointImpl implements AnchorPoint {
         visitor.visit(this);
     }
     
+    /* (non-Javadoc)
+     * @see org.geotools.util.Cloneable#clone()
+     */
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Never happen");
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj instanceof AnchorPointImpl) {
+            AnchorPointImpl other = (AnchorPointImpl) obj;
+            return EqualsUtils.equals(this.anchorPointX, other.anchorPointX) &&
+                EqualsUtils.equals(this.anchorPointY, other.anchorPointY);
+        }
+        
+        return false;     
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 17;
+        
+        if (anchorPointX != null) {
+            result = result * PRIME + anchorPointX.hashCode(); 
+        }
+        
+        if (anchorPointY != null) {
+            result = result * PRIME + anchorPointY.hashCode();
+        }
+        
+        return result;
+    }
+
 }

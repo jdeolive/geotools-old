@@ -18,6 +18,7 @@ package org.geotools.styling;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
@@ -25,7 +26,7 @@ import org.geotools.util.Cloneable;
  * PolygonSymbolizer defines how a polygon geometry should be rendered.
  *
  * @author James Macgill, CCG
- * @version $Id: PolygonSymbolizerImpl.java,v 1.13 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.14 2003/09/06 04:52:31 seangeo Exp $
  */
 public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private Fill fill = new FillImpl();
@@ -135,11 +136,11 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             clone = (PolygonSymbolizerImpl) super.clone();
 
             if (fill != null) {
-                clone.fill = (Fill) fill.clone();
+                clone.fill = (Fill) ((Cloneable)fill).clone();
             }
 
             if (stroke != null) {
-                clone.stroke = (Stroke) stroke.clone();
+                clone.stroke = (Stroke) ((Cloneable)stroke).clone();
             }
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
@@ -189,46 +190,13 @@ public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof PolygonSymbolizerImpl) {
+            PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
+            return EqualsUtils.equals(this.geometryPropertyName, other.geometryPropertyName) &&
+                EqualsUtils.equals(fill, other.fill) &&
+                EqualsUtils.equals(stroke, other.stroke);
         }
 
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        PolygonSymbolizerImpl other = (PolygonSymbolizerImpl) oth;
-
-        if (this.geometryPropertyName == null) {
-            if (other.geometryPropertyName != null) {
-                return false;
-            }
-        } else {
-            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
-                return false;
-            }
-        }
-
-        if (this.fill == null) {
-            if (other.fill != null) {
-                return false;
-            }
-        } else {
-            if (!this.fill.equals(other.fill)) {
-                return false;
-            }
-        }
-
-        if (this.stroke == null) {
-            if (other.stroke != null) {
-                return false;
-            }
-        } else {
-            if (!this.stroke.equals(other.stroke)) {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 }

@@ -21,13 +21,14 @@ package org.geotools.styling;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
  * Provides a Java representation of the PointSymbolizer.
  * This defines how points are to be rendered. 
  * 
- * @version $Id: PointSymbolizerImpl.java,v 1.11 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.12 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
@@ -102,7 +103,7 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
         PointSymbolizerImpl clone;
         try {
             clone = (PointSymbolizerImpl) super.clone();
-            clone.graphic = (Graphic) this.graphic.clone();
+            clone.graphic = (Graphic) ((Cloneable)graphic).clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e); // this should never happen.
         }
@@ -144,35 +145,13 @@ public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof PointSymbolizerImpl) {
+            PointSymbolizerImpl other = (PointSymbolizerImpl) oth;
+            return EqualsUtils.equals(geometryPropertyName, other.geometryPropertyName) &&
+                EqualsUtils.equals(graphic, other.graphic);
         }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        PointSymbolizerImpl other = (PointSymbolizerImpl) oth;
-        if (this.geometryPropertyName == null) {
-            if (other.geometryPropertyName != null) {
-                return false;
-            }
-        } else {
-            if (!this.geometryPropertyName.equals(other.geometryPropertyName)) {
-                return false;
-            }
-        }
-        if (this.graphic == null) {
-            if (other.graphic != null) {
-                return false;
-            }
-        } else {
-            if (!this.graphic.equals(other.graphic)) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return false;
     }
 
 }

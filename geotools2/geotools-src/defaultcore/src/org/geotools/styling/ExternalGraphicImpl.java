@@ -25,10 +25,11 @@ import java.net.MalformedURLException;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.8 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.9 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
@@ -130,35 +131,13 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof ExternalGraphicImpl) {
+            ExternalGraphicImpl other = (ExternalGraphicImpl) oth;
+            return EqualsUtils.equals(uri,other.uri) &&
+                EqualsUtils.equals(format, other.format);
         }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        ExternalGraphicImpl other = (ExternalGraphicImpl) oth;
-        if (this.format == null) {
-            if (other.format != null) {
-                return false;
-            }
-        } else {
-            if (!this.format.equals(other.format)) {
-                return false;
-            }
-        }
-        if (this.uri == null) {
-            if (other.uri != null) {
-                return false;
-            }
-        } else {
-            if (!this.uri.equals(other.uri)) {
-                return false;
-            }
-        }
-
-        return true;
+        
+        return false;
     }
 
 }

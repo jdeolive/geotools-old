@@ -25,7 +25,7 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: MarkImpl.java,v 1.12 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: MarkImpl.java,v 1.13 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class MarkImpl implements Mark, Cloneable {
@@ -195,7 +195,7 @@ public class MarkImpl implements Mark, Cloneable {
     public Object clone() {
         try {
             MarkImpl clone = (MarkImpl) super.clone();
-            clone.fill = (Fill) fill.clone();
+            clone.fill = (Fill) ((Cloneable)fill).clone();
             clone.stroke = (Stroke) stroke.clone();
             return clone;
         } catch (CloneNotSupportedException e) {

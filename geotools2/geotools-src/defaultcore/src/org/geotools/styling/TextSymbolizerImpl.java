@@ -22,12 +22,12 @@ package org.geotools.styling;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
-
+import org.geotools.util.EqualsUtils;
 /**
  * Provides a Java representation of an SLD TextSymbolizer that
  * defines how text symbols should be rendered.
  * 
- * @version $Id: TextSymbolizerImpl.java,v 1.16 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.17 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
@@ -46,22 +46,6 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
         fill.setColor(filterFactory.createLiteralExpression("#000000")); // default text fill is black
         halo = null;
         labelPlacement = new PointPlacementImpl();
-    }
-
-    /** Generates a hascode for this TextSymbolizer.
-     * 
-     * @return A haschcode.
-     */
-    public int hashcode() {
-        int key = 0;
-        key = fill.hashCode();
-        key = (key * 13) + fonts.hashCode();
-        key = (key * 13) + halo.hashCode();
-        key = (key * 13) + labelPlacement.hashCode();
-        key = (key * 13) + label.hashCode();
-        key = (key * 13) + geometryPropertyName.hashCode();
-
-        return key;
     }
 
     /**
@@ -217,9 +201,56 @@ public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
      */
     public Object clone() {
         try {
-            return super.clone();
+            return super.clone();            
         } catch (CloneNotSupportedException e) {
             throw new AssertionError(e); // this should never happen.
         }
     }
+    public int hashCode() {
+        final int PRIME = 1000003;
+        int result = 0;
+        if (fill != null) {
+            result = PRIME * result + fill.hashCode();
+        }
+        if (fonts != null) {
+            result = PRIME * result + fonts.hashCode();
+        }
+        if (halo != null) {
+            result = PRIME * result + halo.hashCode();
+        }
+        if (labelPlacement != null) {
+            result = PRIME * result + labelPlacement.hashCode();
+        }
+        if (geometryPropertyName != null) {
+            result = PRIME * result + geometryPropertyName.hashCode();
+        }
+        if (label != null) {
+            result = PRIME * result + label.hashCode();
+        }
+
+        return result;
+    }
+
+    public boolean equals(Object oth) {
+        if (this == oth) {
+            return true;
+        }
+
+        if (oth == null) {
+            return false;
+        }
+
+        if (oth instanceof TextSymbolizerImpl) {
+            TextSymbolizerImpl other = (TextSymbolizerImpl) oth;
+            return EqualsUtils.equals(this.geometryPropertyName, other.geometryPropertyName) &&
+                    EqualsUtils.equals(this.label, other.label) &&
+                    EqualsUtils.equals(this.halo, other.halo) &&
+                    EqualsUtils.equals(this.fonts, other.fonts) &&
+                    EqualsUtils.equals(this.labelPlacement, other.labelPlacement) &&
+                    EqualsUtils.equals(this.fill, other.fill);
+        }
+
+        return false;
+    }
+
 }

@@ -28,11 +28,12 @@ import java.util.logging.Logger;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.9 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: FillImpl.java,v 1.10 2003/09/06 04:52:31 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class FillImpl implements Fill, Cloneable {
@@ -189,7 +190,7 @@ public class FillImpl implements Fill, Cloneable {
        try {
             FillImpl clone = (FillImpl) super.clone();
             if ( graphicFill != null ) {
-                clone.graphicFill = (Graphic) graphicFill.clone();
+                clone.graphicFill = (Graphic) ((Cloneable)graphicFill).clone();
             }
             return clone;
         } catch (CloneNotSupportedException e) {
@@ -235,52 +236,14 @@ public class FillImpl implements Fill, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
+        if (oth instanceof FillImpl) {
+            FillImpl other = (FillImpl) oth;
+            return EqualsUtils.equals(this.color, other.color) &&
+                EqualsUtils.equals(this.backgroundColor, other.backgroundColor) &&
+                EqualsUtils.equals(this.opacity, other.opacity) &&
+                EqualsUtils.equals(this.graphicFill, other.graphicFill);
         }
 
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        FillImpl other = (FillImpl) oth;
-        if (this.color == null) {
-            if (other.color != null) {
-                return false;
-            }
-        } else {
-            if (!this.color.equals(other.color)) {
-                return false;
-            }
-        }
-        if (this.backgroundColor == null) {
-            if (other.backgroundColor != null) {
-                return false;
-            }
-        } else {
-            if (!this.backgroundColor.equals(other.backgroundColor)) {
-                return false;
-            }
-        }
-        if (this.opacity == null) {
-            if (other.opacity != null) {
-                return false;
-            }
-        } else {
-            if (!this.opacity.equals(other.opacity)) {
-                return false;
-            }
-        }
-        if (this.graphicFill == null) {
-            if (other.graphicFill != null) {
-                return false;
-            }
-        } else {
-            if (!this.graphicFill.equals(other.graphicFill)) {
-                return false;
-            }
-        }
-
-        return true;
+        return false;
     }
 }

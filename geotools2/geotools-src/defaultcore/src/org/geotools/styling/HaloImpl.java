@@ -19,11 +19,14 @@
  */
 package org.geotools.styling;
 
+import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
+
 /**
- * @version $Id: HaloImpl.java,v 1.6 2003/08/01 16:54:49 ianturton Exp $
+ * @version $Id: HaloImpl.java,v 1.7 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class HaloImpl implements Halo {
+public class HaloImpl implements Halo, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -77,4 +80,57 @@ public class HaloImpl implements Halo {
         visitor.visit(this);
     }
     
+    /** Creates a deep copy clone of the Halo.
+     * @see org.geotools.util.Cloneable#clone()
+     * @return The clone.
+     */
+    public Object clone() {
+        try {
+            HaloImpl clone = (HaloImpl) super.clone();
+            clone.fill = (Fill) ((Cloneable)fill).clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("This will never happen");
+        }
+    }
+
+    /** Compares this HaloImpl with another for equality.
+     * 
+     * @param obj THe other HaloImpl.
+     * @return True if they are equal.  They are equal if
+     * their fill and radius is equal.
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj instanceof HaloImpl) {
+            HaloImpl other = (HaloImpl) obj;
+            return EqualsUtils.equals(radius, other.radius) &&
+                EqualsUtils.equals(fill, other.fill);
+        }
+        
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 17;
+        
+        if (radius != null) {
+            result = result * PRIME + radius.hashCode();
+        } 
+        
+        if (fill != null) {
+            result = result * PRIME + fill.hashCode();
+        }
+        
+        return result;
+    }
+
 }

@@ -19,11 +19,14 @@
  */
 package org.geotools.styling;
 
+import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
+
 /**
- * @version $Id: PointPlacementImpl.java,v 1.9 2003/08/01 16:55:16 ianturton Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.10 2003/09/06 04:52:31 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class PointPlacementImpl implements PointPlacement {
+public class PointPlacementImpl implements PointPlacement, Cloneable {
     /**
      * The logger for the default core module.
      */
@@ -107,4 +110,58 @@ public class PointPlacementImpl implements PointPlacement {
         visitor.visit(this);
      }
     
+    /* (non-Javadoc)
+     * @see org.geotools.util.Cloneable#clone()
+     */
+    public Object clone() {
+        try {
+            PointPlacementImpl clone = (PointPlacementImpl) super.clone();
+            clone.anchorPoint = (AnchorPoint) ((Cloneable)anchorPoint).clone();
+            clone.displacement = (Displacement) ((Cloneable)displacement).clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Won't happen");
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        
+        if (obj instanceof PointPlacementImpl) {
+            PointPlacementImpl other = (PointPlacementImpl) obj;
+            return EqualsUtils.equals(anchorPoint, other.anchorPoint) &&
+                EqualsUtils.equals(displacement, other.displacement) &&
+                EqualsUtils.equals(rotation, other.rotation);
+        }
+        
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        final int PRIME = 37;
+        int result = 17;
+        
+        if (anchorPoint != null) {
+            result = result * PRIME + anchorPoint.hashCode();
+        }
+        
+        if (displacement != null) {
+            result = result * PRIME + displacement.hashCode();
+        }
+        
+        if (rotation != null) {
+            result = result * PRIME + rotation.hashCode();
+        }
+        
+        return result;
+    }
+
 }

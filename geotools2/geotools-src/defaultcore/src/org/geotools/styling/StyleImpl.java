@@ -27,10 +27,11 @@ import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
+import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.17 2003/08/28 15:29:42 desruisseaux Exp $
+ * @version $Id: StyleImpl.java,v 1.18 2003/09/06 04:52:31 seangeo Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {
@@ -143,7 +144,7 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
         
         for (int i = 0; i < ftsArray.length; i++) {
             FeatureTypeStyle fts = (FeatureTypeStyle) featureTypeStyleList.get(i);
-            ftsArray[i] = (FeatureTypeStyle) fts.clone();
+            ftsArray[i] = (FeatureTypeStyle) ((Cloneable)fts).clone();
         }
         
         clone.setFeatureTypeStyles(ftsArray);
@@ -188,57 +189,15 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
             return true;
         }
 
-        if (oth == null) {
-            return false;
-        }
-
-        if (oth.getClass() != getClass()) {
-            return false;
-        }
-
-        StyleImpl other = (StyleImpl) oth;
-        
-        if (this.abstractText == null) {
-            if (other.abstractText != null) {
-                return false;
-            }
-        } else {
-            if (!this.abstractText.equals(other.abstractText)) {
-                return false;
-            }
-        }
-        if (this.name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else {
-            if (!this.name.equals(other.name)) {
-                return false;
-            }
-        }
-        if (this.title == null) {
-            if (other.title != null) {
-                return false;
-            }
-        } else {
-            if (!this.title.equals(other.title)) {
-                return false;
-            }
-        }
-        if (this.defaultB != other.defaultB) {
-            return false;
-        }
-        if (this.featureTypeStyleList == null) {
-            if (other.featureTypeStyleList != null) {
-                return false;
-            }
-        } else {
-            if (!this.featureTypeStyleList.equals(other.featureTypeStyleList)) {
-                return false;
-            }
+        if (oth instanceof StyleImpl) {
+            StyleImpl other = (StyleImpl) oth;
+            return EqualsUtils.equals(name, other.name) &&
+                EqualsUtils.equals(title, other.title) &&
+                EqualsUtils.equals(abstractText, other.abstractText) &&
+                EqualsUtils.equals(featureTypeStyleList, other.featureTypeStyleList);
         }
         
-        return true;
+        return false;
     }
 
 }
