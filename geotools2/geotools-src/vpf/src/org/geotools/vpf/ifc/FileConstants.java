@@ -1,3 +1,22 @@
+/*
+ * Geotools - OpenSource mapping toolkit
+ * (C) 2002, Centre for Computational Geography
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ */
+
 package org.geotools.vpf.ifc;
 
 /**
@@ -7,7 +26,7 @@ package org.geotools.vpf.ifc;
  * Created: Fri Dec 27 23:16:01 2002
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version $Id: FileConstants.java,v 1.1 2003/01/18 13:31:12 kobit Exp $
+ * @version $Id: FileConstants.java,v 1.2 2003/01/21 11:11:01 kobit Exp $
  */
 
 public interface FileConstants 
