@@ -108,10 +108,34 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.1 2002/08/07 13:26:59 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.2 2002/08/30 10:45:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
+    /**
+     * An enumeration constant for showing or hidding the geographic area selector.
+     * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     */
+    public static final int GEOGRAPHIC_AREA = 1;
+
+    /**
+     * An enumeration constant for showing or hidding the time range selector.
+     * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     */
+    public static final int TIME_RANGE = 2;
+
+    /**
+     * An enumeration constant for showing or hidding the resolution selector.
+     * Used as argument for {@link #isSelectorVisible} and {@link #setSelectorVisible}.
+     */
+    public static final int RESOLUTION = 4;
+
+    /**
+     * The three mean panels in this dialog box:
+     * geographic area, time and preferred resolution.
+     */
+    private final JComponent areaPanel, timePanel, resoPanel;
+
     /**
      * Liste de choix dans laquelle l'utilisateur
      * choisira le fuseau horaire de ses dates.
@@ -155,7 +179,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.1 2002/08/07 13:26:59 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.2 2002/08/30 10:45:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -260,40 +284,40 @@ public class CoordinateChooser extends JPanel {
         timezone    .addActionListener(listeners);
         radioPrefRes.addChangeListener(listeners);
 
-        final JPanel p1=getPanel(resources.getString(ResourceKeys.GEOGRAPHIC_COORDINATES));
-        final JPanel p2=getPanel(resources.getString(ResourceKeys.TIME_RANGE            ));
-        final JPanel p3=getPanel(resources.getString(ResourceKeys.PREFERRED_RESOLUTION  ));
+        areaPanel=getPanel(resources.getString(ResourceKeys.GEOGRAPHIC_COORDINATES));
+        timePanel=getPanel(resources.getString(ResourceKeys.TIME_RANGE            ));
+        resoPanel=getPanel(resources.getString(ResourceKeys.PREFERRED_RESOLUTION  ));
         final GridBagConstraints c=new GridBagConstraints();
 
         c.weightx=1;
-        c.gridx=1; c.gridy=0; p1.add(ymax, c);
-        c.gridx=0; c.gridy=1; p1.add(xmin, c);
-        c.gridx=2; c.gridy=1; p1.add(xmax, c);
-        c.gridx=1; c.gridy=2; p1.add(ymin, c);
+        c.gridx=1; c.gridy=0; areaPanel.add(ymax, c);
+        c.gridx=0; c.gridy=1; areaPanel.add(xmin, c);
+        c.gridx=2; c.gridy=1; areaPanel.add(xmax, c);
+        c.gridx=1; c.gridy=2; areaPanel.add(ymin, c);
 
         JLabel label;
         c.gridx=0; c.anchor=c.WEST; c.insets.right=3; c.weightx=0;
-        c.gridy=0; p2.add(label=new JLabel(resources.getLabel(ResourceKeys.START_TIME)), c); label.setLabelFor(tmin);
-        c.gridy=1; p2.add(label=new JLabel(resources.getLabel(ResourceKeys.END_TIME  )), c); label.setLabelFor(tmax);
-        c.gridy=2; p2.add(label=new JLabel(resources.getLabel(ResourceKeys.TIME_ZONE )), c); label.setLabelFor(timezone); c.gridwidth=4;
-        c.gridy=0; p3.add(radioBestRes,  c);
-        c.gridy=1; p3.add(radioPrefRes,  c);
+        c.gridy=0; timePanel.add(label=new JLabel(resources.getLabel(ResourceKeys.START_TIME)), c); label.setLabelFor(tmin);
+        c.gridy=1; timePanel.add(label=new JLabel(resources.getLabel(ResourceKeys.END_TIME  )), c); label.setLabelFor(tmax);
+        c.gridy=2; timePanel.add(label=new JLabel(resources.getLabel(ResourceKeys.TIME_ZONE )), c); label.setLabelFor(timezone); c.gridwidth=4;
+        c.gridy=0; resoPanel.add(radioBestRes,  c);
+        c.gridy=1; resoPanel.add(radioPrefRes,  c);
         c.gridy=2; c.gridwidth=1; c.anchor=c.EAST; c.insets.right=c.insets.left=1; c.weightx=1;
-        c.gridx=0; p3.add(labelSize1, c); labelSize1.setLabelFor(xres);  c.weightx=0;
-        c.gridx=1; p3.add(xres,       c);
-        c.gridx=2; p3.add(labelSize2, c); labelSize2.setLabelFor(yres);
-        c.gridx=3; p3.add(yres,       c);
+        c.gridx=0; resoPanel.add(labelSize1, c); labelSize1.setLabelFor(xres);  c.weightx=0;
+        c.gridx=1; resoPanel.add(xres,       c);
+        c.gridx=2; resoPanel.add(labelSize2, c); labelSize2.setLabelFor(yres);
+        c.gridx=3; resoPanel.add(yres,       c);
 
         c.gridx=1; c.fill=c.HORIZONTAL; c.insets.right=c.insets.left=0; c.weightx=1;
-        c.gridy=0; p2.add(tmin,     c);
-        c.gridy=1; p2.add(tmax,     c);
-        c.gridy=2; p2.add(timezone, c);
+        c.gridy=0; timePanel.add(tmin,     c);
+        c.gridy=1; timePanel.add(tmax,     c);
+        c.gridy=2; timePanel.add(timezone, c);
 
         c.insets.right=c.insets.left=c.insets.top=c.insets.bottom=3;
         c.gridx=0; c.anchor=c.CENTER; c.fill=c.BOTH; c.weighty=1;
-        c.gridy=0; add(p1, c);
-        c.gridy=1; add(p2, c);
-        c.gridy=2; add(p3, c);
+        c.gridy=0; add(areaPanel, c);
+        c.gridy=1; add(timePanel, c);
+        c.gridy=2; add(resoPanel, c);
     }
 
     /**
@@ -319,6 +343,49 @@ public class CoordinateChooser extends JPanel {
         if (format!=null) {
             ((InternationalFormatter)field.getFormatter()).setFormat(format);
         }
+    }
+
+    /**
+     * Tells if a selector is currently visible or not. The default <code>CoordinateChooser</code>
+     * contains three selectors: one for geographic area, one for time range and one for the
+     * preferred resolution.
+     *
+     * @param selector One of the following constants:
+     *                {@link #GEOGRAPHIC_AREA},
+     *                {@link #TIME_RANGE} or
+     *                {@link #RESOLUTION}.
+     * @return <code>true</code> if the specified selector is visible,
+     *         or <code>false</code> otherwise.
+     * @throws IllegalArgumentException if <code>selector</code> is not legal.
+     */
+    public boolean isSelectorVisible(final int selector) {
+        switch (selector) {
+            case GEOGRAPHIC_AREA: return areaPanel.isVisible();
+            case TIME_RANGE:      return timePanel.isVisible();
+            case RESOLUTION:      return resoPanel.isVisible();
+            default: throw new IllegalArgumentException();
+        }
+    }
+
+    /**
+     * Set the visible state of one or many selectors.
+     * All selectors are visible by default.
+     *
+     * @param selectors Any bitwise combinaisons of
+     *                {@link #GEOGRAPHIC_AREA},
+     *                {@link #TIME_RANGE} and/or
+     *                {@link #RESOLUTION}.
+     * @param visible <code>true</code> to show the selectors, or
+     *                <code>false</code> to hide them.
+     * @throws IllegalArgumentException if <code>selectors</code> contains illegal bits.
+     */
+    public void setSelectorVisible(final int selectors, final boolean visible) {
+        if ((selectors & ~(GEOGRAPHIC_AREA | TIME_RANGE | RESOLUTION)) != 0) {
+            throw new IllegalArgumentException();
+        }
+        if ((selectors & GEOGRAPHIC_AREA) != 0) areaPanel.setVisible(visible);
+        if ((selectors & TIME_RANGE     ) != 0) timePanel.setVisible(visible);
+        if ((selectors & RESOLUTION     ) != 0) resoPanel.setVisible(visible);
     }
 
     /**
