@@ -23,7 +23,7 @@ public class Transformer {
     boolean       needDatumShift;
 
     if( point_offset == 0 )
-        point_offset = 1;//erm, why?
+        point_offset = 1;//erm, why? (could be to avoid mult by 0)
 
 /* -------------------------------------------------------------------- */
 /*      Transform source points to lat/long, if they aren't             */
