@@ -50,7 +50,7 @@ import org.geotools.validation.ValidationResults;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: NullZeroValidation.java,v 1.4 2004/04/16 00:40:25 dmzwiers Exp $
+ * @version $Id: NullZeroValidation.java,v 1.5 2004/04/16 23:18:27 dmzwiers Exp $
  */
 public class NullZeroValidation extends DefaultFeatureValidation {
     private String attributeName;
@@ -96,6 +96,16 @@ public class NullZeroValidation extends DefaultFeatureValidation {
                 return false;
             }
         }
+
+		if (ft instanceof String) {
+			String nb = (String) ft;
+
+			if ("".equals(nb.trim())) {
+				results.error(feature, attributeName + " is Zero");
+
+				return false;
+			}
+		}
 
         return true;
     }
