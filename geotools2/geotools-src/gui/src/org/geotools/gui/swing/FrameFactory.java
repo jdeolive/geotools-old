@@ -37,7 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JComponent;
 
 // JTS dependencies
-import com.vividsolutions.jts.geom.sfs.SFSGeometry;
+import com.vividsolutions.jts.geom.Geometry;
 
 // Geotools dependencies
 import org.geotools.gc.GridCoverage;
@@ -53,10 +53,10 @@ import org.geotools.resources.Utilities;
 /**
  * A set of convenience methods for displaying geographic components in an Swing widget.
  * This factory may be used for an easy visualisation of {@linkplain GridCoverage grid
- * coverages} or {@linkplain SFSGeometry geometry} objects in a Swing widget.
+ * coverages} or {@linkplain Geometry geometry} objects in a Swing widget.
  *
  * @author Martin Desruisseaux
- * @version $Id: FrameFactory.java,v 1.5 2003/05/28 10:22:12 desruisseaux Exp $
+ * @version $Id: FrameFactory.java,v 1.6 2003/11/18 14:26:49 desruisseaux Exp $
  */
 public final class FrameFactory {
     /**
@@ -123,7 +123,7 @@ public final class FrameFactory {
      *
      * @param geometry The geometry to show.
      */
-    public static void show(final SFSGeometry geometry) {
+    public static void show(final Geometry geometry) {
         show(Utilities.getShortClassName(geometry),
              new RenderedGeometries(new JTSGeometries(geometry)));
     }

@@ -40,13 +40,11 @@ import java.util.IdentityHashMap;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.sfs.SFSPoint;
-import com.vividsolutions.jts.geom.sfs.SFSPolygon;
-import com.vividsolutions.jts.geom.sfs.SFSGeometry;
-import com.vividsolutions.jts.geom.sfs.SFSLineString;
-import com.vividsolutions.jts.geom.sfs.SFSGeometryCollection;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 // Geotools dependencies
 import org.geotools.math.Statistics;
@@ -62,10 +60,10 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.7 2003/11/15 14:16:16 aaime Exp $
+ * @version $Id: JTSGeometries.java,v 1.8 2003/11/18 14:26:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class JTSGeometries extends GeometryCollection {
+public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection {
     /**
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
@@ -106,7 +104,7 @@ public class JTSGeometries extends GeometryCollection {
      * @task TODO: The coordinate system currently default to CARTESIAN.
      *             We should find it from the SRID code.
      */
-    public JTSGeometries(final SFSGeometry geometry) {
+    public JTSGeometries(final Geometry geometry) {
         if (geometry!=null) try {
             add(geometry);
         } catch (TransformException exception) {
@@ -126,8 +124,8 @@ public class JTSGeometries extends GeometryCollection {
      * @task TODO: We should construct the coordinate system from SRID using
      *             {@link org.geotools.cs.CoordinateSystemAuthorityFactory}.
      */
-    private CoordinateSystem getCoordinateSystem(final SFSGeometry geometry) {
-        final int id = geometry.getSRID();
+    private CoordinateSystem getCoordinateSystem(final Geometry geometry) {
+//      final int id = geometry.getSRID();
         // TODO: construct CS here.
         return getCoordinateSystem();
     }
@@ -140,9 +138,9 @@ public class JTSGeometries extends GeometryCollection {
      * @param  geometry The geometry to analyse.
      * @return The statistics.
      */
-    private static Statistics statistics(final SFSGeometry geometry) {
-        if (geometry instanceof SFSPolygon) {
-            final SFSPolygon polygon = (SFSPolygon) geometry;
+    private static Statistics statistics(final Geometry geometry) {
+        if (geometry instanceof Polygon) {
+            final Polygon polygon = (Polygon) geometry;
             final Statistics stats = statistics(polygon.getExteriorRing());
             final int n = polygon.getNumInteriorRing();
             for (int i=0; i<n; i++) {
@@ -151,18 +149,18 @@ public class JTSGeometries extends GeometryCollection {
             return stats;
         }
         final Statistics stats = new Statistics();
-        if (geometry instanceof SFSGeometryCollection) {
-            final SFSGeometryCollection collection = (SFSGeometryCollection) geometry;
+        if (geometry instanceof GeometryCollection) {
+            final GeometryCollection collection = (GeometryCollection) geometry;
             final int n = collection.getNumGeometries();
             for (int i=0; i<n; i++) {
                 stats.add(statistics(collection.getGeometryN(i)));
             }
         }
-        else if (geometry instanceof SFSPoint) {
-            stats.add(((SFSPoint) geometry).getCoordinate().z);
+        else if (geometry instanceof Point) {
+            stats.add(((Point) geometry).getCoordinate().z);
         }
-        else if (geometry instanceof SFSLineString) {
-            final SFSLineString line = (SFSLineString) geometry;
+        else if (geometry instanceof LineString) {
+            final LineString line = (LineString) geometry;
             final int n = line.getNumPoints();
             for (int i=0; i<n; i++) {
                 stats.add(line.getCoordinateN(i).z);
@@ -176,16 +174,8 @@ public class JTSGeometries extends GeometryCollection {
      *
      * @param geometry The line string to add.
      */
-    private Polyline toPolyline(final SFSLineString geometry) {
-        final Coordinate[] coords;
-        if (geometry instanceof LineString) {
-            coords = ((LineString) geometry).getCoordinates();
-        } else {
-            coords = new Coordinate[geometry.getNumPoints()];
-            for (int i=0; i<coords.length; i++) {
-                coords[i] = geometry.getCoordinateN(i);
-            }
-        }
+    private Polyline toPolyline(final LineString geometry) {
+        final Coordinate[] coords = geometry.getCoordinates();
         final Polyline polyline = new Polyline(new JTSArray(coords), getCoordinateSystem(geometry));
         if (geometry.isRing()) {
             polyline.close();
@@ -201,7 +191,9 @@ public class JTSGeometries extends GeometryCollection {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private Geometry addSF(final SFSPoint geometry) throws TransformException {
+    private org.geotools.renderer.geom.Geometry addSF(final Point geometry)
+            throws TransformException
+    {
         Coordinate coord = geometry.getCoordinate();
         return add(geometry, new org.geotools.renderer.geom.Point(coord, getCoordinateSystem(geometry)));
     }
@@ -213,7 +205,9 @@ public class JTSGeometries extends GeometryCollection {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private Geometry addSF(final SFSLineString geometry) throws TransformException {
+    private org.geotools.renderer.geom.Geometry addSF(final LineString geometry)
+            throws TransformException
+    {
         return add(geometry, toPolyline(geometry));
     }
 
@@ -224,8 +218,11 @@ public class JTSGeometries extends GeometryCollection {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private Geometry addSF(final SFSPolygon geometry) throws TransformException {
-        final Polygon polygon = new Polygon(toPolyline(geometry.getExteriorRing()));
+    private org.geotools.renderer.geom.Geometry addSF(final Polygon geometry)
+            throws TransformException
+    {
+        final org.geotools.renderer.geom.Polygon polygon =
+                new org.geotools.renderer.geom.Polygon(toPolyline(geometry.getExteriorRing()));
         final int n = geometry.getNumInteriorRing();
         for (int i=0; i<n; i++) {
             polygon.addHole(toPolyline(geometry.getInteriorRingN(i)));
@@ -240,7 +237,9 @@ public class JTSGeometries extends GeometryCollection {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private Geometry addSF(final SFSGeometryCollection geometry) throws TransformException {
+    private org.geotools.renderer.geom.Geometry addSF(final GeometryCollection geometry)
+            throws TransformException
+    {
         final JTSGeometries collection = new JTSGeometries(getCoordinateSystem());
         collection.wrapped = wrapped;
         final int n = geometry.getNumGeometries();
@@ -254,11 +253,14 @@ public class JTSGeometries extends GeometryCollection {
     }
 
     /**
-     * Add a Geotools's {@link Geometry}. We keep a reference to the source JTS's
-     * {@link com.vividsolutions.jts.geom.Geometry} in order to recognize multiple
+     * Add a Geotools's {@link org.geotools.renderer.geom.Geometry}. We keep a reference to the
+     * source JTS's {@link com.vividsolutions.jts.geom.Geometry} in order to recognize multiple
      * addition of the same geometry
      */
-    private Geometry add(final SFSGeometry geometry, final Geometry wrapper) throws TransformException {
+    private org.geotools.renderer.geom.Geometry add(final Geometry geometry,
+                                                    final org.geotools.renderer.geom.Geometry wrapper)
+            throws TransformException
+    {
         add(wrapper);
         if (wrapped == null) {
             wrapped = new IdentityHashMap();
@@ -268,40 +270,42 @@ public class JTSGeometries extends GeometryCollection {
     }
 
     /**
-     * Add the specified geometry to this collection. The geometry must be one
-     * of the following classes: {@link SFSPoint}, {@link SFSLineString},
-     * {@link SFSPolygon} or {@link SFSGeometryCollection}.
+     * Add the specified geometry to this collection. The geometry must be one of
+     * the following classes: {@link Point}, {@link LineString}, {@link Polygon}
+     * or {@link GeometryCollection}.
      *
      * @param  geometry The geometry to add.
-     * @return The geometry as a {@link Geometry} wrapper. The style can be set using
-     *         <code>add(geometry).{@link Geometry#setStyle setStyle}(style)</code>.
+     * @return The geometry as a {@link org.geotools.renderer.geom.Geometry} wrapper. The style can
+     *         be set using <code>add(geometry).{@link org.geotools.renderer.geom.Geometry#setStyle
+     *         setStyle}(style)</code>.
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      * @throws IllegalArgumentException if the geometry is not a a valid class.
      */
-    public Geometry add(final SFSGeometry geometry)
+    public org.geotools.renderer.geom.Geometry add(final Geometry geometry)
             throws TransformException, IllegalArgumentException
     {
         if (wrapped != null) {
-            final Geometry candidate = (Geometry) wrapped.get(geometry);
+            final org.geotools.renderer.geom.Geometry candidate =
+                 (org.geotools.renderer.geom.Geometry) wrapped.get(geometry);
             if (candidate != null) {
-                final Geometry proxy = new GeometryProxy(candidate);
+                final org.geotools.renderer.geom.Geometry proxy = new GeometryProxy(candidate);
                 // add may clone the geometry
-                Geometry newGeom = add(proxy);
+                org.geotools.renderer.geom.Geometry newGeom = add(proxy);
                 return newGeom;
             }
         }
-        if (geometry instanceof SFSPoint) {
-            return addSF((SFSPoint) geometry);
+        if (geometry instanceof Point) {
+            return addSF((Point) geometry);
         }
-        if (geometry instanceof SFSLineString) {
-            return addSF((SFSLineString) geometry);
+        if (geometry instanceof LineString) {
+            return addSF((LineString) geometry);
         }
-        if (geometry instanceof SFSPolygon) {
-            return addSF((SFSPolygon) geometry);
+        if (geometry instanceof Polygon) {
+            return addSF((Polygon) geometry);
         }
-        if (geometry instanceof SFSGeometryCollection) {
-            return addSF((SFSGeometryCollection) geometry);
+        if (geometry instanceof GeometryCollection) {
+            return addSF((GeometryCollection) geometry);
         }
         throw new IllegalArgumentException(Utilities.getShortClassName(geometry));
     }

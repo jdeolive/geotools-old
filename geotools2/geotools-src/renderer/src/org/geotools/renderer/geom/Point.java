@@ -22,7 +22,6 @@
 package org.geotools.renderer.geom;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.sfs.SFSPoint;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
@@ -35,6 +34,7 @@ import org.geotools.resources.Utilities;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
+import java.awt.geom.Point2D;
 
 
 /**
@@ -42,7 +42,7 @@ import java.awt.geom.Rectangle2D;
  * Geometry hierarchy.
  *
  * @author Andrea Aime
- * @version $Id: Point.java,v 1.1 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: Point.java,v 1.2 2003/11/18 14:26:28 desruisseaux Exp $
  */
 public class Point extends Geometry {
     /**
@@ -129,7 +129,7 @@ public class Point extends Geometry {
      * {@link #getCoordinateSystem()}.
      *
      */
-    public boolean contains(java.awt.geom.Point2D p) {
+    public boolean contains(final Point2D p) {
         return (p.getX() == getX()) && (p.getY() == getY());
     }
 
