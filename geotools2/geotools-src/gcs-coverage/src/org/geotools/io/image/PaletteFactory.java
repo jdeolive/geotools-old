@@ -59,6 +59,7 @@ import java.util.ArrayList;
 
 // Resources
 import org.geotools.io.LineFormat;
+import org.geotools.io.DefaultFileFilter;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -89,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version $Id: PaletteFactory.java,v 1.2 2002/07/23 17:53:36 desruisseaux Exp $
+ * @version $Id: PaletteFactory.java,v 1.3 2002/08/20 13:27:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {
@@ -157,7 +158,7 @@ public class PaletteFactory {
                           final Locale         locale)
     {
         if (extension!=null && !extension.startsWith(".")) {
-            extension = "." + extension;
+            extension = '.' + extension;
         }
         this.parent    = parent;
         this.loader    = loader;
@@ -165,6 +166,48 @@ public class PaletteFactory {
         this.extension = extension;
         this.charset   = charset;
         this.locale    = locale;
+    }
+
+    /**
+     * Returns the list of available palette names. Any item in this list can be specified as
+     * argument to {@link #getColors(String)} or {@link #getIndexColorModel(String)} methods.
+     *
+     * @return The list of available palette name, or <code>null</code> if this method
+     *         is unable to fetch this information.
+     */
+    public String[] getAvailableNames() {
+        File dir = (directory != null) ? directory : new File(".");
+        if (loader != null) {
+            dir = toFile(loader.getResource(dir.getPath()));
+            if (dir == null) {
+                // Directory not found.
+                return null;
+            }
+        }
+        if (!dir.isDirectory()) {
+            return null;
+        }
+        final String[] names = dir.list(new DefaultFileFilter('*'+extension));
+        final int extLg = extension.length();
+        for (int i=0; i<names.length; i++) {
+            final String name = names[i];
+            final int lg = name.length();
+            if (lg>extLg && name.regionMatches(true, lg-extLg, extension, 0, extLg)) {
+                names[i] = name.substring(0, lg-extLg);
+            }
+        }
+        return names;
+    }
+
+    /**
+     * Transforms an {@link URL} into a {@link File}. If the URL can't be
+     * interpreted as a file, then this method returns <code>null</code>.
+     */
+    private static File toFile(final URL url) {
+        if (url!=null && url.getProtocol().equalsIgnoreCase("file")) {
+            return new File(url.getPath());
+        }
+        return null;
     }
     
     /**
