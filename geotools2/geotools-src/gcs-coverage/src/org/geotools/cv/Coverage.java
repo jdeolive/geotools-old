@@ -110,7 +110,7 @@ import org.opengis.cv.CV_Coverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version 1.00
+ * @version $Id: Coverage.java,v 1.3 2002/07/17 23:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -559,7 +559,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             final Shape                 area = context.getAreaOfInterest();
             final Rectangle2D        srcRect = (area!=null) ? area.getBounds2D() : bounds;
             final Rectangle          dstRect = (Rectangle) XAffineTransform.transform(transform, srcRect, new Rectangle());
-            final ColorModel      colorModel = catg[0].getCategoryList().getColorModel(true, 0, catg.length);
+            final ColorModel      colorModel = catg[0].getColorModel(SampleInterpretation.GEOPHYSICS, 0, catg.length);
             final Dimension         tileSize = ImageUtilities.toTileSize(dstRect.getSize());
             final SampleModel    sampleModel = colorModel.createCompatibleSampleModel(tileSize.width, tileSize.height);
             final TiledImage           image = new TiledImage(dstRect.x, dstRect.y, dstRect.width, dstRect.height, 0, 0, sampleModel, colorModel);

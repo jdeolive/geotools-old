@@ -61,7 +61,7 @@ import javax.media.jai.iterator.RectIterFactory;
  * en valeur réelles exprimées selon les unités de {@link IndexedThemeMapper#getUnits}. Les données
  * manquantes seront exprimées avec différentes valeurs <code>NaN</code>.
  *
- * @version 1.0
+ * @version $Id: NumericImage.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class NumericImage extends ImageAdapter {
@@ -105,7 +105,7 @@ final class NumericImage extends ImageAdapter {
      * @param categories Ensemble des catégories qui donnent une signification aux pixels de l'image.
      */
     private NumericImage(final RenderedImage image, final CategoryList[] categories) {
-        super(image, getLayout(image, categories[0], true), categories);
+        super(image, getLayout(image, categories[0], SampleInterpretation.GEOPHYSICS), categories);
     }
     
     /**
@@ -153,7 +153,7 @@ final class NumericImage extends ImageAdapter {
                     final int sample=iterator.getSample();
                     category = categories.getDecoder(sample, category);
                     if (category==null) category = blank;
-                    dest.setSample(x,y,band, category.toValue(sample));
+                    dest.setSample(x,y,band, category.toGeophysicsValue(sample));
                     x++;
                 }
                 while (!iterator.nextPixelDone());

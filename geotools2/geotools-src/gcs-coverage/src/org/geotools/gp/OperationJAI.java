@@ -56,9 +56,10 @@ import java.awt.image.renderable.ParameterBlock;
 // Geotools dependencies
 import org.geotools.pt.Envelope;
 import org.geotools.cv.Category;
-import org.geotools.cv.CategoryList;
 import org.geotools.gc.GridCoverage;
+import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cv.SampleInterpretation;
 
 // Resources
 import org.geotools.units.Unit;
@@ -84,7 +85,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <ol>
  *   <li>{@link #doOperation(ParameterList, GridCoverageProcessor)}</li>
  *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI, JAI)}</li>
- *   <li>{@link #deriveCategoryList}</li>
+ *   <li>{@link #deriveSampleDimension}</li>
  *   <li>{@link #deriveCategory}</li>
  *   <li>{@link #deriveUnit}</li>
  * </ol>
@@ -92,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version 1.0
+ * @version $Id: OperationJAI.java,v 1.4 2002/07/17 23:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -257,8 +258,8 @@ public class OperationJAI extends Operation {
      * ensure that every sources use the same coordinate system and have the
      * same envelope. Then, it construct a new mapping between sample values
      * and geophysics values with new units. This mapping is get by invoking
-     * the {@link #deriveCategoryList deriveCategoryList} method. Finally, it
-     * apply the operation using the following pseudo-code:
+     * the {@link #deriveSampleDimension deriveSampleDimension} method.
+     * Finally, it apply the operation using the following pseudo-code:
      *
      * <blockquote><pre>
      * {@link JAI#createNS processor.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
@@ -272,7 +273,7 @@ public class OperationJAI extends Operation {
      * @return The result as a grid coverage.
      *
      * @see #doOperation(ParameterList, GridCoverageProcessor)
-     * @see #deriveCategoryList
+     * @see #deriveSampleDimension
      * @see JAI#createNS
      */
     protected GridCoverage doOperation(final GridCoverage[]    sources,
@@ -299,16 +300,16 @@ public class OperationJAI extends Operation {
         }
         /*
          * Get the target category lists. A new color model
-         * will be constructed from the new CategoryList.
+         * will be constructed from the new SampleDimension.
          */
-        final CategoryList[][] list = new CategoryList[sources.length][];
+        final SampleDimension[][] list = new SampleDimension[sources.length][];
         for (int i=0; i<list.length; i++) {
-            list[i] = sources[i].getCategoryLists();
+            list[i] = sources[i].getSampleDimensions();
         }
-        final CategoryList[] categories = deriveCategoryList(list, cs, parameters);
+        final SampleDimension[] sampleDims = deriveSampleDimension(list, cs, parameters);
         ImageLayout layout = new ImageLayout();
-        if (categories!=null && categories.length>band) {
-            layout = layout.setColorModel(categories[band].getColorModel(true));
+        if (sampleDims!=null && sampleDims.length>band) {
+            layout = layout.setColorModel(sampleDims[band].getColorModel(SampleInterpretation.GEOPHYSICS, 0, sampleDims.length));
         }
         /*
          * Perform the operation using JAI and
@@ -320,7 +321,7 @@ public class OperationJAI extends Operation {
                                 data,                 // The underlying data
                                 cs,                   // The coordinate system.
                                 envelope,             // The coverage envelope.
-                                categories,           // The category lists
+                                sampleDims,           // The sample dimensions
                                 true,                 // Data are geophysics values.
                                 sources,              // The source grid coverages.
                                 null);                // Properties
@@ -346,31 +347,31 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * Derive the {@link CategoryList}s for the destination image. The
+     * Derive the {@link SampleDimension}s for the destination image. The
      * default implementation iterate among all bands  and invokes the
      * {@link #deriveCategory deriveCategory} and {@link #deriveUnit deriveUnit}
      * methods for each individual band.
      *
-     * @param  categoryLists {@link CategoryList}s for each band in each source
+     * @param  bandLists {@link SampleDimension}s for each band in each source
      *         <code>GridCoverage</code>s. For a band (or "sample dimension")
      *         <code>band</code> in a source coverage <code>source</code>, the
-     *         corresponding <code>CategoryList</code> is
+     *         corresponding <code>SampleDimension</code> is
      *
-     *                 <code>categoryLists[source][band]</code>.
+     *                 <code>bandLists[source][band]</code>.
      *
      * @param  cs The coordinate system of the destination grid coverage.
      * @param  parameters The user-supplied parameters.
      * @return The category lists for each band in the destination image. The
      *         length of this array must matches the number of bands in the
-     *         destination image. If the <code>CategoryList</code>s are unknow,
+     *         destination image. If the <code>SampleDimension</code>s are unknow,
      *         then this method may returns <code>null</code>.
      *
      * @see #deriveCategory
      * @see #deriveUnit
      */
-    protected CategoryList[] deriveCategoryList(final CategoryList[][] categoryLists,
-                                                final CoordinateSystem cs,
-                                                final ParameterList    parameters)
+    protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
+                                                      final CoordinateSystem cs,
+                                                      final ParameterList    parameters)
     {
         /*
          * Compute the number of bands. Sources with only 1 band are treated as
@@ -380,8 +381,8 @@ public class OperationJAI extends Operation {
          * those cases.
          */
         int numBands = 1;
-        for (int i=0; i<categoryLists.length; i++) {
-            final int nb = categoryLists[i].length;
+        for (int i=0; i<bandLists.length; i++) {
+            final int nb = bandLists[i].length;
             if (nb != 1) {
                 if (numBands!=1 && nb!=numBands) {
                     return null;
@@ -391,39 +392,39 @@ public class OperationJAI extends Operation {
         }
         /*
          * Iterate among all bands. The 'result' array will contains
-         * CategoryLists  constructed during the iteration  for each
+         * SampleDimensions constructed during the iteration for each
          * individual band. The 'XS' suffix designate temporary arrays
          * of categories and units accross all sources for one particular
          * band.
          */
-        final CategoryList[] result = new CategoryList[numBands];
-        final Category[] categoryXS = new Category[categoryLists.length];
-        final Unit[]         unitXS = new Unit[categoryLists.length];
+        final SampleDimension[] result = new SampleDimension[numBands];
+        final Category[]    categoryXS = new Category[bandLists.length];
+        final Unit[]            unitXS = new Unit[bandLists.length];
         while (--numBands >= 0) {
-            CategoryList categoryList  = null;
-            Category[]   categoryArray = null;
-            int    indexOfQuantitative = 0;
+            SampleDimension sampleDim = null;
+            Category[]  categoryArray = null;
+            int   indexOfQuantitative = 0;
             assert MASTER_SOURCE_INDEX == 0; // See comment below.
-            for (int i=categoryLists.length; --i>=0;) {
+            for (int i=bandLists.length; --i>=0;) {
                 /*
                  * Iterate among all sources (i) for the current band. We iterate
                  * sources in reverse order because the master source MUST be the
                  * last one iterated, in order to have proper value for variables
-                 * 'categoryList', 'categoryArray' and 'indexOfQuantitative' after
+                 * 'sampleDim', 'categoryArray'  and  'indexOfQuantitative' after
                  * the loop.
                  */
-                final CategoryList[]  allBands = categoryLists[i];
-                categoryList        = allBands[allBands.length==1 ? 0 : numBands];
-                categoryArray       = categoryList.toArray();
+                final SampleDimension[] allBands = bandLists[i];
+                sampleDim           = allBands[allBands.length==1 ? 0 : numBands];
+                categoryArray       = sampleDim.getCategories();
                 indexOfQuantitative = getQuantitative(categoryArray);
                 if (indexOfQuantitative < 0) {
                     return null;
                 }
-                unitXS    [i] = categoryList.getUnits();
+                unitXS    [i] = sampleDim.getUnits();
                 categoryXS[i] = categoryArray[indexOfQuantitative];
             }
             final Category oldCategory = categoryArray[indexOfQuantitative];
-            final Unit     oldUnit     = categoryList.getUnits();
+            final Unit     oldUnit     = sampleDim.getUnits();
             final Category newCategory = deriveCategory(categoryXS, cs, parameters);
             final Unit     newUnit     = deriveUnit(unitXS, cs, parameters);
             if (newCategory == null) {
@@ -431,10 +432,10 @@ public class OperationJAI extends Operation {
             }
             if (!oldCategory.equals(newCategory) || !Utilities.equals(oldUnit, newUnit)) {
                 categoryArray[indexOfQuantitative] = newCategory;
-                result[numBands] = new CategoryList(categoryArray, newUnit);
+                result[numBands] = new SampleDimension(categoryArray, newUnit);
             } else {
                 // Reuse the category list from the master source.
-                result[numBands] = categoryList;
+                result[numBands] = sampleDim;
             }
         }
         return result;
@@ -442,9 +443,9 @@ public class OperationJAI extends Operation {
     
     /**
      * Derive the quantative category for a band in the destination image.
-     * This method is invoked automatically by the {@link #deriveCategoryList
-     * deriveCategoryList} method for each band in the destination image. The
-     * default implementation always returns <code>null</code>.    Subclasses
+     * This method is invoked automatically by the {@link #deriveSampleDimension
+     * deriveSampleDimension} method for each band in the destination image. The
+     * default implementation always returns <code>null</code>. Subclasses
      * should override this method in order to compute the destination {@link
      * Category} from the source categories. For example, the "<code>add</code>"
      * operation may implement this method as below:
@@ -474,7 +475,7 @@ public class OperationJAI extends Operation {
     
     /**
      * Derive the unit of data for a band in the destination image. This method is
-     * invoked automatically by the {@link #deriveCategoryList deriveCategoryList}
+     * invoked automatically by the {@link #deriveSampleDimension deriveSampleDimension}
      * method for each band in the destination image.   The default implementation
      * always returns <code>null</code>. Subclasses should override this method in
      * order to compute the destination units from the source units.  For example,

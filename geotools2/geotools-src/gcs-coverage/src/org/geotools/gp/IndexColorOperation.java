@@ -49,8 +49,8 @@ import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterList;
 
 // Geotools implementation
-import org.geotools.cv.CategoryList;
 import org.geotools.gc.GridCoverage;
+import org.geotools.cv.SampleDimension;
 
 
 /**
@@ -74,7 +74,7 @@ abstract class IndexColorOperation extends Operation {
     /**
      * Performs the color transformation. This method invokes the
      * {@link #transformColormap transformColormap(...)} method with
-     * current RGB colormap, the source {@link CategoryList} and the
+     * current RGB colormap, the source {@link SampleDimension} and the
      * supplied parameters.
      *
      * @param parameters The parameters.
@@ -89,13 +89,13 @@ abstract class IndexColorOperation extends Operation {
         final ColorModel    model = image.getColorModel();
         if (model instanceof IndexColorModel) {
             final int band = 0; // Always 0 in this implementation.
-            final CategoryList[] categories = source.getCategoryLists();
-            final IndexColorModel    colors = (IndexColorModel) model;
-            final int               mapSize = colors.getMapSize();
+            final SampleDimension[] bands = source.getSampleDimensions();
+            final IndexColorModel  colors = (IndexColorModel) model;
+            final int             mapSize = colors.getMapSize();
             final byte[] R=new byte[mapSize]; colors.getReds  (R);
             final byte[] G=new byte[mapSize]; colors.getGreens(G);
             final byte[] B=new byte[mapSize]; colors.getBlues(B);
-            transformColormap(R,G,B, categories[band], parameters);
+            transformColormap(R,G,B, bands[band], parameters);
             if (!compare(colors, R,G,B)) {
                 final int computeType = (image instanceof OpImage) ?
                 ((OpImage)image).getOperationComputeType() :
@@ -106,7 +106,7 @@ abstract class IndexColorOperation extends Operation {
                     return new GridCoverage(source.getName(null), newImage,
                     source.getCoordinateSystem(),
                     source.getEnvelope(),
-                    new CategoryList[] {categories[band]},
+                    new SampleDimension[] {bands[band]},
                     false,
                     new GridCoverage[] {source},
                     null);
@@ -119,7 +119,7 @@ abstract class IndexColorOperation extends Operation {
      * Transform the supplied RGB colors. This method is automatically invoked
      * by {@link #doOperation(ParameterList)}. The source {@link GridCoverage}
      * has usually only one band; consequently <code>transformColormap</code>
-     * is invoked with the {@link CategoryList} for this band only. The
+     * is invoked with the {@link SampleDimension} for this band only. The
      * <code>R</code>, <code>G</code> and <code>B</code> arrays contains the
      * RGB values from the current source and should be overriden with new RGB
      * values for the destination image.
@@ -127,7 +127,7 @@ abstract class IndexColorOperation extends Operation {
      * @param R Red   components to transform.
      * @param G Green components to transform.
      * @param B Blue  components to transform.
-     * @param categories The list of categories. This parameter is supplied
+     * @param band The sample dimension. This parameter is supplied
      *        for information only. It may be usefull for interpretation of
      *        colormap's index. For example, an implementation could use this
      *        information for transforming only colors at index allocated to
@@ -137,7 +137,7 @@ abstract class IndexColorOperation extends Operation {
     protected abstract void transformColormap(final byte[] R,
                                               final byte[] G,
                                               final byte[] B,
-                                              final CategoryList  categories,
+                                              final SampleDimension band,
                                               final ParameterList parameters);
     
     /**

@@ -61,7 +61,7 @@ import org.geotools.resources.ImageUtilities;
  * Classe de base des images qui représenteront leurs données sous forme
  * de nombre réels ou sous forme d'index de thèmes {@link IndexedTheme}.
  *
- * @version 1.0
+ * @version $Id: ImageAdapter.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class ImageAdapter extends PointOpImage {
@@ -98,17 +98,19 @@ abstract class ImageAdapter extends PointOpImage {
      *
      * @param  image The source image.
      * @param  categories Category list.
-     * @param  geophysicsValue <code>true</code> if destination will contains geophysics values.
+     * @param  type {@link SampleInterpretation#GEOPHYSICS} if destination will contains geophysics
+     *         values, or {@link SampleInterpretation#INDEXED} otherwise.
      * @return Layout for the destination image.
      */
-    protected static ImageLayout getLayout(final RenderedImage     image,
-                                           final CategoryList categories,
-                                           final boolean geophysicsValue)
+    protected static ImageLayout getLayout(final RenderedImage      image,
+                                           final CategoryList  categories,
+                                           final SampleInterpretation type)
     {
         ImageLayout layout = ImageUtilities.getImageLayout(image);
-        ColorModel  colors = categories.getColorModel(geophysicsValue, image.getSampleModel().getNumBands());
+        ColorModel  colors = categories.getColorModel(type, 0, image.getSampleModel().getNumBands());
         SampleModel  model = colors.createCompatibleSampleModel(image.getWidth(), image.getHeight());
-        if (colors instanceof IndexColorModel && model.getClass().equals(ComponentSampleModel.class)) {
+        if (colors instanceof IndexColorModel && model.getClass().equals(ComponentSampleModel.class))
+        {
             // TODO: IndexColorModel seems to badly choose his sample model. As of JDK 1.4-rc1, it
             //       construct a ComponentSampleModel, which is drawn very slowly to the screen. A
             //       much faster sample model is PixelInterleavedSampleModel, which is the sample
@@ -116,7 +118,7 @@ abstract class ImageAdapter extends PointOpImage {
             //       for this sample model when used with IndexColorModel.
             final int w = model.getWidth();
             final int h = model.getHeight();
-            model = new PixelInterleavedSampleModel(colors.getTransferType(), w, h, 1, w, new int[1]);
+            model = new PixelInterleavedSampleModel(colors.getTransferType(), w,h,1,w, new int[1]);
         }
         return layout.setSampleModel(model).setColorModel(colors);
     }

@@ -44,12 +44,14 @@ import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.util.Range;
 
 // OpenGIS dependencies
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cv.SampleInterpretation;
 
 // Resources
 import org.geotools.units.Unit;
@@ -64,7 +66,7 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version 1.0
+ * @version $Id: GradientMagnitude.java,v 1.3 2002/07/17 23:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradientMagnitude extends OperationJAI {
@@ -233,8 +235,8 @@ final class GradientMagnitude extends OperationJAI {
             final MathTransform2D mtr = sources[0].getGridGeometry().getGridToCoordinateSystem2D();
             if (mtr instanceof AffineTransform) {
                 final AffineTransform tr = (AffineTransform) mtr;
-                final double  scaleX = XAffineTransform.getScaleX0(tr);
-                final double  scaleY = XAffineTransform.getScaleY0(tr);
+                final double scaleX = XAffineTransform.getScaleX0(tr);
+                final double scaleY = XAffineTransform.getScaleY0(tr);
                 scaleMask1 = getScaleFactor(mask1, scaleX, scaleY);
                 scaleMask2 = getScaleFactor(mask2, scaleX, scaleY);
                 if (!(scaleMask1>0 && scaleMask2>0)) {
@@ -263,8 +265,14 @@ final class GradientMagnitude extends OperationJAI {
         final KernelJAI   mask2 = (KernelJAI) parameters.getObjectParameter("mask2");
         double factor = getNormalizationFactor(mask1, mask2);
         if (factor > 0) {
-            factor *= (category.maximum - category.minimum) * DEFAULT_RANGE_SCALE;
-            return category.rescale(0, factor).recolor(DEFAULT_COLOR_PALETTE);
+            final Range range = category.getRange(SampleInterpretation.GEOPHYSICS);
+            final double minimum = ((Number) range.getMinValue()).doubleValue();
+            final double maximum = ((Number) range.getMaxValue()).doubleValue();
+            factor *= (maximum - minimum) * DEFAULT_RANGE_SCALE;
+            return Category.create(category.getName(null),
+                                   DEFAULT_COLOR_PALETTE,
+                                   category.getRange(SampleInterpretation.INDEXED),
+                                   new Range(Double.class, new Double(0), new Double(factor)));
         }
         return super.deriveCategory(categories, cs, parameters);
     }

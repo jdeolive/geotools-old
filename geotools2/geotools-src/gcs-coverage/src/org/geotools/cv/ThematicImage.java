@@ -59,7 +59,7 @@ import javax.media.jai.iterator.RectIterFactory;
  * unités de {@link IndexedThemeMapper#getUnits}. Les données manquantes
  * peuvent être exprimées avec différentes valeurs <code>NaN</code>.
  *
- * @version 1.0
+ * @version $Id: ThematicImage.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ThematicImage extends ImageAdapter {
@@ -104,7 +104,7 @@ final class ThematicImage extends ImageAdapter {
      * @param categories Ensemble des catégories qui donnent une signification aux pixels de l'image.
      */
     private ThematicImage(final RenderedImage image, final CategoryList[] categories) {
-        super(image, getLayout(image, categories[0], false), categories);
+        super(image, getLayout(image, categories[0], SampleInterpretation.INDEXED), categories);
     }
     
     /**
@@ -151,7 +151,7 @@ final class ThematicImage extends ImageAdapter {
                     final double value=iterator.getSampleDouble();
                     category = categories.getEncoder(value, category);
                     if (category==null) category = blank;
-                    dest.setSample(x,y,band, category.toIndex(value));
+                    dest.setSample(x,y,band, category.toSampleValue(value));
                     x++;
                 }
                 while (!iterator.nextPixelDone());

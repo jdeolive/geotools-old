@@ -73,7 +73,7 @@ import org.geotools.cs.*;
 import org.geotools.ct.*;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
-import org.geotools.cv.CategoryList;
+import org.geotools.cv.SampleDimension;
 
 // Resources
 import org.geotools.units.Unit;
@@ -110,7 +110,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * then a subclass could override {@link #get(String,Object)} in order to translate
  * on the fly <code>"Projection"</code> key name into <code>"Projection Name"</code>.
  *
- * @version 1.0
+ * @version $Id: PropertyParser.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -759,19 +759,19 @@ public class PropertyParser {
     }
     
     /**
-     * Returns the category lists for each band of the {@link GridCoverage}
-     * to be read. If there is no category lists, then this method returns
+     * Returns the sample dimensions for each band of the {@link GridCoverage}
+     * to be read. If sample dimensions are not know, then this method returns
      * <code>null</code>. The default implementation always returns <code>null</code>.
      */
-    public CategoryList[] getCategoryLists() {
+    public SampleDimension[] getSampleDimensions() {
         return null;
     }
     
     /**
      * Tells if pixel values map directly geophysics values. This method
-     * Returns <code>true</code> if pixel values map directly geophysics
+     * returns <code>true</code> if pixel values map directly geophysics
      * values, or <code>false</code> if they must be translated first
-     * using {@link CategoryList}. The default implementation returns
+     * using {@link SampleDimension}. The default implementation returns
      * <code>true</code>.
      */
     public boolean isGeophysics() {

@@ -60,7 +60,7 @@ import java.util.MissingResourceException;
 import org.geotools.pt.Envelope;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
-import org.geotools.cv.CategoryList;
+import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -90,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * However, other methods may be overriden too in order to get finner control
  * on the result.
  *
- * @version 1.0
+ * @version $Id: GridCoverageReader.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GridCoverageReader {
@@ -360,8 +360,8 @@ public abstract class GridCoverageReader {
     }
     
     /**
-     * Returns the category lists for each band of the {@link GridCoverage}
-     * to be read. If there is no category lists, then this method returns
+     * Returns the sample dimensions for each band of the {@link GridCoverage}
+     * to be read. If sample dimensions are not known, then this method returns
      * <code>null</code>. The default implementation always returns <code>null</code>.
      *
      * @param  index The index of the image to be queried.
@@ -372,7 +372,7 @@ public abstract class GridCoverageReader {
      * @throws IOException if an error occurs reading the width information from
      *         the input source.
      */
-    public synchronized CategoryList[] getCategoryLists(final int index) throws IOException {
+    public synchronized SampleDimension[] getSampleDimensions(final int index) throws IOException {
         checkImageIndex(index);
         return null;
     }
@@ -381,7 +381,7 @@ public abstract class GridCoverageReader {
      * Tells if pixel values map directly geophysics values. This method
      * Returns <code>true</code> if pixel values map directly geophysics
      * values, or <code>false</code> if they must be translated first
-     * using {@link CategoryList}. The default implementation returns
+     * using {@link SampleDimension}. The default implementation returns
      * <code>true</code>.
      *
      * @param  index The index of the image to be queried.
@@ -424,10 +424,10 @@ public abstract class GridCoverageReader {
         final String          name = getName(index);
         final Envelope    envelope = getEnvelope(index);
         final CoordinateSystem  cs = getCoordinateSystem(index);
-        final CategoryList[]  catg = getCategoryLists(index);
+        final SampleDimension[] sd = getSampleDimensions(index);
         final boolean isGeophysics = isGeophysics(index);
         final RenderedImage  image = reader.readAsRenderedImage(index, param);
-        return new GridCoverage(name, image, cs, envelope, catg, isGeophysics, null, null);
+        return new GridCoverage(name, image, cs, envelope, sd, isGeophysics, null, null);
     }
     
     /**

@@ -47,8 +47,8 @@ import java.util.Locale;
 // Geotools dependencies
 import org.geotools.pt.Envelope;
 import org.geotools.gc.GridRange;
-import org.geotools.cv.CategoryList;
 import org.geotools.gc.GridCoverage;
+import org.geotools.cv.SampleDimension;
 import org.geotools.cs.CoordinateSystem;
 
 // Resources
@@ -67,7 +67,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * object, while the pixel values are read by a {@link ImageReader}
  * object.
  *
- * @version 1.0
+ * @version $Id: ExoreferencedGridCoverageReader.java,v 1.2 2002/07/17 23:30:56 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ExoreferencedGridCoverageReader extends GridCoverageReader {
@@ -266,10 +266,11 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
     }
     
     /**
-     * Returns the category lists for each band of the {@link GridCoverage}
-     * to be read. If there is no category lists, then this method returns
+     * Returns the sample dimensions for each band of the {@link GridCoverage}
+     * to be read. If sample dimensions are not known, then this method returns
      * <code>null</code>. The default implementation invokes
-     * <code>{@link #properties}.{@link PropertyParser#getCategoryLists() getCategoryLists()}</code>.
+     * <code>{@link #properties}.{@link PropertyParser#getSampleDimensions()
+     *       getSampleDimensions()}</code>.
      *
      * @param  index The index of the image to be queried.
      * @return The category lists for the {@link GridCoverage} at the specified index.
@@ -279,10 +280,10 @@ public class ExoreferencedGridCoverageReader extends GridCoverageReader {
      * @throws IOException if an error occurs reading the width information from
      *         the input source.
      */
-    public synchronized CategoryList[] getCategoryLists(final int index) throws IOException {
+    public synchronized SampleDimension[] getSampleDimensions(final int index) throws IOException {
         checkImageIndex(index);
         try {
-            return properties.getCategoryLists();
+            return properties.getSampleDimensions();
         } catch (RuntimeException exception) {
             // RuntimeException includes many potential
             // errors due to badly formatted input file.

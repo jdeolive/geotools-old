@@ -39,14 +39,16 @@ package org.geotools.gp;
 import java.awt.Color;
 
 // Java Advanced Imaging
+import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
 
 // Geotools implementation
 import org.geotools.cv.Category;
-import org.geotools.cv.CategoryList;
 import org.geotools.gc.GridCoverage;
+import org.geotools.cv.SampleDimension;
+import org.geotools.cv.SampleInterpretation;
 
 
 /**
@@ -55,7 +57,7 @@ import org.geotools.gc.GridCoverage;
  * ramp will have colors ranging from <code>lowerColor</code> to
  * <code>upperColor</code>.
  *
- * @version 1.0
+ * @version $Id: ColormapOperation.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColormapOperation extends IndexColorOperation {
@@ -93,18 +95,22 @@ final class ColormapOperation extends IndexColorOperation {
     protected void transformColormap(final byte[] R,
                                      final byte[] G,
                                      final byte[] B,
-                                     final CategoryList  categories,
+                                     final SampleDimension band,
                                      final ParameterList parameters)
     {
         final Color lowerColor = (Color) parameters.getObjectParameter("LowerColor");
         final Color upperColor = (Color) parameters.getObjectParameter("UpperColor");
-        for (int j=categories.size(); --j>=0;) {
-            final Category category = categories.get(j);
+        final Category categories[] = band.getCategories();
+        for (int j=categories.length; --j>=0;) {
+            final Category category = categories[j];
             if (category.isQuantitative()) {
-                final int lower = category.lower;
-                final int upper = category.upper;
-                if (upper>lower+1) { // No change if there is only 1 color.
-                    final double di = (double)(upper-lower-1);
+                final Range range = category.getRange(SampleInterpretation.INDEXED);
+                int lower = ((Number) range.getMinValue()).intValue();
+                int upper = ((Number) range.getMaxValue()).intValue();
+                if (!range.isMinIncluded()) lower++;
+                if (!range.isMaxIncluded()) upper--;
+                if (upper>lower) { // No change if there is only 1 color.
+                    final double di = (double)(upper-lower);
                     final int    Ri =  lowerColor.getRed  ();
                     final int    Gi =  lowerColor.getGreen();
                     final int    Bi =  lowerColor.getBlue ();

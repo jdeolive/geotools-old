@@ -61,7 +61,6 @@ import org.geotools.cv.Category;
 import org.geotools.gc.GridRange;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
-import org.geotools.cv.CategoryList;
 import org.geotools.cv.SampleDimension;
 
 // Geotools (CTS) dependencies
@@ -103,7 +102,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version 1.00
+ * @version $Id: Resampler.java,v 1.5 2002/07/17 23:30:56 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -123,20 +122,19 @@ final class Resampler extends GridCoverage {
      *                     the image location along <var>x</var> and <var>y</var> axis. The
      *                     other dimensions are optional and may be used to locate the image
      *                     on a vertical axis or on the time axis.
-     * @param categories   Category lists which allows for the transformation from pixel
-     *                     values to real world geophysics value.
+     * @param bands        Sample dimensions for the image.
      * @param isGeophysics <code>true</code> if pixel's values are already geophysics values, or
-     *                     <code>false</code> if transformation described in <code>categories</code>
+     *                     <code>false</code> if transformation described in <code>bands</code>
      *                     must be applied first.
      */
     private Resampler(final GridCoverage       source,
                       final RenderedImage       image,
                       final CoordinateSystem       cs,
                       final Envelope         envelope,
-                      final CategoryList[] categories,
+                      final SampleDimension[]   bands,
                       final boolean      isGeophysics)
     {
-        super(source.getName(null), image, cs, envelope, categories, isGeophysics,
+        super(source.getName(null), image, cs, envelope, bands, isGeophysics,
               new GridCoverage[] {source}, null);
     }
     
@@ -238,7 +236,7 @@ final class Resampler extends GridCoverage {
             CTSUtilities.getCoordinateSystem2D(sourceCS);
             CTSUtilities.getCoordinateSystem2D(targetCS);
         }
-        final CategoryList[] categories = sourceCoverage.getCategoryLists();
+        final SampleDimension[] bands = sourceCoverage.getSampleDimensions();
         /*
          * The projection are usually applied on floating-point values, in order
          * to gets maximal precision and to handle correctly the special case of
@@ -258,7 +256,7 @@ final class Resampler extends GridCoverage {
          * point (also called "geophysics") image.
          */
         boolean geophysics = true;
-        if (interpolation instanceof InterpolationNearest || areLinears(categories)) {
+        if (interpolation instanceof InterpolationNearest || areLinears(bands)) {
             final List sources = sourceCoverage.getRenderedImage(true).getSources();
             if (sources!=null) {
                 final RenderedImage indexed = sourceCoverage.getRenderedImage(false);
@@ -324,7 +322,7 @@ final class Resampler extends GridCoverage {
          * requires the geometry of the target grid coverage. The trick was to initialize
          * the target image with a null operation, and change the operation here.
          */
-        targetCoverage  = new Resampler(sourceCoverage, targetImage, targetCS, targetEnvelope, categories, geophysics);
+        targetCoverage  = new Resampler(sourceCoverage, targetImage, targetCS, targetEnvelope, bands, geophysics);
         final Warp warp = new WarpTransform(sourceCoverage.getGridGeometry(), transform2D,
         targetCoverage.getGridGeometry(), mathFactory);
         final ParameterBlock param = new ParameterBlock().addSource(sourceImage).add(warp).add(interpolation);
@@ -407,33 +405,34 @@ final class Resampler extends GridCoverage {
         envelope.setRange(1, area.getMinY(), area.getMaxY());
         return new GridCoverage(sourceCoverage.getName(null),
                                 image, sourceCoverage.getCoordinateSystem(),
-                                envelope, sourceCoverage.getCategoryLists(), true,
+                                envelope, sourceCoverage.getSampleDimensions(), true,
                                 new GridCoverage[] {sourceCoverage}, null);
     }
     
     /**
-     * Check if the mapping between pixel values and geophysics value
-     * is a linear relation for all bands in the specified categories.
+     * Check if the mapping between pixel values and geophysics value is
+     * a linear relation for all bands in the specified sample dimensions.
      */
-    private static boolean areLinears(final CategoryList[] categories) {
-        for (int i=categories.length; --i>=0;) {
-            final CategoryList list = categories[i];
-            if (list==null) {
-                // If there is no categories,  we assume that there is
-                // no classification. It should be okay to interpolate
+    private static boolean areLinears(final SampleDimension[] bands) {
+        for (int i=bands.length; --i>=0;) {
+            final SampleDimension band = bands[i];
+            if (band == null) {
+                // If there is no sample dimension,  we assume that there
+                // is no classification. It should be okay to interpolate
                 // pixel values.
                 continue;
             }
-            if (list.size()==1) {
-                final Category category = list.get(0);
-                if (category.isQuantitative() && category.getClass().equals(Category.class)) {
-                    // If there are categories, we require that there is only
-                    // one category and this category must be translatable in
-                    // numbers using a linear relation.
-                    continue;
-                }
+            final double[] padValues = band.getNoDataValue();
+            if (padValues!=null && padValues.length!=0) {
+                return false;
             }
-            return false;
+            try {
+                if (Double.isNaN(band.getScale()) || Double.isNaN(band.getOffset())) {
+                    return false;
+                }
+            } catch (IllegalStateException exception) {
+                return false;
+            }
         }
         return true;
     }

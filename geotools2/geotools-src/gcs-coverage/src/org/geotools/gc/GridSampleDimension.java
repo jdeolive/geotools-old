@@ -36,7 +36,6 @@
 package org.geotools.gc;
 
 // Geotools dependencies
-import org.geotools.cv.CategoryList;
 import org.geotools.cv.SampleDimension;
 import org.geotools.cv.ColorInterpretation;
 
@@ -47,7 +46,7 @@ import javax.media.jai.Histogram;
 /**
  * Describes the band values for a grid coverage.
  *
- * @version 1.00
+ * @version $Id: GridSampleDimension.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -59,13 +58,12 @@ final class GridSampleDimension extends SampleDimension {
     private final int band = 0;
     
     /**
-     * Construct a sample dimension with a set of categories.
+     * Construct a sample dimension with a set of categories from an other sample dimension.
      *
-     * @param categories The category list for this sample dimension, or
-     *        <code>null</code> if this sample dimension has no category.
+     * @param band The originating sample dimension.
      */
-    public GridSampleDimension(final CategoryList categories) {
-        super(categories);
+    public GridSampleDimension(final SampleDimension band) {
+        super(band);
     }
     
     /**

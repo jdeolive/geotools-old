@@ -96,7 +96,6 @@ import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.cv.Coverage;
 import org.geotools.cv.Category;
-import org.geotools.cv.CategoryList;
 import org.geotools.cv.SampleDimension;
 import org.geotools.cv.PointOutsideCoverageException;
 
@@ -120,7 +119,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version 1.00
+ * @version $Id: GridCoverage.java,v 1.3 2002/07/17 23:30:55 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -264,10 +263,9 @@ public class GridCoverage extends Coverage {
      *                     the grid range in <code>gridGeometry</code>.
      * @param gridGeometry The grid geometry. The grid range must contains the expected
      *                     image size (width and height).
-     * @param categories   Category lists which allows for the transformation from pixel
-     *                     values to real world geophysics value. This array's length must
-     *                     matches the number of bands in <code>image</code>. This argument
-     *                     may be <code>null</code> if there is no categories for the image.
+     * @param bands        Sample dimensions for each image band, or <code>null</code> for
+     *                     default sample dimensions. If non-null, then this array's length
+     *                     must matches the number of bands in <code>image</code>.
      * @param properties The set of properties for this coverage, or <code>null</code>
      *        if there is none. "Properties" in <em>Java Advanced Imaging</em> is what
      *        OpenGIS calls "Metadata".  There is no <code>getMetadataValue(...)</code>
@@ -278,13 +276,13 @@ public class GridCoverage extends Coverage {
      * @throws MismatchedDimensionException If the grid range's dimension
      *         is not the same than the coordinate system's dimension.
      */
-    public GridCoverage(final String               name, final ImageFunction    function,
-                        final CoordinateSystem       cs, final GridGeometry gridGeometry,
-                        final CategoryList[] categories, final Map properties)
+    public GridCoverage(final String             name, final ImageFunction    function,
+                        final CoordinateSystem     cs, final GridGeometry gridGeometry,
+                        final SampleDimension[] bands, final Map properties)
         throws MismatchedDimensionException
     {
         this(name, getImage(function, gridGeometry), cs, gridGeometry,
-             null, null, categories, true, null, properties);
+             null, null, bands, true, null, properties);
     }
     
     /**
@@ -363,13 +361,12 @@ public class GridCoverage extends Coverage {
      *                     along <var>x</var> and <var>y</var> axis. The other dimensions are
      *                     optional and may be used to locate the image on a vertical axis or
      *                     on the time axis.
-     * @param categories   Category lists which allows for the transformation from pixel
-     *                     values to real world geophysics value. This array's length must
-     *                     matches the number of bands in <code>image</code>. This argument
-     *                     may be <code>null</code> if there is no categories for the image.
+     * @param sampleDim    Sample dimensions for each image band, or <code>null</code> for
+     *                     default sample dimensions. If non-null, then this array's length
+     *                     must matches the number of bands in <code>image</code>.
      * @param isGeophysics <code>true</code> if pixel's values are already geophysics values, or
-     *                     <code>false</code> if transformation described in <code>categories</code>
-     *                     must be applied first. This argument is ignored if <code>categories</code>
+     *                     <code>false</code> if transformation described in <code>bands</code>
+     *                     must be applied first. This argument is ignored if <code>bands</code>
      *                     is <code>null</code>.
      * @param sources      The sources for this grid coverage, or <code>null</code> if none.
      * @param properties The set of properties for this coverage, or <code>null</code>
@@ -382,16 +379,16 @@ public class GridCoverage extends Coverage {
      * @throws MismatchedDimensionException If the envelope's dimension
      *         is not the same than the coordinate system's dimension.
      * @param  IllegalArgumentException if the number of bands differs
-     *         from the number of categories list.
+     *         from the number of sample dimensions.
      */
-    public GridCoverage(final String         name,       final RenderedImage  image,
-                        final CoordinateSystem cs,       final Envelope    envelope,
-                        final CategoryList[] categories, final boolean isGeophysics,
-                        final GridCoverage[] sources,    final Map properties)
+    public GridCoverage(final String             name, final RenderedImage  image,
+                        final CoordinateSystem     cs, final Envelope    envelope,
+                        final SampleDimension[] bands, final boolean isGeophysics,
+                        final GridCoverage[]  sources, final Map       properties)
         throws MismatchedDimensionException
     {
         this(name, PlanarImage.wrapRenderedImage(image), cs, null,
-             (Envelope)envelope.clone(), null, categories, isGeophysics, sources, properties);
+             (Envelope)envelope.clone(), null, bands, isGeophysics, sources, properties);
     }
     
     /**
@@ -404,13 +401,12 @@ public class GridCoverage extends Coverage {
      *                     number of dimensions must matches the number of dimensions for
      *                     <code>gridToCS</code>.
      * @param gridToCS     The math transform from grid to coordinate system.
-     * @param categories   Category lists which allows for the transformation from pixel
-     *                     values to real world geophysics value. This array's length must
-     *                     matches the number of bands in <code>image</code>. This argument
-     *                     may be <code>null</code> if there is no categories for the image.
+     * @param sampleDim    Sample dimensions for each image band, or <code>null</code> for
+     *                     default sample dimensions. If non-null, then this array's length
+     *                     must matches the number of bands in <code>image</code>.
      * @param isGeophysics <code>true</code> if pixel's values are already geophysics values, or
-     *                     <code>false</code> if transformation described in <code>categories</code>
-     *                     must be applied first. This argument is ignored if <code>categories</code>
+     *                     <code>false</code> if transformation described in <code>bands</code>
+     *                     must be applied first. This argument is ignored if <code>bands</code>
      *                     is <code>null</code>.
      * @param sources      The sources for this grid coverage, or <code>null</code> if none.
      * @param properties The set of properties for this coverage, or <code>null</code>
@@ -423,16 +419,16 @@ public class GridCoverage extends Coverage {
      * @throws MismatchedDimensionException If the transform's dimension
      *         is not the same than the coordinate system's dimension.
      * @param  IllegalArgumentException if the number of bands differs
-     *         from the number of categories list.
+     *         from the number of sample dimensions.
      */
-    public GridCoverage(final String         name,       final RenderedImage    image,
-                        final CoordinateSystem cs,       final MathTransform gridToCS,
-                        final CategoryList[] categories, final boolean   isGeophysics,
-                        final GridCoverage[] sources,    final Map properties)
+    public GridCoverage(final String             name, final RenderedImage    image,
+                        final CoordinateSystem     cs, final MathTransform gridToCS,
+                        final SampleDimension[] bands, final boolean   isGeophysics,
+                        final GridCoverage[]  sources, final Map         properties)
         throws MismatchedDimensionException
     {
         this(name, PlanarImage.wrapRenderedImage(image), cs, null, null,
-             gridToCS, categories, isGeophysics, sources, properties);
+             gridToCS, bands, isGeophysics, sources, properties);
     }
     
     /**
@@ -448,7 +444,7 @@ public class GridCoverage extends Coverage {
                                GridGeometry gridGeometry, // ONE and  only  one of
                                Envelope         envelope, // those three arguments
                                MathTransform   transform, // should be non-null.
-                         final CategoryList[] categories,
+                         final SampleDimension[] sdBands,
                          final boolean      isGeophysics,
                          final GridCoverage[]    sources,
                          final Map            properties)
@@ -473,10 +469,10 @@ public class GridCoverage extends Coverage {
          * must matches the number of image's bands.
          */
         final int numBands = image.getSampleModel().getNumBands();
-        if (categories!=null && numBands!=categories.length) {
+        if (sdBands!=null && numBands!=sdBands.length) {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_NUMBER_OF_BANDS_MISMATCH_$2,
-                    new Integer(numBands), new Integer(categories.length)));
+                    new Integer(numBands), new Integer(sdBands.length)));
         }
         
         /*------------------------------------------------------------
@@ -575,9 +571,9 @@ public class GridCoverage extends Coverage {
          */
         final SampleDimension[] dimensions = new SampleDimension[numBands];
         for (int i=0; i<numBands; i++) {
-            dimensions[i] = new GridSampleDimension(categories!=null ? categories[i] : null);
+            dimensions[i] = new GridSampleDimension(sdBands!=null ? sdBands[i] : null);
         }
-        if (categories==null) {
+        if (sdBands==null) {
             this.image = image;
             this.data  = image;
         } else if (isGeophysics) {
@@ -590,15 +586,15 @@ public class GridCoverage extends Coverage {
             } else {
                 reducedImage = image;
             }
-            final CategoryList[] reducedCat = new CategoryList[bands.length];
+            final SampleDimension[] reducedSD = new SampleDimension[bands.length];
             for (int i=0; i<bands.length; i++) {
-                reducedCat[i]=categories[bands[i]];
+                reducedSD[i] = sdBands[bands[i]];
             }
             this.data  = image;
-            this.image = PlanarImage.wrapRenderedImage(CategoryList.toIndexed(reducedImage, reducedCat));
+            this.image = PlanarImage.wrapRenderedImage(SampleDimension.toSampleValues(reducedImage, reducedSD));
         } else {
             this.image = image;
-            this.data  = PlanarImage.wrapRenderedImage(CategoryList.toValues(image, categories));
+            this.data  = PlanarImage.wrapRenderedImage(SampleDimension.toGeophysicsValues(image, sdBands));
         }
         this.images           = USE_PYRAMID ? new ImageMIPMap(image, AffineTransform.getScaleInstance(DOWN_SAMPLER, DOWN_SAMPLER), null) : null;
         this.maxLevel         = Math.max((int) (Math.log((double)MIN_SIZE/(double)Math.max(image.getWidth(), image.getHeight()))/LOG_DOWN_SAMPLER), 0);
@@ -656,19 +652,6 @@ public class GridCoverage extends Coverage {
      */
     public Envelope getEnvelope() {
         return (Envelope) envelope.clone();
-    }
-    
-    /**
-     * Retrieve category list for every band in this coverage. This is a
-     * convenience method for invoking {@link #getSampleDimensions()}, and
-     * then retrieving the category list for each dimension.
-     */
-    public CategoryList[] getCategoryLists() {
-        final CategoryList[] categories = new CategoryList[sampleDimensions.length];
-        for (int i=0; i<categories.length; i++) {
-            categories[i] = sampleDimensions[i].getCategoryList();
-        }
-        return categories;
     }
     
     /**
@@ -827,14 +810,14 @@ public class GridCoverage extends Coverage {
             
             for (int band=0; band<numBands; band++) {
                 if (band!=0) buffer.append(";\u00A0");
-                if (band<numImageBands) {
+                if (band < numImageBands) {
                     buffer.append(imageRaster.getSample(x, y, band));
                 }
-                if (band<numNumericBands) {
-                    final CategoryList categories = sampleDimensions[band].getCategoryList();
-                    if (categories!=null) {
+                if (band < numNumericBands) {
+                    final String formatted = sampleDimensions[band].format(numericRaster.getSampleDouble(x, y, band), null);
+                    if (formatted != null) {
                         buffer.append("\u00A0(");
-                        buffer.append(categories.format(numericRaster.getSampleDouble(x, y, band), null));
+                        buffer.append(formatted);
                         buffer.append(')');
                     }
                 }
@@ -868,7 +851,7 @@ public class GridCoverage extends Coverage {
      * view is better for computation, while the "classical" view is more suitable for rendering
      * on screen.
      *
-     * If this <code>GridCoverage</code> hasn't been constructed with a <code>CategoryList[]</code>
+     * If this <code>GridCoverage</code> hasn't been constructed with a <code>SampleDimension[]</code>
      * argument, then the <code>geophysics</code> parameter has no effect.
      */
     public RenderedImage getRenderedImage(final boolean geophysics) {
