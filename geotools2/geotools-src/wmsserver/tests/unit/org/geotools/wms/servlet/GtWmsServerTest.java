@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import org.geotools.feature.Feature;
 
 public class GtWmsServerTest extends TestCase {
-    WMSServer server;
+    static WMSServer server;
   
     private static Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
     
@@ -33,9 +33,11 @@ public class GtWmsServerTest extends TestCase {
     public static void main(String args[]) {
         junit.textui.TestRunner.run(GtWmsServerTest.class);
     }
-    
+    private static boolean setup=false;
     public void setUp() throws Exception {
-        
+        if(setup) return;
+        LOGGER.info("Running setup");
+        setup=true;
         //String dataFolder = System.getProperty("dataFolder");
         /*if(dataFolder==null){
             //then we are being run by maven
@@ -64,7 +66,7 @@ public class GtWmsServerTest extends TestCase {
     public void testGetCapabilities() {
         try {
             Capabilities cap = server.getCapabilities();
-            WMSServlet temp = new WMSServlet();
+            //WMSServlet temp = new WMSServlet();
             assertNotNull("GetCapabilites failed, reutrned null object",cap);
             Object usa = cap.getLayer("USA");
             assertNotNull("Layer USA missing from capabilites list",usa);
@@ -94,6 +96,11 @@ public class GtWmsServerTest extends TestCase {
             ImageView view = new ImageView(map, "the map");
             view.setSize(500,500);
             view.createFrame();
+            try{
+                Thread.sleep(5000);
+            }catch (InterruptedException e){}
+            view.close();
+            
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
@@ -105,6 +112,11 @@ public class GtWmsServerTest extends TestCase {
             BufferedImage map = server.getMap(new String[] {"USA"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
             ImageView view = new ImageView(map, "the map");
             view.createFrame();
+            try{
+                Thread.sleep(5000);
+            }catch (InterruptedException e){}
+
+            view.close();
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
@@ -117,6 +129,11 @@ public class GtWmsServerTest extends TestCase {
             map = server.getMap(new String[] {"USA"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 18, -60, 50}, 620, 400, false, null);
             ImageView view = new ImageView(map, "testGetMapTwice");
             view.createFrame();
+            try{
+                Thread.sleep(5000);
+            }catch (InterruptedException e){}
+
+            view.close();
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
@@ -127,6 +144,11 @@ public class GtWmsServerTest extends TestCase {
             BufferedImage map = server.getMap(new String[] {"USA"}, null, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
             ImageView view = new ImageView(map, "testGetMapNullStyle");
             view.createFrame();
+            try{
+                Thread.sleep(5000);
+            }catch (InterruptedException e){}
+
+            view.close();
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
@@ -139,6 +161,11 @@ public class GtWmsServerTest extends TestCase {
             map = server.getMap(new String[] {"USA"}, null, "EPSG:4326", new double[] {-130, 18, -60, 50}, 620, 400, false, null);
             ImageView view = new ImageView(map, "testGetMapNullStyleTwice");
             view.createFrame();
+            try{
+                Thread.sleep(5000);
+            }catch (InterruptedException e){}
+
+            view.close();
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
