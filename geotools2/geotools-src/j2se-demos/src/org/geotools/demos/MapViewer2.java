@@ -28,6 +28,7 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import java.net.URL;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.File;
@@ -71,7 +72,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.9 2003/01/24 21:12:00 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.10 2003/01/26 22:29:52 camerons Exp $
  *
  */
 
@@ -121,8 +122,8 @@ public class MapViewer2 extends JFrame {
         Tool tool;
         try {
             // Create a BoundingBox
-            envelope=new Envelope(40, 300, 30, 350);
-             CS_CoordinateSystem cs = adapters.export(
+            envelope=new Envelope(50,60,50,60);
+            CS_CoordinateSystem cs = adapters.export(
                 CoordinateSystemFactory.getDefault(
                     ).createGeographicCoordinateSystem(
                         "WGS84",HorizontalDatum.WGS84));
@@ -152,25 +153,23 @@ public class MapViewer2 extends JFrame {
             // Initialise this Panel
             this.setTitle("Funky Map");
             this.getContentPane().setLayout(new BorderLayout());
-            //this.setSize(600,600);
 
             // Create MapPane and associate a Tool
             tool=new PanTool();
             mapPane = new MapPane2(
                     tool,
                     context);
-            mapPane.setLayout(null);// use absolute positioning
-            //mapPane.setSize(400,400);
             mapPane.setBorder(
                 new javax.swing.border.TitledBorder("MapPane Map"));
             mapPane.setPreferredSize(new Dimension(300,300));
-            getContentPane().add(
+            //mapPane.setBackground(Color.BLACK);
+            this.getContentPane().add(
                 mapPane,"North");
-            pack();
             
             // Extra stuff for testing
             JButton b1=new JButton("ok");
             getContentPane().add(b1,"South");
+            pack();
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
         }
@@ -188,14 +187,14 @@ public class MapViewer2 extends JFrame {
         double yoff)
     {
         Coordinate[] linestringCoordinates = new Coordinate[8];
-        linestringCoordinates[0] = new Coordinate(50.0d+xoff,50.0d+yoff);
-        linestringCoordinates[1] = new Coordinate(60.0d+xoff,50.0d+yoff);
-        linestringCoordinates[2] = new Coordinate(60.0d+xoff,60.0d+yoff);
-        linestringCoordinates[3] = new Coordinate(70.0d+xoff,60.0d+yoff);
-        linestringCoordinates[4] = new Coordinate(70.0d+xoff,70.0d+yoff);
-        linestringCoordinates[5] = new Coordinate(80.0d+xoff,70.0d+yoff);
-        linestringCoordinates[6] = new Coordinate(80.0d+xoff,80.0d+yoff);
-        linestringCoordinates[7] = new Coordinate(130.0d+xoff,300.0d+yoff);
+        linestringCoordinates[0] = new Coordinate(5.0d+xoff,5.0d+yoff);
+        linestringCoordinates[1] = new Coordinate(6.0d+xoff,5.0d+yoff);
+        linestringCoordinates[2] = new Coordinate(6.0d+xoff,6.0d+yoff);
+        linestringCoordinates[3] = new Coordinate(7.0d+xoff,6.0d+yoff);
+        linestringCoordinates[4] = new Coordinate(7.0d+xoff,7.0d+yoff);
+        linestringCoordinates[5] = new Coordinate(8.0d+xoff,7.0d+yoff);
+        linestringCoordinates[6] = new Coordinate(8.0d+xoff,8.0d+yoff);
+        linestringCoordinates[7] = new Coordinate(8.0d+xoff,9.0d+yoff);
         LineString line = geomFac.createLineString(linestringCoordinates);
         
         return line;
@@ -208,22 +207,19 @@ public class MapViewer2 extends JFrame {
     private void populateDataSource(
         MemoryDataSource dataSource)throws Exception {
         
-        // Request extent
-        Envelope ex = new Envelope(40, 300, 30, 350);
-        
         GeometryFactory geomFac = new GeometryFactory();
-        LineString line = makeSampleLineString(geomFac,0,0);
+        LineString line = makeSampleLineString(geomFac,50,50);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
-        LineString line2 = makeSampleLineString(geomFac,100,0);
+        LineString line2 = makeSampleLineString(geomFac,52,50);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature2 = lineFac.create(new Object[]{line2});
         
-        LineString line3 = makeSampleLineString(geomFac,150,0);
+        LineString line3 = makeSampleLineString(geomFac,54,50);
         lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature3 = lineFac.create(new Object[]{line3});
