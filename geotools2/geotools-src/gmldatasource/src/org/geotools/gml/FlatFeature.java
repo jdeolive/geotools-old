@@ -23,7 +23,7 @@ import com.vividsolutions.jts.geom.*;
  *
  * @author Rob Hranac, Vision for New York
  *
- * $Id: FlatFeature.java,v 1.4 2002/05/01 14:29:29 ianturton Exp $
+ * $Id: FlatFeature.java,v 1.5 2002/05/03 11:46:44 ianturton Exp $
  */
 public class FlatFeature implements Feature {
     
@@ -44,7 +44,7 @@ public class FlatFeature implements Feature {
     /** Attributes for the feature */
     private String[] attributeNames;
     
-    
+    private String typeName = "FeatureType";
     /**
      * Creates a new instance of DefaultFeature
      */
@@ -91,7 +91,11 @@ public class FlatFeature implements Feature {
     }
     
     public String getTypeName(){
-        return "feature"; //TODO: this needs to a paramiter rather than just being fixed.
+        return typeName;
+    }
+
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
     
     public String toString() {
@@ -112,7 +116,9 @@ public class FlatFeature implements Feature {
         
         return featureString.toString();
         
-
+        
     }
+    
+    
     
 }

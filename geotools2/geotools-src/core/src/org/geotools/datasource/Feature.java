@@ -11,5 +11,6 @@ public interface Feature {
     public void setGeometry(Geometry geom);
     public void setAttributes(Object[] a);
     public String getTypeName();
+    public void setTypeName(String typeName);
 }
 

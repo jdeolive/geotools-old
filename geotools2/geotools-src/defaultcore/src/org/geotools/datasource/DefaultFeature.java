@@ -7,6 +7,7 @@
 package org.geotools.datasource;
 
 import com.vividsolutions.jts.geom.*;
+import java.util.Vector;
 
 /**
  *
@@ -52,6 +53,31 @@ public class DefaultFeature implements org.geotools.datasource.Feature {
     
     public String getTypeName() {
         return "feature";//TODO: this is just a generic name for now.
+    }
+    
+    public String toString() {
+        StringBuffer featureString = new StringBuffer();
+        Vector currentAttributes = new Vector( java.util.Arrays.asList(attributes) );
+        
+        featureString.append("\n");
+        if(currentAttributes != null){
+            featureString.append(" attributes:  " + currentAttributes.toString() + "\n");
+        }else{
+            featureString.append(" No attributes set \n");
+        }
+        Geometry geometry = getGeometry();
+        if(geometry != null){
+            featureString.append(" geometry:    " + geometry.toText() + "\n");
+        }else{
+            featureString.append(" No Geometry set \n");
+        }
+        
+        return featureString.toString();
+        
+        
+    }
+    
+    public void setTypeName(String typeName) {
     }
     
 }
