@@ -14,7 +14,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/08/02 19:55:07 $</date>
+    <date>$Date: 2002/08/07 21:51:20 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -349,9 +349,9 @@ public class ThisClass {
         </listitem>
 
         <listitem>
-          <para>The CVS tag <emphasis>$Id: developersguide.sgml,v 1.25
-          2002/07/30 11:05:34 camerons Exp $</emphasis>. When you commit your
-          file into CVS, this will be expanded to something like:</para>
+          <para>The CVS tag <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
+          When you commit your file into CVS, this will be expanded to
+          something like:</para>
 
           <para>$Id: developersguide.sgml,v 1.25 2002/07/30 11:05:34 camerons
           Exp $</para>
@@ -387,15 +387,172 @@ public class ThisClass {
     <section id="logging">
       <title>Logging</title>
 
+      <para>The logging package (<filename>java.util.logging</filename>) is
+      bundled into J2SE 1.4 and above. An overview is available on line in the
+      <ulink
+      url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/overview.html">Sun&#39;s
+      SDK documentation</ulink>.</para>
+
+      <para>Geotools use one logger per module. Logger is named using the
+      <filename>org.geotools</filename> prefix followed by the short module
+      name. For example the logger name for the GML Data Source module is
+      <filename>org.geotools.gml</filename>. The logger name for the
+      Coordinate Transformation Services module is <filename>org.geotools.cts</filename>.</para>
+
+      <para>The logger should be declared in the class&#39;s static fields.</para>
+
+      <example>
+        <title>Logger declaration</title>
+
+        <programlisting>// J2SE dependencies
+import java.util.logging.Logger;
+
+public class GMLDataSource {
+    /**
+     * The logger for the GML DataSource module.
+     */
+    private static final Logger LOGGER = Logger.getLogger(&#34;org.geotools.gml&#34;);
+
+}</programlisting>
+      </example>
+
+      <para>Message can be conveniently logged using one of 7 predefined
+      levels. The levels in descending order are:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>SEVERE (highest value)</para>
+        </listitem>
+
+        <listitem>
+          <para>WARNING</para>
+        </listitem>
+
+        <listitem>
+          <para>INFO</para>
+        </listitem>
+
+        <listitem>
+          <para>CONFIG</para>
+        </listitem>
+
+        <listitem>
+          <para>FINE</para>
+        </listitem>
+
+        <listitem>
+          <para>FINER</para>
+        </listitem>
+
+        <listitem>
+          <para>FINEST (lowest value)</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>By default, level SEVERE, WARNING and INFO are logged to the
+      standard output. Level FINER is commonly used when entering, returning,
+      or throwing an exception. A convenience method exists in Logger for each
+      of those levels.</para>
+
+      <example>
+        <title>Logger use</title>
+
+        <programlisting>LOGGER.info(&#34;There is a message of interest for ordinary user&#34;);</programlisting>
+      </example>
+
+      <para>There is three more convenience methods: <emphasis>entering</emphasis>,
+      <emphasis>exiting</emphasis> and <emphasis>throwing</emphasis> when
+      entering and exiting a method, or when we are about to terminate a
+      method with an exception.</para>
+
+      <example>
+        <title>Entering/Existing Logger</title>
+
+        <programlisting>public Object myMethod(String myArgument) {
+    LOGGER.entering(&#34;MyClass&#34;, &#34;MyMethod&#34;, myArgument);
+    // ... do some process here
+    LOGGER.exiting(&#34;MyClass&#34;, &#34;MyMethod&#34;, myReturnValue);
+    return myReturnValue;
+}</programlisting>
+      </example>
+
+      <para>When logging a message, the logger will include many informations
+      like date and time, source class and method names, current thread, etc.
+      In order to avoid too many informations to be logged, it may be useful
+      to merge consecutive logging into a single log statement.</para>
+
+      <example>
+        <title>Minimising Logger output</title>
+
+        <programlisting>// Wastfull use of logging
+LOGGER.finer(&#34;Value for A is &#34;+A);
+LOGGER.finer(&#34;Value for B is &#34;+B);
+LOGGER.finer(&#34;Value for C is &#34;+C);
+
+// Good use of logging
+LOGGER.finer(&#34;Computed values: A=&#34;+A+&#34;; B=&#34;+B+&#34;; C=&#34;+C);</programlisting>
+      </example>
+
+      <para>If the log message is expensive to construct, then consider
+      enclosing it in a &#34;if&#34; statement.</para>
+
+      <example>
+        <title>Selective logging</title>
+
+        <programlisting>if (LOGGER.isLoggable(Level.FINER)) {
+    LOGGER.finer(&#34;Current state = &#34;+someVeryExpensiveMethodCall());
+}</programlisting>
+      </example>
+
+      <para>To change the default logging setting, edit the following file:</para>
+
+      <para><filename>$JAVA_HOME/jre/lib/logging.properties</filename></para>
+
+      <para>Define the &#34;.level&#34; property to the minimal level of
+      interest for you:</para>
+
+      <para><command>level= FINER</command></para>
+
+      <para>Define the <filename>java.util.logging.ConsoleHandler.level</filename>
+      property to the minimal level you want to see on the console. It may be
+      different than the level logged to the XML file.</para>
+
+      <example>
+        <title></title>
+
+        <programlisting># Limit the message that are printed on the console to FINE and above.
+java.util.logging.ConsoleHandler.level = FINE
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.ConsoleHandler.encoding = Cp850</programlisting>
+      </example>
+
+      <para>Note the &#34;encoding&#34; property. For Windows user, it should
+      be set to the value displayed by &#34;chcp&#34; on the command line.
+      Linux and Unix users may ignore this line since Unix systems do a more
+      intelligent work with page codes.</para>
+
+      <para>Finally, a different logging level may be specified for each
+      module. For example you may be interested in fairly detailed logging
+      message from the GML module, but not from the CTS module. Then you could
+      write:</para>
+
+      <example>
+        <title></title>
+
+        <programlisting>org.geotools.gml.level = FINE
+org.geotools.cts.level = INFO</programlisting>
+      </example>
+
       <para>To do:</para>
 
       <itemizedlist>
         <listitem>
-          <para>We are not using log4j.</para>
+          <para>Merge Some of the examples into one.</para>
         </listitem>
 
         <listitem>
-          <para>Provide an example.</para>
+          <para>Seperate out the Code examples from the Configuration
+          examples.</para>
         </listitem>
 
         <listitem>
