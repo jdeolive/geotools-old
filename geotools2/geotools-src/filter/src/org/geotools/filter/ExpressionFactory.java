@@ -1,0 +1,320 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
+ */
+
+package org.geotools.filter;
+
+import org.apache.log4j.Logger;
+import com.vividsolutions.jts.geom.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
+/**
+ * Defines a like filter, which checks to see if an attribute matches a REGEXP.
+ *
+ * @version $Id: ExpressionFactory.java,v 1.1 2002/07/16 19:36:48 robhranac Exp $
+ * @author Rob Hranac, Vision for New York
+ */
+public class ExpressionFactory {
+
+    private static Logger _log = Logger.getLogger(ExpressionFactory.class);
+
+    /** The attribute value, which must be an attribute expression. */
+    private ExpressionFactory expressionFactory = null;
+
+    /** The (limited) REGEXP pattern. */
+    private Expression currentExpression = null;
+
+    /** The (limited) REGEXP pattern. */
+    private String currentState = null;
+
+    /** The (limited) REGEXP pattern. */
+    private String declaredType = null;
+
+    /** The (limited) REGEXP pattern. */
+    private boolean readyFlag = false;
+
+    /** The (limited) REGEXP pattern. */
+    private FeatureType schema;
+
+    /** The (limited) REGEXP pattern. */
+    private boolean readCharacters = false;
+
+    /**
+     * Constructor which flags the operator as between.
+     */
+    public ExpressionFactory (FeatureType schema) {
+        this.schema = schema;
+    }
+
+
+    /**
+     * Constructor which flags the operator as between.
+     */
+    public void start(String declaredType) throws IllegalFilterException{
+
+        _log.debug("incoming type: " + declaredType);
+        _log.debug("declared type: " + this.declaredType);
+        _log.debug("current state: " + currentState);
+        
+        if( expressionFactory == null) {
+
+            this.declaredType = declaredType;
+
+            // if the expression is math, then create a factory for its
+            // sub expressions, otherwise just instantiate the main expression
+            if( ExpressionDefault.isMathExpression( convertType(declaredType) ) ) {
+                expressionFactory = new ExpressionFactory(schema);
+                currentExpression = new ExpressionMath(convertType(declaredType));
+                _log.debug("is math expression");
+            }
+            else if( ExpressionDefault.
+                     isLiteralExpression( convertType(declaredType) ) ) {
+                currentExpression = new ExpressionLiteral();
+                readCharacters = true;
+                _log.debug("is literal expression");
+            }
+            else if( ExpressionDefault.
+                     isAttributeExpression( convertType(declaredType) ) ) {
+                currentExpression = new ExpressionAttribute(schema);
+                readCharacters = true;
+                _log.debug("is attribute expression");
+            }
+            currentState = setInitialState(currentExpression);
+            readyFlag = false;
+        }
+
+        else {
+            expressionFactory.start(declaredType);
+        }
+    }
+
+
+    /**
+     * Sets the matching pattern for this FilterLike.
+     *
+     * @param pattern The limited REGEXP pattern for this string. 
+     */
+    public void end(String message) throws IllegalFilterException{
+
+        _log.debug("declared type: " + declaredType);
+        _log.debug("end message: " + message);
+        _log.debug("current state: " + currentState);
+        //_log.debug("expression factory: " + expressionFactory);
+
+        // first, check to see if there are internal (nested) expressions
+        //  note that this is identical to checking if the currentExpression
+        //  is a math expression
+        // if this internal expression exists, send its factory an end message
+        if( expressionFactory != null ) {
+            expressionFactory.end(message);
+
+            // if the factory is ready to be returned:
+            //  (1) add its expression to the current expression, as determined
+            //      by the current state
+            //  (2) increment the current state
+            //  (3) set the factory to null to indicate that it is now done
+            // if in a bad state, throw exception
+            if( expressionFactory.isReady() ) {
+                if( currentState.equals("leftValue") ) {
+                    ((ExpressionMath) currentExpression).
+                        addLeftValue(expressionFactory.create());
+                    currentState = "rightValue";
+                    expressionFactory = new ExpressionFactory(schema);
+                    _log.debug("just added left value: " + currentState);
+                }
+                else if( currentState.equals("rightValue") ) {
+                    ((ExpressionMath) currentExpression).
+                        addRightValue(expressionFactory.create());
+                    currentState = "complete";
+                    expressionFactory = null;
+                    _log.debug("just added right value: " + currentState);
+                }
+                else {
+                    throw new IllegalFilterException
+                        ("Attempted to add sub expression in a bad state: "
+                         + currentState);
+                }
+            }
+        }
+
+        // if there are no nested expressions here,
+        //  determine if this expression is ready and set flag appropriately
+        else if( declaredType.equals(message) && currentState.equals("complete") ){
+            readCharacters = false;
+            readyFlag = true;
+        }
+
+        // otherwise, throw exception
+        else {
+            throw new IllegalFilterException
+                ("Reached end of unready, non-nested expression: "
+                 + currentState);
+        }
+
+    }
+
+    /**
+     * Checks to see if this expression is ready to be returned.
+     *
+     */
+    public boolean isReady() {
+        return readyFlag;
+    }
+
+    /**
+     * Sets the matching pattern for this FilterLike.
+     *
+     * @param pattern The limited REGEXP pattern for this string. 
+     */
+    public void message(String message) throws IllegalFilterException{
+
+        // TODO 2:
+        // AT SOME POINT MUST MAKE THIS HANDLE A TYPED FEATURE
+        // BY PASSING IT A FEATURE AND CHECKING ITS TYPE HERE
+
+        _log.debug("incoming message: " + message);
+        _log.debug("should read chars: " + readCharacters);
+
+        // If an attribute path, set it.  Assumes undeclared type.
+        if( currentExpression instanceof ExpressionAttribute &&
+            readCharacters) {
+            ((ExpressionAttribute) currentExpression).setAttributePath(message);
+            currentState = "complete";
+        }
+        
+        // This is a relatively loose assignment routine, which uses
+        //  the fact that the three allowed literal types have a strict
+        //  instatiation hierarchy (ie. double can be an int can be a 
+        //  string, but not the other way around).
+        // A better routine would consider the use of this expression
+        //  (ie. will it be compared to a double or searched with a
+        //  like filter?)
+        else if( currentExpression instanceof ExpressionLiteral &&
+                 readCharacters) {
+            try {
+                Object tempLiteral = new Double(message);
+                ((ExpressionLiteral) currentExpression).setLiteral(tempLiteral);
+                currentState = "complete";
+            }
+            catch(NumberFormatException e1) {
+                try {
+                    Object tempLiteral = new Integer(message);
+                    ((ExpressionLiteral) currentExpression).
+                        setLiteral(tempLiteral);
+                        currentState = "complete";
+                }
+                catch(NumberFormatException e2) {
+                    Object tempLiteral = message;
+                    ((ExpressionLiteral) currentExpression).
+                        setLiteral(tempLiteral);
+                    currentState = "complete";
+                }                
+            }
+        }
+        else if (expressionFactory != null) {
+            expressionFactory.message(message);
+        }
+    }
+
+    /**
+     * Gets geometry.
+     *
+     * @param geometry The geometry from the filter.
+     */
+    public void geometry(Geometry geometry) 
+        throws IllegalFilterException {
+
+        // Sets the geometry for the expression, as appropriate
+        _log.debug("got geometry: " + geometry.toString());
+        //if( currentExpression.getType() == ExpressionDefault.LITERAL_GEOMETRY ) {
+        //_log.debug("got geometry: ");
+        currentExpression = new ExpressionLiteral();
+        ((ExpressionLiteral) currentExpression).setLiteral(geometry);
+        _log.debug("set expression: " + currentExpression.toString());
+        currentState = "complete";
+        _log.debug("set current state: " + currentState);
+        //        }
+            
+    }
+
+    /**
+     * Sets the multi wildcard for this FilterLike.
+     *
+     */
+    public Expression create() {
+        _log.debug("about to create expression: " + currentExpression.toString());
+        return currentExpression;
+    }
+
+
+    /**
+     * Sets the multi wildcard for this FilterLike.
+     *
+     */
+    private static String setInitialState(Expression currentExpression) 
+        throws IllegalFilterException {
+
+        if( currentExpression instanceof ExpressionMath ) {
+            return "leftValue";
+        }
+        else if( ( currentExpression instanceof ExpressionAttribute ) ||
+                 ( currentExpression instanceof ExpressionLiteral ) ) {
+            return "";
+        }
+        else {
+            throw new IllegalFilterException
+                ("Created illegal expression: " + 
+                 currentExpression.getClass().toString());
+        }
+
+    }
+
+    /**
+     * Checks to see if passed type is logic.
+     *
+     * @param filterType Type of filter for check.
+     * @return Whether or not this is a logic filter type.
+     */
+    protected static short convertType(String expressionType) {
+
+        // matches all filter types to the default logic type
+        if( expressionType.equals("Add") ) {
+            return ExpressionDefault.MATH_ADD;
+        }
+        else if( expressionType.equals("Sub") ) {
+            return ExpressionDefault.MATH_SUBTRACT;
+        }
+        else if( expressionType.equals("Mul") ) {
+            return ExpressionDefault.MATH_MULTIPLY;
+        }
+        else if( expressionType.equals("Div") ) {
+            return ExpressionDefault.MATH_DIVIDE;
+        }
+        else if( expressionType.equals("PropertyName") ) {
+            return ExpressionDefault.ATTRIBUTE_DOUBLE;
+        }
+        else if( expressionType.equals("Literal") ) {
+            return ExpressionDefault.LITERAL_DOUBLE;
+        }
+        return ExpressionDefault.ATTRIBUTE_UNDECLARED;
+
+    }
+
+    
+}
