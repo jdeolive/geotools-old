@@ -42,7 +42,8 @@ import org.geotools.resources.units.Units;
  * @version 1.0
  * @author Martin Desruisseaux
  */
-/*public*/ abstract class SimpleUnit extends Unit {
+/*public*/ 
+abstract class SimpleUnit extends Unit {
     /**
      * Serial number for interoperability with different versions.
      */

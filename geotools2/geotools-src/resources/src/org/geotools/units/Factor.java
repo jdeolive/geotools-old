@@ -50,7 +50,8 @@ import org.geotools.util.WeakHashSet;
  * @author Bill Hibbard
  * @author Martin Desruisseaux
  */
-/*public*/ final class Factor implements Serializable {
+/*public*/ 
+final class Factor implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */

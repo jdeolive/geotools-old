@@ -58,7 +58,8 @@ import org.geotools.resources.rsc.ResourceKeys;
  * @author Bill Hibbard
  * @author Martin Desruisseaux
  */
-/*public*/ final class ScaledUnit extends Unit {
+/*public*/ 
+final class ScaledUnit extends Unit {
     /**
      * Serial number for interoperability with different versions.
      */

@@ -46,7 +46,8 @@ import org.geotools.util.WeakHashSet;
  * @version 1.0
  * @author Martin Desruisseaux
  */
-/*public*/ final class PrefixSet implements Serializable {
+/*public*/ 
+final class PrefixSet implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */

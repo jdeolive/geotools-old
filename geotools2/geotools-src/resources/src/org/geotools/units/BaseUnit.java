@@ -56,7 +56,8 @@ import java.io.ObjectStreamException;
  * @author Bill Hibbard
  * @author Martin Desruisseaux
  */
-/*public*/ final class BaseUnit extends SimpleUnit {
+/*public*/ 
+final class BaseUnit extends SimpleUnit {
     /**
      * Serial number for interoperability with different versions.
      */

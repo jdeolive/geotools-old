@@ -67,7 +67,8 @@ import org.geotools.resources.rsc.ResourceKeys;
  * @author Bill Hibbard
  * @author Martin Desruisseaux
  */
-/*public*/ final class OffsetUnit extends Unit {
+/*public*/
+final class OffsetUnit extends Unit {
     /**
      * Serial number for interoperability with different versions.
      */
