@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.8 2003/06/03 20:49:33 ianschneider Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.9 2003/06/03 21:18:53 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -443,11 +443,12 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
     public Feature next() throws IOException, IllegalFeatureException {
       // read the geometry
       ShapefileReader.Record record = shp.nextRecord();
+      DbaseFileReader.Row row = null;
       
       // dbf is not null, read the rest of the features
-      // System.out.println(current);
       if (dbf != null) {
-        dbf.readEntry(readStash);
+        //dbf.readEntry(readStash);
+        row = dbf.readRow();
       }
       
       // the selection routine...
@@ -457,8 +458,8 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
           writeStash[i] = record.shape();
         else if (idx == -1)
           writeStash[i] = null;
-        else
-          writeStash[i] = readStash[idx - 1];
+        else if (row != null)
+          writeStash[i] = row.read(idx - 1);//readStash[idx - 1];
       }
       
       // becuase I know that FeatureFlat copies the array,
