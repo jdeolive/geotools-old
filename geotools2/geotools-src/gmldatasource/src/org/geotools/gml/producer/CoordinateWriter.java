@@ -54,23 +54,25 @@ class CoordinateWriter {
 
     /** Whether delimiters should be printed. */
     private boolean printDelimiters = true;
+    
+    char[] buff = new char[200];
 
     public CoordinateWriter() {
         this(NUM_DECIMALS_DEFAULT);
     }
 
     public CoordinateWriter(int numDecimals) {
-        StringBuffer decimalPattern = new StringBuffer();
-
-        for (int i = 0; i < numDecimals; i++) {
-            decimalPattern.append("#");
-        }
-
-        String numPattern = "#." + decimalPattern.toString();
-
-        if (coordFormatter instanceof DecimalFormat) {
-            ((DecimalFormat) coordFormatter).applyPattern(numPattern);
-        }
+//        StringBuffer decimalPattern = new StringBuffer();
+//
+//        for (int i = 0; i < numDecimals; i++) {
+//            decimalPattern.append("#");
+//        }
+//
+//        String numPattern = "#." + decimalPattern.toString();
+//
+//        if (coordFormatter instanceof DecimalFormat) {
+//            ((DecimalFormat) coordFormatter).applyPattern(numPattern);
+//        }
     }
 
     //TODO: check gml spec - can it be strings?  Or just chars?
@@ -93,7 +95,7 @@ class CoordinateWriter {
         this.printDelimiters = printDelimiters;
     }
 
-    public void writeCoordinates(Geometry geometry, ContentHandler output)
+    public void writeCoordinates(Coordinate[] c, ContentHandler output)
         throws SAXException {
         AttributesImpl atts = new org.xml.sax.helpers.AttributesImpl();
 
@@ -107,20 +109,23 @@ class CoordinateWriter {
         output.startElement(GMLUtils.GML_URL, "coordinates", "gml:coordinates",
             atts);
 
-        //int dimension = geometry.getDimension();
-        Coordinate[] tempCoordinates = geometry.getCoordinates();
-
-        for (int i = 0, n = geometry.getNumPoints(); i < n; i++) {
-            String xCoord = coordFormatter.format(tempCoordinates[i].x);
-            String yCoord = coordFormatter.format(tempCoordinates[i].y);
-            coordBuff.append(xCoord + coordinateDelimiter + yCoord
-                + tupleDelimiter);
+        for (int i = 0, n = c.length; i < n; i++) {
+//            String xCoord = coordFormatter.format(c[i].x);
+//            String yCoord = coordFormatter.format(c[i].y);
+//            coordBuff.append(xCoord + coordinateDelimiter + yCoord
+//                + tupleDelimiter);
+            coordBuff.delete(0, coordBuff.length());
+            coordBuff.append(c[i].x).append(coordinateDelimiter).append(c[i].y);
+            if (i + 1 < c.length)
+                coordBuff.append(tupleDelimiter);
+            if (coordBuff.length() > buff.length) {
+                buff = new char[coordBuff.length()];
+            }
+            coordBuff.getChars(0, coordBuff.length(), buff, 0);
+            output.characters(buff, 0, coordBuff.length());
         }
 
-        coordBuff.deleteCharAt(coordBuff.length() - 1);
-
-        String coords = coordBuff.toString();
-        output.characters(coords.toCharArray(), 0, coords.length());
+        
         output.endElement(GMLUtils.GML_URL, "coordinates", "gml:coordinates");
     }
 }
