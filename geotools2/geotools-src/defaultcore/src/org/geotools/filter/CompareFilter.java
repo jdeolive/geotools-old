@@ -45,7 +45,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.5 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: CompareFilter.java,v 1.6 2002/08/14 19:46:38 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class CompareFilter extends AbstractFilter {
@@ -234,6 +234,24 @@ public class CompareFilter extends AbstractFilter {
         visitor.visit(this);
     }
 
+    /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this filter.  Checks 
+     * to make sure the filter types are the same as well as both of the values.
+     *
+     * @param obj - the object to compare this CompareFilter against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */
+    public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    CompareFilter cFilter = (CompareFilter)obj;
+	    return (cFilter.getFilterType() == this.filterType &&
+		    cFilter.getLeftValue().equals(this.leftValue) &&
+		    cFilter.getRightValue().equals(this.rightValue));
+	} else {
+	    return false;
+	}
+    }
    
     
 }

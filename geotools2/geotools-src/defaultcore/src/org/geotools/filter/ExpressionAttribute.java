@@ -34,7 +34,7 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: ExpressionAttribute.java,v 1.8 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: ExpressionAttribute.java,v 1.9 2002/08/14 19:46:38 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionAttribute extends ExpressionDefault {
@@ -144,5 +144,25 @@ public class ExpressionAttribute extends ExpressionDefault {
     public void accept(FilterVisitor visitor) {
         visitor.visit(this);
     }    
+
+      /** 
+     * Compares this filter to the specified object.  Returns true 
+     * if the passed in object is the same as this expression.  Checks 
+     * to make sure the expression types are the same as well as 
+     * the attribute paths and schemas.
+     *
+     * @param obj - the object to compare this ExpressionAttribute against.
+     * @return true if specified object is equal to this filter; false otherwise.
+     */
+    public boolean equals(Object obj) {
+	if (obj.getClass() == this.getClass()){
+	    ExpressionAttribute expAttr = (ExpressionAttribute)obj;
+	    return (expAttr.getType() == this.expressionType &&
+		    expAttr.getAttributePath().equals(this.attributePath) &&
+		    expAttr.schema.toString().equals(this.schema.toString()));
+		} else {
+	    return false;
+	}
+    }
     
 }
