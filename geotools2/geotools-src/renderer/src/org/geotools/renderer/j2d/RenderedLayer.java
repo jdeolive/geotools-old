@@ -53,6 +53,7 @@ import java.awt.GraphicsConfiguration;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import javax.swing.Action;
 
 // Miscellaneous J2SE
 import java.util.Locale;
@@ -92,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.29 2003/10/09 09:41:36 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.30 2003/11/03 11:40:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -789,6 +790,9 @@ public abstract class RenderedLayer {
      * vérifié que les coordonnées de <code>event</code> correspondent bien à un point de la
      * couche.
      *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
+     *
      * @param  event Coordonnées du curseur de la souris.
      * @return Le texte à afficher lorsque la souris traîne sur la couche.
      *         Ce texte peut être nul pour signifier qu'il ne faut rien écrire.
@@ -796,6 +800,22 @@ public abstract class RenderedLayer {
      * @see Renderer#getToolTipText
      */
     String getToolTipText(final GeoMouseEvent event) {
+        return null;
+    }
+
+    /**
+     * Returns the action to run when some mouse action occured over this layer. The default
+     * implementation return always <code>null</code>, which means that no action is defined
+     * for this layer. Subclasses which override this method should check if the mouse cursor
+     * is really over a component of this layer (for example over a geometry).
+     *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
+     *
+     * @param  event The mouse event.
+     * @return The action for the layer, or <code>null</code> if none.
+     */
+    Action getAction(final GeoMouseEvent event) {
         return null;
     }
 

@@ -46,6 +46,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.AffineTransform;
+import javax.swing.Action;
 import java.util.HashMap;
 import java.util.Arrays;
 import java.util.Map;
@@ -65,7 +66,7 @@ import org.geotools.resources.XArray;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.16 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: RenderedMarks.java,v 1.17 2003/11/03 11:40:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -423,7 +424,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                      *            affine transform to be used later.  Storing the affine transform
                      *            always uses 6 floats, no matter how complex the shape is. Storing
                      *            a transformed mark would take more memory for any kind of mark
-                     *            with more then 3 points (plus the overhead for each new objects).
+                     *            with more than 3 points (plus the overhead for each new objects).
                      */
                     transformedShape.shape = iterator.markShape();
                     if (transformedShape.shape != null) {
@@ -544,8 +545,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                         }
                     }
                     // STEP 1  -  Geographic areas
-                    if (areaShapes != null) {
-                    	// TODO: this code is unreachable!
+                    if (geographicArea != null) {
                         if (areaShapes == null) {
                             areaShapes = new Shape[markIndex.length];
                         }
@@ -818,16 +818,37 @@ public abstract class RenderedMarks extends RenderedLayer {
     private transient Point2D point;
 
     /**
-     * Retourne le texte à afficher dans une bulle lorsque le curseur
-     * de la souris traîne sur la carte. L'implémentation par défaut
-     * identifie la marque sur laquelle traîne le curseur et appelle
-     * {@link MarkIterator#getToolTipText()}.
+     * Returns the tooltip text to display when the mouse cursor is located over
+     * the map. The default implementation localize the mark under the cursor
+     * and invokes {@link MarkIterator#getToolTipText}.
      *
-     * @param  event Coordonnées du curseur de la souris.
-     * @return Le texte à afficher lorsque la souris traîne sur cet élément.
-     *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
+     * @param  event The mouse event.
+     * @return The tool tip text for the current mark, or <code>null</code> if none.
      */
     final String getToolTipText(final GeoMouseEvent event) {
+        return (String) getObject(event, 0);
+    }
+
+    /**
+     * Returns the action to run when some mouse action occured over
+     * the map. The default implementation localize the mark under the cursor
+     * and invokes {@link MarkIterator#getAction}.
+     *
+     * @param  event The mouse event.
+     * @return The action for the current mark, or <code>null</code> if none.
+     */
+    final Action getAction(final GeoMouseEvent event) {
+        return (Action) getObject(event, 1);
+    }
+
+    /**
+     * Implementation of {@link #getToolTipText} and {@link #getAction} methods.
+     *
+     * @param  event The mouse event.
+     * @param  type  0 for the tooltip, or 1 for the action.
+     * @return The tooltip or the action for the current mark, or <code>null</code> if none.
+     */
+    private Object getObject(final GeoMouseEvent event, final int type) {
         synchronized (getTreeLock()) {
             MarkIterator iterator = null;
             final Point2D point = this.point = event.getPixelCoordinate(this.point);
@@ -844,9 +865,14 @@ public abstract class RenderedMarks extends RenderedLayer {
                                 iterator = getMarkIterator();
                             }
                             iterator.setIteratorPosition(markIndex[i]);
-                            final String text = iterator.getToolTipText(event);
-                            if (text != null) {
-                                return text;
+                            final Object object;
+                            switch (type) {
+                                case 0:  object = iterator.getToolTipText(event); break;
+                                case 1:  object = iterator.getAction     (event); break;
+                                default: throw new AssertionError(type);
+                            }
+                            if (object != null) {
+                                return object;
                             }
                         }
                     }
@@ -861,15 +887,24 @@ public abstract class RenderedMarks extends RenderedLayer {
                                 iterator = getMarkIterator();
                             }
                             iterator.setIteratorPosition(markIndex[i]);
-                            final String text = iterator.getToolTipText(event);
-                            if (text != null) {
-                                return text;
+                            final Object object;
+                            switch (type) {
+                                case 0:  object = iterator.getToolTipText(event); break;
+                                case 1:  object = iterator.getAction     (event); break;
+                                default: throw new AssertionError(type);
+                            }
+                            if (object != null) {
+                                return object;
                             }
                         }
                     }
                 }
             }
         }
-        return super.getToolTipText(event);
+        switch (type) {
+            case 0:  return super.getToolTipText(event);
+            case 1:  return super.getAction     (event);
+            default: throw new AssertionError(type);
+        }
     }
 }

@@ -62,6 +62,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JInternalFrame;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
+import javax.swing.Action;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.WeakHashMap;
@@ -118,7 +119,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.42 2003/11/02 21:10:26 aaime Exp $
+ * @version $Id: Renderer.java,v 1.43 2003/11/03 11:40:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1647,7 +1648,7 @@ public class Renderer implements Renderer2D {
         RenderingContext    clippedContext = this.clippedContext;
         final GraphicsJAI         graphics = GraphicsJAI.createGraphicsJAI(graph, mapPane);
         final GraphicsConfiguration config = graphics.getDeviceConfiguration();
-        final Rectangle         clipBounds = graphics.getClipBounds();
+              Rectangle         clipBounds = graphics.getClipBounds();
         final AffineTransform     toDevice = graphics.getTransform();
         final boolean             toScreen = toDevice.isIdentity();
         final boolean             sameZoom = mapToText.equals(zoom);
@@ -1655,14 +1656,23 @@ public class Renderer implements Renderer2D {
                                                              offscreenZRanges.size() : 0;
         try {
             /*
-             * Set a flag for avoiding some 'paint' events while we are actually painting...
+             * Set a flag for avoiding some 'repaint' events while we are actually painting.
+             * For example some implementations of the RenderedLayer.paint(...) method may
+             * detect changes since the last rendering and invokes some kind of invalidate(...)
+             * methods before the layer's rendering begin. Invoking those methods may cause in
+             * some indirect way a call to RenderedLayer.repaint(), which will trig an other
+             * widget's repaint. This second repaint is usually not needed, since RenderedLayers
+             * usually managed to update their informations before they start their rendering.
+             * Consequently, disabling 'repaint' events while we are painting help to reduces
+             * duplicated rendering.
              */
-            Rectangle2D rect = null;
-            if(clipBounds != null) 
-                rect = clipBounds.contains(zoomableBounds) ? XRectangle2D.INFINITY : clipBounds;
-            else
-                rect = XRectangle2D.INFINITY;
-            RenderedLayer.setDirtyArea(layers, layerCount, rect);
+            Rectangle2D dirtyArea = XRectangle2D.INFINITY;
+            if (clipBounds == null) {
+                clipBounds = zoomableBounds;
+            } else if (zoomableBounds.contains(clipBounds)) {
+                dirtyArea = clipBounds;
+            }
+            RenderedLayer.setDirtyArea(layers, layerCount, dirtyArea);
             /*
              * If the zoom has changed, send a notification to all layers before to start the
              * rendering. Layers will update their cache, which is used in order to decide if
@@ -2053,8 +2063,12 @@ renderOffscreen:while (true) {
      * {@linkplain RenderedLayer#getZOrder z-order} until one is found to returns a
      * non-null string.
      *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
+     *
      * @param  event The mouse event.
-     * @return The tool tip text, or <code>null</code> if there is no tool tip for this location.
+     * @return The tool tip text, or <code>null</code> if there is no tool tip for the given
+     *         mouse location.
      */
     public synchronized String getToolTipText(final GeoMouseEvent event) {
         sortLayers();
@@ -2067,6 +2081,35 @@ renderOffscreen:while (true) {
                 final String tooltip = layer.getToolTipText(event);
                 if (tooltip != null) {
                     return tooltip;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the action to be used for a given mouse event.
+     * This method queries registered {@linkplain RenderedLayer layers} in decreasing
+     * {@linkplain RenderedLayer#getZOrder z-order} until one is found to returns a
+     * non-null action.
+     *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
+     *
+     * @param  event The mouse event.
+     * @return The action, or <code>null</code> if there is no action for the given mouve event.
+     */
+    public synchronized Action getAction(final GeoMouseEvent event) {
+        sortLayers();
+        final int x = event.getX();
+        final int y = event.getY();
+        final RenderedLayer[] layers = this.layers;
+        for (int i=layerCount; --i>=0;) {
+            final RenderedLayer layer = layers[i];
+            if (layer.contains(x,y)) {
+                final Action action = layer.getAction(event);
+                if (action != null) {
+                    return action;
                 }
             }
         }

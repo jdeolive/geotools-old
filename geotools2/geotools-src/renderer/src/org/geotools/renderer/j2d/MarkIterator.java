@@ -45,6 +45,7 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.awt.font.GlyphVector;
+import javax.swing.Action;
 
 // Geotools dependencies
 import org.geotools.ct.TransformException;
@@ -78,7 +79,7 @@ import org.geotools.ct.TransformException;
  *   <li>{@link #labelPosition}</li>
  * </ul>
  *
- * @version $Id: MarkIterator.java,v 1.5 2003/05/21 08:21:53 desruisseaux Exp $
+ * @version $Id: MarkIterator.java,v 1.6 2003/11/03 11:40:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MarkIterator {
@@ -331,14 +332,32 @@ public abstract class MarkIterator {
     }
 
     /**
-     * Returns a tooltip text for the current mark. The default implementation returns
-     * always <code>null</code>.  <strong>Note:</strong> This method is not a commited
-     * part of the API. It may moves elsewhere in a future version.
+     * Returns a tooltip text for the current mark, or <code>null</code> if none.
+     * The default implementation returns always <code>null</code>.
+     *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
      *
      * @param  event The mouse event.
      * @return The tool tip text for the current mark, or <code>null</code> if none.
      */
     protected String getToolTipText(GeoMouseEvent event) {
+        return null;
+    }
+
+    /**
+     * Returns an action text for the current mark, or <code>null</code> if none.
+     * This method may be call for example on mouse click. The action doesn't need
+     * to be executed immediately. For example it may be put in a tool bar, or saved
+     * in a macro recorder. The default implementation returns always <code>null</code>.
+     *
+     * <strong>Note: This method is not a commited part of the API.
+     *         It may moves elsewhere in a future version.</strong>
+     *
+     * @param  event The mouse event.
+     * @return The action for the current mark, or <code>null</code> if none.
+     */
+    protected Action getAction(GeoMouseEvent event) {
         return null;
     }
 }
