@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.27 2002/06/26 15:24:34 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.28 2002/06/27 16:26:29 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -327,10 +327,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             if(stroke.getGraphicStroke()==null){
                 graphics.draw(path);
             }else{
-                // set up the graphic stroke 
+                // set up the graphic stroke
                 drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
             }
-         
+            
         }
     }
     
@@ -363,7 +363,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         if(stroke.getGraphicStroke()==null){
             graphics.draw(path);
         }else{
-            // set up the graphic stroke 
+            // set up the graphic stroke
             drawWithGraphicStroke(graphics,path,stroke.getGraphicStroke());
         }
     }
@@ -679,7 +679,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * a method to draw the path with a graphic stroke.
      * @param gFill the graphic fill to be used to draw the stroke
      * @param graphic the Graphics2D to draw on
-     * @param path the general path to be drawn 
+     * @param path the general path to be drawn
      */
     private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill){
         _log.debug("drawing a graphicalStroke");
@@ -693,24 +693,44 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         int midx = imageWidth/2;
         int midy = imageHeight/2;
         _log.debug("got image");
+        
         /* Create a bufferedImage the size of the path's bounding box,
          * work our way along the path and at each point draw the graphic pointing along the line
          * Then set this as our paint and draw the stroke.
          */
         
         Rectangle2D rect = path.getBounds2D();
+        _log.debug("path bounds "+rect.toString());
         BufferedImage img = new BufferedImage((int)rect.getWidth(),(int)rect.getHeight(),BufferedImage.TYPE_INT_ARGB);
         Graphics2D ig = img.createGraphics();
-        PathIterator pi = path.getPathIterator(graphic.getTransform(),10.0);
-        //this should be something like the inverse?
-        AffineTransform at = new AffineTransform(graphics.getTransform());
-        //PathIterator pi = path.getPathIterator(at,10.0);
+        
+        AffineTransform at = new AffineTransform();
+        
+        at.translate(-rect.getMinX(),-rect.getMinY());
+        
+        double unitSize = Math.max(imageWidth,imageHeight);
+        double drawSize = (double)gFill.getSize()/unitSize;
+        _log.debug("size "+gFill.getSize());
+        double scaleX = drawSize/graphic.getTransform().getScaleX();
+        double scaleY = drawSize/-graphic.getTransform().getScaleY();
+        _log.debug("scale X "+scaleX+" Y "+scaleY);
+        ig.setTransform(at);
+        AffineTransform at2 = new AffineTransform();
+        AffineTransformOp op;
+        BufferedImage image2;
+        RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
+        hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+        PathIterator pi = path.getPathIterator(null,10.0);
         double[] coords = new double[6];
         int type;
         
         double[] first = new double[2];
         double[] previous = new double[2];
-        
+        double[] tprevious = new double[2];
+        double[] tcoords = new double[2];
+        double[] in = new double[2];
+        double[] out = new double[2];
         type = pi.currentSegment(coords);
         first[0]=coords[0];
         first[1]=coords[1];
@@ -738,19 +758,68 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     _log.debug("drawing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
                     double dx = coords[0]-previous[0];
                     double dy = coords[1]-previous[1];
-                    double length = Math.sqrt(dx*dx+dy*dy);
                     double theta = Math.atan2(dx,dy);
+                    dx = Math.sin(theta)*imageWidth/scaleX;
+                    dy = Math.cos(theta)*imageHeight/scaleY;
+                    _log.debug("dx = "+dx+" dy "+dy);
                     
-                    ig.drawLine((int)previous[0],(int)previous[1],(int)coords[0],(int)coords[1]);
-                    int step = (int)(length/(double)imageWidth);
-                    double x,y;
-                    _log.debug("segment length "+length);
-                    for(int i=0;i<length-imageWidth;i+=step){
-                        x= ((double)i) * Math.acos(theta);
-                        y = ((double)i) * Math.asin(theta);
-                        at.translate(x,y);
-                        at.rotate(theta,midx+x,midy+y);
-                        ig.drawImage(image,at,null);
+                    int x = (int)Math.round(previous[0]);
+                    int y = (int)Math.round(previous[1]);
+                    int endX = (int)Math.round(coords[0]);
+                    int endY = (int)Math.round(coords[1]);
+                    int d = 0;
+                    int hx = endX - x;
+                    int hy = endY - y;
+                    
+                    int xInc = (int)Math.max(dx,dy);
+                    int yInc = xInc;
+                    int c,m;
+                    if(hx < 0){
+                        xInc = -xInc;
+                        hx = -hx;
+                    }
+                    if(hy < 0){
+                        yInc = -yInc;
+                        hy = -hy;
+                    }
+                    if(hy <= hx){
+                        c=2*hx;
+                        m=2*hy;
+                        for(int i=0;;i++){
+                            _log.debug("plotting at ("+x+","+y+")");
+                            at2.setToTranslation(midx,midy);
+                            at2.rotate(-theta);
+                            at2.scale(scaleX,scaleY);
+                            op = new AffineTransformOp(at2,hints);
+                            image2 =  op.filter(image, null);
+                            graphic.drawImage(image2,x,y,null);
+                            if( Math.abs(x-endX)<=xInc ) break;
+                            x += xInc;
+                            d += m;
+                            if( d > hx){
+                                y+=yInc;
+                                d-=c;
+                            }
+                        }
+                    }else{
+                        c=2*hy;
+                        m=2*hx;
+                        for(int i=0;;i++){
+                            _log.debug("plotting at ("+x+","+y+")");
+                            at2.setToTranslation(midx,midy);
+                            at2.rotate(theta);
+                            at2.scale(scaleX,scaleY);
+                            op = new AffineTransformOp(at2,hints);
+                            image2 =  op.filter(image, null);
+                            graphic.drawImage(image2,x,y,null);
+                            if( Math.abs(y-endY)<=yInc ) break;
+                            y+= yInc;
+                            d += m;
+                            if(d > hy ){
+                                x+=xInc;
+                                d-=c;
+                            }
+                        }
                     }
                     break;
             }
@@ -759,10 +828,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             pi.next();
         }
         _log.debug("finished preparing background");
-        java.awt.TexturePaint tp = new java.awt.TexturePaint(img,rect);
-        graphic.setPaint(tp);
-        graphic.draw(path);
+        //java.awt.TexturePaint tp = new java.awt.TexturePaint(img,rect);
+        //graphic.setPaint(tp);
+        
+        //graphic.draw(path);
+        
+        //graphic.setPaint(Color.black);
         //Shape lines = graphic.getStroke().createStrokedShape(path);
+        //graphic.setStroke(new BasicStroke());
         //graphic.draw(lines);
     }
     /**
