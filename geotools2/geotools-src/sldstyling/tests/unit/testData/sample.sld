@@ -83,14 +83,7 @@ A styling layer used for the unit tests of sldstyler
     <FeatureTypeStyle>
         <FeatureTypeName>linefeature3</FeatureTypeName>
         <Rule>
-        <LineSymbolizer>
-          <Stroke>
-            <CssParameter name="width">
-                    <literal>1</literal>
-            </CssParameter>
-            <CssParameter name="stroke"><literal>#FF0000</literal></CssParameter>
-          </Stroke>
-        </LineSymbolizer>
+        
         <LineSymbolizer>
            <!-- A stroke describes how the line looks -->
           <Stroke>
@@ -116,7 +109,14 @@ A styling layer used for the unit tests of sldstyler
             </GraphicStroke>    
           </Stroke>
         </LineSymbolizer>
-
+        <LineSymbolizer>
+          <Stroke>
+            <CssParameter name="width">
+                    <literal>1</literal>
+            </CssParameter>
+            <CssParameter name="stroke"><literal>#FF0000</literal></CssParameter>
+          </Stroke>
+        </LineSymbolizer>
     </Rule>
     </FeatureTypeStyle>
     <!-- a feature type for polygons -->
@@ -171,13 +171,13 @@ A styling layer used for the unit tests of sldstyler
       <Rule>
         
         <PolygonSymbolizer>
-        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
+        
           <Fill>
             <GraphicFill>
                 <graphic>
                     <size>20</size>
                     <externalGraphic>
-                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/blob.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/brick1.gif"/>
                         <format>image/gif</format>
                     </externalGraphic>
                     
