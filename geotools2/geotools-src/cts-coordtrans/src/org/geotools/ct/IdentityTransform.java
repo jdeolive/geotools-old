@@ -35,23 +35,10 @@
  */
 package org.geotools.ct;
 
-// Geotools dependencies and resources
+// Miscellaneous
+import java.io.Serializable;
 import org.geotools.pt.Matrix;
 import org.geotools.pt.CoordinatePoint;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.cts.Resources;
-import org.geotools.resources.cts.ResourceKeys;
-import org.geotools.resources.XAffineTransform;
-
-// J2SE, JAI and vecmath dependencies
-import java.io.Serializable;
-import java.util.Arrays;
-import java.awt.Shape;
-import java.awt.geom.Point2D;
-import javax.vecmath.GMatrix;
-import javax.vecmath.SingularMatrixException;
-import javax.media.jai.ParameterList;
-import javax.media.jai.util.Range;
 
 
 /**
@@ -60,7 +47,7 @@ import javax.media.jai.util.Range;
  * For 2D identity transform, {@link java.awt.geom.AffineTransform} is already
  * optimized. For 1D transform, {@link IdentityTransform1D} is the class to use.
  *
- * @version $Id: IdentityTransform.java,v 1.1 2002/07/24 17:14:21 desruisseaux Exp $
+ * @version $Id: IdentityTransform.java,v 1.2 2002/07/24 18:01:17 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
