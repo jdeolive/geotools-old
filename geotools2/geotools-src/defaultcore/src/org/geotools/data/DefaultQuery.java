@@ -16,24 +16,20 @@
  */
 package org.geotools.data;
 
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
-import java.util.Iterator;
 import java.util.List;
 
 
 /**
- * The query object is used by the {@link DataSource#GetFeature} method of the
- * DataSource interface, to encapsulate a request.  It defines which feature
- * type  to query, what properties to retrieve and what constraints (spatial
- * and non-spatial) to apply to those properties.  It is designed to  closesly
- * match a WFS Query element of a GetFeature request.   The only difference is
- * the addition of the maxFeatures element, which  allows more control over
- * the features selected.  It allows a full  GetFeature request to properly
- * control how many features it gets from each query, instead of requesting
- * and discarding when the max is reached.
+ * The query object is used by the {@link DataSource#GetFeature()} method of
+ * the DataSource interface, to encapsulate a request.  It defines which
+ * feature type  to query, what properties to retrieve and what constraints
+ * (spatial and non-spatial) to apply to those properties.  It is designed to
+ * closesly match a WFS Query element of a GetFeature request.   The only
+ * difference is the addition of the maxFeatures element, which  allows more
+ * control over the features selected.  It allows a full  GetFeature request
+ * to properly control how many features it gets from each query, instead of
+ * requesting and discarding when the max is reached.
  *
  * @author Chris Holmes
  */
@@ -68,9 +64,17 @@ public class DefaultQuery implements Query {
         this.filter = filter;
     }
 
+    /**
+     * Constructor with typeName and filter.  Note that current datasource
+     * implementations only have one type per datasource, so the typeName
+     * field will likely be ignored.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     * @param filter the OGC filter to constrain the request.
+     */
     public DefaultQuery(String typeName, Filter filter) {
-	this(filter);
-	this.typeName = typeName;
+        this(filter);
+        this.typeName = typeName;
     }
 
     /**
@@ -90,11 +94,11 @@ public class DefaultQuery implements Query {
      * @param typeName the name of the featureType to retrieve.
      * @param filter the OGC filter to constrain the request.
      * @param maxFeatures the maximum number of features to be returned.
-     * @param properties an array of the properties to fetch.
+     * @param propNames an array of the properties to fetch.
      * @param handle the name to associate with the query.
      */
     public DefaultQuery(String typeName, Filter filter, int maxFeatures,
-        String[] propertyNames, String handle) {
+        String[] propNames, String handle) {
         this(filter, propertyNames);
         this.maxFeatures = maxFeatures;
         this.handle = handle;
@@ -122,7 +126,6 @@ public class DefaultQuery implements Query {
      * <p></p>
      *
      * @return the property names to be used in the returned FeatureCollection.
-     *
      */
     public String[] getPropertyNames() {
         return properties;
@@ -133,9 +136,9 @@ public class DefaultQuery implements Query {
      * properties is set to true then the AttributeTypes that are not in the
      * database's schema will just be filled with null values.
      *
-     * @param properties The attribute Types to load from the datasouce.
+     * @param propNames The names of attributes to load from the datasouce.
      */
-    public void setPropertyNames(String[] propertyNames) {
+    public void setPropertyNames(String[] propNames) {
         this.properties = propertyNames;
     }
 
@@ -143,21 +146,13 @@ public class DefaultQuery implements Query {
      * Sets the proper attributeTypes constructed from a schema and a  list of
      * propertyNames.
      *
-     * @param schema The schema to validate the propertyNames against.
-     * @param propertyNames the names of the properties to check against the
+     * @param propNames the names of the properties to check against the
      *        schema. If null or of size 0 then all attributes from the schema
      *        should be fetched.
-     *
-     * @throws SchemaException if any of the propertyNames do not have an
-     *         attributeType of the same name in the schema.
-     *
-     * @task REVISIT: perhaps a boolean to not throw exceptions?  Just return
-     *       all propertynames that match the schema, leave them out if they
-     *       don't match.
      */
-    public void setPropertyNames(List propertyNames)
-        throws SchemaException {
-        this.properties = (String [])propertyNames.toArray();
+    public void setPropertyNames(List propNames) {
+        String[] stringArr = new String[propNames.size()];
+        this.properties = (String[]) propNames.toArray(stringArr);
     }
 
     /**
@@ -174,69 +169,6 @@ public class DefaultQuery implements Query {
     public boolean retrieveAllProperties() {
         return properties == null;
     }
-
-    /**
-     * Convenience method to get valid properties given a schema and a list of
-     * propertyNames.  It checks the property names against the schema,
-     * throwing a schema exception if a requested propertyName is not in the
-     * schema.  This method should be used by users who only have a list of
-     * the property names and not the attributeTypes.
-     *
-     * @param schema The schema to validate the propertyNames against.
-     * @param propertyNames the names of the properties to check against the
-     *        schema. If null or of size 0 then all attributes from the schema
-     *        should be fetched.
-     *
-     * @return an array of properties of the propertyNames with types from the
-     *         passed in schema.
-     *
-     * @throws SchemaException if any of the propertyNames do not have an
-     *         attributeType of the same name in the schema.
-     *
-     * @task REVISIT: perhaps a boolean to not throw exceptions?  Just return
-     *       all propertynames that match the schema, leave them out if they
-     *       don't match.
-     * @task REVISIT: private?  package?  Somewhere in feature package? Someone
-     *       might want to use it.
-     */
-    /*public static AttributeType[] getValidProperties(FeatureType schema,
-        List propertyNames) throws SchemaException {
-        if ((propertyNames == null) || (propertyNames.size() == 0)) {
-            return schema.getAttributeTypes();
-        } else {
-            String[] properties = new AttributeType[propertyNames.size()];
-            int i = 0;
-
-            for (Iterator iter = propertyNames.iterator(); iter.hasNext();
-                    i++) {
-                String curPropName = iter.next().toString();
-
-                //process typeName prefixes here?  Like road.nlanes, road/nlanes,
-                //or rns:nlanes?  Change them all to just nlanes?
-                properties[i] = schema.getAttributeType(curPropName);
-
-                if (properties[i] == null) {
-                    //report the available props in the error report.
-                    AttributeType[] available = schema.getAttributeTypes();
-                    StringBuffer props = new StringBuffer();
-
-                    for (int j = 0; j < available.length; j++) {
-                        props.append(available[j].getName());
-
-                        if (j < (available.length - 1)) {
-                            props.append(", ");
-                        }
-                    }
-
-                    throw new SchemaException("property name: " + curPropName +
-                        " is " + "not a part of featureType" +
-                        ", the available properties" + " are: " + props);
-                }
-            }
-
-            return properties;
-        }
-	}*/
 
     /**
      * The optional maxFeatures can be used to limit the number of features
@@ -375,7 +307,7 @@ public class DefaultQuery implements Query {
      * @throws UnsupportedOperationException if a user attempts to use this
      *         method - no versioning supported yet.
      */
-    public String getVersion() {
+    public String getVersion() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("No feature versioning yet");
     }
 
@@ -403,7 +335,7 @@ public class DefaultQuery implements Query {
             return returnString + " ALL ]";
         } else {
             for (int i = 0; i < properties.length; i++) {
-                returnString.append(properties[i].toString());
+                returnString.append(properties[i]);
 
                 if (i < (properties.length - 1)) {
                     returnString.append(", ");
