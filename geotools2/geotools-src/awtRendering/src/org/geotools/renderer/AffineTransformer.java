@@ -18,18 +18,20 @@ public class AffineTransformer implements CoordinateTransformer {
     double[][] matrix;
     /** Creates a new instance of AffineTransformer */
     public AffineTransformer(Envelope map,Rectangle screen) {
-        System.out.println("map "+map.getWidth()+" screen "+screen.width);
-        double scale = screen.width/map.getWidth();
+        System.out.println("map W:"+map.getWidth()+" screen "+screen.width);
+        System.out.println("map H:"+map.getHeight()+" screen "+screen.height);
+        double scale = Math.min(screen.height/map.getHeight(),screen.width/map.getWidth());
         System.out.println("Scale is "+scale);
         double angle = 0;//-Math.PI/8d;// rotation angle
         double tx = -map.getMinX()*scale; // x translation - mod by ian
-        double ty = screen.getHeight();// + (-map.getMinY()*scale);// y translation
+        double ty = map.getMinY()*scale + screen.height;// y translation
         System.out.println("x shift = "+tx+" y shift is "+ty);
         
         double sc = scale*Math.cos(angle);
         double ss = scale*Math.sin(angle);
         
-        double t[][] = {{sc,ss,tx},{-ss,sc,ty}};
+        double t[][] = {{sc,ss,tx},
+                        {-ss,sc,ty}};
         t[1][1] = -t[1][1];//flip by y axis
         matrix = t;
     }
@@ -49,7 +51,7 @@ public class AffineTransformer implements CoordinateTransformer {
     public Coordinate transform(Coordinate in) {
         Coordinate out = new Coordinate();
         out.x = matrix[0][0]*in.x + matrix[0][1]*in.y +matrix[0][2];
-        out.y = matrix[1][0]*in.x + matrix[1][1]*in.y +matrix[1][2];
+        out.y = matrix[1][0]*in.x + matrix[1][1]*in.y +matrix[1][2] ;
         return out;
     }
     

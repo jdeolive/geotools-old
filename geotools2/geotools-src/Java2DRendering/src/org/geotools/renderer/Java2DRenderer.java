@@ -36,6 +36,7 @@ import com.vividsolutions.jts.geom.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
+import java.awt.geom.Point2D;
 
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private Graphics2D graphics;
@@ -51,21 +52,44 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
        screenSize = bounds;
     }
     
-    public void render(Feature features[], Envelope e,Style s){
+    public void render(Feature features[], Envelope map,Style s){
         if(graphics==null) return;
         System.out.println("renderering "+features.length+" features");
         //GeometryTransformer transform = new GeometryTransformer(new AffineTransformer(e,component.getBounds()));
         
         AffineTransform at = new AffineTransform();
         
-        double scale = screenSize.getWidth()/e.getWidth();
+
+        double scale = Math.min(screenSize.getHeight()/map.getHeight(),
+                screenSize.getWidth()/map.getWidth());
         System.out.println("scale is "+scale);
-        System.out.println("e minX "+e.getMinX()+ " width "+e.getWidth());
+        System.out.println("e minX "+map.getMinX()+ " width "+map.getWidth());
         //System.out.println("translation is "+(-e.getMinX()*scale)+","+screenSize.getHeight());
         //at.setToTranslation(-e.getMinX()*scale,screenSize.getHeight());
-        System.out.println("translation is "+(-e.getMinX()*scale)+","+(screenSize.getHeight()+ (-e.getMinY()*scale)));
-        at.setToTranslation(-e.getMinX(),(screenSize.getHeight()));
-        at.scale(scale,-scale);
+        System.out.println("translation is "+(-map.getMinX()*scale)+","+(-scale*(-screenSize.getHeight()/scale - map.getMinY())));
+        //at.setToTranslation(-map.getMinX(),(-map.getMinY()-(screenSize.getHeight()/scale)));
+        //at.scale(scale,-scale);
+        //at = AffineTransform.getTranslateInstance(-map.getMinX()*scale,map.getMinY()*scale);
+        //AffineTransform scaler = AffineTransform.getScaleInstance(scale,-scale);
+        //AffineTransform trans = AffineTransform.getTranslateInstance(0,screenSize.getHeight());
+        
+        //at.concatenate(scaler);
+        //at.concatenate(trans);
+        double angle = 0;//-Math.PI/8d;// rotation angle
+        double tx = -map.getMinX()*scale; // x translation - mod by ian
+        double ty = map.getMinY()*scale + screenSize.getHeight();// y translation
+        System.out.println("x shift = "+tx+" y shift is "+ty);
+        
+        double sc = scale*Math.cos(angle);
+        double ss = scale*Math.sin(angle);
+        
+        
+        at = new AffineTransform(sc,-ss,ss,-sc,tx,ty);
+        Point2D testPoint = new Point2D.Double();
+        testPoint.setLocation(map.getMinX(),map.getMinY());
+        at.transform(testPoint,testPoint);
+        System.out.println("origin "+map.getMinX()+","+map.getMinY()+"\ntrans "
+            +testPoint.toString());
         graphics.setTransform(at);
         
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
