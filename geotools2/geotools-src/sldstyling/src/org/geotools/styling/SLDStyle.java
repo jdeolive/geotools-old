@@ -12,7 +12,7 @@ package org.geotools.styling;
  *
  * @author  iant
  *
- * @version $Id: SLDStyle.java,v 1.2 2002/05/28 09:39:44 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.3 2002/05/29 14:51:19 ianturton Exp $
  */
 
 import org.w3c.dom.*;
@@ -23,6 +23,8 @@ import java.io.*;
 import java.util.*;
 
 public class SLDStyle implements org.geotools.styling.Style {
+    private static org.apache.log4j.Category _log = 
+        org.apache.log4j.Category.getInstance("sldstyling.styling");    
     private String abstractStr = new String();
     private String name = new String();
     private String title = new String();
@@ -244,7 +246,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 symbolizers.add(parsePolygonSymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("PointSymbolizer")){
-                //symoblizers.add(parsePointSymbolizer(child));
+                symbolizers.add(parsePointSymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("TextSymbolizer")){
                 //symbolizers.add(parseTextymbolizer(child));
@@ -268,8 +270,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                // hmm I don't understand the spec here?
-                // TODO: read spec carefully
+                //symbol.setGeometryPropertyName(child.getNodeValue());
             }
             if(child.getNodeName().equalsIgnoreCase("Stroke")){
                 symbol.setStroke(parseStroke(child));
@@ -301,15 +302,108 @@ public class SLDStyle implements org.geotools.styling.Style {
         }
         return symbol;
     }
+    
+    public PointSymbolizer parsePointSymbolizer(Node root){
+        DefaultPointSymbolizer symbol = new DefaultPointSymbolizer();
+        symbol.setGraphic(null);
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("Geometry")){
+                symbol.setGeometryPropertyName(child.getNodeValue());
+            }
+            if(child.getNodeName().equalsIgnoreCase("Graphic")){
+                symbol.setGraphic(parseGraphic(child));
+            }
+        }
+        return symbol;
+    }
+    private Graphic parseGraphic(Node root){
+        DefaultGraphic graphic = new DefaultGraphic();
+        
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("Geometry")){
+                // hmm I don't understand the spec here?
+                // TODO: read spec carefully
+            }
+            if(child.getNodeName().equalsIgnoreCase("ExternalGraphic")){
+                graphic.addExternalGraphic(parseExternalGraphic(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Mark")){
+                graphic.addMark(parseMark(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("opacity")){
+                graphic.setOpacity(Double.parseDouble(child.getFirstChild().getNodeValue()));
+            }
+            if(child.getNodeName().equalsIgnoreCase("size")){
+                graphic.setSize(Double.parseDouble(child.getFirstChild().getNodeValue()));
+            }
+            if(child.getNodeName().equalsIgnoreCase("rotation")){
+                graphic.setRotation(Double.parseDouble(child.getFirstChild().getNodeValue()));
+            }
+        }
+        return graphic;
+    }
+    private Mark parseMark(Node root){
+        DefaultMark mark = new DefaultMark();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            if(child.getNodeName().equalsIgnoreCase("Stroke")){
+                mark.setStroke(parseStroke(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Fill")){
+                mark.setFill(parseFill(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("WellKnownName")){
+                _log.debug("setting mark to "+child.getFirstChild().getNodeValue());
+                if(!mark.setWellKnownName(child.getFirstChild().getNodeValue())){
+                    return null;
+                }
+            }
+        }
+        return mark;
+    }
+    
+    private ExternalGraphic parseExternalGraphic(Node root){
+        DefaultExternalGraphic extgraph = new DefaultExternalGraphic();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            if(child.getNodeName().equalsIgnoreCase("OnLineResource")){
+                extgraph.setURI(child.getNodeValue());
+            }
+            if(child.getNodeName().equalsIgnoreCase("format")){
+                extgraph.setFormat(child.getNodeValue());
+            }
+        }
+        return extgraph;
+    }
     private Stroke parseStroke(Node root){
         DefaultStroke stroke = new DefaultStroke();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
         if(list.getLength()>0){
-            stroke.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
+            //stroke.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
         }
         list = ((Element)root).getElementsByTagName("GraphicStroke");
         if(list.getLength()>0){
-            stroke.setGraphicStroke(new DefaultGraphic(list.item(0).getNodeValue()));
+            //stroke.setGraphicStroke(new DefaultGraphic(list.item(0).getNodeValue()));
         }
         list = ((Element)root).getElementsByTagName("CssParameter");
         for(int i=0;i<list.getLength();i++){
@@ -365,7 +459,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         DefaultFill fill = new DefaultFill();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
         if(list.getLength()>0){
-            fill.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
+            //fill.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
         }
         list = ((Element)root).getElementsByTagName("CssParameter");
         for(int i=0;i<list.getLength();i++){
