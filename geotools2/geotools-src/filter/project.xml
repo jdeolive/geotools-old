@@ -13,7 +13,7 @@
     </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
-  <shortDescription>Implementation of OpenGIS Filter specification</shortDescription>
+  <shortDescription>OGC Filter parsing module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description><![CDATA[Classes for reading OGC Filters which are encoded in their standard XML format.
 ]]></description>
@@ -44,7 +44,16 @@
             </roles>
         </developer>
     
-  </developers>
+        <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+      <roles>
+      <role>Java Developer</role>
+      </roles>
+    </developer>
+    </developers>
   <dependencies>
     <dependency>
       <id>core</id>
