@@ -58,7 +58,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.81 2003/06/12 15:39:05 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.82 2003/06/16 12:02:39 ianturton Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -163,7 +163,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
     }
 
     public void render(java.awt.Graphics2D g2,java.awt.Rectangle r) {
-        throw new RuntimeException("FIX ME");
+        graphics = g2;
+        screenSize = r;
     }
 
     /**
