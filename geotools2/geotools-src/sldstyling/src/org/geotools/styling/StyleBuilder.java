@@ -1436,7 +1436,7 @@ public class StyleBuilder {
 
         String colorCode = "#" + redCode + greenCode + blueCode;
 
-        return ff.createLiteralExpression(colorCode);
+        return ff.createLiteralExpression(colorCode.toUpperCase());
     }
 
     /**
