@@ -33,10 +33,10 @@ import com.vividsolutions.jts.geom.LineString;
  * LineNoSelfIntersectFeatureValidation purpose.
  * 
  * <p>
- * Tests to see if a geometry intersects itself. It does not detect if a
+ * Tests to see if a geometry crosses itself. It does not detect if a
  * segment of a LineString doubles back on itself for one segment, then
  * terminates. A different validation is needed to test overlapping. Uses JTS'
- * intersect routine.
+ * crosses routine.
  * </p>
  * 
  * <p>
@@ -49,7 +49,8 @@ import com.vividsolutions.jts.geom.LineString;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: LineNoSelfIntersectValidation.java,v 1.5 2004/04/21 11:07:10 jive Exp $
+ * @version $Id: LineNoSelfIntersectValidation.java,v 1.6 2004/04/26 21:03:42 jive Exp $
+ * - bowens: changed intersects to crosses
  */
 public class LineNoSelfIntersectValidation extends DefaultFeatureValidation {
     /** The logger for the validation module. */
@@ -145,10 +146,10 @@ public class LineNoSelfIntersectValidation extends DefaultFeatureValidation {
              {
                 if ((i != j) && ((i - 1) != j) && ((i + 1) != j)) // if they aren't the same segment
                  {
-                    if (segments[i].intersects(segments[j])) // if they intersect
+                    if (segments[i].crosses(segments[j])) // changed to crosses - bowens
                      {
                         // log the error and return
-                        results.error(feature, "LineString intersected itself");
+                        results.error(feature, "LineString crossed itself");
                         return false;
                     }
                 }
