@@ -12,7 +12,7 @@ package org.geotools.styling;
  *
  * @author  iant
  *
- * @version $Id: SLDStyle.java,v 1.4 2002/05/30 18:10:20 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.5 2002/06/03 10:04:48 ianturton Exp $
  */
 
 import org.w3c.dom.*;
@@ -25,8 +25,8 @@ import java.util.*;
 import org.geotools.filter.*;
 
 public class SLDStyle implements org.geotools.styling.Style {
-    private static org.apache.log4j.Category _log =
-    org.apache.log4j.Category.getInstance("sldstyling.styling");
+    private static org.apache.log4j.Logger _log =
+    org.apache.log4j.Logger.getLogger(SLDStyle.class);
     private String abstractStr = new String();
     private String name = new String();
     private String title = new String();
@@ -102,7 +102,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * @param name New value of property name.
      */
     private void setName(java.lang.String name) {
-        System.out.println("setting name "+name);
+        _log.debug("setting name "+name);
         this.name = name;
     }
     
@@ -111,7 +111,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * @param abstractStr New value of property abstractStr.
      */
     private void setAbstract(java.lang.String abstractStr) {
-        System.out.println("setting abstract "+abstractStr);
+        _log.debug("setting abstract "+abstractStr);
         this.abstractStr = abstractStr;
     }
     
@@ -119,7 +119,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * @param title New value of property title.
      */
     private void setTitle(java.lang.String title) {
-        System.out.println("setting title "+title);
+        _log.debug("setting title "+title);
         this.title = title;
     }
     
@@ -145,14 +145,14 @@ public class SLDStyle implements org.geotools.styling.Style {
         //System.out.println(""+root.printNodes());
         
         NodeList children = n.getChildNodes();
-        System.out.println(""+children.getLength()+" children to process");
+        _log.debug(""+children.getLength()+" children to process");
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);
             if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
                 continue;
             }
             
-            System.out.println("processing "+child.getNodeName());
+            _log.debug("processing "+child.getNodeName());
             //System.out.println("hasChildren "+child.hasChildNodes()+" attribs "+child.hasAttributes());
             if( child.getNodeName().equalsIgnoreCase("Name")){
                 setName(child.getFirstChild().getNodeValue());
@@ -171,11 +171,10 @@ public class SLDStyle implements org.geotools.styling.Style {
         
     }
     private FeatureTypeStyle parseFeatureTypeStyle(Node style){
-        System.out.println("Parsing featuretype style "+style.getNodeName());
+        _log.debug("Parsing featuretype style "+style.getNodeName());
         DefaultFeatureTypeStyle ft = new DefaultFeatureTypeStyle();
         
         ArrayList rules = new ArrayList();
-        //System.out.println(""+style.toString());
         NodeList children = style.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);
@@ -183,7 +182,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 continue;
             }
             
-            System.out.println("processing "+child.getNodeName());
+            _log.debug("processing "+child.getNodeName());
             if( child.getNodeName().equalsIgnoreCase("Name")){
                 ft.setName(child.getFirstChild().getNodeValue());
             }
@@ -210,10 +209,9 @@ public class SLDStyle implements org.geotools.styling.Style {
         return ft;
     }
     private Rule parseRule(Node ruleNode){
-        System.out.println("Parsing rule "+ruleNode.getNodeName());
+        _log.debug("Parsing rule "+ruleNode.getNodeName());
         DefaultRule rule = new DefaultRule();
         ArrayList symbolizers = new ArrayList();
-        //System.out.println(""+style.toString());
         NodeList children = ruleNode.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);
@@ -221,7 +219,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 continue;
             }
             
-            System.out.println("processing "+child.getNodeName());
+            _log.debug("processing "+child.getNodeName());
             if( child.getNodeName().equalsIgnoreCase("Name")){
                 rule.setName(child.getFirstChild().getNodeValue());
             }
@@ -413,32 +411,31 @@ public class SLDStyle implements org.geotools.styling.Style {
             if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
                 continue;
             }
-            System.out.println("now I am processing "+child);
+            _log.debug("now I am processing "+child);
             Element param = (Element)child;
             NamedNodeMap map =  param.getAttributes();
             
-            System.out.println("attributes "+map.toString());
+            _log.debug("attributes "+map.toString());
             for(int k=0;k<map.getLength();k++){
                 String res = map.item(k).getNodeValue();
-                System.out.println("processing attribute "+res);
+                _log.debug("processing attribute "+res);
                 
                 if(res.equalsIgnoreCase("stroke")){
-                    System.out.println("setting color "+child.getFirstChild().getNodeValue());
-                    stroke.setColor(parseCSSParameter(child));
+                    stroke.setColor(parseCssParameter(child));
                 }
                 if(res.equalsIgnoreCase("width")||res.equalsIgnoreCase("stroke-width")){
-                    stroke.setWidth(parseCSSParameter(child));
+                    stroke.setWidth(parseCssParameter(child));
                 }
                 if(res.equalsIgnoreCase("opacity")||res.equalsIgnoreCase("stroke-opacity")){
-                    stroke.setOpacity(parseCSSParameter(child));
+                    stroke.setOpacity(parseCssParameter(child));
                 }
                 if(res.equalsIgnoreCase("linecap")||res.equalsIgnoreCase("stroke-linecap")){
                     // since these are system-dependent just pass them through and hope.
-                    stroke.setLineCap(parseCSSParameter(child));
+                    stroke.setLineCap(parseCssParameter(child));
                 }
                 if(res.equalsIgnoreCase("linejoin")||res.equalsIgnoreCase("stroke-linejoin")){
                     // since these are system-dependent just pass them through and hope.
-                    stroke.setLineJoin(parseCSSParameter(child));
+                    stroke.setLineJoin(parseCssParameter(child));
                 }
                 if(res.equalsIgnoreCase("dasharray")||res.equalsIgnoreCase("stroke-dasharray")){
                     StringTokenizer stok = new StringTokenizer(child.getFirstChild().getNodeValue()," ");
@@ -450,16 +447,187 @@ public class SLDStyle implements org.geotools.styling.Style {
                     stroke.setDashArray(dashes);
                 }
                 if(res.equalsIgnoreCase("dashoffset")||res.equalsIgnoreCase("stroke-dashoffset")){
-                    stroke.setDashOffset(parseCSSParameter(child));
+                    stroke.setDashOffset(parseCssParameter(child));
                 }
             }
         }
         return stroke;
     }
-    private Expression parseCSSParameter(Node root){
+    
+        private Fill parseFill(Node root){
+        DefaultFill fill = new DefaultFill();
+        NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
+        if(list.getLength()>0){
+            //fill.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
+        }
+        list = ((Element)root).getElementsByTagName("CssParameter");
+        for(int i=0;i<list.getLength();i++){
+            Node child = list.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            Element param = (Element)child;
+            NamedNodeMap map =  param.getAttributes();
+            _log.debug("now I am processing "+child);
+            _log.debug("attributes "+map.toString());
+            for(int k=0;k<map.getLength();k++){
+                String res = map.item(k).getNodeValue();
+                _log.debug("processing attribute "+res);
+                
+                if(res.equalsIgnoreCase("fill")){
+                    fill.setColor(parseCssParameter(child));
+                }
+                
+                if(res.equalsIgnoreCase("opacity")||res.equalsIgnoreCase("fill-opacity")){
+                    fill.setOpacity(parseCssParameter(child));
+                }
+            }
+        }
+        return fill;
+        
+    }
+    private Expression parseCssParameter(Node root){
+        _log.info("parsingCssParam "+root);
         NodeList children = root.getChildNodes();
-        if(children.item(0).getNodeType()== Node.TEXT_NODE){
-            String nodeValue = children.item(0).getNodeValue();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            _log.debug("about to parse "+child.getNodeName());
+            return parseExpression(child);
+        }
+        _log.debug("no children in CssParam");
+      
+            Element literal = dom.createElement("literal");
+            Node child = dom.createTextNode(root.getFirstChild().getNodeValue());
+            
+            
+            literal.appendChild(child);
+            _log.debug("Built new literal "+literal);
+            return parseExpression(literal);
+    }
+    
+    private Expression parseExpression(Node root){
+        _log.info("parsingExpression "+root.getNodeName());
+        
+        //NodeList children = root.getChildNodes();
+        //_log.debug("children "+children);
+        
+        if(root == null || root.getNodeType() != Node.ELEMENT_NODE){
+            _log.debug("bad node input ");
+            return null;
+        }
+        _log.debug("processing root "+root.getNodeName());
+        Node child = root;
+        if(child.getNodeName().equalsIgnoreCase("add")){
+            try{
+                _log.info("processing an Add");
+                Node left=null,right=null;
+                
+                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_ADD);
+                Node value = child.getFirstChild();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                _log.debug("add left value -> "+value+"<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                _log.debug("add right value -> "+value+"<-");
+                math.addRightValue(parseExpression(value));
+                return math;
+            }catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+                return null;
+            }
+        }
+        if(child.getNodeName().equalsIgnoreCase("sub")){
+            try{
+                NodeList kids = child.getChildNodes();
+                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_SUBTRACT);
+                math.addLeftValue(parseExpression(child.getFirstChild()));
+                math.addRightValue(parseExpression(child.getLastChild()));
+                return math;
+            }catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+                return null;
+            }
+        }
+        if(child.getNodeName().equalsIgnoreCase("mul")){
+            try{
+                NodeList kids = child.getChildNodes();
+                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_MULTIPLY);
+                math.addLeftValue(parseExpression(child.getFirstChild()));
+                math.addRightValue(parseExpression(child.getLastChild()));
+                return math;
+            }catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+                return null;
+            }
+        }
+        if(child.getNodeName().equalsIgnoreCase("div")){
+            try{
+                NodeList kids = child.getChildNodes();
+                ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_DIVIDE);
+                math.addLeftValue(parseExpression(child.getFirstChild()));
+                math.addRightValue(parseExpression(child.getLastChild()));
+                return math;
+            }catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+                return null;
+            }
+        }
+        if(child.getNodeName().equalsIgnoreCase("Literal")){
+            
+            String nodeValue = child.getFirstChild().getNodeValue();
+            _log.info("processing literal "+nodeValue);
+            // see if its an int
+            try{
+                try{
+                    Integer I = new Integer(nodeValue);
+                    _log.debug("An integer");
+                    return new ExpressionLiteral(I);
+                } catch (NumberFormatException e){
+                    /* really empty */
+                }
+                try{
+                    Double D = new Double(nodeValue);
+                    _log.debug("A double");
+                    return new ExpressionLiteral(D);
+                } catch (NumberFormatException e){
+                    /* really empty */
+                }
+                _log.debug("defaulting to string");
+                return new ExpressionLiteral(nodeValue);
+            } catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+                return null;
+            }
+            
+            
+        }
+        if(child.getNodeName().equalsIgnoreCase("PropertyName")){
+            //try{
+            NodeList kids = child.getChildNodes();
+            ExpressionAttribute attribute = new ExpressionAttribute();
+            attribute.setAttributePath(child.getFirstChild().getNodeValue());
+            return attribute;
+                /* }catch (IllegalFilterException ife){
+                    _log.error("Unable to build expression ",ife);
+                    return null;
+                } */
+        }
+        if(child.getNodeName().equalsIgnoreCase("Function")){
+            
+            // TODO: should have a name and a (or more?) expressions
+            // TODO: find out what really happens here
+            
+        }
+        
+        if(child.getNodeType()== Node.TEXT_NODE){
+            _log.debug("processing a text node "+root.getNodeValue());
+            String nodeValue = root.getNodeValue();
+            _log.info("Text name "+nodeValue);
             // see if its an int
             try{
                 try{
@@ -479,49 +647,8 @@ public class SLDStyle implements org.geotools.styling.Style {
                 _log.error("Unable to build expression ",ife);
             }
         }
-        for(int i=0; i<children.getLength(); i++){
-            Node child = children.item(i);
-            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
-                continue;
-            }
-            if(child.getNodeName().equalsIgnoreCase("add")){
-                
-                
-            }
-        }
+        
         return null;
     }
-    private Fill parseFill(Node root){
-        DefaultFill fill = new DefaultFill();
-        NodeList list = ((Element)root).getElementsByTagName("GraphicFill");
-        if(list.getLength()>0){
-            //fill.setGraphicFill(new DefaultGraphic(list.item(0).getNodeValue()));
-        }
-        list = ((Element)root).getElementsByTagName("CssParameter");
-        for(int i=0;i<list.getLength();i++){
-            Node child = list.item(i);
-            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
-                continue;
-            }
-            
-            Element param = (Element)child;
-            NamedNodeMap map =  param.getAttributes();
-            System.out.println("now I am processing "+child);
-            System.out.println("attributes "+map.toString());
-            for(int k=0;k<map.getLength();k++){
-                String res = map.item(k).getNodeValue();
-                System.out.println("processing attribute "+res);
-                
-                if(res.equalsIgnoreCase("fill")){
-                    fill.setColor(child.getFirstChild().getNodeValue());
-                }
-                
-                if(res.equalsIgnoreCase("opacity")||res.equalsIgnoreCase("fill-opacity")){
-                    fill.setOpacity(Double.parseDouble(child.getFirstChild().getNodeValue()));
-                }
-            }
-        }
-        return fill;
-        
-    }
+
 }
