@@ -34,7 +34,36 @@ buildings.  One road and the river run through the zone.
         </LineSymbolizer>
       </Rule>
     </FeatureTypeStyle>
-    
+    <FeatureTypeStyle>
+        <FeatureTypeName>railway</FeatureTypeName>
+        <rule>
+            <LineSymbolizer>
+           <!-- A stroke describes how the line looks -->
+          <Stroke>
+            <!-- the CssParameters describe the actual style 
+                you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
+                stroke-linecap, stroke-dasharray and stroke-dashoffset -->
+            <CssParameter name="stroke">#FF0000</CssParameter>
+            <CssParameter name="stroke-width">10</CssParameter>
+            <GraphicStroke>
+                <Graphic>
+                    <size>10</size>
+                    <ExternalGraphic>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/rail.gif"/>
+                        <format>image/gif</format>
+                    </ExternalGraphic>
+                    <mark>
+                        <wellknownname>arrow</wellknownname>
+                        <fill>
+                            <CssParameter name="fill">#0000FF</CssParameter>
+                        </fill>
+                    </mark>
+                </Graphic>
+            </GraphicStroke>    
+          </Stroke>
+        </LineSymbolizer>
+    </rule>
+    </FeatureTypeStyle>
     <!-- part one of the styling for the roads, this provides the outer case -->
     <FeatureTypeStyle>
         <!-- this describes the featureTypeName to apply this style to e.g. road -->
@@ -49,7 +78,12 @@ buildings.  One road and the river run through the zone.
                 you can set stroke (color of line), stroke-width, stroke-opacity, stroke-linejoin
                 stroke-linecap, stroke-dasharray and stroke-dashoffset -->
             <CssParameter name="stroke">#FF0000</CssParameter>
-            <CssParameter name="stroke-width">6</CssParameter>
+            <CssParameter name="stroke-width">
+                <add>
+                    <propertyName>size</propertyName>
+                    <literal>2</literal>
+                </add>
+            </CssParameter>
           </Stroke>
         </LineSymbolizer>
       </Rule>
@@ -63,7 +97,7 @@ buildings.  One road and the river run through the zone.
         <LineSymbolizer>
           <Stroke>
             <CssParameter name="stroke">#88FF00</CssParameter>
-            <CssParameter name="width">2</CssParameter>
+            <CssParameter name="width"><propertyName>size</propertyName></CssParameter>
           </Stroke>
         </LineSymbolizer>
       </Rule>
@@ -91,12 +125,46 @@ buildings.  One road and the river run through the zone.
       <Rule>
         
         <PolygonSymbolizer>
-        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
-          <Fill>
+            <Fill>
             <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-            <CssParameter name="fill">#FFFF88</CssParameter>
+            <CssParameter name="fill">#FF0000</CssParameter>
             <CssParameter name="fill-opacity">0.5</CssParameter>
+            <GraphicFill>
+                <Graphic>
+                    <size>8</size>
+                    <mark>
+                        <wellknownname>circle</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#FFFF00</CssParameter>
+                            <CssParameter name="fill-opacity">0.5</CssParameter>
+                        </Fill>
+                        <!-- stroke>
+                            <CssParameter name="stroke-width">1</CssParameter>
+                            <CssParameter name="stroke">#00FFFF</CssParameter>
+                        </stroke -->
+                    </mark>
+                </Graphic>
+            </GraphicFill>
           </Fill>
+        <!-- describes the fill of the polygon - if missing the polygon is empty -->  
+          <!-- Fill>
+          <CssParameter name="fill">#FF0000</CssParameter>
+            <CssParameter name="fill-opacity">0.5</CssParameter>
+          <GraphicFill>
+            <graphic>
+                <size>8</size>
+                <mark>
+                    <wellknownname>circle</wellknownname>
+                    <fill>
+                    <CssParameters allowed are fill (the color) and fill-opacity>
+                    <CssParameter name="fill">#FFFF88</CssParameter>
+                    <CssParameter name="fill-opacity">0.5</CssParameter>
+                    </fill>
+                </mark>
+            </graphic>
+            </GraphicFill>
+          </Fill -->
           <Stroke>
             <CssParameter name="stroke-dasharray">2 2 1 2</CssParameter>
           </Stroke>

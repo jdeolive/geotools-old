@@ -18,6 +18,7 @@
                         0,25 30,25
                     </gml:coordinates>
                 </gml:LineString>
+                <ccg:size>5</ccg:size>
         </ccg:road>         
     </ccg:cartographicMember>
     <ccg:cartographicMember>
@@ -31,6 +32,7 @@
                     25,0 25,25
                 </gml:coordinates>
             </gml:LineString>
+            <ccg:size>3</ccg:size>
         </ccg:road>
     </ccg:cartographicMember>
     <ccg:cartographicMember>
@@ -84,6 +86,16 @@
               </gml:outerBoundaryIs>
             </gml:Polygon>
         </ccg:zone>
+    </ccg:cartographicMember>
+    <ccg:cartographicMember>
+        <ccg:railway fid="rail">
+            <ccg:description>Main Railway</ccg:description>
+            <gml:LineString gid="8" srsName="http://?/epsg.xml#ESPG:4326">
+                <gml:coordinates>
+                    5,30 20,15 30,15
+                </gml:coordinates>
+            </gml:LineString>
+        </ccg:railway>
     </ccg:cartographicMember>
 </ccg:featureCollection>
 
