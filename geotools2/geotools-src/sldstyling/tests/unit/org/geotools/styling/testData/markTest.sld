@@ -37,17 +37,12 @@ that allows you to describe the latyer in more detail
             <TextSymbolizer>
                 <Label><PropertyName>name</PropertyName></Label>
                 <Font>
-                    <CssParameter name="font-family">Times New Roman</CssParameter>
+                    <CssParameter name="font-family">SansSerif</CssParameter>
                     <CssParameter name="font-Size">
                         <literal>10</literal>
                     </CssParameter>
                 </Font>
-                <Font>
-                    <CssParameter name="font-family">Arial</CssParameter>
-                    <CssParameter name="font-Size">
-                        <literal>10</literal>
-                    </CssParameter>
-                </Font>
+                
                 <LabelPlacement>
                     <PointPlacement>
                         <AnchorPoint>

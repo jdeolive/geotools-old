@@ -30,17 +30,12 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Point Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">Times New Roman</CssParameter>
+                    <CssParameter name="font-family">SansSerif</CssParameter>
                     <CssParameter name="font-Size">
                         <PropertyName>size</PropertyName>
                     </CssParameter>
                 </Font>
-                <Font>
-                    <CssParameter name="font-family">Arial</CssParameter>
-                    <CssParameter name="font-Size">
-                        <PropertyName>size</PropertyName>
-                    </CssParameter>
-                </Font>
+                
                 <LabelPlacement>
                     <PointPlacement>
                         <Displacement>
@@ -75,17 +70,12 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Line Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">Times New Roman</CssParameter>
+                    <CssParameter name="font-family">SansSerif</CssParameter>
                     <CssParameter name="font-Size">
                         <PropertyName>size</PropertyName>
                     </CssParameter>
                 </Font>
-                <Font>
-                    <CssParameter name="font-family">Arial</CssParameter>
-                    <CssParameter name="font-Size">
-                        <PropertyName>size</PropertyName>
-                    </CssParameter>
-                </Font>
+                
                 <LabelPlacement>
                     <LinePlacement>
                         <PerpendicularOffset>
