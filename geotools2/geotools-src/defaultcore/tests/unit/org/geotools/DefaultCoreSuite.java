@@ -10,6 +10,7 @@ package org.geotools;
 import junit.framework.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
+import org.geotools.filter.*;
 
 /**
  *
@@ -29,6 +30,8 @@ public class DefaultCoreSuite extends TestCase {
         TestSuite suite = new TestSuite("All defaultcore tests");
         suite.addTestSuite(DatasourceTest.class);
         suite.addTestSuite(FeatureFlatTest.class);
+        suite.addTestSuite(ExpressionTest.class);
+        suite.addTestSuite(FilterTest.class);
         return suite;
     }
 }
