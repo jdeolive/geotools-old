@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Center for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -26,18 +26,23 @@ package org.geotools.styling;
 /**
  * This is the parent interface of all Symbolizers.
  * 
- * A symbolizer describes how a feature should appeare ona map.  The symbolizer not just the shape that should appear but also 
+ * A symbolizer describes how a feature should appeare ona map.  
+ * The symbolizer not just the shape that should appear but also 
  * such graphical properties as color and opacity.
  * 
- * A symbolizer is obtained by specifying one of a small number of different types of symbolizer and then supplying parameters to overide its
- * default behaviour.
+ * A symbolizer is obtained by specifying one of a small number of 
+ * different types of symbolizer and then supplying parameters to overide
+ * its default behaviour.
  * 
- * The details of this object are taken from the OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features, though it must be remembered that not all renderers will be able to
- * fully represent strokes as set out by this interface, for example opacity may not be supported.
+ * The details of this object are taken from the 
+ * OGC Styled-Layer Descriptor Report (OGC 01-077) version 0.7.2
+ * Renderers can use this infomration when displaying styled features, 
+ * though it must be remembered that not all renderers will be able to
+ * fully represent strokes as set out by this interface, for example opacity 
+ * may not be supported.
  *
- * The graphical parameters and their values are derived from SVG/CSS2 standards with names and semantics
- * which are as close as possible.<p>
+ * The graphical parameters and their values are derived from SVG/CSS2 
+ * standards with names and semantics which are as close as possible.<p>
  *
  * @author  jamesm
  */

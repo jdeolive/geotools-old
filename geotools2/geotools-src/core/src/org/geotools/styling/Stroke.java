@@ -1,6 +1,6 @@
 /*
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Centre for Computational Geography
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -15,10 +15,7 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
+ *    
  */
 
 package org.geotools.styling;
@@ -38,7 +35,7 @@ package org.geotools.styling;
  * which are as close as possible.<p>
  *
  * @author James Macgill
- * @version $Revision: 1.2 $ $Date: 2002/03/25 22:14:41 $
+ * @version $Revision: 1.3 $ $Date: 2002/03/28 10:54:10 $
  */
 public interface Stroke {
     
@@ -138,6 +135,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.3  2002/03/28 10:54:10  jmacgill
+ * work in progress
+ *
  * Revision 1.2  2002/03/25 22:14:41  jmacgill
  * Updated JavaDocs
  *
