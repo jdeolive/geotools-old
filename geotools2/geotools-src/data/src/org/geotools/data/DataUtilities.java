@@ -364,20 +364,35 @@ public class DataUtilities {
         return featureType.create(defaultValues(featureType));
     }
 
-    public static Feature template(FeatureType featureType, String FeatureID)
+    public static Feature template(FeatureType featureType, String featureID)
         throws IllegalAttributeException {
-        return featureType.create(defaultValues(featureType), FeatureID);
+        return featureType.create(defaultValues(featureType), featureID);
     }
 
     public static Object[] defaultValues(FeatureType featureType)
         throws IllegalAttributeException {
-        Object[] values = new Object[featureType.getAttributeCount()];
-        AttributeType type;
+        return defaultValues(featureType,null);
+    }
+    
+    public static Feature template(FeatureType featureType,Object[] atts)
+        throws IllegalAttributeException {
+        return featureType.create(defaultValues(featureType,atts));
+    }
 
+    public static Feature template(FeatureType featureType, String featureID,Object[] atts)
+        throws IllegalAttributeException {
+        return featureType.create(defaultValues(featureType,atts), featureID);
+    }
+    
+    public static Object[] defaultValues(FeatureType featureType,Object[] values) 
+        throws IllegalAttributeException {
+        if (values == null)
+            values = new Object[featureType.getAttributeCount()];
+        else if (values.length !=  featureType.getAttributeCount())
+            throw new ArrayIndexOutOfBoundsException("values");
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
             values[i] = defaultValue(featureType.getAttributeType(i));
         }
-
         return values;
     }
 
