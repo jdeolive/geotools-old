@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<project basedir="." default="release" name="gmldatasource">
+<project basedir="." default="release" name="shapefile">
 
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="release">
     <property file="build.ant.properties"/>
     <property name="dir.module" value="${basedir}"/>           
-    <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
+    <ant antfile="common.xml" dir="../gtbuild" inheritAll="true" target="all"/>
   </target>
 
   <!-- Now, set your module-specific build targets here -->
