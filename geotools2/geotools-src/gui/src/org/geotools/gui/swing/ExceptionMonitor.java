@@ -104,8 +104,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/ExceptionMonitor.png"></p>
  * <p>&nbsp;</p>
  *
- * $Id: ExceptionMonitor.java,v 1.3 2002/07/15 15:52:38 loxnard Exp $
- * @version 1.0
+ * @version $Id: ExceptionMonitor.java,v 1.4 2002/07/31 08:42:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ExceptionMonitor {

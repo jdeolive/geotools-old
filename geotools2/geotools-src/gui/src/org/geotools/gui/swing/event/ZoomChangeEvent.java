@@ -41,8 +41,7 @@ import java.awt.geom.AffineTransform;
  * An event which indicates that a zoom occurred in a component.
  * This event is usually fired by {@link org.geotools.gui.swing.ZoomPane}.
  *
- * $Id: ZoomChangeEvent.java,v 1.3 2002/07/15 10:32:03 loxnard Exp $
- * @version 1.0
+ * @version $Id: ZoomChangeEvent.java,v 1.4 2002/07/31 08:42:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ZoomChangeEvent extends EventObject {

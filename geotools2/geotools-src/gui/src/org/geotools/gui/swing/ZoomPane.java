@@ -172,11 +172,11 @@ import org.geotools.resources.gui.ResourceKeys;
  * {@linkplain #zoom}. The default implementation sets up the initial zoom
  * in such a way that the following relations are approximately held:
  *
- * <blockquote>
+ * <blockquote><cite>
  * Logical coordinates provided by {@link #getPreferredArea()},
  * after an affine transform described by {@link #zoom},
  * match pixel coordinates provided by {@link #getZoomableBounds(Rectangle)}.
- * </blockquote>
+ * </cite></blockquote>
  *
  * The "preferred area" is initially the same as {@link #getArea()}. The user
  * can specify a different preferred area with {@link #setPreferredArea}. The
@@ -197,16 +197,17 @@ import org.geotools.resources.gui.ResourceKeys;
  * keyboard presses assigned to each zoom:
  *
  * <P><TABLE ALIGN=CENTER BORDER=2>
- * <TR><TD><IMG SRC="doc-files/keyboard/up.png"></TD>        <TD>Scroll up</TD>   <TD><code>"Up"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/down.png"></TD>      <TD>Scroll down</TD>    <TD><code>"Down"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/left.png"></TD>      <TD>Scroll left</TD> <TD><code>"Left"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/right.png"></TD>     <TD>Scroll right</TD> <TD><code>"Right"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/pageDown.png"></TD>  <TD>Zoom in</TD>                <TD><code>"ZoomIn"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/pageUp.png"></TD>    <TD>Zoom out</TD>              <TD><code>"ZoomOut"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/end.png"></TD>       <TD>Zoom</TD>            <TD><code>"Zoom"</code></TD></TR>
- * <TR><TD><IMG SRC="doc-files/keyboard/home.png"></TD>      <TD>Default zoom</TD>           <TD><code>"Reset"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/up.png"></TD>      <TD>Scroll up</TD>   <TD><code>"Up"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/down.png"></TD>    <TD>Scroll down</TD> <TD><code>"Down"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/left.png"></TD>    <TD>Scroll left</TD> <TD><code>"Left"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/right.png"></TD>   <TD>Scroll right</TD><TD><code>"Right"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/pageDown.png"></TD><TD>Zoom in</TD>     <TD><code>"ZoomIn"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/pageUp.png"></TD>  <TD>Zoom out</TD>    <TD><code>"ZoomOut"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/end.png"></TD>     <TD>Zoom</TD>        <TD><code>"Zoom"</code></TD></TR>
+ * <TR><TD><IMG SRC="doc-files/keyboard/home.png"></TD>    <TD>Default zoom</TD><TD><code>"Reset"</code></TD></TR>
+ *
  * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/left.png"></TD> <TD>Anti-clockwise rotation</TD><TD><code>"RotateLeft"</code></TD></TR>
- * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/right.png"></TD><TD>Clockwise rotation</TD>        <TD><code>"RotateRight"</code></TD></TR>
+ * <TR><TD>Ctrl+<IMG SRC="doc-files/keyboard/right.png"></TD><TD>Clockwise rotation</TD>     <TD><code>"RotateRight"</code></TD></TR>
  * </TABLE></P>
  *
  * In this table, the last column gives the Strings by which the different
@@ -219,8 +220,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * $Id: ZoomPane.java,v 1.4 2002/07/22 09:24:18 jmacgill Exp $
- * @version 1.0
+ * @version $Id: ZoomPane.java,v 1.5 2002/07/31 08:42:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent{

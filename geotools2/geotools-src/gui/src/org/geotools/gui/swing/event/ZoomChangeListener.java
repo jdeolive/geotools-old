@@ -40,8 +40,7 @@ import java.util.EventListener;
  * Defines an object which listens for zoom change events. Zoom changes
  * are indicated by an {@link java.awt.geom.AffineTransform}.
  *
- * $Id: ZoomChangeListener.java,v 1.2 2002/07/15 10:32:03 loxnard Exp $
- * @version 1.0
+ * @version $Id: ZoomChangeListener.java,v 1.3 2002/07/31 08:42:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public interface ZoomChangeListener extends EventListener {
