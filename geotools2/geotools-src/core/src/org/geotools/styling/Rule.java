@@ -48,7 +48,7 @@ package org.geotools.styling;
  *
  * 
  *
- * @version $Id: Rule.java,v 1.6 2002/07/25 16:55:33 ianturton Exp $
+ * @version $Id: Rule.java,v 1.7 2002/10/21 16:09:38 ianturton Exp $
  * @author James Macgill
  */
 import org.geotools.filter.Filter;
@@ -64,6 +64,15 @@ public interface Rule {
     double getMinScaleDenominator();
     
     /**
+     * The smallest value for scale denominator at which symbolizers contained
+     * by this rule should be applied.
+     *
+     * @param The smallest (inclusive) denominator value that this rule will
+     *         be active for.
+     **/
+    void setMinScaleDenominator(double scale);
+    
+    /**
      * The largest value for scale denominator at which symbolizers contained
      * by this rule should be applied.
      *
@@ -72,10 +81,19 @@ public interface Rule {
      **/
     double getMaxScaleDenominator();
     
+    /**
+     * The largest value for scale denominator at which symbolizers contained
+     * by this rule should be applied.
+     *
+     * @param The largest (exclusive) denominator value that this rule will
+     *         be active for.
+     **/
+    void setMaxScaleDenominator(double scale);
+    
     public Filter getFilter();
-    
+    public void setFilter(Filter filter);
     public boolean hasElseFilter();
-    
+    public void setIsElseFilter(boolean defaultb);
     /**
      * A set of equivalent Graphics in different formats which can be used
      * as a legend against features stylized by the symbolizers in this
@@ -85,6 +103,16 @@ public interface Rule {
      *         the legend.
      **/
     Graphic[] getLegendGraphic();
+    
+    /**
+     * A set of equivalent Graphics in different formats which can be used
+     * as a legend against features stylized by the symbolizers in this
+     * rule.
+     *
+     * @param An array of Graphic objects, any of which can be used as
+     *         the legend.
+     **/
+    void setLegendGraphic(Graphic[] graphics);
     
     /**
      * The symbolizers contain the actual styling information for different
@@ -105,6 +133,25 @@ public interface Rule {
      *         this rule.
      */
     Symbolizer[] getSymbolizers();
-
+    
+    /**
+     * The symbolizers contain the actual styling information for different
+     * geometry types.  A single feature may be rendered by more than one
+     * of the symbolizers returned by this method.  It is important that the
+     * symbolizers be applied in the order in which they are returned if the
+     * end result is to be as intended.
+     * All symbolizers should be applied to all features which make it through
+     * the filters in this rule regardless of the features' geometry.
+     * For example, a polygon symbolizer should be applied to line geometries
+     * and even points.  If this is not the desired beaviour, ensure that
+     * either the filters block inappropriate features or that the
+     * FeatureTypeStyler which contains this rule has its FeatureTypeName or 
+     * SemanticTypeIdentifier set appropriately.
+     *
+     * @param An array of symbolizers to be applied, in sequence, to all of
+     *         the features addressed by the FeatureTypeStyler which contains
+     *         this rule.
+     */
+    void setSymbolizers(Symbolizer[] symbolizers);
 }
 
