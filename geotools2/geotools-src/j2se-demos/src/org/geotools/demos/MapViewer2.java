@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.23 2003/03/28 19:07:15 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.24 2003/03/29 09:38:43 camerons Exp $
  *
  */
 
@@ -112,7 +112,7 @@ public class MapViewer2 {
             SLDStyle sldStyle = new SLDStyle(
                 styleFactory,
                 ClassLoader.getSystemResource("org/geotools/demos/simple.sld"));
-            Style style=sldStyle.readXML();
+            Style[] style=sldStyle.readXML();
 
             // Create a DataSource
             MemoryDataSource datasource1 = new MemoryDataSource();
@@ -122,11 +122,11 @@ public class MapViewer2 {
 
             // Create a LayerList and Layer
             layerList=contextFactory.createLayerList();
-            layer=contextFactory.createLayer(datasource1,style);
+            layer=contextFactory.createLayer(datasource1,style[0]);
             layer.setTitle("river layer");
             layerList.addLayer(layer);
 
-            layer=contextFactory.createLayer(datasource2,style);
+            layer=contextFactory.createLayer(datasource2,style[0]);
             layer.setTitle("road layer");
             layerList.addLayer(layer);
 
