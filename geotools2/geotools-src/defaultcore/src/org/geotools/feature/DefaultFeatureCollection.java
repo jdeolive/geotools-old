@@ -37,7 +37,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * speed then a {@link HashSet}.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureCollection.java,v 1.5 2003/09/08 18:16:50 ianschneider Exp $
+ * @version $Id: DefaultFeatureCollection.java,v 1.6 2003/12/04 23:17:23 aaime Exp $
  */
 public class DefaultFeatureCollection extends AbstractCollection implements FeatureCollection {
     /** Internal feature storage list */
@@ -103,14 +103,25 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
     /**
      * To let listeners know that something has changed.
      */
-    protected void fireChange() {
+    protected void fireChange(Feature[] features, int type) {
         bounds = null;
 
-        CollectionEvent cEvent = new CollectionEvent(this);
+        CollectionEvent cEvent = new CollectionEvent(this, features, type);
 
         for (int i = 0, ii = listeners.size(); i < ii; i++) {
             ((CollectionListener) listeners.get(i)).collectionChanged(cEvent);
         }
+    }
+    
+    
+    protected void fireChange(Feature feature, int type) {
+        fireChange(new Feature[] {feature}, type);
+    }
+    
+    protected void fireChange(Collection coll, int type) {
+        Feature[] features = new Feature[coll.size()];
+        features = (Feature[]) coll.toArray(features);
+        fireChange(features, type);
     }
 
     /**
@@ -147,7 +158,7 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
         boolean changed = features.add(feature);
 
         if (changed) {
-            fireChange();
+            fireChange(feature, CollectionEvent.FEATURES_ADDED);
         }
 
         return changed;
@@ -171,12 +182,17 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
         boolean changed = false;
         Iterator iter = c.iterator();
 
+        List featuresAdded = new ArrayList(c.size());
         while (iter.hasNext()) {
-            changed |= features.add((Feature) iter.next());
+            Feature f = (Feature) iter.next();
+            boolean added = features.add(f);
+            changed |= added;
+            
+            if(added) featuresAdded.add(f);
         }
 
         if (changed) {
-            fireChange();
+            fireChange(featuresAdded, CollectionEvent.FEATURES_ADDED);
         }
 
         return changed;
@@ -188,8 +204,14 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
      * throws an exception.
      */
     public void clear() {
+        if(features.size() == 0)
+            return;
+        
+        Feature[] oldFeatures = new Feature[features.size()];
+        oldFeatures = (Feature[]) features.toArray(oldFeatures);
+
         features.clear();
-        fireChange();
+        fireChange(oldFeatures, CollectionEvent.FEATURES_REMOVED);
     }
 
     /**
@@ -230,17 +252,20 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
         final Iterator iterator = features.iterator();
 
         return new Iterator() {
+                Feature currFeature = null;
+            
                 public boolean hasNext() {
                     return iterator.hasNext();
                 }
 
                 public Object next() {
-                    return iterator.next();
+                    currFeature = (Feature) iterator.next();
+                    return currFeature;
                 }
 
                 public void remove() {
                     iterator.remove();
-                    fireChange();
+                    fireChange(currFeature, CollectionEvent.FEATURES_REMOVED);
                 }
             };
     }
@@ -269,10 +294,11 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
      * @return <tt>true</tt> if this collection changed as a result of the call
      */
     public boolean remove(Object o) {
-        boolean changed = features.remove((Feature) o);
+        Feature f = (Feature) o;
+        boolean changed = features.remove(f);
 
         if (changed) {
-            fireChange();
+            fireChange(f, CollectionEvent.FEATURES_REMOVED);
         }
 
         return changed;
@@ -295,12 +321,19 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
         boolean changed = false;
         Iterator fIter = c.iterator();
 
+        List removedFeatures = new ArrayList(c.size());
         while (fIter.hasNext()) {
-            changed |= features.remove(fIter.next());
+            Feature f = (Feature) fIter.next();
+            boolean removed = features.remove(f);
+            
+            if(removed) {
+                changed = true;
+                removedFeatures.add(f);
+            }
         }
 
         if (changed) {
-            fireChange();
+            fireChange(removedFeatures, CollectionEvent.FEATURES_REMOVED);
         }
 
         return changed;
@@ -320,10 +353,19 @@ public class DefaultFeatureCollection extends AbstractCollection implements Feat
      * @see #contains(Object)
      */
     public boolean retainAll(Collection c) {
-        boolean modified = features.retainAll(c);
-
+        List removedFeatures = new ArrayList(features.size() - c.size());
+        boolean modified = false;
+        for(Iterator it = features.iterator(); it.hasNext(); )  {
+            Feature f = (Feature) it.next();
+            if(!c.contains(f)) {
+                it.remove();
+                modified = true;
+                removedFeatures.add(f);
+            }
+        }
+        
         if (modified) {
-            fireChange();
+            fireChange(removedFeatures, CollectionEvent.FEATURES_REMOVED);
         }
 
         return modified;
