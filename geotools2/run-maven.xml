@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="master">
 
-
     <target depends="init" name="build">
         
         <exec executable="${maven}">
@@ -39,7 +38,7 @@
   </condition>
   <!-- I have no idea what the correct command for maven on a mac is so assumed it has more sense than windows
    if you know better please fix. -->
-  <condition property="maven" value="/home/preston/ian/maven-1.0-beta-7/bin/maven">
+  <condition property="maven" value="/home/darren/maven-1.0-beta-8/bin/maven">
       <or>
         <not>
             <equals arg1="${mavenunix}" arg2="$${mavenunix}"/>
