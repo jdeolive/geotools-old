@@ -1,38 +1,7 @@
 /* *    Geotools2 - OpenSource mapping toolkit *    http://geotools.org *    (C) 2002, Geotools Project Managment Committee (PMC) * *    This library is free software; you can redistribute it and/or *    modify it under the terms of the GNU Lesser General Public *    License as published by the Free Software Foundation; *    version 2.1 of the License. * *    This library is distributed in the hope that it will be useful, *    but WITHOUT ANY WARRANTY; without even the implied warranty of *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU *    Lesser General Public License for more details. * */
 package org.geotools.data.oracle;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Point;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-import oracle.jdbc.OracleConnection;
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;import org.geotools.data.DataSourceMetaData;
-import org.geotools.data.DefaultQuery;
-import org.geotools.data.Query;
-import org.geotools.data.jdbc.ConnectionPoolManager;import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
-import org.geotools.feature.FeatureIterator;
-import org.geotools.feature.FeatureType;
-import org.geotools.filter.AbstractFilter;
-import org.geotools.filter.CompareFilter;
-import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactory;
-import org.geotools.filter.GeometryFilter;
-import org.geotools.filter.LikeFilter;
-import java.io.FileInputStream;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;import java.sql.Statement;
-import java.util.Iterator;
-import java.util.Properties;
-import java.util.Set;
+import java.io.FileInputStream;import java.math.BigDecimal;import java.sql.ResultSet;import java.sql.Statement;import java.util.Iterator;import java.util.Properties;import java.util.Set;import junit.framework.Test;import junit.framework.TestCase;import junit.framework.TestSuite;import junit.textui.TestRunner;import oracle.jdbc.OracleConnection;import org.geotools.data.DataSource;import org.geotools.data.DataSourceMetaData;import org.geotools.data.DefaultQuery;import org.geotools.data.Query;import org.geotools.data.jdbc.ConnectionPoolManager;import org.geotools.feature.Feature;import org.geotools.feature.FeatureCollection;import org.geotools.feature.FeatureCollections;import org.geotools.feature.FeatureIterator;import org.geotools.feature.FeatureType;import org.geotools.filter.AbstractFilter;import org.geotools.filter.CompareFilter;import org.geotools.filter.Expression;import org.geotools.filter.FilterFactory;import org.geotools.filter.GeometryFilter;import org.geotools.filter.LikeFilter;import com.vividsolutions.jts.geom.Coordinate;import com.vividsolutions.jts.geom.Envelope;import com.vividsolutions.jts.geom.Geometry;import com.vividsolutions.jts.geom.GeometryFactory;import com.vividsolutions.jts.geom.Point;
 /**
  * Tests the OracleDataSource. The oracle datasource does not have a publically available instance,
  * so the sql script in oraclespatial/tests/unit/testData named testData.sql needs to be run on
@@ -42,7 +11,7 @@ import java.util.Set;
  * oraclespatial project.xml so that maven runs the test.
  *
  * @author geoghegs
- * @version $Revision: 1.9 $ Last Modified: $Date: 2003/11/04 00:53:18 $
+ * @version $Revision: 1.10 $ Last Modified: $Date: 2003/11/05 00:52:35 $
  */
 public class OracleTest extends TestCase {
     private OracleConnection conn;
@@ -314,5 +283,5 @@ public class OracleTest extends TestCase {
         Feature feature = iter.next();
         FeatureType type = feature.getFeatureType();
         assertEquals(2, type.getAttributeCount());
-    }
+    }        
 }
