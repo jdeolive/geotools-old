@@ -16,7 +16,7 @@
  */
 package org.geotools.data.sde;
 
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -27,7 +27,7 @@ import java.util.Map;
  * connection properties
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionConfig.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: SdeConnectionConfig.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
  */
 public class SdeConnectionConfig
 {
@@ -62,6 +62,11 @@ public class SdeConnectionConfig
     /** ArcSDE database user password parameter name */
     public static final String PASSWORD_PARAM = "password";
 
+    public static final String MIN_CONNECTIONS_PARAM = "pool.minConnections";
+    public static final String MAX_CONNECTIONS_PARAM = "pool.maxConnections";
+    public static final String CONNECTIONS_INCREMENT_PARAM = "pool.increment";
+    public static final String CONNECTION_TIMEOUT_PARAM = "pool.timeOut";
+
     /**
      * parameter name who's value represents the feature class for wich an
      * <code>SdeDataSource</code> will be created
@@ -86,6 +91,11 @@ public class SdeConnectionConfig
     /** database user password */
     String userPassword;
 
+    Integer minConnections = null;
+    Integer maxConnections = null;
+    Integer connTimeOut = null;
+    Integer increment = null;
+
     /**
      * DOCUMENT ME!
      *
@@ -98,12 +108,7 @@ public class SdeConnectionConfig
     public SdeConnectionConfig(Map params)
         throws NullPointerException, IllegalArgumentException
     {
-        this((String) params.get(DBTYPE_PARAM),
-            (String) params.get(SERVER_NAME_PARAM),
-            String.valueOf(params.get(PORT_NUMBER_PARAM)),
-            (String) params.get(INSTANCE_NAME_PARAM),
-            (String) params.get(USER_NAME_PARAM),
-            (String) params.get(PASSWORD_PARAM));
+      init(params);
     }
 
     /**
@@ -124,18 +129,60 @@ public class SdeConnectionConfig
         String userPassword)
         throws NullPointerException, IllegalArgumentException
     {
-        Integer port = checkParams(dbType, serverName, portNumber,
-                databaseName, userName, userPassword);
+      Map params = new HashMap();
+      params.put(DBTYPE_PARAM, dbType);
+      params.put(SERVER_NAME_PARAM, serverName);
+      params.put(PORT_NUMBER_PARAM, portNumber);
+      params.put(INSTANCE_NAME_PARAM, databaseName);
+      params.put(USER_NAME_PARAM, userName);
+      params.put(PASSWORD_PARAM, userPassword);
+      init(params);
+    }
 
-        this.serverName = serverName;
+    private void init(Map params)
+    throws NumberFormatException, IllegalArgumentException
+    {
+      String dbtype = (String)params.get(DBTYPE_PARAM);
+      String server = (String)params.get(SERVER_NAME_PARAM);
+      String port = (String)params.get(PORT_NUMBER_PARAM);
+      String instance = (String)params.get(INSTANCE_NAME_PARAM);
+      String user = (String)params.get(USER_NAME_PARAM);
+      String pwd = (String)params.get(PASSWORD_PARAM);
 
-        this.portNumber = port;
+      Integer _port = checkParams(dbtype, server, port, instance, user, pwd);
+      this.serverName = server;
+      this.portNumber = _port;
+      this.databaseName = instance;
+      this.userName = user;
+      this.userPassword = pwd;
 
-        this.databaseName = databaseName;
+      setUpOptionalParams(params);
+    }
 
-        this.userName = userName;
+    private void setUpOptionalParams(Map params)
+    {
+        this.minConnections = getInt(params.get(MIN_CONNECTIONS_PARAM),
+                                        SdeConnectionPool.DEFAULT_CONNECTIONS);
+        this.maxConnections = getInt(params.get(MAX_CONNECTIONS_PARAM),
+                                        SdeConnectionPool.DEFAULT_MAX_CONNECTIONS);
+        this.increment = getInt(params.get(CONNECTIONS_INCREMENT_PARAM),
+                                   SdeConnectionPool.DEFAULT_INCREMENT);
+        this.connTimeOut = getInt(params.get(CONNECTION_TIMEOUT_PARAM),
+                                     SdeConnectionPool.DEFAULT_MAX_WAIT_TIME);
+    }
 
-        this.userPassword = userPassword;
+    private static final Integer getInt(Object value, int defaultValue)
+    {
+      if(value == null)
+        return new Integer(defaultValue);
+
+      String sVal = String.valueOf(value);
+      try {
+        return Integer.valueOf(sVal);
+      }
+      catch (NumberFormatException ex) {
+        return new Integer(defaultValue);
+      }
     }
 
     /**
@@ -311,4 +358,47 @@ public class SdeConnectionConfig
         && config.getDatabaseName().equals(getDatabaseName())
         && config.getUserName().equals(getUserName());
     }
+  public Integer getConnTimeOut()
+  {
+    return connTimeOut;
+  }
+  public Integer getIncrement()
+  {
+    return increment;
+  }
+  public Integer getMaxConnections()
+  {
+    return maxConnections;
+  }
+  public Integer getMinConnections()
+  {
+    return minConnections;
+  }
+
+  public String toString()
+  {
+    StringBuffer sb = new StringBuffer(getClass().getName() + "[");
+    sb.append("dbtype=");
+    sb.append(this.DBTYPE_PARAM_VALUE);
+    sb.append(", server=");
+    sb.append(this.serverName);
+    sb.append(", port=");
+    sb.append(this.portNumber);
+    sb.append(", instance=");
+    sb.append(this.databaseName);
+    sb.append(", user=");
+    sb.append(this.userName);
+    sb.append(", password=");
+    sb.append(this.userPassword);
+    sb.append(", minConnections=");
+    sb.append(this.minConnections);
+    sb.append(", maxConnections=");
+    sb.append(this.maxConnections);
+    sb.append(", connTimeOut=");
+    sb.append(this.connTimeOut);
+    sb.append(", connIncrement=");
+    sb.append(this.increment);
+    sb.append("]");
+    return sb.toString();
+  }
 }

@@ -33,11 +33,45 @@ import java.util.logging.*;
  * connection pool. So I'll borrow most of it.
  * </p>
  *
- * @author Gabriel Roldán
- * @version $Id: SdeConnectionPool.java,v 1.9 2003/11/19 17:50:11 groldan Exp $
+ * <p>
+ * This connection pool is configurable in the sense that some parameters can
+ * be passed to establish the pool policy. To pass parameters to the
+ * connection pool, you should set some properties in the parameters Map
+ * passed to SdeDataStoreFactory.createDataStore, wich will invoke
+ * SdeConnectionPoolFactory to get the SDE instance's pool singleton. That
+ * instance singleton will be created with the preferences passed the first
+ * time createDataStore is called for a given SDE instance/user, if subsecuent
+ * calls change that preferences, they will be ignored.
+ * </p>
  *
- * @task TODO: make it read a properties file to get connection pool
- *       information, such as min/max connections, expire time, etc.
+ * <p>
+ * The expected optional parameters that you can set up in the argument Map for
+ * createDataStore are:
+ *
+ * <ul>
+ * <li>
+ * pool.minConnections Integer, tells the minimun number of open connections
+ * the pool will maintain opened
+ * </li>
+ * <li>
+ * pool.maxConnections Integer, tells the maximun number of open connections
+ * the pool will create and maintain opened
+ * </li>
+ * <li>
+ * pool.increment Integer, tells how many connections will be created at once
+ * every time an available connection is not present and the maximin number of
+ * allowed connections has not been reached
+ * </li>
+ * <li>
+ * pool.timeOut Integer, tells how many milliseconds a calling thread is
+ * guaranteed to wait before getConnection() throws an
+ * UnavailableConnectionException
+ * </li>
+ * </ul>
+ * </p>
+ *
+ * @author Gabriel Roldán
+ * @version $Id: SdeConnectionPool.java,v 1.10 2003/11/25 17:41:20 groldan Exp $
  */
 public class SdeConnectionPool {
     /** package's logger */
@@ -63,34 +97,13 @@ public class SdeConnectionPool {
      * default number of milliseconds a calling thread waits before
      * <code>getConnection</code> throws an <code>UnavailableException</code>
      */
-    private static final long DEFAULT_MAX_WAIT_TIME = 10000;
-
-    /** minimun number of SDE connections this pool will hold */
-    private int minConnections = DEFAULT_CONNECTIONS;
+    public static final int DEFAULT_MAX_WAIT_TIME = 10000;
 
     /**
-     * maximun number of connections, both used and available, this pool is
-     * allowed to hold
-     */
-    private int maxConnections = DEFAULT_MAX_CONNECTIONS;
-
-    /**
-     * amount of SDE connections to be created in each repopulation of this
-     * pool's connections
-     */
-    private int incrementStep = DEFAULT_INCREMENT;
-
-    /**
-     * how many milliseconds to wait between each attempt to obtain an
-     * available connection
+     * number of milliseconds to wait in the wait loop until reach the timeout
+     * period
      */
     private long waitTime = DEFAULT_WAIT_TIME;
-
-    /**
-     * maximun number of millisecons to wait for an available connection before
-     * throwing an <code>UnavailableConnectionException</code>
-     */
-    private long maxWaitTime = DEFAULT_MAX_WAIT_TIME;
 
     /** this connection pool connection's parameters */
     private SdeConnectionConfig config;
@@ -111,10 +124,10 @@ public class SdeConnectionPool {
     private boolean closed = false;
 
     /**
-     * Vector of <code>SeLayer</code> objects available in the SDE database, to
-     * optimize SDE layers lookup time due to
+     * Map of <code>SeLayer/SeColumnDefinition[]</code> objects available in
+     * the SDE database, to optimize SDE layers lookup time due to
      */
-    private Vector databaseLayers;
+    private Map databaseLayers;
 
     /**
      * Creates a new SdeConnectionPool object.
@@ -131,6 +144,16 @@ public class SdeConnectionPool {
         }
 
         this.config = config;
+        LOGGER.info("just created SDE connection pool: " + config);
+        LOGGER.fine("populating ArcSDE connection pool");
+
+        synchronized (mutex) {
+            populate();
+        }
+
+        LOGGER.fine("connection pool populated, added "
+            + availableConnections.size() + " connections");
+        refresh();
     }
 
     /**
@@ -138,15 +161,82 @@ public class SdeConnectionPool {
      *
      * @throws DataSourceException DOCUMENT ME!
      */
-    public void populate() throws DataSourceException {
+    public void refresh() throws DataSourceException {
         synchronized (mutex) {
-            int increment = getIncrementStep();
+            LOGGER.info("updating Schemas cache");
+            databaseLayers = null;
+
+            if (databaseLayers == null) {
+                SeConnection sdeConn = null;
+
+                try {
+                  sdeConn = getConnection();
+                }
+                catch (UnavailableConnectionException ex) {
+                  throw new DataSourceException("No available connection", ex);
+                }
+
+                LOGGER.finer("using " + sdeConn
+                    + " to update datastore schemas cache");
+
+                try {
+                    Vector dbLayers = sdeConn.getLayers();
+                    LOGGER.fine("loaded " + dbLayers.size() + " SDE Layers");
+                    databaseLayers = new HashMap(2 * dbLayers.size());
+                    LOGGER.fine("loading table schemas");
+
+                    SeTable sdeTable;
+                    SeLayer sdeLayer;
+                    SeColumnDefinition[] tableSchema = null;
+
+                    for (Iterator it = dbLayers.iterator(); it.hasNext();) {
+                        sdeLayer = (SeLayer) it.next();
+
+                        String name = sdeLayer.getQualifiedName();
+                        LOGGER.finer("looking for table shcema of " + name);
+
+                        try {
+                            sdeTable = new SeTable(sdeConn, name);
+                            tableSchema = sdeTable.describe();
+                            sdeTable = null;
+                        } catch (SeException tableError) {
+                            LOGGER.warning("can't load schema for " + name);
+
+                            continue;
+                        }
+
+                        databaseLayers.put(sdeLayer, tableSchema);
+                        LOGGER.finer("cached table schema for " + name);
+                    }
+                } catch (Exception ex) {
+                    throw new DataSourceException("Error getting table list:"
+                        + ex.getMessage(), ex);
+                } finally {
+                    release(sdeConn);
+                }
+            }
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     */
+    private void populate() throws DataSourceException {
+        synchronized (mutex) {
+            int increment = config.getIncrement().intValue();
+            LOGGER.info("creating " + increment + " new SDE connections");
+
             int actual = 0;
 
             while ((actual++ < increment)
-                    && (getNumConnections() < getMaxConnections())) {
+                    && (getNumConnections() < config.getMaxConnections()
+                                                        .intValue())) {
                 try {
-                    availableConnections.add(newConnection());
+                    SeConnection conn = newConnection();
+                    availableConnections.add(conn);
+                    LOGGER.fine("added connection to pool: " + conn);
                 } catch (SeException ex) {
                     throw new DataSourceException("Can't create connection to "
                         + config.getServerName() + ": " + ex.getMessage(), ex);
@@ -232,10 +322,12 @@ public class SdeConnectionPool {
      * @return DOCUMENT ME!
      *
      * @throws DataSourceException DOCUMENT ME!
+     * @throws UnavailableConnectionException
      * @throws IllegalStateException DOCUMENT ME!
-     * @throws UnavailableConnectionException DOCUMENT ME!
      */
-    public SeConnection getConnection() throws DataSourceException {
+    public SeConnection getConnection()
+        throws DataSourceException, UnavailableConnectionException
+    {
         SeConnection conn = null;
 
         if (closed) {
@@ -243,43 +335,41 @@ public class SdeConnectionPool {
                 "The ConnectionPool has been closed.");
         }
 
-        //and check again
-        synchronized (mutex) {
-            //if there are no available connections
-            if (availableConnections.size() == 0) {
-                //first, try to create new ones
-                populate();
-            }
-
-            if (availableConnections.size() > 0) {
-                return getAvailable();
-            }
-        }
-
         long timeWaited = 0;
+        long timeOut = config.getConnTimeOut().intValue();
 
-        //then, wait until a connection be freed or the time out has been reached
-        while (timeWaited <= getMaxWaitTime()) {
-            LOGGER.finer("waiting for connection...");
-
+        synchronized (mutex) {
             try {
-                Thread.sleep(getWaitTime());
+                if (availableConnections.size() == 0) {
+                    populate();
+                }
+
+                while ((availableConnections.size() == 0)
+                        && (timeWaited < timeOut)) {
+                    LOGGER.finer("waiting for connection...");
+                    mutex.wait(waitTime);
+                    timeWaited += waitTime;
+                }
+                if(timeWaited > 0)
+                  LOGGER.fine("waited for connection for " + timeWaited + "ms");
+
+                if (availableConnections.size() > 0) {
+                    return getAvailable();
+                } else {
+                    UnavailableConnectionException uce = new UnavailableConnectionException(usedConnections
+                            .size(), getConfig());
+                    Throwable trace = uce.fillInStackTrace();
+                    uce.setStackTrace(trace.getStackTrace());
+                    uce.printStackTrace();
+                    throw uce;
+                }
             } catch (InterruptedException ex) {
                 throw new DataSourceException(
                     "Interrupted while waiting for an available connection");
-            }
-
-            timeWaited += getWaitTime();
-
-            synchronized (mutex) {
-                if (availableConnections.size() > 0) {
-                    return getAvailable();
-                }
+            } finally {
+                mutex.notifyAll();
             }
         }
-
-        throw new UnavailableConnectionException(usedConnections.size(),
-            getConfig());
     }
 
     /**
@@ -308,7 +398,7 @@ public class SdeConnectionPool {
         int existents = availableConnections.size() + usedConnections.size();
 
         //one never knows...
-        if (existents >= maxConnections) {
+        if (existents >= config.getMaxConnections().intValue()) {
             throw new DataSourceException(
                 "Maximun number of connections reached");
         }
@@ -340,6 +430,7 @@ public class SdeConnectionPool {
                 config.getUserName(), config.getUserPassword());
         LOGGER.fine("***************\ncreated new connection " + seConn
             + "\n*****************");
+        seConn.setConcurrency(SeConnection.SE_LOCK_POLICY);
 
         SeConnection.SeStreamSpec stSpec = seConn.getStreamSpec();
 
@@ -352,14 +443,15 @@ public class SdeConnectionPool {
            System.out.println("getShapePointArraySize=" + stSpec.getShapePointArraySize());
            System.out.println("getStreamPoolSize=" + stSpec.getStreamPoolSize());
          */
-        stSpec.setMinBufSize(1024 * 1024);
-        stSpec.setMaxBufSize(10 * 1024 * 1024);
-        stSpec.setMaxArraySize(10000);
-        stSpec.setMinObjects(1024);
-        stSpec.setAttributeArraySize(1024 * 1024);
-        stSpec.setShapePointArraySize(1024 * 1024);
-        stSpec.setStreamPoolSize(10);
-
+        /*
+           stSpec.setMinBufSize(1024 * 1024);
+           stSpec.setMaxBufSize(10 * 1024 * 1024);
+           stSpec.setMaxArraySize(10000);
+           stSpec.setMinObjects(1024);
+           stSpec.setAttributeArraySize(1024 * 1024);
+           stSpec.setShapePointArraySize(1024 * 1024);
+           stSpec.setStreamPoolSize(10);
+         */
         /*
            System.out.println("********************************************");
            System.out.println("getMinBufSize=" + stSpec.getMinBufSize());
@@ -376,14 +468,65 @@ public class SdeConnectionPool {
     /**
      * DOCUMENT ME!
      *
+     * @param tableName DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws NoSuchElementException DOCUMENT ME!
+     */
+    public SeColumnDefinition[] getTableSchema(String tableName)
+        throws NoSuchElementException {
+        SeLayer layer = getSdeLayer(tableName);
+
+        if (layer == null) {
+            throw new NoSuchElementException("no FeatureType named "
+                + tableName
+                + " found. May be you should refresh the connection.");
+        }
+
+        return getTableSchema(layer);
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
+     * @param layer DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws NoSuchElementException DOCUMENT ME!
+     * @throws NullPointerException DOCUMENT ME!
+     */
+    public SeColumnDefinition[] getTableSchema(SeLayer layer)
+        throws NoSuchElementException, NullPointerException {
+        if (layer == null) {
+            throw new NullPointerException(
+                "you must pass a SeLayer to look its schema for. Passed null");
+        }
+
+        SeColumnDefinition[] sdeSchema = (SeColumnDefinition[]) databaseLayers
+            .get(layer);
+
+        if (sdeSchema == null) {
+            throw new NoSuchElementException("No shcema found for "
+                + layer.getName()
+                + ". May be you should refresh the connection");
+        }
+
+        return sdeSchema;
+    }
+
+    /**
+     * DOCUMENT ME!
+     *
      * @param typeName DOCUMENT ME!
      *
      * @return DOCUMENT ME!
      *
-     * @throws DataSourceException DOCUMENT ME!
+     * @throws NoSuchElementException DOCUMENT ME!
      */
-    public SeLayer getSdeLayer(String typeName) throws DataSourceException {
-        Vector layers = getAvailableSdeLayers();
+    public SeLayer getSdeLayer(String typeName) throws NoSuchElementException {
+        Collection layers = databaseLayers.keySet();
         SeLayer layer = null;
 
         try {
@@ -398,35 +541,10 @@ public class SdeConnectionPool {
                 layer = null;
             }
         } catch (SeException ex) {
-            throw new DataSourceException(ex.getMessage(), ex);
+            throw new NoSuchElementException(ex.getMessage());
         }
 
         return layer;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param tableName DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    SeTable getSdeTable(String tableName) throws DataSourceException {
-        SeTable table = null;
-        SeConnection sdeConn = null;
-
-        try {
-            sdeConn = getConnection();
-            table = new SeTable(sdeConn, tableName);
-        } catch (SeException ex) {
-            throw new DataSourceException(ex.getMessage(), ex);
-        } finally {
-            release(sdeConn);
-        }
-
-        return table;
     }
 
     /**
@@ -437,27 +555,11 @@ public class SdeConnectionPool {
      *
      * @throws DataSourceException
      */
-    public Vector getAvailableSdeLayers() throws DataSourceException {
-        if (databaseLayers == null) {
-            SeConnection sdeConn = getConnection();
+    public List getAvailableSdeLayers() throws DataSourceException {
+        Set layers = databaseLayers.keySet();
+        List copy = new ArrayList(layers);
 
-            try {
-                databaseLayers = sdeConn.getLayers();
-                /*
-                for(Iterator it = databaseLayers.iterator(); it.hasNext();)
-                {
-                  System.out.println(((SeLayer)it.next()).getCoordRef().getCoordSysDescription());
-                }
-                */
-            } catch (SeException ex) {
-                throw new DataSourceException("Error getting table list:"
-                    + ex.getMessage(), ex);
-            } finally {
-                release(sdeConn);
-            }
-        }
-
-        return databaseLayers;
+        return copy;
     }
 
     /**
@@ -477,53 +579,4 @@ public class SdeConnectionPool {
     public SdeConnectionConfig getConfig() {
         return config;
     }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public int getIncrementStep() {
-        return incrementStep;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public int getMaxConnections() {
-        return maxConnections;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public long getMaxWaitTime() {
-        return maxWaitTime;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public int getMinConnections() {
-        return minConnections;
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
-    public long getWaitTime() {
-        return waitTime;
-    }
-    //
 }
-
-
-///:/

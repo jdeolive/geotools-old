@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * @author not attributable
- * @version $Id: SdeDataStoreFactory.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
+ * @author Gabriel Roldán
+ * @version $Id: SdeDataStoreFactory.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
  */
 
 public class SdeDataStoreFactory implements DataStoreFactorySpi
@@ -20,17 +20,23 @@ public class SdeDataStoreFactory implements DataStoreFactorySpi
   /** friendly factory description */
   private static final String FACTORY_DESCRIPTION = "ESRI ArcSDE 8.x";
 
-  private static Param[] paramMetadata = new Param[7];
+  private static Param[] paramMetadata = new Param[11];
   static{
     /**@task TODO: add connection pool parameters and propose
      * optional/mandatory parameter indentification*/
-    paramMetadata[0] = new Param("namespace", String.class, "namespace asociated to this data store");
-    paramMetadata[1] = new Param("dbtype", String.class, "fixed value, must be \"arcsde\"");
-    paramMetadata[2] = new Param("server", String.class, "sever name where the ArcSDE gateway is running");
-    paramMetadata[3] = new Param("port", Integer.class, "port number in wich the ArcSDE server is listening for connections.Generally it's 5151");
-    paramMetadata[4] = new Param("instance", String.class, "database instance name");
-    paramMetadata[5] = new Param("user", String.class, "database user name");
-    paramMetadata[6] = new Param("password", String.class, "database user password");
+    paramMetadata[0] = new Param("namespace", String.class, "namespace asociated to this data store", false);
+    paramMetadata[1] = new Param("dbtype", String.class, "fixed value, must be \"arcsde\"", true);
+    paramMetadata[2] = new Param("server", String.class, "sever name where the ArcSDE gateway is running", true);
+    paramMetadata[3] = new Param("port", Integer.class, "port number in wich the ArcSDE server is listening for connections.Generally it's 5151", true);
+    paramMetadata[4] = new Param("instance", String.class, "database instance name", true);
+    paramMetadata[5] = new Param("user", String.class, "database user name", true);
+    paramMetadata[6] = new Param("password", String.class, "database user password", true);
+
+    //optional parameters:
+    paramMetadata[7] = new Param("pool.minConnections", Integer.class, "Minimun number of open connections", false);
+    paramMetadata[8] = new Param("pool.maxConnections", Integer.class, "Maximun number of open connections", false);
+    paramMetadata[9] = new Param("pool.increment", Integer.class, "Number of connections created on each pool size increment", false);
+    paramMetadata[10] = new Param("pool.timeOut", Integer.class, "Number of milliseconds a calling thread should wait for an available connection", false);
   }
 
   /** factory of connection pools to different SDE databases */
@@ -44,9 +50,9 @@ public class SdeDataStoreFactory implements DataStoreFactorySpi
   {
   }
 
-    //HACK: to get data-exp merge to compile.
     public DataStore createNewDataStore(java.util.Map map){
-	return null;
+      throw new UnsupportedOperationException(
+        "ArcSDE DataStore does not supports the creation of new databases");
     }
 
   /**

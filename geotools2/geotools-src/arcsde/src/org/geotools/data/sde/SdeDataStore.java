@@ -30,7 +30,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeDataStore.java,v 1.8 2003/11/19 07:43:51 jive Exp $
+ * @version $Id: SdeDataStore.java,v 1.9 2003/11/25 17:41:20 groldan Exp $
  */
 public class SdeDataStore
 implements DataStore
@@ -61,7 +61,7 @@ implements DataStore
      */
     public void updateSchema(String typeName, FeatureType featureType)
         throws IOException {
-        throw new UnsupportedOperationException("Arcsde does allow CS modifications");    
+        throw new UnsupportedOperationException("Arcsde does allow CS modifications");
     }
 
     /**
@@ -99,7 +99,12 @@ implements DataStore
       String typeName = featureType.getTypeName();
 
       try {
-        sdeConn = getConnectionPool().getConnection();
+        try {
+          sdeConn = getConnectionPool().getConnection();
+        }
+        catch (UnavailableConnectionException ex) {
+          throw new DataSourceException(ex.getMessage(), ex);
+        }
 
         SeLayer sdeLayer = new SeLayer(sdeConn);
 
@@ -192,7 +197,7 @@ implements DataStore
 
         try
         {
-            Vector sdeLayers = connectionPool.getAvailableSdeLayers();
+            List sdeLayers = connectionPool.getAvailableSdeLayers();
             featureTypesNames = new String[sdeLayers.size()];
 
             String typeName;
@@ -229,40 +234,19 @@ implements DataStore
      */
     public FeatureType getSchema(String typeName) throws java.io.IOException
     {
-        return getSchema(connectionPool.getSdeLayer(typeName));
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @param sdeLayer DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     *
-     * @throws IOException DOCUMENT ME!
-     */
-    protected FeatureType getSchema(SeLayer sdeLayer) throws IOException
-    {
-        SeColumnDefinition[] colDefs = null;
-        String typeName = null;
-
-        try
-        {
-            typeName = sdeLayer.getQualifiedName();
-
-            SeTable table = connectionPool.getSdeTable(typeName);
-            colDefs = table.describe();
-        }
-        catch (SeException ex)
-        {
-            IOException ioe = new IOException(
-                    "Exception getting table def for " + typeName + ": "
-                    + ex.getMessage());
-            ioe.setStackTrace(ex.getStackTrace());
-            throw ioe;
-        }
-
-        return getSchema(sdeLayer, colDefs);
+      try {
+        SeLayer layer = getConnectionPool().getSdeLayer(typeName);
+        SeColumnDefinition[] sdeSchema = getConnectionPool().getTableSchema(
+            layer);
+        return getSchema(layer, sdeSchema);
+      }
+      catch (NullPointerException ex) {
+        throw new DataSourceException("FeatureType "+ typeName + " not found: "
+                                      + ex.getMessage(), ex);
+      }
+      catch (NoSuchElementException ex) {
+        throw new DataSourceException(ex.getMessage(), ex);
+      }
     }
 
     /**
@@ -408,7 +392,7 @@ implements DataStore
      * @return DOCUMENT ME!
      *
      * @throws IOException DOCUMENT ME!
-     */        
+     */
     public FeatureSource getFeatureSource(String featureType)
         throws IOException
     {

@@ -25,7 +25,7 @@ import java.util.logging.*;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: SdeConnectionPoolFactory.java,v 1.3 2003/11/14 17:21:04 groldan Exp $
+ * @version $Id: SdeConnectionPoolFactory.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
  */
 public class SdeConnectionPoolFactory
 {
@@ -74,10 +74,8 @@ public class SdeConnectionPoolFactory
 
         if (pool == null)
         {
+            //the new pool will be populated with config.minConnections connections
             pool = new SdeConnectionPool(config);
-
-            pool.populate();
-
             currentPools.put(config, pool);
         }
 

@@ -16,22 +16,19 @@
  */
 package org.geotools.data.sde;
 
-import org.geotools.data.DataSourceException;
-
-
 /**
  * Exception thrown when a free SDE connection can't be obtained after the
  * calling thread was waiting an available connection for
  * <code>SdeConnectionPool instance's getMaxWaitTime()</code> milliseconds
  *
  * @author Gabriel Roldán
- * @version $Id: UnavailableConnectionException.java,v 1.3 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: UnavailableConnectionException.java,v 1.4 2003/11/25 17:41:20 groldan Exp $
  *
  * @task REVISIT: sure there are a better exception to use in somewhere... just
  *       take a look since it seems not very wise to have it here... may be in
  *       current jdbc package.
  */
-public class UnavailableConnectionException extends DataSourceException
+public class UnavailableConnectionException extends Exception
 {
     /**
      * Creates a new UnavailableConnectionException object.
