@@ -1,4 +1,4 @@
-/* $Id: GeometryConversionTest.java,v 1.2 2003/09/24 11:07:11 ianturton Exp $
+/* $Id: GeometryConversionTest.java,v 1.3 2003/10/01 01:47:59 seangeo Exp $
  *
  * Created on 4/08/2003
  */
@@ -7,6 +7,7 @@ package org.geotools.data.oracle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
@@ -26,8 +27,8 @@ import oracle.sdoapi.geom.Geometry;
  * </p>
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
- * @author $Author: ianturton $
- * @version $Id: GeometryConversionTest.java,v 1.2 2003/09/24 11:07:11 ianturton Exp $ Last Modified: $Date: 2003/09/24 11:07:11 $
+ * @author $Author: seangeo $
+ * @version $Id: GeometryConversionTest.java,v 1.3 2003/10/01 01:47:59 seangeo Exp $ Last Modified: $Date: 2003/10/01 01:47:59 $
  */
 public class GeometryConversionTest extends TestCase {
     private GeometryFactory jtsFactory;
@@ -100,8 +101,11 @@ public class GeometryConversionTest extends TestCase {
 
     public void testLineConversion() throws Exception {
         Geometry sdoIn = sdoFactory.createLineString(new double[] { -10.0, -5.0, 10.0, 5.0 });
-        LineString line = (LineString) adapterJTS.exportGeometry(LineString.class, sdoIn);
-
+        MultiLineString mline = (MultiLineString) adapterJTS.exportGeometry(LineString.class, sdoIn);
+        
+        assertEquals(1,mline.getNumGeometries());    
+        LineString line = (LineString) mline.getGeometryN(0);
+        
         assertEquals(2, line.getNumPoints());
         Coordinate[] coords = line.getCoordinates();
         assertEquals(-10.0, coords[0].x, 0.001);
