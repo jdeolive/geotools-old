@@ -10,7 +10,7 @@
 installed the GT2WMS.<p>
 <img src='servlet/gt2wms?request=getMap&layers=USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=green'
 width=400 height=200/>
-     <p>The map is derived from a shape file in the <a href="maps"/>maps</A> sing the <a href="styles/green.sld">green</A> style document. <p>
+     <p>The map is derived from a shape file in the <a href="maps"/>maps</A> using the <a href="styles/green.sld">green</A> style document. <p>
 <p>The styling language is the OpenGIS <a href="http://www.opengis.org/techno/specs/02-070.pdf">Styled Layer Descriptor</a> (SLD).
 The one used to make the above map is a very basic one, the most important part of the file is:
 <pre>
@@ -69,7 +69,8 @@ This style document adds filters to the rules so that different states are shade
 <br>
 This checks the value of the PERSONS attribute (a column in the shapefile) to see if it is between 2000000 and 4000000, if it is then the polygon
 is filled in red (#ff0000 is the hex value for red).<br>
-The filters are very powerful and can include spatial operations as well as mathmatical calculations, for full detauls see the OpenGIS <a href="http://www.opengis.org/techno/specs/02-059.pdf">Filter Encoding Specification.</a>
+The filters are very powerful and can include spatial operations as well as mathmatical calculations, for full
+details see the OpenGIS <a href="http://www.opengis.org/techno/specs/02-059.pdf">Filter Encoding Specification.</a>
 
 The following shows an example of a spatial operation being embeded in the style document:<p>
  <img src='servlet/gt2wms?request=getMap&layers=USA,USA&bbox=-140,20,-60,60&width=400&height=200&srs=EPSG:4326&styles=normal,bbox'
