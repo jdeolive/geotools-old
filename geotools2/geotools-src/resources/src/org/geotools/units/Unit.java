@@ -56,7 +56,7 @@ import org.geotools.resources.units.Units;
  * <strong>IMPORTANT: future version will NOT be compatible
  * will this one. Remind, this is a temporary class!</strong>
  *
- * @version $Id: Unit.java,v 1.3 2002/07/30 17:09:37 desruisseaux Exp $
+ * @version $Id: Unit.java,v 1.4 2002/08/23 15:09:59 desruisseaux Exp $
  * @author Steven R. Emmerson
  * @author Bill Hibbard
  * @author Martin Desruisseaux
@@ -94,6 +94,11 @@ public abstract class Unit implements Serializable {
      * Convenience constant for base unit of length.
      */
     public static final Unit METRE = get("m");
+    
+    /**
+     * Convenience constant for derived unit of length.
+     */
+    public static final Unit KILOMETRE = METRE.scale(1000);
     
     /**
      * Convenience constant for base unit of time.
