@@ -64,11 +64,11 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see JSpinner
  * @see SpinnerNumberModel
  *
- * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: SpinnerAngleModel.java,v 1.1 2003/07/28 22:41:32 desruisseaux Exp $
  * @author Adapted from Hans Muller
  * @author Martin Desruisseaux
  */
-final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializable {
+final class SpinnerAngleModel extends AbstractSpinnerModel implements Serializable {
     /**
      * The current value.
      */
@@ -85,7 +85,7 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
     private double stepSize = 1;
 
     /**
-     * Constructs a <code>AngleSpinnerModel</code> that represents a closed sequence
+     * Constructs a <code>SpinnerAngleModel</code> that represents a closed sequence
      * of angles. Initial minimum and maximum values are choosen according the
      * <code>value</code> type:
      *
@@ -98,7 +98,7 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
      * @param  value the current (non <code>null</code>) value of the model
      * @throws IllegalArgumentException if <code>value</code> is null.
      */
-    public AngleSpinnerModel(final Angle value) {
+    public SpinnerAngleModel(final Angle value) {
         this.value = value;
         if (value instanceof Longitude) {
             minimum  = Longitude.MIN_VALUE;
@@ -223,9 +223,9 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
 
     /**
      * This subclass of {@link javax.swing.InternationalFormatter} maps the
-     * minimum/maximum properties to a {@link AngleSpinnerModel}.
+     * minimum/maximum properties to a {@link SpinnerAngleModel}.
      *
-     * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: SpinnerAngleModel.java,v 1.1 2003/07/28 22:41:32 desruisseaux Exp $
      * @author Adapted from Hans Muller
      * @author Martin Desruisseaux
      */
@@ -233,12 +233,12 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
         /**
          * The spinner model.
          */
-        private final AngleSpinnerModel model;
+        private final SpinnerAngleModel model;
 
         /**
          * Construct a formatter.
          */
-        EditorFormatter(final AngleSpinnerModel model, final AngleFormat format) {
+        EditorFormatter(final SpinnerAngleModel model, final AngleFormat format) {
             super(format);
             this.model = model;
             setAllowsInvalid(true);
@@ -309,7 +309,7 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
      * whose minimum and maximum properties are mapped to the
      * {@link SpinnerNumberModel}.
      *
-     * @version $Id: AngleSpinnerModel.java,v 1.2 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: SpinnerAngleModel.java,v 1.1 2003/07/28 22:41:32 desruisseaux Exp $
      * @author Adapted from Hans Muller
      * @author Martin Desruisseaux
      */
@@ -320,10 +320,10 @@ final class AngleSpinnerModel extends AbstractSpinnerModel implements Serializab
         public Editor(final JSpinner spinner, final AngleFormat format) {
             super(spinner);
             final SpinnerModel genericModel = spinner.getModel();
-            if (!(genericModel instanceof AngleSpinnerModel)) {
+            if (!(genericModel instanceof SpinnerAngleModel)) {
                 throw new IllegalArgumentException();
             }
-            final AngleSpinnerModel         model = (AngleSpinnerModel) genericModel;
+            final SpinnerAngleModel         model = (SpinnerAngleModel) genericModel;
             final EditorFormatter       formatter = new EditorFormatter(model, format);
             final DefaultFormatterFactory factory = new DefaultFormatterFactory(formatter);
             final JFormattedTextField       field = getTextField();

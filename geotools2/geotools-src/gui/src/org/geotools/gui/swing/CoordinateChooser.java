@@ -107,7 +107,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/CoordinateChooser.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: CoordinateChooser.java,v 1.6 2003/07/11 16:59:33 desruisseaux Exp $
+ * @version $Id: CoordinateChooser.java,v 1.7 2003/07/28 22:41:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class CoordinateChooser extends JPanel {
@@ -178,7 +178,7 @@ public class CoordinateChooser extends JPanel {
     /**
      * Class encompassing various listeners for users selections.
      *
-     * @version $Id: CoordinateChooser.java,v 1.6 2003/07/11 16:59:33 desruisseaux Exp $
+     * @version $Id: CoordinateChooser.java,v 1.7 2003/07/28 22:41:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements ActionListener, ChangeListener {
@@ -243,20 +243,20 @@ public class CoordinateChooser extends JPanel {
 
         tmin = new JSpinner(new SpinnerDateModel(minTime, minTime, maxTime, timeField));
         tmax = new JSpinner(new SpinnerDateModel(maxTime, minTime, maxTime, timeField));
-        xmin = new JSpinner(new AngleSpinnerModel(new Longitude(Longitude.MIN_VALUE)));
-        xmax = new JSpinner(new AngleSpinnerModel(new Longitude(Longitude.MAX_VALUE)));
-        ymin = new JSpinner(new AngleSpinnerModel(new  Latitude( Latitude.MIN_VALUE)));
-        ymax = new JSpinner(new AngleSpinnerModel(new  Latitude( Latitude.MAX_VALUE)));
+        xmin = new JSpinner(new SpinnerAngleModel(new Longitude(Longitude.MIN_VALUE)));
+        xmax = new JSpinner(new SpinnerAngleModel(new Longitude(Longitude.MAX_VALUE)));
+        ymin = new JSpinner(new SpinnerAngleModel(new  Latitude( Latitude.MIN_VALUE)));
+        ymax = new JSpinner(new SpinnerAngleModel(new  Latitude( Latitude.MAX_VALUE)));
         xres = new JSpinner(new SpinnerNumberModel(1, 0, 360*60, 1));
         yres = new JSpinner(new SpinnerNumberModel(1, 0, 180*60, 1));
 
         final AngleFormat   angleFormat = new AngleFormat("D°MM.m'", locale);
         final DateFormat     dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
         final NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
-        xmin.setEditor(new AngleSpinnerModel.Editor(xmin, angleFormat));
-        xmax.setEditor(new AngleSpinnerModel.Editor(xmax, angleFormat));
-        ymin.setEditor(new AngleSpinnerModel.Editor(ymin, angleFormat));
-        ymax.setEditor(new AngleSpinnerModel.Editor(ymax, angleFormat));
+        xmin.setEditor(new SpinnerAngleModel.Editor(xmin, angleFormat));
+        xmax.setEditor(new SpinnerAngleModel.Editor(xmax, angleFormat));
+        ymin.setEditor(new SpinnerAngleModel.Editor(ymin, angleFormat));
+        ymax.setEditor(new SpinnerAngleModel.Editor(ymax, angleFormat));
 
         setup(tmin, 10,   dateFormat);
         setup(tmax, 10,   dateFormat);
