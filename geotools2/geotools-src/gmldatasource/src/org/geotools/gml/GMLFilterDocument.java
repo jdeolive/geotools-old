@@ -38,7 +38,7 @@ import java.util.StringTokenizer;
  * including handling different delimiters (decimal, coordinate, tuple)
  * that may be used by more outlandish GML generators.<p>
  *
- * @version $Id: GMLFilterDocument.java,v 1.6 2002/06/05 10:41:48 loxnard Exp $
+ * @version $Id: GMLFilterDocument.java,v 1.7 2002/07/12 16:46:42 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
@@ -69,7 +69,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
     /** Sub geometry elements that may be passed in GML */
     private static final java.util.Collection SUB_GEOMETRY_TYPES =
     new java.util.Vector(java.util.Arrays.asList(
-    new String[] {"outerBoundaryIs", "innerBoundaryIs"}) );
+    new String[] {"outerBoundaryIs", "innerBoundaryIs"}));
     /** Base geometry elements that may be passed in GML */
     private static final java.util.Collection BASE_GEOMETRY_TYPES =
     new java.util.Vector(java.util.Arrays.asList(
@@ -113,20 +113,20 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         if (namespaceURI.equals(GML_NAMESPACE)){
             
             // if geometry, pass it on down the filter chain
-            if ( BASE_GEOMETRY_TYPES.contains(localName) ){
+            if (BASE_GEOMETRY_TYPES.contains(localName)){
                 parent.geometryStart(localName, atts);
-            } else if ( SUB_GEOMETRY_TYPES.contains(localName) ){
+            } else if (SUB_GEOMETRY_TYPES.contains(localName)){
                 parent.geometrySub(localName);
-            } else if ( COORDINATES_NAME.equals(localName) ){
+            } else if (COORDINATES_NAME.equals(localName)){
                 // if coordinate, set one of the internal coordinate methods
                 coordinateReader.insideCoordinates(true, atts);
-            } else if ( COORD_NAME.equals(localName) ){
+            } else if (COORD_NAME.equals(localName)){
                 coordinateReader.insideCoord(true);
-            } else if ( X_NAME.equals(localName) ){
+            } else if (X_NAME.equals(localName)){
                 coordinateReader.insideX(true);
-            } else if ( Y_NAME.equals(localName) ){
+            } else if (Y_NAME.equals(localName)){
                 coordinateReader.insideY(true);
-            } else if ( Z_NAME.equals(localName) ){
+            } else if (Z_NAME.equals(localName)){
                 coordinateReader.insideZ(true);
             } else {
                 parent.startElement(namespaceURI, localName, qName, atts);
@@ -164,10 +164,10 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         /* determines how to read coordinates, depending on
          * what element we are currently inside
          */
-        if ( coordinateReader.insideCoordinates() ) {
-            coordinateReader.readCoordinates( rawCoordinates );
-        } else if ( coordinateReader.insideCoord() ){
-            coordinateReader.readCoord( rawCoordinates );
+        if (coordinateReader.insideCoordinates()) {
+            coordinateReader.readCoordinates(rawCoordinates);
+        } else if (coordinateReader.insideCoord()){
+            coordinateReader.readCoord(rawCoordinates);
         } else {
             /* all non-coordinate data passed on down the
              * filter chain without modification
@@ -197,25 +197,25 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         /* if leaving a GML element, handle and pass to appropriate 
          * internal or external method
          */
-        if ( namespaceURI.equals(GML_NAMESPACE) || !namespaceAware) {
+        if (namespaceURI.equals(GML_NAMESPACE) || !namespaceAware) {
             
             // if geometry, pass on down the chain to appropriate handlers
-            if ( BASE_GEOMETRY_TYPES.contains(localName) )  {
+            if (BASE_GEOMETRY_TYPES.contains(localName))  {
                 parent.geometryEnd(localName); 
-            } else if ( SUB_GEOMETRY_TYPES.contains(localName) )   {
+            } else if (SUB_GEOMETRY_TYPES.contains(localName))   {
                 parent.geometrySub(localName); 
-            } else if ( COORDINATES_NAME.equals(localName) ){
+            } else if (COORDINATES_NAME.equals(localName)){
                 // if coordinate, set internal coordinate handling methods
                 coordinateReader.insideCoordinates(false); 
-            } else if ( COORD_NAME.equals(localName) ){
+            } else if (COORD_NAME.equals(localName)){
                 coordinateReader.insideCoord(false); 
-            } else if ( X_NAME.equals(localName) ){
+            } else if (X_NAME.equals(localName)){
                 coordinateReader.insideX(false); 
-            } else if ( Y_NAME.equals(localName) ){
+            } else if (Y_NAME.equals(localName)){
                 coordinateReader.insideY(false); 
-            } else if ( Z_NAME.equals(localName) ){
+            } else if (Z_NAME.equals(localName)){
                 coordinateReader.insideZ(false); 
-            } else if ( !namespaceAware ){
+            } else if (!namespaceAware){
                 /* if not namespace aware, then just pass element through;
                  * otherwise, there is some error in the GML
                  */
@@ -265,13 +265,13 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         private static final int INSIDE_Z = 3;
         
         /** Remembers last X coordinate read. */
-        private Double x = new Double( Double.NaN );
+        private Double x = new Double(Double.NaN);
         
         /** Remembers last Y coordinate read. */
-        private Double y = new Double( Double.NaN );
+        private Double y = new Double(Double.NaN);
         
         /** Remembers last Z coordinate read. */
-        private Double z = new Double( Double.NaN );
+        private Double z = new Double(Double.NaN);
         
         /** Stores requested delimiter for coordinate 
          * separation; default = ','  
@@ -311,7 +311,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
             /* if non-standard delimiter, replace it with 
              * standard ',' through the entire string
              */
-            if ( !standardDecimalFlag ) {
+            if (!standardDecimalFlag) {
                 coordinateString = coordinateString.replace(
                     decimalDelimeter.charAt(0), '.');
             }
@@ -324,18 +324,18 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
             // loop through each of the coordinate sets.
             // Depending on the number of coordinates found,
             // call the correct parent coordinate class
-            while ( coordinateSets.hasMoreElements() ) {
+            while (coordinateSets.hasMoreElements()) {
                 
                 coordinates = new StringTokenizer( 
                     coordinateSets.nextToken(), coordinateDelimeter);
-                x = new Double( coordinates.nextToken().trim() );
-                y = new Double( coordinates.nextToken().trim() );
-                if ( coordinates.hasMoreElements() ) {
-                    z = new Double( coordinates.nextToken().trim() );
-                    parent.gmlCoordinates( x.doubleValue(), y.doubleValue(),
-                        z.doubleValue() );
+                x = new Double(coordinates.nextToken().trim());
+                y = new Double(coordinates.nextToken().trim());
+                if (coordinates.hasMoreElements()) {
+                    z = new Double(coordinates.nextToken().trim());
+                    parent.gmlCoordinates(x.doubleValue(), y.doubleValue(),
+                        z.doubleValue());
                 } else {
-                    parent.gmlCoordinates( x.doubleValue(), y.doubleValue() );
+                    parent.gmlCoordinates(x.doubleValue(), y.doubleValue());
                 }
             }
             
@@ -362,13 +362,13 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
             // set internal x,y,z values depending on the return
             switch (insideInnerFlag) {
                 case INSIDE_X:
-                    x = new Double( coordString.trim() );
+                    x = new Double(coordString.trim());
                     break;
                 case INSIDE_Y:
-                    y = new Double( coordString.trim() );
+                    y = new Double(coordString.trim());
                     break;
                 case INSIDE_Z:
-                    z = new Double( coordString.trim() );
+                    z = new Double(coordString.trim());
                     break;
             }
         }
@@ -384,7 +384,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         public void insideCoordinates(boolean isInside, 
             org.xml.sax.Attributes atts) {
             
-            this.insideCoordinates( isInside );
+            this.insideCoordinates(isInside);
         }
         
         
@@ -396,7 +396,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
          */
         public void insideCoordinates(boolean isInside) {
             
-            if ( isInside ){
+            if (isInside){
                 insideOuterFlag = INSIDE_COORDINATES;
             } else {
                 insideOuterFlag = NOT_INSIDE;
@@ -414,18 +414,18 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
         throws SAXException {
             
             // if entering <coord> tag, simply set our internal flag for this
-            if ( isInside ) {
+            if (isInside) {
                 insideOuterFlag = INSIDE_COORD;
             } else {
                 // if leaving <coord> tag, send coordinates to parent and 
                 // set all internal values to null equivalent.
                 // if coordinates exist, send on down the filter chain
                 // otherwise, throw an exception
-                if ( ( !x.isNaN() ) && ( !y.isNaN() ) && ( z.isNaN() ) ){
-                    parent.gmlCoordinates( x.doubleValue(), y.doubleValue() );
-                } else if ( ( !x.isNaN()) && ( !y.isNaN()) && ( !z.isNaN())){
-                    parent.gmlCoordinates( x.doubleValue(), y.doubleValue(),
-                        z.doubleValue() );
+                if ((!x.isNaN()) && (!y.isNaN()) && (z.isNaN())){
+                    parent.gmlCoordinates(x.doubleValue(), y.doubleValue());
+                } else if ((!x.isNaN()) && (!y.isNaN()) && (!z.isNaN())){
+                    parent.gmlCoordinates(x.doubleValue(), y.doubleValue(),
+                        z.doubleValue());
                 } else {
                     // intentionally empty
                 }
@@ -447,7 +447,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
          */
         public void insideX(boolean isInside) {
             
-            if ( isInside ) {
+            if (isInside) {
                 insideInnerFlag = INSIDE_X;
             } else {
                 insideInnerFlag = NOT_INSIDE;
@@ -462,7 +462,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
          */
         public void insideY(boolean isInside) {
             
-            if ( isInside ) {
+            if (isInside) {
                 insideInnerFlag = INSIDE_Y;
             } else {
                 insideInnerFlag = NOT_INSIDE;
@@ -477,7 +477,7 @@ public class GMLFilterDocument extends org.xml.sax.helpers.XMLFilterImpl {
          */
         public void insideZ(boolean isInside) {
             
-            if ( isInside ) {
+            if (isInside) {
                 insideInnerFlag = INSIDE_Z;
             } else {
                 insideInnerFlag = NOT_INSIDE;

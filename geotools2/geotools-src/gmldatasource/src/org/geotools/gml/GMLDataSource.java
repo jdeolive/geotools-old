@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * The source of data for Features. Shapefiles, databases, etc. are referenced 
  * through this interface.
  * 
- * @version $Id: GMLDataSource.java,v 1.16 2002/06/20 14:05:10 ianturton Exp $
+ * @version $Id: GMLDataSource.java,v 1.17 2002/07/12 16:48:21 loxnard Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl 
@@ -68,11 +68,11 @@ public class GMLDataSource extends XMLFilterImpl
     
     public void setUri(URL uri) throws DataSourceException{
         InputStream in = null;
-        try{
+        try {
             in = uri.openStream();
-        }catch (IOException e){
-            throw new DataSourceException("Error reading url "+uri.toString()+" in GMLGeometryDataSource"+
-                "\n"+e);
+        } catch (IOException e){
+            throw new DataSourceException("Error reading url " + uri.toString() + " in GMLGeometryDataSource" + 
+                "\n" + e);
         }
         this.uri = new InputSource(in);
     }
@@ -122,11 +122,11 @@ public class GMLDataSource extends XMLFilterImpl
             throw new DataSourceException("Parsing error: " + e.getMessage());
         }
         Feature[] typedFeatures = new Feature[features.size()];
-        for ( int i = 0; i < features.size(); i++ ) {
+        for (int i = 0; i < features.size(); i++) {
             typedFeatures[i] = (Feature) features.get(i);
         }
 
-        featureCollection.addFeatures( typedFeatures );
+        featureCollection.addFeatures(typedFeatures);
         
     }
     
@@ -162,7 +162,7 @@ public class GMLDataSource extends XMLFilterImpl
      * expensive for the method to calculate.
      */
     public Extent getExtent(boolean quick) {
-        if (quick == true ){
+        if (quick == true){
             return getExtent();
         } else {
             //scan whole file

@@ -34,39 +34,39 @@ import com.vividsolutions.jts.geom.*;
  * <p>This handler is required for any parent of a GMLFilterDocument filter.
  * It receives basic element notifications and coordinates.</p>
  * 
- * @version $Id: GMLHandlerGeometry.java,v 1.4 2002/06/05 11:09:06 loxnard Exp $
+ * @version $Id: GMLHandlerGeometry.java,v 1.5 2002/07/12 16:50:43 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface GMLHandlerGeometry extends ContentHandler {
 
 
-		/**
-		 * Receives a geometry start element from the parent.
-		 */
-		public abstract void geometryStart(String localName, Attributes atts) throws SAXException;
+                /**
+                 * Receives a geometry start element from the parent.
+                 */
+		abstract void geometryStart(String localName, Attributes atts) throws SAXException;
 
 
-		/**
-		 * Receives a geometry end element from the parent.
-		 */
-		public abstract void geometryEnd(String localName) throws SAXException;
+                /**
+                 * Receives a geometry end element from the parent.
+                 */
+		abstract void geometryEnd(String localName) throws SAXException;
 
 
-		/**
-		 * Receives a geometry sub element from the parent.
-		 */
-		public abstract void geometrySub(String localName) throws SAXException;
+                /**
+                 * Receives a geometry sub element from the parent.
+                 */
+		abstract void geometrySub(String localName) throws SAXException;
 
 
-		/**
-		 * Receives a finished coordinate from the parent (2-valued).
-		 */
-		public abstract void gmlCoordinates( double x, double y )	throws SAXException;
+                /**
+                 * Receives a finished coordinate from the parent (2-valued).
+                 */
+		abstract void gmlCoordinates( double x, double y )	throws SAXException;
 
-		/**
-		 * Receives a finished coordinate from the parent (3-valued).
-		 */
-		public abstract void gmlCoordinates( double x, double y, double z ) throws SAXException;
+                /**
+                 * Receives a finished coordinate from the parent (3-valued).
+                 */
+		abstract void gmlCoordinates( double x, double y, double z ) throws SAXException;
 
 
 }
