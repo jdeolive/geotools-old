@@ -39,9 +39,9 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Id: design.sgml,v 1.11 2002/12/07 08:34:25 camerons Exp $</date>
+    <date>$Id: design.sgml,v 1.12 2002/12/10 10:46:56 camerons Exp $</date>
 
-    <edition>$Id: design.sgml,v 1.11 2002/12/07 08:34:25 camerons Exp $</edition>
+    <edition>$Id: design.sgml,v 1.12 2002/12/10 10:46:56 camerons Exp $</edition>
   </articleinfo>
 
   <section>
@@ -278,6 +278,58 @@ id="index">
 
       <variablelist>
         <varlistentry>
+          <term>Toolkit</term>
+
+          <listitem>
+            <para>Geotools2 is a toolkit to be used by multiple applications,
+            it is not designed to be an application itself. Geotools2 aims to
+            implement all the common elements used by GIS applications.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>OGC Compliant</term>
+
+          <listitem>
+            <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
+            specifications as they become available. Since the specifications
+            are continuously evolving, Geotools2 needs to provide a flexable
+            design which can easilly be refactored.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Implements GeoInterfaces</term>
+
+          <listitem>
+            <para>The <emphasis>GeoInterfaces</emphasis> project defines
+            geographic components and Geotools2 provides implimentations of
+            these interfaces.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Multiple implimentations</term>
+
+          <listitem>
+            <para>Different applications have different design goals. One may
+            require fast rendering while anothe require small source code.
+            Geotools2 allows two different modules to impliment the same
+            functionality.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>Open Source</term>
+
+          <listitem>
+            <para>Geotools2 is released under the LGPL Open Source licence.
+            External packages Geotools2 depends upon must use a similar
+            licence to ensure users can use Geotools2 under the LGPL licence.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
           <term>Modular</term>
 
           <listitem>
@@ -305,45 +357,6 @@ id="index">
                 the subset of the modules required.</para>
               </listitem>
             </itemizedlist>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Toolkit</term>
-
-          <listitem>
-            <para>Geotools2 is a toolkit to be used by multiple applications,
-            it is not designed to be an application itself. Geotools2 aims to
-            implement all the common elements used by GIS applications.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>OGC Compliant</term>
-
-          <listitem>
-            <para>Geotools2 aims to implement the Open GIS Consortium (OGC)
-            specifications as they become available.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Implements GeoInterfaces</term>
-
-          <listitem>
-            <para>The <emphasis>GeoInterfaces</emphasis> project defines
-            geographic components and Geotools2 provides implimentations of
-            these interfaces.</para>
-          </listitem>
-        </varlistentry>
-
-        <varlistentry>
-          <term>Open Source</term>
-
-          <listitem>
-            <para>Geotools2 is released under the LGPL Open Source licence.
-            External packages Geotools2 depends upon must use a similar
-            licence to ensure users can use Geotools2 under the LGPL licence.</para>
           </listitem>
         </varlistentry>
       </variablelist>
@@ -482,12 +495,6 @@ id="index">
 
   <section>
     <title id="geotoolsdetaileddesign">Geotools2 detailed design.</title>
-
-    <section>
-      <title>todo</title>
-
-      <para>The 5.x sections need to be filled out with more detail.</para>
-    </section>
 
     <section>
       <title id="modulecore">core</title>
