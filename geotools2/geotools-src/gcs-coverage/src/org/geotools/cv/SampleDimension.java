@@ -107,7 +107,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.17 2003/02/18 19:28:34 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.18 2003/03/14 12:35:48 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -832,20 +832,43 @@ public class SampleDimension implements Serializable {
      * the value is {@link ColorInterpretation#UNDEFINED}.
      *
      * @see CV_SampleDimension#getColorInterpretation()
-     *
-     * @task TODO: the 'band' and 'numBands' parameters should be specified at construction time.
      */
     public ColorInterpretation getColorInterpretation() {
+        // The 'GridSampleDimension' class overrides this method
+        // with better values for 'band' and 'numBands' constants.
         final int band     = 0;
         final int numBands = 1;
         return ColorInterpretation.getEnum(getColorModel(band, numBands), band);
     }
+
+    /**
+     * Returns a color model for this sample dimension. The default implementation create a color
+     * model with 1 band using each category's colors as returned by {@link Category#getColors}.
+     * The returned color model will typically use data type {@link DataBuffer#TYPE_FLOAT} if this
+     * <code>SampleDimension</code> instance is "geophysics", or an integer data type otherwise.
+     * <br><br>
+     * Note that {@link org.geotools.gc.GridCoverage#getSampleDimensions} returns special
+     * implementations of <code>SampleDimension</code>. In this particular case, the color model
+     * created by this <code>getColorModel()</code> method will have the same number of bands
+     * than the grid coverage's {@link java.awt.image.RenderedImage}.
+     *
+     * @return The requested color model, suitable for {@link RenderedImage} objects with values
+     *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this
+     *         sample dimension has no category.
+     */
+    public ColorModel getColorModel() {
+        // The 'GridSampleDimension' class overrides this method
+        // with better values for 'band' and 'numBands' constants.
+        final int band     = 0;
+        final int numBands = 1;
+        return getColorModel(band, numBands);
+    }
     
     /**
-     * Returns a color model for this sample dimension. The default implementation builds up the
-     * color model using each category's colors (as returned by {@link Category#getColors}). The
+     * Returns a color model for this sample dimension. The default implementation create the
+     * color model using each category's colors as returned by {@link Category#getColors}. The
      * returned color model will typically use data type {@link DataBuffer#TYPE_FLOAT} if this
-     * sample model is for geophysical values, or an integer data type otherwise.
+     * <code>SampleDimension</code> instance is "geophysics", or an integer data type otherwise.
      *
      * @param  visibleBand The band to be made visible (usually 0). All other bands, if any
      *         will be ignored.
@@ -857,7 +880,10 @@ public class SampleDimension implements Serializable {
      *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this
      *         sample dimension has no category.
      *
-     * @task TODO: the 'band' and 'numBands' parameters should be specified at construction time.
+     * @task REVISIT: This method may be deprecated in a future version. It it strange to use
+     *                only one <code>SampleDimension</code>  for creating a multi-bands color
+     *                model. Logically, we would expect as many <code>SampleDimension</code>s
+     *                as bands.
      */
     public ColorModel getColorModel(final int visibleBand, final int numBands) {
         if (categories != null) {
@@ -1139,13 +1165,9 @@ public class SampleDimension implements Serializable {
 
         /**
          * Color palette associated with the sample dimension.
-         *
-         * @task TODO: Should invokes a no-args method for 'getColorModel()'. Can be done when
-         *             'band' and 'numBands' parameters will be moved into SampleDimension's
-         *             constructor.
          */
         public int[][] getPalette() throws RemoteException {
-            final ColorModel model = getColorModel(0, 1);
+            final ColorModel model = getColorModel();
             if (model instanceof IndexColorModel) {
                 final IndexColorModel index = (IndexColorModel) model;
                 final int[][] palette = new int[index.getMapSize()][];

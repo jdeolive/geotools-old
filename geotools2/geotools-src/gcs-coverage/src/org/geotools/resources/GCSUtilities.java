@@ -48,7 +48,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.3 2003/02/18 19:28:38 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.4 2003/03/14 12:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -134,5 +134,20 @@ public final class GCSUtilities {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the visible band in the specified image. This method fetch the "GC_VisibleBand"
+     * property. If this property is undefined, then the visible band default to the first one.
+     *
+     * @param  image The image for which to fetch the visible band.
+     * @return The visible band.
+     */
+    public static int getVisibleBand(final RenderedImage image) {
+        final Object candidate = image.getProperty("GC_VisibleBand");
+        if (candidate instanceof Integer) {
+            return ((Integer) candidate).intValue();
+        }
+        return 0;
     }
 }

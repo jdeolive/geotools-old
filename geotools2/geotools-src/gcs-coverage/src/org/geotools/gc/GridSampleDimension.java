@@ -36,6 +36,8 @@
 package org.geotools.gc;
 
 // J2SE dependencies
+import java.awt.image.ColorModel;
+import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
 
 // JAI dependencies
@@ -52,7 +54,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.5 2003/02/14 15:46:47 desruisseaux Exp $
+ * @version $Id: GridSampleDimension.java,v 1.6 2003/03/14 12:35:48 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
@@ -61,6 +63,11 @@ final class GridSampleDimension extends SampleDimension {
      * Band number for this sample dimension.
      */
     private final int band;
+
+    /**
+     * The number of bands in the {@link GridCoverage} who own this sample dimension.
+     */
+    private final int numBands;
 
     /**
      * The grid value data type.
@@ -79,8 +86,10 @@ final class GridSampleDimension extends SampleDimension {
                                 final int             bandNumber)
     {
         super(band);
-        this.band = bandNumber;
-        this.type = SampleDimensionType.getEnum(image.getSampleModel(), bandNumber);
+        final SampleModel model = image.getSampleModel();
+        this.band     = bandNumber;
+        this.numBands = model.getNumBands();
+        this.type     = SampleDimensionType.getEnum(model, bandNumber);
     }
 
     /**
@@ -136,15 +145,19 @@ final class GridSampleDimension extends SampleDimension {
     public SampleDimensionType getSampleDimensionType() {
         return type;
     }
-
+    
     /**
      * Returns the color interpretation of the sample dimension.
-     * Since {@link CategoryList} are designed for indexed color
-     * models, current implementation returns {@link ColorInterpretation#PALETTE_INDEX}.
-     * We need to find a more general way in some future version.
      */
     public ColorInterpretation getColorInterpretation() {
-        return ColorInterpretation.PALETTE_INDEX;
+        return ColorInterpretation.getEnum(getColorModel(band, numBands), band);
+    }
+
+    /**
+     * Returns a color model for this sample dimension.
+     */
+    public ColorModel getColorModel() {
+        return getColorModel(band, numBands);
     }
     
     /**

@@ -73,7 +73,7 @@ import org.geotools.cv.SampleDimension;
  *     08    0000FF        0000FF
  * </pre></blockquote>
  *
- * @version $Id: GradualColormapOperation.java,v 1.1 2002/08/25 18:33:45 desruisseaux Exp $
+ * @version $Id: GradualColormapOperation.java,v 1.2 2003/03/14 12:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradualColormapOperation extends IndexColorOperation {
@@ -131,11 +131,11 @@ final class GradualColormapOperation extends IndexColorOperation {
     /**
      * Transform the supplied RGB colors.
      */
-    protected void transformColormap(final byte[] R,
-                                     final byte[] G,
-                                     final byte[] B,
-                                     final SampleDimension band,
-                                     final ParameterList parameters)
+    protected SampleDimension transformColormap(final byte[] R,
+                                                final byte[] G,
+                                                final byte[] B,
+                                                final SampleDimension band,
+                                                final ParameterList parameters)
     {
         final List categories = band.getCategories();
         for (int j=categories.size(); --j>=0;) {
@@ -179,5 +179,6 @@ final class GradualColormapOperation extends IndexColorOperation {
                 }
             }
         }
+        return band;
     }
 }

@@ -53,6 +53,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
+import java.util.Arrays;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -64,6 +65,7 @@ import org.geotools.cs.CoordinateSystem;
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -93,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.11 2002/10/09 19:46:31 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -309,8 +311,7 @@ public class OperationJAI extends Operation {
                                        final ParameterBlockJAI parameters,
                                        final RenderingHints    hints)
     {
-        final int band = 0; // TODO: The band to examine.
-        final GridCoverage source = sources[MASTER_SOURCE_INDEX];
+              GridCoverage source = sources[MASTER_SOURCE_INDEX];
         final CoordinateSystem cs = source.getCoordinateSystem();
         final Envelope   envelope = source.getEnvelope();
         /*
@@ -328,29 +329,39 @@ public class OperationJAI extends Operation {
             }
         }
         /*
-         * Get the target category lists. A new color model
-         * will be constructed from the new SampleDimension.
+         * Get the target SampleDimensions. If they are identical to the SampleDimensions of
+         * one of the source GridCoverage, then this GridCoverage will be use at the source.
+         * It will affect the target GridCoverage's name and the visible band.  Then, a new
+         * color model will be constructed from the new SampleDimensions, taking in account
+         * the visible band.
          */
         final SampleDimension[][] list = new SampleDimension[sources.length][];
         for (int i=0; i<list.length; i++) {
             list[i] = sources[i].getSampleDimensions();
         }
         final SampleDimension[] sampleDims = deriveSampleDimension(list, cs, parameters);
+        for (int i=0; i<list.length; i++) {
+            if (Arrays.equals(sampleDims, list[i])) {
+                source = sources[i];
+                break;
+            }
+        }
         ImageLayout layout = new ImageLayout();
-        if (sampleDims!=null && sampleDims.length>band) {
-            layout = layout.setColorModel(sampleDims[band].getColorModel(0, sampleDims.length));
+        if (sampleDims!=null && sampleDims.length!=0) {
+            int visibleBand = GCSUtilities.getVisibleBand(source.getRenderedImage());
+            if (visibleBand >= sampleDims.length) {
+                visibleBand = 0;
+            }
+            final ColorModel colors;
+            colors = sampleDims[visibleBand].getColorModel(visibleBand, sampleDims.length);
+            layout = layout.setColorModel(colors);
         }
         /*
-         * Perform the operation using JAI and
-         * construct the new grid coverage.
+         * Performs the operation using JAI and construct the new grid coverage.
          */
         final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        JAI processor = JAI.getDefaultInstance();
+        final JAI processor = getJAI(hints);
         if (hints != null) {
-            final Object value = hints.get(Hints.JAI_INSTANCE);
-            if (value instanceof JAI) {
-                processor = (JAI) value;
-            }
             exHints.add(hints); // May overwrite the image layout we just set.
         }
         final RenderedImage data = processor.createNS(descriptor.getName(), parameters, exHints);

@@ -64,6 +64,7 @@ import javax.media.jai.iterator.RectIterFactory;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.DualRectIter;
+import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.ImageUtilities;
 
 
@@ -74,7 +75,7 @@ import org.geotools.resources.ImageUtilities;
  * "CRIF" stands for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.
  * The image operation name is "GC_SampleTranscoding".
  *
- * @version $Id: ImageAdapter.java,v 1.8 2002/08/12 10:13:46 desruisseaux Exp $
+ * @version $Id: ImageAdapter.java,v 1.9 2003/03/14 12:35:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ImageAdapter extends PointOpImage {
@@ -218,7 +219,9 @@ final class ImageAdapter extends PointOpImage {
     }
     
     /**
-     * Returns the destination image layout.
+     * Returns the destination image layout. The layout will defines a color model suitable for
+     * the destination image. The visible band will be fetch from the image's "GC_VisibleBand"
+     * property. If this property is not defined, then the visible band default to the first band.
      *
      * @param  image The source image.
      * @param  categories The list of category.
@@ -233,10 +236,10 @@ final class ImageAdapter extends PointOpImage {
     private static ImageLayout getLayout(final RenderedImage       image,
                                          final CategoryList[] categories)
     {
-        final int     band = 0; // The visible band.
-        CategoryList categ = categories[band].inverse;
+        final int visibleBand = GCSUtilities.getVisibleBand(image);
+        CategoryList categ = categories[visibleBand].inverse;
         ImageLayout layout = ImageUtilities.getImageLayout(image);
-        ColorModel  colors = categ.getColorModel(band, image.getSampleModel().getNumBands());
+        ColorModel  colors = categ.getColorModel(visibleBand, image.getSampleModel().getNumBands());
         SampleModel  model = colors.createCompatibleSampleModel(image.getWidth(), image.getHeight());
         if (colors instanceof IndexColorModel && model.getClass().equals(ComponentSampleModel.class))
         {

@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.11 2002/08/30 13:12:21 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -164,6 +164,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new OperationJAI("Rescale"));
             DEFAULT.addOperation(new ColormapOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
+            DEFAULT.addOperation(new BandSelect.Operation());
         }
         return DEFAULT;
     }
@@ -277,6 +278,37 @@ public class GridCoverageProcessor {
                 .setParameter("Source", source)
                 .setParameter(argumentName1, argumentValue1)
                 .setParameter(argumentName2, argumentValue2));
+    }
+    
+    /**
+     * Convenience method applying a process operation with three parameters.
+     *
+     * @param  operationName  Name of the operation to be applied to the grid coverage..
+     * @param  source         The source grid coverage.
+     * @param  argumentName1  The name of the first parameter to set.
+     * @param  argumentValue1 The value for the first parameter.
+     * @param  argumentName2  The name of the second parameter to set.
+     * @param  argumentValue2 The value for the second parameter.
+     * @param  argumentName3  The name of the third parameter to set.
+     * @param  argumentValu32 The value for the third parameter.
+     * @return The result as a grid coverage.
+     * @throws OperationNotFoundException if there is no operation named <code>operationName</code>.
+     * @throws IllegalArgumentException if there is no parameter with the specified name.
+     *
+     * @see #doOperation(Operation,ParameterList)
+     */
+    public GridCoverage doOperation(final String operationName, final GridCoverage source,
+                                    final String argumentName1, final Object argumentValue1,
+                                    final String argumentName2, final Object argumentValue2,
+                                    final String argumentName3, final Object argumentValue3)
+    throws OperationNotFoundException, IllegalArgumentException
+    {
+        final Operation operation = getOperation(operationName);
+        return doOperation(operation, operation.getParameterList()
+                .setParameter("Source", source)
+                .setParameter(argumentName1, argumentValue1)
+                .setParameter(argumentName2, argumentValue2)
+                .setParameter(argumentName3, argumentValue3));
     }
     
     /**

@@ -52,13 +52,14 @@ import javax.media.jai.ParameterList;
 // Geotools implementation
 import org.geotools.gc.GridCoverage;
 import org.geotools.cv.SampleDimension;
+import org.geotools.resources.GCSUtilities;
 
 
 /**
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.5 2002/08/08 18:35:43 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.6 2003/03/14 12:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -95,14 +96,14 @@ abstract class IndexColorOperation extends Operation {
             // TODO: localize this message.
             throw new IllegalArgumentException("Need an IndexColorModel");
         }
-        final int band = 0; // Always 0 in this implementation.
+        final int visibleBand = GCSUtilities.getVisibleBand(image);
         final SampleDimension[] bands = visual.getSampleDimensions();
         final IndexColorModel  colors = (IndexColorModel) model;
         final int             mapSize = colors.getMapSize();
         final byte[] R=new byte[mapSize]; colors.getReds  (R);
         final byte[] G=new byte[mapSize]; colors.getGreens(G);
         final byte[] B=new byte[mapSize]; colors.getBlues (B);
-        transformColormap(R,G,B, bands[band], parameters);
+        bands[visibleBand] = transformColormap(R,G,B, bands[visibleBand], parameters);
         if (compare(colors, R,G,B)) {
             /*
              * No color change: returns the source.
@@ -112,15 +113,16 @@ abstract class IndexColorOperation extends Operation {
         final int computeType = (image instanceof OpImage) ?
                 ((OpImage)image).getOperationComputeType() : OpImage.OP_COMPUTE_BOUND;
 
-        final int              numBits = colors.getComponentSize()[band];
+        final int              numBits = colors.getComponentSize()[visibleBand];
         final IndexColorModel newModel = new IndexColorModel(numBits, mapSize, R,G,B);
         final ImageLayout       layout = new ImageLayout().setColorModel(newModel);
         final RenderedImage   newImage = new NullOpImage(image, layout, null, computeType);
         GridCoverage target = new GridCoverage(visual.getName(null), newImage,
                                                visual.getCoordinateSystem(),
-                                               visual.getEnvelope(),
-                                               new SampleDimension[] {bands[band]},
-                                               new GridCoverage[] {visual}, null);
+                                               visual.getGridGeometry().getGridToCoordinateSystem(),
+                                               bands,
+                                               new GridCoverage[] {visual},
+                                               null);
         if (source != visual) {
             target = target.geophysics(true);
         }
@@ -145,12 +147,14 @@ abstract class IndexColorOperation extends Operation {
      *        information for transforming only colors at index allocated to
      *        geophysics values.
      * @param parameters The user-supplied parameters.
+     * @return A sample dimension identical to <code>band</code> except for the colors.
+     *         Subclasses may conservatively returns <code>band</code>.
      */
-    protected abstract void transformColormap(final byte[] R,
-                                              final byte[] G,
-                                              final byte[] B,
-                                              final SampleDimension band,
-                                              final ParameterList parameters);
+    protected abstract SampleDimension transformColormap(final byte[] R,
+                                                         final byte[] G,
+                                                         final byte[] B,
+                                                         final SampleDimension band,
+                                                         final ParameterList parameters);
     
     /**
      * Check if a color model use the specified RGB components.

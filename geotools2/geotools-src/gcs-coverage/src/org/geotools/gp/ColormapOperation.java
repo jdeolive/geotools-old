@@ -51,7 +51,7 @@ import org.geotools.cv.SampleDimension;
  * Operation replacing the colormap of a {@link GridCoverage}.
  * Only colors for geophysics category sample values are changed.
  *
- * @version $Id: ColormapOperation.java,v 1.4 2002/08/25 18:33:45 desruisseaux Exp $
+ * @version $Id: ColormapOperation.java,v 1.5 2003/03/14 12:35:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColormapOperation extends IndexColorOperation {
@@ -86,11 +86,11 @@ final class ColormapOperation extends IndexColorOperation {
     /**
      * Transform the supplied RGB colors.
      */
-    protected void transformColormap(final byte[] R,
-                                     final byte[] G,
-                                     final byte[] B,
-                                     final SampleDimension band,
-                                     final ParameterList parameters)
+    protected SampleDimension transformColormap(final byte[] R,
+                                                final byte[] G,
+                                                final byte[] B,
+                                                final SampleDimension band,
+                                                final ParameterList parameters)
     {
         final Color[] colors = (Color[]) parameters.getObjectParameter("Colors");
         if (colors.length != 2) {
@@ -100,7 +100,7 @@ final class ColormapOperation extends IndexColorOperation {
         final Color upperColor = colors[1];
         final Category categories[] = (Category[]) band.getCategories().toArray();
         for (int j=categories.length; --j>=0;) {
-            final Category category = categories[j];
+            Category category = categories[j];
             if (category.isQuantitative()) {
                 final Range range = category.getRange();
                 int lower = ((Number) range.getMinValue()).intValue();
@@ -121,8 +121,15 @@ final class ColormapOperation extends IndexColorOperation {
                         G[i] = (byte) (Gi + (int) Math.rint(i0*fG));
                         B[i] = (byte) (Bi + (int) Math.rint(i0*fB));
                     }
+                    final boolean isGeophysics = (category == category.geophysics(true));
+                    category = category.geophysics(false);
+                    category = new Category(category.getName(null), colors, range,
+                                            category.getSampleToGeophysics());
+                    category = category.geophysics(isGeophysics);
+                    categories[j] = category;
                 }
             }
         }
+        return new SampleDimension(categories, band.getUnits());
     }
 }

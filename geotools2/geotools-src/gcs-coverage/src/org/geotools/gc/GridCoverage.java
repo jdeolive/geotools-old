@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -812,19 +812,6 @@ public class GridCoverage extends Coverage {
             image.prefetchTiles(tileIndices);
         }
     }
-    
-    /**
-     * Check if all numbers in <code>bands</code> are increasing from 0 to
-     * <code>bands.length-1</code>. This internal method is used by {@link #geophysics}.
-     */
-    private static boolean isIncreasing(final int[] bands) {
-        for (int i=0; i<bands.length; i++) {
-            if (bands[i]!=i) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     /**
      * If <code>true</code>, returns a <code>GridCoverage</code> with sample values
@@ -855,45 +842,24 @@ public class GridCoverage extends Coverage {
             return this;
         }
         if (inverse == null) {
-            PlanarImage       selectedImage = image;
-            SampleDimension[] selectedBands = sampleDimensions;
-            if (!toGeophysics) {
-                /*
-                 * HACK: If we are going to transform a geophysics image into a "normal" one, we
-                 *       need to keep only one band.  This is because the "normal" image usually
-                 *       has an IndexColorModel, which can have only one band.  We should try to
-                 *       avoid this hack in some future version.
-                 */
-                final int    band  = 0; // TODO: make available as a parameter.
-                final int[]  bands = new int[]{band};
-                final int numBands = selectedImage.getSampleModel().getNumBands();
-                if (bands.length!=numBands || !isIncreasing(bands)) {
-                    ParameterBlock param = new ParameterBlock().addSource(selectedImage).add(bands);
-                    selectedImage = JAI.create("BandSelect", param);
-                }
-                selectedBands = new SampleDimension[bands.length];
-                for (int i=0; i<bands.length; i++) {
-                    selectedBands[i] = sampleDimensions[bands[i]];
-                }
-            }
+            PlanarImage       inverseImage = image;
+            SampleDimension[] inverseBands = sampleDimensions;
             /*
              * Transcode the image sample values. The "GC_SampleTranscoding" is registered
              * in the org.geotools.cv package in the SampleDimension class.
              */
-            ParameterBlock param = new ParameterBlock().addSource(selectedImage).add(selectedBands);
-            selectedImage = JAI.create("GC_SampleTranscoding", param).getRendering();
-            if (selectedImage == image) {
+            ParameterBlock param = new ParameterBlock().addSource(inverseImage).add(inverseBands);
+            inverseImage = JAI.create("GC_SampleTranscoding", param).getRendering();
+            if (inverseImage == image) {
                 inverse = this;
             } else {
-                if (selectedBands == sampleDimensions) {
-                    selectedBands = (SampleDimension[]) selectedBands.clone();
+                inverseBands = (SampleDimension[]) inverseBands.clone();
+                for (int i=0; i<inverseBands.length; i++) {
+                    inverseBands[i] = inverseBands[i].geophysics(toGeophysics);
                 }
-                for (int i=0; i<selectedBands.length; i++) {
-                    selectedBands[i] = selectedBands[i].geophysics(toGeophysics);
-                }
-                inverse = new GridCoverage(getName(null), selectedImage,
+                inverse = new GridCoverage(getName(null), inverseImage,
                                            coordinateSystem, getGridGeometry(), null,
-                                           selectedBands, new GridCoverage[]{this}, null);
+                                           inverseBands, new GridCoverage[]{this}, null);
                 inverse = interpolate(inverse);
                 inverse.inverse = this;
             }
@@ -952,7 +918,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -981,7 +947,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.11 2003/02/14 23:38:13 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.12 2003/03/14 12:35:48 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

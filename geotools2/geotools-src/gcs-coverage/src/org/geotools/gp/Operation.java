@@ -73,7 +73,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.7 2002/08/25 18:33:45 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.8 2003/03/14 12:35:48 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -271,6 +271,21 @@ public abstract class Operation implements Serializable {
      */
     protected abstract GridCoverage doOperation(final ParameterList  parameters,
                                                 final RenderingHints hints);
+
+    /**
+     * Returns the JAI instance to use for operations on {@link RenderedImage}.
+     *
+     * @param hints The rendering hints, or <code>null</code> if none.
+     */
+    static JAI getJAI(final RenderingHints hints) {
+        if (hints != null) {
+            final Object value = hints.get(Hints.JAI_INSTANCE);
+            if (value instanceof JAI) {
+                return (JAI) value;
+            }
+        }
+        return JAI.getDefaultInstance();
+    }
 
     /**
      * Returns a hash value for this operation.
