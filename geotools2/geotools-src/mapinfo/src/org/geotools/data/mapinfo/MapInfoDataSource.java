@@ -50,76 +50,96 @@ import org.geotools.filter.*;
 import org.geotools.styling.*;
 
 
-/**
- *
- *
- * @version $Revision: 1.5 $
- * @author $author$
+/** Parses MIF and MID file pair into features
+ * @version $Revision: 1.6 $
+ * @author Ian Turton
+ * @author James Macgill
  */
 public class MapInfoDataSource extends AbstractDataSource implements DataSource {
     private static Logger LOGGER = Logger.getLogger("org.geotools.mifmid");
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_NONE = "none";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_POINT = "point";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_LINE = "line";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_PLINE = "pline";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_REGION = "region";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_ARC = "arc";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_TEXT = "text";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_RECT = "rectangle";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_ROUNDRECT = "rounded rectangle";
     
     
+    /** Geometry type identifier constant */
     public static final String TYPE_ELLIPSE = "ellipse";
     
     
+    /** String Constant */
     public static final String CLAUSE_SYMBOL = "SYMBOL";
     
     
+    /** String Constant */
     public static final String CLAUSE_PEN = "PEN";
     
     
+    /** String Constant */
     public static final String CLAUSE_SMOOTH = "SMOOTH";
     
     
+    /** String Constant */
     public static final String CLAUSE_CENTER = "CENTER";
     
     
+    /** String Constant */
     public static final String CLAUSE_BRUSH = "BRUSH";
     
     
+    /** String Constant */
     public static final String CLAUSE_VERSION = "Version";
     
     
+    /** String Constant */
     public static final String CLAUSE_CHARSET = "Charset";
     
     
+    /** String Constant */
     public static final String CLAUSE_DELIMETER = "DELIMITER";
     
     
+    /** String Constant */
     public static final String CLAUSE_UNIQUE = "UNIQUE";
     
     
+    /** String Constant */
     public static final String CLAUSE_INDEX = "INDEX";
     
     
+    /** String Constant */
     public static final String CLAUSE_COLUMNS = "COLUMNS";
     
     // Header information
@@ -163,19 +183,18 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
     
     private String filename;
     
+    /** Construct MapInfoDataSource and attach it to the specified file
+     * @param url location of the mif file to read
+     * @throws MalformedURLException invalid URL was used
+     */
     public MapInfoDataSource(URL url) throws java.net.MalformedURLException {
         filename = java.net.URLDecoder.decode(url.getFile());
         geomFactory = new GeometryFactory();
     }
     
     
-    /**
-     * Reads the MIF and MID files and returns a Vector of the Features they contain
-     *
-     * @param filename the base file name to be read
-     *
-     * @return a vector of features?
-     *
+    /** Reads the MIF and MID files and returns a Vector of the Features they contain
+     * @return a vector of features
      * @throws DataSourceException if file doesn't exist or is not readable etc
      */
     protected Vector readMifMid() throws DataSourceException {
@@ -1103,10 +1122,10 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
     }
     
     
-    /**
-     * Retrieves the featureType that features extracted from this datasource
+    /** Retrieves the featureType that features extracted from this datasource
      * will be created with.
      * @tasks TODO: implement this method.
+     * @return FeatureType of the features in the MIFMID file
      */
     public FeatureType getSchema(){
         return null;
