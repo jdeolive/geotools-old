@@ -24,6 +24,9 @@ import cmp.LEDataStream.LEDataInputStream;
 import com.vividsolutions.jts.geom.Geometry;
 import java.io.IOException;
 
+//Logging system
+import org.apache.log4j.Logger;
+
 
 /**
  * This class represnts an ESRI Shapefile.<p>
@@ -35,7 +38,7 @@ import java.io.IOException;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.8 2002/07/12 14:08:25 loxnard Exp $
+ * @version $Id: Shapefile.java,v 1.9 2002/07/19 13:04:31 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -58,6 +61,8 @@ public class Shapefile  {
     private LEDataInputStream inStream = null;
     private ShapefileHeader mainHeader = null;
     private com.vividsolutions.jts.geom.Envelope bounds = null;
+    
+    private static Logger log = Logger.getLogger(Shapefile.class);
     /**
      * Creates and initialises a shapefile from a url.
      * @param url The url of the shapefile.
@@ -138,7 +143,10 @@ public class Shapefile  {
             }
         }
         catch (java.io.EOFException e){
-            
+            log.debug("End of Shapefile reached, EOF caught");
+        }
+         catch(org.geotools.shapefile.InvalidShapefileException e) {
+             log.warn("Truncating feature loading. Some features may not have been read",e);
         }
         return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[]{}));
     }
