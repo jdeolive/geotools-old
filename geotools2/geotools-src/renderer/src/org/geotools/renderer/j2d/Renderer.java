@@ -34,6 +34,8 @@ package org.geotools.renderer.j2d;
 
 // J2SE dependencies
 import java.awt.Shape;
+import java.awt.Frame;
+import java.awt.Dialog;
 import java.awt.Rectangle;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -50,6 +52,7 @@ import java.awt.event.ComponentListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import javax.swing.JInternalFrame;
 import javax.swing.ToolTipManager;
 import javax.swing.JComponent;
 import javax.swing.Action;
@@ -98,7 +101,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.12 2003/01/31 23:15:38 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.13 2003/02/02 21:47:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -106,14 +109,6 @@ public class Renderer {
      * The logger for the Java2D renderer module.
      */
     static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
-
-    /**
-     * Minimum amout of milliseconds during rendering before logging a message.
-     * A message will be logged only if rendering take longer, which is usefull
-     * for tracking down performance bottleneck. Set this value to 0 for logging
-     * all paint events.
-     */
-    private static final int TIME_THRESHOLD = 0;
 
     /**
      * Small value for avoiding rounding error.
@@ -271,11 +266,9 @@ public class Renderer {
     private Rectangle2D preferredArea;
 
     /**
-     * The number of points recomputed, rendered and the total number of points while painting
-     * an {@link org.geotools.renderer.Isoline}. Those informations are for statistics purpose
-     * only and are updated only by {@link RenderedIsoline}.
+     * Statistics about rendering. Used for logging messages only.
      */
-    transient int recomputedPts, renderedPts, totalPts;
+    final RenderingStatistics statistics = new RenderingStatistics();
 
 
 
@@ -405,42 +398,27 @@ public class Renderer {
     }
 
     /**
-     * Returns this renderer's name. The default implementation returns the name of the
-     * layer that cover the wider {@linkplain RenderedLayer#getPreferredArea area} seen
-     * on screen.
+     * Returns this renderer's name. The default implementation returns the title
+     * of the window which contains the map pane.
      *
      * @param  locale The desired locale, or <code>null</code> for a default locale.
-     * @return This renderer's name.
+     * @return This renderer's name, or <code>null</code> if none.
      *
      * @see #getLocale
      * @see Component#getName
      * @see RenderedLayer#getName
      */
     public synchronized String getName(final Locale locale) {
-        final CoordinateSystem cs = getCoordinateSystem();
-        RenderedLayer    selected = null;
-        double            maxArea = 0;
-        for (int i=0; i<layerCount; i++) {
-            final RenderedLayer layer = layers[i];
-            Rectangle2D area = layer.getPreferredArea();
-            if (area != null) try {
-                area = CTSUtilities.transform((MathTransform2D) getMathTransform(
-                              layer.getCoordinateSystem(), cs, "Renderer", "getName"), area, area);
-                final double s = area.getWidth() * area.getHeight();
-                if (s > maxArea) {
-                    maxArea  = s;
-                    selected = layer;
-                }
-            } catch (TransformException exception) {
-                // Not a big deal. Ignore this layer and continue.
-                handleException("Renderer", "getName", exception);
+        for (Component c=mapPane; c!=null; c=c.getParent()) {
+            if (c instanceof Frame) {
+                return ((Frame) c).getTitle();
             }
-        }
-        if (selected != null) {
-            return selected.getName(locale);
-        }
-        if (mapPane != null) {
-            return mapPane.getName();
+            if (c instanceof Dialog) {
+                return ((Dialog) c).getTitle();
+            }
+            if (c instanceof JInternalFrame) {
+                return ((JInternalFrame) c).getTitle();
+            }
         }
         return null;
     }
@@ -1170,8 +1148,7 @@ public class Renderer {
                                    final AffineTransform zoom,
                                    final Rectangle       bounds)
     {
-        long timeMillis = System.currentTimeMillis();
-        recomputedPts = renderedPts = totalPts = 0;
+        statistics.init();
         sortLayers();
         RenderingContext       context = this.context;
         final RenderedLayer[]   layers = this.layers;
@@ -1252,27 +1229,7 @@ public class Renderer {
         /*
          * If this map took a long time to renderer, log a message.
          */
-        timeMillis = System.currentTimeMillis()-timeMillis;
-        if (timeMillis>=TIME_THRESHOLD && LOGGER.isLoggable(Level.FINE)) {
-            final Locale       locale = getLocale();
-            final Resources resources = Resources.getResources(locale);
-            final String         name = getName(locale);
-            final Double         time = new Double(timeMillis/1000.0);
-            final LogRecord    record;
-            if (totalPts == 0) {
-                record = resources.getLogRecord(Level.FINE, ResourceKeys.PAINTING_$2, name, time);
-            } else {
-                record = new LogRecord(Level.FINE,
-                         resources.getString(ResourceKeys.PAINTING_$2, name, time) +
-                         System.getProperty("line.separator", "\n") +
-                         resources.getString(ResourceKeys.POLYGON_CACHE_USE_$2,
-                              new Double((double)renderedPts/(double)totalPts),
-                              new Double((double)(renderedPts-recomputedPts)/(double)renderedPts)));
-            }
-            record.setSourceClassName(Utilities.getShortClassName(this));
-            record.setSourceMethodName("paint");
-            LOGGER.log(record);
-        }
+        statistics.finish(this, Level.FINE);
     }
 
     /**

@@ -103,7 +103,12 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.8 2003/01/31 23:15:37 desruisseaux Exp $
+ * <TABLE WIDTH="80%" ALIGN="center" CELLPADDING="18" BORDER="4" BGCOLOR="#FFE0B0"><TR><TD>
+ * <P ALIGN="justify"><STRONG>This class may change in a future version, hopefully toward
+ * ISO-19107. Do not rely on it.</STRONG>
+ * </TD></TR></TABLE>
+ *
+ * @version $Id: Polygon.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -1847,7 +1852,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.8 2003/01/31 23:15:37 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon
@@ -1902,7 +1907,8 @@ public class Polygon extends GeoShape {
          *        decimated, projected and transformed). They are points that was not reused
          *        from the cache. This number is always smaller than or equals to
          *        <code>rendered</code>.
+         * @param resolution The mean resolution of rendered polygons.
          */
-        public abstract void paintCompleted(int rendered, int recomputed);
+        public abstract void paintCompleted(int rendered, int recomputed, double resolution);
     }
 }

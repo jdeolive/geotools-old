@@ -94,7 +94,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.6 2003/01/31 23:15:37 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -855,6 +855,13 @@ final class Polyline implements Serializable {
             final PointIterator it = array.iterator(0);
             if (it.hasNext()) {
                 last.setLocation(it.nextX(), it.nextY());
+                if (transform != null) {
+                    last = transform.transform(last, last);
+                }
+                if (ellipsoid != null) {
+                    last.setLocation(Unit.DEGREE.convert(last.getX(), xUnit),
+                                     Unit.DEGREE.convert(last.getY(), yUnit));
+                }
                 while (it.hasNext()) {
                     point.setLocation(it.nextX(), it.nextY());
                     if (transform != null) {
@@ -1227,7 +1234,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.6 2003/01/31 23:15:37 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1270,7 +1277,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.6 2003/01/31 23:15:37 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.7 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

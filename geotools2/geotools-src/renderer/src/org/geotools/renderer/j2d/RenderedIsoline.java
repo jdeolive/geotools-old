@@ -71,7 +71,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -243,7 +243,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {
@@ -313,11 +313,10 @@ public class RenderedIsoline extends RenderedLayer {
          * @param rendered The total number of <em>rendered</em> points.
          * @param recomputed The number of points that has been recomputed
          *        (i.e. decompressed, decimated, projected and transformed).
+         * @param resolution The mean resolution of rendered polygons.
          */
-        public void paintCompleted(final int rendered, final int recomputed) {
-            renderer.recomputedPts += recomputed;
-            renderer.renderedPts   += rendered;
-            renderer.totalPts      += numPoints;
+        public void paintCompleted(final int rendered, final int recomputed, double resolution) {
+            renderer.statistics.addIsoline(numPoints, rendered, recomputed, resolution);
         }
     }
 
@@ -392,7 +391,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.5 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {

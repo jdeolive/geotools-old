@@ -76,7 +76,12 @@ import org.geotools.util.Statistics;
  * which can be changed dynamically (i.e. the shapes can be reprojected). Futhermore,
  * <code>GeoShape</code>s can compress and share their data in order to reduce memory footprint.
  *
- * @version $Id: GeoShape.java,v 1.4 2003/01/31 23:15:36 desruisseaux Exp $
+ * <TABLE WIDTH="80%" ALIGN="center" CELLPADDING="18" BORDER="4" BGCOLOR="#FFE0B0"><TR><TD>
+ * <P ALIGN="justify"><STRONG>This class may change in a future version, hopefully toward
+ * ISO-19107. Do not rely on it.</STRONG>
+ * </TD></TR></TABLE>
+ *
+ * @version $Id: GeoShape.java,v 1.5 2003/02/02 21:47:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {

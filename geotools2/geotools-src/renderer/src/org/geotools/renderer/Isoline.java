@@ -78,7 +78,12 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.8 2003/01/31 23:15:36 desruisseaux Exp $
+ * <TABLE WIDTH="80%" ALIGN="center" CELLPADDING="18" BORDER="4" BGCOLOR="#FFE0B0"><TR><TD>
+ * <P ALIGN="justify"><STRONG>This class may change in a future version, hopefully toward
+ * ISO-19107. Do not rely on it.</STRONG>
+ * </TD></TR></TABLE>
+ *
+ * @version $Id: Isoline.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -492,6 +497,7 @@ public class Isoline extends GeoShape implements Comparable {
      */
     public synchronized void paint(final Polygon.Renderer renderer) {
         int rendered=0, recomputed=0;
+        double meanResolution = 0;
         final Shape clip = renderer.getClip();
         if (clip.intersects(getCachedBounds())) {
             if (!sorted) {
@@ -517,11 +523,13 @@ public class Isoline extends GeoShape implements Comparable {
                         if (cache.recomputed()) {
                             recomputed += numPts;
                         }
+                        meanResolution += resolution * numPts;
                     }
                 }
             }
         }
-        renderer.paintCompleted(rendered, recomputed);
+        meanResolution /= rendered;
+        renderer.paintCompleted(rendered, recomputed, meanResolution);
     }
 
     /**
@@ -1056,7 +1064,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.8 2003/01/31 23:15:36 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.9 2003/02/02 21:47:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
