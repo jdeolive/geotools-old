@@ -49,6 +49,8 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 // J2SE dependencies
 import java.rmi.RemoteException;
 
@@ -72,7 +74,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.9 2003/07/11 16:57:18 desruisseaux Exp $
+ * @version $Id: CoordinateSystem.java,v 1.10 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -83,14 +85,14 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -4539963180028417479L;
-    
+        
     /**
      * Constructs a coordinate system.
      *
      * @param name The coordinate system name.
      */
-    public CoordinateSystem(final CharSequence name) {
-        super(name);
+    public CoordinateSystem(final CharSequence name ) {
+        super(name);        
     }
     
     /**
@@ -123,6 +125,29 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
             }
         }
     }
+    
+    /**
+     * Retrieve GeometryFactory configured for use with this CoordianteSystem.
+     */
+    GeometryFactory geometryFactory = null;
+    public synchronized GeometryFactory getGeometryFactory() {
+        if( geometryFactory == null ){
+            geometryFactory = createGeometryFactory();                       
+        }
+        return geometryFactory;
+    }
+    /**
+     * Create a GeometryFactory for use with this CoordianteSystem.
+     * <p>
+     * Should construct Geomtry with the correct
+     * CoordinateSequenceFactory, and SRID value if appropriate.
+     * </p>
+     * <p>
+     * Strong recomendation for setting
+     * Geometry.setUserData( CoordinateSequence ) as well.
+     * </p>
+     */
+    protected abstract GeometryFactory createGeometryFactory();
     
     /**
      * Returns the dimension of the coordinate system.

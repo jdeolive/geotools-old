@@ -50,6 +50,8 @@ import org.geotools.pt.CoordinatePoint;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 // J2SE dependencies
 import java.util.Set;
 import java.util.Collections;
@@ -64,7 +66,7 @@ import java.rmi.RemoteException;
  * which this is by examining the axes. You should also check the angular
  * units, since not all geographic coordinate systems use degrees.
  *
- * @version $Id: GeographicCoordinateSystem.java,v 1.10 2003/08/04 17:11:16 desruisseaux Exp $
+ * @version $Id: GeographicCoordinateSystem.java,v 1.11 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -110,7 +112,13 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
         this(name, Unit.DEGREE, datum, PrimeMeridian.GREENWICH,
              AxisInfo.LONGITUDE, AxisInfo.LATITUDE);
     }
-    
+    /**
+     * Just hacking in a placeholder right now.
+     */        
+    protected GeometryFactory createGeometryFactory(){
+        return new GeometryFactory();
+    }
+        
     /**
      * Creates a geographic coordinate system, which could be
      * <var>latitude</var>/<var>longiude</var> or

@@ -46,6 +46,8 @@ import org.geotools.units.Unit;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 // J2SE dependencies
 import java.util.Arrays;
 import java.rmi.RemoteException;
@@ -60,7 +62,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.11 2003/08/04 17:11:16 desruisseaux Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.12 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -125,7 +127,12 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     public GeocentricCoordinateSystem(final CharSequence name, final HorizontalDatum datum) {
         this(name, Unit.METRE, datum, PrimeMeridian.GREENWICH);
     }
-    
+    /**
+     * Just hacking in a placeholder right now.
+     */        
+    protected GeometryFactory createGeometryFactory(){
+        return new GeometryFactory();
+    }    
     /**
      * Constructs a geocentric coordinate system with default axis.
      * The <var>X</var> axis points towards the prime meridian.

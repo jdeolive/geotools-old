@@ -47,6 +47,8 @@ import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 import org.geotools.ct.MissingParameterException;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 // J2SE and JAI dependencies
 import java.rmi.RemoteException;
 import javax.media.jai.ParameterList;
@@ -63,7 +65,7 @@ import javax.media.jai.ParameterList;
  * Conversions to, and conversions between, projected spatial coordinate
  * systems often do not preserve distances, areas and angles.
  *
- * @version $Id: ProjectedCoordinateSystem.java,v 1.12 2003/08/04 17:11:17 desruisseaux Exp $
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.13 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -110,7 +112,12 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     {
         this(name, gcs, projection, Unit.METRE, AxisInfo.X, AxisInfo.Y);
     }
-    
+    /**
+     * Just hacking in a placeholder right now.
+     */        
+    protected GeometryFactory createGeometryFactory(){
+        return new GeometryFactory();
+    }    
     /**
      * Creates a projected coordinate system using a projection object.
      *

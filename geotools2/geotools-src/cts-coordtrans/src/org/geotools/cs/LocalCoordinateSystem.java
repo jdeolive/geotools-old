@@ -50,6 +50,8 @@ import org.geotools.units.Unit;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 
 /**
  * A local coordinate system, with uncertain relationship to the world.
@@ -64,7 +66,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.12 2003/09/02 12:33:32 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.13 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -138,7 +140,12 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     {
         this(name, datum, expand(unit, axes.length), axes);
     }
-
+    /**
+     * Just hacking in a placeholder right now.
+     */        
+    protected GeometryFactory createGeometryFactory(){
+        return new GeometryFactory();
+    }
     /**
      * Creates a local coordinate system. The dimension of the local coordinate
      * system is determined by the size of the axis array.  All the axes will

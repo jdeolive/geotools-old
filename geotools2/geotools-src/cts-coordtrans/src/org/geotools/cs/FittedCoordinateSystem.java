@@ -44,6 +44,8 @@ import org.geotools.units.Unit;
 import org.geotools.ct.MathTransform;
 import org.geotools.pt.MismatchedDimensionException;
 
+import com.vividsolutions.jts.geom.GeometryFactory;
+
 // J2SE and Java3D dependencies
 import java.util.Arrays;
 import java.rmi.RemoteException;
@@ -55,7 +57,7 @@ import java.rmi.RemoteException;
  * any other math transform to inject itself into the base coordinate
  * system.
  *
- * @version $Id: FittedCoordinateSystem.java,v 1.4 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: FittedCoordinateSystem.java,v 1.5 2003/11/19 05:44:57 jive Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -132,6 +134,12 @@ public class FittedCoordinateSystem extends CoordinateSystem {
         if ((dim1=toBase.getDimSource()) != (dim2=axes.length)) {
             throw new MismatchedDimensionException(dim1, dim2);
         }
+    }
+    /**
+     * Just hacking in a placeholder right now.
+     */        
+    protected GeometryFactory createGeometryFactory(){
+        return new GeometryFactory();
     }
 
     /**
