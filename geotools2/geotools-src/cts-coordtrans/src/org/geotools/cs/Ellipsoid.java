@@ -62,7 +62,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.4 2002/07/11 23:56:38 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.5 2002/07/12 10:03:46 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -398,6 +398,15 @@ public class Ellipsoid extends Info {
                 return s;
             }
         }
+        // No convergence. It may be because coordinate points
+        // are equals or because they are at antipodes.
+        if (Math.abs(x1-x2)<=EPS && Math.abs(y1-y2)<=EPS) {
+            return 0; // Coordinate points are equals
+        }
+        if (Math.abs(y1)<=EPS && Math.abs(y2)<=EPS) {
+            return Math.abs(x1-x2) * getSemiMajorAxis(); // Points are on the equator.
+        }
+        // Other cases: no solution for this algorithm.
         throw new ArithmeticException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
     }
     
