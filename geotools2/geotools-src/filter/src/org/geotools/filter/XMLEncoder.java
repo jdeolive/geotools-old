@@ -27,7 +27,7 @@ import java.io.Writer;
  * Exports a filter as a OGC Filter document.
  *
  * @task TODO: Support Null filters
- * @task TODO: Support Between filters
+ * @task HACK: Attrrbutes are not yet supported
  * @task TODO: Support Like filters
  * @task TODO: Fully support GeometryExpressions
  * @author  jamesm
@@ -38,8 +38,16 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     private Writer out;
     
     /** Creates a new instance of XMLEncoder */
-    public XMLEncoder(Writer out) {
+    public XMLEncoder(Writer out,AbstractFilter filter) {
         this.out = out;
+        try{
+        out.write("<Filter>");
+        filter.accept(this);
+        out.write("</Fitler>");
+        }
+        catch(java.io.IOException ioe){
+            log.error("Unable to export filter",ioe);
+        }
     }
     
     public void visit(AbstractFilter filter) {
@@ -48,13 +56,32 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(BetweenFilter filter) {
         log.debug("exporting BetweenFilter");
+        ExpressionDefault left = (ExpressionDefault)filter.getLeftValue();
+        ExpressionDefault right = (ExpressionDefault)filter.getRightValue();
+        ExpressionDefault mid = (ExpressionDefault)filter.getMiddleValue();
+        log.debug("Filter type id is "+filter.getFilterType());
+        log.debug("Filter type text is "+comparisions.get(new Integer(filter.getFilterType())));
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+            out.write("<"+type+">\n");
+            mid.accept(this);
+            out.write("<LowerBoundary>\n");
+            left.accept(this);
+            out.write("</LowerBoundary>\n<UpperBoundary>\n");
+            right.accept(this);
+            out.write("</UpperBoundary>\n");
+            out.write("</"+type+">\n");
+        }
+        catch(java.io.IOException ioe){
+            log.error("Unable to export filter",ioe);
+        }
     }
     
     public void visit(LogicFilter filter){
         log.debug("exporting LogicFilter");
- 
+        
         filter.getFilterType();
-      
+        
         String type = (String)logical.get(new Integer(filter.getFilterType()));
         try{
             out.write("<"+type+">\n");
@@ -106,10 +133,33 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     
     public void visit(NullFilter filter) {
         log.debug("exporting NullFilter");
+        ExpressionDefault expr = (ExpressionDefault)filter.getNullCheckValue();
+       
+
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+            out.write("<"+type+">\n");
+            expr.accept(this);
+            out.write("</"+type+">\n");
+        }
+        catch(java.io.IOException ioe){
+            log.error("Unable to export filter",ioe);
+        }
+        
     }
     
     public void visit(LikeFilter filter) {
         log.debug("exporting NullFilter");
+        ExpressionDefault expr = (ExpressionDefault)filter.
+        String type = (String)comparisions.get(new Integer(filter.getFilterType()));
+        try{
+            out.write("<"+type+">\n");
+            expr.accept(this);
+            out.write("</"+type+">\n");
+        }
+        catch(java.io.IOException ioe){
+            log.error("Unable to export filter",ioe);
+        }
     }
     
     public void visit(ExpressionAttribute expression) {
