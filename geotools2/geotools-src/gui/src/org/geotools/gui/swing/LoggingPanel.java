@@ -56,6 +56,8 @@ import java.awt.Frame;
 import java.awt.Dialog;
 import java.awt.Component;
 import java.awt.BorderLayout;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 
 // Logging
 import java.util.logging.Level;
@@ -86,7 +88,7 @@ import org.geotools.resources.SwingUtilities;
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.6 2002/09/04 15:24:36 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.7 2002/09/08 15:29:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
@@ -122,6 +124,11 @@ public class LoggingPanel extends JPanel {
      * @see #getBackground(LogRecord)
      */
     private final List levelColors = new ArrayList();
+
+    /**
+     * The logger specified at construction time, or <code>null</code> if none.
+     */
+    private Logger logger;
 
     /**
      * Constructs a new logging panel. This panel is not registered to any logger.
@@ -168,6 +175,7 @@ public class LoggingPanel extends JPanel {
             logger = Logger.getLogger("");
         }
         logger.addHandler(getHandler());
+        this.logger = logger;
     }
 
     /**
@@ -316,11 +324,37 @@ public class LoggingPanel extends JPanel {
      */
     public Component show(final Component owner) {
         final Component frame = SwingUtilities.toFrame(owner, this,
-                        Resources.format(ResourceKeys.EVENT_LOGGER));
+                        Resources.format(ResourceKeys.EVENT_LOGGER),
+                        new WindowAdapter()
+        {
+            public void windowClosed(WindowEvent event) {
+                dispose();
+            }
+        });
         frame.setSize(750, 300);
         frame.setVisible(true);
         doLayout();
         return frame;
+    }
+
+    /**
+     * Free any resources used by this <code>LoggingPanel</code>. If a {@link Logger} was
+     * specified at construction time, then this method unregister the <code>LoggingPanel</code>'s
+     * handler from the specified logger. Next, {@link Handler#close} is invoked.
+     * <br><br>
+     * This method is invoked automatically when the user close the windows created
+     * with {@link #show(Component)}. If this <code>LoggingPanel</code> is displayed
+     * by some other ways (for example if it has been added into a {@link JPanel}),
+     * then this <code>dispose()</code> should be invoked explicitely when the container
+     * is being discarted.
+     */
+    public void dispose() {
+        final Handler handler = getHandler();
+        while (logger != null) {
+            logger.removeHandler(handler);
+            logger = logger.getParent();
+        }
+        handler.close();
     }
 
     /**
