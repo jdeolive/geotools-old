@@ -74,7 +74,7 @@ import java.util.Arrays;
  * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.8 2003/11/19 05:35:30 jive Exp $
+ * @version $Id: Query.java,v 1.9 2003/11/21 23:30:43 jive Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
@@ -94,17 +94,26 @@ public interface Query {
      */
     final Query FIDS = new FIDSQuery();
 
+    final String[] NO_NAMES = new String[0];
+    final String[] ALL_NAMES = null;
     /**
      * The properties array is used to specify the attributes that should be
-     * selected for the return feature collection.  If no properties are
-     * specified (getProperties returns null) then the full schema should  be
-     * used (all attributes). If getProperties returns an array of size 0,
-     * then the datasource should return features with no attributes,  only
-     * their ids.  The available properties can be determined with a getSchema
+     * selected for the return feature collection.
+     * <ul>
+     * <li>ALL_NAMES: <code>null</code><br>
+     * If no properties are specified (getProperties returns
+     * ALL_NAMES or null) then the full schema should  be used (all attributes).
+     * </li>
+     * <li>NO_NAMES: <code>new String[0]</code><br>
+     * If getProperties returns an array of size 0, then the datasource should
+     * return features with no attributes, only their ids.
+     * </li>
+     * </ul>
+     * <p>The available properties can be determined with a getSchema
      * call from the DataSource interface.  A datasource can use {@link
      * #retrieveAllProperties()} as a shortcut to determine if all its
      * available properties should be returned (same as checking to see if
-     * getProperties is null, but clearer)
+     * getProperties is ALL_NAMES, but clearer)
      * 
      * <p>
      * If properties that are not part of the datasource's schema are requested
