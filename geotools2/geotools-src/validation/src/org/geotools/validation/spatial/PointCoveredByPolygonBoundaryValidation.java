@@ -24,9 +24,14 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -38,7 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PointCoveredByPolygonBoundaryValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: PointCoveredByPolygonBoundaryValidation.java,v 1.4 2004/02/27 21:28:50 dmzwiers Exp $
  */
 public class PointCoveredByPolygonBoundaryValidation
     extends PointPolygonAbstractValidation {
@@ -73,7 +78,52 @@ public class PointCoveredByPolygonBoundaryValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        //TODO Fix Me
-        return false;
+        FeatureSource pointSource = (FeatureSource) layers.get(getPointTypeRef());
+        FeatureSource polySource = (FeatureSource) layers.get(getRestrictedPolygonTypeRef());
+
+        Object[] polys = polySource.getFeatures().collection().toArray();
+        Object[] points = pointSource.getFeatures().collection().toArray();
+
+        if (!envelope.contains(polySource.getBounds())) {
+            results.error((Feature) polys[0],
+                "Point Feature Source is not contained within the Envelope provided.");
+
+            return false;
+        }
+
+        if (!envelope.contains(pointSource.getBounds())) {
+            results.error((Feature) points[0],
+                "Line Feature Source is not contained within the Envelope provided.");
+
+            return false;
+        }
+
+        for (int i = 0; i < points.length; i++) {
+            Feature tmp = (Feature) points[i];
+            Geometry gt = tmp.getDefaultGeometry();
+
+            if (gt instanceof Polygon) {
+            	Polygon ls = (Polygon) gt;
+
+                boolean r = false;
+                for (int j = 0; j < polys.length && !r; j++) {
+                    Feature tmp2 = (Feature) polys[j];
+                    Geometry gt2 = tmp2.getDefaultGeometry();
+
+                    if (gt2 instanceof Point) {
+                    	Point pt = (Point) gt2;
+                        if(!ls.getBoundary().contains(pt)){
+                        	r = true;
+                        }
+                    }
+                }
+                if(!r){
+                    results.error(tmp, "Polygon does not contained one of the specified points.");
+                	return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

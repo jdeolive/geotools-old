@@ -24,9 +24,14 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -38,7 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PointCoveredByLineValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: PointCoveredByLineValidation.java,v 1.4 2004/02/27 21:28:50 dmzwiers Exp $
  */
 public class PointCoveredByLineValidation extends PointLineAbstractValidation {
     /**
@@ -72,7 +77,52 @@ public class PointCoveredByLineValidation extends PointLineAbstractValidation {
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        //TODO Fix Me
-        return false;
+        FeatureSource lineSource = (FeatureSource) layers.get(getRestrictedLineTypeRef());
+        FeatureSource pointSource = (FeatureSource) layers.get(getPointTypeRef());
+
+        Object[] points = pointSource.getFeatures().collection().toArray();
+        Object[] lines = lineSource.getFeatures().collection().toArray();
+
+        if (!envelope.contains(pointSource.getBounds())) {
+            results.error((Feature) points[0],
+                "Point Feature Source is not contained within the Envelope provided.");
+
+            return false;
+        }
+
+        if (!envelope.contains(lineSource.getBounds())) {
+            results.error((Feature) lines[0],
+                "Line Feature Source is not contained within the Envelope provided.");
+
+            return false;
+        }
+
+        for (int i = 0; i < lines.length; i++) {
+            Feature tmp = (Feature) lines[i];
+            Geometry gt = tmp.getDefaultGeometry();
+
+            if (gt instanceof LineString) {
+                LineString ls = (LineString) gt;
+
+                boolean r = false;
+                for (int j = 0; j < points.length && !r; j++) {
+                    Feature tmp2 = (Feature) points[j];
+                    Geometry gt2 = tmp2.getDefaultGeometry();
+
+                    if (gt2 instanceof Point) {
+                        Point pt = (Point) gt2;
+                        if(!ls.contains(pt)){
+                        	r = true;
+                        }
+                    }
+                }
+                if(!r){
+                    results.error(tmp, "Line does not contained one of the specified points.");
+                	return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
