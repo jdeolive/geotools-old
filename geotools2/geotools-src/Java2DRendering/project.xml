@@ -63,6 +63,16 @@
       <version>SNAPSHOT</version>
     </dependency>
     <dependency>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
+    <dependency>
+      <id>vecmath</id>
+      <version>1.2.1</version>
+      <url>http://java.sun.com/products/java-media/3D/</url>
+    </dependency>
+    <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
       <version>SNAPSHOT</version>
