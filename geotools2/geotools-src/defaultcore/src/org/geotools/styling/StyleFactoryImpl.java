@@ -30,7 +30,7 @@ import org.geotools.filter.Expression;
  * org.geotools.defaultcore.
  *
  * @author iant
- * @version $Id: StyleFactoryImpl.java,v 1.10 2003/08/05 05:37:18 aaime Exp $
+ * @version $Id: StyleFactoryImpl.java,v 1.11 2003/08/28 22:17:28 aaime Exp $
  */
 public class StyleFactoryImpl extends StyleFactory {
     private static final org.geotools.filter.FilterFactory filterFactory = 
@@ -472,7 +472,7 @@ public class StyleFactoryImpl extends StyleFactory {
     }
 
     public LineSymbolizer getDefaultLineSymbolizer() {
-        return createLineSymbolizer(getDefaultStroke(), "geometry:line");
+        return createLineSymbolizer(getDefaultStroke(), null);
     }
 
     public Mark getDefaultMark() {
@@ -480,12 +480,12 @@ public class StyleFactoryImpl extends StyleFactory {
     }
 
     public PointSymbolizer getDefaultPointSymbolizer() {
-        return createPointSymbolizer(getDefaultGraphic(), "geometry:point");
+        return createPointSymbolizer(getDefaultGraphic(), null);
     }
 
     public PolygonSymbolizer getDefaultPolygonSymbolizer() {
         return createPolygonSymbolizer(getDefaultStroke(), getDefaultFill(), 
-                                       "geometry:polygon");
+                                       null);
     }
 
     public Stroke getDefaultStroke() {
