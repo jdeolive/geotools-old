@@ -23,9 +23,9 @@ import org.geotools.feature.Feature;
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: Filter.java,v 1.13 2004/01/18 02:11:56 cholmesny Exp $
+ * @version $Id: Filter.java,v 1.14 2004/03/15 20:15:53 aaime Exp $
  */
-public interface Filter {
+public interface Filter extends FilterType {
     /**
      * Implements the semantics of "no filtering", that is, every call to
      * contains will return true. Logic table:<br>
