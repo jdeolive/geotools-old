@@ -26,10 +26,10 @@ import java.util.Set;
 
 
 /**
- * Description
- * 
+ * Quick implementation of Transaction api.
  * <p>
- * Details
+ * Please see Transaction interface for an outline of what this class is all
+ * about.
  * </p>
  *
  * @author Jody Garnett, Refractions Research
@@ -38,12 +38,19 @@ public class DefaultTransaction implements Transaction {
     /** Records State by key */
     Map stateLookup = new HashMap();
 
+    String handle;
+    
     /** Records current Authorizations */
     Set authorizations = new HashSet();
 
     public DefaultTransaction() {
+        Throwable t = new Throwable("who called me?");
+        StackTraceElement e = t.getStackTrace()[1];
+        handle = e.getClassName()+"."+e.getMethodName()+ " Transaction";
     }
-
+    public DefaultTransaction( String handle ){
+        this.handle = handle;
+    }
     /**
      * Remembers Externalized State for a DataSource.
      * 
@@ -288,4 +295,12 @@ public class DefaultTransaction implements Transaction {
                 + problemCount + " problems - the first was", io);
         }
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return handle;
+    }
+
 }
