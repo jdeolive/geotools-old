@@ -62,7 +62,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.5 2002/07/12 10:03:46 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.6 2002/08/07 14:54:16 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -112,38 +112,6 @@ public class Ellipsoid extends Info {
      * The units of the semi-major and semi-minor axis values.
      */
     private final Unit unit;
-    
-    /**
-     * Constructs a new sphere using the specified radius.
-     *
-     * @param name   Name of this sphere.
-     * @param radius The equatorial and polar radius.
-     * @param unit   The units of the semi-major and semi-minor axis values.
-     *
-     * @deprecated Use {@link #createEllipsoid} instead.
-     */
-    public Ellipsoid(final CharSequence name, final double radius, final Unit unit) {
-        this(name, check("radius", radius), radius, Double.POSITIVE_INFINITY, false, unit);
-    }
-    
-    /**
-     * Constructs a new ellipsoid using the specified axis length.
-     *
-     * @param name          Name of this ellipsoid.
-     * @param semiMajorAxis The equatorial radius.
-     * @param semiMinorAxis The polar radius.
-     * @param unit          The units of the semi-major and semi-minor axis values.
-     *
-     * @deprecated Use {@link #createEllipsoid} instead.
-     */
-    public Ellipsoid(final CharSequence name,
-                     final double       semiMajorAxis,
-                     final double       semiMinorAxis,
-                     final Unit         unit)
-    {
-        this(name, semiMajorAxis, semiMinorAxis,
-             semiMajorAxis/(semiMajorAxis-semiMinorAxis), false, unit);
-    }
     
     /**
      * Constructs a new ellipsoid using the specified axis length.

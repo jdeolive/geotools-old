@@ -70,7 +70,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakHashSet</code> class is thread-safe.
  *
- * @version $Id: WeakHashSet.java,v 1.2 2002/07/20 22:18:33 desruisseaux Exp $
+ * @version $Id: WeakHashSet.java,v 1.3 2002/08/07 14:59:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
@@ -231,8 +231,8 @@ public class WeakHashSet extends AbstractSet {
                 final Entry e=old;
                 old=old.next; // On retient 'next' tout de suite car sa valeur va changer...
                 final Object obj_e = e.get();
-                if (obj_e!=null) {
-                    final int index=(hashCode(obj_e) & 0x7FFFFFFF) % table.length;
+                if (obj_e != null) {
+                    final int index=(obj_e.hashCode() & 0x7FFFFFFF) % table.length;
                     e.index = index;
                     e.next  = table[index];
                     table[index]=e;
@@ -362,16 +362,16 @@ public class WeakHashSet extends AbstractSet {
              * Check if <code>obj</code> is already contained in this
              * <code>WeakHashSet</code>. If yes, returns the element.
              */
-            final int hash = hashCode(obj) & 0x7FFFFFFF;
+            final int hash = obj.hashCode() & 0x7FFFFFFF;
             int index = hash % table.length;
             for (Entry e=table[index]; e!=null; e=e.next) {
-                final Object e_obj = e.get();
-                if (e_obj != null) {
-                    if (equals(obj, e_obj)) {
+                final Object candidate = e.get();
+                if (candidate != null) {
+                    if (candidate.equals(obj)) {
                         if (operation == REMOVE) {
                             e.clear();
                         }
-                        return e_obj;
+                        return candidate;
                     }
                 }
                 // Do not remove the null element; lets ReferenceQueue do its job
@@ -464,26 +464,5 @@ public class WeakHashSet extends AbstractSet {
      */
     public Iterator iterator() {
         return Arrays.asList(toArray()).iterator();
-    }
-
-    /**
-     * Returns a hash code value for the specified object.
-     * Default implementation returns {@link Object#hashCode}.
-     * Override to compute hash code in a different way.
-     *
-     * @deprecated This method may be removed in a future version.
-     */
-    protected final int hashCode(final Object object) {
-        return (object!=null) ? object.hashCode() : 0;
-    }
-
-    /**
-     * Check two objects for equality. This method should be overriden
-     * if {@link #hashCode(Object)} has been overriden.
-     *
-     * @deprecated This method may be removed in a future version.
-     */
-    protected final boolean equals(final Object object1, final Object object2) {
-        return object1==object2 || (object1!=null && object1.equals(object2));
     }
 }
