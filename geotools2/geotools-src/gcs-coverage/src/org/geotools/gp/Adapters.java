@@ -54,7 +54,7 @@ import org.geotools.gc.GridCoverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.3 2003/01/10 11:18:48 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.4 2003/01/10 11:24:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {

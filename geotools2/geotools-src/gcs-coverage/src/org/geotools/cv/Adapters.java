@@ -71,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:47 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -509,7 +509,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.5 2003/01/10 11:18:47 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.6 2003/01/10 11:24:11 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {
