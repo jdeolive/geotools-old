@@ -18,8 +18,8 @@ gcs-gridcoverage
 arcgrid
 gml
 gtopo30
-mapinfo
 oracle
+opengis
 postgis
 shapefile
 lite-rendering
@@ -58,7 +58,7 @@ Once you have maven installed, you can perform a full build by moving to the geo
 maven build
 
 For information on common problems which can occur when building, see the FAQ at
-http//www.geotools.org/index.php?module=articles&func=view&catid=37&itemtype=4
+http://www.geotools.org/index.php?module=articles&func=view&catid=37&itemtype=4
 
 FUTURE CHANGES
 ==============
@@ -75,7 +75,7 @@ We welcome contributions of new modules as well as keen developers who want to w
 Note that the devel list is for developers and not users.  If you have more general queries then please send them to the gt2-users mailing list instead.
 
 You can find out more about the mailing lists and recent news by going to the GeoTools homepage at:
-http//www.geotools.org
+http://www.geotools.org
 
 Good luck and many thanks for your interest in GeoTools2
 
