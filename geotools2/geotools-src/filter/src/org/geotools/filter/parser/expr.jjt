@@ -45,7 +45,7 @@ public class ExpressionParser {
 PARSER_END(ExpressionParser)
 
 
-SPECIAL_TOKEN : /* WHITE SPACE */
+SKIP : /* WHITE SPACE */
 {
   " "
 | "\t"

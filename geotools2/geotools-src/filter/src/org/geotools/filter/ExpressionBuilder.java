@@ -61,7 +61,10 @@ public class ExpressionBuilder {
     public static String getFormattedErrorMessage(ParseException pe,String input) {
         StringBuffer sb = new StringBuffer(input);
         sb.append('\n');
-        int column = pe.currentToken.beginColumn - 1;
+        Token t = pe.currentToken;
+        while (t.next != null)
+            t = t.next;
+        int column = t.beginColumn - 1;
         for (int i = 0; i < column; i++) {
             sb.append(' ');
         }
