@@ -54,10 +54,12 @@
         <dependency>
       <id>postgis-driver</id>
       <version>1.0</version>
+      <url>http://postgis.refractions.net/download.php</url>
     </dependency>
         <dependency>
       <id>postgresql</id>
       <version>1.0</version>
+      <url>http://www.postgresql.com/</url>
     </dependency>
       <dependency>
       <artifactId>filter</artifactId>
@@ -67,6 +69,7 @@
         <dependency>
       <id>JTS</id>
       <version>1.2</version>
+      <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     </dependencies>
   

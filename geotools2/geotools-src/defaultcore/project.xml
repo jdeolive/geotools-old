@@ -72,6 +72,7 @@
         <dependency>
       <id>JTS</id>
       <version>1.2</version>
+      <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
        <dependency>
         <artifactId>cts-coordtrans</artifactId>
@@ -89,6 +90,7 @@
         <dependency>
       <id>opengis+css</id>
       <version>0.1</version>
+      <url>http://www.opengis.org</url>
     </dependency>
         <dependency>
       <id>junit</id>
