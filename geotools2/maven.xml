@@ -318,7 +318,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
     </echo>
 
     <!-- Create a tar.gz file -->
-    <ant:tar longfile="gnu" tarfile="${maven.dist.dir}/${maven.final.name}-src.tar" basedir=".." excludes="geotools2/target/**" includes="geotools2/**">
+    <ant:tar longfile="gnu" tarfile="${maven.dist.dir}/${maven.final.name}-src.tar" basedir=".." excludes="**/target/**, **/CVS" includes="geotools2/**">
     </ant:tar>
 
     <ant:gzip 
