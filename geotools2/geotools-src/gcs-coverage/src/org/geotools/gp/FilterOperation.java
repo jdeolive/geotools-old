@@ -65,16 +65,17 @@ import org.geotools.cv.SampleDimension;
  * duplicated to fill a complete kernel.
  * </blockquote>
  *
- * @version $Id: FilterOperation.java,v 1.7 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: FilterOperation.java,v 1.8 2003/11/22 13:09:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class FilterOperation extends OperationJAI {
     /**
      * Construct a new filter operation.
      *
-     * @param name The operation name.
+     * @param  name The operation name.
+     * @throws OperationNotFoundException if no JAI descriptor was found for the given name.
      */
-    public FilterOperation(final String name) {
+    public FilterOperation(final String name) throws OperationNotFoundException {
         super(name);
     }
 

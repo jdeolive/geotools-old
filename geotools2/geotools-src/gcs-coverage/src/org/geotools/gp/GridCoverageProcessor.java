@@ -81,7 +81,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.37 2003/11/21 22:31:50 aaime Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.38 2003/11/22 13:09:18 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -240,9 +240,21 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation()); // Backed by JAI
-            DEFAULT.addOperation(new FilterOperation(HysteresisDescriptor.OPERATION_NAME));
-            DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
-            DEFAULT.addOperation(new CombineOperation());
+            try {
+                DEFAULT.addOperation(new FilterOperation(HysteresisDescriptor.OPERATION_NAME));
+                DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
+                DEFAULT.addOperation(new CombineOperation());
+            } catch (OperationNotFoundException exception) {
+                /*
+                 * "Hysteresis", "NodataFilter" and "Combine" operations should have been declared
+                 * into META-INF/registryFile.jai.   If we reach this point, it means that JAI has
+                 * not found this file or failed to initialize the factory classes.   This failure
+                 * will not prevent GridCoverage to work in most case,  since those operations are
+                 * used only for some computation purpose  and  will never be required if the user
+                 * doesn't ask explicitly for them.
+                 */
+                Logger.getLogger("org.geotools.gp").warning(exception.getLocalizedMessage());
+            }
             /*
              * Remove the PROCESSOR_INSTANCE hints.  It will avoid its serialization and a strong
              * reference in RenderedImage's properties for the common case where we are using the
@@ -538,7 +550,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.37 2003/11/21 22:31:50 aaime Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.38 2003/11/22 13:09:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

@@ -104,7 +104,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.29 2003/11/12 14:13:52 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.30 2003/11/22 13:09:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -141,8 +141,9 @@ public class OperationJAI extends Operation {
      * default {@link JAI} instance.
      *
      * @param operationName JAI operation name (e.g. "GradientMagnitude").
+     * @throws OperationNotFoundException if no JAI descriptor was found for the given name.
      */
-    public OperationJAI(final String operationName) {
+    public OperationJAI(final String operationName) throws OperationNotFoundException {
         this(getOperationDescriptor(operationName));
     }
     
@@ -201,10 +202,21 @@ public class OperationJAI extends Operation {
      * Returns the operation descriptor for the specified JAI operation name.
      * This method uses the default {@link JAI} instance and looks for the
      * <code>"rendered"</code> mode.
+     *
+     * @param  name The operation name.
+     * @return The operation descriptor for the given name.
+     * @throws OperationNotFoundException if no JAI descriptor was found for the given name.
      */
-    protected static OperationDescriptor getOperationDescriptor(final String name) {
-        return (OperationDescriptor) JAI.getDefaultInstance().
-                getOperationRegistry().getDescriptor(RENDERED_MODE, name);
+    protected static OperationDescriptor getOperationDescriptor(final String name)
+            throws OperationNotFoundException
+    {
+        final OperationDescriptor descriptor = (OperationDescriptor) JAI.getDefaultInstance().
+                                    getOperationRegistry().getDescriptor(RENDERED_MODE, name);
+        if (descriptor == null) {
+            throw new OperationNotFoundException(Resources.format(
+                      ResourceKeys.ERROR_OPERATION_NOT_FOUND_$1, name));
+        }
+        return descriptor;
     }
     
     /**
@@ -919,7 +931,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.29 2003/11/12 14:13:52 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.30 2003/11/22 13:09:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
