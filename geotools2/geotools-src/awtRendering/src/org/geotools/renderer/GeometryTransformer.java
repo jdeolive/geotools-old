@@ -21,6 +21,8 @@ public class GeometryTransformer {
     }
     
     public Geometry transformGeometry(Geometry geom){
+        if(geom instanceof Point) return transformPoint((Point)geom);
+        if(geom instanceof MultiPoint) return transformMultiPoint((MultiPoint)geom);
         if(geom instanceof LinearRing) return transformLinearRing((LinearRing)geom);
         if(geom instanceof LineString) return transformLineString((LineString)geom);
         if(geom instanceof Polygon) return transformPolygon((Polygon)geom);
@@ -29,6 +31,20 @@ public class GeometryTransformer {
         return null;//HACK: is this the right thing to do?
     }
     
+    private Point transformPoint(Point in){
+        Coordinate[] points = in.getCoordinates();
+        Point out = new Point(trans.transform(points[0]),in.getPrecisionModel(),trans.getTargetSRID());
+        return out;
+    }
+    private MultiPoint transformMultiPoint(MultiPoint in){
+        int npoints = in.getNumPoints();
+        Point[] points = new Point[npoints];
+        for(int i=0;i<npoints;i++){
+            points[i]=transformPoint((Point)in.getGeometryN(i));
+        }
+        MultiPoint out = new MultiPoint(points,in.getPrecisionModel(),trans.getTargetSRID());
+        return out;
+    }
     private LineString transformLineString(LineString in){
         Coordinate[] points = in.getCoordinates();
         LineString out = new LineString(trans.transform(points),in.getPrecisionModel(),trans.getTargetSRID());//srid should come from trans
