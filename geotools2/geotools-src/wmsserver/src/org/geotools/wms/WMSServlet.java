@@ -473,7 +473,7 @@ public class WMSServlet extends HttpServlet {
         // Layers
         String layerStr = "<Layer>\n<Name>Experimental Web Map Server</Name>\n";
         layerStr += "<Title>GeoTools2 web map server</Title>";
-        layerStr += "<SRS>EPSG:4326</SRS>\n";
+        layerStr += "<SRS>EPSG:27700</SRS><SRS>EPSG:4326</SRS>\n";
         layerStr += "<LatLonBoundingBox minx=\"-1\" miny=\"-1\" maxx=\"-1\" maxy=\"-1\" />\n";
         layerStr += "<BoundingBox SRS=\"EPSG:4326\" minx=\"-1\" miny=\"-1\" maxx=\"-1\" maxy=\"-1\" />\n";
         

@@ -14,7 +14,7 @@
     <Keyword>GeoTools</Keyword> 
   </KeywordList>
 
-  <OnlineResource xmlns:xlink="http://www.geotools.org" xlink:type="simple" xlink:href="http://www.geotools.org/" /> 
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink"  xlink:type="simple" xlink:href="http://www.geotools.org/" /> 
   <ContactInformation>
     <ContactPersonPrimary>
       <ContactPerson>James Macgill</ContactPerson> 
