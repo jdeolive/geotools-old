@@ -90,6 +90,7 @@ import org.geotools.pt.Envelope;
 import org.geotools.pt.CoordinatePoint;
 import org.geotools.pt.MismatchedDimensionException;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.AxisOrientation;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
@@ -124,6 +125,20 @@ import org.geotools.resources.gcs.ResourceKeys;
  * @author Martin Desruisseaux
  */
 public class GridCoverage extends Coverage {
+    /**
+     * Axis orientation of image's coordinate systems. In most images, <var>x</var> values are
+     * increasing toward the right (<code>EAST</code>)  and <var>y</var> values are increasing
+     * toward the bottom (<code>SOUTH</code>). This is different to many geographic coordinate
+     * systems, which have <var>y</var> values increasing <code>NORTH</code>. The grid coverage
+     * constructor will compare the geographic axis orientations to this
+     * <code>IMAGE_ORIENTATION</code> and inverse the <var>y</var> axis if necessary. The axis
+     * inversions are handle by {@link GridGeometry#getGridToCoordinateSystem()}.
+     */
+    private static final AxisOrientation[] IMAGE_ORIENTATION = {
+        AxisOrientation.EAST,
+        AxisOrientation.SOUTH
+    };
+
     /**
      * Tells if we should try an optimisation using pyramidal images.
      * Default value do not use this optimisation, since it doesn't
@@ -489,7 +504,8 @@ public class GridCoverage extends Coverage {
             }
             envelope = CTSUtilities.transform(transform, envelope);
         } catch (TransformException exception) {
-            final IllegalArgumentException e=new IllegalArgumentException(); // TODO
+             // TODO: provide a localized message
+            final IllegalArgumentException e=new IllegalArgumentException();
             e.initCause(exception);
             throw e;
         }
@@ -539,7 +555,10 @@ public class GridCoverage extends Coverage {
                 }
                 if (inverse==null) {
                     inverse = new boolean[dimension];
-                    inverse[1] = true; // Inverse 'y' axis only.
+                    for (int i=Math.min(IMAGE_ORIENTATION.length, dimension); --i>=0;) {
+                        final AxisOrientation toInverse = IMAGE_ORIENTATION[i].inverse();
+                        inverse[i] = toInverse.equals(cs.getAxis(1).orientation);
+                    }
                 }
                 gridGeometry = new GridGeometry(gridRange, envelope, inverse);
             } else {
