@@ -6,6 +6,7 @@
 
 package org.geotools.styling;
 import java.util.*;
+
 /**
  *
  * @author  iant
