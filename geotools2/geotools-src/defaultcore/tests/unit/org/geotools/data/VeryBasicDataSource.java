@@ -129,8 +129,8 @@ public class VeryBasicDataSource implements DataSource {
                         p.y = (new Double(row[j].toString())).doubleValue();
                 }
                 
-                AttributeType geometryAttribute = new AttributeTypeDefault("theGeometry", geomFac.createPoint(p).getClass().getName());
-                AttributeType stringAttribute = new AttributeTypeDefault("theString", String.class.getName());
+                AttributeType geometryAttribute = new AttributeTypeDefault("theGeometry", geomFac.createPoint(p).getClass());
+                AttributeType stringAttribute = new AttributeTypeDefault("theString", String.class);
 
                 FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
                 for(int att=0;att<row.length-1;att++){
