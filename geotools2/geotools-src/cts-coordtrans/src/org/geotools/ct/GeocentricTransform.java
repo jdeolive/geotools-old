@@ -62,7 +62,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -476,7 +476,8 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
                    Double.doubleToLongBits(this. a2) == Double.doubleToLongBits(that. a2) &&
                    Double.doubleToLongBits(this. b2) == Double.doubleToLongBits(that. b2) &&
                    Double.doubleToLongBits(this. e2) == Double.doubleToLongBits(that. e2) &&
-                   Double.doubleToLongBits(this.ep2) == Double.doubleToLongBits(that.ep2);
+                   Double.doubleToLongBits(this.ep2) == Double.doubleToLongBits(that.ep2) &&
+                   this.hasHeight == that.hasHeight;
         }
         return false;
     }
@@ -505,7 +506,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -553,7 +554,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.4 2002/08/12 15:46:52 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.5 2002/10/13 00:17:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

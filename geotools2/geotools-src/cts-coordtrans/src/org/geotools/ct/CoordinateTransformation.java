@@ -70,7 +70,7 @@ import java.lang.ref.Reference;
  * If the transformation depends on empirically derived parameters (as in datum
  * transformations), then this is an ISO transformation.
  *
- * @version $Id: CoordinateTransformation.java,v 1.3 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: CoordinateTransformation.java,v 1.4 2002/10/13 00:17:37 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -149,11 +149,18 @@ public class CoordinateTransformation extends Info {
         if (getClass().equals(CoordinateTransformation.class)) {
             ensureNonNull("transform", transform);
         }
-        if (transform.getDimSource() != sourceCS.getDimension()) {
-            throw new IllegalArgumentException("sourceCS");
-        }
-        if (transform.getDimTarget() != targetCS.getDimension()) {
-            throw new IllegalArgumentException("targetCS");
+        checkDimension("sourceCS", sourceCS.getDimension(), transform.getDimSource());
+        checkDimension("targetCS", targetCS.getDimension(), transform.getDimTarget());
+    }
+
+    /**
+     * Check if a coordinate system has the expected number of dimensions.
+     */
+    private static void checkDimension(final String name, final int actual, final int expected) {
+        if (actual != expected) {
+            throw new IllegalArgumentException(Resources.format(
+                                               ResourceKeys.ERROR_MISMATCHED_DIMENSION_$3,
+                                               name, new Integer(actual), new Integer(expected)));
         }
     }
     

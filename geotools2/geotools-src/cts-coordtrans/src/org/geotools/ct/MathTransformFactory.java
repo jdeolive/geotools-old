@@ -108,7 +108,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.13 2002/10/10 14:44:20 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.14 2002/10/13 00:17:37 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -415,12 +415,17 @@ public class MathTransformFactory {
      * sub-transform is non-invertible since it loose informations.
      * <br><br>
      * This transform is a special case of a non-square matrix transform with less
-     * rows than columns. However, using a <code>createSubMathTransfom(...)</code>
-     * method makes it easier to optimize some common cases.
+     * rows than columns, concatenated with <code>transform</code>. However, invoking
+     * <code>createSubMathTransfom(...)</code> allows the optimization of some common
+     * cases.
      *
-     * @param transform The transform.
-     * @param lower Index of the first ordinate to keep.
-     * @param upper Index of the first ordinate. Must be greater than <code>lower</code>.
+     * @param  lower Index of the first ordinate to keep.
+     * @param  upper Index after the last ordinate to keep.
+     *               Must be greater than <code>lower</code>.
+     * @param  transform The transform. Its dimension must be equals or greater
+     *         than <code>upper</code>.
+     * @return The same transform than <code>transform</code>, but keeping only ordinates
+     *         from index <code>lower</code> inclusive to <code>upper</code> exclusive.
      */
     public MathTransform createSubMathTransform(final int lower, final int upper,
                                                 final MathTransform transform)
@@ -681,7 +686,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.13 2002/10/10 14:44:20 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.14 2002/10/13 00:17:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

@@ -91,6 +91,7 @@ public interface ResourceKeys
     public static final int ERROR_LONGITUDE_OUT_OF_RANGE_$1             =    58;
     public static final int ERROR_MATRIX_NOT_REGULAR                    =    59;
     public static final int ERROR_MISMATCHED_DIMENSION_$2               =    60;
+    public static final int ERROR_MISMATCHED_DIMENSION_$3               =    89;
     public static final int ERROR_MISSING_CHARACTER_$1                  =    87;
     public static final int ERROR_MISSING_PARAMETER_$1                  =    61;
     public static final int ERROR_NONINVERTIBLE_TRANSFORM               =    62;

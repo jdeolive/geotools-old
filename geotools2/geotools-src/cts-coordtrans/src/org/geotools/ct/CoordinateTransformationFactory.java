@@ -85,7 +85,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Creates coordinate transformations.
  *
- * @version $Id: CoordinateTransformationFactory.java,v 1.8 2002/10/10 23:14:09 desruisseaux Exp $
+ * @version $Id: CoordinateTransformationFactory.java,v 1.9 2002/10/13 00:17:37 desruisseaux Exp $
  * @author <A HREF="http://www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -161,6 +161,33 @@ public class CoordinateTransformationFactory {
                                         final CoordinateSystem targetCS)
         throws CannotCreateTransformException
     {
+        return createFromCoordinateSystems(sourceCS, targetCS, true);
+    }
+
+    /**
+     * Implementation of {@link #createFromCoordinateSystems(CoordinateSystem,CoordinateSystem)}.
+     *
+     * @param  sourceCS  Input coordinate system.
+     * @param  targetCS  Output coordinate system.
+     * @param  splitHVCS If this method is allowed to split horizontal and vertical components. This
+     *         argument is used by {@link #concatenate(CoordinateSystem, CoordinateTransformation,
+     *         CoordinateSystem)} in order to avoir never-ending loop.
+     * @return A coordinate transformation from <code>sourceCS</code> to <code>targetCS</code>.
+     * @throws CannotCreateTransformException if no transformation path has been found.
+     *
+     * @see org.opengis.ct.CT_CoordinateTransformationFactory#createFromCoordinateSystems
+     */
+    private CoordinateTransformation createFromCoordinateSystems(
+                                        final CoordinateSystem sourceCS,
+                                        final CoordinateSystem targetCS,
+                                        final boolean splitHVCS)
+        throws CannotCreateTransformException
+    {
+        if (sourceCS.equals(targetCS, false)) {
+            final int dim = sourceCS.getDimension();
+            assert   dim == targetCS.getDimension();
+            return createFromMathTransform(sourceCS, targetCS, factory.createIdentityTransform(dim));
+        }
         /////////////////////////////////////////////////////////////////////
         ////                                                             ////
         ////     Geographic  -->  Geographic, Projected or Geocentric    ////
@@ -169,7 +196,7 @@ public class CoordinateTransformationFactory {
         if (sourceCS instanceof GeographicCoordinateSystem) {
             final GeographicCoordinateSystem source = (GeographicCoordinateSystem) sourceCS;
             if (targetCS instanceof GeographicCoordinateSystem) {
-                return createTransformationStep(source, (GeographicCoordinateSystem) targetCS);
+                return createTransformationStep(source, null, (GeographicCoordinateSystem) targetCS, null);
             }
             if (targetCS instanceof ProjectedCoordinateSystem) {
                 return createTransformationStep(source, (ProjectedCoordinateSystem) targetCS);
@@ -236,6 +263,32 @@ public class CoordinateTransformationFactory {
             final TemporalCoordinateSystem source = (TemporalCoordinateSystem) sourceCS;
             if (targetCS instanceof TemporalCoordinateSystem) {
                 return createTransformationStep(source, (TemporalCoordinateSystem) targetCS);
+            }
+        }
+        ///////////////////////////////////////////////////////////////////
+        ////                                                           ////
+        ////     (Horizontal,Vertical)  -->  (Horizontal,Vertical)     ////
+        ////                                                           ////
+        ///////////////////////////////////////////////////////////////////
+        if (splitHVCS) {
+            CoordinateTransformation step = null;
+            final HorizontalCoordinateSystem sourceHCS = CTSUtilities.getHorizontalCS(sourceCS);
+            final VerticalCoordinateSystem   sourceVCS = CTSUtilities.getVerticalCS  (sourceCS);
+            final HorizontalCoordinateSystem targetHCS = CTSUtilities.getHorizontalCS(targetCS);
+            final VerticalCoordinateSystem   targetVCS = CTSUtilities.getVerticalCS  (targetCS);
+            if (getDimension(sourceHCS) + getDimension(sourceVCS) == getDimension(sourceCS) &&
+                getDimension(targetHCS) + getDimension(targetVCS) == getDimension(targetCS))
+            {
+                if (sourceHCS instanceof GeographicCoordinateSystem) {
+                    GeographicCoordinateSystem sourceGCS = (GeographicCoordinateSystem) sourceHCS;
+                    if (targetHCS instanceof GeographicCoordinateSystem) {
+                        GeographicCoordinateSystem targetGCS = (GeographicCoordinateSystem) targetHCS;
+                        step = createTransformationStep(sourceGCS, sourceVCS, targetGCS, targetVCS);
+                    }
+                }
+            }
+            if (step != null) {
+                return concatenate(sourceCS, step, targetCS);
             }
         }
         ///////////////////////////////////////////
@@ -323,6 +376,27 @@ public class CoordinateTransformationFactory {
     /////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Returns a temporary compound coordinate system from the specified CS.
+     * This method is used when constructing temporary transformation steps.
+     *
+     * @param  head The head coordinate system, or <code>null</code>.
+     * @param  tail The tail coordinate system, or <code>null</code>.
+     * @return The compound coordinate system.
+     *
+     * @task TODO: A compound CS may already exists, since 'createFromCoordinateSystems'
+     *             may have split one into its two horizontal and vertical parts. We need
+     *             to find some way to returns the "parent" CS instead of constructing a
+     *             new one.
+     */
+    private static CoordinateSystem compound(final CoordinateSystem head,
+                                             final CoordinateSystem tail)
+    {
+        if (head == null) return tail;
+        if (tail == null) return head;
+        return new CompoundCoordinateSystem(getTemporaryName(head), head, tail);
+    }
+
+    /**
      * Concatenate two transformation steps.
      *
      * @param  step1 The first  step, or <code>null</code> for the identity transform.
@@ -386,8 +460,8 @@ public class CoordinateTransformationFactory {
         throws CannotCreateTransformException
     {
         final CoordinateTransformation step1, step3;
-        step1 = (sourceCS!=null) ? createFromCoordinateSystems(sourceCS, transform.getSourceCS()) : null;
-        step3 = (targetCS!=null) ? createFromCoordinateSystems(transform.getTargetCS(), targetCS) : null;
+        step1 = (sourceCS!=null) ? createFromCoordinateSystems(sourceCS, transform.getSourceCS(), false) : null;
+        step3 = (targetCS!=null) ? createFromCoordinateSystems(transform.getTargetCS(), targetCS, false) : null;
         return concatenate(step1, transform, step3);
     }
     
@@ -660,7 +734,7 @@ public class CoordinateTransformationFactory {
                                         final TemporalCoordinateSystem targetCS)
         throws CannotCreateTransformException
     {
-        if (!Utilities.equals(sourceCS.getTemporalDatum(), targetCS.getTemporalDatum())) {
+        if (!sourceCS.getTemporalDatum().equals(targetCS.getTemporalDatum(), false)) {
             throw new CannotCreateTransformException(sourceCS, targetCS);
         }
         /*
@@ -707,12 +781,77 @@ public class CoordinateTransformationFactory {
                                         final VerticalCoordinateSystem targetCS)
         throws CannotCreateTransformException
     {
-        if (!Utilities.equals(sourceCS.getVerticalDatum(), targetCS.getVerticalDatum())) {
+        if (!sourceCS.getVerticalDatum().equals(targetCS.getVerticalDatum(), false)) {
             throw new CannotCreateTransformException(sourceCS, targetCS);
         }
         final Matrix matrix = swapAndScaleAxis(sourceCS, targetCS);
         final MathTransform transform = factory.createAffineTransform(matrix);
         return createFromMathTransform(sourceCS, targetCS, transform);
+    }
+
+    /**
+     * Returns the juxtaposition of <code>transform</code> and the {@link CoordinateTransformation}
+     * from <code>sourceCS</code> to <code>targetCS</code>. This method is usually invoked for
+     * transforming the vertical component after the horizontal component has been transformed.
+     *
+     * @param  transform The head transformation. This is usually a transformation
+     *         between two {@link HorizontalCoordinateSystem}s.
+     * @param  sourceCS The source coordinate system of the tail transformation.
+     *         This is usually a {@link VerticalCoordinateSystem}. May be null.
+     * @param  targetCS The target coordinate system of the tail transformation.
+     *         This is usually a {@link VerticalCoordinateSystem}. May be null.
+     * @return The compound transformation, or <code>transform</code> if
+     *         <code>sourceCS</code> and <code>targetCS</code> was null.
+     * @throws CannotCreateTransformException if no transformation path has been found.
+     */
+    private CoordinateTransformation createCompoundStep(
+                                        final CoordinateTransformation transform,
+                                        final CoordinateSystem         sourceCS,
+                                        final CoordinateSystem         targetCS)
+        throws CannotCreateTransformException
+    {
+        /*
+         * If there is no source vertical CS, then we can't have a target vertical CS
+         * since we don't want to invent data!!   Note: we could assume that vertical
+         * coordinates are always 0 in this case,  but it is not clear that this is a
+         * right approach.
+         */
+        if (sourceCS == null) {
+            if (targetCS != null) {
+                throw new CannotCreateTransformException(transform.getSourceCS(), targetCS);
+            }
+            return transform;
+        }
+        MathTransform step;
+        TransformType type;
+        final CoordinateSystem sourceCCS = compound(transform.getSourceCS(), sourceCS);
+        final CoordinateSystem targetCCS = compound(transform.getTargetCS(), targetCS);
+        if (targetCS == null) {
+            /*
+             * If there is no target CS, then just drop the vertical coordinate. First, gets
+             * an identity transform with input and output dimension equals to the source CS
+             * dimension.  Then, reduce the output dimension (with 'createSubMathTransform')
+             * to the target CS dimension. The reduced coordinate points will be used as
+             * input for the "real" transformation.
+             */
+            step = factory.createIdentityTransform(sourceCCS.getDimension());
+            step = factory.createSubMathTransform(0, targetCCS.getDimension(), step);
+            step = factory.createConcatenatedTransform(step, transform.getMathTransform());
+            type = transform.getTransformType();
+        } else {
+            /*
+             * If there is a target CS, then transform the vertical coordinate and juxtapose
+             * the horizontal and vertical transformations.
+             */
+            final CoordinateTransformation toAppend = createFromCoordinateSystems(sourceCS, targetCS);
+            final MathTransform transform1 = transform.getMathTransform(); // Horizontal component
+            final MathTransform transform2 = toAppend .getMathTransform(); // Vertical component
+            step = factory.createConcatenatedTransform(
+                   factory.createPassThroughTransform(0, transform1, transform2.getDimSource()),
+                   factory.createPassThroughTransform(transform1.getDimTarget(), transform2, 0));
+            type = transform.getTransformType().concatenate(toAppend.getTransformType());
+        }
+        return createFromMathTransform(sourceCCS, targetCCS, step, type);
     }
     
     /**
@@ -721,8 +860,10 @@ public class CoordinateTransformationFactory {
      * <code>(NORTH,WEST)</code> to <code>(EAST,NORTH)</code>), performs units conversion
      * and apply Bursa Wolf transformation if needed.
      *
-     * @param  sourceCS Input coordinate system.
-     * @param  targetCS Output coordinate system.
+     * @param  sourceCS  The input horizontal coordinate system.
+     * @param  sourceVCS The input vertical coordinate system, or <code>null</code> if none.
+     * @param  targetCS  The output horizontal coordinate system.
+     * @param  targetVCS The output vertical coordinate system, or <code>null</code> if none.
      * @return A coordinate transformation from <code>sourceCS</code> to <code>targetCS</code>.
      * @throws CannotCreateTransformException if no transformation path has been found.
      *
@@ -731,7 +872,9 @@ public class CoordinateTransformationFactory {
      */
     protected CoordinateTransformation createTransformationStep(
                                         final GeographicCoordinateSystem sourceCS,
-                                        final GeographicCoordinateSystem targetCS)
+                                        final VerticalCoordinateSystem  sourceVCS,
+                                        final GeographicCoordinateSystem targetCS,
+                                        final VerticalCoordinateSystem  targetVCS)
         throws CannotCreateTransformException
     {
         final HorizontalDatum sourceDatum = sourceCS.getHorizontalDatum();
@@ -740,13 +883,21 @@ public class CoordinateTransformationFactory {
             /*
              * If both geographic CS use the same datum, then there is no need for a datum shift.
              * Just swap axis order, and rotate the longitude coordinate if prime meridians are
-             * different.
+             * different. Note: this special block is mandatory for avoiding never-ending loop,
+             * since it is invoked by 'createTransformationStep(GeocentricCS...)'.
              *
              * TODO: We should ensure that longitude is in range [-180..+180°].
              */
+            final CoordinateTransformation horizontalStep;
             final Matrix matrix = swapAndScaleGeoAxis(sourceCS, targetCS);
-            final MathTransform transform = factory.createAffineTransform(matrix);
-            return createFromMathTransform(sourceCS, targetCS, transform);
+            MathTransform transform = factory.createAffineTransform(matrix);
+            horizontalStep = createFromMathTransform(sourceCS, targetCS, transform);
+            /*
+             * Now, check the vertical coordinate system. If there is none, we are done.
+             * If there is a source but no target vertical CS, then just drop the third
+             * ordinate. Otherwise, transform it.
+             */
+            return createCompoundStep(horizontalStep, sourceVCS, targetVCS);
         }
         /*
          * If the two geographic coordinate systems use different ellipsoids,
@@ -761,9 +912,9 @@ public class CoordinateTransformationFactory {
         final String                     name = getTemporaryName(sourceCS);
         final GeocentricCoordinateSystem gcs1 = new GeocentricCoordinateSystem(name, sourceDatum);
         final GeocentricCoordinateSystem gcs3 = new GeocentricCoordinateSystem(name, targetDatum);
-        final CoordinateTransformation  step1 = createTransformationStep(sourceCS, null, gcs1);
+        final CoordinateTransformation  step1 = createTransformationStep(sourceCS, sourceVCS, gcs1);
         final CoordinateTransformation  step2 = createTransformationStep(gcs1, gcs3);
-        final CoordinateTransformation  step3 = createTransformationStep(gcs3, targetCS, null);
+        final CoordinateTransformation  step3 = createTransformationStep(gcs3, targetCS, targetVCS);
         return concatenate(step1, step2, step3);
     }
     
@@ -820,7 +971,7 @@ public class CoordinateTransformationFactory {
         final GeographicCoordinateSystem sourceGeo = sourceCS.getGeographicCoordinateSystem();
         final GeographicCoordinateSystem targetGeo = targetCS.getGeographicCoordinateSystem();
         final CoordinateTransformation step1 = createTransformationStep(sourceCS,  sourceGeo);
-        final CoordinateTransformation step2 = createTransformationStep(sourceGeo, targetGeo);
+        final CoordinateTransformation step2 = createTransformationStep(sourceGeo, null, targetGeo, null);
         final CoordinateTransformation step3 = createTransformationStep(targetGeo, targetCS );
         return concatenate(step1, step2, step3);
     }
@@ -930,7 +1081,7 @@ public class CoordinateTransformationFactory {
             // REVISIT: Should MathTransform throws FactoryException instead?
             throw new CannotCreateTransformException(exception);
         }
-        final CoordinateTransformation step1 = createTransformationStep(sourceCS, stepGeoCS);
+        final CoordinateTransformation step1 = createTransformationStep(sourceCS, null, stepGeoCS, null);
         final CoordinateTransformation step2 = createFromMathTransform(stepGeoCS, stepProjCS, mapProjection);
         final CoordinateTransformation step3 = createTransformationStep(stepProjCS, targetCS);
         return concatenate(step1, step2, step3);
@@ -1071,17 +1222,11 @@ public class CoordinateTransformationFactory {
         /*
          * First step: transform coordinate points from 'sourceCS' to a standardized
          * geographic coordinate system. If a vertical axis is used, then we need to
-         * apply the transformation using a compound coordinate system.
+         * apply the transformation using a compound coordinate system (this is done
+         * by 'createTransformationStep(GeographicCS...)').
          */
-        if (verticalCS == null) {
-            step1 = createTransformationStep(sourceCS, stepCS1);
-        } else {
-            final String name = stepCS2.getName(null);
-            final CompoundCoordinateSystem cs1, cs2;
-            cs1 = new CompoundCoordinateSystem(name, sourceCS, verticalCS);
-            cs2 = new CompoundCoordinateSystem(name, stepCS1, VerticalCoordinateSystem.ELLIPSOIDAL);
-            step1 = createTransformationStep(cs1, cs2);
-        }
+        step1 = createTransformationStep(sourceCS, verticalCS, stepCS1,
+                    (verticalCS!=null) ? VerticalCoordinateSystem.ELLIPSOIDAL : null);
         /*
          * Second step: create the transformation from geographic to geocentric coordinate
          * systems. The transformation use the ellipsoid from 'sourceCS'. Input and output
@@ -1245,6 +1390,14 @@ public class CoordinateTransformationFactory {
             return new Matrix(4); // Identity matrix
         }
         return null;
+    }
+
+    /**
+     * Returns the dimension of the specified coordinate system,
+     * or <code>null</code> if the coordinate system is null.
+     */
+    private static int getDimension(final CoordinateSystem cs) {
+        return (cs!=null) ? cs.getDimension() : 0;
     }
     
     /**
