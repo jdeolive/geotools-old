@@ -45,7 +45,7 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, TOPP
- * @version $Id: GeometryFilterImpl.java,v 1.13 2003/08/06 18:11:41 desruisseaux Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.14 2003/08/19 17:42:10 cholmesny Exp $
  *
  * @task REVISIT: make this class (and all filters) immutable, implement
  *       cloneable and return new filters when calling addLeftGeometry and
@@ -62,8 +62,7 @@ import java.util.logging.Logger;
 public class GeometryFilterImpl extends AbstractFilterImpl
     implements GeometryFilter {
     /** Class logger */
-    private static final Logger LOGGER = 
-         Logger.getLogger("org.geotools.filter");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftGeometry = null;
@@ -191,8 +190,12 @@ public class GeometryFilterImpl extends AbstractFilterImpl
             return left.contains(right);
         } else if (filterType == GEOMETRY_OVERLAPS) {
             return left.overlaps(right);
-        } else if (filterType == GEOMETRY_BEYOND) {
-            return left.within(right);
+
+            //this is now handled in CartesianDistanceFilter.
+            //} else if (filterType == GEOMETRY_BEYOND) {
+            //return left.within(right);
+        } else if (filterType == GEOMETRY_TOUCHES) {
+            return left.touches(right);
         } else if (filterType == GEOMETRY_BBOX) {
             Coordinate[] cr = right.getEnvelope().getCoordinates();
             Coordinate[] cl = left.getEnvelope().getCoordinates();
