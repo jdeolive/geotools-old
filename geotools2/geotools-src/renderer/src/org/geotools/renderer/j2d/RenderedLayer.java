@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.15 2003/03/12 22:44:41 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.16 2003/03/14 22:00:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -729,12 +729,31 @@ public abstract class RenderedLayer {
      * all properties. For example, methods {@link #setVisible}, {@link #setZOrder},
      * {@link #setPreferredArea} and {@link #setPreferredPixelSize} will fire
      * <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
-     * and <code>"preferredPixelSize"</code> change events.
+     * and <code>"preferredPixelSize"</code> change events respectively.
+     * <br><br>
+     * A particular event, namely <code>"scale"</code>, is also fire everytime the zoom changes.
+     * It is particular in that there is no <code>setScale(...)</code> method. Instead, this event
+     * is fired as a result of some user action external to the renderer module. The scale factor
+     * is usually a number between 0 and 1. For example for a 1:10000 scale, the scale factor will
+     * be 1E-4.
      *
      * @param listener The property change listener to be added
      */
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
         listeners.addPropertyChangeListener(listener);
+    }
+
+    /**
+     * Add a <code>PropertyChangeListener</code> for a specific property.
+     * The listener will be invoked only when that specific property changes.
+     *
+     * @param propertyName The name of the property to listen on.
+     * @param listener     The PropertyChangeListener to be added.
+     */
+    public void addPropertyChangeListener(final String propertyName,
+                                          final PropertyChangeListener listener)
+    {
+        listeners.addPropertyChangeListener(propertyName, listener);
     }
 
     /**
@@ -746,6 +765,18 @@ public abstract class RenderedLayer {
      */
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
         listeners.removePropertyChangeListener(listener);
+    }
+
+    /**
+     * Remove a PropertyChangeListener for a specific property.
+     *
+     * @param propertyName The name of the property that was listened on.
+     * @param listener     The PropertyChangeListener to be removed.
+     */
+    public void removePropertyChangeListener(final String propertyName,
+                                             final PropertyChangeListener listener)
+    {
+        listeners.removePropertyChangeListener(propertyName, listener);
     }
 
     /**

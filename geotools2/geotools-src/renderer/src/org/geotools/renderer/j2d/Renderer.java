@@ -86,6 +86,7 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XRectangle2D;
+import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
@@ -99,7 +100,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.20 2003/03/03 22:51:46 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.21 2003/03/14 22:00:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -303,7 +304,7 @@ public class Renderer {
         /** Invoked when the component's size changes. */
         public void componentResized(final ComponentEvent event) {
             synchronized (Renderer.this) {
-                zoomChanged(null);
+                zoomChanged(null, mapToText);
             }
         }
 
@@ -1192,13 +1193,13 @@ public class Renderer {
                 change.scale(1+EPS, 1+EPS);
                 change.translate(-centerX, -centerY);
             }
-            zoomChanged(change);
+            zoomChanged(change, zoom);
         } catch (java.awt.geom.NoninvertibleTransformException exception) {
             // Should not happen. If it happen anyway, declare that everything must be
             // repainted. It will be slower, but will not prevent the renderer to work.
             Utilities.unexpectedException("org.geotools.renderer.j2d",
                                           "Renderer", "paint", exception);
-            zoomChanged(null);
+            zoomChanged(null, zoom);
         }
         /*
          * If the zoom or the device changed, then the 'textCS' and 'deviceCS' must
@@ -1385,14 +1386,18 @@ public class Renderer {
      * @param change The zoom <strong>change</strong> in <strong>device</strong> coordinate
      *        system, or <code>null</code> if unknow. If <code>null</code>, then all layers
      *        will be fully redrawn during the next rendering.
+     * @param zoom The new zoom. Should never be null.
      */
-    private void zoomChanged(AffineTransform change) {
-        if (change!=null && change.isIdentity()) {
-            return;
-        }
+    private void zoomChanged(final AffineTransform change, final AffineTransform zoom) {
         assert Thread.holdsLock(this);
+        final Double oldScale = new Double(XAffineTransform.getScale(mapToText));
+        final Double newScale = new Double(XAffineTransform.getScale(zoom     ));
+        final boolean changed = (change==null || !change.isIdentity());
         for (int i=layerCount; --i>=0;) {
-            layers[i].zoomChanged(change);
+            if (changed) {
+                layers[i].zoomChanged(change);
+            }
+            layers[i].listeners.firePropertyChange("scale", oldScale, newScale);
         }
     }
 
