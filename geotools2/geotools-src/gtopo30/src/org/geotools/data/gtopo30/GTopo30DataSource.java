@@ -16,13 +16,31 @@
  */
 package org.geotools.data.gtopo30;
 
-import com.sun.media.imageio.stream.FileChannelImageInputStream;
-import com.sun.media.imageio.stream.RawImageInputStream;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.RenderingHints;
+import java.awt.color.ColorSpace;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BandedSampleModel;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.SampleModel;
+import java.awt.image.renderable.ParameterBlock;
+import java.io.FileInputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.channels.FileChannel;
+
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageTypeSpecifier;
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.ParameterBlockJAI;
+import javax.media.jai.RenderedOp;
+
 import org.geotools.cs.AxisInfo;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.FactoryException;
@@ -48,33 +66,15 @@ import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridRange;
-import org.geotools.resources.ComponentColorModelJAI;
 import org.geotools.units.Unit;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.RenderingHints;
-import java.awt.color.ColorSpace;
-import java.awt.color.ICC_ColorSpace;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BandedSampleModel;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.SampleModel;
-import java.awt.image.renderable.ParameterBlock;
-import java.io.FileInputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.channels.FileChannel;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageTypeSpecifier;
-import javax.media.jai.ImageLayout;
-import javax.media.jai.JAI;
-import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.RenderedOp;
-import org.geotools.feature.DefaultFeatureType;
+
+import com.sun.media.imageio.stream.FileChannelImageInputStream;
+import com.sun.media.imageio.stream.RawImageInputStream;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -85,8 +85,8 @@ import org.geotools.feature.DefaultFeatureType;
  * @author aaime
  */
 public class GTopo30DataSource extends AbstractDataSource {
-    /** Let's say that, for the moment, I want to read approximately 128k at a time */
-    private static final int TILE_SIZE = 1024 * 1024;
+    /** Let's say that, for the moment, I want to read approximately 512k at a time */
+    private static final int TILE_SIZE = 1024 * 512;
 
     /** Dem data URL */
     private URL demURL;
@@ -408,7 +408,7 @@ public class GTopo30DataSource extends AbstractDataSource {
      */
     private Feature wrapGcInFeature(GridCoverage gc) {
         // create surrounding polygon
-        PrecisionModel pm = new PrecisionModel();
+        GeometryFactory gf = new GeometryFactory();
         Rectangle2D rect = gc.getEnvelope().toRectangle2D();
         Coordinate[] coord = new Coordinate[5];
         coord[0] = new Coordinate(rect.getMinX(), rect.getMinY());
@@ -420,8 +420,8 @@ public class GTopo30DataSource extends AbstractDataSource {
         Feature feature = null;
 
         try {
-            LinearRing ring = new LinearRing(coord, pm, 0);
-            Polygon bounds = new Polygon(ring, pm, 0);
+            LinearRing ring = gf.createLinearRing(coord);
+            Polygon bounds = gf.createPolygon(ring, null);
 
             // create the feature type
             AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
