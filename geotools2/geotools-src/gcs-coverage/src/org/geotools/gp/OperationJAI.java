@@ -109,7 +109,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.25 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.26 2003/08/03 20:15:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -439,7 +439,6 @@ public class OperationJAI extends Operation {
                         requireGeophysicsType = Boolean.valueOf(old==source);
                     }
                 }
-                block.addSource(source.getRenderedImage());
                 sources[srcCount++] = source;
                 continue;
             }
@@ -468,12 +467,14 @@ public class OperationJAI extends Operation {
         final CoordinateSystem      cs = getCoordinateSystem(coverage);
         final MathTransform2D gridToCS = coverage.getGridGeometry().getGridToCoordinateSystem2D();
         for (int i=0; i<sources.length; i++) {
-            if (!cs.equals(getCoordinateSystem(sources[i]), false) ||
-                !gridToCS.equals(sources[i].getGridGeometry().getGridToCoordinateSystem2D()))
+            final GridCoverage source = sources[i];
+            if (!cs.equals(getCoordinateSystem(source), false) ||
+                !gridToCS.equals(source.getGridGeometry().getGridToCoordinateSystem2D()))
             {
                 throw new IllegalArgumentException(Resources.format(
                         ResourceKeys.ERROR_INCOMPATIBLE_GRID_GEOMETRY));
             }
+            block.addSource(source.getRenderedImage());
         }
         /*
          * Apply the operation. This delegates the work to the chain of 'deriveXXX' methods.
@@ -919,7 +920,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.25 2003/07/30 17:45:22 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.26 2003/08/03 20:15:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {

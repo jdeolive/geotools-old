@@ -46,15 +46,10 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.8 2003/07/30 17:45:22 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.9 2003/08/03 20:15:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
-    /**
-     * Small number for avoiding rounding errors.
-     */
-    private static final double EPS = 1E-8;
-
     /**
      * Do not allows instantiation of this class.
      */
@@ -111,15 +106,29 @@ public final class GCSUtilities {
 
     /**
      * Cast the specified envelope into a grid range. This is sometime used after the envelope
-     * has been transformed using {@link CTSUtilities#transform(MathTransform, Envelope)}.
+     * has been transformed using {@link CTSUtilities#transform(MathTransform, Envelope)}. The
+     * floating point values are rounded toward the nearest integer.
+     * <br><br>
+     * <strong>Note about conversion of floating point values to integers:</strong><br>
+     * In previous versions, we used {@link Math#floor} and {@link Math#ceil} in order to
+     * make sure that the grid range encompass all the envelope (something similar to what
+     * <cite>Java2D</cite> does when casting {@link Rectangle2D} to {@link Rectangle}).
+     * But it had the undesirable effect of changing image width. For example the range
+     * <code>[-0.25  99.75]</code> were changed to <code>[-1  100]</code>, which is not
+     * what the {@link javax.media.jai.operator.AffineDescriptor Affine} operation expects
+     * for instance. Rounding to nearest integer produces better results. Note that the
+     * rounding mode do not alter the significiance of the &quot;Resample&quot; operation,
+     * since this operation will respect the &quot;grid to coordinate system&quot; transform
+     * no matter what the grid range is.
      */
     public static GridRange toGridRange(final Envelope envelope) {
         final int dimension = envelope.getDimension();
         final int[] lower = new int[dimension];
         final int[] upper = new int[dimension];
         for (int i=0; i<dimension; i++) {
-            lower[i] = (int)Math.floor(envelope.getMinimum(i) + EPS);
-            upper[i] = (int)Math.ceil (envelope.getMaximum(i) - EPS);
+            // See "note about conversion of floating point values to integers" in the JavaDoc.
+            lower[i] = (int)Math.round(envelope.getMinimum(i));
+            upper[i] = (int)Math.round(envelope.getMaximum(i));
         }
         return new GridRange(lower, upper);
     }

@@ -47,7 +47,7 @@ import org.geotools.gc.GridCoverage;
 /**
  * A JAI operation which accepts an arbitrary number of sources.
  *
- * @version $Id: PolyadicOperation.java,v 1.2 2003/07/23 18:04:52 desruisseaux Exp $
+ * @version $Id: PolyadicOperation.java,v 1.3 2003/08/03 20:15:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class PolyadicOperation extends OperationJAI {
@@ -96,10 +96,15 @@ class PolyadicOperation extends OperationJAI {
      * A {@link ParameterList} which accepts an arbitrary number of sources.
      * This parameter list is also its own descriptor.
      *
-     * @version $Id: PolyadicOperation.java,v 1.2 2003/07/23 18:04:52 desruisseaux Exp $
+     * @version $Id: PolyadicOperation.java,v 1.3 2003/08/03 20:15:04 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Parameters extends ParameterListImpl implements ParameterListDescriptor {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = 6985215089811539582L;
+
         /**
          * The prefix for &quot;Source&quot; argument name.
          */
@@ -152,15 +157,27 @@ class PolyadicOperation extends OperationJAI {
          */
         public ParameterList setParameter(final String name, final Object value) {
             final int index = getSourceIndex(name);
-            if (value == null) {
-                // A null value remove the source.
-                if (index == sources.size()-1) {
-                    sources.remove(index);
+            if (index >= 0) {
+                final int length = sources.size();
+                if (value == null) {
+                    /*
+                     * A null value remove the source. We allow the removal of the last source
+                     * only, because removing previous sources would shift the next sources by
+                     * one index (i.e. change some source name, which is probably not the expected
+                     * behavior for most users).
+                     */
+                    if (index == length-1) {
+                        sources.remove(index);
+                        return this;
+                    }
+                } else if (index <= length) {
+                    if (index == length) {
+                        sources.add(value);
+                    } else {
+                        sources.set(index, value);
+                    }
                     return this;
                 }
-            } else if (index == sources.size()) {
-                sources.add(value);
-                return this;
             }
             return super.setParameter(name, value);
         }

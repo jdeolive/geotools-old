@@ -61,7 +61,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.9 2003/08/01 10:41:53 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.10 2003/08/03 20:15:04 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -142,12 +142,17 @@ public class OperationTest extends GridCoverageTest {
     }
 
     /**
-     * Returns an image of constant value.
+     * Returns an image of type <code>byte</code> with the specified constant value.
+     * The geographic coordinates will always range from -10 to +10.
+     *
+     * @param  value The constant value.
+     * @param  size The image width and height.
+     * @return A constant image.
      */
-    private static GridCoverage getConstantCoverage(final byte value) {
+    private static GridCoverage getConstantCoverage(final byte value, final float size) {
         final RenderedImage image = JAI.create("Constant",
-              new ParameterBlock().add(200f)  // Width
-                                  .add(200f)  // Height
+              new ParameterBlock().add(size)  // Width
+                                  .add(size)  // Height
                                   .add(new Byte[] {new Byte(value)}), null);
 
         return new GridCoverage(String.valueOf(value), image,
@@ -179,9 +184,9 @@ public class OperationTest extends GridCoverageTest {
         final double value0 = 10,  scale0 = 0.50;
         final double value1 = 35,  scale1 = 2.00;
         final double value2 = 52,  scale2 = 0.25,  offset = 4;
-        final GridCoverage   src0 = getConstantCoverage((byte) value0);
-        final GridCoverage   src1 = getConstantCoverage((byte) value1);
-        final GridCoverage   src2 = getConstantCoverage((byte) value2);
+        final GridCoverage   src0 = getConstantCoverage((byte) value0, 200f);
+        final GridCoverage   src1 = getConstantCoverage((byte) value1, 200f);
+        final GridCoverage   src2 = getConstantCoverage((byte) value2, 200f);
         final Operation operation = new PolyadicOperation(CombineDescriptor.OPERATION_NAME);
         final ParameterList param = operation.getParameterList();
         param.setParameter("source0", src0);
@@ -240,6 +245,21 @@ public class OperationTest extends GridCoverageTest {
         });
         result = operation.doOperation(param, null);
         assertEquals(value0*scale0 + value1*scale1 + offset, result);
+        /*
+         * Test the combinaison with differents image size. The OperationJAI class
+         * should automatically ressample image before to apply the operation.
+         */
+        final GridCoverage src0x = getConstantCoverage((byte) value0, 100f);
+        final GridCoverage src1x = getConstantCoverage((byte) value1, 200f);
+        final GridCoverage src2x = getConstantCoverage((byte) value2,  75f);
+        param.setParameter("source0", src0x);
+        param.setParameter("source1", src1x);
+        param.setParameter("source2", src2x);
+        param.setParameter("matrix", new double[][] {
+            {scale0, scale1, scale2, offset}
+        });
+        result = operation.doOperation(param, null);
+        assertEquals(value0*scale0 + value1*scale1 + value2*scale2 + offset, result);
     }
 
     /**
