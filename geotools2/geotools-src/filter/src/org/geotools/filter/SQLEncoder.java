@@ -396,7 +396,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         log.finer("exporting ExpressionAttribute");
 
         try {
-            out.write(expression.getAttributePath());
+            out.write("\"" + expression.getAttributePath() + "\"");
         } catch (java.io.IOException ioe) {
             log.warning("Unable to export expresion" + ioe);
         }
