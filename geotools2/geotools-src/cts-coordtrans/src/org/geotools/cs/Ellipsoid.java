@@ -62,7 +62,7 @@ import java.rmi.RemoteException;
  * the measurement of the shape and the size of the Earth to approximate
  * the geoid as close as possible.
  *
- * @version $Id: Ellipsoid.java,v 1.6 2002/08/07 14:54:16 desruisseaux Exp $
+ * @version $Id: Ellipsoid.java,v 1.7 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -388,10 +388,20 @@ public class Ellipsoid extends Info {
     }
     
     /**
-     * Compares the specified object with this ellipsoid for equality.
+     * Compare this ellipsoid with the specified object for equality.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equals(final Object object) {
-        if (super.equals(object)) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
+            return true;
+        }
+        if (super.equals(object, compareNames)) {
             final Ellipsoid that = (Ellipsoid) object;
             return this.ivfDefinitive == that.ivfDefinitive &&
                    Double.doubleToLongBits(this.semiMajorAxis)     == Double.doubleToLongBits(that.semiMajorAxis)     &&

@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.3 2002/06/05 14:40:31 loxnard Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -203,38 +203,23 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns <code>true</code> if this coordinate system is equivalent to
-     * the specified coordinate system. Two coordinate systems are considered
-     * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
-     * <code>this</code> to <code>cs</code> would be the identity transform.
+     * Compare this coordinate system with the specified object for equality.
      *
-     * @param cs The coordinate system (may be <code>null</code>).
-     * @return <code>true</code> if both coordinate systems are equivalent.
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equivalents(final CoordinateSystem cs) {
-        if (cs==this) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
             return true;
         }
-        if (super.equivalents(cs)) {
-            final CompoundCoordinateSystem that = (CompoundCoordinateSystem) cs;
-            return head.equivalents(that.head) &&
-                   tail.equivalents(that.tail);
-        }
-        return false;
-    }
-    
-    /**
-     * Compares the specified object with
-     * this coordinate system for equality.
-     */
-    public boolean equals(final Object object) {
-        if (object==this) {
-            return true;
-        }
-        if (super.equals(object)) {
+        if (super.equals(object, compareNames)) {
             final CompoundCoordinateSystem that = (CompoundCoordinateSystem) object;
-            return Utilities.equals(this.head, that.head) &&
-                   Utilities.equals(this.tail, that.tail);
+            return equals(this.head, that.head, compareNames) &&
+                   equals(this.tail, that.tail, compareNames);
         }
         return false;
     }

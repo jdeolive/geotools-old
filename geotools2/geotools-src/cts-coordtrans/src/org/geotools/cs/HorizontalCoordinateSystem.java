@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
 /**
  * A 2D coordinate system suitable for positions on the Earth's surface.
  *
- * @version $Id: HorizontalCoordinateSystem.java,v 1.3 2002/06/05 15:50:02 loxnard Exp $
+ * @version $Id: HorizontalCoordinateSystem.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -143,25 +143,24 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Returns <code>true</code> if this coordinate system is equivalent to
-     * the specified coordinate system. Two coordinate systems are considered
-     * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
-     * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compares datum, units and axis, but ignores
-     * name, alias and other meta-data information.
+     * Compare this coordinate system with the specified object for equality.
      *
-     * @param  cs The coordinate system (may be <code>null</code>).
-     * @return <code>true</code> if both coordinate systems are equivalent.
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equivalents(final CoordinateSystem cs) {
-        if (cs==this) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
             return true;
         }
-        if (super.equivalents(cs)) {
-            final HorizontalCoordinateSystem that = (HorizontalCoordinateSystem) cs;
-            return Utilities.equals(this.datum, that.datum) &&
-                   Utilities.equals(this.axis0, that.axis0) &&
-                   Utilities.equals(this.axis1, that.axis1);
+        if (super.equals(object, compareNames)) {
+            final HorizontalCoordinateSystem that = (HorizontalCoordinateSystem) object;
+            return equals(this.datum, that.datum, compareNames) &&
+                   equals(this.axis0, that.axis0              ) &&
+                   equals(this.axis1, that.axis1              );
         }
         return false;
     }

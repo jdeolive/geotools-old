@@ -84,7 +84,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.6 2002/08/24 12:28:04 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.7 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -252,6 +252,70 @@ public class Info implements Serializable {
     private String getProperty(final String key) {
         return (properties!=null) ? (String) properties.get(key) : null;
     }
+
+    /**
+     * Compare two objects for equality.
+     *
+     * @param  object1 The first object to compare (may be <code>null</code>).
+     * @param  object2 The second object to compare (may be <code>null</code>).
+     * @return <code>true</code> if both objects are equal.
+     */
+    static boolean equals(final Object object1, final Object object2) {
+        return Utilities.equals(object1, object2);
+    }
+
+    /**
+     * Compare two objects for equality.
+     *
+     * @param  object1 The first object to compare (may be <code>null</code>).
+     * @param  object2 The second object to compare (may be <code>null</code>).
+     * @param  compareNames <code>true</code> for performing a strict comparaison, or
+     *         <code>false</code> for comparing only properties relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
+     */
+    static boolean equals(final Info object1, final Info object2, final boolean compareNames) {
+        return (object1==object2) || (object1!=null && object1.equals(object2, compareNames));
+    }
+
+    /**
+     * Compare this object with the specified object for equality.
+     *
+     * If <code>compareNames</code> is <code>true</code>, then all available properties
+     * are compared including {@linkplain #getName name}, {@linkplain #getAlias alias},
+     * {@linkplain #getAuthorityCode authority code}, etc.
+     *
+     * If <code>compareNames</code> is <code>false</code>, then this method compare
+     * only the properties needed for computing transformations. In other words,
+     * <code>sourceCS.equals(targetCS, false)</code> returns <code>true</code> if
+     * the transformation from <code>sourceCS</code> to <code>targetCS</code> is
+     * the identity transform, no matter what {@link #getName} saids.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> for performing a strict comparaison, or
+     *         <code>false</code> for comparing only properties relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
+     */
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object!=null && object.getClass().equals(getClass())) {
+            if (!compareNames) {
+                return true;
+            }
+            return equals(name,       object.name) &&
+                   equals(properties, object.properties);
+        }
+        return false;
+    }
+    
+    /**
+     * Compares the specified object with this info for equality.
+     * The default implementation invokes {@link #equals(Info, boolean)}.
+     *
+     * @param  info The other object (may be <code>null</code>).
+     * @return <code>true</code> if both objects are equal.
+     */
+    public final boolean equals(final Object object) {
+        return (object instanceof Info) && equals((Info)object, true);
+    }
     
     /**
      * Returns a hash value for this info.
@@ -259,19 +323,6 @@ public class Info implements Serializable {
     public int hashCode() {
         final String name = getName(null);
         return (name!=null) ? name.hashCode() : 369781;
-    }
-    
-    /**
-     * Compares the specified object
-     * with this info for equality.
-     */
-    public boolean equals(final Object object) {
-        if (object!=null && getClass().equals(object.getClass())) {
-            final Info that = (Info) object;
-            return Utilities.equals(this.name,       that.name) &&
-                   Utilities.equals(this.properties, that.properties);
-        }
-        return false;
     }
     
     /**

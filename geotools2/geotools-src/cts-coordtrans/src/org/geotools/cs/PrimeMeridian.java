@@ -50,7 +50,7 @@ import java.rmi.RemoteException;
 /**
  * A meridian used to take longitude measurements from.
  *
- * @version $Id: PrimeMeridian.java,v 1.3 2002/06/05 16:09:01 loxnard Exp $
+ * @version $Id: PrimeMeridian.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -137,11 +137,20 @@ public class PrimeMeridian extends Info {
     }
     
     /**
-     * Compares the specified object with
-     * this prime meridian for equality.
+     * Compare this prime meridian with the specified object for equality.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equals(final Object object) {
-        if (super.equals(object)) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
+            return true;
+        }
+        if (super.equals(object, compareNames)) {
             final PrimeMeridian that = (PrimeMeridian) object;
             return Double.doubleToLongBits(this.longitude) ==
                    Double.doubleToLongBits(that.longitude) &&

@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
  * behavior (such as the rate of change of the orientation of the coordinate
  * axes).
  *
- * @version $Id: Datum.java,v 1.3 2002/06/05 15:01:38 loxnard Exp $
+ * @version $Id: Datum.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -109,11 +109,17 @@ public class Datum extends Info {
     }
     
     /**
-     * Compares the specified object
-     * with this datum for equality.
+     * Compare this datum with the specified object for equality.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equals(final Object object) {
-        if (super.equals(object)) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (super.equals(object, compareNames)) {
             final Datum that = (Datum) object;
             return Utilities.equals(this.type, that.type);
         }

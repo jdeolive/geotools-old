@@ -67,7 +67,7 @@ import javax.media.jai.ParameterList;
  * Conversions to, and conversions between, projected spatial coordinate
  * systems often do not preserve distances, areas and angles.
  *
- * @version $Id: ProjectedCoordinateSystem.java,v 1.4 2002/10/08 15:32:09 desruisseaux Exp $
+ * @version $Id: ProjectedCoordinateSystem.java,v 1.5 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -210,25 +210,24 @@ public class ProjectedCoordinateSystem extends HorizontalCoordinateSystem {
     }
     
     /**
-     * Returns <code>true</code> if this coordinate system is equivalent to
-     * the specified coordinate system. Two coordinate systems are considered
-     * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
-     * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The default implementation compares datum, units and axis, but ignores
-     * name, alias and other meta-data information.
+     * Compare this coordinate system with the specified object for equality.
      *
-     * @param  cs The coordinate system (may be <code>null</code>).
-     * @return <code>true</code> if both coordinate systems are equivalent.
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equivalents(final CoordinateSystem cs) {
-        if (cs==this) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
             return true;
         }
-        if (super.equivalents(cs)) {
-            final ProjectedCoordinateSystem that = (ProjectedCoordinateSystem) cs;
-            return Utilities.equals(this.gcs,        that.gcs)        &&
-                   Utilities.equals(this.projection, that.projection) &&
-                   Utilities.equals(this.unit,       that.unit);
+        if (super.equals(object, compareNames)) {
+            final ProjectedCoordinateSystem that = (ProjectedCoordinateSystem) object;
+            return equals(this.gcs,        that.gcs,        compareNames) &&
+                   equals(this.projection, that.projection, compareNames) &&
+                   equals(this.unit,       that.unit                    );
         }
         return false;
     }

@@ -72,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.3 2002/06/26 17:29:23 desruisseaux Exp $
+ * @version $Id: CoordinateSystem.java,v 1.4 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -199,31 +199,23 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     }
     
     /**
-     * Returns <code>true</code> if this coordinate system is equivalent to
-     * the specified coordinate system. Two coordinate systems are considered
-     * equivalent if the {@link org.geotools.ct.CoordinateTransformation} from
-     * <code>this</code> to <code>cs</code> would be the identity transform.
-     * The <code>equivalents</code> method is less strict than
+     * Returns <code>true</code> if this object is equivalent to the specified object.
+     * Two {@link Info} objects are equivalent if transformation involving one or the
+     * other would give the same results.   For example, two {@link CoordinateSystem}
+     * are equivalent if the transformation from <code>this</code> to <code>info</code>
+     * is the identity transform.
+     * <br><br>
+     * The <code>equivalents</code> method is similar but less strict than
      * <code>equals</code> in that it doesn't compare names, alias, authority
-     * codes or other similar information.
+     * and other similar "optional" informations.
      *
-     * @param  cs The coordinate system (may be <code>null</code>).
-     * @return <code>true</code> if both coordinate systems are equivalent.
+     * @param  info The other object (may be <code>null</code>).
+     * @return <code>true</code> if both objects are equivalent.
+     *
+     * @deprecated Use <code>equals(info, false)</code> instead.
      */
     public boolean equivalents(final CoordinateSystem cs) {
-        return (cs!=null) && cs.getClass().equals(getClass());
-    }
-    
-    /**
-     * Compares the specified object with
-     * this coordinate system for equality.
-     */
-    public boolean equals(final Object object) {
-        if (object==this) {
-            // Slight optimization
-            return true;
-        }
-        return super.equals(object) && equivalents((CoordinateSystem)object);
+        return equals(cs, false);
     }
     
     /**

@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.6 2002/10/08 15:32:09 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.7 2002/10/09 19:35:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -286,11 +286,20 @@ public class Projection extends Info {
     }
     
     /**
-     * Compares the specified object with
-     * this projection for equality.
+     * Compare this projection with the specified object for equality.
+     *
+     * @param  object The object to compare to <code>this</code>.
+     * @param  compareNames <code>true</code> to comparare the {@linkplain #getName name},
+     *         {@link linkplain #getAlias alias}, {@linkplain #getAuthorityCode authority
+     *         code}, etc. as well, or <code>false</code> to compare only properties
+     *         relevant to transformations.
+     * @return <code>true</code> if both objects are equal.
      */
-    public boolean equals(final Object object) {
-        if (super.equals(object)) {
+    public boolean equals(final Info object, final boolean compareNames) {
+        if (object == this) {
+            return true;
+        }
+        if (super.equals(object, compareNames)) {
             final Projection that = (Projection) object;
             return        Utilities.equals(this.classification, that.classification) &&
                    DescriptorNaming.equals(this.parameters,     that.parameters);
