@@ -5,7 +5,7 @@
   <extend>${basedir}/../../project.xml</extend>
   <name>geotools-opengis</name>
   <id>opengis</id>
-  
+  <groupId>opengis</groupId>
   <currentVersion>0.1</currentVersion>
   <shortDescription>opengis module</shortDescription>
   <description>opengis module</description>
