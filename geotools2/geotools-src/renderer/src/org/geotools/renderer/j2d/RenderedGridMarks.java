@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.12 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.13 2003/05/21 08:21:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
@@ -789,7 +789,7 @@ public class RenderedGridMarks extends RenderedMarks {
     /**
      * Iterates through all marks in a {@link RenderedGridMarks}.
      *
-     * @version $Id: RenderedGridMarks.java,v 1.12 2003/05/13 11:00:47 desruisseaux Exp $
+     * @version $Id: RenderedGridMarks.java,v 1.13 2003/05/21 08:21:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Iterator extends MarkIterator {
@@ -840,17 +840,20 @@ public class RenderedGridMarks extends RenderedMarks {
          * Moves the iterator to the specified index.
          */
         public void setIteratorPosition(final int n) {
-            index = n;
-            valid = false;
+            if (n>=-1 && n<count) {
+                index = n;
+                valid = false;
+            } else {
+                throw new IllegalArgumentException(String.valueOf(n));
+            }
         }
 
         /**
          * Moves the iterator to the next mark.
          */
         public boolean next() {
-            index++;
             valid = false;
-            return index < count;
+            return ++index < count;
         }
 
         /**

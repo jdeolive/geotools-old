@@ -78,7 +78,7 @@ import org.geotools.ct.TransformException;
  *   <li>{@link #labelPosition}</li>
  * </ul>
  *
- * @version $Id: MarkIterator.java,v 1.4 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: MarkIterator.java,v 1.5 2003/05/21 08:21:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class MarkIterator {
@@ -127,9 +127,11 @@ public abstract class MarkIterator {
      * iterator to the front of this <code>MarkIterator</code> object, just before the first mark
      * (i.e. in the same position as when this <code>MarkIterator</code> object was just created).
      *
-     * @param index The new position (0 for the first mark, 1 for the second one, etc.).
+     * @param  index The new position (0 for the first mark, 1 for the second one, etc.).
+     * @throws IllegalArgumentException if <code>index</code> is smaller than -1 or greater
+     *         than the last position allowed.
      */
-    public abstract void setIteratorPosition(int index);
+    public abstract void setIteratorPosition(int index) throws IllegalArgumentException;
 
     /**
      * Moves the iterator to the next marks. A <code>MarkIterator</code> is initially positioned
