@@ -19,6 +19,8 @@ import org.xml.sax.helpers.*;
 
 /**
  * Producer Filter to an output stream.
+ * @todo This class should not be an XMLReader, rather it should use an internal
+ * XMLReader class as this causes confusion with the API.
  *
  * @author Ian Schneider
  *
@@ -30,15 +32,14 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
     private int indent = 4;
     
     /** The namespace to use if none is provided. */
-    private String defaultNamespace = null;
+    private String defaultNamespace = "http://www.opengis.net/ogc";
     
     private String prefix = null;
     
     private Object object;
     
     private boolean prettyPrint = false;
-    
-    
+
     /** Map of comparison types to sql representation */
     private static Map comparisions = new HashMap();
     
@@ -128,6 +129,16 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
      */
     public synchronized void transform(Object object, OutputStream out)
     throws TransformerException {
+        transform(object,new StreamResult(out));
+    }
+    
+    public synchronized void transform(Object object, Writer out)
+    throws TransformerException {
+        transform(object,new StreamResult(out));
+    }
+    
+    public synchronized void transform(Object object,StreamResult result)
+    throws TransformerException {
         this.object = object;
         
         TransformerFactory tFactory = TransformerFactory.newInstance();
@@ -140,7 +151,6 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
         
         InputSource inputSource = new InputSource();
         SAXSource source = new SAXSource(this, inputSource);
-        StreamResult result = new StreamResult(out);
         transformer.transform(source, result);
     }
     
@@ -315,7 +325,7 @@ public class FilterTransformer extends XMLFilterImpl implements XMLReader {
             atts.addAttribute("", "wildCard", "", "", wcm);
             atts.addAttribute("", "singleChar", "", "", wcs);
             atts.addAttribute("", "escape", "", "", esc);
-            element("PropertyIsLike",null,atts);
+            start("PropertyIsLike",atts);
             encode( filter.getValue() );
             element("Literal",filter.getPattern());
             end("PropertyIsLike");
