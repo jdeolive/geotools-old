@@ -18,10 +18,7 @@ import org.geotools.map.*;
 import org.geotools.styling.*;
 import org.geotools.data.*;
 import org.geotools.gml.*;
-import org.geotools.feature.FeatureCollectionDefault;
-
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
 
 
@@ -83,7 +80,7 @@ public class SVGTest extends TestCase {
             FeatureCollection fc = ds.getFeatures(Query.ALL);
             
             
-            EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
+            //EnvelopeExtent r = new EnvelopeExtent(ds.getBbox());
             //r.setBounds(new com.vividsolutions.jts.geom.Envelope(-100, 100, 0, 100.0));
 
             //fc.getFeatures(r);
@@ -96,11 +93,11 @@ public class SVGTest extends TestCase {
             Style style[] = reader.readXML();
             map.addFeatureTable(fc,style[0]);
             
-            System.out.println("schema for first feature is " + fc.getFeatures(r)[0].getSchema());
+            System.out.println("schema for first feature is " + fc.features().next().getFeatureType());
             //fc.getFeatures(new Extent())[0].getSchema();
             url = new URL("file:///"+dataFolder+"/"+outfile);
             FileOutputStream out = new FileOutputStream(url.getFile());
-            gen.go(map,r.getBounds(),out);
+            gen.go(map,fc.getBounds(),out);
             
             
         
