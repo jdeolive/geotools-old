@@ -203,6 +203,7 @@ public class WMSServlet extends HttpServlet {
             doException("InvalidRequest", 
                         "Invalid REQUEST parameter sent to servlet", request, 
                         response);
+            return;
         } else if (sRequest.trim().equalsIgnoreCase("GetCapabilities") || 
                        sRequest.trim().equalsIgnoreCase("capabilities")) {
             doGetCapabilities(request, response);
@@ -261,11 +262,13 @@ public class WMSServlet extends HttpServlet {
         } catch (WMSException wmsexp) {
             doException(wmsexp.getCode(), wmsexp.getMessage(), request, 
                         response);
+            return;
         } catch (Exception exp) {
             LOGGER.severe("Unexpected exception " + exp);
             exp.printStackTrace();
-            doException(null, "Unknown exception : " + exp.getMessage(), 
+            doException(null, "Unknown exception : " + exp + " " + exp.getStackTrace()[0] + " " + exp.getMessage(), 
                         request, response);
+            return;
         }
     }
 
@@ -427,9 +430,12 @@ public class WMSServlet extends HttpServlet {
         } catch (WMSException wmsexp) {
             doException(wmsexp.getCode(), wmsexp.getMessage(), request, 
                         response, exceptions);
+            return;
         } catch (Exception exp) {
-            doException(null, "Unknown exception : " + exp.getMessage(), 
+            
+            doException(null, "Unknown exception : " + exp + " : " + exp.getStackTrace()[0] + exp.getMessage(), 
                         request, response, exceptions);
+            return;
         }
 
 
@@ -447,8 +453,8 @@ public class WMSServlet extends HttpServlet {
         try {
             formatImageOutputStream(format, image, out);
         } catch (Exception exp) {
-            doException(null, "Unknown exception : " + exp.getMessage(), 
-                        request, response, exceptions);
+            exp.printStackTrace();
+            LOGGER.severe("Unable to complete image generation after response started : " + exp + exp.getMessage());
         }
 
         out.close();
@@ -648,6 +654,27 @@ public class WMSServlet extends HttpServlet {
         PrintWriter pw = response.getWriter();
 
 
+        outputException(sCode, sException, pw);
+
+        //    }
+
+        /*   if (exp_type.equalsIgnoreCase("text/plain")) {
+               response.setContentType(exp_type);
+               PrintWriter pw = response.getWriter();
+               pw.println("Exception : Code="+sCode);
+               pw.println(sException);
+                      
+           }*/
+
+        // Other exception types (graphcal, whatever) to go here
+    }
+
+    /**
+     * @param sCode
+     * @param sException
+     * @param pw
+     */
+    protected void outputException(final String sCode, final String sException, final PrintWriter pw) {
         // Write header
         pw.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\" ?>");
         pw.println("<!DOCTYPE ServiceExceptionReport SYSTEM \"http://www.digitalearth.gov/wmt/xml/exception_1_1_0.dtd\"> ");
@@ -664,20 +691,10 @@ public class WMSServlet extends HttpServlet {
         pw.println("  </ServiceExceptionReport>");
 
         pw.close();
-
-        //    }
-
-        /*   if (exp_type.equalsIgnoreCase("text/plain")) {
-               response.setContentType(exp_type);
-               PrintWriter pw = response.getWriter();
-               pw.println("Exception : Code="+sCode);
-               pw.println(sException);
-                      
-           }*/
-
-        // Other exception types (graphcal, whatever) to go here
     }
 
+  
+    
     /** Converts this object into a WMS 1.1.1 compliant Capabilities XML string.
      */
     public String capabilitiesToXML(Capabilities cap) {

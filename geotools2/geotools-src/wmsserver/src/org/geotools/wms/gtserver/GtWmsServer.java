@@ -142,7 +142,12 @@ public class GtWmsServer implements WMSServer {
                 }
                 
                 Style style = new BasicPolygonStyle(); //bad
-                
+                Envelope bbox = ds.getBbox(false);
+                entry.bbox = new double[4];
+                entry.bbox[0] = bbox.getMinX();
+                entry.bbox[1] = bbox.getMinY();
+                entry.bbox[2] = bbox.getMaxX();
+                entry.bbox[3] = bbox.getMaxY();
                 features.put(entry.id, cache);
                 styles.put(entry.id, style);
                 
