@@ -21,22 +21,26 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultPointSymbolizer.java,v 1.4 2002/06/04 17:04:09 loxnard Exp $
- * @author Ian Turton, CCG
+ * @version $Id: LineSymbolizerImpl.java,v 1.1 2002/10/14 13:00:20 ianturton Exp $
+ * @author James Macgill
  */
-public class DefaultPointSymbolizer implements PointSymbolizer {
-    String geometryPropertyName = null;
-    Graphic graphic = new DefaultGraphic();
-    /** Creates a new instance of DefaultPointSymbolizer */
-    public DefaultPointSymbolizer() {
+public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
+    private Stroke stroke = new DefaultStroke();
+    private String geometryName = null;
+    /** Creates a new instance of DefaultLineSymbolizer */
+    public LineSymbolizerImpl() {
     }
-    
+
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
      * geometry property of the feature should be used.
      *
-     * Geometry types other than inherently point types can be used.
+     * Geometry types other than inherently linear types can be used.
+     * If a point geometry is used, it should be interpreted as a line of zero
+     * length and two end caps.  If a polygon is used (or other "area" type)
+     * then its closed outline should be used as the line string
+     * (with no end caps).
      *
      * The geometryPropertyName is the name of a geometry property in the
      * Feature being styled.  Typically, features only have one geometry so,
@@ -49,28 +53,30 @@ public class DefaultPointSymbolizer implements PointSymbolizer {
      * that should be used.  If null then the default geometry should be used.
      */
     public String geometryPropertyName() {
-        return geometryPropertyName;
+        return geometryName;
     }
-    public void setGeometryPropertyName(String name) {
-        geometryPropertyName = name;
-    }
-        
-    /**
-     * Provides the graphical-symbolization parameter to use for the
-     * point geometry.
-     *
-     * @return The Graphic to be used when drawing a point
-     */
-    public Graphic getGraphic() {
-        return graphic;
+    public void setGeometryPropertyName(String name){
+        geometryName = name;
     }
     
     /**
-     * Setter for property graphic.
-     * @param graphic New value of property graphic.
+     * Provides the graphical-symbolization parameter to use for the
+     * linear geometry.
+     *
+     * @return The Stroke style to use when rendering lines.
      */
-    public void setGraphic(org.geotools.styling.Graphic graphic) {
-        this.graphic = graphic;
+    public Stroke getStroke() {
+        return stroke;
+    }
+    
+    /**
+     * Sets the graphical-symbolization parameter to use for the
+     * linear geometry.
+     *
+     * @param s The Stroke style to use when rendering lines.
+     */
+    public void setStroke(Stroke s) {
+        stroke = s;
     }
     
 }

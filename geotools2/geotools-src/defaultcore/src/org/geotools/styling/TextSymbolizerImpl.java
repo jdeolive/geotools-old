@@ -23,10 +23,10 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- * @version $Id: DefaultTextSymbolizer.java,v 1.4 2002/07/12 12:30:38 loxnard Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.1 2002/10/14 13:05:26 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultTextSymbolizer implements TextSymbolizer {
+public class TextSymbolizerImpl implements TextSymbolizer {
     DefaultFill fill = new DefaultFill();
     ArrayList fonts = new ArrayList();
     Halo halo = new DefaultHalo();
@@ -34,7 +34,7 @@ public class DefaultTextSymbolizer implements TextSymbolizer {
     String geometryPropertyName = null;
     Expression label = null;
     /** Creates a new instance of DefaultTextSymbolizer */
-    public DefaultTextSymbolizer() {
+    public TextSymbolizerImpl() {
         fill.setColor("#000000"); // default text fill is black
     }
     

@@ -33,10 +33,10 @@ import org.geotools.filter.*;
 
 
 /**
- * @version $Id: DefaultMark.java,v 1.13 2002/08/20 16:55:52 wtstockhausen Exp $
+ * @version $Id: MarkImpl.java,v 1.1 2002/10/14 13:08:16 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultMark implements Mark, Symbol {
+public class MarkImpl implements Mark, Symbol {
     
     /**
      * The logger for the default core module.
@@ -54,7 +54,7 @@ public class DefaultMark implements Mark, Symbol {
     
     private GeometryFactory geometryFactory = new GeometryFactory();
     /** Creates a new instance of DefaultMark */
-    public DefaultMark() {
+    public MarkImpl() {
         LOGGER.info("creating defaultMark");
         try {
             wellKnownName = new ExpressionLiteral("square");
@@ -65,7 +65,7 @@ public class DefaultMark implements Mark, Symbol {
         }
     }
     
-    public DefaultMark(String name){
+    public MarkImpl(String name){
         LOGGER.info("creating " + name + " type mark");
         setWellKnownName(name);
     }
