@@ -56,7 +56,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * <p align="center"><img src="doc-files/GradientKernelEditor.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: GradientKernelEditor.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: GradientKernelEditor.java,v 1.4 2003/07/23 14:16:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see KernelEditor
@@ -108,17 +108,16 @@ public class GradientKernelEditor extends JComponent {
     /**
      * Horizontal gradient mask according Sobel.
      */
-    public static final KernelJAI SOBEL_HORIZONTAL = KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL;
+    public static final KernelJAI SOBEL_HORIZONTAL = KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL;
 
     /**
      * Vertical gradient mask according Sobel.
      */
-    public static final KernelJAI SOBEL_VERTICAL = KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL;
+    public static final KernelJAI SOBEL_VERTICAL = KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL;
     /*
-     * NOTE: Horizontal and vertical sobel masks seems to have been swapped in KernelJAI.
+     * NOTE: Sobel masks were interchanged in KernelJAI prior and up to JAI 1.1.2-rc.
      *       See for example J.J. Simpson (1990) in Remote sensing environment, 33:17-33.
-     *       See also some tests in a speadsheet. Is it an error in JAI 1.1.2 or a
-     *       misunderstanding of mine?
+     *       This bug was fixed in JAI 1.1.2 final.
      */
 
     /**
@@ -206,7 +205,7 @@ public class GradientKernelEditor extends JComponent {
     /**
      * A kernel editor for horizontal or vertical gradient kernel.
      *
-     * @version $Id: GradientKernelEditor.java,v 1.3 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: GradientKernelEditor.java,v 1.4 2003/07/23 14:16:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Editor extends KernelEditor {
