@@ -50,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.7 2003/02/09 09:54:16 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.8 2003/02/21 19:28:27 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -91,7 +91,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      * @param context The context where layerList and boundingBox are kept.  If
      * context is null, an IllegalArguementException is thrown.
      */
-    public MapPaneImpl(
+    protected MapPaneImpl(
             AbstractTool tool,
             Context context) throws IllegalArgumentException
     {
