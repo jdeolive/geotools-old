@@ -30,6 +30,8 @@ public class ProjectionsSuite extends TestCase {
         suite.addTestSuite(TmercTest.class);
         suite.addTestSuite(UtmTest.class);
         suite.addTestSuite(AeaTest.class);
+        suite.addTestSuite(LeacTest.class);
+        suite.addTestSuite(AeqdTest.class);
        
         return suite;
     }
