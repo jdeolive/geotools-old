@@ -52,7 +52,7 @@ import org.geotools.renderer.geom.Geometry; // For Javadoc
  * painting is in process. They are used for logging messages and have no impact
  * on future rendering.
  *
- * @version $Id: RenderingStatistics.java,v 1.9 2003/05/30 18:20:54 desruisseaux Exp $
+ * @version $Id: RenderingStatistics.java,v 1.10 2003/05/31 12:41:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class RenderingStatistics {
@@ -146,7 +146,7 @@ final class RenderingStatistics {
      * @param resolution The mean resolution of rendered polygons.
      */
     final void addGeometry(final int total, final int rendered, final int recomputed,
-                            double resolution)
+                           double resolution)
     {
         this.total      += total;
         this.rendered   += rendered;
@@ -164,7 +164,6 @@ final class RenderingStatistics {
      * @param renderer The caller.
      */
     final void finish(final Renderer renderer) {
-        resolution /= rendered;
         time = System.currentTimeMillis() - time;
         if (isLoggable() && time>=TIME_THRESHOLD) {
             final Locale       locale = renderer.getLocale();
@@ -181,7 +180,7 @@ final class RenderingStatistics {
                          resources.getString(ResourceKeys.POLYGON_CACHE_USE_$4,
                               new Double((double)rendered/(double)total),
                               new Double((double)(rendered-recomputed)/(double)rendered),
-                              new Double(resolution), units));
+                              new Double(resolution/rendered), units));
             }
             record.setSourceClassName(Utilities.getShortClassName(renderer));
             record.setSourceMethodName("paint");

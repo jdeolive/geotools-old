@@ -60,10 +60,10 @@ import org.geotools.math.Statistics;
  * to the wrapped geometry. Consequently, <strong>changes in this geometry will impact
  * on the wrapped geometry</strong>, and conversely.
  *
- * @version $Id: GeometryProxy.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
+ * @version $Id: GeometryProxy.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class GeometryProxy extends Geometry {
+final class GeometryProxy extends Geometry {
     /**
      * Serial number for compatibility with previous versions.
      */
@@ -242,6 +242,7 @@ public class GeometryProxy extends Geometry {
     public Geometry clip(final Clipper clipper) {
         Geometry clipped = geometry.clip(clipper);
         if (clipped == geometry) {
+            freeze();
             return this;
         }
         if (clipped != null) {

@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -634,6 +634,7 @@ public class GeometryCollection extends Geometry implements Comparable {
             return clips[0];
         }
         if (!changed) {
+            freeze();
             return this;
         }
         final GeometryCollection geometry = new GeometryCollection(coordinateSystem);
@@ -1244,7 +1245,8 @@ public class GeometryCollection extends Geometry implements Comparable {
      * Freeze this collection. Once this method is invoked, no more geometry can
      * be added to the collection and the coordinate system can't be changed.
      */
-    final void freeze() {
+    synchronized void freeze() {
+        trimToSize();
         frozen = true;
     }
 
@@ -1379,7 +1381,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.4 2003/05/30 18:20:52 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.5 2003/05/31 12:41:27 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

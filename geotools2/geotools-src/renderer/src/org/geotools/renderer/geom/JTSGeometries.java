@@ -33,12 +33,13 @@
 package org.geotools.renderer.geom;
 
 // J2SE dependencies
+import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.sfs.SFSPoint;
@@ -53,13 +54,15 @@ import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
+import org.geotools.renderer.style.Style;
 import org.geotools.renderer.array.JTSArray;
 
 
 /**
- * A geometry collection backed by one or many JTS {@link Geometry} objects.
+ * A geometry collection backed by one or many JTS
+ * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: JTSGeometries.java,v 1.2 2003/05/31 12:41:27 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends GeometryCollection {
@@ -67,7 +70,13 @@ public class JTSGeometries extends GeometryCollection {
      * Numéro de version pour compatibilité avec des
      * bathymétries enregistrées sous d'anciennes versions.
      */
-//    private static final long serialVersionUID = 1313504311244991561L;
+    private static final long serialVersionUID = 1390543865440404086L;
+
+    /**
+     * Maps JTS's {@link com.vividsolutions.jts.geom.Geometry} objects
+     * to their {@link org.geotools.renderer.geom.Geometry} wrappers.
+     */
+    private Map wrapped;
 
     /**
      * Construct an initially empty collection using the
@@ -163,35 +172,6 @@ public class JTSGeometries extends GeometryCollection {
     }
 
     /**
-     * Add the specified point to this collection. This method should rarely be
-     * used, since polylines are not designed for handling individual points.
-     *
-     * @param  geometry The point to add.
-     * @throws TransformException if the specified geometry can't
-     *         be transformed in this collection's coordinate system.
-     */
-    private void addSF(final SFSPoint geometry) throws TransformException {
-        final Coordinate[] coords;
-        if (geometry instanceof Point) {
-            coords = ((Point) geometry).getCoordinates();
-        } else {
-            coords = new Coordinate[] {geometry.getCoordinate()};
-        }
-        add(new Polyline(new JTSArray(coords), getCoordinateSystem(geometry)));
-    }
-
-    /**
-     * Add the specified line string to this collection.
-     *
-     * @param  geometry The line string to add.
-     * @throws TransformException if the specified geometry can't
-     *         be transformed in this collection's coordinate system.
-     */
-    private void addSF(final SFSLineString geometry) throws TransformException {
-        add(toPolyline(geometry));
-    }
-
-    /**
      * Returns the specified line string as a {@link Polyline} object.
      *
      * @param geometry The line string to add.
@@ -214,19 +194,48 @@ public class JTSGeometries extends GeometryCollection {
     }
 
     /**
+     * Add the specified point to this collection. This method should rarely be
+     * used, since polylines are not designed for handling individual points.
+     *
+     * @param  geometry The point to add.
+     * @throws TransformException if the specified geometry can't
+     *         be transformed in this collection's coordinate system.
+     */
+    private Geometry addSF(final SFSPoint geometry) throws TransformException {
+        final Coordinate[] coords;
+        if (geometry instanceof Point) {
+            coords = ((Point) geometry).getCoordinates();
+        } else {
+            coords = new Coordinate[] {geometry.getCoordinate()};
+        }
+        return add(geometry, new Polyline(new JTSArray(coords), getCoordinateSystem(geometry)));
+    }
+
+    /**
+     * Add the specified line string to this collection.
+     *
+     * @param  geometry The line string to add.
+     * @throws TransformException if the specified geometry can't
+     *         be transformed in this collection's coordinate system.
+     */
+    private Geometry addSF(final SFSLineString geometry) throws TransformException {
+        return add(geometry, toPolyline(geometry));
+    }
+
+    /**
      * Add the specified polygon to this collection.
      *
      * @param  geometry The polygon to add.
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private void addSF(final SFSPolygon geometry) throws TransformException {
+    private Geometry addSF(final SFSPolygon geometry) throws TransformException {
         final Polygon polygon = new Polygon(toPolyline(geometry.getExteriorRing()));
         final int n = geometry.getNumInteriorRing();
         for (int i=0; i<n; i++) {
             polygon.addHole(toPolyline(geometry.getInteriorRingN(i)));
         }
-        add(polygon);
+        return add(geometry, polygon);
     }
 
     /**
@@ -236,11 +245,31 @@ public class JTSGeometries extends GeometryCollection {
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      */
-    private void addSF(final SFSGeometryCollection geometry) throws TransformException {
+    private Geometry addSF(final SFSGeometryCollection geometry) throws TransformException {
+        final JTSGeometries collection = new JTSGeometries(getCoordinateSystem());
+        collection.wrapped = wrapped;
         final int n = geometry.getNumGeometries();
         for (int i=0; i<n; i++) {
-            addAny(geometry.getGeometryN(i));
+            collection.add(geometry.getGeometryN(i));
         }
+        if (wrapped == null) {
+            wrapped = collection.wrapped;
+        }
+        return add(geometry, collection);
+    }
+
+    /**
+     * Add a Geotools's {@link Geometry}. We keep a reference to the source JTS's
+     * {@link com.vividsolutions.jts.geom.Geometry} in order to recognize multiple
+     * addition of the same geometry
+     */
+    private Geometry add(final SFSGeometry geometry, final Geometry wrapper) throws TransformException {
+        add(wrapper);
+        if (wrapped == null) {
+            wrapped = new IdentityHashMap();
+        }
+        wrapped.put(geometry, wrapper);
+        return wrapper;
     }
 
     /**
@@ -249,47 +278,45 @@ public class JTSGeometries extends GeometryCollection {
      * {@link SFSPolygon} or {@link SFSGeometryCollection}.
      *
      * @param  geometry The geometry to add.
+     * @return The geometry as a {@link Geometry} wrapper. The style can be set using
+     *         <code>add(geometry).{@link Geometry#setStyle setStyle}(style)</code>.
      * @throws TransformException if the specified geometry can't
      *         be transformed in this collection's coordinate system.
      * @throws IllegalArgumentException if the geometry is not a a valid class.
      */
-    private void addAny(final SFSGeometry geometry) throws TransformException,
-                                                           IllegalArgumentException
+    public Geometry add(final SFSGeometry geometry)
+            throws TransformException, IllegalArgumentException
     {
+        if (wrapped != null) {
+            final Geometry candidate = (Geometry) wrapped.get(geometry);
+            if (candidate != null) {
+                final Geometry proxy = new GeometryProxy(candidate);
+                add(proxy);
+                return proxy;
+            }
+        }
         if (geometry instanceof SFSPoint) {
-            addSF((SFSPoint) geometry);
-            return;
+            return addSF((SFSPoint) geometry);
         }
         if (geometry instanceof SFSLineString) {
-            addSF((SFSLineString) geometry);
-            return;
+            return addSF((SFSLineString) geometry);
         }
         if (geometry instanceof SFSPolygon) {
-            addSF((SFSPolygon) geometry);
-            return;
+            return addSF((SFSPolygon) geometry);
         }
         if (geometry instanceof SFSGeometryCollection) {
-            addSF((SFSGeometryCollection) geometry);
-            return;
+            return addSF((SFSGeometryCollection) geometry);
         }
         throw new IllegalArgumentException(Utilities.getShortClassName(geometry));
     }
 
     /**
-     * Add the specified geometry to this collection. The geometry must be one
-     * of the following classes: {@link SFSPoint}, {@link SFSLineString},
-     * {@link SFSPolygon} or {@link SFSGeometryCollection}.
-     *
-     * @param  geometry The geometry to add.
-     * @throws TransformException if the specified geometry can't
-     *         be transformed in this collection's coordinate system.
-     * @throws IllegalArgumentException if the geometry is not a a valid class.
+     * Freeze this collection. Since no more geometry can be added, there is no need
+     * to keep the {@link #wrapped} collection. Clear it in order to give a chance the
+     * garbage collector do its work.
      */
-    public void add(final SFSGeometry geometry) throws TransformException, IllegalArgumentException
-    {
-        addAny(geometry);
-        /*
-         * TODO: If we want to keep reference to Geometry objects, keep them here (NOT in addAny).
-         */
+    final void freeze() {
+        super.freeze();
+        wrapped = null;
     }
 }

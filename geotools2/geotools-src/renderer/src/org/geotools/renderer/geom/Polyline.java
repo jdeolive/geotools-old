@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.13 2003/05/30 18:20:53 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.14 2003/05/31 12:41:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -779,6 +779,7 @@ public class Polyline extends Geometry {
             return null;
         }
         if (LineString.equals(sub, data)) {
+            freeze();
             return this;
         }
         final Polyline subPoly = new Polyline(coordinateTransform);
@@ -1609,6 +1610,7 @@ public class Polyline extends Geometry {
         final Polyline clipped = clipper.clip(this);
         if (clipped != null) {
             if (LineString.equals(data, clipped.data)) {
+                freeze();
                 return this;
             }
         }
@@ -1852,12 +1854,11 @@ public class Polyline extends Geometry {
                         centerX,          bounds.getMaxY()
                     };
                     tr.inverse().transform(coords, 0, coords, 0, coords.length/2);
-                    double t;
-                    double scaleX = (t=coords[2]-coords[0])*t + (t=coords[3]-coords[1])*t;
-                    double scaleY = (t=coords[6]-coords[4])*t + (t=coords[7]-coords[5])*t;
-                    scaleX /= (t=bounds.getWidth ())*t;
-                    scaleY /= (t=bounds.getHeight())*t;
-                    resolution *= Math.sqrt(scaleX + scaleY);
+                    double scaleX = XMath.hypot(coords[2]-coords[0], coords[3]-coords[1]);
+                    double scaleY = XMath.hypot(coords[6]-coords[4], coords[7]-coords[5]);
+                    scaleX /= bounds.getWidth();
+                    scaleY /= bounds.getHeight();
+                    resolution *= 0.5*(scaleX + scaleY);
                 }
             }
             /*
