@@ -29,26 +29,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+/**
+ * Test for postgis.  Uses a publically available instance of postgis.
+ *
+ * @author Chris Holmes, TOPP
+ */
 public class PostgisTest extends TestCase {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.postgis");
-
-    static {
-        Geotools.init(Level.FINE);
-    }
-
     private static String FEATURE_TABLE = "testset";
-    FilterFactory filterFac = FilterFactory.createFilterFactory();
-    DataSource postgis = null;
-    FeatureCollection collection = FeatureCollections.newCollection();
-    FeatureType schema;
-    int srid = -1;
-    PostgisConnectionFactory db;
-    Connection connection;
-    CompareFilter tFilter;
-    int addId = 32;
-    org.geotools.filter.GeometryFilter geomFilter;
+    private FilterFactory filterFac = FilterFactory.createFilterFactory();
+    private DataSource postgis = null;
+    private FeatureCollection collection = FeatureCollections.newCollection();
+    private FeatureType schema;
+    private int srid = -1;
+    private PostgisConnectionFactory db;
+    private Connection connection;
+    private CompareFilter tFilter;
+    private int addId = 32;
+    private org.geotools.filter.GeometryFilter geomFilter;
 
     public PostgisTest(String testName) {
         super(testName);
