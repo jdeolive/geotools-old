@@ -44,6 +44,7 @@ import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.LayerListListener;
+import org.geotools.map.events.SelectedToolListener;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
@@ -54,7 +55,7 @@ import org.geotools.styling.Style;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.12 2003/03/16 04:20:15 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.13 2003/03/24 21:03:36 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -64,7 +65,7 @@ import org.geotools.styling.Style;
 
 public class MapPaneImpl extends PanelWidgetImpl implements
     BoundingBoxListener, LayerListListener, org.geotools.gui.widget.MapPane,
-    ComponentListener
+    ComponentListener, SelectedToolListener
 {
     /**
      * The current tool for this MapPane.
@@ -111,6 +112,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
         }else{
             this.context=context;
             this.context.getBbox().addAreaOfInterestChangedListener(this);
+            this.context.getSelectedTool().addSelectedToolListener(this);
             this.renderer=new Java2DRenderer(context);
             setTool(tool);
             
@@ -267,6 +269,12 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      *
      */
     public void componentShown(ComponentEvent e) {
+    }
+    
+    /**
+     * Called when the selectedTool on a MapPane changes.
+     */
+    public void selectedToolChanged(EventObject event) {
     }
     
 }

@@ -27,7 +27,8 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 import java.awt.BorderLayout;
 import java.util.logging.Logger;
-import javax.swing.JFrame;
+import javax.swing.*;
+//import javax.swing.JFrame;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.HorizontalDatum;
 import org.geotools.ct.Adapters;
@@ -58,7 +59,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.20 2003/03/22 10:55:55 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.21 2003/03/24 21:03:33 camerons Exp $
  *
  */
 
@@ -71,16 +72,19 @@ public class MapViewer2 {
      * The class used for identifying for logging.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.demos.MapViewer2");
+    
+    /** The context which contains this maps data */
+    private Context context;
 
     /** Creates new form MapViewer2 */
     public MapViewer2() {
-        initComponents();
+        initComponents(createMapPane());
     }
 
     /** This method is called from within the constructor to
      * initialize the form.
      */
-    private void initComponents() {
+    private MapPaneImpl createMapPane() {
 
         BoundingBox bbox;
         Envelope envelope;
@@ -125,8 +129,14 @@ public class MapViewer2 {
             layerList.addLayer(layer);
 
             // Create a Context
-            Context context=contextFactory.createContext(
-                bbox,layerList,"defaultContext",null,null,null);
+            context=contextFactory.createContext(
+                bbox,             // BoundingBox
+                layerList,        // LayerList
+                null,             // SelectedTool
+                "defaultContext", // Title
+                null,             // Abstract
+                null,             // Keywords
+                null);            // ContactInformation
 
             // Create Tool
             ToolFactory toolFactory=ToolFactory.createFactory();
@@ -135,23 +145,80 @@ public class MapViewer2 {
             // Create MapPane
             mapPane=new MapPaneImpl(tool,context);
 
-            // Create frame
-            JFrame frame=new JFrame();
-            frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent evt) {
-                    exitForm(evt);
-                }
-            });
-            frame.getContentPane().setLayout(new BorderLayout());
-            frame.getContentPane().add(
-                mapPane,"North");
-            frame.setTitle("Click on map to pan");
-            frame.pack();
-            frame.show();
          } catch (Exception e){
             LOGGER.warning("Exception: "+e+" initialising MapView.");
+            return null;
         }
+        return mapPane;
    }
+
+    private void initComponents(MapPaneImpl mapPane){
+        // Create Menu for tools
+        JMenuBar menuBar = new javax.swing.JMenuBar();
+        JMenu toolMenu = new javax.swing.JMenu();
+        JMenuItem panMenuItem = new javax.swing.JMenuItem();
+        JMenuItem zoomMenuItem = new javax.swing.JMenuItem();
+        JMenuItem noToolMenuItem = new javax.swing.JMenuItem();
+
+        toolMenu.setText("Tool");
+
+        panMenuItem.setText("Pan");
+        panMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                panActionPerformed(evt);
+            }
+        });
+        toolMenu.add(panMenuItem);
+        
+        zoomMenuItem.setText("Zoom");
+        zoomMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                panActionPerformed(evt);
+            }
+        });
+        toolMenu.add(zoomMenuItem);
+        
+        noToolMenuItem.setText("No Tool");
+        noToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                noToolActionPerformed(evt);
+            }
+        });
+        toolMenu.add(noToolMenuItem);
+
+
+        // Create frame
+        JFrame frame=new JFrame();
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                exitForm(evt);
+            }
+        });
+
+        menuBar.add(toolMenu);
+        frame.setJMenuBar(menuBar);
+        frame.getContentPane().setLayout(new BorderLayout());
+        frame.getContentPane().add(
+            mapPane,"North");
+        frame.setTitle("Click on map to pan");
+        frame.pack();
+        frame.show();
+    }
+
+    private void panActionPerformed(java.awt.event.ActionEvent evt){
+        ToolFactory toolFactory=ToolFactory.createFactory();
+        context.getSelectedTool().setTool(toolFactory.createPanTool());
+    }
+
+    private void zoomActionPerformed(java.awt.event.ActionEvent evt){
+        ToolFactory toolFactory=ToolFactory.createFactory();
+        context.getSelectedTool().setTool(toolFactory.createZoomTool());
+    }
+
+    private void noToolActionPerformed(java.awt.event.ActionEvent evt){
+        ToolFactory toolFactory=ToolFactory.createFactory();
+        context.getSelectedTool().setTool(null);
+    }
 
     /**
      * Create a test LineString.

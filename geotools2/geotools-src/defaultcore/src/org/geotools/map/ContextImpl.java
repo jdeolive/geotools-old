@@ -23,7 +23,7 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: ContextImpl.java,v 1.3 2003/03/22 10:23:37 camerons Exp $
+ * @version $Id: ContextImpl.java,v 1.4 2003/03/24 21:03:36 camerons Exp $
  * @author Cameron Shorter
  */
 
@@ -41,6 +41,7 @@ public class ContextImpl implements Context {
     private String _abstract;
     private String contactInformation;
     private String[] keywords;
+    private SelectedTool selectedTool;
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map.ContextImpl");
 
     /**
@@ -59,12 +60,15 @@ public class ContextImpl implements Context {
     protected ContextImpl(
         BoundingBox bbox,
         LayerList layerList,
+        SelectedTool selectedTool,
         String title,
         String _abstract,
         String[] keywords,
         String contactInformation) throws IllegalArgumentException
     {
-        if ((bbox==null)||(layerList==null)||(title==null)){
+        if ((bbox==null)||(layerList==null)
+            ||(selectedTool==null)||(title==null))
+        {
             throw new IllegalArgumentException();
         }else{
             this.bbox=bbox;
@@ -176,5 +180,12 @@ public class ContextImpl implements Context {
      */
     public void setTitle(final String title) {
         this.title = title;
+    }
+    
+    /**
+     * Get the selectedTool.
+     */
+    public SelectedTool getSelectedTool() {
+        return this.selectedTool;
     }
 }

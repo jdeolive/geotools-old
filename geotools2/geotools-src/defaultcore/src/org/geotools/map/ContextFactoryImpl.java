@@ -52,6 +52,7 @@ public class ContextFactoryImpl extends ContextFactory {
     public Context createContext(
         BoundingBox bbox,
         LayerList layerList,
+        SelectedTool selectedTool,
         String title,
         String _abstract,
         String[] keywords,
@@ -60,6 +61,7 @@ public class ContextFactoryImpl extends ContextFactory {
         return new ContextImpl(
            bbox, 
            layerList,
+           selectedTool,
            title,
            _abstract,
            keywords,

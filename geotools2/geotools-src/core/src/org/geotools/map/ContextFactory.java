@@ -95,6 +95,7 @@ public abstract class ContextFactory {
     public abstract Context createContext(
         BoundingBox bbox,
         LayerList layerList,
+        SelectedTool selectedTool,
         String title,
         String _abstract,
         String[] keywords,
