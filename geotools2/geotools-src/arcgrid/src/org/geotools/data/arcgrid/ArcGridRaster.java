@@ -18,7 +18,11 @@ package org.geotools.data.arcgrid;
 
 import org.geotools.data.DataSourceException;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferFloat;
+import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
 import java.awt.image.WritableRaster;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -41,6 +45,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+//import javax.media.jai.DataBufferFloat;
+import javax.media.jai.RasterFactory;
 
 
 /**
@@ -72,10 +78,10 @@ public class ArcGridRaster {
     private URL srcURL;
     
     /** max value found in the file */
-    private int maxValue = Integer.MIN_VALUE;
+    private float maxValue = Float.MIN_VALUE;
     
     /** min value found in the file */
-    private int minValue = Integer.MAX_VALUE;
+    private float minValue = Float.MAX_VALUE;
     
     /** set of properties found in the header file */
     private Map propertyMap;
@@ -108,7 +114,7 @@ public class ArcGridRaster {
      *
      * @return the max value contained in the data file
      */
-    public int getMaxValue() {
+    public float getMaxValue() {
         return maxValue;
     }
     
@@ -117,7 +123,7 @@ public class ArcGridRaster {
      *
      * @return the min value contained in the data file
      */
-    public int getMinValue() {
+    public float getMinValue() {
         return minValue;
     }
     
@@ -302,7 +308,7 @@ public class ArcGridRaster {
     
     private Reader openReader() throws IOException {
         Reader r;
-        if (!ArcGridDataSource.forceStream && srcURL.getProtocol().equals("file")) {
+        if (srcURL.getProtocol().equals("file")) {
             return new MemoryMappedReader(new File(srcURL.getFile()));
         } else {
             InputStream in = srcURL.openStream();
@@ -312,18 +318,15 @@ public class ArcGridRaster {
         }
         return r;
     }
-    
+
     /**
      * Returns the RenderedImage of the raster
      *
      * @return RenderedImage
      */
-    public RenderedImage getImage() throws IOException {
-        BufferedImage image = new BufferedImage(getNCols(), getNRows(),
-        BufferedImage.TYPE_BYTE_INDEXED);
-        
-        WritableRaster writableRaster = image.getRaster();
-        
+    public WritableRaster getRaster() throws IOException {
+
+        WritableRaster raster = RasterFactory.createBandedRaster(DataBuffer.TYPE_FLOAT,getNCols(),getNRows(),1,null);
         int type = 0;
         
         Reader reader = openReader();
@@ -342,8 +345,8 @@ public class ArcGridRaster {
         
         type = st.nextToken();
         // Read and write values.
-        int i1 = 0;
-        float d1 = 0;
+        int idx = 0;
+        float d = 0;
         
         for (int y = 0; y < getNRows(); y++) {
             for (int x = 0; x < getNCols(); x++) {
@@ -351,7 +354,7 @@ public class ArcGridRaster {
                 // read a token, expected: a number
                 switch (type) {
                     case StreamTokenizer.TT_NUMBER:
-                        d1 = (float) st.nval;
+                        d = (float) st.nval;
                         break;
                     case StreamTokenizer.TT_EOF:
                         throw new IOException("Unexpected EOF at " + x + "," + y);
@@ -367,19 +370,25 @@ public class ArcGridRaster {
                         type = st.nextToken();
                         if (type != StreamTokenizer.TT_NUMBER)
                             throw new IOException("Expected exponent at " + x + "," + y);
-                        d1 = d1 * (float) Math.pow(10.0,st.nval);
+                        d = d * (float) Math.pow(10.0,st.nval);
                         
                         // make sure to advance again
                         type = st.nextToken();
                 }
-
-                writableRaster.setSample(x, y, 0, d1);
+                if (d == getNoData()) {
+                    d = Float.NaN;
+                } else {
+                    minValue = Math.min(minValue,d);
+                    maxValue = Math.max(maxValue,d);
+                }
+                raster.setSample(x,y,0,d);
+                
             }
         }
         
         reader.close();
-        
-        return image;
+
+        return raster;
     }
     
     static class MemoryMappedReader extends java.io.Reader {
@@ -418,8 +427,5 @@ public class ArcGridRaster {
         
     }
     
-    public static final void main(String[] args) throws Exception {
-        ArcGridRaster grid = new ArcGridRaster(new java.io.File(args[0]).toURL());
-        grid.getImage();
-    }
+    
 }

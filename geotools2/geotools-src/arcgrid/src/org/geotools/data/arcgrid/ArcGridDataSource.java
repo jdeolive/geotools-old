@@ -61,24 +61,22 @@ import sun.security.krb5.internal.l;
 public class ArcGridDataSource extends AbstractDataSource {
     /** URL pointing to the arc grid header or data file */
     private URL srcURL;
-
+    
     /** The raster read from the data file */
     private ArcGridRaster arcGridRaster = null;
-
+    
     /** The coordinate system associated to the returned GridCoverage */
     private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
-
+    
     /** Default color ramp */
     private Color[] demColors = new Color[] {Color.BLUE, Color.WHITE, Color.RED};
-
+    
     /** The grid coverage read from the data file */
     private GridCoverage gridCoverage = null;
-
+    
     /** The name of the file, used as the schema name */
     private String name = null;
     
-    static boolean forceStream = false;
-
     /**
      * Creates a new instance of ArcGridDataSource
      *
@@ -89,32 +87,32 @@ public class ArcGridDataSource extends AbstractDataSource {
      */
     public ArcGridDataSource(URL url) throws MalformedURLException, DataSourceException {
         String filename = null;
-
+        
         try {
             filename = URLDecoder.decode(url.getFile(), "US-ASCII");
         } catch (UnsupportedEncodingException use) {
             throw new MalformedURLException("Unable to decode " + url + " cause "
-                + use.getMessage());
+            + use.getMessage());
         }
-
-        String arcext = ".arc";
-        String ascext = ".asc";
-
-//        if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
-//            throw new MalformedURLException("file extension not recognized: " + filename);
-//        } else {
-            name = filename.substring(0, filename.length() - 4);
-//        }
-
+        
+//        String arcext = ".arc";
+//        String ascext = ".asc";
+        
+        //        if (!filename.toLowerCase().endsWith(arcext) && !filename.toLowerCase().endsWith(ascext)) {
+        //            throw new MalformedURLException("file extension not recognized: " + filename);
+        //        } else {
+        name = filename.substring(0, filename.length() - 4);
+        //        }
+        
         srcURL = new URL(url, filename);
-
+        
         try {
             arcGridRaster = new ArcGridRaster(srcURL);
         } catch (Exception e) {
             throw new DataSourceException("Unexpected exception", e);
         }
     }
-
+    
     /**
      * Returns the ArcGridRaster read by the datasource. Use it only for specific needs, it's not a
      * datasource independent method.
@@ -124,7 +122,7 @@ public class ArcGridDataSource extends AbstractDataSource {
     public ArcGridRaster getArcGridRaster() {
         return arcGridRaster;
     }
-
+    
     /**
      * Returns the GridCoverage read by the datasource. Use it if you want to avoid unpacking the
      * getFeatures returned feature collection. Use only for specific needs, it's not a datasource
@@ -135,7 +133,7 @@ public class ArcGridDataSource extends AbstractDataSource {
     public GridCoverage getGridCoverage() {
         return gridCoverage;
     }
-
+    
     /**
      * Sets the coordinate system that will be associated to the GridCoverage
      *
@@ -144,7 +142,7 @@ public class ArcGridDataSource extends AbstractDataSource {
     public void setCoordinateSystem(CoordinateSystem coordinateSystem) {
         this.coordinateSystem = coordinateSystem;
     }
-
+    
     /**
      * Gets the coordinate system that will be associated to the GridCoverage. The WGS84 coordinate
      * system is used by default
@@ -154,7 +152,7 @@ public class ArcGridDataSource extends AbstractDataSource {
     public CoordinateSystem getCoordinateSystem() {
         return this.coordinateSystem;
     }
-
+    
     /**
      * Gets the bounding box of this datasource using the default speed of this datasource as set
      * by the implementer.
@@ -166,21 +164,17 @@ public class ArcGridDataSource extends AbstractDataSource {
      */
     public Envelope getBounds() {
         com.vividsolutions.jts.geom.Envelope env = null;
-
-        try {
-            double xmin = arcGridRaster.getXlCorner();
-            double ymin = arcGridRaster.getYlCorner();
-            double xmax = xmin + (arcGridRaster.getNCols() * arcGridRaster.getCellSize());
-            double ymax = ymin + (arcGridRaster.getNRows() * arcGridRaster.getCellSize());
-
-            env = new com.vividsolutions.jts.geom.Envelope(xmin, xmax, ymin, ymax);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Unexpected error!" + e);
-        }
+        
+        double xmin = arcGridRaster.getXlCorner();
+        double ymin = arcGridRaster.getYlCorner();
+        double xmax = xmin + (arcGridRaster.getNCols() * arcGridRaster.getCellSize());
+        double ymax = ymin + (arcGridRaster.getNRows() * arcGridRaster.getCellSize());
+        
+        env = new com.vividsolutions.jts.geom.Envelope(xmin, xmax, ymin, ymax);
 
         return env;
     }
-
+    
     /**
      * Loads features from the datasource into the passed collection, based on the passed filter.
      *
@@ -193,13 +187,13 @@ public class ArcGridDataSource extends AbstractDataSource {
      * @throws DataSourceException For all data source errors.
      */
     public FeatureCollection getFeatures(Filter filter)
-        throws DataSourceException {
+    throws DataSourceException {
         FeatureCollection fc = FeatureCollections.newCollection();
         getFeatures(fc, filter);
-
+        
         return fc;
     }
-
+    
     /**
      * Loads features from the datasource into the passed collection, based on the passed query.
      * The FeatureCollection will contain a new Feature, the GridCoverage will be contained in the
@@ -212,28 +206,34 @@ public class ArcGridDataSource extends AbstractDataSource {
      * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection collection, Query query)
-        throws DataSourceException {
-        final double SCALE = 1; // Scale factor for pixel transcoding.
-        final double OFFSET = 0; // Offset factor for pixel transcoding.
-
-        // Create the SampleDimension, with colors and byte transformation needed for visualization
-        Category nullValue = new Category("null", null, 0, 1, 1, arcGridRaster.getNoData());
-        Category elevation = new Category("elevation", demColors, 1, 256, SCALE, OFFSET);
-
-        SampleDimension sd = new SampleDimension(new Category[] {nullValue, elevation}, Unit.METRE);
-        SampleDimension geoSd = sd.geophysics(true);
-        SampleDimension[] bands = new SampleDimension[] {geoSd};
-
-        RenderedImage image = null;
+    throws DataSourceException {
+        
+        java.awt.image.WritableRaster raster = null;
         try {
-            image = arcGridRaster.getImage();
+            raster = arcGridRaster.getRaster();
         } catch (java.io.IOException ioe) {
             throw new DataSourceException("Error loading data",ioe);
         }
-
-        gridCoverage = new GridCoverage("ArcGrid Coverage", image, coordinateSystem,
-                convertEnvelope(getBounds()), bands, null, null);
-
+        
+        double[] min = new double[] {arcGridRaster.getMinValue()};
+        double[] max = new double[] {arcGridRaster.getMaxValue()};
+        //gridCoverage = new GridCoverage(name, raster, convertEnvelope(getBounds()));
+        
+        CoordinateSystem coordinateSystem = getCoordinateSystem();
+        if (coordinateSystem == null)
+            coordinateSystem = GeographicCoordinateSystem.WGS84;
+        
+        gridCoverage = new GridCoverage(
+            name,
+            raster,
+            coordinateSystem,
+            convertEnvelope(getBounds()),
+            min,max,
+            null,
+            new Color[][] {getColors()},
+            null
+        );
+        
         // last step, wrap, add the the feature collection and return
         try {
             collection.add(wrapGcInFeature(gridCoverage));
@@ -241,7 +241,7 @@ public class ArcGridDataSource extends AbstractDataSource {
             throw new DataSourceException("Unexpected error", e);
         }
     }
-
+    
     /**
      * Wraps a grid coverage into a Feature
      *
@@ -254,7 +254,7 @@ public class ArcGridDataSource extends AbstractDataSource {
      * @throws SchemaException Should never be thrown
      */
     private Feature wrapGcInFeature(GridCoverage gc)
-        throws IllegalAttributeException, SchemaException {
+    throws IllegalAttributeException, SchemaException {
         // create surrounding polygon
         PrecisionModel pm = new PrecisionModel();
         Rectangle2D rect = gc.getEnvelope().toRectangle2D();
@@ -264,25 +264,25 @@ public class ArcGridDataSource extends AbstractDataSource {
         coord[2] = new Coordinate(rect.getMaxX(), rect.getMaxY());
         coord[3] = new Coordinate(rect.getMinX(), rect.getMaxY());
         coord[4] = new Coordinate(rect.getMinX(), rect.getMinY());
-
+        
         LinearRing ring = new LinearRing(coord, pm, 0);
         Polygon bounds = new Polygon(ring, pm, 0);
-
+        
         // create the feature type
         AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
         AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
-
+        
         FeatureType schema = null;
         AttributeType[] attTypes = {geom, grid};
-
+        
         schema = FeatureTypeFactory.newFeatureType(attTypes, name);
-
+        
         // create the feature
         Feature feature = schema.create(new Object[] {bounds, gc});
-
+        
         return feature;
     }
-
+    
     /**
      * Converts a JTS Envelope into an org.geotools.pt.Envelope
      *
@@ -293,11 +293,11 @@ public class ArcGridDataSource extends AbstractDataSource {
     private org.geotools.pt.Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
         double[] min = new double[] {source.getMinX(), source.getMinY()};
         double[] max = new double[] {source.getMaxX(), source.getMaxY()};
-
+        
         return new org.geotools.pt.Envelope(min, max);
         
     }
-
+    
     /**
      * Retrieves the featureType that features extracted from this datasource will be created with.
      *
@@ -307,17 +307,17 @@ public class ArcGridDataSource extends AbstractDataSource {
         try {
             AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
             AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
-
+            
             FeatureType schema = null;
             AttributeType[] attTypes = {geom, grid};
-
+            
             return FeatureTypeFactory.newFeatureType(attTypes, name);
         } catch (SchemaException e) {
             // in fact it never happens unless there is a bug in the code
             throw new RuntimeException("Hey, someone broke the ArcGridDataSource.getSchema() code!");
         }
     }
-
+    
     /**
      * Gets the default color ramp used to depict the GridCoverage
      *
@@ -326,7 +326,7 @@ public class ArcGridDataSource extends AbstractDataSource {
     public Color[] getColors() {
         return demColors;
     }
-
+    
     /**
      * Sets the default color ramp used to depict the GridCoverage. The GridCoverage will be build
      * with this color ramp, this method must be called before getFeatures to have any effect
