@@ -34,7 +34,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionSAXParser.java,v 1.3 2002/10/24 16:55:31 ianturton Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.4 2003/04/21 22:58:43 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionSAXParser {
@@ -186,9 +186,11 @@ public class ExpressionSAXParser {
     }
 
     /**
-     * Sets the matching pattern for this FilterLike.
+     * Handles incoming characters.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @param message
+     * @tasks TODO: this function is a mess, but it's mostly due to filters
+     * being loosely coupled with schemas, so we have to make a lot of guesses.
      */
     public void message(String message) throws IllegalFilterException{
 
@@ -203,7 +205,28 @@ public class ExpressionSAXParser {
             // If an attribute path, set it.  Assumes undeclared type.
             if( currentExpression instanceof AttributeExpression) {
                 LOGGER.finer("...");
-                ((AttributeExpression) currentExpression).setAttributePath(message);
+		//HACK: this code is to get rid of the leading junk that can
+		//occur in a filter encoding.  The '.' is from the .14 wfs spec
+		//when the style was typeName.propName, such as road.nlanes, The
+		//':' is from wfs 1.0 xml request, such as myns:nlanes, and the
+		//'/' is from wfs 1.0 kvp style: road/nlanes.  We're not currently
+		//checking to see if the typename matches, or if the namespace is
+		//right, which isn't the best, so that should be fixed.
+		String[] splitName = message.split("[.:/]");
+		String newAttName = message;
+		if (splitName.length == 1) {
+		    newAttName = splitName[0];
+		} else {
+		    //REVISIT: not sure what to do if there are multiple
+		    //delimiters.  
+		    //REVISIT: should we examine the first value?  See
+		    //if the namespace or typename matches up right?
+		    //this is currently very permissive, just grabs
+		    //the value of the end.
+		    newAttName = splitName[splitName.length - 1];
+		}
+
+		((AttributeExpression) currentExpression).setAttributePath(newAttName);
                 LOGGER.finer("...");
                 currentState = "complete";
                 LOGGER.finer("...");
