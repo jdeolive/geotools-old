@@ -24,12 +24,12 @@ import org.geotools.feature.Feature;
  * Defines an expression that holds a literal for return.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: LiteralExpressionImpl.java,v 1.9 2003/07/22 22:41:08 cholmesny Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.10 2003/07/23 19:56:07 cholmesny Exp $
  */
 public class LiteralExpressionImpl extends DefaultExpression
     implements LiteralExpression {
     /** Holds a reference to the literal. */
-    protected Object literal = null;
+    private Object literal = null;
 
     /**
      * Constructor with literal.
@@ -183,12 +183,16 @@ public class LiteralExpressionImpl extends DefaultExpression
      *       problem when comparing Doubles and Integers
      */
     public boolean equals(Object obj) {
-        if (obj.getClass() == this.getClass()) {
+        if (obj instanceof LiteralExpressionImpl) {
             LiteralExpressionImpl expLit = (LiteralExpressionImpl) obj;
             boolean isEqual = (expLit.getType() == this.expressionType);
 
             if (!isEqual) {
                 return false;
+            }
+
+            if ((expLit == null) && (this.literal == null)) {
+                return true;
             }
 
             if (expressionType == LITERAL_GEOMETRY) {
@@ -218,7 +222,8 @@ public class LiteralExpressionImpl extends DefaultExpression
      */
     public int hashCode() {
         int result = 17;
-        result = (37 * result) + literal.hashCode();
+
+        result = (37 * result) + ((literal == null) ? 0 : literal.hashCode());
         result = (37 * result) + expressionType;
 
         return result;
