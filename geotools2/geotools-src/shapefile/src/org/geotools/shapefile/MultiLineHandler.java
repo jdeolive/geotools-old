@@ -1,5 +1,5 @@
 /*
- * $Id: MultiLineHandler.java,v 1.1 2002/02/28 00:38:50 jmacgill Exp $
+ * $Id: MultiLineHandler.java,v 1.2 2002/03/05 10:23:59 jmacgill Exp $
  *
  */
 
@@ -49,7 +49,7 @@ public class MultiLineHandler implements ShapeHandler{
             lines[part] = geometryFactory.createLineString(points);
             
         }
-        return new MultiLineString(lines,null,-1);
+        return geometryFactory.createMultiLineString(lines);
     }
     
     public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
@@ -100,6 +100,9 @@ public class MultiLineHandler implements ShapeHandler{
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.2  2002/03/05 10:23:59  jmacgill
+ * made sure geometries were created using the factory methods
+ *
  * Revision 1.1  2002/02/28 00:38:50  jmacgill
  * Renamed files to more intuitve names
  *
