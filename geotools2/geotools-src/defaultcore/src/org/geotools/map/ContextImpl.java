@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * OGC Web Map Context Specification.
  *
  * @author $author$
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  */
 public class ContextImpl implements Context {
     //private static final Logger LOGGER =
@@ -36,14 +36,12 @@ public class ContextImpl implements Context {
     private String _abstract;
     private String contactInformation;
     private String[] keywords;
-    private ToolList toolList;
 
     /**
      * Initialise the context.
      *
      * @param bbox The extent associated with this class.
      * @param layerList The list of layers associated with this context.
-     * @param toolList The list of tools which can be displayed with this map.
      * @param title The name of this context.  Must be set.
      * @param _abstract A description of this context.  Optional, set to null
      *        if none exists.
@@ -57,21 +55,19 @@ public class ContextImpl implements Context {
     protected ContextImpl(
         BoundingBox bbox,
         LayerList layerList,
-        ToolList toolList,
         String title,
         String _abstract,
         String[] keywords,
         String contactInformation
     ) throws IllegalArgumentException {
         if (
-            (bbox == null) || (layerList == null) || (toolList == null)
+            (bbox == null) || (layerList == null)
                 || (title == null)
         ) {
             throw new IllegalArgumentException();
         } else {
             this.bbox = bbox;
             this.layerList = layerList;
-            this.toolList = toolList;
             this.setTitle(title);
             this.setAbstract(_abstract);
             this.setKeywords(keywords);
@@ -194,14 +190,5 @@ public class ContextImpl implements Context {
      */
     public void setTitle(final String title) {
         this.title = title;
-    }
-
-    /**
-     * Get the toolList.
-     *
-     * @return the ToolList.
-     */
-    public ToolList getToolList() {
-        return this.toolList;
     }
 }

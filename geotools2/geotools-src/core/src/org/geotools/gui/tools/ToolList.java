@@ -14,10 +14,9 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.map;
+package org.geotools.gui.tools;
 
-import org.geotools.gui.tools.Tool;
-import org.geotools.map.events.SelectedToolListener;
+import org.geotools.gui.tools.event.SelectedToolListener;
 import java.util.List;
 
 
@@ -30,7 +29,7 @@ import java.util.List;
  * that.
  *
  * @author Cameron Shorter
- * @version $Id: ToolList.java,v 1.3 2003/05/17 11:14:07 camerons Exp $
+ * @version $Id: ToolList.java,v 1.1 2003/05/30 12:31:23 camerons Exp $
  */
 public interface ToolList extends List {
     /**

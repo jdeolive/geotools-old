@@ -17,7 +17,7 @@
 package org.geotools.gui.swing;
 
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.ToolList;
+import org.geotools.gui.tools.ToolList;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Iterator;
@@ -32,7 +32,7 @@ import javax.swing.JMenuItem;
  * itself from the ToolList parameters.
  *
  * @author Cameron Shorter
- * @version $Id: ToolMenu.java,v 1.2 2003/05/17 23:18:01 camerons Exp $
+ * @version $Id: ToolMenu.java,v 1.3 2003/05/30 12:31:28 camerons Exp $
  */
 public class ToolMenu extends JMenu {
     /** The class used for identifying for logging. */

@@ -1121,11 +1121,11 @@ ant</programlisting>
           <programlisting># change to your home directory
 cd ~
 # copy the netbeans configuration directory
-cp -pr .netbeans/ .netbeans.</programlisting>
+cp -pr .netbeans/ .netbeans.bak</programlisting>
         </example>
       </section>
     </section>
-    
+
     <section id="emacsjdee">
       <title>Emacs and JDEE</title>
 
@@ -1496,93 +1496,86 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
       </section>
 
       <section id="jdecodeformat">
-	<title>Formating code and using Jalopy</title>
+        <title>Formating code and using Jalopy</title>
 
-	<para>There is one package allowing you to use <systemitem
-            class="library">Jalopy</systemitem> from emacs with JDEE. This is
-          <systemitem class="library">jde-jalopy</systemitem>. It is not part
-          of JDEE yet, so must be downloaded separately from <ulink
-            url="http://home.nc.rr.com/nascifandelaine/jde-jalopy.el">it's home
-            page</ulink>.</para>
+        <para>There is one package allowing you to use <systemitem
+        class="library">Jalopy</systemitem> from emacs with JDEE. This is
+        <systemitem class="library">jde-jalopy</systemitem>. It is not part of
+        JDEE yet, so must be downloaded separately from <ulink
+        url="http://home.nc.rr.com/nascifandelaine/jde-jalopy.el">it&#39;s
+        home page</ulink>.</para>
 
         <para>To make it functional in your installation do as follows:</para>
 
         <orderedlist>
           <listitem>
             <para>It needs <systemitem class="library">Jalopy</systemitem>
-              console plug-in package available on <ulink
-                url="http://jalopy.sourceforge.net/download.html">project
-                download page</ulink>. So get it and unpack in some convenient
-              for you place. For my case it is
-              <filename>$PROJECTS_HOME/jalopy-1.0.2/</filename>
-              directory.</para>
+            console plug-in package available on <ulink
+            url="http://jalopy.sourceforge.net/download.html">project download
+            page</ulink>. So get it and unpack in some convenient for you
+            place. For my case it is <filename>$PROJECTS_HOME/jalopy-1.0.2/</filename>
+            directory.</para>
           </listitem>
 
           <listitem>
             <para>Put <filename>jde-jalopy.el</filename> file in your custom
-              packages location. Make sure it is in your emacs <quote>load
-              path</quote>. And add to <filename>.emacs</filename>:</para>
+            packages location. Make sure it is in your emacs <quote>load path</quote>.
+            And add to <filename>.emacs</filename>:</para>
 
             <example>
-              <title>Loading package <systemitem
-                  class="library">jde-jalopy</systemitem> in to emacs/jdee
-                environment.</title>
+              <title>Loading package <systemitem class="library">jde-jalopy</systemitem>
+              in to emacs/jdee environment.</title>
 
               <programlisting>;;; If it is in different than others package
 ;;; directory you must add this location to emacs load path
-(add-to-list 'load-path "~/.emacs.d/jde-jalopy/location")
+(add-to-list &#39;load-path &#34;~/.emacs.d/jde-jalopy/location&#34;)
 ;;; Make jde-jalopy available under emacs
-(require 'jde-jalopy)</programlisting>
+(require &#39;jde-jalopy)</programlisting>
             </example>
           </listitem>
 
           <listitem>
             <para>Some jalopy options are global to all your projects and some
-              can vary between projects. Global options should be placed in
-              <filename>.emacs</filename> and the rest should go to
-              <filename>prj.el</filename> files.</para>
+            can vary between projects. Global options should be placed in
+            <filename>.emacs</filename> and the rest should go to
+            <filename>prj.el</filename> files.</para>
 
             <example>
-              <title>Global Jalopy settings in
-              <filename>.emacs</filename>.</title>
+              <title>Global Jalopy settings in <filename>.emacs</filename>.</title>
 
               <programlisting>(custom-set-variables
- '(jde-jalopy-option-path "$PROJECTS_HOME/jalopy-1.0.2")
- '(jde-jalopy-option-force t)
+ &#39;(jde-jalopy-option-path &#34;$PROJECTS_HOME/jalopy-1.0.2&#34;)
+ &#39;(jde-jalopy-option-force t)
 )</programlisting>
 
               <para>Please note that can be only one expression with
-                <command>custom-set-variables</command> in your
-                <filename>.emacs</filename> file. If there is already such
-                expression you should only append to it lines with
-                parameters.</para>
+              <command>custom-set-variables</command> in your
+              <filename>.emacs</filename> file. If there is already such
+              expression you should only append to it lines with parameters.</para>
             </example>
 
             <example>
-              <title>Project local Jalopy settings in
-                <filename>prj.el</filename>.</title>
+              <title>Project local Jalopy settings in <filename>prj.el</filename>.</title>
 
               <programlisting>(jde-set-variables
- '(jde-jalopy-option-preferences-file
-   "$PROJECTS_HOME/geotools2/geotools-src/docs/sdocbook/resources/jalopygeotools.xml")
+ &#39;(jde-jalopy-option-preferences-file
+   &#34;$PROJECTS_HOME/geotools2/geotools-src/docs/sdocbook/resources/jalopygeotools.xml&#34;)
 )</programlisting>
             </example>
 
-            <para>As in above example if there is already
-              <command>jde-set-variables</command> expression in your
-              <filename>prj.el</filename> file add your settings to existing
-              list instead of creating new one.</para>
+            <para>As in above example if there is already <command>jde-set-variables</command>
+            expression in your <filename>prj.el</filename> file add your
+            settings to existing list instead of creating new one.</para>
           </listitem>
         </orderedlist>
 
         <para>Now you can start using it. When you are editing Java file and
-          want to use Jalopy for it run command
-          <command>jde-jalopy-file</command> (<userinput>M-x
-          jde-jalopy-file</userinput>). Compilation buffer will open and you can
-          see messages Jalopy generates during formating. Current version does
-          not automatically refreshes changes in emacs buffer so you must
-          <quote>revert buffer</quote> to see changes and work on file when
-          formating is done.</para>
+        want to use Jalopy for it run command <command>jde-jalopy-file</command>
+        (<userinput>M-x jde-jalopy-file</userinput>). Compilation buffer will
+        open and you can see messages Jalopy generates during formating.
+        Current version does not automatically refreshes changes in emacs
+        buffer so you must <quote>revert buffer</quote> to see changes and
+        work on file when formating is done.</para>
       </section>
 
       <section id="jdecommands">
@@ -1618,7 +1611,7 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
               <row>
                 <entry><command>jde-keys</command></entry>
 
-                <entry><literallayout format="linespecific"><userinput>&#32;none&#32;</userinput></literallayout></entry>
+                <entry><literallayout format="linespecific"><userinput> none </userinput></literallayout></entry>
 
                 <entry>Displays JDEE key bindings.</entry>
               </row>
@@ -1626,7 +1619,7 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
               <row>
                 <entry><command>jde-bug-keys</command></entry>
 
-                <entry><literallayout format="linespecific"><userinput>&#32;none&#32;</userinput></literallayout></entry>
+                <entry><literallayout format="linespecific"><userinput> none </userinput></literallayout></entry>
 
                 <entry>Displays JDEbug key-bindings.</entry>
               </row>
@@ -1634,10 +1627,10 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
               <row>
                 <entry><command>describe-bindings</command></entry>
 
-                <entry><literallayout format="linespecific"><userinput>&#32;none&#32;</userinput></literallayout></entry>
+                <entry><literallayout format="linespecific"><userinput> none </userinput></literallayout></entry>
 
                 <entry>Show a list of all emacs defined keys, and their
-                  definitions.</entry>
+                definitions.</entry>
               </row>
 
               <row>
@@ -1658,10 +1651,10 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
               <row>
                 <entry><command>next-error</command></entry>
 
-                <entry><literallayout format="linespecific"><userinput>&#32;C-x&#32;`&#32;</userinput></literallayout></entry>
+                <entry><literallayout format="linespecific"><userinput> C-x ` </userinput></literallayout></entry>
 
-                <entry>Visit next compilation error message and corresponding source
-                  code.</entry>
+                <entry>Visit next compilation error message and corresponding
+                source code.</entry>
               </row>
 
               <row>
@@ -1753,14 +1746,13 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
 
                 <entry><literallayout format="linespecific"><userinput> C-c C-v C-q </userinput></literallayout></entry>
 
-                <entry>Update the class list used to resolve class names. The first
-              time you invoke a JDEE wizard, the JDEE builds a list of all
-              classes on the <systemitem class="resource">CLASSPATH</systemitem>
-              defined by <systemitem
-                class="resource">jde-global-classpath</systemitem>. Wizards use
-              this list to resolve unqualified class names. If you add any
-              classes to the <systemitem class="resource">CLASSPATH</systemitem>
-              after invoking a wizard, you should update the class list.</entry>
+                <entry>Update the class list used to resolve class names. The
+                first time you invoke a JDEE wizard, the JDEE builds a list of
+                all classes on the <systemitem class="resource">CLASSPATH</systemitem>
+                defined by <systemitem class="resource">jde-global-classpath</systemitem>.
+                Wizards use this list to resolve unqualified class names. If
+                you add any classes to the <systemitem class="resource">CLASSPATH</systemitem>
+                after invoking a wizard, you should update the class list.</entry>
               </row>
 
               <row>

@@ -23,7 +23,7 @@ package org.geotools.map;
  * Store context information about a map display.  This object is based on the
  * OGC Web Map Context Specification.
  *
- * @version $Id: Context.java,v 1.5 2003/04/14 21:37:15 jmacgill Exp $
+ * @version $Id: Context.java,v 1.6 2003/05/30 12:31:24 camerons Exp $
  * @author Cameron Shorter
  */
 
@@ -34,8 +34,6 @@ public interface Context {
 
     public LayerList getLayerList();
     
-    public ToolList getToolList();
-
     public String getAbstract();
 
     public void setAbstract(final String _abstract);

@@ -26,6 +26,8 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.swing.event.GeoMouseEvent;
 import org.geotools.gui.tools.Tool;
+import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.ToolList;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.Layer;
@@ -33,7 +35,7 @@ import org.geotools.map.LayerList;
 import org.geotools.map.events.BoundingBoxEvent;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.LayerListListener;
-import org.geotools.map.events.SelectedToolListener;
+import org.geotools.gui.tools.event.SelectedToolListener;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
 import java.awt.Cursor;
@@ -59,7 +61,7 @@ import javax.swing.JPanel;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.26 2003/05/23 21:37:45 crotwell Exp $
+ * @version $Id: MapPaneImpl.java,v 1.27 2003/05/30 12:31:27 camerons Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -75,6 +77,11 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
     /** The model which stores a list of layers and BoundingBox. */
     private Context context;
+
+    /** List of tools which can be used by this class. */
+    private ToolList toolList;
+
+    /* Used to convert between types. */
     private Adapters adapters = Adapters.getDefault();
 
     /** A transform from screen coordinates to real world coordinates. */
@@ -85,24 +92,24 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @param context The context where layerList and boundingBox are kept.  If
      *        context is null, an IllegalArguementException is thrown.
+     * @param toolList The list of tools which can be used by this class.
      *
      * @throws IllegalArgumentException when parameters are null.
-     *
-     * @task TODO Move the "extra stuff" out of this method.
      */
-    public MapPaneImpl(Context context) throws IllegalArgumentException {
-        if (context == null) {
+    public MapPaneImpl(Context context, ToolList toolList)
+        throws IllegalArgumentException {
+        if ((context == null) || (toolList == null)) {
             throw new IllegalArgumentException();
         } else {
+            this.toolList = toolList;
             this.renderer = new Java2DRenderer(context);
             this.context = context;
 
             // Request to be notified when map parameters change
             context.getBbox().addAreaOfInterestChangedListener(this);
             context.getLayerList().addLayerListChangedListener(this);
-            context.getToolList().addSelectedToolListener(this);
-            context.getToolList().getSelectedTool().addMouseListener(this,
-                context);
+            toolList.addSelectedToolListener(this);
+            toolList.getSelectedTool().addMouseListener(this, context);
             addComponentListener(this);
 
             // A zero sized mapPane cannot be resized later and doesn't behave
@@ -115,6 +122,18 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             // set up the varialbes associated with this tool.
             initialiseTool();
         }
+    }
+
+    /**
+     * Create a MapPane. A MapPane marshals the drawing of maps.
+     *
+     * @param context The context where layerList and boundingBox are kept.  If
+     *        context is null, an IllegalArguementException is thrown.
+     *
+     * @throws IllegalArgumentException when parameters are null.
+     */
+    public MapPaneImpl(Context context) throws IllegalArgumentException {
+        this(context, ToolFactory.createFactory().createDefaultToolList());
     }
 
     /**
@@ -302,10 +321,9 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      * Initialise variables associated with the tool.
      */
     private void initialiseTool() {
-        if (context.getToolList().getSelectedTool() != null) {
-            context.getToolList().getSelectedTool().addMouseListener(this,
-                context);
-            setCursor(context.getToolList().getSelectedTool().getCursor());
+        if (toolList.getSelectedTool() != null) {
+            toolList.getSelectedTool().addMouseListener(this, context);
+            setCursor(toolList.getSelectedTool().getCursor());
         } else {
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
@@ -352,5 +370,23 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
                 (
             // m12: TransformY
             (getHeight() - getInsets().bottom) * scaleY) + aoi.getMinY());
+    }
+
+    /**
+     * Set the ToolList for this class.
+     *
+     * @param toolList The list of tools than can be used by this class.
+     */
+    public void setToolList(ToolList toolList) {
+        this.toolList = toolList;
+    }
+
+    /**
+     * Get the ToolList for this class.
+     *
+     * @return the toolList for this class.
+     */
+    public ToolList getToolList() {
+        return this.toolList;
     }
 }

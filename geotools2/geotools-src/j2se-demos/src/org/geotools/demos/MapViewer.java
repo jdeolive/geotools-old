@@ -29,22 +29,22 @@ import org.geotools.data.MemoryDataSource;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
-import org.geotools.feature.FlatFeatureFactory;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFlat;
+import org.geotools.feature.FlatFeatureFactory;
 import org.geotools.feature.IllegalFeatureException;
 import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.gui.swing.ToolMenu;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.gui.tools.ToolFactory;
+import org.geotools.gui.tools.ToolList;
 import org.geotools.gui.tools.ZoomTool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.map.ContextFactory;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
-import org.geotools.map.ToolList;
 import org.geotools.styling.SLDStyle;
 import org.geotools.styling.Style;
 import org.geotools.styling.StyleFactory;
@@ -60,7 +60,7 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.18 2003/05/23 10:54:13 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.19 2003/05/30 12:31:29 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -153,7 +153,7 @@ public class MapViewer {
                 }
             });
 
-        ToolMenu toolMenu = new ToolMenu(context.getToolList());
+        ToolMenu toolMenu = new ToolMenu(mapPane.getToolList());
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
         frame.getContentPane().setLayout(new BorderLayout());

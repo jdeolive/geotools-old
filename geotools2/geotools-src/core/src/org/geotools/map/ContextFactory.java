@@ -118,14 +118,13 @@ public abstract class ContextFactory {
      * @throws IllegalArgumentException if an argument is <code>null</code>.
      */
     public abstract Context createContext(BoundingBox bbox,
-        LayerList layerList, ToolList selectedTool, String title,
+        LayerList layerList, String title,
         String _abstract, String[] keywords, String contactInformation)
         throws IllegalArgumentException;
 
     /**
      * Create a Context with default parameters.<br>
      * boundingBox = layerList = empty list <br>
-     * toolList = Pan, ZoomIn, ZoomOut<br>
      * title = "" <br>
      * _abstract = ""<br>
      * keywords = empty array<br>
@@ -156,11 +155,4 @@ public abstract class ContextFactory {
      * @return An empty LayerList.
      */
     public abstract LayerList createLayerList();
-
-    /**
-     * Creates an empty ToolList with selectedTool=null.
-     *
-     * @return An empty ToolList.
-     */
-    public abstract ToolList createToolList();
 }

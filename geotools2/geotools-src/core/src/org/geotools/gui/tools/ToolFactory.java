@@ -1,79 +1,123 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.gui.tools;
 
 import java.util.logging.Logger;
 
+
 /**
  * Factory for constructing Tool classes.
- * @version $Id: ToolFactory.java,v 1.4 2003/04/14 21:37:14 jmacgill Exp $
+ *
  * @author Cameron Shorter
+ * @version $Id: ToolFactory.java,v 1.5 2003/05/30 12:31:22 camerons Exp $
  */
 public abstract class ToolFactory {
-    /**
-     * The logger 
-     */
+    /** The logger */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gui.tools.ToolFactory");
-
-    private static ToolFactory factory=null;
+    private static ToolFactory factory = null;
 
     /**
      * Create an instance of the factory.
-     * @return An instance of ToolFactory, or null if ToolFactory could not
-     * be created.
+     *
+     * @return An instance of ToolFactory, or null if ToolFactory could not be
+     *         created.
      */
-    public static ToolFactory createFactory(){
-        if (factory==null){
+    public static ToolFactory createFactory() {
+        if (factory == null) {
             String factoryClass = System.getProperty("ToolFactoryImpl");
             LOGGER.fine("loaded property = " + factoryClass);
-            if(factoryClass != null && factoryClass != ""){
-                factory = createFactory(factoryClass); 
+
+            if ((factoryClass != null) && (factoryClass != "")) {
+                factory = createFactory(factoryClass);
             }
-            if (factory==null) {
+
+            if (factory == null) {
                 factory = createFactory(
-                    "org.geotools.gui.tools.ToolFactoryImpl");
+                        "org.geotools.gui.tools.ToolFactoryImpl");
             }
         }
+
         return factory;
     }
 
     /**
      * Create an instance of the factory.
-     * @return An instance of the Factory, or null if the Factory could not
-     * be created.
+     *
      * @param factoryClass The name of the factory, eg:
-     * "org.geotools.gui.tools.ToolFactoryImpl".
+     *        "org.geotools.gui.tools.ToolFactoryImpl".
+     *
+     * @return An instance of the Factory, or null if the Factory could not be
+     *         created.
      */
     public static ToolFactory createFactory(String factoryClass) {
-        try{
-            return factory = (ToolFactory)Class.forName(
-                    factoryClass).newInstance();
-        } catch (ClassNotFoundException e){
-            LOGGER.warning("createFactory failed to find implementation "
-                    + factoryClass+ " , "+e);
-        } catch (InstantiationException e){
-            LOGGER.warning("createFactory failed to insantiate implementation "
-                    + factoryClass+" , "+e);
-        } catch (IllegalAccessException e){
-            LOGGER.warning("createStyleFactory failed to access implementation "
-                    + factoryClass+" , "+e);
+        try {
+            return factory = (ToolFactory) Class.forName(factoryClass)
+                                                .newInstance();
+        } catch (ClassNotFoundException e) {
+            LOGGER.warning("createFactory failed to find implementation " +
+                factoryClass + " , " + e);
+        } catch (InstantiationException e) {
+            LOGGER.warning("createFactory failed to insantiate implementation " +
+                factoryClass + " , " + e);
+        } catch (IllegalAccessException e) {
+            LOGGER.warning(
+                "createStyleFactory failed to access implementation " +
+                factoryClass + " , " + e);
         }
+
         return null;
     }
 
     /**
      * Create an instance of PanTool.
+     *
+     * @return the PanTool.
      */
     public abstract PanTool createPanTool();
-    
+
     /**
      * Create an instance of ZoomTool.
+     *
+     * @return the ZoomTool.
      */
     public abstract ZoomTool createZoomTool();
 
     /**
-     * Create an instance of ZoomTool.
-    /* @parma zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means
-     * zoom in, zoomFactor=2 means zoom out.
+     * Create an instance of ZoomTool. /
+     *
+     * @param zoomFactor he factor to zoom in/out by, zoomFactor=0.5 means zoom
+     *        in, zoomFactor=2 means zoom out.
+     *
+     * @return the ZoomTool.
      */
     public abstract ZoomTool createZoomTool(double zoomFactor);
+
+    /**
+     * Creates an empty ToolList with selectedTool=null.
+     *
+     * @return An empty ToolList.
+     */
+    public abstract ToolList createToolList();
+
+    /**
+     * Creates an empty ToolList with selectedTool=null.
+     *
+     * @return An empty ToolList.
+     */
+    public abstract ToolList createDefaultToolList();
 }

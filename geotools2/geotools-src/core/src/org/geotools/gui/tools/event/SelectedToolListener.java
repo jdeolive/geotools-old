@@ -17,7 +17,7 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-package org.geotools.map.events;
+package org.geotools.gui.tools.event;
 
 import java.util.EventListener;
 import java.util.EventObject;
@@ -25,7 +25,7 @@ import java.util.EventObject;
 /**
  * Methods to handle a change of a MapPane's selected tool.
  * @author Cameron Shorter
- * @version $Id: SelectedToolListener.java,v 1.1 2003/03/21 18:56:35 camerons Exp $
+ * @version $Id: SelectedToolListener.java,v 1.1 2003/05/30 12:31:24 camerons Exp $
  */
 public interface SelectedToolListener extends EventListener {
 

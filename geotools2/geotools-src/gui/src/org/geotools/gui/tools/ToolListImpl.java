@@ -14,10 +14,9 @@
  *    Lesser General Public License for more details.
  *
  */
-package org.geotools.map;
+package org.geotools.gui.tools;
 
-import org.geotools.gui.tools.Tool;
-import org.geotools.map.events.SelectedToolListener;
+import org.geotools.gui.tools.event.SelectedToolListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventObject;
@@ -33,7 +32,7 @@ import javax.swing.event.EventListenerList;
  * that.
  *
  * @author Cameron Shorter
- * @version $Id: ToolListImpl.java,v 1.5 2003/05/17 11:14:07 camerons Exp $
+ * @version $Id: ToolListImpl.java,v 1.1 2003/05/30 12:31:28 camerons Exp $
  */
 public class ToolListImpl extends ArrayList implements ToolList {
     /** The selected tool for this context. */
@@ -45,7 +44,7 @@ public class ToolListImpl extends ArrayList implements ToolList {
     /**
      * Creates a new instance of ToolList.
      */
-    protected ToolListImpl() {
+    public ToolListImpl() {
     }
 
     /**
