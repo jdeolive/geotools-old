@@ -88,6 +88,7 @@ public interface ResourceKeys
     public static final int ERROR_ILLEGAL_ARGUMENT_$2                   =    50;
     public static final int ERROR_ILLEGAL_ARRAY_LENGTH_FOR_DIMENSION_$1 =    51;
     public static final int ERROR_ILLEGAL_AXIS_ORIENTATION_$2           =    52;
+    public static final int ERROR_ILLEGAL_CALL_FOR_VALUE_CLASS_$1       =   101;
     public static final int ERROR_ILLEGAL_CLASS_$2                      =   100;
     public static final int ERROR_ILLEGAL_CS_DIMENSION_$1               =    53;
     public static final int ERROR_ILLEGAL_ENVELOPE_ORDINATE_$1          =    54;
