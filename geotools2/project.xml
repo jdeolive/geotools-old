@@ -16,7 +16,8 @@
   <package>org.geotools</package>
   <shortDescription>gtbuild module</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
-  <description>gtbuild module</description>
+  <description>Welcome to the homepage of the GeoTool2 build process<p/>
+  In the left side bar you should see a list of active modules, visit each for more details on the status of each module.</description>
   <url>http://www.geotools.org/</url>
   <cvsWebUrl/>
   <issueTrackingUrl/>
@@ -39,14 +40,14 @@
   <mailingLists/>
   <developers>
       <developer>
-      <name>Ian Turton</name>
-      <id>ianturton</id>
-      <email>ianturton@users.sourceforge.net</email>
-      <organization>CCG</organization>
-        <roles>
-            <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
-        </roles>
+          <name>Ian Turton</name>
+          <id>ianturton</id>
+          <email>ianturton@users.sourceforge.net</email>
+          <organization>CCG</organization>
+          <roles>
+             <role>Java Developer</role>
+             <role>Project Management Committee (PMC) Member</role>
+          </roles>
       </developer>  
       <developer>
           <name>James Macgill</name>
@@ -55,7 +56,7 @@
           <organization>CCG</organization>
           <roles>
             <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
+            <role>Project Management Committee (PMC) Member</role>
           </roles>
       </developer>
       <developer>
@@ -65,16 +66,7 @@
           <organization>VFNY</organization>
           <roles>
             <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
-          </roles>
-      </developer>
-      <developer>
-          <name>Linda Oxnard</name>
-          <id>loxnard</id>
-          <email>loxnard@users.sourceforge.net</email>
-          <organization>None</organization>
-          <roles>
-            <role>Doc Editor</role>
+            <role>Project Management Committee (PMC) Member</role>
           </roles>
       </developer>
       <developer>
@@ -84,7 +76,7 @@
           <organization>None</organization>
           <roles>
             <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
+            <role>Project Management Committee (PMC) Member</role>
           </roles>
       </developer>  
       <developer>
@@ -94,7 +86,7 @@
           <organization>TOPP</organization>
           <roles>
             <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
+            <role>Project Management Committee (PMC) Member</role>
           </roles>
       </developer>
       <developer>
@@ -104,7 +96,37 @@
           <organization>Institut de Recherche pour le Developpement (IRD)</organization>
           <roles>
             <role>Java Developer</role>
-            <role>GT2 Dev Team Member</role>
+            <role>Project Management Committee (PMC) Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Ian Schneider</name>
+          <id>ianschne</id>
+          <email>ianschne@users.sourceforge.net</email>
+          <organization>USDA ARS</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>Project Management Committee (PMC) Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Andrea Aime</name>
+          <id>aaimie</id>
+          <email>aaime@users.sourceforge.net</email>
+          <organization>University of Modena and Reggio Emilia</organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>Project Management Committee (PMC) Member</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Artur Hefczyc</name>
+          <id>kobit</id>
+          <email>kobit@users.sourceforge.net</email>
+          <organization></organization>
+          <roles>
+            <role>Java Developer</role>
+            <role>Project Management Committee (PMC) Member</role>
           </roles>
       </developer>
   </developers>
@@ -150,6 +172,8 @@
       <includes>
         <include>**/*Test.java</include>
       </includes>
+      
     </unitTest>
+    
   </build>
 </project>
