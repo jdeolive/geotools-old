@@ -45,10 +45,15 @@ import java.awt.Transparency;
 import java.awt.color.ColorSpace;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
+import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.image.ComponentColorModel;
+
+// JAI dependencies
 import javax.media.jai.RasterFactory;
+import javax.media.jai.FloatDoubleColorModel;
+import javax.media.jai.ComponentSampleModelJAI;
 
 // Resources
 import org.geotools.util.WeakValueHashMap;
@@ -62,7 +67,7 @@ import org.geotools.resources.ImageUtilities;
  * This factory provides only one public static method: {@link #getColorModel}.  Instances
  * of {@link ColorModel} are shared among all callers in the running virtual machine.
  *
- * @version $Id: ColorModelFactory.java,v 1.2 2002/08/09 18:37:56 desruisseaux Exp $
+ * @version $Id: ColorModelFactory.java,v 1.3 2002/08/09 23:06:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ColorModelFactory {
@@ -170,11 +175,32 @@ final class ColorModelFactory {
                     }
                 }
             }
+            final int  transparency = Transparency.OPAQUE;
             final ColorSpace colors = new ScaledColorSpace(visibleBand, numBands, min, max);
-            return RasterFactory.createComponentColorModel(type, colors, false, false, Transparency.OPAQUE);
-            // Note: we had to use JAI implementation instead of J2SE's one, because
-            //       javax.media.jai.iterator.RectIter do not work with J2SE's models
-            //       when the data type is float.
+            if (false) {
+                // This is the J2SE implementation of color model. It should be our preferred one.
+                // Unfortunatly, as of JAI 1.1 we have to use JAI implementation instead of J2SE's
+                // one because javax.media.jai.iterator.RectIter do not work with J2SE's DataBuffer
+                // when the data type is float or double.
+                return new ComponentColorModel(colors, false, false, transparency, type);
+            }
+            if (false) {
+                // This is the JAI implementation of color model. This implementation work with
+                // JAI's RectIter and should in theory support float and double data buffer.
+                // Unfortunatly, it seems to completly ignore our custom ColorSpace. We end
+                // up basically with all-black or all-white images.
+                return new FloatDoubleColorModel(colors, false, false, transparency, type);
+            }
+            if (true) {
+                // Our patched color model extends J2SE's ComponentColorModel (which work correctly
+                // with our custom ColorSpace), but create JAI's SampleModel instead of J2SE's one.
+                // It make RectIter happy and display colors correctly.
+                return new PatchedColorModel(colors, false, false, transparency, type);
+            }
+            // This factory is not really different from a direct construction of
+            // FloatDoubleColorModel. We provide it here just because we must end
+            // with something.
+            return RasterFactory.createComponentColorModel(type, colors, false, false, transparency);
         }
         if (numBands != 1) {
             // It would be possible to support 2, 3, 4... bands. But is it
@@ -236,5 +262,52 @@ final class ColorModelFactory {
                    Arrays.equals(this.categories, that.categories);
         }
         return false;
+    }
+
+    /**
+     * A color model which create {@link ComponentSampleModelJAI}.
+     * This patch exist only because {@link javax.media.jai.iterator.RectIter}
+     * doesn't accept the J2SE's float and double {@link DataBuffer}. We can't
+     * use the {@link FloatDoubleColorModel} work around because it ignores our
+     * custom {@link ColorSpace}, since we use a J2SE 1.4 API while JAI is only
+     * J2SE 1.3 aware.
+     *
+     * @TODO PATCH: Remove this patch when JAI will recognize J2SE 1.4 classes.
+     */
+    private static final class PatchedColorModel extends ComponentColorModel {
+        /**
+         * Construct a new color model.
+         */
+        public PatchedColorModel(final ColorSpace colorSpace,
+                                 final boolean hasAlpha,
+                                 final boolean isAlphaPremultiplied,
+                                 final int transparency,
+                                 final int transferType)
+        {
+            super(colorSpace, hasAlpha, isAlphaPremultiplied, transparency, transferType);
+        }
+
+        /**
+         * Returns a compatible sample model. This implementation is nearly identical
+         * to default J2SE's implementation, except that it construct a JAI color model
+         * instead of a J2SE one.
+         */
+        public SampleModel createCompatibleSampleModel(final int w, final int h) {
+            switch (transferType) {
+                default: {
+                    return super.createCompatibleSampleModel(w, h);
+                }
+                case DataBuffer.TYPE_FLOAT:   // fall through
+                case DataBuffer.TYPE_DOUBLE: {
+                    final int numComponents = getNumComponents();
+                    final int[] bandOffsets = new int[numComponents];
+                    for (int i=0; i<numComponents; i++) {
+                        bandOffsets[i] = i;
+                    }
+                    return new ComponentSampleModelJAI(transferType, w, h, numComponents,
+                                                       w*numComponents, bandOffsets);
+                }
+            }
+        }
     }
 }
