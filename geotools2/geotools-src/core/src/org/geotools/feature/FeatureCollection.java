@@ -17,9 +17,6 @@
 package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.Extent;
 
 
 /** Represents a collection of features. Implementations and client code should
@@ -29,7 +26,7 @@ import org.geotools.data.Extent;
  * @author Ian Turton, CCG
  * @author Rob Hranac, VFNY
  * @author Ian Schneider, USDA-ARS
- * @version $Id: FeatureCollection.java,v 1.11 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: FeatureCollection.java,v 1.12 2003/07/30 21:31:41 jmacgill Exp $
  */
 public interface FeatureCollection extends java.util.Collection {
     /**

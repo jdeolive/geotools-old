@@ -24,37 +24,55 @@ import java.util.EventObject;
  * instances (typically change events).
  *
  * @author Ray Gallagher
- * @version $Id: CollectionEvent.java,v 1.6 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: CollectionEvent.java,v 1.7 2003/07/30 21:31:41 jmacgill Exp $
  */
 public class CollectionEvent extends EventObject {
-  /*
-   * Design Notes:
-   *  - Must look at other classes for hints on how to implement nicely.
-   *
-   *
-   */
-  
+    /*
+     * Design Notes:
+     *  - Must look at other classes for hints on how to implement nicely.
+     *
+     *
+     */
+
+    /** event type constant denoting the adding of a feature */
     public static final int FEATURES_ADDED = 0;
+
+    /** event type constant denoting the removal of a feature */
     public static final int FEATURES_REMOVED = 1;
+
+    /**
+     * event type constant denoting that features in the collection has been
+     * modified
+     */
     public static final int FEATURES_CHANGED = 2;
-    
     private int type;
-    
+
     /**
      * Constructs a new CollectionEvent.
      *
      * @param source the collection which triggered the event
      */
     public CollectionEvent(FeatureCollection source) {
-      super(source);
-      this.type = FEATURES_CHANGED;
+        super(source);
+        this.type = FEATURES_CHANGED;
     }
-    
+
+    /**
+     * provides access to the featurecollection which fired the event
+     * @return The FeatureCollection which was the event's source.
+     */
     public FeatureCollection getCollection() {
-      return (FeatureCollection) source;
+        return (FeatureCollection) source;
     }
-    
+
+    /**
+     * Provides information on the type of change that has occured. Possible
+     * types are: add, remove, change
+     *
+     * @return an int which must be one of FEATURES_ADDED, FEATURES_REMOVED,
+     *         FEATURES_CHANGED
+     */
     public int getEventType() {
-      return type; 
+        return type;
     }
 }

@@ -22,52 +22,72 @@
 package org.geotools.feature;
 
 import java.util.Iterator;
-import org.geotools.feature.*;
 
 
-/** The FeatureCollectionIteration provides a depth first traversal of a
+/**
+ * The FeatureCollectionIteration provides a depth first traversal of a
  * FeatureCollection which will call the provided call-back Handler. Because
  * of the complex nature of Features, which may have other Features (or even a
  * collection of Features) as attributes, the handler is repsonsible for
- * maintaining its own state as to where in the traversal it is recieving events
- * from. Many handlers will not need to worry about state.<p>
- * <b>Implementation Notes:</b>
- * The depth first visitation is implemented through recursion. The limits to
- * recursion depending on the settings in the JVM, but some tests show a 2
- * argument recursive having a limit of ~50000 method calls with a stack size of
- * 512k (the standard setting).
+ * maintaining its own state as to where in the traversal it is recieving
+ * events from. Many handlers will not need to worry about state.
+ * 
+ * <p>
+ * <b>Implementation Notes:</b> The depth first visitation is implemented
+ * through recursion. The limits to recursion depending on the settings in the
+ * JVM, but some tests show a 2 argument recursive having a limit of ~50000
+ * method calls with a stack size of 512k (the standard setting).
+ * </p>
+ *
  * @author Ian Schneider
  * @author Chris Holmes
  */
 public class FeatureCollectionIteration {
-  
+    /**
+     * A callback handler for the iteration of the contents of a
+     * FeatureCollection.
+     */
     protected final Handler handler;
+    /** The collection being iterated */
     private final FeatureCollection collection;
-  
-    /** A convienience method for obtaining a new iteration and calling iterate. */    
-    public static void iteration(Handler handler,FeatureCollection collection) {
-      FeatureCollectionIteration iteration = new FeatureCollectionIteration(
-        handler,
-        collection
-      );
-      iteration.iterate();
+
+    /** Create a new FeatureCollectionIteration with the given handler and
+     * collection.
+     *
+     * @param handler DOCUMENT ME!
+     * @param collection The collection to iterate over
+     */
+    public FeatureCollectionIteration(Handler handler,
+        FeatureCollection collection) {
+        if (handler == null) {
+            throw new NullPointerException("handler");
+        }
+
+        if (collection == null) {
+            throw new NullPointerException("collection");
+        }
+
+        this.handler = handler;
+        this.collection = collection;
     }
-    
-    /** Create a new FeatureCollectionIteration with the given handler and collection. */    
-    public FeatureCollectionIteration(Handler handler,FeatureCollection collection) {
-      if (handler == null) {
-        throw new NullPointerException("handler");
-      }
-      if (collection == null) {
-        throw new NullPointerException("collection");
-      }
-      this.handler = handler;
-      this.collection = collection;
+
+    /**
+     * A convienience method for obtaining a new iteration and calling iterate.
+     *
+     * @param handler DOCUMENT ME!
+     * @param collection DOCUMENT ME!
+     */
+    public static void iteration(Handler handler, FeatureCollection collection) {
+        FeatureCollectionIteration iteration = new FeatureCollectionIteration(handler,
+                collection);
+        iteration.iterate();
     }
-    
-    /** Start the iteration. */    
+
+    /**
+     * Start the iteration.
+     */
     public void iterate() {
-      walker(collection);
+        walker(collection);
     }
 
     protected void walker(FeatureCollection collection) {
@@ -77,17 +97,17 @@ public class FeatureCollectionIteration {
 
         handler.endFeatureCollection(collection);
     }
-    
+
     protected void iterate(Iterator iterator) {
-      while (iterator.hasNext()) {
-          walker((Feature)iterator.next());
-      } 
+        while (iterator.hasNext()) {
+            walker((Feature) iterator.next());
+        }
     }
 
     protected void walker(Feature feature) {
         final FeatureType schema = feature.getFeatureType();
         final int cnt = schema.getAttributeCount();
-        
+
         handler.handleFeature(feature);
 
         for (int i = 0; i < cnt; i++) {
@@ -95,7 +115,7 @@ public class FeatureCollectionIteration {
 
             // recurse if attribute type is another collection
             if (FeatureCollection.class.isAssignableFrom(type.getType())) {
-                walker((FeatureCollection) feature.getAttribute(i));  
+                walker((FeatureCollection) feature.getAttribute(i));
             }
             // recurse if attribute type is another feature
             else if (type.isNested()) {
@@ -103,14 +123,17 @@ public class FeatureCollectionIteration {
             }
             // normal handling
             else {
-                handler.handleAttribute(type,feature.getAttribute(i));
-            } 
+                handler.handleAttribute(type, feature.getAttribute(i));
+            }
         }
 
         handler.endFeature(feature);
     }
 
-    /** A callback handler for the iteration of the contents of a FeatureCollection. */    
+    /**
+     * A callback handler for the iteration of the contents of a
+     * FeatureCollection.
+     */
     public interface Handler {
         void handleFeatureCollection(FeatureCollection fc);
 
@@ -120,7 +143,6 @@ public class FeatureCollectionIteration {
 
         void endFeature(Feature f);
 
-        void handleAttribute(AttributeType type,Object value);
+        void handleAttribute(AttributeType type, Object value);
     }
-    
 }
