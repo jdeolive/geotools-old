@@ -70,8 +70,9 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
         maven java:compile
         
       If building everyting use:
-        maven build
-        maven site
+        maven build       -- this will try to build all modules regardless
+        maven build-fail  -- this will stop at the first failure
+        maven allsite     -- this will build the site for all modules
         
       For more options use
         maven -g
@@ -118,6 +119,46 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
   
   </goal>
   
+  <goal name="build-fail">
+  
+
+    <echo>
+      looking for modules in: ${basedir}/geotools-src
+
+    </echo>
+    <maven:reactor
+      basedir="${basedir}/geotools-src"
+      includes="*/project.xml"
+      goals="clean,jar:install"
+      banner="Building"
+      postProcessing="true"
+      ignoreFailures="false"
+    />
+
+    <j:set
+      var = "ok"
+      value = "${reactorProjects}"
+    />
+ 
+    <maven:reactor
+      basedir="${basedir}/geotools-src"
+      includes="*/project.xml"
+      postProcessing="true"
+      ignoreFailures="true"
+    />
+
+    <j:forEach var="module" items="${reactorProjects}">
+        <j:set var = "status" value = "failed"/>
+        <j:forEach var="item" items="${ok}">
+            <j:if test="${item == module}">
+                <j:set var = "status" value = "installed"/>
+            </j:if>
+         </j:forEach>
+         <echo>Module ${module} : ${status}</echo>
+    </j:forEach>
+
+  </goal>
+  
   <goal name="snapshot">
   
     <echo>
@@ -142,7 +183,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
   <!-- W E B S I T E                                                      -->
   <!-- ================================================================== -->
   
-  <goal name="site">
+  <goal name="allsite">
 
     <!--
       ||
@@ -163,7 +204,7 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
 
   </goal>
   
-  <goal name="deploy-site">
+  <goal name="deploy-allsite">
 
     <!--
       ||
@@ -209,18 +250,6 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       reactor list = ${reactorProjects}
     </echo>
     
-<!-- old style not in beta8
-    <attainGoal name="init-texen-tag"/>
-    
-    <texen:generate
-      controlTemplate="navigation.vm"
-      outputDirectory="${basedir}/xdocs"
-      templatePath="${basedir}"
-      outputFile="navigation.xml"
-      reactorProjects="${reactorProjects}"
-    />
--->
-
 <velocity:merge name="xdocs/navigation.xml" 
 		basedir="${basedir}"
 		template="navigation.vm"
