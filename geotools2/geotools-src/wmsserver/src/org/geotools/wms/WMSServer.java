@@ -82,10 +82,11 @@ public interface WMSServer {
      * @param height The height of the image, in pixels
      * @param transparent Whether the background of the map is transparent
      * @param bgcolor The background color of the map
+     * @param scale the scale the legend is being built for
      *
      * @return A java.awt.Image object of the drawn map.
      */
-    public BufferedImage getLegend(String[] layers, String[] styles, int width, int height, boolean transparent, Color bgcolor)
+    public BufferedImage getLegend(String[] layers, String[] styles, int width, int height, boolean transparent, Color bgcolor, double scale)
         throws WMSException;
     
     /**
