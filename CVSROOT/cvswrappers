@@ -26,3 +26,4 @@
 *.shp -k 'b'
 *.shx -k 'b'
 *.dbf -k 'b'
+*.zip -k 'b'
