@@ -947,7 +947,7 @@ ant</programlisting>
           </listitem>
 
           <listitem>
-            <para> <link linkend="jalopy">Jalopy</link> is a Source Code
+            <para><link linkend="jalopy">Jalopy</link> is a Source Code
             Formatter which should be used to ensure Geotools code is written
             in a consistant style. Download the <ulink
             url="http://jalopy.sourceforge.net/download.html">zipped</ulink>
@@ -1005,7 +1005,7 @@ ant</programlisting>
           </varlistentry>
 
           <varlistentry>
-            <term>View over FileSystem</term>
+            <term>Source files</term>
 
             <listitem>
               <para>If you want to debug files using Netbeans, you will need
@@ -1023,22 +1023,59 @@ ant</programlisting>
           </varlistentry>
 
           <varlistentry>
+            <term>Target files</term>
+
+            <listitem>
+              <para>You should mount the <filename>.class</filename> files
+              that maven builds. Maven, the java build tool, compiles classes
+              into <filename>geotools2/geotools-src/&#60;module_name&#62;/target/classes/org/geotools/&#60;module&#62;/&#60;file&#62;.class</filename>.</para>
+
+              <para>Again, you need to ensure the &#34;View over
+              FileSystem&#34; Netbeans module is installed. Select all
+              <filename>geotools2/geotools-src/&#60;module_name&#62;/target/classes</filename>
+              directories in the Filesystem Explorer then select
+              <command>Tools-&#62;Mount As New Filesystem</command>.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
             <term>External Jar files</term>
 
             <listitem>
-              <para>External packages need to be mounted. In the Explorer
-              window, right click <command>FileSystems</command> and select
-              <command>Mount-&#62;Archive Files</command>.</para>
-
-              <para>Previously, jar files were located at:
-              geotools2/extbin/&#60;module&#62;/lib/*.jar. In future we will
-              be using <literal>maven</literal> to obtain the jar files
-              instead of keeping them in the CVS repository. So after running
-              <literal>maven,</literal> you will be able to find jar files at:
+              <para>This project is dependant on a number of external
+              packages. After running <literal>maven,</literal> you will be
+              able to find jars for these external packages at:
               <filename>$MAVEN_HOME/repository/&#60;module&#62;/jars/*.jar</filename>.</para>
 
-              <para>To do: Reword above paragraph once we have moved
-              completely to <literal>maven</literal>.</para>
+              <orderedlist>
+                <listitem>
+                  <para>First, mount the maven home directory as a local
+                  directory:</para>
+
+                  <blockquote>
+                    <para>In the Explorer window, right click
+                    <command>FileSystems</command> and select
+                    <command>Mount-&#62;Local Directory</command>.</para>
+
+                    <para>Select <filename>$MAVEN_HOME/repository</filename></para>
+                  </blockquote>
+                </listitem>
+
+                <listitem>
+                  <para>Select all the .jar files in $MAVEN_HOME:</para>
+
+                  <blockquote>
+                    <para>In the Explorer window, right click on the
+                    MAVEN_HOME directory, select <command>Find</command>.</para>
+
+                    <para>In the Search Criteria popup, select
+                    <command>Type-&#62;Jar Files</command>.</para>
+
+                    <para>Select all the jar files, right click, select
+                    <command>Mount JAR</command>.</para>
+                  </blockquote>
+                </listitem>
+              </orderedlist>
             </listitem>
           </varlistentry>
         </variablelist>
@@ -1063,15 +1100,16 @@ ant</programlisting>
 
         <para>Netbeans occasionally gets into a funny state and refuses to
         debug, or execute, or something. So it is a good idea to backup your
-        netbeans configuration directory.</para>
+        netbeans configuration directory. On &#39;nix systems you do something
+        like:</para>
 
         <example>
-          <title>Backup Netbeans configuration (in unix)</title>
+          <title>Backup netbeans configuration (in unix)</title>
 
           <programlisting># change to your home directory
 cd ~
 # copy the netbeans configuration directory
-cp -pr .netbeans/ .netbeans.orig</programlisting>
+cp -pr .netbeans/ .netbeans.</programlisting>
         </example>
       </section>
     </section>
