@@ -40,6 +40,7 @@ import java.awt.Color;
 import java.util.List;
 import java.util.Locale;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.io.Serializable;
 import java.awt.RenderingHints;
 import java.awt.image.DataBuffer; // For JavaDoc
@@ -83,7 +84,9 @@ import org.geotools.ct.TransformException;
 import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.RemoteProxy;
+import org.geotools.resources.ClassChanger;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -107,7 +110,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.18 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.19 2003/04/10 20:41:08 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -201,7 +204,7 @@ public class SampleDimension implements Serializable {
     }
     
     /**
-     * Construct a sample dimension with a set of qualitative categories only.
+     * Constructs a sample dimension with a set of qualitative categories only.
      * This sample dimension will have no unit and a default set of colors.
      *
      * @param names  Sequence of category names for the values contained in a sample dimension.
@@ -215,8 +218,19 @@ public class SampleDimension implements Serializable {
         this(list(names));
     }
     
+    /** Constructs a list of categories. Used by constructors only. */
+    private static CategoryList list(final String[] names) {
+        final Color[] colors = new Color[names.length];
+        final double scale = 255.0/colors.length;
+        for (int i=0; i<colors.length; i++) {
+            final int r = (int)Math.round(scale*i);
+            colors[i] = new Color(r,r,r);
+        }
+        return list(names, colors);
+    }
+    
     /**
-     * Construct a sample dimension with a set of qualitative categories only.
+     * Constructs a sample dimension with a set of qualitative categories only.
      * This sample dimension will have no unit.
      *
      * @param names  Sequence of category names for the values contained in a sample dimension.
@@ -232,10 +246,252 @@ public class SampleDimension implements Serializable {
         this(list(names, colors));
     }
     
+    /** Constructs a list of categories. Used by constructors only. */
+    private static CategoryList list(final String[] names, final Color[] colors) {
+        if (names.length != colors.length) {
+            throw new IllegalArgumentException(
+                    Resources.format(ResourceKeys.ERROR_MISMATCHED_ARRAY_LENGTH));
+        }
+        final Category[] categories = new Category[names.length];
+        for (int i=0; i<categories.length; i++) {
+            categories[i] = new Category(names[i], colors[i], i);
+        }
+        return list(categories, null);
+    }
+
     /**
-     * Construct a sample dimension with an arbitrary set of categories, which may be both
-     * quantitative and qualitative.  It is possible to specify more than one quantitative
-     * categories, providing that their sample value ranges do not overlap.   Quantitative
+     * Constructs a sample dimension with the specified properties. For convenience, any argument
+     * which is not a <code>double</code> primitive can be <code>null</code>. This constructor
+     * allows the construction of a <code>SampleDimension</code> without explicit construction of
+     * {@link Category} objects. An heuristic approach is used for dispatching the informations
+     * into a set of {@link Category} objects. However, this constructor still less general and
+     * provides less fine-grain control than the constructor expecting an array of {@link Category}.
+     *
+     * @param  description The sample dimension title or description, or <code>null</code> if none.
+     *         This is the value to be returned by {@link #getDescription}.
+     * @param  type The grid value data type (which indicate the number of bits for the data type),
+     *         or <code>null</code> for computing it automatically from the range
+     *         <code>[minimum..maximum]</code>. This is the value to be returned by
+     *         {@link #getSampleDimensionType}.
+     * @param  color The color interpretation, or <code>null</code> for a default value (usually
+     *         {@link ColorInterpretation#PALETTE_INDEX PALETTE_INDEX}). This is the value to be
+     *         returned by {@link #getColorInterpretation}.
+     * @param  palette The color palette associated with the sample dimension, or <code>null</code>
+     *         for a default color palette (usually grayscale). If <code>categories</code> is
+     *         non-null, then both arrays usually have the same length. However, this constructor
+     *         is tolerant on this array length. This is the value to be returned (indirectly) by
+     *         {@link #getColorModel}.
+     * @param  categories A sequence of category names for the values contained in the sample
+     *         dimension, or <code>null</code> if none. This is the values to be returned by
+     *         {@link #getCategoryNames}.
+     * @param  nodata the values to indicate "no data", or <code>null</code> if none. This is the
+     *         values to be returned by {@link #getNoDataValue}.
+     * @param  minimum The lower value, inclusive. If <code>categories</code> was non-null,
+     *         then <code>minimum</code> is usually 0. This is the value to be returned by
+     *         {@link #getMinimumValue}.
+     * @param  maximum The upper value, <strong>inclusive</strong> as well. If
+     *         <code>categories</code> was non-null, then <code>maximum</code> is usually equals
+     *         to <code>categories.length-1</code>. This is the value to be returned by
+     *         {@link #getMaximumValue}.
+     * @param  scale The value which is multiplied to grid values, or 1 if none. This is the value
+     *         to be returned by {@link #getScale}.
+     * @param  offset The value to add to grid values, or 0 if none. This is the value to be
+     *         returned by {@link #getOffset}.
+     * @param  unit The unit information for this sample dimension, or <code>null</code> if none.
+     *         This is the value to be returned by {@link #getUnits}.
+     *
+     * @throws IllegalArgumentException if the range <code>[minimum..maximum]</code> is not valid.
+     */
+    public SampleDimension(final String description,
+                           SampleDimensionType type,
+                           ColorInterpretation color,
+                           final Color [] palette,
+                           final String[] categories,
+                           final double[] nodata,
+                                 double   minimum,
+                                 double   maximum,
+                           final double   scale,
+                           final double   offset,
+                           final Unit     unit)
+    {
+        // TODO: 'list(...)' should be inlined there if only Sun was to fix RFE #4093999
+        //       ("Relax constraint on placement of this()/super() call in constructors").
+        this(list(description, type, color, palette, categories, nodata,
+                  minimum, maximum, scale, offset, unit));
+    }
+
+    /** Constructs a list of categories. Used by constructors only. */
+    private static CategoryList list(final String description,
+                                     SampleDimensionType type,
+                                     ColorInterpretation color,
+                                     final Color [] palette,
+                                     final String[] categories,
+                                     final double[] nodata,
+                                           double   minimum,
+                                           double   maximum,
+                                     final double   scale,
+                                     final double   offset,
+                                     final Unit     unit)
+    {
+        if (Double.isInfinite(minimum) || Double.isInfinite(maximum) || !(minimum < maximum)) {
+            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_RANGE_$2,
+                                               new Double(minimum), new Double(maximum)));
+        }
+        if (type == null) {
+            type = SampleDimensionType.getEnum(minimum, maximum);
+        }
+        if (color == null) {
+            color = ColorInterpretation.PALETTE_INDEX;
+        }
+        final int namesCount = (categories!=null) ? categories.length : 0;
+        final List categoryList = new ArrayList(namesCount + 2);
+        /*
+         * STEP 1 - Add a qualitative category for each 'nodata' value.
+         *          NAME:  Fetched from 'categories' if available, otherwise default to the value.
+         *          COLOR: Fetched from 'palette' if available, otherwise use Category default.
+         */
+        if (nodata != null) {
+            for (int i=0; i<nodata.length; i++) {
+                String name = null;
+                final double padValue = nodata[i];
+                final int    intValue = (int) Math.floor(padValue);
+                if (intValue>=0 && intValue<namesCount) {
+                    if (intValue == padValue) {
+                        // This category will be added in step 2 below.
+                        continue;
+                    }
+                    name = categories[intValue];
+                }
+                final Comparable value = (Comparable) type.wrapSample(padValue, false);
+                if (name == null) {
+                    name = value.toString();
+                }
+                final Range range = new Range(value.getClass(), value, value);
+                final Color[] colors = ImageUtilities.subarray(palette, intValue, intValue+1);
+                categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
+            }
+        }
+        /*
+         * STEP 2 - Add a qualitative category for each category name.
+         *          RANGE: Fetched from the index (position) in the 'categories' array.
+         *          COLOR: Fetched from 'palette' if available, otherwise use Category default.
+         */
+        if (namesCount != 0) {
+            int lower = 0;
+            for (int upper=1; upper<=categories.length; upper++) {
+                final String name = categories[lower].trim();
+                if (upper!=categories.length && name.equalsIgnoreCase(categories[upper].trim())) {
+                    // If there is a suite of categories with identical name,  create only one
+                    // category with range [lower..upper] instead of one new category for each
+                    // sample value.
+                    continue;
+                }
+                Number min = type.wrapSample(lower,   false);
+                Number max = type.wrapSample(upper-1, false);
+                final Class classe;
+                if (min.equals(max)) {
+                    min = max;
+                    classe = max.getClass();
+                } else {
+                    classe = ClassChanger.getWidestClass(min, max);
+                    min = ClassChanger.cast(min, classe);
+                    max = ClassChanger.cast(max, classe);
+                }
+                final Range   range  = new Range(classe, (Comparable)min, (Comparable)max);
+                final Color[] colors = ImageUtilities.subarray(palette, lower, upper);
+                categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
+                lower = upper;
+            }
+        }
+        /*
+         * STEP 3 - Create at most one quantitative category. The range is from 'minimum' to
+         *          'maximum' inclusive, minus all ranges used by qualitative categories. If
+         *          there is no range left, then no quantitative category is created.
+         *
+         *          Note that substractions way break a range into many smaller ranges.
+         *          The naive algorithm used here try to keep the widest range.
+         */
+        if (true) {
+            boolean minIncluded = true;
+            boolean maxIncluded = true;
+            for (int i=categoryList.size(); --i>=0;) {
+                final Range range = ((Category) categoryList.get(i)).getRange();
+                final double  min = ((Number) range.getMinValue()).doubleValue();
+                final double  max = ((Number) range.getMaxValue()).doubleValue();
+                if (max-minimum < maximum-min) {
+                    if (max >= minimum) {
+                        // We are loosing some sample values in
+                        // the lower range because of nodata values.
+                        minimum = max;
+                        minIncluded = !range.isMaxIncluded();
+                    }
+                } else {
+                    if (min <= maximum) {
+                        // We are loosing some sample values in
+                        // the upper range because of nodata values.
+                        maximum = min;
+                        maxIncluded = !range.isMinIncluded();
+                    }
+                }
+            }
+            if (maximum-minimum > (minIncluded && maxIncluded ? 0 : 1)) {
+                Number min = type.wrapSample(minimum, false);
+                Number max = type.wrapSample(maximum, false);
+                final Class classe = ClassChanger.getWidestClass(min, max);
+                min = ClassChanger.cast(min, classe);
+                max = ClassChanger.cast(max, classe);
+                final Range  range = new Range(classe, (Comparable)min, minIncluded,
+                                                       (Comparable)max, maxIncluded);
+                final Color[] colors = ImageUtilities.subarray(palette,
+                                                     (int)Math.ceil (minimum),
+                                                     (int)Math.floor(maximum));
+                categoryList.add(new Category(description!=null ? description : "(automatic)",
+                                 colors, range, scale, offset));
+            } else if (description!=null) {
+                /*
+                 * If no quantative category has been added, looks if we could turn an existing
+                 * qualitative category into a quantitative one. This change will be applied only
+                 * if the category name matches the description, which is an approach consistent
+                 * with our default implementation of 'SampleDimension.getDescription()'. Again,
+                 * this is a very heuristic approach.
+                 */
+                for (int i=categoryList.size(); --i>=0;) {
+                    Category category = (Category) categoryList.get(i);
+                    final Range       range = category.getRange();
+                    final Comparable    min = range.getMinValue();
+                    final Comparable    max = range.getMaxValue();
+                    if (min.compareTo(max) != 0) {
+                        minimum = ((Number)min).doubleValue();
+                        maximum = ((Number)max).doubleValue();
+                        if (!rangeContains(minimum, maximum, nodata)) {
+                            final String name = category.getName(null);
+                            if (description.startsWith(name)) {
+                                final Color[] colors = category.getColors();
+                                category = new Category(name, colors, range, scale, offset);
+                                categoryList.set(i, category);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*
+         * Now, the list of categories should be complete. Construct a sample
+         * dimension appropriate for the kind of palette used.
+         */
+        final Category[] cl = (Category[]) categoryList.toArray(new Category[categoryList.size()]);
+        if (ColorInterpretation.PALETTE_INDEX.equals(color) ||
+            ColorInterpretation.GRAY_INDEX.equals(color))
+        {
+            return list(cl, unit);
+        }
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+    
+    /**
+     * Constructs a sample dimension with an arbitrary set of categories, which may be both
+     * quantitative and qualitative.   It is possible to specify more than one quantitative
+     * categories, providing that their sample value ranges do not overlap.    Quantitative
      * categories can map sample values to geophysics values using arbitrary relation (not
      * necessarly linear).
      *
@@ -254,8 +510,20 @@ public class SampleDimension implements Serializable {
         this(list(categories, units));
     }
 
+    /** Construct a list of categories. Used by constructors only. */
+    private static CategoryList list(final Category[] categories, final Unit units) {
+        if (categories == null) {
+            return null;
+        }
+        CategoryList list = new CategoryList(categories, units);
+        list = (CategoryList) Category.pool.canonicalize(list);
+        if (CategoryList.isScaled(categories, false)) return list;
+        if (CategoryList.isScaled(categories, true )) return list.inverse;
+        throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_MIXED_CATEGORIES));
+    }
+
     /**
-     * Construct a sample dimension with the specified list of categories.
+     * Constructs a sample dimension with the specified list of categories.
      *
      * @param list The list of categories, or <code>null</code>.
      */
@@ -286,7 +554,7 @@ public class SampleDimension implements Serializable {
     }
 
     /**
-     * Construct a new sample dimension with the same categories and
+     * Constructs a new sample dimension with the same categories and
      * units than the specified sample dimension.
      *
      * @param other The other sample dimension, or <code>null</code>.
@@ -307,51 +575,6 @@ public class SampleDimension implements Serializable {
             hasQuantitative    = false;
             sampleToGeophysics = null;
         }
-    }
-    
-    /**
-     * Construct a list of categories.
-     * Used by constructors only.
-     */
-    private static CategoryList list(final String[] names) {
-        final Color[] colors = new Color[names.length];
-        final double scale = 255.0/colors.length;
-        for (int i=0; i<colors.length; i++) {
-            final int r = (int)Math.round(scale*i);
-            colors[i] = new Color(r,r,r);
-        }
-        return list(names, colors);
-    }
-    
-    /**
-     * Construct a list of categories.
-     * Used by constructors only.
-     */
-    private static CategoryList list(final String[] names, final Color[] colors) {
-        if (names.length != colors.length) {
-            throw new IllegalArgumentException(
-                    Resources.format(ResourceKeys.ERROR_MISMATCHED_ARRAY_LENGTH));
-        }
-        final Category[] categories = new Category[names.length];
-        for (int i=0; i<categories.length; i++) {
-            categories[i] = new Category(names[i], colors[i], i);
-        }
-        return list(categories, null);
-    }
-
-    /**
-     * Construct a list of categories.
-     * Used by constructors only.
-     */
-    private static CategoryList list(final Category[] categories, final Unit units) {
-        if (categories == null) {
-            return null;
-        }
-        CategoryList list = new CategoryList(categories, units);
-        list = (CategoryList) Category.pool.canonicalize(list);
-        if (CategoryList.isScaled(categories, false)) return list;
-        if (CategoryList.isScaled(categories, true )) return list.inverse;
-        throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_MIXED_CATEGORIES));
     }
 
     /**
@@ -648,6 +871,25 @@ public class SampleDimension implements Serializable {
      */
     public Range getRange() {
         return (categories!=null) ? categories.getRange() : null;
+    }
+
+    /**
+     * Returns <code>true</code> if at least one value of <code>values</code> is
+     * in the range <code>lower</code> inclusive to <code>upper</code> exclusive.
+     */
+    private static boolean rangeContains(final double   lower,
+                                         final double   upper,
+                                         final double[] values)
+    {
+        if (values != null) {
+            for (int i=0; i<values.length; i++) {
+                final double v = values[i];
+                if (v>=lower && v<upper) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
     
     /**

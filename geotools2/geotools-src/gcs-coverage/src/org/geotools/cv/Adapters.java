@@ -71,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.9 2003/04/10 20:41:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -185,75 +185,6 @@ public class Adapters {
     public SampleDimensionType wrap(final CV_SampleDimensionType type) {
         return (type!=null) ? SampleDimensionType.getEnum(type.value) : null;
     }
-
-    /**
-     * Returns the color at the specified index, or <code>null</code>
-     * if there is no color at the supplied index. This is a helper
-     * method for wrapping {@link CV_SampleDimension} objects.
-     *
-     * @param palette The color palette given by {@link CV_SampleDimension#getPalette()}.
-     * @param index   The index in the color palette.
-     */
-    private static Color getColor(final int[][] palette, final int index) {
-        if (palette!=null && index>=0 && index<palette.length) {
-            final int[] colors = palette[index];
-            int R=0, G=0, B=0, A=255;
-            switch (colors.length) {
-                default:             // fall through
-                case 4: A=colors[3]; // fall through
-                case 3: B=colors[2]; // fall through
-                case 2: G=colors[1]; // fall through
-                case 1: R=colors[0]; // fall through
-                case 0: break;
-            }
-            return new Color(R,G,B,A);
-        }
-        return null;
-    }
-
-    /**
-     * Convert a color palette from a string of RGB value into a string of {@link Color}
-     * objects. Only colors from <code>lower</code> inclusive to <code>upper</code>
-     * exclusive will be extracted. If the specified <code>palette</code> do not cover
-     * fully this range, then <code>null</code> is returned.
-     *
-     * @param  palette The color palette as an array of RGB values.
-     * @param  lower The first color index to transform into a {@link Color} object.
-     * @param  upper The last color index plus one to transform into a {@link Color} object.
-     * @return The palette in the specified range as an array of {@link Color} objects, or
-     *         <code>null</code> if the <code>palette</code> do not cover fully the range
-     *         from <code>lower</code> to <code>upper</code>.
-     */
-    private static Color[] getColors(final int[][] palette, int lower, final int upper) {
-        if (lower < upper) {
-            final Color[] colors = new Color[upper-lower];
-            int i=0;
-            do {
-                if ((colors[i++] = getColor(palette, lower++)) == null) {
-                    return null;
-                }
-            }
-            while (lower < upper);
-            return colors;
-        }
-        return null;
-    }
-
-    /**
-     * Returns <code>true</code> if at least one value of <code>values</code> is
-     * in the range <code>lower</code> inclusive to <code>upper</code> exclusive.
-     */
-    private static boolean rangeContains(final int lower, final int upper, final double[] values) {
-        if (values != null) {
-            for (int i=0; i<values.length; i++) {
-                final double v = values[i];
-                if (v>=lower && v<upper) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
     
     /**
      * Returns a sample dimension from an OpenGIS's interface.
@@ -262,14 +193,14 @@ public class Adapters {
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    public SampleDimension wrap(final CV_SampleDimension dimension) throws RemoteException {
-        if (dimension == null) {
+    public SampleDimension wrap(final CV_SampleDimension sd) throws RemoteException {
+        if (sd == null) {
             return null;
         }
-        if (dimension instanceof RemoteProxy) {
-            return (SampleDimension) ((RemoteProxy) dimension).getImplementation();
+        if (sd instanceof RemoteProxy) {
+            return (SampleDimension) ((RemoteProxy) sd).getImplementation();
         }
-        return doWrap(dimension);
+        return doWrap(sd);
     }
 
     /**
@@ -281,140 +212,46 @@ public class Adapters {
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
-    final SampleDimension doWrap(final CV_SampleDimension dimension) throws RemoteException {
-        final int      sampleType   = dimension.getSampleDimensionType().value;
-        final String[] names        = dimension.getCategoryNames();
-        final double[] padValues    = dimension.getNoDataValue();
-        final int[][]  palette      = dimension.getPalette();
-        final int      namesCount   = (names!=null) ? names.length : 0;
-        final List     categoryList = new ArrayList();
-        /*
-         * Create an arbitrary amount of qualitative categories. This is the union of
-         * 'names' and 'padValues'. Colors and fetched from the palette, if available.
-         */
-        if (padValues != null) {
-            for (int i=0; i<padValues.length; i++) {
-                final String name;
-                final double padValue = padValues[i];
-                final int    intValue = (int) Math.floor(padValue);
-                if (intValue>=0 && intValue<namesCount) {
-                    if (intValue == padValue) {
-                        // Already declared in an upcomming loop
-                        // (when we will add categories by name).
-                        continue;
-                    }
-                    name = names[intValue];
-                } else {
-                    name = String.valueOf(padValue);
+    final SampleDimension doWrap(final CV_SampleDimension sd) throws RemoteException {
+        if (sd.getPaletteInterpretation().value != CV_PaletteInterpretation.CV_RGB) {
+            throw new UnsupportedOperationException("Not yet implemented");
+        }
+        String        description = sd.getDescription();
+        SampleDimensionType  type = SampleDimensionType.getEnum(sd.getSampleDimensionType().value);
+        ColorInterpretation color = ColorInterpretation.getEnum(sd.getColorInterpretation().value);
+        int[][]           palette = sd.getPalette();
+        String[]       categories = sd.getCategoryNames();
+        double[]           nodata = sd.getNoDataValue();
+        double            minimum = sd.getMinimumValue();
+        double            maximum = sd.getMaximumValue();
+        double              scale = sd.getScale();
+        double             offset = sd.getOffset();
+        Unit                units = CTS.wrap(sd.getUnits());
+        Color[]            colors = null;
+        if (palette != null) {
+            colors = new Color[palette.length];
+            for (int i=0; i<colors.length; i++) {
+                final int[] RGBA = palette[i];
+                int R=0, G=0, B=0, A=255;
+                switch (RGBA.length) {
+                    default:           // fall through
+                    case 4: A=RGBA[3]; // fall through
+                    case 3: B=RGBA[2]; // fall through
+                    case 2: G=RGBA[1]; // fall through
+                    case 1: R=RGBA[0]; // fall through
+                    case 0: break;
                 }
-                Number  value  = SampleDimensionType.wrapSample(padValue, sampleType, false);
-                Range   range  = new Range(value.getClass(), (Comparable)value, (Comparable)value);
-                Color[] colors = getColors(palette, intValue, intValue+1);
-                categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
+                colors[i] = new Color(R,G,B,A);
             }
         }
-        if (namesCount != 0) {
-            int lower = 0;
-            for (int upper=1; upper<=names.length; upper++) {
-                final String name = names[lower];
-                if (upper!=names.length && name.equals(names[upper])) {
-                    // If there is a suite of categories with identical name,  create only one
-                    // category with range [lower..upper] instead of one new category for each
-                    // sample value.
-                    continue;
-                }
-                Number min = SampleDimensionType.wrapSample(lower,   sampleType, false);
-                Number max = SampleDimensionType.wrapSample(upper-1, sampleType, false);
-                if (min.equals(max)) {
-                    max = min;
-                }
-                Range   range  = new Range(min.getClass(), (Comparable)min, (Comparable)max);
-                Color[] colors = getColors(palette, lower, upper);
-                final Category category;
-                if (min!=max && !rangeContains(lower, upper, padValues)) {
-                    // If a category is used for a wide range of sample values, then we
-                    // assume that this is a quantitative category (e.g. "Height" in m).
-                    final double scale  = dimension.getScale();
-                    final double offset = dimension.getOffset();
-                    category = new Category(name, colors, range, scale, offset);
-                } else {
-                    // If a category is used for only one sample value, then we assume
-                    // that this is a qualitative category (e.g. "Forest", "Urban"...)
-                    category = new Category(name, colors, range, (MathTransform1D)null);
-                }
-                categoryList.add(category);
-                lower = upper;
-            }
-        } else {
-            /*
-             * Create at most one quantitative category. The range is from 'dimension.minimumValue'
-             * to 'dimension.maximumValue' inclusive, minus all ranges used by 'padValues'. Note
-             * that substractions way break a range into many smaller ranges. The naive algorithm
-             * used here try to keep the wider range.
-             */
-            boolean minIncluded = true;
-            boolean maxIncluded = true;
-            double minimum = dimension.getMinimumValue();
-            double maximum = dimension.getMaximumValue();
-            if (Double.isNaN(minimum) || Double.isInfinite(minimum)) {
-                minimum = 0;
-            }
-            if (Double.isNaN(maximum) || Double.isInfinite(maximum) || (minimum==0 && maximum==0)) {
-                maximum = (palette!=null && palette.length!=0) ? palette.length : 256;
-            }
-            for (int i=categoryList.size(); --i>=0;) {
-                final Range range = ((Category) categoryList.get(i)).getRange();
-                final double  min = ((Number) range.getMinValue()).doubleValue();
-                final double  max = ((Number) range.getMaxValue()).doubleValue();
-                if (max-minimum < maximum-min) {
-                    if (max > minimum) {
-                        // We are loosing some sample values in
-                        // the lower range because of pad values.
-                        minimum = max;
-                        minIncluded = !range.isMaxIncluded();
-                    }
-                } else {
-                    if (min < maximum) {
-                        // We are loosing some sample values in
-                        // the upper range because of pad values.
-                        maximum = min;
-                        maxIncluded = !range.isMinIncluded();
-                    }
-                }
-            }
-            if (minimum < maximum) {
-                final double scale       = dimension.getScale();
-                final double offset      = dimension.getOffset();
-                final String description = dimension.getDescription();
-                final Number min         = SampleDimensionType.wrapSample(minimum, sampleType, false);
-                final Number max         = SampleDimensionType.wrapSample(maximum, sampleType, false);
-                final Range  range       = new Range(min.getClass(), (Comparable)min, minIncluded,
-                                                                     (Comparable)max, maxIncluded);
-                final Color[] colors     = getColors(palette,
-                                                     (int)Math.ceil (minimum),
-                                                     (int)Math.floor(maximum));
-                categoryList.add(new Category(description, colors, range, scale, offset));
-            }
+        if (Double.isNaN(minimum) || Double.isInfinite(minimum)) {
+            minimum = 0;
         }
-        /*
-         * Now, the list of categories should be complete. Construct a sample
-         * dimension appropriate for the kind of palette used.
-         */
-        final Category[] categories = (Category[]) categoryList.toArray(new Category[categoryList.size()]);
-        final Unit unit = CTS.wrap(dimension.getUnits());
-        switch (dimension.getPaletteInterpretation().value) {
-            case CV_PaletteInterpretation.CV_RGB: {
-                switch (dimension.getColorInterpretation().value) {
-                    case CV_ColorInterpretation.CV_GrayIndex: {
-                        // Fall through
-                    }
-                    case CV_ColorInterpretation.CV_PaletteIndex: {
-                        return new SampleDimension(categories, unit);
-                    }
-                }
-            }
+        if (Double.isNaN(maximum) || Double.isInfinite(maximum) || (minimum==0 && maximum==0)) {
+            maximum = (palette!=null && palette.length!=0) ? palette.length-1 : 255;
         }
-        throw new UnsupportedOperationException("Not yet implemented");
+        return new SampleDimension(description, type, color, colors, categories,
+                                   nodata, minimum, maximum, scale, offset, units);
     }
     
     /**
@@ -499,7 +336,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.8 2003/01/16 21:05:11 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.9 2003/04/10 20:41:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {

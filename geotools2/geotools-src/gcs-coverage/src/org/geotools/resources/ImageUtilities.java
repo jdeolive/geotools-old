@@ -58,7 +58,7 @@ import javax.media.jai.ImageLayout;
  *
  * It may change in incompatible way in any future version.
  *
- * @version $Id: ImageUtilities.java,v 1.3 2003/03/09 19:45:14 desruisseaux Exp $
+ * @version $Id: ImageUtilities.java,v 1.4 2003/04/10 20:41:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -194,6 +194,38 @@ public final class ImageUtilities {
             }
         }
         return (tileSize-rmax <= tileSize/4) ? sopt : 0;
+    }
+
+    /**
+     * Returns a subarray of the specified color array. The <code>lower</code> and
+     * <code>upper</code> index will be clamb into the <code>palette</code> range.
+     * If they are completly out of range, or if they would result in an empty array,
+     * then <code>null</code> is returned.
+     *
+     * This method is used by {@link org.geotools.cv.SampleDimension} as an heuristic
+     * approach for distributing palette colors into a list of categories.
+     *
+     * @param  palette The color array (may be <code>null</code>).
+     * @param  lower  The lower index, inclusive.
+     * @param  upper  The upper index, inclusive.
+     * @return The subarray (may be <code>palette</code> if the original array already fit),
+     *         or <code>null</code> if the <code>lower</code> and <code>upper</code> index
+     *         are out of <code>palette</code> bounds.
+     */
+    public static Color[] subarray(final Color[] palette, int lower, int upper) {
+        if (palette != null) {
+            lower = Math.max(lower, 0);
+            upper = Math.min(upper, palette.length);
+            if (lower >= upper) {
+                return null;
+            }
+            if (lower!=0 || upper!=palette.length) {
+                final Color[] sub = new Color[upper-lower];
+                System.arraycopy(palette, lower, sub, 0, sub.length);
+                return sub;
+            }
+        }
+        return palette;
     }
 
     /**

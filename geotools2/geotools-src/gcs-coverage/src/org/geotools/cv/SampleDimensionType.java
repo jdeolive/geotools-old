@@ -60,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * This interface is applicable to any coverage type.
  * For grid coverages, the sample dimension refers to an individual band.
  *
- * @version $Id: SampleDimensionType.java,v 1.2 2002/10/17 21:11:03 desruisseaux Exp $
+ * @version $Id: SampleDimensionType.java,v 1.3 2003/04/10 20:41:09 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -263,6 +263,30 @@ public final class SampleDimensionType extends EnumeratedParameter {
         if (!range.isMinIncluded()) min++;
         if (!range.isMaxIncluded()) max--;
         return getEnum(min, max);
+    }
+
+    /**
+     * Returns the enum for a type capable to hold the specified range of values.
+     * An heuristic approach is used for non-integer values.
+     *
+     * @param  min  The lower value, inclusive.
+     * @param  max  The upper value, <strong>inclusive</strong> as well.
+     * @return The enum for the specified range.
+     */
+    static SampleDimensionType getEnum(double min, double max) {
+        final long lgMin = (long) min;
+        if (lgMin == min) {
+            final long lgMax = (long) max;
+            if (lgMax == max) {
+                return getEnum(lgMin, lgMax);
+            }
+        }
+        min = Math.abs(min);
+        max = Math.abs(max);
+        if (Math.min(min,max)>=Float.MIN_VALUE && Math.max(min,max)<=Float.MAX_VALUE) {
+            return FLOAT;
+        }
+        return DOUBLE;
     }
 
     /**
