@@ -344,7 +344,8 @@ public class ArcGridRaster {
         st.ordinaryChars('E', 'E');
         
         type = st.nextToken();
-        // Read and write values.
+        // Read and write values. Values must be numbers, which may be simple <num>, or expressed
+        // in scientific notation <num> E<esp>. The following loop can read both, even if mixed
         int idx = 0;
         float d = 0;
         
@@ -360,7 +361,9 @@ public class ArcGridRaster {
                         throw new IOException("Unexpected EOF at " + x + "," + y);
                 }
                 
-                // read another
+                // read another. May be the exponent of the next number. If the next number then
+                // save current number, we will take care of the new token in the next iteration,
+                // if exponent, read the exponent and compute the real value
                 type = st.nextToken();
                 // if its a word, it better be "E"
                 switch (type) {
