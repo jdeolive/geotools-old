@@ -33,8 +33,9 @@ import com.vividsolutions.jts.geom.*;
  * @author Ian Schneider
  */
 public class JTSUtilities {
+    
+  static CGAlgorithms cga = new RobustCGAlgorithms();
   
-  /** Creates a new instance of JTSUtilities */
   private JTSUtilities() {
   }
   
@@ -145,8 +146,7 @@ public class JTSUtilities {
     LinearRing outer;
     LinearRing[] holes = new LinearRing[p.getNumInteriorRing()];
     Coordinate[] coords;
-    CGAlgorithms cga = new RobustCGAlgorithms();
-    
+
     coords = p.getExteriorRing().getCoordinates();
     
     if(cga.isCCW(coords)) {
@@ -204,6 +204,49 @@ public class JTSUtilities {
     }
     
     return dims;
+  }
+  
+  public static Geometry convertToCollection(Geometry geom,ShapeType type) {
+      Geometry retVal = null;
+      
+      // copy or create the precision model and srid
+      PrecisionModel pm = geom == null ? new PrecisionModel() : geom.getPrecisionModel();
+      int srid = geom == null ? 0 : geom.getSRID();
+      
+      if (type.isPointType()) {
+        if((geom instanceof Point)) {
+          retVal = geom;
+        } else {
+          retVal = new MultiPoint(null, pm, srid);
+        }
+      } else if (type.isLineType()) {
+        if((geom instanceof LineString)) {
+          retVal = new MultiLineString(new LineString[] { (LineString) geom}, pm, srid);
+        } else if(geom instanceof MultiLineString) {
+          retVal = geom;
+        } else {
+          retVal = new MultiLineString(null, pm,srid);
+        }
+      } else if (type.isPolygonType()) {
+        if(geom instanceof Polygon) {     
+          Polygon p = makeGoodShapePolygon( (Polygon) geom);
+          retVal = new MultiPolygon(new Polygon[] {p},pm,srid);
+        } else if(geom instanceof MultiPolygon) {
+          retVal = JTSUtilities.makeGoodShapeMultiPolygon((MultiPolygon) geom);
+        } else {
+          retVal = new MultiPolygon(null, pm,srid);
+        }
+      }  else if (type.isMultiPointType()) {
+        if((geom instanceof Point)) {
+          retVal = new MultiPoint(new Point[] { (Point) geom}, pm,srid);
+        } else if(geom instanceof MultiPoint) {
+          retVal = geom;
+        } else {
+          retVal = new MultiPoint(null, pm,srid);
+        }
+      } else throw new RuntimeException("Could not convert " + geom.getClass() + " to " + type);
+      
+      return retVal;
   }
   
   /** Determine the best ShapeType for a geometry with the given dimension.
