@@ -69,7 +69,16 @@ public class TigerFeatureReader implements FeatureReader {
         this.namespace = typeName.substring(0, typeName.lastIndexOf("_"));
         this.typeName = typeName.substring(typeName.lastIndexOf("_") + 1);
 
-        File file = new File(dir, this.namespace + ".RT1");
+        // here we deal with case sensetivity. A little clumsy but what can you do... 
+        // Try lower case extension first
+        File file = new File(dir, this.namespace + ".rt1");
+        if (! file.exists()) {
+            file = new File(dir, this.namespace + ".RT1");
+        }
+        if (! file.exists()) {
+        	throw new IOException("Can't read RT1 file.");
+        }
+            
         reader = new TigerAttributeReader(file, this.namespace, this.typeName);
     }
 
