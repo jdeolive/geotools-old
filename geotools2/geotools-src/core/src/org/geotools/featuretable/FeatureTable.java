@@ -36,10 +36,17 @@ public interface FeatureTable {
     public DataSource getDataSource();
     
     /** Removes the feature from this FeatureTable, notifying TableChangedListeners that the table has changed
-     * @param f The Features to remove
+     * @param f The Feature to remove
      */
     public void removeFeature(Feature feature);
+    /** Removes the features from this FeatureTable, notifying TableChangedListeners that the table has changed
+     * @param f The Features to remove
+     */
     public void removeFeatures(Feature[] features);
+    
+    /** Removes the features from this FeatureTable which fall into the specified extent, notifying TableChangedListeners that the table has changed
+     * @param ex The extent defining which features to remove
+     */
     public void removeFeatures(Extent ex);
 
     
