@@ -17,6 +17,7 @@
     </target>
     <target depends="compile" name="test">
         <junit fork="false" printsummary="true">
+        <formatter type="plain"/>
         <classpath>
                 <fileset dir="..\..\extbin\core\lib\"/>
                 <fileset dir="..\..\extbin\gtbuild\lib\"/>
@@ -25,5 +26,8 @@
             </classpath>
             <test name="org.geotools.proj4j.Proj4jSuite"/>
         </junit>
+    </target>
+    <target name="buildTODOlist">
+        
     </target>
 </project>
