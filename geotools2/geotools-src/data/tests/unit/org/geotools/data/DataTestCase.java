@@ -15,10 +15,14 @@
  */
 package org.geotools.data;
 
+import java.io.IOException;
+import java.util.NoSuchElementException;
+
 import junit.framework.TestCase;
 
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.FidFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
@@ -233,5 +237,47 @@ public class DataTestCase extends TestCase {
         assertNotNull(message, expected);
         assertNotNull(message, actual);
         assertTrue(message, expected.equals(actual));
-    }           
+    }
+    /**
+     * Counts the number of Features returned by reader.
+     * <p>
+     * This method will close reader
+     * </p>
+     */
+    protected int count( FeatureReader reader ) throws IOException {
+        if( reader == null) {
+            return -1;
+        }             
+        int count = 0;
+        try {
+            while( reader.hasNext() ){
+                reader.next();
+                count++;
+            }
+        } catch (NoSuchElementException e) {
+            // bad dog!
+            throw new DataSourceException("hasNext() lied to me at:"+count, e );
+        } catch (IllegalAttributeException e) {
+            throw new DataSourceException("next() could not understand feature at:"+count, e );
+        }        
+        finally {
+            reader.close();
+        }
+        return count;
+    }
+    protected int count(FeatureWriter writer)
+        throws NoSuchElementException, IOException, IllegalAttributeException {
+        int count = 0;
+
+        try {
+            while (writer.hasNext()) {
+                writer.next();
+                count++;
+            }
+        } finally {
+            writer.close();
+        }
+
+        return count;
+    }               
 }

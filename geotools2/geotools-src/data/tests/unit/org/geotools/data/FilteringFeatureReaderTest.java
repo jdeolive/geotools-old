@@ -116,33 +116,6 @@ public class FilteringFeatureReaderTest extends DataTestCase {
             reader.close();
         }                
     }
-    /**
-     * Counts the number of Features returned by reader.
-     * <p>
-     * This method will close reader
-     * </p>
-     */
-    int count( FeatureReader reader ) throws IOException {
-        if( reader == null) {
-            return -1;
-        }             
-        int count = 0;
-        try {
-            while( reader.hasNext() ){
-                reader.next();
-                count++;
-            }
-        } catch (NoSuchElementException e) {
-            // bad dog!
-            throw new DataSourceException("hasNext() lied to me at:"+count, e );
-        } catch (IllegalAttributeException e) {
-            throw new DataSourceException("next() could not understand feature at:"+count, e );
-        }        
-        finally {
-            reader.close();
-        }
-        return count;
-    }
     public void testNext() {
     }
 

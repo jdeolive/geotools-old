@@ -51,6 +51,7 @@ import org.geotools.filter.NullFilter;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -470,31 +471,35 @@ public class DataUtilities {
         }
 
         return new FeatureReader() {
-                Feature[] array = features;
-                int offset = -1;
+            Feature[] array = features;
+            int offset = -1;
 
-                public FeatureType getFeatureType() {
-                    return features[0].getFeatureType();
-                }
+            public FeatureType getFeatureType() {
+                return features[0].getFeatureType();
+            }
 
-                public Feature next() throws IOException {
-                    if (!hasNext()) {
-                        throw new NoSuchElementException("No more features");
-                    }
-                    return array[++offset];
+            public Feature next() throws IOException {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("No more features");
                 }
+                return array[++offset];
+            }
 
-                public boolean hasNext() throws IOException {
-                    return (array != null) && (offset < (array.length - 1));
-                }
+            public boolean hasNext() throws IOException {
+                return (array != null) && (offset < (array.length - 1));
+            }
 
-                public void close() throws IOException {
-                    array = null;
-                    offset = -1;
-                }
-            };
+            public void close() throws IOException {
+                array = null;
+                offset = -1;
+            }
+        };
     }
-
+    public static FeatureReader reader( Collection collection) throws IOException {
+        return reader(
+            (Feature[]) collection.toArray( new Feature[ collection.size() ] )
+        );    
+    }
     public static FeatureCollection collection(Feature[] features) {
         FeatureCollection collection = FeatureCollections.newCollection();
 

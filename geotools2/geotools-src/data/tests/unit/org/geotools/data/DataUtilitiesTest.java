@@ -18,6 +18,7 @@ package org.geotools.data;
 
 import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
@@ -249,14 +250,24 @@ public class DataUtilitiesTest extends DataTestCase {
         assertNull(DataUtilities.defaultValue(roadType.getAttributeType("geom")));
     }
 
-    public void testReader() {
-        // TODO impelment test
-    }
+    
 
     public void testCollection() {
-        //      TODO impelment test
+        FeatureCollection collection = DataUtilities.collection( roadFeatures );
+        assertEquals( roadFeatures.length,  collection.size() );                
     }
 
+    public void testReaderFeatureArray() throws Exception {
+        FeatureReader reader = DataUtilities.reader( roadFeatures );
+        assertEquals( roadFeatures.length,  count( reader ) );
+    }
+    public void testReaderCollection() throws Exception {
+        FeatureCollection collection = DataUtilities.collection( roadFeatures );
+        assertEquals( roadFeatures.length,  collection.size() );
+                
+        FeatureReader reader = DataUtilities.reader( collection );
+        assertEquals( roadFeatures.length,  count( reader ) );
+    }    
     public void testCreateType() {
         //      TODO impelment test
     }

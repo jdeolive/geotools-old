@@ -16,7 +16,6 @@
  */
 package org.geotools.data.memory;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import org.geotools.data.DataStore;
@@ -402,38 +401,6 @@ public class MemoryDataStoreTest extends DataTestCase {
         }
 
         assertEquals(features.length, count);
-    }
-
-    int count(FeatureReader reader)
-        throws NoSuchElementException, IOException, IllegalAttributeException {
-        int count = 0;
-
-        try {
-            while (reader.hasNext()) {
-                reader.next();
-                count++;
-            }
-        } finally {
-            reader.close();
-        }
-
-        return count;
-    }
-
-    int count(FeatureWriter writer)
-        throws NoSuchElementException, IOException, IllegalAttributeException {
-        int count = 0;
-
-        try {
-            while (writer.hasNext()) {
-                writer.next();
-                count++;
-            }
-        } finally {
-            writer.close();
-        }
-
-        return count;
     }
 
     /**
