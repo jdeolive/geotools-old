@@ -119,7 +119,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.45 2003/12/04 23:19:08 aaime Exp $
+ * @version $Id: Renderer.java,v 1.46 2004/03/08 11:32:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -914,13 +914,16 @@ public class Renderer implements Renderer2D {
     }
 
     /**
-     * Returns the scale factor, or {@link Float#NaN} if the scale is not know.
+     * Returns the scale factor, or {@link Float#NaN} if the scale is unknow.
      * The scale factor is usually smaller than 1. For example for a 1:1000 scale,
      * the scale factor will be 0.001. This scale factor takes in account the physical
      * size of the rendering device (e.g. the screen size) if such information is available.
      * Note that this scale can't be more accurate than the
      * {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
      * by the underlying system}.
+     *
+     * @return The rendering scale factor as a number between 0 and 1, or {@link Float#NaN}.
+     * @see RenderingContext#getScale
      */
     public float getScale() {
         final Float scaleFactor = this.scaleFactor; // Avoid the need for synchronization.

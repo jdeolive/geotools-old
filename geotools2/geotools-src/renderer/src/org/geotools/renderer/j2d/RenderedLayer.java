@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.32 2003/11/28 23:33:46 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.33 2004/03/08 11:32:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -121,7 +121,7 @@ public abstract class RenderedLayer {
     /**
      * The coordinate system for this layer. Methods {@link #getPreferredArea} and
      * {@link #setPreferredArea} uses this coordinate system. This field must never
-     * be nul. The default constructor initialize it to a
+     * be null. The default constructor initialize it to a
      * {@linkplain LocalCoordinateSystem#CARTESIAN cartesian coordinate system}.
      */
     private CoordinateSystem coordinateSystem;

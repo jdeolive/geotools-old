@@ -90,7 +90,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.13 2004/02/13 14:28:05 aaime Exp $
+ * @version $Id: Geometry.java,v 1.14 2004/03/08 11:32:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -109,14 +109,17 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * system used if no CS were explicitly specified at construction time. The
      * default implementation uses a two-dimensional cartesian coordinate system
      * with {@linkplain AxisInfo#X x},{@linkplain AxisInfo#Y y} axis in
-     * {@linkplain Unit#METRE metres}. This coordinate system has no transformation
-     * path to any other coordinate system (i.e. a map using this CS can't be reprojected
-     * to a {@linkplain GeographicCoordinateSystem geographic coordinate system}).
+     * {@linkplain Unit#METRE metres}. This coordinate system is treated specially
+     * by the default {@linkplain org.geotools.ct.CoordinateTransformationFactory
+     * coordinate transformation factory} with loose transformation rules: if no
+     * transformation path were found, then the transformation from this CS to any
+     * CS with a compatible number of dimensions is assumed to be the identity transform.
      *
+     * @see LocalCoordinateSystem#PROMISCUOUS
      * @see LocalCoordinateSystem#CARTESIAN
      * @see GeographicCoordinateSystem#WGS84
      */
-    public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM = LocalCoordinateSystem.CARTESIAN;
+    public static final CoordinateSystem DEFAULT_COORDINATE_SYSTEM = LocalCoordinateSystem.PROMISCUOUS;
 
     /**
      * The resolved style for this geometry, or <code>null</code> if none.

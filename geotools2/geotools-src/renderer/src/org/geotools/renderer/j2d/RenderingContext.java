@@ -85,13 +85,13 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.20 2003/10/27 21:23:35 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.21 2004/03/08 11:32:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
  * @see RenderedLayer#paint
  */
-public final class RenderingContext {
+public final class RenderingContext /*implements org.geotools.display.style.RenderingContext*/ {
     /**
      * The originating {@link Renderer}. This field is read by {@link GeoMouseEvent}.
      */
@@ -416,6 +416,22 @@ public final class RenderingContext {
             // Should never happen, since the 'cs' argument was null.
             throw new AssertionError(exception);
         }
+    }
+
+    /**
+     * Returns the scale factor, or {@link Float#NaN} if the scale is unknow.
+     * The scale factor is usually smaller than 1. For example for a 1:1000 scale,
+     * the scale factor will be 0.001. This scale factor takes in account the physical
+     * size of the rendering device (e.g. the screen size) if such information is available.
+     * Note that this scale can't be more accurate than the
+     * {@linkplain java.awt.GraphicsConfiguration#getNormalizingTransform() information supplied
+     * by the underlying system}.
+     *
+     * @return The rendering scale factor as a number between 0 and 1, or {@link Float#NaN}.
+     * @see Renderer#getScale
+     */
+    public float getScale() {
+        return renderer.getScale();
     }
 
     /**

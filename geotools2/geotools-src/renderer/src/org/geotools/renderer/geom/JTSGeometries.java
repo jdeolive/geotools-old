@@ -53,7 +53,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.10 2004/02/13 14:28:05 aaime Exp $
+ * @version $Id: JTSGeometries.java,v 1.11 2004/03/08 11:32:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection {
@@ -88,7 +88,7 @@ public class JTSGeometries extends org.geotools.renderer.geom.GeometryCollection
      *
      * @param geometry The geometry to wrap, or <code>null</code> if none.
      *
-     * @task TODO: The coordinate system currently default to CARTESIAN.
+     * @task TODO: The coordinate system currently default to PROMISCUOUS.
      *             We should find it from the SRID code.
      */
     public JTSGeometries(final Geometry geometry) {

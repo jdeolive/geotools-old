@@ -66,7 +66,7 @@ import org.geotools.resources.XArray;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.18 2003/12/19 20:28:00 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.19 2004/03/08 11:32:29 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -199,8 +199,7 @@ public abstract class RenderedMarks extends RenderedLayer {
     private transient TransformedShape transformedShape;
 
     /**
-     * Construct a new layer of marks using a default
-     * {@linkplain org.geotools.cs.LocalCoordinateSystem#CARTESIAN cartesian coordinate system}.
+     * Construct a new layer of marks using a default coordinate system.
      */
     public RenderedMarks() {
         super();
