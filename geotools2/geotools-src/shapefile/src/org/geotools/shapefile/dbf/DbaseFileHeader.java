@@ -22,399 +22,563 @@
  */
 package org.geotools.shapefile.dbf;
 
+import java.io.*;
 import java.util.*;
-import org.geotools.shapefile.endian.*;
+import java.nio.*;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
-/**
- * Class to represent the header of a Dbase III file.
+/** Class to represent the header of a Dbase III file.
  * Creation date: (5/15/2001 5:15:30 PM)
  */
 public class DbaseFileHeader {
-    // Constant for the size of a record
-    private int FILE_DESCRIPTOR_SIZE=32;
+  // Constant for the size of a record
+  private static final int FILE_DESCRIPTOR_SIZE=32;
+  
+  // type of the file, must be 03h
+  private static final byte MAGIC=0x03;
+  
+  private static final int MINIMUM_HEADER = 33;
+  
+  // Date the file was last updated.
+  private Date date = new Date();
+  
+  private int recordCnt = 0;
+  
+  private int fieldCnt = 0;
+  
+  // set this to a default length of 1, which is enough for one "space"
+  // character which signifies an empty record
+  private int recordLength = 1;
+  
+  // set this to a flagged value so if no fields are added before the write,
+  // we know to adjust the headerLength to MINIMUM_HEADER
+  private int headerLength = -1;
+  
+  private int largestFieldSize = 0;
+  
+  /**
+   * Class for holding the information assicated with a record.
+   */
+  class DbaseField{
     
-    // type of the file, must be 03h
-    private int myFileType=0x03;
+    // Field Name
+    String fieldName;
     
-    // Date the file was last updated.
-    private Date myUpdateDate = new Date();
+    // Field Type (C N L D or M)
+    char fieldType;
     
-    // Number of records in the datafile
-    private int myNumRecords = 0;
+    // Field Data Address offset from the start of the record.
+    int fieldDataAddress;
     
-    // Length of the header structure
-    private int myHeaderLength;
+    // Length of the data in bytes
+    int fieldLength;
     
-    // Length of the records
-    private int myRecordLength;
+    // Field decimal count in Binary, indicating where the decimal is
+    int decimalCount;
     
-    // Number of fields in the record.
-    private int myNumFields;
+  }
+  
+  // collection of header records.
+  // lets start out with a zero-length array, just in case
+  private DbaseField[] fields = new DbaseField[0];
+  
+  
+  
+  private void read(ByteBuffer buffer,ReadableByteChannel channel) throws IOException {
+    while (buffer.remaining() > 0) {
+      if (channel.read(buffer) == -1)
+        throw new EOFException("Premature end of file");
+    }
+  }
+  
+  /** Determine the most appropriate Java Class for representing the data in the
+   * field.
+   * <PRE>
+   * All packages are java.lang unless otherwise specified.
+   * C (Character) -> String
+   * N (Numeric)   -> Integer or Double (depends on field's decimal count)
+   * F (Floating)  -> Double
+   * L (Logical)   -> Boolean
+   * D (Date)      -> java.util.Date
+   * Unknown       -> String
+   * </PRE>
+   * @param i The index of the field, from 0 to <CODE>getNumFields() - 1</CODE> .
+   * @return A Class which closely represents the dbase field type.
+   */
+  public Class getFieldClass(int i) {
+    Class typeClass = null;
     
-    // notify about warnings.
-    private boolean myWarning = true;
-    /** Print warnings to system.out. */
-    public void setWarnings(boolean inWarning){myWarning = inWarning;}
-    
-    /**
-     * Class for holding the information assicated with a record.
-     */
-    class DbaseFieldDescriptor{
+    switch (fields[i].fieldType) {
+      case 'C': 
+        typeClass = String.class;
+        break;
         
-        // Field Name
-        String myFieldName;
+      case 'N': 
+        if (fields[i].decimalCount == 0) {
+          typeClass = Integer.class;
+        } else {
+          typeClass = Double.class;
+        }
+        break;
         
-        // Field Type (C N L D or M)
-        char myFieldType;
+      case 'F': 
+        typeClass = Double.class;
+        break;
         
-        // Field Data Address offset from the start of the record.
-        int myFieldDataAddress;
+      case 'L':
+        typeClass = Boolean.class;
+        break;
         
-        // Length of the data in bytes
-        int myFieldLength;
+      case 'D':
+        typeClass = Date.class;
+        break;
         
-        // Field decimal count in Binary, indicating where the decimal is
-        int myDecimalCount;
-        
+      default:
+        typeClass = String.class;
+        break;
     }
     
-    // collection of header records.
-    private DbaseFieldDescriptor[] myFieldDescriptions;
+    return typeClass;
+  }
+  
+  
+  /** Add a column to this DbaseFileHeader.
+   * The type is one of (C N L or D) character, number, logical(true/false), or date.
+   * The Field length is the total length in bytes reserved for this column.
+   * The decimal count only applies to numbers(N), and floating point values (F),
+   * and refers to the number of characters to reserve after the decimal point.
+   * <B>Don't expect miracles from this...</B>
+   * <PRE>
+   * Field Type MaxLength
+   * ---------- ---------
+   * C          254
+   * D          8
+   * F          20
+   * N          18
+   * </PRE>
+   * @param inFieldName The name of the new field, must be less than 11 characters or it
+   * gets truncated.
+   * @param inFieldType A character representing the dBase field, ( see above ).
+   * Case insensitive.
+   * @param inFieldLength The length of the field, in bytes ( see above )
+   * @param inDecimalCount For numeric fields, the number of decimal places to track.
+   * @throws DbaseFileException If the type is not recognized.
+   */
+  public void addColumn(String inFieldName, char inFieldType, int inFieldLength, int inDecimalCount) throws DbaseFileException{
+    if (inFieldLength <=0) inFieldLength = 1;
+    if (fields == null) fields = new DbaseField[0];
+    int tempLength = 1;  // the length is used for the offset, and there is a * for deleted as the first byte
+    DbaseField[] tempFieldDescriptors = new DbaseField[fields.length+1];
+    for (int i=0; i<fields.length; i++){
+      fields[i].fieldDataAddress = tempLength;
+      tempLength = tempLength + fields[i].fieldLength;
+      tempFieldDescriptors[i] = fields[i];
+    }
+    tempFieldDescriptors[fields.length] = new DbaseField();
+    tempFieldDescriptors[fields.length].fieldLength = inFieldLength;
+    tempFieldDescriptors[fields.length].decimalCount = inDecimalCount;
+    tempFieldDescriptors[fields.length].fieldDataAddress = tempLength;
     
-    /**
-     * DbaseFileHreader constructor comment.
-     */
-    public DbaseFileHeader() {
-        super();
+    // set the field name
+    String tempFieldName = inFieldName;
+    if (tempFieldName == null) tempFieldName = "NoName";
+    if (tempFieldName.length() > 11) {
+      tempFieldName = tempFieldName.substring(0,11);
+      warn("FieldName "+inFieldName+" is longer than 11 characters, truncating to "+tempFieldName);
+    }
+    tempFieldDescriptors[fields.length].fieldName = tempFieldName;
+    
+    // the field type
+    if ((inFieldType == 'C') || (inFieldType == 'c')){
+      tempFieldDescriptors[fields.length].fieldType = 'C';
+      if (inFieldLength > 254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+    }
+    else if ((inFieldType == 'S') || (inFieldType == 's')){
+      tempFieldDescriptors[fields.length].fieldType = 'C';
+      warn("Field type for "+inFieldName+" set to S which is flat out wrong people!, I am setting this to C, in the hopes you meant character.");
+      if (inFieldLength >254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+      tempFieldDescriptors[fields.length].fieldLength = 8;
+    }
+    else if ((inFieldType == 'D') || (inFieldType == 'd')){
+      tempFieldDescriptors[fields.length].fieldType = 'D';
+      if (inFieldLength != 8) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to 8 digets YYYYMMDD");
+      tempFieldDescriptors[fields.length].fieldLength = 8;
+    }
+    else if ((inFieldType == 'F') || (inFieldType == 'f')){
+      tempFieldDescriptors[fields.length].fieldType = 'F';
+      if (inFieldLength > 20) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
+    }
+    else if ((inFieldType == 'N') || (inFieldType == 'n')){
+      tempFieldDescriptors[fields.length].fieldType = 'N';
+      if (inFieldLength > 18) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 18 for dbase III specification.");
+      if (inDecimalCount < 0){
+        warn("Field Decimal Position for "+inFieldName+" set to "+inDecimalCount+" Setting to 0 no decimal data will be saved.");
+        tempFieldDescriptors[fields.length].decimalCount = 0;
+      }
+      if(inDecimalCount>inFieldLength-1){
+        warn("Field Decimal Position for "+inFieldName+" set to "+inDecimalCount+" Setting to "+(inFieldLength-1)+" no non decimal data will be saved.");
+        tempFieldDescriptors[fields.length].decimalCount = inFieldLength-1;
+      }
+    }
+    else if ((inFieldType == 'L') || (inFieldType == 'l')){
+      tempFieldDescriptors[fields.length].fieldType = 'L';
+      if (inFieldLength != 1) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to length of 1 for logical fields.");
+      tempFieldDescriptors[fields.length].fieldLength = 1;
+    }
+    else {
+      throw new DbaseFileException("Undefined field type "+inFieldType + " For column "+inFieldName);
+    }
+    // the length of a record
+    tempLength = tempLength + tempFieldDescriptors[fields.length].fieldLength;
+    
+    // set the new fields.
+    fields = tempFieldDescriptors;
+    headerLength = MINIMUM_HEADER+32*fields.length;
+    recordLength=tempLength;
+  }
+  
+  /** Remove a column from this DbaseFileHeader.
+   * @param inFieldName The name of the field, will ignore case and trim.
+   * @return index of the removed column, -1 if no found
+   */
+  public int removeColumn(String inFieldName) {
+    
+    int retCol = -1;
+    int tempLength = 1;
+    DbaseField[] tempFieldDescriptors =
+    new DbaseField[fields.length - 1];
+    for (int i = 0, j = 0; i < fields.length; i++) {
+      if (!inFieldName.equalsIgnoreCase(fields[i].fieldName.trim())) {
+        // if this is the last field and we still haven't found the
+        // named field
+        if (i == j &&
+        i == fields.length - 1) {
+          System.err.println("Could not find a field named '" +
+          inFieldName + "' for removal");
+          return retCol;
+        }
+        tempFieldDescriptors[j] = fields[i];
+        tempFieldDescriptors[j].fieldDataAddress = tempLength;
+        tempLength += tempFieldDescriptors[j].fieldLength;
+        // only increment j on non-matching fields
+        j++;
+      }
+      else {
+        retCol = i;
+      }
     }
     
-    /**
-     * Add a column to this DbaseFileHeader.
-     * The type is one of (C N L or D) character, number, logical(true/false), or date.
-     * The Field length is the total length in bytes reserved for this column.
-     * The decimal count only applies to numbers(N), and floating point values (F), and refers to the number of characters to reserve after the decimal point.
-     */
-    public void addColumn (String inFieldName, char inFieldType, int inFieldLength, int inDecimalCount) throws Exception{
-        if (inFieldLength <=0) inFieldLength = 1;
-        if (myFieldDescriptions == null) myFieldDescriptions = new DbaseFieldDescriptor[0];
-        int tempLength = 1;  // the length is used for the offset, and there is a * for deleted as the first byte
-        DbaseFieldDescriptor[] tempFieldDescriptors = new DbaseFieldDescriptor[myFieldDescriptions.length+1];
-        for (int i=0; i<myFieldDescriptions.length; i++){
-            myFieldDescriptions[i].myFieldDataAddress = tempLength;
-            tempLength = tempLength + myFieldDescriptions[i].myFieldLength;
-            tempFieldDescriptors[i] = myFieldDescriptions[i];
-        }
-        tempFieldDescriptors[myFieldDescriptions.length] = new DbaseFieldDescriptor();
-        tempFieldDescriptors[myFieldDescriptions.length].myFieldLength = inFieldLength;
-        tempFieldDescriptors[myFieldDescriptions.length].myDecimalCount = inDecimalCount;
-        tempFieldDescriptors[myFieldDescriptions.length].myFieldDataAddress = tempLength;
-        
-        // set the field name
-        String tempFieldName = inFieldName;
-        if (tempFieldName == null) tempFieldName = "NoName";
-        if (tempFieldName.length() > 11) {
-            tempFieldName = tempFieldName.substring(0,11);
-            warn("FieldName "+inFieldName+" is longer than 11 characters, truncating to "+tempFieldName);
-        }        
-        tempFieldDescriptors[myFieldDescriptions.length].myFieldName = tempFieldName;
-        
-        // the field type
-        if ((inFieldType == 'C') || (inFieldType == 'c')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'C';
-            if (inFieldLength > 254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");            
-        }
-        else if ((inFieldType == 'S') || (inFieldType == 's')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'C';
-            warn("Field type for "+inFieldName+" set to S which is flat out wrong people!, I am setting this to C, in the hopes you meant character.");
-            if (inFieldLength >254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldLength = 8;
-        }
-        else if ((inFieldType == 'D') || (inFieldType == 'd')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'D';
-            if (inFieldLength != 8) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to 8 digets YYYYMMDD");            
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldLength = 8;
-        }
-        else if ((inFieldType == 'F') || (inFieldType == 'f')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'F';
-            if (inFieldLength > 20) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
-        }
-        else if ((inFieldType == 'N') || (inFieldType == 'n')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'N';
-            if (inFieldLength > 18) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 18 for dbase III specification.");
-            if (inDecimalCount < 0){
-                warn("Field Decimal Position for "+inFieldName+" set to "+inDecimalCount+" Setting to 0 no decimal data will be saved.");
-                tempFieldDescriptors[myFieldDescriptions.length].myDecimalCount = 0;                
-            }
-            if(inDecimalCount>inFieldLength-1){
-                warn("Field Decimal Position for "+inFieldName+" set to "+inDecimalCount+" Setting to "+(inFieldLength-1)+" no non decimal data will be saved.");
-                tempFieldDescriptors[myFieldDescriptions.length].myDecimalCount = inFieldLength-1;
-            }
-        }
-        else if ((inFieldType == 'L') || (inFieldType == 'l')){
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldType = 'L';
-            if (inFieldLength != 1) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to length of 1 for logical fields.");
-            tempFieldDescriptors[myFieldDescriptions.length].myFieldLength = 1;
-        }
-        else {
-            throw new Exception("Undefined field type "+inFieldType + " For column "+inFieldName);
-        }
-        // the length of a record
-        tempLength = tempLength + tempFieldDescriptors[myFieldDescriptions.length].myFieldLength;
-        
-        // set the new fields.
-        myFieldDescriptions = tempFieldDescriptors;
-        myHeaderLength = 33+32*myFieldDescriptions.length;
-        myNumFields = myFieldDescriptions.length;
-        myRecordLength=tempLength;
+    // set the new fields.
+    fields = tempFieldDescriptors;
+    headerLength = 33+32*fields.length;
+    recordLength = tempLength;
+    
+    return retCol;
+  }
+  
+  /**
+   *
+   * @todo addProgessListener handling
+   */
+  private void warn(String inWarn){
+    System.out.print("WARNING: ");
+    System.out.println(inWarn);
+  }
+  
+  
+  // Retrieve the length of the field at the given index
+  /** Returns the field length in bytes.
+   * @param inIndex The field index.
+   * @return The length in bytes.
+   */  
+  public int getFieldLength(int inIndex){
+    return fields[inIndex].fieldLength;
+  }
+  
+  // Retrieve the location of the decimal point within the field.
+  /** Get the decimal count of this field.
+   * @param inIndex The field index.
+   * @return The decimal count.
+   */  
+  public int getFieldDecimalCount(int inIndex){
+    return fields[inIndex].decimalCount;
+  }
+  
+  // Retrieve the Name of the field at the given index
+  /** Get the field name.
+   * @param inIndex The field index.
+   * @return The name of the field.
+   */  
+  public String getFieldName(int inIndex){
+    return fields[inIndex].fieldName;
+  }
+  
+  // Retrieve the type of field at the given index
+  /** Get the character class of the field.
+   * @param inIndex The field index.
+   * @return The dbase character representing this field.
+   */  
+  public char getFieldType(int inIndex){
+    return fields[inIndex].fieldType;
+  }
+  
+  /** Get the date this file was last updated.
+   * @return The Date last modified.
+   */
+  public Date getLastUpdateDate(){
+    return date;
+  }
+  
+  /** Return the number of fields in the records.
+   * @return The number of fields in this table.
+   */
+  public int getNumFields(){
+    return fields.length;
+  }
+  
+  /** Return the number of records in the file
+   * @return The number of records in this table.
+   */
+  public int getNumRecords(){
+    return recordCnt;
+  }
+  
+  /** Get the length of the records in bytes.
+   * @return The number of bytes per record.
+   */
+  public int getRecordLength(){
+    return recordLength;
+  }
+  
+  /** Get the length of the header
+   * @return The length of the header in bytes.
+   */
+  public int getHeaderLength() {
+    return headerLength;
+  }
+  
+  /** Read the header data from the DBF file.
+   * @param channel A readable byte channel. If you have an InputStream you need to use, you can
+   * call java.nio.Channels.getChannel(InputStream in).
+   * @throws IOException If errors occur while reading.
+   */
+  public void readHeader(ReadableByteChannel channel) throws IOException{
+    // we'll read in chunks of 1K
+    ByteBuffer in = ByteBuffer.allocateDirect(1024);
+    // do this or GO CRAZY
+    // ByteBuffers come preset to BIG_ENDIAN !
+    in.order(ByteOrder.LITTLE_ENDIAN);
+    
+    // only want to read first 10 bytes...
+    in.limit(10);
+    
+    read(in,channel);
+    in.position(0);
+    
+    // type of file.
+    byte magic = in.get();
+    if (magic != MAGIC) {
+      throw new IOException("Unsupported DBF file Type "+Integer.toHexString(magic));
     }
     
-    /**
-     * Remove a column from this DbaseFileHeader.
-     * @return index of the removed column, -1 if no found
-     */
-    public int removeColumn (String inFieldName) {
-        
-        int retCol = -1;
-        int tempLength = 1;
-        DbaseFieldDescriptor[] tempFieldDescriptors =
-            new DbaseFieldDescriptor[myFieldDescriptions.length - 1];
-        for (int i = 0, j = 0; i < myFieldDescriptions.length; i++) {
-            if (!inFieldName.equalsIgnoreCase(myFieldDescriptions[i].myFieldName.trim())) {
-                // if this is the last field and we still haven't found the
-                // named field
-                if (i == j &&
-                    i == myFieldDescriptions.length - 1) {
-                    System.err.println("Could not find a field named '" + 
-                                       inFieldName + "' for removal");
-                    return retCol;
-                }
-                tempFieldDescriptors[j] = myFieldDescriptions[i];
-                tempFieldDescriptors[j].myFieldDataAddress = tempLength;
-                tempLength += tempFieldDescriptors[j].myFieldLength;
-                // only increment j on non-matching fields
-                j++;
-            }
-            else {
-                retCol = i;
-            }
+    // parse the update date information.
+    int tempUpdateYear = in.get();
+    int tempUpdateMonth = in.get();
+    int tempUpdateDay = in.get();
+    // ouch Y2K uncompliant
+    if (tempUpdateYear > 90)
+      tempUpdateYear = tempUpdateYear + 1900;
+    else
+      tempUpdateYear = tempUpdateYear + 2000;
+    Calendar c = Calendar.getInstance();
+    c.set(c.YEAR, tempUpdateYear);
+    c.set(c.MONTH, tempUpdateMonth-1);
+    c.set(c.DATE, tempUpdateDay);
+    date = c.getTime();
+    
+    // read the number of records.
+    recordCnt = in.getInt();
+    
+    // read the length of the header structure.
+    // ahhh.. unsigned little-endian shorts
+    // mask out the byte and or it with shifted 2nd byte
+    headerLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
+    
+    // if the header is bigger than our 1K, reallocate
+    if (headerLength > in.capacity())
+      in = ByteBuffer.allocateDirect(headerLength - 10);
+    in.limit(headerLength - 10);
+    in.position(0);
+    read(in,channel);
+    in.position(0);
+    
+    // read the length of a record
+    // ahhh.. unsigned little-endian shorts
+    recordLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
+    
+    // skip / skip thesreserved bytes in the header.
+    in.position(in.position() + 20);
+    
+    // calculate the number of Fields in the header
+    fieldCnt = (headerLength - FILE_DESCRIPTOR_SIZE -1)/FILE_DESCRIPTOR_SIZE;
+    
+    // read all of the header records
+    List lfields = new ArrayList();
+    for (int i=0; i < fieldCnt; i++){
+      DbaseField field = new DbaseField();
+      
+      // read the field name
+      byte[] buffer = new byte[11];
+      in.get(buffer);
+      String name = new String(buffer);
+      int nullPoint = name.indexOf(0);
+      if(nullPoint != -1){
+        name = name.substring(0,nullPoint);
+      }
+      field.fieldName = name.trim();
+      
+      // read the field type
+      field.fieldType = (char) in.get();
+      
+      // read the field data address, offset from the start of the record.
+      field.fieldDataAddress = in.getInt();
+      
+      // read the field length in bytes
+      int length = (int) in.get();
+      if (length < 0) length = length + 256;
+      field.fieldLength = length;
+      
+      if (length > largestFieldSize)
+        largestFieldSize = length;
+      
+      // read the field decimal count in bytes
+      field.decimalCount = (int) in.get();
+      
+      // rreservedvededved bytes.
+      //in.skipBytes(14);
+      in.position(in.position() + 14);
+    
+      // some broken shapefiles have 0-length attributes. The rencerence implementation
+      // (ArcExplorer 2.0, built with MapObjects) just ignores them.
+      if(field.fieldLength > 0) 
+         lfields.add(field);  
+    }
+    
+    // Last byte is a marker for the end of the field definitions.
+    //in.skipBytes(1);
+    in.position(in.position() + 1);
+    
+    
+    fields = new DbaseField[lfields.size()];
+    fields = (DbaseField[]) lfields.toArray(fields);
+  }
+  
+  /** Get the largest field size of this table.
+   * @return The largt field size iiin bytes.
+   */  
+  public int getLargestFieldSize() {
+    return largestFieldSize;
+  }
+  
+  /** Set the number of records in the file
+   * @param inNumRecords The number of records.
+   */
+  public void setNumRecords(int inNumRecords){
+    recordCnt = inNumRecords;
+  }
+  
+  /** Write the header data to the DBF file.
+   * @param out A channel to write to. If you have an OutputStream you can obtain the correct
+   * channel by using java.nio.Channels.newChannel(OutputStream out).
+   * @throws IOException If errors occur.
+   */
+  public void writeHeader(WritableByteChannel out) throws IOException {
+    // take care of the annoying case where no records have been added...
+    if (headerLength == -1)
+      headerLength = MINIMUM_HEADER;
+    ByteBuffer buffer = ByteBuffer.allocateDirect(headerLength);
+    buffer.order(ByteOrder.LITTLE_ENDIAN);
+    
+    // write the output file type.
+    buffer.put((byte) MAGIC);
+    
+    // write the date stuff
+    Calendar c = Calendar.getInstance();
+    c.setTime(new Date());
+    buffer.put( (byte) (c.get(c.YEAR) % 100));
+    buffer.put( (byte) (c.get(c.MONTH)+1));
+    buffer.put( (byte) (c.get(c.DAY_OF_MONTH)));
+    
+    // write the number of records in the datafile.
+    buffer.putInt(recordCnt);
+    
+    // write the length of the header structure.
+    buffer.putShort((short)headerLength);
+    
+    // write the length of a record
+    buffer.putShort((short)recordLength);
+    
+    //    // write the reserved bytes in the header
+    //    for (int i=0; i<20; i++) out.writeByteLE(0);
+    buffer.position(buffer.position() + 20);
+    
+    // write all of the header records
+    int tempOffset = 0;
+    for (int i=0; i<fields.length; i++){
+      
+      // write the field name
+      for (int j=0; j<11; j++){
+        if (fields[i].fieldName.length() > j){
+          buffer.put((byte) fields[i].fieldName.charAt(j));
         }
+        else{
+          buffer.put((byte)0);
+        }
+      }
+      
+      // write the field type
+      buffer.put((byte)fields[i].fieldType);
+       //    // write the field data address, offset from the start of the record.
+      buffer.putInt(tempOffset);
+      tempOffset += fields[i].fieldLength;
+      
+      // write the length of the field.
+      buffer.put((byte)fields[i].fieldLength);
+      
+      // write the decimal count.
+      buffer.put((byte)fields[i].decimalCount);
+      
+      // write the reserved bytes.
+      //for (in j=0; jj<14; j++) out.writeByteLE(0);
+      buffer.position(buffer.position() + 14);
+    }
+    
+    // write the end of the field definitions marker
+    buffer.put((byte)0x0D);
 
-        // set the new fields.
-        myFieldDescriptions = tempFieldDescriptors;
-        myHeaderLength = 33+32*myFieldDescriptions.length;
-        myNumFields = myFieldDescriptions.length;
-        myRecordLength = tempLength;
-
-        return retCol;
-    }
-
-    private void warn(String inWarn){
-        if (myWarning){
-            System.out.print("WARNING: ");
-            System.out.println(inWarn);
-        }
+    buffer.position(0);
+    
+    int r = buffer.remaining();
+    while ( (r-= out.write(buffer)) > 0);
+  }
+  
+  /** Get a simple representation of this header.
+   * @return A String representing the state of the header.
+   */  
+  public String toString() {
+    StringBuffer fs = new StringBuffer();
+    for (int i = 0, ii = fields.length; i < ii; i++) {
+      DbaseField f = fields[i];
+      fs.append(f.fieldName + " " + f.fieldType + " " + f.fieldLength + "\n");
     }
     
-    /**
-     * Return the Field Descriptor for the given field.
-     */
-    public DbaseFieldDescriptor getFieldDescription(int inIndex){
-        return myFieldDescriptions[inIndex];
-    }
+    return "DB3 Header\n" +
+    "Date : " + date + "\n" +
+    "Records : " + recordCnt + "\n" +
+    "Fields : " + fieldCnt + "\n" +
+    fs;
     
-    // Retrieve the length of the field at the given index
-    public int getFieldLength(int inIndex){
-        return myFieldDescriptions[inIndex].myFieldLength;
-    }
-    
-    // Retrieve the location of the decimal point within the field.
-    public int getFieldDecimalCount(int inIndex){
-        return myFieldDescriptions[inIndex].myDecimalCount;
-    }
-    
-    // Retrieve the Name of the field at the given index
-    public String getFieldName(int inIndex){
-        return myFieldDescriptions[inIndex].myFieldName;
-    }
-    
-    // Retrieve the type of field at the given index
-    public char getFieldType(int inIndex){
-        return myFieldDescriptions[inIndex].myFieldType;
-    }
-    
-    /**
-     * Return the date this file was last updated.
-     */
-    public Date getLastUpdateDate(){
-        return myUpdateDate;
-    }
-    
-    /**
-     * Return the number of fields in the records.
-     */
-    public int getNumFields(){
-        return myNumFields;
-    }
-    
-    /**
-     * Return the number of records in the file
-     */
-    public int getNumRecords(){
-        return myNumRecords;
-    }
-    
-    /**
-     * Return the length of the records in bytes.
-     */
-    public int getRecordLength(){
-        return myRecordLength;
-    }
-
-    /**
-     * Return the length of the header
-     */
-    public int getHeaderLength() 
-    {
-        return myHeaderLength;
-    }
-    
-    /**
-     * Read the header data from the DBF file.
-     */
-    public void readHeader(EndianDataInputStream in)throws Exception{
-        // type of file.
-        myFileType = in.readUnsignedByteLE();
-        if (myFileType != 0x03) throw new Exception("Unsupported DBF file Type "+Integer.toHexString(myFileType));
-        
-        // parse the update date information.
-        int tempUpdateYear = (int)in.readUnsignedByteLE();
-        int tempUpdateMonth = (int)in.readUnsignedByteLE();
-        int tempUpdateDay = (int)in.readUnsignedByteLE();
-        tempUpdateYear = tempUpdateYear + 1900;
-        Calendar c = Calendar.getInstance();
-        c.set(c.YEAR, tempUpdateYear);
-        c.set(c.MONTH, tempUpdateMonth-1);
-        c.set(c.DATE, tempUpdateDay);
-        myUpdateDate = c.getTime();
-        
-        // read the number of records.
-        myNumRecords = in.readIntLE();
-        
-        // read the length of the header structure.
-        myHeaderLength = in.readShortLE();
-        
-        // read the length of a record
-        myRecordLength = in.readShortLE();
-        
-        // skip the reserved bytes in the header.
-        in.skipBytes(20);
-        
-        // calculate the number of Fields in the header
-        myNumFields = (myHeaderLength - FILE_DESCRIPTOR_SIZE -1)/FILE_DESCRIPTOR_SIZE;
-        
-        // read all of the header records
-        myFieldDescriptions = new DbaseFieldDescriptor[myNumFields];
-        for (int i=0; i<myNumFields; i++){
-            myFieldDescriptions[i] = new DbaseFieldDescriptor();
-            
-            // read the field name
-            byte[] buffer = new byte[11];
-            in.readFully(buffer);
-            String name = new String(buffer);
-            int nullPoint = name.indexOf(0);
-            if(nullPoint != -1){
-                name = name.substring(0,nullPoint);
-            }
-            myFieldDescriptions[i].myFieldName = name;
-            
-            // read the field type
-            myFieldDescriptions[i].myFieldType = (char) in.readByteLE();
-            
-            // read the field data address, offset from the start of the record.
-            myFieldDescriptions[i].myFieldDataAddress = in.readIntLE();
-            
-            // read the field length in bytes
-            int tempLength = (int) in.readByteLE();
-            if (tempLength < 0) tempLength = tempLength + 256;
-            myFieldDescriptions[i].myFieldLength = tempLength;
-            
-            // read the field decimal count in bytes
-            myFieldDescriptions[i].myDecimalCount = (int) in.readByteLE();
-            
-            // read the reserved bytes.
-            in.skipBytes(14);
-        }
-        
-        // Last byte is a marker for the end of the field definitions.
-        in.skipBytes(1);
-        
-    }
-    
-    /**
-     * Set the number of records in the file
-     */
-    public void setNumRecords(int inNumRecords){
-        myNumRecords = inNumRecords;
-    }
-    
-    /**
-     * Write the header data to the DBF file.
-     */
-    public void writeHeader(EndianDataOutputStream out)throws Exception{
-        // write the output file type.
-        out.writeByteLE(myFileType);
-        
-        // write the date stuff
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        out.writeByteLE(c.get(c.YEAR)-1900);
-        out.writeByteLE(c.get(c.MONTH)+1);
-        out.writeByteLE(c.get(c.DAY_OF_MONTH));
-        
-        // write the number of records in the datafile.
-        out.writeIntLE(myNumRecords);
-        
-        // write the length of the header structure.
-        out.writeShortLE(myHeaderLength);
-        
-        // write the length of a record
-        out.writeShortLE(myRecordLength);
-        
-        // write the reserved bytes in the header
-        for (int i=0; i<20; i++) out.writeByteLE(0);
-        
-        // write all of the header records
-        int tempOffset = 0;
-        for (int i=0; i<myFieldDescriptions.length; i++){
-            
-            // write the field name
-            for (int j=0; j<11; j++){
-                if (myFieldDescriptions[i].myFieldName.length() > j){
-                    out.writeByteLE((int) myFieldDescriptions[i].myFieldName.charAt(j));
-                }
-                else{
-                    out.writeByteLE(0);
-                }
-            }
-            
-            // write the field type
-            out.writeByteLE(myFieldDescriptions[i].myFieldType);
-            
-            // write the field data address, offset from the start of the record.
-            out.writeIntLE(tempOffset);
-            tempOffset += myFieldDescriptions[i].myFieldLength;
-            
-            // write the length of the field.
-            out.writeByteLE(myFieldDescriptions[i].myFieldLength);
-            
-            // write the decimal count.
-            out.writeByteLE(myFieldDescriptions[i].myDecimalCount);
-            
-            // write the reserved bytes.
-            for (int j=0; j<14; j++) out.writeByteLE(0);
-        }
-        
-        // write the end of the field definitions marker
-        out.writeByteLE(0x0D);
-    }
+  }
+  
 }

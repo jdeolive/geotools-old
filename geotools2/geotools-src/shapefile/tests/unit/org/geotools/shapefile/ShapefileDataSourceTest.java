@@ -35,6 +35,8 @@ public class ShapefileDataSourceTest extends TestCase {
         TestSuite suite = new TestSuite(ShapefileDataSourceTest.class);
         return suite;
     }
+    
+    
 
     public void testLoad(){
         String dataFolder = System.getProperty("dataFolder");
@@ -46,8 +48,7 @@ public class ShapefileDataSourceTest extends TestCase {
         try{
             URL url = new URL("file:////"+dataFolder+"/statepop.shp");
             System.out.println("Testing ability to load "+url);
-            Shapefile shapefile = new Shapefile(url);
-            ShapefileDataSource datasource = new ShapefileDataSource(shapefile);
+            ShapefileDataSource datasource = new ShapefileDataSource(url);
             FeatureCollection table = new FeatureCollectionDefault();
             table.setDataSource(datasource);
             EnvelopeExtent r = new EnvelopeExtent();

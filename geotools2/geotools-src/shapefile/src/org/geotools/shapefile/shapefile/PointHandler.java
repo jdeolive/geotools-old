@@ -1,104 +1,114 @@
+/*
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 package org.geotools.shapefile.shapefile;
 
 import com.vividsolutions.jts.geom.*;
-
-import org.geotools.shapefile.*;
-
-import org.geotools.shapefile.endian.*;
-
+import java.nio.ByteBuffer;
 import java.io.*;
 
 
 /**
  * Wrapper for a Shapefile point.
+ *
+ * @author aaime
+ * @author Ian Schneider
+ * @version
  */
 public class PointHandler implements ShapeHandler {
-    int Ncoords = 2; //2 = x,y ;  3= x,y,m ; 4 = x,y,z,m
-    int myShapeType = -1;
 
-    public PointHandler(int type) throws InvalidShapefileException {
-        if ((type != 1) && (type != 11) && (type != 21)) { // 2d, 2d+m, 3d+m
-            throw new InvalidShapefileException(
-                "PointHandler constructor: expected a type of 1, 11 or 21");
-        }
-
-        myShapeType = type;
+  final ShapeType shapeType;
+  GeometryFactory geometryFactory = new GeometryFactory();
+  
+  public PointHandler(ShapeType type) throws InvalidShapefileException {
+    if ((type != ShapeType.POINT) && (type != ShapeType.POINTM) && (type != ShapeType.POINTZ)) { // 2d, 2d+m, 3d+m
+      throw new InvalidShapefileException(
+      "PointHandler constructor: expected a type of 1, 11 or 21");
     }
-
-    public PointHandler() {
-        myShapeType = 1; //2d
+    
+    shapeType = type;
+  }
+  
+  public PointHandler() {
+    shapeType = ShapeType.POINT; //2d
+  }
+  
+  /**
+   * Returns the shapefile shape type value for a point
+   * @return int Shapefile.POINT
+   */
+  public ShapeType getShapeType() {
+    return shapeType;
+  }
+  
+  
+  public int getLength(Object geometry) {
+    if (shapeType == ShapeType.POINT)
+      return 20;
+    if (shapeType == ShapeType.POINTM)
+      return 28;
+    if (shapeType == ShapeType.POINTZ)
+      return 36;
+    throw new IllegalStateException("Expected ShapeType of Point, got" + shapeType);
+  }
+  
+  public Object read(ByteBuffer buffer, ShapeType type) {
+    if (type == ShapeType.NULL)
+      return createNull();
+    
+    double x = buffer.getDouble();
+    double y = buffer.getDouble();
+    double m;
+    double z = Double.NaN;
+    
+    if (shapeType == ShapeType.POINTM) {
+      z = buffer.getDouble();
     }
-
-    public Geometry read(EndianDataInputStream file, GeometryFactory geometryFactory,
-        int contentLength) throws IOException, InvalidShapefileException {
-        //  file.setLittleEndianMode(true);
-        int shapeType = file.readIntLE();
-
-        if (shapeType != myShapeType) {
-            return null;
-            // throw new InvalidShapefileException(
-            //    "pointhandler.read() - handler's shapetype (" + myShapeType + ") doesnt match file's (" + shapeType + ")");
-        }
-
-        double x = file.readDoubleLE();
-        double y = file.readDoubleLE();
-        double m;
-        double z = Double.NaN;
-
-        if (shapeType == 11) {
-            z = file.readDoubleLE();
-        }
-
-        if (shapeType >= 11) {
-            m = file.readDoubleLE();
-        }
-
-        return geometryFactory.createPoint(new Coordinate(x, y, z));
+    
+    if (shapeType == ShapeType.POINTZ) {
+      m = buffer.getDouble();
     }
-
-    public void write(Geometry geometry, EndianDataOutputStream file)
-        throws IOException {
-        // file.setLittleEndianMode(true);
-        file.writeIntLE(getShapeType());
-
-        Coordinate c = geometry.getCoordinates()[0];
-        file.writeDoubleLE(c.x);
-        file.writeDoubleLE(c.y);
-
-        if (myShapeType == 11) {
-            if (Double.isNaN(c.z)) { // nan means not defined
-                file.writeDoubleLE(0.0);
-            } else {
-                file.writeDoubleLE(c.z);
-            }
-        }
-
-        if ((myShapeType == 11) || (myShapeType == 21)) {
-            file.writeDoubleLE(-10E40); //M
-        }
+    
+    return geometryFactory.createPoint(new Coordinate(x, y, z));
+  }
+  
+  private Object createNull() {
+    return geometryFactory.createPoint(new Coordinate(Double.NaN,Double.NaN,Double.NaN));
+  }
+  
+  public void write(ByteBuffer buffer, Object geometry) {
+    Coordinate c = ((Point) geometry).getCoordinate();
+    
+    buffer.putDouble(c.x);
+    buffer.putDouble(c.y);
+    
+    if (shapeType == ShapeType.POINTZ) {
+      if (Double.isNaN(c.z)) { // nan means not defined
+        buffer.putDouble(0.0);
+      } else {
+        buffer.putDouble(c.z);
+      }
     }
-
-    /**
-     * Returns the shapefile shape type value for a point
-     * @return int Shapefile.POINT
-     */
-    public int getShapeType() {
-        return myShapeType;
+    
+    if ((shapeType == ShapeType.POINTZ) || (shapeType == ShapeType.POINTM)) {
+      buffer.putDouble(-10E40); //M
     }
-
-    /**
-     * Calcuates the record length of this object.
-     * @return int The length of the record that this shapepoint will take up in a shapefile
-     **/
-    public int getLength(Geometry geometry) {
-        if (myShapeType == 21) {
-            return 14;
-        }
-
-        if (myShapeType == 11) {
-            return 18;
-        }
-
-        return 10;
-    }
+  }
+  
 }

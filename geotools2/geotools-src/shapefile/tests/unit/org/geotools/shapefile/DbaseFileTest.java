@@ -48,10 +48,11 @@ public class DbaseFileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            File url = new File(dataFolder,"statepop");
+            File url = new File(dataFolder,"statepop.dbf");
             System.out.println("Testing ability to load "+url);
-            dbf = new DbaseFileReader(url.toString());
-            
+            FileInputStream in = new FileInputStream(url);
+            dbf = new DbaseFileReader(in.getChannel());
+            dbf.getHeader();
             }
         catch(Exception e){
             System.out.println(e);
@@ -65,7 +66,7 @@ public class DbaseFileTest extends TestCase {
     
     public void testNumberofColsLoaded(){
         setup();
-        assertEquals("Number of attributes found incorect",252,dbf.getNumFields()); 
+        assertEquals("Number of attributes found incorect",252,dbf.getHeader().getNumFields()); 
     }
     
     public void testNumberofRowsLoaded(){
@@ -74,9 +75,9 @@ public class DbaseFileTest extends TestCase {
     }
     public void testDataLoaded() throws Exception{
         setup();
-        Object[] attrs = new Object[dbf.getNumFields()];
-        dbf.read(attrs, 0);
-        assertEquals("Value of Column 0 is wrong",((String)attrs[0]),"Illinois");
+        Object[] attrs = new Object[dbf.getHeader().getNumFields()];
+        dbf.readEntry(attrs);
+        assertEquals("Value of Column 0 is wrong",attrs[0],new String("Illinois"));
         assertEquals("Value of Column 4 is wrong",((Double)attrs[4]).doubleValue(),143986.61,0.001);
     }
     

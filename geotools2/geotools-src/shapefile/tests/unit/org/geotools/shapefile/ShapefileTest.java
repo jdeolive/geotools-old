@@ -9,7 +9,6 @@ package org.geotools.shapefile;
 
 import junit.framework.*;
 import java.net.*;
-import cmp.LEDataStream.*;
 import com.vividsolutions.jts.geom.*;
 import java.io.*;
 import org.geotools.shapefile.shapefile.*;
@@ -25,7 +24,8 @@ public class ShapefileTest extends TestCase {
     }
     
     public static void main(java.lang.String[] args) {
-        junit.textui.TestRunner.run(suite());
+      if (System.getProperty("dataFolder") == null)
+        System.setProperty("dataFolder", ShapefileTest.class.getResource("/testData").getFile());
     }
     
     public static Test suite() {
@@ -42,14 +42,19 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/statepop.shp");
-            System.out.println("Testing ability to load "+url);
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",49,shapes.getNumGeometries());
+            File f = new File(dataFolder,"statepop.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",49,cnt);
             //Geometry bounds = shapes.getEnvelope();
             //bounds.
-            //System.out.println(""+bounds.getMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
+            //System.out.pritln(""+bounds.ggetMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
         }
         catch(Exception e){
             System.out.println(e);
@@ -71,14 +76,16 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/pointtest.shp");
-            System.out.println("Testing ability to load "+url);
-            URLConnection uc = url.openConnection();
-            BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-            
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",10,shapes.getNumGeometries());
+            File f = new File(dataFolder,"pointtest.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",10,cnt);
         }
         catch(Exception e){
             System.out.println(e);
@@ -96,12 +103,16 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/polygontest.shp");
-            System.out.println("Testing ability to load "+url);
-            
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
+            File f = new File(dataFolder,"polygontest.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",2,cnt);
         }
         catch(Exception e){
             System.out.println("Load failed becaouse of "+e);
@@ -119,13 +130,17 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/polygontest.shp");
-            System.out.println("Testing ability to load "+url);
+            File f = new File(dataFolder,"pointtest.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",10,cnt);
             
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
         }
         catch(Exception e){
             System.out.println("Load failed becaouse of "+e);
@@ -147,12 +162,17 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/holeTouchEdge.shp");
-            System.out.println("Testing ability to load "+url);
+          File f = new File(dataFolder,"holeTouchEdge.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",1,cnt);
             
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",1,shapes.getNumGeometries());
         }
         catch(Exception e){
             System.out.println("Load failed becaouse of "+e);
@@ -174,12 +194,17 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:////"+dataFolder+"/extraAtEnd.shp");
-            System.out.println("Testing ability to load "+url);
-            
-            Shapefile shapefile = new Shapefile(url);
-            GeometryCollection shapes = shapefile.read(new GeometryFactory());
-            assertEquals("Number of Geometries loaded incorect",3,shapes.getNumGeometries());
+          File f = new File(dataFolder,"extraAtEnd.shp");
+            System.out.println("Testing ability to load "+f.getAbsolutePath());
+            FileInputStream in = new FileInputStream(f);
+            ShapefileReader reader = new ShapefileReader(in.getChannel());
+            int cnt = 0;
+            while (reader.hasNext()) {
+              reader.nextRecord().shape();
+              cnt++;
+            }
+            assertEquals("Number of Geometries loaded incorect",3,cnt);
+          
         }
         catch(Exception e){
             System.out.println("Load failed becaouse of "+e);

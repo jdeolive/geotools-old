@@ -1,277 +1,252 @@
 /*
- * $Id: MultiLineHandler.java,v 1.1 2003/02/27 22:35:50 aaime Exp $
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+
+
 package org.geotools.shapefile.shapefile;
 
 import com.vividsolutions.jts.geom.*;
-
-import org.geotools.shapefile.endian.*;
-
-import java.io.*;
+import java.nio.ByteBuffer;
 
 
-/**
- * Wrapper for a Shapefile arc.
+/*
+ * $Id: MultiLineHandler.java,v 1.2 2003/03/30 20:21:09 ianschneider Exp $
+ * @author aaime
+ * @author Ian Schneider
+ */
+/** The default JTS handler for shapefile. Currently uses the default JTS
+ * GeometryFactory, since it doesn't seem to matter.
  */
 public class MultiLineHandler implements ShapeHandler {
-    int myShapeType = -1;
-
-    public MultiLineHandler() {
-        myShapeType = 3;
+  final ShapeType shapeType;
+  GeometryFactory geometryFactory = new GeometryFactory();
+  
+  /** Create a MultiLineHandler for ShapeType.ARC */
+  public MultiLineHandler() {
+    shapeType = ShapeType.ARC;
+  }
+  
+  /** Create a MultiLineHandler for one of:<br>
+   * ShapeType.ARC,ShapeType.ARCM,ShapeType.ARCZ
+   * @param type The ShapeType to use.
+   * @throws InvalidShapefileException If the ShapeType is not correct (see constructor).
+   */
+  public MultiLineHandler(ShapeType type) throws InvalidShapefileException {
+    if ((type != ShapeType.ARC) && (type != ShapeType.ARCM) && (type != ShapeType.ARCZ)) {
+      throw new InvalidShapefileException(
+      "MultiLineHandler constructor - expected type to be 3,13 or 23");
     }
-
-    public MultiLineHandler(int type) throws InvalidShapefileException {
-        if ((type != 3) && (type != 13) && (type != 23)) {
-            throw new InvalidShapefileException(
-                "MultiLineHandler constructor - expected type to be 3,13 or 23");
-        }
-
-        myShapeType = type;
+    
+    shapeType = type;
+  }
+  
+  /** Get the type of shape stored (ShapeType.ARC,ShapeType.ARCM,ShapeType.ARCZ) */
+  public ShapeType getShapeType() {
+    return shapeType;
+  }
+  
+  /** */
+  public int getLength(Object geometry) {
+    MultiLineString multi = (MultiLineString) geometry;
+    
+    int numlines;
+    int numpoints;
+    
+    numlines = multi.getNumGeometries();
+    numpoints = multi.getNumPoints();
+    
+    if (shapeType == ShapeType.ARC) {
+      return 44 + (4 * numlines) + (numpoints * 16);
     }
-
-    public Geometry read(EndianDataInputStream file, GeometryFactory geometryFactory,
-        int contentLength) throws IOException, InvalidShapefileException {
-        double junk;
-
-        //file.setLittleEndianMode(true);
-        int shapeType = file.readIntLE();
-
-        if (shapeType == 0) {
-            return new MultiLineString(null, new PrecisionModel(), 0); //null shape
-        }
-
-        if (shapeType != myShapeType) {
-            return null;
-            // throw new InvalidShapefileException(
-            //    "pointhandler.read() - handler's shapetype (" + myShapeType + ") doesnt match file's (" + shapeType + ")");
-        }
-
-        //read bounding box (not needed)
-        junk = file.readDoubleLE();
-        junk = file.readDoubleLE();
-        junk = file.readDoubleLE();
-        junk = file.readDoubleLE();
-
-        int numParts = file.readIntLE();
-        int numPoints = file.readIntLE(); //total number of points
-
-        int[] partOffsets = new int[numParts];
-
-        //points = new Coordinate[numPoints];
-        for (int i = 0; i < numParts; i++) {
-            partOffsets[i] = file.readIntLE();
-        }
-
-        LineString[] lines = new LineString[numParts];
-        Coordinate[] coords = new Coordinate[numPoints];
-
-        for (int t = 0; t < numPoints; t++) {
-            coords[t] = new Coordinate(file.readDoubleLE(), file.readDoubleLE());
-        }
-
-        if (myShapeType == 13) {
-            junk = file.readDoubleLE(); //z min, max
-            junk = file.readDoubleLE();
-
-            for (int t = 0; t < numPoints; t++) {
-                coords[t].z = file.readDoubleLE(); //z value
-            }
-        }
-
-        if (myShapeType >= 13) {
-            int fullLength = 22 + (2 * numParts) + (numPoints * 8) + 4 + 4 + (4 * numPoints) + 4 +
-                4 + (4 * numPoints);
-
-            if (fullLength == contentLength) //are ms actually there?
-             {
-                junk = file.readDoubleLE(); //m min, max
-                junk = file.readDoubleLE();
-
-                for (int t = 0; t < numPoints; t++) {
-                    junk = file.readDoubleLE(); //m value
-                }
-            }
-        }
-
-        int offset = 0;
-        int start;
-        int finish;
-        int length;
-
-        for (int part = 0; part < numParts; part++) {
-            start = partOffsets[part];
-
-            if (part == (numParts - 1)) {
-                finish = numPoints;
-            } else {
-                finish = partOffsets[part + 1];
-            }
-
-            length = finish - start;
-
-            Coordinate[] points = new Coordinate[length];
-
-            for (int i = 0; i < length; i++) {
-                points[i] = coords[offset];
-                offset++;
-            }
-
-            lines[part] = geometryFactory.createLineString(points);
-        }
-
-        if (numParts == 1) {
-            return lines[0];
+    
+    if (shapeType == ShapeType.ARCM) {
+      return 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints);
+    }
+    
+    if (shapeType == ShapeType.ARCZ) {
+      return 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints) + 8 + 8 +
+      (8 * numpoints);
+    }
+    
+    throw new IllegalStateException("Expected ShapeType of Arc, got " + shapeType);
+  }
+  
+  private Object createNull() {
+    return geometryFactory.createLineString(null);
+  }
+  
+  public Object read(ByteBuffer buffer, ShapeType type) {
+    if (type == ShapeType.NULL)
+      return createNull();
+    //read bounding box (not needed)
+    buffer.position( buffer.position() + 4 * 8);
+    
+    
+    int numParts = buffer.getInt();
+    int numPoints = buffer.getInt(); //total number of points
+    
+    int[] partOffsets = new int[numParts];
+    
+    //points = new Coordinate[numPoints];
+    for (int i = 0; i < numParts; i++) {
+      partOffsets[i] = buffer.getInt();
+    }
+    
+    LineString[] lines = new LineString[numParts];
+    Coordinate[] coords = new Coordinate[numPoints];
+    
+    for (int t = 0; t < numPoints; t++) {
+      coords[t] = new Coordinate(buffer.getDouble(), buffer.getDouble());
+    }
+    
+    if (shapeType == ShapeType.ARCZ) {
+      //z min, max
+      buffer.position(buffer.position() + 2 * 8);
+      
+      
+      for (int t = 0; t < numPoints; t++) {
+        coords[t].z = buffer.getDouble(); //z value
+      }
+    }
+    
+    int offset = 0;
+    int start;
+    int finish;
+    int length;
+    
+    for (int part = 0; part < numParts; part++) {
+      start = partOffsets[part];
+      
+      if (part == (numParts - 1)) {
+        finish = numPoints;
+      } else {
+        finish = partOffsets[part + 1];
+      }
+      
+      length = finish - start;
+      
+      Coordinate[] points = new Coordinate[length];
+      
+      for (int i = 0; i < length; i++) {
+        points[i] = coords[offset];
+        offset++;
+      }
+      
+      lines[part] = geometryFactory.createLineString(points);
+    }
+    
+    if (numParts == 1) {
+      return lines[0];
+    } else {
+      return geometryFactory.createMultiLineString(lines);
+    }
+  }
+  
+  public void write(ByteBuffer buffer, Object geometry) {
+    MultiLineString multi = (MultiLineString) geometry;
+    
+    Envelope box = multi.getEnvelopeInternal();
+    buffer.putDouble(box.getMinX());
+    buffer.putDouble(box.getMinY());
+    buffer.putDouble(box.getMaxX());
+    buffer.putDouble(box.getMaxY());
+    
+    int numParts = multi.getNumGeometries();
+    
+    buffer.putInt(numParts);
+    int npoints = multi.getNumPoints();
+    buffer.putInt(npoints);
+    
+    LineString[] lines = new LineString[numParts];
+    int idx = 0;
+    
+    for (int i = 0; i < numParts; i++) {
+      lines[i] = (LineString) multi.getGeometryN(i);
+      buffer.putInt(idx);
+      idx = idx + lines[i].getNumPoints();
+    }
+    
+    Coordinate[] coords = multi.getCoordinates();
+    
+    for (int t = 0; t < npoints; t++) {
+      buffer.putDouble(coords[t].x);
+      buffer.putDouble(coords[t].y);
+    }
+    
+    if (shapeType == ShapeType.ARCZ) {
+      double[] zExtreame = JTSUtilities.zMinMax(coords);
+      
+      if (Double.isNaN(zExtreame[0])) {
+        buffer.putDouble(0.0);
+        buffer.putDouble(0.0);
+      } else {
+        buffer.putDouble(zExtreame[0]);
+        buffer.putDouble(zExtreame[1]);
+      }
+      
+      for (int t = 0; t < npoints; t++) {
+        double z = coords[t].z;
+        
+        if (Double.isNaN(z)) {
+          buffer.putDouble(0.0);
         } else {
-            return geometryFactory.createMultiLineString(lines);
+          buffer.putDouble(z);
         }
+      }
     }
-
-    public void write(Geometry geometry, EndianDataOutputStream file)
-        throws IOException {
-        MultiLineString multi = (MultiLineString) geometry;
-        int npoints;
-
-        Coordinate[] coords;
-
-        //file.setLittleEndianMode(true);
-        file.writeIntLE(getShapeType());
-
-        Envelope box = multi.getEnvelopeInternal();
-        file.writeDoubleLE(box.getMinX());
-        file.writeDoubleLE(box.getMinY());
-        file.writeDoubleLE(box.getMaxX());
-        file.writeDoubleLE(box.getMaxY());
-
-        int numParts = multi.getNumGeometries();
-
-        file.writeIntLE(numParts);
-        npoints = multi.getNumPoints();
-        file.writeIntLE(npoints);
-
-        LineString[] lines = new LineString[numParts];
-        int idx = 0;
-
-        for (int i = 0; i < numParts; i++) {
-            lines[i] = (LineString) multi.getGeometryN(i);
-            file.writeIntLE(idx);
-            idx = idx + lines[i].getNumPoints();
-        }
-
-        coords = multi.getCoordinates();
-
-        for (int t = 0; t < npoints; t++) {
-            file.writeDoubleLE(coords[t].x);
-            file.writeDoubleLE(coords[t].y);
-        }
-
-        if (myShapeType == 13) {
-            //z
-            double[] zExtreame = zMinMax(multi);
-
-            if (Double.isNaN(zExtreame[0])) {
-                file.writeDoubleLE(0.0);
-                file.writeDoubleLE(0.0);
-            } else {
-                file.writeDoubleLE(zExtreame[0]);
-                file.writeDoubleLE(zExtreame[1]);
-            }
-
-            for (int t = 0; t < npoints; t++) {
-                double z = coords[t].z;
-
-                if (Double.isNaN(z)) {
-                    file.writeDoubleLE(0.0);
-                } else {
-                    file.writeDoubleLE(z);
-                }
-            }
-        }
-
-        if (myShapeType >= 13) {
-            //m
-            file.writeDoubleLE(-10E40);
-            file.writeDoubleLE(-10E40);
-
-            for (int t = 0; t < npoints; t++) {
-                file.writeDoubleLE(-10E40);
-            }
-        }
+    
+    if (shapeType == ShapeType.ARCZ) {
+      buffer.putDouble(-10E40);
+      buffer.putDouble(-10E40);
+      
+      for (int t = 0; t < npoints; t++) {
+        buffer.putDouble(-10E40);
+      }
     }
-
-    /**
-     * Get the type of shape stored (Shapefile.ARC)
-     */
-    public int getShapeType() {
-        return myShapeType;
-    }
-
-    public int getLength(Geometry geometry) {
-        MultiLineString multi = (MultiLineString) geometry;
-
-        int numlines;
-        int numpoints;
-
-        numlines = multi.getNumGeometries();
-        numpoints = multi.getNumPoints();
-
-        if (myShapeType == 3) {
-            return 22 + (2 * numlines) + (numpoints * 8);
-        }
-
-        if (myShapeType == 23) {
-            return 22 + (2 * numlines) + (numpoints * 8) + 4 + 4 + (4 * numpoints);
-        }
-
-        return 22 + (2 * numlines) + (numpoints * 8) + 4 + 4 + (4 * numpoints) + 4 + 4 +
-        (4 * numpoints);
-
-        //   return 22 + 2*numlines + (numpoints * 8);
-        //return (44+(4*((GeometryCollection)geometry).getNumGeometries()));
-    }
-
-    double[] zMinMax(Geometry g) {
-        double zmin;
-        double zmax;
-        boolean validZFound = false;
-        Coordinate[] cs = g.getCoordinates();
-        double[] result = new double[2];
-
-        zmin = Double.NaN;
-        zmax = Double.NaN;
-
-        double z;
-
-        for (int t = 0; t < cs.length; t++) {
-            z = cs[t].z;
-
-            if (!(Double.isNaN(z))) {
-                if (validZFound) {
-                    if (z < zmin) {
-                        zmin = z;
-                    }
-
-                    if (z > zmax) {
-                        zmax = z;
-                    }
-                } else {
-                    validZFound = true;
-                    zmin = z;
-                    zmax = z;
-                }
-            }
-        }
-
-        result[0] = (zmin);
-        result[1] = (zmax);
-
-        return result;
-    }
+  }
+  
 }
 
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.2  2003/03/30 20:21:09  ianschneider
+ * Moved buffer branch to main
+ *
+ * Revision 1.1.2.3  2003/03/12 15:30:14  ianschneider
+ * made ShapeType final for handlers - once they're created, it won't change.
+ *
+ * Revision 1.1.2.2  2003/03/07 00:36:41  ianschneider
+ *
+ * Added back the additional ShapeType parameter in ShapeHandler.read. ShapeHandler's need
+ * return their own special "null" shape if needed. Fixed the ShapefileReader to not throw
+ * exceptions for "null" shapes. Fixed ShapefileReader to accomodate junk after the last valid
+ * record. The theory goes, if the shape number is proper, that is, one greater than the
+ * previous, we consider that a valid record and attempt to read it. I suppose, by chance, the
+ * junk could coincide with the next record number. Stupid ESRI. Fixed some record-length
+ * calculations which resulted in writing of bad shapefiles.
+ *
+ * Revision 1.1.2.1  2003/03/06 01:16:34  ianschneider
+ *
+ * The initial changes for moving to java.nio. Added some documentation and improved
+ * exception handling. Works for reading, may work for writing as of now.
+ *
  * Revision 1.1  2003/02/27 22:35:50  aaime
  * New shapefile module, initial commit
  *

@@ -25,6 +25,8 @@ public class ShapefileSuite extends TestCase {
     }
     
     public static Test suite() {
+        if (System.getProperty("dataFolder") == null)
+        System.setProperty("dataFolder", ShapefileTest.class.getResource("/testData").getFile());
         TestSuite suite = new TestSuite("All Tests");
         suite.addTestSuite(DbaseFileTest.class);
         suite.addTestSuite(ShapefileDataSourceTest.class);
