@@ -11,7 +11,7 @@
   <package>org.geotools</package>
   <shortDescription>GTopo30 datasource module</shortDescription>
 
-  <description>Datasource created to read GTOPO30 DEM format. </description>
+  <description>This datasource reads the GTOPO30 DEM format.</description>
 
 
   <developers>

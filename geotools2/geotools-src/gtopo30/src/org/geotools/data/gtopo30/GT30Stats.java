@@ -16,32 +16,41 @@
  */
 package org.geotools.data.gtopo30;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.URL;
+import java.util.StringTokenizer;
 
 
 /**
- * This class parses the STX GTopo30 statistics file and allows to retrieve its contents
+ * This class parses the STX GTopo30 statistics file and allows to retrieve its
+ * contents
  *
  * @author aaime
  */
 class GT30Stats {
-    int minimum;
-    int maximum;
-    double average;
-    double stddev;
+    /** Minimum value in the data file */
+    private int minimum;
+
+    /** Maximum value in the data file */
+    private int maximum;
+
+    /** Data file average value */
+    private double average;
+
+    /** Data file standard deviation */
+    private double stddev;
 
     /**
      * Creates a new instance of GT30Stats
      *
      * @param statsURL URL pointing to the statistics (STX) file
      *
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @throws NumberFormatException if the file content is not correct
+     * @throws IOException if some problem occurs trying to read the file
      */
-    public GT30Stats(URL statsURL) throws FileNotFoundException, IOException, NumberFormatException {
+    public GT30Stats(URL statsURL) throws IOException {
         String path = statsURL.getFile();
         File stats = new File(path);
 
@@ -58,19 +67,39 @@ class GT30Stats {
         stddev = Double.parseDouble(stok.nextToken());
     }
 
-    public int getMin() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    int getMin() {
         return minimum;
     }
 
-    public int getMax() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    int getMax() {
         return maximum;
     }
 
-    public double getAverage() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    double getAverage() {
         return average;
     }
 
-    public double getStdDev() {
+    /**
+     * DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    double getStdDev() {
         return stddev;
     }
 }
