@@ -52,6 +52,12 @@ package org.geotools.data;
  */
 public interface Catalog {
     /**
+     * Retrieve registered Namespaces.
+     * 
+     * @return List of available namespaces
+     */
+    String[] getNameSpaces();
+    /**
      * Registers all FeatureTypes provided by dataStore with this catalog
      * service.
      * 

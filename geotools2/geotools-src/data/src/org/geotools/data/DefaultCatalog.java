@@ -40,6 +40,10 @@ import java.util.Map;
 public class DefaultCatalog implements Catalog {
     protected Map registration = new HashMap();
 
+    public String[] getNameSpaces() {
+        return (String[]) registration.keySet().toArray( new String[ registration.size() ] );
+    }
+
     /**
      * Registrers datastore with the provided namespace.
      *
