@@ -24,6 +24,9 @@ import cmp.LEDataStream.LEDataInputStream;
 import com.vividsolutions.jts.geom.Geometry;
 import java.io.IOException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 //Logging system
 import org.apache.log4j.Logger;
 
@@ -38,7 +41,7 @@ import org.apache.log4j.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.11 2002/08/16 16:36:51 jmacgill Exp $
+ * @version $Id: Shapefile.java,v 1.12 2002/08/30 16:24:34 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -67,8 +70,25 @@ public class Shapefile  {
      * Creates and initialises a shapefile from a url.
      * @param url The url of the shapefile.
      */
-    public Shapefile(java.net.URL url){
-        baseURL = url;
+    public Shapefile(URL url){
+        //experimental code to find and setup the dbf file
+        String filename = url.getFile();
+        log.debug("filename part of shapefile is " + filename );
+        String shpext = ".shp";
+        String dbfext = ".dbf";
+        if (filename.endsWith(".shp") || 
+            filename.endsWith(".dbf") ||
+            filename.endsWith(".shx")) {
+                filename = filename.substring(0, filename.length() - 4);
+        }
+        try{
+            baseURL = new URL(url,filename + shpext);
+            URL dbfURL = new URL(url,filename + dbfext);
+            log.debug("dbf url constructed as " +dbfURL);
+        }
+        catch(MalformedURLException mue){
+            log.error("Unable to construct URL for shapefile",mue);
+        }
     }
     
     private LEDataInputStream getInputStream() throws IOException{
