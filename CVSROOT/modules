@@ -32,21 +32,21 @@ geotools-src geotools2/geotools-src
 extbin geotools2/extbin
 core geotools2/geotools-src/core
 proj4j geotools2/geotools-src/proj4j
-gt2 -d geotools2/geotools-src geotools2/geotools-src \
-    core \
-    defaultcore \
-    postgis \
-    gmldatasource \
-    shapefile \
-    mapinfo \
-    oracle \
-    cts-coordtrans \
-    algorithms \
-    filter \
-    svgsupport \
-    sld \
-    gcs-coverage \
-    lite-renderer \
-    resources 
+gt2 -d geotools2 geotools2 \
+    geotools-src/core \
+    geotools-src/defaultcore \
+    geotools-src/postgis \
+    geotools-src/gmldatasource \
+    geotools-src/shapefile \
+    geotools-src/mapinfo \
+    geotools-src/oracle \
+    geotools-src/cts-coordtrans \
+    geotools-src/algorithms \
+    geotools-src/filter \
+    geotools-src/svgsupport \
+    geotools-src/sld \
+    geotools-src/gcs-coverage \
+    geotools-src/lite-renderer \
+    geotools-src/resources 
     #geotools2/geotools-src/vpf (pending Artur) 
     #geotools2/geotools-src/utils (pending James)
