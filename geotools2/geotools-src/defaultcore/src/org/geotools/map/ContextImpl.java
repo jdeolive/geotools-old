@@ -17,7 +17,7 @@
 
 package org.geotools.map;
 
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 
 /**
@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  * OGC Web Map Context Specification.
  *
  * @author $author$
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  */
 public class ContextImpl implements Context {
     //private static final Logger LOGGER =

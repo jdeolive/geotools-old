@@ -28,20 +28,20 @@ import java.util.Hashtable;
 import java.util.List;
 
 //logging
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.14 2003/07/17 07:09:53 ianschneider Exp $
+ * @version $Id: DefaultMap.java,v 1.15 2003/08/05 20:04:39 jmacgill Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
 public class DefaultMap implements org.geotools.map.Map {
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.defaultcore");
+//    private static final Logger LOGGER =
+//        Logger.getLogger("org.geotools.defaultcore");
     private Hashtable tables = new Hashtable();
     private List tableOrder = new ArrayList();
 

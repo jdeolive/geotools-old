@@ -43,8 +43,7 @@ import org.opengis.ct.CT_MathTransform;
  */
 import java.awt.geom.AffineTransform;
 import java.rmi.RemoteException;
-import java.util.Vector;
-import java.util.logging.Logger;
+//import java.util.logging.Logger;
 import javax.swing.event.EventListenerList;
 
 
@@ -53,11 +52,11 @@ import javax.swing.event.EventListenerList;
  * event to interested classes when parameters change.
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxImpl.java,v 1.13 2003/05/16 21:10:19 jmacgill Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.14 2003/08/05 20:04:39 jmacgill Exp $
  */
 public class BoundingBoxImpl implements BoundingBox {
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.map.BoundingBoxImpl");
+    //private static final Logger LOGGER =
+    //    Logger.getLogger("org.geotools.map.BoundingBoxImpl");
     private Envelope bBox;
     private CoordinateSystem coordinateSystem;
     private EventListenerList listenerList = new EventListenerList();
