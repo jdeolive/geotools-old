@@ -231,7 +231,7 @@ public class AbstractDataSourceTest extends TestCase {
         
         
         public FeatureType getSchema() throws DataSourceException {
-            return null;
+            return new DummyFeatureType("typeName");
         }
         
     }
@@ -257,7 +257,7 @@ public class AbstractDataSourceTest extends TestCase {
         
         
         public FeatureType getSchema() throws DataSourceException {
-            return null;
+            return new DummyFeatureType("typeName");
         }
         
     }
