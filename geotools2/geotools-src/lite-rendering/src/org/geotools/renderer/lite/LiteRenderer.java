@@ -95,7 +95,7 @@ import org.geotools.styling.TextSymbolizer;
 /**
  * A lite implementation of the Renderer and Renderer2D interfaces. Lite means
  * that:
- * 
+ *
  * <ul>
  * <li>
  * The code is relatively simple to understand, so it can be used as a simple
@@ -105,7 +105,7 @@ import org.geotools.styling.TextSymbolizer;
  * Uses as few memory as possible
  * </li>
  * </ul>
- * 
+ *
  * Use this class if you need a stateless renderer that provides low memory
  * footprint and  decent rendering performance on the first call but don't
  * need good optimal performance on subsequent calls on the same data. Notice:
@@ -115,7 +115,7 @@ import org.geotools.styling.TextSymbolizer;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.20 2003/08/05 05:15:04 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.21 2003/08/10 08:40:58 seangeo Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -154,7 +154,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /** The image loader */
     private static ImageLoader imageLoader = new ImageLoader();
-    
+
     private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
 
@@ -374,7 +374,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                         LOGGER.fine("renderering " + fc.size() + " features");
                     }
 
-                    // extract the feature type stylers from the style object 
+                    // extract the feature type stylers from the style object
                     // and process them
                     processStylers(fc, layer.getStyle().getFeatureTypeStyles());
                 } catch (Exception exception) {
@@ -391,7 +391,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
     /**
      * Performs the actual rendering process to the graphics context set in
      * setOutput.
-     * 
+     *
      * <p>
      * The style parameter controls the appearance features.  Rules within the
      * style object may cause some features to be rendered multiple times or
@@ -535,17 +535,17 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * featureStylers[0] is applied to all features before featureStylers[1]
      * is applied.  This can have important consequences as regards the
      * painting order.
-     * 
+     *
      * <p>
      * In most cases, this is the desired effect.  For example, all line
      * features may be rendered with a fat line and then a thin line.  This
      * produces a 'cased' effect without any strange overlaps.
      * </p>
-     * 
+     *
      * <p>
      * This method is internal and should only be called by render.
      * </p>
-     * 
+     *
      * <p></p>
      *
      * @param features An array of features to be rendered
@@ -605,7 +605,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /**
      * Applies each of a set of symbolizers in turn to a given feature.
-     * 
+     *
      * <p>
      * This is an internal method and should only be called by processStylers.
      * </p>
@@ -620,7 +620,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("applying symbolizer " + symbolizers[m]);
             }
-            
+
             resetFill(graphics);
             resetStroke(graphics);
 
@@ -906,7 +906,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             }
 
             // if it's a point, get its coordinate, otherwise compute the
-            // centroid 
+            // centroid
             if (geom instanceof Point) {
                 tx = ((Point) geom).getX();
                 ty = ((Point) geom).getY();
@@ -939,7 +939,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             rotation *= (Math.PI / 180.0);
         } else if (
             placement instanceof LinePlacement && geom instanceof LineString){
-            // @TODO: if the geometry is a ring or a polygon try to find out 
+            // @TODO: if the geometry is a ring or a polygon try to find out
             // some "axis" to follow in the label placement
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("setting line placement");
@@ -1213,7 +1213,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         graphic.setTransform(labelAT);
 
         applyFill(graphic, fill, feature);
-        
+
 
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1367,18 +1367,19 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     LOGGER.finer("a java supported format");
                 }
 
-                BufferedImage img = imageLoader.get(
-                        eg.getLocation(), isInteractive());
+                try{
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Image return = " + img);
-                }
+					BufferedImage img = imageLoader.get(
+							eg.getLocation(), isInteractive());
 
-                if (img != null) {
-                    return img;
-                } else {
-                    return null;
-                }
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("Image return = " + img);
+					}
+
+					return img;
+				} catch (MalformedURLException e) {
+					LOGGER.warning("ExternalGraphicURL was badly formed");
+				}
             }
         }
 
@@ -1818,7 +1819,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
         graphic.setComposite(
             DEFAULT_COMPOSITE);
     }
-    
+
     /**
      * Resets the current graphics2D fill
      */

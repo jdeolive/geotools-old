@@ -120,7 +120,7 @@ public class SLDStyleFactory {
             supportedGraphicFormats.add(types[i]);
         }
 
-        // Compute the centre of an untransformed mark... 
+        // Compute the centre of an untransformed mark...
         // TODO: understand what's the use of this :-)
         Coordinate c = new Coordinate(100, 100);
         GeometryFactory fac = new GeometryFactory();
@@ -375,17 +375,17 @@ public class SLDStyleFactory {
                     LOGGER.finer("a java supported format");
                 }
 
-                BufferedImage img = imageLoader.get(eg.getLocation(), false);
+				try {
+					BufferedImage img = imageLoader.get(eg.getLocation(), false);
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Image return = " + img);
-                }
+					if (LOGGER.isLoggable(Level.FINEST)) {
+						LOGGER.finest("Image return = " + img);
+					}
 
-                if (img != null) {
-                    return img;
-                } else {
-                    return null;
-                }
+					return img;
+				} catch (java.net.MalformedURLException e) {
+					LOGGER.warning("ExternalGraphic has a malformed url: " + e);
+				}
             }
         }
 

@@ -90,9 +90,9 @@ public class RendererUtilities {
     /**
      * Holds a lookup bewteen SLD names and java constants.
      */
-    private static final java.util.HashMap fontStyleLookup = 
+    private static final java.util.HashMap fontStyleLookup =
             new java.util.HashMap();
-    private static final HashSet supportedGraphicFormats = 
+    private static final HashSet supportedGraphicFormats =
             new java.util.HashSet();
     private static final ImageLoader imageLoader = new ImageLoader();
 
@@ -145,7 +145,7 @@ public class RendererUtilities {
     /** Creates a new instance of RendererUtilities */
     public RendererUtilities() {
     }
-    
+
     /**
      * Extracts the named geometry from feature.
      * If geomName is null then the feature's default geometry is used.
@@ -164,7 +164,7 @@ public class RendererUtilities {
             geom = feature.getDefaultGeometry();
         } else {
             geom = (Geometry) feature.getAttribute(geomName);
-            
+
         }
 
         return geom;
@@ -262,7 +262,7 @@ public class RendererUtilities {
 
         Number value = (Number) fill.getOpacity().getValue(feature);
         float opacity = value.floatValue();
-        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
+        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                         opacity));
 
         org.geotools.styling.Graphic gr = fill.getGraphicFill();
@@ -294,7 +294,7 @@ public class RendererUtilities {
 
             rotation = ((Number) gr.getRotation().getValue(feature)).doubleValue();
 
-            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, 
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation,
                          feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -316,7 +316,7 @@ public class RendererUtilities {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("size = " + size + " unitsize " + unitSize + 
+            LOGGER.finer("size = " + size + " unitsize " + unitSize +
                          " drawSize " + drawSize);
         }
         // @hack while this seems right it gives the wrong answer as the fill should be distorted if scaleX != scaleY
@@ -340,9 +340,9 @@ public class RendererUtilities {
         width *= scaleX;
         height *= scaleY;
 
-        Rectangle2D.Double rect = new Rectangle2D.Double(0.0, 0.0, width, 
+        Rectangle2D.Double rect = new Rectangle2D.Double(0.0, 0.0, width,
                                                          height);
-        java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(image, 
+        java.awt.TexturePaint imagePaint = new java.awt.TexturePaint(image,
                                                                      rect);
         graphic.setPaint(imagePaint);
 
@@ -368,7 +368,7 @@ public class RendererUtilities {
      *
      * @param stroke the Stroke to apply.
      */
-    void applyStroke(Graphics2D graphic, org.geotools.styling.Stroke stroke, 
+    void applyStroke(Graphics2D graphic, org.geotools.styling.Stroke stroke,
                      Feature feature) {
         if (stroke == null) {
             return;
@@ -440,7 +440,7 @@ public class RendererUtilities {
         float opacity = value.floatValue();
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("width, dashoffset, opacity " + width + " " + 
+            LOGGER.finer("width, dashoffset, opacity " + width + " " +
                          dashOffset + " " + opacity);
         }
 
@@ -449,15 +449,15 @@ public class RendererUtilities {
         //TODO: It should not be necessary to divide each value by scale.
         /** @HACK This shouldn't just use the X scale */
         if ((dashes != null) && (dashes.length > 0)) {
-            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode, 
-                                       (float) (Math.max(1, 10 / scaleX)), 
+            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode,
+                                       (float) (Math.max(1, 10 / scaleX)),
                                        dashes, dashOffset / (float) scaleX);
         } else {
-            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode, 
+            stroke2d = new BasicStroke(width / (float) scaleX, capCode, joinCode,
                                        (float) (Math.max(1, 10 / scaleX)));
         }
 
-        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 
+        graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
                                                         opacity));
         graphic.setStroke(stroke2d);
         graphic.setColor(Color.decode(
@@ -482,8 +482,8 @@ public class RendererUtilities {
      * @param graphic the Graphics2D to draw on
      * @param path the general path to be drawn
      */
-    void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, 
-                               org.geotools.styling.Graphic gFill, 
+    void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path,
+                               org.geotools.styling.Graphic gFill,
                                Feature feature) {
         if (LOGGER.isLoggable(Level.FINER)) {
             LOGGER.finer("drawing a graphicalStroke");
@@ -517,7 +517,7 @@ public class RendererUtilities {
             Graphics2D g1 = image.createGraphics();
             double rotation = 0.0;
             rotation = ((Number) gFill.getRotation().getValue(feature)).doubleValue();
-            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation, 
+            fillDrawMark(g1, markCentrePoint, mark, (int) (size * .9), rotation,
                          feature);
 
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -587,8 +587,8 @@ public class RendererUtilities {
                 coords[1] = first[1];
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("closing from " + previous[0] + "," + 
-                                  previous[1] + " to " + coords[0] + "," + 
+                    LOGGER.finest("closing from " + previous[0] + "," +
+                                  previous[1] + " to " + coords[0] + "," +
                                   coords[1]);
                 }
 
@@ -597,8 +597,8 @@ public class RendererUtilities {
 
                 // draw from previous to coords
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("drawing from " + previous[0] + "," + 
-                                  previous[1] + " to " + coords[0] + "," + 
+                    LOGGER.finest("drawing from " + previous[0] + "," +
+                                  previous[1] + " to " + coords[0] + "," +
                                   coords[1]);
                 }
 
@@ -615,7 +615,7 @@ public class RendererUtilities {
                 //int dx2 = (int)Math.round(dy/2d);
                 //int dy2 = (int)Math.round(dx/2d);
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = " + 
+                    LOGGER.finest("dx = " + dx + " dy " + dy + " step = " +
                                   Math.sqrt((dx * dx) + (dy * dy)));
                 }
 
@@ -624,7 +624,7 @@ public class RendererUtilities {
                 double y = previous[1] + (dy / 2.0);
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("len =" + len + " imageWidth " + 
+                    LOGGER.finest("len =" + len + " imageWidth " +
                                   imageWidth);
                 }
 
@@ -639,7 +639,7 @@ public class RendererUtilities {
                 }
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("loop end dist " + dist + " len " + len + 
+                    LOGGER.finest("loop end dist " + dist + " len " + len +
                                   " " + (len - dist));
                 }
 
@@ -648,19 +648,19 @@ public class RendererUtilities {
 
                     //clip and render image
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("about to use clipped image " + 
+                        LOGGER.finest("about to use clipped image " +
                                       remainder);
                     }
 
-                    BufferedImage img = new BufferedImage(trueImageHeight, 
-                                                          trueImageWidth, 
+                    BufferedImage img = new BufferedImage(trueImageHeight,
+                                                          trueImageWidth,
                                                           BufferedImage.TYPE_INT_ARGB);
                     Graphics2D ig = img.createGraphics();
-                    ig.setClip(0, 0, 
-                               (int) ((double) trueImageWidth * remainder / (double) size), 
+                    ig.setClip(0, 0,
+                               (int) ((double) trueImageWidth * remainder / (double) size),
                                trueImageHeight);
 
-                    ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight, 
+                    ig.drawImage(image, 0, 0, trueImageWidth, trueImageHeight,
                                  obs);
 
                     renderImage(graphic, x, y, img, size, rotation);
@@ -698,37 +698,39 @@ public class RendererUtilities {
         }
 
         if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
-            if (eg.getFormat().equalsIgnoreCase("image/gif") || 
-                    eg.getFormat().equalsIgnoreCase("image/jpg") || 
+            if (eg.getFormat().equalsIgnoreCase("image/gif") ||
+                    eg.getFormat().equalsIgnoreCase("image/jpg") ||
                     eg.getFormat().equalsIgnoreCase("image/png")) {
                 if (LOGGER.isLoggable(Level.FINER)) {
                     LOGGER.finer("a java supported format");
                 }
 
-                BufferedImage img = imageLoader.get(eg.getLocation(), false); //isInteractive());
+				try {
+					URL imageURL = eg.getLocation();
+					BufferedImage img = imageLoader.get(imageURL, false); //isInteractive());
 
-                if (LOGGER.isLoggable(Level.FINE)) {
-                    LOGGER.fine("Image return = " + img);
-                }
+					if (LOGGER.isLoggable(Level.FINE)) {
+						LOGGER.fine("Image return = " + img);
+					}
 
-                if (img != null) {
-                    return img;
-                } else {
-                    return null;
-                }
+					return img;
+				} catch (java.net.MalformedURLException mfue) {
+									LOGGER.warning("ExternalGraphic url was badly formed: " + mfue);
+									return null;
+				}
             }
         }
 
         return null;
     }
 
-    void renderImage(Graphics2D graphics, 
-                     com.vividsolutions.jts.geom.Point point, BufferedImage img, 
+    void renderImage(Graphics2D graphics,
+                     com.vividsolutions.jts.geom.Point point, BufferedImage img,
                      int size, double rotation) {
         renderImage(graphics, point.getX(), point.getY(), img, size, rotation);
     }
 
-    private void renderImage(Graphics2D graphics, double tx, double ty, 
+    private void renderImage(Graphics2D graphics, double tx, double ty,
                              BufferedImage img, int size, double rotation) {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("drawing Image @" + tx + "," + ty);
@@ -757,7 +759,7 @@ public class RendererUtilities {
         double drawSize = (double) size / unitSize;
 
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("unitsize " + unitSize + " size = " + size + 
+            LOGGER.finer("unitsize " + unitSize + " size = " + size +
                          " -> scale " + drawSize);
         }
         double xToyRatio = Math.abs(scaleX/scaleY);
@@ -799,17 +801,17 @@ public class RendererUtilities {
         return mark;
     }
 
-    void fillDrawMark(Graphics2D graphic, 
-                      com.vividsolutions.jts.geom.Point point, Mark mark, 
+    void fillDrawMark(Graphics2D graphic,
+                      com.vividsolutions.jts.geom.Point point, Mark mark,
                       int size, double rotation, Feature feature) {
-        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation, 
+        fillDrawMark(graphic, point.getX(), point.getY(), mark, size, rotation,
                      feature);
     }
 
-    void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, 
+    void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark,
                       int size, double rotation, Feature feature) {
         if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("fill draw mark " + mark + " " + 
+            LOGGER.fine("fill draw mark " + mark + " " +
                         mark.getWellKnownName());
         }
 
@@ -817,7 +819,7 @@ public class RendererUtilities {
                                                       .getValue(feature)
                                                       .toString());
 
-        renderMark(graphic, tx, ty, mark.getFill(), mark.getStroke(), size, 
+        renderMark(graphic, tx, ty, mark.getFill(), mark.getStroke(), size,
                    rotation, shape, feature);
 
         return;
@@ -834,8 +836,8 @@ public class RendererUtilities {
      * @param shape - the shape of the mark to be drawn
      * @param feature - the feature being used.
      */
-    void renderMark(final Graphics2D graphic, final double tx, final double ty, 
-                    final Fill fill, final org.geotools.styling.Stroke stroke, 
+    void renderMark(final Graphics2D graphic, final double tx, final double ty,
+                    final Fill fill, final org.geotools.styling.Stroke stroke,
                     final int size, final double rotation, final Shape shape, final Feature feature) {
         Point2D mapCentre = new Point2D.Double(tx, ty);
         Point2D graphicCentre = new Point2D.Double();
@@ -897,7 +899,7 @@ public class RendererUtilities {
             fontFamilies.addAll(f);
 
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("there are " + fontFamilies.size() + 
+                LOGGER.finest("there are " + fontFamilies.size() +
                               " fonts available");
             }
         }
@@ -964,7 +966,7 @@ public class RendererUtilities {
                 size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("requesting " + requestedFont + " " + 
+                    LOGGER.finest("requesting " + requestedFont + " " +
                                   styleCode + " " + size);
                 }
 
@@ -993,7 +995,7 @@ public class RendererUtilities {
                 size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("requesting " + requestedFont + " " + 
+                    LOGGER.finest("requesting " + requestedFont + " " +
                                   styleCode + " " + size);
                 }
 
@@ -1009,7 +1011,7 @@ public class RendererUtilities {
             // may be its a file or url
             InputStream is = null;
 
-            if (requestedFont.startsWith("http") || 
+            if (requestedFont.startsWith("http") ||
                     requestedFont.startsWith("file:")) {
                 try {
                     URL url = new URL(requestedFont);
@@ -1017,13 +1019,13 @@ public class RendererUtilities {
                 } catch (MalformedURLException mue) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("Bad url in java2drenderer" + 
+                        LOGGER.info("Bad url in java2drenderer" +
                                     requestedFont + "\n" + mue);
                     }
                 } catch (IOException ioe) {
                     // we'll ignore this for the moment
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("IO error in java2drenderer " + 
+                        LOGGER.info("IO error in java2drenderer " +
                                     requestedFont + "\n" + ioe);
                     }
                 }
@@ -1040,7 +1042,7 @@ public class RendererUtilities {
                 } catch (FileNotFoundException fne) {
                     // this may be ok - but we should mention it
                     if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("Bad file name in java2drenderer" + 
+                        LOGGER.info("Bad file name in java2drenderer" +
                                     requestedFont + "\n" + fne);
                     }
                 }
@@ -1067,7 +1069,7 @@ public class RendererUtilities {
                 javaFont = Font.createFont(Font.TRUETYPE_FONT, is);
             } catch (FontFormatException ffe) {
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info("Font format error in java2drender " + 
+                    LOGGER.info("Font format error in java2drender " +
                                 requestedFont + "\n" + ffe);
                 }
 
@@ -1075,7 +1077,7 @@ public class RendererUtilities {
             } catch (IOException ioe) {
                 // we'll ignore this for the moment
                 if (LOGGER.isLoggable(Level.INFO)) {
-                    LOGGER.info("IO error in java2drenderer " + 
+                    LOGGER.info("IO error in java2drenderer " +
                                 requestedFont + "\n" + ioe);
                 }
 
@@ -1090,8 +1092,8 @@ public class RendererUtilities {
         return null;
     }
 
-    void renderString(Graphics2D graphic, double x, double y, double dx, 
-                      double dy, TextLayout tl, Feature feature, Fill fill, 
+    void renderString(Graphics2D graphic, double x, double y, double dx,
+                      double dy, TextLayout tl, Feature feature, Fill fill,
                       double rotation) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
@@ -1123,8 +1125,8 @@ public class RendererUtilities {
 
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("about to draw at " + x + "," + y + 
-                         " with the start of the string at " + (x + dx) + 
+            LOGGER.finer("about to draw at " + x + "," + y +
+                         " with the start of the string at " + (x + dx) +
                          "," + (y + dy));
         }
 
