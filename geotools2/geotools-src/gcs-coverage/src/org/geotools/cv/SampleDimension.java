@@ -82,9 +82,10 @@ import org.geotools.ct.TransformException;
 
 // Resources
 import org.geotools.units.Unit;
+import org.geotools.util.NumberRange;
+import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.NumberRange;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.ClassChanger;
@@ -111,7 +112,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.25 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.26 2003/05/02 22:17:46 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -433,7 +434,7 @@ public class SampleDimension implements Serializable {
             for (int i=categoryList.size(); --i>=0;) {
                 Category category = (Category) categoryList.get(i);
                 if (!category.isQuantitative()) {
-                    final Range    range = category.getRange();
+                    final NumberRange range = category.getRange();
                     final Comparable min = range.getMinValue();
                     final Comparable max = range.getMaxValue();
                     if (min.compareTo(max) != 0) {
@@ -464,9 +465,9 @@ public class SampleDimension implements Serializable {
             boolean minIncluded = true;
             boolean maxIncluded = true;
             for (int i=categoryList.size(); --i>=0;) {
-                final Range range = ((Category) categoryList.get(i)).getRange();
-                final double  min = ((Number) range.getMinValue()).doubleValue();
-                final double  max = ((Number) range.getMaxValue()).doubleValue();
+                final NumberRange range = ((Category) categoryList.get(i)).getRange();
+                final double  min = range.getMinimum();
+                final double  max = range.getMaximum();
                 if (max-minimum < maximum-min) {
                     if (max >= minimum) {
                         // We are loosing some sample values in
@@ -609,7 +610,7 @@ public class SampleDimension implements Serializable {
      * @return a code value indicating grid value data type.
      */
     public SampleDimensionType getSampleDimensionType() {
-        final Range range = getRange();
+        final NumberRange range = getRange();
         if (range == null) {
             return SampleDimensionType.FLOAT;
         }
@@ -791,7 +792,7 @@ public class SampleDimension implements Serializable {
                         int lower = (int) min;
                         int upper = (int) max;
                         if (lower!=min || upper!=max ||
-                            !Category.isInteger(category.getRange().getElementClass()))
+                            !XMath.isInteger(category.getRange().getElementClass()))
                         {
                             throw new IllegalStateException(Resources.format(
                                     ResourceKeys.ERROR_NON_INTEGER_CATEGORY));
@@ -855,7 +856,7 @@ public class SampleDimension implements Serializable {
     
     /**
      * Returns the range of values in this sample dimension. This is the union of the range of
-     * values of every categories, excluding <code>NaN</code> values. A {@link Range} object
+     * values of every categories, excluding <code>NaN</code> values. A {@link NumberRange} object
      * gives more informations than {@link #getMinimumValue} and {@link #getMaximumValue} methods
      * since it contains also the data type (integer, float, etc.) and inclusion/exclusion
      * informations.
@@ -871,7 +872,7 @@ public class SampleDimension implements Serializable {
      *       the appropriate data type. SampleDimensionType.getEnum(Range) may be of
      *       some help.
      */
-    public Range getRange() {
+    public NumberRange getRange() {
         return (categories!=null) ? categories.getRange() : null;
     }
 

@@ -61,6 +61,8 @@ import javax.media.jai.ImageFunction;
 import javax.media.jai.Interpolation;
 import javax.media.jai.InterpolationNearest;
 import javax.media.jai.util.CaselessStringKey;
+import javax.media.jai.operator.LookupDescriptor;
+import javax.media.jai.operator.RescaleDescriptor;
 import javax.media.jai.operator.PiecewiseDescriptor;
 import javax.media.jai.remote.SerializableRenderedImage;
 
@@ -150,7 +152,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -983,7 +985,11 @@ public class GridCoverage extends Coverage {
      * This method may be understood as applying the JAI's {@linkplain PiecewiseDescriptor
      * piecewise} operation with breakpoints specified by the {@link Category} objects in
      * each sample dimension. However, it is more general in that the transformation specified
-     * with each breakpoint doesn't need to be linear.
+     * with each breakpoint doesn't need to be linear. On an implementation note, this method
+     * will really try to use the first of the following operations which is found applicable:
+     * <cite>identity</cite>, {@linkplain LookupDescriptor lookup}, {@linkplain RescaleDescriptor
+     * rescale}, {@linkplain PiecewiseDescriptor piecewise} and in last ressort a more general
+     * (but slower) <cite>sample transcoding</cite> algorithm.
      * <br><br>
      * <code>GridCoverage</code> objects live by pair: a <cite>geophysics</cite> one (used for
      * computation) and a <cite>non-geophysics</cite> one (used for packing data, usually as
@@ -998,6 +1004,8 @@ public class GridCoverage extends Coverage {
      *
      * @see SampleDimension#geophysics
      * @see Category#geophysics
+     * @see LookupDescriptor
+     * @see RescaleDescriptor
      * @see PiecewiseDescriptor
      *
      * @task HACK: IndexColorModel seems to badly choose its sample model. As of JDK 1.4-rc1, it
@@ -1068,44 +1076,69 @@ public class GridCoverage extends Coverage {
          */
         
         /*
-         * STEP 4 - Check if the transcoding could be done with one of "Rescale" or "Piecewise"
-         *          JAI operations.  Together with the previous step, this code try to performs
-         *          sample transcoding using the first of the following operations which can be
-         *          applied:  (identity), "Lookup", "Rescale", "Piecewise"  and in last ressort
-         *          our generic (and slower) "SampleTranscode".
+         * STEP 4 - Check if the transcoding could be done with the JAI's "Rescale" operation.
+         *          This operation require a completly linear relationship between the source
+         *          and the destination sample values.
+         *
+         * TODO:    This optimisation is temporarily disabled because of bug #4726416.
          */
-        if (operation==null) try {
-            boolean canRescale    = true; // 'true' if can be done with a "Rescale" operation.
-            boolean canPiecewise  = true; // 'true' if can be done with a "Piecewise" operation.
+        if (operation==null && false) try {
+            boolean isValid = true;
             final double[] scale  = new double[numBands];
             final double[] offset = new double[numBands];
             for (int i=0; i<numBands; i++) {
                 final SampleDimension  sd = sampleDimensions[i].geophysics(false);
-                MathTransform1D transform = sd.getSampleToGeophysics();
-                if (!geo) {
-                    // We are going to convert geophysics values to packed one.
-                    transform = (MathTransform1D) transform.inverse();
-                }
-                final List categories = sd.getCategories();
-                if (categories.size() == 1) {
+                if (sd.getCategories().size() == 1) {
+                    MathTransform1D transform = sd.getSampleToGeophysics();
+                    if (!geo) {
+                        // We are going to convert geophysics values to packed one.
+                        transform = (MathTransform1D) transform.inverse();
+                    }
                     offset[i] = transform.transform(0);
                     scale [i] = transform.derivative(Double.NaN);
-                    if (Double.isNaN(scale[i]) || Double.isNaN(offset[i])) {
-                        canRescale = false;
+                    if (!Double.isNaN(scale[i]) && !Double.isNaN(offset[i])) {
+                        continue;
                     }
-                } else {
-                    canRescale = false;
+                }
+                isValid = false;
+                break;
+            }
+            if (isValid) {
+                operation = "Rescale";
+                param = param.add(scale).add(offset);
+            }
+        } catch (TransformException exception) {
+            // At least one band doesn't use a linear relation.
+            // Ignore the exception and fallback on the next case.
+        }
+        /*
+         * STEP 5 - Check if the transcoding could be done with the "Piecewise" operation.
+         *          Piecewise breakpoints are very similar to categories, except that all
+         *          transformations must be linear.
+         */
+        if (operation==null && false) try {
+            boolean isValid = true;
+            final float[][][] breakpoints = new float[numBands][][];
+            for (int i=0; i<numBands; i++) {
+                final SampleDimension sd = sampleDimensions[i].geophysics(false);
+                final List categories = sd.getCategories();
+                final float[] sourceBreakpoints = new float[categories.size()];
+                final float[] targetBreakpoints = new float[sourceBreakpoints.length];
+                breakpoints[i] = new float[][] {sourceBreakpoints, targetBreakpoints};
+                for (int j=0; j<sourceBreakpoints.length; j++) {
+                    final Category category = (Category) categories.get(j);
+                    MathTransform1D transform = category.getSampleToGeophysics();
+                    if (transform == null) {
+                        // TODO
+                    } else if (!geo) {
+                        // We are going to convert geophysics values to packed one.
+                        transform = (MathTransform1D) transform.inverse();
+                    }
+                    // TODO: continue hacking here...
                 }
             }
-            if (canRescale && false) { // TODO: Here is the optimisation that we would like to enable.
-                param = param.add(scale).add(offset);
-                operation = "Rescale";
-            } else if (canPiecewise) {
-                // TODO
-            }
-        }
-        catch (TransformException exception) {
-            // At least one band don't use a linear relation.
+        } catch (TransformException exception) {
+            // At least one category doesn't use a linear relation.
             // Ignore the exception and fallback on the general case.
         }
         /*
@@ -1189,7 +1222,7 @@ public class GridCoverage extends Coverage {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1218,7 +1251,7 @@ public class GridCoverage extends Coverage {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.16 2003/05/01 22:57:22 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.17 2003/05/02 22:17:46 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

@@ -37,17 +37,20 @@ package org.geotools.gp;
 
 // J2SE and JAI dependencies
 import javax.media.jai.Warp;
+import java.awt.geom.Point2D;
 
 // Geotools dependencies
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.gcs.Resources;
+import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
  * An image warp using {@link MathTransform2D}.
  *
- * @version $Id: WarpTransform.java,v 1.3 2003/02/14 15:46:48 desruisseaux Exp $
+ * @version $Id: WarpTransform.java,v 1.4 2003/05/02 22:17:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WarpTransform extends Warp {
@@ -99,5 +102,39 @@ final class WarpTransform extends Warp {
             Utilities.unexpectedException("org.geotools.gcs", "WarpTransform", "warpSparseRect", exception);
         }
         return destRect;
+    }
+
+    /**
+     * Computes the source point corresponding to the supplied point.
+     *
+     * @param destPt The position in destination image coordinates
+     *               to map to source image coordinates.
+     */
+    public Point2D mapDestPoint(final Point2D destPt) {
+        try {
+            return inverse.transform(destPt, null);
+        } catch (TransformException exception) {
+            IllegalArgumentException e = new IllegalArgumentException(Resources.format(
+                                ResourceKeys.ERROR_BAD_PARAMETER_$2, "destPt", destPt));
+            e.initCause(exception);
+            throw e;
+        }
+    }
+
+    /**
+     * Computes the destination point corresponding to the supplied point.
+     *
+     * @param sourcePt The position in source image coordinates
+     *                 to map to destination image coordinates.
+     */
+    public Point2D mapSourcePoint(final Point2D sourcePt) {
+        try {
+            return ((MathTransform2D)inverse.inverse()).transform(sourcePt, null);
+        } catch (TransformException exception) {
+            IllegalArgumentException e = new IllegalArgumentException(Resources.format(
+                                ResourceKeys.ERROR_BAD_PARAMETER_$2, "sourcePt", sourcePt));
+            e.initCause(exception);
+            throw e;
+        }
     }
 }

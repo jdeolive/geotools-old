@@ -51,6 +51,7 @@ import org.geotools.ct.*;
 import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.units.Unit;
+import org.geotools.util.NumberRange;
 
 // JUnit dependencies
 import junit.framework.Test;
@@ -68,7 +69,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.6 2003/04/12 00:04:38 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.7 2003/05/02 22:17:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -226,13 +227,6 @@ public class GridCoverageTest extends TestCase {
     ////////                                                                           ////////
     ///////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Returns a range from <code>lower</code> to <code>lower</code> inclusive.
-     */
-    private static Range range(final int lower, final int upper) {
-        return new Range(Integer.class, new Integer(lower), new Integer(upper));
-    }
-
-    /**
      * Returns a set of color for the specified code.
      */
     private static Color[] decode(final String color) {
@@ -270,13 +264,13 @@ public class GridCoverageTest extends TestCase {
                 path = "test-data/QL95209.png";
                 cs   = GeographicCoordinateSystem.WGS84;
                 categories = new Category[] {
-                    new Category("Coast line", decode("#000000"), range(  0,   0), (MathTransform1D)null),
-                    new Category("Cloud",      decode("#C3C3C3"), range(  1,   9), (MathTransform1D)null),
-                    new Category("Unused",     decode("#822382"), range( 10,  29), (MathTransform1D)null),
-                    new Category("Sea Surface Temperature", null, range( 30, 219), 0.1, 10.0),
-                    new Category("Unused",     decode("#A0505C"), range(220, 239), (MathTransform1D)null),
-                    new Category("Land",       decode("#D2C8A0"), range(240, 254), (MathTransform1D)null),
-                    new Category("No data",    decode("#FFFFFF"), range(255, 255), (MathTransform1D)null),
+                    new Category("Coast line", decode("#000000"), new NumberRange(  0,   0), (MathTransform1D)null),
+                    new Category("Cloud",      decode("#C3C3C3"), new NumberRange(  1,   9), (MathTransform1D)null),
+                    new Category("Unused",     decode("#822382"), new NumberRange( 10,  29), (MathTransform1D)null),
+                    new Category("Sea Surface Temperature", null, new NumberRange( 30, 219), 0.1, 10.0),
+                    new Category("Unused",     decode("#A0505C"), new NumberRange(220, 239), (MathTransform1D)null),
+                    new Category("Land",       decode("#D2C8A0"), new NumberRange(240, 254), (MathTransform1D)null),
+                    new Category("No data",    decode("#FFFFFF"), new NumberRange(255, 255), (MathTransform1D)null),
                 };
                 // 41°S - 5°N ; 35°E - 80°E  (450 x 460 pixels)
                 bounds = new Rectangle2D.Double(35, -41, 45, 46);
@@ -287,9 +281,9 @@ public class GridCoverageTest extends TestCase {
                 path = "test-data/CHL01195.png";
                 cs   = GeographicCoordinateSystem.WGS84;
                 categories = new Category[] {
-                    new Category("Land",       decode("#000000"), range(255, 255), (MathTransform1D)null),
-                    new Category("No data",    decode("#FFFFFF"), range(  0,   0), (MathTransform1D)null),
-                    new Category("Log chl-a",  null, range(1, 254), 0.015, -1.985)
+                    new Category("Land",       decode("#000000"), new NumberRange(255, 255), (MathTransform1D)null),
+                    new Category("No data",    decode("#FFFFFF"), new NumberRange(  0,   0), (MathTransform1D)null),
+                    new Category("Log chl-a",  null,              new NumberRange(  1, 254), 0.015, -1.985)
                 };
                 // 34°N - 45°N ; 07°W - 12°E  (1200 x 700 pixels)
                 bounds = new Rectangle2D.Double(-7, 34, 19, 11);

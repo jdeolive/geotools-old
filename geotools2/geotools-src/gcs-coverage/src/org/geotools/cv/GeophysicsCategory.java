@@ -39,17 +39,14 @@ package org.geotools.cv;
 import java.awt.Color;
 import java.util.Locale;
 
-// JAI dependencies
-import javax.media.jai.util.Range;
-
 // Geotools dependencies
 import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.TransformException;
 import org.geotools.ct.MathTransformFactory;
 
 // Resources
+import org.geotools.util.NumberRange;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -59,7 +56,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.5 2003/04/14 18:34:13 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.6 2003/05/02 22:17:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -110,7 +107,7 @@ final class GeophysicsCategory extends Category {
      * @throws IllegalStateException if sample values
      *         can't be transformed into geophysics values.
      */
-    public Range getRange() throws IllegalStateException {
+    public NumberRange getRange() throws IllegalStateException {
         if (range == null) try {
             double min, max;
             min = inverse.transform.transform(inverse.range.getMinimum());
@@ -124,8 +121,7 @@ final class GeophysicsCategory extends Category {
                 min = max;   minIncluded = maxIncluded;
                 max = tmp;   maxIncluded = tmpIncluded;
             }
-            range = new NumberRange(Double.class, new Double(min), minIncluded,
-                                                  new Double(max), maxIncluded);
+            range = new NumberRange(min, minIncluded, max, maxIncluded);
 
         } catch (TransformException cause) {
             IllegalStateException exception = new IllegalStateException(Resources.format(

@@ -52,7 +52,7 @@ import junit.framework.TestSuite;
  * Test the {@link SampleTranscoder} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: SampleTranscoderTest.java,v 1.1 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: SampleTranscoderTest.java,v 1.2 2003/05/02 22:17:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleTranscoderTest extends TestCase {
@@ -114,9 +114,9 @@ public class SampleTranscoderTest extends TestCase {
      * The the transformation using a random raster with only one band.
      */
     public void testOneBand() throws TransformException {
-        testOneBand(1,  0);
-        testOneBand(.8, 2);
-        testOneBand(band1);
+        assertTrue(testOneBand(1,  0) instanceof RenderedImageAdapter);
+        assertTrue(testOneBand(.8, 2) instanceof RenderedOp);
+        assertTrue(testOneBand(band1) instanceof RenderedOp);
     }
 
     /**
@@ -159,6 +159,7 @@ public class SampleTranscoderTest extends TestCase {
          * integers into real-world values. Check if the result use floating-points.
          */
         final RenderedImage target = coverage.geophysics(true).getRenderedImage();
+        assertSame(target, PlanarImage.wrapRenderedImage(target));
         assertEquals(DataBuffer.TYPE_BYTE, source.getSampleModel().getDataType());
         if (coverage.getRenderedImage() != target) {
             assertEquals(DataBuffer.TYPE_FLOAT, target.getSampleModel().getDataType());

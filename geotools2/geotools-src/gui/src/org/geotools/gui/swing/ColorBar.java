@@ -61,7 +61,6 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.media.jai.util.Range;
 
 // Axis
 import org.geotools.axis.Graduation;
@@ -77,6 +76,7 @@ import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridCoverage;
 import org.geotools.units.Unit;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.GCSUtilities;
 
@@ -96,7 +96,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><img src="doc-files/ColorBar.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ColorBar.java,v 1.5 2003/04/16 19:31:06 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.6 2003/05/02 22:18:18 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -341,9 +341,8 @@ public class ColorBar extends JComponent {
         for (int i=categories.size(); --i>=0;) {
             final Category candidate = ((Category) categories.get(i)).geophysics(false);
             if (candidate!=null && candidate.isQuantitative()) {
-                final Range range = candidate.getRange();
-                final double rangeValue = ((Number)range.getMaxValue()).doubleValue() -
-                                          ((Number)range.getMinValue()).doubleValue();
+                final NumberRange range = candidate.getRange();
+                final double rangeValue = range.getMaximum() - range.getMinimum();
                 if (rangeValue >= maxRange) {
                     maxRange = rangeValue;
                     category = candidate;
@@ -357,9 +356,9 @@ public class ColorBar extends JComponent {
          * Now that we know what seems to be the "main" category,
          * construct a graduation for it.
          */
-        final Range range = category.getRange();
-        final int   lower = ((Number)range.getMinValue()).intValue();
-        final int   upper = ((Number)range.getMaxValue()).intValue();
+        final NumberRange range = category.getRange();
+        final int lower = ((Number)range.getMinValue()).intValue();
+        final int upper = ((Number)range.getMaxValue()).intValue();
         double min,max;
         try {
             final MathTransform1D tr = category.getSampleToGeophysics();
@@ -691,9 +690,9 @@ public class ColorBar extends JComponent {
              */
             tr = (MathTransform1D) tr.inverse();
             final double     EPS = 1E-6; // For rounding error.
-            final Range  range   = category.geophysics(true).getRange();
-            final double minimum = ((Number)range.getMinValue()).doubleValue();
-            final double maximum = ((Number)range.getMaxValue()).doubleValue();
+            final NumberRange range = category.geophysics(true).getRange();
+            final double minimum = range.getMinimum();
+            final double maximum = range.getMaximum();
             final double ratio   = tr.derivative(minimum) / tr.derivative(maximum);
             if (Math.abs(ratio-1) <= EPS) {
                 linear = true;
@@ -774,7 +773,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.5 2003/04/16 19:31:06 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.6 2003/05/02 22:18:18 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {

@@ -58,9 +58,9 @@ import org.geotools.ct.MathTransformFactory;
 
 // Resources
 import org.geotools.util.WeakHashSet;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.14 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.15 2003/05/02 22:17:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -170,8 +170,6 @@ public class Category implements Serializable {
      * If this category is an instance of <code>GeophysicsCategory</code>,
      * then this field is the maximal geophysics value in this category.
      * For qualitative categories, the geophysics value is one of <code>NaN</code> values.
-     *
-     * @see #getMaximumExclusive
      */
     final double maximum;
 
@@ -304,6 +302,21 @@ public class Category implements Serializable {
              new NumberRange(Integer.class, new Integer(lower), true,
                                             new Integer(upper), false), scale, offset);
     }
+
+    /**
+     * Construct a quantitative category for sample values in the specified range.
+     *
+     * @deprecated Replaced by constructor with the same signature except for {@link Range}
+     *             arguments, which are replaced by {@link NumberRange}.
+     */
+    public Category(final String  name,
+                    final Color[] colors,
+                    final Range   sampleValueRange,
+                    final double  scale,
+                    final double  offset) throws IllegalArgumentException
+    {
+        this(name, colors, NumberRange.wrap(sampleValueRange), scale, offset);
+    }
     
     /**
      * Construct a quantitative category for sample values in the specified range.
@@ -333,11 +346,11 @@ public class Category implements Serializable {
      * @throws IllegalArgumentException if <code>scale</code> or <code>offset</code> are
      *         not real numbers.
      */
-    public Category(final String  name,
-                    final Color[] colors,
-                    final Range   sampleValueRange,
-                    final double  scale,
-                    final double  offset) throws IllegalArgumentException
+    public Category(final String      name,
+                    final Color[]     colors,
+                    final NumberRange sampleValueRange,
+                    final double      scale,
+                    final double      offset) throws IllegalArgumentException
     {
         this(name, colors, sampleValueRange, createLinearTransform(scale, offset));
         try {
@@ -354,6 +367,22 @@ public class Category implements Serializable {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_BAD_COEFFICIENT_$2, "offset", new Double(offset)));
         }
+    }
+
+    /**
+     * Construct a quantitative category mapping samples to geophysics values in the specified
+     * range.
+     *
+     * @deprecated Replaced by constructor with the same signature except for {@link Range}
+     *             arguments, which are replaced by {@link NumberRange}.
+     */
+    public Category(final String  name,
+                    final Color[] colors,
+                    final Range   sampleValueRange,
+                    final Range   geophysicsValueRange) throws IllegalArgumentException
+    {
+        this(name, colors, NumberRange.wrap(sampleValueRange),
+                           NumberRange.wrap(geophysicsValueRange));
     }
     
     /**
@@ -383,17 +412,31 @@ public class Category implements Serializable {
      * @throws ClassCastException if the range element class is not a {@link Number} subclass.
      * @throws IllegalArgumentException if the range is invalid.
      */
-    public Category(final String  name,
-                    final Color[] colors,
-                    final Range   sampleValueRange,
-                    final Range   geophysicsValueRange) throws IllegalArgumentException
+    public Category(final String      name,
+                    final Color[]     colors,
+                    final NumberRange sampleValueRange,
+                    final NumberRange geophysicsValueRange) throws IllegalArgumentException
     {
         this(name, colors, sampleValueRange,
              createLinearTransform(sampleValueRange, geophysicsValueRange));
-        inverse.range = NumberRange.cast(geophysicsValueRange);
-        assert range.equals(NumberRange.cast(sampleValueRange));
+        inverse.range = NumberRange.wrap(geophysicsValueRange);
+        assert range.equals(NumberRange.wrap(sampleValueRange));
     }
     
+    /**
+     * Construct a qualitative or quantitative category for samples in the specified range.
+     *
+     * @deprecated Replaced by constructor with the same signature except for {@link Range}
+     *             arguments, which are replaced by {@link NumberRange}.
+     */
+    public Category(final String          name,
+                    final Color[]         colors,
+                    final Range           sampleValueRange,
+                    final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
+    {
+        this(name, colors, NumberRange.wrap(sampleValueRange), sampleToGeophysics);
+    }
+
     /**
      * Construct a qualitative or quantitative category for samples in the specified range.
      * Sample values (usually integers) will be converted into geophysics values (usually
@@ -416,7 +459,7 @@ public class Category implements Serializable {
      */
     public Category(final String          name,
                     final Color[]         colors,
-                    final Range           sampleValueRange,
+                    final NumberRange     sampleValueRange,
                     final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
     {
         this(name, toARGB(colors), sampleValueRange, sampleToGeophysics);
@@ -428,14 +471,14 @@ public class Category implements Serializable {
      * {@link #recolor} in order to construct a new category similar to this one except for
      * ARGB codes.
      */
-    private Category(final String    name,
-                     final int[]     ARGB,
-                     final Range     range,
+    private Category(final String      name,
+                     final int[]       ARGB,
+                     final NumberRange range,
                      MathTransform1D sampleToGeophysics) throws IllegalArgumentException
     {
         this.name      = name.trim();
         this.ARGB      = ARGB;
-        this.range     = NumberRange.cast(range);
+        this.range     = range;
         Class type     = range.getElementClass();
         boolean minInc = range.isMinIncluded();
         boolean maxInc = range.isMaxIncluded();
@@ -546,8 +589,8 @@ public class Category implements Serializable {
      * Create a linear transform mapping values from <code>sampleValueRange</code>
      * to <code>geophysicsValueRange</code>.
      */
-    private static MathTransform1D createLinearTransform(final Range sampleValueRange,
-                                                         final Range geophysicsValueRange)
+    private static MathTransform1D createLinearTransform(final NumberRange sampleValueRange,
+                                                         final NumberRange geophysicsValueRange)
     {
         final Class sType =     sampleValueRange.getElementClass();
         final Class gType = geophysicsValueRange.getElementClass();
@@ -569,7 +612,7 @@ public class Category implements Serializable {
          * uses integer values while the other uses floating point values, then the integer
          * range will be adjusted. Otherwise, the range of geophysics values will be adjusted.
          */
-        final boolean adjustSamples = (isInteger(sType) && !isInteger(gType));
+        final boolean adjustSamples = (XMath.isInteger(sType) && !XMath.isInteger(gType));
         if ((adjustSamples ? gMinInc : sMinInc) != 0) {
             int swap = sMinInc;
             sMinInc = -gMinInc;
@@ -608,36 +651,8 @@ public class Category implements Serializable {
                                       final Comparable number,
                                       final int     direction)
     {
-        assert (direction >= -1) && (direction <= +1);
-        double value = ((Number) number).doubleValue();
-        if (direction != 0) {
-            if (Float.class.isAssignableFrom(type)) {
-                final float f = (float) value;
-                value = (direction<0) ? XMath.previous(f) : XMath.next(f);
-            } else if (Double.class.isAssignableFrom(type)) {
-                value = (direction<0) ? XMath.previous(value) : XMath.next(value);
-            } else if (isInteger(type)) {
-                value += direction;
-            } else {
-                throw new IllegalArgumentException(Resources.format(
-                          ResourceKeys.ERROR_UNSUPPORTED_DATA_TYPE));
-            }
-        }
-        return value;
-    }
-
-    /**
-     * Check if <code>type</code> is one of integer types.
-     *
-     * @param  type The type to test.
-     * @return <code>true</code> if <code>type</code> is a class {@link Long},
-     *         {@link Integer}, {@link Short} or {@link Byte}.
-     */
-    static boolean isInteger(final Class type) {
-        return Long.class.isAssignableFrom(type) ||
-            Integer.class.isAssignableFrom(type) ||
-              Short.class.isAssignableFrom(type) ||
-               Byte.class.isAssignableFrom(type);
+        assert (direction >= -1) && (direction <= +1) : direction;
+        return XMath.rool(type, ((Number)number).doubleValue(), direction);
     }
     
     /**
@@ -736,20 +751,9 @@ public class Category implements Serializable {
      * @see SampleDimension#getMinimumValue()
      * @see SampleDimension#getMaximumValue()
      */
-    public Range getRange() {
+    public NumberRange getRange() {
         assert range != null;
         return range;
-    }
-
-    /**
-     * Returns the maximum value, exclusive. This is different from
-     * the {@link #maximum} field, which contains an inclusive value.
-     */
-    final double getMaximumExclusive() {
-        final Range range = getRange();
-        return doubleValue(range.getElementClass(),
-                           range.getMaxValue(),
-                           range.isMaxIncluded() ? +1 : 0);
     }
 
     /**
@@ -951,7 +955,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.14 2003/05/01 22:57:22 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.15 2003/05/02 22:17:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

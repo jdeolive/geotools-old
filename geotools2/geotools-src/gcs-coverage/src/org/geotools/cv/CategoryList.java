@@ -69,8 +69,8 @@ import org.geotools.pt.MismatchedDimensionException;
 
 // Resources
 import org.geotools.units.Unit;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.13 2003/05/01 22:57:22 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.14 2003/05/02 22:17:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -226,11 +226,12 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             final double minimum = minimums[i] = categories[i].minimum;
             if (i!=0) {
                 assert !(minimum < minimums[i-1]) : minimum; // Use '!' to accept NaN.
-                if (compare(minimum, categories[i-1].maximum) <= 0) {
+                final Category previous = categories[i-1];
+                if (compare(minimum, previous.maximum) <= 0) {
                     // Two categories have overlapping range;
                     // Format an error message...............
-                    final Range range1 = categories[i-1].getRange();
-                    final Range range2 = categories[i-0].getRange();
+                    final NumberRange range1 = categories[i-1].getRange();
+                    final NumberRange range2 = categories[i-0].getRange();
                     final Comparable[] args = new Comparable[] {
                         range1.getMinValue(), range1.getMaxValue(),
                         range2.getMinValue(), range2.getMaxValue()
@@ -248,7 +249,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                                 ResourceKeys.ERROR_RANGE_OVERLAP_$4, args));
                 }
                 // Check if there is a gap between this category and the previous one.
-                if (!Double.isNaN(minimum) && minimum!=categories[i-1].getMaximumExclusive()) {
+                if (!Double.isNaN(minimum) && minimum!=previous.getRange().getMaximum(false)) {
                     hasGaps = true;
                 }
             }
@@ -501,7 +502,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     
     /**
      * Returns the range of values in this category list. This is the union of the range
-     * of values of every categories, excluding <code>NaN</code> values. A {@link Range}
+     * of values of every categories, excluding <code>NaN</code> values. A {@link NumberRange}
      * object give more informations than {@link org.opengis.CV_SampleDimension#getMinimum}
      * and {@link org.opengis.CV_SampleDimension#getMaximum} since it contains also the
      * type (integer, float, etc.) and inclusion/exclusion informations.
@@ -511,22 +512,22 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      *
      * @see Category#getRange
      */
-    public final Range getRange() {
+    public final NumberRange getRange() {
         if (range == null) {
-            Range range = null;
+            NumberRange range = null;
             for (int i=0; i<categories.length; i++) {
-                Range extent = categories[i].getRange();
+                NumberRange extent = categories[i].getRange();
                 if (!Double.isNaN(((Number)extent.getMinValue()).doubleValue()) &&
                     !Double.isNaN(((Number)extent.getMaxValue()).doubleValue()))
                 {
                     if (range != null) {
-                        range = range.union(extent);
+                        range = NumberRange.wrap(range.union(extent));
                     } else {
                         range = extent;
                     }
                 }
             }
-            this.range = NumberRange.cast(range);
+            this.range = range;
         }
         return range;
     }
@@ -539,12 +540,12 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * @return The <code>buffer</code> for convenience.
      */
     private StringBuffer formatRange(StringBuffer buffer, final Locale locale) {
-        final Range range = getRange();
+        final NumberRange range = getRange();
         buffer.append('[');
         if (range != null) {
-            buffer=format(((Number)range.getMinValue()).doubleValue(), false, locale, buffer);
+            buffer=format(range.getMinimum(), false, locale, buffer);
             buffer.append("..");
-            buffer=format(((Number)range.getMaxValue()).doubleValue(), true,  locale, buffer);
+            buffer=format(range.getMaximum(), true,  locale, buffer);
         } else {
             final Unit unit = getUnits();
             if (unit != null) {
@@ -590,7 +591,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      */
     public final ColorModel getColorModel(final int visibleBand, final int numBands) {
         int type = DataBuffer.TYPE_FLOAT;
-        final Range range = getRange();
+        final NumberRange range = getRange();
         final Class rt = range.getElementClass();
         if (Byte.class.equals(rt) || Short.class.equals(rt) || Integer.class.equals(rt)) {
             final int min = ((Number)range.getMinValue()).intValue();

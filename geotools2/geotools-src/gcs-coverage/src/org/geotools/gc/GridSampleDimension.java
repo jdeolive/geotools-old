@@ -58,7 +58,7 @@ import org.geotools.cv.SampleDimensionType;
 import org.geotools.cv.ColorInterpretation;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.units.Unit;
-import org.geotools.resources.NumberRange;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.ClassChanger;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
@@ -67,7 +67,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.7 2003/04/14 18:34:15 desruisseaux Exp $
+ * @version $Id: GridSampleDimension.java,v 1.8 2003/05/02 22:17:46 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
@@ -398,7 +398,7 @@ final class GridSampleDimension extends SampleDimension {
          * later if the image uses a writable raster.
          */
         for (int b=0; b<numBands; b++) {
-            NumberRange geophysicsValueRange = new NumberRange(min[b], max[b]).cast(classe);
+            NumberRange geophysicsValueRange = new NumberRange(min[b], max[b]).castTo(classe);
             final Color[] c = colors!=null ? colors[b] : null;
             if (needScaling) {
                 categories[0] = new Category(name, c, sampleValueRange, geophysicsValueRange);
