@@ -34,18 +34,21 @@
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
+      <role>Maintainer</role>
     </developer>
     <developer>
       <name>Ian Turton</name>
       <id>ianturton</id>
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
+      <role>Contributor</role>
     </developer>
         <developer>
       <name>Linda Oxnard</name>
       <id>loxnard</id>
       <email>loxnard@users.sourceforge.net</email>
       <organization>None</organization>
+      <role>Doc Editor</role>
     </developer>
     </developers>
   <dependencies>
