@@ -76,7 +76,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * or RMI use, but will probably not be compatible with future version. For long term storage,
  * WKT (Well Know Text) or XML (not yet implemented) are more appropriate.
  *
- * @version $Id: MapProjection.java,v 1.10 2003/06/30 21:59:52 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.11 2003/07/23 10:20:44 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  *
@@ -568,7 +568,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
      * {@link MapProjection#inverseTransform(double,double,Point2D)} instead of
      * {@link MapProjection#transform(double,double,Point2D)}.
      *
-     * @version $Id: MapProjection.java,v 1.10 2003/06/30 21:59:52 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.11 2003/07/23 10:20:44 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -859,7 +859,7 @@ public abstract class MapProjection extends AbstractMathTransform implements Mat
     
     /**
      * Compute function <code>f(s,c,es) = c/sqrt(1 - s²*es)</code>
-     * needed for the true scale latitude (Snyder, p. 47), where
+     * needed for the true scale latitude (Snyder 14-15), where
      * <var>s</var> and <var>c</var> are the sine and cosine of
      * the true scale latitude, and {@link #es} the eccentricity
      * squared.
