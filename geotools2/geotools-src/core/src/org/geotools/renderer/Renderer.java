@@ -26,11 +26,13 @@ package org.geotools.renderer;
 import org.geotools.styling.Style;
 import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.15 2002/07/19 16:33:12 jmacgill Exp $
+ * @version $Id: Renderer.java,v 1.16 2003/02/14 13:14:00 ianturton Exp $
  * @author James Macgill
  */
 
@@ -70,6 +72,10 @@ public interface Renderer {
      * @param interactive New value of property interactive.
      */
     void setInteractive(boolean interactive);
+    
+    /** sets the output graphics for the renderer and the size of the graphic.
+     */
+    void setOutput(Graphics g, java.awt.Rectangle r);
     
 }
 
