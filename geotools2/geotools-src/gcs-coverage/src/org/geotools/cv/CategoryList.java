@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.17 2003/05/15 08:48:32 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.18 2003/06/25 13:23:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -259,7 +259,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
          * Search for the "nodata" category. This loop looks
          * for a qualitative category with the NaN value.
          */
-        Category nodata = (categories.length!=0) ? categories[0] : Category.NODATA;
+        Category nodata = Category.NODATA;
         final long nodataBits = Double.doubleToRawLongBits(Double.NaN);
         for (int i=categories.length; --i>=0;) {
             final Category candidate = categories[i];

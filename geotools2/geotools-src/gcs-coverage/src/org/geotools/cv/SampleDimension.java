@@ -100,19 +100,19 @@ import org.geotools.resources.gcs.ResourceKeys;
  * categories. For example an image of sea surface temperature (SST) could very well defines
  * the following categories:
  *
- * <blockquote>
- * <pre>[0]      </pre> : no data<br>
- * <pre>[1]      </pre> : cloud<br>
- * <pre>[2]      </pre> : land<br>
- * <pre>[10..210]</pre> : temperature to be converted into Celsius degrees through a linear equation<br>
- * </blockquote>
+ * <blockquote><pre>
+ *   [0]       : no data
+ *   [1]       : cloud
+ *   [2]       : land
+ *   [10..210] : temperature to be converted into Celsius degrees through a linear equation
+ * </pre></blockquote>
  *
  * In this example, sample values in range <code>[10..210]</code> defines a quantitative category,
  * while all others categories are qualitative. The difference between those two kinds of category
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.28 2003/05/15 08:48:32 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.29 2003/06/25 13:23:26 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
