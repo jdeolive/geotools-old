@@ -27,7 +27,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.9 2002/07/23 14:04:16 ianturton Exp $
+ * @version $Id: LikeFilter.java,v 1.10 2002/07/24 12:02:44 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LikeFilter extends AbstractFilter {
@@ -41,18 +41,20 @@ public class LikeFilter extends AbstractFilter {
     /** The (limited) REGEXP pattern. */
     protected String pattern = null;
 
-    /** The multi wildcard for the (limited) REGEXP pattern. */
-    protected String wildcardSingle = null;
-
-    /** The single wildcard for the (limited) REGEXP pattern. */
-    protected String wildcardMulti = null;
-
-    /** The escape sequence for the (limited) REGEXP pattern. */
-    protected String escape = null;
+    /** The single wildcard for the REGEXP pattern. */
+    private String wildcardSingle = ".?";
+    /** The escaped version of the single wildcard for the REGEXP pattern. */
+    private String escapedWildcardSingle = "\\.\\?";
+    /** The multiple wildcard for the REGEXP pattern. */
+    private String wildcardMulti = ".*";
+    /** The escaped version of the multiple wildcard for the REGEXP pattern. */
+    private String escapedWildcardMulti = "\\.\\*";
+    /** The escape sequence for the REGEXP pattern. */
+    private String escape = "\\";
 
 
     /**
-     * Constructor which flags the operator as between.
+     * Constructor which flags the operator as like.
      */
     public LikeFilter () {
         filterType = LIKE;
@@ -60,7 +62,7 @@ public class LikeFilter extends AbstractFilter {
 
 
     /**
-     * Determines whether or not a given feature is 'inside' this filter.
+     * Sets the expression to be evalutated as being like the pattern
      *
      * @param attribute The value of the attribute for comparison. 
      * @throws IllegalFilterException Filter is illegal.
@@ -76,16 +78,32 @@ public class LikeFilter extends AbstractFilter {
             throw new IllegalFilterException("Attempted to add something other than a string attribute expression to a like filter.");
         }
     }
+    /**
+     * gets the Value (left hand side) of this filter
+     * @return the expression that is the value of the filter
+     */
+    public Expression getValue(){
+        return attribute;
+    }
     
+    /** Sets the match pattern for this FilterLike.
+     *
+     * @param wildcardMulti the string that represents a mulitple character (1->n) wildcard
+     * @param wildcardSingle the string that represents a single character (1) wildcard
+     * @param escape the string that represents an escape character
+     * @param pattern the expression which evaluates to the match pattern for this filter
+     */
     public void setPattern(Expression p, String wildcardMulti, String wildcardSingle, String escape) {
         String pattern = p.toString();
         setPattern(pattern,wildcardMulti,wildcardSingle,escape);
     }
 
-    /**
-     * Sets the matching pattern for this FilterLike.
+    /** Sets the match pattern for this FilterLike.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @param wildcardMulti the string that represents a mulitple character (1->n) wildcard
+     * @param wildcardSingle the string that represents a single character (1) wildcard
+     * @param escape the string that represents an escape character
+     * @param pattern the string which contains the match pattern for this filter
      */
     public void setPattern(String pattern, String wildcardMulti, String wildcardSingle, String escape) {
 
@@ -98,75 +116,66 @@ public class LikeFilter extends AbstractFilter {
         _log.debug("wildcard "+wildcardMulti+" single "+wildcardSingle);
         _log.debug("escape "+escape+" esc "+esc+" esc == \\ "+(esc == '\\'));
         
-        escape = fixSpecials(escape);
-        wildcardMulti = fixSpecials(wildcardMulti);
-        wildcardSingle = fixSpecials(wildcardSingle);
+
         _log.debug("after fixing: wildcard "+wildcardMulti+" single "+wildcardSingle+" escape "+escape);
         _log.debug("start pattern = "+pattern);
         
         // escape any special chars which are not our wildcards
         StringBuffer tmp = new StringBuffer("");
-        for(int i = 0;i<pattern.length();i++){
-            char c = pattern.charAt(i);
-            if(isSpecial(c) && wildcardMulti.indexOf(c)== -1 ){
-                _log.debug(""+c+" is special and not in wcm "+wildcardMulti);
-                tmp.append("\\"+c);
-            }else{
-                tmp.append(c);
-            }
-        }
-        pattern = tmp.toString();
-        /*
-        //pattern = fixSpecials(pattern);
-        _log.debug("after special fix "+pattern);
-        pattern = pattern.replaceAll(escape+escape,"\0");
-        _log.debug("post esc esc pattern = "+pattern);
-        pattern = pattern.replaceAll("([^"+escape+"])"+wildcardSingle, "$1.?");
-        _log.debug("post single pattern = "+pattern);
-        pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardSingle, "$1"+wildcardSingle);
-        _log.debug("post esc single pattern = "+pattern);
-
-        pattern = pattern.replaceAll("([^"+escape+"])"+wildcardMulti, "$1.*");
-        _log.debug("post multi pattern = "+pattern);
-        pattern = pattern.replaceAll("([^"+escape+"])"+escape + wildcardMulti, "$1"+wildcardMulti);
-        _log.debug("post esc multi pattern = "+pattern);
         
-        pattern = pattern.replaceAll(escape,""); // any single escape is unneeded now
-        pattern = pattern.replaceAll("\0",escape);
-        _log.debug("post esc pattern = "+pattern);
-        */
-        tmp = new StringBuffer();
+        boolean escapedMode = false;
         for(int i=0;i<pattern.length();i++){
             char c = pattern.charAt(i);
             _log.debug("tmp = "+tmp+" looking at "+c);
-            if(c == '\\') {
-                _log.debug("java escape");
-                tmp.append(c);
-                tmp.append(pattern.charAt(i+1));
-                i++;
-                continue;
-            }
-            if(escape.indexOf(c)!= -1 ) { // skip next char - should check for end of string
+            
+            if(pattern.regionMatches(false, i, escape, 0, escape.length())) { // skip the escape string
                 _log.debug("escape ");
-                tmp.append(pattern.charAt(i+1));
-                i++;
-                continue;
+                escapedMode = true;
+                
+                i+=escape.length();
+                c=pattern.charAt(i);
             }
-            if(wildcardMulti.indexOf(c) != -1 ){ // replace with java wildcard
+            if(pattern.regionMatches(false, i, wildcardMulti, 0, wildcardMulti.length())){ // replace with java wildcard
                 _log.debug("multi wildcard");
-                tmp.append(".*");
+                if(escapedMode){
+                    _log.debug("escaped ");
+                    tmp.append(this.escapedWildcardMulti);
+                }else{
+                    tmp.append(this.wildcardMulti);
+                }
+                i+=wildcardMulti.length()-1;
+                escapedMode = false;
                 continue;
             }
-            if(wildcardSingle.indexOf(c) != -1 ){ // replace with java single wild card
+            if(pattern.regionMatches(false, i, wildcardSingle, 0, wildcardSingle.length())){ // replace with java single wild card
                 _log.debug("single wildcard");
-                tmp.append(".?");
+                if(escapedMode){
+                    _log.debug("escaped ");
+                    tmp.append(this.escapedWildcardSingle);
+                }else{
+                    tmp.append(this.wildcardSingle);
+                }
+                i+=wildcardSingle.length()-1;
+                escapedMode = false;
+                continue;
+            }
+            if(isSpecial(c)){
+                _log.debug("special");
+                tmp.append(this.escape+c);
+                escapedMode = false;
                 continue;
             }
             tmp.append(c);
+            escapedMode = false;
         }
+        
         this.pattern = tmp.toString();
+        _log.debug("final pattern "+this.pattern);
     }
-
+    
+    public String getPattern(){
+        return this.pattern;
+    }
 
     /**
      * Determines whether or not a given feature matches this pattern.
@@ -219,7 +228,36 @@ public class LikeFilter extends AbstractFilter {
         visitor.visit(this);
     }
     
-    static boolean isSpecial(char c){
+
+    /** Getter for property escape.
+     * @return Value of property escape.
+     */
+    public java.lang.String getEscape() {
+        return escape;
+    }
+    
+    
+    /** Getter for property wildcardMulti.
+     * @return Value of property wildcardMulti.
+     */
+    public java.lang.String getWildcardMulti() {
+        return wildcardMulti;
+    }
+    
+    
+    /** Getter for property wildcardSingle.
+     * @return Value of property wildcardSingle.
+     */
+    public java.lang.String getWildcardSingle() {
+        return wildcardSingle;
+    }
+    
+    /** convienience method to determine if a character is special to the regex 
+     * system.
+     * @param c the character to test
+     * @return is the character a special character.
+     */
+    private boolean isSpecial(final char c){
         if(c == '.' || c == '?' || c == '*' || c == '^' || c == '$' ||
             c == '+' || c == '[' || c == ']' || c == '(' ||
             c == ')' || c == '|' || c == '\\' || c== '&' ){
@@ -228,25 +266,23 @@ public class LikeFilter extends AbstractFilter {
             return false;
         }
     }
-    static boolean isBackslash(char c){
-        if(c == '\\'){
-            return true;
-        }else{
-            return false;
-        }
-    }
     
-    static String fixSpecials(String in){
+    /** convienience method to escape any character that is special to the regex 
+     * system.
+     * @param in the string to fix
+     * @return the fixed string
+     */
+    private String fixSpecials(final String in){
         StringBuffer tmp = new StringBuffer("");
         for(int i = 0;i<in.length();i++){
             char c = in.charAt(i);
             if(isSpecial(c)){
-                tmp.append("\\"+c);
+                tmp.append(this.escape+c);
             }else{
                 tmp.append(c);
             }
         }
         return tmp.toString();
     }
-            
+                
 }
