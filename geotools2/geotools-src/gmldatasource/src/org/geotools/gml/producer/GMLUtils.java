@@ -113,7 +113,7 @@ final class GMLUtils {
      * @return int representation of Geometry
      */
     public static int getGeometryType(Geometry geometry) {
-        LOGGER.entering("GMLUtils", "getGeometryType", geometry);
+        //LOGGER.entering("GMLUtils", "getGeometryType", geometry);
         
         Class geomClass = geometry.getClass();
         int returnValue = -1;
@@ -142,7 +142,7 @@ final class GMLUtils {
             //HACK!!! throw exception.
         }
         
-        LOGGER.exiting("GMLUtils", "getGeometryType", new Integer(returnValue));
+        //LOGGER.exiting("GMLUtils", "getGeometryType", new Integer(returnValue));
         
         return returnValue;
     }
@@ -178,7 +178,7 @@ final class GMLUtils {
      *       characters straight out, doing translation on the fly.
      */
     public static String encodeXML(String inData) {
-        LOGGER.entering("GMLUtils", "encodeXML", inData);
+        //LOGGER.entering("GMLUtils", "encodeXML", inData);
         
         //return null, if null is passed as argument
         if (inData == null) {
@@ -225,7 +225,7 @@ final class GMLUtils {
             }
         }
         
-        LOGGER.exiting("GMLUtils", "encodeXML", buffer.toString());
+        //LOGGER.exiting("GMLUtils", "encodeXML", buffer.toString());
         
         //return the encoded string
         return buffer.toString();
