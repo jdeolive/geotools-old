@@ -48,7 +48,7 @@ import org.geotools.util.EqualsUtils;
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.18 2003/11/15 14:11:33 aaime Exp $
+ * @version $Id: GraphicImpl.java,v 1.19 2004/01/09 15:14:13 aaime Exp $
  */
 public class GraphicImpl implements Graphic, Cloneable {
     /** The logger for the default core module. */
@@ -111,8 +111,10 @@ public class GraphicImpl implements Graphic, Cloneable {
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
         this.externalGraphics.clear();
 
-        for (int i = 0; i < externalGraphics.length; i++) {
-            addExternalGraphic(externalGraphics[i]);
+        if(externalGraphics != null) {
+            for (int i = 0; i < externalGraphics.length; i++) {
+                addExternalGraphic(externalGraphics[i]);
+            }
         }
     }
 
@@ -182,8 +184,10 @@ public class GraphicImpl implements Graphic, Cloneable {
     public void setSymbols(Symbol[] symbols) {
         this.symbols.clear();
 
-        for (int i = 0; i < symbols.length; i++) {
-            addSymbol(symbols[i]);
+        if(symbols != null) {
+            for (int i = 0; i < symbols.length; i++) {
+                addSymbol(symbols[i]);
+            }
         }
     }
 
