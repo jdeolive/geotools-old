@@ -34,11 +34,11 @@
  * the expression comparison returns a valid result.  It does no checking to
  * see whether or not the expression comparison is meaningful with regard
  * to checking feature attributes.  In other words, this is a valid filter:
- * <b>5 < 2<b>, even though it will always return the same result and could
+ * <b>5 < 2</b>, even though it will always return the same result and could
  * be simplified away.  It is up to the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: IllegalFilterException.java,v 1.2 2002/06/04 15:13:42 loxnard Exp $
+ * @version $Id: IllegalFilterException.java,v 1.3 2002/07/11 16:02:54 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class IllegalFilterException extends Exception {
