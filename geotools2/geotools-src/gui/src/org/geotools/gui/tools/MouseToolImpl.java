@@ -10,7 +10,7 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.tools.AbstractToolImpl;
-import org.geotools.gui.widget.AbstractWidget;
+import org.geotools.gui.widget.Widget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
@@ -43,7 +43,7 @@ public abstract class MouseToolImpl extends AbstractToolImpl
      * another widget.
      */
     public void setWidget(
-        AbstractWidget widget,
+        Widget widget,
         MouseListener listener) throws IllegalStateException
     {
         super.setWidget(widget);

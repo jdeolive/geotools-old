@@ -11,7 +11,7 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
 import org.geotools.gui.tools.MouseToolImpl;
-import org.geotools.gui.widget.AbstractWidget;
+import org.geotools.gui.widget.Widget;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
@@ -107,7 +107,7 @@ public class PanToolImpl extends MouseToolImpl implements PanTool {
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(AbstractWidget widget) throws IllegalStateException {
+    public void setWidget(Widget widget) throws IllegalStateException {
         super.setWidget(widget,this);
     }
 }

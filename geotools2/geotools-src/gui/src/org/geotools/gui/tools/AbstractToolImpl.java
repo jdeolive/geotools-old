@@ -3,7 +3,7 @@ package org.geotools.gui.tools;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.JComponent;
 import org.geotools.map.Context;
-import org.geotools.gui.widget.AbstractWidget;
+import org.geotools.gui.widget.Widget;
 
 /**
  * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
@@ -19,7 +19,7 @@ public abstract class AbstractToolImpl implements AbstractTool {
      * The widget from which this Tool gets MouseEvents.  The widget contains
      * information like widget size.
      */
-     protected static AbstractWidget widget;
+     protected static Widget widget;
  
     /**
      * A tool is associated with only one context.  The context stores all data
@@ -50,7 +50,7 @@ public abstract class AbstractToolImpl implements AbstractTool {
      * not been set yet, then null is returned.
      * @param The MapPane from which this Tool get's MouseEvents.
      */
-    public AbstractWidget getWidget(){
+    public Widget getWidget(){
         return widget;
     }
     
@@ -61,7 +61,7 @@ public abstract class AbstractToolImpl implements AbstractTool {
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(AbstractWidget widget) throws IllegalStateException
+    public void setWidget(Widget widget) throws IllegalStateException
     {
         if (this.widget==null){
             this.widget=widget;
