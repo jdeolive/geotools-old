@@ -30,10 +30,11 @@ import java.util.logging.Logger;
 
 
 /**
- * DOCUMENT ME!
+ * Utility class to deal with SDE specifics such as creating SeQuery objects
+ * from geotool's Query's, mapping SDE types to Java ones and JTS Geometries, etc.
  *
  * @author Gabriel Roldán
- * @version $revision$
+ * @version $Id: SdeAdapter.java,v 1.7 2003/11/14 17:17:58 groldan Exp $
  */
 public class SdeAdapter
 {
@@ -551,7 +552,7 @@ public class SdeAdapter
  * DOCUMENT ME!
  *
  * @author $author$
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  */
 class SdeTypeDef
 {
