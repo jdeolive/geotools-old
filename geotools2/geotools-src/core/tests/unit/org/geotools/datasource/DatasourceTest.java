@@ -1,6 +1,7 @@
 package org.geotools.datasource;
 
 import com.vividsolutions.jts.geom.*;
+import org.geotools.datasource.extents.*;
 import java.util.*;
 import junit.framework.*;
 
