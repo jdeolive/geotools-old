@@ -12,7 +12,7 @@ import java.io.IOException;
  * @version
  */
 
-public class VPFRowDataException extends IOException {
+public class VPFRowDataException extends VPFDataException {
   
   public VPFRowDataException()
   {

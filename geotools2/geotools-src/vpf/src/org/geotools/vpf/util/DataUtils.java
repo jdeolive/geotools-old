@@ -35,7 +35,7 @@ import org.geotools.vpf.Coordinate3DDouble;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.3 2003/02/05 08:44:50 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.4 2003/03/03 20:40:35 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -129,6 +129,17 @@ public class DataUtils implements DataTypesDefinition
     return res;
   }
 
+//   public static int littleEndianToInt(byte[] fourBytes)
+//   {
+//     int res = 0;
+//     int limit = Math.min(fourBytes.length, 4);
+//     for (int i = 0; i < limit; i++)
+//     {
+//       res |= (fourBytes[i] & 0xFF) << (i*8);
+//     } // end of for (int i = 0; i < limit-1; i++)
+//     return res;
+//   }
+
   public static int decodeInt(byte[] bytes)
   {
     int res = 0;
@@ -165,17 +176,6 @@ public class DataUtils implements DataTypesDefinition
     return Double.longBitsToDouble(res);
   }
   
-  public static int littleEndianToInt(byte[] fourBytes)
-  {
-    int res = 0;
-    int limit = Math.min(fourBytes.length, 4);
-    for (int i = 0; i < limit; i++)
-    {
-      res |= (fourBytes[i] & 0xFF) << (i*8);
-    } // end of for (int i = 0; i < limit-1; i++)
-    return res;
-  }
-
   public static int unsigByteToInt(byte b)
   {
     return (int) b & 0xFF;

@@ -21,30 +21,26 @@ package org.geotools.vpf.exc;
 import java.io.IOException;
 
 
+
 /**
- * Class VPFHeaderFormatException.java is responsible for 
+ * VPFDataException.java
  *
- * <p>
- * Created: Tue Jan 21 15:12:10 2003
- * </p>
- * @unittest on
- * @unittest_code "Put test code below"
- *  return true;
+ *
+ * Created: Mon Mar 03 21:32:32 2003
+ *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version 1.0.0
+ * @version $Id: VPFDataException.java,v 1.1 2003/03/03 20:40:30 kobit Exp $
  */
-
-public class VPFHeaderFormatException extends VPFDataException 
+public class VPFDataException extends IOException 
 {
-
-  public VPFHeaderFormatException() 
+  public VPFDataException()
   {
-    super();
-  }
+	super();
+  } // VPFDataException constructor
 
-  public VPFHeaderFormatException(String message) 
+  public VPFDataException(String msg)
   {
-    super(message);
+	super(msg);
   }
-
-}// VPFHeaderFormatException
+  
+} // VPFDataException

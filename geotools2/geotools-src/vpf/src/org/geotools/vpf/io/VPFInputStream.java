@@ -28,6 +28,8 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
 import org.geotools.vpf.ifc.FileConstants;
 import org.geotools.vpf.ifc.VPFHeader;
 import org.geotools.vpf.ifc.VPFRow;
+import org.geotools.vpf.util.DataUtils;
+import org.geotools.vpf.exc.VPFDataException;
 
 /**
  * VPFInputStream.java
@@ -36,7 +38,7 @@ import org.geotools.vpf.ifc.VPFRow;
  * Created: Mon Feb 24 22:39:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFInputStream.java,v 1.1 2003/02/24 22:46:36 kobit Exp $
+ * @version $Id: VPFInputStream.java,v 1.2 2003/03/03 20:40:34 kobit Exp $
  */
 public abstract class VPFInputStream extends InputStream 
   implements FileConstants, DataTypesDefinition
@@ -95,6 +97,8 @@ public abstract class VPFInputStream extends InputStream
 
   public abstract VPFRow readRow(int index) throws IOException;
 
+  public abstract int tableSize() throws IOException;
+
   public int readRows(VPFRow[] rows) throws IOException
   {
     int counter = 0;
@@ -151,6 +155,24 @@ public abstract class VPFInputStream extends InputStream
     {
       return text.toString();
     } // end of if (text.equals("null")) else
+  }
+
+  protected int readInteger() throws IOException
+  {
+	byte[] fourBytes = new byte[4];
+	int cnt = input.read(fourBytes);
+	if (cnt == 4)
+	{
+	  if (byteOrder == LITTLE_ENDIAN_ORDER)
+	  {
+		fourBytes = DataUtils.toBigEndian(fourBytes);
+	  } // end of if (byteOrder == LITTLE_ENDIAN_ORDER)
+	  return DataUtils.decodeInt(fourBytes);
+	} // end of if (cnt == 4)
+	else
+	{
+	  throw new VPFDataException("Inssufficient bytes in input stream");
+	} // end of else
   }
 
   public int availableRows()
