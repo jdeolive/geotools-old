@@ -71,7 +71,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * The default implementation print the localized error message to standard output {@link #out}
  * and exits the virtual machine with a call to {@link System#exit} with error code 1.
  *
- * @version $Id: Arguments.java,v 1.1 2002/08/09 18:39:26 desruisseaux Exp $
+ * @version $Id: Arguments.java,v 1.2 2002/08/09 23:07:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Arguments {
@@ -325,6 +325,41 @@ public class Arguments {
             illegalArgument(exception);
         }
         return Double.NaN;
+    }
+
+    /**
+     * Returns an optional boolean value from the command line.
+     * The value, if defined, must be "true" or "false".
+     *
+     * @param  name The parameter name. Name are case-insensitive.
+     * @return The parameter value, of <code>null</code> if there is no parameter
+     *         given for the specified name.
+     */
+    public Boolean getOptionalBoolean(final String name) {
+        final String value = getOptionalString(name);
+        if (value != null) {
+            if (value.equalsIgnoreCase("true" )) return Boolean.TRUE;
+            if (value.equalsIgnoreCase("false")) return Boolean.FALSE;
+            illegalArgument(new IllegalArgumentException(value));
+        }
+        return null;
+    }
+
+    /**
+     * Returns a required boolean value from the command line.
+     * The value must be "true" or "false".
+     *
+     * @param  name The parameter name. Name are case-insensitive.
+     * @return The parameter value.
+     */
+    public boolean getRequiredBoolean(final String name) {
+        final String value = getRequiredString(name);
+        if (value != null) {
+            if (value.equalsIgnoreCase("true" )) return true;
+            if (value.equalsIgnoreCase("false")) return false;
+            illegalArgument(new IllegalArgumentException(value));
+        }
+        return false;
     }
 
     /**
