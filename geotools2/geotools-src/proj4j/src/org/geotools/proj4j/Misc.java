@@ -12,6 +12,8 @@ import java.util.StringTokenizer;
  * @author  James Macgill
  */
 public class Misc {
+
+    
     
     
     /* reduce argument to range +/- PI */
@@ -47,10 +49,8 @@ public class Misc {
         //	rs[0] = is;
         /* copy sting into work space */
         work = is.trim();
-        System.out.println("Input string was "+work);
         StringTokenizer tok = new StringTokenizer(work,"Dd\'\"Rr+-"+sym,true);
         s = tok.nextToken();
-        System.out.println("First tok ="+s+":");
         if (!(s.equals( "+") || s.equals("-"))){
             sign = "+";
             signFlag=false;
@@ -67,11 +67,9 @@ public class Misc {
             
             //if its not a digit then what?
             try{
-                System.out.println("about to parse "+s);
                 tv= Double.parseDouble(s);
             }
             catch(NumberFormatException nfe){
-                System.out.println("unable to parse number:"+s+":");
                 return Double.MAX_VALUE;
             }
             if(tok.hasMoreTokens()){
@@ -82,7 +80,6 @@ public class Misc {
                 else if(s.equalsIgnoreCase("r")){
                     if (nl!=0) {
                         //pj_errno = -16;
-                        System.out.println("wrongly placed R: nl="+nl+" s="+s);
                         return Double.MAX_VALUE;
                     }                 
                     v = tv;
@@ -111,6 +108,8 @@ public class Misc {
         }
         return v;
     }
+    
+ 
     
     
 }

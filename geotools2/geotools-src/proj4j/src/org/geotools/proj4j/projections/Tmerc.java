@@ -129,7 +129,6 @@ public class Tmerc extends org.geotools.proj4j.Projection {
             en = MeridinalDistance.enfn(es);
             ml0 = MeridinalDistance.mlfn(phi0, Math.sin(phi0), Math.cos(phi0), en);
             esp = es / (1. - es);
-            System.out.println("Use Ellipse");
             useEllips = true;
         }
         else{
