@@ -46,7 +46,7 @@
             <fileset dir="src" includes="**/*.class"/>
         </delete>
     </target>
-    <target depends="test" name="release">
+    <target depends="clean,test" name="release">
         <mkdir dir="${releaseFolder}"/>
         <jar basedir="src/" jarfile="${releaseFolder}/core.jar"/>
     </target>
