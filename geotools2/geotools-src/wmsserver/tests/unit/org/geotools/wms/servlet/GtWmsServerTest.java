@@ -64,11 +64,13 @@ public class GtWmsServerTest extends TestCase {
     public void testGetCapabilities() {
         try {
             Capabilities cap = server.getCapabilities();
-            System.out.println(cap);
             WMSServlet temp = new WMSServlet();
-            //System.out.println(temp.capabilitiesToXML(cap));
+            assertNotNull("GetCapabilites failed, reutrned null object",cap);
+            Object usa = cap.getLayer("USA");
+            assertNotNull("Layer USA missing from capabilites list",usa);
             Vector styles = cap.getAvailableStyles("USA");
-            assertTrue("style 'normal' not found", styles.contains("normal"));
+            
+            assertTrue("style 'normal' not found for layer USA", styles.contains("normal"));
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());

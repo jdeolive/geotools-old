@@ -68,8 +68,8 @@ public class LayerReader extends DefaultHandler {
     public static final String ATTRIB_DEFAULTSTYLE = "default";
     
     
-    public LayerReader() {
-        try {
+    public LayerReader() throws Exception {
+        //try {
             // Create the reader
             //reader = XMLReaderFactory.createXMLReader();
             SAXParserFactory fac = SAXParserFactory.newInstance();
@@ -78,11 +78,11 @@ public class LayerReader extends DefaultHandler {
             reader = new ParserAdapter(parser.getParser());
             reader.setContentHandler(this);
             reader.setErrorHandler(this);
-        }
-        catch(Exception exp) {
-            System.out.println("Exception "+exp.getClass().getName()+" initializing LayerReader : "+exp.getMessage());
+        //}
+        //catch(Exception exp) {
+           // System.out.println("Exception "+exp.getClass().getName()+" initializing LayerReader : "+exp.getMessage());
             //			exp.printStackTrace();
-        }
+        //}
     }
     
     /** Reads the layers.xml file stream

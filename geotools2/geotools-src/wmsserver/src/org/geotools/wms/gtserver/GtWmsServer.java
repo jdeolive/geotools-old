@@ -84,13 +84,14 @@ public class GtWmsServer implements WMSServer {
      *         Shapefile (uk.ac.leeds.ccg.geotools.io.ShapefileReader).
      */
     private void loadLayers(String filename) {
-        LayerReader reader = new LayerReader();
+        
         Iterator formats = DataSourceFinder.getAvailableDataSources();
         LOGGER.info("Supported data sources");
         while(formats.hasNext()){
             LOGGER.info(((DataSourceFactorySpi)formats.next()).getDescription());
         }
         try {
+            LayerReader reader = new LayerReader();
             if (base != null) {
                 URL url = new URL(base, filename);
                 LOGGER.fine("loading " + url.toString());
@@ -108,8 +109,8 @@ public class GtWmsServer implements WMSServer {
             while (loop.hasNext()) {
                 LayerEntry entry = (LayerEntry) layerEntries.get(
                 (String) loop.next());
-                LOGGER.fine("Layer : " + entry.id);
-                LOGGER.fine("pre mod url is " + entry.properties.getProperty("url"));
+                LOGGER.finer("Layer : " + entry.id);
+                LOGGER.finer("pre mod url is " + entry.properties.getProperty("url"));
                 URL home;
                 if(base != null){
                     home = base;
@@ -126,24 +127,42 @@ public class GtWmsServer implements WMSServer {
                     url = new URL(home,entry.properties.getProperty("url"));
                     entry.properties.setProperty("url", url.toExternalForm());
                 }
-                LOGGER.fine("after mod url is " + url);
+                LOGGER.finer("after mod url is " + url);
                 
                 HashMap props = new HashMap(entry.properties);
                 DataSource ds = DataSourceFinder.getDataSource(props);
-                LOGGER.fine("Loading layer with " + ds);
+                LOGGER.finer("Loading layer with " + ds);
                 MemoryDataSource cache = new MemoryDataSource();
                 
                 
                 FeatureCollection temp = ds.getFeatures(null);
-                Feature[] list = temp.getFeatures();
-                LOGGER.info("Caching " + list.length + " features for region ");
+                if(temp == null) {
+                    LOGGER.warning("Layer from "+url+" not installed");
+                    loop.remove();
+                    continue;
+                }
                 
+                Feature[] list = temp.getFeatures();
+                if(list.length == 0) {
+                    LOGGER.warning("Layer from "+url+" contained no features");
+                    loop.remove();
+                    continue;
+                }
+                
+                
+                LOGGER.info("Caching " + list.length + " features for region ");
+           
                 for (int i = 0; i < list.length; i++) {
                     cache.addFeature(list[i]);
                 }
                 
                 Style style = new BasicPolygonStyle(); //bad
                 Envelope bbox = ds.getBbox(false);
+                if(bbox == null){
+                    LOGGER.warning("Unable to obtain bounds for " +url);
+                    loop.remove();
+                    continue;
+                }
                 entry.bbox = new double[4];
                 entry.bbox[0] = bbox.getMinX();
                 entry.bbox[1] = bbox.getMinY();
@@ -226,6 +245,7 @@ public class GtWmsServer implements WMSServer {
                 }*/
             }
         } catch (Exception exp) {
+            exp.printStackTrace();
             LOGGER.severe("Exception loading layers " +
             exp.getClass().getName() + " : " +
             exp.getMessage());

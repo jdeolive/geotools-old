@@ -18,7 +18,7 @@ public class testLayerReader extends TestCase {
         junit.textui.TestRunner.run(testLayerReader.class);
     }
     
-    public void setUp() {
+    public void setUp() throws Exception {
         reader = new LayerReader();
     }
     
