@@ -42,7 +42,11 @@ import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.IllegalFeatureException;
 import org.geotools.filter.Filter;
-import org.geotools.data.*;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataSource;
+import org.geotools.data.DataSourceMetaData;
+import org.geotools.data.AbstractDataSource;
+import org.geotools.data.Query;
 import java.util.logging.Logger;
 
 /**
@@ -50,12 +54,12 @@ import java.util.logging.Logger;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: MysqlDataSource.java,v 1.2 2003/03/28 19:22:24 cholmesny Exp $
+ * @version $Id: MysqlDataSource.java,v 1.3 2003/05/08 19:09:40 cholmesny Exp $
  * @author Chris Holmes, Vision for New York
  * @author Rob Hranac, Vision for New York
  *
  */
-public class MysqlDataSource implements org.geotools.data.DataSource {
+public class MysqlDataSource extends AbstractDataSource implements DataSource {
 
     /** For use when reading in attributes.  One off due to sql columns
      *  starting at 1 instead of 0, another one for Feature ID in first column.*/
@@ -122,8 +126,10 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
      * @param filter An OpenGIS filter; specifies which features to retrieve.
      * @throws DataSourceException For all data source errors.
      */ 
-    public void getFeatures(FeatureCollection collection, Filter filter) 
+    public void getFeatures(FeatureCollection collection, Query query) 
         throws DataSourceException {
+	Filter filter = query.getFilter();
+	maxFeatures = query.getMaxFeatures();
         List features = new ArrayList(maxFeatures);
 
 
@@ -516,127 +522,28 @@ public class MysqlDataSource implements org.geotools.data.DataSource {
        
        
     /**
-     * Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.
-     *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
-     * @throws DataSourceException If modificaton is not supported, if
-     * the attribute and object arrays are not eqaul length, or if the object
-     * types do not match the attribute types.
-     */
-    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
-            throws DataSourceException{
-        for (int i = 0; i < type.length; i++){
-            modifyFeatures(type[i], value[i], filter);
-        }
-    }
-
-    /**
-     * Stops this DataSource from loading.
-     */
-    public void abortLoading() {
-    }
-    
-
-    /**
-     * Gets the bounding box of this datasource using the default speed of 
-     * this datasource as set by the implementer. 
-     *
-     * @return The bounding box of the datasource or null if unknown and too
-     * expensive for the method to calculate.
-     * @task REVISIT: Consider changing return of getBbox to Filter once Filters can be unpacked
-     */
-    public Envelope getBbox() {
-        return new Envelope();
-    }
-    
-
-     /**
-     * Gets the bounding box of this datasource using the speed of 
-     * this datasource as set by the parameter.
-     *
-     * @param speed If true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but accurate extent
-     * will be returned
-     * @return The extent of the datasource or null if unknown and too
-     * expensive for the method to calculate.
-     * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
-     */
-    public Envelope getBbox(boolean speed) {
-        return new Envelope();
-    }
-
-      /**
-     * Deletes the all the current Features of this datasource and adds the
-     * new collection.  Primarily used as a convenience method for file 
-     * datasources.  
-     * @param collection - the collection to be written
-     */
-    public void setFeatures(FeatureCollection collection) throws DataSourceException{
-	throw new DataSourceException("set feature not supported");
-    }
-
-
-    /**
-     * Begins a transaction(add, remove or modify) that does not commit as 
-     * each modification call is made.  If an error occurs during a transaction
-     * after this method has been called then the datasource should rollback: 
-     * none of the transactions performed after this method was called should
-     * go through.
-     */
-    public void startMultiTransaction() throws DataSourceException{
-	throw new DataSourceException("multi transactions not supported");
-    }
-
-    /**
-     * Ends a transaction after startMultiTransaction has been called.  Similar
-     * to a commit call in sql, it finalizes all of the transactions called
-     * after a startMultiTransaction.
-     */
-    public void endMultiTransaction() throws DataSourceException {
-	throw new DataSourceException("multi transactions not supported");
-    }
-    /**************************************************
-      Data source utility methods.
-     **************************************************/
-
-    /**
-     * Gets the DatasSourceMetaData object associated with this datasource.  
-     * This is the preferred way to find out which of the possible datasource
-     * interface methods are actually implemented, query the DataSourceMetaData
-     * about which methods the datasource supports.
-     */
-    public DataSourceMetaData getMetaData(){
-	return new DataSourceMetaData() {
-		public boolean supportsTransactions(){ return true; }
-		public boolean supportsMultiTransactions(){ return false; }
-		public boolean supportsSetFeatures(){return false;}
-		public boolean supportsSetSchema(){return true;}
-		public boolean supportsAbort(){return false;}
-		public boolean supportsGetBbox(){return false;}
-	    };
-    }
-	    
-
-    /**
      * Retrieves the featureType that features extracted from this datasource
      * will be created with.
      */
-    public FeatureType getSchema(){
+    public FeatureType getSchema() throws DataSourceException {
 	return schema;
     }
 
     /**
-     * Sets the schema that features extrated from this datasource will be 
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the 
-     * attributeTypes from the currently used schema.  
-     * @param schema the new schema to be used to create features.
+     * Creates the a metaData object.  This method should be overridden in any
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.  <p>
+     * 
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
      */
-    public void setSchema(FeatureType schema){
-    	this.schema = schema;
+    protected DataSourceMetaData createMetaData() {
+	MetaDataSupport mysqlMeta = new MetaDataSupport();
+	mysqlMeta.setSupportsAdd(true);
+	mysqlMeta.setSupportsRemove(true);
+	mysqlMeta.setSupportsModify(true);
+	return mysqlMeta;
     }
 }
 

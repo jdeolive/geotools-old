@@ -26,6 +26,8 @@ import org.geotools.cs.*;
 import org.geotools.cv.Category;
 import org.geotools.cv.SampleDimension;
 import org.geotools.data.DataSource;
+import org.geotools.data.AbstractDataSource;
+import org.geotools.data.Query;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.feature.*;
@@ -65,7 +67,8 @@ import org.geotools.gc.GridRange;
  *
  * @author aaime
  */
-public class GTopo30DataSource implements DataSource {
+public class GTopo30DataSource extends AbstractDataSource 
+    implements DataSource {
     private URL demURL;
     private URL demHeaderURL;
     private URL srcURL;
@@ -170,7 +173,7 @@ public class GTopo30DataSource implements DataSource {
         return fc;
     }
 
-    public void getFeatures(FeatureCollection collection, Filter filter)
+    public void getFeatures(FeatureCollection collection, Query query)
         throws DataSourceException {
         // Read the header
         GT30Header header = null;
@@ -365,33 +368,6 @@ public class GTopo30DataSource implements DataSource {
         return env;
     }
 
-    public DataSourceMetaData getMetaData() {
-        return new DataSourceMetaData() {
-                public boolean supportsTransactions() {
-                    return false;
-                }
-
-                public boolean supportsMultiTransactions() {
-                    return false;
-                }
-
-                public boolean supportsSetFeatures() {
-                    return false;
-                }
-
-                public boolean supportsSetSchema() {
-                    return false;
-                }
-
-                public boolean supportsAbort() {
-                    return false;
-                }
-
-                public boolean supportsGetBbox() {
-                    return true;
-                }
-            };
-    }
 
     public FeatureType getSchema() {
         return null;
@@ -407,43 +383,5 @@ public class GTopo30DataSource implements DataSource {
         }
     }
 
-    public void abortLoading() {
-        // nothing to do
-    }
 
-    public Set addFeatures(FeatureCollection collection)
-        throws DataSourceException {
-        throw new DataSourceException("Feature adding is not supported by this datasource");
-    }
-
-    public void endMultiTransaction() throws DataSourceException {
-        throw new DataSourceException("Multi transactions are not supported by this datasource");
-    }
-
-    public void modifyFeatures(AttributeType type, Object value, Filter filter)
-        throws DataSourceException {
-        throw new DataSourceException("Feature modification is not supported by this datasource");
-    }
-
-    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
-        throws DataSourceException {
-        throw new DataSourceException("Feature modification is not supported by this datasource");
-    }
-
-    public void removeFeatures(Filter filter) throws DataSourceException {
-        throw new DataSourceException("Feature removal is not supported by this datasource");
-    }
-
-    public void setFeatures(FeatureCollection collection)
-        throws DataSourceException {
-        throw new DataSourceException("File writing is not supported by this datasource");
-    }
-
-    public void setSchema(FeatureType schema) throws DataSourceException {
-        throw new DataSourceException("Schema modification is not supported by this datasource");
-    }
-
-    public void startMultiTransaction() throws DataSourceException {
-        throw new DataSourceException("Multi transactions are not supported by this datasource");
-    }
 }

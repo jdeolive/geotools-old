@@ -22,12 +22,15 @@ package org.geotools.shapefile;
 import com.vividsolutions.jts.geom.*;
 
 import org.geotools.data.DataSourceMetaData;
+import org.geotools.data.AbstractDataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.*;
 import org.geotools.feature.AttributeType;
 import org.geotools.filter.Filter;
 import org.geotools.shapefile.dbf.*;
 import org.geotools.shapefile.shapefile.*;
+import org.geotools.data.Query;
+import org.geotools.data.QueryImpl;
 
 import java.io.IOException;
 import java.io.FileInputStream;
@@ -48,12 +51,12 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.25 2003/05/05 22:08:32 cholmesny Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.26 2003/05/08 19:04:36 cholmesny Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
 
-public class ShapefileDataSource implements org.geotools.data.DataSource {
+public class ShapefileDataSource extends AbstractDataSource implements org.geotools.data.DataSource {
   
   private URL shpURL;
   private URL dbfURL;
@@ -129,24 +132,13 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     // let em suffer...
   }
   
-  /** Adds all features from the passed feature collection to the datasource.
-   *
-   * @param collection The collection from which to add the features.
-   * @throws DataSourceException If anything goes wrong or if exporting is
-   * not supported.
-   * @task TODO: Implement addFeatures method
-   */
-  public Set addFeatures(org.geotools.feature.FeatureCollection collection) throws DataSourceException {
-    throw new DataSourceException("Removal of features is not yet supported by this datasource");
-  }
-  
   /** Gets the bounding box of this datasource using the default speed of
    * this datasource as set by the implementer.
    *
    * @return The bounding box of the datasource or null if unknown and too
    * expensive for the method to calculate.
    */
-  public Envelope getBbox() {
+  public Envelope getBbox() throws DataSourceException {
     // This is way quick!!!
     try {
       ByteBuffer buffer = ByteBuffer.allocateDirect(100);
@@ -158,36 +150,10 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
       return new Envelope(header.minX(),header.maxX(),header.minY(),header.maxY() );
     } catch (IOException ioe) {
       // What now? This seems arbitrarily appropriate !
-      throw new RuntimeException("Poorly designed API for DataSource - should be throwing IOException or something",ioe);
+      throw new DataSourceException("Problem getting Bbox",ioe);
     }
   }
   
-  /** Gets the bounding box of this datasource using the speed of
-   * this datasource as set by the parameter.
-   *
-   * @param speed If true then a quick (and possibly dirty) estimate of
-   * the extent is returned. If false then a slow but accurate extent
-   * will be returned
-   * @return The extent of the datasource or null if unknown and too
-   * expensive for the method to calculate.
-   */
-  public Envelope getBbox(boolean speed) {
-    return getBbox();
-  }
-  
-  /**
-   * Loads features from the datasource into the returned collection, based
-   * on the passed filter.
-   *
-   * @param filter An OpenGIS filter; specifies which features to retrieve.
-   * @return Collection The collection to put the features into.
-   * @throws DataSourceException For all data source errors.
-   */
-  public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
-    FeatureCollection fc = new org.geotools.feature.FeatureCollectionDefault();
-    getFeatures(fc, filter);
-    return fc;
-  }
   
   /**
    * Loads features from the datasource into the passed collection, based
@@ -198,9 +164,13 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
    * @param filter An OpenGIS filter; specifies which features to retrieve.
    * @throws DataSourceException For all data source errors.
    */
-  public void getFeatures(FeatureCollection collection,final Filter filter) throws DataSourceException {
+  public void getFeatures(FeatureCollection collection,final Query query) throws DataSourceException {
     try {
       
+	Filter filter = null;
+	if (query != null) {
+	    filter = query.getFilter();
+	}
       // Open a channel for our URL
       ReadableByteChannel channel = getReadChannel(shpURL);
       if(channel == null) {
@@ -248,82 +218,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     }
   }
   
-  /** Modifies the passed attribute types with the passed objects in all
-   * features that correspond to the passed OGS filter.  A convenience
-   * method for single attribute modifications.
-   *
-   * @param type The attributes to modify.
-   * @param value The values to put in the attribute types.
-   * @param filter An OGC filter to note which attributes to modify.
-   * @throws DataSourceException If modificaton is not supported, if
-   * the object type do not match the attribute type.
-   * @task TODO: Implement support for modification of features (single attribute)
-   */
-  public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException {
-    throw new DataSourceException("Modification of features is not yet supported by this datasource");
-  }
-  
-  /** Modifies the passed attribute types with the passed objects in all
-   * features that correspond to the passed OGS filter.
-   *
-   * @param type The attributes to modify.
-   * @param value The values to put in the attribute types.
-   * @param filter An OGC filter to note which attributes to modify.
-   * @throws DataSourceException If modificaton is not supported, if
-   * the attribute and object arrays are not eqaul length, or if the object
-   * types do not match the attribute types.
-   * @task TODO: Implement support for modification of feature (multi attribute)
-   */
-  public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
-    throw new DataSourceException("Modification of features is not yet supported by this datasource");
-  }
-  
-  /** Removes all of the features specificed by the passed filter from the
-   * collection.
-   *
-   * @param filter An OpenGIS filter; specifies which features to remove.
-   * @throws DataSourceException If anything goes wrong or if deleting is
-   * not supported.
-   * @task TODO: Implement support for removal of features
-   */
-  public void removeFeatures(Filter filter) throws DataSourceException {
-    throw new DataSourceException("Removal of features is not yet supported by this datasource");
-  }
-  
-  
-  /**
-   * Begins a transaction(add, remove or modify) that does not commit as 
-   * each modification call is made.  If an error occurs during a transaction
-   * after this method has been called then the datasource should rollback: 
-   * none of the transactions performed after this method was called should
-   * go through.
-   */
-  public void startMultiTransaction() throws DataSourceException {
-      throw new DataSourceException("MultiTransactions are not supported by this datasource");
-  }
 
-  /**
-  * Ends a transaction after startMultiTransaction has been called.  Similar
-   * to a commit call in sql, it finalizes all of the transactions called
-   * after a startMultiTransaction.
-   */
-  public void endMultiTransaction() throws DataSourceException {
-      throw new DataSourceException("MultiTransactions are not supported by this datasource");
-  }
-
-  /**************************************************
-    Data source utility methods.
-   **************************************************/
-  
-  /**
-   * Gets the DatasSourceMetaData object associated with this datasource.  
-   * This is the preferred way to find out which of the possible datasource
-   * interface methods are actually implemented, query the DataSourceMetaData
-   * about which methods the datasource supports.
-   */
-  public org.geotools.data.DataSourceMetaData getMetaData() {
-      return new ShapefileMetaData();
-  }
   
   private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf) 
   throws DataSourceException,IOException,InvalidShapefileException {
@@ -344,15 +239,13 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     * Retrieves the featureType that features extracted from this datasource
     * will be created with.
     */
-  public FeatureType getSchema() {
+  public FeatureType getSchema() throws DataSourceException{
     try {
       return getSchema(null,null);
-    } catch (DataSourceException e) {
-      throw new RuntimeException("Whoah, better API needed - runtime error",e);
     } catch (InvalidShapefileException e) {
-      throw new RuntimeException("Whoah, better API needed - runtime error",e);
+      throw new DataSourceException("Invalid Shapefile",e);
     } catch (IOException e) {
-      throw new RuntimeException("Whoah, better API needed - runtime error",e);
+      throw new DataSourceException("IO problem reading shapefile",e);
     }
     
   }
@@ -474,7 +367,24 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
   }
   
   
-  
+         
+    /**
+     * Creates the a metaData object.  This method should be overridden in any
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.  <p>
+     * 
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
+     */
+    protected DataSourceMetaData createMetaData() {
+	MetaDataSupport shpMeta = new MetaDataSupport();
+	shpMeta.setSupportsGetBbox(true);
+	shpMeta.setFastBbox(true);
+	shpMeta.setSupportsSetFeatures(true);
+	return shpMeta;
+
+    }
   
   
   
@@ -836,7 +746,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
   public static final void main(String[] args) throws Exception {
     File src = new File(args[0]);
     ShapefileDataSource ds = new ShapefileDataSource(src.toURL());
-    FeatureCollection features = ds.getFeatures(null);
+    FeatureCollection features = ds.getFeatures(new QueryImpl(null, null));
     Feature[] f = features.getFeatures();
     for (int i = 0, ii = f.length; i < ii; i++) {
       System.out.println(f[i]);

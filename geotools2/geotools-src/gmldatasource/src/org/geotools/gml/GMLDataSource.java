@@ -42,7 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.21 2003/03/28 19:20:50 cholmesny Exp $
+ * @version $Id: GMLDataSource.java,v 1.22 2003/05/08 19:08:35 cholmesny Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
@@ -192,6 +192,24 @@ implements DataSource, GMLHandlerFeature {
         return fc;
     }
     
+    public FeatureCollection getFeatures(Query query) 
+	throws DataSourceException {
+	Filter filter = null;
+	if (query != null) {
+	    filter = query.getFilter();
+	}
+	return getFeatures(filter);
+    }
+
+    public void getFeatures(FeatureCollection collection, Query query)
+	throws DataSourceException {
+	Filter filter = null;
+	if (query != null) {
+	    filter = query.getFilter();
+	}
+	getFeatures(collection, filter);
+    }
+
     /** Loads features from the datasource into the passed collection, based on
      * the passed filter.  Note that all data sources must support this method
      * at a minimum.
@@ -296,25 +314,7 @@ implements DataSource, GMLHandlerFeature {
         return new InputSource(in);
     }
         
-       /**
-     * Begins a transaction(add, remove or modify) that does not commit as 
-     * each modification call is made.  If an error occurs during a transaction
-     * after this method has been called then the datasource should rollback: 
-     * none of the transactions performed after this method was called should
-     * go through.
-     */
-    public void startMultiTransaction() throws DataSourceException{
-	throw new DataSourceException("multi transactions not supported");
-    }
 
-    /**
-     * Ends a transaction after startMultiTransaction has been called.  Similar
-     * to a commit call in sql, it finalizes all of the transactions called
-     * after a startMultiTransaction.
-     */
-    public void endMultiTransaction() throws DataSourceException {
-	throw new DataSourceException("multi transactions not supported");
-    }
     /**************************************************
       Data source utility methods.
      **************************************************/
@@ -324,13 +324,17 @@ implements DataSource, GMLHandlerFeature {
      * This is the preferred way to find out which of the possible datasource
      * interface methods are actually implemented, query the DataSourceMetaData
      * about which methods the datasource supports.
+     * @task REVISIT: way for datasource to change hasFastBbox after bbox is
+     * calculated.
      */
     public DataSourceMetaData getMetaData(){
 	return new DataSourceMetaData() {
-		public boolean supportsTransactions(){ return false; }
-		public boolean supportsMultiTransactions(){ return false; }
+		public boolean supportsAdd(){ return false; }
+		public boolean supportsModify(){ return false; }
+		public boolean supportsRemove(){ return false; }
+		public boolean supportsRollbacks(){ return false; }
 		public boolean supportsSetFeatures(){return false;}
-		public boolean supportsSetSchema(){return false;}
+		public boolean hasFastBbox(){return true;}
 		public boolean supportsAbort(){return false;}
 		public boolean supportsGetBbox(){return true;}
 	    };
@@ -367,7 +371,80 @@ implements DataSource, GMLHandlerFeature {
 	throw new DataSourceException("schema methods not supported");
     }
     
+       /**
+     * Makes all transactions made since the previous commit/rollback
+     * permanent.  This method should be used only when auto-commit mode has
+     * been disabled.   If autoCommit is true then this method does nothing.
+     *
+     * @throws DataSourceException if there are any datasource errors.
+     *
+     * @see #setAutoCommit(boolean)
+     */
+    public void commit() throws DataSourceException {
+        //Does nothing, as default datasource is in auto commit mode, it
+        //commits after every transaction.
+    }
+
+    /**
+     * Undoes all transactions made since the last commit or rollback. This
+     * method should be used only when auto-commit mode has been disabled.
+     * This method should only be implemented if
+     * <tt>setAutoCommit(boolean)</tt>  is also implemented.
+     *
+     * @throws DataSourceException if there are problems with the datasource.
+     * @throws UnsupportedOperationException if the rollback method is not
+     *         supported by this datasource.
+     *
+     * @see #setAutoCommit(boolean)
+     */
+    public void rollback()
+        throws DataSourceException, UnsupportedOperationException {
+	throw new UnsupportedOperationException("This datasource does not" +
+                " support rollbacks");
         
+    }
+
+    /**
+     * Sets this datasources auto-commit mode to the given state. If a
+     * datasource is in auto-commit mode, then all its add, remove and modify
+     * calls will be executed  and committed as individual transactions.
+     * Otherwise, those calls are grouped into a single transaction  that is
+     * terminated by a call to either the method commit or the method
+     * rollback.  By default, new datasources are in auto-commit mode.
+     *
+     * @param autoCommit <tt>true</tt> to enable auto-commit mode,
+     *        <tt>false</tt> to disable it.
+     *
+     * @throws DataSourceException DOCUMENT ME!
+     * @throws UnsupportedOperationException DOCUMENT ME!
+     *
+     * @see #setAutoCommit(boolean)
+     */
+    public void setAutoCommit(boolean autoCommit)
+        throws DataSourceException, UnsupportedOperationException {
+	
+	throw new UnsupportedOperationException("This datasource does not" +
+                " support rollbacks");
+        
+    }
+
+    /**
+     * Retrieves the current autoCommit mode for the current DataSource.  If
+     * the datasource does not implement setAutoCommit, then this method
+     * should always return true.
+     *
+     * @return <tt>true</tt>, as datasources are autoCommit by default.  If
+     *         setAutoCommit is implemented then this method should be
+     *         overridden.
+     *
+     * @throws DataSourceException if a datasource access error occurs.
+     *
+     * @see #setAutoCommit(boolean)
+     */
+    public boolean getAutoCommit() throws DataSourceException {
+        return true;
+    }
+    
     
 }
 

@@ -23,12 +23,13 @@ package org.geotools.data;
 /**
  * A memory-based datasource.
  *
- * @version $Id: MemoryDataSource.java,v 1.5 2003/03/28 19:17:26 cholmesny Exp $
+ * @version $Id: MemoryDataSource.java,v 1.6 2003/05/08 19:03:03 cholmesny Exp $
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
  */
 
 import java.util.Set;
+import java.util.HashSet;
 import org.geotools.feature.*;
 import org.geotools.filter.Filter;
 import com.vividsolutions.jts.geom.Envelope;
@@ -42,7 +43,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * with only a limited number of features is required.  It may also be
  * adapted in future to act as a cache for other datasources.
  */
-public class MemoryDataSource implements DataSource { 
+public class MemoryDataSource extends AbstractDataSource 
+    implements DataSource { 
     Envelope bbox = new Envelope();
     /**
      * Creates a new instance of MemoryDataSource.
@@ -65,19 +67,13 @@ public class MemoryDataSource implements DataSource {
      *
      * @param f The feature to add 
      */
-    public void addFeature(Feature f){
+    public String addFeature(Feature f){
         features.addElement(f);
         bbox.expandToInclude(f.getDefaultGeometry().getEnvelopeInternal());
+	return f.getId();
     }
+
     
-    /** 
-     * Stops this DataSource from loading.
-     * @task TODO: implement abort loading (if needed)
-     */
-    public void abortLoading() {
-    }
-    
-   
     /** 
      * Adds all features from the passed feature collection to the datasource.
      *
@@ -87,7 +83,12 @@ public class MemoryDataSource implements DataSource {
      * @task TODO: Implement addFeatures method
      */
     public Set addFeatures(FeatureCollection collection) throws DataSourceException {
-         throw new DataSourceException("Removal of features is not yet supported by this datasource");
+	Set addedFeatures = new HashSet();
+	Feature[] featureArr = collection.getFeatures();
+	for(int i = 0; i < featureArr.length; i++) {
+	    addedFeatures.add(addFeature(featureArr[i]));
+	}
+	return addedFeatures;
     }
     
     /** Gets the bounding box of this datasource using the default speed of
@@ -100,32 +101,6 @@ public class MemoryDataSource implements DataSource {
         return bbox;
     }
     
-    /** Gets the bounding box of this datasource using the speed of
-     * this datasource as set by the parameter.
-     *
-     * @param speed If true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but accurate extent
-     * will be returned
-     * @return The extent of the datasource or null if unknown and too
-     * expensive for the method to calculate.
-     */
-    public Envelope getBbox(boolean speed) {
-        return getBbox();
-    }
-    
-    /** Loads features from the datasource into the returned collection, based on
-     * the passed filter.
-     *
-     * @param filter An OpenGIS filter; specifies which features to retrieve.
-     * @return Collection The collection to put the features into.
-     * @throws DataSourceException For all data source errors.
-     */
-    public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
-       FeatureCollection fc = new FeatureCollectionDefault();
-       getFeatures(fc,filter);
-       return fc;
-    }
-    
     /** Loads features from the datasource into the passed collection, based on
      * the passed filter.  Note that all data sources must support this method
      * at a minimum.
@@ -133,8 +108,14 @@ public class MemoryDataSource implements DataSource {
      * @param collection The collection to put the features into.
      * @param filter An OpenGIS filter; specifies which features to retrieve.
      * @throws DataSourceException For all data source errors.
+     * @task TODO: use the query object more effectively, like maxFeatures, 
+     * typename and properties elements if they exist.
      */
-    public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
+    public void getFeatures(FeatureCollection collection, Query query) throws DataSourceException {
+	Filter filter = null;
+	if (query != null) {
+	    filter = query.getFilter();
+	}
          for (int i = 0; i < features.size(); i++){
             Feature f = (Feature) features.elementAt(i);
             if (filter.contains(f)){
@@ -143,98 +124,6 @@ public class MemoryDataSource implements DataSource {
         }
     }
     
-        /** Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.  A convenience
-     * method for single attribute modifications.
-     *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
-     * @throws DataSourceException If modificaton is not supported, if
-     * the object type do not match the attribute type.
-     * @task TODO: Implement support for modification of features (single attribute)
-     */
-    public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource");
-    }
-    
-    /** Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.
-     *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
-     * @throws DataSourceException If modificaton is not supported, if
-     * the attribute and object arrays are not eqaul length, or if the object
-     * types do not match the attribute types.
-     * @task TODO: Implement support for modification of feature (multi attribute)
-     */
-    public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource");
-    }
-    
-    /** Removes all of the features specificed by the passed filter from the
-     * collection.
-     *
-     * @param filter An OpenGIS filter; specifies which features to remove.
-     * @throws DataSourceException If anything goes wrong or if deleting is
-     * not supported.
-     * @task TODO: Implement support for removal of features
-     */
-    public void removeFeatures(Filter filter) throws DataSourceException {
-        throw new DataSourceException("Removal of features is not yet supported by this datasource");
-    }
-    
-      /**
-     * Begins a transaction(add, remove or modify) that does not commit as 
-     * each modification call is made.  If an error occurs during a transaction
-     * after this method has been called then the datasource should rollback: 
-     * none of the transactions performed after this method was called should
-     * go through.
-     */
-    public void startMultiTransaction() throws DataSourceException{
-	throw new DataSourceException("multi transactions not supported");
-    }
-
-    /**
-     * Ends a transaction after startMultiTransaction has been called.  Similar
-     * to a commit call in sql, it finalizes all of the transactions called
-     * after a startMultiTransaction.
-     */
-    public void endMultiTransaction() throws DataSourceException {
-	throw new DataSourceException("multi transactions not supported");
-    }
-    /**************************************************
-      Data source utility methods.
-     **************************************************/
-
-    /**
-     * Gets the DatasSourceMetaData object associated with this datasource.  
-     * This is the preferred way to find out which of the possible datasource
-     * interface methods are actually implemented, query the DataSourceMetaData
-     * about which methods the datasource supports.
-     */
-    public DataSourceMetaData getMetaData(){
-	return new DataSourceMetaData() {
-		public boolean supportsTransactions(){ return false; }
-		public boolean supportsMultiTransactions(){ return false; }
-		public boolean supportsSetFeatures(){return false;}
-		public boolean supportsSetSchema(){return false;}
-		public boolean supportsAbort(){return false;}
-		public boolean supportsGetBbox(){return true;}
-	    };
-    }
-	    
-    /**
-     * Deletes the all the current Features of this datasource and adds the
-     * new collection.  Primarily used as a convenience method for file 
-     * datasources.  
-     * @param collection - the collection to be written
-     */
-    public void setFeatures(FeatureCollection collection) throws DataSourceException{
-	throw new DataSourceException("set feature not supported");
-    }
-
     /**
      * Retrieves the featureType that features extracted from this datasource
      * will be created with.
@@ -242,7 +131,7 @@ public class MemoryDataSource implements DataSource {
      * of the same type, so this will only return the first feature's
      * schema.  Should this datasource allow features of different types?
      */
-    public FeatureType getSchema(){
+    public FeatureType getSchema() throws DataSourceException {
 	FeatureType featureType = null;
 	//if (features.size() > 0) {
 	//    Feature f = (Feature) features.elementAt(0);
@@ -252,14 +141,18 @@ public class MemoryDataSource implements DataSource {
     }
 
     /**
-     * Sets the schema that features extrated from this datasource will be 
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the 
-     * attributeTypes from the currently used schema.  
-     * @param schema the new schema to be used to create features.
+     * Creates the a metaData object.  This method should be overridden in any
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.  <p>
+     * 
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
      */
-    public void setSchema(FeatureType schema) throws DataSourceException {
-	throw new DataSourceException("set schema method not supported");
+    protected DataSourceMetaData createMetaData() {
+	MetaDataSupport memMeta = new MetaDataSupport();
+	memMeta.setSupportsAdd(true);
+	return memMeta;
     }
 
 }

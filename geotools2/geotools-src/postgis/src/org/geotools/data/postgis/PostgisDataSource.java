@@ -44,11 +44,12 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.22 2003/04/23 17:33:11 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.23 2003/05/08 19:06:41 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
-public class PostgisDataSource implements org.geotools.data.DataSource {
+public class PostgisDataSource extends AbstractDataSource 
+    implements org.geotools.data.DataSource {
 
 
     private static Map sqlTypeMap = new HashMap();
@@ -440,14 +441,18 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @return Full SQL statement.
      * @tasks REVISIT: put all the sql construction in a helper class?
      */ 
-    public String makeSql(Filter filter, String tableName,
-			  FeatureType schema, boolean useLimit) 
+    public String makeSql(Filter filter, Query query, boolean useLimit) 
 	throws DataSourceException{
+	String tableName = query.getTypeName();
 	StringBuffer sqlStatement = new StringBuffer("SELECT ");
 	sqlStatement.append(fidColumn);
-        AttributeType[] attributeTypes = schema.getAttributeTypes();
+        AttributeType[] attributeTypes = query.getProperties();
+	if (attributeTypes == null) {
+	    attributeTypes = schema.getAllAttributeTypes();
+	}
 	int numAttributes = attributeTypes.length;
- 
+	LOGGER.finer("making sql for " + numAttributes + " attributes");
+	//TODO: implement loading of null features.  Supports null loads in metadata?
         for( int i = 0; i < numAttributes; i++) {
 	    String curAttName = attributeTypes[i].getName();
             if( Geometry.class.isAssignableFrom( attributeTypes[i].getType())) {
@@ -509,30 +514,41 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      *
      * @param filter The filter from the requester.
      */ 
-    public FeatureCollection getFeatures(Filter filter)
-        throws DataSourceException {
+    //public FeatureCollection getFeatures(Filter filter)
+    //  throws DataSourceException {
 
-        FeatureCollection collection = new FeatureCollectionDefault();
-        getFeatures(collection, filter);
-        return collection;
-    }
+    //  FeatureCollection collection = new FeatureCollectionDefault();
+    //  getFeatures(collection, filter);
+    //  return collection;
+    //}
+
+      /**
+     * Returns the full GML GetFeature response for each query and bounding box
+     *
+     * @param genericQuery The query from the request object.
+     */ 
+    //public void getFeatures(FeatureCollection collection, Filter filter) 
+    //   throws DataSourceException {
+    //}
 
     /**
      * Returns the full GML GetFeature response for each query and bounding box
      *
      * @param genericQuery The query from the request object.
      */ 
-    public void getFeatures(FeatureCollection collection, Filter filter) 
+    public void getFeatures(FeatureCollection collection, Query query) 
         throws DataSourceException {
-        
-        List features = new ArrayList(maxFeatures);
+        Filter filter = query.getFilter();
+	int maxFeatures = query.getMaxFeatures();
+        LOGGER.finer("filter is " + filter);
+	List features = new ArrayList();//initial capacity of maxFeauters?
+	//Would be good when maxFeatures is reached, but default of 10000000?
         try {
             // retrieve the result set from the JDBC driver
-            //LOGGER.fine("about to make connection");
+            //LOGGER.finer("about to make connection");
             Statement statement = dbConnection.createStatement();
-
-            // if no schema has been passed to the datasource, roll our own
-            //LOGGER.info("schema = " + schema);
+	    LOGGER.finer("made statement");
+	    //figure out which of the filter we can use.
 	    unpacker.unPackAND(filter);
 	    //if there is no filter applied after the sql select statement then
 	    //we can use the maxFeatures in the statement.  If not we have to 
@@ -540,7 +556,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    boolean useLimit = (unpacker.getUnSupported() == null);
 	    LOGGER.finest("passed in " + unpacker.getSupported() + 
 			  tableName + schema + useLimit);
-	    String sql = makeSql(unpacker.getSupported(), tableName, schema, useLimit);
+	    String sql = makeSql(unpacker.getSupported(), query, useLimit);
             ResultSet result = statement.executeQuery( sql);
 
             // set up a factory, attributes, and a counter for feature creation
@@ -663,7 +679,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Statement statement = dbConnection.createStatement();
 	FeatureType fidSchema = 
 		    FeatureTypeFactory.create(new AttributeType[0]);
-	String sql = makeSql(null, tableName, schema, false);
+	QueryImpl query = new QueryImpl(tableName, null);
+	query.setProperties(new AttributeType[0]);
+	String sql = makeSql(null, query, false);
 	ResultSet result = statement.executeQuery( sql);
 	while (result.next()){
 	    //REVISIT: this formatting could be done after the remove,
@@ -947,7 +965,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	}
     }
 
-    public FeatureType getSchema() {
+    public FeatureType getSchema() throws DataSourceException {
 	return schema;
     }
 
@@ -984,14 +1002,34 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	}
     }
 
-    public DataSourceMetaData getMetaData(){
-	return new PostgisMetaData();
-    }
+    //public DataSourceMetaData getMetaData(){
+    //	return new PostgisMetaData();
+    //}
 
     /**
      * Stops this DataSource from loading.
      */
     public void abortLoading() {
+    }
+
+       
+    /**
+     * Creates the a metaData object.  This method should be overridden in any
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.  <p>
+     * 
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
+     */
+    protected DataSourceMetaData createMetaData() {
+	MetaDataSupport pgMeta = new MetaDataSupport();
+	pgMeta.setSupportsAdd(true);
+	pgMeta.setSupportsRemove(true);
+	pgMeta.setSupportsModify(true);
+	//pgMeta.setSupportsAdd(true);
+	return pgMeta;
+	//return new MetaDataSupport();
     }
     
     /**
@@ -1002,9 +1040,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * expensive for the method to calculate.
      * @task REVISIT: Consider changing return of getBbox to Filter once Filters can be unpacked
      */
-    public Envelope getBbox() {
-        return new Envelope();
-    }
+    //public Envelope getBbox() {
+    //   return new Envelope();
+    //}
     
     /**
      * Gets the bounding box of this datasource using the speed of 
@@ -1017,8 +1055,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * expensive for the method to calculate.
      * @task REVISIT:Consider changing return of getBbox to Filter once Filters can be unpacked
      */
-    public Envelope getBbox(boolean speed) {
-        return new Envelope();
-    }    
+    //public Envelope getBbox(boolean speed) {
+    //   return new Envelope();
+    //}    
 
 }

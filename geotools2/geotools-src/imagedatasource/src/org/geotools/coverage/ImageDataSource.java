@@ -21,6 +21,8 @@ import javax.media.jai.JAI;
 import org.geotools.cs.CoordinateSystemAuthorityFactory;
 import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.data.DataSourceException;
+import org.geotools.data.AbstractDataSource;
+import org.geotools.data.Query;
 import org.geotools.data.DataSourceMetaData;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
@@ -34,11 +36,12 @@ import org.geotools.filter.NullFilter;
 
 
 /**
- * $Id: ImageDataSource.java,v 1.4 2003/03/28 19:21:24 cholmesny Exp $
+ * $Id: ImageDataSource.java,v 1.5 2003/05/08 19:09:04 cholmesny Exp $
  *
  * @author  iant
  */
-public class ImageDataSource implements org.geotools.data.DataSource{
+public class ImageDataSource extends AbstractDataSource 
+    implements org.geotools.data.DataSource{
     org.geotools.io.coverage.ExoreferencedGridCoverageReader reader;
     org.geotools.io.coverage.PropertyParser parser;
     java.io.File file;
@@ -93,12 +96,6 @@ public class ImageDataSource implements org.geotools.data.DataSource{
         reader.setInput(file, false);
     }
     
-    /** Stops this DataSource from loading.
-     *
-     */
-    public void abortLoading() {
-    }
-    
     ArrayList loadFeatures(Filter filter) throws java.io.IOException, DataSourceException{
         if(filter == null) { // I think this builds a filter which is true for all none null features?
             filter = filterFactory.createNullFilter();
@@ -149,16 +146,7 @@ public class ImageDataSource implements org.geotools.data.DataSource{
         }
         return featuresList;
     }
-    /** Adds all features from the passed feature collection to the datasource.
-     *
-     * @param collection The collection from which to add the features.
-     * @throws DataSourceException If anything goes wrong or if exporting is
-     * not supported.
-     *
-     */
-    public Set addFeatures(FeatureCollection collection) throws DataSourceException {
-        throw new DataSourceException("Non transactional datasource");
-    }
+
     
     /** Gets the bounding box of this datasource using the default speed of
      * this datasource as set by the implementer.
@@ -236,7 +224,11 @@ public class ImageDataSource implements org.geotools.data.DataSource{
      * @throws DataSourceException For all data source errors.
      *
      */
-    public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
+    public void getFeatures(FeatureCollection collection, Query query) throws DataSourceException {
+	Filter filter = null;
+	if (query != null) {
+	    filter = query.getFilter();
+	}
         try{
             if(collection == null) collection = new org.geotools.feature.FeatureCollectionDefault();
             collection.addFeatures((Feature[])loadFeatures(filter).toArray(new Feature[0]));
@@ -245,100 +237,6 @@ public class ImageDataSource implements org.geotools.data.DataSource{
         }
     }
     
-    /** Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.  A convenience
-     * method for single attribute modifications.
-     *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
-     * @throws DataSourceException If modificaton is not supported, if
-     * the object type do not match the attribute type.
-     * @task TODO: implement this method.
-     */
-    public void modifyFeatures(org.geotools.feature.AttributeType type, Object value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Non transactional datasource");
-    }
-    
-    /** Modifies the passed attribute types with the passed objects in all
-     * features that correspond to the passed OGS filter.
-     *
-     * @param type The attributes to modify.
-     * @param value The values to put in the attribute types.
-     * @param filter An OGC filter to note which attributes to modify.
-     * @throws DataSourceException If modificaton is not supported, if
-     * the attribute and object arrays are not eqaul length, or if the object
-     * types do not match the attribute types.
-     * @task TODO: implement this method.
-     */
-    public void modifyFeatures(org.geotools.feature.AttributeType[] type, Object[] value, Filter filter) throws DataSourceException {
-        throw new DataSourceException("Non transactional datasource");
-    }
-    
-    /** Removes all of the features specificed by the passed filter from the
-     * collection.
-     *
-     * @param filter An OpenGIS filter; specifies which features to remove.
-     * @throws DataSourceException If anything goes wrong or if deleting is
-     * not supported.
-     * @task TODO: implement this method.
-     */
-    public void removeFeatures(Filter filter) throws DataSourceException {
-        throw new DataSourceException("Non transactional datasource");
-    }
-    
-    /**
-     * Begins a transaction(add, remove or modify) that does not commit as 
-     * each modification call is made.  If an error occurs during a transaction
-     * after this method has been called then the datasource should rollback: 
-     * none of the transactions performed after this method was called should
-     * go through.
-     * @task TODO: implement this method.
-     */
-    public void startMultiTransaction() throws DataSourceException{
-	throw new DataSourceException("multi transactions not supported");
-    }
-
-    /**
-     * Ends a transaction after startMultiTransaction has been called.  Similar
-     * to a commit call in sql, it finalizes all of the transactions called
-     * after a startMultiTransaction.
-     * @task TODO: implement this method.
-     */
-    public void endMultiTransaction() throws DataSourceException {
-	throw new DataSourceException("multi transactions not supported");
-    }
-    /**************************************************
-      Data source utility methods.
-     **************************************************/
-
-    /**
-     * Gets the DatasSourceMetaData object associated with this datasource.  
-     * This is the preferred way to find out which of the possible datasource
-     * interface methods are actually implemented, query the DataSourceMetaData
-     * about which methods the datasource supports.
-     */
-    public DataSourceMetaData getMetaData(){
-	return new DataSourceMetaData() {
-		public boolean supportsTransactions(){ return false; }
-		public boolean supportsMultiTransactions(){ return false; }
-		public boolean supportsSetFeatures(){return false;}
-		public boolean supportsSetSchema(){return false;}
-		public boolean supportsAbort(){return false;}
-		public boolean supportsGetBbox(){return true;}
-	    };
-    }
-	    
-    /**
-     * Deletes the all the current Features of this datasource and adds the
-     * new collection.  Primarily used as a convenience method for file 
-     * datasources.  
-     * @param collection - the collection to be written
-     * @task TODO: implement this method.
-     */
-    public void setFeatures(FeatureCollection collection) throws DataSourceException{
-	throw new DataSourceException("set feature not supported");
-    }
 
     /**
      * Retrieves the featureType that features extracted from this datasource
@@ -350,15 +248,18 @@ public class ImageDataSource implements org.geotools.data.DataSource{
     }
 
     /**
-     * Sets the schema that features extrated from this datasource will be 
-     * created with.  This allows the user to obtain the attributes he wants,
-     * by calling getSchema and then creating a new schema using the 
-     * attributeTypes from the currently used schema.  
-     * @param schema the new schema to be used to create features.
-     * @task TODO: implement this method.
+     * Creates the a metaData object.  This method should be overridden in any
+     * subclass implementing any functions beyond getFeatures, so that clients
+     * recieve the proper information about the datasource's capabilities.  <p>
+     * 
+     * @return the metadata for this datasource.
+     *
+     * @see #MetaDataSupport
      */
-    public void setSchema(FeatureType schema) throws DataSourceException {
-	throw new DataSourceException("set schema method not supported");
+    protected DataSourceMetaData createMetaData() {
+	MetaDataSupport imgMeta = new MetaDataSupport();
+	imgMeta.setSupportsGetBbox(true);
+	return imgMeta;
     }
 
 }
