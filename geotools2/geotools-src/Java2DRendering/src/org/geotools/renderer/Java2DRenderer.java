@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.30 2002/07/01 14:54:46 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.31 2002/07/01 14:58:01 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -794,7 +794,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     if(hy <= hx){
                         c=2*hx;
                         m=2*hy;
-                        for(int i=0;i<50;i++){
+                        for(int i=0;true;i++){
                             at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
@@ -819,7 +819,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     }else{
                         c=2*hy;
                         m=2*hx;
-                        for(int i=0;i<50;i++){
+                        for(int i=0;true;i++){
                             at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
                             at2.scale(scaleX,scaleY);
                             op = new AffineTransformOp(at2,hints);
