@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="renderer">
+    <target name="init">
+    <condition property="mavenbat">
+        <os family="windows"/>
+    </condition>
+    <condition property="mavenunix">
+        <os family="unix"/>
+    </condition>
+    <condition property="mavenmac"><and>
+      <os family="mac"/>
+      <not>
+        <os family="unix"/>
+      </not>
+    </and>
+  </condition>
+  <condition property="maven" value="maven.bat">
+    <istrue value="${mavenbat}"/>
+  </condition>
+  <condition property="maven" value="maven">
+      <or>  
+        <istrue value="${mavenunix}"/>
+        <istrue value="${mavenmac}"/>
+    </or>
+  </condition>
+</target>
+    <target name="test" depends="init">
+        
+        <exec executable="${maven}">
+          <arg value="test"/> 
+        </exec>
+    </target>
+    
+    <target name="site" depends="init">
+        <exec executable="${maven}">
+          <arg value="site"/> 
+        </exec>
+    </target>
+    
+    <target name="compile" depends="init">
+        <exec executable="${maven}">
+          <arg value="java:compile"/> 
+        </exec>
+    </target>
+    
+    <target name="clean" depends="init">
+        <exec executable="${maven}">
+          <arg value="clean"/> 
+        </exec>
+    </target>
+    
+    <target name="install" depends="init">
+        <exec executable="${maven}">
+          <arg value="jar:install"/> 
+        </exec>
+    </target>
+    
+    
+    
+</project>
