@@ -41,7 +41,13 @@
       <email>ianturton@users.sourceforge.net</email>
       <organization>CCG</organization>
     </developer>
-  </developers>
+        <developer>
+      <name>Linda Oxnard</name>
+      <id>loxnard</id>
+      <email>loxnard@users.sourceforge.net</email>
+      <organization>None</organization>
+    </developer>
+    </developers>
   <dependencies>
     <dependency>
       <id>log4j</id>
