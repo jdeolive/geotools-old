@@ -1,7 +1,21 @@
 /*
- * DefaultTextSymbolizer.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 03 July 2002, 12:42
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
 
 package org.geotools.styling;
@@ -9,8 +23,8 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 import java.util.ArrayList;
 /**
- *
- * @author  iant
+ * @version $Id: DefaultTextSymbolizer.java,v 1.4 2002/07/12 12:30:38 loxnard Exp $
+ * @author Ian Turton, CCG
  */
 public class DefaultTextSymbolizer implements TextSymbolizer {
     DefaultFill fill = new DefaultFill();
@@ -45,7 +59,9 @@ public class DefaultTextSymbolizer implements TextSymbolizer {
         return geometryPropertyName;
     }
     
-    /** return the fill to be used to fill the text when rendered.
+    /**
+     * Returns the fill to be used to fill the text when rendered.
+     * @return The fill to be used.
      */
     public Fill getFill() {
         return fill;
@@ -58,69 +74,79 @@ public class DefaultTextSymbolizer implements TextSymbolizer {
         this.fill = fill;
     }
     /**
-     * returns a device independent Font object that is tobe used to render the
-     * label
+     * Returns a device independent Font object that is to be used to render
+     * the label.
+     * @return Device independent Font object to be used to render the label.
      */
     public Font[] getFonts() {
-        if(fonts.size()==0){
+        if (fonts.size() == 0){
             fonts.add(new DefaultFont());
         }
-        return (Font[])fonts.toArray(new Font[]{});
+        return (Font[]) fonts.toArray(new Font[]{});
     }
-    /** Setter for property font.
+    /**
+     * Setter for property font.
      * @param font New value of property font.
      */
     public void addFont(org.geotools.styling.Font font) {
         this.fonts.add(font);
     }
-    /** A halo fills an extended area outside the glyphs of a rendered text label
-     * to make the label easier to read over a background.
+    /**
+     * A halo fills an extended area outside the glyphs of a rendered text
+     * label to make the label easier to read over a background.
      */
     public Halo getHalo() {
         return halo;
     }
-    /** Setter for property halo.
+    /**
+     * Setter for property halo.
      * @param halo New value of property halo.
      */
     public void setHalo(org.geotools.styling.Halo halo) {
         this.halo = halo;
     }
     /**
-     * returns the label expression
+     * Returns the label expression.
+     * @return Label expression.
      */
     public Expression getLabel() {
         return label;
     }
-    /** Setter for property label
-     * @param label New alue of property label
+    /**
+     * Setter for property label.
+     * @param label New value of property label.
      */
     public void setLabel(Expression label){
         this.label = label;
     }
     
     /**
-     * A pointPlacement specifies how a text element should be rendered relative
-     * to its geometric point
+     * A pointPlacement specifies how a text element should be rendered
+     * relative to its geometric point.
+     * @return Value of property labelPlacement.
      */
     public LabelPlacement getLabelPlacement() {
         return labelPlacement;
     }
     
-    /** Setter for property labelPlacement.
+    /**
+     * Setter for property labelPlacement.
      * @param labelPlacement New value of property labelPlacement.
      */
     public void setLabelPlacement(org.geotools.styling.LabelPlacement labelPlacement) {
         this.labelPlacement = labelPlacement;
     }
     
-    /** Getter for property geometryPropertyName.
+    /**
+     * Getter for property geometryPropertyName.
      * @return Value of property geometryPropertyName.
      */
     public java.lang.String getGeometryPropertyName() {
         return geometryPropertyName;
     }
     
-    /** Setter for property geometryPropertyName.
+    /**
+     * Setter for property geometryPropertyName.
      * @param geometryPropertyName New value of property geometryPropertyName.
      */
     public void setGeometryPropertyName(java.lang.String geometryPropertyName) {
