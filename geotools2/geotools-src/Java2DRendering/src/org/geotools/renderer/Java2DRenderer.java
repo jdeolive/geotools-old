@@ -64,7 +64,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         //System.out.println("translation is "+(-e.getMinX()*scale)+","+screenSize.getHeight());
         //at.setToTranslation(-e.getMinX()*scale,screenSize.getHeight());
         System.out.println("translation is "+(-e.getMinX()*scale)+","+(screenSize.getHeight()+ (-e.getMinY()*scale)));
-        at.setToTranslation(-e.getMinX(),(screenSize.getHeight()+ (-e.getMinY()*scale)));
+        at.setToTranslation(-e.getMinX(),(screenSize.getHeight()));
         at.scale(scale,-scale);
         graphics.setTransform(at);
         
