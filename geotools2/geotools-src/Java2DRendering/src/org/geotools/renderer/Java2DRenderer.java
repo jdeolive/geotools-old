@@ -45,6 +45,7 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
+import java.awt.Shape;
 
 //util imports
 import java.util.HashMap;
@@ -90,6 +91,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
          */
         wellKnownMarks.put("Square","Square");
         wellKnownMarks.put("Triangle","Triangle");
+        wellKnownMarks.put("Cross","Cross");
+        wellKnownMarks.put("Circle","Circle");
+        wellKnownMarks.put("Star","Square");
+        wellKnownMarks.put("X","Square");
         // TODO: implement the remaining symbols
     }
     
@@ -362,7 +367,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double rotation = 0;
         
         if(marks == null || marks.length==0){
-            _log.debug("filling default mark");
+            _log.debug("choosing a default mark as no marks returned");
             marks = new Mark[1];
             marks[0] = new DefaultMark();
         }
@@ -371,34 +376,73 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             if(wellKnownMarks.containsKey(marks[i].getWellKnownName())){
                 mark = marks[i];
                 size = (int)graphic.getSize();
-                rotation = graphic.getRotation();
+                rotation = graphic.getRotation()*Math.PI/180d;
                 if(mark.getFill()!=null){
-                    fillMark(geom,mark,size,rotation);
+                    fillMark((Point)geom,mark,size,rotation);
                 }
                 if(mark.getStroke()!=null){
-                    drawMark(geom,mark,size,rotation);
+                    drawMark((Point)geom,mark,size,rotation);
                 }
                 return;
             }
         }
+        _log.debug("going for a defaultMark");
         mark = new DefaultMark();
-        fillMark(geom,mark,size,rotation);
-        drawMark(geom,mark,size,rotation);
+        fillMark((Point)geom,mark,size,rotation);
+        drawMark((Point)geom,mark,size,rotation);
     }
     
-    private void drawMark(Geometry geom,Mark mark, int size, double rotation){
+    private void drawMark(com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
         if(mark.getStroke()== null){
             return;
         }
-        //TODO: implement draw Mark
+        _log.info("drawing Mark");
+        applyStroke(mark.getStroke(),null);
+        AffineTransform temp = graphics.getTransform();
+        AffineTransform markAT = new AffineTransform();
+        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
+        double tx = point.getX();
+        double ty = point.getY();
+        Point2D mapCentre = new Point2D.Double(tx,ty);
+        Point2D graphicCentre = new Point2D.Double();
+        temp.transform(mapCentre,graphicCentre);
+        markAT.translate(graphicCentre.getX(),graphicCentre.getY());
+        markAT.rotate(rotation);
+        double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        double drawSize = (double)size/unitSize;
+        markAT.scale(drawSize,-drawSize);
+        graphics.setTransform(markAT);
+        graphics.draw(shape);
+        graphics.setTransform(temp);
         return;
     }
-    private void fillMark(Geometry geom,Mark mark, int size, double rotation){
+    private void fillMark(com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
         if(mark.getFill()== null){
             return;
         }
-        //TODO: implement fill Mark
+        _log.info("filling mark");
+        applyFill(mark.getFill(),null);
+        AffineTransform temp = graphics.getTransform();
+        AffineTransform markAT = new AffineTransform();
+        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
+        double tx = point.getX();
+        double ty = point.getY();
+        Point2D mapCentre = new Point2D.Double(tx,ty);
+        Point2D graphicCentre = new Point2D.Double();
+        temp.transform(mapCentre,graphicCentre);
+        markAT.translate(graphicCentre.getX(),graphicCentre.getY());
+        markAT.rotate(rotation);
+        double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        double drawSize = (double)size/unitSize;
+        markAT.scale(drawSize,-drawSize);
+        
+        
+        graphics.setTransform(markAT);
+        graphics.fill(shape);
+        graphics.setTransform(temp);
+        resetFill();
         return;
+ 
     }
     private void applyFill(Fill fill, Feature feature){
         if(fill == null ) return;
@@ -406,6 +450,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         //HACK: never be throwing any
         try{
             graphics.setColor(Color.decode((String)fill.getColor().getValue(feature)));
+            _log.debug("Setting fill: "+graphics.getColor().toString());
             Number value = (Number)fill.getOpacity().getValue(feature);
             float opacity = value.floatValue();
             graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,opacity));
