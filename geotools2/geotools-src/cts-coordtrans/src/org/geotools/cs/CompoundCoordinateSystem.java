@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.6 2003/01/20 23:16:07 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.7 2003/01/25 14:00:57 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -172,7 +172,7 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
             }
             final int dim = dimension-headDim;
             if (dim < tail.getDimension()) {
-                return head.getUnits(dim);
+                return tail.getUnits(dim);
             }
         }
         throw new IndexOutOfBoundsException(Resources.format(
