@@ -53,7 +53,7 @@ import org.geotools.cs.CoordinateSystem;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.1 2003/03/12 09:30:41 camerons Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.2 2003/03/12 11:10:26 camerons Exp $
  * @author Martin Desruisseaux
  * @author Cameron Shorter
  */
@@ -63,12 +63,6 @@ public final class GeoMouseEvent extends MouseEvent {
      * to CoordinateSystem coordinates.
      */
     final AffineTransform transform;
-
-    /**
-     * "Real world" two-dimensional coordinate of mouse location, in the user
-     * {@link #coordinateSystem}. Will be computed only when first requested.
-     */
-    private transient double px,py;
 
     /**
      * The coordinate system for ({@link #x},{@link #y}) or <code>null</code>
