@@ -10,11 +10,13 @@ package org.geotools.datasource;
  * A memory based datasource
  * @author James
  * @author  iant
- * $Id: MemoryDataSource.java,v 1.1 2002/05/02 16:54:43 ianturton Exp $
+ * $Id: MemoryDataSource.java,v 1.2 2002/05/14 23:49:51 robhranac Exp $
  */
 
-import org.geotools.featuretable.FeatureTable;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
+
 public class MemoryDataSource implements DataSource {
     EnvelopeExtent bbox = new EnvelopeExtent();
     /** Creates a new instance of MemoryDataSource */
@@ -35,11 +37,11 @@ public class MemoryDataSource implements DataSource {
      * @param ex an extent defining which features to load - null means all features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
+    public void importFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
         for(int i=0;i<features.size();i++){
             Feature f = (Feature)features.elementAt(i);
             if(ex.containsFeature(f)){
-                ft.addFeature(f);
+                ft.addFeatures(new Feature[]{f});
             }
         }
     }
@@ -49,13 +51,13 @@ public class MemoryDataSource implements DataSource {
      * @param ex extent to define which features to write - null means all
      * @throws DataSourceException if anything goes wrong or if exporting is not supported
      */
-    public void exportFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
+    public void exportFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
         //do nothing
     }
     
     public void addFeature(Feature f){
         features.addElement(f);
-        bbox.combine(new EnvelopeExtent(f.getGeometry().getEnvelopeInternal()));
+        bbox.combine(new EnvelopeExtent(f.getDefaultGeometry().getEnvelopeInternal()));
     }
     
     /** gets the extent of this data source using the speed of

@@ -163,7 +163,15 @@
 
   <!-- Compiles all test code for the module. -->
   <target name="compile-test" depends="compile" if="testsuite">
-    <javac debug="true" srcdir="${dir.test}" classpathref="path.compile"/>
+    <javac debug="true" srcdir="${dir.test}">
+      <classpath>
+        <path path="${dir.module}/src"/>
+        <path path="${dir.module}/tests/unit"/>
+        <path path="${dir.module}/../../extbin/core/lib/JTS.jar"/>
+        <path path="${dir.module}/../../extbin/core/lib/log4j.jar"/>
+        <path path="${dir.module}/../core/src"/>
+      </classpath>
+    </javac>
   </target>
 
   <!-- Runs the unit tests on the module, if any exist. -->

@@ -7,9 +7,9 @@
 package org.geotools.map;
 
 import java.util.Hashtable;
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 import org.geotools.renderer.*;
 import org.geotools.styling.*;
 import org.opengis.cs.*;
@@ -48,14 +48,14 @@ public class DefaultMap implements org.geotools.map.Map {
     public DefaultMap() {
     }
 
-    public void addFeatureTable(FeatureTable ft, Style style) {
+    public void addFeatureTable(FeatureCollection ft, Style style) {
         tables.put(ft,style);
     }
     
     public void render(Renderer renderer, Envelope envelope) {
         java.util.Enumeration layers = tables.keys();
         while(layers.hasMoreElements()){
-            FeatureTable ft = (FeatureTable)layers.nextElement();
+            FeatureCollection ft = (FeatureCollection)layers.nextElement();
             Style style = (Style)tables.get(ft);
             try{
                 Feature[] features = ft.getFeatures(new EnvelopeExtent(envelope));//TODO: this could be a bottle neck

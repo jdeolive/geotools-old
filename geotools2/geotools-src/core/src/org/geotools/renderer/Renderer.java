@@ -23,8 +23,8 @@
 package org.geotools.renderer;
 import org.geotools.styling.*;
 import org.geotools.map.Map;
-import org.geotools.datasource.Extent;
-import org.geotools.datasource.Feature;
+import org.geotools.data.Extent;
+import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**

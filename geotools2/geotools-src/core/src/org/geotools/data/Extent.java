@@ -1,5 +1,7 @@
 package org.geotools.data;
 
+import org.geotools.feature.*;
+
 /**
  * Represents the extent of a loaded Feature set.
  * @author ray

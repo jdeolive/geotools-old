@@ -1,7 +1,7 @@
 package org.geotools.datasource.extents;
 
-import org.geotools.datasource.Extent;
-import org.geotools.datasource.Feature;
+import org.geotools.data.Extent;
+import org.geotools.feature.Feature;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -9,7 +9,7 @@ import com.vividsolutions.jts.geom.Envelope;
 /** A geographic filter class
  * @author James Macgill, CCG, University of Leeds
  * @author Ian Turton, CCG, University of Leeds
- * $Id: EnvelopeExtent.java,v 1.9 2002/04/20 12:15:17 jmacgill Exp $
+ * $Id: EnvelopeExtent.java,v 1.10 2002/05/14 23:49:50 robhranac Exp $
  */
 public class EnvelopeExtent implements Extent {
     /** internal representation of the bounding box
@@ -107,7 +107,7 @@ public class EnvelopeExtent implements Extent {
         if (feature == null /*|| feature.row==null*/){
             return false;
         }
-        Geometry s = (Geometry) feature.getGeometry();
+        Geometry s = (Geometry) feature.getDefaultGeometry();
         return bounds.overlaps(s.getEnvelopeInternal());
     }
     /** creates an interface

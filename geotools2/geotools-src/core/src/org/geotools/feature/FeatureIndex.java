@@ -1,7 +1,6 @@
-package org.geotools.featuretable;
+package org.geotools.feature;
 
 
-import org.geotools.feature.*;
 /**
  * An Index is built up around a FeatureTable, using one of the columns in
  * FeatureTable as a comparable reference. An object in a column can be any
@@ -13,7 +12,7 @@ import org.geotools.feature.*;
  *
  * @author ray
  */
-public interface FeatureIndex extends TableChangedListener {
+public interface FeatureIndex extends CollectionListener {
 
    /**
     * Gets an array of references to the rows currently held by this Index.

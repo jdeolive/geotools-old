@@ -2,12 +2,12 @@ package org.geotools.datasource;
 
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 import java.util.*;
 import junit.framework.*;
 
-public class DatasourceTest extends TestCase implements TableChangedListener {
-    FeatureTable ft = null;
+public class DatasourceTest extends TestCase implements CollectionListener {
+    FeatureCollection ft = null;
     FeatureIndex fi = null;
     public DatasourceTest(java.lang.String testName){
         super(testName);
@@ -28,7 +28,7 @@ public class DatasourceTest extends TestCase implements TableChangedListener {
         
         String path =new java.io.File(dataFolder,"Furizibad.csv").getCanonicalFile().toString();
         
-        ft = new DefaultFeatureTable(new VeryBasicDataSource(path));
+        ft = new FeatureCollectionDefault(new VeryBasicDataSource(path));
         //ft.setLoadMode(FeatureTable.MODE_LOAD_INTERSECT);
         ft.addTableChangedListener(this);
         // Request extent
@@ -43,7 +43,7 @@ public class DatasourceTest extends TestCase implements TableChangedListener {
         assertEquals(5,ft.getFeatures().length);
     }
     
-    public void tableChanged(TableChangedEvent tce) {
+    public void tableChanged(CollectionEvent tce) {
         System.out.println("tableChanged called()");
     }
 }
