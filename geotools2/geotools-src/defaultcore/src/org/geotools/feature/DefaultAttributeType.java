@@ -27,7 +27,7 @@ import java.util.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.3 2003/07/18 19:41:57 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.4 2003/07/18 19:55:00 jmacgill Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -207,11 +207,15 @@ public class DefaultAttributeType implements AttributeType {
     }
     
     public void validate(Object attribute) throws IllegalArgumentException {
-      if (attribute == null && ! isNillable())
-        throw new IllegalArgumentException(getName() + " is not nillable");
+      if (attribute == null){
+          if(!isNillable()){
+              throw new IllegalArgumentException(getName() + " is not nillable");
+          }
+          return;
+      }
       if (!type.isAssignableFrom(attribute.getClass()))
         throw new IllegalArgumentException(attribute.getClass().getName() + 
-        " is not an acceptable class for " + getName());
+        " is not an acceptable class for " + getName() + " as it is not assignable from " + type);
     }
     
     
@@ -222,7 +226,9 @@ public class DefaultAttributeType implements AttributeType {
           throw new IllegalArgumentException("Numeric requires Number class, " +
           "not " + type);
       }
-      
+      /**
+       * @task REVISIT: When type is Number, should we always be using Double?
+       **/
       public Object parse(Object value) throws IllegalArgumentException {
         if (value == null) return value;
         if (type == Byte.class) return Byte.decode(value.toString());
@@ -231,6 +237,7 @@ public class DefaultAttributeType implements AttributeType {
         if (type == Float.class) return Float.valueOf(value.toString());
         if (type == Double.class) return Double.valueOf(value.toString());
         if (type == Long.class) return Long.decode(value.toString());
+        if (type.isAssignableFrom(Number.class)) return Double.valueOf(value.toString());
         throw new RuntimeException("DefaultAttributeType.Numeric is coded wrong");
       }
     }
@@ -247,7 +254,7 @@ public class DefaultAttributeType implements AttributeType {
         org.geotools.feature.Feature att = (org.geotools.feature.Feature) attribute;
         if (! att.getFeatureType().isDescendedFrom(featureType) || 
             ! att.getFeatureType().equals(featureType))
-          throw new IllegalArgumentException("Not correct FeatureType");
+          throw new IllegalArgumentException("Not correct FeatureType, expected " + featureType + " got " + att.getFeatureType());
       }
       
     }
