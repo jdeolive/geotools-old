@@ -34,6 +34,7 @@ public interface ResourceKeys
     public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;
     public static final int WARNING_OFFSCREEN_RENDERING_FAILED_$1    =    20;
     public static final int WARNING_UNEXPECTED_UNIT_$1               =     8;
+    public static final int WARNING_UNKNOW_STYLE_$2                  =    23;
 
     public static final int ERROR_BAD_ARGUMENT_$2                    =     9;
     public static final int ERROR_BAD_RANGE_$2                       =    10;

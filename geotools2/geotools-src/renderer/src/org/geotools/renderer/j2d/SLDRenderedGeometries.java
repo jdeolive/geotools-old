@@ -107,6 +107,12 @@ public class SLDRenderedGeometries extends RenderedGeometries {
      *        coordinates.
      *
      * @throws TransformException If a transformation failed.
+     *
+     * @task REVISIT: The scale computation done here is inacurate. It uses only the scale along
+     *                X axis, fails under rotation, ignore the physical device size and do not
+     *                comply to the usual definition of map scale (for example 1:10000 meaning
+     *                "10000 meters in the real world = 1 meter on the screen").
+     *                A more accurate scale would be Renderer.getScale().
      */
     protected void paint(final RenderingContext context)
         throws TransformException {

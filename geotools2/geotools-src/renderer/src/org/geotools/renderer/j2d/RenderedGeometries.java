@@ -49,11 +49,14 @@ import java.awt.TexturePaint;
 import javax.swing.UIManager;
 import javax.media.jai.GraphicsJAI;
 
-// Collections
+// Utilities
 import java.util.List;
+import java.util.Locale;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
@@ -73,6 +76,9 @@ import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.CTSUtilities;
+import org.geotools.resources.Utilities;
+import org.geotools.resources.renderer.Resources;
+import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
@@ -80,7 +86,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...) may be rendererd
  * with an instance of <code>RenderedGeometries</code>.
  *
- * @version $Id: RenderedGeometries.java,v 1.12 2003/11/12 14:14:08 desruisseaux Exp $
+ * @version $Id: RenderedGeometries.java,v 1.13 2003/11/28 23:33:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGeometries extends RenderedLayer {
@@ -128,6 +134,17 @@ public class RenderedGeometries extends RenderedLayer {
     static final double THICKNESS = 0.25;
 
     /**
+     * The identity transform. <strong>Do not modify</strong>.
+     *
+     * @task REVISIT: We should not use an identity transform, but dynalically uses the Java2D
+     *                transform (may not be the same for printer output for example).
+     *
+     * @task REVISIT: If we keep this transform after all, we don't need to declares it again
+     *                it SLDRenderedGeometries.
+     */
+    private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
+
+    /**
      * The geometry data.
      * The {@linkplain GeometryCollection#getCoordinateSystem geometry's coordinate system}
      * should matches the {@linkplain #getCoordinateSystem rendering coordinate system}.
@@ -144,7 +161,10 @@ public class RenderedGeometries extends RenderedLayer {
 
     /**
      * List of clipped geometries. A clipped geometry may be faster to renderer
-     * than the full geometry. Most rencently used geometries are last in this list.
+     * than the full geometry. Most recently created geometries are last in this list.
+     *
+     * @task REVISIT: It may be worth to sort this list with most recently USED geometry FIRST.
+     *                The sort could be done at the end of 'getGeometry(...)' method.
      */
     private final List clipped = (CLIP_CACHE_SIZE!=0) ? new LinkedList() : null;
 
@@ -458,8 +478,8 @@ public class RenderedGeometries extends RenderedLayer {
 
     /**
      * Gets the style from a geometry object, or <code>null</code> if none. If the geometry style
-     * is not an instance of of {@link Style2D} (for example if it came from a renderer targeting
-     * an other output device), set it to <code>null</code> in order to lets the garbage collector
+     * is not an instance of {@link Style2D} (for example if it came from a renderer targeting an
+     * other output device),  set it to <code>null</code>  in order to lets the garbage collector
      * do its work. It will not hurt the foreigner rendering device, since the constructor cloned
      * the geometries.
      */
@@ -470,6 +490,13 @@ public class RenderedGeometries extends RenderedLayer {
                 return (Style2D) style;
             }
             geometry.setStyle(null);
+            final Locale locale = null; // Can't invokes 'getLocale()' in a static method.
+            final LogRecord record = Resources.getResources(locale).getLogRecord(Level.WARNING,
+                            ResourceKeys.WARNING_UNKNOW_STYLE_$2,
+                            Utilities.getShortClassName(style), geometry.getName(locale));
+            record.setSourceClassName("RenderedGeometries");
+            record.setSourceMethodName("paint");
+            Renderer.LOGGER.log(record);
         }
         return fallback;
     }
