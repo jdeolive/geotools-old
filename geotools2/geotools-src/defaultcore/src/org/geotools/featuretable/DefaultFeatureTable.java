@@ -47,6 +47,7 @@ public class DefaultFeatureTable implements FeatureTable {
     public Feature[] getFeatures() {
         Feature[] features = new Feature[rows.size()];
         for(int i=0;i<features.length;i++){
+            System.out.println(""+rows.elementAt(i));
             features[i] = (Feature)rows.elementAt(i);
         }
         return features;
@@ -95,6 +96,7 @@ public class DefaultFeatureTable implements FeatureTable {
         for(int i=0;i<toLoad.length;i++){
             //TODO: move this code to its own method?
             if(toLoad[i]!=null){
+                System.out.println("loading "+i);
                 datasource.importFeatures(this,toLoad[i]);
                 if(loadedExtent==null){
                     loadedExtent = toLoad[i];
@@ -104,6 +106,7 @@ public class DefaultFeatureTable implements FeatureTable {
                 }
             }
         }
+        System.out.println("calling getfeatures");
         return getFeatures();
     }
     
@@ -128,7 +131,7 @@ public class DefaultFeatureTable implements FeatureTable {
     public void addFeatures(Feature[] features) {
         for(int i=0;i<features.length;i++){
             if(!rows.contains(features[i])){
-                rows.addElement(features);
+                rows.addElement(features[i]);
             }
         }
     }
