@@ -60,7 +60,7 @@ public class GMLFilterDocument extends XMLFilterImpl {
 		 * @param parent Parent of the filter: must implement GMLHandlerGeometry.
 		 */
 		public GMLFilterDocument (GMLHandlerGeometry parent) {
-				super(parent);
+				super();
 				this.parent = parent;
 		}
 
@@ -83,8 +83,8 @@ public class GMLFilterDocument extends XMLFilterImpl {
 				if( namespaceURI.equals(GML_NAMESPACE) ) {
 
 						// if geometry, pass it on down the filter chain
-					  if      ( BASE_GEOMETRY_TYPES.contains(localName) )  { this.parent.geometryStart(localName, atts); }								
-					  else if ( SUB_GEOMETRY_TYPES.contains(localName) )   { this.parent.geometrySub(localName); }								
+					  if      ( BASE_GEOMETRY_TYPES.contains(localName) )  { parent.geometryStart(localName, atts); }								
+					  else if ( SUB_GEOMETRY_TYPES.contains(localName) )   { parent.geometrySub(localName); }								
 
 						// if coordinate, set one of the internal coordinate handling methods
 						else if ( COORDINATES_NAME.equals(localName) )       { coordinateReader.insideCoordinates(true, atts); }								
@@ -94,12 +94,13 @@ public class GMLFilterDocument extends XMLFilterImpl {
 						else if ( Z_NAME.equals(localName) )                 { coordinateReader.insideZ(true); }								
 
 						else {
+								parent.startElement(namespaceURI, localName, qName, atts);
 						}
 				}
 
 				// all non-GML elements passed on down the filter chain without modification
 				else {
-						super.startElement(namespaceURI, localName, qName, atts);
+						parent.startElement(namespaceURI, localName, qName, atts);
 				}
 		}
 
@@ -126,7 +127,7 @@ public class GMLFilterDocument extends XMLFilterImpl {
 				else if ( coordinateReader.insideCoord() )       { coordinateReader.readCoord( rawCoordinates ); }
 
 				// all non-coordinate data passed on down the filter chain without modification 
-				else { super.characters(ch,start,length); }			
+				else { parent.characters(ch,start,length); }			
 
 		}
 		
@@ -148,8 +149,8 @@ public class GMLFilterDocument extends XMLFilterImpl {
 				if( namespaceURI.equals(GML_NAMESPACE) | !namespaceAware) {
 
 						// if geometry, pass on down the chain to appropriate handlers
-					  if      ( BASE_GEOMETRY_TYPES.contains(localName) )  { this.parent.geometryEnd(localName); }								
-					  else if ( SUB_GEOMETRY_TYPES.contains(localName) )   { this.parent.geometrySub(localName); }								
+					  if      ( BASE_GEOMETRY_TYPES.contains(localName) )  { parent.geometryEnd(localName); }								
+					  else if ( SUB_GEOMETRY_TYPES.contains(localName) )   { parent.geometrySub(localName); }								
 
 						// if coordinate, set internal coordinate handling methods
 						else if ( COORDINATES_NAME.equals(localName) )       { coordinateReader.insideCoordinates(false); }								
@@ -159,13 +160,14 @@ public class GMLFilterDocument extends XMLFilterImpl {
 						else if ( Z_NAME.equals(localName) )                 { coordinateReader.insideZ(false); }								
 
 						// if not namespace aware, then just pass element through; otherwise, there is some error in the GML
-						else if ( !namespaceAware )                          { super.endElement(namespaceURI, localName, qName); }
-						else                                                 { throw new SAXException("Unrecognized GML element."); }
+						else if ( !namespaceAware )                          { parent.endElement(namespaceURI, localName, qName); }
+						else                                                 { parent.endElement(namespaceURI, localName, qName); }
+						//else                                                 { throw new SAXException("Unrecognized GML element."); }
 				}
 
 				// all non-GML elements passed on down the filter chain without modification
 				else {
-						super.endElement(namespaceURI, localName, qName);
+						parent.endElement(namespaceURI, localName, qName);
 				}
 		}		
 

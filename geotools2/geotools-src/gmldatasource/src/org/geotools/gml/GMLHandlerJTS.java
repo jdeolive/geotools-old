@@ -19,7 +19,7 @@ import com.vividsolutions.jts.geom.*;
  * @author Rob Hranac, Vision for New York
  * @version alpha, 12/01/01
  */
-public interface GMLHandlerJTS extends XMLReader {
+public interface GMLHandlerJTS extends ContentHandler {
 
 
 		/**

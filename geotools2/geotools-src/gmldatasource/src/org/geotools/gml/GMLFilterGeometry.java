@@ -45,7 +45,7 @@ public class GMLFilterGeometry extends XMLFilterImpl implements GMLHandlerGeomet
 		 * @param parent The parent of this filter.
 		 */
 		public GMLFilterGeometry (GMLHandlerJTS parent) {
-				super(parent);
+				super();
 				this.parent = parent;
 		}
 
@@ -133,6 +133,57 @@ public class GMLFilterGeometry extends XMLFilterImpl implements GMLHandlerGeomet
 
 		}
 
+
+		/**
+		 * Checks for GML element start and - if not a coordinates element - sends it directly on down the chain to the appropriate
+		 * parent handler.  If it is a coordinates (or coord) element, it uses internal methods to set the current state of the
+		 * coordinates reader appropriately. 
+		 *
+		 * @param namespaceURI The namespace of the element.
+		 * @param localName The local name of the element.
+		 * @param qName The full name of the element, including namespace prefix.
+		 * @param atts The element attributes.
+		 * @throws SAXException Some parsing error occured while reading coordinates.
+		 */
+		public void startElement(String namespaceURI, String localName, String qName, Attributes atts)
+				throws SAXException {
+
+				parent.startElement(namespaceURI, localName, qName, atts);
+		}
+
+
+		/**
+		 * Reads the only internal characters read by a pure GML parsers, which are coordinates.  These coordinates
+		 * are sent to the coordinates reader class, which interprets them appropriately, depeding on the its current
+		 * state.
+		 *
+		 * @param ch Raw coordinate string from the GML document.
+		 * @param start Beginning character position of raw coordinate string.
+		 * @param length Length of the character string.
+		 * @throws SAXException Some parsing error occured while reading coordinates.
+		 */
+		public void characters(char[] ch, int start, int length)
+				throws SAXException {
+
+				parent.characters(ch,start,length);
+		}
+		
+
+		/**
+		 * Checks for GML element end and - if not a coordinates element - sends it directly on down the chain to the appropriate
+		 * parent handler.  If it is a coordinates (or coord) element, it uses internal methods to set the current state of the
+		 * coordinates reader appropriately.
+		 *
+		 * @param namespaceURI The namespace of the element.
+		 * @param localName The local name of the element.
+		 * @param qName The full name of the element, including namespace prefix.
+		 * @throws SAXException Some parsing error occured while reading coordinates.
+		 */
+		public void endElement(String namespaceURI, String localName, String qName)
+				throws SAXException {
+
+				parent.endElement(namespaceURI, localName, qName);
+		}		
 
 
 }

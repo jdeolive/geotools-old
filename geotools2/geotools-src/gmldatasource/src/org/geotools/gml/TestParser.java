@@ -5,9 +5,14 @@
 package org.geotools.gml;
 
 import java.io.*;
+import java.util.*;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
+
+import org.geotools.datasource.*;
+import org.geotools.datasource.extents.*;
+import org.geotools.featuretable.*;
 
 
 /**
@@ -32,8 +37,30 @@ public class TestParser {
 		public static void main (String[] args) {
 
 				// set URI from the command line and echo the submitted URI
-				String uri = args[0];
-				System.out.println("Parsing XML file:" + uri);
+
+				if( args[0].equals("-g") ) {
+						parseGeometries(args[1]);
+				}
+				else if( args[0].equals("-f") ) {
+						parseFeatures(args[1]);
+				}
+				else {
+						System.out.println("Incorrect specification...useage:");
+						System.out.println(" java org.geotools.gml.TestParser [flags] [URI to parse]");
+						System.out.println("");
+						System.out.println(" flags:");
+						System.out.println("  -g: parse geometries only");
+						System.out.println("  -f: parse flat feature collection");
+						System.out.println("");
+						System.out.println(" example: java org.geotools.gml.TestParser -g /home/rob/myGml.gml");
+				}
+
+		}
+
+
+		public static void parseGeometries(String uri) {
+
+				System.out.println("Parsing just the geometries in this GML resource:" + uri);
 
 				// chains all the appropriate filters together (in correct order)
 				//  and initiates parsing
@@ -54,7 +81,30 @@ public class TestParser {
 				}
 
 				
+		}
 
+
+		public static void parseFeatures(String uri) {
+
+				System.out.println("Parsing the flat feature collection in this GML resource:" + uri);
+
+				GMLDataSource data = new GMLDataSource(uri);
+				FlatFeatureTable featureCollection = new FlatFeatureTable(data);
+
+				Vector parsedFeatures = new Vector( java.util.Arrays.asList(featureCollection.getFeatures()) );  
+				FlatFeature tempFeature;
+						
+				for( int i = 0; i < parsedFeatures.size() ; i++ ) {
+						tempFeature = (FlatFeature) parsedFeatures.get(i);
+						System.out.println("Parsed feature is ... " + tempFeature.toString() );						
+				}
+
+				//parsedFeatures.
+
+				// chains all the appropriate filters together (in correct order)
+				//  and initiates parsing
+
+				
 		}
 
 }

@@ -20,37 +20,36 @@ import com.vividsolutions.jts.geom.*;
  * @author Rob Hranac, Vision for New York
  * @version alpha, 12/01/01
  */
-public interface GMLHandlerGeometry extends XMLFilter {
+public interface GMLHandlerGeometry extends ContentHandler {
 
 
 		/**
 		 * Recieves a geometry start element from the parent.
 		 */
-		public void geometryStart(String localName, Attributes atts) throws SAXException;
+		public abstract void geometryStart(String localName, Attributes atts) throws SAXException;
 
 
 		/**
 		 * Recieves a geometry end element from the parent.
 		 */
-		public void geometryEnd(String localName) throws SAXException;
+		public abstract void geometryEnd(String localName) throws SAXException;
 
 
 		/**
 		 * Recieves a geometry sub element from the parent.
 		 */
-		public void geometrySub(String localName) throws SAXException;
+		public abstract void geometrySub(String localName) throws SAXException;
 
 
 		/**
 		 * Recieves a finished coordinate from the parent (2-valued).
 		 */
-		public void gmlCoordinates( double x, double y )	throws SAXException;
+		public abstract void gmlCoordinates( double x, double y )	throws SAXException;
 
 		/**
 		 * Recieves a finished coordinate from the parent (3-valued).
 		 */
-		public void gmlCoordinates( double x, double y, double z ) throws SAXException;
-
+		public abstract void gmlCoordinates( double x, double y, double z ) throws SAXException;
 
 
 }
