@@ -71,7 +71,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         }
     }
     
-    public void addMark(Mark m){
+    public void addMark(DefaultMark m){
         if(m == null) return;
         marks.add(m);
         m.setSize(size);
@@ -125,7 +125,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         this.rotation = rotation;
         Iterator i = marks.iterator();
         while(i.hasNext()){
-            ((Mark)i.next()).setRotation(rotation);
+            ((DefaultMark)i.next()).setRotation(rotation);
         }
     }
     
@@ -136,7 +136,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         this.size = size;
         Iterator i = marks.iterator();
         while(i.hasNext()){
-            ((Mark)i.next()).setSize(size);
+            ((DefaultMark)i.next()).setSize(size);
         }
     }
     
