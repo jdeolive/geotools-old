@@ -13,7 +13,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Utility class for managing memory mapped buffers 
+ * Utility class for managing memory mapped buffers. Any problems with closing
+ * a buffer on Windows (the problem child in this case) will be logged as 
+ * SEVERE to the logger of the package name. To force logging of errors, set the
+ * System property "org.geotools.io.debugBuffer" to "true".
  * 
  * @author wolf
  */
@@ -22,10 +25,6 @@ public class NIOBufferUtils {
 	 * The logger for reporting io problems
 	 */
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.io");
-    
-    private NIOBufferUtils() {
-        // utility class, don't instantiate
-    }
 	
 	/**
 	 * Really closes a MappedByteBuffer without the need to wait for
@@ -33,7 +32,9 @@ public class NIOBufferUtils {
 	 * @param buffer
 	 * @see MappedByteBuffer
 	 */
-	public static void clean(final Object buffer) {
+	public static void clean(final java.nio.ByteBuffer buffer) {
+        if (buffer == null || ! buffer.isDirect() ) 
+            return;
 		AccessController.doPrivileged(new PrivilegedAction() {
 			public Object run() {
 				try {
@@ -45,7 +46,10 @@ public class NIOBufferUtils {
                     clean.invoke(cleaner, null);
 				} catch (Exception e) {
                     // This really is a show stopper on windows
-					LOGGER.log(Level.SEVERE, "Error attempting to close a mapped byte buffer", e);
+                    if (System.getProperty("org.geotools.io.debugBuffer").equals("true") ||
+                        System.getProperty("os.name").indexOf("Windows") >= 0) {
+                        LOGGER.log(Level.SEVERE, "Error attempting to close a mapped byte buffer : " + buffer.getClass(), e);
+                    }
 				}
 				return null;
 			}
