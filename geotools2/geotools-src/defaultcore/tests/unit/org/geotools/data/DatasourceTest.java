@@ -8,8 +8,7 @@ import junit.framework.*;
 import org.geotools.filter.*;
 
 public class DatasourceTest extends TestCase implements CollectionListener {
-    private static org.apache.log4j.Logger _log =
-    org.apache.log4j.Logger.getLogger(DatasourceTest.class);
+
     
     FeatureCollection ft = null;
     FeatureIndex fi = null;
