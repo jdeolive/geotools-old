@@ -53,12 +53,30 @@
          xmlns:deploy="deploy"
          xmlns:texen="texen"
 xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
-         default="build" >
+         default="info" >
 
  
   <!-- ================================================================== -->
   <!-- B U I L D                                                          -->
   <!-- ================================================================== -->
+  
+  <goal name="info">
+    <!-- this is tell people which targets to use, if we could detect 
+         the directory they are starting it in then we could automate this -->
+    <echo>
+      If building a single module use one of:
+        maven jar:install
+        maven test
+        maven java:compile
+        
+      If building everyting use:
+        maven build
+        maven site
+        
+      For more options use
+        maven -g
+    </echo>
+  </goal>
   
   <goal name="build">
   
