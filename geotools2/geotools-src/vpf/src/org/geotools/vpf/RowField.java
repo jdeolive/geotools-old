@@ -24,30 +24,27 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
  * RowField.java Created: Mon Jan 27 13:58:34 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: RowField.java,v 1.7 2003/04/04 09:15:44 kobit Exp $
+ * @version $Id: RowField.java,v 1.8 2003/04/17 21:18:02 kobit Exp $
  */
 public class RowField implements DataTypesDefinition {
     protected Object value = null;
     protected char type = CHAR_NULL_VALUE;
 
     /**
-     * Creates a new RowField object.
+     * Creates a new <code><code>RowField</code></code> instance.
      *
-     * @param value DOCUMENT ME!
-     * @param type DOCUMENT ME!
+     * @param value an <code><code>Object</code></code> value
+     * @param type a <code><code>char</code></code> value
      */
-    public RowField(
-        Object value,
-        char type
-    ) {
+    public RowField(Object value, char type) {
         this.value = value;
         this.type = type;
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>toString</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>String</code></code> value
      */
     public String toString() {
         if (value != null) {
@@ -63,11 +60,10 @@ public class RowField implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>equals</code> is used to perform 
      *
-     * @param obj DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
+     * @param obj an <code><code>Object</code></code> value
+     * @return a <code><code>boolean</code></code> value
      */
     public boolean equals(Object obj) {
         if ((obj == null) || !(obj instanceof RowField)) {
@@ -79,27 +75,27 @@ public class RowField implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getType</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>char</code></code> value
      */
     public char getType() {
         return type;
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getValue</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return an <code><code>Object</code></code> value
      */
     public Object getValue() {
         return value;
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getAsString</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>String</code></code> value
      */
     public String getAsString() {
         if (value != null) {
@@ -113,9 +109,9 @@ public class RowField implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getAsInt</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return an <code><code>int</code></code> value
      */
     public int getAsInt() {
         return ((Number) value).intValue();
@@ -134,27 +130,27 @@ public class RowField implements DataTypesDefinition {
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getAsShort</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>short</code></code> value
      */
     public short getAsShort() {
         return ((Number) value).shortValue();
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getAsFloat</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>float</code></code> value
      */
     public float getAsFloat() {
         return ((Number) value).floatValue();
     }
 
     /**
-     * DOCUMENT ME!
+     * Method <code>getAsDouble</code> is used to perform 
      *
-     * @return DOCUMENT ME!
+     * @return a <code><code>double</code></code> value
      */
     public double getAsDouble() {
         return ((Number) value).doubleValue();

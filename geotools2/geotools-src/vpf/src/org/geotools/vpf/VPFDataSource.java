@@ -33,14 +33,10 @@ import java.util.logging.Logger;
 
 
 /**
- * Class VPFDataSource.java is responsible for
- * 
- * <p>
- * Created: Fri Mar 28 13:02:00 2003
- * </p>
+ * Class <code>VPFDataSource</code> implements 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version 1.0.0
+ * @version $Id: VPFDataSource.java,v 1.8 2003/04/17 21:18:02 kobit Exp $
  */
 public class VPFDataSource implements DataSource {
     protected Logger log = Logger.getLogger("org.geotools.vpf");
@@ -49,11 +45,12 @@ public class VPFDataSource implements DataSource {
     protected FeatureType schema = null;
 
     /**
-     * Creates a new VPFDataSource object.
-     *
-     * @param file DOCUMENT ME!
-     */
-    public VPFDataSource(File file)
+	 * Creates a new <code>VPFDataSource</code> instance.
+	 *
+	 * @param file a <code>File</code> value
+	 * @exception IOException if an error occurs
+	 */
+	public VPFDataSource(File file)
         throws IOException {
         this.file = file;
         dataBase = new VPFDataBase(file);
@@ -100,8 +97,7 @@ public class VPFDataSource implements DataSource {
      */
     public Set addFeatures(FeatureCollection featureCollection)
         throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource"
-        );
+        throw new DataSourceException("Modification of features is not yet supported by this datasource");
     }
 
     /**
@@ -113,9 +109,7 @@ public class VPFDataSource implements DataSource {
      * not supported.
      */
     public void removeFeatures(Filter filter) throws DataSourceException {
-        throw new DataSourceException(
-            "Removal of features is not yet supported by this datasource"
-        );
+        throw new DataSourceException("Removal of features is not yet supported by this datasource");
     }
 
     /**
@@ -130,10 +124,9 @@ public class VPFDataSource implements DataSource {
      * types do not match the attribute types.
      */
     public void modifyFeatures(AttributeType[] attributeTypeArray,
-                               Object[] objectArray, Filter filter
-                               ) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource"
-        );
+                               Object[] objectArray, Filter filter)
+        throws DataSourceException {
+        throw new DataSourceException("Modification of features is not yet supported by this datasource");
     }
 
     /**
@@ -148,10 +141,9 @@ public class VPFDataSource implements DataSource {
      * the object type do not match the attribute type.
      */
     public void modifyFeatures(AttributeType attributeType,
-                               Object object, Filter filter
-                               ) throws DataSourceException {
-        throw new DataSourceException("Modification of features is not yet supported by this datasource"
-        );
+                               Object object, Filter filter)
+        throws DataSourceException {
+        throw new DataSourceException("Modification of features is not yet supported by this datasource");
     }
 
     /**
@@ -288,8 +280,6 @@ public class VPFDataSource implements DataSource {
      */
     public void setSchema(FeatureType schema) throws DataSourceException {
         this.schema = schema;
-    }
-}
-
-
-// VPFDataSource
+    } //	public Iterator iterator(){getFeatures().iterator();}
+	
+} // VPFDataSource
