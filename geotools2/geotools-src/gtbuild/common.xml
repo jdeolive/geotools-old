@@ -165,7 +165,7 @@
   <target name="compile-test" depends="compile" if="testsuite">
     <javac debug="true" srcdir="${dir.test}">
             <classpath>
-                <path path="src"/>
+                <path path="${dir.module}/src"/>
                 <path refid="path.compile" />
                 <path path="${dir.module}/../../extbin/gtbuild/lib/junit.jar"/>
             </classpath>
@@ -182,7 +182,7 @@
         <path path="${dir.module}/tests/unit"/>
         <path path="${dir.module}/../../extbin/core/lib/JTS.jar"/>
         <path path="${dir.module}/../../extbin/core/lib/log4j.jar"/>
-        <path path="${dir.module}/../core/src"/>
+        <path refid="path.compile" />
       </classpath>
       <test fork="false" name="${testsuite}"/>
     </junit>
