@@ -47,7 +47,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.12 2002/12/30 09:50:17 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.13 2002/12/31 03:45:54 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -72,13 +72,6 @@ public class MapPane2 extends JScrollPane implements
      * The model which stores a list of layers and BoundingBox.
      */
     private Context context;
-    
-    //private LayerList layerList;
-
-    /**
-     * The areaOfInterest to be drawn by this map.
-     */
-    //private BoundingBox areaOfInterestModel;
 
     /**
      * The class used for identifying for logging.
@@ -104,16 +97,12 @@ public class MapPane2 extends JScrollPane implements
             Tool tool,
             Context context) throws IllegalArgumentException
     {
-        if (context==null){
+        if ((tool==null)||(context==null)){
             throw new IllegalArgumentException();
         }else{
-            this.tool=tool;
             this.context=context;
             this.renderer=new Java2DRenderer();
-
-            // Initialise the Tool to use this MapPane.
-            this.tool.setMapPane(this);
-            this.tool.setAreaOfInterestModel(this.context.getBbox());
+            setTool(tool);
         }
     }
     
@@ -122,10 +111,17 @@ public class MapPane2 extends JScrollPane implements
      * actions on behalf of this mapPane.  Different tools can be assigned in
      * order to get the mapPane to behave differently.
      * @param tool The tool to use for this mapPane.
+     * @throws IllegalArgumentException if tool is null.
      */
-    public void setTool(Tool tool)
+    public void setTool(Tool tool) throws IllegalArgumentException
     {
-        this.tool=tool;
+        if (tool==null){
+            throw new IllegalArgumentException();
+        }else{
+            this.tool=tool;
+            this.tool.setWidget(this);
+            this.tool.setContext(context);
+        }
     }
 
     /**

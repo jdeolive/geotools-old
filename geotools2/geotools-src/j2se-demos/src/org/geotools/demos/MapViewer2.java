@@ -49,7 +49,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.3 2002/12/30 09:50:17 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.4 2002/12/31 03:45:54 camerons Exp $
  *
  */
 
@@ -102,7 +102,6 @@ public class MapViewer2 extends javax.swing.JFrame {
             Layer layer=new DefaultLayer(datasource,style);
             layer.setTitle("funky layer");
             layerList.addLayer(layer);
-            Tool tool=new PanTool();
             Context context=new ContextImpl(
                 bbox,
                 layerList,
@@ -110,6 +109,7 @@ public class MapViewer2 extends javax.swing.JFrame {
                 null,
                 null,
                 null);
+            Tool tool=new PanTool();
             MapPane2 mapPane = new MapPane2(tool, context);
         } catch (Exception e){
             LOGGER.warning("Exception: "+e+".  Unable to load GML.");

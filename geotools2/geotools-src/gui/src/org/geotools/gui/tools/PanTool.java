@@ -20,55 +20,67 @@ public class PanTool extends Tool {
         "org.geotools.gui.tools.PanTool");
 
     /**
-     * Construct a tool.
-     * @context Where state data for this mapPane is stored.
-     * @mapPane The mapPane from which this tool gets MouseEvents.
-     * @thows IllegalArgumentException
+     * Construct a PanTool.
      */
-    public PanTool(
-        Context context,
-        JComponent mapPane) throws IllegalArgumentException
-    {
-        super(context,mapPane);
+    public PanTool(){
     }
+    
+//    /**
+//     * Construct a tool.
+//     * @context Where state data for this mapPane is stored.
+//     * @mapPane The mapPane from which this tool gets MouseEvents.
+//     * @thows IllegalArgumentException
+//     */
+//    public PanTool(
+//        Context context,
+//        JComponent mapPane) throws IllegalArgumentException
+//    {
+//        super(context,mapPane);
+//    }
     
     /**
      * Set up Click/Pan.
      * Pan the map so that the new extent has the click point in the middle
      * of the map.
      * @param e The mouse clicked event.
-     * @HACK The transform doesn't seem to take account of CoordinateSystem
+     * @throws IllegalStateException If widget or context has not been
+     * initialized yet.
+     * @task HACK The transform doesn't seem to take account of CoordinateSystem
      * so it would be possible to create Coordinates which are outside real
      * world coordinates.
      */
-    public void MouseClicked(MouseEvent e) {
-        AffineTransform at = new AffineTransform();
-        // x=x(1+(e-w/2)/w)
-        at.scale(
-            1+(double)(e.getX()-mapPane.getWidth()/2)/(double)mapPane.getWidth(),
-            1+(double)(e.getY()-mapPane.getHeight()/2)/(double)mapPane.getHeight());
-        MathTransform2D mt=
-            MathTransformFactory.getDefault().createAffineTransform(at);
+    public void MouseClicked(MouseEvent e) throws IllegalStateException {
+        if ((widget==null)||(context==null)){
+            throw new IllegalStateException();
+        }else{
+            AffineTransform at = new AffineTransform();
+            // x=x(1+(clickX-w/2)/w)
+            at.scale(
+                1+(double)(e.getX()-widget.getWidth()/2)/(double)widget.getWidth(),
+                1+(double)(e.getY()-widget.getHeight()/2)/(double)widget.getHeight());
+            MathTransform2D mt=
+                MathTransformFactory.getDefault().createAffineTransform(at);
 
-        CoordinatePoint maxP = new CoordinatePoint(
-            context.getBbox().getAreaOfInterest().getMaxX(),
-            context.getBbox().getAreaOfInterest().getMaxY());
-        CoordinatePoint minP = new CoordinatePoint(
-            context.getBbox().getAreaOfInterest().getMinX(),
-            context.getBbox().getAreaOfInterest().getMinY());
+            CoordinatePoint maxP = new CoordinatePoint(
+                context.getBbox().getAreaOfInterest().getMaxX(),
+                context.getBbox().getAreaOfInterest().getMaxY());
+            CoordinatePoint minP = new CoordinatePoint(
+                context.getBbox().getAreaOfInterest().getMinX(),
+                context.getBbox().getAreaOfInterest().getMinY());
 
-        try {
-            maxP=mt.transform(maxP,maxP);
-            minP=mt.transform(minP, minP);
+            try {
+                maxP=mt.transform(maxP,maxP);
+                minP=mt.transform(minP, minP);
 
-            context.getBbox().setAreaOfInterest(
-                new Envelope(
-                    minP.getOrdinate(0),   // minX
-                    maxP.getOrdinate(0),   // maxX
-                    minP.getOrdinate(1),   // minY
-                    minP.getOrdinate(1))); // maxY
-        } catch (TransformException ex){
-            LOGGER.warning("Exception: "+ex+" while transforming coordinates");
+                context.getBbox().setAreaOfInterest(
+                    new Envelope(
+                        minP.getOrdinate(0),   // minX
+                        maxP.getOrdinate(0),   // maxX
+                        minP.getOrdinate(1),   // minY
+                        minP.getOrdinate(1))); // maxY
+            } catch (TransformException ex){
+                LOGGER.warning("Exception: "+ex+" while transforming coordinates");
+            }
         }
     }
 
