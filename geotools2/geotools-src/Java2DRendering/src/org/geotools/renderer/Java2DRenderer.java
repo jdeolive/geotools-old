@@ -66,7 +66,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.55 2002/10/16 16:56:23 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.56 2002/10/21 16:14:12 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -1007,13 +1007,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Mark[] marks = graphic.getMarks();
         Mark mark;
 
-        if ((marks == null) || (marks.length == 0)) {
-            LOGGER.finer("choosing a default mark as no marks returned");
-            mark = StyleFactory.createMark();
-
-            return mark;
-        }
-
         for (int i = 0; i < marks.length; i++) {
             String name = marks[i].getWellKnownName().getValue(feature)
                                   .toString();
@@ -1025,9 +1018,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             }
         }
 
-        LOGGER.finer("going for a defaultMark");
-        mark = StyleFactory.createMark();
-
+        //LOGGER.finer("going for a defaultMark");
+        //mark = StyleFactory.createMark();
+        mark = null;
         return mark;
     }
 
