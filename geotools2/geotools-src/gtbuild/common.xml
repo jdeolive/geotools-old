@@ -83,59 +83,7 @@
         <fileset dir="tests/unit/org/" includes="**/*.class"/>
     </target>
     
-    <target name="init" depends="modificationset">
-        <mkdir dir="${releaseFolder}"/>
-        <path id="netbeans.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
-        </path>
-        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
-            <classpath refid="netbeans.ext"/>        
-        </taskdef>    
-        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
-            <classpath refid="netbeans.ext"/>        
-        </taskdef>
-        <path id="checkstyle.ext">
-            <fileset dir="../../extbin/gtbuild/lib/"/>
-            <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
-        </path>
-       
-        <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
-            <classpath refid="checkstyle.ext"/>
-        </taskdef>
-        <!--echo message="${project.name} dependancies = ${dependancy}"/-->
-        <condition property="has.dependancies" >
-            <not>
-                <equals arg1="${dependancy}" arg2="$${dependancy}"/>
-            </not>
-        </condition>
-        <!--echo message="${project.name} has dependancies = ${has.dependancies}"/-->
 
-
-        <condition property="has.extbin" >           
-            <not>
-                <equals arg1="${extbin}" arg2="$${extbin}"/>
-            </not>            
-        </condition>
-        <condition property="toBeChecked" >
-            <equals arg1="${checking}" arg2="true"/>
-        </condition>
-        <condition property="toBeCheckedToScreen" >
-            <equals arg1="${checking}" arg2="screen"/>
-        </condition>      
-        <condition property="doTest" >
-            <and>
-                <not>
-                    <equals arg1="${testing}" arg2="false"/>
-                </not>
-                <not>
-                    <equals arg1="${testsuite}" arg2="$${testsuite}"/>
-                </not>
-            </and>
-        </condition>
-                
-            
-    </target>
     <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
         <!--echo message="Prep-compile: ${project.name}" /-->
         
@@ -181,4 +129,67 @@
         <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
             <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
         </modificationset>
+    </target>
+        <target name="init" depends="modificationset">
+        <mkdir dir="${releaseFolder}"/>
+        <path id="netbeans.ext">
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/nbantext.jar"/>
+            
+        </path>
+        <path id="junit.ext" >
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/ant-optional-1.4.1.jar"/>
+        </path>
+        <taskdef classname="org.netbeans.nbbuild.ForEach" name="for-each">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>    
+        <taskdef classname="org.netbeans.nbbuild.CheckValue" name="check">
+            <classpath refid="netbeans.ext"/>        
+        </taskdef>
+        <taskdef classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
+            name="JUnit">
+          <classpath refid="junit.ext"/>        
+        </taskdef>  
+ 
+        <path id="checkstyle.ext">
+            <fileset dir="../../extbin/gtbuild/lib/"/>
+            <pathelement location="../../extbin/gtbuild/lib/checkstyle-all.jar"/>
+        </path>
+       
+        <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" name="checkstyle">
+            <classpath refid="checkstyle.ext"/>
+        </taskdef>
+        <!--echo message="${project.name} dependancies = ${dependancy}"/-->
+        <condition property="has.dependancies" >
+            <not>
+                <equals arg1="${dependancy}" arg2="$${dependancy}"/>
+            </not>
+        </condition>
+        <!--echo message="${project.name} has dependancies = ${has.dependancies}"/-->
+
+
+        <condition property="has.extbin" >           
+            <not>
+                <equals arg1="${extbin}" arg2="$${extbin}"/>
+            </not>            
+        </condition>
+        <condition property="toBeChecked" >
+            <equals arg1="${checking}" arg2="true"/>
+        </condition>
+        <condition property="toBeCheckedToScreen" >
+            <equals arg1="${checking}" arg2="screen"/>
+        </condition>      
+        <condition property="doTest" >
+            <and>
+                <not>
+                    <equals arg1="${testing}" arg2="false"/>
+                </not>
+                <not>
+                    <equals arg1="${testsuite}" arg2="$${testsuite}"/>
+                </not>
+            </and>
+        </condition>
+                
+            
     </target>
