@@ -77,10 +77,7 @@
       <id>JTS</id>
       <version>1.0</version>
     </dependency>
-        <dependency>
-      <id>filter</id>
-      <version>0.1</version>
-    </dependency>
+        
         <dependency>
       <id>opengis-css</id>
       <version>0.1</version>
