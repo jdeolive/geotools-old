@@ -50,7 +50,7 @@ import java.util.Date;
  * Number myObjectAsANumber = {@link ClassChanger#toNumber ClassChanger.toNumber}(someArbitraryObject);
  * </pre></blockquote>
  *
- * @version $Id: ClassChanger.java,v 1.2 2003/04/10 20:39:36 desruisseaux Exp $
+ * @version $Id: ClassChanger.java,v 1.3 2003/04/12 00:02:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ClassChanger {
@@ -286,10 +286,51 @@ public abstract class ClassChanger {
     /**
      * Returns the class of the widest type. Numbers <code>n1</code> and <code>n2</code>
      * must be instance of any of {@link Byte}, {@link Short}, {@link Integer}, {@link Long},
-     * {@link Float} or {@link Double} types.
+     * {@link Float} or {@link Double} types. At most one of the argument can be null.
      */
     public static Class getWidestClass(final Number n1, final Number n2) {
-        return CLASS_RANK[Math.max(getRank(n1.getClass()), getRank(n2.getClass()))];
+        return getWidestClass((n1!=null) ? n1.getClass() : null,
+                              (n2!=null) ? n2.getClass() : null);
+    }
+
+    /**
+     * Returns the class of the widest type. Classes <code>c1</code> and <code>c2</code>
+     * must be of any of {@link Byte}, {@link Short}, {@link Integer}, {@link Long},
+     * {@link Float} or {@link Double} types. At most one of the argument can be null.
+     */
+    public static Class getWidestClass(final Class c1, final Class c2) {
+        if (c1==null) return c2;
+        if (c2==null) return c1;
+        return CLASS_RANK[Math.max(getRank(c1), getRank(c2))];
+    }
+
+    /**
+     * Returns the class of the finest type. Classes <code>c1</code> and <code>c2</code>
+     * must be of any of {@link Byte}, {@link Short}, {@link Integer}, {@link Long},
+     * {@link Float} or {@link Double} types. At most one of the argument can be null.
+     */
+    public static Class getFinestClass(final Class c1, final Class c2) {
+        if (c1==null) return c2;
+        if (c2==null) return c1;
+        return CLASS_RANK[Math.min(getRank(c1), getRank(c2))];
+    }
+
+    /**
+     * Returns the smallest class capable to hold the specified value.
+     */
+    public static Class getFinestClass(final double value) {
+        final long lg = (long)value;
+        if (value == lg) {
+            if (lg >=    Byte.MIN_VALUE  &&  lg <=    Byte.MAX_VALUE) return    Byte.class;
+            if (lg >=   Short.MIN_VALUE  &&  lg <=   Short.MAX_VALUE) return   Short.class;
+            if (lg >= Integer.MIN_VALUE  &&  lg <= Integer.MAX_VALUE) return Integer.class;
+            if (lg >=   Short.MIN_VALUE  &&  lg <=    Long.MAX_VALUE) return    Long.class;
+        }
+        final double abs = Math.abs(value);
+        if (abs>=Float.MIN_VALUE  &&  abs<=Float.MAX_VALUE) {
+            return Float.class;
+        }
+        return Double.class;
     }
 
     /**
