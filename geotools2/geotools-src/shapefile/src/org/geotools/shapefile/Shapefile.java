@@ -43,37 +43,47 @@ public class Shapefile  {
     public static final int    UNDEFINED = -1;
     //Types 2,4,6,7 and 9 were undefined at time or writeing
     
+    private URL baseURL;
+    
     /**
      * Creates and initialises a shapefile from a url
      * @param url The url of the shapefile
      */
-    public Shapefile(URL url)
-    throws java.io.IOException,ShapefileException,TopologyException {
-        URLConnection uc = url.openConnection();
+    public Shapefile(URL url){
+        baseURL=url;
+    }
+    
+    private LEDataInputStream getInputStream() throws IOException{
+        URLConnection uc = baseURL.openConnection();
         int len = uc.getContentLength();
         if(len <=0){
-            throw new IOException("Sf-->File feched from URL "+url+" was of zero length or could not be found");
+            return null;
         }
-        byte data[];
-        data = new byte[len];
         BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-        /*int j=0,k=0;
-        while(k<len || j==-1){
-            j = in.read(data,k,len-k);
-            k+=j;
-        }*/
         LEDataInputStream sfile = new LEDataInputStream(in);
-        //ByteArrayInputStream bais = new ByteArrayInputStream(data);
-        //LEDataInputStream sfile = new LEDataInputStream(bais);
-        read(sfile, new GeometryFactory());
+        return sfile;
     }
+    
+    private LEDataOutputStream getOutputStream() throws IOException{
+        URLConnection connection = baseURL.openConnection();
+        connection.setUseCaches(false);
+        connection.setDoInput(true);
+        connection.setDoOutput(true);
+        BufferedOutputStream in = new BufferedOutputStream(connection.getOutputStream());
+        LEDataOutputStream sfile = new LEDataOutputStream(in);
+        return sfile;
+    }
+        
     
     /**
      * Initialises a shapefile from disk.
      * Use Shapefile(String) if you don't want to use LEDataInputStream directly (recomened)
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public static GeometryCollection read(LEDataInputStream file, GeometryFactory geometryFactory) throws IOException,ShapefileException,TopologyException {
+    public GeometryCollection read(GeometryFactory geometryFactory) throws IOException,ShapefileException,TopologyException {
+        LEDataInputStream file = getInputStream();
+        if(file==null) throw new IOException("Failed connection or no content for "+baseURL);
+        
         ShapefileHeader mainHeader = new ShapefileHeader(file);
         if(mainHeader.getVersion() < VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") older that supported ("+VERSION+"), attempting to read anyway");}
         if(mainHeader.getVersion() > VERSION){System.err.println("Sf-->Warning, Shapefile format ("+mainHeader.getVersion()+") newer that supported ("+VERSION+"), attempting to read anyway");}
@@ -102,9 +112,9 @@ public class Shapefile  {
      * Saves a shapefile to and output stream.
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
-    public static void write(GeometryCollection geometries,LEDataOutputStream file) throws IOException {
+    public  void write(GeometryCollection geometries) throws IOException {
+        LEDataOutputStream file = getOutputStream();
         ShapefileHeader mainHeader = new ShapefileHeader(geometries);
-        //System.out.println("Writing header");
         mainHeader.write(file);
         int pos = 50; // header length in WORDS
         //records;
@@ -114,14 +124,11 @@ public class Shapefile  {
         Geometry body;
         ShapeHandler handler = Shapefile.getShapeHandler(geometries.getGeometryN(0));
         for(int i=0;i<numShapes;i++){
-            //System.out.println("Writing Record");
-            //ShapeRecord item = (ShapeRecord)records.elementAt(i);
             body = geometries.getGeometryN(i);
             file.setLittleEndianMode(false);
             file.writeInt(i);
             file.writeInt(handler.getLength(body));
             pos+=4; // length of header in WORDS
-           // handle.write(
             handler.write(body,file);
             pos+=handler.getLength(body); // length of shape in WORDS
         }
