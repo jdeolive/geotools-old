@@ -54,16 +54,13 @@ import org.geotools.feature.FeatureFactory;
 import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.tools.ToolFactory;
 import org.geotools.gui.tools.PanTool;
+import org.geotools.gui.tools.ZoomTool;
 import org.geotools.gui.tools.AbstractTool;
 import org.geotools.gui.widget.MapPane;
 import org.geotools.gui.swing.MapPaneImpl;
-import org.geotools.gui.widget.WidgetFactory;
 import org.geotools.map.BoundingBox;
-import org.geotools.map.BoundingBoxImpl;
 import org.geotools.map.Context;
-import org.geotools.map.ContextImpl;
-import org.geotools.map.LayerImpl;
-import org.geotools.map.LayerListImpl;
+import org.geotools.map.ContextFactory;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.styling.SLDStyle;
@@ -74,7 +71,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.18 2003/02/25 11:13:13 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.19 2003/03/22 10:46:01 camerons Exp $
  *
  */
 
@@ -107,13 +104,15 @@ public class MapViewer2 {
 
 
         try {
+            ContextFactory contextFactory=ContextFactory.createFactory();
+            
             // Create a BoundingBox
             envelope=new Envelope(50,60,50,60);
             CS_CoordinateSystem cs = adapters.export(
                 CoordinateSystemFactory.getDefault(
                     ).createGeographicCoordinateSystem(
                         "WGS84",HorizontalDatum.WGS84));
-            bbox=new BoundingBoxImpl(envelope,cs);
+            bbox=contextFactory.createBoundingBox(envelope,cs);
 
             // Create a Style
             StyleFactory styleFactory=StyleFactory.createStyleFactory();
@@ -129,33 +128,27 @@ public class MapViewer2 {
             populateDataSource(datasource2,50,50,"road");
 
             // Create a LayerList and Layer
-            layerList = new LayerListImpl();
-            layer=new LayerImpl(datasource1,style);
+            layerList=contextFactory.createLayerList();
+            layer=contextFactory.createLayer(datasource1,style);
             layer.setTitle("river layer");
             layerList.addLayer(layer);
 
-            layer=new LayerImpl(datasource2,style);
+            layer=contextFactory.createLayer(datasource2,style);
             layer.setTitle("road layer");
             layerList.addLayer(layer);
 
             // Create a Context
-            Context context=new ContextImpl(
+            Context context=contextFactory.createContext(
                 bbox,layerList,"defaultContext",null,null,null);
-            
 
             // Create Tool
             ToolFactory toolFactory=ToolFactory.createFactory();
             tool=toolFactory.createPanTool();
 
             // Create MapPane
-            WidgetFactory widgetFactory=WidgetFactory.createFactory();
-//            mapPane=widgetFactory.createMapPane(
-//                    tool,
-//                    context);
             mapPane=new MapPaneImpl(tool,context);
 
             // Create frame
-//            frame frame=widgetFactory.createframe();
             JFrame frame=new JFrame();
             frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowClosing(java.awt.event.WindowEvent evt) {
