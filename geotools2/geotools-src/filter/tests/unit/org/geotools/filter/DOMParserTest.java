@@ -130,6 +130,8 @@ public class DOMParserTest extends TestCase {
         new AttributeTypeDefault("testFloat", Float.class);
         AttributeType doubleAttribute =
         new AttributeTypeDefault("testDouble", Double.class);
+        AttributeType doubleAttribute2 =
+        new AttributeTypeDefault("testZeroDouble", Double.class);
         AttributeType stringAttribute =
         new AttributeTypeDefault("testString", String.class);
         
@@ -152,6 +154,8 @@ public class DOMParserTest extends TestCase {
         LOGGER.finer("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
         LOGGER.finer("added double to feature type");
+        testSchema = testSchema.setAttributeType(doubleAttribute2);
+        LOGGER.finer("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
         LOGGER.finer("added string to feature type");
         
@@ -163,7 +167,7 @@ public class DOMParserTest extends TestCase {
         coords[2] = new Coordinate(5,6);
         
         // Builds the test feature
-        Object[] attributes = new Object[10];
+        Object[] attributes = new Object[11];
         attributes[0] = geomFac.createLineString(coords);
         attributes[1] = new Boolean(true);
         attributes[2] = new Character('t');
@@ -173,7 +177,8 @@ public class DOMParserTest extends TestCase {
         attributes[6] = new Long(10003);
         attributes[7] = new Float(10000.4);
         attributes[8] = new Double(100000.5);
-        attributes[9] = "test string data";
+        attributes[9] = new Double(0.0);
+        attributes[10] = "test string data";
         
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
@@ -237,7 +242,10 @@ public class DOMParserTest extends TestCase {
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test14.xml");
     }    
-
+    
+    public void test27() throws Exception {
+        Filter test = parseDocument(dataFolder+"/test27.xml");
+    }
     
 
     public Filter parseDocument(String uri) throws Exception {
