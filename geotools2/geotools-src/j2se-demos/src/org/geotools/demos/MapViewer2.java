@@ -67,7 +67,7 @@ import org.geotools.styling.StyleFactory;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer2.java,v 1.5 2003/01/19 11:14:07 camerons Exp $
+ * @version $Id: MapViewer2.java,v 1.6 2003/01/19 21:00:11 camerons Exp $
  *
  */
 
@@ -204,17 +204,17 @@ public class MapViewer2 extends javax.swing.JFrame {
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
         LineString line2 = makeSampleLineString(geomFac,100,0);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature2");
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature2 = lineFac.create(new Object[]{line2});
         
         LineString line3 = makeSampleLineString(geomFac,150,0);
-        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature3");
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName("river");
         lineFac = new FeatureFactory(lineType);
         Feature lineFeature3 = lineFac.create(new Object[]{line3});
         
