@@ -1,5 +1,5 @@
 /*
- * $Id: ShapeMultiLine.java,v 1.1 2002/02/11 16:54:43 jmacgill Exp $
+ * $Id: ShapeMultiLine.java,v 1.2 2002/02/11 18:42:45 jmacgill Exp $
  *
  */
 
@@ -14,7 +14,7 @@ import com.vividsolutions.jts.geom.*;
  */
 public class ShapeMultiLine  {
     
-    public static MultiLineString read( LEDataInputStream file ) throws IOException {
+    public static Geometry read( LEDataInputStream file , GeometryFactory geometryFactory) throws IOException {
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();//ignored
         double box[] = new double[4];
@@ -25,35 +25,35 @@ public class ShapeMultiLine  {
         int numParts = file.readInt();
         int numPoints = file.readInt();//total number of points
         
-        int[] parts = new int[numParts];
+        int[] partOffsets = new int[numParts];
         
         //points = new Coordinate[numPoints];
         
         for ( int i = 0; i < numParts; i++ ){
-            parts[i]=file.readInt();
+            partOffsets[i]=file.readInt();
         }
         
         LineString lines[] = new LineString[numParts];
         int start,finish,length;
         for(int part=0;part<numParts;part++){
-            start = parts[part];
+            start = partOffsets[part];
             if(part == numParts-1){finish = numPoints;}
             else {
-                finish=parts[part+1];
+                finish=partOffsets[part+1];
             }
             length = finish-start;
             Coordinate points[] = new Coordinate[length];
             for(int i=0;i<length;i++){
                 points[i]=new Coordinate(file.readDouble(),file.readDouble());
             }
-            lines[part] = new LineString(points,null,-1);
+            lines[part] = geometryFactory.createLineString(points);
             
         }
         return new MultiLineString(lines,null,-1);
     }
     
-    public void write(MultiLineString multi,LEDataOutputStream file)throws IOException{
-        
+    public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
+        MultiLineString multi = (MultiLineString)geometry;
         file.setLittleEndianMode(true);
         file.writeInt(getShapeType());
         
@@ -100,6 +100,10 @@ public class ShapeMultiLine  {
 
 /*
  * $Log: ShapeMultiLine.java,v $
+ * Revision 1.2  2002/02/11 18:42:45  jmacgill
+ * changed read and write statements so that they produce and take Geometry objects instead of specific MultiLine objects
+ * changed parts[] array name to partOffsets[] for clarity and consistency with ShapePolygon
+ *
  * Revision 1.1  2002/02/11 16:54:43  jmacgill
  * added shapefile code and directories
  *
