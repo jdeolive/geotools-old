@@ -535,6 +535,85 @@ cvs tag -R r2_3_4</programlisting>
         </variablelist>
       </section>
 
+      <section id="mavenprojectxmlstructure">
+        <title>Project XML Structure</title>
+
+        <para>Complete documentation for the project.xml file for maven can
+          be found at the <ulink url="maven.apache.org">maven</ulink> site,
+          and in particular in the 
+          <ulink url="http://maven.apache.org/reference/project-descriptor.html">project descriptor</ulink> 
+          part of the reference section.
+          So, we only show that the things specific to a geotools2 module 
+          project.xml file here.
+        </para>
+        
+        <variablelist>
+          <varlistentry>
+            <term>extend</term>
+
+            <listitem>
+              <para>The &#60extend&#62 tag allows one project.xml file to 
+                inherit items from another. Modules should extend the 
+                project.xml within the top level geotools2 directory. Also, the
+                path given to the other project.xml file mush begin with
+                ${basedir} in order for maven to find it. For example:
+                &#60extend&#62${basedir}/../../project.xml&#60extend&#62
+              </para>
+            </listitem>
+          </varlistentry>
+          
+          <varlistentry>
+            <term>id</term>
+            
+            <listitem>
+              <para>
+                The id should reflect the name of the module. However, because
+                the main project.xml defined groupId to be gt2, there is no 
+                need to prepend a geotools prefix. Examples are core and 
+                defaultcore.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>dependency</term>
+            
+            <listitem>
+              <para>
+                Dependencies are specified within the project.xml file, but 
+                care should be taken. In a previous version of maven, the 
+                id was used to specify the jar file as well as the prefix, and
+                so more than one jar was not allowed within a project. This has
+                been fixed with the beta8 version of maven, but there are 
+                still many old style dependecies in the project files. New 
+                dependencies, and in particular any dependency on another 
+                geotools2 module should use the new style, which uses a groupId
+                to identify the project and an artifactId to identify the jar
+                within that project. ArtifactIds correspond to modules in
+                geotools2. Also, be aware that dependencies are not transitive.
+                In other words, suppose module B has a dependency on module A.
+                If you are creating module C, and have a dependency
+                on module B, then you do not automatically have a depency on
+                module A. If C depends on A, then you must add the dependency
+                manually.
+              </para>
+              <example>
+                <title>Sample project.xml dependency entry</title>
+                
+                <programlisting>
+                  &#60;dependency&#62;
+                  &#60;groupId&#62;gt2&#60;/groupId&#62;
+                  &#60;artifactId&#62;resources&#60;/artifactId&#62;
+                  &#60;version&#62;1.0&#60;/version&#62;
+                  &#60;/dependency&#62;
+                </programlisting>
+              </example>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+      </section>
+
       <section id="mavenremotestructure">
         <title>Remote File Structure</title>
 
@@ -948,7 +1027,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.27 2003/03/27 14:58:25 crotwell Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.28 2003/03/28 15:52:26 crotwell Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
