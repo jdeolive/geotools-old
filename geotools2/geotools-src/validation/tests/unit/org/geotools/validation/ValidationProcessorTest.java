@@ -27,8 +27,8 @@ import org.geotools.feature.IllegalAttributeException;
  * </code></pre>
  * 
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationProcessorTest.java,v 1.1 2004/02/17 17:19:12 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: ValidationProcessorTest.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class ValidationProcessorTest extends DataTestCase {
 	MemoryDataStore store;

@@ -29,8 +29,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * </code></pre>
  * 
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: NullZeroValidationTest.java,v 1.1 2004/02/17 20:11:51 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: NullZeroValidationTest.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class NullZeroValidationTest extends TestCase {
 	private RoadValidationResults results;

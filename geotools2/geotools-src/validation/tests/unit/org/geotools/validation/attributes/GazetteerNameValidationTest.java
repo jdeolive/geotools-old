@@ -37,8 +37,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * </p>
  *  
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: GazetteerNameValidationTest.java,v 1.1 2004/02/17 17:19:15 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: GazetteerNameValidationTest.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class GazetteerNameValidationTest extends TestCase {
 

@@ -31,8 +31,8 @@ import org.geotools.validation.spatial.LinesNotIntersectValidation;
  * </code></pre>
  * 
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationPlugInTester.java,v 1.2 2004/02/28 00:16:04 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: ValidationPlugInTester.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class ValidationPlugInTester extends DataTestCase {
 

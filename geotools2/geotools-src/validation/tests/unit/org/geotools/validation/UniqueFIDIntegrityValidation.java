@@ -29,8 +29,8 @@ import com.vividsolutions.jts.geom.Envelope;
  * </code></pre>
  * 
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: UniqueFIDIntegrityValidation.java,v 1.1 2004/02/17 17:19:12 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: UniqueFIDIntegrityValidation.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class UniqueFIDIntegrityValidation implements IntegrityValidation {
 

@@ -26,8 +26,8 @@ import java.util.*;
  * </p>
  * 
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LakesValidationTest.java,v 1.1 2004/02/17 17:19:12 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: LakesValidationTest.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 public class LakesValidationTest {
 		public static void main(String[] args) {
@@ -87,7 +87,7 @@ public class LakesValidationTest {
  * handler just prints every JTS geometry that it gets to the standard output.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: LakesValidationTest.java,v 1.1 2004/02/17 17:19:12 dmzwiers Exp $
+ * @version $Id: LakesValidationTest.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
 class LakesTestHandler extends XMLFilterImpl implements GMLHandlerJTS {
 	public LakesTestHandler(){super();}

@@ -9,9 +9,9 @@ import java.util.ArrayList;
 import org.geotools.feature.Feature;
 
 /**
- * RoadValidationResults purpose.
+ * RoadNetworkValidationResults purpose.
  * <p>
- * Description of RoadValidationResults ...
+ * Description of RoadNetworkValidationResults ...
  * <p>
  * Capabilities:
  * <ul>
@@ -19,30 +19,31 @@ import org.geotools.feature.Feature;
  * </ul>
  * Example Use:
  * <pre><code>
- * RoadValidationResults x = new RoadValidationResults(...);
+ * RoadNetworkValidationResults x = new RoadNetworkValidationResults(...);
  * </code></pre>
  * 
  * @author bowens, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: RoadValidationResults.java,v 1.1 2004/02/17 17:19:12 dmzwiers Exp $
+ * @author $Author: sploreg $ (last modification)
+ * @version $Id: RoadNetworkValidationResults.java,v 1.1 2004/04/29 21:57:32 sploreg Exp $
  */
-public class RoadValidationResults implements ValidationResults {
-
-	public ArrayList validationList;
-	public ArrayList failedFeatures;
-	public ArrayList warningFeatures;
-	public ArrayList failureMessages;
-	public ArrayList warningMessages;
+public class RoadNetworkValidationResults implements ValidationResults {
 
 
+	ArrayList validationList;	// list of validations that are to be performed
+	ArrayList failedFeatures;
+	ArrayList warningFeatures;
+	ArrayList failureMessages;
+	ArrayList warningMessages;
+	
+	
 	/**
-	 * RoadValidationResults constructor.
+	 * RoadNetworkValidationResults constructor.
 	 * <p>
 	 * Description
 	 * </p>
 	 * 
 	 */
-	public RoadValidationResults() {
+	public RoadNetworkValidationResults() {
 		validationList = new ArrayList();
 		failedFeatures = new ArrayList();
 		warningFeatures = new ArrayList();
@@ -93,4 +94,41 @@ public class RoadValidationResults implements ValidationResults {
 		warningMessages.add(feature.getID() + ": " + message);
 	}
 
+
+	/**
+	 * getFailedMessages purpose.
+	 * <p>
+	 * Description ...
+	 * </p>
+	 * @return
+	 */
+	public String[] getFailedMessages()
+	{
+		String[] result = new String[failureMessages.size()];
+		for (int i=0; i<failureMessages.size(); i++)
+		{
+			result[i] = (String)failureMessages.get(i);
+		}
+		
+		return result;
+	}
+	
+	
+	/**
+	 * getWarningMessages purpose.
+	 * <p>
+	 * Description ...
+	 * </p>
+	 * @return
+	 */
+	public String[] getWarningMessages()
+	{
+		String[] result = new String[warningMessages.size()];
+		for (int i=0; i<warningMessages.size(); i++)
+		{
+			result[i] = (String)warningMessages.get(i);
+		}
+	
+		return result;
+	}
 }
