@@ -12,30 +12,28 @@ import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.filter.*;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.*;
-import org.apache.log4j.BasicConfigurator;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 /**
  *
  * @author jamesm
  */                                
 public class DefaultCoreSuite extends TestCase {
-    static Logger _log;
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
     public DefaultCoreSuite(java.lang.String testName) {
         super(testName);
         
     }        
     
     public static void main(java.lang.String[] args) {
-        
+        org.geotools.resources.Geotools.init();
         junit.textui.TestRunner.run(suite());
     }
     
     public static Test suite() {
         //_log = Logger.getLogger(DefaultCoreSuite.class);
-        new LogManager().getLoggerRepository().setThreshold(Level.INFO);
-        BasicConfigurator.configure();
+       
         
         TestSuite suite = new TestSuite("All defaultcore tests");
         suite.addTestSuite(DatasourceTest.class);
