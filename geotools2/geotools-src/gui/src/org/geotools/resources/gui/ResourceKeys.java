@@ -30,6 +30,7 @@ public interface ResourceKeys
     public static final int DOWN                     =     2;
     public static final int END_TIME                 =    20;
     public static final int EVENT_LOGGER             =    37;
+    public static final int EXCEPTION                =    41;
     public static final int GEOGRAPHIC_COORDINATES   =    21;
     public static final int HIDE                     =     3;
     public static final int LEFT                     =     4;
@@ -37,11 +38,14 @@ public interface ResourceKeys
     public static final int LOADING_$1               =    40;
     public static final int LOGGER                   =    34;
     public static final int MAGNIFIER                =     5;
+    public static final int MEMORY_HEAP_SIZE_$1      =    45;
+    public static final int MEMORY_HEAP_USAGE_$1     =    46;
     public static final int MESSAGE                  =    32;
     public static final int METHOD                   =    35;
     public static final int NO_DETAILS_$1            =     6;
     public static final int OK                       =    39;
     public static final int PREFERRED_RESOLUTION     =    22;
+    public static final int PROGRESSION              =    44;
     public static final int RECTANGLE_$4             =     7;
     public static final int RESET                    =     8;
     public static final int RIGHT                    =     9;
@@ -54,8 +58,10 @@ public interface ResourceKeys
     public static final int TIME_OF_DAY              =    36;
     public static final int TIME_RANGE               =    26;
     public static final int TIME_ZONE                =    27;
+    public static final int UNTITLED                 =    42;
     public static final int UP                       =    13;
     public static final int USE_BEST_RESOLUTION      =    28;
+    public static final int WARNING                  =    43;
     public static final int ZOOM_IN                  =    14;
     public static final int ZOOM_MAX                 =    15;
     public static final int ZOOM_OUT                 =    16;
