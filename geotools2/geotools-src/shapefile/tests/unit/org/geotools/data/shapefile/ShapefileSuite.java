@@ -27,7 +27,9 @@ public class ShapefileSuite extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite("All ShapefileDataSource Tests");
 
+    // this test must go first!!!
     suite.addTestSuite(TestCaseSupportTest.class);
+    
     suite.addTestSuite(DbaseFileTest.class);
     suite.addTestSuite(ShapefileDataSourceTest.class);
     suite.addTestSuite(ShapefileTest.class);

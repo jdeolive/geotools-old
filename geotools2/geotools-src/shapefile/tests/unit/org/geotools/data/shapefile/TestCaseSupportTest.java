@@ -29,6 +29,8 @@ public class TestCaseSupportTest extends TestCase {
     }
     
     public void testUnzipping() {
+        TestCaseSupport.prepared = false;
+        
         URL r = getClass().getResource("/testData/");
         assertNotNull(r);
         File f = new File(r.getFile(),folderWithSpaces);
@@ -46,6 +48,14 @@ public class TestCaseSupportTest extends TestCase {
             c.delete();
         }
         f.delete();
+        
+        // IF YOU DON'T DO THIS, THINGS ARE BAD FOR THE REST OF THE TEST CASES
+        TestCaseSupport.prepared = false;
+    }
+    
+    protected void tearDown() throws Exception {
+        // make sure TestCaseSupport is ready for the following suites!!!!
+        assertTrue(! TestCaseSupport.prepared );
     }
 
     class Dumby extends TestCaseSupport {
