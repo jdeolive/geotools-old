@@ -183,14 +183,14 @@
                     <standard>@task</standard>
                 </tags>
                 <templates>
-                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.5 $| */</class>
+                    <class>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.6 $| */</class>
                     <constructor>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
                         <param> * @param $paramType$ DOCUMENT ME!</param>
                         <top>/**| * Creates a new $objectType$ object.</top>
                     </constructor>
-                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.5 $| */</interface>
+                    <interface>/**| * DOCUMENT ME!| *| * @author $author$| * @version $Revision: 1.6 $| */</interface>
                     <method>
                         <bottom> */</bottom>
                         <exception> * @throws $exceptionType$ DOCUMENT ME!</exception>
@@ -228,10 +228,10 @@
             <use>false</use>
         </footer>
         <header>
-            <keys />
+            <keys>Geotools2 - OpenSource mapping toolkit</keys>
             <smartMode>0</smartMode>
             <text>/*| *    Geotools2 - OpenSource mapping toolkit| *    http://geotools.org| *    (C) 2002, Geotools Project Managment Committee (PMC)| *| *    This library is free software; you can redistribute it and/or| *    modify it under the terms of the GNU Lesser General Public| *    License as published by the Free Software Foundation;| *    version 2.1 of the License.| *| *    This library is distributed in the hope that it will be useful,| *    but WITHOUT ANY WARRANTY; without even the implied warranty of| *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU| *    Lesser General Public License for more details.| *| */</text>
-            <use>false</use>
+            <use>true</use>
         </header>
         <history>
             <policy>disabled</policy>

@@ -2138,6 +2138,19 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
                 <tgroup cols="2">
                   <tbody>
                     <row>
+                      <entry>Use Header</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+
+                    <row>
+                      <entry>Delete Headers (This ensures multiple headers are
+                      not put in every time Jalopy is run)</entry>
+
+                      <entry>Geotools2 - OpenSource mapping toolkit</entry>
+                    </row>
+
+                    <row>
                       <entry>Text</entry>
 
                       <entry><programlisting>/*
