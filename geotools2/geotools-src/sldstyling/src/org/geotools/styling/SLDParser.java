@@ -140,7 +140,7 @@ public class SLDParser {
     public Style[] readXML() {
         javax.xml.parsers.DocumentBuilderFactory dbf = javax.xml.parsers.DocumentBuilderFactory
         .newInstance();
-        
+        dbf.setNamespaceAware(true);
         try {
             javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(instream);
@@ -165,9 +165,11 @@ public class SLDParser {
      */
     public Style[] readDOM(org.w3c.dom.Document document) {
         this.dom = document;
+       
         
         // for our next trick do something with the dom.
-        NodeList nodes = document.getElementsByTagName("UserStyle");
+        NodeList nodes = findElements(document, "UserStyle");
+        
         Style[] styles = new Style[nodes.getLength()];
         
         for (int i = 0; i < nodes.getLength(); i++) {
@@ -175,6 +177,31 @@ public class SLDParser {
         }
         
         return styles;
+    }
+
+    /**
+     * @param document
+     * @param name
+     * @return
+     */
+    private NodeList findElements(final org.w3c.dom.Document document, final String name) {
+        NodeList nodes = document.getElementsByTagNameNS("*",name);
+        
+     //   if(nodes.getLength() == 0){
+     //       nodes = document.getElementsByTagNameNS("*",name);
+     //   }
+
+        return nodes;
+    }
+    
+    private NodeList findElements(final org.w3c.dom.Element element, final String name) {
+        NodeList nodes = element.getElementsByTagNameNS("*",name);
+        
+       // if(nodes.getLength() == 0){
+       //     nodes = element.getElementsByTagName("sld:"+name);
+       // }
+
+        return nodes;
     }
     
     public StyledLayerDescriptor parseSLD(){
@@ -185,7 +212,8 @@ public class SLDParser {
             javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(instream);
             // for our next trick do something with the dom.
-            NodeList nodes = dom.getElementsByTagName("StyledLayerDescriptor");
+            NodeList nodes  = findElements(dom, "StyledLayerDescriptor");
+     
             
             StyledLayerDescriptor sld = parseDescriptor(nodes.item(0));//should only be one per file
             return sld;
@@ -467,7 +495,8 @@ public class SLDParser {
             }
             
             if (child.getNodeName().equalsIgnoreCase("LegendGraphic")) {
-                NodeList g = ((Element) child).getElementsByTagName(graphicSt);
+                findElements(((Element)child),graphicSt);
+                NodeList g = findElements(((Element) child),graphicSt);
                 ArrayList legends = new ArrayList();
                 
                 for (int k = 0; k < g.getLength(); k++) {
@@ -813,7 +842,7 @@ public class SLDParser {
     
     private Stroke parseStroke(Node root) {
         Stroke stroke = factory.getDefaultStroke();
-        NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
+        NodeList list = findElements(((Element) root),"GraphicFill");
         
         if (list.getLength() > 0) {
             LOGGER.finest("stroke: found a graphic fill " + list.item(0));
@@ -836,7 +865,7 @@ public class SLDParser {
             }
         }
         
-        list = ((Element) root).getElementsByTagName("GraphicStroke");
+        list = findElements(((Element) root),"GraphicStroke");
         
         if (list.getLength() > 0) {
             LOGGER.finest("stroke: found a graphic stroke " + list.item(0));
@@ -859,7 +888,7 @@ public class SLDParser {
             }
         }
         
-        list = ((Element) root).getElementsByTagName("CssParameter");
+        list = findElements(((Element) root),"CssParameter");
         
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
@@ -941,7 +970,7 @@ public class SLDParser {
         }
         
         Fill fill = factory.getDefaultFill();
-        NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
+        NodeList list = findElements(((Element) root),"GraphicFill");
         
         if (list.getLength() > 0) {
             LOGGER.finest("fill found a graphic fill " + list.item(0));
@@ -964,7 +993,7 @@ public class SLDParser {
             }
         }
         
-        list = ((Element) root).getElementsByTagName("CssParameter");
+        list = findElements(((Element) root),"CssParameter");
         
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
@@ -1060,7 +1089,7 @@ public class SLDParser {
         }
         
         Font font = factory.getDefaultFont();
-        NodeList list = ((Element) root).getElementsByTagName("CssParameter");
+        NodeList list = findElements(((Element) root),"CssParameter");
         
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
