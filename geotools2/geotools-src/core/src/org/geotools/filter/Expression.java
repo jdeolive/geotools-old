@@ -20,7 +20,6 @@
 
 package org.geotools.filter;
 
-import org.geotools.data.*;
 import org.geotools.feature.Feature;
 
 /**
@@ -29,7 +28,7 @@ import org.geotools.feature.Feature;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: Expression.java,v 1.3 2002/06/04 15:11:42 loxnard Exp $
+ * @version $Id: Expression.java,v 1.4 2002/07/10 14:42:07 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Expression {
@@ -37,6 +36,8 @@ public interface Expression {
 
     /**
      * Gets the type of this expression.
+     *
+     * @return Expression type.
      */
     public short getType();
 
@@ -45,8 +46,8 @@ public interface Expression {
      * Returns a value for this expression.
      *
      * @param feature Specified feature to use when returning value.
+     * @return Value of the feature object.
      */
-    public Object getValue(Feature feature)        
-        throws MalformedFilterException;
+    public Object getValue(Feature feature);
     
 }
