@@ -14,7 +14,7 @@ package org.geotools.proj4j;
  * Calls to forward() and inverse() are passed on to doForward, doInverse in implementing classes.
  *
  * @author James Macgill
- * @version $Revision: 1.11 $ $Date: 2002/03/07 23:02:55 $
+ * @version $Revision: 1.12 $ $Date: 2002/04/16 16:30:49 $
  */
 public abstract class Projection implements Constants {
     
@@ -60,7 +60,7 @@ public abstract class Projection implements Constants {
     protected double fr_meter; 
       
     
-    boolean isLatLong;
+    protected boolean isLatLong;
     /** Ellipse definition for this projection.
      */    
     protected Ellipse ellipse;
@@ -254,5 +254,10 @@ public abstract class Projection implements Constants {
     
     public abstract String getDescription();
     
-    
+    public Projection getLatLongProjection()throws ProjectionException{
+        Projection latlong = ProjectionFactory.createProjection(new String[]{"proj=latlong"});
+        latlong.datum = this.datum;
+        latlong.ellipse = this.ellipse;
+        return latlong;
+    }
 }
