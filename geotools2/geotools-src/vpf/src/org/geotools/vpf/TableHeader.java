@@ -20,8 +20,8 @@
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
-import org.geotools.vpf.util.ImmutableList;
 import java.util.List;
+import java.util.Collections;
 
 /**
  * This class contains definition of VPF standard table header
@@ -126,7 +126,7 @@ public class TableHeader
    */
   public List getColumnDefs() 
   {
-    return new ImmutableList(this.columnDefs);
+    return Collections.unmodifiableList(this.columnDefs);
   }
 
 } // TableHeader

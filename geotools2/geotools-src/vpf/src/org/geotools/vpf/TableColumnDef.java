@@ -33,14 +33,13 @@ import org.geotools.vpf.ifc.DataTypesDefinition;
  * @author <a href="mailto:kobit@users.fs.net">Artur Hefczyc</a>
  * @version 1.0
  */
-public class TableColumnDef 
-  implements DataTypesDefinition
+public class TableColumnDef implements DataTypesDefinition
 {
 
   protected String name = null;
-  protected char type = '-';
+  protected char type = CHAR_NULL_VALUE;
   protected int elementsNumber = 0;
-  protected char keyType = '-';
+  protected char keyType = CHAR_NULL_VALUE;
   protected String colDesc = null;
   protected String valDescTableName = null;
   protected String thematicIdx = null;
@@ -153,6 +152,80 @@ public class TableColumnDef
   public String getNarrTable() 
   {
     return this.narrTable;
+  }
+
+  public int getColumnSize()
+  {
+	int size = -1;
+	switch (type) {
+	  case DATA_TEXT:
+	  case DATA_LEVEL1_TEXT:
+	  case DATA_LEVEL2_TEXT:
+	  case DATA_LEVEL3_TEXT:
+		size = elementsNumber;
+		break;
+	  case DATA_SHORT_FLOAT:
+		size = DATA_SHORT_FLOAT_LEN;
+		break;
+	  case DATA_LONG_FLOAT:
+		size = DATA_LONG_FLOAT_LEN;
+		break;
+	  case DATA_SHORT_INTEGER:
+		size = DATA_SHORT_INTEGER_LEN;
+		break;
+	  case DATA_LONG_INTEGER:
+		size = DATA_LONG_INTEGER_LEN;
+		break;
+	  case DATA_2_COORD_F:
+		size = DATA_2_COORD_F_LEN;
+		break;
+	  case DATA_2_COORD_R:
+		size = DATA_2_COORD_R_LEN;
+		break;
+	  case DATA_3_COORD_F:
+		size = DATA_3_COORD_F_LEN;
+		break;
+	  case DATA_3_COORD_R:
+		size = DATA_3_COORD_R_LEN;
+		break;
+	  case DATA_DATE_TIME:
+		size = DATA_DATE_TIME_LEN;
+		break;
+	  case DATA_NULL_FIELD:
+		size = DATA_NULL_FIELD_LEN;
+		break;
+	  case DATA_TRIPLED_ID:
+		size = DATA_TRIPLED_ID_LEN;
+	  default:
+		break;
+	} // end of switch (type)
+	return size;
+  }
+
+  public boolean isNumeric()
+  {
+	switch (type) {
+	  case DATA_TEXT:
+	  case DATA_LEVEL1_TEXT:
+	  case DATA_LEVEL2_TEXT:
+	  case DATA_LEVEL3_TEXT:
+	  case DATA_DATE_TIME:
+	  case DATA_NULL_FIELD:
+		return false;
+	  case DATA_SHORT_FLOAT:
+	  case DATA_LONG_FLOAT:
+	  case DATA_SHORT_INTEGER:
+	  case DATA_LONG_INTEGER:
+		return true;
+	  case DATA_2_COORD_F:
+	  case DATA_2_COORD_R:
+	  case DATA_3_COORD_F:
+	  case DATA_3_COORD_R:
+	  case DATA_TRIPLED_ID:
+		return true;
+	  default:
+		return false;
+	} // end of switch (type)
   }
 
 } // TableColumnDef
