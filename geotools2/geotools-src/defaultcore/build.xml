@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="all" name="defaultcore">
+    <property file="build.ant.properties"/>
+    <target depends="test" name="all">
+        <!-- WRITEME -->
+    </target>
+    
+    <target name="compile">
+        <javac debug="true" srcdir="src">
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="../core/release/"/>
+            </classpath>
+        </javac>
+    </target>
+    <target depends="compile" name="compile-test">
+        <javac debug="true" srcdir="tests/unit">
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <fileset dir="../core/release/"/>
+                <path path="src"/>
+            </classpath>
+        </javac>
+    </target>
+    <target depends="compile-test" name="test">
+        <echo message="base dir is ${basedir}"/>
+        <junit fork="true" printsummary="true">
+            <formatter type="plain"/>
+            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <fileset dir="../core/release/"/>
+                <path path="src"/>
+                <path path="tests/unit/"/>
+            </classpath>
+            <test name="org.geotools.datasource.DatasourceTest"/>
+        </junit>
+    </target>
+    <target depends="test" name="release">
+        <mkdir dir="${releaseFolder}"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/core.jar"/>
+    </target>
+    <target name="clean">
+        <delete>
+            <fileset dir="src" includes="**/*.class"/>
+        </delete>
+    </target>
+</project>
