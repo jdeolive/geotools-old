@@ -1,4 +1,4 @@
-/* $Id: SQLEncoderOracleTest.java,v 1.2 2003/08/08 07:33:17 seangeo Exp $
+/* $Id: SQLEncoderOracleTest.java,v 1.3 2003/08/15 01:05:00 seangeo Exp $
  *
  * Created on 31/07/2003
  */
@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: SQLEncoderOracleTest.java,v 1.2 2003/08/08 07:33:17 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:33:17 $
+ * @version $Id: SQLEncoderOracleTest.java,v 1.3 2003/08/15 01:05:00 seangeo Exp $ Last Modified: $Date: 2003/08/15 01:05:00 $
  */
 public class SQLEncoderOracleTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
@@ -48,7 +48,7 @@ public class SQLEncoderOracleTest extends TestCase {
     }
 
     public void testGeometryFilterEncoder() throws Exception {
-        encoder = new SQLEncoderOracle(-1);
+        encoder = new SQLEncoderOracle("FID",-1);
 
         GeometryFilter filter = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
         filter.addLeftGeometry(filterFactory.createAttributeExpression(null, "GEOM"));
@@ -79,5 +79,19 @@ public class SQLEncoderOracleTest extends TestCase {
         assertEquals("WHERE SDO_RELATE(\"GEOM\",MDSYS.SDO_GEOMETRY(1002,NULL," +
             "NULL,MDSYS.SDO_ELEM_INFO_ARRAY(1,2,1),MDSYS.SDO_ORDINATE_ARRAY(" +
             "-10.0,-10.0,10.0,10.0)),'mask=overlapbydisjoint querytype=WINDOW') = 'TRUE' ", value);
+    }
+    
+    public void testFIDEncoding() throws Exception {
+        encoder = new SQLEncoderOracle("FID",-1);
+        
+        Filter filter = filterFactory.createFidFilter("FID.1");
+        String value = encoder.encode(filter);
+        assertEquals("WHERE FID = 'FID.1'",value);
+        
+        FidFilter fidFilter = filterFactory.createFidFilter();
+        fidFilter.addFid("FID.1");
+        fidFilter.addFid("FID.3");
+        value = encoder.encode(fidFilter);
+        assertEquals("WHERE FID = 'FID.3' OR FID = 'FID.1'",value);
     }
 }

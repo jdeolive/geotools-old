@@ -54,7 +54,7 @@ import java.util.logging.Logger;
  * * <p>This class is not suitable for subclassing. * 
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleDataSource.java,v 1.6 2003/08/08 07:50:00 seangeo Exp $
+ * @version $Id: OracleDataSource.java,v 1.7 2003/08/15 01:04:59 seangeo Exp $
  */
 public final class OracleDataSource extends AbstractDataSource {
     /** The default column to use as the Feature ID */
@@ -153,7 +153,7 @@ public final class OracleDataSource extends AbstractDataSource {
             conn.close();
         }
 
-        SQLEncoderOracle encoder = new SQLEncoderOracle(metaData.getSpatialReferenceID());
+        SQLEncoderOracle encoder = new SQLEncoderOracle(fidColumn,metaData.getSpatialReferenceID());
 
         this.unpacker = new SQLUnpacker(SQLEncoderOracle.getCapabilities());
         this.sqlEncoder = new SqlStatementEncoder(encoder, this.tableName, fidColumn);

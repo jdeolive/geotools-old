@@ -1,16 +1,7 @@
 /* *    Geotools2 - OpenSource mapping toolkit *    http://geotools.org *    (C) 2002, Geotools Project Managment Committee (PMC) * *    This library is free software; you can redistribute it and/or *    modify it under the terms of the GNU Lesser General Public *    License as published by the Free Software Foundation; *    version 2.1 of the License. * *    This library is distributed in the hope that it will be useful, *    but WITHOUT ANY WARRANTY; without even the implied warranty of *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU *    Lesser General Public License for more details. * */
 package org.geotools.filter;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
-
+import java.io.IOException;import java.util.Arrays;import java.util.HashMap;import java.util.Map;import java.util.logging.Logger;import com.vividsolutions.jts.geom.Coordinate;import com.vividsolutions.jts.geom.Geometry;import com.vividsolutions.jts.geom.LineString;import com.vividsolutions.jts.geom.Point;import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Encodes Geometry filters into valid oracle SDO statements.
@@ -25,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: SQLEncoderOracle.java,v 1.5 2003/08/08 07:37:35 seangeo Exp $
+ * @version $Id: SQLEncoderOracle.java,v 1.6 2003/08/15 01:05:00 seangeo Exp $
  */
 public class SQLEncoderOracle extends SQLEncoder {
     /** The capabilities of the encoder */
@@ -52,7 +43,7 @@ public class SQLEncoderOracle extends SQLEncoder {
         capabilities.addType(AbstractFilter.GEOMETRY_INTERSECTS);
         capabilities.addType(AbstractFilter.GEOMETRY_OVERLAPS);
         capabilities.addType(AbstractFilter.GEOMETRY_TOUCHES);
-        capabilities.addType(AbstractFilter.GEOMETRY_WITHIN);
+        capabilities.addType(AbstractFilter.GEOMETRY_WITHIN);        capabilities.addType(AbstractFilter.FID);
 
         capabilities.addType(AbstractFilter.LIKE);
 
@@ -72,15 +63,15 @@ public class SQLEncoderOracle extends SQLEncoder {
     private String escapedWildcardSingle = "\\.\\?";
 
     /** The Spatial Reference System ID */
-    private int srid;
+    private int srid;        /** The FID Column name */    private String fidColumn;
 
     /**
      * Creates a new SQLEncoderOracle with a specified SRID.
      *
      * @param srid The Spatial Reference ID to use when generating SDO SQL statements.
      */
-    public SQLEncoderOracle(int srid) {
-        this.srid = srid;
+    public SQLEncoderOracle(String fidColumn,int srid) {
+        this.srid = srid;        this.fidColumn = fidColumn;
     }
 
     private void doBBoxFilter(GeometryFilter geomFilter) throws IOException {
@@ -368,5 +359,5 @@ public class SQLEncoderOracle extends SQLEncoder {
             // can't do it, send it off to the parent
             super.visit(literal);
         }
-    }
+    }        /**     * @see org.geotools.filter.SQLEncoder#visit(org.geotools.filter.FidFilter)     * @param arg0     */    public void visit(FidFilter filter) {        String[] fids = filter.getFids();        LOGGER.finer("Exporting FID=" + Arrays.asList(fids));        for (int i = 0; i < fids.length; i++) {            try {                out.write(fidColumn);                out.write(" = '");                out.write(fids[i]);                out.write("'");                if (i < (fids.length - 1)) {                    out.write(" OR ");                }            } catch (IOException e) {                LOGGER.warning("IO Error exporting FID Filter.");            }                    }    }
 }
