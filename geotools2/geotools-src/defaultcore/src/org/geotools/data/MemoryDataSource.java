@@ -27,7 +27,6 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -64,7 +63,7 @@ import java.util.Set;
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
  * @author jgarnett, Refractions Research 
- * @version $Id: MemoryDataSource.java,v 1.11 2003/09/22 17:48:49 cholmesny Exp $
+ * @version $Id: MemoryDataSource.java,v 1.12 2003/10/07 22:12:55 jive Exp $
  */
 public class MemoryDataSource extends AbstractDataSource implements DataSource {
     
