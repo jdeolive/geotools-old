@@ -58,7 +58,7 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.20 2003/08/07 17:58:11 desruisseaux Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.21 2003/10/31 18:21:55 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -595,7 +595,7 @@ public class ShapefileDataSource extends AbstractDataSource {
       
       if((colType == Integer.class) || (colType == Short.class) || (colType == Byte.class)) {
         header.addColumn(colName, 'N', 16, 0);
-      } else if((colType == Double.class) || (colType == Float.class)) {
+      } else if((colType == Double.class) || (colType == Float.class) || colType == Number.class) {
         header.addColumn(colName, 'N', 33, 16);
       } else if(Date.class.isAssignableFrom(colType)) {
         header.addColumn(colName, 'D', 8, 0);
@@ -649,12 +649,14 @@ public class ShapefileDataSource extends AbstractDataSource {
     Object object;
     if(colType == Integer.class) {
       object = o;
-    } else if((colType == Short.class) || (colType == Byte.class)) {
+    } else if ((colType == Short.class) || (colType == Byte.class)) {
       object = new Integer(((Number) o).intValue());
-    } else if(colType == Double.class) {
+    } else if (colType == Double.class) {
       object = o;
-    } else if(colType == Float.class) {
+    } else if (colType == Float.class) {
       object = new Double(((Number) o).doubleValue());
+    } else if (Number.class.isAssignableFrom(colType)) {
+      object = o;
     } else if(colType == String.class) {
       if (o == null) {
         object = o;
