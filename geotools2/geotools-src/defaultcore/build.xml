@@ -40,7 +40,7 @@
     </target>
     <target depends="test" name="release">
         <mkdir dir="${releaseFolder}"/>
-        <jar basedir="src/" jarfile="${releaseFolder}/core.jar"/>
+        <jar basedir="src/" jarfile="${releaseFolder}/defaultcore.jar"/>
     </target>
     <target name="clean">
         <delete>
