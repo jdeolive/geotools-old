@@ -74,7 +74,7 @@ import org.geotools.styling.*;
  * This current version supports 2 implementations during the transformation
  * from one design pattern to another.  The deprecated methods shall eventually
  * be removed.
- * @version $Id: Java2DRenderer.java,v 1.69 2003/03/14 12:51:06 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.70 2003/03/27 11:27:55 camerons Exp $
  * @author James Macgill
  * @author Cameron Shorter
  * @task TODO Remove deprecated methods.
@@ -239,7 +239,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
      *
      */
     public void render(Graphics g, Rectangle screenSize) {
-        this.screenSize=screenSize;
         Graphics2D graphics=(Graphics2D)g;
         Date start = new Date();
         if (graphics == null || screenSize==null) {
@@ -576,40 +575,4 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
     }
-    
-    /** Return a transform from pixel to Geographic Coordinate Systems.
-     * @return The transform.
-     * @task REVISIT It might be better to return MathTransform instead of
-     * AffineTransform, however this will create a dependance on the ct
-     * modules which would be good to avoid.
-     * @task TODO Fill in this method.
-     *
-     */
-    public AffineTransform getDotToCoordinateSystem() {
-        CoordinatePoint maxP = new CoordinatePoint(
-            context.getBbox().getAreaOfInterest().getMaxX(),
-            context.getBbox().getAreaOfInterest().getMaxY());
-        CoordinatePoint minP = new CoordinatePoint(
-            context.getBbox().getAreaOfInterest().getMinX(),
-            context.getBbox().getAreaOfInterest().getMinY());
-
-        AffineTransform at = new AffineTransform();
-        // note:
-        //   (0,0) in screenCoords is top left of screen, while
-        //   (0,0) in Cordinate System Coords is bottom left.
-        // So invert the Y axis
-        at.scale(
-            (maxP.getOrdinate(0)-minP.getOrdinate(0))/
-            (double)screenSize.getWidth(),
-            (minP.getOrdinate(1)-maxP.getOrdinate(1))/
-            (double)screenSize.getHeight());
-        at.translate(
-            context.getBbox().getAreaOfInterest().getMinX(), 
-            context.getBbox().getAreaOfInterest().getMinY());
-
-//       MathTransform2D mt=
-//            MathTransformFactory.getDefault().createAffineTransform(at);
-        return at;
-    }
-    
 }
