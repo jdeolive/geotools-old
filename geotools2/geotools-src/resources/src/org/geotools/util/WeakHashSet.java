@@ -70,48 +70,12 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakHashSet</code> class is thread-safe.
  *
- * @version 1.0
+ * @version $Id: WeakHashSet.java,v 1.2 2002/07/20 22:18:33 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap
  */
 public class WeakHashSet extends AbstractSet {
-    /**
-     * A weak reference to an element.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
-     */
-    private final class WeakElement extends WeakReference {
-        /**
-         * The next entry, or <code>null</code> if there is none.
-         */
-        WeakElement next;
-
-        /**
-         * Index for this element in {@link #table}. This index
-         * must be updated at every {@link #rehash} call.
-         */
-        int index;
-
-        /**
-         * Construct a new weak reference.
-         */
-        WeakElement(final Object obj, final WeakElement next, final int index) {
-            super(obj, referenceQueue);
-            this.next  = next;
-            this.index = index;
-        }
-
-        /**
-         * Clear the reference.
-         */
-        public void clear() {
-            super.clear();
-            remove(this);
-        }
-    }
-
     /**
      * Minimal capacity for {@link #table}.
      */
@@ -124,50 +88,42 @@ public class WeakHashSet extends AbstractSet {
     private static final float LOAD_FACTOR = 0.75f;
 
     /**
-     * List of reference collected by the garbage collector.
-     * Those elements must be removed from {@link #table}.
+     * A weak reference to an element.
      */
-    private static final ReferenceQueue referenceQueue = new ReferenceQueue();
-
-    /**
-     * Background thread removing references
-     * collected by the garbage collector.
-     */
-    private static final Thread thread = new Thread("WeakHashSet") {
+    private final class Entry extends WeakReference {
         /**
-         * Loop to be run during the virtual machine lifetime.
+         * The next entry, or <code>null</code> if there is none.
          */
-        public void run() {
-            while (true) {
-                try {
-                    referenceQueue.remove().clear();
-                } catch (InterruptedException exception) {
-                    // Somebody doesn't want to lets
-                    // us sleep... Go back to work.
-                } catch (Exception exception) {
-                    Utilities.unexpectedException("org.geotools.resources", "WeakHashSet", "remove", exception);
-                } catch (AssertionError exception) {
-                    Utilities.unexpectedException("org.geotools.resources", "WeakHashSet", "remove", exception);
-                    // Do not kill the thread on assertion failure, in order to
-                    // keep the same behaviour as if assertions were turned off.
-                }
-            }
-        }
-    };
+        Entry next;
 
-    /**
-     * Start the background thread the
-     * first time this class is loaded.
-     */
-    static {
-        thread.setDaemon(true);
-        thread.start();
+        /**
+         * Index for this element in {@link #table}. This index
+         * must be updated at every {@link #rehash} call.
+         */
+        int index;
+
+        /**
+         * Construct a new weak reference.
+         */
+        Entry(final Object obj, final Entry next, final int index) {
+            super(obj, WeakCollectionCleaner.DEFAULT.referenceQueue);
+            this.next  = next;
+            this.index = index;
+        }
+
+        /**
+         * Clear the reference.
+         */
+        public void clear() {
+            super.clear();
+            removeEntry(this);
+        }
     }
 
     /**
      * Table of weak references.
      */
-    private WeakElement[] table;
+    private Entry[] table;
 
     /**
      * Number of non-nul elements in {@link #table}.
@@ -182,10 +138,10 @@ public class WeakHashSet extends AbstractSet {
 
     /**
      * The timestamp when {@link #table} was last rehashed. This information
-     * is used to avoir too early table reduction. When the garbage collector
+     * is used to avoid too early table reduction. When the garbage collector
      * collected a lot of elements, we will wait at least 20 seconds before
-     * rehashing {@link #table} in order to avoir to many cycles "reduce",
-     * "expand", "reduce", "expand", etc.
+     * rehashing {@link #table}. Too early table reduction leads to many cycles
+     * like "reduce", "expand", "reduce", "expand", etc.
      */
     private long lastRehashTime;
 
@@ -199,30 +155,30 @@ public class WeakHashSet extends AbstractSet {
      * Construct a <code>WeakHashSet</code>.
      */
     public WeakHashSet() {
-        table=new WeakElement[MIN_CAPACITY];
-        threshold=Math.round(table.length*LOAD_FACTOR);
+        table = new Entry[MIN_CAPACITY];
+        threshold = Math.round(table.length*LOAD_FACTOR);
         lastRehashTime = System.currentTimeMillis();
     }
 
     /**
-     * Invoked by {@link WeakElement} when an element has been collected
+     * Invoked by {@link Entry} when an element has been collected
      * by the garbage collector. This method will remove the weak reference
      * from {@link #table}.
      */
-    private synchronized void remove(final WeakElement toRemove) {
+    private synchronized void removeEntry(final Entry toRemove) {
         assert valid() : count;
-        final int i=toRemove.index;
+        final int i = toRemove.index;
         // Index 'i' may not be valid if the reference 'toRemove'
         // has been already removed in a previous rehash.
-        if (i<table.length) {
-            WeakElement prev=null;
-            WeakElement e=table[i];
-            while (e!=null) {
-                if (e==toRemove) {
-                    if (prev!=null) {
-                        prev.next=e.next;
+        if (i < table.length) {
+            Entry prev = null;
+            Entry e = table[i];
+            while (e != null) {
+                if (e == toRemove) {
+                    if (prev != null) {
+                        prev.next = e.next;
                     } else {
-                        table[i]=e.next;
+                        table[i] = e.next;
                     }
                     count--;
                     assert valid();
@@ -236,8 +192,8 @@ public class WeakHashSet extends AbstractSet {
                     // variable 'e' is no longer valid.
                     return;
                 }
-                prev=e;
-                e=e.next;
+                prev = e;
+                e = e.next;
             }
         }
         assert valid();
@@ -267,12 +223,12 @@ public class WeakHashSet extends AbstractSet {
             return;
         }
         lastRehashTime = currentTime;
-        final WeakElement[] oldTable = table;
-        table     = new WeakElement[capacity];
+        final Entry[] oldTable = table;
+        table     = new Entry[capacity];
         threshold = Math.round(capacity*LOAD_FACTOR);
         for (int i=0; i<oldTable.length; i++) {
-            for (WeakElement old=oldTable[i]; old!=null;) {
-                final WeakElement e=old;
+            for (Entry old=oldTable[i]; old!=null;) {
+                final Entry e=old;
                 old=old.next; // On retient 'next' tout de suite car sa valeur va changer...
                 final Object obj_e = e.get();
                 if (obj_e!=null) {
@@ -288,12 +244,44 @@ public class WeakHashSet extends AbstractSet {
         final Logger logger = Logger.getLogger("org.geotools.resources");
         final Level   level = Level.FINEST;
         if (logger.isLoggable(level)) {
-            final LogRecord record = new LogRecord(level, "Rehash from "+oldTable.length+" to "+table.length);
+            final LogRecord record = new LogRecord(level, "Rehash from " + oldTable.length +
+                                                                  " to " +    table.length);
             record.setSourceMethodName(augmentation ? "canonicalize" : "remove");
             record.setSourceClassName("WeakHashSet");
             logger.log(record);
         }
         assert valid();
+    }
+
+    /**
+     * Check if this <code>WeakHashSet</code> is valid. This method counts the
+     * number of elements and compare it to {@link #count}. If the check fails,
+     * the number of elements is corrected (if we didn't, an {@link AssertionError}
+     * would be thrown for every operations after the first error,  which make
+     * debugging more difficult). The set is otherwise unchanged, which should
+     * help to get similar behaviour as if assertions hasn't been turned on.
+     */
+    private boolean valid() {
+        int n=0;
+        for (int i=0; i<table.length; i++) {
+            for (Entry e=table[i]; e!=null; e=e.next) {
+                n++;
+            }
+        }
+        if (n!=count) {
+            count = n;
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Returns the count of element in this set.
+     */
+    public synchronized int size() {
+        assert valid();
+        return count;
     }
 
     /**
@@ -314,21 +302,18 @@ public class WeakHashSet extends AbstractSet {
      * @see #canonicalize(Object)
      */
     public synchronized Object get(final Object obj) {
-        assert thread.isAlive() : thread;
-        assert valid() : count;
-        if (obj!=null) {
-            final int hash = hashCode(obj) & 0x7FFFFFFF;
-            int index = hash % table.length;
-            for (WeakElement e=table[index], prev=null; e!=null; prev=e, e=e.next) {
-                final Object e_obj=e.get();
-                if (e_obj!=null) {
-                    if (equals(obj, e_obj)) {
-                        return e_obj;
-                    }
-                }
-            }
-        }
-        return obj;
+        return intern(obj, GET);
+    }
+
+    /**
+     * Removes a single instance of the specified element from this set,
+     * if it is present
+     *
+     * @param  obj element to be removed from this set, if present.
+     * @return <code>true</code> if the set contained the specified element.
+     */
+    public synchronized boolean remove(final Object obj) {
+        return intern(obj, REMOVE) != null;
     }
 
     /**
@@ -341,8 +326,14 @@ public class WeakHashSet extends AbstractSet {
      *         contain the specified element.
      */
     public synchronized boolean add(final Object obj) {
-        return intern(obj)==null;
+        return intern(obj, ADD) == null;
     }
+
+    // Arguments for the {@link #intern} method.
+    /** The "remove" operation.  */  private static final int REMOVE = -1;
+    /** The "get"    operation.  */  private static final int GET    =  0;
+    /** The "add"    operation.  */  private static final int ADD    = +1;
+    /** The "intern" operation.  */  private static final int INTERN = +2;
 
     /**
      * Returns an object equals to <code>obj</code> if such an object already
@@ -351,48 +342,56 @@ public class WeakHashSet extends AbstractSet {
      * following code:
      *
      * <blockquote><pre>
-     * &nbsp;  if (object!=null)
-     * &nbsp;  {
-     * &nbsp;      final Object current=get(object);
-     * &nbsp;      if (current!=null) return current;
-     * &nbsp;      else add(object);
+     * &nbsp;  if (object!=null) {
+     * &nbsp;      final Object current = get(object);
+     * &nbsp;      if (current != null) {
+     * &nbsp;          return current;
+     * &nbsp;      } else {
+     * &nbsp;          add(object);
+     * &nbsp;      }
      * &nbsp;  }
      * &nbsp;  return object;
      * </pre></blockquote>
      */
-    private Object intern(final Object obj) {
+    private Object intern(final Object obj, final int operation) {
         assert Thread.holdsLock(this);
-        assert thread.isAlive() : thread;
+        assert WeakCollectionCleaner.DEFAULT.isAlive();
         assert valid() : count;
-        if (obj!=null) {
+        if (obj != null) {
             /*
              * Check if <code>obj</code> is already contained in this
              * <code>WeakHashSet</code>. If yes, returns the element.
              */
             final int hash = hashCode(obj) & 0x7FFFFFFF;
             int index = hash % table.length;
-            for (WeakElement e=table[index], prev=null; e!=null; prev=e, e=e.next) {
-                final Object e_obj=e.get();
-                if (e_obj!=null) {
-                    if (equals(obj, e_obj))
+            for (Entry e=table[index]; e!=null; e=e.next) {
+                final Object e_obj = e.get();
+                if (e_obj != null) {
+                    if (equals(obj, e_obj)) {
+                        if (operation == REMOVE) {
+                            e.clear();
+                        }
                         return e_obj;
+                    }
                 }
-                // Do not remove the null element; lets "remove" do its job
+                // Do not remove the null element; lets ReferenceQueue do its job
                 // (it was a bug to remove element here as an "optimization")
             }
-            /*
-             * Check if the table need to be rehashed,
-             * and add <code>obj</code> to the table.
-             */
-            if (count>=threshold) {
-                rehash(true);
-                index = hash % table.length;
+            if (operation >= ADD) {
+                /*
+                 * Check if the table need to be rehashed,
+                 * and add <code>obj</code> to the table.
+                 */
+                if (count >= threshold) {
+                    rehash(true);
+                    index = hash % table.length;
+                }
+                table[index] = new Entry(obj, table[index], index);
+                count++;
             }
-            table[index]=new WeakElement(obj, table[index], index);
-            count++;
         }
         assert valid();
-        return obj;
+        return (operation==INTERN) ? obj : null;
     }
 
     /**
@@ -412,7 +411,7 @@ public class WeakHashSet extends AbstractSet {
      * </pre></blockquote>
      */
     public synchronized Object canonicalize(final Object object) {
-        return intern(object);
+        return intern(object, INTERN);
     }
 
     /**
@@ -427,16 +426,8 @@ public class WeakHashSet extends AbstractSet {
      */
     public synchronized void canonicalize(final Object[] objects) {
         for (int i=0; i<objects.length; i++) {
-            objects[i] = intern(objects[i]);
+            objects[i] = intern(objects[i], INTERN);
         }
-    }
-
-    /**
-     * Returns the count of element in this set.
-     */
-    public synchronized int size() {
-        assert valid();
-        return count;
     }
 
     /**
@@ -444,30 +435,7 @@ public class WeakHashSet extends AbstractSet {
      */
     public synchronized void clear() {
         Arrays.fill(table, null);
-        count=0;
-    }
-
-    /**
-     * Check if this <code>WeakHashSet</code> is valid. This method counts the
-     * number of elements and compare it to {@link #count}. If the check fails,
-     * the number of elements is corrected (if we didn't, an {@link AssertionError}
-     * would be thrown for every operations after the first error,  which make
-     * debugging more difficult). The set is otherwise unchanged, which should
-     * help to get similar behaviour as if assertions hasn't been turned on.
-     */
-    private boolean valid() {
-        int n=0;
-        for (int i=0; i<table.length; i++) {
-            for (WeakElement e=table[i]; e!=null; e=e.next) {
-                n++;
-            }
-        }
-        if (n!=count) {
-            count = n;
-            return false;
-        } else {
-            return true;
-        }
+        count = 0;
     }
 
     /**
@@ -480,7 +448,7 @@ public class WeakHashSet extends AbstractSet {
         final Object[] elements = new Object[count];
         int index = 0;
         for (int i=0; i<table.length; i++) {
-            for (WeakElement el=table[i]; el!=null; el=el.next) {
+            for (Entry el=table[i]; el!=null; el=el.next) {
                 if ((elements[index]=el.get()) != null) {
                     index++;
                 }
@@ -505,7 +473,7 @@ public class WeakHashSet extends AbstractSet {
      *
      * @deprecated This method may be removed in a future version.
      */
-    protected int hashCode(final Object object) {
+    protected final int hashCode(final Object object) {
         return (object!=null) ? object.hashCode() : 0;
     }
 
@@ -515,7 +483,7 @@ public class WeakHashSet extends AbstractSet {
      *
      * @deprecated This method may be removed in a future version.
      */
-    protected boolean equals(final Object object1, final Object object2) {
+    protected final boolean equals(final Object object1, final Object object2) {
         return object1==object2 || (object1!=null && object1.equals(object2));
     }
 }
