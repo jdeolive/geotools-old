@@ -1,37 +1,35 @@
 DROP TABLE ora_test_points;
 DROP TABLE ora_test_lines;
 DROP TABLE ora_test_polygons;
+
 DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'ORA_TEST_POINTS';
 DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'ORA_TEST_POLYGONS';
 DELETE FROM USER_SDO_GEOM_METADATA WHERE TABLE_NAME = 'ORA_TEST_LINES';
 
-CREATE OR REPLACE FUNCTION getSRID(cs_name_arg in VARCHAR2)
-    RETURN NUMBER 
-    IS
-     srid_v NUMBER;
-BEGIN
-    SELECT SRID INTO srid_v from MDSYS.CS_SRS where CS_NAME = cs_name_arg;
-    RETURN(srid_v);
-END;
-/
-  
+
 CREATE TABLE ora_test_points (
     name    VARCHAR(255),
     intval  NUMBER,
     id      NUMBER  PRIMARY KEY,
-    shape   MDSYS.SDO_GEOMETRY);
+    shape   MDSYS.SDO_GEOMETRY
+);
     
+
 CREATE TABLE ora_test_lines (
     name    VARCHAR(255),
     intval  NUMBER,
     id      NUMBER  PRIMARY KEY,
-    shape   MDSYS.SDO_GEOMETRY);
+    shape   MDSYS.SDO_GEOMETRY
+);
+
 
 CREATE TABLE ora_test_polygons (
     name    VARCHAR(255),
     intval  NUMBER,
     id      NUMBER  PRIMARY KEY,
-    shape   MDSYS.SDO_GEOMETRY);
+    shape   MDSYS.SDO_GEOMETRY
+);
+
 
 INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     'ORA_TEST_POINTS',
@@ -43,6 +41,8 @@ INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     NULL
 );
 
+
+
 INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     'ORA_TEST_LINES',
     'SHAPE',
@@ -53,6 +53,8 @@ INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     NULL
 );
 
+
+
 INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     'ORA_TEST_POLYGONS',
     'SHAPE',
@@ -62,6 +64,9 @@ INSERT INTO USER_SDO_GEOM_METADATA VALUES (
     ),
     NULL
 );
+
+
+
 
 
 INSERT INTO ora_test_points VALUES (
@@ -77,6 +82,8 @@ INSERT INTO ora_test_points VALUES (
     )
 );
 
+
+
 INSERT INTO ora_test_points VALUES (
     'point 2',
     20,
@@ -89,6 +96,8 @@ INSERT INTO ora_test_points VALUES (
         MDSYS.SDO_ORDINATE_ARRAY(20,10)
     )
 );
+
+
 
 INSERT INTO ora_test_points VALUES (
     'point 3',
@@ -103,6 +112,7 @@ INSERT INTO ora_test_points VALUES (
     )
 );
 
+
 INSERT INTO ora_test_points VALUES (
     'point 4',
     40,
@@ -116,6 +126,8 @@ INSERT INTO ora_test_points VALUES (
     )
 );
 
+
+
 INSERT INTO ora_test_points VALUES (
     'point 5',
     50,
@@ -128,5 +140,7 @@ INSERT INTO ora_test_points VALUES (
         MDSYS.SDO_ORDINATE_ARRAY(-20,10)
     )
 );
+
+
 
 create index test_point_index on ORA_TEST_POINTS(SHAPE) INDEXTYPE IS MDSYS.SPATIAL_INDEX;
