@@ -35,7 +35,7 @@ import java.util.Map;
  * PostgisDataSources with the correct params.
  *
  * @author James Macgill, PSU
- * @version $Id: PostgisDataSourceFactory.java,v 1.4 2003/08/21 17:47:38 cholmesny Exp $
+ * @version $Id: PostgisDataSourceFactory.java,v 1.5 2003/10/31 18:53:53 cholmesny Exp $
  */
 public class PostgisDataSourceFactory
     implements org.geotools.data.DataSourceFactorySpi {
@@ -120,6 +120,8 @@ public class PostgisDataSourceFactory
         String database = (String) params.get("database");
         String table = (String) params.get("table");
         String charSet = (String) params.get("charset");
+	String useStrict = (String) params.get("strictbbox");
+	String useGeos = (String) params.get("usegeos");
 
         PostgisConnectionFactory connFact = new PostgisConnectionFactory(host,
                 port, database);
@@ -127,11 +129,16 @@ public class PostgisDataSourceFactory
         try {
             connFact.setLogin(user, passwd);
             connFact.setCharSet(charSet);
-
+	    
 	    ConnectionPool pool = connFact.getConnectionPool();
             PostgisDataSource pgds = new PostgisDataSource(pool, table);
-
-            return pgds;
+            if (useStrict != null && useStrict.equals("true")){
+		pgds.setEncodeBbox(false);
+	    }
+	    if (useGeos != null && useGeos.equals("true")){
+		pgds.setUseGeosEncoder(true);
+	    }
+	    return pgds;
         } catch (SQLException sqle) {
             throw new DataSourceException("Unable to connect to database", sqle);
         }

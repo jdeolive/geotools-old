@@ -50,6 +50,7 @@ import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.SQLEncoderException;
 import org.geotools.filter.SQLEncoderPostgis;
+import org.geotools.filter.SQLEncoderPostgisGeos;
 import org.geotools.filter.SQLUnpacker;
 
 //J2SE imports
@@ -77,7 +78,7 @@ import java.util.logging.Logger;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.37 2003/10/24 20:14:39 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.38 2003/10/31 18:53:53 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -313,6 +314,30 @@ public class PostgisDataSource extends AbstractDataSource
         }
 
         //catch (Exception e) {
+    }
+
+    public void setEncodeBbox(boolean looseBbox) {
+	encoder = new SQLEncoderPostgis(looseBbox);
+	if (schema.getDefaultGeometry() != null) {
+	    encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	    encoder.setSRID(srid);
+	}
+    }
+
+    /**
+     * Sets that the geos encoder should be used.  This should eventually
+     * be automatically detected, but for now we'll just use the factory
+     * to set this, so users can set if they have it.
+     */
+     public void setUseGeosEncoder(boolean useGeos) {
+	 if (useGeos == true) {
+	     encoder = new SQLEncoderPostgisGeos(srid);
+	 } else {
+	     encoder = new SQLEncoderPostgis(srid);
+	 }
+	 if (schema.getDefaultGeometry() != null) {
+	     encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
+	 }   
     }
 
     /**
