@@ -31,6 +31,7 @@ package org.geotools.cs;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
+import java.sql.Connection;
 import java.sql.SQLException;
 
 
@@ -61,7 +62,7 @@ import java.sql.SQLException;
  *   </li>
  * </ul>
  *
- * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.3 2004/02/03 20:37:07 desruisseaux Exp $
+ * @version $Id: CoordinateSystemModifiedEPSGFactory.java,v 1.4 2004/02/04 11:50:14 desruisseaux Exp $
  * @author Rueben Schulz
  * @author Martin Desruisseaux
  */
@@ -88,7 +89,7 @@ public class CoordinateSystemModifiedEPSGFactory extends CoordinateSystemEPSGFac
     };
 
     /**
-     * Map the MS-Access names to ANSI names. Key are MS-Access names including bracket.
+     * Maps the MS-Access names to ANSI names. Key are MS-Access names including bracket.
      * Values are ANSI names. Keys and values are case-sensitive. The default content of
      * this map is:
      *
@@ -110,8 +111,27 @@ public class CoordinateSystemModifiedEPSGFactory extends CoordinateSystemEPSGFac
      *   <tr><td>[Unit of Measure]</td>                        <td>epsg_unitofmeasure</td></tr>
      *   <tr><td>[ORDER]</td>                                  <td>coord_axis_order</td></tr>
      * </table></pre>
+     *
+     * Subclasses can modify this map in their constructor in order to provide a different
+     * mapping.
      */
     protected final Map map = new LinkedHashMap();
+
+    /**
+     * Construct an authority factory using
+     * the specified connection.
+     *
+     * @param factory    The underlying factory used for objects creation.
+     * @param connection The connection to the underlying EPSG database.
+     */
+    public CoordinateSystemModifiedEPSGFactory(final CoordinateSystemFactory factory,
+                                               final Connection           connection)
+    {
+        super(factory, connection);    
+        for (int i=0; i<ANSI.length; i++) {
+            map.put(ANSI[i], ANSI[++i]);
+        }
+    }
 
     /**
      * Construct an authority factory using
