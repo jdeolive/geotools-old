@@ -24,7 +24,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.10 2004/02/11 21:31:18 ianschneider Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.11 2004/02/16 06:53:38 aaime Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
@@ -87,7 +87,7 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
         Object metaData ){
             
         if( Geometry.class.isAssignableFrom( clazz) && metaData instanceof CoordinateReferenceSystem ){
-            return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue, (CoordinateReferenceSystem) metaData );
+            return new DefaultAttributeType.Geometric(name,clazz,isNillable, fieldLength,defaultValue, (CoordinateReferenceSystem) metaData);
         }
         else {
             return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue );
