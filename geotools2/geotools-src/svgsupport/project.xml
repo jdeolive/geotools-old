@@ -69,14 +69,8 @@
       <id>batik+svggen</id>
       <version>1.1.1</version>
     </dependency>
-    <dependency>
-      <id>batik+dom</id>
-      <version>1.1.1</version>
-    </dependency>
-    <dependency>
-      <id>batik+xml</id>
-      <version>1.1.1</version>
-    </dependency>
+    
+    
     <dependency>
       <id>batik+awt+util</id>
       <version>1.1.1</version>
