@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.37 2002/07/05 15:28:31 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.38 2002/07/05 15:30:05 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -524,13 +524,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             if(halo!=null){
                 _log.debug("doing halo");
                 TextLayout tl =new TextLayout(label,graphics.getFont(),graphics.getFontRenderContext());
-                float sx = (float) tl.getBounds().getMinX();
-                float sy = (float) tl.getBounds().getMinY();
-                float sw = (float) tl.getBounds().getWidth();
-                float sh = (float) tl.getBounds().getHeight();
-                _log.debug("Halo "+sx+","+sy+" size "+sw+" "+sh);
+                
                 /*
-                 * creates an outline shape from the TextLayout 
+                 * create an outline shape from the TextLayout 
                  */
                 AffineTransform at = new AffineTransform();
                 at.translate(x,y);
