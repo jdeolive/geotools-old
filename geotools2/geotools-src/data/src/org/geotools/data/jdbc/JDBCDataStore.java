@@ -93,16 +93,16 @@ import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Abstract helper class for JDBC DataStore implementations.
- * 
+ *
  * <p>
  * This class provides a default implementation of a JDBC data store. Support for vendor specific
  * JDBC data stores can be easily added to Geotools by subclassing this class and overriding the
  * hooks provided.
  * </p>
- * 
+ *
  * <p>
  * At a minimum subclasses should implement the following methods:
- * 
+ *
  * <ul>
  * <li>
  * {@link #buildAttributeType(ResultSet) buildAttributeType(ResultSet)} - This should be overriden
@@ -116,10 +116,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * </li>
  * </ul>
  * </p>
- * 
+ *
  * <p>
  * Additionally subclasses can optionally override the following:
- * 
+ *
  * <ul>
  * <li>
  * {@link #determineFidColumnName(String) determindeFidColumnName} - Used to determine the FID
@@ -142,6 +142,8 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
+ *
+ * $Id: JDBCDataStore.java,v 1.12 2003/12/20 01:19:27 seangeo Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     /** The logger for the filter module. */
@@ -151,7 +153,7 @@ public abstract class JDBCDataStore implements DataStore {
      * Maps SQL types to Java classes. This might need to be fleshed out more later, Ive ignored
      * complex types such as ARRAY, BLOB and CLOB. It is protected so subclasses can override it I
      * guess.
-     * 
+     *
      * <p>
      * These mappings were taken from
      * http://java.sun.com/j2se/1.3/docs/guide/jdbc/getstart/mapping.html#997737
@@ -257,7 +259,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Create a new featureType.
-     * 
+     *
      * <p>
      * Not currently supported - subclass may implement.
      * </p>
@@ -275,21 +277,21 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Used to provide support for changing the DataStore Schema.
-     * 
+     *
      * <p>
      * Specifically this is intended to address updating the metadata Coordinate System
      * information.
      * </p>
-     * 
+     *
      * <p>
      * If we can figure out the Catalog API for metadata we will not have to use such a heavy
      * handed approach.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are free to implement various levels of support:
      * </p>
-     * 
+     *
      * <ul>
      * <li>
      * None - table modification is not supported
@@ -302,7 +304,7 @@ public abstract class JDBCDataStore implements DataStore {
      * Allow table change opperations
      * </li>
      * </ul>
-     * 
+     *
      *
      * @see org.geotools.data.DataStore#updateSchema(java.lang.String,
      *      org.geotools.feature.FeatureType)
@@ -313,7 +315,7 @@ public abstract class JDBCDataStore implements DataStore {
     }
 
     // Jody - This is my recomendation for DataStore
-    // in order to support CS reprojection and override 
+    // in order to support CS reprojection and override
     public FeatureSource getView(final Query query) throws IOException, SchemaException {
         String typeName = query.getTypeName();
         FeatureType origionalType = getSchema(typeName);
@@ -344,7 +346,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Default implementation based on getFeatureReader and getFeatureWriter.
-     * 
+     *
      * <p>
      * We should be able to optimize this to only get the RowSet once
      * </p>
@@ -355,7 +357,7 @@ public abstract class JDBCDataStore implements DataStore {
         if (getLockingManager() != null) {
             // Use default JDBCFeatureLocking that delegates all locking
             // the getLockingManager
-            // 
+            //
             return new JDBCFeatureLocking(this, getSchema(typeName));
         } else {
             // subclass should provide a FeatureLocking implementation
@@ -366,11 +368,11 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * This is a public entry point to the DataStore.
-     * 
+     *
      * <p>
      * We have given some though to changing this api to be based on query.
      * </p>
-     * 
+     *
      * <p>
      * Currently the is is the only way to retype your features to different name spaces.
      * </p>
@@ -458,7 +460,7 @@ public abstract class JDBCDataStore implements DataStore {
                     filter));
 
         if ((filterAttributes == null) || (filterAttributes.length == 0)) {
-            // no filter attributes required            
+            // no filter attributes required
             return typeAttributes;
         }
 
@@ -476,13 +478,13 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * The top level method for getting a FeatureReader.
-     * 
+     *
      * <p>
      * Chris- I've gone with the Query object aswell.  It just seems to make more sense.  This is
      * pretty well split up across methods. The hooks for DB specific AttributeReaders are
      * createResultSetReader and createGeometryReader.
      * </p>
-     * 
+     *
      * <p>
      * JG- I have implemented getFeatureReader( FeatureType, Filter, Transasction) ontop of this
      * method, it will Retype as required
@@ -620,12 +622,12 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Create a new FeatureReader based on attributeReaders.
-     * 
+     *
      * <p>
      * The provided <code>schema</code> describes the attributes in the queryData ResultSet. This
      * schema should cover the requirements of <code>filter</code>.
      * </p>
-     * 
+     *
      * <p>
      * Retyping to the users requested Schema will not happen in this method.
      * </p>
@@ -663,14 +665,14 @@ public abstract class JDBCDataStore implements DataStore {
     /**
      * Builds the AttributeReaders from the QueryData and the array of attribute types. This is
      * private since the default implementation shoud not need to be overriden.
-     * 
+     *
      * <p>
      * Subclasses can provide custom attribute readers for  the basic types by overriding
      * createResultSetReader().  createResultSetReader has parameters that define a range of
      * columns in the Result to read. The default implementation of this method creates a
      * RangedResultSetAttributeReader instance.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses must provide a geometry attribute reader by implementing createGeometryReader().
      * This must provide an AttributeReader capable of  reading a geometry at a single column.
@@ -714,7 +716,7 @@ public abstract class JDBCDataStore implements DataStore {
             AttributeType[] basicTypes = (AttributeType[]) basicAttrTypes.toArray(new AttributeType[basicAttrTypes.size()]);
             int startIndex = attrTypes.length - basicAttrTypes.size() + 2;
 
-            // + 2 to get past fid and 1 based index           
+            // + 2 to get past fid and 1 based index
             attrReaders.add(createResultSetReader(basicTypes, queryData, startIndex,
                     attrTypes.length + 2));
         }
@@ -724,29 +726,29 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Executes the SQL Query.
-     * 
+     *
      * <p>
      * This is private in the expectation that subclasses should not need to change this behaviour.
      * </p>
-     * 
+     *
      * <p>
      * Jody with a question here - I have stopped this method from closing connection shared by a
      * Transaction. It sill seems like we are leaving connections open by using this method. I
      * have also stopped QueryData from doing the same thing.
      * </p>
-     * 
+     *
      * <p>
      * Answer from Sean:  Resources for successful queries are closed when close is called on the
      * AttributeReaders constructed with the QueryData. We can't close them here since they need
      * to be open to read from the ResultSet.
      * </p>
-     * 
+     *
      * <p>
      * Jody AttributeReader question: I looked at the code and Attribute Readers do not close with
      * respect to Transactions (they need to as we can issue a Reader against a Transaction. I
      * have changed the JDBCDataStore.close method to force us to keep track of these things.
      * </p>
-     * 
+     *
      * <p>
      * SG: I've marked this as final since I don't think it shoudl be overriden, but Im not sure
      * </p>
@@ -924,20 +926,20 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Builds the schema for a table in the database.
-     * 
+     *
      * <p>
      * This works by retrieving the column information for the table from the DatabaseMetaData
      * object.  It then iterates over the information for each column, calling
      * buildAttributeType(ResultSet) to construct an AttributeType for each column.  The list of
      * attribute types is then turned into a FeatureType that defines the schema.
      * </p>
-     * 
+     *
      * <p>
      * It is not intended that this method is overriden.  It should provide the required
      * functionality for most sub-classes.  To add AttributeType construction for vendor specific
      * SQL types, such as geometries, override the buildAttributeType(ResultSet) method.
      * </p>
-     * 
+     *
      * <p>
      * This may become final later.  In fact Ill make it private because I don't think It will need
      * to be overriden.
@@ -957,6 +959,7 @@ public abstract class JDBCDataStore implements DataStore {
     private FeatureType buildSchema(String typeName, String fidColumn)
         throws IOException {
         final int NAME_COLUMN = 4;
+        final int TYPE_NAME = 6;
         Connection conn = null;
         ResultSet tableInfo = null;
 
@@ -976,7 +979,11 @@ public abstract class JDBCDataStore implements DataStore {
                     }
 
                     AttributeType attributeType = buildAttributeType(tableInfo);
-                    attributeTypes.add(attributeType);
+                    if (attributeType != null) {
+	                    attributeTypes.add(attributeType);
+					} else {
+						LOGGER.finest("Unknown SQL Type: " + tableInfo.getString(TYPE_NAME));
+					}
                 } catch (DataSourceException dse) {
                     String msg = "Error building attribute type. The column will be ignored";
                     LOGGER.log(Level.WARNING, msg, dse);
@@ -1005,23 +1012,24 @@ public abstract class JDBCDataStore implements DataStore {
      * Constructs an AttributeType from a row in a ResultSet. The ResultSet contains the
      * information retrieved by a call to  getColumns() on the DatabaseMetaData object.  This
      * information  can be used to construct an Attribute Type.
-     * 
+     *
      * <p>
-     * The default implementation construct an AttributeType using the default JDBC type mappings
+     * The default implementation constructs an AttributeType using the default JDBC type mappings
      * defined in JDBCDataStore.  These type mappings only handle native Java classes and SQL
      * standard column types, so to handle Geometry columns, sub classes should override this to
      * check if a column is a geometry column, if it is a geometry column the appropriate
      * determination of the geometry type can be performed. Otherwise, overriding methods should
      * call super.buildAttributeType.
      * </p>
-     * 
+     *
      * <p>
      * Note: Overriding methods must never move the current row pointer in the result set.
      * </p>
      *
      * @param rs The ResultSet containing the result of a DatabaseMetaData.getColumns call.
      *
-     * @return The AttributeType built from the ResultSet.
+     * @return The AttributeType built from the ResultSet or null if the column should be excluded
+     *         from the schema.
      *
      * @throws SQLException If an error occurs processing the ResultSet.
      * @throws DataSourceException Provided for overriding classes to wrap exceptions caused by
@@ -1033,29 +1041,28 @@ public abstract class JDBCDataStore implements DataStore {
         throws SQLException, DataSourceException {
         final int COLUMN_NAME = 4;
         final int DATA_TYPE = 5;
-        final int TYPE_NAME = 6;
 
         String columnName = rs.getString(COLUMN_NAME);
         int dataType = rs.getInt(DATA_TYPE);
         Class type = (Class) TYPE_MAPPINGS.get(new Integer(dataType));
 
         if (type == null) {
-            throw new DataSourceException("Unknown SQL Type: " + rs.getString(TYPE_NAME));
-        }
-
-        return AttributeTypeFactory.newAttributeType(columnName, type);
+            return null;
+        } else {
+	        return AttributeTypeFactory.newAttributeType(columnName, type);
+		}
     }
 
     /**
      * Provides a hook for subclasses to determine the SRID of a geometry column.
-     * 
+     *
      * <p>
      * This allows SRIDs to be determined in a Vendor specific way and to be cached by the default
      * implementation.  To retreive these srids, get the FeatureTypeInfo object for the table and
      * call getSRID(geometryColumnName).  This will allow storage of SRIDs for multiple geometry
      * columns in each table.
      * </p>
-     * 
+     *
      * <p>
      * If no SRID can be found, subclasses should return -1.  The default implementation always
      * returns -1.
@@ -1075,18 +1082,18 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Provides the default implementation of determining the FID column.
-     * 
+     *
      * <p>
      * The default implementation of determining the FID column name is to use the primary key as
      * the FID column.  If no primary key is present, null will be returned.  Sub classes can
      * override this behaviour to define primary keys for vendor specific cases.
      * </p>
-     * 
+     *
      * <p>
      * There is an unresolved issue as to what to do when there are multiple primary keys.  Maybe a
      * restriction that table much have a single column primary key is appropriate.
      * </p>
-     * 
+     *
      * <p>
      * This should not be called by subclasses to retreive the FID column name. Instead, subclasses
      * should call getFeatureTypeInfo(String) to get the FeatureTypeInfo for a feature type and
@@ -1117,7 +1124,7 @@ public abstract class JDBCDataStore implements DataStore {
             }
         } catch (SQLException sqlException) {
             JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
-            conn = null; // prevent finally block from reclosing          
+            conn = null; // prevent finally block from reclosing
             LOGGER.warning("Could not find the primary key - using the default");
         } finally {
             JDBCUtils.close(rs);
@@ -1138,7 +1145,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Retreives the FeatureTypeInfo object for a FeatureType.
-     * 
+     *
      * <p>
      * This allows subclasses to get access to the information about a feature type, this includes
      * the schema and the fidColumnName.
@@ -1177,20 +1184,20 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Retrieve a FeatureWriter over entire dataset.
-     * 
+     *
      * <p>
      * Quick notes: This FeatureWriter is often used to add new content, or perform summary
      * calculations over the entire dataset.
      * </p>
-     * 
+     *
      * <p>
      * Subclass may wish to implement an optimized featureWriter for these operations.
      * </p>
-     * 
+     *
      * <p>
      * It should provide Feature for next() even when hasNext() is <code>false</code>.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are responsible for checking with the lockingManger unless they are providing
      * their own locking support.
@@ -1213,17 +1220,17 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Retrieve a FeatureWriter for creating new content.
-     * 
+     *
      * <p>
      * Subclass may wish to implement an optimized featureWriter for this operation. One based on
      * prepaired statemnts is a possibility, as we do not require a ResultSet.
      * </p>
-     * 
+     *
      * <p>
      * To allow new content the FeatureWriter should provide Feature for next() even when hasNext()
      * is <code>false</code>.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are responsible for checking with the lockingManger unless they are providing
      * their own locking support.
@@ -1252,17 +1259,17 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Aquire FetureWriter for modification of contents specifed by filter.
-     * 
+     *
      * <p>
      * Quick notes: This FeatureWriter is often used to remove contents specified by the provided
      * filter, or perform summary calculations.
      * </p>
-     * 
+     *
      * <p>
      * It is not used to provide new content and should return <code>null</code> for next() when
      * hasNext() returns <code>false</code>.
      * </p>
-     * 
+     *
      * <p>
      * Subclasses are responsible for checking with the lockingManger unless they are providing
      * their own locking support.
@@ -1361,7 +1368,7 @@ public abstract class JDBCDataStore implements DataStore {
             AttributeType[] basicTypes = (AttributeType[]) basicAttrTypes.toArray(new AttributeType[basicAttrTypes.size()]);
             int startIndex = attrTypes.length - basicAttrTypes.size() + 2;
 
-            // + 2 to get past fid and 1 based index           
+            // + 2 to get past fid and 1 based index
             attrWriters.add(createResultSetWriter(basicTypes, queryData, startIndex,
                     attrTypes.length + 2));
         }
@@ -1373,7 +1380,7 @@ public abstract class JDBCDataStore implements DataStore {
      * Gets the attribute types from the query.  If all are requested then returns all attribute
      * types of this query.  If only certain propertyNames are requested then this returns the
      * correct attribute types, throwing an exception is they can not be found.
-     * 
+     *
      * <p>
      * This should be in an abstract class.
      * </p>
@@ -1419,7 +1426,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Get propertyNames in a safe manner.
-     * 
+     *
      * <p>
      * Method wil figure out names from the schema for query.getTypeName(), if query
      * getPropertyNames() is <code>null</code>, or query.retrieveAllProperties is
@@ -1478,7 +1485,7 @@ public abstract class JDBCDataStore implements DataStore {
 
     /**
      * Locking manager used for this DataStore.
-     * 
+     *
      * <p>
      * By default AbstractDataStore makes use of InProcessLockingManager.
      * </p>
@@ -1519,7 +1526,7 @@ public abstract class JDBCDataStore implements DataStore {
 
         /**
          * Returns the name of FidColumn if we are using one.
-         * 
+         *
          * <p>
          * This is used when we are using a Primary Key for our Feature ID. If this value is
          * <code>null</code> we are letting a sequence or OID do the work.
@@ -1584,8 +1591,8 @@ public abstract class JDBCDataStore implements DataStore {
     protected class JDBCFeatureWriter implements FeatureWriter, QueryDataObserver {
         protected QueryData queryData;
         protected AttributeWriter writer;
-        protected Feature live = null; // current for FeatureWriter 
-        protected Feature current = null; // copy of live returned to user    
+        protected Feature live = null; // current for FeatureWriter
+        protected Feature current = null; // copy of live returned to user
         protected FeatureReader fReader;
 
         /**
@@ -1630,7 +1637,7 @@ public abstract class JDBCDataStore implements DataStore {
                         featureType.getTypeName(), e);
                 }
             } else {
-                // new content 
+                // new content
                 live = null;
 
                 if (fReader != null) {
