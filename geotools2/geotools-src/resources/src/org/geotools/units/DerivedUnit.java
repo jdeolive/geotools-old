@@ -46,7 +46,8 @@ import org.geotools.resources.rsc.ResourceKeys;
  * @author Bill Hibbard
  * @author Martin Desruisseaux
  */
-/*public*/ final class DerivedUnit extends SimpleUnit {
+/*public*/ 
+final class DerivedUnit extends SimpleUnit {
     /**
      * Serial number for interoperability with different versions.
      */
