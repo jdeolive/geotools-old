@@ -24,11 +24,11 @@ package org.geotools.styling;
 import org.geotools.filter.Expression;
 
 /**
- * @version $Id: DefaultFont.java,v 1.2 2002/07/11 18:18:37 loxnard Exp $
+ * @version $Id: DefaultFont.java,v 1.3 2002/08/02 16:43:23 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultFont implements Font {
-        private static org.apache.log4j.Logger _log =
+    private static org.apache.log4j.Logger _log =
     org.apache.log4j.Logger.getLogger(DefaultFont.class);
     private Expression fontFamily = null;
     private Expression fontSize = null;

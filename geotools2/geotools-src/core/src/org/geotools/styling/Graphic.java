@@ -27,7 +27,7 @@ package org.geotools.styling;
  * A Graphic is a "graphical symbol" with an inherent shape, color(s), and
  * possibly size.<p>
  * A "graphic" can very informally be defined as "a little picture" and can be
- * of either a raster of vector graphic source type.  The term graphic is used
+ * of either a raster or vector graphic source type.  The term graphic is used
  * since the term "symbol" is similar to "symbolizer" which is used in a
  * difference context in SLD.
  *
@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.6 2002/07/19 16:33:12 jmacgill Exp $
+ * @version $Id: Graphic.java,v 1.7 2002/08/02 16:43:23 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -92,6 +92,17 @@ public interface Graphic {
      */    
     Mark[] getMarks();
     
+    /**
+     * Provides a list of all the symbols which can be used to represent this
+     * graphic. A symbol is an ExternalGraphic, Mark or any other object which
+     * implements the Symbol interface.
+     * These are returned in the order they were set. 
+     *
+     * @return An array of symbols to use when displaying this Graphic. 
+     * By default, a "square" with 50% gray fill and black outline with a size
+     * of 6 pixels (unless a size is specified) is provided.
+     */    
+    Symbol[] getSymbols();
      
     /**
      * This specifies the level of translucency to use when rendering the 

@@ -23,10 +23,10 @@ import java.net.*;
 import java.io.*;
 import org.apache.log4j.Category;
 /**
- * @version $Id: DefaultExternalGraphic.java,v 1.4 2002/07/11 17:23:03 loxnard Exp $
+ * @version $Id: DefaultExternalGraphic.java,v 1.5 2002/08/02 16:43:23 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultExternalGraphic implements ExternalGraphic {
+public class DefaultExternalGraphic implements ExternalGraphic,Symbol {
     URL location = null;
     String format = "";
     

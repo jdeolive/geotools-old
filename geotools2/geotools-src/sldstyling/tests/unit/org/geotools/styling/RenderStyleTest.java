@@ -21,8 +21,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.*;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -32,7 +31,7 @@ public class RenderStyleTest extends TestCase {
     
     public RenderStyleTest(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
+        
     }
     
     public static void main(java.lang.String[] args) {
@@ -110,7 +109,9 @@ public class RenderStyleTest extends TestCase {
             dataFolder = System.getProperty("basedir");
             dataFolder+="/tests/unit/testData";
         }
+        
         File f = new File(dataFolder,"sample.sld");
+        
         System.out.println("testing reader using "+f.toString());
         SLDStyle style = new SLDStyle(f);
         map.addFeatureTable(ft,style);

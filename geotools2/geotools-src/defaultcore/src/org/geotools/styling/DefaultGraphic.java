@@ -22,12 +22,13 @@ package org.geotools.styling;
 import java.util.*;
 import org.geotools.filter.*;
 /**
- * @version $Id: DefaultGraphic.java,v 1.9 2002/07/11 17:35:02 loxnard Exp $
+ * @version $Id: DefaultGraphic.java,v 1.10 2002/08/02 16:43:23 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
     ArrayList externalGraphics = new ArrayList();
     ArrayList marks = new ArrayList();
+    ArrayList symbols = new ArrayList();
     private static org.apache.log4j.Category _log = 
         org.apache.log4j.Category.getInstance(DefaultGraphic.class);
     private Expression rotation = null;
@@ -68,6 +69,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
     
     public void addExternalGraphic(ExternalGraphic g){
         externalGraphics.add(g);
+        symbols.add(g);
     }
     
     /**
@@ -93,10 +95,38 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             return;
         }
         marks.add(m);
+        symbols.add(m);
         m.setSize(size);
         m.setRotation(rotation);
     }
-        
+     
+    /** Provides a list of all the symbols which can be used to represent this
+     * graphic. A symbol is an ExternalGraphic, Mark or any other object which
+     * implements the Symbol interface.
+     * These are returned in the order they were set.
+     *
+     * @return An array of symbols to use when displaying this Graphic.
+     * By default, a "square" with 50% gray fill and black outline with a size
+     * of 6 pixels (unless a size is specified) is provided.
+     */
+    public Symbol[] getSymbols() {
+        if (symbols.size() > 0){
+            return (Symbol[]) symbols.toArray(new Symbol[0]);
+        } else {
+            return new Symbol[]{new DefaultMark()};
+        }
+    }
+    public void addSymbol(Symbol symbol){
+        symbols.add(symbol);
+        if ( symbol instanceof ExternalGraphic){
+            addExternalGraphic((ExternalGraphic) symbol);
+            return;
+        }
+        if ( symbol instanceof DefaultMark){
+            addMark((DefaultMark) symbol);
+            return;
+        }
+    }
     /**
      * This specifies the level of translucency to use when rendering the
      * graphic.<br>
@@ -193,4 +223,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
             _log.fatal("Problem setting Opacity", mfe);
         }
     }
+    
+    
+    
 }

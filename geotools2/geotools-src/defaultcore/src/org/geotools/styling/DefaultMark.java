@@ -23,10 +23,10 @@ package org.geotools.styling;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.filter.*;
 /**
- * @version $Id: DefaultMark.java,v 1.8 2002/07/11 17:36:54 loxnard Exp $
+ * @version $Id: DefaultMark.java,v 1.9 2002/08/02 16:43:23 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class DefaultMark implements Mark {
+public class DefaultMark implements Mark, Symbol {
     private static org.apache.log4j.Logger _log = 
         org.apache.log4j.Logger.getLogger(DefaultMark.class);    
     Fill fill = new DefaultFill();
@@ -157,4 +157,8 @@ public class DefaultMark implements Mark {
         return rotation;
     }
     private static String[] WellKnownNames = {"Square", "Circle", "Cross", "Triangle", "Star", "X", "Arrow"};
+    
+    public String toString(){
+        return wellKnownName.toString();
+    }
 }
