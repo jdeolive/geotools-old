@@ -118,7 +118,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.8 2002/09/16 10:34:10 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.9 2002/09/19 09:04:06 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -691,7 +691,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.8 2002/09/16 10:34:10 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.9 2002/09/19 09:04:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends RemoteObject implements CV_Coverage {
@@ -796,7 +796,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
 
         /**
          * Return the value vector for a given point in the coverage.
-         * The default implementation invokes one of other <code>CV_Coverage} method
+         * The default implementation invokes one of other <code>CV_Coverage</code> method
          * (for example {@link #evaluateAsDouble}) according the underlying data type.
          *
          * @task TODO: Check the underlying data type.

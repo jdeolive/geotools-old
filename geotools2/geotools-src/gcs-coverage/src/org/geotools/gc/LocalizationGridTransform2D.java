@@ -40,6 +40,7 @@ import java.awt.geom.NoninvertibleTransformException;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.io.IOException;
+import java.util.Arrays;
 
 // Geotools dependencies
 import org.geotools.pt.Matrix;
@@ -49,6 +50,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.ct.AbstractMathTransform;
 
 // Resources
+import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -68,7 +70,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.6 2002/08/25 14:36:40 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.7 2002/09/19 09:04:06 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -447,14 +449,15 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
              *
              *     <code>transform(target).distance(source)</code>.
              */
-            double bestX = target.x;
-            double bestY = target.y;
+            double x,y;
+            double bestX = x = target.x;
+            double bestY = y = target.y;
             double minSq = Double.POSITIVE_INFINITY;
             for (int i=0; i<MAX_ITER; i++) {
-                getAffineTransform(target.x, target.y, tr);
+                getAffineTransform(x, y, tr);
                 tr.inverseTransform(source, target);
-                final double x = target.x;
-                final double y = target.y;
+                x = target.x;
+                y = target.y;
                 if (ix==(int)x  &&  iy==(int)y) {
                     // Loop detected.
                     target.x = bestX;
@@ -492,7 +495,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.6 2002/08/25 14:36:40 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.7 2002/09/19 09:04:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
@@ -606,5 +609,26 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
             in.defaultReadObject();
             LocalizationGridTransform2D.this.inverse = this;
         }
+    }
+
+    /**
+     * Returns a hash value for this transform.
+     */
+    public int hashCode() {
+        return super.hashCode() ^ global.hashCode();
+    }
+
+    /**
+     * Compare this transform with the specified object for equality.
+     */
+    public boolean equals(final Object object) {
+        if (super.equals(object)) {
+            final LocalizationGridTransform2D that = (LocalizationGridTransform2D) object;
+            return this.width  == that.width   &&
+                   this.height == that.height  &&
+                   Utilities.equals(this.global, that.global) &&
+                   Arrays   .equals(this.grid,   that.grid);
+        }
+        return false;
     }
 }
