@@ -208,7 +208,7 @@ public class ExpressionDOMParser {
                 attribute.setAttributePath(child.getFirstChild().getNodeValue());
                 return attribute;
             }catch (IllegalFilterException ife){
-                LOGGER.finer("Unable to build expression: " + ife);
+                LOGGER.warning("Unable to build expression: " + ife);
                 return null;
             }
         }
