@@ -18,6 +18,13 @@
         <ant antfile="build-maven.xml" dir="..\algorithms" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\shapefile" inheritall="true" target="maven:site"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\Java2DRendering" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\gmldatasource" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\gui" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\mapinfo" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\postgis" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\proj4j" inheritall="true" target="maven:site"/>
+        <ant antfile="build-maven.xml" dir="..\sldstyling" inheritall="true" target="maven:site"/>
     </target>
     
     
