@@ -291,7 +291,7 @@ public class SdeConnectionPool
         //then, wait until a connection be freed or time out
         while (timeWaited <= getMaxWaitTime())
         {
-            LOGGER.fine("waiting for connection...");
+            LOGGER.finer("waiting for connection...");
 
             try
             {
@@ -325,7 +325,7 @@ public class SdeConnectionPool
      */
     private SeConnection getAvailable()
     {
-        LOGGER.fine("Getting available connection.");
+        LOGGER.finest("Getting available connection.");
 
         SeConnection conn = (SeConnection) availableConnections.removeFirst();
         usedConnections.add(conn);
