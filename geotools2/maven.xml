@@ -43,7 +43,7 @@
 <!--
 <project default="build"
 -->
-<maven:project
+<project
          xmlns:reactor="reactor"
          xmlns:j="jelly:core"
          xmlns:u="jelly:util"
@@ -53,7 +53,7 @@
          xmlns:deploy="deploy"
          xmlns:texen="texen"
 xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
->
+         default="build" >
 
  
   <!-- ================================================================== -->
@@ -237,5 +237,5 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
         
   </goal>
 
-</maven:project>
+</project>
 
