@@ -78,6 +78,10 @@ public class MapPane extends ZoomPane implements ZoomChangeListener {
         setPaintingWhileAdjusting(true);
         this.map = map;
         this.ext = ext;
+        
+        //transformation performed by renderer should be combined with
+        //transformation calculated by this component.
+        renderer.setConcatTransforms(true);
     }
     
     /**
