@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.12 2003/11/19 02:38:58 cholmesny Exp $
+ * @version $Id: DefaultFeature.java,v 1.13 2003/12/01 17:51:55 ianschneider Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -308,7 +308,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      * @return Geometry for this feature.
      */
     public Geometry getDefaultGeometry() {
-        int idx = schema.find(schema.getDefaultGeometry());
+        int idx = schema.defaultGeomIdx;
 
         if (idx == -1) {
             return null;
@@ -327,15 +327,14 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      */
     public void setDefaultGeometry(Geometry geometry)
         throws IllegalAttributeException {
-        AttributeType geomAtt = schema.getDefaultGeometry();
-        int idx = schema.find(geomAtt);
+        
+        int idx = schema.defaultGeomIdx;
 
         if (idx < 0) {
             throw new IllegalAttributeException(
                 "Feature does not have geometry");
         }
 
-        //attributes[idx] = (Geometry) geometry.clone();
         attributes[idx] = geometry;
         bounds = null;
     }
