@@ -2,7 +2,7 @@ package org.geotools.mapinfo;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.Map;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceException;
 
@@ -16,7 +16,7 @@ public class MapInfoDataSourceFactory implements org.geotools.data.DataSourceFac
     public MapInfoDataSourceFactory() {
     }
     
-    public boolean canProcess(HashMap params) {
+    public boolean canProcess(Map params) {
         if(!params.containsKey("url")){
             return false;
         }
@@ -27,7 +27,7 @@ public class MapInfoDataSourceFactory implements org.geotools.data.DataSourceFac
         return true;
     }
     
-    public DataSource createDataSource(HashMap params)  throws DataSourceException {      
+    public DataSource createDataSource(Map params)  throws DataSourceException {      
         if(!canProcess(params)){
             return null;
         }
