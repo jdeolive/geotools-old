@@ -85,7 +85,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
     public XMLEncoder(Writer out) {
         this.out = out;
     }
-    
+
     /**
      * Creates a new instance of XMLEncoder
      *
@@ -107,11 +107,11 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         filter.accept(this);
         out.write("</Filter>\n");
     }
-    
+
     public void encode(Expression expression) {
         expression.accept(this);
     }
-    
+
     /**
      * This should never be called. This can only happen if a subclass of
      * AbstractFilter failes to implement its own version of
@@ -247,6 +247,19 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
         }
     }
 
+	public void visit(FidFilter filter) {
+		LOGGER.finer("exporting FidFilter");
+
+		String[] fids = filter.getFids();
+		for ( int i = 0; i < fids.length; i++ ) {
+			try {
+				out.write("<FeatureId fid=\"" + fids[i] + "\"/>");
+			} catch (Exception e) {
+				LOGGER.warning("Unable to export filter" + e);
+			}
+		}
+	}
+
     public void visit(AttributeExpression expression) {
         LOGGER.finer("exporting ExpressionAttribute");
 
@@ -320,20 +333,20 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             LOGGER.warning("Unable to export expresion: " + ioe);
         }
     }
-    
+
     class GeometryEncoder {
         private String srs = "epsg:4326";
         private PrintWriter out;
-        
+
         public GeometryEncoder(Writer out) {
             this.out = new PrintWriter(out);
-        }   
-        
+        }
+
         public GeometryEncoder(String srs,Writer out) {
             this.out = new PrintWriter(out);
             this.srs = srs;
         }
-        
+
         public void encode(Geometry geom) {
             Class geomType = geom.getClass();
             if ( Point.class.isAssignableFrom(geomType) ) {
@@ -352,7 +365,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
                 encode((GeometryCollection)geom);
             }
         }
-        
+
         public void encode(Coordinate[] coords) {
             out.print("<gml:coordinates>");
             for ( int i = 0; i < coords.length; i++ ) {
@@ -361,34 +374,34 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             }
             out.println("</gml:coordinates>");
         }
-        
+
         public void encode(Point point) {
             out.println("<gml:Point srsName=\"" + srs + "\">");
             encode(point.getCoordinates());
             out.println("</gml:Point>");
         }
-        
+
         public void encode(LineString line) {
             out.println("<gml:LineString srsName=\"" + srs + "\">");
-            encode(line.getCoordinates());							
+            encode(line.getCoordinates());
 			out.println("</gml:LineString>");
         }
-        
+
         public void encode(Polygon polygon) {
             out.println("<gml:Polygon srsName=\"" + srs + "\">");
             out.println("<gml:outerBoundaryIs>");
-            encode(polygon.getExteriorRing());						
+            encode(polygon.getExteriorRing());
 			out.println("</gml:outerBoundaryIs>");
-			
+
 			for ( int i = 0; i < polygon.getNumInteriorRing(); i++ ) {
 			    out.println("<gml:innerBoundaryIs>");
 			    encode(polygon.getInteriorRingN(i));
 			    out.println("</gml:innerBoundaryIs>");
 			}
-					
+
 			out.println("</gml:Polygon>");
         }
-        
+
         public void encode(MultiPoint mpoint) {
             out.println("<gml:MultiPoint srsName=\"" + srs + "\">\n");
             for ( int i = 0; i < mpoint.getNumGeometries(); i++ ) {
@@ -396,7 +409,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             }
             out.println("</gml:MultiPoint>\n");
         }
-                
+
         public void encode(MultiLineString mline) {
             out.println("<gml:MultiLineString srsName=\"" + srs + "\">\n");
             for ( int i = 0; i < mline.getNumGeometries(); i++ ) {
@@ -404,7 +417,7 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             }
             out.println("</gml:MultiLineString>\n");
         }
-        
+
         public void encode(MultiPolygon mpolygon) {
             out.println("<gml:MultiPolygon srsName=\"" + srs + "\">\n");
             for ( int i = 0; i < mpolygon.getNumGeometries(); i++ ) {
@@ -412,13 +425,13 @@ public class XMLEncoder implements org.geotools.filter.FilterVisitor {
             }
             out.println("</gml:MultiPolygon>\n");
         }
-        
+
         public void encode(GeometryCollection geomcoll) {
             out.println("<gml:MultiGeometry srsName=\"" + srs + "\">\n");
             for ( int i = 0; i < geomcoll.getNumGeometries(); i++ ) {
                 encode(geomcoll.getGeometryN(i));
             }
             out.println("</gml:MultiGeometry>\n");
-        }    
+        }
     }
 }
