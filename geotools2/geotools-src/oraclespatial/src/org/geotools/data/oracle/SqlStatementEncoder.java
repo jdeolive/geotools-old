@@ -29,7 +29,7 @@ import java.util.logging.Logger;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: SqlStatementEncoder.java,v 1.1 2003/08/08 07:36:44 seangeo Exp $ Last Modified: $Date: 2003/08/08 07:36:44 $
+ * @version $Id: SqlStatementEncoder.java,v 1.2 2003/11/05 00:53:37 seangeo Exp $ Last Modified: $Date: 2003/11/05 00:53:37 $
  */
 final class SqlStatementEncoder {
     /** A logger for logging */
@@ -127,7 +127,7 @@ final class SqlStatementEncoder {
         sqlBuffer.append(" FROM ");
         sqlBuffer.append(tableName);
 
-        if (filter != null) {
+        if (filter != null && filter != Filter.NONE) {
             String where = whereEncoder.encode(filter);
 
             sqlBuffer.append(" ");
