@@ -1,19 +1,37 @@
 package org.opengis.cs;
-import org.opengis.pt.*;
 
-/** A 2D cartographic coordinate system.*/
+// JDK's classes
+import java.rmi.RemoteException;
+
+
+/**
+ * A 2D cartographic coordinate system.
+ *
+ * @version 1.01
+ * @since   1.00
+ * @author Martin Daly
+ */
 public interface CS_ProjectedCoordinateSystem extends CS_HorizontalCoordinateSystem
 {
-    /** Returns the GeographicCoordinateSystem.*/
-    CS_GeographicCoordinateSystem getGeographicCoordinateSystem();
-
-    /** Returns the LinearUnits.
-     *  The linear unit must be the same as the CS_CoordinateSystem units.
+    /**
+     * Returns the GeographicCoordinateSystem.
+     *
+     * @throws RemoteException if a remote method call failed.
      */
-    CS_LinearUnit getLinearUnit();
+    CS_GeographicCoordinateSystem getGeographicCoordinateSystem() throws RemoteException;
 
-    /** Gets the projection.
+    /**
+     * Returns the LinearUnits.
+     * The linear unit must be the same as the {@link CS_CoordinateSystem} units.
+     *
+     * @throws RemoteException if a remote method call failed.
      */
-    CS_Projection getProjection();
+    CS_LinearUnit getLinearUnit() throws RemoteException;
+
+    /**
+     * Gets the projection.
+     *
+     * @throws RemoteException if a remote method call failed.
+     */
+    CS_Projection getProjection() throws RemoteException;
 }
-
