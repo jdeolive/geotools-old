@@ -56,13 +56,13 @@ import org.geotools.io.LineWriter;
  * <code>MonolineFormatter</code> looks like:
  *
  * <blockquote><pre>
- * [FINE core] A log message logged with level FINE from the "org.geotools.core" logger.
+ * [core FINE] A log message logged with level FINE from the "org.geotools.core" logger.
  * </pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.1 2002/08/14 16:13:30 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.2 2002/08/16 18:06:57 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class MonolineFormatter extends Formatter {
+final class MonolineFormatter extends Formatter {
     /**
      * The string to write at the begining of every log header (e.g. "[FINE core]").
      */
@@ -86,9 +86,16 @@ public class MonolineFormatter extends Formatter {
     private final String lineSeparator = System.getProperty("line.separator", "\n");
 
     /**
+     * The line separator for the message body. This line always begin with
+     * {@link #lineSeparator}, followed by some amount of spaces in order to
+     * align the message.
+     */
+    private String bodyLineSeparator = lineSeparator;
+
+    /**
      * The minimum amount of spaces to use for writting level and module name before the message.
      * For example if this value is 12, then a message from module "org.geotools.core" with level
-     * FINE would be formatted as "<code>[FINE&nbsp;&nbsp;core]</code> <cite>the message</cite>"
+     * FINE would be formatted as "<code>[core&nbsp;&nbsp;FINE]</code> <cite>the message</cite>"
      * (i.e. the whole <code>[&nbsp;]</code> part is 12 characters wide).
      */
     private final int margin;
@@ -115,15 +122,6 @@ public class MonolineFormatter extends Formatter {
     private final LineWriter writer;
 
     /**
-     * Construct a default instance of <code>MonolineFormatter</code>.
-     * Base logger name is <code>"org.geotools"</code> (since this
-     * logger is designed for use with Geotools 2).
-     */
-    public MonolineFormatter() {
-        this("org.geotools", getHeaderWidth());
-    }
-
-    /**
      * Construct a <code>MonolineFormatter</code>.
      *
      * @param base   The base logger name. This is used for shortening the logger name
@@ -131,15 +129,10 @@ public class MonolineFormatter extends Formatter {
      *               "org.geotools" and a log record come from the "org.geotools.core"
      *               logger, it will be formatted as "[LEVEL core]" (i.e. the
      *               "org.geotools" part is ommited).
-     * @param margin The minimum amount of spaces to use for writting level and module
-     *               name before the message. For example if this value is 12, then a
-     *               message from module "org.geotools.core" with level FINE would be
-     *               formatted as "<code>[FINE&nbsp;&nbsp;core]</code> <cite>the message</cite>"
-     *               (i.e. the whole <code>[&nbsp;]</code> part is 12 characters wide).
      */
-    public MonolineFormatter(final String base, final int margin) {
+    public MonolineFormatter(final String base) {
         this.base   = base.trim();
-        this.margin = margin;
+        this.margin = getHeaderWidth();
         final StringWriter str = new StringWriter();
         writer = new LineWriter(str);
         buffer = str.getBuffer();
@@ -155,16 +148,20 @@ public class MonolineFormatter extends Formatter {
     public synchronized String format(final LogRecord record) {
         String logger = record.getLoggerName();
         if (logger.startsWith(base)) {
-            logger = logger.substring(base.length());
+            int pos = base.length();
+            if (pos<logger.length()-1 && logger.charAt(pos)=='.') {
+                pos++;
+            }
+            logger = logger.substring(pos);
         }
-        String bodyLineSeparator = writer.getLineSeparator();
+        final String level = record.getLevel().getLocalizedName();
         try {
             buffer.setLength(PREFIX.length());
-            writer.setLineSeparator(lineSeparator);
-            writer.write(record.getLevel().getLocalizedName());
-            writer.write(Utilities.spaces(Math.max(1, margin-(buffer.length()+logger.length()+1))));
             writer.write(logger);
+            writer.write(Utilities.spaces(Math.max(1, margin-(buffer.length()+level.length()+1))));
+            writer.write(level);
             writer.write(SUFFIX);
+            writer.flush(); // Force the writting of whitespaces.
             /*
              * Now format the message. We will use a line separator made of the usual EOL
              * ("\r", "\n", or "\r\n", which is plateform specific) following by some amout
@@ -177,6 +174,7 @@ public class MonolineFormatter extends Formatter {
             }
             writer.setLineSeparator(bodyLineSeparator);
             writer.write(formatMessage(record));
+            writer.setLineSeparator(lineSeparator);
             writer.write('\n');
             writer.flush();
         } catch (IOException exception) {
@@ -187,65 +185,18 @@ public class MonolineFormatter extends Formatter {
     }
 
     /**
-     * Setup a <code>MonolineFormatter</code> for the specified logger and its children.
-     * This method search for all instances of {@link ConsoleHandler} using the {@link
-     * SimpleFormatter}. If such instances are found, they are replaced by a single
-     * instance of <code>MonolineFormatter</code> writting to the standard output stream
-     * (instead of the standard error stream). This action has no effect on any loggers
-     * outside the <code>base</code> namespace.
-     *
-     * @param base The base logger name to apply the change on (e.g. "org.geotools").
-     */
-    public static void init(final String base) {
-        Formatter formatter = null;
-        final Logger logger = Logger.getLogger(base);
-        for (Logger parent=logger; parent.getUseParentHandlers();) {
-            parent = parent.getParent();
-            if (parent == null) {
-                break;
-            }
-            final Handler[] handlers = parent.getHandlers();
-            for (int i=0; i<handlers.length; i++) {
-                Handler handler = handlers[i];
-                if (formatter == null) {
-                    // Check only if no formatter has been set yet.
-                    if (handler.getClass().equals(ConsoleHandler.class)) {
-                        formatter = handler.getFormatter();
-                        if (formatter.getClass().equals(SimpleFormatter.class)) {
-                            formatter = new MonolineFormatter(base, getHeaderWidth());
-                            handler = new Stdout(formatter);
-                        }
-                    }
-                }
-                logger.addHandler(handler);
-            }
-        }
-        logger.setUseParentHandlers(false);
-    }
-
-    /**
      * Returns the header width. This is the default value to use for {@link #margin},
      * if no value has been explicitely set. This value can be set in user's preferences.
      */
     private static int getHeaderWidth() {
-        return Preferences.userNodeForPackage(Arguments.class).getInt("logging.header", 15);
+        return Preferences.userNodeForPackage(MonolineFormatter.class).getInt("logging.header", 15);
     }
 
     /**
-     * A {@link ConsoleHandler} sending output to {@link System#out}
-     * instead of {@link System#err}.
+     * Set the header width. This is the default value to use for {@link #margin}
+     * for next {@link MonolineFormatter} to be created.
      */
-    private static final class Stdout extends ConsoleHandler {
-        /**
-         * Construct the console handler.
-         *
-         * @param  formatter The formatter to use.
-         * @throws SecurityException if we don't have the
-         *         permission to set the output stream.
-         */
-        public Stdout(final Formatter formatter) throws SecurityException {
-            setOutputStream(System.out);
-            setFormatter(formatter);
-        }
+    static void setHeaderWidth(final int margin) {
+        Preferences.userNodeForPackage(MonolineFormatter.class).putInt("logging.header", margin);
     }
 }
