@@ -812,7 +812,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.13 2003/01/17 10:19:19 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.14 2003/01/19 11:24:24 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -1029,20 +1029,14 @@ void example(int i) {
   <section id="logging">
     <title>Logging</title>
 
-    <para>to do: Need to change granularity of logger to package level instead
-    of module level.</para>
-
     <para>The logging package (<filename>java.util.logging</filename>) is
     bundled into J2SE 1.4 and above. An overview is available on line in the
     <ulink
     url="http://java.sun.com/j2se/1.4/docs/guide/util/logging/overview.html">Sun&#39;s
     SDK documentation</ulink>.</para>
 
-    <para>Geotools uses one logger per module. Logger is named using the
-    <filename>org.geotools</filename> prefix followed by the module name. For
-    example the logger name for the GML Data Source module is
-    <filename>org.geotools.gml</filename>. The logger name for the Coordinate
-    Transformation Services module is <filename>org.geotools.cts</filename>.</para>
+    <para>Geotools uses one logger per class and is named after the class
+    name.</para>
 
     <para>The logger should be declared in the class&#39;s static fields.</para>
 
@@ -1056,7 +1050,7 @@ public class GMLDataSource {
     /**
      * The logger for the GML DataSource module.
      */
-    private static final Logger LOGGER = Logger.getLogger(&#34;org.geotools.gml&#34;);
+    private static final Logger LOGGER = Logger.getLogger(&#34;org.geotools.gml.GMLDataSource&#34;);
 
 }</programlisting>
     </example>
