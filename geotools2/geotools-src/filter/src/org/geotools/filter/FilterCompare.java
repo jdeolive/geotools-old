@@ -40,7 +40,7 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: FilterCompare.java,v 1.4 2002/06/05 13:33:34 loxnard Exp $
+ * @version $Id: FilterCompare.java,v 1.5 2002/06/05 13:40:05 loxnard Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterCompare extends FilterDefault {
