@@ -62,13 +62,9 @@ public interface Mark {
      **/
     public Fill getFill();
     
-    /**
-     * returns the actual geometry to render by combining the stored geometry of the mark with
-     * the coordinates of the point to be displayed.
-     **/
-    public com.vividsolutions.jts.geom.Geometry getGeometry(com.vividsolutions.jts.geom.Geometry geometry,double scale);
     
-    public void setSize(double size);
-    public void setRotation(double rotation);
+    
+    public double getSize();
+    public double getRotation();
 }
 
