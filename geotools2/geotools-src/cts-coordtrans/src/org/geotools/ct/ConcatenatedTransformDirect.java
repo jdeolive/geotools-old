@@ -40,16 +40,16 @@ import org.geotools.pt.CoordinatePoint;
 
 
 /**
- * Concatened transform where the transfert dimension
+ * Concatenated transform where the transfert dimension
  * is the same than source and target dimension. This
  * fact allows some optimizations, the most important
  * one being the possibility to avoid the use of an
  * intermediate buffer.
  *
- * @version 1.0
+ * @version $Id: ConcatenatedTransformDirect.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-class ConcatenedTransformDirect extends ConcatenedTransform {
+class ConcatenatedTransformDirect extends ConcatenatedTransform {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -58,9 +58,9 @@ class ConcatenedTransformDirect extends ConcatenedTransform {
     /**
      * Construct a concatenated transform.
      */
-    public ConcatenedTransformDirect(final MathTransformFactory provider,
-                                     final MathTransform transform1,
-                                     final MathTransform transform2)
+    public ConcatenatedTransformDirect(final MathTransformFactory provider,
+                                       final MathTransform transform1,
+                                       final MathTransform transform2)
     {
         super(provider, transform1, transform2);
     }

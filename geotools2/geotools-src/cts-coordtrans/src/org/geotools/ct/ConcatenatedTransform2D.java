@@ -44,12 +44,12 @@ import java.awt.geom.Point2D;
 
 
 /**
- * Concatened transform in which the resulting transform is two-dimensional.
+ * Concatenated transform in which the resulting transform is two-dimensional.
  *
- * @version 1.0
+ * @version $Id: ConcatenatedTransform2D.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class ConcatenedTransform2D extends ConcatenedTransform implements MathTransform2D {
+final class ConcatenatedTransform2D extends ConcatenatedTransform implements MathTransform2D {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -58,9 +58,9 @@ final class ConcatenedTransform2D extends ConcatenedTransform implements MathTra
     /**
      * Construct a concatenated transform.
      */
-    public ConcatenedTransform2D(final MathTransformFactory provider,
-                                 final MathTransform transform1,
-                                 final MathTransform transform2)
+    public ConcatenatedTransform2D(final MathTransformFactory provider,
+                                   final MathTransform transform1,
+                                   final MathTransform transform2)
     {
         super(provider, transform1, transform2);
     }

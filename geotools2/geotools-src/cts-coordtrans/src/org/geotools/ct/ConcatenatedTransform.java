@@ -49,20 +49,20 @@ import java.io.Serializable;
 
 
 /**
- * Base class for concatened transform. Concatened transforms are
+ * Base class for concatenated transform. Concatenated transforms are
  * serializable if all their step transforms are serializables.
  *
- * @version 1.0
+ * @version $Id: ConcatenatedTransform.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-class ConcatenedTransform extends AbstractMathTransform implements Serializable {
+class ConcatenatedTransform extends AbstractMathTransform implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = 5772066656987558634L;
     
     /**
-     * The math transform factory that created this concatened transform.
+     * The math transform factory that created this concatenated transform.
      * Will be used for creating the inverse transform when needed.
      */
     private final MathTransformFactory provider;
@@ -84,11 +84,16 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
     private transient MathTransform inverse;
     
     /**
-     * Construct a concatenated transform.
+     * Construct a concatenated transform. This constructor is for subclasses only. To
+     * create a concatenated transform, use the factory method {@link #create} instead.
+     *
+     * @param provider   The math transform factory that created this concatenated transform.
+     * @param transform1 The first math transform.
+     * @param transform2 The second math transform.
      */
-    public ConcatenedTransform(final MathTransformFactory provider,
-                               final MathTransform transform1,
-                               final MathTransform transform2)
+    protected ConcatenatedTransform(final MathTransformFactory provider,
+                                    final MathTransform transform1,
+                                    final MathTransform transform2)
     {
         this.provider   = provider;
         this.transform1 = transform1;
@@ -97,6 +102,57 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_CANT_CONCATENATE_CS_$2,
                     getName(transform1), getName(transform2)));
+        }
+    }
+
+    /**
+     * Construct a new concatenated transform.  This factory method checks for step transforms
+     * dimension. The returned transform will implements {@link MathTransform2D} if source and
+     * target dimensions are equal to 2.  Likewise, it will implements {@link MathTransform1D}
+     * if source and target dimensions are equal to 1.  {@link MathTransform} implementations
+     * are available in two version: direct and non-direct. The "non-direct" version use an
+     * intermediate buffer when performing transformations; they are slower and consume more
+     * memory. They are used only as a fallback when a "direct" version can't be created.
+     *
+     * @param provider  The math transform factory that created this concatenated transform.
+     * @param tr1       The first math transform.
+     * @param tr2       The second math transform.
+     */
+    public static MathTransform create(final MathTransformFactory provider,
+                                       final MathTransform tr1,
+                                       final MathTransform tr2)
+    {
+        final int dimSource = tr1.getDimSource();
+        final int dimTarget = tr2.getDimTarget();
+        //
+        // Check if the result need to be a MathTransform1D.
+        //
+        if (dimSource==1 && dimTarget==1) {
+            if (tr1 instanceof MathTransform1D && tr2 instanceof MathTransform1D) {
+                return new ConcatenatedTransformDirect1D(provider, (MathTransform1D)tr1,
+                                                                 (MathTransform1D)tr2);
+            } else {
+                return new ConcatenatedTransform1D(provider, tr1, tr2);
+            }
+        } else
+        //
+        // Check if the result need to be a MathTransform2D.
+        //
+        if (dimSource==2 && dimTarget==2) {
+            if (tr1 instanceof MathTransform2D && tr2 instanceof MathTransform2D) {
+                return new ConcatenatedTransformDirect2D(provider, (MathTransform2D)tr1,
+                                                                 (MathTransform2D)tr2);
+            } else {
+                return new ConcatenatedTransform2D(provider, tr1, tr2);
+            }
+        } else
+        //
+        // Check for the general case.
+        //
+        if (dimSource==tr1.getDimTarget() && tr2.getDimSource()==dimTarget) {
+            return new ConcatenatedTransformDirect(provider, tr1, tr2);
+        } else {
+            return new ConcatenatedTransform(provider, tr1, tr2);
         }
     }
     
@@ -145,7 +201,7 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
         assert isValid();
         //  Note: If we know that the transfert dimension is the same than source
         //        and target dimension, then we don't need to use an intermediate
-        //        point. This optimization is done in ConcatenedTransformDirect.
+        //        point. This optimization is done in ConcatenatedTransformDirect.
         return transform2.transform(transform1.transform(ptSrc, null), ptDst);
     }
     
@@ -159,7 +215,7 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
         assert isValid();
         //  Note: If we know that the transfert dimension is the same than source
         //        and target dimension, then we don't need to use an intermediate
-        //        buffer. This optimization is done in ConcatenedTransformDirect.
+        //        buffer. This optimization is done in ConcatenatedTransformDirect.
         final double[] tmp = new double[numPts*transform1.getDimTarget()];
         transform1.transform(srcPts, srcOff, tmp, 0, numPts);
         transform2.transform(tmp, 0, dstPts, dstOff, numPts);
@@ -175,7 +231,7 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
         assert isValid();
         //  Note: If we know that the transfert dimension is the same than source
         //        and target dimension, then we don't need to use an intermediate
-        //        buffer. This optimization is done in ConcatenedTransformDirect.
+        //        buffer. This optimization is done in ConcatenatedTransformDirect.
         final float[] tmp = new float[numPts*transform1.getDimTarget()];
         transform1.transform(srcPts, srcOff, tmp, 0, numPts);
         transform2.transform(tmp, 0, dstPts, dstOff, numPts);
@@ -187,9 +243,10 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
     public synchronized final MathTransform inverse() throws NoninvertibleTransformException {
         assert isValid();
         if (inverse==null) {
-            inverse = provider.createConcatenatedTransform(transform2.inverse(), transform1.inverse());
-            if (inverse instanceof ConcatenedTransform) {
-                ((ConcatenedTransform) inverse).inverse = this;
+            inverse = provider.createConcatenatedTransform(transform2.inverse(),
+                                                           transform1.inverse());
+            if (inverse instanceof ConcatenatedTransform) {
+                ((ConcatenatedTransform) inverse).inverse = this;
             }
         }
         return inverse;
@@ -213,7 +270,7 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
      * Tests whether this transform does not move any points.
      * Default implementation check if the two transforms are
      * identity. This a way too conservative aproach, but it
-     * it doesn't hurt since ConcatenedTransform should not
+     * it doesn't hurt since ConcatenatedTransform should not
      * have been created if it were to result in an identity
      * transform (this case should have been detected earlier).
      */
@@ -238,7 +295,7 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
             return true;
         }
         if (super.equals(object)) {
-            final ConcatenedTransform that = (ConcatenedTransform) object;
+            final ConcatenatedTransform that = (ConcatenatedTransform) object;
             return Utilities.equals(this.transform1, that.transform1) &&
                    Utilities.equals(this.transform2, that.transform2);
         }
@@ -263,8 +320,8 @@ class ConcatenedTransform extends AbstractMathTransform implements Serializable 
                                final MathTransform transform,
                                final boolean first)
     {
-        if (transform instanceof ConcatenedTransform) {
-            final ConcatenedTransform concat = (ConcatenedTransform) transform;
+        if (transform instanceof ConcatenatedTransform) {
+            final ConcatenatedTransform concat = (ConcatenatedTransform) transform;
             addWKT(buffer, concat.transform1, first);
             addWKT(buffer, concat.transform2, false);
         } else {

@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.4 2002/07/12 16:42:31 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -258,7 +258,7 @@ public class MathTransformFactory {
         if (tr2.isIdentity()) return tr1;
         /*
          * If both transforms use matrix, then we can create
-         * a single transform using the concatened matrix.
+         * a single transform using the concatenated matrix.
          */
         final Matrix matrix1 = getMatrix(tr1);
         if (matrix1!=null) {
@@ -281,44 +281,21 @@ public class MathTransformFactory {
             return createIdentityTransform(tr1.getDimSource());
         }
         /*
-         * If one or both math transform are instance of {@link ConcatenedTransform},
+         * If one or both math transform are instance of {@link ConcatenatedTransform},
          * then maybe it is possible to efficiently concatenate <code>tr1</code> or
          * <code>tr2</code> with one of step transforms. Try that...
          */
-        if (tr1 instanceof ConcatenedTransform) {
-            final ConcatenedTransform ctr = (ConcatenedTransform) tr1;
+        if (tr1 instanceof ConcatenatedTransform) {
+            final ConcatenatedTransform ctr = (ConcatenatedTransform) tr1;
             tr1 = ctr.transform1;
             tr2 = createConcatenatedTransform(ctr.transform2, tr2);
         }
-        if (tr2 instanceof ConcatenedTransform) {
-            final ConcatenedTransform ctr = (ConcatenedTransform) tr2;
+        if (tr2 instanceof ConcatenatedTransform) {
+            final ConcatenatedTransform ctr = (ConcatenatedTransform) tr2;
             tr1 = createConcatenatedTransform(tr1, ctr.transform1);
             tr2 = ctr.transform2;
         }
-        /*
-         * The returned transform will implements {@link MathTransform2D} if source and
-         * target dimensions are equal to 2.  {@link MathTransform} implementations are
-         * available in two version: direct and non-direct. The "non-direct" version use
-         * an intermediate buffer when performing transformations;   they are slower and
-         * consume more memory. They are used only as a fallback when a "direct" version
-         * can't be created.
-         */
-        final MathTransform transform;
-        final int dimSource = tr1.getDimSource();
-        final int dimTarget = tr2.getDimTarget();
-        if (dimSource==2 && dimTarget==2) {
-            if (tr1 instanceof MathTransform2D && tr2 instanceof MathTransform2D) {
-                transform = new ConcatenedTransformDirect2D(this, (MathTransform2D)tr1,
-                                                                  (MathTransform2D)tr2);
-            } else {
-                transform = new ConcatenedTransform2D(this, tr1, tr2);
-            }
-        } else if (dimSource==tr1.getDimTarget() && tr2.getDimSource()==dimTarget) {
-            transform = new ConcatenedTransformDirect(this, tr1, tr2);
-        } else {
-            transform = new ConcatenedTransform(this, tr1, tr2);
-        }
-        return (MathTransform) pool.canonicalize(transform);
+        return (MathTransform) pool.canonicalize(ConcatenatedTransform.create(this, tr1, tr2));
     }
     
     /**
@@ -578,7 +555,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.4 2002/07/12 16:42:31 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

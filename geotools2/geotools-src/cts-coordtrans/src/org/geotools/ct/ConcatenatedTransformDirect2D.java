@@ -44,12 +44,14 @@ import java.awt.geom.Point2D;
 
 
 /**
- * Concatened transform where both transforms are two-dimensional.
+ * Concatenated transform where both transforms are two-dimensional.
  *
- * @version 1.0
+ * @version $Id: ConcatenatedTransformDirect2D.java,v 1.1 2002/07/12 16:42:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-final class ConcatenedTransformDirect2D extends ConcatenedTransformDirect implements MathTransform2D {
+final class ConcatenatedTransformDirect2D extends ConcatenatedTransformDirect
+                                          implements MathTransform2D
+{
     /**
      * Serial number for interoperability with different versions.
      */
@@ -57,14 +59,14 @@ final class ConcatenedTransformDirect2D extends ConcatenedTransformDirect implem
     
     /**
      * The first math transform. This field is identical
-     * to {@link ConcatenedTransform#transform1}. Only
+     * to {@link ConcatenatedTransform#transform1}. Only
      * the type is different.
      */
     private final MathTransform2D transform1;
     
     /**
      * The second math transform. This field is identical
-     * to {@link ConcatenedTransform#transform1}. Only
+     * to {@link ConcatenatedTransform#transform1}. Only
      * the type is different.
      */
     private final MathTransform2D transform2;
@@ -72,9 +74,9 @@ final class ConcatenedTransformDirect2D extends ConcatenedTransformDirect implem
     /**
      * Construct a concatenated transform.
      */
-    public ConcatenedTransformDirect2D(final MathTransformFactory provider,
-                                       final MathTransform2D transform1,
-                                       final MathTransform2D transform2)
+    public ConcatenatedTransformDirect2D(final MathTransformFactory provider,
+                                         final MathTransform2D transform1,
+                                         final MathTransform2D transform2)
     {
         super(provider, transform1, transform2);
         this.transform1 = transform1;
