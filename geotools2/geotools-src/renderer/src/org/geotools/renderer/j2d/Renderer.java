@@ -107,7 +107,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.31 2003/05/30 18:20:54 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.32 2003/06/25 15:14:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -826,8 +826,8 @@ public class Renderer implements Renderer2D {
 
     /**
      * Returns the scale factor, or {@link Float#NaN} if the scale is not know.
-     * The scale factor is usually greater than 1. For example for a 1:10000 scale,
-     * the scale factor will be 10000. This scale factor takes in account the physical
+     * The scale factor is usually smaller than 1. For example for a 1:1000 scale,
+     * the scale factor will be 0.001. This scale factor takes in account the physical
      * size of the rendering device (e.g. the screen size) if such information is available.
      * Note that this scale can't be more accurate than the
      * {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
@@ -1357,7 +1357,7 @@ public class Renderer implements Renderer2D {
                     final AffineTransform normalize = zoom.createInverse();
                     normalize.concatenate(config.getNormalizingTransform());
                     normalize.preConcatenate(normalizeToDots);
-                    scaleChanged((float)XAffineTransform.getScale(normalize));
+                    scaleChanged((float)(1/XAffineTransform.getScale(normalize)));
                 } catch (java.awt.geom.NoninvertibleTransformException exception) {
                     Utilities.unexpectedException("org.geotools.renderer.j2d",
                                                   "Renderer", "paint", exception);

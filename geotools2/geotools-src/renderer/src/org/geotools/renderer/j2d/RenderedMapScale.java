@@ -86,7 +86,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       is determined using orthodromic distance computation.</li>
  * </ul>
  *
- * @version $Id: RenderedMapScale.java,v 1.6 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedMapScale.java,v 1.7 2003/06/25 15:14:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedMapScale extends RenderedLegend {
@@ -212,7 +212,7 @@ public class RenderedMapScale extends RenderedLegend {
      */
     public String getName(final Locale locale) {
         if (renderer != null) {
-            float scale = renderer.getScale();
+            float scale = 1/renderer.getScale();
             if (!Float.isNaN(scale)) {
                 if (true) {
                     // Keep only 3 significant digits. Our scale is

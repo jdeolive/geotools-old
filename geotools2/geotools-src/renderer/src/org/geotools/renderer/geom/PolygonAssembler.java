@@ -93,7 +93,7 @@ import org.geotools.resources.XArray;
  *   <li>The loop is reexecuted from step 1 until no more polylines have been merged.</li>
  * </ol>
  *
- * @version $Id: PolygonAssembler.java,v 1.9 2003/06/02 21:55:03 desruisseaux Exp $
+ * @version $Id: PolygonAssembler.java,v 1.10 2003/06/25 15:14:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: L'implémentation actuelle de cette méthode ne prend pas en compte les
@@ -207,7 +207,7 @@ final class PolygonAssembler implements Comparator {
      */
     public PolygonAssembler(final Shape clip, final ProgressListener progress) {
         this.progress  = progress;
-        this.flatness  = Polyline.getFlatness(clip);
+        this.flatness  = Geometry.getFlatness(clip);
         this.clip      = clip;
     }
 

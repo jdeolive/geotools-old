@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.22 2003/06/16 22:04:54 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.23 2003/06/25 15:14:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -821,16 +821,17 @@ public abstract class RenderedLayer {
      * <code>"visible"</code>, <code>"zOrder"</code>, <code>"preferredArea"</code>
      * and <code>"preferredPixelSize"</code> change events respectively.
      * <br><br>
-     * A particular event, namely <code>"scale"</code>, is also fired everytime the zoom changes. It
-     * is particular in that this event results from a change in the {@linkplain Renderer renderer}
-     * state rather than a change applied directly on this layer. However, since {@linkplain
-     * Renderer#getScale scale} changes are propagated to all layers at rendering time, it makes
-     * sense to notify layer's listeners as well. A layer can changes its own state as a result of
-     * a scale change; for example a layer may hide or show more features. The scale factor is
-     * usually greater than 1. For example for a 1:10000 scale, the scale factor will be 10000.
-     * This scale factor takes in account the physical size of the rendering device (e.g. the
-     * screen size) if such information is available. Note that this scale can't be more accurate
-     * than the {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
+     * A particular event, namely <code>&quot;scale&quot;</code>, is also fired everytime
+     * the zoom changes. It is particular in that this event results from a change in the
+     * {@linkplain Renderer renderer} state rather than a change applied directly on this
+     * layer.  However, since {@linkplain Renderer#getScale scale} changes are propagated
+     * to all layers at rendering time, it makes sense to notify layer's listeners as well.
+     * A layer can changes its own state as a result of a scale change; for example a layer
+     * may hide or show more features. The scale factor is usually smaller than 1. For example
+     * for a 1:1000 scale, the scale factor will be 0.001. This scale factor takes in account
+     * the physical size of the rendering device (e.g. the screen size) if such information is
+     * available. Note that this scale can't be more accurate than the
+     * {@linkplain GraphicsConfiguration#getNormalizingTransform() information supplied
      * by the underlying system}.
      *
      * @param listener The property change listener to be added.

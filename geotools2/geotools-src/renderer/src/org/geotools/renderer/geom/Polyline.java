@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.19 2003/06/16 22:04:54 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.20 2003/06/25 15:14:15 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -358,9 +358,10 @@ public class Polyline extends Geometry {
         }
         final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         final List              polylines = new ArrayList();
-        final PathIterator            pit = shape.getPathIterator(null, getFlatness(shape));
         final float[]              buffer = new float[6];
         float[]                     array = new float[64];
+        final PathIterator            pit = shape.getPathIterator(null,
+                                            org.geotools.resources.Geometry.getFlatness(shape));
         while (!pit.isDone()) {
             if (pit.currentSegment(array) != PathIterator.SEG_MOVETO) {
                 throw new IllegalPathStateException();
@@ -411,18 +412,6 @@ public class Polyline extends Geometry {
             }
         }
         return (Polyline[]) polylines.toArray(new Polyline[polylines.size()]);
-    }
-
-    /**
-     * Returns a suggested value for the <code>flatness</code> argument in
-     * {@link Shape#getPathIterator(AffineTransform,double)} for the specified shape.
-     */
-    static double getFlatness(final Shape shape) {
-        final Rectangle2D bounds = shape.getBounds2D();
-        final double dx = bounds.getWidth();
-        final double dy = bounds.getHeight();
-        return Math.max(0.025*Math.min(dx, dy),
-                        0.001*Math.max(dx, dy));
     }
 
 
