@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.6 2002/07/16 17:25:25 desruisseaux Exp $
+ * @version $Id: TransformationTest.java,v 1.7 2002/07/19 11:13:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase
@@ -82,7 +82,7 @@ public class TransformationTest extends TestCase
      */
     protected void setUp() throws Exception {
         super.setUp();
-        random    = new Random();
+        random    = new Random(-3531834320875149028L);
         csFactory = CoordinateSystemFactory.getDefault();
         trFactory = CoordinateTransformationFactory.getDefault();
     }
