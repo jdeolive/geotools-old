@@ -42,7 +42,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.16 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.17 2002/10/10 22:26:12 cholmesny Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -133,7 +133,7 @@ public class FeatureTypeFlat implements FeatureType {
                 
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
                 LOGGER.finer("Pos = " + attributeTypes[i].getPosition());
-                nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
+                //nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
             }
 
             // if it is a conforming geometry, initialize feature type
@@ -146,7 +146,7 @@ public class FeatureTypeFlat implements FeatureType {
                 
                 if(geometryPosition == -1 ) geometryPosition = i;
                 LOGGER.finer("GeomPosition = " + geometryPosition);
-                nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
+                //nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
             }
 
@@ -163,6 +163,10 @@ public class FeatureTypeFlat implements FeatureType {
         if (isValid) {
             this.attributeTypes = new AttributeType[n];
             System.arraycopy(attributeTypes, 0, this.attributeTypes, 0, n);
+	    for (int j = 0; j < n; j++) {
+		nameMap.put(this.attributeTypes[j].getName(), 
+			    this.attributeTypes[j]);
+	    }
         }
         else {
             throw new SchemaException("Attempted to create bad flat feature type.");
