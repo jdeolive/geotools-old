@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project basedir="." default="html-docs" name="${project.name}">
+<project basedir="." default="html-docs" name="developerguide">
     <property file="build.ant.properties"/>
 
     <!-- Build html documentation from docbook -->
