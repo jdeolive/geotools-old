@@ -4,13 +4,13 @@
  * Created on May 2, 2002, 3:20 PM
  */
 
-package org.geotools.datasource;
+package org.geotools.data;
 
 /**
  * A memory based datasource
  * @author James
  * @author  iant
- * $Id: MemoryDataSource.java,v 1.2 2002/05/14 23:49:51 robhranac Exp $
+ * $Id: MemoryDataSource.java,v 1.1 2002/05/15 15:45:45 jmacgill Exp $
  */
 
 import org.geotools.data.*;
