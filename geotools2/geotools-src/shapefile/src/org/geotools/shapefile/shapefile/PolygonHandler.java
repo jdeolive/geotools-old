@@ -109,13 +109,8 @@ public class PolygonHandler implements ShapeHandler {
     
     throw new IllegalStateException("Expected ShapeType of Polygon, got " + shapeType);
   }
+
   
-  
-  
-  
-  private Object createNull() {
-    return geometryFactory.createMultiPolygon(null);
-  }
   
   public Object read(ByteBuffer buffer, ShapeType type) {
     if (type == ShapeType.NULL)
@@ -196,17 +191,14 @@ public class PolygonHandler implements ShapeHandler {
     // quick optimization: if there's only one shell no need to check
     // for holes inclusion
     if(shells.size() == 1) {
-      Polygon pol = geometryFactory.createPolygon((LinearRing) shells.get(0),
-      (LinearRing[]) ((ArrayList) holes).toArray(new LinearRing[0]));
-      return pol;
+      return createMulti( (LinearRing) shells.get(0) );
     }
     // if for some reason, there is only one hole, we just reverse it and carry on.
     else if (holes.size() == 1 && shells.size() == 0) {
       System.out.println("WARNING - only one hole in this polygon record");
       System.out.flush();
-      return geometryFactory.createPolygon(
-        JTSUtilities.reverseRing( (LinearRing) holes.get(0) ),
-        new LinearRing[0]
+      return createMulti(
+        JTSUtilities.reverseRing( (LinearRing) holes.get(0) )
       );
     } else {
       // build an association between shells and holes
@@ -290,6 +282,18 @@ public class PolygonHandler implements ShapeHandler {
       
       return g;
     }
+  }
+  
+  private MultiPolygon createMulti(LinearRing single) {
+    return geometryFactory.createMultiPolygon(
+      new Polygon[] {
+        geometryFactory.createPolygon(single, new LinearRing[0])
+      }
+    );
+  }
+  
+  private MultiPolygon createNull() {
+    return geometryFactory.createMultiPolygon(null);
   }
   
   public void write(ByteBuffer buffer, Object geometry) {
@@ -396,6 +400,10 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.3  2003/04/30 23:19:46  ianschneider
+ * Added construction of multi geometries for default return values, even if only one geometry.
+ * This could have effects through system.
+ *
  * Revision 1.2  2003/03/30 20:21:09  ianschneider
  * Moved buffer branch to main
  *

@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 
 
 /*
- * $Id: MultiLineHandler.java,v 1.2 2003/03/30 20:21:09 ianschneider Exp $
+ * $Id: MultiLineHandler.java,v 1.3 2003/04/30 23:19:45 ianschneider Exp $
  * @author aaime
  * @author Ian Schneider
  */
@@ -151,11 +151,7 @@ public class MultiLineHandler implements ShapeHandler {
       lines[part] = geometryFactory.createLineString(points);
     }
     
-    if (numParts == 1) {
-      return lines[0];
-    } else {
-      return geometryFactory.createMultiLineString(lines);
-    }
+    return geometryFactory.createMultiLineString(lines);
   }
   
   public void write(ByteBuffer buffer, Object geometry) {
@@ -226,6 +222,10 @@ public class MultiLineHandler implements ShapeHandler {
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.3  2003/04/30 23:19:45  ianschneider
+ * Added construction of multi geometries for default return values, even if only one geometry.
+ * This could have effects through system.
+ *
  * Revision 1.2  2003/03/30 20:21:09  ianschneider
  * Moved buffer branch to main
  *
