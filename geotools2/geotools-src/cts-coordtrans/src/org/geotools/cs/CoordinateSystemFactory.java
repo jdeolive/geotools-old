@@ -99,7 +99,7 @@ import org.geotools.ct.MathTransformFactory;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.14 2003/05/13 10:58:47 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.15 2003/05/30 18:21:32 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -559,6 +559,7 @@ public class CoordinateSystemFactory {
      *                       be constructed using <code>{@link #createProjectionParameterList
      *                       createProjectionParameterList}(classification)</code> and initialized
      *                       using a chain of <code>setParameter(...)</code> calls.
+     *                       If <code>null</code>, then the default parameters will be used.
      * @return The projection.
      * @throws IllegalArgumentException if an argument is <code>null</code>
      *         or incompatible with the object to be created.
@@ -570,9 +571,12 @@ public class CoordinateSystemFactory {
      */
     public Projection createProjection(final CharSequence  name,
                                        final String        classification,
-                                       final ParameterList parameters)
+                                             ParameterList parameters)
         throws FactoryException
     {
+        if (parameters == null) {
+            parameters = createProjectionParameterList(classification);
+        }
         return (Projection) pool.canonicalize(
                 new Projection(name, classification, parameters));
     }
