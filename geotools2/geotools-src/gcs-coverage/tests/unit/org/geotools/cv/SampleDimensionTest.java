@@ -50,7 +50,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.1 2002/07/17 23:33:43 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.2 2002/07/23 17:57:25 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -86,11 +86,11 @@ public class SampleDimensionTest extends TestCase {
         assertEquals("<init>", CATEGORY.length, NO_DATA.length);
         final Category[] categories = new Category[CATEGORY.length+1];
         for (int i=0; i<CATEGORY.length; i++) {
-            categories[i] = Category.create(CATEGORY[i], null, NO_DATA[i]);
+            categories[i] = new Category(CATEGORY[i], null, NO_DATA[i]);
         }
         final double scale  = 0.1;
         final double offset = 5.0;
-        categories[CATEGORY.length] = Category.create("SST", null, 10, 200, scale, offset);
+        categories[CATEGORY.length] = new Category("SST", null, 10, 200, scale, offset);
         final SampleDimension test = new SampleDimension(categories, null);
         /*
          * Finished initialization. Test now...
