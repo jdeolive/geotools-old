@@ -26,38 +26,13 @@ public class PostgisTestSuite extends TestCase {
         BasicConfigurator.configure();
         junit.textui.TestRunner.run(suite());
     }
-
+    
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.info("starting suite...");
-        TestSuite suite = new TestSuite(PostgisTestSuite.class);
-        _log.info("made suite...");
+        TestSuite suite = new TestSuite("All postgis tests");
+        suite.addTestSuite(PostgisTest.class);
         return suite;
     }
     
-    public void setUp() {
-        _log.info("creating postgis connection...");
-        PostgisConnection db = new PostgisConnection ("feathers.leeds.ac.uk","5432","postgis_test"); 
-        _log.info("created new db connection");
-        db.setLogin("postgis_ro","postgis_ro");
-        _log.info("set the login");
-        postgis = new DataSourcePostgis(db, "testset");
-        _log.info("created new datasource");
-    }
-
-
-    public void testImport() {
-        _log.info("starting type enforcement tests...");
-        try {
-            postgis.importFeatures(collection, new EnvelopeExtent());
-        }
-        catch(DataSourceException e) {
-            _log.info("...threw data source exception");      
-            this.fail("...threw data source exception");  
-        }
-        assertEquals(18,collection.getFeatures().length);
-        _log.info("...ending type enforcement tests");
-    }
 
     
 }
