@@ -113,7 +113,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.18 2003/08/02 14:52:35 jmacgill Exp $
+ * @version $Id: LiteRenderer.java,v 1.19 2003/08/04 16:01:10 ianturton Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -930,8 +930,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
             rotation = ((Number) p.getRotation().getValue(feature)).doubleValue();
             rotation *= (Math.PI / 180.0);
         } else if (
-            placement instanceof LinePlacement && geom instanceof LineString
-                && !(geom instanceof LineString)) {
+            placement instanceof LinePlacement && geom instanceof LineString){
+//                && !(geom instanceof LineString)) {
             // @TODO: if the geometry is a ring or a polygon try to find out 
             // some "axis" to follow in the label placement
             if (LOGGER.isLoggable(Level.FINER)) {
