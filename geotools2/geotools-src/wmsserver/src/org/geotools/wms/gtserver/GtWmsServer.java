@@ -178,8 +178,8 @@ public class GtWmsServer implements WMSServer {
                 throw new WMSException(WMSException.WMSCODE_LAYERNOTDEFINED, "The Layer '"+layer[i]+"' does not exist on this server");
         }
         // Check the SRS
-        if (!srs.equalsIgnoreCase("EPSG:4326"))
-            throw new WMSException(WMSException.WMSCODE_INVALIDSRS, "This server only supports EPSG:4326");
+        //if (!srs.equalsIgnoreCase("EPSG:4326"))
+        //    throw new WMSException(WMSException.WMSCODE_INVALIDSRS, "This server only supports EPSG:4326");
         
         
         try {
@@ -200,7 +200,10 @@ public class GtWmsServer implements WMSServer {
                         url = file.toURL();
                     }
                     System.out.println("loading sld from " + url);
-                    layerstyle = new SLDStyle(url);
+                    StyleFactory factory = StyleFactory.createStyleFactory();
+                    SLDStyle stylereader = new SLDStyle(factory,url);
+                    layerstyle = stylereader.readXML();
+
                     System.out.println("sld loaded");
                 }
                 else{
@@ -243,7 +246,7 @@ public class GtWmsServer implements WMSServer {
             Iterator layers = layerEntries.keySet().iterator();
             while (layers.hasNext()) {
                 LayerEntry layer = (LayerEntry) layerEntries.get(layers.next());
-                cap.addLayer(layer.id, layer.description, "EPSG:4326", new double[] {-120, 36, -70, 42});
+                cap.addLayer(layer.id, layer.description, layer.srs, new double[] {-120, 36, -70, 42});
                 if (layer.styles != null){
                     Iterator loop = layer.styles.keySet().iterator();
                     while (loop.hasNext()){

@@ -32,6 +32,8 @@ public class LayerEntry
 	public String id;
 	/** A description for the layer */
 	public String description;
+        /** The native spatial reference system for this layer */
+        public String srs = "EPSG:4326";//should not be setting a default here
 	/** The classname for the DataSource to use to load maps for this layer */
 	public String datasource;
 	/** The properties for the DataSource */

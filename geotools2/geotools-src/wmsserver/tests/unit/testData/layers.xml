@@ -3,7 +3,7 @@
 <!-- Created by jamesm on 15 August 2002, 12:47 -->
 
 <WMSServer>
-    <Layer id="first">
+    <Layer id="first" srs="EPSG:4326">
         <datasource class="Shapefile">
             <param name="filename" value="maps/statepop.shp"/>
         </datasource>
@@ -11,6 +11,16 @@
     <Style id="dull" filename="styles/polyshp.sld"/>
     <Style id="silly" filename="styles/funkypolyshp.sld"/>
     <Style id="population" filename="styles/popshade.sld"/>
+   </Layer>
+   
+   <Layer id="1881" srs="EPSG:27700">
+        <datasource class="Shapefile">
+            <param name="filename" value="maps/1881.shp"/>
+        </datasource>
+    <description>A test layer</description>
+    <Style id="dull" filename="styles/polyshp.sld"/>
+    <Style id="silly" filename="styles/funkypolyshp.sld"/>
+    <Style id="1881" filename="styles/1881.sld"/>
    </Layer>
    
    <Layer id="rail">

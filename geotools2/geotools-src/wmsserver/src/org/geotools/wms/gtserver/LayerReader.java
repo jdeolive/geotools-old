@@ -59,7 +59,9 @@ public class LayerReader extends DefaultHandler {
     public static final String TAG_PARAM = "/WMSServer/layer/datasource/param";
     public static final String TAG_STYLE = "/WMSServer/layer/style";
     
+    
     public static final String ATTRIB_ID = "id";
+    public static final String ATTRIB_SRS = "srs";
     public static final String ATTRIB_CLASS = "class";
     public static final String ATTRIB_NAME = "name";
     public static final String ATTRIB_VALUE = "value";
@@ -124,6 +126,10 @@ public class LayerReader extends DefaultHandler {
         if (currentTag.equalsIgnoreCase(TAG_LAYER)) {
             currentLayer = new LayerEntry();
             currentLayer.id = attrs.getValue(ATTRIB_ID);
+            String temp = attrs.getValue(ATTRIB_SRS);
+            if(temp != null) {
+                currentLayer.srs = attrs.getValue(ATTRIB_SRS);
+            }
         }
         // <datasource> tag
         if (currentTag.equalsIgnoreCase(TAG_DATASOURCE)) {

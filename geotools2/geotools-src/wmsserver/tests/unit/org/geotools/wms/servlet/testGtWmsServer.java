@@ -83,6 +83,17 @@ public class testGtWmsServer extends TestCase {
         }
     }
     
+    public void testGetMapWithOSProjection() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"1881"}, new String[] {"1881"}, "EPSG:4326", new double[] {54000, 7400, 650000, 1200000}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "the gb map");
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
    
 }
 
