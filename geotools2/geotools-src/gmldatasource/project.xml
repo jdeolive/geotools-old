@@ -6,7 +6,7 @@
   <name>geotools-gmldatasource</name>
   <id>gmldatasource</id>
   
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>2.0-B1</currentVersion>
  
   <package>org.geotools</package>
   <shortDescription>gmldatasource module</shortDescription>
@@ -67,20 +67,13 @@
                <role>Bug Fixer</role>
             </roles>
     </contributor>
-    <contributor>
-      <name>Colin Combe</name>
-      <organization>Napier University, Edinburgh</organization>
-            <roles>
-               <role>Bug Fixer</role>
-            </roles>
-    </contributor>
   </contributors>
 
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>0.1</version>
+      <version>2.0-B1</version>
     </dependency>
     
     
@@ -88,12 +81,12 @@
         <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>0.1</version>
+      <version>2.0-B1</version>
     </dependency>
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>0.1</version>
+      <version>2.0-B1</version>
     </dependency>
         <dependency>
       <id>JTS</id>

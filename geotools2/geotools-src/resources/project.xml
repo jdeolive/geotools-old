@@ -5,7 +5,7 @@
   <name>geotools-resources</name>
    <extend>${basedir}/../../project.xml</extend>
   <id>resources</id>
-  <currentVersion>0.1</currentVersion>
+  <currentVersion>2.0-B1</currentVersion>
 
   <package>org.geotools</package>
   <shortDescription>resources module</shortDescription>

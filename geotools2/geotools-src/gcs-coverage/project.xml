@@ -6,7 +6,7 @@
   <name>geotools-gcs-coverage</name>
   <id>gcs-coverage</id>
   
-  <currentVersion>0.6</currentVersion>
+  <currentVersion>2.0-B1</currentVersion>
   
   <package>org.geotools</package>
   <shortDescription>gcs-coverage module</shortDescription>
@@ -31,16 +31,16 @@
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>0.1</version>
+      <version>2.0-B1</version>
     </dependency>
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>0.6</version>
+      <version>2.0-B1</version>
     </dependency>
     <dependency>
         <id>opengis</id>
-        <version>0.1</version>
+        <version>2.0-B1</version>
         <url>http://www.opengis.org</url>
     </dependency>
      <dependency>
