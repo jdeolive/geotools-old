@@ -52,7 +52,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.2 2003/02/04 15:03:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D
@@ -126,6 +126,20 @@ public class Line implements Cloneable, Serializable {
     }
 
     /**
+     * Définie une droite passant par le segment de droite spécifié.
+     * La droite sera prolongée à l'infini au delà des extrémités du
+     * segment.
+     *
+     * @param line ligne dont on veut l'équation.
+     *
+     * @see #setLine(Point2D,Point2D)
+     * @see #setLine(double,double,double,double)
+     */
+    public void setLine(final Line2D line) {
+        setLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
+    }
+
+    /**
      * Définie une droite passant par les deux points spécifiés.
      * La droite sera prolongée à l'infini au delà des deux points.
      *
@@ -140,20 +154,6 @@ public class Line implements Cloneable, Serializable {
     }
 
     /**
-     * Définie une droite passant par le segment de droite spécifié.
-     * La droite sera prolongée à l'infini au delà des extrémités du
-     * segment.
-     *
-     * @param line ligne dont on veut l'équation.
-     *
-     * @see #setLine(Point2D,Point2D)
-     * @see #setLine(double,double,double,double)
-     */
-    public final void setLine(Line2D line) {
-        setLine(line.getX1(), line.getY1(), line.getX2(), line.getY2());
-    }
-
-    /**
      * Définie une droite passant par les coordonnées spécifiées.
      * La droite sera prolongée à l'infini au delà des deux points.
      *
@@ -165,7 +165,7 @@ public class Line implements Cloneable, Serializable {
      * @see #setLine(Point2D,Point2D)
      * @see #setLine(Line2D)
      */
-    public void setLine(final double x1, final double y1, final double x2, final double y2) {
+    private void setLine(final double x1, final double y1, final double x2, final double y2) {
         this.slope = (y2-y1)/(x2-x1);
         this.x0    = x2 - y2/slope;
         this.y0    = y2 - slope*x2;
@@ -265,18 +265,6 @@ public class Line implements Cloneable, Serializable {
     }
 
     /**
-     * Translate the line in such a way that the line pass through the specified point.
-     * The slope stay unchanged.
-     *
-     * @param x The <var>x</var> coordinate for the point where the line must pass.
-     * @param y The <var>y</var> coordinate for the point where the line must pass.
-     */
-    public void translateTo(final double x, final double y) {
-        y0 = y - x*slope;
-        x0 = x - y/slope;
-    }
-
-    /**
      * Compute <var>y</var>=<var>f</var>(<var>x</var>).
      * If the line is vertical, then this method returns an infinite value.
      * This method is final for performance reason.
@@ -323,8 +311,9 @@ public class Line implements Cloneable, Serializable {
     /**
      * Returns the slope.
      */
-    public final double getSlope()
-    {return slope;}
+    public final double getSlope() {
+        return slope;
+    }
 
     /**
      * Returns the intersection point between this line and the specified one.
@@ -436,32 +425,56 @@ public class Line implements Cloneable, Serializable {
     }
 
     /**
-     * Retourne un segment de cette ligne tel que les points (<var>x1</var>,<var>y1</var>)
-     * et (<var>x2</var>,<var>y2</var>) sont tous deux à la distance spécifiée de l'origine.
-     * En d'autres mots, cette méthode retourne la base d'un triangle isocèle qui aurrait
-     * sa pointe à l'origine (0,0) et deux côtés de longueur <code>sideLength</code>. La
-     * base retournée sera un segment de la ligne <code>this</code>. Si cette base
-     * n'existe pas, cette méthode retourne <code>null</code>.
+     * Compute the base of a isosceles triangle having the specified summit and side length.
+     * The base will be colinear with this line. In other words, this method compute two
+     * points (<var>x1</var>,<var>y1</var>) and (<var>x2</var>,<var>y2</var>) located in
+     * such a way that:
+     * <ul>
+     *   <li>Both points are on this line.</li>
+     *   <li>The distance between any of the two points and the specified <code>summit</code>
+     *       is exactly <code>sideLength</code>.</li>
+     * </ul>
+     *
+     * @param  summit The summit of the isosceles triangle.
+     * @param  sideLength The length for the two sides of the isosceles triangle.
+     * @return The base of the isoscele triangle, colinear with this line, or <code>null</code>
+     *         if the base can't be computed. If non-null, then the triangle is the figure formed
+     *         by joining (<var>x1</var>,<var>y1</var>), (<var>x2</var>,<var>y2</var>) and
+     *         <code>summit</code>. 
      */
-    public Line2D isoscelesTriangleBase(double sideLength) {
+    public Line2D isoscelesTriangleBase(final Point2D summit, double sideLength) {
         sideLength *= sideLength;
-        if (!Double.isInfinite(slope)) {
-                final double B  = -slope*y0;
-                final double A  = slope*slope + 1;
-                final double C  = Math.sqrt(B*B + A*(sideLength-y0*y0));
-                if (Double.isNaN(C)) {
-                    return null;
-                }
-                final double x1 = (B+C)/A;
-                final double x2 = (B-C)/A;
-                return new Line2D.Double(x1, slope*x1+y0, x2, slope*x2+y0);
-        } else {
-            final double y = Math.sqrt(sideLength-x0*x0);
-            if (Double.isNaN(y)) {
+        if (slope == 0) {
+            final double  x =    summit.getX();
+            final double dy = y0-summit.getY();
+            final double dx = Math.sqrt(sideLength - dy*dy);
+            if (Double.isNaN(dx)) {
                 return null;
             }
-            return new Line2D.Double(x0, +y, x0, -y);
+            return new Line2D.Double(x+dx, y0, x-dx, y0);
         }
+        if (Double.isInfinite(slope)) {
+            final double  y =    summit.getY();
+            final double dx = x0-summit.getX();
+            final double dy = Math.sqrt(sideLength - dx*dx);
+            if (Double.isNaN(dy)) {
+                return null;
+            }
+            return new Line2D.Double(x0, y+dy, x0, y-dy);
+        }
+        final double x  = summit.getX();
+        final double y  = summit.getY();
+        final double dx = x0 - x + y/slope;
+        final double dy = y0 - y + slope*x;
+        final double B  = -slope*dy;
+        final double A  = slope*slope + 1;
+        final double C  = Math.sqrt(B*B + A*(sideLength - dy*dy));
+        if (Double.isNaN(C)) {
+            return null;
+        }
+        final double x1 = (B+C)/A + x;
+        final double x2 = (B-C)/A + x;
+        return new Line2D.Double(x1, slope*x1+y0, x2, slope*x2+y0);
     }
 
     /**

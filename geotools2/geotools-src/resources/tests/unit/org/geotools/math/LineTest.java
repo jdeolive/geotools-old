@@ -45,7 +45,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Line} class.
  *
- * @version $Id: LineTest.java,v 1.1 2003/02/04 12:30:18 desruisseaux Exp $
+ * @version $Id: LineTest.java,v 1.2 2003/02/04 15:03:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class LineTest extends TestCase {
@@ -80,14 +80,15 @@ public final class LineTest extends TestCase {
      */
     public void testIsoscelesTriangleBase() {
         final Line test = new Line();
-        test.setLine(20,30, 80,95);
+        test.setLine(new Point2D.Double(20,30), new Point2D.Double(80,95));
         assertEquals("slope", 1.083333333333333333333333, test.getSlope(), EPS);
         assertEquals("y0",    8.333333333333333333333333, test.getY0(),    EPS);
 
         final double distance = 40;
-        final Line2D base = test.isoscelesTriangleBase(distance);
-        assertEquals("distance P1", distance, base.getP1().distance(0,0), EPS);
-        assertEquals("distance P2", distance, base.getP2().distance(0,0), EPS);
+        final Point2D summit = new Point2D.Double(27, -9); // An arbitrary point.
+        final Line2D base = test.isoscelesTriangleBase(summit, distance);
+        assertEquals("distance P1", distance, base.getP1().distance(summit), EPS);
+        assertEquals("distance P2", distance, base.getP2().distance(summit), EPS);
 
         final double x=10; // Can be any arbitrary point.
         final double y=8;
