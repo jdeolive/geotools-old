@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.5 2003/08/05 19:48:46 jmacgill Exp $
+ * @version $Id: DefaultFeature.java,v 1.6 2003/08/20 19:56:18 cholmesny Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -410,7 +410,7 @@ public class DefaultFeature implements Feature {
             exactCopy = new DefaultFeature(this.schema, this.attributes);
         } catch (IllegalAttributeException iae) {
             // Can never happen
-            throw new RuntimeException("The impossible has happend",iae);
+            throw new RuntimeException("The impossible has happend", iae);
         }
 
         return exactCopy;

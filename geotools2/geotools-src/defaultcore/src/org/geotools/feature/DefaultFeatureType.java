@@ -16,52 +16,124 @@
  */
 package org.geotools.feature;
 
-import java.util.*;
-
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.8 2003/08/06 18:11:41 desruisseaux Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.9 2003/08/20 19:56:18 cholmesny Exp $
  */
 public class DefaultFeatureType implements FeatureType {
+    /** The name of this FeatureType. */
     private final String typeName;
+
+    /** The namespace to uniquely identify this FeatureType. */
     private final String namespace;
+
+    /** The array of types that this FeatureType can have as attributes. */
     private final AttributeType[] types;
+
+    /** The FeatureTypes this is descended from. */
     private final FeatureType[] ancestors;
+
+    /** The default geometry AttributeType. */
     private final AttributeType defaultGeom;
+
+    /** The position of the default Geometry */
     private final int defaultGeomIdx;
 
-    public DefaultFeatureType(String typeName, String namespace, Collection types, Collection superTypes,
-        AttributeType defaultGeom) throws SchemaException {
-        if (typeName == null)
-          throw new NullPointerException(typeName);
+    /**
+     * Constructs a new DefaultFeatureType.
+     *
+     * @param typeName The name to give this FeatureType.
+     * @param namespace The namespace of the new FeatureType.
+     * @param types The attributeTypes to use for validation.
+     * @param superTypes The ancestors of this FeatureType.
+     * @param defaultGeom The attributeType to set as the defaultGeometry.
+     *
+     * @throws SchemaException For problems making the FeatureType.
+     * @throws NullPointerException If typeName is null.
+     */
+    public DefaultFeatureType(String typeName, String namespace,
+        Collection types, Collection superTypes, AttributeType defaultGeom)
+        throws SchemaException, NullPointerException {
+        if (typeName == null) {
+            throw new NullPointerException(typeName);
+        }
+
         this.typeName = typeName;
         this.namespace = (namespace == null) ? "" : namespace;
-        this.types = (AttributeType[]) types.toArray(new AttributeType[types.size()]);
-        this.ancestors = (FeatureType[]) superTypes.toArray(new FeatureType[superTypes.size()]);
+        this.types = (AttributeType[]) types.toArray(new AttributeType[types
+                .size()]);
+        this.ancestors = (FeatureType[]) superTypes.toArray(new FeatureType[superTypes
+                .size()]);
+
         // do this first...
         this.defaultGeomIdx = find(defaultGeom);
+
         // before doing this
         this.defaultGeom = defaultGeom;
-          
     }
 
-    
+    /**
+     * Creates a new feature, with a generated unique featureID.  This is less
+     * than ideal, as a FeatureID should be persistant over time, generally
+     * created by a datasource.  This method is more for testing that doesn't
+     * need featureID.
+     *
+     * @param attributes the array of attribute values
+     *
+     * @return The created feature with this as its feature type.
+     *
+     * @throws IllegalAttributeException if this FeatureType does not validate
+     *         the attributes.
+     */
     public Feature create(Object[] attributes) throws IllegalAttributeException {
-        return create(attributes,null);
+        return create(attributes, null);
     }
 
+    /**
+     * Creates a new feature, with the proper featureID, using this
+     * FeatureType.
+     *
+     * @param attributes the array of attribute values.
+     * @param featureID the feature ID.
+     *
+     * @return the created feature.
+     *
+     * @throws IllegalAttributeException if this FeatureType does not validate
+     *         the attributes.
+     */
     public Feature create(Object[] attributes, String featureID)
         throws IllegalAttributeException {
         return new DefaultFeature(this, attributes, featureID);
     }
 
+    /**
+     * Gets the default geometry AttributeType.  If the FeatureType has more
+     * one geometry it is up to the implementor to determine which geometry is
+     * the default.  If working with multiple geometries it is best to get the
+     * attributeTypes and iterate through them, checking isGeometry on each.
+     * This should just be used a convenience method when it is known that the
+     * features are flat.
+     *
+     * @return The attribute type of the default geometry, which will contain
+     *         the position.
+     */
     public AttributeType getDefaultGeometry() {
         return defaultGeom;
     }
 
+    /**
+     * Gets the attributeType at this xPath, if the specified attributeType
+     * does not exist then null is returned.
+     *
+     * @param xPath XPath pointer to attribute type.
+     *
+     * @return True if attribute exists.
+     */
     public AttributeType getAttributeType(String xPath) {
         for (int i = 0, ii = types.length; i < ii; i++) {
             if (types[i].getName().equals(xPath)) {
@@ -72,8 +144,14 @@ public class DefaultFeatureType implements FeatureType {
         return null;
     }
 
+    /**
+     * Find the position of a given AttributeType.
+     *
+     * @param type The type to search for.
+     *
+     * @return -1 if not found, a zero-based index if found.
+     */
     public int find(AttributeType type) {
-
         for (int i = 0, ii = types.length; i < ii; i++) {
             if (types[i].equals(type)) {
                 return i;
@@ -83,6 +161,13 @@ public class DefaultFeatureType implements FeatureType {
         return -1;
     }
 
+    /**
+     * Gets the attributeType at the specified index.
+     *
+     * @param position the position of the attribute to check.
+     *
+     * @return The attribute type at the specified position.
+     */
     public AttributeType getAttributeType(int position) {
         return types[position];
     }
@@ -91,22 +176,48 @@ public class DefaultFeatureType implements FeatureType {
         return (AttributeType[]) types.clone();
     }
 
-    public AttributeType getGeometry() {
-        return defaultGeom;
-    }
+    //Is this used?  Delete if everything compiles fine.
+    //public AttributeType getGeometry() {
+    //  return defaultGeom;
+    //}
 
+    /**
+     * Gets the global schema namespace.
+     *
+     * @return Namespace of schema.
+     */
     public String getNamespace() {
         return namespace;
     }
 
+    /**
+     * Gets the type name for this schema.
+     *
+     * @return Namespace of schema.
+     */
     public String getTypeName() {
         return typeName;
     }
 
+    /**
+     * This is only used twice in the whole geotools code base, and  one of
+     * those is for a test, so we're removing it from the interface. If
+     * getAttributeType does not have the AttributeType it will just return
+     * null.  Gets the number of occurrences of this attribute.
+     *
+     * @param xPath XPath pointer to attribute type.
+     *
+     * @return Number of occurrences.
+     */
     public boolean hasAttributeType(String xPath) {
         return getAttributeType(xPath) != null;
     }
 
+    /**
+     * Returns the number of attributes at the first 'level' of the schema.
+     *
+     * @return the total number of first level attributes.
+     */
     public int getAttributeCount() {
         return types.length;
     }
@@ -154,9 +265,9 @@ public class DefaultFeatureType implements FeatureType {
 
     public String toString() {
         String info = "name=" + typeName;
-        info += " , namespace=" + namespace;
-        info += " , abstract=" + isAbstract();
-      
+        info += (" , namespace=" + namespace);
+        info += (" , abstract=" + isAbstract());
+
         String types = "types=(";
 
         for (int i = 0, ii = this.types.length; i < ii; i++) {
@@ -166,9 +277,9 @@ public class DefaultFeatureType implements FeatureType {
                 types += ",";
             }
         }
-        
+
         types += ")";
-        info += " , " + types;
+        info += (" , " + types);
 
         return "DefaultFeatureType [" + info + "]";
     }
@@ -218,39 +329,51 @@ public class DefaultFeatureType implements FeatureType {
      * @param typeName The typeName.
      *
      * @return true if descendant, false otherwise.
+     *
      * @task HACK: if nsURI is null only typeName is tested.
      */
     public boolean isDescendedFrom(String nsURI, String typeName) {
-      for (int i = 0, ii = ancestors.length; i < ii; i++) {
-         if ((nsURI == null || ancestors[i].getNamespace().equalsIgnoreCase(nsURI)) &&
-             ancestors[i].getTypeName().equalsIgnoreCase(typeName)) {
+        for (int i = 0, ii = ancestors.length; i < ii; i++) {
+            if (((nsURI == null)
+                    || ancestors[i].getNamespace().equalsIgnoreCase(nsURI))
+                    && ancestors[i].getTypeName().equalsIgnoreCase(typeName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    static final class Abstract extends DefaultFeatureType {
+        public Abstract(String typeName, String namespace, Collection types,
+            Collection superTypes, AttributeType defaultGeom)
+            throws SchemaException {
+            super(typeName, namespace, types, superTypes, defaultGeom);
+
+            Iterator st = superTypes.iterator();
+
+            while (st.hasNext()) {
+                FeatureType ft = (FeatureType) st.next();
+
+                if (!ft.isAbstract()) {
+                    throw new SchemaException(
+                        "Abstract type cannot descend from no abstract type : "
+                        + ft);
+                }
+            }
+        }
+
+        public final boolean isAbstract() {
             return true;
         }
-      }  
-      return false;
-    }
-    
-    static final class Abstract extends DefaultFeatureType {
-      public Abstract(String typeName, String namespace, Collection types, Collection superTypes,
-        AttributeType defaultGeom) throws SchemaException {
-        super(typeName, namespace, types,superTypes,defaultGeom);
-        Iterator st = superTypes.iterator();
-        while (st.hasNext()) {
-          FeatureType ft = (FeatureType) st.next();
-          if (! ft.isAbstract())
-            throw new SchemaException("Abstract type cannot descend from no abstract type : " + ft);
+
+        public Feature create(Object[] atts) throws IllegalAttributeException {
+            throw new UnsupportedOperationException("Abstract Type");
         }
-          
-      }
-      public final boolean isAbstract() {
-        return true; 
-      }
-      public Feature create(Object[] atts) throws IllegalAttributeException {
-        throw new UnsupportedOperationException("Abstract Type");
-      }
-      
-      public Feature create(Object[] atts,String id) throws IllegalAttributeException {
-        throw new UnsupportedOperationException("Abstract Type");
-      }
+
+        public Feature create(Object[] atts, String id)
+            throws IllegalAttributeException {
+            throw new UnsupportedOperationException("Abstract Type");
+        }
     }
 }
