@@ -9,7 +9,6 @@ alternate="yes"
 ?>
 <!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
-<!--"file:/usr/share/sgml/simple4125/sdocbook.dtd"-->
 <article id="index">
   <articleinfo>
     <title>Geotools2 Developer Guide</title>
@@ -20,7 +19,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/03 21:30:13 $</date>
+    <date>$Date: 2002/07/13 06:02:53 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -41,28 +40,161 @@ alternate="yes"
   <section id="design">
     <title>Design</title>
 
-    <para>To do: Explain</para>
+    <section>
+      <title id="modulardesign">Modular Design</title>
 
-    <itemizedlist>
-      <listitem>
-        <para>Move this section into a new document called &#34;Geotools2
-        Design&#34;.</para>
-      </listitem>
+      <para>Geotools has a modular design. Each module is has it&#39;s own
+      directory structure and build process. Dependancies between modules are
+      described in each module&#39;s <filename>project.xml</filename> file.
+      Low level modules, like DataSource, can be used as base classes by
+      external Geographic Applications.</para>
 
-      <listitem>
-        <para>Key design structure (core interfaces, data sources, rendering,
-        tools)</para>
-      </listitem>
+      <para>Geotools derived its directory structure from <ulink
+      url="http://www.netbeans.org">Netbeans</ulink>.</para>
 
-      <listitem>
-        <para>Design Drivers (Our design goals: modular, derives structure
-        from netbeans, support multiple version of java, ...)</para>
-      </listitem>
+      <para>There are a few key modules worth noting:</para>
 
-      <listitem>
-        <para>Directory structure</para>
-      </listitem>
-    </itemizedlist>
+      <itemizedlist>
+        <listitem>
+          <para><filename>core</filename></para>
+
+          <para>The core module contains interfaces that may be used by
+          external applications, and key event classes that the core modules
+          depend on.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>defaultcore</filename></para>
+
+          <para>This contains default classes that implement the interfaces in
+          <filename>core</filename>. The default classes generally only
+          contain basic functionallity and are extended by other geotools
+          classes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title id="moduledirstructure">Module Directory Structure</title>
+
+      <para>A module may contain the following directories and files:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/src/org/geotools/&#60;dir&#62;/*.java</filename></para>
+
+          <para>This is where source files are kept. <filename>&#60;dir&#62;</filename>
+          is usually the same or derives it&#39;s name from &#60;module&#62;.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/tests/unit/org/geotools/&#60;module&#62;/*.java</filename></para>
+
+          <para>This directory contains unit tests.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/tests/testdata/*</filename></para>
+
+          <para>This directory contains data to be used by tests.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/sdocbook/*.sgml</filename></para>
+
+          <para>This directory contains documentation about the module in
+          Simple Docbook format.</para>
+
+          <para>Documentation will usually be part of an existing geotools
+          module. For general documentation (like the Developer&#39;s Guide),
+          a dedicated module may be created which does not contain any code.</para>
+
+          <figure>
+            <title>Typical Documentation Directory Structure</title>
+
+            <mediaobject>
+              <imageobject>
+                <imagedata fileref="images/developersguide/dir_structure.png"
+                           format="PNG" />
+              </imageobject>
+
+              <textobject>
+                <phrase>Typical Documentation Directory Structure</phrase>
+              </textobject>
+            </mediaobject>
+          </figure>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/sdocbook/images/&#60;modules&#62;/*.sgml</filename></para>
+
+          <para>This directory contains images for the documentation.</para>
+
+          <para>Documentation from all modules are often built into one target
+          directory. Therefore, to ensure module&#39;s images do not overwrite
+          each other, images are stored in a directory below the images
+          directory, in<filename>images/&#60;module_name&#62;/*.png</filename>.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/build-mavin.xml</filename></para>
+
+          <para><filename>build-mavin.xml</filename> will eventually become
+          <filename>build.xml</filename>. This file provides tools for
+          building the module using <filename>ant</filename> and
+          <filename>maven</filename>.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/geotools-src/&#60;module&#62;/project.xml</filename></para>
+
+          <para><filename>project.xml</filename> provides metadata about the
+          module for <filename>maven</filename>.</para>
+        </listitem>
+
+        <listitem>
+          <para><filename>geotools2/extbin/&#60;module&#62;/*.jar</filename></para>
+
+          <para>This contains the libraries required to compile
+          &#60;module&#62;.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title id="directorynames">Directory Naming Conventions</title>
+
+      <para>Directory names shall be all lower case with no spaces. Some
+      versions of windows do not distinguish between upper and lower case, and
+      unix, writing spaces in filenames is painful.</para>
+    </section>
+
+    <section>
+      <title>to do</title>
+
+      <para>Explain</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Move this section into a new document called &#34;Geotools2
+          Design&#34;.</para>
+        </listitem>
+
+        <listitem>
+          <para>Key design structure (core interfaces, data sources,
+          rendering, tools)</para>
+        </listitem>
+
+        <listitem>
+          <para>Design Drivers (Our design goals: modular, derives structure
+          from Netbeans, support multiple version of java, ...)</para>
+        </listitem>
+
+        <listitem>
+          <para>Directory structure</para>
+        </listitem>
+      </itemizedlist>
+    </section>
   </section>
 
   <section id="development">
@@ -71,15 +203,16 @@ alternate="yes"
     <section>
       <title id="requirements">Requirements</title>
 
-      <para>Before developing geotools2, you should download the following:</para>
+      <para>Before developing geotools2, you should download and install the
+      following:</para>
 
       <itemizedlist>
         <listitem>
-          <para>java 1.4 or later</para>
+          <para>Java Software Development Kit version 1.4 or later</para>
         </listitem>
 
         <listitem>
-          <para>ant</para>
+          <para>ant version 1.5beta1 or later</para>
         </listitem>
 
         <listitem>
@@ -97,7 +230,7 @@ alternate="yes"
 
       <para>Some geotools modules depend on classes in Java Development Kit
       1.4 or greater. Even when compiling with version 1.4, you will need to
-      specificly tell the compiler that you are using version 1.4, otherwise
+      specifically tell the compiler that you are using version 1.4, otherwise
       the compiler will expect new java keywords are class names instead. If
       you compile from the command line, you should use the following:</para>
 
@@ -244,51 +377,31 @@ alternate="yes"
         url="http://www.oasis-open.org/committees/docbook/xml/simple/">Simplified
         Docbook</ulink> format. Simplified Docbook is a subset of Docbook XML,
         a versatile format used by the <ulink url="http://www.linuxdoc.org">Linux
-        Documentation Project</ulink> (among others) which can be easily
-        converted into numerous output formats, like HTML, PDF, etc.</para>
+        Documentation Project</ulink> (among others).</para>
+
+        <para>Docbook can be easily converted into numerous output formats,
+        like HTML, PDF, etc.</para>
 
         <para>Using Docbook ensures documentation content is kept separate
         from presentation so content can written once and published in
         numerous formats and styles.</para>
+
+        <para>There are a few GUI editors for docbook now, with more editors
+        promising to support docbook in the future.</para>
+
+        <para>According to <ulink
+        url="http://www.tldp.org/HOWTO/Software-Release-Practice-HOWTO/documentation.html#AEN449">The
+        Software Release&#39;s Howto</ulink>, docbook is the open source
+        format of the future, and most of the high profile open source
+        projects have moved or are moving to docbook as their coding
+        standards. So we are saving ourselves pain in the future by embracing
+        Docbook now.</para>
 
         <para>In the geotools build process, documentation is converted from
         Docbook format to HTML using maven.</para>
 
         <para>For information about using javadoc to comment your code, refer
         to <xref linkend="CodingStandards" />.</para>
-      </section>
-
-      <section id="docdirstructure">
-        <title>Documentation Directory Structure</title>
-
-        <para>Documentation will usually be part of an existing geotools
-        module. For general documentation (like the Developer&#39;s Guide), a
-        dedicated module may be created which does not contain any code.</para>
-
-        <figure>
-          <title>Typical Documentation Directory Structure</title>
-
-          <mediaobject>
-            <imageobject>
-              <imagedata fileref="images/developersguide/dir_structure.png"
-                         format="PNG" />
-            </imageobject>
-
-            <textobject>
-              <phrase>Typical Documentation Directory Structure</phrase>
-            </textobject>
-          </mediaobject>
-        </figure>
-
-        <para>Documentation will be stored in
-        <computeroutput><filename>geotools2/geotools_src/&#60;module_name&#62;/sdocbook/&#60;module_name&#62;.SGML</filename></computeroutput></para>
-
-        <para>Related images are stored in <filename>geotools2/geotools_src/&#60;module_name&#62;/sdocbook/images/&#60;module_name&#62;/*.PNG</filename>.</para>
-
-        <para>Documentation from all the project&#39;s modules is likely to be
-        build in one target directory. Therefore, to ensure module&#39;s
-        images do not overwrite each other, images are stored in a directory
-        below the images directory: <filename>images/&#60;module_name&#62;/*.PNG</filename>.</para>
       </section>
 
       <section id="docbookeditors">
@@ -325,8 +438,7 @@ alternate="yes"
 
           <listitem>
             <para>Viewing SGML: Tomas has written a useful webpage for viewing
-            SGML pages at:
-            http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index.</para>
+            SGML pages at <ulink url="???">http://www.cartesia.org/modules.php?op=modload&#38;name=NS-Docbook&#38;file=index</ulink>.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -381,10 +493,6 @@ alternate="yes"
         </itemizedlist>
       </section>
     </section>
-  </section>
-
-  <section id="tools">
-    <title>Development Tools</title>
 
     <section>
       <title id="ssh">ssh</title>
@@ -427,10 +535,10 @@ alternate="yes"
         <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
         java IDE which also provides a framework for adding extra
         functionality. Geotools2 is developed using the same modular structure
-        as netbeans and can be integrated into netbeans in the future. Sun
-        have repackaged Netbeans and called it <ulink
+        as Netbeans and we plan to integrate geotools into Netbeans. Sun have
+        repackaged Netbeans and called it <ulink
         url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE
-        Studio</ulink> (previously Forte).</para>
+        Studio</ulink> (previously Forte for J).</para>
       </section>
 
       <section>
@@ -449,7 +557,7 @@ alternate="yes"
           </listitem>
 
           <listitem>
-            <para>Have checked out the geotools2 CVS respository into a local
+            <para>Have checked out the geotools2 CVS repository into a local
             directory on your computer.</para>
           </listitem>
 
@@ -478,9 +586,9 @@ alternate="yes"
       <section>
         <title id="netbeansmodules">Adding Modules</title>
 
-        <para>A few modules should be added to the standard netbeans install
+        <para>A few modules should be added to the standard Netbeans install
         to help geotools development. Use the Tools-&#62;Update Center to
-        instal these modules:</para>
+        install these modules:</para>
 
         <itemizedlist>
           <listitem>
@@ -497,9 +605,9 @@ alternate="yes"
           </listitem>
 
           <listitem>
-            <para>&#34;Poseidon&#34;. This is a Univeral Markup Language (UML)
-            editor which we occasionally use to explain ideas about design.
-            You can get away without installing this.</para>
+            <para>&#34;Poseidon&#34;. This is a Universal Markup Language
+            (UML) editor which we occasionally use to explain ideas about
+            design. You can get away without installing this.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -512,7 +620,7 @@ alternate="yes"
         Control-&#62;CVS. Select the geotools2 directory that you have already
         booked out from CVS. Don&#39;t worry about the relative mount point,
         it will be covered by the &#34;View over Filesystem&#34; section. You
-        shouldn&#39;t need to change the cvs and ssh parameters, they will
+        shouldn&#39;t need to change the CVS and ssh parameters, they will
         have been picked up correctly from when you booked geotools out from
         CVS manually.</para>
 
