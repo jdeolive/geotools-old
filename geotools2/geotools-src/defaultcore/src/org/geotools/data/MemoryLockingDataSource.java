@@ -40,17 +40,13 @@ import java.util.Set;
  * visability.
  * 
  * <p>
- * Known Bugs:
- * </p>
- * 
+ * Known Bugs:</p>
  * <ul>
- * <li>
- * Assumes a consistent FeatureType
- * </li>
- * <li>
- * Does not share Locking between two MemoryLockingDataSources serving up the
- * same FeatureCollection.
- * </li>
+ * <li>Assumes a consistent FeatureType
+ *     </li>
+ * <li>Does not share Locking between two MemoryLockingDataSources serving up
+ *     the same FeatureCollection.
+ *     </li>
  * </ul>
  * 
  *
@@ -84,7 +80,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      * Require all fids be unlocked
      * </p>
      */
-    protected FeatureLock lock = null;
+    protected FeatureLock lock = FeatureLock.CURRENT_TRANSACTION;
 
     //J-
     /**
@@ -247,7 +243,7 @@ class MemoryLockingDataSource extends MemoryDataSource
     protected void endTransaction() {
         releaseTransactionLock();
         authorization = new HashSet();
-        lock = null;
+        lock = FeatureLock.CURRENT_TRANSACTION;
     }
 
     /**
@@ -466,8 +462,8 @@ class MemoryLockingDataSource extends MemoryDataSource
      *
      * @see org.geotools.data.LockingDataSource#setCurrentLock(org.geotools.data.FeatureLock)
      */
-    public void setFeatureLock(FeatureLock lock) {
-        this.lock = lock;
+    public void setFeatureLock(FeatureLock featureLock) {
+        lock = featureLock;
     }
 
     /**
@@ -678,7 +674,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      * @throws DataSourceException DOCUMENT ME!
      */
     protected int lockFidsSet(Set fids) throws DataSourceException {
-        if ((lock == null) && getAutoCommit()) {
+        if ((lock == FeatureLock.CURRENT_TRANSACTION) && getAutoCommit()) {
             throw new DataSourceException(
                 "Cannot lock features without either a transaction or FeatureLock.");
         }
@@ -689,7 +685,7 @@ class MemoryLockingDataSource extends MemoryDataSource
 
         int count = 0;
 
-        MemoryLock memoryLock = createMemoryLock(lock);
+        MemoryLock memoryLock = createMemoryLock( lock );
         String fid;
 
         for (Iterator i = fids.iterator(); i.hasNext();) {
@@ -1005,13 +1001,12 @@ class MemoryLockingDataSource extends MemoryDataSource
         return set;
     }
 
-    protected MemoryLock createMemoryLock(FeatureLock request) {
-        if (request == null) { // per transaction lock
-
+    protected MemoryLock createMemoryLock(FeatureLock featureLock ) {
+        if (featureLock == FeatureLock.CURRENT_TRANSACTION ) {
+            // per transaction lock
             return MemoryLock.CURRENT_TRANSACTION;
         }
-
-        return new MemoryLock(request);
+        return new MemoryLock( featureLock );
     }
 }
 
@@ -1030,14 +1025,14 @@ class MemoryLockingDataSource extends MemoryDataSource
  * @see org.geotools.data
  */
 class MemoryLock {
-    static final MemoryLock CURRENT_TRANSACTION = new MemoryLock("CURRENT_TRANSACTION",
-            0);
+    static final MemoryLock CURRENT_TRANSACTION =
+        new MemoryLock("CURRENT_TRANSACTION", 0);
     String authID;
     long duration;
     long expiry;
 
-    public MemoryLock(FeatureLock lock) {
-        this(lock.getAuthorization(), lock.getDuration());
+    public MemoryLock(FeatureLock featureLock) {
+        this(featureLock.getAuthorization(), featureLock.getDuration());
     }
 
     protected MemoryLock(String id, long length) {
