@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import org.geotools.vpf.TableColumnDef;
 import org.geotools.vpf.TableHeader;
@@ -41,17 +41,20 @@ import org.geotools.vpf.ifc.VPFHeader;
 import org.geotools.vpf.ifc.VPFRow;
 
 /**
- * TableInputStream.java
- *
- *
- * Created: Thu Jan 02 22:32:27 2003
+ * Class <code>TableInputStream</code> implements
  *
  * @author <a href="mailto:kobit@users.sf.net">Artur Hefczyc</a>
- * @version 1.0
+ * @version $Id: TableInputStream.java,v 1.13 2003/03/24 16:38:24 kobit Exp $
  */
 public class TableInputStream extends VPFInputStream
   implements FileConstants, DataTypesDefinition
 {
+
+  /**
+   * Variable constant <code>AHEAD_BUFFER_SIZE</code> keeps value of 
+   * number of records to read ahead and keep in cache to improve further
+   * access to data.
+   */
   public static final int AHEAD_BUFFER_SIZE = 0;
 
   public TableInputStream(String file)
@@ -85,7 +88,7 @@ public class TableInputStream extends VPFInputStream
     } // end of if (ctrl != VPF_RECORD_SEPARATOR)
     String description = readString(""+VPF_RECORD_SEPARATOR);
     String narrativeTable = readString(""+VPF_RECORD_SEPARATOR);
-    LinkedList colDefs = new LinkedList();
+    ArrayList colDefs = new ArrayList();
     TableColumnDef colDef = readColumnDef();
     while (colDef != null)
     {
@@ -126,7 +129,7 @@ public class TableInputStream extends VPFInputStream
     String elemStr = readString(""+VPF_ELEMENT_SEPARATOR);
     if (elemStr.equals("*"))
     {
-      elemStr = "0";
+      elemStr = "-1";
     } // end of if (elemStr.equals("*"))
     int elements = Integer.parseInt(elemStr);
     char key = readChar();
@@ -155,23 +158,16 @@ public class TableInputStream extends VPFInputStream
     HashMap fieldsMap = new HashMap();
 	for (int i = 0; i < rowsDef.size(); i++) {
 	  TableColumnDef tcd = (TableColumnDef)rowsDef.get(i);
-	  byte[] bytes = new byte[tcd.getColumnSize()];
-	  int size = input.read(bytes);
-      if (size <= 0)
+      Object value = null;
+      if (tcd.getColumnSize() < 0)
       {
-        return null;
-      } // end of if (size = 0)
-	  if (size != tcd.getColumnSize())
-	  {
-		throw new VPFRowDataException("Insuffitient data in stream: is "+size+
-									  " should be: "+tcd.getColumnSize());
-	  } // end of if (size != tcd.getColumnSize())
-	  if (tcd.isNumeric() && getByteOrder() == LITTLE_ENDIAN_ORDER)
-	  {
-		bytes = DataUtils.toBigEndian(bytes);
-	  } // end of if (tcd.isNumeric() &&
-	    //header.getByteOrder() == LITTLE_ENDIAN_ORDER)
-	  Object value = DataUtils.decodeData(bytes, tcd.getType());
+        value = readVariableSizeData(tcd.getType());
+      } // end of if (tcd.getColumnSize() <= 0)
+      else
+      {
+        value = readFixedSizeData(tcd.getType(), tcd.getElementsNumber());
+      } // end of if (tcd.getColumnSize() <= 0) else
+      //  	  Object value = DataUtils.decodeData(bytes, tcd.getType());
       RowField field = new RowField(value, tcd.getType());
       fieldsArr[i] = field;
       fieldsMap.put(tcd.getName(), field);

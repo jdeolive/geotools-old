@@ -25,7 +25,7 @@ package org.geotools.vpf.ifc;
  * Created: Mon Feb 24 22:51:07 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFHeader.java,v 1.2 2003/03/16 22:59:39 kobit Exp $
+ * @version $Id: VPFHeader.java,v 1.3 2003/03/24 16:38:22 kobit Exp $
  */
 
 public interface VPFHeader 
@@ -37,5 +37,14 @@ public interface VPFHeader
    * @return an <code>int</code> value of header length.
    */
   int getLength();
+
+  /**
+   * Method <code><code>getRecordSize</code></code> is used to return
+   * size in bytes of records stored in this table. If table keeps variable
+   * length records <code>-1</code> should be returned.
+   *
+   * @return an <code><code>int</code></code> value
+   */
+  int getRecordSize();
   
 }// VPFHeader

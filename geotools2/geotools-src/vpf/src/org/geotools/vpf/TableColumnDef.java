@@ -20,6 +20,7 @@
 package org.geotools.vpf;
 
 import org.geotools.vpf.ifc.DataTypesDefinition;
+import org.geotools.vpf.util.DataUtils;
 
 /**
  * This class contains definition of VPF standard table column definition
@@ -71,7 +72,7 @@ public class TableColumnDef implements DataTypesDefinition
 	buff.append(sb);
 	sb = new StringBuffer(""+keyType); sb.setLength(4);
 	buff.append(sb);
-	sb = new StringBuffer(""+colDesc); sb.setLength(75);
+	sb = new StringBuffer(""+colDesc); sb.setLength(55);
 	buff.append(sb);
 	sb = new StringBuffer(""+valDescTableName); sb.setLength(5);
 	buff.append(sb);
@@ -164,76 +165,12 @@ public class TableColumnDef implements DataTypesDefinition
 
   public int getColumnSize()
   {
-	int size = -1;
-	switch (type) {
-	  case DATA_TEXT:
-	  case DATA_LEVEL1_TEXT:
-	  case DATA_LEVEL2_TEXT:
-	  case DATA_LEVEL3_TEXT:
-		size = elementsNumber;
-		break;
-	  case DATA_SHORT_FLOAT:
-		size = DATA_SHORT_FLOAT_LEN;
-		break;
-	  case DATA_LONG_FLOAT:
-		size = DATA_LONG_FLOAT_LEN;
-		break;
-	  case DATA_SHORT_INTEGER:
-		size = DATA_SHORT_INTEGER_LEN;
-		break;
-	  case DATA_LONG_INTEGER:
-		size = DATA_LONG_INTEGER_LEN;
-		break;
-	  case DATA_2_COORD_F:
-		size = DATA_2_COORD_F_LEN;
-		break;
-	  case DATA_2_COORD_R:
-		size = DATA_2_COORD_R_LEN;
-		break;
-	  case DATA_3_COORD_F:
-		size = DATA_3_COORD_F_LEN;
-		break;
-	  case DATA_3_COORD_R:
-		size = DATA_3_COORD_R_LEN;
-		break;
-	  case DATA_DATE_TIME:
-		size = DATA_DATE_TIME_LEN;
-		break;
-	  case DATA_NULL_FIELD:
-		size = DATA_NULL_FIELD_LEN;
-		break;
-	  case DATA_TRIPLED_ID:
-		size = DATA_TRIPLED_ID_LEN;
-	  default:
-		break;
-	} // end of switch (type)
-	return size;
+	return DataUtils.getDataTypeSize(type)*elementsNumber;
   }
 
   public boolean isNumeric()
   {
-	switch (type) {
-	  case DATA_TEXT:
-	  case DATA_LEVEL1_TEXT:
-	  case DATA_LEVEL2_TEXT:
-	  case DATA_LEVEL3_TEXT:
-	  case DATA_DATE_TIME:
-	  case DATA_NULL_FIELD:
-		return false;
-	  case DATA_SHORT_FLOAT:
-	  case DATA_LONG_FLOAT:
-	  case DATA_SHORT_INTEGER:
-	  case DATA_LONG_INTEGER:
-		return true;
-	  case DATA_2_COORD_F:
-	  case DATA_2_COORD_R:
-	  case DATA_3_COORD_F:
-	  case DATA_3_COORD_R:
-	  case DATA_TRIPLED_ID:
-		return true;
-	  default:
-		return false;
-	} // end of switch (type)
+    return DataUtils.isNumeric(type);
   }
 
 } // TableColumnDef

@@ -30,13 +30,11 @@ import org.geotools.vpf.ifc.VPFRow;
  * Created: Mon Feb 24 22:23:58 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexInputStream.java,v 1.5 2003/03/19 21:36:31 kobit Exp $
+ * @version $Id: VariableIndexInputStream.java,v 1.6 2003/03/24 16:38:24 kobit Exp $
  */
 public class VariableIndexInputStream extends VPFInputStream 
 {
 
-  public static final long VARIABLE_INDEX_ROW_SIZE = 8;
-  
   public VariableIndexInputStream(String file, char byteOrder)
 	throws IOException
   {
@@ -58,9 +56,4 @@ public class VariableIndexInputStream extends VPFInputStream
 	return new VariableIndexRow(readInteger(), readInteger());
   }
 
-  public void setPosition(long pos) throws IOException
-  {
-	seek(VARIABLE_INDEX_ROW_SIZE*pos);
-  }
-  
 } // VariableIndexInputStream

@@ -48,28 +48,41 @@ public class TableRow implements VPFRow
 
   public String toString()
   {
-    StringBuffer buff = new StringBuffer(" ["+getClass().getName());
-    buff.append(" (fieldsMap=");
+//     StringBuffer buff = new StringBuffer(" ["+getClass().getName());
+//     buff.append(" (fieldsMap=");
+//     if (fieldsMap == null)
+//     {
+//       buff.append("null)");
+//     } // end of if (columnDefs == null)
+//     else
+//     {
+//       Iterator it = fieldsMap.entrySet().iterator();
+//       while (it.hasNext())
+//       {
+//         Map.Entry entry = (Map.Entry)it.next();
+//         buff.append("\n"+
+//                     entry.getKey().toString()+"="+
+//                     entry.getValue().toString());
+//       } // end of while (it.hasNext())
+//       buff.append("\n)");
+//     } // end of if (columnDefs == null) else
+//     buff.append("]");
+    StringBuffer buff = new StringBuffer();
     if (fieldsMap == null)
     {
       buff.append("null)");
     } // end of if (columnDefs == null)
     else
     {
-      Iterator it = fieldsMap.entrySet().iterator();
-      while (it.hasNext())
+      for (int i = 0; i < fieldsArr.length; i++)
       {
-        Map.Entry entry = (Map.Entry)it.next();
-        buff.append("\n"+
-                    entry.getKey().toString()+"="+
-                    entry.getValue().toString());
-      } // end of while (it.hasNext())
-      buff.append("\n)");
+        buff.append(fieldsArr[i].toString()+":");
+      } // end of for (int i = 0; i < fieldsArr.length; i++)
+      buff.append(";");
     } // end of if (columnDefs == null) else
-    buff.append("]");
     return buff.toString();
   }
-  
+
   public int fieldsCount()
   {
 	return fieldsArr.length;

@@ -32,5 +32,22 @@ package org.geotools.vpf;
  */
 
 public class Coordinate2DFloat implements Coordinate {
+
+  protected float[][] coordinates;
+  
+  public Coordinate2DFloat(float[][] coords)
+  {
+    coordinates = coords;
+  }
+
+  public String toString()
+  {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < coordinates.length; i++)
+    {
+      sb.append("("+coordinates[i][0]+", "+coordinates[i][1]+")");
+    } // end of for (int i = 0; i < coordinates.length; i++)
+    return sb.toString();
+  }
   
 }// Coordinate2DFloat

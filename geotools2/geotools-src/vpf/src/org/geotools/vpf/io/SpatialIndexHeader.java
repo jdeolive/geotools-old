@@ -27,7 +27,7 @@ import org.geotools.vpf.ifc.VPFHeader;
  * Created: Tue Mar 11 23:42:48 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexHeader.java,v 1.3 2003/03/19 21:36:29 kobit Exp $
+ * @version $Id: SpatialIndexHeader.java,v 1.4 2003/03/24 16:38:23 kobit Exp $
  */
 public class SpatialIndexHeader implements VPFHeader {
   
@@ -50,9 +50,26 @@ public class SpatialIndexHeader implements VPFHeader {
 	this.ymax = ymax;
   } // SpatialIndexHeader constructor
   
+  /**
+   * Returns particular <code>VPFHeader</code> length.
+   *
+   * @return an <code>int</code> value of header length.
+   */
   public int getLength()
   {
 	return SPATIAL_INDEX_HEADER_LENGTH;
+  }
+
+  /**
+   * Method <code><code>getRecordSize</code></code> is used to return
+   * size in bytes of records stored in this table. If table keeps variable
+   * length records <code>-1</code> should be returned.
+   *
+   * @return an <code><code>int</code></code> value
+   */
+  public int getRecordSize()
+  {
+    return -1;
   }
   
   /**

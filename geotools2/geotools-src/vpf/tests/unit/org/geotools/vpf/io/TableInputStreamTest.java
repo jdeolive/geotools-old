@@ -143,26 +143,96 @@ public class TableInputStreamTest extends TestCase
    * org.geotools.vpf.TableRow readRow()
    * from tested class
    */
-  public void testReadRow()
+  public void testReadFixedLengthRow()
     throws IOException
   {
+    varTableInputStream =
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/browse/coa/cnd");
+    TableRow row = (TableRow)varTableInputStream.readRow();
     assertNotNull("Reading 1 row from given table "+
-                 varTableInputStream.streamFile,
-                 varTableInputStream.readRow());
+                  varTableInputStream.streamFile, row);
+    if (row != null)
+    {
+      System.out.println("Fixed size data row read from "+
+                         "dnc13/browse/coa/cnd:\n"+row.toString());
+    } // end of if (row != null)
   } // end of testReadRow()
+  
+  /**
+   * Method for testing original source method:
+   * org.geotools.vpf.TableRow readRow()
+   * from tested class
+   */
+  public void testReadVariableLengthRow()
+    throws IOException
+  {
+    varTableInputStream =
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/browse/coa/edg");
+    TableRow row = (TableRow)varTableInputStream.readRow();
+    assertNotNull("Reading 1 row from given table "+
+                  varTableInputStream.streamFile, row);
+    if (row != null)
+    {
+      System.out.println("Variable size data row read from "+
+                         "dnc13/browse/coa/edg:\n"+row.toString());
+    } // end of if (row != null)
+  } // end of testReadRow()
+  
+  /**
+   * Method for testing original source method:
+   * int readRows(org.geotools.vpf.TableRow[])
+   * from tested class
+   */
+  public void testReadFixedLengthRows()
+    throws IOException
+  {
+    varTableInputStream =
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/browse/coa/cnd");
+    System.out.println("Table header:\n"+varTableInputStream.header.toString());
+    TableRow[] rows = new TableRow[5];
+    assertEquals("Reading 5 rows into given array from given table "+
+                 varTableInputStream.streamFile,
+                 5, varTableInputStream.readRows(rows));
+    System.out.println("Fixed size data "+rows.length+" rows read from "+
+                       "dnc13/browse/coa/cnd:");
+    for (int i = 0; i < rows.length; i++)
+    {
+      if (rows[i] != null)
+      {
+        System.out.println(rows[i].toString());
+      } // end of if (row != null)
+    } // end of for (int i = 0; i < rows.length; i++)
+  } // end of testReadRows895743446(org.geotools.vpf.TableRow[])
 
   /**
    * Method for testing original source method:
    * int readRows(org.geotools.vpf.TableRow[])
    * from tested class
    */
-  public void testReadRows895743446()
+  
+  public void testReadVariableLengthRows()
     throws IOException
   {
+    varTableInputStream =
+      new TableInputStream(System.getProperty("basedir")+
+                           "/tests/testdata/dnc13/browse/coa/edg");
+    System.out.println("Table header:\n"+varTableInputStream.header.toString());
     TableRow[] rows = new TableRow[5];
     assertEquals("Reading 5 rows into given array from given table "+
                  varTableInputStream.streamFile,
                  5, varTableInputStream.readRows(rows));
+    System.out.println("Variable size data "+rows.length+" rows read from "+
+                       "dnc13/browse/coa/edg:");
+    for (int i = 0; i < rows.length; i++)
+    {
+      if (rows[i] != null)
+      {
+        System.out.println(rows[i].toString());
+      } // end of if (row != null)
+    } // end of for (int i = 0; i < rows.length; i++)
   } // end of testReadRows895743446(org.geotools.vpf.TableRow[])
 
 } // end of TableInputStreamTest

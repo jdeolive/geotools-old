@@ -35,7 +35,7 @@ import org.geotools.vpf.Coordinate3DDouble;
  * <p>
  * Created: Wed Jan 29 10:06:37 2003
  * </p>
- * @version $Id: DataUtils.java,v 1.4 2003/03/03 20:40:35 kobit Exp $
+ * @version $Id: DataUtils.java,v 1.5 2003/03/24 16:38:25 kobit Exp $
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  */
 
@@ -92,7 +92,7 @@ public class DataUtils implements DataTypesDefinition
 		result = new Integer(decodeInt(bytes));
 		break;
 	  case DATA_2_COORD_F:
-        result = new Coordinate2DFloat();
+        result = null;
 		break;
 	  case DATA_2_COORD_R:
         result = new Coordinate2DDouble();
@@ -179,6 +179,80 @@ public class DataUtils implements DataTypesDefinition
   public static int unsigByteToInt(byte b)
   {
     return (int) b & 0xFF;
+  }
+
+  public static int getDataTypeSize(char type)
+  {
+	int size = -1;
+	switch (type) {
+	  case DATA_TEXT:
+	  case DATA_LEVEL1_TEXT:
+	  case DATA_LEVEL2_TEXT:
+	  case DATA_LEVEL3_TEXT:
+		size = 1;
+		break;
+	  case DATA_SHORT_FLOAT:
+		size = DATA_SHORT_FLOAT_LEN;
+		break;
+	  case DATA_LONG_FLOAT:
+		size = DATA_LONG_FLOAT_LEN;
+		break;
+	  case DATA_SHORT_INTEGER:
+		size = DATA_SHORT_INTEGER_LEN;
+		break;
+	  case DATA_LONG_INTEGER:
+		size = DATA_LONG_INTEGER_LEN;
+		break;
+	  case DATA_2_COORD_F:
+		size = DATA_2_COORD_F_LEN;
+		break;
+	  case DATA_2_COORD_R:
+		size = DATA_2_COORD_R_LEN;
+		break;
+	  case DATA_3_COORD_F:
+		size = DATA_3_COORD_F_LEN;
+		break;
+	  case DATA_3_COORD_R:
+		size = DATA_3_COORD_R_LEN;
+		break;
+	  case DATA_DATE_TIME:
+		size = DATA_DATE_TIME_LEN;
+		break;
+	  case DATA_NULL_FIELD:
+		size = DATA_NULL_FIELD_LEN;
+		break;
+	  case DATA_TRIPLED_ID:
+		size = DATA_TRIPLED_ID_LEN;
+	  default:
+		break;
+	} // end of switch (type)
+	return size;
+  }
+
+  public static boolean isNumeric(char type)
+  {
+	switch (type) {
+	  case DATA_TEXT:
+	  case DATA_LEVEL1_TEXT:
+	  case DATA_LEVEL2_TEXT:
+	  case DATA_LEVEL3_TEXT:
+	  case DATA_DATE_TIME:
+	  case DATA_NULL_FIELD:
+		return false;
+	  case DATA_SHORT_FLOAT:
+	  case DATA_LONG_FLOAT:
+	  case DATA_SHORT_INTEGER:
+	  case DATA_LONG_INTEGER:
+		return true;
+	  case DATA_2_COORD_F:
+	  case DATA_2_COORD_R:
+	  case DATA_3_COORD_F:
+	  case DATA_3_COORD_R:
+	  case DATA_TRIPLED_ID:
+		return true;
+	  default:
+		return false;
+	} // end of switch (type)
   }
 
 }// DataUtils
