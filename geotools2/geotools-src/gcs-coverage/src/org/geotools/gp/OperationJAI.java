@@ -85,17 +85,14 @@ import org.geotools.resources.gcs.ResourceKeys;
  * different bits of tasks, resulting in the following chain of calls:
  *
  * <ol>
- *   <li>{@link #doOperation(ParameterList, RenderingHints)}</li>
- *   <li>{@link #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)}</li>
+ *   <li>{@link #doOperation}</li>
+ *   <li>{@link #deriveGridCoverage}</li>
  *   <li>{@link #deriveSampleDimension}</li>
  *   <li>{@link #deriveCategory}</li>
  *   <li>{@link #deriveUnit}</li>
  * </ol>
  *
- * Subclasses should override the two last <code>derive</code> methods. The
- * default implementation for other methods should be sufficient in most cases.
- *
- * @version $Id: OperationJAI.java,v 1.19 2003/05/19 13:09:48 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.20 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -246,7 +243,7 @@ public class OperationJAI extends Operation {
      * to OpenGIS usage.
      */
     private static String[] getSourceNames(final OperationDescriptor descriptor) {
-        if (descriptor.getNumSources()==1) {
+        if (descriptor.getNumSources() == 1) {
             return new String[] {"Source"};
         } else {
             return descriptor.getSourceNames();
@@ -292,38 +289,47 @@ public class OperationJAI extends Operation {
      * The default implementation performs the following steps:
      *
      * <ul>
-     *   <li>Separate the source {@link GridCoverage}s from other parameters.</li>
-     *   <li>Convert source grid coverages to their <cite>geophysics</cite> model, using
+     *   <li>Convert source grid coverages to their <cite>geophysics</cite> view, using
      *       <code>{@link GridCoverage#geophysics GridCoverage.geophysics}(true)</code>.
      *       This allow to performs all computation on geophysics values instead of encoded
      *       samples.</li>
-     *   <li>Invoke {@link #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)}.
+     *   <li>Ensure that every source <code>GridCoverage</code>s use the same coordinate
+     *       system and have the same envelope.</li>
+     *   <li>Invoke {@link #deriveGridCoverage}.
      *       The sources in the <code>ParameterBlock</code> are {@link RenderedImage} objects
-     *       obtained with {@link GridCoverage#getRenderedImage()}.</li>
-     *   <li>If the source <code>GridCoverage</code>s was not a geophysics model, convert the
-     *       result back to the same type with <code>GridCoverage.geophysics}(false)</code>.</li>
+     *       obtained from {@link GridCoverage#getRenderedImage()}.</li>
+     *   <li>If the source <code>GridCoverage</code>s was not a geophysics view, convert the
+     *       result back to the same type with
+     *       <code>{@link GridCoverage#geophysics GridCoverage.geophysics}(false)</code>.</li>
      * </ul>
      *
-     * @param  parameters List of name value pairs for the
-     *         parameters required for the operation.
+     * @param  parameters List of name value pairs for the parameters required for the operation.
      * @param  A set of rendering hints, or <code>null</code> if none.
      * @return The result as a grid coverage.
      *
-     * @see #doOperation(GridCoverage[], ParameterBlockJAI, RenderingHints)
+     * @see #deriveGridCoverage
      */
     protected GridCoverage doOperation(final ParameterList  parameters,
                                        final RenderingHints hints)
     {
-        Boolean requireGeophysicsType = null;
-        final ParameterBlockJAI block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
-        final String[]     paramNames = parameters.getParameterListDescriptor().getParamNames();
-        final String[]    sourceNames = getSourceNames(descriptor);
-        final GridCoverage[]  sources = new GridCoverage[descriptor.getNumSources()];
+        /*
+         * Copy parameter values from the ParameterList to the ParameterBlockJAI.
+         * The sources GridCoverages are extracted in the process and the source
+         * RenderedImage are set in the ParameterBlockJAI. The first array of
+         * range specifiers, if any, is treated especialy.
+         */
+        RangeSpecifier[]        ranges = null;
+        Boolean  requireGeophysicsType = null;
+        final ParameterBlockJAI  block = new ParameterBlockJAI(descriptor, RENDERED_MODE);
+        final String[]      paramNames = parameters.getParameterListDescriptor().getParamNames();
+        final String[] blockParamNames = block.getParameterListDescriptor().getParamNames();
+        final String[]     sourceNames = getSourceNames(descriptor);
+        final GridCoverage[]   sources = new GridCoverage[descriptor.getNumSources()];
         for (int srcCount=0,i=0; i<paramNames.length; i++) {
             final String name  = paramNames[i];
-            final Object param = parameters.getObjectParameter(name);
+            final Object value = parameters.getObjectParameter(name);
             if (contains(sourceNames, name)) {
-                GridCoverage source = ((GridCoverage) param);
+                GridCoverage source = ((GridCoverage) value);
                 if (computeOnGeophysicsValues()) {
                     final GridCoverage old = source;
                     source = source.geophysics(true);
@@ -333,55 +339,31 @@ public class OperationJAI extends Operation {
                 }
                 block.addSource(source.getRenderedImage());
                 sources[srcCount++] = source;
-            } else {
-                setParameter(block, name, param);
+                continue;
             }
+            if (!contains(blockParamNames, name)) {
+                if (value == null) {
+                    continue;
+                }
+                if (value instanceof RangeSpecifier) {
+                    ranges = new RangeSpecifier[] {(RangeSpecifier)value};
+                    continue;
+                }
+                if (value instanceof RangeSpecifier[]) {
+                    ranges = (RangeSpecifier[]) value;
+                    continue;
+                }
+            }
+            setParameter(block, name, value);
         }
-        GridCoverage result = doOperation(sources, block, hints);
-        if (requireGeophysicsType != null) {
-            result = result.geophysics(requireGeophysicsType.booleanValue());
-        }
-        return result;
-    }
-    
-    /**
-     * Apply a JAI operation to a grid coverage.
-     * The default implementation performs the following steps:
-     *
-     * <ul>
-     *   <li>Ensure that every source <code>GridCoverage</code>s use the same coordinate
-     *       system and have the same envelope.</li>
-     *   <li>Get the {@link SampleDimension}s for the target images by invoking the
-     *       {@link #deriveSampleDimension deriveSampleDimension(...)} method.</li>
-     *   <li>Apply the operation using the following pseudo-code:
-     * <blockquote><pre>
-     * {@link JAI#createNS JAI.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
-     * </pre></blockquote></li>
-     * </ul>
-     *
-     * @param  sources The source coverages.
-     * @param  parameters List of name value pairs for the
-     *         parameters required for the operation.
-     * @param  A set of rendering hints, or <code>null</code> if none.  The JAI
-     *         instance to use for the <code>createNS</code> call will be fetch
-     *         from the {@link Hints#JAI_INSTANCE} key.
-     * @return The result as a grid coverage.
-     *
-     * @see #doOperation(ParameterList, RenderingHints)
-     * @see #deriveSampleDimension
-     * @see JAI#createNS
-     */
-    protected GridCoverage doOperation(final GridCoverage[]    sources,
-                                       final ParameterBlockJAI parameters,
-                                       final RenderingHints    hints)
-    {
-              GridCoverage source = sources[MASTER_SOURCE_INDEX];
-        final CoordinateSystem cs = source.getCoordinateSystem();
-        final Envelope   envelope = source.getEnvelope();
         /*
-         * Ensure that all coverages use the same
-         * coordinate system and has the same envelope.
+         * Ensure that all coverages use the same coordinate system and has the same envelope.
+         * Current version throw an exception if the coordinate systems are incompatibles. A
+         * futur version may apply projection automatically as needed.
          */
+        GridCoverage     coverage = sources[0];
+        final CoordinateSystem cs = coverage.getCoordinateSystem();
+        final Envelope   envelope = coverage.getEnvelope();
         for (int i=1; i<sources.length; i++) {
             if (!cs.equals(sources[i].getCoordinateSystem(), false)) {
                 throw new IllegalArgumentException(Resources.format(
@@ -393,6 +375,51 @@ public class OperationJAI extends Operation {
             }
         }
         /*
+         * Apply the operation. This delegate the work to the chain of 'deriveXXX' methods.
+         */
+        coverage = deriveGridCoverage(sources, new Parameters(envelope, cs, block, hints, ranges));
+        if (requireGeophysicsType != null) {
+            coverage = coverage.geophysics(requireGeophysicsType.booleanValue());
+        }
+        return coverage;
+    }
+
+    /**
+     * @deprecated Override {@link #deriveGridCoverage} instead.
+     */
+    protected GridCoverage doOperation(final GridCoverage[]    sources,
+                                       final ParameterBlockJAI parameters,
+                                       final RenderingHints    hints)
+    {
+        throw new RuntimeException("Deprecated method.");
+    }
+    
+    /**
+     * Apply a JAI operation to a grid coverage.
+     * The default implementation performs the following steps:
+     *
+     * <ul>
+     *   <li>Get the {@link SampleDimension}s for the target images by invoking the
+     *       {@link #deriveSampleDimension deriveSampleDimension(...)} method.</li>
+     *   <li>Apply the operation using the following pseudo-code:
+     * <blockquote><pre>
+     * {@link JAI#createNS JAI.createNS}({@link #descriptor}.getName(),&nbsp;parameters,&nbsp;hints)
+     * </pre></blockquote></li>
+     * </ul>
+     *
+     * @param  sources The source coverages.
+     * @param  parameters Parameters, rendering hints and coordinate system to use.
+     * @return The result as a grid coverage.
+     *
+     * @see #doOperation
+     * @see #deriveSampleDimension
+     * @see JAI#createNS
+     */
+    protected GridCoverage deriveGridCoverage(final GridCoverage[] sources,
+                                              final Parameters  parameters)
+    {
+        GridCoverage source = sources[MASTER_SOURCE_INDEX];
+        /*
          * Get the target SampleDimensions. If they are identical to the SampleDimensions of
          * one of the source GridCoverage, then this GridCoverage will be use at the source.
          * It will affect the target GridCoverage's name and the visible band.  Then, a new
@@ -403,7 +430,7 @@ public class OperationJAI extends Operation {
         for (int i=0; i<list.length; i++) {
             list[i] = sources[i].getSampleDimensions();
         }
-        final SampleDimension[] sampleDims = deriveSampleDimension(list, cs, parameters);
+        final SampleDimension[] sampleDims = deriveSampleDimension(list, parameters);
         for (int i=0; i<list.length; i++) {
             if (Arrays.equals(sampleDims, list[i])) {
                 source = sources[i];
@@ -423,19 +450,19 @@ public class OperationJAI extends Operation {
         /*
          * Performs the operation using JAI and construct the new grid coverage.
          */
-        final RenderingHints exHints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        final JAI processor = getJAI(hints);
-        if (hints != null) {
-            exHints.add(hints); // May overwrite the image layout we just set.
+        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+        final JAI processor = getJAI(parameters.hints);
+        if (parameters.hints != null) {
+            hints.add(parameters.hints); // May overwrite the image layout we just set.
         }
-        final RenderedImage data = processor.createNS(descriptor.getName(), parameters, exHints);
-        return new GridCoverage(deriveName(source),   // The grid coverage name
-                                data,                 // The underlying data
-                                cs,                   // The coordinate system.
-                                envelope,             // The coverage envelope.
-                                sampleDims,           // The sample dimensions
-                                sources,              // The source grid coverages.
-                                null);                // Properties
+        RenderedImage data = processor.createNS(descriptor.getName(), parameters.parameters, hints);
+        return new GridCoverage(deriveName(source, parameters), // The grid coverage name
+                                data,                           // The underlying data
+                                parameters.coordinateSystem,    // The coordinate system.
+                                parameters.envelope,            // The coverage envelope.
+                                sampleDims,                     // The sample dimensions
+                                sources,                        // The source grid coverages.
+                                null);                          // Properties
     }
     
     /**
@@ -456,22 +483,10 @@ public class OperationJAI extends Operation {
         }
         return index;
     }
-
-    /**
-     * Returns a name for the target {@linkplain GridCoverage grid coverage} based on the given
-     * source. The default implementation returns the operation name followed by the source name
-     * in parenthesis, as in a method call.
-     *
-     * @param  source The source grid coverage.
-     * @return A name for the target grid coverage.
-     */
-    protected String deriveName(final GridCoverage source) {
-        return getName()+'('+source.getName(null)+')';
-    }
     
     /**
      * Derive the {@link SampleDimension}s for the destination image. The
-     * default implementation iterate among all bands  and invokes the
+     * default implementation iterate among all bands and invokes the
      * {@link #deriveCategory deriveCategory} and {@link #deriveUnit deriveUnit}
      * methods for each individual band.
      *
@@ -482,8 +497,7 @@ public class OperationJAI extends Operation {
      *
      *                 <code>bandLists[source][band]</code>.
      *
-     * @param  cs The coordinate system of the destination grid coverage.
-     * @param  parameters The user-supplied parameters.
+     * @param  parameters Parameters, rendering hints and coordinate system to use.
      * @return The category lists for each band in the destination image. The
      *         length of this array must matches the number of bands in the
      *         destination image. If the <code>SampleDimension</code>s are unknow,
@@ -493,8 +507,7 @@ public class OperationJAI extends Operation {
      * @see #deriveUnit
      */
     protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
-                                                      final CoordinateSystem cs,
-                                                      final ParameterList parameters)
+                                                      final Parameters         parameters)
     {
         /*
          * Compute the number of bands. Sources with only 1 band are treated as
@@ -548,8 +561,8 @@ public class OperationJAI extends Operation {
             }
             final Category oldCategory = categoryArray[indexOfQuantitative];
             final Unit     oldUnit     = sampleDim.getUnits();
-            final Category newCategory = deriveCategory(categoryXS, cs, parameters);
-            final Unit     newUnit     = deriveUnit(unitXS, cs, parameters);
+            final Category newCategory = deriveCategory(categoryXS, parameters);
+            final Unit     newUnit     = deriveUnit(unitXS, parameters);
             if (newCategory == null) {
                 return null;
             }
@@ -565,47 +578,61 @@ public class OperationJAI extends Operation {
     }
     
     /**
-     * Derive the quantative category for a band in the destination image.
-     * This method is invoked automatically by the {@link #deriveSampleDimension
-     * deriveSampleDimension} method for each band in the destination image. The
-     * default implementation always returns <code>null</code>. Subclasses
-     * should override this method in order to compute the destination {@link
-     * Category} from the source categories. For example, the "<code>add</code>"
-     * operation may implement this method as below:
+     * @deprecated Override {@link #deriveSampleDimension(SampleDimension[][],Parameters)} instead.
+     */
+    protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
+                                                      final CoordinateSystem cs,
+                                                      final ParameterList parameters)
+    {
+        throw new RuntimeException("Deprecated method.");
+    }
+    
+    /**
+     * Derive the quantitative category for a {@linkplain SampleDimension sample dimension}
+     * in the destination coverage. This method is invoked automatically by the
+     * {@link #deriveSampleDimension deriveSampleDimension} method for each band in the
+     * destination image. Subclasses should override this method in order to compute the
+     * destination {@link Category} from the source categories. For example, the
+     * &quot;<code>add</code>&quot; operation may implements this method as below:
      *
      * <blockquote><pre>
-     * Range r0 = categories[0].getRange();
-     * Range r1 = categories[0].getRange();
-     * double min = ((Number)r0.getMinValue()).doubleValue() + ((Number)r1.getMinValue()).doubleValue();
-     * double min = ((Number)r0.getMaxValue()).doubleValue() + ((Number)r1.getMaxValue()).doubleValue();
-     * final Range newRange = new Range(Double.class, new Double(min), new Double(max));
+     * NumberRange r0 = categories[0].getRange();
+     * NumberRange r1 = categories[0].getRange();
+     * double min = r0.getMinimum() + r1.getMinimum();
+     * double min = r0.getMaximum() + r1.getMaximum();
+     * NumberRange newRange = new NumberRange(min, max);
      * return new Category("My category", null, r0, newRange);
      * </pre></blockquote>
      *
-     * @param  categories The quantitative categories from every sources.
-     *         For unary operations like "GradientMagnitude", this array
-     *         has a length of 1. For binary operations like "add" and
-     *         "multiply", this array has a length of 2.
-     * @param  cs The coordinate system of the destination grid coverage.
-     * @param  parameters The user-supplied parameters.
-     * @return The quantative category to use in the destination image.
-     *         or <code>null</code> if unknow. This category should always
-     *         be derived from <code>categories[0]</code>.
+     * @param  categories The quantitative categories from every sources. For unary operations
+     *         like &quot;GradientMagnitude&quot;, this array has a length of 1. For binary
+     *         operations like &quot;add&quot; and &quot;multiply&quot;, this array has a length
+     *         of 2.
+     * @param  parameters Parameters, rendering hints and coordinate system to use.
+     * @return The quantative category to use in the destination image,
+     *         or <code>null</code> if unknow.
+     */
+    protected Category deriveCategory(final Category[] categories, final Parameters parameters) {
+        return null;
+    }
+
+    /**
+     * @deprecated Override {@link #deriveCategory(Category[],Parameters)} instead.
      */
     protected Category deriveCategory(final Category[] categories,
                                       final CoordinateSystem cs,
                                       final ParameterList parameters)
     {
-        return null;
+        throw new RuntimeException("Deprecated method.");
     }
     
     /**
-     * Derive the unit of data for a band in the destination image. This method is
-     * invoked automatically by the {@link #deriveSampleDimension deriveSampleDimension}
-     * method for each band in the destination image.   The default implementation
-     * always returns <code>null</code>. Subclasses should override this method in
-     * order to compute the destination units from the source units.  For example,
-     * the "<code>multiply</code>" operation may implement this method as below:
+     * Derive the unit of data for a {@linkplain SampleDimension sample dimension} in the
+     * destination coverage. This method is invoked automatically by the
+     * {@link #deriveSampleDimension deriveSampleDimension} method for each band in the
+     * destination image. Subclasses should override this method in order to compute the
+     * destination units from the source units. For example, the &quot;<code>multiply</code>&quot;
+     * operation may implement this method as below:
      *
      * <blockquote><pre>
      * if (units[0]!=null && units[1]!=null) {
@@ -616,19 +643,44 @@ public class OperationJAI extends Operation {
      * </pre></blockquote>
      *
      * @param  units The units from every sources. For unary operations like
-     *         "GradientMagnitude", this array has a length of 1. For binary
-     *         operations like "add" and "multiply", this array has a length
-     *         of 2.
-     * @param  cs The coordinate system of the destination grid coverage.
-     * @param  parameters The user-supplied parameters.
-     * @return The unit of data in the destination image,
-     *         or <code>null</code> if unknow.
+     *         &quot;GradientMagnitude&quot;, this array has a length of 1.
+     *         For binary operations like &quot;add&quot; and &quot;multiply&quot;,
+     *         this array has a length of 2.
+     * @param  parameters Parameters, rendering hints and coordinate system to use.
+     * @return The unit of data in the destination image, or <code>null</code> if unknow.
+     */
+    protected Unit deriveUnit(final Unit[] units, final Parameters parameters) {
+        return null;
+    }
+
+    /**
+     * @deprecated Override {@link #deriveUnit(Unit[],Parameters)} instead.
      */
     protected Unit deriveUnit(final Unit[] units,
                               final CoordinateSystem cs,
                               final ParameterList parameters)
     {
-        return null;
+        throw new RuntimeException("Deprecated method.");
+    }
+
+    /**
+     * Returns a name for the target {@linkplain GridCoverage grid coverage} based on the given
+     * source. The default implementation returns the operation name followed by the source name
+     * between parenthesis.
+     *
+     * @param  source The source grid coverage.
+     * @param  parameters Parameters, rendering hints and coordinate system to use.
+     * @return A name for the target grid coverage.
+     */
+    protected String deriveName(final GridCoverage source, final Parameters parameters) {
+        return getName()+'('+source.getName(null)+')';
+    }
+    
+    /**
+     * @deprecated Override {@link #deriveName(GridCoverage,Parameters)} instead.
+     */
+    protected String deriveName(final GridCoverage source) {
+        throw new RuntimeException("Deprecated method.");
     }
     
     /**
@@ -644,5 +696,72 @@ public class OperationJAI extends Operation {
             return Utilities.equals(this.descriptor, that.descriptor);
         }
         return false;
+    }
+
+    /**
+     * A block of parameters for a {@link GridCoverage} processed by a {@link OperationJAI}.
+     * This parameter is given to the following methods:
+     *
+     * <ul>
+     *   <li>{@link OperationJAI#deriveSampleDimension}</li>
+     *   <li>{@link OperationJAI#deriveCategory}</li>
+     *   <li>{@link OperationJAI#deriveUnit}</li>
+     * </ul>
+     *
+     * @version $Id: OperationJAI.java,v 1.20 2003/07/04 13:46:36 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    protected static final class Parameters {
+        /**
+         * The envelope for sources and the destination {@link GridCoverage}.
+         */
+        final Envelope envelope;
+
+        /**
+         * The coordinate system for all sources and the destination {@link GridCoverage}.
+         * Sources coverages will be projected in this coordinate system as needed.
+         */
+        public final CoordinateSystem coordinateSystem;
+
+        /**
+         * The parameters to be given to the {@link JAI#createNS} method.
+         */
+        public final ParameterBlockJAI parameters;
+
+        /**
+         * The rendering hints to be given to the {@link JAI#createNS} method.
+         * The {@link JAI} instance to use for the <code>createNS</code> call
+         * will be fetch from the {@link Hints#JAI_INSTANCE} key.
+         */
+        public final RenderingHints hints;
+
+        /**
+         * The range, colors and units of the main quantitative {@link Category} to be created.
+         * If non-null, then this array length matches the number of sources.
+         */
+        final RangeSpecifier[] rangeSpecifiers;
+
+        /**
+         * Construct a new parameter block with the specified values.
+         */
+        Parameters(final Envelope          envelope,
+                   final CoordinateSystem  coordinateSystem,
+                   final ParameterBlockJAI parameters,
+                   final RenderingHints    hints,
+                   final RangeSpecifier[]  rangeSpecifiers)
+        {
+            this.envelope         = envelope;
+            this.coordinateSystem = coordinateSystem;
+            this.parameters       = parameters;
+            this.hints            = hints;
+            this.rangeSpecifiers  = rangeSpecifiers;
+        }
+
+        /**
+         * Returns the range specifier for the first source, or <code>null</code> if none.
+         */
+        final RangeSpecifier getRangeSpecifier() {
+            return (rangeSpecifiers!=null && rangeSpecifiers.length!=0) ? rangeSpecifiers[0] : null;
+        }
     }
 }

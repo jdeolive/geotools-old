@@ -152,16 +152,23 @@
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;mask1&quot;</td>
+        <td>&quot;Mask1&quot;</td>
         <td>{@link javax.media.jai.KernelJAI}</td>
         <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_HORIZONTAL}</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
       <tr>
-        <td>&quot;mask2&quot;</td>
+        <td>&quot;Mask2&quot;</td>
         <td>{@link javax.media.jai.KernelJAI}</td>
         <td>{@link javax.media.jai.KernelJAI#GRADIENT_MASK_SOBEL_VERTICAL}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>&quot;TargetRange&quot;</td>
+        <td>{@link org.geotools.gp.RangeSpecifier}</td>
+        <td>(automatic)</td>
         <td align="center">N/A</td>
         <td align="center">N/A</td>
       </tr>
@@ -177,11 +184,11 @@
     </UL>
     <P ALIGN="justify">Kernels are normalized by dividing all their coefficients
     by the result of this test. In other words, kernels are normalized in such a
-    way that applying the "GradientMagnitude" operation on a horizontal or
-    vertical gradient of 1 such "geophysical" units will give a result of 1.
-    This is an attempt to give geophysical meaning to the numbers produced by the
-    "GradientMagnitude" operation. This normalization depends of the coverage's
-    {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
+    way that applying the &quot;GradientMagnitude&quot; operation on a horizontal
+    or vertical gradient of 1 such &quot;geophysical&quot; units will give a result
+    of 1. This is an attempt to give geophysical meaning to the numbers produced by
+    the &quot;GradientMagnitude&quot; operation. This normalization depends of the
+    coverage's {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
 

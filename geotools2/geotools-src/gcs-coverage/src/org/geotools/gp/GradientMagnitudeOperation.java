@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ * (C) 2003, Geotools Project Management Committee (PMC)
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -29,9 +29,6 @@
  *     CANADA: Observatoire du Saint-Laurent
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
- *
- *    This package contains documentation from OpenGIS specifications.
- *    OpenGIS consortium's work is fully acknowledged here.
  */
 package org.geotools.gp;
 
@@ -45,13 +42,16 @@ import javax.media.jai.JAI;
 import javax.media.jai.KernelJAI;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterBlockJAI;
-import javax.media.jai.util.Range;
+import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.ParameterListDescriptorImpl;
 
 // OpenGIS dependencies
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
+import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.util.NumberRange;
 
 // Resources
 import org.geotools.units.Unit;
@@ -66,17 +66,32 @@ import org.geotools.resources.XAffineTransform;
  * to "geophysics" measurements. The normalization include dividing
  * by the distance between pixels.
  *
- * @version $Id: GradientMagnitudeOperation.java,v 1.2 2003/04/16 19:25:33 desruisseaux Exp $
+ * @version $Id: GradientMagnitudeOperation.java,v 1.3 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GradientMagnitudeOperation extends OperationJAI {
     /**
-     * The default scale factor to apply on the range computed by
-     * {@link #deriveCategory}. For example a value of 0.04 means
-     * that only values from 0 to 4% of the maximum will appears
-     * in different colors.
+     * Set to <code>true</code> for enabling some tracing code.
      */
-    private static final double DEFAULT_RANGE_SCALE = 0.04;
+    private static final boolean DEBUG = false;
+
+    /**
+     * Set to <code>true</code> to enable automatic kernel normalization. Normalization modifies
+     * kernel coefficients according the "grid to coordinate system" transform in order to get
+     * some meaningful engineering units (e.g. °C/km). The normalization factor is computed by
+     * testing the original kernels against synthetic horizontal and vertical gradients of
+     * 1 sampleUnit/csUnit.
+     */
+    private static final boolean NORMALIZE = true;
+
+    /**
+     * The default scale factor to apply on the range computed by
+     * {@link #deriveCategory}. For example a value of 0.25 means
+     * that only values from 0 to 25% of the expected maximum will
+     * appears in different colors. This factor is ignored if the
+     * user provided an explicit "TargetRange" argument.
+     */
+    private static final double DEFAULT_RANGE_SCALE = 0.25;
     
     /**
      * The default color palette for the gradients.
@@ -102,7 +117,31 @@ final class GradientMagnitudeOperation extends OperationJAI {
      * Construct a default gradient magnitude operation.
      */
     public GradientMagnitudeOperation() {
-        super("GradientMagnitude");
+        super(null, getOperationDescriptor("GradientMagnitude"), new ParameterListDescriptorImpl(
+              null,         // the object to be reflected upon for enumerated values.
+              new String[]  // the names of each parameter.
+              {
+                  "Source",
+                  "Mask1",
+                  "Mask2",
+                  "TargetRange"
+              },
+              new Class[]   // the class of each parameter.
+              {
+                  GridCoverage.class,
+                  KernelJAI.class,
+                  KernelJAI.class,
+                  RangeSpecifier.class
+              },
+              new Object[] // The default values for each parameter.
+              {
+                  ParameterListDescriptor.NO_PARAMETER_DEFAULT,
+                  KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL,
+                  KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL,
+                  null  // Automatic
+              },
+              null // Defines the valid values for each parameter.
+            ));
     }
     
     /**
@@ -219,13 +258,13 @@ final class GradientMagnitudeOperation extends OperationJAI {
      * in the parameter list and divide kernel by the distance between pixel, in the
      * grid coverage's coordinate system.
      */
-    protected GridCoverage doOperation(final GridCoverage[]    sources,
-                                       final ParameterBlockJAI parameters,
-                                       final RenderingHints    hints)
+    protected GridCoverage deriveGridCoverage(final GridCoverage[] sources,
+                                              final Parameters  parameters)
     {
-        if (sources.length!=0) {
-            KernelJAI mask1 = (KernelJAI) parameters.getObjectParameter("mask1");
-            KernelJAI mask2 = (KernelJAI) parameters.getObjectParameter("mask2");
+        if (NORMALIZE) {
+            final ParameterList block = parameters.parameters;
+            KernelJAI mask1 = (KernelJAI) block.getObjectParameter("Mask1");
+            KernelJAI mask2 = (KernelJAI) block.getObjectParameter("Mask2");
             /*
              * Normalize the kernel in such a way that pixel values likes
              * [-2 -1 0 +1 +2] will give a gradient of about 1 unit/pixel.
@@ -243,23 +282,31 @@ final class GradientMagnitudeOperation extends OperationJAI {
              */
             double scaleMask1 = 1;
             double scaleMask2 = 1;
-            final MathTransform2D mtr = sources[0].getGridGeometry().getGridToCoordinateSystem2D();
-            if (mtr instanceof AffineTransform) {
-                final AffineTransform tr = (AffineTransform) mtr;
-                final double scaleX = XAffineTransform.getScaleX0(tr);
-                final double scaleY = XAffineTransform.getScaleY0(tr);
-                scaleMask1 = getScaleFactor(mask1, scaleX, scaleY);
-                scaleMask2 = getScaleFactor(mask2, scaleX, scaleY);
-                if (!(scaleMask1>0 && scaleMask2>0)) {
-                    // Do not scale if scale is 0 or NaN.
-                    scaleMask1 = 1;
-                    scaleMask2 = 1;
+            if (sources.length != 0) {
+                final MathTransform2D mtr;
+                mtr = sources[0].getGridGeometry().getGridToCoordinateSystem2D();
+                if (mtr instanceof AffineTransform) {
+                    final AffineTransform tr = (AffineTransform) mtr;
+                    final double scaleX = XAffineTransform.getScaleX0(tr);
+                    final double scaleY = XAffineTransform.getScaleY0(tr);
+                    scaleMask1 = getScaleFactor(mask1, scaleX, scaleY);
+                    scaleMask2 = getScaleFactor(mask2, scaleX, scaleY);
+                    if (!(scaleMask1>0 && scaleMask2>0)) {
+                        // Do not scale if scale is 0 or NaN.
+                        scaleMask1 = 1;
+                        scaleMask2 = 1;
+                    }
+                    if (DEBUG) {
+                        System.out.print("factor=     "); System.out.println(factor);
+                        System.out.print("scaleMask1= "); System.out.println(scaleMask1);
+                        System.out.print("scaleMask1= "); System.out.println(scaleMask2);
+                    }
                 }
             }
-            parameters.setParameter("mask1", divide(mask1, factor/scaleMask1));
-            parameters.setParameter("mask2", divide(mask2, factor/scaleMask2));
+            block.setParameter("Mask1", divide(mask1, factor*scaleMask1));
+            block.setParameter("Mask2", divide(mask2, factor*scaleMask2));
         }
-        return super.doOperation(sources, parameters, hints);
+        return super.deriveGridCoverage(sources, parameters);
     }
     
     /**
@@ -267,27 +314,51 @@ final class GradientMagnitudeOperation extends OperationJAI {
      * This implementation compute the expected gradient range from the two
      * masks and the value range in the source grid coverage.
      */
-    protected Category deriveCategory(final Category[] categories,
-                                      final CoordinateSystem cs,
-                                      final ParameterList parameters)
-    {
-        Category category = categories[0];
+    protected Category deriveCategory(final Category[] categories, final Parameters parameters) {
+        NumberRange   range = null;
+        Category   category = categories[0];
+        Color[]      colors = DEFAULT_COLOR_PALETTE;
+        String         name = category.getName(null);
+
+        final NumberRange  samples = category.geophysics(false).getRange();
         final boolean isGeophysics = (category == category.geophysics(true));
-        final KernelJAI   mask1 = (KernelJAI) parameters.getObjectParameter("mask1");
-        final KernelJAI   mask2 = (KernelJAI) parameters.getObjectParameter("mask2");
-        double factor = getNormalizationFactor(mask1, mask2);
-        if (factor > 0) {
-            final Range range = category.geophysics(true).getRange();
-            final double minimum = ((Number) range.getMinValue()).doubleValue();
-            final double maximum = ((Number) range.getMaxValue()).doubleValue();
-            factor *= (maximum - minimum) * DEFAULT_RANGE_SCALE;
-            category = new Category(category.getName(null),
-                                    DEFAULT_COLOR_PALETTE,
-                                    category.geophysics(false).getRange(),
-                                    new Range(Double.class, new Double(0), new Double(factor)));
+        final RangeSpecifier   rsp = parameters.getRangeSpecifier();
+        if (rsp != null) {
+            colors = rsp.getColors();
+            if (colors == null) {
+                colors = DEFAULT_COLOR_PALETTE;
+            }
+            final MathTransform1D transform = rsp.getSampleToGeophysics();
+            if (transform != null) {
+                return new Category(name, colors, range, transform);
+            }
+            range = rsp.getRange();
+        }
+        if (range == null) {
+            /*
+             * If no range has been explicitely set, compute a default one from the normalized
+             * kernels. The normalization has been done by 'doOperation' before this method is
+             * invoked.
+             */
+            final ParameterList block = parameters.parameters;
+            final KernelJAI mask1 = (KernelJAI) block.getObjectParameter("Mask1");
+            final KernelJAI mask2 = (KernelJAI) block.getObjectParameter("Mask2");
+            final int size = (mask1.getWidth() + mask1.getHeight() +
+                              mask2.getWidth() + mask2.getHeight())/4;
+            double factor = getNormalizationFactor(mask1, mask2) / (size-1);
+            if (factor>0 && !Double.isInfinite(factor)) {
+                range = category.geophysics(true).getRange();
+                final double minimum = range.getMinimum();
+                final double maximum = range.getMaximum();
+                factor *= (maximum - minimum) * DEFAULT_RANGE_SCALE;
+                range = new NumberRange(0, factor);
+            }
+        }
+        if (range != null) {
+            category = new Category(name, colors, samples, range);
             return category.geophysics(isGeophysics);
         }
-        return super.deriveCategory(categories, cs, parameters);
+        return super.deriveCategory(categories, parameters);
     }
     
     /**
@@ -299,15 +370,13 @@ final class GradientMagnitudeOperation extends OperationJAI {
      *   <li><code>axis</code> is the coordinate system axis unit.</li>
      * </ul>
      */
-    protected Unit deriveUnit(final Unit[] units,
-                              final CoordinateSystem cs,
-                              final ParameterList parameters)
-    {
-        if (units.length==1 && units[0] != null) {
+    protected Unit deriveUnit(final Unit[] units, final Parameters parameters) {
+        final CoordinateSystem cs = parameters.coordinateSystem;
+        if (!DEBUG && units.length==1 && units[0]!=null) {
             final Unit spatialUnit = cs.getUnits(0);
             for (int i=Math.min(cs.getDimension(), 2); --i>=0;) {
                 if (!spatialUnit.equals(cs.getUnits(i))) {
-                    return super.deriveUnit(units, cs, parameters);
+                    return super.deriveUnit(units, parameters);
                 }
             }
             try {
@@ -317,6 +386,6 @@ final class GradientMagnitudeOperation extends OperationJAI {
                 // anyway, but the result will have no know unit.
             }
         }
-        return super.deriveUnit(units, cs, parameters);
+        return super.deriveUnit(units, parameters);
     }
 }

@@ -44,7 +44,7 @@ import org.geotools.cs.CoordinateSystem;
 /**
  * The "Invert" operation.
  *
- * @version $Id: InvertOperation.java,v 1.2 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: InvertOperation.java,v 1.3 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class InvertOperation extends OperationJAI {
@@ -64,11 +64,10 @@ final class InvertOperation extends OperationJAI {
      * @return The category lists for each band in the destination image.
      */
     protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
-                                                      final CoordinateSystem cs,
-                                                      final ParameterList parameters)
+                                                      final Parameters parameters)
     {
-        final int type = ((GridCoverage) parameters.getObjectParameter("Source"))
-                         .getRenderedImage().getSampleModel().getDataType();
+        final int type = ((GridCoverage) parameters.parameters.getObjectParameter("Source"))
+                                         .getRenderedImage().getSampleModel().getDataType();
         final SampleDimension[] bands = bandLists[0];
         if (type!=DataBuffer.TYPE_BYTE && type!=DataBuffer.TYPE_SHORT) {
             for (int i=0; i<bands.length; i++) {

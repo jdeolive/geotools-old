@@ -46,7 +46,7 @@ import org.geotools.cs.CoordinateSystem;
  * Wraps any JAI operation producing a bilevel image. An example of such operation is
  * {@link BinarizeDescriptor Binarize}.
  *
- * @version $Id: BilevelOperation.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: BilevelOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class BilevelOperation extends OperationJAI {
@@ -86,8 +86,7 @@ final class BilevelOperation extends OperationJAI {
      * @return The category lists for each band in the destination image.
      */
     protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
-                                                      final CoordinateSystem cs,
-                                                      final ParameterList parameters)
+                                                      final Parameters parameters)
     {
         final SampleDimension[] bands = new SampleDimension[bandLists[0].length];
         Arrays.fill(bands, SAMPLE_DIMENSION);

@@ -82,7 +82,7 @@ import org.geotools.cs.CoordinateSystem;
  * duplicated to fill a complete kernel.
  * </blockquote>
  *
- * @version $Id: FilterOperation.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: FilterOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class FilterOperation extends OperationJAI {
@@ -196,8 +196,7 @@ final class FilterOperation extends OperationJAI {
      * Returns the target sample dimensions, which are the same than source sample dimension.
      */
     protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
-                                                      final CoordinateSystem cs,
-                                                      final ParameterList parameters)
+                                                      final Parameters parameters)
     {
         return bandLists[0];
     }

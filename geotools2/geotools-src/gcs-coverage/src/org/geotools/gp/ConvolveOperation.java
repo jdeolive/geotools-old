@@ -41,12 +41,12 @@ import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.ParameterListDescriptor;
 import javax.media.jai.ParameterListDescriptorImpl;
-import javax.media.jai.util.Range;
 
 // Geotools dependencies
 import org.geotools.cv.Category;
 import org.geotools.gc.GridCoverage;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.util.NumberRange;
 import org.geotools.resources.Utilities;
 
 
@@ -55,7 +55,7 @@ import org.geotools.resources.Utilities;
  * "Convolve". It includes the OpenGIS "LaplaceType1Filter" and "LaplaceType2Filter"
  * operations.
  *
- * @version $Id: ConvolveOperation.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: ConvolveOperation.java,v 1.4 2003/07/04 13:46:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ConvolveOperation extends OperationJAI {
@@ -172,33 +172,29 @@ final class ConvolveOperation extends OperationJAI {
      * Apply an operation. This method add the kernel to the parameter list
      * and invokes the super-class method.
      */
-    protected GridCoverage doOperation(final GridCoverage[]    sources,
-                                       final ParameterBlockJAI parameters,
-                                       final RenderingHints    hints)
+    protected GridCoverage deriveGridCoverage(final GridCoverage[] sources,
+                                              final Parameters  parameters)
     {
         if (kernel != null) {
-            parameters.setParameter("kernel", kernel);
+            parameters.parameters.setParameter("kernel", kernel);
         }
-        return super.doOperation(sources, parameters, hints);
+        return super.deriveGridCoverage(sources, parameters);
     }
     
     /**
      * Derive the quantitative category for a band in the destination image.
      * This implementation compute the expected values range from the kernel.
      */
-    protected Category deriveCategory(final Category[] categories,
-                                      final CoordinateSystem cs,
-                                      final ParameterList parameters)
-    {
+    protected Category deriveCategory(final Category[] categories, final Parameters parameters) {
         Category category = categories[0];
-        final KernelJAI kernel = (KernelJAI) parameters.getObjectParameter("kernel");
+        final KernelJAI kernel = (KernelJAI) parameters.parameters.getObjectParameter("kernel");
         double factor = getFactor(kernel);
         if (Math.abs(factor-1) > EPS) {
             final boolean isGeophysics = (category == category.geophysics(true));
             Color[] colors = category.getColors();
-            final Range range = category.geophysics(true).getRange();
-            double minimum = ((Number) range.getMinValue()).doubleValue();
-            double maximum = ((Number) range.getMaxValue()).doubleValue();
+            final NumberRange range = category.geophysics(true).getRange();
+            double minimum = range.getMinimum();
+            double maximum = range.getMaximum();
             if (Math.abs(factor) <= EPS) {
                 // Heuristic approach
                 maximum -= minimum;
@@ -215,7 +211,7 @@ final class ConvolveOperation extends OperationJAI {
             }
             category = new Category(category.getName(null), colors,
                                     category.geophysics(false).getRange(),
-                                    new Range(Double.class, new Double(minimum), new Double(maximum)));
+                                    new NumberRange(minimum, maximum));
             return category.geophysics(isGeophysics);
         }
         return category;

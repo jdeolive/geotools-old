@@ -46,6 +46,7 @@ import java.lang.reflect.Array;
 
 // JAI dependencies
 import javax.media.jai.JAI;
+import javax.media.jai.KernelJAI;
 import javax.media.jai.util.Range;
 import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
@@ -75,7 +76,7 @@ import org.geotools.resources.gcs.Resources;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.11 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.12 2003/07/04 13:46:36 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -384,6 +385,10 @@ public abstract class Operation implements Serializable {
                 if (value != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
                     if (value == null) {
                         value = "(automatic)";
+                    } else if (KernelJAI.GRADIENT_MASK_SOBEL_HORIZONTAL.equals(value)) {
+                        value = "GRADIENT_MASK_SOBEL_HORIZONTAL";
+                    } else if (KernelJAI.GRADIENT_MASK_SOBEL_VERTICAL.equals(value)) {
+                        value = "GRADIENT_MASK_SOBEL_VERTICAL";
                     } else if (value instanceof GridCoverage) {
                         value = ((GridCoverage) value).getName(null);
                     } else if (value instanceof Interpolation) {
