@@ -1198,13 +1198,13 @@ cp -pr .netbeans/ .netbeans.</programlisting>
                 <para>I suggest you download full precompiled binaries
                 <quote>fullbin</quote> from <ulink
                 url="http://ftp.gnu.org/gnu/windows/emacs/latest/">
-		http://ftp.gnu.org/</ulink>. This directory contains source and
-                full emacs, elisp documentation. The easiest way to make emacs
-                fully functional is to install <ulink
+                http://ftp.gnu.org/</ulink>. This directory contains source
+                and full emacs, elisp documentation. The easiest way to make
+                emacs fully functional is to install <ulink
                 url="http://www.cygwin.com/">CygWin</ulink>. CygWin provides a
-                Unix environment under windows. CygWin contains an emacs package
-                but the native install contains configuration problems relating
-                to ANT and Java so I don&#39;t recommend it.</para> 
+                Unix environment under windows. CygWin contains an emacs
+                package but the native install contains configuration problems
+                relating to ANT and Java so I don&#39;t recommend it.</para>
               </listitem>
             </varlistentry>
 
@@ -2945,10 +2945,9 @@ $ ./gtpubish
 $ netscape ~/geotools/geotools-src/docs/www/design.html</computeroutput></literallayout>
         </example>
 
-        <para>I have not tested <filename>gtpublish</filename> on windows, so
-        if you work out how to do it, get back to me so we can update this
-        document. I suggest you install <ulink url="http://www.cygwin.com/">cygwin</ulink>
-        and gtpublish then try and run gtpublish. See this link on <ulink
+        <para>In windows you can install <ulink url="http://www.cygwin.com/">cygwin</ulink>,
+        a unix environment for windows, and run <filename>gtpublish</filename>
+        within cygwin. See this link on <ulink
         url="http://www.sagehill.net/xml/docbookxsl/ToolsSetup.html#InstallXsltproc">installing
         xsltproc</ulink>.</para>
 
@@ -3052,11 +3051,9 @@ $ netscape ~/geotools/geotools-src/docs/www/doclicense.html</computeroutput></li
 
         <listitem>
           <para><ulink
-          url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html">Docbook,
-          the Definitive Guide</ulink> provides comprehensive documentation
-          about Docbook. At the time of writing, this reference referred to
-          version 3 of Docbook, while the Simplified Docbook used by geotools
-          is version 4.1.2.4.</para>
+          url="http://www.docbook.org/tdg/simple/en/html/sdocbook.html">Simplified
+          Docbook, the Definitive Guide</ulink> provides comprehensive
+          documentation about all the Simplified Docbook tags.</para>
         </listitem>
 
         <listitem>
