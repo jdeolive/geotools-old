@@ -29,7 +29,7 @@ import org.geotools.data.Extent;
  *
  * @author Ian Turton, CCG<br>
  * @author Rob Hranac, VFNY
- * @version $Id: FeatureCollection.java,v 1.8 2003/05/15 18:56:54 cholmesny Exp $
+ * @version $Id: FeatureCollection.java,v 1.9 2003/07/02 18:24:19 jmacgill Exp $
  *
  * @task REVISIT: get rid of datasource reference, get rid of extents.
  */
@@ -49,14 +49,13 @@ public interface FeatureCollection extends java.util.Set {
      */
     void setDataSource(DataSource data);
 
-    /**
-     * Gets the DataSource being used by this FeatureCollection.
-     *
+    /** Gets the DataSource being used by this FeatureCollection.
      * @return Datasource used by this feature collection.
-     *
      * @task REVISIT: remove the datasource reference?  Some feature
      *       collections will have references to their datasource, but not
      *       all, as the loading when needed hasn't really worked.
+     * @deprecated FeatureCollections should not contain a reference to the datasource which
+     * created them so this method will be removed in the near future.
      */
     DataSource getDataSource();
 
