@@ -4,7 +4,7 @@
  * Created on March 3, 2003, 2:23 PM
  */
 
-package org.geotools.util;
+package org.geotools.resources;
 
 /*
  * @(#)FloatingDecimal.java	1.24 02/02/06
