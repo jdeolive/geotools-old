@@ -31,19 +31,37 @@ package org.geotools.styling;
  *
  * @author jamesm
  */
+
+import org.geotools.filter.*;
+
 public class DefaultStroke implements org.geotools.styling.Stroke {
-    private String color = "#000000";
-    private float[] dashArray = null;//HACK: is this an aceptable return? 
-    private float dashOffset = 0;
-    private Graphic fillGraphic = null;
-    private Graphic strokeGraphic = null;
-    private String lineCap = "butt";
-    private String lineJoin = "miter";
-    private double opacity = 1;
-    private double width = 1;
+    private Expression color;
+    private float[] dashArray;
+    private Expression dashOffset ;
+    private Graphic fillGraphic;
+    private Graphic strokeGraphic;
+    private Expression lineCap;
+    private Expression lineJoin;
+    private Expression opacity;
+    private Expression width;
     
     /** Creates a new instance of DefaultStroke */
     public DefaultStroke() {
+        try{
+            color = new ExpressionLiteral("#000000");
+            dashArray = null;//HACK: is this an aceptable return?
+            dashOffset = new ExpressionLiteral(new Integer(0));
+            fillGraphic = null;
+            strokeGraphic = null;
+            lineCap = new ExpressionLiteral("butt");
+            lineJoin = new ExpressionLiteral("miter");
+            opacity = new ExpressionLiteral(new Integer(1));
+            width = new ExpressionLiteral(new Integer(1));
+        } catch(IllegalFilterException ife){
+            //we should never be in here
+            //TODO: log this as a fatal exception
+            System.err.println("DefaultStroke constructor failed "+ife);
+        }
     }
     
     /**
@@ -57,7 +75,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      */
-    public String getColor() {
+    public Expression getColor() {
         return color;
     }
     
@@ -72,7 +90,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
-    public void setColor(String c) {
+    public void setColor(Expression c) {
         color = c;
     }
     
@@ -115,18 +133,18 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     }
     
     /**
-     * This param determins where the dash pattern should start from. 
+     * This param determins where the dash pattern should start from.
      * @param offset The distance into the dash pattern that should act as the start.
      */
-    public double getDashOffset() {
+    public Expression getDashOffset() {
         return dashOffset;
     }
     
     /**
-     * This param determins where the dash pattern should start from. 
+     * This param determins where the dash pattern should start from.
      * @param offset The distance into the dash pattern that should act as the start.
      */
-    public void setDashOffset(float offset){
+    public void setDashOffset(Expression offset){
         dashOffset = offset;
     }
     
@@ -180,7 +198,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @return The cap style.  This will be one of "butt", "round" and "square".  There is no defined default.
      */
-    public String getLineCap() {
+    public Expression getLineCap() {
         return lineCap;
     }
     
@@ -189,7 +207,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @param cap The cap style.  This can be one of "butt", "round" and "square".  There is no defined default.
      */
-    public void setLineCap(String cap) {
+    public void setLineCap(Expression cap) {
         lineCap = cap;
     }
     
@@ -199,7 +217,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @return The join style.  This will be one of "miter", "round" and
      * "bevel".  There is no defined default.
      */
-    public String getLineJoin() {
+    public Expression getLineJoin() {
         return lineJoin;
     }
     
@@ -209,7 +227,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * @param join The join style.  This will be one of "miter", "round" and
      * "bevel". There is no defined default.
      */
-    public void setLineJoin(String join) {
+    public void setLineJoin(Expression join) {
         lineJoin = join;
     }
     
@@ -222,7 +240,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @return The opacity of the stroke, where 0.0 is completely transparent and 1.0 is completely opaque.
      */
-    public double getOpacity() {
+    public Expression getOpacity() {
         return opacity;
     }
     
@@ -235,7 +253,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @param level The opacity of the stroke, where 0.0 is completely transparent and 1.0 is completely opaque.
      */
-    public void setOpacity(double level) {
+    public void setOpacity(Expression level) {
         opacity = level;
     }
     
@@ -245,7 +263,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @return The width of the stroke in pixels.  This may be fractional but not negative.
      */
-    public double getWidth() {
+    public Expression getWidth() {
         return width;
     }
     
@@ -255,10 +273,11 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      *
      * @param pixels The width of the stroke in pixels.  This may be fractional but not negative.
      */
-    public void setWidth(double pixels) {
-        width = pixels;
-    }
     
+    
+    public void setWidth(Expression expr){
+        width = expr;
+    }
     
     
 }

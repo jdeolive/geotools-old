@@ -12,7 +12,7 @@ package org.geotools.styling;
  *
  * @author  iant
  *
- * @version $Id: SLDStyle.java,v 1.3 2002/05/29 14:51:19 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.4 2002/05/30 18:10:20 ianturton Exp $
  */
 
 import org.w3c.dom.*;
@@ -22,9 +22,11 @@ import java.net.*;
 import java.io.*;
 import java.util.*;
 
+import org.geotools.filter.*;
+
 public class SLDStyle implements org.geotools.styling.Style {
-    private static org.apache.log4j.Category _log = 
-        org.apache.log4j.Category.getInstance("sldstyling.styling");    
+    private static org.apache.log4j.Category _log =
+    org.apache.log4j.Category.getInstance("sldstyling.styling");
     private String abstractStr = new String();
     private String name = new String();
     private String title = new String();
@@ -103,7 +105,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         System.out.println("setting name "+name);
         this.name = name;
     }
-  
+    
     
     /** Setter for property abstractStr.
      * @param abstractStr New value of property abstractStr.
@@ -171,7 +173,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     private FeatureTypeStyle parseFeatureTypeStyle(Node style){
         System.out.println("Parsing featuretype style "+style.getNodeName());
         DefaultFeatureTypeStyle ft = new DefaultFeatureTypeStyle();
-
+        
         ArrayList rules = new ArrayList();
         //System.out.println(""+style.toString());
         NodeList children = style.getChildNodes();
@@ -231,7 +233,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             if (child.getNodeName().equalsIgnoreCase("Filter")
             || child.getNodeName().equalsIgnoreCase("ElseFilter")){
-                // set a filter
+                //TODO: set a filter
             }
             if( child.getNodeName().equalsIgnoreCase("LegendGraphic")){
                 NodeList g = ((Element)child).getElementsByTagName("Graphic");
@@ -249,10 +251,10 @@ public class SLDStyle implements org.geotools.styling.Style {
                 symbolizers.add(parsePointSymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("TextSymbolizer")){
-                //symbolizers.add(parseTextymbolizer(child));
+                //TODO: implement symbolizers.add(parseTextymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("RasterSymbolizer")){
-                //symbolizers.add(parseRasterSymbolizer(Child));
+                //TODO: implement symbolizers.add(parseRasterSymbolizer(Child));
             }
         }
         rule.setSymbolizers((Symbolizer[])symbolizers.toArray(new Symbolizer[0]));
@@ -422,21 +424,21 @@ public class SLDStyle implements org.geotools.styling.Style {
                 
                 if(res.equalsIgnoreCase("stroke")){
                     System.out.println("setting color "+child.getFirstChild().getNodeValue());
-                    stroke.setColor(child.getFirstChild().getNodeValue());
+                    stroke.setColor(parseCSSParameter(child));
                 }
                 if(res.equalsIgnoreCase("width")||res.equalsIgnoreCase("stroke-width")){
-                    stroke.setWidth(Double.parseDouble(child.getFirstChild().getNodeValue()));
+                    stroke.setWidth(parseCSSParameter(child));
                 }
                 if(res.equalsIgnoreCase("opacity")||res.equalsIgnoreCase("stroke-opacity")){
-                    stroke.setOpacity(Double.parseDouble(child.getFirstChild().getNodeValue()));
+                    stroke.setOpacity(parseCSSParameter(child));
                 }
                 if(res.equalsIgnoreCase("linecap")||res.equalsIgnoreCase("stroke-linecap")){
                     // since these are system-dependent just pass them through and hope.
-                    stroke.setLineCap(child.getFirstChild().getNodeValue());
+                    stroke.setLineCap(parseCSSParameter(child));
                 }
                 if(res.equalsIgnoreCase("linejoin")||res.equalsIgnoreCase("stroke-linejoin")){
                     // since these are system-dependent just pass them through and hope.
-                    stroke.setLineJoin(child.getFirstChild().getNodeValue());
+                    stroke.setLineJoin(parseCSSParameter(child));
                 }
                 if(res.equalsIgnoreCase("dasharray")||res.equalsIgnoreCase("stroke-dasharray")){
                     StringTokenizer stok = new StringTokenizer(child.getFirstChild().getNodeValue()," ");
@@ -448,13 +450,47 @@ public class SLDStyle implements org.geotools.styling.Style {
                     stroke.setDashArray(dashes);
                 }
                 if(res.equalsIgnoreCase("dashoffset")||res.equalsIgnoreCase("stroke-dashoffset")){
-                    stroke.setDashOffset(Float.parseFloat(child.getFirstChild().getNodeValue()));
+                    stroke.setDashOffset(parseCSSParameter(child));
                 }
             }
         }
         return stroke;
     }
-    
+    private Expression parseCSSParameter(Node root){
+        NodeList children = root.getChildNodes();
+        if(children.item(0).getNodeType()== Node.TEXT_NODE){
+            String nodeValue = children.item(0).getNodeValue();
+            // see if its an int
+            try{
+                try{
+                    Integer I = new Integer(nodeValue);
+                    return new ExpressionLiteral(I);
+                } catch (NumberFormatException e){
+                    /* really empty */
+                }
+                try{
+                    Double D = new Double(nodeValue);
+                    return new ExpressionLiteral(D);
+                } catch (NumberFormatException e){
+                    /* really empty */
+                }
+                return new ExpressionLiteral(nodeValue);
+            } catch (IllegalFilterException ife){
+                _log.error("Unable to build expression ",ife);
+            }
+        }
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            if(child.getNodeName().equalsIgnoreCase("add")){
+                
+                
+            }
+        }
+        return null;
+    }
     private Fill parseFill(Node root){
         DefaultFill fill = new DefaultFill();
         NodeList list = ((Element)root).getElementsByTagName("GraphicFill");

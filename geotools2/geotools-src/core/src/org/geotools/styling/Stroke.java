@@ -20,6 +20,8 @@
 
 package org.geotools.styling;
 
+import org.geotools.filter.Expression;
+
 /**
  * The Stroke object encapsulates the graphical-symbolization parameters for linear geometries.<br>
  *
@@ -42,7 +44,7 @@ package org.geotools.styling;
  * standards with names and semantics which are as close as possible.<p>
  *
  * @author James Macgill
- * @version $Revision: 1.5 $ $Date: 2002/05/27 09:07:40 $
+ * @version $Revision: 1.6 $ $Date: 2002/05/30 18:10:49 $
  */
 public interface Stroke {
     
@@ -59,7 +61,7 @@ public interface Stroke {
      *
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      **/
-    public String getColor();
+    public Expression getColor();
     
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
@@ -70,7 +72,7 @@ public interface Stroke {
      * @return The width of the stroke in pixels.  
      *         This may be fractional but not negative.
      **/
-    public double getWidth();
+    public Expression getWidth();
     
     /**
      * This specifies the level of translucency to use when rendering the
@@ -85,7 +87,7 @@ public interface Stroke {
      * @return The opacity of the stroke, where 0.0 is completely transparent
      *         and 1.0 is completely opaque.
      */
-    public double getOpacity();
+    public Expression getOpacity();
     
     /**
      * This parameter controls how line strings should be joined together.
@@ -93,7 +95,7 @@ public interface Stroke {
      * @return The join style.  This will be one of "mitre", "round" and
      *         "bevel".  There is no defined default.
      */
-    public String getLineJoin();
+    public Expression getLineJoin();
     
     /**
      * This parameter controls how line strings should be capped.
@@ -101,7 +103,7 @@ public interface Stroke {
      * @return The cap style.  This will be one of "butt", "round" and
      *         "square".  There is no defined default.
      */
-    public String getLineCap();
+    public Expression getLineCap();
     
     /**
      * This parameter encodes the dash pattern as a seqeuence of floats.<br>
@@ -126,7 +128,7 @@ public interface Stroke {
     *
     * @return The distance, in pixels, that any dash array should start from.
     */
-    public double getDashOffset();
+    public Expression getDashOffset();
     
     
     /**
@@ -158,6 +160,9 @@ public interface Stroke {
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.6  2002/05/30 18:10:49  ianturton
+ * added expressions to stroke
+ *
  * Revision 1.5  2002/05/27 09:07:40  jmacgill
  * fixed a number of checkstyle errors
  * improved javadoc comments
