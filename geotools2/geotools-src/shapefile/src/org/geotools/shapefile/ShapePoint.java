@@ -9,17 +9,18 @@ import com.vividsolutions.jts.geom.*;
  */
 public class ShapePoint  {
     
-    public static Coordinate read(LEDataInputStream file) throws IOException{
+    public static Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws IOException{
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();
         double x = file.readDouble();
         double y = file.readDouble();
-        return new Coordinate(x,y);
+        return geometryFactory.createPoint(new Coordinate(x,y));
     }
     
-    public static void write(Coordinate coordinate,LEDataOutputStream file)throws IOException{
+    public static void write(Geometry geometry,LEDataOutputStream file)throws IOException{
         file.setLittleEndianMode(true);
-        file.writeInt(Shapefile.POINT);
+        file.writeInt(getShapeType());
+        Coordinate c = geometry.getCoordinates()[0];
         file.writeDouble(c.x);
         file.writeDouble(c.y);
     }
