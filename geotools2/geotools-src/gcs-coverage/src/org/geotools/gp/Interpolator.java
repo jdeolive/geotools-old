@@ -74,7 +74,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.5 2002/08/30 13:12:22 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.6 2002/09/16 10:34:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -239,11 +239,14 @@ final class Interpolator extends GridCoverage {
     }
 
     /**
-     * Invoked when a new <code>GridCoverage</code> is derivate from this one.
-     * This is usually a result of a call to {@link #geophysics}. This method
-     * gives a chance to subclasses to create an instance of their own class.
+     * Apply to the specified grid coverage the same interpolation than this
+     * grid coverage. This method is invoked internally by {@link #geophysics}.
+     *
+     * @param  coverage The coverage for which to apply the interpolation.
+     * @return A coverage with the same data than <code>coverage</code> but
+     *         the same interpolation than <code>this</code>.
      */
-    protected GridCoverage createReplace(final GridCoverage coverage) {
+    protected GridCoverage interpolate(final GridCoverage coverage) {
         return create(coverage, getInterpolations());
     }
     
@@ -599,7 +602,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.5 2002/08/30 13:12:22 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.6 2002/09/16 10:34:10 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

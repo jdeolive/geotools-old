@@ -70,10 +70,6 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 
-// Weak references
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
-
 // Events
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
@@ -127,7 +123,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.6 2002/09/15 21:50:59 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.7 2002/09/16 10:34:10 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -202,16 +198,6 @@ public class GridCoverage extends Coverage {
      * <code>true</code> is all sample in the image are geophysics values.
      */
     private final boolean isGeophysics;
-
-    /**
-     * OpenGIS object returned by {@link #toOpenGIS}.
-     * It may be a hard or a weak reference.
-     *
-     * @task TODO: This field is duplicated with <code>Coverage.proxy</code>. This duplication
-     *             would not exists if we had a protected <code>toOpenGIS()</code> method.
-     *             However, we do not want to make this method visible for now...
-     */
-    private transient Object proxy;
     
     /**
      * Construct a new grid coverage with the same parameter than the specified
@@ -893,7 +879,7 @@ public class GridCoverage extends Coverage {
                 inverse = new GridCoverage(getName(null), selectedImage,
                                            coordinateSystem, gridGeometry, null, null,
                                            selectedBands, new GridCoverage[]{this}, null);
-                inverse = createReplace(inverse);
+                inverse = interpolate(inverse);
                 inverse.inverse = this;
             }
         }
@@ -901,12 +887,15 @@ public class GridCoverage extends Coverage {
     }
 
     /**
-     * Invoked when a new <code>GridCoverage</code> is derivate from this one.
-     * This is usually a result of a call to {@link #geophysics}. This method
-     * gives a chance to subclasses to create an instance of their own class.
-     * The default implementation returns <code>coverage</code> with no change.
+     * Apply to the specified grid coverage the same interpolation than this
+     * grid coverage. This method is invoked internally by {@link #geophysics}.
+     *
+     * @param  coverage The coverage for which to apply the interpolation.
+     * @return A coverage with the same data than <code>coverage</code> but
+     *         the same interpolation than <code>this</code>.
      */
-    protected GridCoverage createReplace(final GridCoverage coverage) {
+    protected GridCoverage interpolate(final GridCoverage coverage) {
+        // This method is overriden by org.geotools.gp.Interpolator
         return coverage;
     }
 
@@ -920,50 +909,37 @@ public class GridCoverage extends Coverage {
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns an OpenGIS interface for this grid coverage. This method first
-     * looks in the cache. If no interface was previously cached, then this
-     * method creates a new adapter and caches the result.
+     * Export a Geotools {@link GridCoverage} as an OpenGIS {@link GC_GridCoverage}
+     * object. This class is suitable for RMI use. User should not create instance
+     * of this class directly. The method {@link Adapters#export(GridCoverage)} should
+     * be used instead.
      *
-     * @param  adapters The originating {@link Adapters}.
-     * @return The OpenGIS interface. The returned type is a generic {@link Object}
-     *         in order to avoid premature class loading of OpenGIS interface.
+     * @version $Id: GridCoverage.java,v 1.7 2002/09/16 10:34:10 desruisseaux Exp $
+     * @author Martin Desruisseaux
      */
-    final synchronized Object toOpenGIS(final Object adapters) {
-        if (proxy != null) {
-            if (proxy instanceof Reference) {
-                final Object ref = ((Reference) proxy).get();
-                if (ref != null) {
-                    return ref;
-                }
-            } else {
-                return proxy;
-            }
+    protected class Export extends Coverage.Export implements GC_GridCoverage {
+        /**
+         * Constructs a remote object. This object is automatically added to the cache in
+         * the enclosing {@link GridCoverage} object. The cached <code>Export</code> instance
+         * can be queried with {@link org.geotools.cv.Adapters#getExported(Coverage)}.
+         *
+         * @param adapters The originating adapter.
+         */
+        protected Export(final Adapters adapters) {
+            super(adapters);
         }
-        final Object opengis = new Export(adapters);
-        proxy = new WeakReference(opengis);
-        return opengis;
-    }
 
-    /**
-     * Wraps a {@link GridCoverage} object for use with OpenGIS.
-     */
-    final class Export extends Coverage.Export implements GC_GridCoverage {
         /**
-         * Constructs an OpenGIS structure.
+         * Returns the number of grid coverages which the grid coverage was derived from.
+         * The default implementation invokes {@link GridCoverage#getSources}.
          */
-        public Export(final Object adapters) {
-            super((Adapters)adapters);
-        }
-        
-        /**
-         * Returns the underlying implementation.
-         */
-        final GridCoverage unwrap() {
-            return GridCoverage.this;
+        public int getNumSources() throws RemoteException {
+            return GridCoverage.this.getSources().length;
         }
 
         /**
          * Returns the source data for a grid coverage.
+         * The default implementation invokes {@link GridCoverage#getSources}.
          */
         public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
             return ((Adapters) adapters).export(GridCoverage.this.getSources()[sourceDataIndex]);
@@ -971,55 +947,67 @@ public class GridCoverage extends Coverage {
 
         /**
          * Returns <code>true</code> if grid data can be edited.
+         * The default implementation invokes {@link GridCoverage#isDataEditable}.
          */
         public boolean isDataEditable() throws RemoteException {
             return GridCoverage.this.isDataEditable();
         }
 
         /**
-         * Information for the packing of grid coverage values.
+         * Returns information for the packing of grid coverage values.
          */
         public GC_GridPacking getGridPacking() throws RemoteException {
             throw new UnsupportedOperationException("Not yet implemented");
         }
 
         /**
-         * Information for the grid coverage geometry.
+         * Returns information for the grid coverage geometry.
+         * The default implementation invokes {@link GridCoverage#getGridGeometry}.
          */
         public GC_GridGeometry getGridGeometry() throws RemoteException {
             return ((Adapters) adapters).export(GridCoverage.this.getGridGeometry());
         }
 
         /**
-         * Number of predetermined overviews for the grid.
-         */
-        public int getNumOverviews() throws RemoteException {
-            return 0;
-        }
-
-        /**
-         * Optimal size to use for each dimension when accessing grid values.
-         */
-        public int[] getOptimalDataBlockSizes() throws RemoteException {
-            final int[] size = new int[getDimension()];
-            Arrays.fill(size, 1);
-            size[0] = image.getTileWidth();
-            size[1] = image.getTileHeight();
-            return size;
-        }
-
-        /**
          * Return the grid geometry for an overview.
+         * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
+         * since {@link #getNumOverviews} returned 0.
          */
         public GC_GridGeometry getOverviewGridGeometry(int overviewIndex) throws RemoteException {
             throw new ArrayIndexOutOfBoundsException(overviewIndex);
         }
 
         /**
+         * Returns the number of predetermined overviews for the grid.
+         * The default implementation returns 0, since this feature is not yet
+         * implemented. It may be implemented in a future version.
+         */
+        public int getNumOverviews() throws RemoteException {
+            return 0;
+        }
+
+        /**
          * Returns a pre-calculated overview for a grid coverage.
+         * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
+         * since {@link #getNumOverviews} returned 0.
          */
         public GC_GridCoverage getOverview(int overviewIndex) throws RemoteException {
             throw new ArrayIndexOutOfBoundsException(overviewIndex);
+        }
+
+        /**
+         * Returns the optimal size to use for each dimension when accessing grid values.
+         * The default implementation returns the image's tiles size.
+         */
+        public int[] getOptimalDataBlockSizes() throws RemoteException {
+            final int[] size = new int[getDimension()];
+            switch (size.length) {
+                default: Arrays.fill(size, 1);            // Fall through
+                case 2:  size[1] = image.getTileHeight(); // Fall through
+                case 1:  size[0] = image.getTileWidth();  // Fall through
+                case 0:  break;
+            }
+            return size;
         }
 
         /**

@@ -72,7 +72,6 @@ import java.util.Locale;
 import java.rmi.RemoteException;
 import java.rmi.server.RemoteObject;
 import java.lang.ref.WeakReference;
-import java.lang.ref.Reference;
 
 // Geotools dependencies (CTS)
 import org.geotools.pt.Matrix;
@@ -119,7 +118,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.7 2002/09/15 21:50:58 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.8 2002/09/16 10:34:10 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -142,10 +141,10 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     protected final CoordinateSystem coordinateSystem;
 
     /**
-     * OpenGIS object returned by {@link #toOpenGIS}.
+     * OpenGIS object returned by {@link #getProxy}.
      * It may be a hard or a weak reference.
      */
-    private transient Object proxy;
+    transient Object proxy;
     
     /**
      * Construct a coverage using the specified coordinate system. If the coordinate system
@@ -687,37 +686,12 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     /////////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns an OpenGIS interface for this coverage. This method first
-     * looks in the cache. If no interface was previously cached, then this
-     * method creates a new adapter and caches the result.
-     *
-     * @param  adapters The originating {@link Adapters}.
-     * @return The OpenGIS interface. The returned type is a generic {@link Object}
-     *         in order to avoid premature class loading of OpenGIS interface.
-     */
-    final synchronized Object toOpenGIS(final Object adapters) {
-        if (proxy != null) {
-            if (proxy instanceof Reference) {
-                final Object ref = ((Reference) proxy).get();
-                if (ref != null) {
-                    return ref;
-                }
-            } else {
-                return proxy;
-            }
-        }
-        final Object opengis = new Export(adapters);
-        proxy = new WeakReference(opengis);
-        return opengis;
-    }
-
-    /**
      * Export a Geotools {@link Coverage} as an OpenGIS {@link CV_Coverage} object.
      * This class is suitable for RMI use. User should not create instance of this
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.7 2002/09/15 21:50:58 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.8 2002/09/16 10:34:10 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends RemoteObject implements CV_Coverage {
@@ -727,21 +701,15 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         protected final Adapters adapters;
 
         /**
-         * Constructs a remote object.
+         * Constructs a remote object. This object is automatically added to the cache in
+         * the enclosing {@link Coverage} object. The cached <code>Export</code> instance
+         * can be queried with {@link Adapters#getExported(Coverage)}.
          *
          * @param adapters The originating adapter.
          */
-        Export(final Object adapters) {
-            this.adapters = (Adapters)adapters;
-        }
-
-        /**
-         * Constructs a remote object.
-         *
-         * @param adapters The originating adapter.
-         */
-        public Export(final Adapters adapters) {
+        protected Export(final Adapters adapters) {
             this.adapters = adapters;
+            proxy = new WeakReference(this);
         }
 
         /**
@@ -749,14 +717,6 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          */
         final Coverage unwrap() {
             return Coverage.this;
-        }
-
-        /**
-         * Returns The number of sample dimensions in the coverage.
-         * The default implementation invokes {@link Coverage#getSampleDimensions}.
-         */
-        public int getNumSampleDimensions() throws RemoteException {
-            return Coverage.this.getSampleDimensions().length;
         }
 
         /**
@@ -768,6 +728,22 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
 
         /**
+         * Returns The number of sample dimensions in the coverage.
+         * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         */
+        public int getNumSampleDimensions() throws RemoteException {
+            return Coverage.this.getSampleDimensions().length;
+        }
+
+        /**
+         * Retrieve sample dimension information for the coverage.
+         * The default implementation invokes {@link Coverage#getSampleDimensions}.
+         */
+        public CV_SampleDimension getSampleDimension(int index) throws RemoteException {
+            return adapters.export(Coverage.this.getSampleDimensions()[index]);
+        }
+
+        /**
          * Returns the number of grid coverages which the grid coverage was derived from.
          * The default implementation returns <code>0</code>.
          */
@@ -776,11 +752,29 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
 
         /**
+         * Returns the source data for a grid coverage.
+         * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
+         * since {@link #getNumSources} returned 0.
+         */
+        public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
+            throw new ArrayIndexOutOfBoundsException(sourceDataIndex);
+        }
+
+        /**
          * Returns the list of metadata keywords for a coverage.
          * The default implementation invokes {@link Coverage#getPropertyNames}.
          */
         public String[] getMetadataNames() throws RemoteException {
             return Coverage.this.getPropertyNames();
+        }
+
+        /**
+         * Retrieve the metadata value for a given metadata name.
+         * The default implementation invokes {@link Coverage#getProperty}.
+         */
+        public String getMetadataValue(String name) throws RemoteException {
+            final Object value = Coverage.this.getProperty(name);
+            return (value!=null && value!=Image.UndefinedProperty) ? value.toString() : null;
         }
 
         /**
@@ -798,32 +792,6 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
          */
         public PT_Envelope getEnvelope() throws RemoteException {
             return adapters.PT.export(Coverage.this.getEnvelope());
-        }
-
-        /**
-         * Retrieve sample dimension information for the coverage.
-         * The default implementation invokes {@link Coverage#getSampleDimensions}.
-         */
-        public CV_SampleDimension getSampleDimension(int index) throws RemoteException {
-            return adapters.export(Coverage.this.getSampleDimensions()[index]);
-        }
-
-        /**
-         * Returns the source data for a grid coverage.
-         * The default implementation throws an {@link ArrayIndexOutOfBoundsException},
-         * since {@link #getNumSources} returned 0.
-         */
-        public GC_GridCoverage getSource(int sourceDataIndex) throws RemoteException {
-            throw new ArrayIndexOutOfBoundsException(sourceDataIndex);
-        }
-
-        /**
-         * Retrieve the metadata value for a given metadata name.
-         * The default implementation invokes {@link Coverage#getProperty}.
-         */
-        public String getMetadataValue(String name) throws RemoteException {
-            final Object value = Coverage.this.getProperty(name);
-            return (value!=null && value!=Image.UndefinedProperty) ? value.toString() : null;
         }
 
         /**

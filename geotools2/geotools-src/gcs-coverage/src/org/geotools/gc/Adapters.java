@@ -50,7 +50,7 @@ import org.geotools.cv.Coverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.1 2002/09/15 21:50:59 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.2 2002/09/16 10:34:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -102,7 +102,11 @@ public class Adapters extends org.geotools.cv.Adapters {
         if (coverage == null) {
             return null;
         }
-        return (GC_GridCoverage) coverage.toOpenGIS(this);
+        final CV_Coverage candidate = getExported(coverage);
+        if (candidate instanceof GC_GridCoverage) {
+            return (GC_GridCoverage) candidate;
+        }
+        return coverage.new Export(this);
     }
 
     /**
@@ -169,8 +173,9 @@ public class Adapters extends org.geotools.cv.Adapters {
         if (coverage == null) {
             return null;
         }
-        if (coverage instanceof GridCoverage.Export) {
-            return ((GridCoverage.Export) coverage).unwrap();
+        final Coverage candidate = getWrapped(coverage);
+        if (candidate instanceof GridCoverage) {
+            return (GridCoverage) candidate;
         }
         throw new UnsupportedOperationException("Not yet implemented");
     }

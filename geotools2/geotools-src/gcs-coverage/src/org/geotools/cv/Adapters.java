@@ -33,6 +33,7 @@
 package org.geotools.cv;
 
 // J2SE dependencies
+import java.lang.ref.Reference;
 import java.rmi.RemoteException;
 
 // OpenGIS dependencies
@@ -46,7 +47,7 @@ import org.opengis.cv.CV_ColorInterpretation;
  * with <code>org.opengis.cv</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.1 2002/09/15 21:50:58 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.2 2002/09/16 10:34:10 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -115,7 +116,11 @@ public class Adapters {
         if (coverage == null) {
             return null;
         }
-        return (CV_Coverage) coverage.toOpenGIS(this);
+        final CV_Coverage candidate = getExported(coverage);
+        if (candidate != null) {
+            return candidate;
+        }
+        return coverage.new Export(this);
     }
 
     /**
@@ -156,9 +161,54 @@ public class Adapters {
         if (coverage == null) {
             return null;
         }
-        if (coverage instanceof Coverage.Export) {
-            return ((Coverage.Export) coverage).unwrap();
+        final Coverage candidate = getWrapped(coverage);
+        if (candidate != null) {
+            return candidate;
         }
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * If the specified {@link Coverage} has already been exported to an OpenGIS
+     * {@link CV_Coverage} object, returns it. Otherwise, returns <code>null</code>.
+     * This method may also returns <code>null</code> if the {@link CV_Coverage} object
+     * has been garbage-collected.
+     *
+     * This method is usually invoked by {@link #export(Coverage)} before
+     * to create a new OpenGIS interface, in order to reuse existing one.
+     *
+     * @param  coverage The Geotools's object.
+     * @return The OpenGIS's interface, or <code>null</code> if none.
+     */
+    protected static CV_Coverage getExported(final Coverage coverage) {
+        if (coverage != null) {
+            Object proxy = coverage.proxy;
+            if (proxy instanceof Reference) {
+                proxy = ((Reference) proxy).get();
+            }
+            return (CV_Coverage) proxy;
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * If the specified {@link CV_Coverage} has already been wrapped into a Geotools
+     * {@link Coverage} object, returns it. Otherwise, returns <code>null</code>.
+     *
+     * This method is usually invoked by {@link #wrap(CV_Coverage)} before
+     * to create a new Geotools object, in order to reuse existing one.
+     *
+     * @param  coverage The OpenGIS's interface.
+     * @return The Geotools's object, or <code>null</code> if none.
+     *
+     * @task TODO: We should use a WeakHashMap<CV_Coverage,Coverage> here.
+     */
+    protected static Coverage getWrapped(final CV_Coverage coverage) {
+        if (coverage instanceof Coverage.Export) {
+            return ((Coverage.Export) coverage).unwrap();
+        } else {
+            return null;
+        }
     }
 }
