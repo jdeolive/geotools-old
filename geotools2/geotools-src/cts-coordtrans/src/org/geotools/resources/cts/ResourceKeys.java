@@ -1,7 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
- * (C) 2001, Institut de Recherche pour le Développement
+ * (C) 2003, Geotools Project Managment Committee (PMC)
  *
  *     THIS IS AN AUTOMATICALLY GENERATED FILE. DO NOT EDIT!
  *     Generated with: org.geotools.resources.ResourceCompiler
@@ -24,6 +23,7 @@ public interface ResourceKeys
 {
     public static final int ABRIDGED_MOLODENSKI_TRANSFORM               =     0;
     public static final int AFFINE_TRANSFORM                            =     1;
+    public static final int ALBERS_EQUAL_AREA_PROJECTION                =    93;
     public static final int ALTITUDE                                    =     2;
     public static final int BAROMETRIC_ALTITUDE                         =     3;
     public static final int BURSA_WOLF_PARAMETERS_REQUIRED              =     4;

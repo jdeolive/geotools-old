@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.2 2003/08/07 11:15:23 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.3 2003/08/21 09:42:03 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -95,6 +95,11 @@ public class ScriptTest extends TestCase {
      * A test file to parse and execute for stereographic projection.
      */
     private static final String STEREOGRAPHIC_SCRIPT = "test-data/Stereographic_TestScript.txt";
+
+    /**
+     * A test file to parse and execute for Albers equals area projection.
+     */
+    private static final String ALBERS_SCRIPT = "test-data/AlbersEqualArea_TestScript.txt";
     
     /**
      * The OpenGIS test file to parse and execute.
@@ -473,7 +478,7 @@ public class ScriptTest extends TestCase {
      * @throws FactoryException if a line can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    public void testSimpleScript() throws IOException, FactoryException {
+    public void testSimple() throws IOException, FactoryException {
         runScript(SIMPLE_SCRIPT);
     }
 
@@ -484,8 +489,19 @@ public class ScriptTest extends TestCase {
      * @throws FactoryException if a line can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
-    public void testStereographicScript() throws IOException, FactoryException {
+    public void testStereographic() throws IOException, FactoryException {
         runScript(STEREOGRAPHIC_SCRIPT);
+    }
+
+    /**
+     * Run the {@link #ALBERS_SCRIPT}.
+     *
+     * @throws IOException If {@link #STEREOGRAPHIC_SCRIPT} can't be read.
+     * @throws FactoryException if a line can't be parsed.
+     * @throws TransformException if the transformation can't be run.
+     */
+    public void testAlbersEqualArea() throws IOException, FactoryException {
+        runScript(ALBERS_SCRIPT);
     }
 
     /**
@@ -519,11 +535,15 @@ public class ScriptTest extends TestCase {
         test.out = arguments.out;
         test.setUp();
         if (script==null || script.equalsIgnoreCase("Simple")) {
-            test.testSimpleScript();
+            test.testSimple();
             done = true;
         }
         if (script==null || script.equalsIgnoreCase("Stereographic")) {
-            test.testStereographicScript();
+            test.testStereographic();
+            done = true;
+        }
+        if (script==null || script.equalsIgnoreCase("AlbersEqualArea")) {
+            test.testAlbersEqualArea();
             done = true;
         }
         if (script==null || script.equalsIgnoreCase("OpenGIS")) {
