@@ -63,7 +63,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * All entries in this set can be seen as {@link Range} objects.
  * This class is not thread-safe.
  *
- * @version $Id: RangeSet.java,v 1.1 2003/05/21 13:23:20 desruisseaux Exp $
+ * @version $Id: RangeSet.java,v 1.2 2003/06/13 18:20:07 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Serializable {
@@ -505,6 +505,176 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
     public boolean add(double lower, double upper) throws IllegalArgumentException {
         return add(new Double(lower), new Double(upper));
     }
+    
+    /**
+     * Remove a range of values to this set. Range may be removed in any order.
+     * If the specified range overlap an existing range, the two ranges will
+     * be merged.
+     *
+     * @param lower The lower value, inclusive.
+     * @param upper The upper value, inclusive.
+     *
+     * @return <code>true</code> if this set changed as a result of the call.
+     *
+     * @throws IllegalArgumentException if <code>lower</code> is greater than
+     *         <code>upper</code>.
+     */
+    public boolean remove(Comparable lower, Comparable upper)
+    throws IllegalArgumentException {
+        if (!relaxedType.isAssignableFrom(lower.getClass())) {
+            throw new IllegalArgumentException(String.valueOf(lower));
+        }
+        
+        if (!relaxedType.isAssignableFrom(upper.getClass())) {
+            throw new IllegalArgumentException(String.valueOf(upper));
+        }
+        
+        if (lower.compareTo(upper) >= 0) {
+            throw new IllegalArgumentException(Resources.format(
+            ResourceKeys.ERROR_BAD_RANGE_$2, lower, upper));
+        }
+        
+        if (useClassChanger) {
+            try {
+                lower = (Comparable) ClassChanger.toNumber(lower);
+                upper = (Comparable) ClassChanger.toNumber(upper);
+            } catch (ClassNotFoundException exception) {
+                // Should not happen, since this operation is legal according the constructor.
+                final ClassCastException e = new ClassCastException(exception.getLocalizedMessage());
+                e.initCause(exception);
+                throw e;
+            }
+        }
+        
+        // if already empty, or range outside the current set, nothing to change
+        if ((array == null)) {
+            return false;
+        } 
+        
+        
+        final int modCountChk = modCount;
+        int i0 = binarySearch(lower);
+        int i1;
+        
+        
+        if (i0 < 0) {
+            if (((i0 = ~i0) & 1) != 0) { // Attention: c'est ~ et non -
+                
+                /*
+                 * Si le début de la plage ne correspond pas à une des dates en
+                 * mémoire, il faudra l'insérer à quelque part dans le tableau.
+                 * Si la date tombe dans une des plages déjà existantes (si son
+                 * index est impair), on étend la date de début pour prendre le
+                 * début de la plage. Visuellement, on fait:
+                 *
+                 *   0   1     2      3     4   5    6     7
+                 *   #####     ########     #####    #######
+                 *             <---^           ^
+                 *             lower(i=3)   upper(i=5)
+                 */
+                if ((i1 = binarySearch(upper)) != ~i0) {
+                    modCount++;
+                    Array.set(array, i0, lower);
+                    i1 = binarySearch(upper);
+                } else {
+                     modCount++;
+                    
+                    final Object old = array;
+                    final int length = Array.getLength(array);
+                    array = Array.newInstance(elementType, length + 2);
+                    System.arraycopy(old, 0, array, 0, i0);
+                    System.arraycopy(old, i0, array, i0 + 2, length - i0);
+                    Array.set(array, i0 + 0, lower);
+                    Array.set(array, i0 + 1, upper);
+                    
+                    return true;
+                }
+                    
+            } else {
+                /*
+                 * Si la date de début ne tombe pas dans une plage déjà
+                 * existante, il faut étendre la valeur de début qui se
+                 * trouve dans le tableau. Visuellement, on fait:
+                 *
+                 *   0   1     2      3     4   5    6     7
+                 *   #####  ***########     #####    #######
+                 *          ^                 ^
+                 *       lower(i=2)        upper(i=5)
+                 */
+                i0--;
+                i1 = binarySearch(upper);
+            }
+        } else {
+            if ((i0 & 1) == 0) {
+                i0--;
+            }
+            i1 = binarySearch(upper);
+        }
+        
+        /*
+         * A ce stade, on est certain que 'i0' est pair et pointe vers le début
+         * de la plage dans le tableau. Fait maintenant le traitement pour 'i1'.
+         */
+        if (i1 < 0) {
+            /*
+             * Si la date de fin tombe dans une des plages déjà existantes
+             * (si son index est impair), on l'étend pour pendre la fin de
+             * la plage trouvée dans le tableau. Visuellement, on fait:
+             *
+             *   0   1     2      3     4   5    6     7
+             *   #####     ########     #####    #######
+             *             ^             ^-->
+             *          lower(i=2)     upper(i=5)
+             */
+            if (((i1 = ~i1) & 1) != 0) { // Attention: c'est ~ et non -
+                modCount++;
+                Array.set(array, --i1, upper);
+            } else {
+                /*
+                 * Si la date de fin ne tombe pas dans une plage déjà
+                 * existante, il faut étendre la valeur de fin qui se
+                 * trouve dans le tableau. Visuellement, on fait:
+                 *
+                 *   0   1     2      3     4   5    6     7
+                 *   #####     ########     #####**  #######
+                 *             ^                  ^
+                 *          lower(i=2)         upper(i=6)
+                 */
+                // nothing to do
+            }
+        } else {
+            i1 &= ~1;
+        }
+        
+        /*
+         * A ce stade, on est certain que 'i1' est impair et pointe vers la fin
+         * de la plage dans le tableau. On va maintenant supprimer tout ce qui
+         * se trouve entre 'i0' et 'i1', à l'exclusion de 'i0' et 'i1'.
+         */
+        assert (i0 & 1) == 0;
+        assert (i1 & 1) != 0;
+        
+        final int n = i1 - (++i0);
+        
+        if (n > 0) {
+            modCount++;
+            
+            final Object old = array;
+            final int length = Array.getLength(array);
+            array = Array.newInstance(elementType, length - n);
+            System.arraycopy(old, 0, array, 0, i0);
+            System.arraycopy(old, i1, array, i0, length - i1);
+        }
+        
+        assert (Array.getLength(array) & 1) == 0;
+        
+        return true;
+    }
+    
+    public boolean remove(double lower, double upper)
+    throws IllegalArgumentException {
+        return remove(new Double(lower), new Double(upper));
+    }
 
     /**
      * Retourne l'index de l'élément <code>value</code> dans le tableau <code>array</code>.
@@ -688,7 +858,7 @@ public class RangeSet extends AbstractSet implements SortedSet, Cloneable, Seria
      * An iterator for iterating through ranges in a {@link RangeSet}.
      * All elements are {@link Range} objects.
      *
-     * @version $Id: RangeSet.java,v 1.1 2003/05/21 13:23:20 desruisseaux Exp $
+     * @version $Id: RangeSet.java,v 1.2 2003/06/13 18:20:07 aaime Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements java.util.Iterator {
