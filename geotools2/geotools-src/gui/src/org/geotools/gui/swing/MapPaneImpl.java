@@ -50,7 +50,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.9 2003/02/25 11:13:13 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.10 2003/03/08 07:40:00 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -100,7 +100,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
         }else{
             this.context=context;
             this.context.getBbox().addAreaOfInterestChangedListener(this);
-            this.renderer=new Java2DRenderer();
+            this.renderer=new Java2DRenderer(context);
             setTool(tool);
             
             // A zero sized mapPane cannot be resized later and doesn't behave
@@ -162,6 +162,7 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      * @task TODO create a layerList.getCoordinateSystem method
      */
     public void paintComponent(Graphics graphics) {
+        LOGGER.info("rendering");
         super.paintComponent(graphics);
         if (context.getBbox().getAreaOfInterest()==null){
             Envelope bBox=context.getLayerList().getBbox(false);
@@ -172,35 +173,14 @@ public class MapPaneImpl extends PanelWidgetImpl implements
                     null);
             }
         }
-        //renderer.setOutput(graphics,this.getVisibleRect());
-        renderer.setOutput(
+
+        renderer.render(
             graphics,
             new Rectangle(
                 getInsets().left,
                 getInsets().top,
                 getWidth()-getInsets().left-getInsets().right,
                 getHeight()-getInsets().top-getInsets().bottom));
-
-        for (int i=0;i<context.getLayerList().getLayers().length;i++) {
-            if (context.getLayerList().getLayers()[i].getVisability())
-            {
-                try {
-                    FeatureCollection fc=new FeatureCollectionDefault(
-                    context.getLayerList().getLayers()[i].getDataSource());
-                    renderer.render(
-                        fc.getFeatures(new EnvelopeExtent(
-                            context.getBbox().getAreaOfInterest())),
-                        context.getBbox().getAreaOfInterest(),
-                        context.getLayerList().getLayers()[i].getStyle());
-                } catch (Exception exception) {
-                    LOGGER.warning(
-                        "Exception "
-                        + exception
-                        + " rendering layer "
-                        + context.getLayerList().getLayers()[i]);
-                }
-            }
-        }
     }
     
     /**

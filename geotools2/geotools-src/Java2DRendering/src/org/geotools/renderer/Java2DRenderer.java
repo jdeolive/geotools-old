@@ -55,26 +55,36 @@ import java.util.logging.Logger;
 
 // image handling
 import javax.imageio.ImageIO;
-
 import org.apache.commons.collections.LRUMap;
 
 //geotools imports
 import org.geotools.data.*;
-
+import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.*;
-
 import org.geotools.filter.*;
-
+import org.geotools.map.Context;
 import org.geotools.gc.GridCoverage;
-
 import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.66 2003/01/10 15:32:23 ianturton Exp $
+ * Render Features onto a map, features, style information and area is
+ * derived from the Context associated with this map.<br>
+ * This current version supports 2 implementations during the transformation
+ * from one design pattern to another.  The deprecated methods shall eventually
+ * be removed.
+ * @version $Id: Java2DRenderer.java,v 1.67 2003/03/08 07:39:59 camerons Exp $
  * @author James Macgill
+ * @author Cameron Shorter
+ * @task TODO Remove deprecated methods.
  */
-public class Java2DRenderer implements org.geotools.renderer.Renderer {
+public class Java2DRenderer implements org.geotools.renderer.Renderer,J2Renderer
+{
+    /**
+     * Context which contains LayerList, BoundingBox which needs to be rendered.
+     */
+    private Context context;
+
     /**
      * The logger for the rendering module.
      */
@@ -121,9 +131,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private Feature[] cachedFeatures;
     private FeatureTypeStyle[] cachedFeatureStylers;
 
-    /** Creates a new instance of Java2DRenderer */
+    /** Creates a new instance of Java2DRenderer.
+     * @deprecated Renderer is to be created with a Context. */
     public Java2DRenderer() {
         LOGGER.fine("creating new j2drenderer");
+    }
+
+    /** Creates a new instance of Java2DRenderer.
+     * @param context Contains pointers to layers, bounding box, and style
+     * required for rendering. */
+    public Java2DRenderer(Context context) {
+        this.context=context;
     }
 
     /**
@@ -154,6 +172,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      *        must be an instance of Graphics2D.
      * @param bounds The size of the output area, required so that scale can be
      *        calculated.
+     * @deprecated Graphics and bounds is to be set in renderer().
      */
     public void setOutput(Graphics g, Rectangle bounds) {
         graphics = (Graphics2D) g;
@@ -172,6 +191,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      *        calculation of scale.
      * @param s A style object.  Contains a set of FeatureTypeStylers that are
      *        to be applied in order to control the rendering process.
+     * @deprecated Use render(Graphics, Rectangle) instead.
      */
     public void render(Feature[] features, Envelope map, Style s) {
         Date start = new Date();
@@ -226,8 +246,91 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
     }
 
-    /**
+    /** Render features based on the LayerList, BoundBox and Style specified
+     * in this.context.
+     * @param graphics The graphics object to draw to.
+     * @param screenSize The size of the output area in output units
+     * (eg: pixels).
      *
+     */
+    public void render(Graphics g, Rectangle screenSize) {
+        Graphics2D graphics=(Graphics2D)g;
+        Date start = new Date();
+        if (graphics == null || screenSize==null) {
+            LOGGER.info("renderer passed null arguements");
+            return;
+        }
+        for (int l=0;l<this.context.getLayerList().getLayers().length;l++){
+            if (!this.context.getLayerList().getLayers()[l].getVisability()){
+                // Only render layer when layer is visable
+                break;
+            }
+            FeatureCollection fc=new FeatureCollectionDefault(
+                    context.getLayerList().getLayers()[l].getDataSource());
+            
+            try{
+                Feature[] features=fc.getFeatures(
+                    new EnvelopeExtent(this.context.getBbox().getAreaOfInterest()));
+                mapExtent = this.context.getBbox().getAreaOfInterest();
+
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine("renderering " + features.length + " features");
+                }
+
+
+
+                //set up the affine transform and calculate scale values
+                AffineTransform at = new AffineTransform();
+
+                double scale = Math.min(screenSize.getHeight() / mapExtent.getHeight(), 
+                                        screenSize.getWidth() / mapExtent.getWidth());
+
+                //TODO: angle is almost certainly not needed and should be dropped
+                double angle = 0; //-Math.PI/8d;// rotation angle
+                double tx = -mapExtent.getMinX() * scale; // x translation - mod by ian
+                double ty = (mapExtent.getMinY() * scale) + screenSize.getHeight(); // y translation
+
+                double sc = scale * Math.cos(angle);
+                double ss = scale * Math.sin(angle);
+
+
+                // TODO: if user space is geographic (i.e. in degrees) we need to
+                // transform it
+                // to Km/m here to calc the size of the pixel and hence the
+                // scaleDenominator
+                at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
+
+                /* If we are rendering to a component which has already set up some
+                 * form of transformation then we can concatenate our
+                 * transformation to it. An example of this is the ZoomPane
+                 * component of the swinggui module.*/
+                if (concatTransforms) {
+                    graphics.getTransform().concatenate(at);
+                } else {
+                    graphics.setTransform(at);
+                }
+
+                scaleDenominator = 1 / graphics.getTransform().getScaleX();
+
+                //extract the feature type stylers from the style object and
+                //process them
+                FeatureTypeStyle[] featureStylers = context.getLayerList(
+                        ).getLayers()[l].getStyle().getFeatureTypeStyles();
+                processStylers(features, featureStylers, graphics);
+                Date end = new Date();
+                if(LOGGER.getLevel() == Level.INFO) { //change to fine when finished
+                    LOGGER.info("Time to render " + features.length + " is " + (end.getTime() - start.getTime()) + " milliSecs");
+                }
+            } catch (Exception exception){
+                LOGGER.warning("Exception "+exception+" rendering layer "+
+                    context.getLayerList().getLayers()[l]);
+            }
+        }
+    }
+
+    /**
+     * @deprecated Use getDotToCoordinateSystem() to get an AffineTransform,
+     * then transform coordinates in the calling system instead.
      */
     public Coordinate pixelToWorld(int x, int y, Envelope map) {
         if (graphics == null) {
@@ -283,6 +386,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     /**
+     * @deprecated Use processStylers(Feature[],FeatureTypeStyle[],Graphics2D)
+     * instead.
+     */
+    private void processStylers(final Feature[] features, 
+                                final FeatureTypeStyle[] featureStylers) {
+        processStylers(features,featureStylers,this.graphics);
+    }
+    
+    /**
      * Applies each feature type styler in turn to all of the features.
      * This perhaps needs some explanation to make it absolutely clear.
      * featureStylers[0] is applied to all features before featureStylers[1]
@@ -293,12 +405,14 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * produces a 'cased' effect without any strange overlaps.<p>
      * This method is internal and should only be called by render.<p>
      *
-     * @param features An array of features to be rendered
-     * @param featureStylers An array of feature stylers to be applied
+     * @param features An array of features to be rendered.
+     * @param featureStylers An array of feature stylers to be applied.
+     * @param graphics Object to render into.
      **/
     
     private void processStylers(final Feature[] features, 
-                                final FeatureTypeStyle[] featureStylers) {
+                                final FeatureTypeStyle[] featureStylers,
+                                Graphics2D graphics) {
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.fine("processing " + featureStylers.length + " stylers");
         }
@@ -483,4 +597,17 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     public void setInteractive(boolean interactive) {
         this.interactive = interactive;
     }
+    
+    /** Return a transform from pixel to Geographic Coordinate Systems.
+     * @return The transform.
+     * @task REVISIT It might be better to return MathTransform instead of
+     * AffineTransform, however this will create a dependance on the ct
+     * modules which would be good to avoid.
+     * @task TODO Fill in this method.
+     *
+     */
+    public AffineTransform getDotToCoordinateSystem() {
+        return null;
+    }
+    
 }

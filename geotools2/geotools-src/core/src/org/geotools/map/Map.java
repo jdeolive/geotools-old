@@ -30,8 +30,9 @@ import org.opengis.cs.CS_CoordinateSystem;
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
  *
- * @version $Id: Map.java,v 1.10 2002/07/22 09:17:32 jmacgill Exp $
+ * @version $Id: Map.java,v 1.11 2003/03/08 07:40:00 camerons Exp $
  * @author James Macgill, CCG
+ * @deprecated Use Context instead.
  */
 public interface Map {
     

@@ -25,7 +25,7 @@ import org.geotools.data.DataSource;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: Layer.java,v 1.2 2002/08/19 20:34:59 camerons Exp $
+ * @version $Id: Layer.java,v 1.3 2003/03/08 07:40:00 camerons Exp $
  * @author  Cameron Shorter
  */
 public interface Layer {
@@ -53,6 +53,7 @@ public interface Layer {
      * Determine whether this layer is visable on a MapPane or whether the layer
      * is hidden.
      * @return TRUE if the layer is visable.
+     * @task There is a typo here, change name to getVisibility()
      */
     public boolean getVisability();
 

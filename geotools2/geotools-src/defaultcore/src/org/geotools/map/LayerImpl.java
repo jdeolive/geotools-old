@@ -26,7 +26,7 @@ import org.geotools.feature.Feature;
 
 /**
  * Layer is an aggregation of both a FeatureCollection and Style.
- * @version $Id: LayerImpl.java,v 1.1 2003/02/23 11:29:57 camerons Exp $
+ * @version $Id: LayerImpl.java,v 1.2 2003/03/08 07:40:00 camerons Exp $
  * @author  Cameron Shorter
  * @task REVISIT: This class maybe should contain CoordinateSystem, which
  * could either be set externally, or derived from one of its features.
@@ -106,7 +106,7 @@ public class LayerImpl implements Layer {
     /**
      * Specify whether this layer is visable on a MapPane or whether the layer
      * is hidden.  Visibility defaults to TRUE on initialisation.
-     * @param visable Set the layer visable if TRUE.
+     * @return TRUE if visable.
      */
     public boolean getVisability() {
         return visability;
