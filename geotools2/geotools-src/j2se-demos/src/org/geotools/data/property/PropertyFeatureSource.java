@@ -5,15 +5,37 @@ import java.io.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
+import com.vividsolutions.jts.geom.Envelope;
+
 public class PropertyFeatureSource extends AbstractFeatureLocking {
     String typeName;
     FeatureType featureType;
     PropertyDataStore store;
     
+    Envelope cacheBounds = null;
+    int cacheCount = -1;
+    
     PropertyFeatureSource( PropertyDataStore propertyDataStore, String typeName ) throws IOException{
         this.store = propertyDataStore;
         this.typeName = typeName;
         this.featureType = store.getSchema( typeName );
+        store.listenerManager.addFeatureListener( this, new FeatureListener(){
+            public void changed(FeatureEvent featureEvent) {
+                if( cacheBounds != null ){
+                    switch( featureEvent.getEventType() ){
+                    case FeatureEvent.FEATURES_ADDED:
+                        cacheBounds.expandToInclude( featureEvent.getBounds() );
+                        break;
+                
+                    case FeatureEvent.FEATURES_CHANGED:
+                    case FeatureEvent.FEATURES_REMOVED:
+                    default:
+                        cacheBounds = null;                                            
+                    }                
+                }
+                cacheCount = -1;
+            }
+        });        
     }
     public DataStore getDataStore() {
         return store;
@@ -33,8 +55,12 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
     }
     public int getCount(Query query) {
         if( query == Query.ALL && getTransaction() == Transaction.AUTO_COMMIT ){
+            if( cacheCount != -1 ){
+                return cacheCount;
+            }
             File file = new File( store.directory, typeName+".properties" );
-            return countFile( file );
+            cacheCount = countFile( file );
+            return cacheCount;
         }
         return -1;
     }
@@ -48,4 +74,19 @@ public class PropertyFeatureSource extends AbstractFeatureLocking {
             return -1;
         }                            
     }
+    public Envelope getBounds() {
+        if( cacheBounds != null ){
+            // we have the cache
+            return cacheBounds;
+        }
+        try {
+            // calculate and store in cache                    
+            cacheBounds = getFeatures().getBounds();
+            return cacheBounds;
+        } catch (IOException e) {            
+        }
+        // bounds are unavailable!
+        return null;
+    }
+
 }
