@@ -104,17 +104,14 @@
         <path id="compile.path">
             <fileset dir="..\..\extbin\gtbuild\lib\"/>
             <fileset dir="${releaseFolder}"/>
+            <fileset dir="${extbin}"/>
         </path>
         
         <antcall target="add-extbin"/>
     </target>
     <target name="add-extbin" if="has.extbin">
         <echo message="adding ${extbin} to classpath"/>
-        <path id="compile.path">
-            <fileset dir="..\..\extbin\gtbuild\lib\"/>
-            <fileset dir="${releaseFolder}"/>
-            <fileset dir="${extbin}"/>
-        </path>
+        <path refid="compile.path"/>
     </target>
     <target name="dependancies" if="has.dependancies" >
         <echo message="${project.name}: about to build ${dependancy}"/>
