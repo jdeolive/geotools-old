@@ -14,8 +14,8 @@ import java.util.Vector;
  */
 public class DefaultFeatureTable implements FeatureTable {
 
-    private Vector listeners;
-    private Vector rows;
+    private Vector listeners = new Vector();
+    private Vector rows = new Vector();
     private DataSource datasource;
     private Extent loadedExtent;
     
@@ -83,11 +83,25 @@ public class DefaultFeatureTable implements FeatureTable {
      * this may trigger a load on the datasource
      */
     public Feature[] getFeatures(Extent ex) throws DataSourceException {
-        Extent toLoad[] = loadedExtent.difference(ex);
+        //TODO: this diff when not null bit could be more elegent
+        Extent toLoad[];
+        if(loadedExtent!=null){
+         toLoad = loadedExtent.difference(ex);
+        }
+        else{
+            toLoad = new Extent[]{ex};
+        }
+        
         for(int i=0;i<toLoad.length;i++){
+            //TODO: move this code to its own method?
             if(toLoad[i]!=null){
                 datasource.importFeatures(this,toLoad[i]);
-                //TODO: expand loadedExtent
+                if(loadedExtent==null){
+                    loadedExtent = toLoad[i];
+                }
+                else{
+                    loadedExtent = loadedExtent.combine(toLoad[i]);
+                }
             }
         }
         return getFeatures();
