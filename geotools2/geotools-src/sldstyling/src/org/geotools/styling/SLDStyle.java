@@ -38,15 +38,15 @@ import org.w3c.dom.*;
  * A class to read and parse an SLD file based on verion 0.7.2 of the OGC
  * Styled Layer Descriptor Spec.
  *
- * 
- * @version $Id: SLDStyle.java,v 1.32 2003/03/20 14:16:34 ianturton Exp $
+ *
+ * @version $Id: SLDStyle.java,v 1.33 2003/06/13 00:46:49 seangeo Exp $
  * @author Ian Turton
  * @author Sean Geoghegan <Sean.Geoghegan@dsto.defence.gov.au>
  */
 public class SLDStyle {
     private static final Logger LOGGER = Logger.getLogger(
                                                  "org.geotools.styling");
-    private static final org.geotools.filter.FilterFactory filterFactory = 
+    private static final org.geotools.filter.FilterFactory filterFactory =
             org.geotools.filter.FilterFactory.createFilterFactory();
     private InputStream instream;
     private Document dom;
@@ -58,10 +58,10 @@ public class SLDStyle {
 
     /**
      * Creates a new instance of SLDStyler
-     * 
+     *
      * @param filename The file to be read.
      */
-    public SLDStyle(StyleFactory factory, String filename) {
+    public SLDStyle(StyleFactory factory, String filename) throws FileNotFoundException {
         this(factory);
 
         File f = new File(filename);
@@ -70,27 +70,27 @@ public class SLDStyle {
 
     /**
      * Creates a new SLDStyle object.
-     * 
+     *
      * @param f the File to be read
      */
-    public SLDStyle(StyleFactory factory, File f) {
+    public SLDStyle(StyleFactory factory, File f) throws FileNotFoundException {
         this(factory);
         setInput(f);
     }
 
     /**
      * Creates a new SLDStyle object.
-     * 
+     *
      * @param url the URL to be read.
      */
-    public SLDStyle(StyleFactory factory, URL url) {
+    public SLDStyle(StyleFactory factory, URL url) throws IOException {
         this(factory);
         setInput(url);
     }
 
     /**
      * Creates a new SLDStyle object.
-     * 
+     *
      * @param s The inputstream to be read
      */
     public SLDStyle(StyleFactory factory, InputStream s) {
@@ -98,31 +98,16 @@ public class SLDStyle {
         instream = s;
     }
 
-    public void setInput(String filename) {
-        try {
-            instream = new FileInputStream(new File(filename));
-        } catch (FileNotFoundException e) {
-            System.out.println("file " + filename + " not found\n" + e);
-            instream = null;
-        }
+    public void setInput(String filename) throws FileNotFoundException {
+        instream = new FileInputStream(new File(filename));
     }
 
-    public void setInput(File f) {
-        try {
-            instream = new FileInputStream(f);
-        } catch (FileNotFoundException e) {
-            System.out.println("file " + f + " not found\n" + e);
-            instream = null;
-        }
+    public void setInput(File f) throws FileNotFoundException {
+		instream = new FileInputStream(f);
     }
 
-    public void setInput(URL url) {
-        try {
-            instream = url.openStream();
-        } catch (IOException e) {
-            System.out.println("IO Exception in SLDStyler");
-            instream = null;
-        }
+    public void setInput(URL url) throws IOException{
+        instream = url.openStream();
     }
 
     public void setInput(InputStream in) {
@@ -132,83 +117,84 @@ public class SLDStyle {
     /**
      * Read the xml inputsource provided and create a Style object for each user style found
      * @return Style[] the styles constructed.
-     */   
-    public Style[] readXML() {
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            dom = db.parse(instream);
-        } catch (Exception e) {
-            System.out.println("exception in sldStyler " + e);
-        }
-        
+     */
+    public Style[] readXML() throws Exception{
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        DocumentBuilder db = dbf.newDocumentBuilder();
+        dom = db.parse(instream);
         return readDOM(dom);
     }
-    
+
     /**
      * Read the DOM provided and create a Style object for each user style found
      * @return Style[] the styles constructed.
-     */   
-    public Style[] readDOM(Document dom){
+     */
+    public Style[] readDOM(Document dom) throws Exception {
+		this.dom = dom;
         // for our next trick do something with the dom.
         NodeList nodes = dom.getElementsByTagName("UserStyle");
         Style[] styles = new Style[nodes.getLength()];
-        
+
         for(int i=0;i<nodes.getLength();i++){
             styles[i] = parseStyle(nodes.item(i));
         }
-        
+
         return styles;
     }
-    
+
     /** build a style for the Node provided
      * @param Node n the node which contains the style to be parsed.
      * @return the Style constructed.
      */
-    public Style parseStyle(Node n){
-        
-            Style style = factory.createStyle();
+    public Style parseStyle(Node n) throws Exception {
+		if ( dom == null ) {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			dom = db.newDocument();
+		}
 
-            NodeList children = n.getChildNodes();
+		Style style = factory.createStyle();
 
-            if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("" + children.getLength() + 
-                              " children to process");
-            }
+		NodeList children = n.getChildNodes();
 
-            for (int j = 0; j < children.getLength(); j++) {
-                Node child = children.item(j);
+		if (LOGGER.isLoggable(Level.FINEST)) {
+			LOGGER.finest("" + children.getLength() +
+						  " children to process");
+		}
 
-                if ((child == null) || 
-                        (child.getNodeType() != Node.ELEMENT_NODE)) {
-                    continue;
-                }
+		for (int j = 0; j < children.getLength(); j++) {
+			Node child = children.item(j);
 
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("processing " + child.getNodeName());
-                }
+			if ((child == null) ||
+					(child.getNodeType() != Node.ELEMENT_NODE)) {
+				continue;
+			}
 
-                if (child.getNodeName().equalsIgnoreCase("Name")) {
-                    style.setName(child.getFirstChild().getNodeValue());
-                }
+			if (LOGGER.isLoggable(Level.FINEST)) {
+				LOGGER.finest("processing " + child.getNodeName());
+			}
 
-                if (child.getNodeName().equalsIgnoreCase("Title")) {
-                    style.setTitle(child.getFirstChild().getNodeValue());
-                }
+			if (child.getNodeName().equalsIgnoreCase("Name")) {
+				style.setName(child.getFirstChild().getNodeValue());
+			}
 
-                if (child.getNodeName().equalsIgnoreCase("Abstract")) {
-                    style.setAbstract(child.getFirstChild().getNodeValue());
-                }
+			if (child.getNodeName().equalsIgnoreCase("Title")) {
+				style.setTitle(child.getFirstChild().getNodeValue());
+			}
 
-                if (child.getNodeName().equalsIgnoreCase("FeatureTypeStyle")) {
-                    style.addFeatureTypeStyle(parseFeatureTypeStyle(child));
-                }
-            }
-        
-        return style; 
+			if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+				style.setAbstract(child.getFirstChild().getNodeValue());
+			}
+
+			if (child.getNodeName().equalsIgnoreCase("FeatureTypeStyle")) {
+				style.addFeatureTypeStyle(parseFeatureTypeStyle(child));
+			}
+		}
+
+        return style;
     }
-    
-    private FeatureTypeStyle parseFeatureTypeStyle(Node style) { 
+
+    private FeatureTypeStyle parseFeatureTypeStyle(Node style) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("Parsing featuretype style " + style.getNodeName());
         }
@@ -221,7 +207,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -273,7 +259,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -282,17 +268,18 @@ public class SLDStyle {
                 LOGGER.finest("processing " + child.getNodeName());
             }
 
-            //            if (child.getNodeName().equalsIgnoreCase("Name")) {
-            //                rule.setName(child.getFirstChild().getNodeValue());
-            //            }
-            //
-            //            if (child.getNodeName().equalsIgnoreCase("Title")) {
-            //                rule.setTitle(child.getFirstChild().getNodeValue());
-            //            }
-            //
-            //            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
-            //                rule.setAbstract(child.getFirstChild().getNodeValue());
-            //            }
+            if (child.getNodeName().equalsIgnoreCase("Name")) {
+                rule.setName(child.getFirstChild().getNodeValue());
+            }
+
+            if (child.getNodeName().equalsIgnoreCase("Title")) {
+                rule.setTitle(child.getFirstChild().getNodeValue());
+            }
+
+            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+                rule.setAbstract(child.getFirstChild().getNodeValue());
+            }
+
             if (child.getNodeName().equalsIgnoreCase("Filter")) {
                 NodeList list = child.getChildNodes();
                 Node kid = null;
@@ -300,7 +287,7 @@ public class SLDStyle {
                 for (int k = 0; k < list.getLength(); k++) {
                     kid = list.item(k);
 
-                    if ((kid == null) || 
+                    if ((kid == null) ||
                             (kid.getNodeType() != Node.ELEMENT_NODE)) {
                         continue;
                     }
@@ -308,7 +295,7 @@ public class SLDStyle {
                     Filter filter = FilterDOMParser.parseFilter(kid);
 
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("filter: " + 
+                        LOGGER.finest("filter: " +
                                       filter.getClass().toString());
                         LOGGER.finest("parsed: " + filter.toString());
                     }
@@ -362,9 +349,9 @@ public class SLDStyle {
 
     /**
      * parses the SLD for a linesymbolizer
-     * 
+     *
      * @param root a w2c Dom Node
-     * 
+     *
      * @return the linesymbolizer
      */
     private LineSymbolizer parseLineSymbolizer(Node root) {
@@ -374,7 +361,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -393,9 +380,9 @@ public class SLDStyle {
 
     /**
      * parses the SLD for a polygonsymbolizer
-     * 
+     *
      * @param root w3c dom node
-     * 
+     *
      * @return the polygon symbolizer
      */
     private PolygonSymbolizer parsePolygonSymbolizer(Node root) {
@@ -408,7 +395,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -431,9 +418,9 @@ public class SLDStyle {
 
     /**
      * parses the SLD for a text symbolizer
-     * 
+     *
      * @param root w3c dom node
-     * 
+     *
      * @return the TextSymbolizer
      */
     private TextSymbolizer parseTextSymbolizer(Node root) {
@@ -446,7 +433,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -484,9 +471,9 @@ public class SLDStyle {
 
     /**
      * parses the SLD for a point symbolizer
-     * 
+     *
      * @param root a w3c dom node
-     * 
+     *
      * @return the pointsymbolizer
      */
     private PointSymbolizer parsePointSymbolizer(Node root) {
@@ -498,7 +485,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -527,7 +514,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -571,7 +558,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -596,7 +583,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -610,7 +597,7 @@ public class SLDStyle {
             }
 
             if (child.getNodeName().equalsIgnoreCase("WellKnownName")) {
-                LOGGER.finest("setting mark to " + 
+                LOGGER.finest("setting mark to " +
                               child.getFirstChild().getNodeValue());
                 mark.setWellKnownName(parseCssParameter(child));
             }
@@ -632,7 +619,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -648,7 +635,7 @@ public class SLDStyle {
                     String name = map.item(k).getNodeName();
 
                     if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("processing attribute " + name + "=" + 
+                        LOGGER.finest("processing attribute " + name + "=" +
                                       res);
                     }
 
@@ -663,7 +650,7 @@ public class SLDStyle {
 
             if (child.getNodeName().equalsIgnoreCase("format")) {
                 LOGGER.finest("format child is " + child);
-                LOGGER.finest("seting ExtGraph format " + 
+                LOGGER.finest("seting ExtGraph format " +
                               child.getFirstChild().getNodeValue());
                 format = (child.getFirstChild().getNodeValue());
             }
@@ -686,7 +673,7 @@ public class SLDStyle {
             for (int i = 0; i < kids.getLength(); i++) {
                 Node child = kids.item(i);
 
-                if ((child == null) || 
+                if ((child == null) ||
                         (child.getNodeType() != Node.ELEMENT_NODE)) {
                     continue;
                 }
@@ -709,7 +696,7 @@ public class SLDStyle {
             for (int i = 0; i < kids.getLength(); i++) {
                 Node child = kids.item(i);
 
-                if ((child == null) || 
+                if ((child == null) ||
                         (child.getNodeType() != Node.ELEMENT_NODE)) {
                     continue;
                 }
@@ -727,7 +714,7 @@ public class SLDStyle {
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -754,29 +741,29 @@ public class SLDStyle {
                     stroke.setColor(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("width") || 
+                if (res.equalsIgnoreCase("width") ||
                         res.equalsIgnoreCase("stroke-width")) {
                     stroke.setWidth(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("opacity") || 
+                if (res.equalsIgnoreCase("opacity") ||
                         res.equalsIgnoreCase("stroke-opacity")) {
                     stroke.setOpacity(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("linecap") || 
+                if (res.equalsIgnoreCase("linecap") ||
                         res.equalsIgnoreCase("stroke-linecap")) {
                     // since these are system-dependent just pass them through and hope.
                     stroke.setLineCap(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("linejoin") || 
+                if (res.equalsIgnoreCase("linejoin") ||
                         res.equalsIgnoreCase("stroke-linejoin")) {
                     // since these are system-dependent just pass them through and hope.
                     stroke.setLineJoin(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("dasharray") || 
+                if (res.equalsIgnoreCase("dasharray") ||
                         res.equalsIgnoreCase("stroke-dasharray")) {
                     StringTokenizer stok = new StringTokenizer(
                                                    child.getFirstChild()
@@ -790,7 +777,7 @@ public class SLDStyle {
                     stroke.setDashArray(dashes);
                 }
 
-                if (res.equalsIgnoreCase("dashoffset") || 
+                if (res.equalsIgnoreCase("dashoffset") ||
                         res.equalsIgnoreCase("stroke-dashoffset")) {
                     stroke.setDashOffset(parseCssParameter(child));
                 }
@@ -816,7 +803,7 @@ public class SLDStyle {
             for (int i = 0; i < kids.getLength(); i++) {
                 Node child = kids.item(i);
 
-                if ((child == null) || 
+                if ((child == null) ||
                         (child.getNodeType() != Node.ELEMENT_NODE)) {
                     continue;
                 }
@@ -834,7 +821,7 @@ public class SLDStyle {
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -861,7 +848,7 @@ public class SLDStyle {
                     fill.setColor(parseCssParameter(child));
                 }
 
-                if (res.equalsIgnoreCase("opacity") || 
+                if (res.equalsIgnoreCase("opacity") ||
                         res.equalsIgnoreCase("fill-opacity")) {
                     fill.setOpacity(parseCssParameter(child));
                 }
@@ -876,6 +863,7 @@ public class SLDStyle {
     }
 
     private Expression parseCssParameter(Node root) {
+
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsingCssParam " + root);
         }
@@ -885,7 +873,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -924,7 +912,7 @@ public class SLDStyle {
         for (int i = 0; i < list.getLength(); i++) {
             Node child = list.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -966,7 +954,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -997,7 +985,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -1034,7 +1022,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -1062,7 +1050,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -1093,7 +1081,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
@@ -1117,7 +1105,7 @@ public class SLDStyle {
             LOGGER.finest("parsing halo");
         }
 
-        Halo halo = factory.createHalo(factory.getDefaultFill(), 
+        Halo halo = factory.createHalo(factory.getDefaultFill(),
                                        filterFactory.createLiteralExpression(
                                                0.0));
 
@@ -1126,7 +1114,7 @@ public class SLDStyle {
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
 
-            if ((child == null) || 
+            if ((child == null) ||
                     (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
