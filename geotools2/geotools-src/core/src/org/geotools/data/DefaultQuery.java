@@ -16,9 +16,8 @@
  */
 package org.geotools.data;
 
-import java.util.List;
-
 import org.geotools.filter.Filter;
+import java.util.List;
 
 
 /**
@@ -28,9 +27,10 @@ import org.geotools.filter.Filter;
  * (spatial and non-spatial) to apply to those properties.  It is designed to
  * closesly match a WFS Query element of a <code>getFeatures</code> request.
  * The only difference is the addition of the maxFeatures element, which
- * allows more control over the features selected.  It allows a full <code>getFeatures</code>
- * request to properly control how many features it gets from each query, instead of
- * requesting and discarding when the max is reached.
+ * allows more control over the features selected.  It allows a full
+ * <code>getFeatures</code> request to properly control how many features it
+ * gets from each query, instead of requesting and discarding when the max is
+ * reached.
  *
  * @author Chris Holmes
  */
@@ -148,14 +148,20 @@ public class DefaultQuery implements Query {
      * propertyNames.
      *
      * @param propNames the names of the properties to check against the
-     *        schema. If null or of size 0 then all attributes from the schema
-     *        should be fetched.
+     *        schema. If null then all attributes will be returned.  If a List
+     *        of size 0 is used then only the featureIDs should be used.
+     *
+     * @task REVISIT: This syntax is really obscure.  Consider having an fid or
+     *       featureID propertyName that datasource implementors look for
+     *       instead of looking to see if the list size is 0.
      */
     public void setPropertyNames(List propNames) {
-        if(propNames == null){
+        if (propNames == null) {
             this.properties = null;
+
             return;
         }
+
         String[] stringArr = new String[propNames.size()];
         this.properties = (String[]) propNames.toArray(stringArr);
     }
@@ -172,10 +178,7 @@ public class DefaultQuery implements Query {
      *         of the returned FeatureCollection.
      */
     public boolean retrieveAllProperties() {
-        if(properties == null){
-            return true;
-        }
-        return properties.length == 0;
+        return properties == null;
     }
 
     /**
@@ -185,9 +188,9 @@ public class DefaultQuery implements Query {
      * 
      * <p>
      * This is the only method that is not directly out of the Query element in
-     * the WFS spec.  It is instead a part of a <code>getFeatures</code> request,
-     * which can hold one or more queries.  But each of those in turn will need a
-     * maxFeatures, so it is needed here.
+     * the WFS spec.  It is instead a part of a <code>getFeatures</code>
+     * request, which can hold one or more queries.  But each of those in turn
+     * will need a maxFeatures, so it is needed here.
      * </p>
      *
      * @return the max features the getFeature call should return.
