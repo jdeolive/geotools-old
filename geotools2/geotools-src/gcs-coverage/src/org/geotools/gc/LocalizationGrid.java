@@ -67,7 +67,7 @@ import org.geotools.ct.MathTransform2D;
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.1 2002/08/03 11:06:03 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.2 2002/08/05 17:54:23 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -104,7 +104,19 @@ public class LocalizationGrid {
      * Grid of coordinate points.
      * Points are stored as <code>(x,y)</code> pairs.
      */
-    private final float[] grid;
+    private float[] grid;
+
+    /**
+     * A global affine transform for the whole grid. This affine transform
+     * will be computed when first requested using a "least squares" fitting.
+     */
+    private transient AffineTransform global;
+
+    /**
+     * A math transform from grid to "real world" data.
+     * Will be computed only when first needed.
+     */
+    private transient MathTransform2D transform;
     
     /**
      * Construct an initially empty localization grid. All "real worlds"
@@ -162,7 +174,7 @@ public class LocalizationGrid {
      * @return target The corresponding point in "real world" coordinates.
      * @throws IndexOutOfBoundsException If the source point is not in this grid's range.
      */
-    public Point2D getLocalizationPoint(final Point source) {
+    public synchronized Point2D getLocalizationPoint(final Point source) {
         final int offset = computeOffset(source.x, source.y);
         return new Point2D.Float(grid[offset + X_OFFSET],
                                  grid[offset + Y_OFFSET]);
@@ -190,8 +202,15 @@ public class LocalizationGrid {
      * @param targetY  <var>y</var> coordinates in "real world" coordinates.
      * @throws IndexOutOfBoundsException If the source coordinates is not in this grid's range.
      */
-    public void setLocalizationPoint(int sourceX, int sourceY, float targetX, float targetY) {
+    public synchronized void setLocalizationPoint(int   sourceX, int   sourceY,
+                                                  float targetX, float targetY)
+    {
         final int offset = computeOffset(sourceX, sourceY);
+        if (transform != null) {
+            transform = null;
+            grid = (float[]) grid.clone();
+        }
+        global = null;
         grid[offset + X_OFFSET] = targetX;
         grid[offset + Y_OFFSET] = targetY;
     }
@@ -204,7 +223,7 @@ public class LocalizationGrid {
      * @param region The bounding rectangle (in grid coordinate) for region where to
      *        apply the transform, or <code>null</code> to transform the whole grid.
      */
-    public void transform(final AffineTransform transform, final Rectangle region) {
+    public synchronized void transform(final AffineTransform transform, final Rectangle region) {
         assert X_OFFSET  == 0 : X_OFFSET;
         assert Y_OFFSET  == 1 : Y_OFFSET;
         assert CP_LENGTH == 2 : CP_LENGTH;
@@ -220,15 +239,20 @@ public class LocalizationGrid {
         j = region.y + region.height; // Range check performed in the loop.
         while (--j >= region.y) {
             final int offset = computeOffset(region.x, j);
+            if (this.transform != null) {
+                this.transform = null;
+                grid = (float[]) grid.clone();
+            }
             transform.transform(grid, offset, grid, offset, region.width);
         }
+        global = null;
     }
 
     /**
      * Returns <code>true</code> if this localization grid
      * contains at least one <code>NaN</code> value.
      */
-    public boolean isNaN() {
+    public synchronized boolean isNaN() {
         for (int i=grid.length; --i>=0;) {
             if (Float.isNaN(grid[i])) {
                 return true;
@@ -257,7 +281,7 @@ public class LocalizationGrid {
      * @return <code>true</code> if coordinates are increasing or decreasing in the same
      *         direction for all rows and columns.
      */
-    public boolean isMonotonic(final boolean strict) {
+    public synchronized boolean isMonotonic(final boolean strict) {
         int orderX = INCREASING|DECREASING;
         int orderY = INCREASING|DECREASING;
         if (!strict) {
@@ -338,15 +362,51 @@ public class LocalizationGrid {
     }
 
     /**
-     * <pre>c + cx*x + cy*y</pre>.
+     * Returns an affine transform for the whole grid. This transform is only an approximation
+     * for this localization grid.  It is fitted (like "curve fitting") to grid data using the
+     * "least squares" method.
+     *
+     * @return A global affine transform as an approximation for the whole localization grid.
      */
-    private void fitPlane(final int offset) {
-        double sum_z  = 0;
-        double sum_xx = 0; // TODO: We must have a mathematical identity for this one?
-        double sum_yy = 0; // TODO: We must have a mathematical identity for this one?
-        double sum_xy = 0; // TODO: We must have a mathematical identity for this one?
-        double sum_zx = 0;
-        double sum_zy = 0;
+    public synchronized AffineTransform getAffineTransform() {
+        if (global == null) {
+            final double[] matrix = new double[6];
+            fitPlane(X_OFFSET, matrix); assert X_OFFSET==0 : X_OFFSET;
+            fitPlane(Y_OFFSET, matrix); assert Y_OFFSET==1 : Y_OFFSET;
+            global = new AffineTransform(matrix);
+        }
+        return (AffineTransform) global.clone();
+    }
+
+    /**
+     * Fit a plane through the longitude or latitude values. More specifically, find
+     * coefficients <var>c</var>, <var>cx</var> and <var>cy</var> for the following
+     * equation:
+     *
+     * <pre>[longitude or latitude] = c + cx*x + cy*y</pre>.
+     *
+     * where <var>x</var> and <var>cx</var> are grid coordinates.
+     * Coefficients are computed using the least-squares method.
+     *
+     * @param offset {@link X_OFFSET} for fitting longitude values, or {@link X_OFFSET}
+     *               for fitting latitude values (assuming tha "real world" coordinates
+     *               are longitude and latitude values).
+     * @param coeff  An array of length 6 in which to store plane's coefficients.
+     *               Coefficients will be store in the following order:
+     *
+     *                  <code>coeff[0 + offset] = cx;</code>
+     *                  <code>coeff[2 + offset] = cy;</code>
+     *                  <code>coeff[4 + offset] = c;</code>
+     */
+    private void fitPlane(final int offset, final double[] coeff) {
+        double sum_x;     // Mathematical identity (arithmetic series): 1+2+3...+n = n*(n+1)/2
+        double sum_y;     // Mathematical identity (arithmetic series): 1+2+3...+n = n*(n+1)/2
+        double sum_z = 0; // To be computed in the loop.
+        double xx = 0;    // TODO: Which mathematical identity for this one?
+        double yy = 0;    // TODO: Which mathematical identity for this one?
+        double xy;        // Mathematical identity (multiplication of two arithmetic series)
+        double zx = 0;
+        double zy = 0;
 
         int n=offset;
         for (int y=0; y<height; y++) {
@@ -354,31 +414,48 @@ public class LocalizationGrid {
                 assert computeOffset(x,y)+offset == n : n;
                 final float z = grid[n];
                 sum_z  += z;
-                sum_xx += x*x;
-                sum_yy += y*y;
-                sum_xy += x*y;
-                sum_zx += z*x;
-                sum_zy += z*y;
+                xx += x*x;
+                yy += y*y;
+                zx += z*x;
+                zy += z*y;
                 n += CP_LENGTH;
             }
         }
         n = (n-offset)/CP_LENGTH;
         assert n == width * height : n;
-        final double sum_x = (n * (width -1)) / 2;
-        final double sum_y = (n * (height-1)) / 2;
+        sum_x  = (n * (double) (width -1))            / 2;
+        sum_y  = (n * (double) (height-1))            / 2;
+        xy     = (n * (double)((height-1)*(width-1))) / 4;
         /*
-         *    ( sum_zx - sum_z*sum_x )  =  cx*(sum_xx - sum_x*sum_x) + cy*(sum_xy - sum_x*sum_y)
-         *    ( sum_zy - sum_z*sum_y )  =  cx*(sum_xy - sum_x*sum_y) + cy*(sum_yy - sum_y*sum_y)
+         * Solve the following equations for cx and cy:
+         *
+         *    ( zx - sum_z*sum_x )  =  cx*(xx - sum_x*sum_x) + cy*(xy - sum_x*sum_y)
+         *    ( zy - sum_z*sum_y )  =  cx*(xy - sum_x*sum_y) + cy*(yy - sum_y*sum_y)
          */
-        final double ZX = sum_zx - sum_z*sum_x/n;
-        final double ZY = sum_zy - sum_z*sum_y/n;
-        final double XX = sum_xx - sum_x*sum_x/n;
-        final double XY = sum_xy - sum_x*sum_y/n;
-        final double YY = sum_yy - sum_y*sum_y/n;
-        final double den= (XY*XY - XX*YY);
-
-        final double cy = (ZX*XY - ZY*XX) / den;
-        final double cx = (ZY*XY - ZX*YY) / den;
+        zx -= sum_z*sum_x/n;
+        zy -= sum_z*sum_y/n;
+        xx -= sum_x*sum_x/n;
+        xy -= sum_x*sum_y/n;
+        yy -= sum_y*sum_y/n;
+        final double den= (xy*xy - xx*yy);
+        final double cy = (zx*xy - zy*xx) / den;
+        final double cx = (zy*xy - zx*yy) / den;
         final double c  = (sum_z - (cx*sum_x + cy*sum_y)) / n;
+        coeff[0 + offset] = cx;
+        coeff[2 + offset] = cy;
+        coeff[4 + offset] = c;
+    }
+
+    /**
+     * Returns a math transform from grid to "real world" coordinates.
+     */
+    public synchronized MathTransform2D getMathTransform() {
+        if (transform == null) {
+            // Note: 'grid' is not cloned. This GridLocalization's grid
+            //       will need to be cloned if a "set" method is invoked
+            //       after the math transform creation.
+            transform = new LocalizationGridTransform2D(width, height, grid);
+        }
+        return transform;
     }
 }
