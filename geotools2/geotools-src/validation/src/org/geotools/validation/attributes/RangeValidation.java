@@ -65,8 +65,8 @@ import org.geotools.validation.ValidationResults;
  * </p>
  *
  * @author rgould, Refractions Research, Inc.
- * @author $Author: jive $ (last modification)
- * @version $Id: RangeValidation.java,v 1.3 2004/04/17 00:02:59 jive Exp $
+ * @author $Author: cholmesny $ (last modification)
+ * @version $Id: RangeValidation.java,v 1.4 2004/04/17 15:59:33 cholmesny Exp $
  */
 public class RangeValidation extends DefaultFeatureValidation {
     private int max = Integer.MAX_VALUE;
@@ -179,10 +179,13 @@ public class RangeValidation extends DefaultFeatureValidation {
      * </p>
      *
      * @return
+     * @task REVISIT: This wasn't compiling for me, as its parent sets
+     * this as final.  If needed for some reason then fix it.  But it
+     * looks like it should inherit ok... ch
      */
-    public String getName() {
-        return name;
-    }
+    //public String getName() {
+    //    return name;
+    //}
 
     /**
      * setMax purpose.
@@ -218,8 +221,9 @@ public class RangeValidation extends DefaultFeatureValidation {
      * </p>
      *
      * @param string
+     * see note on getName - ch.
      */
-    public void setName(String string) {
-        name = string;
-    }
+    //public void setName(String string) {
+    //    name = string;
+    //}
 }
