@@ -24,47 +24,37 @@ public class PanToolImpl extends AbstractTool implements PanTool {
         "org.geotools.gui.tools.PanToolImpl");
 
     private Adapters adapters = Adapters.getDefault();
+    private AffineTransform at = new AffineTransform();
+    private CoordinatePoint pressPoint;
+    private CoordinatePoint releasePoint;
 
     /**
      * Construct a PanTool.
-     * @version $Id: PanToolImpl.java,v 1.14 2003/03/29 22:32:55 camerons Exp $
+     * @version $Id: PanToolImpl.java,v 1.15 2003/03/30 11:22:01 camerons Exp $
      * @author Cameron Shorter
      */
     public PanToolImpl(){
         setName("Pan");
     }
-    
+
     /**
-     * Set up Click/Pan.
-     * Pan the map so that the new extent has the click point in the middle
-     * of the map.
+     * Process Click and Drag Pan.
      * @param e The mouse clicked event.
-     * @throws IllegalStateException If context has not been
-     * initialized yet.
-     * @task HACK The transform doesn't seem to take account of CoordinateSystem
-     * so it would be possible to create Coordinates which are outside real
-     * world coordinates.
-     * @task TODO Use an AffineTransform type interface to Bbox instead of
-     * setAreaOfInterest
      */
     public void mouseClicked(MouseEvent e) {
-        GeoMouseEvent geoMouseEvent=(GeoMouseEvent)e;
-        AffineTransform at = new AffineTransform();
-        Envelope aoi=context.getBbox().getAreaOfInterest();
-        
         try {
             // The real world coordinates of the mouse click
-            CoordinatePoint mousePoint=geoMouseEvent.getMapCoordinate(null);
-
-            // The real world coordinates of the AreaOfInterest
-            Point2D minP=new Point2D.Double(aoi.getMinX(),aoi.getMinY());
-            Point2D maxP=new Point2D.Double(aoi.getMaxX(),aoi.getMaxY());
-
-            // Calculate the panning translation.
-            // PannedPoint=OrigPoint+ClickedPoint-Midpoint
+            CoordinatePoint
+                mousePoint=((GeoMouseEvent)e).getMapCoordinate(null);
+            Envelope aoi=context.getBbox().getAreaOfInterest();
+            
+            at.setToIdentity();
             at.translate(
-                mousePoint.getOrdinate(0)-(minP.getX()+maxP.getX())/2,
-                mousePoint.getOrdinate(1)-(minP.getY()+maxP.getY())/2);
+                mousePoint.getOrdinate(0),
+                mousePoint.getOrdinate(1));
+            at.translate(
+                -(aoi.getMinX()+aoi.getMaxX())/2,
+                -(aoi.getMinY()+aoi.getMaxY())/2);
 
             MathTransform transform=
                 MathTransformFactory.getDefault().createAffineTransform(at);
@@ -75,12 +65,50 @@ public class PanToolImpl extends AbstractTool implements PanTool {
             "Transform exception prevented mouseClicks from being processed");
         }
     }
-
-    /*
-     * Set up Click and Drap Pan.
-     */
-    //public void ...
     
+    /**
+     * Set the press point in a click-drag operation.
+     * @param e contains the mouse click.
+     */
+    public void mousePressed(MouseEvent e)
+    {
+        try{
+            pressPoint=((GeoMouseEvent)e).getMapCoordinate(pressPoint);
+        } catch (TransformException t) {
+            LOGGER.warning(
+            "Transform exception prevented mouseClicks from being processed");
+        }
+    }
+
+    /**
+     * Set the release point in a click-drag operation and process the drag
+     * operation.
+     * @param e contains the mouse click.
+     */
+    public void mouseReleased(MouseEvent e)
+    {
+        try {
+            releasePoint=((GeoMouseEvent)e).getMapCoordinate(releasePoint);
+
+            // Don't process mouse drag if this is a mouse click.
+            if (releasePoint.equals(pressPoint)){
+                return;
+            }
+        
+            at.setToIdentity();
+            at.translate(
+                pressPoint.getOrdinate(0)-releasePoint.getOrdinate(0),
+                pressPoint.getOrdinate(1)-releasePoint.getOrdinate(1));
+
+            MathTransform transform=
+                MathTransformFactory.getDefault().createAffineTransform(at);
+            
+            context.getBbox().transform(adapters.export(transform));
+        } catch (TransformException t) {
+            LOGGER.warning(
+            "Transform exception prevented mouseClicks from being processed");
+        }
+    }
     
     /**
      * Register this tool to receive MouseEvents from <code>component<code>.
@@ -93,5 +121,5 @@ public class PanToolImpl extends AbstractTool implements PanTool {
     {
         super.addMouseListener(
             component,context,this);
-    }   
+    }
 }
