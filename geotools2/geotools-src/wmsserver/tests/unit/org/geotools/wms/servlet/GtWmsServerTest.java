@@ -9,6 +9,7 @@ import org.geotools.resources.*;
 
 import java.awt.image.*;
 import java.io.*;
+import java.net.URL;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Logger;
@@ -42,8 +43,16 @@ public class GtWmsServerTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         System.out.println("looking for "+dataFolder+"/layers.xml");*/
+        String path;
+        URL tmp = this.getClass().getClassLoader().getResource("testData/layers.xml");
+        if(tmp==null){
+            //then we are being run by maven
+            path = System.getProperty("basedir");
+            path+="/tests/unit/testData/layers.xml";
+        }else{
+            path = tmp.getFile();
+        }
         
-        String path = this.getClass().getClassLoader().getResource("testData/layers.xml").getFile();
         File f = new File(path);
         System.setProperty("user.dir",f.getParent());
         server = new GtWmsServer();
