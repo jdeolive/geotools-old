@@ -42,7 +42,7 @@ public class Example1 extends java.awt.Panel{
             
             ft.setDataSource(datasource);
             
-            r.setBounds(new Envelope(-126.0, -65.0, 22.0, 50.0));
+            r=(EnvelopeExtent)datasource.getExtent();
             //Feature[] features = table.getFeatures(r);
             //System.out.println("No features loaded = "+features.length);
         }catch(IOException ioe){
@@ -58,9 +58,14 @@ public class Example1 extends java.awt.Panel{
         DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
         DefaultFill myFill = new DefaultFill();
         myFill.setColor("#ff0000");
-        polysym.setFill(myFill);
+        polysym.setFill(null);
+        DefaultStroke stroke = new DefaultStroke();
+        stroke.setDashArray(new float[]{5,3});
+        stroke.setWidth(5);
+        stroke.setOpacity(.4);
+        polysym.setStroke(stroke);
         DefaultRule rule = new DefaultRule();
-        rule.setSymbolizers(new Symbolizer[]{linesym,polysym});
+        rule.setSymbolizers(new Symbolizer[]{polysym});
         DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
         fts.setRules(new Rule[]{rule});
         
