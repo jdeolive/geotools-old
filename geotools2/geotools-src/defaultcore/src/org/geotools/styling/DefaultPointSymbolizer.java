@@ -12,7 +12,7 @@ package org.geotools.styling;
  */
 public class DefaultPointSymbolizer implements PointSymbolizer {
     String geometryPropertyName = null;
-    DefaultGraphic graphic = null;
+    DefaultGraphic graphic = new DefaultGraphic();
     /** Creates a new instance of DefaultPointSymbolizer */
     public DefaultPointSymbolizer() {
     }
