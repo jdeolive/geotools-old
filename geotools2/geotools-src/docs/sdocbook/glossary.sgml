@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE appendix PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
 "http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
 <!-- Use the following if you want to use ant to style this file when offline
-"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><!-- $Id: glossary.sgml,v 1.16 2003/01/14 21:33:56 camerons Exp $ --><appendix
+"file:../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd"--><!-- $Id: glossary.sgml,v 1.17 2003/05/05 21:17:45 camerons Exp $ --><appendix
 id="glossary">
   <title>Glossary</title>
 
@@ -53,7 +53,7 @@ id="glossary">
           <entry>Internet Relay Chat</entry>
 
           <entry>A way to communicate in real time with lots of other people
-          around the world in a virtual meeting. </entry>
+          around the world in a virtual meeting.</entry>
         </row>
 
         <row>
@@ -74,6 +74,13 @@ id="glossary">
           <entry>JDK</entry>
 
           <entry>Java Development Kit</entry>
+        </row>
+
+        <row>
+          <entry>JDEE</entry>
+
+          <entry><ulink url="http://jdee.sunsite.dk/">Java Development
+          Environment for Emacs</ulink></entry>
         </row>
 
         <row>
