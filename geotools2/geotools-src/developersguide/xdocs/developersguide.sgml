@@ -1,5 +1,4 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
 <?xml-stylesheet type="text/css"
 href="file:/usr/java/xxe-m13p1-bin/css/docbook41.css"
 ?>
@@ -8,7 +7,6 @@ href="file:/usr/java/xxe-m13p1-bin/css/docbook.css"
 title="Previous docbook stylesheet"
 alternate="yes"
 ?>
--->
 
 <!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.1.2//EN"
 "file:/usr/java/xxe-m13p1-bin/dtd/docbook/docbookx.dtd">
@@ -31,7 +29,7 @@ alternate="yes"
     </abstract>
   </articleinfo>
 
-  <sect1 id="intro">
+  <section id="intro">
     <title>Introduction</title>
 
     <para>This document aims to help new geotools developers get up to speed
@@ -40,9 +38,9 @@ alternate="yes"
 
     <para>If you feel something is missing, feel free to contribute a new
     section.</para>
-  </sect1>
+  </section>
 
-  <sect1 id="design">
+  <section id="design">
     <title>Design</title>
     <figure>
         <title>Geotools Logo</title>
@@ -60,20 +58,20 @@ alternate="yes"
     Drivers (Our design goals: modular, derives structure from netbeans,
     support multiple version of java, ..)</para></listitem><listitem><para>Directory
     structure</para></listitem><listitem><para></para></listitem></itemizedlist></para>
-  </sect1>
+  </section>
 
-  <sect1 id="development">
+  <section id="development">
     <title>Development</title>
 
-    <sect2 id="building">
+    <section id="building">
       <title>Building</title>
 
       <para>To do:<itemizedlist><listitem><para>using ant</para></listitem><listitem><para>what
       ant checks</para></listitem><listitem><para>insert the
       &#34;howto-build.html&#34; doc into here</para></listitem><listitem><para></para></listitem></itemizedlist></para>
-    </sect2>
+    </section>
 
-    <sect2 id="cvs">
+    <section id="cvs">
       <title>Code Versioning (using CVS)</title>
 
       <para>To do:<itemizedlist><listitem><para>Point to sourceforge CVS howto
@@ -84,39 +82,39 @@ alternate="yes"
       to do this).</para></listitem></itemizedlist></para>
 
       <para>To do:</para>
-    </sect2>
+    </section>
 
-    <sect2 id="CodingStandards">
+    <section id="CodingStandards">
       <title>Coding Standards</title>
 
       <para>To do:<itemizedlist><listitem><para>Using Sun&#39;s coding
       standard, need to note any exceptions to it.</para></listitem><listitem><para>Note
       the auto checking of coding standards.</para></listitem><listitem><para>Javadocs</para></listitem><listitem><para></para></listitem></itemizedlist></para>
-    </sect2>
+    </section>
 
-    <sect2 id="templates">
+    <section id="templates">
       <title>Template File</title>
 
       <para>To do:<itemizedlist><listitem><para>Provide a template file.</para></listitem><listitem><para>Link
       it to sections explaining the different parts of the template.</para></listitem><listitem><para>Include
       headers, footers, example logging, example coding style, CVS key tags,
       sample javadocs.</para></listitem><listitem><para></para></listitem></itemizedlist></para>
-    </sect2>
+    </section>
 
-    <sect2 id="logging">
+    <section id="logging">
       <title>Logging</title>
 
       <para>To do:<itemizedlist><listitem><para>Talk about log4j, links to</para></listitem><listitem><para></para></listitem><listitem><para></para></listitem><listitem><para></para></listitem></itemizedlist></para>
-    </sect2>
+    </section>
 
-    <sect2 id="testing">
+    <section id="testing">
       <title>Testing</title>
 
       <para>To do:<itemizedlist><listitem><para>Explain use of junit. Might be
       a link to another web site.</para></listitem><listitem><para></para></listitem><listitem><para></para></listitem><listitem><para></para></listitem></itemizedlist></para>
-    </sect2>
+    </section>
 
-    <sect2>
+    <section>
       <title>Documentation</title>
 
       <para>To do:<itemizedlist><listitem><para>Talk about docbook, why we
@@ -127,19 +125,19 @@ alternate="yes"
       docbook references.</para></listitem><listitem><para>Process for
       updating this document.</para></listitem><listitem><para>How to use ant
       tools to build doc.</para></listitem></itemizedlist></para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 
-  <sect1 id="tools">
+  <section id="tools">
     <title>Development Tools</title>
 
-    <sect2 id="netbeans">
+    <section id="netbeans">
       <title>Netbeans</title>
 
       <para>To do:<itemizedlist><listitem><para>Where to get it.</para></listitem><listitem><para>Aim
       is to make geotools a module within Netbeans</para></listitem><listitem><para>How
       to setup getools to fit the multiple directory structure</para></listitem><listitem><para>The
       extra Netbeans modules that are useful and should be downloaded.</para></listitem></itemizedlist></para>
-    </sect2>
-  </sect1>
+    </section>
+  </section>
 </article>
