@@ -59,18 +59,23 @@ public class PointHandler implements ShapeHandler {
   
   
   public int getLength(Object geometry) {
-    if (shapeType == ShapeType.POINT)
-      return 20;
-    if (shapeType == ShapeType.POINTM)
-      return 28;
-    if (shapeType == ShapeType.POINTZ)
-      return 36;
-    throw new IllegalStateException("Expected ShapeType of Point, got" + shapeType);
+    int length;
+    if (shapeType == ShapeType.POINT) {
+      length = 20;
+    } else if (shapeType == ShapeType.POINTM) {
+      length = 28;
+    } else if (shapeType == ShapeType.POINTZ) {
+      length = 36;
+    } else {
+      throw new IllegalStateException("Expected ShapeType of Point, got" + shapeType);
+    }
+    return length;
   }
   
   public Object read(ByteBuffer buffer, ShapeType type) {
-    if (type == ShapeType.NULL)
+    if (type == ShapeType.NULL) {
       return createNull();
+    }
     
     double x = buffer.getDouble();
     double y = buffer.getDouble();

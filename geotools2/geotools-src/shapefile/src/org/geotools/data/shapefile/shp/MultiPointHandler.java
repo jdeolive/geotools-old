@@ -65,20 +65,20 @@ public class MultiPointHandler implements ShapeHandler {
   public int getLength(Object geometry) {
     MultiPoint mp = (MultiPoint) geometry;
     
+    int length;
+    
     if (shapeType == ShapeType.MULTIPOINT) {
-      return (mp.getNumGeometries() * 16) + 40;
-    }
-    
-    if (shapeType == ShapeType.MULTIPOINTM) {
-      return (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries());
-    }
-    
-    if (shapeType == ShapeType.MULTIPOINTZ) {
-      return (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries()) + 16 +
+      length = (mp.getNumGeometries() * 16) + 40;
+    } else if (shapeType == ShapeType.MULTIPOINTM) {
+      length = (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries());
+    } else if (shapeType == ShapeType.MULTIPOINTZ) {
+      length = (mp.getNumGeometries() * 16) + 40 + 16 + (8 * mp.getNumGeometries()) + 16 +
       (8 * mp.getNumGeometries());
+    } else {
+      throw new IllegalStateException("Expected ShapeType of Arc, got " + shapeType);
     }
     
-    throw new IllegalStateException("Expected ShapeType of Arc, got " + shapeType);
+    return length;
   }
   
   
@@ -88,8 +88,9 @@ public class MultiPointHandler implements ShapeHandler {
   }
   
   public Object read(ByteBuffer buffer, ShapeType type) {
-    if (type == ShapeType.NULL)
+    if (type == ShapeType.NULL) {
       return createNull();
+    }
     
     //read bounding box (not needed)
     buffer.position( buffer.position() + 4 * 8);

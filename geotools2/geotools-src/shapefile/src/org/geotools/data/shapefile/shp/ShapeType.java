@@ -81,10 +81,11 @@ public final class ShapeType {
    * @return true if multipoint, false otherwise.
    */  
   public boolean isMultiPoint() {
-    if (this == UNDEFINED) return false;
-    if (this == NULL) return false;
-    if (this == POINT) return false;
-    return true;
+    boolean mp = true;
+    if (this == UNDEFINED) { mp = false; }
+    else if (this == NULL) { mp = false; }
+    else if (this == POINT) { mp = false; }
+    return mp;
   }
   
   public boolean isPointType() {
@@ -108,36 +109,52 @@ public final class ShapeType {
    * @return The ShapeType for the id.
    */  
   public static ShapeType forID(int id) {
+    ShapeType t;
     switch (id) {
       case 0:
-        return NULL;
+        t = NULL;
+        break;
       case 1:
-        return POINT;
+        t = POINT;
+        break;
       case 11:
-        return POINTZ;
+        t = POINTZ;
+        break;
       case 21:
-        return POINTM;
+        t = POINTM;
+        break;
       case 3:
-        return ARC;
+        t = ARC;
+        break;
       case 13:
-        return ARCZ;
+        t = ARCZ;
+        break;
       case 23:
-        return ARCM;
+        t = ARCM;
+        break;
       case 5:
-        return POLYGON;
+        t = POLYGON;
+        break;
       case 15:
-        return POLYGONZ;
+        t = POLYGONZ;
+        break;
       case 25:
-        return POLYGONM;
+        t = POLYGONM;
+        break;
       case 8:
-        return MULTIPOINT;
+        t = MULTIPOINT;
+        break;
       case 18:
-        return MULTIPOINTZ;
+        t = MULTIPOINTZ;
+        break;
       case 28:
-        return MULTIPOINTM;
+        t = MULTIPOINTM;
+        break;
       default:
-        return UNDEFINED;
+        t = UNDEFINED;
+        break;
     }
+    return t;
   }
   
   /** Each ShapeType corresponds to a handler. In the future this should probably go
@@ -146,17 +163,24 @@ public final class ShapeType {
    * @return The correct handler for this ShapeType. Returns a new one.
    */  
   public ShapeHandler getShapeHandler() throws InvalidShapefileException {
+    ShapeHandler handler;
     switch (id) {
       case 1: case 11: case 21:
-        return new PointHandler(this);
+        handler = new PointHandler(this);
+        break;
       case 3: case 13: case 23:
-        return new MultiLineHandler(this);
+        handler = new MultiLineHandler(this);
+        break;
       case 5: case 15: case 25:
-        return new PolygonHandler(this);
+        handler = new PolygonHandler(this);
+        break;
       case 8: case 18: case 28:
-        return new MultiPointHandler(this);
+        handler = new MultiPointHandler(this);
+        break;
+      default:
+        handler = null;
     }
-    return null;
+    return handler;
   }
   
 }

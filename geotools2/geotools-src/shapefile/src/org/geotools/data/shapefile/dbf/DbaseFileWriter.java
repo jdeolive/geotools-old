@@ -52,7 +52,7 @@ public class DbaseFileWriter  {
   private WritableByteChannel channel;
   private ByteBuffer buffer;
   private final Number NULL_NUMBER = new Integer(0);
-  private final String NULL_STRING = new String("");
+  private final String NULL_STRING = "";
   private final Date NULL_DATE = new Date();
   private final Boolean NULL_LOGICAL = Boolean.FALSE;
   
@@ -78,7 +78,9 @@ public class DbaseFileWriter  {
   private void write() throws IOException {
     buffer.position(0);
     int r = buffer.remaining();
-    while ( (r -= channel.write(buffer)) > 0);
+    while ( (r -= channel.write(buffer)) > 0) {
+      ; // do nothing
+    }
   }
   
   /** Write a single dbase record.
@@ -106,46 +108,57 @@ public class DbaseFileWriter  {
     write();
   }
   
-  private String fieldString(Object o,final int col) {
+  private String fieldString(Object obj,final int col) {
+    String o;
+    final int fieldLen = header.getFieldLength(col);
     switch (header.getFieldType(col)) {
       case 'C':
       case 'c':
+        o = formatter.getFieldString(
+          fieldLen, 
+          obj == null ? NULL_STRING : obj.toString()
+        );
+        break;
       case 'L':
-        if (o == null)
-          o = NULL_LOGICAL;
+      case 'l':
+        o = (obj == null ? "F" : obj == Boolean.TRUE ? "T" : "F");
+//        o = formatter.getFieldString(
+//          fieldLen, 
+//          o
+//        );
+        break;
       case 'M':
       case 'G':
-        if (o == null)
-          o = NULL_STRING;
-        return formatter.getFieldString(header.getFieldLength(col), o.toString());
-        
+        o = formatter.getFieldString(
+          fieldLen, 
+          obj == null ? NULL_STRING : obj.toString()
+        );
+        break;
       case 'N':
       case 'n':
         // int?
         if (header.getFieldDecimalCount(col) == 0) {
-          if (o == null)
-            o = NULL_NUMBER;
-          return formatter.getFieldString(header.getFieldLength(col), 0, (Number) o);
+          o = formatter.getFieldString(
+            fieldLen, 0, (Number) (obj == null ? NULL_NUMBER : obj)
+          );
+          break;
         }
-        
       case 'F':
       case 'f':
-        return formatter.getFieldString(header.getFieldLength(col),
+        o = formatter.getFieldString(fieldLen,
         header.getFieldDecimalCount(col),
-        (Number) o);
-        
+        (Number) (obj == null ? NULL_NUMBER : obj)
+        );
+        break;
       case 'D':
       case 'd':
-        if (o == null)
-          o = NULL_DATE;
-        return formatter.getFieldString((Date) o);
-        
+        o = formatter.getFieldString((Date) (obj == null ? NULL_DATE : obj));
+        break;
       default:
-        if (o == null)
-          o = NULL_STRING;
-        return formatter.getFieldString(header.getFieldLength(col), o.toString());
-        
+        throw new RuntimeException("Unknown type " + header.getFieldType(col));
     }
+    
+    return o;
   }
   
   /** Release resources associated with this writer.
@@ -189,8 +202,9 @@ public class DbaseFileWriter  {
       if(s != null) {
         buffer.replace(0, size, s);
         if(s.length() <= size) {
-          for(int i = s.length(); i < size; i++)
+          for(int i = s.length(); i < size; i++) {
             buffer.append(' ');
+          }
         }
       }
       
@@ -248,8 +262,9 @@ public class DbaseFileWriter  {
       
       int diff = size - buffer.length();
       if(diff > 0) {
-        for(int i = 0; i < diff; i++)
+        for(int i = 0; i < diff; i++) {
           buffer.insert(0, ' ');
+        }
       }
       
       // buffer.setLength(size);

@@ -25,7 +25,6 @@ import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.AbstractDataSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.*;
-import org.geotools.feature.AttributeType;
 import org.geotools.filter.Filter;
 import org.geotools.data.shapefile.dbf.*;
 import org.geotools.data.shapefile.shp.*;
@@ -41,20 +40,28 @@ import java.io.OutputStream;
 
 import java.net.URL;
 import java.util.*;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.Date;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.nio.charset.Charset;
-import org.geotools.feature.FeatureTypeFactory;
 
-/**
- * @version $Id: ShapefileDataSource.java,v 1.15 2003/07/22 18:18:26 ianschneider Exp $
+/** ShapefileDataSource is the datasource implementation for reading ESRIs 
+ * shapefile format.
+ * <b>Important assumptions which may cause you problems</b>
+ * <ol>
+ *   <li>All geometry attributes will be named "the_geom"</li>
+ *   <li>The typeName of FeatureTypes produced will be the name of the file. For
+ *       example, if the full path to the file is http://www.fubar.com/baz.shp,
+ *       the typeName will be baz.</li>
+ *   <li>Certain assumptions are made when writing data. If these assumptions 
+ *       are violated, various unknown errors will occur. These assumptions 
+ *       include, but are not limited to: collections must contain Features with
+ *       the same FeatureType, compatable Geometry classes, etc.</li>
+ * </ol>
+ * 
+ * @version $Id: ShapefileDataSource.java,v 1.16 2003/07/23 00:59:58 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
+ * @author aaimee
  */
 
 public class ShapefileDataSource extends AbstractDataSource {
@@ -69,8 +76,9 @@ public class ShapefileDataSource extends AbstractDataSource {
   public ShapefileDataSource(URL url) throws java.net.MalformedURLException {
     
     String filename = null;
-    if (url == null)
+    if (url == null) {
       throw new NullPointerException("Null URL for ShapefileDataSource");
+    }
     try {
       filename = java.net.URLDecoder.decode(url.toString(),"US-ASCII");
     } catch (java.io.UnsupportedEncodingException use) {
@@ -104,8 +112,9 @@ public class ShapefileDataSource extends AbstractDataSource {
   }
   
   public IDFactory getIDFactory() {
-    if (idFactory == null)
+    if (idFactory == null) {
       idFactory = new DefaultIDFactory();
+    }
     return idFactory;
   }
   
@@ -190,12 +199,14 @@ public class ShapefileDataSource extends AbstractDataSource {
         Feature f = features.next();
         // short circuit null filter!!!!
         // this wasn't done before
-        if (filter == null || filter.contains(f))
+        if (filter == null || filter.contains(f)) {
           collection.add(f);
+        }
       }
       shp.close();
-      if (dbf != null)
+      if (dbf != null) {
         dbf.close();
+      }
     }
     catch (java.io.IOException ioe){
       throw new DataSourceException("IO Exception loading data",ioe);
@@ -216,14 +227,12 @@ public class ShapefileDataSource extends AbstractDataSource {
    */
   private FeatureType getSchema(ShapefileReader shp,DbaseFileReader dbf,Query q,int[] sel)
   throws DataSourceException,IOException,InvalidShapefileException {
-    if (schema == null) {
-      if (shp == null)
-        shp = new ShapefileReader(getReadChannel(shpURL));
-      if (dbf == null)
-        dbf = createDbaseReader();
-      // Create the FeatureType based on the dbf and shapefile
-      return getFeatureType( dbf,shp,q,sel );
-    }
+      
+    // Create the FeatureType based on the dbf and shapefile
+    schema = getFeatureType( dbf == null ? createDbaseReader() : dbf,
+                             shp == null ? new ShapefileReader(getReadChannel(shpURL)) : shp,
+                             q,
+                             sel );
     
     return schema;
   }
@@ -256,37 +265,48 @@ public class ShapefileDataSource extends AbstractDataSource {
   }
   
   private DbaseFileReader createDbaseReader() throws IOException {
-    if (dbfURL == null) return null;
-    ReadableByteChannel channel = getReadChannel(dbfURL);
-    if (channel == null) return null;
-    return new DbaseFileReader(channel);
+    DbaseFileReader reader = null;
+    if (dbfURL != null) {
+      ReadableByteChannel channel = getReadChannel(dbfURL);
+      if (channel != null) {
+        reader = new DbaseFileReader(channel);
+      }
+    }
+    
+    return reader;
   }
   
   private static ReadableByteChannel getReadChannel(URL url) throws IOException {
+    ReadableByteChannel channel = null;
     if (url.getProtocol().equals("file")) {
       File file = new File(url.getFile());
-      if (! file.exists() || !file.canRead())
+      if (! file.exists() || !file.canRead()) {
         throw new IOException("File either doesn't exist or is unreadable : " + file);
+      }
       FileInputStream in = new FileInputStream(file);
-      return in.getChannel();
+      channel = in.getChannel();
     } else {
       InputStream in = url.openConnection().getInputStream();
-      return Channels.newChannel(in);
+      channel = Channels.newChannel(in);
     }
+    return channel;
   }
   
   private static WritableByteChannel getWriteChannel(URL url) throws IOException {
+    WritableByteChannel channel;
     if (url.getProtocol().equals("file")) {
       File f = new File(url.getFile());
       f.delete();
-      if (!f.exists() && !f.createNewFile())
+      if (!f.exists() && !f.createNewFile()) {
         throw new IOException("Cannot create file " + f);
+      }
       RandomAccessFile raf = new RandomAccessFile(f,"rw");
-      return raf.getChannel();
+      channel = raf.getChannel();
     } else {
       OutputStream out = url.openConnection().getOutputStream();
-      return Channels.newChannel(out);
+      channel = Channels.newChannel(out);
     }
+    return channel;
   }
   
   /* Use the AttributeType[] from the datasource (ds), those specified by the
@@ -295,31 +315,32 @@ public class ShapefileDataSource extends AbstractDataSource {
    * order they appear in the dbase header....
    */
   protected AttributeType[] determineAttributeTypes(AttributeType[] ds,Query q,int[] sel) {
+    AttributeType[] attTypes;
     // all properties, remember to flip all bits!!!!!
     if (q.retrieveAllProperties()) {
       for (int i = 0, ii = sel.length; i < ii; i++) {
         sel[i] = i;
       }
-      return ds;
-    }
-    HashMap positions = new HashMap(ds.length);
-    for (int i = 0, ii = ds.length; i < ii; i++) {
-      positions.put(ds[i].getName(), new Object[] {new Integer(i),ds[i]});
-    }
-    String[] qat = q.getPropertyNames();
-    ArrayList types = new ArrayList(qat.length);
-    for (int i = 0, ii = qat.length; i < ii; i++) {
-      Object[] entry = (Object[]) positions.get(qat[i]);
-      sel[i] = entry == null ? -1 : ((Integer) entry[0]).intValue();
-      
-      if (sel[i] == -1) {
-//        types.add(qat[i]);
+      attTypes = ds;
+    } else {
+      HashMap positions = new HashMap(ds.length);
+      for (int i = 0, ii = ds.length; i < ii; i++) {
+        positions.put(ds[i].getName(), new Object[] {new Integer(i),ds[i]});
       }
-      else {
-        types.add(entry[1]);
+
+      String[] qat = q.getPropertyNames();
+      ArrayList types = new ArrayList(qat.length);
+      for (int i = 0, ii = qat.length; i < ii; i++) {
+        Object[] entry = (Object[]) positions.get(qat[i]);
+        sel[i] = entry == null ? -1 : ((Integer) entry[0]).intValue();
+        if (sel[i] >= 0) {
+          types.add(entry[1]);
+        }
+        
       }
+      attTypes = (AttributeType[]) types.toArray(new AttributeType[types.size()]);
     }
-    return (AttributeType[]) types.toArray(new AttributeType[types.size()]);
+    return attTypes;
   }
   
   
@@ -350,14 +371,21 @@ public class ShapefileDataSource extends AbstractDataSource {
           clazz = java.util.Date.class;
           break;
         case 'n': case 'N':
-          if (header.getFieldDecimalCount(i) > 0)
+          if (header.getFieldDecimalCount(i) > 0) {
             clazz = Double.class;
-          else
+          }
+          else {
             clazz = Integer.class;
+          }
           break;
         case 'f': case 'F':
           clazz = Double.class;
           break;
+        default:
+          throw new RuntimeException(
+          "Problem with dbf header, cannot deal with type : '" + 
+          header.getFieldType(i) + "'"
+          );
       }
       atts[i + 1] = AttributeTypeFactory.newAttributeType(header.getFieldName(i), clazz);
       
@@ -429,18 +457,28 @@ public class ShapefileDataSource extends AbstractDataSource {
       // these go to the factory...
       writeStash = new Object[type.getAttributeTypes().length];
       id = getIDFactory();
+      
+      System.out.println("MAPPING ");
+      for (int i = 0, ii = mapping.length; i < ii; i++) {
+        System.out.println(i + " -> " + mapping[i]);
+      }
+      System.out.println("type " + type);
     }
     
     public boolean hasNext() throws IOException {
       // ensure that the records are consistent
       int both = (shp.hasNext() ? 1 : 0) + (dbf.hasNext() ? 2 : 0);
-      if (both == 3)
-        return true;
-      else if (both == 0)
-        return false;
-      throw new IllegalStateException(
-      (both == 1 ? "shape" : "dbf") + "file has extra record"
-      );
+      boolean more;
+      if (both == 3) {
+        more = true;
+      } else if (both == 0) {
+        more = false;
+      } else {
+        throw new IllegalStateException(
+        (both == 1 ? "shape" : "dbf") + "file has extra record"
+        );
+      }
+      return more;
     }
     
     public Feature next() throws IOException, IllegalAttributeException {
@@ -457,12 +495,13 @@ public class ShapefileDataSource extends AbstractDataSource {
       // the selection routine...
       for (int i = 0, ii = writeStash.length; i < ii; i++) {
         int idx = mapping[i];
-        if (idx == 0)
+        if (idx == 0) {
           writeStash[i] = record.shape();
-        else if (idx == -1)
+        } else if (idx == -1) {
           writeStash[i] = null;
-        else if (row != null)
+        } else if (row != null) {
           writeStash[i] = row.read(idx - 1);//readStash[idx - 1];
+        }
       }
       
       // becuase I know that FeatureFlat copies the array,
@@ -476,7 +515,9 @@ public class ShapefileDataSource extends AbstractDataSource {
   private String getTypeName() {
     String path = ShapefileDataSource.this.shpURL.getPath();
     int dot = path.lastIndexOf('.');
-    if (dot < 0) dot = path.length();
+    if (dot < 0) {
+      dot = path.length();
+    }
     int slash = path.lastIndexOf('/') + 1;
     return path.substring(slash,dot);
   } 
@@ -513,8 +554,9 @@ public class ShapefileDataSource extends AbstractDataSource {
       
       // guess shape dimensions
       int shapeDims = 2;
-      if(gc.getNumGeometries() > 0)
+      if(gc.getNumGeometries() > 0) {
         shapeDims = JTSUtilities.guessCoorinateDims(gc.getGeometryN(0).getCoordinates());
+      }
       
       ShapefileWriter writer = new ShapefileWriter(getWriteChannel(shpURL),getWriteChannel(shxURL));
       
@@ -537,8 +579,9 @@ public class ShapefileDataSource extends AbstractDataSource {
     // precondition: all features have the same schema
     // - currently ignoring this precondition
     FeatureIterator it = featureCollection.features();
-    if (!it.hasNext()) 
-      return;
+    if (!it.hasNext()) {
+      throw new IOException("Empty featureCollection");
+    }
     
     AttributeType[] types = it.next().getFeatureType().getAttributeTypes();
     
@@ -556,10 +599,10 @@ public class ShapefileDataSource extends AbstractDataSource {
       
       if((currType == String.class) || (currType == Boolean.class) ||
       Number.class.isAssignableFrom(currType) ||
-      Date.class.isAssignableFrom(currType))
+      Date.class.isAssignableFrom(currType)) {
         supported[i] = ++numAttributes; // mark supported
-      else if(Geometry.class.isAssignableFrom(currType)) {
-        // do nothing
+      } else if(Geometry.class.isAssignableFrom(currType)) {
+        continue;
       } else {
         throw new DbaseFileException(
         "Shapefile: unsupported type found in feature schema : " +
@@ -612,8 +655,9 @@ public class ShapefileDataSource extends AbstractDataSource {
       // make data for each column in this feature (row)
       for(int j = 0; j < types.length; j++) {
         // check for supported...
-        if (supported[j] > 0)
+        if (supported[j] > 0) {
           dbrow[idx++] = forAttribute(attVals[j],types[j].getType());
+        }
       }
       dbf.write(dbrow);
     }
@@ -625,26 +669,35 @@ public class ShapefileDataSource extends AbstractDataSource {
    * Just a place to do marshalling of data.
    */
   private Object forAttribute(final Object o,Class colType) {
+    Object object;
     if(colType == Integer.class) {
-      return o;
+      object = o;
     } else if((colType == Short.class) || (colType == Byte.class)) {
-      return new Integer(((Number) o).intValue());
+      object = new Integer(((Number) o).intValue());
     } else if(colType == Double.class) {
-      return o;
+      object = o;
     } else if(colType == Float.class) {
-      return new Double(((Number) o).doubleValue());
+      object = new Double(((Number) o).doubleValue());
     } else if(colType == String.class) {
-      if (o == null)
-        return o;
-      return o.toString();
+      if (o == null) {
+        object = o;
+      } else {
+        object = o.toString();
+      }
     } else if(Date.class.isAssignableFrom(colType)) {
-      if(o instanceof Date)
-        return o;
+      object = o;
+    } else {
+      // this is kinda bad
+//      Logger l = Logger.getLogger("org.geotools.data.shapefile");
+//      l.warning("cannot determine writeable class for " + colType);
+      if (colType != null) {
+        throw new RuntimeException("Cannot convert " + colType.getName());
+      } else {
+        throw new RuntimeException("Null Class for conversion");
+      }
     }
-    // this is kinda bad
-    Logger l = Logger.getLogger("org.geotools.data.shapefile");
-    l.warning("cannot determine writeable class for " + colType);
-    return null;
+    
+    return object;
   }
   
   /**
@@ -661,8 +714,9 @@ public class ShapefileDataSource extends AbstractDataSource {
     while (i.hasNext()) {
       Feature f = (Feature) i.next();
       String s = (String) (f.getAttribute(attributeNumber));
-      if (s == null)
+      if (s == null) {
         continue;
+      }
       int len = s.length();
       
       if(len > maxlen) {
@@ -693,8 +747,9 @@ public class ShapefileDataSource extends AbstractDataSource {
     Geometry[] allGeoms = new Geometry[fc.size()];
     
     Iterator i = fc.iterator();
-    if (! i.hasNext())
+    if (! i.hasNext()) {
       throw new RuntimeException("Feature Collection is empty");
+    }
     
     Feature f1 = (Feature) i.next();
     

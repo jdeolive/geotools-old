@@ -23,6 +23,7 @@ import org.geotools.data.shapefile.*;
 public class ShapefileDataSourceTest extends TestCaseSupport {
   
   final static String STATE_POP = "statepop.shp";
+  final static String STREAM = "stream.shp";
   
   public ShapefileDataSourceTest(java.lang.String testName) {
     super(testName);
@@ -98,15 +99,16 @@ public class ShapefileDataSourceTest extends TestCaseSupport {
 //  }
   
   public void testQuerying() throws Exception {
-    URL url = getTestResource(STATE_POP);
+    URL url = getTestResource(STREAM);
     ShapefileDataSource s = new ShapefileDataSource(url);
     FeatureType schema = s.getSchema();
     AttributeType[] types = schema.getAttributeTypes();
+    System.out.println("TESTING QUERYING");
     for (int i = 0, ii = types.length; i < ii; i++) {
       DefaultQuery q = new DefaultQuery();
       q.setPropertyNames(new String[] {types[i].getName()});
       FeatureCollection fc = s.getFeatures(q);
-      assertEquals("Number of Features",49,fc.size());
+      assertEquals("Number of Features",280,fc.size());
       assertEquals("Number of Attributes",1,firstFeature(fc).getNumberOfAttributes());
       FeatureType type = firstFeature(fc).getFeatureType();
       assertEquals("Attribute Name",type.getAttributeType(0).getName(),types[i].getName());

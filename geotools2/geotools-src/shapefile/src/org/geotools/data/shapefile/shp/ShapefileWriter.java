@@ -23,7 +23,6 @@ import com.vividsolutions.jts.geom.*;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.nio.channels.FileChannel;
-import java.nio.MappedByteBuffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 

@@ -22,9 +22,10 @@ package org.geotools.data.shapefile.shp;
 import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.algorithm.RobustCGAlgorithms;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.logging.*;
-import java.awt.geom.Point2D;
+
 
 
 /**
@@ -95,27 +96,26 @@ public class PolygonHandler implements ShapeHandler {
     }
     
     int npoints = multi.getNumPoints();
+    int length;
     
     if (shapeType == ShapeType.POLYGONZ) {
-      return 44 + (4 * nrings) + (16 * npoints) + (8 * npoints) + 16 + (8 * npoints) + 16;
+      length = 44 + (4 * nrings) + (16 * npoints) + (8 * npoints) + 16 + (8 * npoints) + 16;
+    } else if (shapeType == ShapeType.POLYGONM) {
+      length = 44 + (4 * nrings) + (16 * npoints) + (8 * npoints) + 16;
+    } else if (shapeType == ShapeType.POLYGON) {
+      length = 44 + (4 * nrings) + (16 * npoints);
+    } else {
+      throw new IllegalStateException("Expected ShapeType of Polygon, got " + shapeType);
     }
-    
-    if (shapeType == ShapeType.POLYGONM) {
-      return 44 + (4 * nrings) + (16 * npoints) + (8 * npoints) + 16;
-    }
-    
-    if (shapeType == ShapeType.POLYGON) {
-      return 44 + (4 * nrings) + (16 * npoints);
-    }
-    
-    throw new IllegalStateException("Expected ShapeType of Polygon, got " + shapeType);
+    return length;
   }
 
   
   
   public Object read(ByteBuffer buffer, ShapeType type) {
-    if (type == ShapeType.NULL)
+    if (type == ShapeType.NULL) {
       return createNull();
+    }
     //bounds
     buffer.position(buffer.position() + 4 * 8);
     
@@ -230,15 +230,16 @@ public class PolygonHandler implements ShapeHandler {
    * @param holesForShells
    * @return
    */
-  private Geometry buildGeometries(final ArrayList shells, final ArrayList holes, final ArrayList holesForShells) {
+  private Geometry buildGeometries(final List shells, final List holes, final List holesForShells) {
       Polygon[] polygons;
       
       // if we have shells, lets use them
-      if (shells.size() > 0)
+      if (shells.size() > 0) {
         polygons = new Polygon[shells.size()];
       // oh, this is a bad record with only holes
-      else
+      } else {
         polygons = new Polygon[holes.size()];
+      }
       
       // this will do nothing for the "only holes case"
       for (int i = 0; i < shells.size(); i++) {
@@ -439,6 +440,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.5  2003/07/23 00:59:59  ianschneider
+ * Lots of PMD fix ups
+ *
  * Revision 1.4  2003/07/21 21:15:29  jmacgill
  * small fix for shapefiles with an invalid hole (only 1 or 2 points)
  *

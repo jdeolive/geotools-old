@@ -90,8 +90,9 @@ public class DbaseFileHeader {
   
   private void read(ByteBuffer buffer,ReadableByteChannel channel) throws IOException {
     while (buffer.remaining() > 0) {
-      if (channel.read(buffer) == -1)
+      if (channel.read(buffer) == -1) {
         throw new EOFException("Premature end of file");
+      }
     }
   }
   
@@ -169,8 +170,12 @@ public class DbaseFileHeader {
    * @throws DbaseFileException If the type is not recognized.
    */
   public void addColumn(String inFieldName, char inFieldType, int inFieldLength, int inDecimalCount) throws DbaseFileException{
-    if (inFieldLength <=0) inFieldLength = 1;
-    if (fields == null) fields = new DbaseField[0];
+    if (inFieldLength <=0) {
+      throw new DbaseFileException("field length <= 0");
+    }
+    if (fields == null) {
+      fields = new DbaseField[0];
+    }
     int tempLength = 1;  // the length is used for the offset, and there is a * for deleted as the first byte
     DbaseField[] tempFieldDescriptors = new DbaseField[fields.length+1];
     for (int i=0; i<fields.length; i++){
@@ -185,7 +190,9 @@ public class DbaseFileHeader {
     
     // set the field name
     String tempFieldName = inFieldName;
-    if (tempFieldName == null) tempFieldName = "NoName";
+    if (tempFieldName == null) {
+      tempFieldName = "NoName";
+    }
     if (tempFieldName.length() > 11) {
       tempFieldName = tempFieldName.substring(0,11);
       warn("FieldName "+inFieldName+" is longer than 11 characters, truncating to "+tempFieldName);
@@ -193,28 +200,38 @@ public class DbaseFileHeader {
     tempFieldDescriptors[fields.length].fieldName = tempFieldName;
     
     // the field type
-    if ((inFieldType == 'C') || (inFieldType == 'c')){
+    if ((inFieldType == 'C') || (inFieldType == 'c')) {
       tempFieldDescriptors[fields.length].fieldType = 'C';
-      if (inFieldLength > 254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+      if (inFieldLength > 254) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+      }
     }
     else if ((inFieldType == 'S') || (inFieldType == 's')){
       tempFieldDescriptors[fields.length].fieldType = 'C';
       warn("Field type for "+inFieldName+" set to S which is flat out wrong people!, I am setting this to C, in the hopes you meant character.");
-      if (inFieldLength >254) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+      if (inFieldLength >254) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Which is longer than 254, not consistent with dbase III");
+      }
       tempFieldDescriptors[fields.length].fieldLength = 8;
     }
     else if ((inFieldType == 'D') || (inFieldType == 'd')){
       tempFieldDescriptors[fields.length].fieldType = 'D';
-      if (inFieldLength != 8) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to 8 digets YYYYMMDD");
+      if (inFieldLength != 8) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to 8 digets YYYYMMDD");
+      }
       tempFieldDescriptors[fields.length].fieldLength = 8;
     }
     else if ((inFieldType == 'F') || (inFieldType == 'f')){
       tempFieldDescriptors[fields.length].fieldType = 'F';
-      if (inFieldLength > 20) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
+      if (inFieldLength > 20) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 20 not valid for dbase IV, and UP specification, not present in dbaseIII.");
+      }
     }
     else if ((inFieldType == 'N') || (inFieldType == 'n')){
       tempFieldDescriptors[fields.length].fieldType = 'N';
-      if (inFieldLength > 18) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 18 for dbase III specification.");
+      if (inFieldLength > 18) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Preserving length, but should be set to Max of 18 for dbase III specification.");
+      }
       if (inDecimalCount < 0){
         warn("Field Decimal Position for "+inFieldName+" set to "+inDecimalCount+" Setting to 0 no decimal data will be saved.");
         tempFieldDescriptors[fields.length].decimalCount = 0;
@@ -226,7 +243,9 @@ public class DbaseFileHeader {
     }
     else if ((inFieldType == 'L') || (inFieldType == 'l')){
       tempFieldDescriptors[fields.length].fieldType = 'L';
-      if (inFieldLength != 1) warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to length of 1 for logical fields.");
+      if (inFieldLength != 1) {
+        warn("Field Length for "+inFieldName+" set to "+inFieldLength+" Setting to length of 1 for logical fields.");
+      }
       tempFieldDescriptors[fields.length].fieldLength = 1;
     }
     else {
@@ -285,8 +304,9 @@ public class DbaseFileHeader {
    * @todo addProgessListener handling
    */
   private void warn(String inWarn){
-    if (logger.isLoggable(Level.WARNING))
+    if (logger.isLoggable(Level.WARNING)) {
       logger.warning(inWarn); 
+    }
   }
   
   
@@ -390,10 +410,12 @@ public class DbaseFileHeader {
     int tempUpdateMonth = in.get();
     int tempUpdateDay = in.get();
     // ouch Y2K uncompliant
-    if (tempUpdateYear > 90)
+    if (tempUpdateYear > 90) {
       tempUpdateYear = tempUpdateYear + 1900;
-    else
+    }
+    else {
       tempUpdateYear = tempUpdateYear + 2000;
+    }
     Calendar c = Calendar.getInstance();
     c.set(c.YEAR, tempUpdateYear);
     c.set(c.MONTH, tempUpdateMonth-1);
@@ -409,8 +431,9 @@ public class DbaseFileHeader {
     headerLength = (in.get() & 0xff) | ((in.get() & 0xff) << 8);
     
     // if the header is bigger than our 1K, reallocate
-    if (headerLength > in.capacity())
+    if (headerLength > in.capacity()) {
       in = ByteBuffer.allocateDirect(headerLength - 10);
+    }
     in.limit(headerLength - 10);
     in.position(0);
     read(in,channel);
@@ -449,11 +472,14 @@ public class DbaseFileHeader {
       
       // read the field length in bytes
       int length = (int) in.get();
-      if (length < 0) length = length + 256;
+      if (length < 0) {
+        length = length + 256;
+      }
       field.fieldLength = length;
       
-      if (length > largestFieldSize)
+      if (length > largestFieldSize) {
         largestFieldSize = length;
+      }
       
       // read the field decimal count in bytes
       field.decimalCount = (int) in.get();
@@ -464,8 +490,9 @@ public class DbaseFileHeader {
     
       // some broken shapefiles have 0-length attributes. The reference implementation
       // (ArcExplorer 2.0, built with MapObjects) just ignores them.
-      if(field.fieldLength > 0) 
+      if(field.fieldLength > 0) {
          lfields.add(field);  
+      }
     }
     
     // Last byte is a marker for the end of the field definitions.
@@ -498,8 +525,9 @@ public class DbaseFileHeader {
    */
   public void writeHeader(WritableByteChannel out) throws IOException {
     // take care of the annoying case where no records have been added...
-    if (headerLength == -1)
+    if (headerLength == -1) {
       headerLength = MINIMUM_HEADER;
+    }
     ByteBuffer buffer = ByteBuffer.allocateDirect(headerLength);
     buffer.order(ByteOrder.LITTLE_ENDIAN);
     
@@ -563,7 +591,9 @@ public class DbaseFileHeader {
     buffer.position(0);
     
     int r = buffer.remaining();
-    while ( (r-= out.write(buffer)) > 0);
+    while ( (r-= out.write(buffer)) > 0) {
+      ; // do nothing
+    }
   }
   
   /** Get a simple representation of this header.

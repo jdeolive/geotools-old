@@ -84,40 +84,40 @@ public class JTSUtilities {
    * @return The best ShapeType for the Geometry.
    */  
   public static final ShapeType findBestGeometryType(Geometry geom) {
+    ShapeType type = ShapeType.UNDEFINED;
     
-    if(geom instanceof Point)
-      return ShapeType.POINT;
-    
-    if(geom instanceof MultiPoint)
-      return ShapeType.MULTIPOINT;
-    
-    if(geom instanceof Polygon)
-      return ShapeType.POLYGON;
-    
-    if(geom instanceof MultiPolygon)
-      return ShapeType.POLYGON;
-    
-    if(geom instanceof LineString)
-      return ShapeType.ARC;
-    
-    if(geom instanceof MultiLineString)
-      return ShapeType.ARC;
-    
-    return ShapeType.UNDEFINED;
+    if(geom instanceof Point) {
+      type = ShapeType.POINT;
+    } else if(geom instanceof MultiPoint) {
+      type = ShapeType.MULTIPOINT;
+    } else if(geom instanceof Polygon) {
+      type = ShapeType.POLYGON;
+    } else if(geom instanceof MultiPolygon) {
+      type = ShapeType.POLYGON;
+    } else if(geom instanceof LineString) {
+      type = ShapeType.ARC;
+    } else if(geom instanceof MultiLineString) {
+      type = ShapeType.ARC;
+    } 
+    return type;
   }
   
   public static final Class findBestGeometryClass(ShapeType type) {
-    if (type == null || type == ShapeType.NULL)
-      return Geometry.class;
-    if (type.isLineType())
-      return MultiLineString.class;
-    if (type.isMultiPointType())
-      return MultiPoint.class;
-    if (type.isPointType())
-      return Point.class;
-    if (type.isPolygonType())
-      return MultiPolygon.class;
-    throw new RuntimeException("Unknown ShapeType->GeometryClass : " + type);
+    Class best;
+    if (type == null || type == ShapeType.NULL) {
+      best = Geometry.class;
+    } else if (type.isLineType()) {
+      best = MultiLineString.class;
+    } else if (type.isMultiPointType()) {
+      best = MultiPoint.class;
+    } else if (type.isPointType()) {
+      best = Point.class;
+    } else if (type.isPolygonType()) {
+      best = MultiPolygon.class;
+    } else {
+      throw new RuntimeException("Unknown ShapeType->GeometryClass : " + type);
+    }
+    return best;
   }
   
   /** Does what it says, reverses the order of the Coordinates in the ring.
@@ -193,14 +193,16 @@ public class JTSUtilities {
    * @return The dimension.
    */
   public static final int guessCoorinateDims(final Coordinate[] cs) {
+    int dims = 2;
     
     for(int t = cs.length - 1; t >= 0; t--) {
       if(!(Double.isNaN(cs[t].z))) {
-        return 4;
+        dims = 4;
+        break;
       }
     }
     
-    return 2;
+    return dims;
   }
   
   /** Determine the best ShapeType for a geometry with the given dimension.
@@ -212,64 +214,69 @@ public class JTSUtilities {
   public static final ShapeType getShapeType(Geometry geom, int shapeFileDimentions)
   throws ShapefileException {
     
+    ShapeType type = null;
     
     if (geom instanceof Point) {
       switch (shapeFileDimentions) {
         case 2:
-          return ShapeType.POINT;
-          
+          type = ShapeType.POINT;
+          break;
         case 3:
-          return ShapeType.POINTM;
-          
+          type = ShapeType.POINTM;
+          break;
         case 4:
-          return ShapeType.POINTZ;
+          type = ShapeType.POINTZ;
+          break;
+        default:
+          throw new ShapefileException("Too many dimensions for shapefile : " + shapeFileDimentions);
       }
-    }
-    
-    if (geom instanceof MultiPoint) {
+    } else if (geom instanceof MultiPoint) {
       switch (shapeFileDimentions) {
         case 2:
-          return ShapeType.MULTIPOINT;
-          
+          type = ShapeType.MULTIPOINT;
+          break;
         case 3:
-          return ShapeType.MULTIPOINTM;
-          
+          type = ShapeType.MULTIPOINTM;
+          break;
         case 4:
-          return ShapeType.MULTIPOINTZ;
+          type = ShapeType.MULTIPOINTZ;
+          break;
+        default:
+          throw new ShapefileException("Too many dimensions for shapefile : " + shapeFileDimentions);
       }
-    }
-    
-    if ((geom instanceof Polygon) || (geom instanceof MultiPolygon)) {
+    } else if ((geom instanceof Polygon) || (geom instanceof MultiPolygon)) {
       switch (shapeFileDimentions) {
         case 2:
-          return ShapeType.POLYGON;
-          
+          type = ShapeType.POLYGON;
+          break;
         case 3:
-          return ShapeType.POLYGONM;
-          
+          type = ShapeType.POLYGONM;
+          break;
         case 4:
-          return ShapeType.POLYGONZ;
+          type = ShapeType.POLYGONZ;
+          break;
+        default:
+          throw new ShapefileException("Too many dimensions for shapefile : " + shapeFileDimentions);
       }
-    }
-    
-    if ((geom instanceof LineString) || (geom instanceof MultiLineString)) {
+    } else if ((geom instanceof LineString) || (geom instanceof MultiLineString)) {
       switch (shapeFileDimentions) {
         case 2:
-          return ShapeType.ARC;
-          
+          type = ShapeType.ARC;
+          break;
         case 3:
-          return ShapeType.ARCM;
-          
+          type = ShapeType.ARCM;
+          break;
         case 4:
-          return ShapeType.ARCZ;
+          type = ShapeType.ARCZ;
+          break;
+        default:
+          throw new ShapefileException("Too many dimensions for shapefile : " + shapeFileDimentions);
       }
     }
     
-    if ((shapeFileDimentions != 2) && (shapeFileDimentions != 3) && (shapeFileDimentions != 4)) {
-      throw new ShapefileException(
-      "invalid ShapeFileDimentions for getShapeType - expected 2,3,or 4 but got " +
-      shapeFileDimentions + "  (2=x,y ; 3=x,y,m ; 4=x,y,z,m)");
+    if (type == null) {
+      throw new ShapefileException("Cannot handle geometry type : " + (geom == null ? "null" : geom.getClass().getName()));
     }
-    throw new ShapefileException("Cannot handle geometry type : " + (geom == null ? "null" : geom.getClass().getName()));
+    return type;
   }
 }

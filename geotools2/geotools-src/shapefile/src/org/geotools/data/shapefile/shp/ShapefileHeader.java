@@ -42,21 +42,27 @@ public class ShapefileHeader {
   private double maxY;
   
   private void checkMagic(boolean strict) throws java.io.IOException {
-    if (fileCode == MAGIC) return;
-    String message = "Wrong magic number, expected " + MAGIC + ", got "+ fileCode;
-    if (! strict)
-      System.err.println(message);
-    else
-      throw new java.io.IOException(message);
+    if (fileCode != MAGIC) {
+      String message = "Wrong magic number, expected " + MAGIC + ", got "+ fileCode;
+      if (! strict) {
+        System.err.println(message);
+      }
+      else {
+        throw new java.io.IOException(message);
+      }
+    }
   }
   
   private void checkVersion(boolean strict) throws java.io.IOException {
-    if (version == VERSION) return;
-    String message = "Wrong version, expected " + MAGIC + ", got "+ version;
-    if (! strict)
-      System.err.println(message);
-    else
-      throw new java.io.IOException(message);
+    if (version != VERSION) {
+      String message = "Wrong version, expected " + MAGIC + ", got "+ version;
+      if (! strict) {
+        System.err.println(message);
+      }
+      else {
+        throw new java.io.IOException(message);
+      }
+    }
   }
   
   public void read(ByteBuffer file,boolean strict) throws java.io.IOException {

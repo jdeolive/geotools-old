@@ -41,17 +41,14 @@ public class ShapefileDataSourceFactory
      *         ending in shp
      */
     public boolean canProcess(Map params) {
-        if (!params.containsKey("url")) {
-            return false;
+        boolean accept = false;
+        
+        if (params.containsKey("url")) {
+            String url = (String) params.get("url");
+            accept = url.toUpperCase().endsWith("SHP");
         }
 
-        String url = (String) params.get("url");
-
-        if (!url.toUpperCase().endsWith("SHP")) {
-            return false;
-        }
-
-        return true;
+        return accept;
     }
 
     /**
@@ -68,20 +65,19 @@ public class ShapefileDataSourceFactory
      *         cannot be attached to the resource specified in params.
      */
     public DataSource createDataSource(Map params) throws DataSourceException {
-        if (!canProcess(params)) {
-            return null;
-        }
-
-        String location = (String) params.get("url");
-
-        try {
-            ShapefileDataSource ds = new ShapefileDataSource(new URL(location));
-
-            return ds;
-        } catch (MalformedURLException mue) {
+        DataSource ds = null;
+        if (canProcess(params)) {
+          
+          String location = (String) params.get("url");
+          
+          try {
+            ds = new ShapefileDataSource(new URL(location));
+          } catch (MalformedURLException mue) {
             throw new DataSourceException("Unable to attatch datasource to " +
-                location, mue);
+            location, mue);
+          }
         }
+        return ds;
     }
 
     /**

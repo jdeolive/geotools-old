@@ -118,8 +118,9 @@ public class ShapefileReader {
    */  
   public static ShapefileHeader readHeader(ReadableByteChannel channel,boolean strict) throws IOException {
     ByteBuffer buffer = ByteBuffer.allocateDirect(100);
-    if ( fill(buffer, channel) == -1 )
+    if ( fill(buffer, channel) == -1 ) {
       throw new EOFException("Premature end of header");
+    }
     buffer.flip();
     ShapefileHeader header = new ShapefileHeader();
     header.read(buffer, strict);
@@ -132,17 +133,21 @@ public class ShapefileReader {
   private ByteBuffer ensureCapacity(ByteBuffer buffer,int size) {
     // This sucks if you accidentally pass is a MemoryMappedBuffer of size 80M
     // like I did while messing around, within moments I had 1 gig of swap...
-    if (buffer.isReadOnly()) return buffer;
+    if (buffer.isReadOnly()) {
+      return buffer;
+    }
     
     int limit = buffer.limit();
     while (limit < size) {
       limit *= 2;
     }
     if (limit != buffer.limit()) {
-      if (record.ready)
+      if (record.ready) {
         buffer = ByteBuffer.allocateDirect(limit);
-      else
+      }
+      else {
         throw new IllegalArgumentException("next before hasNext");
+      }
     }
     return buffer;
   }
@@ -155,8 +160,9 @@ public class ShapefileReader {
     while (buffer.remaining() > 0 && r != -1) {
       r = channel.read(buffer);
     }
-    if (r == -1)
+    if (r == -1) {
       buffer.limit(buffer.position());
+    }
     return r;
   }
   
@@ -165,8 +171,9 @@ public class ShapefileReader {
     fileShapeType = header.getShapeType();
     handler = fileShapeType.getShapeHandler();
     
-    if (handler == null)
+    if (handler == null) {
       throw new IOException("Unsuported shape type:" + fileShapeType);
+    }
     
     if (channel instanceof FileChannel) {
       FileChannel fc = (FileChannel) channel;
@@ -196,8 +203,9 @@ public class ShapefileReader {
    * @throws IOException If errors occur while closing the channel.
    */  
   public void close() throws IOException {
-    if (channel.isOpen())
+    if (channel.isOpen()) {
       channel.close();
+    }
     channel = null;
     header = null;
   }
@@ -287,8 +295,9 @@ public class ShapefileReader {
     
     // this usually happens if the handler logic is bunk,
     // but bad files could exist as well...
-    if (recordType != ShapeType.NULL && recordType != fileShapeType)
+    if (recordType != ShapeType.NULL && recordType != fileShapeType) {
       throw new IllegalStateException("ShapeType changed illegally from " + fileShapeType + " to " + recordType);
+    }
 
     // peek at bounds, then reset for handler
     // many handler's may ignore bounds reading, but we don't want to
@@ -328,8 +337,9 @@ public class ShapefileReader {
   public static void main(String[] args) throws Exception {
     FileChannel channel = new FileInputStream(args[0]).getChannel();
     ShapefileReader reader = new ShapefileReader(channel);
-    while (reader.hasNext())
+    while (reader.hasNext()) {
       System.out.println(reader.nextRecord().shape());
+    }
   }
   
 }

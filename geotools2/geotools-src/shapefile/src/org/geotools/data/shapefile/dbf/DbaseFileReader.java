@@ -108,8 +108,9 @@ public class DbaseFileReader {
     while (buffer.remaining() > 0 && r != -1) {
       r = channel.read(buffer);
     }
-    if (r == -1)
+    if (r == -1) {
       buffer.limit(buffer.position());
+    }
     return r;
   }
   
@@ -179,8 +180,9 @@ public class DbaseFileReader {
    * @throws IOException If an error occurs.
    */
   public void close() throws IOException {
-    if (channel.isOpen())
+    if (channel.isOpen()) {
       channel.close();
+    }
     channel = null;
     header = null;
     buffer = null;
@@ -238,8 +240,9 @@ public class DbaseFileReader {
    * @return The same array passed in.
    */
   public Object[] readEntry(Object[] entry,final int offset) throws IOException {
-    if (entry.length - offset < header.getNumFields())
+    if (entry.length - offset < header.getNumFields()) {
       throw new ArrayIndexOutOfBoundsException();
+    }
     
     read();
     
@@ -291,6 +294,9 @@ public class DbaseFileReader {
   private Object readObject(final int fieldOffset,final int fieldNum) throws IOException {
     final char type = fieldTypes[fieldNum];
     final int fieldLen = fieldLengths[fieldNum];
+    Object object = null;
+    
+    //System.out.println(charBuffer.subSequence(fieldOffset,fieldOffset + fieldLen));
     
     if(fieldLen > 0) {
       
@@ -299,14 +305,18 @@ public class DbaseFileReader {
         case 'l':
         case 'L':
           switch (charBuffer.charAt(fieldOffset)) {
+            
             case 't': case 'T': case 'Y': case 'y':
-              return Boolean.TRUE;
+              object = Boolean.TRUE;
+              break;
             case 'f': case 'F': case 'N': case 'n':
-              return Boolean.FALSE;
+              object = Boolean.FALSE;
+              break;
             default:
-              throw new IOException("Unknown logical value : " + charBuffer.charAt(fieldOffset));
+              
+              throw new IOException("Unknown logical value : '" + charBuffer.charAt(fieldOffset) + "'");
           }
-          
+          break;
           // (C)character (String)
         case 'c':
         case 'C':
@@ -319,8 +329,9 @@ public class DbaseFileReader {
           // trim off whitespace and 'zero' chars
           while (start < end) {
             char c = charBuffer.get(start);
-            if (c== 0 || Character.isWhitespace(c))
+            if (c== 0 || Character.isWhitespace(c)) {
               start++;
+            }
             else break;
           }
           while (end > start) {
@@ -335,8 +346,8 @@ public class DbaseFileReader {
           String s = charBuffer.toString();
           // this resets the limit...
           charBuffer.clear();
-          return s;
-          
+          object = s;
+          break;
           // (D)date (Date)
         case 'd':
         case 'D':
@@ -351,40 +362,42 @@ public class DbaseFileReader {
           cal.set(cal.YEAR,tempYear);
           cal.set(cal.MONTH, tempMonth);
           cal.set(cal.DAY_OF_MONTH, tempDay);
-          return cal.getTime();
-          
+          object = cal.getTime();
+          break;
           
           // (F)floating (Double)
         case 'n':
         case 'N':
           try {
             if (header.getFieldDecimalCount(fieldNum) == 0) {
-              return new Integer(NumberParser.parseInt(charBuffer, fieldOffset, fieldOffset + fieldLen - 1));
+              object = new Integer(NumberParser.parseInt(charBuffer, fieldOffset, fieldOffset + fieldLen - 1));
+              break;
             }
             // else will fall through to the floating point number
           } catch (NumberFormatException e) {
             // todo: use progresslistener
             // e.printStackTrace();
-            return new Integer(0);
+            object = new Integer(0);
           }
+          
         case 'f':
         case 'F': // floating point number
           try {
             
             
-            return new Double(NumberParser.parseDouble(charBuffer,fieldOffset, fieldOffset + fieldLen - 1));
+            object = new Double(NumberParser.parseDouble(charBuffer,fieldOffset, fieldOffset + fieldLen - 1));
           } catch (NumberFormatException e) {
             // todo: use progresslistener
             // e.printStackTrace();
-            return new Double(0.0);
+            object = new Double(0.0);
           }
+          break;
         default:
           throw new IOException("Invalid field type : " + type);
       }
       
-    } else {
-      return null;
-    }
+    } 
+    return object;
   }
   
   public static void main(String[] args) throws Exception {
@@ -392,8 +405,9 @@ public class DbaseFileReader {
     DbaseFileReader reader = new DbaseFileReader(channel);
     System.out.println(reader.getHeader());
     int r = 0;
-    while (reader.hasNext())
+    while (reader.hasNext()) {
       System.out.println(++r + "," + java.util.Arrays.asList(reader.readEntry()));
+    }
   }
   
 }

@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 
 
 /*
- * $Id: MultiLineHandler.java,v 1.1 2003/05/14 17:51:20 ianschneider Exp $
+ * $Id: MultiLineHandler.java,v 1.2 2003/07/23 00:59:59 ianschneider Exp $
  * @author aaime
  * @author Ian Schneider
  */
@@ -67,24 +67,23 @@ public class MultiLineHandler implements ShapeHandler {
     
     int numlines;
     int numpoints;
+    int length;
     
     numlines = multi.getNumGeometries();
     numpoints = multi.getNumPoints();
     
     if (shapeType == ShapeType.ARC) {
-      return 44 + (4 * numlines) + (numpoints * 16);
-    }
-    
-    if (shapeType == ShapeType.ARCM) {
-      return 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints);
-    }
-    
-    if (shapeType == ShapeType.ARCZ) {
-      return 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints) + 8 + 8 +
+      length = 44 + (4 * numlines) + (numpoints * 16);
+    } else if (shapeType == ShapeType.ARCM) {
+      length = 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints);
+    } else if (shapeType == ShapeType.ARCZ) {
+      length = 44 + (4 * numlines) + (numpoints * 16) + 8 + 8 + (8 * numpoints) + 8 + 8 +
       (8 * numpoints);
+    } else {
+      throw new IllegalStateException("Expected ShapeType of Arc, got " + shapeType);
     }
     
-    throw new IllegalStateException("Expected ShapeType of Arc, got " + shapeType);
+    return length;
   }
   
   private Object createNull() {
@@ -92,8 +91,9 @@ public class MultiLineHandler implements ShapeHandler {
   }
   
   public Object read(ByteBuffer buffer, ShapeType type) {
-    if (type == ShapeType.NULL)
+    if (type == ShapeType.NULL) {
       return createNull();
+    }
     //read bounding box (not needed)
     buffer.position( buffer.position() + 4 * 8);
     
@@ -222,6 +222,9 @@ public class MultiLineHandler implements ShapeHandler {
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.2  2003/07/23 00:59:59  ianschneider
+ * Lots of PMD fix ups
+ *
  * Revision 1.1  2003/05/14 17:51:20  ianschneider
  * migrated packages
  *
