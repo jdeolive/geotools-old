@@ -24,10 +24,11 @@ import org.geotools.featuretable.*;
 /**
  * The source of data for Features. Shapefiles, database, etc. are referenced
  * through this interface.
- * @version $Id: DataSource.java,v 1.7 2002/04/21 15:38:10 jmacgill Exp $
+ * @version $Id: DataSource.java,v 1.8 2002/05/02 16:52:02 ianturton Exp $
  * @author ray
  */
 public interface DataSource {
+    
     /**
      * Loads Feature rows for the given Extent from the datasource.
      * @param ft featureTable to load features into
@@ -53,5 +54,21 @@ public interface DataSource {
      */
     public void stopLoading();
     
+    /** gets the extent of this data source using the default speed of 
+     * this datasource as set by the implementer. 
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+     public Extent getExtent();
+    
+    /** gets the extent of this data source using the speed of 
+     * this datasource as set by the parameter.
+     * @param speed if true then a quick (and possibly dirty) estimate of
+     * the extent is returned. If false then a slow but acurate extent
+     * will be returned
+     * @return the extent of the datasource or null if unknown and too
+     * expensive for the method to calculate.
+     */
+    public Extent getExtent(boolean speed);
 }
 
