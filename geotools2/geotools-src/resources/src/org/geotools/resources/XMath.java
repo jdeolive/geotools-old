@@ -51,7 +51,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  *   <li><a href="http://developer.java.sun.com/developer/bugParade/bugs/4461243.html">Math.acos is very slow</a></li>
  * </ul>
  *
- * @version $Id: XMath.java,v 1.8 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: XMath.java,v 1.9 2003/07/29 15:39:50 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class XMath {
@@ -391,17 +391,68 @@ public final class XMath {
     }
 
     /**
+     * Returns <code>true</code> if the specified <code>type</code> is one of real
+     * number types. Real number types includes {@link Float} and {@link Double}.
+     *
+     * @param  type The type to test (may be <code>null</code>).
+     * @return <code>true</code> if <code>type</code> is the class {@link Float} or {@link Double}.
+     */
+    public static boolean isReal(final Class type) {
+        return type!=null &&
+               Double.class.isAssignableFrom(type) ||
+                Float.class.isAssignableFrom(type);
+    }
+
+    /**
      * Returns <code>true</code> if the specified <code>type</code> is one of integer types.
      * Integer types includes {@link Long}, {@link Integer}, {@link Short} and {@link Byte}.
      *
-     * @param  type The type to test.
+     * @param  type The type to test (may be <code>null</code>).
      * @return <code>true</code> if <code>type</code> is the class {@link Long}, {@link Integer},
      *         {@link Short} or {@link Byte}.
      */
     public static boolean isInteger(final Class type) {
-        return Long.class.isAssignableFrom(type) ||
+        return type!=null &&
+               Long.class.isAssignableFrom(type) ||
             Integer.class.isAssignableFrom(type) ||
               Short.class.isAssignableFrom(type) ||
                Byte.class.isAssignableFrom(type);
+    }
+
+    /**
+     * Returns the number of bits used by number of the specified type.
+     *
+     * @param  type The type (may be <code>null</code>).
+     * @return The number of bits, or 0 if unknow.
+     */
+    public static int getBitCount(final Class type) {
+        if (Double   .class.isAssignableFrom(type)) return 64;
+        if (Float    .class.isAssignableFrom(type)) return 32;
+        if (Long     .class.isAssignableFrom(type)) return 64;
+        if (Integer  .class.isAssignableFrom(type)) return 32;
+        if (Short    .class.isAssignableFrom(type)) return 16;
+        if (Byte     .class.isAssignableFrom(type)) return  8;
+        if (Character.class.isAssignableFrom(type)) return 16;
+        if (Boolean  .class.isAssignableFrom(type)) return  1;
+        return 0;
+    }
+
+    /**
+     * Change a primitive class to its wrapper (e.g. <code>double</code> to {@link Double}).
+     * If the specified class is not a primitive type, then it is returned unchanged.
+     *
+     * @param  type The primitive type (may be <code>null</code>).
+     * @return The type as a wrapper.
+     */
+    public static Class primitiveToWrapper(final Class type) {
+        if (Character.TYPE.equals(type)) return Character.class;
+        if (Boolean  .TYPE.equals(type)) return Boolean  .class;
+        if (Byte     .TYPE.equals(type)) return Byte     .class;
+        if (Short    .TYPE.equals(type)) return Short    .class;
+        if (Integer  .TYPE.equals(type)) return Integer  .class;
+        if (Long     .TYPE.equals(type)) return Long     .class;
+        if (Float    .TYPE.equals(type)) return Float    .class;
+        if (Double   .TYPE.equals(type)) return Double   .class;
+        return type;
     }
 }
