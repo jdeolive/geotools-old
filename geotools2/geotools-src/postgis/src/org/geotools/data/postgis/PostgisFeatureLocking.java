@@ -31,9 +31,11 @@ import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
+import org.geotools.data.Transaction;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.IllegalAttributeException;
+import org.geotools.filter.FidFilter;
 import org.geotools.filter.Filter;
 
 
@@ -54,7 +56,7 @@ import org.geotools.filter.Filter;
  * </p>
  * 
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.4 2003/11/21 23:49:47 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.5 2003/11/22 00:20:54 jive Exp $
  *
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
@@ -137,16 +139,42 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      */
     public int lockFeatures(Query query) throws IOException {
         LockingManager lockingManager = getDataStore().getLockingManager();
-
+        
         if (lockingManager == null) {
             throw new UnsupportedOperationException(
                 "DataStore not using lockingManager, must provide alternate implementation");
         }
-
-        // Could we reduce the Query to only return the FetureID here?
+        String typeName = getSchema().getTypeName();        
+                
+        if( query.getTypeName() != null &&
+            !typeName.equals( query.getTypeName() )){
+            throw new IOException("Query typeName does not match "+getSchema().getTypeName()+":"+query);   
+        }
         //
-        FeatureReader reader = getFeatures(query).reader();
-        String typeName = reader.getFeatureType().getTypeName();
+        // WILD HACK FOR SPEED
+        //
+        boolean SPEED_HACK = false;         
+        if( SPEED_HACK && query.getPropertyNames() == Query.NO_NAMES && query.getFilter() instanceof FidFilter ){
+            Transaction transaction = getTransaction();
+            FidFilter fidFilter = (FidFilter) query.getFilter();
+            String fids[] = fidFilter.getFids();
+            int count = 0;
+            for ( int i=0; i<fids.length;i++){
+                try {
+                    lockingManager.lockFeatureID( typeName, fids[i], transaction, featureLock );
+                    count++;
+                }
+                catch( IOException io){
+                    // could not aquire - don't increment count
+                }
+            }                 
+            return count;
+        }
+        
+        // Reduce the Query to only return the FetureID here?
+        //
+        Query optimizedQuery = new DefaultQuery( typeName, query.getFilter(), query.getMaxFeatures(), Query.NO_NAMES, query.getHandle() ); 
+        FeatureReader reader = getFeatures(optimizedQuery).reader();
         Feature feature;
         int count = 0;
 
@@ -155,7 +183,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
                 try {
                     feature = reader.next();
                     lockingManager.lockFeatureID(typeName, feature.getID(),
-                        getTransaction(), featureLock);
+                    transaction, featureLock);
                     count++;
                 } catch (FeatureLockException locked) {
                     // could not aquire - don't increment count                
