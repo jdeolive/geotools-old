@@ -60,7 +60,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.16 2003/04/18 15:22:33 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.17 2003/04/22 10:22:00 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -167,9 +167,13 @@ public class Projection extends Info {
     
     /**
      * Returns a clone of a parameter list.
+     *
+     * @task HACK: The 'catch' clause make it possible to clone parameter list with undefined
+     *             parameter.  However, it can't differenciate the case where the user didn't
+     *             provided a value but a default value was found.
      */
     private static ParameterList clone(final ParameterList list) {
-        if (list==null) {
+        if (list == null) {
             return null;
         }
         final ParameterListDescriptor descriptor = list.getParameterListDescriptor();
@@ -177,7 +181,15 @@ public class Projection extends Info {
         final String[] names = descriptor.getParamNames();
         if (names!=null) for (int i=0; i<names.length; i++) {
             final String name = names[i];
-            copy.setParameter(name, list.getObjectParameter(name));
+            final Object value;
+            try {
+                value = list.getObjectParameter(name);
+            } catch (IllegalStateException exception) {
+                // The parameter is not defined and has no default value.
+                // Do not defines; continue instead.
+                continue;
+            }
+            copy.setParameter(name, value);
         }
         return copy;
     }
