@@ -105,6 +105,30 @@ public class ShapefileTest extends TestCase {
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
+    } 
+    
+     public void testLoadingTwice() {
+        
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        try{
+            URL url = new URL("file:///"+dataFolder+"/polygontest.shp");
+            System.out.println("Testing ability to load "+url);
+            
+            Shapefile shapefile = new Shapefile(url);
+            GeometryCollection shapes = shapefile.read(new GeometryFactory());
+            shapes = shapefile.read(new GeometryFactory());
+            assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
+        }
+        catch(Exception e){
+            System.out.println("Load failed becaouse of "+e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
     }    
     
     /**
