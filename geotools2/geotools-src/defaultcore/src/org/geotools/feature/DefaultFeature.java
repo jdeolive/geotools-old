@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.11 2003/11/04 00:23:35 cholmesny Exp $
+ * @version $Id: DefaultFeature.java,v 1.12 2003/11/19 02:38:58 cholmesny Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -250,7 +250,6 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
             throw new IllegalAttributeException(type, val, iae);
         }
     }
-    
 
     /**
      * Sets all attributes for this feature, passed as an array.  All
@@ -369,16 +368,19 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
             for (int i = 0, n = schema.getAttributeCount(); i < n; i++) {
                 if (schema.getAttributeType(i).isGeometry()) {
                     Geometry g = (Geometry) attributes[i];
+
                     // IanS - check for null geometry!
                     if (g == null) {
                         continue;
                     }
+
                     Envelope e = g.getEnvelopeInternal();
+
                     // IanS
                     // as of JTS 1.3, expandToInclude does not check to see if
                     // Envelope is "null", and simply adds the flagged values.
                     // This ensures that this behavior does not occur.
-                    if (! e.isNull() ) {
+                    if (!e.isNull()) {
                         bounds.expandToInclude(e);
                     }
                 }
@@ -393,22 +395,25 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      * Creates an exact copy of this feature.
      *
      * @return A default feature.
+     *
+     * @throws RuntimeException DOCUMENT ME!
      */
-    public Object clone() {        
+    public Object clone() {
         try {
-            DefaultFeature clone = (DefaultFeature) super.clone();            
+            DefaultFeature clone = (DefaultFeature) super.clone();
+
             for (int i = 0; i < attributes.length; i++) {
                 try {
                     clone.setAttribute(i, attributes[i]);
                 } catch (IllegalAttributeException e1) {
-                    throw new RuntimeException("The impossible has happened",e1);
+                    throw new RuntimeException("The impossible has happened", e1);
                 }
             }
+
             return clone;
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("The impossible has happened", e);
         }
-
     }
 
     /**
@@ -453,15 +458,18 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
      *         otherwise.
      */
     public boolean equals(Object obj) {
-        if (obj == null ) {
+        if (obj == null) {
             return false;
         }
-        if( obj == this ) {
+
+        if (obj == this) {
             return true;
         }
-        if( !(obj instanceof Feature) ){
+
+        if (!(obj instanceof Feature)) {
             return false;
         }
+
         Feature feat = (Feature) obj;
 
         if (!feat.getFeatureType().equals(schema)) {
@@ -479,29 +487,33 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
         if (!featureId.equals(feat.getID())) {
             return false;
         }
-        
+
         for (int i = 0, ii = attributes.length; i < ii; i++) {
             Object otherAtt = feat.getAttribute(i);
-            if (attributes[i] == null && otherAtt != null)
-                return false;
-            if (! attributes[i].equals(otherAtt)){
-                if( attributes[i] instanceof Geometry &&
-                    otherAtt instanceof Geometry ){
-                    // we need to special case Geometry
-                    // as JTS is broken
-                    // Geometry.equals( Object ) and Geometry.equals( Geometry )
-                    // are different 
-                    // (We should fold this knowledge into AttributeType...)
-                    // 
-                    if( !((Geometry)attributes[i]).equals( (Geometry) otherAtt )){
-                        return false;   
+
+            if (attributes[i] == null) {
+                if (otherAtt != null) {
+                    return false;
+                }
+            } else {
+                if (!attributes[i].equals(otherAtt)) {
+                    if (attributes[i] instanceof Geometry
+                            && otherAtt instanceof Geometry) {
+                        // we need to special case Geometry
+                        // as JTS is broken
+                        // Geometry.equals( Object ) and Geometry.equals( Geometry )
+                        // are different 
+                        // (We should fold this knowledge into AttributeType...)
+                        // 
+                        if (!((Geometry) attributes[i]).equals(
+                                    (Geometry) otherAtt)) {
+                            return false;
+                        }
+                    } else {
+                        return false;
                     }
                 }
-                else {
-                    return false;
-                }            
             }
-              
         }
 
         return true;
