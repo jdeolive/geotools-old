@@ -92,10 +92,7 @@
         <include>**/*Test.java</include>
       </includes>
       <excludes>
-        <exclude>**/SampleDimensionTest.java</exclude>
-        <exclude>**/GridCoverageTest.java</exclude>
-        <exclude>**/InterpolatorTest.java</exclude>
-        <exclude>**/OperationTest.java</exclude>
+        <exclude>**/*.java</exclude>
       </excludes>
     </unitTest>
   </build>
