@@ -67,6 +67,7 @@ A styling layer used for the unit tests of sldstyler
         </PolygonSymbolizer>
       </Rule>
       <Rule>
+        <title>State Borders</title>
         <LineSymbolizer>
            <Stroke/>    
         </LineSymbolizer>
