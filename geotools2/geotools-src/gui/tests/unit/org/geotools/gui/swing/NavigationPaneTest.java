@@ -8,7 +8,6 @@
 package org.geotools.gui.swing;
 
 import junit.framework.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.map.ContextFactory;
 import org.geotools.map.BoundingBox;
 import org.geotools.ct.Adapters;
