@@ -23,7 +23,7 @@ import java.util.EventListener;
  * Methods to handle a change in AreaOfInterest
  *
  * @author Cameron Shorter
- * @version $Id: BoundingBoxListener.java,v 1.3 2003/05/16 15:51:14 jmacgill Exp $
+ * @version $Id: BoundingBoxListener.java,v 1.4 2003/08/07 22:44:51 cholmesny Exp $
  */
 public interface BoundingBoxListener extends EventListener {
     /**
