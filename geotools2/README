@@ -2,15 +2,60 @@
 	Geotools2
 	=========
 
-This directory is the base of the Geotools2 source tree. 
+Thank you for downloading the GeoTools2 development snapshot.  This is not an official release,
+but rather an almost direct grab of the source code as it stood on a recent date. 
 
-Please refer to geotools-src/gt-build/www/howto-build.html for information
-on building geotools2.
+There is now sufficient code in a stable condition to warrant more general availability.  The
+j2se-demos and svgsupport modules, in particular, contain code which actually does something useful.  
 
-Refer to the web Geotools web site for other supporting information on 
-Geotools2:
+For information on building geotools2, see the guide in the gtbuild module in geotools-src
+(geotools-src/gt-build/www/howto-build.html).  For a more general overview of the development
+process, see the Developers Guide (a recent copy of which should be included in this release).
 
-  http://geotools.sf.net/
+There are a number of apsects of this code which are undergoing active change, some at a quite
+fundamental level, so expect classes to be renamed or to disappear completely in future snapshots.
+
+If you would like to become more involved in the development of GeoTools2, or even if you would
+like to keep up-to-date without waiting for new snapshots, then you should look into setting up
+CVS on your computer.  Using CVS will allow you to see the source code in the same way as
+developers do and it will allow you to receive updates as often as you like.
+
+Setting up CVS is different for every platform and this is not the right place to go into details
+on how to set it up for each one.  A little searching on the web will dig up a client that will work
+for you.  Also note that many recent IDEs (e.g. Forte/Netbeans) now include built-in CVS tools.
+
+Once you have CVS set up on your machine, the following should work from the command line.
+If you are using a GUI-based CVS client, please refer to the documentation that came with it.
+
+cvs -d:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools login 
+
+cvs -z3 -d:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools co geotools2 
+
+The key details that should let you use any CVS client are:
+
+server: cvs.geotools.org
+user: anonymous
+password: <none> i.e. just press return or leave blank
+cvsroot: /cvsroot/geotools
+module: geotools2
+
+You can find out more information about each of the major modules by going to
+http://modules.geotools.org  Each module has its own homepage with full javadoc
+and lists of tasks which need completing. 
+
+If you are interested in the future development of geotools2 then feel free to join
+the geotools-devel mailing list and join in the on the frequent IRC sessions
+(details of which are posted to the devel mailing list).  
+Note that the devel list is for developers and not users.  If you have more general
+queries then please send them to the geotools-discussion mailing list instead.
+
+You can find out more about the mailing lists and about recent news by going to the
+geotools homepage at:
+http://www.geotools.org
+
+Good luck and many thanks for your interest in GeoTools2
+
+The GeoTools2 development team.
 
   
 
