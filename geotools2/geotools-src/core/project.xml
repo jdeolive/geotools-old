@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-core</name>
   <id>core</id>
-  <logo>http://www.geotools.org/gt2modules/core/target/docs/images/core.gif</logo>
+  <logo>/images/core.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
     <name>GeoTools</name>
