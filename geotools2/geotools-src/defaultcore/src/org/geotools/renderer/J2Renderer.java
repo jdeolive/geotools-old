@@ -34,7 +34,7 @@ import org.geotools.styling.Style;
  * Renderer draws a map on behalf on MapPane.  It determines what
  * features to draw, BoundingBox, Size, and Style from this.context.
  *
- * @version $Id: J2Renderer.java,v 1.1 2003/03/08 02:25:13 camerons Exp $
+ * @version $Id: J2Renderer.java,v 1.2 2003/03/21 19:32:23 camerons Exp $
  * @author James Macgill
  * @author Cameron Shorter
  */
@@ -71,13 +71,5 @@ public interface J2Renderer {
 //     */
 //    void setInteractive(boolean interactive);
     
-    /**
-     * Return a transform from pixel to Geographic Coordinate Systems.
-     * @return The transform.
-     * @task REVISIT It might be better to return MathTransform instead of
-     * AffineTransform, however this will create a dependance on the ct
-     * modules which would be good to avoid.
-     */
-    public AffineTransform getDotToCoordinateSystem();
 }
 
