@@ -36,8 +36,8 @@ package org.geotools.ct;
 import java.util.Random;
 
 // Geotools dependencies
-import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.ct.CoordinateTransformationFactory;
+import org.geotools.cs.*;
+import org.geotools.ct.*;
 
 // JUnit dependencies
 import junit.framework.TestCase;
@@ -46,7 +46,7 @@ import junit.framework.TestCase;
 /**
  * Base class for test classes.
  *
- * @version $Id: TransformationTest.java,v 1.1 2002/07/12 00:01:02 desruisseaux Exp $
+ * @version $Id: TransformationTest.java,v 1.2 2002/07/12 14:37:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TransformationTest extends TestCase
@@ -85,6 +85,21 @@ public class TransformationTest extends TestCase
         random    = new Random();
         csFactory = CoordinateSystemFactory.getDefault();
         trFactory = CoordinateTransformationFactory.getDefault();
+    }
+
+    /**
+     * Verify that the specified transform implements {@link MathTransform1D}
+     * or {@link MathTransform2D} as needed.
+     *
+     * @param transform The transform to test.
+     */
+    public static void assertInterfaced(final MathTransform transform) {
+        int dim = transform.getDimSource();
+        if (transform.getDimTarget() != dim) {
+            dim = 0;
+        }
+        assertTrue("MathTransform1D", (dim==1) == (transform instanceof MathTransform1D));
+        assertTrue("MathTransform2D", (dim==2) == (transform instanceof MathTransform2D));
     }
 
     /**
