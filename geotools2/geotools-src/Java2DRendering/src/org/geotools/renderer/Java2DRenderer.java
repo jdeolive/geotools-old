@@ -49,7 +49,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.47 2002/07/25 17:07:21 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.48 2002/07/26 17:12:59 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -74,7 +74,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private static com.vividsolutions.jts.geom.Point markCentrePoint;
     
-    
+    private Envelope mapExtent = null;
 
     
     /**
@@ -96,6 +96,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     
     /** Creates a new instance of Java2DRenderer */
     public Java2DRenderer() {
+        System.out.println("creating new j2drenderer");
     }
     
     /**
@@ -150,7 +151,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             return;
         }
         _log.info("renderering " + features.length + " features");
-        
+        mapExtent = map;
         //set up the affine transform and calculate scale values
         AffineTransform at = new AffineTransform();
         
@@ -165,7 +166,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         double ss = scale * Math.sin(angle);
         // TODO: if user space is geographic (i.e. in degrees) we need to transform it 
         // to Km/m here to calc the size of the pixel and hence the scaleDenominator
-        scaleDenominator = 1/scale;
+        
         at = new AffineTransform(sc, -ss, ss, -sc, tx, ty);
         
         /* If we are rendering to a component which has already set up some form
@@ -177,6 +178,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         else {
             graphics.setTransform(at);
         }
+        scaleDenominator = 1/graphics.getTransform().getScaleX();
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
         processStylers(features, featureStylers);
@@ -202,6 +204,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             FeatureTypeStyle fts = featureStylers[i];
             for (int j = 0; j < features.length; j++){
                 Feature feature = features[j];
+                if(!mapExtent.overlaps(feature.getDefaultGeometry().getEnvelopeInternal())){
+                    // if its off screen don't bother drawing it
+                    _log.debug("skipping " + feature.toString());
+                    continue;
+                }
                 _log.info("feature is " + feature.getSchema().getTypeName() + 
                 " type styler is " + fts.getFeatureTypeName());
                 if (feature.getSchema().getTypeName().equalsIgnoreCase(fts.getFeatureTypeName())){
@@ -449,6 +456,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             AffineTransform labelAT = new AffineTransform();
             double x = 0, y = 0, rotation = 0;
             double tx = 0, ty = 0;
+            
             Rectangle2D rect = graphics.getFont().getStringBounds(label,graphics.getFontRenderContext());
             TextLayout tl = new TextLayout(label, graphics.getFont(),graphics.getFontRenderContext());
             Rectangle2D textBounds = tl.getBounds();
@@ -498,8 +506,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             labelAT.translate(graphicCentre.getX(), graphicCentre.getY());
             
             _log.debug("rotation " + rotation);
+            double shearY = temp.getShearY();
+            double scaleY = temp.getScaleY();
             
-            labelAT.rotate(rotation);
+            double originalRotation = Math.atan(shearY/scaleY);
+            _log.debug("originalRotation " + originalRotation);
+            labelAT.rotate(rotation-originalRotation);
             
             graphics.setTransform(labelAT);
             Halo halo = symbolizer.getHalo();
@@ -564,7 +576,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     eg.getFormat().equalsIgnoreCase("image/png")){
                         _log.debug("a java supported format");
                         BufferedImage img = imageLoader.get(eg.getLocation(),isInteractive());
-                        _log.debug("Image return = " + img);
+                        _log.warn("Image return = " + img);
                         if (img != null){
                             return img;
                         }
@@ -623,7 +635,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Point2D graphicCentre = new Point2D.Double();
         temp.transform(mapCentre, graphicCentre);
         markAT.translate(graphicCentre.getX(), graphicCentre.getY());
-        markAT.rotate(rotation);
+        double shearY = temp.getShearY();
+        double scaleY = temp.getScaleY();
+            
+        double originalRotation = Math.atan(shearY/scaleY);
+        _log.debug("originalRotation " + originalRotation);
+        markAT.rotate(rotation-originalRotation);
         
         double unitSize = Math.max(img.getWidth(), img.getHeight());
         
@@ -653,7 +670,12 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         Point2D graphicCentre = new Point2D.Double();
         temp.transform(mapCentre, graphicCentre);
         markAT.translate(graphicCentre.getX(), graphicCentre.getY());
-        markAT.rotate(rotation);
+        double shearY = temp.getShearY();
+        double scaleY = temp.getScaleY();
+            
+        double originalRotation = Math.atan(shearY/scaleY);
+        _log.debug("originalRotation " + originalRotation);
+        markAT.rotate(rotation-originalRotation);
         double unitSize = 1.0; // getbounds is broken !!!
         double drawSize = (double) size / unitSize;
         markAT.scale(drawSize, -drawSize);
