@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<HTML>
+  <HEAD>
+    <TITLE>package org.geotools.gp</TITLE>
+  </HEAD>
+  <BODY>
+    <P ALIGN="justify">Grid coverage processing implementation. The following is
+    adapted from <A HREF="http://www.opengis.org/techno/specs/">OpenGIS® Grid
+    Coverages Implementation Specification</A>:</P>
+
+    <BLOCKQUOTE><FONT COLOR="#008060">
+    <P ALIGN="justify">This optional interface provides operations for different
+    ways of accessing the grid coverage values as well as image processing
+    functionality. The list of available processing operations is implementation
+    dependent. The interface has a discovery mechanism to determine the available
+    processing operations. These processing operations will transform values
+    within a single sample dimension, and leave the values in other sample
+    dimensions unaffected. The modified sample dimension may also change its
+    type (e.g. from <CODE>4BIT</CODE> to <CODE>1BIT</CODE>). The actual
+    underlying grid data remains unchanged. The interface has been designed to
+    allow the adaptations to be done in a "pipe-lined" manner. The interface
+    operates on {@link org.geotools.gc.GridCoverage} to create a new 
+    {@link org.geotools.gc.GridCoverage}. The interface does not need to
+    make a copy of the source grid data. Instead, it can return a grid coverage
+    object which applies the adaptations on the original grid coverage whenever
+    a block of data is requested. In this way, a pipeline of several grid
+    coverages can be constructed cheaply.</P>
+
+    <P ALIGN="justify">This interface can perform any of the following:</P>
+
+    <OL>
+      <LI>Change the number of bands being accessed.</LI>
+      <LI>Change the value sequencing in which the grid values are retrieved.</LI>
+      <LI>Allow re-sampling of the grid coverage for a different geometry.
+          Creating a new {@link org.geotools.gc.GridCoverage} with different
+          grid geometry allows for reprojecting the grid coverage to another
+          projection and another georeferencing type, resampling to another cell
+          resolution and subsetting the grid coverage.</LI>
+      <LI>Modify the way the grid values are accessed (filtered, classified...).</LI>
+      <LI>Change the interpolation method used when evaluating points which fall
+          between grid cells.</LI>
+      <LI>Filtering</LI>
+      <LI>Image enhancements.</LI>
+      <LI>etc.</LI>
+    </OL>
+    </FONT></BLOCKQUOTE>
+
+    <P>&nbsp;</P>
+    <P>&nbsp;</P>
+    <H1><U>Supported operations</U></H1>
+    <P ALIGN="justify">The default {@link org.geotools.gp.GridCoverageProcessor}
+    supports the following operations:</P>
+
+    <UL>
+      <LI><A HREF="#interpolate">Interpolate</A></LI>
+      <LI><A HREF="#resample">Resample</A></LI>
+    </UL>
+
+    <P>&nbsp;</P>
+    <H2><A NAME="interpolate">Interpolate</A></H2>
+    <P ALIGN="justify">This operation specifies the interpolation type to be
+    used to interpolate values for points which fall between grid cells. The
+    default value is nearest neighbor. The new interpolation type operates
+    on all sample dimensions.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Interpolate"</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Type"</td>
+        <td>{@link java.lang.CharSequence}</td>
+        <td>"NearestNieghbor"</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P ALIGN="justify">Possible values for type are: "NearestNeighbor", "Bilinear" and
+    "Bicubic" (the "Optimal" interpolation type is currently not supported). The Geotools
+    implementation provides two extensions to OpenGIS specification: First, it accepts
+    also an {@link javax.media.jai.Interpolation} argument type, for interoperability
+    with <A HREF="http://java.sun.com/products/java-media/jai/">Java Advanced Imaging</A>.
+    Second, it accepts also an array of {@link java.lang.String} or {@link javax.media.jai.Interpolation}
+    objects. When an array is specified, the first interpolation in the array is applied.
+    If this interpolation returns a <code>NaN</code> value, then the second interpolation
+    is tried as a fallback. If the second interpolation returns also a <code>NaN</code>
+    value, then the third one is tried and so on until an interpolation returns a real
+    number or until we reach the end of interpolation list. This behavior is convenient
+    when processing remote sensing images of geophysics data, for example <I>Sea Surface
+    Temperature</I> (SST), in which clouds may mask many pixels (i.e. set them to some
+    <code>NaN</code> values). Because "Bicubic" interpolation needs 4x4 pixels while
+    "Bilinear" interpolation needs only 2x2 pixels, the "Bilinear" interpolation is
+    less likely to fails because of clouds (<code>NaN</code> values) than "Bicubic"
+    (only one <code>NaN</code> value is enough to make an interpolation fails). One
+    cans workaround the problem by trying a bicubic interpolation first, then a linear
+    interpolation if "Bicubic" failed at a particular location, etc. This behavior
+    can be provided with the following "Type" argument:
+    <code>new String[]{"Bicubic", "Bilinear", "NearestNeighbor"}</code>.</P>
+
+    <P>&nbsp;</P>
+    <H2><A NAME="resample">Resample</A></H2>
+    <P ALIGN="justify">Resample a grid coverage using a different grid geometry.
+    This operation provides the following functionality:</P>
+    <UL>
+      <LI><strong>Resampling</strong><br>
+          The grid coverage can be resampled at a different cell resolution.
+          Some implementations may be able to do resampling efficiently at any
+          resolution. Also a non-rectilinear grid coverage can be accessed as
+          rectilinear grid coverage with this operation.</LI>
+      <LI><strong>Reprojecting</strong><br>
+          The new grid geometry can have a different coordinate system than the
+          underlying grid geometry. For example, a grid coverage can be
+          reprojected from a geodetic coordinate system to Universal Transverse
+          Mercator coordinate system.</LI>
+      <LI><strong>Subsetting</strong><br>
+          A subset of a grid can be viewed as a separate coverage by using this
+          operation with a grid geometry which as the same geoferencing and a
+          region. Grid range in the grid geometry defines the region to subset
+          in the grid coverage.</LI>
+    </UL>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Resample"</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"InterpolationType"</td>
+        <td>{@link java.lang.CharSequence}</td>
+        <td>"NearestNieghbor"</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"CoordinateSystem"</td>
+        <td>{@link org.geotools.cs.CoordinateSystem}</td>
+        <td>Same as source grid coverage</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"GridGeometry"</td>
+        <td>{@link org.geotools.gc.GridGeometry}</td>
+        <td>(automatic)</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+  </BODY>
+</HTML>
