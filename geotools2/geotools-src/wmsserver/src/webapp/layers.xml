@@ -10,12 +10,13 @@
         <description>USA</description>
         <Style id="thick outline" filename="styles/polyshp.sld"/>
         <Style id="dotty" filename="styles/funkypolyshp.sld"/>
+        <Style id="green" filename="styles/green.sld"/>
         <Style id="population" filename="styles/popshade.sld"/>
         <Style id="highlight" filename="styles/usa_penn.sld"></Style>
         <Style id="bbox" filename="styles/usa_central.sld"></Style>
-        <Style id="male vs female" filename="styles/usa_ratio.sld"></Style>
+        <Style id="maleVsFemale" filename="styles/usa_ratio.sld"></Style>
         <Style id="normal" filename="styles/normal.sld" default="true"></Style>
-        <Style id="employ/persons" filename="styles/usa_math.sld"></Style>
+        <Style id="manualVsWorkers" filename="styles/usa_math.sld"></Style>
     </Layer>
     
    

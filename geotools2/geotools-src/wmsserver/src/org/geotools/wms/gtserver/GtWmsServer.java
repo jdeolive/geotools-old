@@ -58,7 +58,7 @@ public class GtWmsServer implements WMSServer {
     
     URL base;
     
-    org.geotools.map.Map map;
+    //org.geotools.map.Map map;
     
     public static final String LAYERS_PROPERTY = "layersxml";
     
@@ -203,13 +203,16 @@ public class GtWmsServer implements WMSServer {
         
         try {
             System.out.println("setting up map");
-            map = new DefaultMap();
+            org.geotools.map.Map map = new DefaultMap();
             for(int i = 0; i < layer.length; i++){
                 Style layerstyle;
                 LayerEntry layerdefn = (LayerEntry) layerEntries.get(layer[i]);
                 if (style != null && style[i] != ""){
                     
                     String sldpath = (String)layerdefn.styles.get(style[i]);
+                    if (sldpath==null)
+                            throw new WMSException(WMSException.WMSCODE_STYLENOTDEFINED, "The Style '"+style[i]+"' does not exist for " + layerdefn.id);
+
                     //System.out.println("looking for " + sldpath);
                     File file = new File(sldpath);
                     URL url;
@@ -230,6 +233,7 @@ public class GtWmsServer implements WMSServer {
                     if(layerdefn.defaultStyle != null){
                         String sldpath = (String)layerdefn.styles.get(layerdefn.defaultStyle);
                         System.out.println("looking for default:" + sldpath);
+                        
                         File file = new File(sldpath);
                         URL url;
                         if(base != null){
@@ -321,7 +325,7 @@ public class GtWmsServer implements WMSServer {
         // throw new WMSException(null, "getFeatureInfo not supported");
         try {
             System.out.println("setting up map");
-            map = new DefaultMap();
+            org.geotools.map.Map map = new DefaultMap();
             for(int i = 0; i < layer.length; i++){
                 
                 

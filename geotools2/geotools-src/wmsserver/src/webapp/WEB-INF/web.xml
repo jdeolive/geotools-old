@@ -26,6 +26,6 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>WMSServlet</servlet-name>
-    <url-pattern>/servlet/org.geotools.wms.WMSServlet</url-pattern>
+    <url-pattern>/servlet/gt2wms</url-pattern>
   </servlet-mapping>
 </web-app>

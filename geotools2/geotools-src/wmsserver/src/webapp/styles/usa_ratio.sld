@@ -63,7 +63,7 @@ A styling layer used for the unit tests of sldstyler
         <PolygonSymbolizer>
            <Fill>
               <!-- CssParameters allowed are fill (the color) and fill-opacity -->
-              <CssParameter name="fill">#aaaaaa</CssParameter>
+              <CssParameter name="fill">#ffaaff</CssParameter>
               <CssParameter name="opacity">.5</CssParameter>
            </Fill> 
            <stroke/>    

@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
 
 <StyledLayerDescriptor version="0.7.2">
 <!-- a named layer is the basic building block of an sld document -->
