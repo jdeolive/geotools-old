@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.6 2002/11/11 23:18:05 robhranac Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.7 2002/11/12 16:13:43 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class LiteralExpressionImpl 
@@ -178,12 +178,14 @@ public class LiteralExpressionImpl
      *
      * @param obj - the object to compare this ExpressionLiteral against.
      * @return true if specified object is equal to this expression; false otherwise.
+     * @task REVISIT: missmatched types now considered not equal.
+     *                This may be a problem when comparing Doubles and Integers
      */
     public boolean equals(Object obj) {
 	if(obj.getClass() == this.getClass()) {
 	    LiteralExpressionImpl expLit = (LiteralExpressionImpl) obj;
             boolean isEqual = (expLit.getType() == this.expressionType);
-
+            if(!isEqual) return false;
             if (expressionType == LITERAL_GEOMETRY) {
                 return ((Geometry) this.literal).
                     equals((Geometry) expLit.getLiteral());                
