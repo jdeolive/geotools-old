@@ -34,6 +34,15 @@
             </roles>
         </developer>
   </developers>
+  <contributors>
+   <contributor>
+     <name>Sean Geoghegan</name>
+     <id>seangeo</id>
+     <role>Bug Fixer</role>
+     <organization> Defence Science and Technology Organisation </organization>
+    </contributor>
+  </contributors>
+
   <dependencies>
     <dependency>
       <artifactId>core</artifactId>
