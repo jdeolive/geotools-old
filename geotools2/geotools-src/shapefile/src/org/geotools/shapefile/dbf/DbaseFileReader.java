@@ -56,7 +56,6 @@ public class DbaseFileReader {
   ReadableByteChannel channel;
   CharBuffer charBuffer;
   CharsetDecoder decoder;
-  char[] transferCache;
   char[] fieldTypes;
   int[] fieldLengths;
   int cnt = 1;
@@ -125,7 +124,6 @@ public class DbaseFileReader {
       fieldTypes[i] = header.getFieldType(i);
       fieldLengths[i] = header.getFieldLength(i);
     }
-    transferCache = new char[header.getLargestFieldSize()];
     
     charBuffer = CharBuffer.allocate(header.getRecordLength() - 1);
     Charset chars = Charset.forName("ISO-8859-1");
@@ -266,14 +264,32 @@ public class DbaseFileReader {
         // (C)character (String)
       case 'c':
       case 'C':
-        
-        charBuffer.position(fieldOffset);
-        charBuffer.limit(fieldOffset + fieldLen);
+        // oh, this seems like a lot of work to parse strings...but,
+        // For some reason if zero characters ( (int) char == 0 ) are allowed
+        // in these strings, they do not compare correctly later on down the 
+        // line....
+        int start = fieldOffset;
+        int end = fieldOffset + fieldLen - 1;
+        // trim off whitespace and 'zero' chars
+        while (start < end) {
+          char c = charBuffer.get(start);
+          if (c== 0 || Character.isWhitespace(c))
+            start++;
+          else break;
+        }
+        while (end > start) {
+          char c = charBuffer.get(end);
+          if (c == 0 || Character.isWhitespace(c)) {
+            end--;
+          }
+          else break;
+        }
+        // set up the new indexes for start and end
+        charBuffer.position(start).limit(end + 1);
         String s = charBuffer.toString();
-        charBuffer.limit(charBuffer.capacity());
-        //charBuffer.get(transferCache,0,fieldLen);
-        charBuffer.position(0);
-        return s;//new String(transferCache,0,fieldLen);
+        // this resets the limit...
+        charBuffer.clear();
+        return s;
         
         // (D)date (Date)
       case 'd':
