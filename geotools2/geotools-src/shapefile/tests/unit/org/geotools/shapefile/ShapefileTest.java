@@ -55,6 +55,52 @@ public class ShapefileTest extends TestCase {
         }
     }
     
+    public void testLoadingSamplePointFile() {
+        
+        String dataFolder = System.getProperty("dataFolder");
+        try{
+            URL url = new URL("file:///"+dataFolder+"/pointTest.shp");
+            System.out.println("Testing ability to load "+url);
+            URLConnection uc = url.openConnection();
+            BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
+            
+            LEDataInputStream sfile = new LEDataInputStream(in);
+            GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
+            assertEquals("Number of Geometries loaded incorect",10,shapes.getNumGeometries());
+            //Geometry bounds = shapes.getEnvelope();
+            //bounds.
+            //System.out.println(""+bounds.getMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
+        }
+        catch(Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+    }
+    
+    public void testLoadingSamplePolygonFile() {
+        
+        String dataFolder = System.getProperty("dataFolder");
+        try{
+            URL url = new URL("file:///"+dataFolder+"/polygonTest.shp");
+            System.out.println("Testing ability to load "+url);
+            URLConnection uc = url.openConnection();
+            BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
+            
+            LEDataInputStream sfile = new LEDataInputStream(in);
+            GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
+            assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
+            //Geometry bounds = shapes.getEnvelope();
+            //bounds.
+            //System.out.println(""+bounds.getMinX()+" "+bounds.getMinY()+" "+bounds.getMaxX()+" "+bounds.getMaxY()); 
+        }
+        catch(Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+            fail("Load failed because of exception "+e.toString());
+        }
+    }
+    
     // Add test methods here, they have to start with 'test' name.
     // for example:
     // public void testHello() {}
