@@ -98,7 +98,7 @@ public class MemoryLockingDataSourceTest extends LockingDataSourceTestCase {
      * @return Number of Features.
      */
     protected int numberFeatures(){
-        return mds.getFeaturesList().size();
+        return mds.getFeaturesMap().size();
     }
     /**
      * Returns the number of locked features for testing.
