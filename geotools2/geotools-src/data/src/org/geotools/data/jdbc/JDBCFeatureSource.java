@@ -26,6 +26,7 @@ import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureListener;
 import org.geotools.data.FeatureReader;
+import org.geotools.data.MaxFeatureReader;
 import org.geotools.data.FeatureResults;
 import org.geotools.data.FeatureSource;
 import org.geotools.data.Query;
@@ -145,7 +146,13 @@ public class JDBCFeatureSource implements FeatureSource {
         return new DefaultFeatureResults(this, query) {
             /** JDBCDataStore has a more direct query method */
             public FeatureReader reader() throws IOException {
-                return getJDBCDataStore().getFeatureReader( query, getTransaction() );                    
+		int maxFeatures = query.getMaxFeatures();
+		FeatureReader reader = getJDBCDataStore().getFeatureReader( query, getTransaction() );                  
+		if (maxFeatures == query.DEFAULT_MAX) {
+		    return reader;  
+		} else {
+		    return new MaxFeatureReader(reader, maxFeatures);
+		}
             }
             /**
              * Performs optimizated count if possible.
@@ -157,7 +164,10 @@ public class JDBCFeatureSource implements FeatureSource {
             public int getCount() throws IOException {
                 int count = count( query, getTransaction() );
                 if( count != -1 ){
-                    return count; // optimization worked
+		    int maxFeatures = query.getMaxFeatures();
+                    return count < maxFeatures ? count : maxFeatures; 
+		    // optimization worked, return maxFeatures if count is
+		    // greater.
                 }                
                 return super.getCount();
             }
