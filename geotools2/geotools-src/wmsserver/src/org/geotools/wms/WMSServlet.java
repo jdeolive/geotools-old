@@ -28,8 +28,9 @@ import java.awt.image.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
-
-import sun.awt.image.codec.JPEGImageEncoderImpl;
+import javax.imageio.*;
+import javax.imageio.stream.ImageOutputStream;
+//import sun.awt.image.codec.JPEGImageEncoderImpl;
 
 import org.geotools.feature.Feature;
 
@@ -217,7 +218,7 @@ public class WMSServlet extends HttpServlet {
     public synchronized void doGetMap(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         System.out.println("Sending Map");
         System.out.println("Request is " + request);
-        
+        // this needs to be something nicer than request as it should ignore format and order and case
         if(nationalMaps.containsKey(request.getQueryString())){
             String format = getParameter(request, PARAM_FORMAT);
             if (format==null)
@@ -348,14 +349,18 @@ public class WMSServlet extends HttpServlet {
      */
     public void formatImageOutputStream(String format, BufferedImage image, OutputStream outStream) throws WMSException {
         if (format.equalsIgnoreCase("jpeg")){format = "image/jpeg";}
-        if (!format.equalsIgnoreCase(DEFAULT_FORMAT))
-            throw new WMSException(WMSException.WMSCODE_INVALIDFORMAT, "Invalid format : "+format);
         
-        JPEGImageEncoderImpl j = new JPEGImageEncoderImpl(outStream);
-        try {
-            j.encode(image);
+        Iterator it = ImageIO.getImageWritersByMIMEType(format);
+        if(!it.hasNext()){
+            throw new WMSException(WMSException.WMSCODE_INVALIDFORMAT, "Format not supported: "+format);
         }
-        catch(IOException ioexp) {
+        ImageWriter writer = (ImageWriter)it.next();    
+        try{
+            ImageOutputStream ioutstream = ImageIO.createImageOutputStream(outStream);
+            writer.setOutput(ioutstream);
+            writer.write(image);
+            
+        }catch(IOException ioexp) {
             throw new WMSException(null, "IOException : "+ioexp.getMessage());
         }
     }
@@ -521,7 +526,11 @@ public class WMSServlet extends HttpServlet {
         
         // Map formats
         String mapFormats = "";
-        // -we're not supporting more than one map format at this time
+        String[] types = ImageIO.getWriterMIMETypes();
+        for(int i=0;i<types.length;i++){
+            mapFormats+="<Format>"+types[i]+"</Format>";
+        }
+        
         xml.replace(xml.toString().indexOf(XML_MAPFORMATS), xml.toString().indexOf(XML_MAPFORMATS)+ XML_MAPFORMATS.length(), mapFormats);
         
         // GetFeatureInfo
