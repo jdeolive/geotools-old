@@ -1,8 +1,23 @@
 /*
- * MapViewer2.java
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 05 September 2002, 07:25
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
+
 
 package org.geotools.demos;
 
@@ -20,16 +35,24 @@ import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.BoundingBoxImpl;
+import org.geotools.map.Context;
+import org.geotools.map.ContextImpl;
 import org.geotools.map.DefaultLayer;
 import org.geotools.map.DefaultLayerList;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.styling.SLDStyle;
+import org.geotools.styling.Style;
+import org.geotools.styling.StyleFactory;
 
 /**
+ * A demonstration of a Map Viewer which uses geotools2.
  *
- * @author  cameron
+ * @author Cameron Shorter
+ * @version $Id: MapViewer2.java,v 1.3 2002/12/30 09:50:17 camerons Exp $
+ *
  */
+
 public class MapViewer2 extends javax.swing.JFrame {
 
     /**
@@ -66,25 +89,32 @@ public class MapViewer2 extends javax.swing.JFrame {
      * Extra initialisation.
      */
     private void initComponents2() {
-        BoundingBox areaOfInterestModel = new BoundingBoxImpl(null,null);
+        BoundingBox bbox = new BoundingBoxImpl(null,null);
         LayerList layerList = new DefaultLayerList();
         try {
-           GMLDataSource datasource = new GMLDataSource(
+            DataSource datasource = new GMLDataSource(
                 ClassLoader.getSystemResource("org/geotools/demos/simple.gml"));
-            SLDStyle style = new SLDStyle(
+            StyleFactory styleFactory=StyleFactory.createStyleFactory();
+            SLDStyle sldStyle = new SLDStyle(
+                styleFactory,
                 ClassLoader.getSystemResource("org/geotools/demos/simple.sld"));
+            Style style=sldStyle.readXML();
             Layer layer=new DefaultLayer(datasource,style);
             layer.setTitle("funky layer");
             layerList.addLayer(layer);
+            Tool tool=new PanTool();
+            Context context=new ContextImpl(
+                bbox,
+                layerList,
+                null,
+                null,
+                null,
+                null);
+            MapPane2 mapPane = new MapPane2(tool, context);
         } catch (Exception e){
             LOGGER.warning("Exception: "+e+".  Unable to load GML.");
         }
-        Tool tool=new PanTool();
-        MapPane2 mapPane = new MapPane2(
-            tool,
-            layerList,
-            areaOfInterestModel);
-        mapPane.setMapSize(new Rectangle(300,300));
+        mapPane.setWidgetSize(new Rectangle(300,300));
 
         mapPane.setBorder(new javax.swing.border.TitledBorder("MapPane Map"));
         getContentPane().add(mapPane, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 300, 420));

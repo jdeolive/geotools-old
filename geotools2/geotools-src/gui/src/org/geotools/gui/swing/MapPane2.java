@@ -23,6 +23,7 @@ package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
+import java.lang.IllegalArgumentException;
 import javax.swing.JScrollPane;
 import java.util.logging.Logger;
 import java.awt.Rectangle;
@@ -33,6 +34,7 @@ import java.util.EventObject;
 import org.geotools.map.events.AreaOfInterestChangedListener;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.events.LayerListChangedListener;
+import org.geotools.map.Context;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
@@ -45,7 +47,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.11 2002/12/19 11:33:50 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.12 2002/12/30 09:50:17 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -67,49 +69,52 @@ public class MapPane2 extends JScrollPane implements
     Java2DRenderer renderer;
    
     /**
-     * The model which stores a list of layers.
+     * The model which stores a list of layers and BoundingBox.
      */
-    private LayerList layerList;
+    private Context context;
+    
+    //private LayerList layerList;
 
     /**
      * The areaOfInterest to be drawn by this map.
      */
-    private BoundingBox areaOfInterestModel;
+    //private BoundingBox areaOfInterestModel;
 
     /**
      * The class used for identifying for logging.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
+    private static final Logger LOGGER = Logger.getLogger(
+        "org.geotools.gui.swing.MapPane2");
 
     /**
      * The Screen Size of the map in screen coordinates.
      */
-    private Rectangle mapSize;
+    private Rectangle widgetSize;
     
     /**
-     * Create a DefaultMapPane.  This is the defaultMapPane which is to be
-     * extended by other MapPanes.
-     * A MapPane provides the core functionality for drawing maps.
+     * Create a MapPane.
+     * A MapPane marshals the drawing of maps.
      *
-     * @param tool The tool to use with the MapPane.
-     * parameter should be entered here.
-     * @param layerList The layerList where all the layers for this view are
-     * kept.
-     * @param areaOfInterestModel The model which stores the area of interest.
+     * @param tool The tool to use with the MapPane, can be set to null if no
+     * tool is required.
+     * @param context The context where layerList and boundingBox are kept.  If
+     * context is null, an IllegalArguementException is thrown.
      */
     public MapPane2(
             Tool tool,
-            LayerList layerList,
-            BoundingBox areaOfInterestModel)
+            Context context) throws IllegalArgumentException
     {
-        this.tool=tool;
-        this.layerList=layerList;
-        this.areaOfInterestModel=areaOfInterestModel;
-        this.renderer=new Java2DRenderer();
-        
-        // Initialise the Tool to use this MapPane.
-        this.tool.setMapPane(this);
-        this.tool.setAreaOfInterestModel(this.areaOfInterestModel);
+        if (context==null){
+            throw new IllegalArgumentException();
+        }else{
+            this.tool=tool;
+            this.context=context;
+            this.renderer=new Java2DRenderer();
+
+            // Initialise the Tool to use this MapPane.
+            this.tool.setMapPane(this);
+            this.tool.setAreaOfInterestModel(this.context.getBbox());
+        }
     }
     
     /**
@@ -151,47 +156,40 @@ public class MapPane2 extends JScrollPane implements
     public void paintComponent(Graphics graphics) {
         LOGGER.info("MapPane2.size="+this.getSize()); 
         super.paintComponent(graphics);
-        if (areaOfInterestModel.getAreaOfInterest()==null){
-            Envelope bBox=layerList.getBbox(false);
+        if (context.getBbox().getAreaOfInterest()==null){
+            Envelope bBox=context.getLayerList().getBbox(false);
             if (bBox!=null){
                 LOGGER.info("AreaOfInterest calculated during rendering");
-                areaOfInterestModel.setAreaOfInterest(
-                    layerList.getBbox(false),
+                context.getBbox().setAreaOfInterest(
+                    context.getLayerList().getBbox(false),
                     null);
                     //layerList.getCoordinateSystem);
             }else{
                 LOGGER.info("AreaOfInterest not calculated during rendering");
             }
         }
-        LOGGER.info("AreaOfInterest="+areaOfInterestModel);
-        renderer.setOutput(graphics,mapSize);
-        if ((layerList!=null)
-            && (layerList.getLayers()!=null)
-            && (areaOfInterestModel.getAreaOfInterest()!=null))
-        {
-            for (int i=0;i<layerList.getLayers().length;i++) {
-                if ((layerList.getLayers()[i]!=null)&&
-                        layerList.getLayers()[i].getVisability())
-                {
-                    try {
-                        FeatureCollection fc=new FeatureCollectionDefault(
-                        layerList.getLayers()[i].getDataSource());
-                        renderer.render(
-                            fc.getFeatures(new EnvelopeExtent(
-                                areaOfInterestModel.getAreaOfInterest())),
-                            areaOfInterestModel.getAreaOfInterest(),
-                            layerList.getLayers()[i].getStyle());
-                    } catch (Exception exception) {
-                        LOGGER.warning(
-                            "Exception "
-                            + exception
-                            + " rendering layer "
-                            + layerList.getLayers()[i]);
-                    }
+        //LOGGER.info("AreaOfInterest="+areaOfInterestModel);
+        renderer.setOutput(graphics,widgetSize);
+
+        for (int i=0;i<context.getLayerList().getLayers().length;i++) {
+            if (context.getLayerList().getLayers()[i].getVisability())
+            {
+                try {
+                    FeatureCollection fc=new FeatureCollectionDefault(
+                    context.getLayerList().getLayers()[i].getDataSource());
+                    renderer.render(
+                        fc.getFeatures(new EnvelopeExtent(
+                            context.getBbox().getAreaOfInterest())),
+                        context.getBbox().getAreaOfInterest(),
+                        context.getLayerList().getLayers()[i].getStyle());
+                } catch (Exception exception) {
+                    LOGGER.warning(
+                        "Exception "
+                        + exception
+                        + " rendering layer "
+                        + context.getLayerList().getLayers()[i]);
                 }
             }
-        }else{
-            LOGGER.info("No layers available to render.");
         }
     }
     
@@ -214,18 +212,18 @@ public class MapPane2 extends JScrollPane implements
     }
     
     /**
-     * Set the Screen Size of the Map.
+     * Set the Screen Size of this widget.
      * @size The size of the Map in Screen Coordinates.
      */
-    public void setMapSize(Rectangle size){
-        this.mapSize=size;
+    public void setWidgetSize(Rectangle size){
+        this.widgetSize=size;
     }
 
     /**
-     * Get the Screen Size of the Map.
+     * Get the Screen Size of this widget.
      * @return The size of the Map in Screen Coordinates.
      */
-    public Rectangle getMapSize(){
-        return this.mapSize;
+    public Rectangle getwidgetSize(){
+        return this.widgetSize;
     }
 }
