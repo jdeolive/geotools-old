@@ -45,6 +45,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.ColorModel;
+import java.awt.image.RenderedImage;
 import java.awt.image.IndexColorModel;
 import java.awt.font.FontRenderContext;
 import java.awt.font.GlyphVector;
@@ -77,6 +78,7 @@ import org.geotools.cv.SampleDimension;
 import org.geotools.gc.GridCoverage;
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.GCSUtilities;
 
 // Resources (Note: CTS resources are okay for this class).
 import org.geotools.resources.cts.Resources;
@@ -94,7 +96,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <p align="center"><img src="doc-files/ColorBar.png"></p>
  * <p>&nbsp;</p>
  *
- * @version $Id: ColorBar.java,v 1.4 2003/03/28 14:32:06 desruisseaux Exp $
+ * @version $Id: ColorBar.java,v 1.5 2003/04/16 19:31:06 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ColorBar extends JComponent {
@@ -404,14 +406,14 @@ public class ColorBar extends JComponent {
      */
     public boolean setColors(SampleDimension band) {
         if (band == null) {
-            return setGraduation(null) | setColors(EMPTY); // Realy |, not ||
+            return setGraduation(null) | setColors(EMPTY); // Really |, not ||
         }
         band = band.geophysics(false);
-        final ColorModel colors = band.getColorModel(0,1);
+        final ColorModel colors = band.getColorModel();
         if (colors instanceof IndexColorModel) {
             return setColors(band, (IndexColorModel) colors);
         } else {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException("Only IndexColorModel are currently supported");
         }
     }
 
@@ -430,17 +432,17 @@ public class ColorBar extends JComponent {
      * @see #getGraduation()
      */
     public boolean setColors(GridCoverage coverage) {
-        if (coverage == null) {
-            return setGraduation(null) | setColors(EMPTY); // Realy |, not ||
+        SampleDimension band = null;
+        if (coverage != null) {
+            coverage = coverage.geophysics(false);
+            final RenderedImage image = coverage.getRenderedImage();
+            band = coverage.getSampleDimensions()[GCSUtilities.getVisibleBand(image)];
+            final ColorModel colors = image.getColorModel();
+            if (colors instanceof IndexColorModel) {
+                return setColors(band, (IndexColorModel) colors);
+            }
         }
-        coverage = coverage.geophysics(false);
-        final ColorModel colors = coverage.getRenderedImage().getColorModel();
-        if (colors instanceof IndexColorModel) {
-            final SampleDimension band = coverage.getSampleDimensions()[0];
-            return setColors(band, (IndexColorModel) colors);
-        } else {
-            throw new UnsupportedOperationException();
-        }
+        return setColors(band);
     }
 
     /**
@@ -772,7 +774,7 @@ public class ColorBar extends JComponent {
      * de calculer l'espace qu'elle occupe. Cette classe peut aussi réagir
      * à certains événements.
      *
-     * @version $Id: ColorBar.java,v 1.4 2003/03/28 14:32:06 desruisseaux Exp $
+     * @version $Id: ColorBar.java,v 1.5 2003/04/16 19:31:06 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class UI extends ComponentUI implements PropertyChangeListener {
