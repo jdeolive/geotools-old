@@ -54,6 +54,11 @@
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
         <dependency>
+      <artifactId>lite-rendering</artifactId>
+      <groupId>gt2</groupId>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
       <artifactId>java2drendering</artifactId>
       <groupId>gt2</groupId>
       <version>0.1</version>
