@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.23 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.24 2003/05/19 13:09:47 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -93,13 +93,14 @@ public class GridCoverageProcessor {
      */
     static {
         final long targetCapacity = 0x4000000; // 64 Mo.
+        final TileCache cache = JAI.getDefaultInstance().getTileCache();
         if (Runtime.getRuntime().maxMemory() > 2*targetCapacity) {
-            final TileCache cache = JAI.getDefaultInstance().getTileCache();
             if (cache.getMemoryCapacity() < targetCapacity) {
                 cache.setMemoryCapacity(targetCapacity);
             }
         }
-        Logger.getLogger("org.geotools.gp").config("Java Advanced Imaging: "+JAI.getBuildVersion());
+        Logger.getLogger("org.geotools.gp").config("Java Advanced Imaging: "+JAI.getBuildVersion()+
+                     ", TileCache capacity="+(float)(cache.getMemoryCapacity()/(1024*1024))+" Mo");
     }
     
     /**
@@ -480,7 +481,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.23 2003/05/13 10:59:52 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.24 2003/05/19 13:09:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

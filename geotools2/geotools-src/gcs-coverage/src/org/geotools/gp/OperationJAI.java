@@ -95,7 +95,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.18 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.19 2003/05/19 13:09:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -429,7 +429,7 @@ public class OperationJAI extends Operation {
             exHints.add(hints); // May overwrite the image layout we just set.
         }
         final RenderedImage data = processor.createNS(descriptor.getName(), parameters, exHints);
-        return new GridCoverage(source.getName(null), // The grid coverage name
+        return new GridCoverage(deriveName(source),   // The grid coverage name
                                 data,                 // The underlying data
                                 cs,                   // The coordinate system.
                                 envelope,             // The coverage envelope.
@@ -455,6 +455,18 @@ public class OperationJAI extends Operation {
             }
         }
         return index;
+    }
+
+    /**
+     * Returns a name for the target {@linkplain GridCoverage grid coverage} based on the given
+     * source. The default implementation returns the operation name followed by the source name
+     * in parenthesis, as in a method call.
+     *
+     * @param  source The source grid coverage.
+     * @return A name for the target grid coverage.
+     */
+    protected String deriveName(final GridCoverage source) {
+        return getName()+'('+source.getName(null)+')';
     }
     
     /**
