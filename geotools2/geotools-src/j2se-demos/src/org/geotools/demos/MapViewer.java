@@ -36,11 +36,11 @@ import javax.swing.JMenuBar;
 
 
 /**
- * A demonstration of a Map Viewer which uses geotools2.
+ * A demonstration of a Map geotools-src\docs\sdocbook\resourcesViewer which uses geotools2.
  *
  * @author Cameron Shorter
  * @author Andrea Aime
- * @version $Id: MapViewer.java,v 1.22 2003/07/22 06:25:49 aaime Exp $
+ * @version $Id: MapViewer.java,v 1.23 2003/08/07 17:08:48 jmacgill Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -141,12 +141,12 @@ public class MapViewer {
     public static void mapPane() throws Exception {
         // load data from file (USE SOMETHING ON YOUR LOCAL DISK)
         ShapefileDataSource sds = new ShapefileDataSource(new File(
-                    "/path/to/shape/file.shp").toURL());
+                    "f:/work/pnnl/data.frame.zone.shp").toURL());
         FeatureCollection fc = sds.getFeatures();
 
         // create the style
         StyleBuilder sb = new StyleBuilder();
-        Style simple = sb.createSimpleStyle(sb.createPolygonSymbolizer(
+        Style simple = sb.createStyle(sb.createPolygonSymbolizer(
                     Color.LIGHT_GRAY, Color.BLACK, 1));
 
         // show the map
