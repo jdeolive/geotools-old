@@ -34,6 +34,7 @@ import javax.swing.*;
  */
 public class TextSymbolTest extends TestCase {
     String dataFolder;
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     public TextSymbolTest(java.lang.String testName) {
         super(testName);
         dataFolder = System.getProperty("dataFolder");
@@ -94,20 +95,20 @@ public class TextSymbolTest extends TestCase {
         
         org.geotools.styling.FontImpl font = new org.geotools.styling.FontImpl();
         
-        font.setFontFamily(new LiteralExpression(dataFolder + "geog.ttf"));
-        font.setFontSize(new AttributeExpression(pointType, "size"));
+        font.setFontFamily(filterFactory.createLiteralExpression(dataFolder + "geog.ttf"));
+        font.setFontSize(filterFactory.createAttributeExpression(pointType, "size"));
         
-        AttributeExpression symbExpr = new AttributeExpression(pointType, "symbol");
+        AttributeExpression symbExpr = filterFactory.createAttributeExpression(pointType, "symbol");
         TextMark textMark = new TextMarkImpl(font,symbExpr);
         
         org.geotools.styling.FontImpl font2 = new org.geotools.styling.FontImpl();
-        font2.setFontFamily(new LiteralExpression("MapInfo Cartographic"));
-        font2.setFontSize(new AttributeExpression(pointType, "size"));
+        font2.setFontFamily(filterFactory.createLiteralExpression("MapInfo Cartographic"));
+        font2.setFontSize(filterFactory.createAttributeExpression(pointType, "size"));
         textMark.addFont(font2);
         
         org.geotools.styling.FontImpl font3 = new org.geotools.styling.FontImpl();
-        font3.setFontFamily(new LiteralExpression("ESRI Cartography"));
-        font3.setFontSize(new AttributeExpression(pointType, "size"));
+        font3.setFontFamily(filterFactory.createLiteralExpression("ESRI Cartography"));
+        font3.setFontSize(filterFactory.createAttributeExpression(pointType, "size"));
         textMark.addFont(font3);
         
         GraphicImpl graphic = new GraphicImpl();

@@ -158,13 +158,14 @@ public class AreaFunctionTest extends TestCase {
      //   _log.debug("...flat feature created");
     }
 
-
+    static FilterFactory filterFactory = FilterFactory.createFilterFactory();
      /** 
      * Tests the min function expression.
      */
     public void testAreaFunction()
         throws IllegalFilterException {
-        Expression a = new ExpressionAttribute(testSchema, "testGeometry");         
+            
+        Expression a = filterFactory.createAttributeExpression(testSchema, "testGeometry");         
         
         AreaFunction area = new AreaFunction();
         area.setArgs(new Expression[]{a});         

@@ -15,13 +15,13 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author  James
  */
-public class AreaFunction extends org.geotools.filter.FunctionExpression {
+public class AreaFunction implements org.geotools.filter.FunctionExpression { 
     
     /**
      * Holds the geometry to calculate the area of
      */
     private Expression geom;
-    
+    private Expression[] args;
     /**
      * Instance of algorithms to use when calculating the area
      */
@@ -32,6 +32,9 @@ public class AreaFunction extends org.geotools.filter.FunctionExpression {
          calc = new RobustGeometryProperties();
     }
     
+    public short getType(){
+        return DefaultExpression.FUNCTION;
+    }
     
     
     /** Returns a value for this expression.
@@ -55,6 +58,29 @@ public class AreaFunction extends org.geotools.filter.FunctionExpression {
     
     public void setArgs(Expression[] args) {
         geom = args[0];
+        this.args = args;
+    }
+    
+    /** Used by FilterVisitors to perform some action on this filter instance.
+     * Typicaly used by Filter decoders, but may also be used by any thing which needs
+     * infomration from filter structure.
+     *
+     * Implementations should always call: visitor.visit(this);
+     *
+     * It is importatant that this is not left to a parent class unless the parents
+     * API is identical.
+     *
+     * @param visitor The visitor which requires access to this filter,
+     *                the method must call visitor.visit(this);
+     *
+     *
+     */
+    public void accept(FilterVisitor visitor) {
+         visitor.visit(this);
+    }
+    
+    public Expression[] getArgs() {
+        return args;
     }
     
 }

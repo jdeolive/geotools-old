@@ -9,7 +9,7 @@ import org.geotools.filter.*;
 
 public class DatasourceTest extends TestCase implements CollectionListener {
 
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
     FeatureCollection ft = null;
     FeatureIndex fi = null;
     public DatasourceTest(java.lang.String testName){
@@ -41,8 +41,8 @@ public class DatasourceTest extends TestCase implements CollectionListener {
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(0, 360, 0, 180.0);
         
-        org.geotools.filter.GeometryFilter gf = new org.geotools.filter.GeometryFilter(AbstractFilter.GEOMETRY_BBOX);
-        LiteralExpression right = new BBoxExpression(new Envelope(0, 360, 0, 180.0));
+        org.geotools.filter.GeometryFilter gf = filterFactory.createGeometryFilter(AbstractFilter.GEOMETRY_BBOX);
+        LiteralExpression right = filterFactory.createBBoxExpression(new Envelope(0, 360, 0, 180.0));
         gf.addRightGeometry(right);
         try{
             ft = ds.getFeatures(gf);
