@@ -381,7 +381,7 @@ public class StyleBuilder {
     public Mark createMark(String wellKnownName, Color fillColor) {
         Mark mark = sf.createMark();
         mark.setWellKnownName(literalExpression(wellKnownName));
-        mark.setFill(createFill(fillColor));
+        mark.setFill(createFill(fillColor, 1.0));
         mark.setStroke(null);
 
         return mark;
