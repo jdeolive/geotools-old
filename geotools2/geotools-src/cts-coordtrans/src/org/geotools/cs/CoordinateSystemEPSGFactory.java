@@ -43,8 +43,10 @@ import java.sql.SQLException;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
-// Preferences
+// Preferences and reflection
 import java.util.prefs.Preferences;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.UndeclaredThrowableException;
 
 // Logging
 import java.io.PrintWriter;
@@ -117,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.16 2003/11/12 14:13:33 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.17 2004/01/08 23:05:28 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -135,6 +137,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     /** Preference node for the EPSG database connection string, and its default value. */
     private static final String CONNECTION = "EPSG connection",
                         DEFAULT_CONNECTION = "jdbc:odbc:EPSG";
+
+    /** Preference node for the EPSG factory implementation classname. */
+    private static final String IMPLEMENTATION = "EPSG Factory";
 
     /**
      * Default mapping for {@link #namesMap}.
@@ -228,6 +233,67 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     }
 
     /**
+     * Returns a new instance of <code>CoordinateSystemEPSGFactory</code> using reflection API.
+     * This method allow the use of an alternative implementation. The implementation must be
+     * a subclass of <code>CoordinateSystemEPSGFactory</code> and must have a constructor with
+     * the following arguments:
+     * <ul>
+     *   <li>The coordinate system factory as a {@link CoordinateSystemFactory}</li>
+     *   <li>The EPSG database URL as a {@link String}</li>
+     *   <li>The database driver as a {@link String}</li>
+     * </ul>
+     *
+     * @param  factory        The underlying factory used for objects creation.
+     * @param  implementation Fully qualified class name of the implementation to use.
+     * @param  url            The url to the EPSG database.
+     * @param  driver         An optional driver to load, or <code>null</code> if none.
+     * @return The <code>CoordinateSystemEPSGFactory</code> instance.
+     */
+    private static CoordinateSystemEPSGFactory newInstance(final CoordinateSystemFactory factory,
+                                                           final String implementation,
+                                                           final String url,
+                                                           final String driver) throws SQLException
+    {
+        final Class[] ARG_TYPES = new Class[] {
+            CoordinateSystemFactory.class, String.class, String.class
+        };
+        try {
+            return (CoordinateSystemEPSGFactory) Class.forName(implementation)
+                    .getConstructor(ARG_TYPES).newInstance(new Object[] {factory, url, driver});
+        } catch (InvocationTargetException exception) {
+            /*
+             * The class and the constructor have been found, but the
+             * the creation failed because of an exception in user code.
+             * Rethrow the user exception (not the reflection API exception).
+             */
+            Throwable cause = exception.getTargetException();
+            if (cause instanceof SQLException) {
+                throw (SQLException) cause;
+            }
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            throw new UndeclaredThrowableException(cause);
+        } catch (RuntimeException exception) {
+            throw exception;
+        } catch (Exception cause) {
+            /*
+             * A reflection API call failed.  If the cause was an unchecked exception
+             * (for example a SecurityException), throws as-is. Otherwise, wrap it in
+             * an unchecked IllegalArgumentException with the reflection exception as
+             * its cause. The rational is that failing to create the EPSG factory may
+             * be understood as an user specifying a wrong implementation in the main
+             * method.
+             */
+            final IllegalArgumentException exception = new IllegalArgumentException(
+                  Resources.format(ResourceKeys.ERROR_BAD_ARGUMENT_$2,
+                                   "-implementation", implementation));
+            exception.initCause(cause);
+            throw exception;
+        }
+    }
+
+    /**
      * Returns a default coordinate system factory backed by the EPSG database.
      * Invoking {@link #dispose} on this special factory will not close the database
      * connection, since it may be shared by many users. However, it is safe to invoke
@@ -247,9 +313,15 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     public synchronized static CoordinateSystemAuthorityFactory getDefault() throws SQLException {
         if (DEFAULT == null) {
             final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
-            final String     driver = prefs.get(DRIVER, DEFAULT_DRIVER);
-            final String    connect = prefs.get(CONNECTION, DEFAULT_CONNECTION);
-            DEFAULT = new CoordinateSystemEPSGFactory(CoordinateSystemFactory.getDefault(), connect, driver);
+            final String     driver = prefs.get(DRIVER,         DEFAULT_DRIVER);
+            final String    connect = prefs.get(CONNECTION,     DEFAULT_CONNECTION);
+            final String  implement = prefs.get(IMPLEMENTATION, null);
+            final CoordinateSystemFactory factory = CoordinateSystemFactory.getDefault();
+            if (implement == null) {
+                DEFAULT = new CoordinateSystemEPSGFactory(factory, connect, driver);
+            } else {
+                DEFAULT = newInstance(factory, implement, connect, driver);
+            }
             Runtime.getRuntime().addShutdownHook(new Thread("EPSG factory shutdown") {
                 public void run() {
                     try {
@@ -1475,18 +1547,35 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * </pre></blockquote>
      *
      * The following optional arguments are supported:
-     * <ul>
-     *   <li><code>-connection</code> set the EPSG database URL. The URL must conform to
+     * <blockquote>
+     *   <strong><code>-connection</code></strong><br>
+     *       Set the EPSG database URL. The URL must conform to
      *       {@link DriverManager#getConnection(String)} specification. The default value
      *       is <code>jdbc:odbc:EPSG</code>. The specified URL is stored in system preferences
-     *       and will become the default URL for every calls to {@link #getDefault()}.</li>
-     *   <li><code>-driver</code> set driver class. The default value is
-     *       <code>sun.jdbc.odbc.JdbcOdbcDriver</code>. The specified classname is stored
-     *       in system preferences and will become the default URL for every calls to
-     *       {@link #getDefault()}.</li>
-     *   <li><code>-encoding</code> set the console encoding for this application output.
-     *       This value has no impact on <code>CoordinateSystemEPSGFactory</code> behavior.</li>
-     * </ul>
+     *       and will become the default URL for every calls to {@link #getDefault()}.
+     *       <br><br>
+     *
+     *   <strong><code>-driver</code></strong><br>
+     *       Set the driver class. The default value is <code>sun.jdbc.odbc.JdbcOdbcDriver</code>.
+     *       The specified classname is stored in system preferences and will become the default
+     *       URL for every calls to {@link #getDefault()}.
+     *       <br><br>
+     *
+     *   <strong><code>-implementation</code></strong><br>
+     *       Set an alternative implementation. The argument must be a fully qualified class name
+     *       of a <code>CoordinateSystemEPSGFactory</code> subclass. The implementation must have
+     *       a public constructor with the following arguments:
+     *       <ul>
+     *         <li>The coordinate system factory as a {@link CoordinateSystemFactory}</li>
+     *         <li>The EPSG database URL as a {@link String}</li>
+     *         <li>The database driver as a {@link String}</li>
+     *       </ul>
+     *       <br><br>
+     *
+     *   <strong><code>-encoding</code></strong><br>
+     *       Set the console encoding for this application output.
+     *       This value has no impact on <code>CoordinateSystemEPSGFactory</code> behavior.
+     * </blockquote>
      *
      * @param args A list of EPSG code to display.
      *             An arbitrary number of code can be specified on the command line.
@@ -1497,12 +1586,28 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         final PrintWriter      out = arguments.out;
         final String     newDriver = arguments.getOptionalString("-driver");
         final String newConnection = arguments.getOptionalString("-connection");
+        final String  newImplement = arguments.getOptionalString("-implementation");
         final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
         if (newDriver != null) {
-            prefs.put(DRIVER, newDriver);
+            if (newDriver.length() == 0) {
+                prefs.remove(DRIVER);
+            } else {
+                prefs.put(DRIVER, newDriver);
+            }
         }
         if (newConnection != null) {
-            prefs.put(CONNECTION, newConnection);
+            if (newConnection.length() == 0) {
+                prefs.remove(CONNECTION);
+            } else {
+                prefs.put(CONNECTION, newConnection);
+            }
+        }
+        if (newImplement != null) {
+            if (newImplement.length() == 0) {
+                prefs.remove(IMPLEMENTATION);
+            } else {
+                prefs.put(IMPLEMENTATION, newImplement);
+            }
         }
         args = arguments.getRemainingArguments(Integer.MAX_VALUE);
         if (args.length == 0) {
