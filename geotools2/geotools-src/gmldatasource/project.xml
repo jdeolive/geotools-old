@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <name>geotools-gmldatasource</name>
+  <id>gmldatasource</id>
+  <currentVersion>0.1</currentVersion>
+  <organization>
+    <name>GeoTools</name>
+    <url>http://www.geotools.org</url>
+        <logo>/images/gtLogo.gif</logo>
+    </organization>
+  <inceptionYear>1996</inceptionYear>
+  <package>org.geotools</package>
+  <shortDescription>gmldatasource module</shortDescription>
+  <gumpRepositoryId>geotools</gumpRepositoryId>
+  <description>gmldatasource module</description>
+  <url>http://www.geotols.org/</url>
+  <cvsWebUrl/>
+  <issueTrackingUrl/>
+  <siteAddress>www.geotools.org</siteAddress>
+  <siteDirectory/>
+  <distributionDirectory/>
+  
+  <repository>
+    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/gmldatasource</connection>
+    
+        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gmldatasource/</url>
+    </repository>
+  
+
+  <mailingLists/>
+  <developers>
+    <developer>
+      <name>Rob Hranac</name>
+      <id>robhranac</id>
+      <email>robhranac@users.sourceforge.net</email>
+      <organization></organization>
+            <roles>
+                <role>Module Maintainer</role>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization></organization>
+            <roles>
+                <role>Java Developer</role>
+            </roles>
+        </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <id>core</id>
+      <version>0.1</version>
+    </dependency>
+    
+    
+        
+        <dependency>
+      <id>defaultcore</id>
+      <version>0.1</version>
+    </dependency>
+    </dependencies>
+  <build>
+    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
+    
+    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
+    <integrationUnitTestSourceDirectory/>
+    <aspectSourceDirectories/>
+    <unitTestPatterns>
+      <unitTestPattern>include = **/*Test.java</unitTestPattern>
+    </unitTestPatterns>
+    <integrationUnitTestPatterns/>
+    <jarResources/>
+    <jars/>
+        <sourceDirectory>src</sourceDirectory>
+    </build>
+    <logo>/images/gmldatasource.gif</logo>
+</project>
+
