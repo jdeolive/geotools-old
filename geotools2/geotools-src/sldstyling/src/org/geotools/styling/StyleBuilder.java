@@ -462,15 +462,15 @@ public class StyleBuilder {
         Graphic gr = sf.getDefaultGraphic();
 
         if (externalGraphic != null) {
-            gr.setExternalGraphics(new ExternalGraphic[] { externalGraphic });
+            gr.setExternalGraphics(new ExternalGraphic[] {externalGraphic});
         }
 
         if (mark != null) {
-            gr.setMarks(new Mark[] { mark });
+            gr.setMarks(new Mark[] {mark});
         }
 
         if (symbol != null) {
-            gr.setSymbols(new Symbol[] { symbol });
+            gr.setSymbols(new Symbol[] {symbol});
         }
 
         return gr;
@@ -495,15 +495,15 @@ public class StyleBuilder {
         Symbol[] symbols = null;
 
         if (externalGraphic != null) {
-            egs = new ExternalGraphic[] { externalGraphic };
+            egs = new ExternalGraphic[] {externalGraphic};
         }
 
         if (mark != null) {
-            marks = new Mark[] { mark };
+            marks = new Mark[] {mark};
         }
 
         if (symbol != null) {
-            symbols = new Symbol[] { symbol };
+            symbols = new Symbol[] {symbol};
         }
 
         return createGraphic(egs, marks, symbols, literalExpression(opacity),
@@ -1057,8 +1057,8 @@ public class StyleBuilder {
      */
     public TextSymbolizer createTextSymbolizer(Color color, Font font,
         String attributeName) throws org.geotools.filter.IllegalFilterException {
-        return createTextSymbolizer(createFill(color), new Font[] { font },
-            null, attributeExpression(attributeName), null, null);
+        return createTextSymbolizer(createFill(color), new Font[] {font}, null,
+            attributeExpression(attributeName), null, null);
     }
 
     /**
@@ -1090,8 +1090,8 @@ public class StyleBuilder {
      */
     public TextSymbolizer createStaticTextSymbolizer(Color color, Font font,
         String label) {
-        return createTextSymbolizer(createFill(color), new Font[] { font },
-            null, literalExpression(label), null, null);
+        return createTextSymbolizer(createFill(color), new Font[] {font}, null,
+            literalExpression(label), null, null);
     }
 
     /**
@@ -1198,8 +1198,7 @@ public class StyleBuilder {
      */
     public Rule createRule(Symbolizer symbolizer, double minScaleDenominator,
         double maxScaleDenominator) {
-        return createRule(new Symbolizer[] { symbolizer }, Double.NaN,
-            Double.NaN);
+        return createRule(new Symbolizer[] {symbolizer}, Double.NaN, Double.NaN);
     }
 
     /**
@@ -1307,7 +1306,7 @@ public class StyleBuilder {
         String featureTypeStyleName, Symbolizer symbolizer,
         double minScaleDenominator, double maxScaleDenominator) {
         return createFeatureTypeStyle(featureTypeStyleName,
-            new Symbolizer[] { symbolizer }, minScaleDenominator,
+            new Symbolizer[] {symbolizer}, minScaleDenominator,
             maxScaleDenominator);
     }
 
@@ -1330,7 +1329,7 @@ public class StyleBuilder {
 
         // setup the feature type style
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
-        fts.setRules(new Rule[] { r });
+        fts.setRules(new Rule[] {r});
 
         if (featureTypeStyleName != null) {
             fts.setFeatureTypeName(featureTypeStyleName);
@@ -1480,8 +1479,8 @@ public class StyleBuilder {
      */
     public Expression attributeExpression(String attributeName)
         throws org.geotools.filter.IllegalFilterException {
-        org.geotools.filter.AttributeExpression attribute = 
-            ff.createAttributeExpression(null);
+        org.geotools.filter.AttributeExpression attribute = ff
+            .createAttributeExpression(null);
         attribute.setAttributePath(attributeName);
 
         return attribute;

@@ -22,16 +22,15 @@ import java.io.IOException;
 // J2SE dependencies
 
 /**
- * Exports a filter as a OGC XML Filter document.  This class is does not
- * generate namespace compliant xml, even though it does print gml prefixes.
- * It was also written before the 1.0 filter spec, so some of it may be not up
- * to date.
+ * Exports a style as a OGC SLD document.  This class is does not generate
+ * namespace compliant xml, even though it does print gml prefixes. It was
+ * also written before the 1.0 filter spec, so some of it may be not up to
+ * date.
  *
  * @author Ian Turton, ccg
  *
- * @task HACK: Logging errors, very bad!  We need a filter visitor exception,
- *       or have visit methods throw illegal filter exceptions, or io
- *       exceptions.
+ * @task HACK: Logging errors, very bad!  We need a style visitor exception, or
+ *       have visit methods throw illegal filter exceptions, or io exceptions.
  * @task TODO: Support full header information for new XML file
  * @task REVISIT: make filter utils class so that other encoders (like sql). It
  *       could also be nice to refactor common code from gml producer, as
@@ -40,8 +39,8 @@ import java.io.IOException;
  */
 public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     /** The logger for the filter module. */
-    private static final java.util.logging.Logger LOGGER = 
-        java.util.logging.Logger.getLogger("org.geotools.style");
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+        .getLogger("org.geotools.style");
     private org.geotools.filter.XMLEncoder filterEncoder;
 
     /** To write the xml representations of filters to */
@@ -55,6 +54,7 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public XMLEncoder(java.io.Writer out) {
         this.out = out;
         filterEncoder = new org.geotools.filter.XMLEncoder(out);
+        LOGGER.fine("creating a Style encoder");
     }
 
     /**
@@ -159,13 +159,13 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("<Title>" + rule.getTitle() + "</Title>\n");
 
             if (rule.getMaxScaleDenominator() != Double.POSITIVE_INFINITY) {
-                out.write("<MaxScaleDenominator>" +
-                    rule.getMaxScaleDenominator() + "</MaxScaleDenominator>");
+                out.write("<MaxScaleDenominator>"
+                    + rule.getMaxScaleDenominator() + "</MaxScaleDenominator>");
             }
 
             if (rule.getMinScaleDenominator() != 0.0) {
-                out.write("<MinScaleDenominator>" +
-                    rule.getMinScaleDenominator() + "</MinScaleDenominator>");
+                out.write("<MinScaleDenominator>"
+                    + rule.getMinScaleDenominator() + "</MinScaleDenominator>");
             }
 
             org.geotools.filter.Filter filter = rule.getFilter();
@@ -205,8 +205,7 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             String geom = gr.getGeometryPropertyName();
 
             if ((geom != null) && !geom.trim().equals("")) {
-                out.write("<GeometryProperty>" + geom +
-                    "</GeometryProperty>\n");
+                out.write("<GeometryProperty>" + geom + "</GeometryProperty>\n");
             }
 
             out.write("<Size>\n");
@@ -238,9 +237,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("<PointSymbolizer>\n");
 
             if (sym.geometryPropertyName() != null) {
-                out.write("<Geometry>\n\t<ogc:PropertyName>" +
-                    sym.geometryPropertyName() +
-                    "</ogc:PropertyName>\n</Geometry>\n");
+                out.write("<Geometry>\n\t<ogc:PropertyName>"
+                    + sym.geometryPropertyName()
+                    + "</ogc:PropertyName>\n</Geometry>\n");
             }
 
             sym.getGraphic().accept(this);
@@ -255,9 +254,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("<LineSymbolizer>\n");
 
             if (sym.geometryPropertyName() != null) {
-                out.write("<Geometry>\n\t<ogc:PropertyName>" +
-                    sym.geometryPropertyName() +
-                    "</ogc:PropertyName>\n</Geometry>\n");
+                out.write("<Geometry>\n\t<ogc:PropertyName>"
+                    + sym.geometryPropertyName()
+                    + "</ogc:PropertyName>\n</Geometry>\n");
             }
 
             sym.getStroke().accept(this);
@@ -313,8 +312,8 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
                 sb.append(dash[i] + " ");
             }
 
-            out.write("<CssParameter name='stroke-dasharray'>" + sb.toString() +
-                "</CssParameter>\n");
+            out.write("<CssParameter name='stroke-dasharray'>" + sb.toString()
+                + "</CssParameter>\n");
             out.write("</Stroke>\n");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -326,9 +325,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("<TextSymbolizer>\n");
 
             if (sym.getGeometryPropertyName() != null) {
-                out.write("<Geometry>\n\t<ogc:PropertyName>" +
-                    sym.getGeometryPropertyName() +
-                    "</ogc:PropertyName>\n</Geometry>\n");
+                out.write("<Geometry>\n\t<ogc:PropertyName>"
+                    + sym.getGeometryPropertyName()
+                    + "</ogc:PropertyName>\n</Geometry>\n");
             }
 
             out.write("<Label>\n");
@@ -360,9 +359,9 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
     public void visit(PolygonSymbolizer sym) {
         try {
             out.write("<PolygonSymbolizer>\n");
-            out.write("<Geometry>\n\t<ogc:PropertyName>" +
-                sym.geometryPropertyName() +
-                "</ogc:PropertyName>\n</Geometry>\n");
+            out.write("<Geometry>\n\t<ogc:PropertyName>"
+                + sym.geometryPropertyName()
+                + "</ogc:PropertyName>\n</Geometry>\n");
 
             if (sym.getFill() != null) {
                 sym.getFill().accept(this);
@@ -404,8 +403,8 @@ public class XMLEncoder implements org.geotools.styling.StyleVisitor {
             out.write("<ExternalGraphic>\n");
             out.write("<Format>" + exgr.getFormat() + "</Format>\n");
             out.write(
-                "<OnlineResource xmlns:xlink='http://www.w3.org/1999/xlink" +
-                "xlink:type='simple' xlink='");
+                "<OnlineResource xmlns:xlink='http://www.w3.org/1999/xlink"
+                + "xlink:type='simple' xlink='");
             out.write(exgr.getLocation().toString() + "'/>");
             out.write("</ExternalGraphic>\n");
         } catch (IOException e) {
