@@ -42,7 +42,7 @@ public class PostgisDataStoreTest extends TestCase {
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.postgis");
-    private static String FEATURE_TABLE = "testset"; //"geom_test";// "testset";//
+    private static String FEATURE_TABLE = "testset"; 
     private static String TEST_NS = "http://www.geotools.org/data/postgis";
     private static GeometryFactory geomFac = new GeometryFactory();
     private FilterFactory filterFac = FilterFactory.createFilterFactory();
@@ -216,11 +216,10 @@ public class PostgisDataStoreTest extends TestCase {
 
         try {
             assertFalse(writer.hasNext());
-            
         } catch (IOException expected) {
         }
 
-	//TODO: test that writer.next is an empty feature.
+        //TODO: test that writer.next is an empty feature.
         //try {
         //    writer.next();
         //    fail("Should not be able to use a closed writer");
@@ -239,6 +238,33 @@ public class PostgisDataStoreTest extends TestCase {
 
             //catch the proper exception
         }
+    }
+
+    public void testOptimizedBounds() throws Exception {
+        FeatureSource source = dstore.getFeatureSource(FEATURE_TABLE);
+        CompareFilter test1 = null;
+
+        try {
+            test1 = filterFac.createCompareFilter(AbstractFilter.COMPARE_EQUALS);
+
+            Integer testInt = new Integer(0);
+            Expression testLiteral = filterFac.createLiteralExpression(testInt);
+            test1.addLeftValue(testLiteral);
+            test1.addRightValue(filterFac.createAttributeExpression(schema,
+                    "pcedflag"));
+        } catch (IllegalFilterException e) {
+            fail("Illegal Filter Exception " + e);
+        }
+
+        Query query = new DefaultQuery(FEATURE_TABLE, test1);
+        Envelope bounds = source.getBounds(query);
+        LOGGER.info("bounds on query " + query + " is " + bounds);
+
+        Envelope fBounds = source.getBounds();
+        LOGGER.info("Bounds of source is " + fBounds);
+
+        FeatureResults results = source.getFeatures(query);
+        LOGGER.info("bounds from feature results is " + results.getBounds());
     }
 
     public void testGetFeaturesWriterModify()
@@ -290,58 +316,63 @@ public class PostgisDataStoreTest extends TestCase {
         state.rollback();
     }
 
-    /*    public void testGetFeaturesWriterModifyGeometry() throws IOException, IllegalAttributeException {
-       FeatureWriter writer = dstore.getFeatureWriter( "road", Filter.NONE,
-                                                      Transaction.AUTO_COMMIT );
-       Feature feature;
+    public void testGetFeaturesWriterModifyGeometry()
+        throws IOException, IllegalAttributeException {
+        FeatureWriter writer = dstore.getFeatureWriter("road", Filter.NONE,
+                Transaction.AUTO_COMMIT);
+        Feature feature;
         Coordinate[] points = {
-               new Coordinate(59, 59), new Coordinate(17, 17),
-               new Coordinate(49, 39), new Coordinate(57, 67),
-               new Coordinate(79, 79)
-           };
+            new Coordinate(59, 59), new Coordinate(17, 17),
+            new Coordinate(49, 39), new Coordinate(57, 67),
+            new Coordinate(79, 79)
+        };
         LineString geom = geomFac.createLineString(points);
-       while( writer.hasNext() ){
-           feature = writer.next();
-           LOGGER.info("looking at feature " + feature);
-           if( feature.getAttribute(0).equals("asphalt") ){
-               LOGGER.info("changing name and geom");
-               feature.setAttribute("the_geom", geom);
-               writer.write();
-           }
-    
-       }
-       //feature = (Feature) data.features( "road" ).get( "road.rd1" );
-       //assertEquals( "changed", feature.getAttribute("name") );
-       writer.close();
-       }
-    
-       public void testGetFeaturesWriterModifyMultipleAtts()
-           throws IOException, IllegalAttributeException {
-           FeatureWriter writer = dstore.getFeatureWriter( "road", Filter.NONE,
-                                                           Transaction.AUTO_COMMIT );
-           Feature feature;
-           Coordinate[] points = {
-               new Coordinate(32, 44), new Coordinate(62, 51),
-               new Coordinate(45, 35), new Coordinate(55, 65),
-               new Coordinate(73, 75)
-                   };
-            LineString geom = geomFac.createLineString(points);
-            while( writer.hasNext() ){
-                feature = writer.next();
-                LOGGER.info("looking at feature " + feature);
-                if(feature.getAttribute(0).equals("asphalt") ){
-                    LOGGER.info("changing name and geom");
-                    feature.setAttribute("the_geom", geom);
-                    feature.setAttribute("name", "trick" );
-                    writer.write();
-                }
-    
+
+        while (writer.hasNext()) {
+            feature = writer.next();
+            LOGGER.info("looking at feature " + feature);
+
+            if (feature.getAttribute(0).equals("asphalt")) {
+                LOGGER.info("changing name and geom");
+                feature.setAttribute("the_geom", geom);
+                writer.write();
             }
-            //feature = (Feature) data.features( "road" ).get( "road.rd1" );
-            //assertEquals( "changed", feature.getAttribute("name") );
-            writer.close();
-       }
-     */
+        }
+
+        //feature = (Feature) data.features( "road" ).get( "road.rd1" );
+        //assertEquals( "changed", feature.getAttribute("name") );
+        writer.close();
+    }
+
+    public void testGetFeaturesWriterModifyMultipleAtts()
+        throws IOException, IllegalAttributeException {
+        FeatureWriter writer = dstore.getFeatureWriter("road", Filter.NONE,
+                Transaction.AUTO_COMMIT);
+        Feature feature;
+        Coordinate[] points = {
+            new Coordinate(32, 44), new Coordinate(62, 51),
+            new Coordinate(45, 35), new Coordinate(55, 65),
+            new Coordinate(73, 75)
+        };
+        LineString geom = geomFac.createLineString(points);
+
+        while (writer.hasNext()) {
+            feature = writer.next();
+            LOGGER.info("looking at feature " + feature);
+
+            if (feature.getAttribute(0).equals("asphalt")) {
+                LOGGER.info("changing name and geom");
+                feature.setAttribute("the_geom", geom);
+                feature.setAttribute("name", "trick");
+                writer.write();
+            }
+        }
+
+        //feature = (Feature) data.features( "road" ).get( "road.rd1" );
+        //assertEquals( "changed", feature.getAttribute("name") );
+        writer.close();
+    }
+
     public void testGetFeaturesWriterAdd()
         throws IOException, IllegalAttributeException {
         Transaction trans = new DefaultTransaction();
@@ -400,7 +431,7 @@ public class PostgisDataStoreTest extends TestCase {
         return attributes;
     }
 
-    /*    public void testGetFeatureWriterRemove()
+    public void testGetFeatureWriterRemove()
         throws IOException, IllegalAttributeException {
         Transaction trans = new DefaultTransaction();
         JDBCTransactionState state = new JDBCTransactionState(connPool);
@@ -430,39 +461,7 @@ public class PostgisDataStoreTest extends TestCase {
         numFeatures = count(reader);
         assertEquals("Wrong number of features after add", 5, numFeatures);
         state.rollback();
-	}*/
+    }
 
     //assertEquals( fixture.roadFeatures.length-1, data.features( "road" ).size() );
-
-    /*    public void testGetFeatureWriterAppend() throws NoSuchElementException, IOException, IllegalAttributeException {
-       FeatureWriter writer;
-    
-       writer = dstore.getFeatureWriter( "road", false, Transaction.AUTO_COMMIT );
-       //assertEquals( fixture.roadFeatures.length, count( writer ) );
-       //writer.close();
-    
-       writer = dstore.getFeatureWriter( "road", true, Transaction.AUTO_COMMIT );
-       assertEquals( 0, count( writer ) );
-       writer.close();
-       }
-       public void testGetFeatureWriterFilter() throws NoSuchElementException, IOException, IllegalAttributeException {
-           FeatureWriter writer;
-    
-           writer = dstore.getFeatureWriter( "road", Filter.ALL, Transaction.AUTO_COMMIT );
-           //assertTrue( writer instanceof EmptyFeatureWriter );
-           //assertEquals( 0, count( writer ) );
-    
-           writer = dstore.getFeatureWriter( "road", Filter.NONE, Transaction.AUTO_COMMIT );
-           //assertFalse( writer instanceof FilteringFeatureWriter );
-           //assertEquals( fixture.roadFeatures.length, count( writer ) );
-    
-           //writer = data.getFeatureWriter( "road", fixture.rd1Filter, Transaction.AUTO_COMMIT );
-           //assertTrue( writer instanceof FilteringFeatureWriter );
-           //assertEquals( 1, count( writer ) );
-           writer.close();
-           } */
-
-    //public void testFeatureSource() throws Exception {
-    //PostgisDataStore dstore = new PostgisDataStore(connPool, TEST_NS);
-    //}
 }
