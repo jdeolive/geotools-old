@@ -37,10 +37,10 @@ import org.geotools.feature.*;
  * <p>This handler must be implemented by the parent of a GMLFilterFeature
  * filter in order to handle the features passed to it from the child.</p>
  * 
- * @version $Id: GMLHandlerFeature.java,v 1.4 2002/07/12 16:58:13 loxnard Exp $
+ * @version $Id: GMLHandlerFeature.java,v 1.5 2002/12/27 21:55:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
-public interface GMLHandlerFeature {
+public interface GMLHandlerFeature extends ContentHandler {
 
 
                 /**

@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * filter must implement GMLHandlerJTS in order to receive the JTS objects
  * passed by this filter.</p>
  *
- * @version $Id: GMLFilterFeature.java,v 1.9 2002/08/13 12:53:06 ianturton Exp $
+ * @version $Id: GMLFilterFeature.java,v 1.10 2002/12/27 21:55:18 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
@@ -104,13 +104,17 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     public void geometry(Geometry geometry) {
         //insideGeometry = true;
         //_log.debug("adding geometry with name "+attName);
-        if(attName.equals("")){
-            attributeNames.addElement("geometry");
-        }else{
-            attributeNames.addElement(attName);
-        }
-        attributes.addElement(geometry);
+	if (insideFeature) {
+	    if(attName.equals("")){
+		attributeNames.addElement("geometry");
+	    }else{
+		attributeNames.addElement(attName);
+	    }
+	    attributes.addElement(geometry);
         //currentFeature.setGeometry(geometry);
+	} else {
+	    // parent.geometry(geometry);
+	}
     }
     
     
@@ -174,8 +178,8 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             //_log.debug("inside attribute");
             
         }else{
-            System.out.println("Start of something that is not a Feature" +
-            " or Attribute\n" + qName);
+	    parent.startElement(namespaceURI, localName, qName, atts);
+            
         }
     }
     
@@ -210,7 +214,9 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
                 }
             }
             
-        }
+        } else {
+	    parent.characters(ch, start, length);
+	}
     }
     
     
@@ -270,8 +276,10 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             //_log.debug("attName now equals " + attName);
             insideAttribute = false;
         } else {
+	    parent.endElement(namespaceURI, localName, qName);
             //_log.debug("end - inside feature");
-            insideFeature = false;
+            //insideFeature = false;
+
         }
     }
 }
