@@ -106,6 +106,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * The DE-9IM intersection matrix for overlaps is:
      * T*T***T** (for two points or two surfaces)
      * 1*T***T** (for two curves) 
+     * Contains DE-9IM intersection matrix is T*F**F***.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
@@ -195,6 +196,7 @@ public class OverlapsIntegrity extends RelationIntegrity
 	 * The DE-9IM intersection matrix for overlaps is:
      * T*T***T** (for two points or two surfaces)
      * 1*T***T** (for two curves) 
+     * Contains DE-9IM intersection matrix is T*F**F***.
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>

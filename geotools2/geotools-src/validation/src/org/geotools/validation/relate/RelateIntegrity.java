@@ -47,12 +47,13 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <b>Puropse:</b><br>
  * <p>
- * DOCUMENT ME!!
+ * Tests to see if a Geometry intersects with another Geometry.
  * </p>
  * 
  * <b>Description:</b><br>
  * <p>
- * DOCUMENT ME!!
+ * If only one Geometry is given, then this test checks to see if it 
+ * intersects part of itself.
  * </p>
  * 
  * <b>Usage:</b><br>
@@ -115,23 +116,41 @@ public class RelateIntegrity extends RelationIntegrity
 	/**
 	 * <b>validateMultipleLayers Purpose:</b> <br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * This validation tests for a geometry crosses another geometry. 
+	 * Uses JTS' Geometry.crosses(Geometry) method.
+	 * 
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * The function filters the FeatureSources using the given bounding box.
+	 * It creates iterators over both filtered FeatureSources. It calls relate() using the
+	 * geometries in the FeatureSource layers. Tests the results of the method call against
+	 * the given expected results. Returns true if the returned results and the expected results 
+	 * are true, false otherwise.
+	 * 
+	 * The following is taken from JTS documentation for Geometry.relate():
+	 * "Returns true if the elements in the DE-9IM intersection matrix for the two Geometrys match the elements in intersectionPattern  , which may be:
+     * 0
+     * 1
+     * 2
+     * T ( = 0, 1 or 2)
+     * F ( = -1)
+     * * ( = -1, 0, 1 or 2) 
+     * For more information on the DE-9IM, see the OpenGIS Simple Features Specification."
+     * 
+     * 
 	 * </p>
 	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA
-	 * @param featureSourceB
-	 * @param expected
-	 * @param results
-	 * @param bBox
-	 * @return
-	 * @throws Exception
+	 * @param featureSourceA - the FeatureSource to pull the original geometries from. 
+	 * @param featureSourceB - the FeatureSource to pull the other geometries from 
+	 * @param expected - boolean value representing the user's expected outcome of the test
+	 * @param results - ValidationResults
+	 * @param bBox - Envelope - the bounding box within which to perform the intersects()
+	 * @return boolean result of the test
+	 * @throws Exception - IOException if iterators improperly closed
 	 */
 	private boolean validateMultipleLayers(	FeatureSource featureSourceA, 
 											FeatureSource featureSourceB, 
@@ -197,22 +216,41 @@ public class RelateIntegrity extends RelationIntegrity
 	/**
 	 * <b>validateSingleLayer Purpose:</b> <br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * This validation tests for a relate between two geometries. 
+	 * Uses JTS' Geometry.relate(Geometry) method.
+	 * 
 	 * </p>
 	 * 
 	 * <b>Description:</b><br>
 	 * <p>
-	 * DOCUMENT ME!!
+	 * The function filters the FeatureSources using the given bounding box.
+	 * It creates iterators over both filtered FeatureSources. It calls relate() using the
+	 * geometries in the FeatureSource layers. Tests the results of the method call against
+	 * the given expected results. Returns true if the returned results and the expected results 
+	 * are true, false otherwise.
+	 * 
+	 * </p>
+	 * <b>Description:</b><br>
+	 * <p>
+	 * The following is taken from JTS documentation for Geometry.relate():
+	 * "Returns true if the elements in the DE-9IM intersection matrix for the two Geometrys match the elements in intersectionPattern  , which may be:
+     * 0
+     * 1
+     * 2
+     * T ( = 0, 1 or 2)
+     * F ( = -1)
+     * * ( = -1, 0, 1 or 2) 
+     * For more information on the DE-9IM, see the OpenGIS Simple Features Specification."
 	 * </p>
 	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA
-	 * @param expected
-	 * @param results
-	 * @param bBox
-	 * @return
-	 * @throws Exception
+	 * @param featureSourceA - the FeatureSource to pull the original geometries from. 
+	 * @param expected - boolean value representing the user's expected outcome of the test
+	 * @param results - ValidationResults
+	 * @param bBox - Envelope - the bounding box within which to perform the relate()
+	 * @return boolean result of the test
+	 * @throws Exception - IOException if iterators improperly closed
 	 */
 	private boolean validateSingleLayer(FeatureSource featureSourceA, 
 										boolean expected, 
