@@ -18,8 +18,10 @@ package org.geotools.data;
 
 import org.geotools.factory.FactoryFinder;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -73,16 +75,16 @@ public final class DataStoreFinder {
 
         while (ps.hasNext()) {
             DataStoreFactorySpi fac = (DataStoreFactorySpi) ps.next();
+
             try {
                 if (fac.canProcess(params)) {
                     return fac.createDataStore(params);
                 }
-            }
-            catch( Throwable t){
+            } catch (Throwable t) {
                 // Protect against DataStores that don't carefully
                 // code canProcess
                 // -ArcSDE do not handle non string values
-                continue;                
+                continue;
             }
         }
 
@@ -91,12 +93,24 @@ public final class DataStoreFinder {
 
     /**
      * Finds all implemtaions of DataStoreFactory which have registered using
-     * the services mechanism.
+     * the services mechanism, and that have the appropriate libraries on the
+     * classpath.
      *
      * @return An iterator over all discovered datastores which have registered
-     *         factories.
+     *         factories, and whose available method returns true.
      */
     public static Iterator getAvailableDataStores() {
-        return FactoryFinder.factories(DataStoreFactorySpi.class);
+        Set availableDS = new HashSet();
+        Iterator it = FactoryFinder.factories(DataStoreFactorySpi.class);
+
+        while (it.hasNext()) {
+            DataStoreFactorySpi dsFactory = (DataStoreFactorySpi) it.next();
+
+            if (dsFactory.isAvailable()) {
+                availableDS.add(dsFactory);
+            }
+        }
+
+        return availableDS.iterator();
     }
 }
