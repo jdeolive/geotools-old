@@ -23,7 +23,7 @@
       <item name="Overview"               href="http://www.geotools.org/modules.php?op=modload&amp;name=Sections&amp;file=index&amp;req=viewarticle&amp;artid=62&amp;page=1"/>
       <item name="Developers Guidelines"  href="http://www.geotools.org/gt2docs/developersguide.html"/>
       <item name="Glossary"               href="http://www.geotools.org/gt2docs/glossary.html"/>
-      <item name="Design Overview"        http="http://www.geotools.org/gt2docs/design.html"/>
+      <item name="Design Overview"        href="http://www.geotools.org/gt2docs/design.html"/>
       <!-- Yet to come?
       <item name="Guidelines"             href="/guidelines.html"/>
       <item name="News"                   href="/news.html"/>
@@ -38,7 +38,7 @@
     </menu>
 
     <menu name="GeoTools Community">
-      <item name="GeoTools Home Page"           href="www.geotools.org"/>
+      <item name="GeoTools Home Page"           href="http://www.geotools.org"/>
       <item name="Mailing Lists"          href="http://sourceforge.net/mail/?group_id=4091"/>
       <item name="CVS Repositories"       href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2"/>
     </menu>
