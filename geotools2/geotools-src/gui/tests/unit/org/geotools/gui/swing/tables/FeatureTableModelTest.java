@@ -7,30 +7,31 @@
 
 package org.geotools.gui.swing.tables;
 
+import java.io.*;
+import java.util.logging.Logger;
+import java.net.*;
+import javax.swing.*;
 import junit.framework.*;
-import org.geotools.datasource.extents.*;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import com.vividsolutions.jts.geom.*;
 
-
-
-import java.io.*;
-import java.net.*;
-
-import javax.swing.*;
 
 /**
  *
  * @author jamesm
  */
 public class FeatureTableModelTest extends TestCase {
-    /** Standard logging instance */
-    //private static Logger _log = Logger.getLogger(FeatureTableModelTest.class);
+      /** Standard logging instance */
+    protected static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.filter");
+    protected static AttributeTypeFactory attFactory = AttributeTypeFactory.newInstance();
     
     /** Feature on which to preform tests */
     private static Feature testFeatures[] = null;
     
+    private static FeatureType testSchema;
+
     public FeatureTableModelTest(java.lang.String testName) {
         super(testName);
     }
@@ -49,11 +50,7 @@ public class FeatureTableModelTest extends TestCase {
         datasource.addFeature(testFeatures[0]);
         datasource.addFeature(testFeatures[1]);
         
-        FeatureCollectionDefault table = new FeatureCollectionDefault();
-        table.setDataSource(datasource);
-        EnvelopeExtent r = new EnvelopeExtent();
-        r.setBounds(new Envelope(-180, 180, -90, 90));
-        table.getFeatures(r);
+        FeatureCollection table = datasource.getFeatures();
         FeatureTableModel ftm = new FeatureTableModel();
         ftm.setFeatureCollection(table);
         
@@ -71,51 +68,44 @@ public class FeatureTableModelTest extends TestCase {
     /**
      * Sets up a schema and a test feature.
      * @throws SchemaException If there is a problem setting up the schema.
-     * @throws IllegalFeatureException If problem setting up the feature.
+     * @throws IllegalAttributeException If problem setting up the feature.
      */
     protected void setUp()
-    throws SchemaException, IllegalFeatureException {
-        
-        try{
-        /** Schema on which to preform tests */
-        FeatureType testSchema = null;
-        
-        // Create the schema attributes
-        //_log.debug("creating flat feature...");
-        AttributeType geometryAttribute =
-        new AttributeTypeDefault("testGeometry", Geometry.class);
-        //_log.debug("created geometry attribute");
-        AttributeType booleanAttribute =
-        new AttributeTypeDefault("testBoolean", Boolean.class);
-        //_log.debug("created boolean attribute");
-        AttributeType charAttribute =
-        new AttributeTypeDefault("testCharacter", Character.class);
-        AttributeType byteAttribute =
-        new AttributeTypeDefault("testByte", Byte.class);
-        AttributeType shortAttribute =
-        new AttributeTypeDefault("testShort", Short.class);
-        AttributeType intAttribute =
-        new AttributeTypeDefault("testInteger", Integer.class);
-        AttributeType longAttribute =
-        new AttributeTypeDefault("testLong", Long.class);
-        AttributeType floatAttribute =
-        new AttributeTypeDefault("testFloat", Float.class);
-        AttributeType doubleAttribute =
-        new AttributeTypeDefault("testDouble", Double.class);
-        AttributeType stringAttribute =
-        new AttributeTypeDefault("testString", String.class);
-        
+    throws SchemaException, IllegalAttributeException {
+	try {
+         AttributeType geometryAttribute = attFactory.newAttributeType("testGeometry",
+                Geometry.class);
+        LOGGER.finest("created geometry attribute");
+
+        AttributeType booleanAttribute = attFactory.newAttributeType("testBoolean",
+                Boolean.class);
+        LOGGER.finest("created boolean attribute");
+
+        AttributeType charAttribute = attFactory.newAttributeType("testCharacter",
+                Character.class);
+        AttributeType byteAttribute = attFactory.newAttributeType("testByte",
+                Byte.class);
+        AttributeType shortAttribute = attFactory.newAttributeType("testShort",
+                Short.class);
+        AttributeType intAttribute = attFactory.newAttributeType("testInteger",
+                Integer.class);
+        AttributeType longAttribute = attFactory.newAttributeType("testLong",
+                Long.class);
+        AttributeType floatAttribute = attFactory.newAttributeType("testFloat",
+                Float.class);
+        AttributeType doubleAttribute = attFactory.newAttributeType("testDouble",
+                Double.class);
+        AttributeType stringAttribute = attFactory.newAttributeType("testString",
+                String.class);
+
+        AttributeType[] types = {
+            geometryAttribute, booleanAttribute, charAttribute, byteAttribute,
+            shortAttribute, intAttribute, longAttribute, floatAttribute,
+            doubleAttribute, stringAttribute
+        };
+
         // Builds the schema
-        testSchema = new FeatureTypeFlat(geometryAttribute);
-        testSchema = testSchema.setAttributeType(booleanAttribute);
-        testSchema = testSchema.setAttributeType(charAttribute);
-        testSchema = testSchema.setAttributeType(byteAttribute);
-        testSchema = testSchema.setAttributeType(shortAttribute);
-        testSchema = testSchema.setAttributeType(intAttribute);
-        testSchema = testSchema.setAttributeType(longAttribute);
-        testSchema = testSchema.setAttributeType(floatAttribute);
-        testSchema = testSchema.setAttributeType(doubleAttribute);
-        testSchema = testSchema.setAttributeType(stringAttribute);
+        testSchema = FeatureTypeFactory.newFeatureType(types,"testSchema");
         
         // Creates coordinates for a linestring
         Coordinate[] lineCoords = new Coordinate[3];
@@ -160,15 +150,14 @@ public class FeatureTableModelTest extends TestCase {
         attributesB[9] = "feature B";
         
         // Creates the feature itself
-        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeatures = new Feature[2];
-        testFeatures[0] = factory.create(attributesA);
-        testFeatures[1] = factory.create(attributesB);
+        testFeatures[0] = testSchema.create(attributesA);
+        testFeatures[1] = testSchema.create(attributesB);
         //_log.debug("...flat features created");
         }
         catch(TopologyException te){
     //        _log.error("Unable to construct test geometies",te);
-            throw new IllegalFeatureException(te.toString());
+            throw new IllegalAttributeException(te.toString());
         }
     }
     
