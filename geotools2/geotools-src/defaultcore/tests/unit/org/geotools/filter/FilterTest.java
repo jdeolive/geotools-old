@@ -626,6 +626,8 @@ public class FilterTest extends TestCase {
         ff.addFid("another id");
         assertEquals(2,((FidFilterImpl)ff).getFids().length);
        
+        ff.removeFid("another id");
+        assertEquals(1,((FidFilterImpl)ff).getFids().length);
     }
     
     
