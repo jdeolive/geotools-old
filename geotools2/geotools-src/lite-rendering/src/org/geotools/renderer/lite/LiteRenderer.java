@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.12 2003/07/22 06:25:49 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.13 2003/07/22 15:48:04 jmacgill Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -406,7 +406,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
-        FeatureCollection fc = new FeatureCollectionDefault();
+        FeatureCollection fc = FeatureCollections.newCollection();
         for(int i = 0; i < features.length; i++)
             fc.add(features[i]);
         processStylers(fc, featureStylers);
