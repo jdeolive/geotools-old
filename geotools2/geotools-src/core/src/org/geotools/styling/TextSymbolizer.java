@@ -24,7 +24,7 @@
 package org.geotools.styling;
 import org.geotools.filter.Expression;
 /**
- * $Id: TextSymbolizer.java,v 1.6 2003/08/01 16:54:21 ianturton Exp $
+ * $Id: TextSymbolizer.java,v 1.7 2003/08/06 18:11:24 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 
@@ -33,7 +33,7 @@ public interface TextSymbolizer extends Symbolizer {
      * Returns the label expression.
      */
     Expression getLabel();
-        /**
+    /**
      * sets the label expression.
      */
     void setLabel(Expression label);
@@ -90,7 +90,7 @@ public interface TextSymbolizer extends Symbolizer {
      * Note: this moves a little away from the SLD spec which provides an XPath
      * reference to a Geometry object, but does follow it in spirit.
      *
-     * @return String The name of the attribute in the feature being styled 
+     * @return The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
      */
     String getGeometryPropertyName();    
@@ -108,7 +108,7 @@ public interface TextSymbolizer extends Symbolizer {
      * Note: this moves a little away from the SLD spec which provides an XPath
      * reference to a Geometry object, but does follow it in spirit.
      *
-     * @param String The name of the attribute in the feature being styled 
+     * @param name The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
      */
     void setGeometryPropertyName(String name);    

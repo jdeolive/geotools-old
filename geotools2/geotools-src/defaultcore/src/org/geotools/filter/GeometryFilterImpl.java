@@ -45,9 +45,9 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Rob Hranac, TOPP
- * @version $Id: GeometryFilterImpl.java,v 1.12 2003/07/23 18:18:10 cholmesny Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.13 2003/08/06 18:11:41 desruisseaux Exp $
  *
- * @task: REVISIT: make this class (and all filters) immutable, implement
+ * @task REVISIT: make this class (and all filters) immutable, implement
  *       cloneable and return new filters when calling addLeftGeometry and
  *       addRightG Issues to think through: would be cleaner immutability to
  *       have constructor called with left and right Geometries, but this does

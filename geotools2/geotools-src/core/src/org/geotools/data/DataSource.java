@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.14 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: DataSource.java,v 1.15 2003/08/06 18:11:24 desruisseaux Exp $
  */
 public interface DataSource {
     /**
@@ -95,7 +95,7 @@ public interface DataSource {
     /**
      * Loads all features from the datasource into the returned collection.
      * Filter.NONE can also be used to get all features.  Calling this
-     * function is equivalent to using {@link Query.ALL}
+     * function is equivalent to using {@link Query#ALL}
      *
      * @return Collection The collection to put the features into.
      *

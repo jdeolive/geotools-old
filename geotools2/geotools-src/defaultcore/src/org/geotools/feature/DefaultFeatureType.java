@@ -23,7 +23,7 @@ import java.util.*;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.7 2003/07/21 23:40:55 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.8 2003/08/06 18:11:41 desruisseaux Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     private final String typeName;
@@ -218,7 +218,7 @@ public class DefaultFeatureType implements FeatureType {
      * @param typeName The typeName.
      *
      * @return true if descendant, false otherwise.
-     * @todo HACK: if nsURI is null only typeName is tested.
+     * @task HACK: if nsURI is null only typeName is tested.
      */
     public boolean isDescendedFrom(String nsURI, String typeName) {
       for (int i = 0, ii = ancestors.length; i < ii; i++) {

@@ -44,7 +44,7 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: PolygonSymbolizer.java,v 1.5 2003/08/01 16:54:21 ianturton Exp $
+ * @version $Id: PolygonSymbolizer.java,v 1.6 2003/08/06 18:11:24 desruisseaux Exp $
  * @author James Macgill
  */
 public interface PolygonSymbolizer extends Symbolizer{
@@ -66,7 +66,7 @@ public interface PolygonSymbolizer extends Symbolizer{
      * Note that the area should be filled first before the outline 
      * is rendered.
      *
-     * @param The Fill style to use when rendering the area.
+     * @param fill The Fill style to use when rendering the area.
      */
     void setFill(Fill fill);
     
@@ -81,7 +81,7 @@ public interface PolygonSymbolizer extends Symbolizer{
      * Provides the graphical-symbolization parameter to use for the outline
      * of the Polygon.
      *
-     * @param The Stroke style to use when rendering lines.
+     * @param stroke The Stroke style to use when rendering lines.
      */
     void setStroke(Stroke stroke);
     
@@ -102,7 +102,7 @@ public interface PolygonSymbolizer extends Symbolizer{
      * XPath reference to a Geometry object, but does follow it 
      * in spirit.
      *
-     * @return String The name of the attribute in the feature being styled 
+     * @return The name of the attribute in the feature being styled 
      *  that should be used.  If null then the default geometry should be used.
      */
     String geometryPropertyName();

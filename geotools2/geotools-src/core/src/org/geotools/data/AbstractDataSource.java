@@ -51,7 +51,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.3 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: AbstractDataSource.java,v 1.4 2003/08/06 18:11:24 desruisseaux Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */
@@ -81,7 +81,7 @@ public abstract class AbstractDataSource implements DataSource {
      *
      * @param collection The collection to put the features into.
      * @param filter An OpenGIS filter; specifies which features to retrieve.
-     *        To get all features use {@link Filter.ALL}
+     *        To get all features use {@link Filter#ALL}
      *
      * @throws DataSourceException For all data source errors.
      */
@@ -95,7 +95,7 @@ public abstract class AbstractDataSource implements DataSource {
      * Creates a query with just the filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
-     *        To get all features use {@link Filter.ALL}
+     *        To get all features use {@link Filter#ALL}
      *
      * @return A default query with the filter passed in.
      */
@@ -143,7 +143,7 @@ public abstract class AbstractDataSource implements DataSource {
     /**
      * Loads all features from the datasource into the returned collection.
      * Filter.NONE can also be used to get all features.  Calling this
-     * function is equivalent to using {@link Query.ALL}
+     * function is equivalent to using {@link Query#ALL}
      *
      * @return Collection The collection to put the features into.
      *

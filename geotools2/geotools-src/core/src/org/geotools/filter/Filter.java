@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
 /**
  * Defines an OpenGIS Filter object, with default behaviors for all methods.
  *
- * @version $Id: Filter.java,v 1.10 2003/05/14 16:22:26 ianschneider Exp $
+ * @version $Id: Filter.java,v 1.11 2003/08/06 18:11:24 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public interface Filter {
@@ -150,7 +150,7 @@ public interface Filter {
     Filter not();    
     
     /**
-     * @todo Document me.
+     * @task todo Document me.
      */    
     short getFilterType();
     

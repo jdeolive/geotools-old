@@ -22,14 +22,14 @@ import org.geotools.filter.Filter;
 
 
 /**
- * The query object is used by the {@link DataSource#GetFeature()} method of
+ * The query object is used by the {@link DataSource#getFeatures()} method of
  * the DataSource interface, to encapsulate a request.  It defines which
  * feature type  to query, what properties to retrieve and what constraints
  * (spatial and non-spatial) to apply to those properties.  It is designed to
- * closesly match a WFS Query element of a GetFeature request.   The only
- * difference is the addition of the maxFeatures element, which  allows more
- * control over the features selected.  It allows a full  GetFeature request
- * to properly control how many features it gets from each query, instead of
+ * closesly match a WFS Query element of a <code>getFeatures</code> request.
+ * The only difference is the addition of the maxFeatures element, which
+ * allows more control over the features selected.  It allows a full <code>getFeatures</code>
+ * request to properly control how many features it gets from each query, instead of
  * requesting and discarding when the max is reached.
  *
  * @author Chris Holmes
@@ -178,8 +178,8 @@ public class DefaultQuery implements Query {
      * 
      * <p>
      * This is the only method that is not directly out of the Query element in
-     * the WFS spec.  It is instead a part of a GetFeature request, which can
-     * hold one or more queries.  But each of those in turn will need a
+     * the WFS spec.  It is instead a part of a <code>getFeatures</code> request,
+     * which can hold one or more queries.  But each of those in turn will need a
      * maxFeatures, so it is needed here.
      * </p>
      *

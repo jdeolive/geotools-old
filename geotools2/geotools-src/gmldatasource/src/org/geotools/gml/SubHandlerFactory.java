@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * Creates the appropriate SubHandler element for a given OGC simple geometry
  * type.
  *
- * @version $Id: SubHandlerFactory.java,v 1.6 2003/08/05 16:56:31 dledmonds Exp $
+ * @version $Id: SubHandlerFactory.java,v 1.7 2003/08/06 18:12:14 desruisseaux Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class SubHandlerFactory {
@@ -56,7 +56,7 @@ public class SubHandlerFactory {
      * type.  Note that some types are aggregated into a generic 'multi' type.
      *
      * @param type Type of SubHandler to return.
-     * @TODO throw an exception, not return a null
+     * @task TODO: throw an exception, not return a null
      */
     public SubHandler create(String type) {
         LOGGER.entering("SubHandlerFactory", "create", type );

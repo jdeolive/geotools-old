@@ -43,7 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.3 2003/07/31 21:12:03 dledmonds Exp $
+ * @version $Id: GMLDataSource.java,v 1.4 2003/08/06 18:12:14 desruisseaux Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends AbstractDataSource {
@@ -225,7 +225,7 @@ public class GMLDataSource extends AbstractDataSource {
     /**
      * Loads all features from the datasource into the returned collection.
      * Filter.NONE can also be used to get all features.  Calling this
-     * function is equivalent to using {@link Query.ALL}
+     * function is equivalent to using {@link Query#ALL}
      *
      * @return Collection The collection to put the features into.
      *
@@ -373,7 +373,7 @@ public class GMLDataSource extends AbstractDataSource {
      * @throws DataSourceException if there are any problems getting the
      *         schema.
      *
-     * @tasks TODO: implement this, as all datasources _should_ have this 
+     * @task TODO: implement this, as all datasources _should_ have this 
      * method.
      */
     public FeatureType getSchema() throws DataSourceException {

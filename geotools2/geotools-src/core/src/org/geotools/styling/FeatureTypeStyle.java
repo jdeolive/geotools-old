@@ -29,7 +29,7 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.11 2003/08/03 05:05:23 seangeo Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.12 2003/08/06 18:11:24 desruisseaux Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
@@ -43,7 +43,7 @@ public interface FeatureTypeStyle {
     /**
      * Only features with the type name returned by this method should
      * be styled by this feature type styler.
-     * @return the name of types that this styler applies to
+     * @return The name of types that this styler applies to
      */
     String getFeatureTypeName();
     
@@ -88,7 +88,7 @@ public interface FeatureTypeStyle {
      * properties are referenced in the feature type style).
      * 
      *
-     * @param An array of strings representing systematic types which
+     * @param types An array of strings representing systematic types which
      *         could be styled by this instance.
      **/
     void setSemantecTypeIdentifiers(String[] types);
@@ -109,7 +109,7 @@ public interface FeatureTypeStyle {
      * feature attribute values.  In addition, rules contain the symbolizers
      * which should be applied when the rule holds true.
      *
-     * @param The set of rules to be set for this styler.
+     * @param rules The set of rules to be set for this styler.
      */
     void setRules(Rule[] rules);
     void addRule(Rule rule);
@@ -122,4 +122,3 @@ public interface FeatureTypeStyle {
      */
     Object clone() throws CloneNotSupportedException;
 }
-

@@ -34,7 +34,7 @@ import org.geotools.filter.Expression;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.12 2003/08/01 16:54:12 ianturton Exp $
+ * @version $Id: Mark.java,v 1.13 2003/08/06 18:11:24 desruisseaux Exp $
  * @author James Macgill
  */
 public interface Mark extends Symbol {
@@ -54,7 +54,7 @@ public interface Mark extends Symbol {
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
      *
-     * @param The well-known name of a shape.  The default value is "square".
+     * @param wellKnownName The well-known name of a shape.  The default value is "square".
      */
     void setWellKnownName(Expression wellKnownName);
     /**
@@ -68,7 +68,7 @@ public interface Mark extends Symbol {
      * This paramterer defines which stroke style should be used when
      * rendering the Mark.
      *
-     * @param The Stroke definition to use when rendering the Mark.
+     * @param stroke The Stroke definition to use when rendering the Mark.
      **/
     void setStroke(Stroke stroke);
     /**
@@ -80,7 +80,7 @@ public interface Mark extends Symbol {
     /**
      * This parameter defines which fill style to use when rendering the Mark.
      *
-     * @param the Fill definition to use when rendering the Mark.
+     * @param fill the Fill definition to use when rendering the Mark.
      **/
     void setFill(Fill fill);
     
@@ -93,4 +93,3 @@ public interface Mark extends Symbol {
     void accept(StyleVisitor visitor);
         
 }
-
