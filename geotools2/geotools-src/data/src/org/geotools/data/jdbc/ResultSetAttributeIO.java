@@ -15,8 +15,6 @@ import org.geotools.data.AbstractAttributeIO;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.AttributeWriter;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.FeatureEvent;
-import org.geotools.data.FeatureListener;
 import org.geotools.data.jdbc.JDBCDataStore.QueryData;
 import org.geotools.feature.AttributeType;
 
@@ -90,7 +88,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	 *  @throws IOException This will never be thrown by this class.
 	 */
 	public void close() throws IOException {
-        if (!isClosed)  {
+        if (!isClosed())  {
             this.isClosed = true;
             queryData.close( null );
         }
@@ -102,7 +100,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	 * on the result set.
 	 */
 	public boolean hasNext() throws IOException {
-		if (isClosed) {
+		if (isClosed()) {
 			throw new IOException("Close has already been called on this AttributeReader.");
 		}
 		
@@ -125,7 +123,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	 * @see org.geotools.data.AttributeReader#next()
 	 */
 	public void next() throws IOException {
-		if (isClosed) {
+		if (isClosed()) {
 			throw new IOException("Close has already been called on this AttributeReader.");
 		}
 		        
@@ -158,7 +156,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
 	 *  or <tt>(startColumn + i) &gt;= endColumn</tt>. 
 	 */
 	public Object read(final int i) throws IOException, ArrayIndexOutOfBoundsException {
-        if (isClosed) {
+        if (isClosed()) {
 			throw new IOException("Close has already been called on this AttributeReader.");
 		}
 		
@@ -213,7 +211,7 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
      * @see org.geotools.data.AttributeWriter#write(int, java.lang.Object)
      */
     public void write(int position, Object attribute) throws IOException {
-        if (isClosed) {
+        if (isClosed()) {
             throw new IOException("Close has already been called on this AttributeReader.");
         }
 
@@ -275,5 +273,9 @@ public class ResultSetAttributeIO extends AbstractAttributeIO
      */
     public void rowDeleted(QueryData queryData) {
         rowIndex--;        
+    }
+    
+    public boolean isClosed() {
+        return this.isClosed;
     }
 }
