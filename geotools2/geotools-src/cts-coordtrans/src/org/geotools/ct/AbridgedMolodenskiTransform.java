@@ -57,7 +57,7 @@ import org.geotools.resources.XAffineTransform;
  * Transforms a three dimensional geographic points using
  * abridged versions of formulas derived by Molodenski.
  *
- * @version 1.00
+ * @version $Id: AbridgedMolodenskiTransform.java,v 1.2 2002/07/10 18:19:29 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -202,14 +202,6 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     }
     
     /**
-     * Tests whether this transform does not move any points.
-     * This method returns always <code>false</code>.
-     */
-    public final boolean isIdentity() {
-        return false;
-    }
-    
-    /**
      * Returns a hash value for this transform.
      */
     public final int hashCode() {
@@ -264,7 +256,7 @@ class AbridgedMolodenskiTransform extends AbstractMathTransform implements Seria
     /**
      * The provider for {@link AbridgedMolodenskiTransform}.
      *
-     * @version 1.0
+     * @version $Id: AbridgedMolodenskiTransform.java,v 1.2 2002/07/10 18:19:29 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

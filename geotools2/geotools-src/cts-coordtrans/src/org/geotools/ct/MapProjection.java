@@ -65,7 +65,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version 1.0
+ * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -710,14 +710,6 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     }
     
     /**
-     * Returns <code>false</code> since map
-     * projections are not identity transforms.
-     */
-    public final boolean isIdentity() {
-        return false;
-    }
-    
-    /**
      * Returns a hash value for this map projection.
      */
     public int hashCode() {
@@ -792,7 +784,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version 1.0
+     * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -824,7 +816,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version 1.0
+     * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
