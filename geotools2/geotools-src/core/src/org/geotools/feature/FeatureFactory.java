@@ -23,7 +23,7 @@ package org.geotools.feature;
  * FeatureFactories may be implemented, but they  should probably be
  * constructed with a FeatureType.
  *
- * @version $Id: FeatureFactory.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: FeatureFactory.java,v 1.3 2003/08/05 22:48:23 cholmesny Exp $
  *
  * @task REVISIT: consider a static create(Object[] attributes,  String
  *       FeatureID, FeatureType type) method.
@@ -41,6 +41,9 @@ public interface FeatureFactory {
      * @param attributes the array of attribute values
      *
      * @return The created feature
+     *
+     * @throws IllegalAttributeException if the FeatureType does not validate
+     *         the attributes.
      */
     Feature create(Object[] attributes) throws IllegalAttributeException;
 
@@ -51,6 +54,9 @@ public interface FeatureFactory {
      * @param featureID the feature ID.
      *
      * @return the created feature.
+     *
+     * @throws IllegalAttributeException if the FeatureType does not validate
+     *         the attributes.
      */
     Feature create(Object[] attributes, String featureID)
         throws IllegalAttributeException;

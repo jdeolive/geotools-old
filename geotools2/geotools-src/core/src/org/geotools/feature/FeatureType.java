@@ -120,7 +120,7 @@ package org.geotools.feature;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureType.java,v 1.7 2003/07/21 23:41:48 ianschneider Exp $
+ * @version $Id: FeatureType.java,v 1.8 2003/08/05 22:48:23 cholmesny Exp $
  *
  *
  * @see org.geotools.feature.Feature
@@ -307,7 +307,7 @@ public interface FeatureType extends FeatureFactory {
      * @param typeName The typeName.
      * @return true if descendant, false otherwise.
      */    
-    boolean isDescendedFrom(String nsURI,String typeName);
+    boolean isDescendedFrom(String nsURI, String typeName);
     
     /** A convenience method for calling<br>
      * <code><pre>

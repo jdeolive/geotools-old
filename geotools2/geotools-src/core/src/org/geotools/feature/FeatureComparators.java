@@ -21,7 +21,7 @@ package org.geotools.feature;
  *
  * @author Ian Schneider
  */
-public class FeatureComparators {
+public final class FeatureComparators {
     /** A utility comparator for comparison by id. */
     public static final java.util.Comparator BY_ID = new java.util.Comparator() {
             public int compare(Object o1, Object o2) {
@@ -31,6 +31,13 @@ public class FeatureComparators {
                 return f1.getID().compareTo(f2.getID());
             }
         };
+
+    /**
+     * Private constructor so default constructor is not available for this
+     * utility class.
+     */
+    private FeatureComparators() {
+    }
 
     /**
      * Create a Comparator which compares Features by the attribute at the
@@ -60,23 +67,32 @@ public class FeatureComparators {
         return new Name(name);
     }
 
-    /** A Comparator which performs the comparison on attributes at a given index. */    
+    /**
+     * A Comparator which performs the comparison on attributes at a given
+     * index.
+     */
     public static class Index implements java.util.Comparator {
-        final int idx;
+        /** the index of the attribute to compare against. */
+        private final int idx;
 
-        /** Create a new Comparator based on the given index.
+        /**
+         * Create a new Comparator based on the given index.
+         *
          * @param i The index.
-         */        
+         */
         public Index(int i) {
             idx = i;
         }
 
-        /** Implementation of Comparator. Calls compareAtts to perform the 
+        /**
+         * Implementation of Comparator. Calls compareAtts to perform the
          * actual comparison.
+         *
          * @param o1 The first Feature.
          * @param o2 The second Feature
+         *
          * @return A value indicating less than, equal, or greater than.
-         */        
+         */
         public int compare(Object o1, Object o2) {
             Feature f1 = (Feature) o1;
             Feature f2 = (Feature) o2;
@@ -85,32 +101,44 @@ public class FeatureComparators {
         }
 
         /**
+         * Compares the two attributes.
+         *
          * @param att1 The first attribute to compare.
          * @param att2 The second attribute to compare.
+         *
          * @return A value indicating less than, equal, or greater than.
-         */        
+         */
         protected int compareAtts(Object att1, Object att2) {
             return ((Comparable) att1).compareTo((Comparable) att2);
         }
     }
 
-    /** A Comparator which performs the comparison on attributes with a given name. */
+    /**
+     * A Comparator which performs the comparison on attributes with a given
+     * name.
+     */
     public static class Name implements java.util.Comparator {
-        final String name;
+        /** The name to compare on */
+        private final String name;
 
-        /** Create a new Comparator based on the given index.
+        /**
+         * Create a new Comparator based on the given index.
+         *
          * @param name The attribute name.
          */
         public Name(String name) {
             this.name = name;
         }
 
-        /** Implementation of Comparator. Calls compareAtts to perform the 
+        /**
+         * Implementation of Comparator. Calls compareAtts to perform the
          * actual comparison.
+         *
          * @param o1 The first Feature.
          * @param o2 The second Feature
+         *
          * @return A value indicating less than, equal, or greater than.
-         */  
+         */
         public int compare(Object o1, Object o2) {
             Feature f1 = (Feature) o1;
             Feature f2 = (Feature) o2;
@@ -119,8 +147,11 @@ public class FeatureComparators {
         }
 
         /**
+         * Compares the two attributes.
+         *
          * @param att1 The first attribute to compare.
          * @param att2 The second attribute to compare.
+         *
          * @return A value indicating less than, equal, or greater than.
          */
         protected int compareAtts(Object att1, Object att2) {

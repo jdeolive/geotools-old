@@ -17,13 +17,29 @@
 package org.geotools.feature;
 
 /**
+ * A list of Features.  Allows getting and setting of Features at an index.
  *
- * @author  Ian Schneider
+ * @author Ian Schneider
+ *
+ * @task REVISIT: make closer to List interface?  Specify the exceptions  to be
+ *       thrown and have set return the Feature replaced?
  */
 public interface FeatureList extends FeatureCollection {
-  
-  Feature getFeature(int idx);
-  
-  void setFeature(int idx,Feature f);
-  
+    /**
+     * Returns the feature at the specified index of the list.
+     *
+     * @param idx the index of the feature to return.
+     *
+     * @return the feature at the specified position of the list.
+     */
+    Feature getFeature(int idx);
+
+    /**
+     * Replaces the element at the specified position in this list with the
+     * specified element.
+     *
+     * @param idx index of feature to replace.
+     * @param f feature to be stored at the specified position.
+     */
+    void setFeature(int idx, Feature f);
 }
