@@ -24,11 +24,11 @@
 package org.geotools.styling;
 
 /**
- * A Mark element defined a "shape" which has coloring applied to it.
+ * A Mark element defines a "shape" which has coloring applied to it.
  *
  * The details of this object are taken from the OGC Styled-Layer
  * Descriptor Report (OGC 01-077) version 0.7.2
- * Renderers can use this infomration when displaying styled features, 
+ * Renderers can use this infomation when displaying styled features, 
  * though it must be remembered that not all renderers will be able to
  * fully represent strokes as set out by this interface, for example opacity
  * may not be supported.
@@ -39,7 +39,7 @@ public interface Mark {
 
     /**
      * This parameter gives the well-known name of the shape of the mark.<br>
-     * Allowed names include at lest "square", "circle", "triangle", "star",
+     * Allowed names include at least "square", "circle", "triangle", "star",
      * "cross" and "x" though renderers may draw a different symbol instead
      * if they don't have a shape for all of these.<br>
      * 
@@ -62,5 +62,10 @@ public interface Mark {
      **/
     public Fill getFill();
     
+    /**
+     * returns the actual geometry to render by combining the stored geometry of the mark with
+     * the coordinates of the point to be displayed.
+     **/
+    public com.vividsolutions.jts.geom.Geometry getGeometry(com.vividsolutions.jts.geom.Geometry geometry,double scale);
 }
 
