@@ -15,7 +15,7 @@ import junit.framework.*;
  * TODO: Test results with different PrecisionModels and SRIDs
  *
  * @author andyt
- * @version $Revision: 1.5 $ $Date: 2002/03/12 10:30:34 $
+ * @version $Revision: 1.6 $ $Date: 2002/03/12 11:59:27 $
  */
 public class RobustGeometryPropertiesTest extends TestCase {
     
@@ -36,7 +36,8 @@ public class RobustGeometryPropertiesTest extends TestCase {
     Coordinate[] coordinates1;
     Coordinate coordinate1;
     Coordinate[] coordinates2;
-    
+    Coordinate[] coordinates3;
+            
     public RobustGeometryPropertiesTest(java.lang.String testName) {
         super(testName);
     }
@@ -87,19 +88,27 @@ public class RobustGeometryPropertiesTest extends TestCase {
         System.out.println("Area of polygons1[2] "+geometryProperties1.getArea(polygons1[2]));
         assertEquals(9.0d,geometryProperties1.getArea(polygons1[2]),0.0d);
         assertEquals(12.0d,geometryProperties1.getPerimeter(polygons1[2]),0.0d);
+        System.out.println("Testing "+polygons1[3]);
+        System.out.println("Area of polygons1[3] "+geometryProperties1.getArea(polygons1[3]));
+        assertEquals(31.0d,geometryProperties1.getArea(polygons1[3]),0.0d);
+        assertEquals(36.0d,geometryProperties1.getPerimeter(polygons1[3]),0.0d);
+        System.out.println("Testing "+polygons1[4]);
+        System.out.println("Area of polygons1[4] "+geometryProperties1.getArea(polygons1[4]));
+        assertEquals(28.0d,geometryProperties1.getArea(polygons1[4]),0.0d);
+        assertEquals(40.0d,geometryProperties1.getPerimeter(polygons1[4]),0.0d);
     }
 
     public void testMultiPolygon() {
         System.out.println("Testing "+multiPolygon1);
         System.out.println("Area "+geometryProperties1.getArea(multiPolygon1));
-        assertEquals((17.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.05d);
-        assertEquals((28.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
+        assertEquals((76.0d + Math.PI),geometryProperties1.getArea(multiPolygon1),0.05d);
+        assertEquals((104.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(multiPolygon1),0.3d);
     }
 
     public void testGeometryCollection() {
         System.out.println("Testing "+geometryCollection1);
-        assertEquals((17.0d + Math.PI),geometryProperties1.getArea(geometryCollection1),0.05d);
-        assertEquals((39.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(geometryCollection1),0.3d);
+        assertEquals((76.0d + Math.PI),geometryProperties1.getArea(geometryCollection1),0.05d);
+        assertEquals((115.0d + (2 * Math.PI)),geometryProperties1.getPerimeter(geometryCollection1),0.3d);
     }
     
     public void setUp() {
@@ -158,18 +167,16 @@ public class RobustGeometryPropertiesTest extends TestCase {
         //
         //   Y
         //
-        //  4.0              [1]
-        //
-        //
+        //  4.0       [1]
         //
         //  0.0  [0]
         //
-        //       0.0         3.0    X
+        //       0.0  3.0    X
         lineStrings1[1] = geometryFactory1.createLineString(coordinates1);
         multiLineString1 = geometryFactory1.createMultiLineString(lineStrings1);
 
         // Generate Polygon[] and MultiPolygon
-        polygons1 = new Polygon[3];
+        polygons1 = new Polygon[5];
         coordinates1 = new Coordinate[5];
         coordinates1[0] = new Coordinate(0.0d,0.0d);
         coordinates1[1] = new Coordinate(3.0d,0.0d);
@@ -195,12 +202,13 @@ public class RobustGeometryPropertiesTest extends TestCase {
         //   Y
         //
         //  3.0   [3]               [2]
-        //  2.0         [1]   [2]     
-        //  1.0        [0,4]  [3]
+        //  2.0         [1)   [2)     
+        //  1.0        [0,4)  [3)
         //  0.0  [0,4]              [1]
         //
         //        0.0   1.0   2.0   3.0    X
         polygons1[0] = geometryFactory1.createPolygon(linearRing1,linearRings1);
+        // polygons1[1] is a buffered Point with a radius of 1.0d 
         polygons1[1] = (Polygon) geometryFactory1.createPoint(new Coordinate(0.0d,0.0d)).buffer(1.0d);
         coordinates1 = new Coordinate[5];
         coordinates1[0] = new Coordinate(0.0d,0.0d);
@@ -213,9 +221,90 @@ public class RobustGeometryPropertiesTest extends TestCase {
         } catch (TopologyException te1) {
             fail(te1.toString());
         }
+        // polygons1[2] is a simple square with a width of 3.0d 
         polygons1[2] = geometryFactory1.createPolygon(linearRing1,null);
+        coordinates1 = new Coordinate[5];
+        coordinates1[0] = new Coordinate(0.0d,0.0d);
+        coordinates1[1] = new Coordinate(0.0d,6.0d);
+        coordinates1[2] = new Coordinate(6.0d,6.0d);
+        coordinates1[3] = new Coordinate(6.0d,0.0d);
+        coordinates1[4] = new Coordinate(0.0d,0.0d);
+        coordinates2 = new Coordinate[5];
+        coordinates2[0] = new Coordinate(1.0d,1.0d);
+        coordinates2[1] = new Coordinate(1.0d,2.0d);
+        coordinates2[2] = new Coordinate(2.0d,2.0d);
+        coordinates2[3] = new Coordinate(2.0d,1.0d);
+        coordinates2[4] = new Coordinate(1.0d,1.0d);
+        coordinates3 = new Coordinate[5];
+        coordinates3[0] = new Coordinate(3.0d,3.0d);
+        coordinates3[1] = new Coordinate(5.0d,3.0d);
+        coordinates3[2] = new Coordinate(5.0d,5.0d);
+        coordinates3[3] = new Coordinate(3.0d,5.0d);
+        coordinates3[4] = new Coordinate(3.0d,3.0d);
+        linearRings1 = new LinearRing[2];
+        try {
+            linearRing1 = geometryFactory1.createLinearRing(coordinates1);
+            linearRings1[0] = geometryFactory1.createLinearRing(coordinates2);
+            linearRings1[1] = geometryFactory1.createLinearRing(coordinates3);
+        } catch (TopologyException te1) {
+            fail(te1.toString());
+        }
+        // polygons1[3]
+        //
+        //   Y
+        //
+        //  6.0   [1]                                 [2]
+        //  5.0                      (4]       (3]
+        //  4.0                  
+        //  3.0                     (1,4]      (2]
+        //  2.0         [1)   [2)     
+        //  1.0        [0,4)  [3)
+        //  0.0  [0,4]                                [3]
+        //
+        //        0.0   1.0   2.0   3.0   4.0   5.0   6.0   X
+        polygons1[3] = geometryFactory1.createPolygon(linearRing1,linearRings1);
+        coordinates1 = new Coordinate[5];
+        coordinates1[0] = new Coordinate(0.0d,0.0d);
+        coordinates1[1] = new Coordinate(0.0d,6.0d);
+        coordinates1[2] = new Coordinate(6.0d,6.0d);
+        coordinates1[3] = new Coordinate(6.0d,0.0d);
+        coordinates1[4] = new Coordinate(0.0d,0.0d);
+        coordinates2 = new Coordinate[5];
+        coordinates2[0] = new Coordinate(1.0d,1.0d);
+        coordinates2[1] = new Coordinate(1.0d,3.0d);
+        coordinates2[2] = new Coordinate(3.0d,3.0d);
+        coordinates2[3] = new Coordinate(3.0d,1.0d);
+        coordinates2[4] = new Coordinate(1.0d,1.0d);
+        coordinates3 = new Coordinate[5];
+        coordinates3[0] = new Coordinate(3.0d,3.0d);
+        coordinates3[1] = new Coordinate(5.0d,3.0d);
+        coordinates3[2] = new Coordinate(5.0d,5.0d);
+        coordinates3[3] = new Coordinate(3.0d,5.0d);
+        coordinates3[4] = new Coordinate(3.0d,3.0d);
+        linearRings1 = new LinearRing[2];
+        try {
+            linearRing1 = geometryFactory1.createLinearRing(coordinates1);
+            linearRings1[0] = geometryFactory1.createLinearRing(coordinates2);
+            linearRings1[1] = geometryFactory1.createLinearRing(coordinates3);
+        } catch (TopologyException te1) {
+            fail(te1.toString());
+        }
+        // polygons1[3]
+        //
+        //   Y
+        //
+        //  6.0   [1]                                 [2]
+        //  5.0                     (4]       (3]
+        //  4.0                  
+        //  3.0         [1)      [2)(1,4]     (2]
+        //  2.0              
+        //  1.0        [0,4)        [3)
+        //  0.0  [0,4]                                [3]
+        //
+        //        0.0   1.0   2.0   3.0   4.0   5.0   6.0   X
+        polygons1[4] = geometryFactory1.createPolygon(linearRing1,linearRings1);
         multiPolygon1 = geometryFactory1.createMultiPolygon(polygons1);
-        
+
         // Generate Geometry[] and GeometryCollection
         geometries1 = new Geometry[3];
         geometries1[0] = multiPoint1;
