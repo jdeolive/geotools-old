@@ -84,7 +84,7 @@ public class VPFDateTest extends TestCase
     junit.textui.TestRunner.run(suite());
   } // end of main(Stringp[] args)
 
-  protected String date = "20030129161055-0000";
+  protected String date = "20030129161055.00000";
 
   /**
    * This method is called every time before particular test execution.
@@ -117,17 +117,22 @@ public class VPFDateTest extends TestCase
    */
   public void testGetDate()
   {
-//     Calendar cal = Calendar.getInstance();
-//     cal.setTime(varVPFDate.getDate());
+	assertNotNull("Check if it is possible to parse date, corretness is "+
+				  "checked in getCalendar method", varVPFDate.getDate());
+  } // end of testGetDate()
+
+  public void testGetCalendar()
+  {
     Calendar cal = varVPFDate.getCalendar();
     assertEquals("Checking year", 2003, cal.get(Calendar.YEAR));
-    assertEquals("Checking month", 1, cal.get(Calendar.MONTH)+1);
+    assertEquals("Checking month (Calendar numvers months from 0)",
+				 1, cal.get(Calendar.MONTH)+1);
     assertEquals("Checking day of month", 29, cal.get(Calendar.DAY_OF_MONTH));
-    assertEquals("Checking hour", 17, cal.get(Calendar.HOUR_OF_DAY));
+    assertEquals("Checking hour", 16, cal.get(Calendar.HOUR_OF_DAY));
     assertEquals("Checking minute", 10, cal.get(Calendar.MINUTE));
     assertEquals("Checking second", 55, cal.get(Calendar.SECOND));
     assertEquals("Checking zone", 0, cal.get(Calendar.ZONE_OFFSET));
-  } // end of testGetDate()
+  }
 
   /**
    * Method for testing original source method:

@@ -18,14 +18,31 @@ import java.text.ParseException;
 
 public class VPFDate {
 
-  protected SimpleDateFormat sdf =
-	new SimpleDateFormat("yyyyMMddHHmmssZ");
-  
+  protected SimpleDateFormat sdf = null;
   protected byte[] dateBin = null;
 
   public VPFDate(byte[] date)
   {
 	dateBin = date;
+	for (int i = 0; i < dateBin.length; i++)
+	{
+	  if ((char)dateBin[i] == ' ')
+	  {
+		dateBin[i] = (byte)'0';
+	  } // end of if (cr == ' ')
+	} // end of for (int i = 0; i < dateBin.length; i++)
+	sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+	StringBuffer sb = new StringBuffer();
+	for (int i = 15; i < dateBin.length; i++)
+	{
+	  char cr = (char)dateBin[i];
+	  if (i == 18)
+	  {
+		sb.append(':');
+	  } // end of if (i == 18)
+	  sb.append(cr);
+	} // end of for (int i = 0; i < dateBin.length; i++)
+	sdf.setTimeZone(TimeZone.getTimeZone(sb.toString()));
   }
 
   public String toString()

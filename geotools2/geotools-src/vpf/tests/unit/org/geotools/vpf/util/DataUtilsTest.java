@@ -102,33 +102,70 @@ public class DataUtilsTest extends TestCase
    * By default it returns only name of testing class. Instance of this
    * is then created with its constructor.
    */
-  public static Test suite() {
+  public static Test suite()
+  {
     return new TestSuite(DataUtilsTest.class);
   } // end of suite()
-  /**
-   * for classes which doesn't contain any methods here is one additional
-   * method for performing test on such classes.
-   */
-  public void testNoMethods() {
-  }
+
+  public static final byte[][] TEST_SAMPLES =
+  {
+	{         0,          0,          0,          1},
+	{         1,          0,          0,          0},
+	{         0,          0,          0, (byte)0xFF},
+	{(byte)0xFF,          0,          0,          0},
+	{         0,          0, (byte)0x0F, (byte)0xF0},
+	{(byte)0xF0, (byte)0x0F,          0,          0}
+  };
+
+  public static final int[][] TEST_RESULTS =
+  {
+	//      Expected results
+	//  BigEndian     LittleEndian
+	{          1,       16777216},
+	{   16777216,              1},
+	{        255,      -16777216},
+	{  -16777216,            255},
+	{       4080,     -267452416},
+	{ -267452416,           4080}
+  };
 
   /**
    * Method for testing original source method:
    * int bigEndianToInt(byte[])
    * from tested class
    */
-  public void testBigEndianToInt1374008726() {
-
-    assertTrue("Warning! This is new test method with no real test code inside.", false);
-
+  public void testBigEndianToInt1374008726()
+  {
+	for (int i = 0; i < TEST_SAMPLES.length; i++)
+	{
+	  assertEquals("Testing big endian converions from bytes to java int",
+				   TEST_RESULTS[i][0],
+				   DataUtils.bigEndianToInt(TEST_SAMPLES[i]));
+	} // end of for (int i = 0; i < TEST_SAMPLES.length; i++)
   } // end of testBigEndianToInt1374008726(byte[])
+
+  /**
+   * Method for testing original source method:
+   * int littleEndianToInt(byte[])
+   * from tested class
+   */
+  public void testLittleEndianToInt1374008726()
+  {
+	for (int i = 0; i < TEST_SAMPLES.length; i++)
+	{
+	  assertEquals("Testing little endian converions from bytes to java int",
+				   TEST_RESULTS[i][1],
+				   DataUtils.littleEndianToInt(TEST_SAMPLES[i]));
+	} // end of for (int i = 0; i < TEST_SAMPLES.length; i++)
+  } // end of testLittleEndianToInt1374008726(byte[])
 
   /**
    * Method for testing original source method:
    * java.lang.Object decodeData(byte[], char)
    * from tested class
    */
-  public void testDecodeData13740087263052374() {
+  public void testDecodeData13740087263052374()
+  {
 
     assertTrue("Warning! This is new test method with no real test code inside.", false);
 
@@ -172,32 +209,57 @@ public class DataUtilsTest extends TestCase
    * short decodeShort(byte[])
    * from tested class
    */
-  public void testDecodeShort1374008726() {
-
-    assertTrue("Warning! This is new test method with no real test code inside.", false);
-
+  public void testDecodeShort1374008726()
+  {
+	assertEquals("Decoding short from bytes stream", 255,
+				 DataUtils.decodeShort(new byte[]{0, (byte)0xFF}));
+	assertEquals("Decoding short from bytes stream", -256,
+				 DataUtils.decodeShort(new byte[]{(byte)0xFF, 0}));
   } // end of testDecodeShort1374008726(byte[])
-
-  /**
-   * Method for testing original source method:
-   * int littleEndianToInt(byte[])
-   * from tested class
-   */
-  public void testLittleEndianToInt1374008726() {
-
-    assertTrue("Warning! This is new test method with no real test code inside.", false);
-
-  } // end of testLittleEndianToInt1374008726(byte[])
 
   /**
    * Method for testing original source method:
    * byte[] toBigEndian(byte[])
    * from tested class
    */
-  public void testToBigEndian1374008726() {
-
-    assertTrue("Warning! This is new test method with no real test code inside.", false);
-
+  public void testToBigEndian1374008726()
+  {
+	byte[] testData = DataUtils.toBigEndian(TEST_SAMPLES[0]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[1][i]);
+	} // end of for (int i = 0; i < testData.length; i++)
+	testData = DataUtils.toBigEndian(TEST_SAMPLES[1]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[0][i]);
+	} // end of for (int i = 0; i < testData.length; i++)	
+	testData = DataUtils.toBigEndian(TEST_SAMPLES[2]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[3][i]);
+	} // end of for (int i = 0; i < testData.length; i++)	
+	testData = DataUtils.toBigEndian(TEST_SAMPLES[3]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[2][i]);
+	} // end of for (int i = 0; i < testData.length; i++)	
+	testData = DataUtils.toBigEndian(TEST_SAMPLES[4]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[5][i]);
+	} // end of for (int i = 0; i < testData.length; i++)	
+	testData = DataUtils.toBigEndian(TEST_SAMPLES[5]);
+	for (int i = 0; i < testData.length; i++)
+	{
+	  assertEquals("Checking translation little endian bytes order to bin "+
+				   "endian bytes order", testData[i], TEST_SAMPLES[4][i]);
+	} // end of for (int i = 0; i < testData.length; i++)	
   } // end of testToBigEndian1374008726(byte[])
 
   /**
@@ -205,10 +267,10 @@ public class DataUtilsTest extends TestCase
    * int unsigByteToInt(byte)
    * from tested class
    */
-  public void testUnsigByteToInt3039496() {
-
-    assertTrue("Warning! This is new test method with no real test code inside.", false);
-
+  public void testUnsigByteToInt3039496()
+  {
+	assertEquals("Is negative byte converted correcly:",
+				 255, DataUtils.unsigByteToInt((byte)0xFF));
   } // end of testUnsigByteToInt3039496(byte)
 
 } // end of DataUtilsTest
