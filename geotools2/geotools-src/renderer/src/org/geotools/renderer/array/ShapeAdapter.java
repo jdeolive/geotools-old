@@ -18,7 +18,7 @@ import org.geotools.resources.XAffineTransform;
  * It is rather used for debugging purpose, as well as rendering lines in some simplier
  * context (e.g. {@link org.geotools.gui.swing.Plot2D}).
  *
- * @version $Id: ShapeAdapter.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: ShapeAdapter.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see PointArray#toShape
@@ -158,7 +158,7 @@ final class ShapeAdapter implements Shape, Serializable {
      * instructions).
      */
     public PathIterator getPathIterator(AffineTransform at) {
-        return new Iterator(array.iterator(0), at);
+        return array.getPathIterator(at);
     }
     
     /**
@@ -174,10 +174,10 @@ final class ShapeAdapter implements Shape, Serializable {
     /**
      * The path iterator for the data to plot.
      *
-     * @version $Id: ShapeAdapter.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
+     * @version $Id: ShapeAdapter.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private static final class Iterator extends Point2D.Double implements PathIterator {
+    static final class Iterator extends Point2D.Double implements PathIterator {
         /** The current index in the iteration. */
         private final PointIterator it;
 

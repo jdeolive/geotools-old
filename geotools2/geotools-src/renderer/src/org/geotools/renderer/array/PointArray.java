@@ -60,7 +60,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Pour un point situé à l'index <code>i</code>, les coordonnées <var>x</var> et <var>y</var>
  * correspondantes se trouvent aux index <code>2*i</code> et <code>2*i+1</code> respectivement.
  *
- * @version $Id: PointArray.java,v 1.9 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: PointArray.java,v 1.10 2003/05/24 12:45:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -187,15 +187,15 @@ public abstract class PointArray implements Serializable {
     public abstract PointIterator iterator(final int index);
 
     /**
-     * Returns an iterator object that iterates along the point coordinates,
-     * or <code>null</code> if this class do not support this method. In this
-     * case, {@link ShapeAdapter} will fallback on a default path iterator.
+     * Returns an iterator object that iterates along the point coordinates.
+     * If an optional affine transform is specified, the coordinates returned
+     * in the iteration are transformed accordingly.
      *
      * @see #toShape
      * @see ShapeAdapter#getPathIterator(AffineTransform)
      */
     PathIterator getPathIterator(final AffineTransform at) {
-        return null;
+        return new ShapeAdapter.Iterator(iterator(0), at);
     }
     
     /**

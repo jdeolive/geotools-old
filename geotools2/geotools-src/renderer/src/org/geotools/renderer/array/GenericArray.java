@@ -59,7 +59,7 @@ import org.geotools.resources.XRectangle2D;
  * Note: this implementation is not the fastest one. For maximal performance, consider using
  * {@link DefaultArray} instead.
  *
- * @version $Id: GenericArray.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
+ * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see DefaultArray
@@ -363,7 +363,7 @@ public class GenericArray extends PointArray implements RandomAccess {
     /**
      * A path iterator for the data.
      *
-     * @version $Id: GenericArray.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Iterator implements PathIterator {
@@ -394,14 +394,14 @@ public class GenericArray extends PointArray implements RandomAccess {
         
         /** Tests if the iteration is complete. */
         public boolean isDone() {
-            return index < upper;
+            return index >= upper;
         }
 
         /** Returns the coordinates and type of the current path segment in the iteration. */
         public int currentSegment(final double[] coords) {
             coords[0] = x.getAsDouble(index);
             coords[1] = y.getAsDouble(index);
-            if (at!=null) {
+            if (at != null) {
                 at.transform(coords, 0, coords, 0, 1);
             }
             return move;
@@ -411,7 +411,7 @@ public class GenericArray extends PointArray implements RandomAccess {
         public int currentSegment(final float[] coords) {
             coords[0] = x.getAsFloat(index);
             coords[1] = y.getAsFloat(index);
-            if (at!=null) {
+            if (at != null) {
                 at.transform(coords, 0, coords, 0, 1);
             }
             return move;
@@ -433,7 +433,7 @@ public class GenericArray extends PointArray implements RandomAccess {
      * Wrap an array of <code>double</code>, <code>float</code>, <code>long</code>,
      * <code>int</code>, <code>short</code> or <code>byte</code> data.
      *
-     * @version $Id: GenericArray.java,v 1.1 2003/05/23 17:58:59 desruisseaux Exp $
+     * @version $Id: GenericArray.java,v 1.2 2003/05/24 12:45:08 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Vector implements Serializable {
