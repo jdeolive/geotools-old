@@ -42,7 +42,7 @@ import java.util.Set;
  * oraclespatial project.xml so that maven runs the test.
  *
  * @author geoghegs
- * @version $Revision: 1.8 $ Last Modified: $Date: 2003/11/04 00:46:12 $
+ * @version $Revision: 1.9 $ Last Modified: $Date: 2003/11/04 00:53:18 $
  */
 public class OracleTest extends TestCase {
     private OracleConnection conn;
