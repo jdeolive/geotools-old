@@ -173,16 +173,18 @@ public class PolygonHandler implements ShapeHandler {
         //area -= points[i].y * coords[j].x;
       }
       //area = -area / 2;
-      
-      LinearRing ring = geometryFactory.createLinearRing(points);
-        
-      if (cga.isCCW(points)) {
-        // counter-clockwise
-        holes.add(ring);
-      } else {
-        // clockwise
-        shells.add(ring);
-      } 
+      //REVISIT: polyons with only 1 or 2 points are not polygons - geometryFactory will bomb so we skip if we find one.
+      if(points.length == 0 || points.length > 3){ 
+          LinearRing ring = geometryFactory.createLinearRing(points);
+
+          if (cga.isCCW(points)) {
+            // counter-clockwise
+            holes.add(ring);
+          } else {
+            // clockwise
+            shells.add(ring);
+          } 
+      }
     }
     
     // quick optimization: if there's only one shell no need to check
@@ -437,6 +439,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.4  2003/07/21 21:15:29  jmacgill
+ * small fix for shapefiles with an invalid hole (only 1 or 2 points)
+ *
  * Revision 1.3  2003/05/19 21:38:55  jmacgill
  * refactored read method to break it up a little
  *
