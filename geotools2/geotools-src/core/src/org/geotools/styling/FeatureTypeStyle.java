@@ -29,7 +29,7 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.6 2002/07/12 15:26:42 loxnard Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.7 2002/07/19 16:33:12 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
@@ -47,7 +47,7 @@ public interface FeatureTypeStyle {
     /**
      * Sets the type name of the features that this styler should be
      * applied to.
-     * TODO: should a set method be declared in this interface at all?
+     * @task REVISIT: should a set method be declared in this interface at all?
      * @param name The TypeName of the features to be styled by this instance.
      */
     void setFeatureTypeName(String name);
@@ -65,7 +65,7 @@ public interface FeatureTypeStyle {
      * with the corresponding default geometry type (i.e., no feature 
      * properties are referenced in the feature type style).
      * 
-     * TODO: Method name contains typo.  Should be getSemanticTypeIdentifiers
+     * @task TODO: Method name contains typo.  Should be getSemanticTypeIdentifiers
      *
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.

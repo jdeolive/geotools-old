@@ -30,7 +30,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * A geographic filter class.
  * @author James Macgill, CCG, University of Leeds
  * @author Ian Turton, CCG, University of Leeds
- * @version $Id: EnvelopeExtent.java,v 1.11 2002/06/04 14:38:06 loxnard Exp $
+ * @version $Id: EnvelopeExtent.java,v 1.12 2002/07/19 16:33:12 jmacgill Exp $
  */
 public class EnvelopeExtent implements Extent {
     /**
@@ -248,7 +248,7 @@ public class EnvelopeExtent implements Extent {
     /**
      * Produces the smallest extent that will hold 
      * both the existing extent and that of the extent passed in.
-     * TODO: Think about implication of combining. 
+     * @task REVISIT: Think about implication of combining. 
      * New extent may contain areas which were in neither.
      * @param other The extent to combine with this extent
      * @return The new, larger, extent.

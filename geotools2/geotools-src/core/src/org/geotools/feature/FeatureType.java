@@ -97,7 +97,7 @@ package org.geotools.feature;
  * clearly written <a href="http://www.w3.org/TR/xpath">specification</a>.</li>
  * </ol>
  * 
- * @version $Id: FeatureType.java,v 1.4 2002/07/12 15:15:48 loxnard Exp $
+ * @version $Id: FeatureType.java,v 1.5 2002/07/19 16:33:12 jmacgill Exp $
  * @author Rob Hranac, VFNY
  * @see org.geotools.datasource.Feature
  * @see org.geotools.datasource.FeatureTypeFlat
@@ -208,8 +208,8 @@ public interface FeatureType extends AttributeType {
 
     /**
      * Checks for attribute existence.
-     * TODO: The description does not seem to match the name
-     * TODO: Confirm that a SchemaException is appropriate for a get method.
+     * @task TODO: The description does not seem to match the name
+     * @task REVISIT: Confirm that a SchemaException is appropriate for a get method.
      * @param xPath XPath pointer to attribute type.
      * @return True if attribute exists.
      * @throws SchemaException thrown if the xPath does not point to a variable?
@@ -237,7 +237,7 @@ public interface FeatureType extends AttributeType {
 
     /**
      * Gets the number of occurrences of this attribute.
-     * TODO: Above description does not seem to match method name
+     * @task TODO: Description does not seem to match method name
      * @param position the position of the attribute to check.
      * @return Number of occurrences.
      */

@@ -25,7 +25,7 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSource;
 
 /**
- * @version $Id: FeatureCollection.java,v 1.4 2002/07/12 15:13:43 loxnard Exp $
+ * @version $Id: FeatureCollection.java,v 1.5 2002/07/19 16:33:12 jmacgill Exp $
  * @author  Ian Turton, CCG<br>
  * @author  Rob Hranac, VFNY
  */
@@ -81,8 +81,8 @@ public interface FeatureCollection {
      * Gets the features in the datasource inside the Extent ex.
      * This may trigger a load on the datasource.
      *
-     * TODO: given that this may trigger a load, would fetchFeatures be a
-     * TODO: more suitable name?
+     * @task REVISIT: given that this may trigger a load, would fetchFeatures be a
+     *                more suitable name?
      *
      * @param boundary The extent in which to load features
      * @return An array of all the features that fall within the boundary

@@ -26,13 +26,13 @@ import java.util.EventObject;
  * A simple event object to represent all events triggered by
  * FeatureCollection instances (typically change events).
  *
- * @version $Id: CollectionEvent.java,v 1.3 2002/06/04 14:42:20 loxnard Exp $
+ * @version $Id: CollectionEvent.java,v 1.4 2002/07/19 16:33:12 jmacgill Exp $
  * @author Ray Gallagher
  */
 public class CollectionEvent extends EventObject {
     /**
      * Constructs a new CollectionEvent.
-     * TODO: potential for reason codes here later
+     * @task TODO: potential for reason codes here later
      * @param source the collection which triggered the event
      */ 
     public CollectionEvent(Object source){

@@ -30,7 +30,7 @@ import com.vividsolutions.jts.geom.Envelope;
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.14 2002/07/12 15:28:57 loxnard Exp $
+ * @version $Id: Renderer.java,v 1.15 2002/07/19 16:33:12 jmacgill Exp $
  * @author James Macgill
  */
 
@@ -50,8 +50,8 @@ public interface Renderer {
      * The features should fill the viewport but may well extend beyond it.
      * Features should be cropped (if appropriate) to the specified viewport.
      *
-     * TODO: Think more in whether Renderer should be called by Map or
-     * TODO: if Map should be called by Renderer
+     * @task REVSIT: Think more in whether Renderer should be called by Map or
+     *               if Map should be called by Renderer
      *
      * @param f The features to render
      * @param viewport The visible extent to be rendered

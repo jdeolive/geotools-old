@@ -30,7 +30,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * Holds a set of FeatureCollections together with styles and a single output
  * coordinate system.
  *
- * @version $Id: Map.java,v 1.8 2002/07/12 15:19:44 loxnard Exp $
+ * @version $Id: Map.java,v 1.9 2002/07/19 16:33:12 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public interface Map {
@@ -51,8 +51,8 @@ public interface Map {
      * as the one specified for this map, though it is strongly recommended
      * that all features within the collection share a single coordinate
      * system.
-     * TODO: Confirm if single cs should be enforced.
-     * TODO: Rename this method addFeatureCollection.
+     * @task REVISIT: Confirm if single cs should be enforced.
+     * @task TODO: Rename this method addFeatureCollection.
      *
      * @param fc The collection of features to add.
      * @param style The style to apply to these features.

@@ -49,9 +49,9 @@ package org.geotools.styling;
  * The graphical parameters and their values are derived from SVG/CSS2 
  * standards with names and semantics which are as close as possible.<p>
  *
- * TODO: There are no setter methods in this interface, is this a problem?
+ * @task REVISIT: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.5 2002/07/12 15:30:55 loxnard Exp $
+ * @version $Id: Graphic.java,v 1.6 2002/07/19 16:33:12 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -68,15 +68,16 @@ public interface Graphic {
      * If none are provided, or if none of the formats are supported, then the
      * list of Marks should be used instead.
      *
+     * @task REVISIT: The following may be a handy extra to have in this interface.
+     *                public ExternalGraphic getExternalGraphic(String formats);
+     *                return the first external graphic to match one of the given formats
+     *
      * @return An array of ExternalGraphics objects which should be equivalents
      *         but in different formats.  If null is returned, use
      *         getMarks instead.
      */
     ExternalGraphic[] getExternalGraphics();
 
-    //TODO: The following may be a handy extra to have in this interface.
-    //public ExternalGraphic getExternalGraphic(String formats);
-    //return the first external graphic to match one of the given formats
 
     
     /**

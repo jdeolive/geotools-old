@@ -25,7 +25,7 @@ import org.geotools.feature.Feature;
 
 /**
  * Represents the extent of a loaded Feature set.
- * @version $Id: Extent.java,v 1.6 2002/07/12 15:08:29 loxnard Exp $
+ * @version $Id: Extent.java,v 1.7 2002/07/19 16:33:11 jmacgill Exp $
  * @author Ray Gallagher
  */
 public interface Extent {
@@ -52,8 +52,8 @@ public interface Extent {
         /**
          * Produces the smallest extent that will hold both the existing extent
          * and that of the extent passed in.
-         * TODO: Think about implication of combining.  New extent may contain
-         * areas which were in neither.
+         * @task REVISIT: Think about implication of combining.  New extent may contain
+         *                areas which were in neither.
          * @param other The extent to combine with this extent.
          * @return The new, larger, extent.
          **/
