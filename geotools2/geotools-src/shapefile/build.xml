@@ -1,8 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="shapefile">
-    <target name="all">
+    <target depends="test" name="all">
         <!-- WRITEME -->
     </target>
     
-    <target name="compile"/>
+    <target name="compile">
+        <javac debug="true" srcdir="src">
+            <classpath>
+                <fileset dir="..\..\extbin\shapefile\lib\"/>
+                <fileset dir="..\..\extbin\core\lib\"/>
+            </classpath>
+        </javac>
+        <javac debug="true" srcdir="tests/unit">
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\shapefile\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <path path="src"/>
+            </classpath>
+        </javac>
+    </target>
+    <target depends="compile" name="test">
+        <echo message="base dir is ${basedir}"/>
+        <junit fork="true" printsummary="true">
+            <formatter type="plain" />
+            <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
+            <classpath>
+                <fileset dir="..\..\extbin\core\lib\"/>
+                <fileset dir="..\..\extbin\shapefile\lib\"/>
+                <fileset dir="..\..\extbin\gtbuild\lib\"/>
+                <path path="src"/>
+                <path path="tests/unit/"/>
+            </classpath>
+            <test name="org.geotools.shapefile.ShapefileTest"/>
+        </junit>
+    </target>
 </project>
