@@ -5,6 +5,7 @@
  */
 package org.geotools.renderer;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 
@@ -26,15 +27,10 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.geotools.datasource.extents.EnvelopeExtent;
-
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeDefault;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFlat;
-import org.geotools.feature.FlatFeatureFactory;
 
 import org.geotools.styling.FeatureTypeStyle;
 import org.geotools.styling.Fill;
@@ -83,7 +79,7 @@ public class LegendImageGeneratorTest extends TestCase {
         System.err.println("starting rendering2DTest");
 
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(5, 15, 5, 15);
+        Envelope ex = new Envelope(5, 15, 5, 15);
 
         StyleFactory sFac = StyleFactory.createStyleFactory();
 
@@ -139,15 +135,18 @@ public class LegendImageGeneratorTest extends TestCase {
         ImageView view = new ImageView(image,"Simple Test");
         view.setSize(300,300);
         view.createFrame();
-        String dataFolder = System.getProperty("dataFolder");
+        
+        
+//        String dataFolder = System.getProperty("dataFolder");
+//
+//        if (dataFolder == null) {
+//            //then we are being run by maven
+//            dataFolder = System.getProperty("basedir");
+//            dataFolder += "/tests/unit/testData";
+//        }
 
-        if (dataFolder == null) {
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder += "/tests/unit/testData";
-        }
-
-        File file = new File(dataFolder, "LegendGraphicTest.jpg");
+        //File file = new File(dataFolder, "LegendGraphicTest.jpg");
+        File file = new File(getClass().getResource("/testData/").getPath(),"LegendGraphicTest.jpg");
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out);
         out.close();
@@ -160,15 +159,16 @@ public class LegendImageGeneratorTest extends TestCase {
     }
     
     public void testComplexStyle() throws Exception{
-        String dataFolder = System.getProperty("dataFolder");
-
-        if (dataFolder == null) {
-            //then we are being run by maven
-            dataFolder = System.getProperty("basedir");
-            dataFolder += "/tests/unit/testData";
-        }
-        
-        File f = new File(dataFolder,"popshade.sld");
+//        String dataFolder = System.getProperty("dataFolder");
+//
+//        if (dataFolder == null) {
+//            //then we are being run by maven
+//            dataFolder = System.getProperty("basedir");
+//            dataFolder += "/tests/unit/testData";
+//        }
+//        
+//        File f = new File(dataFolder,"popshade.sld");
+        File f = new File(getClass().getResource("/testData/popshade.sld").getPath());
         
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
@@ -180,7 +180,7 @@ public class LegendImageGeneratorTest extends TestCase {
         ImageView view = new ImageView(image,"Complex Test");
         view.setSize(300,100);
         view.createFrame();
-        File file = new File(dataFolder, "LegendGraphicTest2.jpg");
+        File file = new File(getClass().getResource("/testData/").getPath(), "LegendGraphicTest2.jpg");
         FileOutputStream out = new FileOutputStream(file);
         ImageIO.write(image, "JPEG", out);
         out.close();

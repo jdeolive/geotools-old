@@ -174,7 +174,9 @@ public class GtWmsServer implements WMSServer {
                     loop.remove();
                     continue;
                 }
-                bbox = ds.getBbox();
+                bbox = ds.getBounds();
+                System.out.println("bbox " + bbox);
+                System.out.println(ds);
                 entry.bbox = new double[4];
                 entry.bbox[0] = bbox.getMinX();
                 entry.bbox[1] = bbox.getMinY();
@@ -532,7 +534,7 @@ public class GtWmsServer implements WMSServer {
      *
      * @throws WMSException DOCUMENT ME!
      */
-    public Feature[] getFeatureInfo(String[] layer, String srs, double[] bbox,
+    public FeatureCollection getFeatureInfo(String[] layer, String srs, double[] bbox,
     int width, int height, int featureCount, int x, int y)
     throws WMSException {
         // throw new WMSException(null, "getFeatureInfo not supported");
@@ -567,9 +569,8 @@ public class GtWmsServer implements WMSServer {
                 geomFac.createPoint(c)));
                 
                 FeatureCollection fc = ds.getFeatures(filter);
-                Feature[] features = fc.getFeatures();
                 
-                return features;
+                return fc;
             }
             
             return null;

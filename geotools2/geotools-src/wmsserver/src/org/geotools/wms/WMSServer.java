@@ -20,6 +20,7 @@ import org.geotools.feature.Feature;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.Properties;
+import org.geotools.feature.FeatureCollection;
 
 
 /**
@@ -112,7 +113,7 @@ public interface WMSServer {
      *
      * @return An array of Feature objects.
      */
-    public Feature[] getFeatureInfo(String[] layers, String srs, double[] bbox,
+    public FeatureCollection getFeatureInfo(String[] layers, String srs, double[] bbox,
         int width, int height, int featureCount, int x, int y)
         throws WMSException;
 }

@@ -20,9 +20,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.IllegalAttributeException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureIterator;
 
 
 /**
@@ -47,13 +49,16 @@ public class TextFeatureFormatter
      *
      * @task HACK: Exception handleling is not elegant
      */
-    public void formatFeatures(Feature[] features, OutputStream out) {
+    public void formatFeatures(FeatureCollection collection, OutputStream out) {
         PrintWriter writer = new PrintWriter(out);
 
-        try {
-            for (int i = 0; i < features.length; i++) {
-                FeatureType schema = features[i].getSchema();
-                AttributeType[] types = schema.getAllAttributeTypes();
+//        try {
+            FeatureIterator features = collection.features();
+            while (features.hasNext()) {
+                Feature f = features.next();
+//            for (int i = 0; i < features.length; i++) {
+                FeatureType schema = f.getFeatureType();
+                AttributeType[] types = schema.getAttributeTypes();
                 writer.println("------");
 
                 for (int j = 0; j < types.length; j++) {
@@ -61,13 +66,13 @@ public class TextFeatureFormatter
                         writer.println(types[j].getName() + " = [GEOMETRY]");
                     } else {
                         writer.println(types[j].getName() + " = " +
-                            features[i].getAttribute(types[j].getName()));
+                            f.getAttribute(types[j].getName()));
                     }
                 }
             }
-        } catch (IllegalFeatureException ife) {
-            writer.println("Unable to generate information " + ife);
-        }
+//        } catch (IllegalAttributeException ife) {
+//            writer.println("Unable to generate information " + ife);
+//        }
 
         writer.flush();
     }

@@ -18,6 +18,7 @@ package org.geotools.wms;
 
 import org.geotools.feature.Feature;
 import java.io.OutputStream;
+import org.geotools.feature.FeatureCollection;
 
 
 /**
@@ -39,5 +40,5 @@ public interface WMSFeatureFormatter {
      * Formats the given array of Features as this Formatter's mime-type and
      * writes it to the given OutputStream
      */
-    public void formatFeatures(Feature[] features, OutputStream out);
+    public void formatFeatures(FeatureCollection features, OutputStream out);
 }

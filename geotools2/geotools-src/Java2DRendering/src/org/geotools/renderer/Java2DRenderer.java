@@ -57,7 +57,7 @@ import org.geotools.map.Layer;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.86 2003/07/17 16:29:04 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.87 2003/07/17 17:57:45 ianschneider Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -103,8 +103,7 @@ Renderer2D {
    * into the output space.
    */
   private double scaleDenominator;
-  private Feature[] cachedFeatures;
-  private FeatureTypeStyle[] cachedFeatureStylers;
+
   
   /**
    * Creates a new instance of Java2DRenderer.

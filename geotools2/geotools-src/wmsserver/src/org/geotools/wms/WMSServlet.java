@@ -31,6 +31,7 @@ import javax.imageio.*;
 import javax.imageio.stream.ImageOutputStream;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.renderer.LegendImageGenerator;
 
 
@@ -614,7 +615,7 @@ public class WMSServlet extends HttpServlet {
             }
 
             // Get features
-            Feature[] features = server.getFeatureInfo(layers, srs, dBbox,
+            FeatureCollection features = server.getFeatureInfo(layers, srs, dBbox,
                     width, height, featureCount, x, y);
 
             // Get featureFormatter with the requested mime-type

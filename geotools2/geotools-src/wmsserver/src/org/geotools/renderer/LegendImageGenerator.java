@@ -18,14 +18,16 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import org.geotools.feature.AttributeTypeDefault;
+import java.util.Map;
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureFactory;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFlat;
-import org.geotools.feature.FeatureFactoryFinder;
-import org.geotools.feature.IllegalFeatureException;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.FilterFactory;
 import org.geotools.renderer.Java2DRenderer;
@@ -67,18 +69,32 @@ public class LegendImageGenerator {
     static StyleFactory sFac= StyleFactory.createStyleFactory();
     static FilterFactory filFac = FilterFactory.createFilterFactory();
     GeometryFactory gFac = new GeometryFactory();
-    FeatureFactory fFac,labelFac;
+//    FeatureFactory fFac,labelFac;
+    FeatureType fFac,labelFac;
     /** Creates a new instance of LegendImageGenerator */
     public LegendImageGenerator() {
-        FeatureType type = new FeatureTypeFlat(new AttributeTypeDefault("testGeometry",Geometry.class)); 
-        fFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(type);
-        AttributeTypeDefault[] attribs = {
-            new AttributeTypeDefault("geometry:text",Geometry.class),
-            new AttributeTypeDefault("label",String.class)
+//        FeatureType type = FeatureTypeFactory.newFeatureType(new FeatureType[] {(new AttributeTypeDefault("testGeometry",Geometry.class)},"legend"); 
+//        fFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(type);
+//        AttributeTypeDefault[] attribs = {
+//            new AttributeTypeDefault("geometry:text",Geometry.class),
+//            new AttributeTypeDefault("label",String.class)
+//        };
+//        try{
+//        FeatureType labeltype = new FeatureTypeFlat(attribs);
+//        labelFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(labeltype);
+//        }catch (SchemaException se){
+//            throw new RuntimeException(se);
+//        }
+        
+        AttributeType[] attribs = {
+            AttributeTypeFactory.newAttributeType("geometry:text",Geometry.class),
+            AttributeTypeFactory.newAttributeType("label",String.class)
         };
         try{
-        FeatureType labeltype = new FeatureTypeFlat(attribs);
-        labelFac = org.geotools.feature.FeatureFactoryFinder.getFeatureFactory(labeltype);
+        fFac = FeatureTypeFactory.newFeatureType(
+          new AttributeType[] {AttributeTypeFactory.newAttributeType("testGeometry",Geometry.class)},"legend"
+        ); 
+        labelFac = FeatureTypeFactory.newFeatureType(attribs,"attribs");
         }catch (SchemaException se){
             throw new RuntimeException(se);
         }
@@ -124,6 +140,8 @@ public class LegendImageGenerator {
         int items=0;
         int hstep = (getWidth() - 2* hpadding)/2;
         
+        Map rendered = new HashMap();
+        
         for(int s=0;s<styles.length;s++){
             FeatureTypeStyle[] fts = styles[s].getFeatureTypeStyles();
 
@@ -144,7 +162,7 @@ public class LegendImageGenerator {
                             Object[] attrib = {p};
                             try{
                                 feature = fFac.create(attrib);
-                            }catch (IllegalFeatureException ife){
+                            }catch (IllegalAttributeException ife){
                                 throw new RuntimeException(ife);
                             }
                             ps = sFac.createPointSymbolizer();
@@ -180,7 +198,7 @@ public class LegendImageGenerator {
                                 Object[] attrib = {poly};
                                 try{
                                     feature = fFac.create(attrib);
-                                }catch (IllegalFeatureException ife){
+                                }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
                                 //System.out.println("feature = "+feature);
@@ -197,7 +215,7 @@ public class LegendImageGenerator {
                                 Object[] attrib = {line};
                                 try{
                                     feature = fFac.create(attrib);
-                                }catch (IllegalFeatureException ife){
+                                }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
                                 //System.out.println("feature = "+feature);
@@ -208,7 +226,7 @@ public class LegendImageGenerator {
                                 Object[] attrib = {p};
                                 try{
                                     feature = fFac.create(attrib);
-                                }catch (IllegalFeatureException ife){
+                                }catch (IllegalAttributeException ife){
                                     throw new RuntimeException(ife);
                                 }
                                 System.out.println("feature = "+feature);
@@ -218,7 +236,7 @@ public class LegendImageGenerator {
                         }
                         if(feature == null) continue;
                         //System.out.println("feature "+feature);
-                        renderer.processSymbolizers(feature, syms);
+                        renderer.processSymbolizers(rendered,feature, syms);
                         
                     }
 
@@ -228,19 +246,19 @@ public class LegendImageGenerator {
                 Object[] attrib = {p,name};
                 try{
                     labelFeature = labelFac.create(attrib);
-                }catch (IllegalFeatureException ife){
+                }catch (IllegalAttributeException ife){
                     throw new RuntimeException(ife);
                 }
                 textSym.setLabel(filFac.createLiteralExpression(name));
 
 
-                renderer.processSymbolizers(labelFeature,new Symbolizer[]{textSym});
+                renderer.processSymbolizers(rendered,labelFeature,new Symbolizer[]{textSym});
     
                 offset += symbolHeight+vpadding;
                 }
             }
         }
-        Iterator it = renderer.renderedObjects.values().iterator(); 
+        Iterator it = rendered.values().iterator(); 
 
         while (it.hasNext()) {
             ((RenderedObject) it.next()).render(graphics);

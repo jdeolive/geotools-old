@@ -15,6 +15,7 @@ import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
 
 public class GtWmsServerTest extends TestCase {
     static WMSServer server;
@@ -174,15 +175,17 @@ public class GtWmsServerTest extends TestCase {
     
      public void testGetFeatureInfo() {
         try {
-            Feature[] features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 300, 150);
+            FeatureCollection f = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 300, 150);
+            Feature[] features = (Feature[]) f.toArray(new Feature[f.size()]);
             assertNotNull("No features returned", features);
             assertEquals("Wrong number of features found",1,features.length);
-            Object atrib[] = features[0].getAttributes();
+            Object atrib[] = features[0].getAttributes(new Object[features[0].getNumberOfAttributes()]);
             assertEquals("Oklahoma",atrib[1].toString());
-            features = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 210, 150);
+            f = server.getFeatureInfo(new String[] {"USA"}, "EPSG:4326", new double[] {-130, 17, -60, 52}, 600, 300,1 , 210, 150);
+            features = (Feature[]) f.toArray(new Feature[f.size()]);
             assertNotNull("No features returned", features);
             assertEquals("Wrong number of features found",1,features.length);
-            atrib = features[0].getAttributes();
+            atrib = features[0].getAttributes(new Object[features[0].getNumberOfAttributes()]);
             assertEquals("New Mexico",atrib[1].toString());
         }
         catch(WMSException wmsexp) {
