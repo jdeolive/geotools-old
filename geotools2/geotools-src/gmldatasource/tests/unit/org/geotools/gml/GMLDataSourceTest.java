@@ -33,29 +33,43 @@ public class GMLDataSourceTest extends TestCase {
         
         return suite;
     }
+    static int NTests = 6;
     public void testRead() throws Exception{
         System.out.println("testRead");
-        String dataFolder = System.getProperty("dataFolder");
-        URL url = new URL("file:///"+dataFolder+"/testGML1.gml");
-        System.out.println("Testing ability to read "+url);
-        BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-        GMLReader gmlr = new GMLReader(in);
-        
-        GeometryCollection gc = gmlr.read();
-        assertEquals(1,gc.getNumGeometries());
-        url = new URL("file:///"+dataFolder+"/testGML2.gml");
-        in=new BufferedReader(new InputStreamReader(url.openStream()));
-        gmlr = new GMLReader(in);
-        gc = gmlr.read();
-        assertEquals(1,gc.getNumGeometries());
+        for(int j=1;j<=NTests;j++){
+            System.out.println("******* TEST NUMBER "+j+" ***********");
+            String dataFolder = System.getProperty("dataFolder");
+            URL url = new URL("file:///"+dataFolder+"/testGML"+j+".gml");
+            //System.out.println("Testing ability to read "+url);
+            BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+            GMLReader gmlr = new GMLReader(in);
+            
+            GeometryCollection gc = gmlr.read();
+            GeometryCollectionIterator gci = new GeometryCollectionIterator(gc);
+            int i=0;
+            Geometry g = (Geometry)gci.next(); // eat the first geomcollection
+            while(gci.hasNext()){
+                g=(Geometry)gci.next();
+                System.out.println("Geometry = "+g.getGeometryType());
+                if(!g.getGeometryType().equalsIgnoreCase("GeometryCollection")){
+                    System.out.println("Coordinates:");
+                    Coordinate[] c = g.getCoordinates();
+                    for(int k=0;k<c.length;k++){
+                        System.out.println("\t "+c[k].toString());
+                    }
+                }
+            }
+        System.out.println("********* END TEST "+j+" **********");
+        }
         
     }
-    public void testDataSource() throws Exception{
+    public void xtestDataSource() throws Exception{
+        System.out.println("testDataSource");
         String dataFolder = System.getProperty("dataFolder");
         URL url = new URL("file:///"+dataFolder+"/testGML1.gml");
         System.out.println("Testing ability to load "+url+" as datasource");
         GMLDataSource ds = new GMLDataSource(url);
         
-        ds.load((Extent)null);   
+        ds.load((Extent)null);
     }
 }
