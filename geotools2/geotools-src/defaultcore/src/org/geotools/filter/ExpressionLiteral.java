@@ -28,7 +28,7 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: ExpressionLiteral.java,v 1.4 2002/07/22 20:22:03 jmacgill Exp $
+ * @version $Id: ExpressionLiteral.java,v 1.5 2002/07/23 14:49:45 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionLiteral extends ExpressionDefault {
@@ -93,6 +93,10 @@ public class ExpressionLiteral extends ExpressionDefault {
         }
 
         this.literal = literal;
+    }
+    
+    public Object getLiteral(){
+        return literal;
     }
 
 
