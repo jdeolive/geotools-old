@@ -50,6 +50,9 @@ import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
 
+// OpenGIS dependencies
+import org.opengis.gp.GP_Operation;
+
 // Geotools Dependencies
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.ParameterInfo;
@@ -68,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -92,6 +95,16 @@ public abstract class Operation implements Serializable {
      */
     public static final RenderingHints.Key JAI_INSTANCE =
             new Key(1, JAI.class);
+
+    /**
+     * <code>true</code> if all comutations should be applied on geophysics
+     * values, or <code>false</code> if the image data should be use "as is".
+     *
+     * @task TODO: We should make this option configurable as a rendering hint.
+     *             The value should probably be an enumeration: GEOPHYSICS,
+     *             SAMPLE or AS_IS.
+     */
+    static final boolean COMPUTE_ON_GEOPHYSICS_VALUES = true;
     
     /**
      * List of valid names. Note: the "Optimal" type is not
@@ -138,19 +151,21 @@ public abstract class Operation implements Serializable {
     
     /**
      * Returns the name of the processing operation.
+     *
+     * @see GP_Operation#getName
      */
     public String getName() {
         return name;
     }
     
     /**
-     * Returns the description of the processing operation.
-     * If no description, returns <code>null</code>.
-     * If no description is available in the specified locale,
-     * a default one will be used.
+     * Returns the description of the processing operation. If no description,
+     * returns <code>null</code>. If no description is available in the specified
+     * locale, a default one will be used.
      *
-     * @param locale The desired locale, or <code>null</code>
-     *        for the default locale.
+     * @param locale The desired locale, or <code>null</code> for the default locale.
+     *
+     * @see GP_Operation#getDescription
      */
     public String getDescription(final Locale locale) {
         return null;
@@ -158,6 +173,8 @@ public abstract class Operation implements Serializable {
     
     /**
      * Returns the number of source grid coverages required for the operation.
+     *
+     * @see GP_Operation#getNumSources
      */
     public int getNumSources() {
         int count=0;
@@ -175,6 +192,8 @@ public abstract class Operation implements Serializable {
     /**
      * Returns the number of parameters for the
      * operation, including source grid coverages.
+     *
+     * @see GP_Operation#getNumParameters
      */
     public int getNumParameters() {
         return descriptor.getNumParameters();
@@ -184,16 +203,20 @@ public abstract class Operation implements Serializable {
      * Retrieve the parameter information for a given index.
      * This is mostly a convenience method, since informations
      * are extracted from {@link ParameterListDescriptor}.
+     *
+     * @see GP_Operation#getParameterInfo
+     * @see #getParameterInfo(String)
      */
     public ParameterInfo getParameterInfo(final int index) {
         return new ParameterInfo(descriptor, index);
     }
     
     /**
-     * Retrieve the parameter information for a given name.
-     * Search is case-insensitive. This is mostly a convenience
-     * method, since informations are extracted from
+     * Retrieve the parameter information for a given name. Search is case-insensitive.
+     * This is mostly a convenience method, since informations are extracted from
      * {@link ParameterListDescriptor}.
+     *
+     * @see #getParameterInfo(int)
      */
     public ParameterInfo getParameterInfo(final String name) {
         return new ParameterInfo(descriptor, name);
@@ -209,7 +232,8 @@ public abstract class Operation implements Serializable {
     /**
      * Cast the specified object to an {@link Interpolation object}.
      *
-     * @param  type The interpolation type as an {@link Interpolation} or a {@link CharSequence} object.
+     * @param  type The interpolation type as an {@link Interpolation}
+     *         or a {@link CharSequence} object.
      * @return The interpolation object for the specified type.
      * @throws IllegalArgumentException if the specified interpolation type is not a know one.
      */
@@ -235,8 +259,8 @@ public abstract class Operation implements Serializable {
      *
      * @param  parameters List of name value pairs for the parameters
      *         required for the operation.
-     * @param  A set of rendering hints, or <code>null</code> if none. The
-     *         <code>GridCoverageProcessor</code> will usually provides hints
+     * @param  A set of rendering hints, or <code>null</code> if none.
+     *         The <code>GridCoverageProcessor</code> may provides hints
      *         for the following keys: {@link #COORDINATE_TRANSFORMATION_FACTORY}
      *         and {@link #JAI_INSTANCE}.
      * @return The result as a grid coverage.

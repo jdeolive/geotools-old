@@ -96,7 +96,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.5 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.6 2002/07/27 22:08:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
@@ -767,11 +767,21 @@ public class Category implements Serializable {
             if (Double.doubleToRawLongBits(minimum)== Double.doubleToRawLongBits(that.minimum) &&
                 Double.doubleToRawLongBits(maximum)== Double.doubleToRawLongBits(that.maximum) &&
                 Utilities.equals(this.transform, that.transform) &&
-                Utilities.equals(this.range,     that.range) &&
                 Utilities.equals(this.name,      that.name ) &&
                    Arrays.equals(this.ARGB,      that.ARGB ))
             {
-                assert !(inverse instanceof GeophysicsCategory) || inverse.equals(that.inverse);
+                // Special test for 'range', since 'GeophysicsCategory'
+                // computes it only when first needed.
+                if (this.range!=null && that.range!=null) {
+                    if (!Utilities.equals(this.range, that.range)) {
+                        return false;
+                    }
+                    if (inverse instanceof GeophysicsCategory) {
+                        assert inverse.equals(that.inverse);
+                    }
+                    return true;
+                }
+                assert (this instanceof GeophysicsCategory);
                 return true;
             }
         }

@@ -74,7 +74,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * interpolation (use the standard {@link GridCoverage} class for that).
  * It should work for other kinds of interpolation however.
  *
- * @version $Id: Interpolator.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
+ * @version $Id: Interpolator.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Interpolator extends GridCoverage {
@@ -196,27 +196,26 @@ final class Interpolator extends GridCoverage {
             //
             //       transform.translate(-0.5, -0.5);
             //
-            //       This is because we need to cancel the last 'translate(0.5, 0.5)'  that appear in
-            //       GridGeometry's constructor (we must remember that OpenGIS's transform maps pixel
-            //       CENTER, while JAI transforms maps pixel UPPER LEFT corner).      For exemple the
-            //       (12.4, 18.9)  coordinates still lies on the [12,9] pixel.        Since the JAI's
-            //       nearest-neighbor interpolation use 'Math.floor' operation instead of 'Math.round',
-            //       we must follow this convention.
+            //       This is because we need to cancel the last 'translate(0.5, 0.5)' that appears
+            //       in GridGeometry's constructor (we must remember that OpenGIS's transform maps
+            //       pixel CENTER, while JAI transforms maps pixel UPPER LEFT corner). For exemple
+            //       the (12.4, 18.9) coordinates still lies on the [12,9] pixel.  Since the JAI's
+            //       nearest-neighbor interpolation use 'Math.floor' operation instead of
+            //       'Math.round', we must follow this convention.
             //
             //       For other kinds of interpolation, we want to maps pixel values to pixel center.
-            //       For example, coordinate (12.5, 18.5) (in floating-point coordinates) lies at the
-            //       center of pixel [12,18] (in integer coordinates);  the evaluated value should be
-            //       the exact pixel's value. On the other hand, coordinate (12.5, 19) (in floating-
-            //       point coordinates) lies exactly at the edge between pixels [12,19] and [12,20];
-            //       the evaluated value should be a mid-value between those two pixels. If we want
-            //       center of mass located at pixel centers, we must keep the (0.5, 0.5) translation
-            //       provided by 'GridGeometry' for interpolation other than nearest-neighbor.
+            //       For example, coordinate (12.5, 18.5) (in floating-point coordinates) lies at
+            //       the center of pixel [12,18] (in integer coordinates); the evaluated value
+            //       should be the exact pixel's value. On the other hand, coordinate (12.5, 19)
+            //       (in floating-point coordinates) lies exactly at the edge between pixels
+            //       [12,19] and [12,20]; the evaluated value should be a mid-value between those
+            //       two pixels. If we want center of mass located at pixel centers, we must keep
+            //       the (0.5, 0.5) translation provided by 'GridGeometry' for interpolation other
+            //       than nearest-neighbor.
             toGrid = (MathTransform2D) transform.inverse();
         } catch (NoninvertibleTransformException exception) {
             final IllegalArgumentException e = new IllegalArgumentException();
-            //----- BEGIN JDK 1.4 DEPENDENCIES ----
             e.initCause(exception);
-            //----- END OF JDK 1.4 DEPENDENCIES ---
             throw e;
         }
         
@@ -285,7 +284,8 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, image.getNumBands())) {
+                dest = interpolate(x, y, dest, 0, image.getNumBands());
+                if (dest != null) {
                     return dest;
                 }
             }
@@ -314,7 +314,8 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, image.getNumBands())) {
+                dest = interpolate(x, y, dest, 0, image.getNumBands());
+                if (dest != null) {
                     return dest;
                 }
             }
@@ -343,7 +344,8 @@ final class Interpolator extends GridCoverage {
             final double x = pixel.getX();
             final double y = pixel.getY();
             if (!Double.isNaN(x) && !Double.isNaN(y)) {
-                if (interpolate(x, y, dest, 0, image.getNumBands())) {
+                dest = interpolate(x, y, dest, 0, image.getNumBands());
+                if (dest != null) {
                     return dest;
                 }
             }
@@ -365,18 +367,18 @@ final class Interpolator extends GridCoverage {
      * @param dest   The destination array, or null.
      * @param band   The first band's index to interpolate.
      * @param bandUp The last band's index+1 to interpolate.
-     * @return <code>false</code> if point is outside grid coverage.
+     * @return <code>null</code> if point is outside grid coverage.
      */
-    private synchronized boolean interpolate(final double x, final double y,
-                                             int[] dest, int band, final int bandUp)
+    private synchronized int[] interpolate(final double x, final double y,
+                                           int[] dest, int band, final int bandUp)
     {
         final double x0 = Math.floor(x);
         final double y0 = Math.floor(y);
         final int    ix = (int)x0;
         final int    iy = (int)y0;
         if (!(ix>=xmin && ix<xmax && iy>=ymin && iy<ymax)) {
-            if (fallback==null) return false;
-            if (fallback==this) return true; // super.evaluate(...) succeed prior to this method call.
+            if (fallback==null) return null;
+            if (fallback==this) return dest; // super.evaluate(...) succeed prior to this call.
             return fallback.interpolate(x, y, dest, band, bandUp);
         }
         /*
@@ -420,7 +422,7 @@ final class Interpolator extends GridCoverage {
             final int yfrac = (int) ((y-y0) * (1 << interpolation.getSubsampleBitsV()));
             dest[band] = interpolation.interpolate(samples, xfrac, yfrac);
         }
-        return true;
+        return dest;
     }
     
     /**
@@ -433,16 +435,18 @@ final class Interpolator extends GridCoverage {
      * @param dest   The destination array, or null.
      * @param band   The first band's index to interpolate.
      * @param bandUp The last band's index+1 to interpolate.
-     * @return <code>false</code> if point is outside grid coverage.
+     * @return <code>null</code> if point is outside grid coverage.
      */
-    private synchronized boolean interpolate(final double x, final double y, float[] dest, int band, final int bandUp) {
+    private synchronized float[] interpolate(final double x, final double y,
+                                             float[] dest, int band, final int bandUp)
+    {
         final double x0 = Math.floor(x);
         final double y0 = Math.floor(y);
         final int    ix = (int)x0;
         final int    iy = (int)y0;
         if (!(ix>=xmin && ix<xmax && iy>=ymin && iy<ymax)) {
-            if (fallback==null) return false;
-            if (fallback==this) return true; // super.evaluate(...) succeed prior to this method call.
+            if (fallback==null) return null;
+            if (fallback==this) return dest; // super.evaluate(...) succeed prior to this call.
             return fallback.interpolate(x, y, dest, band, bandUp);
         }
         /*
@@ -497,7 +501,7 @@ final class Interpolator extends GridCoverage {
             }
             dest[band] = value;
         }
-        return true;
+        return dest;
     }
     
     /**
@@ -510,16 +514,18 @@ final class Interpolator extends GridCoverage {
      * @param dest   The destination array, or null.
      * @param band   The first band's index to interpolate.
      * @param bandUp The last band's index+1 to interpolate.
-     * @return <code>false</code> if point is outside grid coverage.
+     * @return <code>null</code> if point is outside grid coverage.
      */
-    private synchronized boolean interpolate(final double x, final double y, double[] dest, int band, final int bandUp) {
+    private synchronized double[] interpolate(final double x, final double y,
+                                              double[] dest, int band, final int bandUp)
+    {
         final double x0 = Math.floor(x);
         final double y0 = Math.floor(y);
         final int    ix = (int)x0;
         final int    iy = (int)y0;
         if (!(ix>=xmin && ix<xmax && iy>=ymin && iy<ymax)) {
-            if (fallback==null) return false;
-            if (fallback==this) return true; // super.evaluate(...) succeed prior to this method call.
+            if (fallback==null) return null;
+            if (fallback==this) return dest; // super.evaluate(...) succeed prior to this call.
             return fallback.interpolate(x, y, dest, band, bandUp);
         }
         /*
@@ -574,7 +580,7 @@ final class Interpolator extends GridCoverage {
             }
             dest[band] = value;
         }
-        return true;
+        return dest;
     }
     
     
@@ -586,7 +592,7 @@ final class Interpolator extends GridCoverage {
      * The default value is nearest neighbor. The new interpolation type operates
      * on all sample dimensions. See package description for more details.
      *
-     * @version $Id: Interpolator.java,v 1.3 2002/07/27 12:40:49 desruisseaux Exp $
+     * @version $Id: Interpolator.java,v 1.4 2002/07/27 22:08:44 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {
