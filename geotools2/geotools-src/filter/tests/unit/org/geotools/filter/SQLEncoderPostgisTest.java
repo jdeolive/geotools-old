@@ -178,7 +178,7 @@ public class SQLEncoderPostgisTest extends TestCase {
         attributes[9] = "test string data";
 
         // Creates the feature itself
-        FeatureFactory factory = new FeatureFactory(testSchema);
+        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeature = factory.create(attributes);
         LOGGER.finer("...flat feature created");
     }

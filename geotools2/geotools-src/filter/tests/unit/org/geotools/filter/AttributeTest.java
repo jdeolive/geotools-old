@@ -38,7 +38,7 @@ public class AttributeTest extends TestCase {
         AttributeType a3 = new AttributeTypeDefault("name",String.class).setPosition(2);
         schema = new FeatureTypeFlat(new AttributeType[]{a1,a2,a3});
   
-        FeatureFactory fFac = new FeatureFactory(schema);
+        FlatFeatureFactory fFac = new FlatFeatureFactory(schema);
         Feature[] f = new Feature[3];
         f[0] = fFac.create(new Object[]{
                 new Integer(12),

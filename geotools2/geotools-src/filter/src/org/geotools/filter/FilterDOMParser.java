@@ -137,7 +137,7 @@ public class FilterDOMParser {
                 return filter;
                 
             }catch (IllegalFilterException ife){
-                LOGGER.finer("Unable to build filter: " + ife);
+                LOGGER.warning("Unable to build filter: " + ife);
                 return null;
             }
         } else if(spatial.containsKey(childName)){
@@ -165,7 +165,7 @@ public class FilterDOMParser {
                     filter.addRightGeometry(ExpressionDOMParser.parseExpression(value));
                     return filter;
                 }catch (IllegalFilterException ife){
-                LOGGER.finer("Unable to build filter: " + ife);
+                LOGGER.warning("Unable to build filter: " + ife);
                 return null;
             }
         } else if (logical.containsKey(childName)){
@@ -183,11 +183,11 @@ public class FilterDOMParser {
                 }
                 return filter;
              }catch (IllegalFilterException ife){
-                LOGGER.finer("Unable to build filter: " + ife);
+                LOGGER.warning("Unable to build filter: " + ife);
                 return null;
             }
         }
-        LOGGER.finer("unknown filter "+root);
+        LOGGER.warning("unknown filter "+root);
         return null;
     }
     

@@ -180,7 +180,7 @@ public class ParserTest
         attributes[10] = "test string data";
         
         // Creates the feature itself
-        FeatureFactory factory = new FeatureFactory(testSchema);
+        FlatFeatureFactory factory = new FlatFeatureFactory(testSchema);
         testFeature = factory.create(attributes);
         LOGGER.fine("...flat feature created");
     }

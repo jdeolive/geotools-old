@@ -48,7 +48,7 @@ public class BetweenTest extends TestCase {
         a.addMiddleValue(new AttributeExpressionImpl(schema,"value"));
         
         System.out.println("a1 official name is "+a1.getName());
-        FeatureFactory fFac = new FeatureFactory(schema);
+        FlatFeatureFactory fFac = new FlatFeatureFactory(schema);
         System.out.println("geometry is "+schema.getAttributeType("geometry"));
         System.out.println("value is "+schema.getAttributeType("value"));
         System.out.println("schema has value in it ? "+schema.hasAttributeType("value"));
