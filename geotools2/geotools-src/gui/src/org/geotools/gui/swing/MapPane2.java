@@ -24,6 +24,7 @@ package org.geotools.gui.swing;
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Graphics;
 import javax.swing.JPanel;
+import java.util.logging.Logger;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.tools.Tool;
@@ -44,7 +45,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.5 2002/08/18 03:37:34 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.6 2002/08/19 20:36:13 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -73,14 +74,18 @@ public class MapPane2 extends JPanel implements
     /**
      * The areaOfInterest to be drawn by this map.
      */
-    private Envelope areaOfInterest;
     private AreaOfInterestModel areaOfInterestModel;
 
     /**
      * The style used by this MapPane.
      */
     private Style style;
-    
+
+    /**
+     * The class used for identifying for logging.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
+
     /**
      * Create a DefaultMapPane.  This is the defaultMapPane which is to be
      * extended by other MapPanes.
@@ -172,7 +177,11 @@ public class MapPane2 extends JPanel implements
                         areaOfInterestModel.getAreaOfInterest(),
                         style);
                     } catch (DataSourceException exception) {
-                        // log exception
+                        LOGGER.warning(
+                            "Exception "
+                            + exception
+                            + " rendering layer "
+                            + layerList.getLayers()[i]);
                     }
                 }
             }
