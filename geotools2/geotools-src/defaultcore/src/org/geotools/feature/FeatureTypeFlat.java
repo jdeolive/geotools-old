@@ -30,6 +30,7 @@ import com.vividsolutions.jts.geom.Geometry;
 // Geotools dependencies
 import org.geotools.data.*;
 
+
 /** 
  * <p>A GeoTools representation of a simple feature.
  * A flat feature type enforces the following properties:<ul>
@@ -41,8 +42,8 @@ import org.geotools.data.*;
  * 'layers' in traditional GIS parlance.  They are called flat because they
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
- *
- * @version $Id: FeatureTypeFlat.java,v 1.17 2002/10/10 22:26:12 cholmesny Exp $
+ * @task HACK:now handle all objects
+ * @version $Id: FeatureTypeFlat.java,v 1.18 2002/11/06 16:44:23 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -63,7 +64,8 @@ public class FeatureTypeFlat implements FeatureType {
               Long.class, 
               Float.class, 
               Double.class, 
-              String.class }));
+              String.class,
+              Object.class  }));
     
     /** Attribute types of this feature type. */
     protected AttributeType[] attributeTypes;
@@ -175,8 +177,9 @@ public class FeatureTypeFlat implements FeatureType {
     }
 
 
-    /* ***********************************************************************
+    /*************************************************************************
      * Static Helper methods to check, add and destroy attributes.           *
+     * @task hack: returns true always!
      * ***********************************************************************/
     private static boolean isAllowed(AttributeType attribute) {
         if (ALLOWED_TYPES.contains(attribute.getType()) &&
@@ -184,7 +187,7 @@ public class FeatureTypeFlat implements FeatureType {
             return true;
         }
         else {
-            return false;
+            return true; // HACK
         }
     }
 
