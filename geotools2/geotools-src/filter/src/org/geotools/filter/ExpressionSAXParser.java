@@ -34,7 +34,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionSAXParser.java,v 1.4 2003/04/21 22:58:43 cholmesny Exp $
+ * @version $Id: ExpressionSAXParser.java,v 1.5 2003/05/27 19:21:57 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionSAXParser {
@@ -191,6 +191,9 @@ public class ExpressionSAXParser {
      * @param message
      * @tasks TODO: this function is a mess, but it's mostly due to filters
      * being loosely coupled with schemas, so we have to make a lot of guesses.
+     * @tasks TODO: Revisit putting characters to lower case and stripping
+     * leading characters.  Needed now to get things working, and may be
+     * the best choice in the end, but it should be thought through more.  
      */
     public void message(String message) throws IllegalFilterException{
 
@@ -200,7 +203,13 @@ public class ExpressionSAXParser {
 
         LOGGER.finer("incoming message: " + message);
         LOGGER.finer("should read chars: " + readCharacters);
-        
+        //HACK: this is needed for postgis datasource, and all dses that 
+	//store everything in lower case, to work properly.  We should 
+	//revisit this, if we want it to be the default policy for geotools
+	//to be case insensitive, or if we want to do some elaborate hacks
+	//for postgis et al. (it will be nasty)
+	//message = message.toLowerCase();
+	
         if(readCharacters) {
             // If an attribute path, set it.  Assumes undeclared type.
             if( currentExpression instanceof AttributeExpression) {
