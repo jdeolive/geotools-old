@@ -41,7 +41,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: IsValidGeometryValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: IsValidGeometryValidation.java,v 1.4 2004/03/09 19:37:38 dmzwiers Exp $
  */
 public class IsValidGeometryValidation extends DefaultFeatureValidation {
     /** The logger for the validation module. */
@@ -86,7 +86,13 @@ public class IsValidGeometryValidation extends DefaultFeatureValidation {
      * @see org.geotools.validation.Validation#getTypeNames()
      */
     public String[] getTypeNames() {
-        return new String[] { getTypeRef(), };
+        if (getTypeRef() == null) {
+            return null; // disabled
+        } else if (getTypeRef().equals("*")) {
+            return new String[0]; // apply to all
+        } else {
+            return new String[] { getTypeRef(), };
+        }
     }
 
     /**
