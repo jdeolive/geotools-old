@@ -38,9 +38,8 @@ import org.w3c.dom.*;
  * A class to read and parse an SLD file based on verion 0.7.2 of the OGC
  * Styled Layer Descriptor Spec.
  *
- * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.28 2002/10/24 17:01:33 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.29 2002/11/27 14:16:56 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle {
@@ -954,8 +953,10 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing pointPlacement");
         }
-
-        PointPlacement dpp = factory.createPointPlacement();
+        Expression rotation = filterFactory.createLiteralExpression(0.0);
+        AnchorPoint ap = null;
+        Displacement dp = null;
+        
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -967,18 +968,20 @@ public class SLDStyle {
             }
 
             if (child.getNodeName().equalsIgnoreCase("AnchorPoint")) {
-                dpp.setAnchorPoint(parseAnchorPoint(child));
+                ap = (parseAnchorPoint(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("Displacement")) {
-                dpp.setDisplacement(parseDisplacement(child));
+                dp=(parseDisplacement(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("Rotation")) {
-                dpp.setRotation(parseCssParameter(child));
+                rotation = (parseCssParameter(child));
             }
         }
-
+        LOGGER.fine("setting anchorPoint " + ap);
+        LOGGER.fine("setting displacement " + dp);
+        PointPlacement dpp = factory.createPointPlacement(ap,dp,rotation);
         return dpp;
     }
 
@@ -987,7 +990,7 @@ public class SLDStyle {
             LOGGER.finest("parsing linePlacement");
         }
 
-        LinePlacement dlp = factory.createLinePlacement();
+        Expression offset = filterFactory.createLiteralExpression(0.0);
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -999,10 +1002,10 @@ public class SLDStyle {
             }
 
             if (child.getNodeName().equalsIgnoreCase("PerpendicularOffset")) {
-                dlp.setPerpendicularOffset(parseCssParameter(child));
+                offset = parseCssParameter(child);
             }
         }
-
+        LinePlacement dlp = factory.createLinePlacement(offset); 
         return dlp;
     }
 
