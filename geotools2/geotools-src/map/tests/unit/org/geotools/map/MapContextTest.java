@@ -154,7 +154,7 @@ public class MapContextTest extends TestCase {
         assertTrue(context.getKeywords().length == 0);
         assertEquals(0, context.getLayerCount());
         assertNull(context.getAreaOfInterest());
-        assertEquals(LocalCoordinateSystem.CARTESIAN, context.getCoordinateReferenceSystem());
+        assertEquals(LocalCoordinateSystem.PROMISCUOUS, context.getCoordinateReferenceSystem());
     }
 
     public void testLayerListEvents() throws Exception {
@@ -482,7 +482,7 @@ public class MapContextTest extends TestCase {
         event = (MapBoundsEvent) events.get(0);
         assertEquals(env1, event.getOldAreaOfInterest());
         assertEquals(env2, context.getAreaOfInterest());
-        assertEquals(LocalCoordinateSystem.CARTESIAN, event.getOldCoordinateReferenceSystem());
+        assertEquals(LocalCoordinateSystem.PROMISCUOUS, event.getOldCoordinateReferenceSystem());
         assertEquals(GeographicCoordinateSystem.WGS84, context.getCoordinateReferenceSystem());
         assertEquals(MapBoundsEvent.AREA_OF_INTEREST_MASK | MapBoundsEvent.COORDINATE_SYSTEM_MASK,
             event.getType());

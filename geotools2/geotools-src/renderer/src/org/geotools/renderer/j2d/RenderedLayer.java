@@ -93,7 +93,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.33 2004/03/08 11:32:29 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.34 2004/04/03 13:47:18 aaime Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -231,7 +231,7 @@ public abstract class RenderedLayer {
 
     /**
      * Construct a new rendered layer. The {@linkplain #getCoordinateSystem coordinate system}
-     * default to a {@linkplain LocalCoordinateSystem#CARTESIAN local cartesian} one and the
+     * default to a {@linkplain LocalCoordinateSystem#PROMISCUOUS local cartesian} one and the
      * {@linkplain #getZOrder z-order} default to positive infinity (i.e. this layer is drawn
      * on top of everything else). Subclasses should invokes <code>setXXX</code> methods in
      * order to define properly this layer's properties.
@@ -242,7 +242,7 @@ public abstract class RenderedLayer {
      * @see #setZOrder
      */
     public RenderedLayer() {
-        this(LocalCoordinateSystem.CARTESIAN);
+        this(LocalCoordinateSystem.PROMISCUOUS);
     }
 
     /**
@@ -1014,7 +1014,7 @@ public abstract class RenderedLayer {
             preferredPixelSize = null;
             visible            = false;
             zOrder             = Float.NaN;
-            coordinateSystem   = LocalCoordinateSystem.CARTESIAN;
+            coordinateSystem   = LocalCoordinateSystem.PROMISCUOUS;
             final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {
                 listeners.removePropertyChangeListener(list[i]);

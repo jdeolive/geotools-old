@@ -45,7 +45,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.26 2004/02/26 22:14:21 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.27 2004/04/03 13:47:18 aaime Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -711,9 +711,9 @@ public class DefaultAttributeType implements AttributeType {
             }
 
             if (coordinateSystem == null) {
-                coordinateSystem = LocalCoordinateSystem.CARTESIAN;
+                coordinateSystem = LocalCoordinateSystem.PROMISCUOUS;
             }
-            geometryFactory = (coordinateSystem == LocalCoordinateSystem.CARTESIAN)
+            geometryFactory = (coordinateSystem == LocalCoordinateSystem.PROMISCUOUS)
                 ? CSGeometryFactory.DEFAULT : new CSGeometryFactory(coordinateSystem);            
         }
 
@@ -766,7 +766,7 @@ class CSGeometryFactory extends GeometryFactory {
 
     public CSGeometryFactory(CoordinateReferenceSystem cs) {
         super(toPrecisionModel(cs), toSRID(cs));
-        coordinateSystem = (cs != null) ? cs : LocalCoordinateSystem.CARTESIAN;
+        coordinateSystem = (cs != null) ? cs : LocalCoordinateSystem.PROMISCUOUS;
     }
 
     public GeometryCollection createGeometryCollection(Geometry[] geometries) {
@@ -789,7 +789,7 @@ class CSGeometryFactory extends GeometryFactory {
     // And so on
     // Utility Functions
     private static int toSRID(CoordinateReferenceSystem cs) {
-        if ((cs == null) || (cs == LocalCoordinateSystem.CARTESIAN)) {
+        if ((cs == null) || (cs == LocalCoordinateSystem.PROMISCUOUS)) {
             return 0;
         }
 
@@ -798,7 +798,7 @@ class CSGeometryFactory extends GeometryFactory {
     }
 
     private static PrecisionModel toPrecisionModel(CoordinateReferenceSystem cs) {
-        if ((cs == null) || (cs == LocalCoordinateSystem.CARTESIAN)) {
+        if ((cs == null) || (cs == LocalCoordinateSystem.PROMISCUOUS)) {
             return DEFAULT_PRECISON_MODEL;
         }
 

@@ -49,7 +49,7 @@ public class DefaultMapContext implements MapContext {
     /** The logger for the map module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map");
     List layerList = new ArrayList();
-    CoordinateReferenceSystem crs = LocalCoordinateSystem.CARTESIAN;
+    CoordinateReferenceSystem crs = LocalCoordinateSystem.PROMISCUOUS;
     Envelope areaOfInterest = null;
 
     /** Utility field used by event firing mechanism. */

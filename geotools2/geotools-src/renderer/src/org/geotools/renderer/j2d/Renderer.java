@@ -119,7 +119,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.46 2004/03/08 11:32:29 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.47 2004/04/03 13:47:18 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -449,7 +449,7 @@ public class Renderer implements Renderer2D {
      * @param owner The widget that own this renderer, or <code>null</code> if none.
      */
     public Renderer(final Component owner) {
-        final CoordinateSystem cs = LocalCoordinateSystem.CARTESIAN;
+        final CoordinateSystem cs = LocalCoordinateSystem.PROMISCUOUS;
         context        = new RenderingContext(this, cs, cs, cs);
         clippedContext = context;
         listeners      = new PropertyChangeSupport(this);
