@@ -36,7 +36,7 @@ import org.geotools.map.events.BoundingBoxEvent;
 import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.events.LayerListListener;
 import org.geotools.gui.tools.event.SelectedToolListener;
-import org.geotools.renderer.Java2DRenderer;
+import org.geotools.renderer.lite.LiteRenderer;
 import org.geotools.styling.Style;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -52,6 +52,7 @@ import java.lang.IllegalArgumentException;
 import java.util.EventObject;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import org.geotools.renderer.Renderer2D;
 
 
 /**
@@ -61,7 +62,7 @@ import javax.swing.JPanel;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.27 2003/05/30 12:31:27 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.28 2003/07/12 10:59:33 aaime Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -73,7 +74,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             "org.geotools.gui.swing.MapPaneImpl");
 
     /** The class to use to render this MapPane. */
-    Java2DRenderer renderer;
+    Renderer2D renderer;
 
     /** The model which stores a list of layers and BoundingBox. */
     private Context context;
@@ -102,7 +103,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             throw new IllegalArgumentException();
         } else {
             this.toolList = toolList;
-            this.renderer = new Java2DRenderer(context);
+            this.renderer = new LiteRenderer(context);
+            // this.renderer = new org.geotools.renderer.Java2DRenderer(context);
             this.context = context;
 
             // Request to be notified when map parameters change
