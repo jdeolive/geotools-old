@@ -985,7 +985,7 @@ public class CoordinateTransformationFactory {
         if (semiMajorEll!=semiMajorPrj || semiMinorEll!=semiMinorPrj) {
             // Those objects are temporary. We assume it is not
             // a big deal if their name are not very explicit...
-            ellipsoid = new Ellipsoid(name, semiMajorPrj, semiMinorPrj, Unit.METRE);
+            ellipsoid = Ellipsoid.createEllipsoid(name, semiMajorPrj, semiMinorPrj, Unit.METRE);
             datum     = new HorizontalDatum(name, ellipsoid);
             cs        = null; // Signal that it needs to be reconstructed.
         }
