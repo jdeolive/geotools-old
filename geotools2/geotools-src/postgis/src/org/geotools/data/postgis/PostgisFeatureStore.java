@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.3 2003/12/02 20:07:06 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.4 2003/12/02 20:52:07 cholmesny Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: make individual operations truly atomic.  If the transaction is
@@ -855,7 +855,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
                 }
             }
 
-            LOGGER.finer("returning bounds " + curEnv);
+            LOGGER.finer("returning bounds " + retEnv);
 
             return retEnv;
         } catch (SQLException sqlException) {
