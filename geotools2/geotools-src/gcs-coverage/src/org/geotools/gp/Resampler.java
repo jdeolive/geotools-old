@@ -102,7 +102,7 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.8 2002/08/08 18:35:43 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.9 2002/10/09 19:46:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: The "GridGeometry" parameter is currently not supported.
@@ -230,7 +230,7 @@ final class Resampler extends GridCoverage {
             throw new CannotReprojectException(Resources.format(
                     ResourceKeys.ERROR_UNSPECIFIED_COORDINATE_SYSTEM));
         }
-        if (sourceCS.equivalents(targetCS) && targetGridGeometry==null) {
+        if (sourceCS.equals(targetCS, false) && targetGridGeometry==null) {
             return sourceCoverage;
         }
         if (targetGridGeometry != null) {
@@ -354,8 +354,8 @@ final class Resampler extends GridCoverage {
             targetCoverage = targetCoverage.geophysics(targetCoverageModel.booleanValue());
         }
         
-        assert sourceCoverage.getCoordinateSystem().equivalents(transformation.getSourceCS());
-        assert targetCoverage.getCoordinateSystem().equivalents(transformation.getTargetCS());
+        assert sourceCoverage.getCoordinateSystem().equals(transformation.getSourceCS(), false);
+        assert targetCoverage.getCoordinateSystem().equals(transformation.getTargetCS(), false);
         assert targetGridGeometry!=null || targetImage.getBounds().equals(sourceImage.getBounds());
         
         return targetCoverage;
@@ -448,7 +448,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.8 2002/08/08 18:35:43 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.9 2002/10/09 19:46:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

@@ -93,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.10 2002/08/10 12:33:45 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.11 2002/10/09 19:46:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -318,7 +318,7 @@ public class OperationJAI extends Operation {
          * coordinate system and has the same envelope.
          */
         for (int i=1; i<sources.length; i++) {
-            if (!cs.equivalents(sources[i].getCoordinateSystem())) {
+            if (!cs.equals(sources[i].getCoordinateSystem(), false)) {
                 throw new IllegalArgumentException(Resources.format(
                         ResourceKeys.ERROR_INCOMPATIBLE_COORDINATE_SYSTEM));
             }
