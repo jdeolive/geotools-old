@@ -19,6 +19,16 @@ package org.geotools.styling;
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
 import java.awt.Color;
+import java.util.Iterator;
+import org.geotools.algorithms.classification.EqualClasses;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureType;
+import org.geotools.filter.AbstractFilter;
+import org.geotools.filter.AttributeExpression;
+import org.geotools.filter.BetweenFilter;
+import org.geotools.filter.CompareFilter;
+import org.geotools.filter.IllegalFilterException;
 
 
 /**
@@ -27,6 +37,8 @@ import java.awt.Color;
  * @author aaime
  */
 public class StyleBuilder {
+    private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
+    .getLogger("org.geotools.styling");
     public static final String LINE_JOIN_MITRE = "mitre";
     public static final String LINE_JOIN_ROUND = "round";
     public static final String LINE_JOIN_BEVEL = "bevel";
@@ -1484,5 +1496,81 @@ public class StyleBuilder {
         attribute.setAttributePath(attributeName);
 
         return attribute;
+    }
+    /** given a feature collection and an array of colours build a style 
+     * with the given number of classes on the named column
+     */
+    public Style buildClassifiedStyle(FeatureCollection fc, String name, String[] colors,
+        FeatureType schema) throws IllegalFilterException{
+        //grab attribute col
+        AttributeExpression value = ff.createAttributeExpression(schema,name);
+        double [] values = new double[fc.size()];
+        Iterator it = fc.iterator();
+        int count=0;
+        while(it.hasNext()){
+            Feature f = (Feature)it.next();
+            values[count++] = ((Number)f.getAttribute(name)).doubleValue();
+        }
+        //pass to classification algorithm
+        EqualClasses ec = new EqualClasses(colors.length, values);
+        //build style
+        double[] breaks = ec.getBreaks();
+        Style ret = createStyle();
+//        ret.setName(name);
+        Rule[] rules = new Rule[colors.length+1];
+        CompareFilter cf1 = ff.createCompareFilter(AbstractFilter.COMPARE_LESS_THAN);
+        cf1.addLeftValue(value);
+        cf1.addRightValue(ff.createLiteralExpression(breaks[0]));
+        LOGGER.fine(cf1.toString());
+        rules[0] = sf.createRule();
+        rules[0].setFilter(cf1);
+//        rules[0].setName("lowest");
+        Color c = this.createColor(colors[0]);
+        PolygonSymbolizer symb1 = createPolygonSymbolizer(c,Color.black,1.0);
+        rules[0].setSymbolizers(new Symbolizer[]{symb1});
+        LOGGER.fine("added low class "+breaks[0]+" "+colors[0]);
+//        LOGGER.fine(rules[0].toString());
+        for(int i=1;i<colors.length-1;i++){
+            
+            rules[i] = sf.createRule();
+            BetweenFilter cf = ff.createBetweenFilter();
+            cf.addLeftValue(ff.createLiteralExpression(breaks[i-1]));
+            cf.addRightValue(ff.createLiteralExpression(breaks[i]));
+            cf.addMiddleValue(value);
+            LOGGER.fine(cf.toString());
+            c = this.createColor(colors[i]);
+            LOGGER.fine("color "+c.toString());
+            PolygonSymbolizer symb = createPolygonSymbolizer(c,Color.black,1.0);
+            rules[i].setSymbolizers(new Symbolizer[]{symb});
+            rules[i].setFilter(cf);
+//            rules[i].setName("class "+i);
+            LOGGER.fine("added class "+breaks[i-1]+"->"+breaks[i]+" "+colors[i]);
+        }
+        CompareFilter cf2 = ff.createCompareFilter(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
+        cf2.addLeftValue(value);
+        cf2.addRightValue(ff.createLiteralExpression(breaks[colors.length-2]));
+        LOGGER.fine(cf2.toString());
+        rules[colors.length-1] = sf.createRule();
+        rules[colors.length-1].setFilter(cf2);
+//        rules[colors.length-1].setName("top");
+        c = this.createColor(colors[colors.length-1]);
+        PolygonSymbolizer symb2 = createPolygonSymbolizer(c,Color.black,1.0);
+        rules[colors.length-1].setSymbolizers(new Symbolizer[]{symb2});
+        LOGGER.fine("added upper class "+breaks[colors.length-2]+"  "+colors[colors.length-1]);
+        rules[colors.length] = sf.createRule();
+        PolygonSymbolizer elsePoly = createPolygonSymbolizer(Color.black,1.0);
+        rules[colors.length].setSymbolizers(new Symbolizer[]{elsePoly});
+        rules[colors.length].setIsElseFilter(true);
+        FeatureTypeStyle ft = sf.createFeatureTypeStyle(rules);
+        ft.setFeatureTypeName(name);
+        ft.setName(name);
+        ret.addFeatureTypeStyle(ft);
+        
+        return ret;
+    }
+    
+    private Color createColor(String text){
+        int i = Integer.decode("0x"+text).intValue();
+        return Color.decode(""+i);
     }
 }
