@@ -42,10 +42,11 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  * @task HACK:now handle all objects
- * @version $Id: FeatureTypeFlat.java,v 1.19 2002/11/07 15:33:00 ianturton Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.20 2002/11/27 00:29:16 robhranac Exp $
  * @author Rob Hranac, VFNY
  */
-public class FeatureTypeFlat implements FeatureType {
+public class FeatureTypeFlat 
+    implements FeatureType {
     /**
      * The logger for the default core module.
      */
@@ -53,9 +54,8 @@ public class FeatureTypeFlat implements FeatureType {
 
     /** List of allowed attribute classes: primitive wrappers and String. */
     protected static final List ALLOWED_TYPES = new ArrayList(
-                                                        java.util.Arrays.asList(
-                                                                new Class[] {
-        Boolean.class, Character.class, Byte.class, Short.class, Integer.class, 
+        java.util.Arrays.asList(new Class[] {
+        Boolean.class, Character.class, Byte.class, Short.class, Integer.class,
         Long.class, Float.class, Double.class, String.class, Object.class
     }));
 
@@ -82,6 +82,9 @@ public class FeatureTypeFlat implements FeatureType {
     /** Position of this feature type. */
     private int position = -1;
 
+    /** Position of this feature type. */
+    private int srid = -1;
+
     /**
      * Constructor with geometry only; minimum valid constructor.
      *
@@ -102,13 +105,12 @@ public class FeatureTypeFlat implements FeatureType {
      * one occurrence.  As one might expect, this constructor ignores
      * (reassigns) positional information in attributes based on the array
      * order.
-     * 
      * @param attributeTypes The attribute types for this feature type.
      * @throws SchemaException If missing geometry, more than one geometry, or
      * attribute types do not conform to flat feature type definition.
      */
     public FeatureTypeFlat(AttributeType[] attributeTypes)
-                    throws SchemaException {
+        throws SchemaException {
         // set length variable and conformance test flag
         int n = attributeTypes.length;
         boolean isValid = true;
@@ -125,8 +127,8 @@ public class FeatureTypeFlat implements FeatureType {
             // if it is a conforming geometry, initialize feature type
             // note that the validity check sets validity flag to false if
             // a geometry has already been assigned
-            if ((Geometry.class.isAssignableFrom(attributeTypes[i].getType())) && 
-                    (attributeTypes[i].getOccurrences() == 1)) {
+            if ((Geometry.class.isAssignableFrom(attributeTypes[i].getType())) 
+                && (attributeTypes[i].getOccurrences() == 1)) {
                 LOGGER.finer("is ok geometry");
 
                 if (geometryPosition == -1) {
@@ -228,7 +230,6 @@ public class FeatureTypeFlat implements FeatureType {
     /* ***********************************************************************
      * Handles all attribute interface implementation.                       *
      * ***********************************************************************/
-
     /**
      * Always true.
      *
@@ -289,10 +290,10 @@ public class FeatureTypeFlat implements FeatureType {
         return schemaCopy;
     }
 
+
     /* ***********************************************************************
      * Handles all global feature type modifications.                        *
      * ***********************************************************************/
-
     /**
      * Sets the global feature type namespace.
      *
@@ -423,7 +424,6 @@ public class FeatureTypeFlat implements FeatureType {
 
     /**
      * Gets the global feature type namespace.
-     *
      * @return Namespace of feature type.
      */
     public String getNamespace() {
@@ -432,11 +432,26 @@ public class FeatureTypeFlat implements FeatureType {
 
     /**
      * Gets the type name for this feature type.
-     *
      * @return Namespace of feature type.
      */
     public String getTypeName() {
         return name;
+    }
+
+    /**
+     * Gets the global feature type namespace.
+     * @return Namespace of feature type.
+     */
+    public int getSRID() {
+        return srid;
+    }
+
+    /**
+     * Gets the type name for this feature type.
+     * @return Namespace of feature type.
+     */
+    public void setSRID(int srid) {
+        this.srid = srid;
     }
 
     /* ***********************************************************************
