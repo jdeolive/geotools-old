@@ -53,7 +53,7 @@ import org.geotools.resources.XAffineTransform;
  * by {@link RenderedMarks}. It is designed for reuse with many different affine transforms and
  * shapes. This class is <strong>not</strong> thread-safe.
  *
- * @version $Id: TransformedShape.java,v 1.3 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: TransformedShape.java,v 1.4 2003/07/22 03:19:03 jmacgill Exp $
  * @author Martin Desruisseaux
  */
 final class TransformedShape extends AffineTransform implements Shape {
@@ -202,10 +202,12 @@ final class TransformedShape extends AffineTransform implements Shape {
     /**
      * Returns a high precision and more accurate bounding box of
      * the <code>Shape</code> than the <code>getBounds</code> method.
+     * @task: REVISIT: tranform currently results in a new rectangle being created, is this a memory overhead?
      */
     public Rectangle2D getBounds2D() {
         final Rectangle2D rect = shape.getBounds2D();
-        return XAffineTransform.transform(this, rect, rect);
+        return XAffineTransform.transform(this, rect, null);
+        //REVISIT: used to read (this,rect,rect) - this can result in an unmidifiable geometry exception
     }
     
     /**
