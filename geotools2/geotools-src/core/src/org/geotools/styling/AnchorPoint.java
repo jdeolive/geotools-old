@@ -1,10 +1,11 @@
 /*
- * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -12,29 +13,44 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINGDOM: James Macgill.  j.macgill@geog.leeds.ac.uk
  */
-
 package org.geotools.styling;
 
 import org.geotools.filter.Expression;
+
+
 /**
  * An AnchorPoint identifies the location inside a textlabel to use as an
- * "anchor" for positioning it relative to a point geometry.
+ * "anchor" for positioning it relative to a point geometry. 
+ * $Id: AnchorPoint.java,v 1.5 2003/08/19 13:03:03 ianturton Exp $
  *
- * $Id: AnchorPoint.java,v 1.4 2003/08/01 16:54:21 ianturton Exp $
- * @author  Ian Turton
+ * @author Ian Turton
  */
 public interface AnchorPoint {
+    
+    /** get the x coordinate of the anchor point
+     * @return the expression which represents the X coordinate
+     */    
     Expression getAnchorPointX();
+
+    /** set the X coordinate for the anchor point
+     * @param x an expression which represents the X coordinate
+     */    
     void setAnchorPointX(Expression x);
+
+    /** get the y coordinate of the anchor point
+     * @return the expression which represents the Y coordinate
+     */   
     Expression getAnchorPointY();
+
+    /** set the Y coordinate for the anchor point
+     * @param y an expression which represents the Y coordinate
+     */    
     void setAnchorPointY(Expression y);
+
+    /** calls the visit method of a StyleVisitor
+     *
+     * @param visitor the style visitor
+     */    
     void accept(StyleVisitor visitor);
 }

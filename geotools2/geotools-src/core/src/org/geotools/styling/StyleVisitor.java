@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,61 +13,137 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
-
 package org.geotools.styling;
 
 /**
- * An interface for classes that want to perform operations on a Filter
- * hiarachy.
- * It forms part of a GoF Visitor Patern implementation.
- * A call to filter.accept(FilterVisitor) will result in a call to one
- * of the methods in this interface. The responsibility for traversing
- * sub filters is intended to lie with the visitor (this is unusual, but
- * permited under the Visitor pattern).
+ * An interface for classes that want to perform operations on a Style
+ * hiarachy. It forms part of a GoF Visitor Patern implementation. A call to
+ * style.accept(StyleVisitor) will result in a call to one of the methods in
+ * this interface. The responsibility for traversing sub filters is intended
+ * to lie with the visitor (this is unusual, but permited under the Visitor
+ * pattern). A typical use would be to transcribe a style into a specific
+ * format, e.g. XML or SQL.  Alternativly it may be to extract specific
+ * infomration from the Style strucure, for example a list of all fills.
  *
- * A typical use would be to transcribe a filter into a specific format,
- * e.g. XML or SQL.  Alternativly it may be to extract specific infomration
- * from the Filter strucure, for example a list of all bboxes.
- *
- * @version $Id: StyleVisitor.java,v 1.1 2003/08/01 16:54:22 ianturton Exp $
  * @author James Macgill
+ * @author Ian Turton
+ * @version $Id: StyleVisitor.java,v 1.2 2003/08/19 13:03:03 ianturton Exp $
  */
 public interface StyleVisitor {
-
     /**
-     * Called when accept is called on an AbstractFilter.
-     * As it is imposible to create an instance of AbstractFilter this should
-     * never happen.  If it does it means that a subclass of AbstractFilter
-     * has failed to implement accept(FilterVisitor) correctly.
-     * Implementers of this method should probaly log a warning.
+     * Called when accept is called on a Style. 
      *
      * @param style The style to visit
      */
     void visit(Style style);
-    
+
+    /**
+     * Called when accept is called on a rule
+     * @param rule the rule to visit
+     */    
     void visit(Rule rule);
+
+    /**
+     * Called when accept is called on a fetauretypestyle
+     * @param fts the feature type styler to visit
+     *
+     */    
     void visit(FeatureTypeStyle fts);
+
+    /**
+     * Called when accept is called on a fill
+     * @param fill the fill to be visited
+     */    
     void visit(Fill fill);
+
+    /**
+     * Called when accept is called on a stroke
+     * @param stroke the stroke to visit
+     */    
     void visit(Stroke stroke);
+
+    /** since it is impossible to create a Symbolizer this method should generate an
+     * exception or warning.
+     * @param sym the symbolizer to visit
+     */    
     void visit(Symbolizer sym);
+
+    /**
+     * Called when accept is called on a pointsymbolizer
+     * @param ps the point symbolizer to visit
+     */    
     void visit(PointSymbolizer ps);
+
+    /**
+     * Called when accept is called on a linesymbolizer
+     * @param line the line symbolizer to visit
+     *
+     */    
     void visit(LineSymbolizer line);
+
+    /**
+     * Called when accept is called on a polygon symbolizer
+     * @param poly the polygon symbolizer to visit
+     *
+     */    
     void visit(PolygonSymbolizer poly);
+
+    /**
+     * Called when accept is called on a textsymbolizer
+     * @param text the text symbolizer to visit
+     */    
     void visit(TextSymbolizer text);
+
+    /**
+     * Called when accept is called on a graphic
+     * @param gr the graphic to visit
+     */    
     void visit(Graphic gr);
+
+    /**
+     * Called when accept is called on a mark
+     * @param mark the mark to visit
+     *
+     */    
     void visit(Mark mark);
+
+    /**
+     * Called when accept is called on a external graphic
+     * @param exgr the external graphic to visit
+     *
+     */    
     void visit(ExternalGraphic exgr);
-    
-    
+
+    /**
+     * Called when accept is called on a Point Placement
+     * @param pp the point placement to visit
+     */    
     void visit(PointPlacement pp);
+
+    /**
+     * Called when accept is called on a anchor point
+     * @param ap the anchor point to visit
+     */    
     void visit(AnchorPoint ap);
+
+    /**
+     * Called when accept is called on a displacement
+     * @param dis the displacement to visit
+     *
+     */    
     void visit(Displacement dis);
+
+    /**
+     * Called when accept is called on a Line Placement
+     * @param lp the line placement to visit
+     */    
     void visit(LinePlacement lp);
+
+    /**
+     * Called when accept is called on a halo
+     * @param halo the halo to visit
+     *
+     */    
     void visit(Halo halo);
-    
 }
