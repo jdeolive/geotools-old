@@ -76,7 +76,7 @@
       <!-- This section excludes the tests, comment out if your
                  testData/testparams.properties are set correctly -->
       <excludes>
-        <!--<exclude>**/SdeDataStoreTest.java</exclude>-->
+        <exclude>**/SdeDataStoreTest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
       <resources>
