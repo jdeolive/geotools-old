@@ -62,8 +62,8 @@ import org.geotools.resources.cts.ResourceKeys;
  * <ul>
  *   <li><code>Polar_Stereographic</code> (EPSG code 9810, uses iteration for the inverse)</li>
  *   <li><code>Oblique_Stereographic</code> (<strong>similar</strong> to EPSG code 9809)</li>
- *   <li><code>Polar_Stereographic_EPSG</code> (EPSG code 9810, uses a series for the inverse)<li>
- *   <li><code>Oblique_Stereographic_EPSG</code> (EPSG code 9809)<li>
+ *   <li><code>Polar_Stereographic_EPSG</code> (EPSG code 9810, uses a series for the inverse)</li>
+ *   <li><code>Oblique_Stereographic_EPSG</code> (EPSG code 9809)</li>
  * </ul>
  * The <code>&quot;Polar_Stereographic&quot;</code> and <code>&quot;Oblique_Stereographic&quot;</code>
  * cases use the USGS equations of Snyder. The USGS oblique case computes the conformal latitude of
@@ -95,7 +95,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/stereographic.html">Stereographic</A>
  * @see <A HREF="http://www.remotesensing.org/geotiff/proj_list/random_issues.html#stereographic">Some Random Stereographic Issues</A>
  *
- * @version $Id: Stereographic.java,v 1.3 2003/08/04 13:53:16 desruisseaux Exp $
+ * @version $Id: Stereographic.java,v 1.4 2003/08/07 11:15:23 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  * @author Rueben Schulz
@@ -120,7 +120,7 @@ public abstract class Stereographic extends PlanarProjection {
      * default value is 90°N for <code>&quot;Polar_Stereographic&quot;</code> and 0° for
      * <code>&quot;Oblique_Stereographic&quot;</code>.
      *
-     * @version $Id: Stereographic.java,v 1.3 2003/08/04 13:53:16 desruisseaux Exp $
+     * @version $Id: Stereographic.java,v 1.4 2003/08/07 11:15:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      * @author Rueben Schulz
      */

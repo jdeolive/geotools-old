@@ -66,8 +66,8 @@ import org.geotools.resources.Arguments;
 
 
 /**
- * Run the suite of OpenGIS tests. A text file ({@link #CT_SCRIPT}) is provided. This
- * file contains a list of source and target coordinates systems (in WKT), source
+ * Run the suite of OpenGIS tests. A text file ({@link #OPENGIS_SCRIPT}) is provided.
+ * This file contains a list of source and target coordinates systems (in WKT), source
  * coordinate points and expected coordinate points after the transformation from
  * source CS to target CS. Running this test really test all the following classes:
  *
@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.1 2003/08/04 22:14:29 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.2 2003/08/07 11:15:23 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -99,7 +99,7 @@ public class ScriptTest extends TestCase {
     /**
      * The OpenGIS test file to parse and execute.
      */
-    private static final String CT_SCRIPT = "test-data/CT_TestScript.txt";
+    private static final String OPENGIS_SCRIPT = "test-data/OpenGIS_TestScript.txt";
 
     /**
      * The coordinate system factory to use for the test.
@@ -118,7 +118,7 @@ public class ScriptTest extends TestCase {
     private MathTransformFactory mtFactory;
 
     /**
-     * The list of object defined in the {@link #CT_SCRIPT} file.  Keys are
+     * The list of object defined in the {@link #OPENGIS_SCRIPT} file. Keys are
      * {@link String} objects, while values are {@link CoordinateSystem} or
      * {@link MathTransform} objects.
      */
@@ -489,14 +489,14 @@ public class ScriptTest extends TestCase {
     }
 
     /**
-     * Run the {@link #CT_SCRIPT}.
+     * Run the {@link #OPENGIS_SCRIPT}.
      *
-     * @throws IOException If {@link #CT_SCRIPT} can't be read.
+     * @throws IOException If {@link #OPENGIS_SCRIPT} can't be read.
      * @throws FactoryException if a line can't be parsed.
      * @throws TransformException if the transformation can't be run.
      */
     public void testOpenGIS() throws IOException, FactoryException {
-        runScript(CT_SCRIPT);
+        runScript(OPENGIS_SCRIPT);
     }
 
     /**
@@ -515,16 +515,24 @@ public class ScriptTest extends TestCase {
         final Arguments arguments = new Arguments(args);
         final String script = arguments.getOptionalString("-test");
         final ScriptTest test = new ScriptTest(null);
+        boolean done = false;
         test.out = arguments.out;
         test.setUp();
         if (script==null || script.equalsIgnoreCase("Simple")) {
             test.testSimpleScript();
+            done = true;
         }
         if (script==null || script.equalsIgnoreCase("Stereographic")) {
             test.testStereographicScript();
+            done = true;
         }
         if (script==null || script.equalsIgnoreCase("OpenGIS")) {
             test.testOpenGIS();
+            done = true;
         }
+        if (script!=null && !done) {
+            test.runScript("test-data/"+script+"_TestScript.txt");
+        }
+        test.tearDown();
     }
 }
