@@ -38,7 +38,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.7 2004/04/22 10:02:58 jive Exp $
+ * @version $Id: PolygonNotOverlappingPolygonValidation.java,v 1.8 2004/04/22 10:17:08 jive Exp $
  */
 public class PolygonNotOverlappingPolygonValidation
     extends PolygonPolygonAbstractValidation {
@@ -94,7 +94,7 @@ public class PolygonNotOverlappingPolygonValidation
         LOGGER.finer( typeRef2 +": found "+polySource2.getSchema().getTypeName() );
         FeatureResults features2 = polySource2.getFeatures(); // limit with envelope
         FeatureCollection collection2 = features2.collection();
-        Object[] poly2 = collection1.toArray();
+        Object[] poly2 = collection2.toArray();
         
 /*        if (!envelope.contains(collection1.getBounds())) {
             results.error((Feature) poly1[0],

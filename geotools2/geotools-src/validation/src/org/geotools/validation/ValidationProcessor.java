@@ -97,7 +97,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: ValidationProcessor.java,v 1.12 2004/04/22 09:38:43 jive Exp $
+ * @version $Id: ValidationProcessor.java,v 1.13 2004/04/22 10:17:09 jive Exp $
  */
 public class ValidationProcessor {
 	private static final Logger LOGGER = Logger.getLogger("org.geotools.validation");
@@ -264,8 +264,7 @@ public class ValidationProcessor {
                 String[] types = ((Validation) validations.get(i)).getTypeRefs();
 
                 for (int j = 0; j < types.length; j++) // for each FeatureTypeInfo
-
-                    s.add(types[i]); // add it to the list
+                	s.add(types[j]); // add it to the list
             }
         }
 
