@@ -44,7 +44,7 @@ import org.geotools.gc.InvalidGridGeometryException;
  * A set of utilities methods for the Grid Coverage package. Those methods are not really
  * rigorous; must of them should be seen as temporary implementations.
  *
- * @version $Id: GCSUtilities.java,v 1.1 2003/02/13 22:59:51 desruisseaux Exp $
+ * @version $Id: GCSUtilities.java,v 1.2 2003/02/16 23:12:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GCSUtilities {
@@ -79,6 +79,21 @@ public final class GCSUtilities {
             // Ignore.
         }
         return false;
+    }
+
+    /**
+     * Cast the specified grid range into an envelope. This is sometime used before to transform
+     * the envelope using {@link CTSUtilities#transform(MathTransform, Envelope)}.
+     */
+    public static Envelope toEnvelope(final GridRange gridRange) {
+        final int dimension = gridRange.getDimension();
+        final double[] lower = new double[dimension];
+        final double[] upper = new double[dimension];
+        for (int i=0; i<dimension; i++) {
+            lower[i] = gridRange.getLower(i);
+            upper[i] = gridRange.getUpper(i);
+        }
+        return new Envelope(lower, upper);
     }
 
     /**

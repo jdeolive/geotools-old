@@ -106,20 +106,10 @@ import org.geotools.resources.XAffineTransform;
  * grid geometry which as the same geoferencing and a region. Grid range in the grid geometry
  * defines the region to subset in the grid coverage.<br>
  *
- * @version $Id: Resampler.java,v 1.12 2003/02/15 13:24:23 desruisseaux Exp $
+ * @version $Id: Resampler.java,v 1.13 2003/02/16 23:12:16 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Resampler extends GridCoverage {
-    /**
-     * If <code>true</code>, then the resampler is allowed to return the source image with an
-     * updated {@link GridGeometry} when the resampling is just an affine transform   (other
-     * kinds of <code>gridToCoordinateSystem</code> transforms could be technically accepted,
-     * but are more difficult to renderer. Consequently, we apply this optimization only for
-     * affine transform). If <code>false</code>, then the resampler will always create a new
-     * image.
-     */
-    private static final boolean REUSE_SOURCE_IMAGE_ALLOWED = true;
-
     /**
      * Construct a new grid coverage for the specified grid geometry.
      *
@@ -300,9 +290,10 @@ final class Resampler extends GridCoverage {
          *
          *      Source Grid --> Common CS --> Target Grid
          */
-        final MathTransform transform, step1, step2, step3;
+        final MathTransform transform, step1, step2, step3, step2x;
         if (sameCS) {
-            step2 = MathTransform2D.IDENTITY;
+            step2x = null;
+            step2  = MathTransform2D.IDENTITY;
             if (!GCSUtilities.hasTransform(targetGG)) {
                 targetGG = new GridGeometry(targetGG.getGridRange(),
                                             sourceGG.getGridToCoordinateSystem());
@@ -312,7 +303,7 @@ final class Resampler extends GridCoverage {
                 throw new CannotReprojectException(Resources.format(
                         ResourceKeys.ERROR_UNSPECIFIED_COORDINATE_SYSTEM));
             }
-            final MathTransform step2x, step2r;
+            final MathTransform step2r;
             step2x = factory.createFromCoordinateSystems(sourceCS, targetCS).getMathTransform();
             step2r = mtFactory.createSubMathTransform(0, 2, step2x);
             /*
@@ -377,6 +368,22 @@ final class Resampler extends GridCoverage {
             // with some external implementations, but should stay unusual.
             throw new TransformException(Resources.format(
                                          ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
+        }
+        if (!GCSUtilities.hasGridRange(targetGG)) {
+            final MathTransform xtr;
+            final MathTransform step1x = targetGG.getGridToCoordinateSystem();
+            final MathTransform step3x = sourceGG.getGridToCoordinateSystem().inverse();
+            if (step1x.equals(step3x.inverse())) {
+                xtr = step2x;
+            } else if (step2x==null) {
+                xtr = mtFactory.createConcatenatedTransform(step1x, step3x);
+            } else {
+                xtr = mtFactory.createConcatenatedTransform(
+                      mtFactory.createConcatenatedTransform(step1x, step2x), step3x);
+            }
+            Envelope envelope = GCSUtilities.toEnvelope(sourceGG.getGridRange());
+            envelope = CTSUtilities.transform(xtr.inverse(), envelope);
+            targetGG = new GridGeometry(GCSUtilities.toGridRange(envelope), step3x.inverse());
         }
         /*
          * If the target coverage has not been created yet, change the image bounding box in
@@ -454,25 +461,33 @@ final class Resampler extends GridCoverage {
          *       are allowed to do that since it is an automatically computed one. Then, returns
          *       a grid coverage wrapping the SOURCE image with the updated grid geometry.
          */
-        if (targetCoverage != null) {
-            if (targetImage.getOperationName().equalsIgnoreCase("Null")) {
-                if (transform instanceof AffineTransform) {
-                    if (REUSE_SOURCE_IMAGE_ALLOWED) {
-                        MathTransform mtr = targetGG.getGridToCoordinateSystem();
-                        mtr = mtFactory.createConcatenatedTransform(transform.inverse(), mtr);
-                        targetGG = new GridGeometry(targetGG.getGridRange(), mtr);
-                        return new Resampler(sourceCoverage, sourceImage, targetCS, targetGG);
-                    } else {
-                        final Rectangle targetBounds = new Rectangle(targetImage.getBounds());
-                        final AffineTransform affine = (AffineTransform) transform.inverse();
-                        paramBlk.add(affine).add(interpolation);
+        if (targetImage.getOperationName().equalsIgnoreCase("Null")) {
+            if (transform instanceof AffineTransform) {
+                if (targetCoverage != null) {
+                    // Cheapest approach: just update 'gridToCoordinateSystem'.
+                    MathTransform mtr = targetGG.getGridToCoordinateSystem();
+                    mtr = mtFactory.createConcatenatedTransform(transform.inverse(), mtr);
+                    targetGG = new GridGeometry(sourceGG.getGridRange(), mtr);
+                    return new Resampler(sourceCoverage, sourceImage, targetCS, targetGG);
+                }
+                // More general approach: apply the affine transform.
+                final AffineTransform affine = (AffineTransform) transform.inverse();
+                paramBlk.add(affine).add(interpolation);
+                targetImage.setParameterBlock(paramBlk);
+                targetImage.setOperationName("Affine");
+                Rectangle targetBounds = targetGG.getGridRange().getSubGridRange(0,2).toRectangle();
+                if (!targetBounds.equals(targetImage.getBounds())) {
+                    if (targetCoverage == null) {
+                        // "Affine" computed its own image bounds, which doesn't
+                        // matches the requested bounds. Unroll the operation...
+                        paramBlk.removeParameters();
+                        targetImage.setOperationName("Null");
                         targetImage.setParameterBlock(paramBlk);
-                        targetImage.setOperationName("Affine");
-                        if (!targetBounds.equals(targetImage.getBounds())) {
-                            targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, 
-                                                           targetCoverage.getEnvelope());
-                            targetGG = targetCoverage.getGridGeometry();
-                        }
+                    } else {
+                        // ...or update the GridCoverage if we are allowed to do so.
+                        targetCoverage = new Resampler(sourceCoverage, targetImage, targetCS, 
+                                                       targetCoverage.getEnvelope());
+                        targetGG = targetCoverage.getGridGeometry();
                     }
                 }
             }
@@ -517,7 +532,7 @@ final class Resampler extends GridCoverage {
     /**
      * The "Resample" operation. See package description for more details.
      *
-     * @version $Id: Resampler.java,v 1.12 2003/02/15 13:24:23 desruisseaux Exp $
+     * @version $Id: Resampler.java,v 1.13 2003/02/16 23:12:16 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Operation extends org.geotools.gp.Operation {

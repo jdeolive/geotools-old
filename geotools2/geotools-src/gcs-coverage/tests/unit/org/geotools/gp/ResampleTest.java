@@ -71,7 +71,7 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.2 2003/02/15 13:24:24 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.3 2003/02/16 23:12:17 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -144,18 +144,23 @@ public final class ResampleTest extends GridCoverageTest {
 
     /**
      * Test the "Resample" operation with an "Affine" transform.
-     *
-     * Note: if the <code>REUSE_SOURCE_IMAGE_ALLOWED</code> optimization is allowed in the
-     *       {@link Resampler} implementation, then the affine transform effect will not be
-     *       visible with the simple viewer used here. It would be visible however with more
-     *       elaborated viewer like the one provided in the <code>org.geotools.renderer</code>
-     *       package.
      */
     public void testAffine() {
-        AffineTransform atr = AffineTransform.getRotateInstance(Math.toRadians(45), 200, 200);
+        AffineTransform atr = AffineTransform.getTranslateInstance(200, 200);
+        atr.concatenate((AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem());
         MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
         CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
-        projectTo(cs, null);
+        if (true) {
+            projectTo(null, new GridGeometry(null, tr));
+        } else {
+            /*
+             * Note: In current Resampler implementation, the affine transform effect tested
+             *       here will not be visible with the simple viewer used here.  It would be
+             *       visible however with more elaborated viewer like the one provided in the
+             *       <code>org.geotools.renderer</code> package.
+             */
+            projectTo(cs, null);
+        }
     }
 
     /**

@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version $Id: GridRange.java,v 1.6 2003/02/14 15:46:47 desruisseaux Exp $
+ * @version $Id: GridRange.java,v 1.7 2003/02/16 23:12:16 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -98,6 +98,13 @@ public class GridRange implements Dimensioned, Serializable {
                         ResourceKeys.ERROR_BAD_GRID_RANGE_$1, new Integer(i)));
             }
         }
+    }
+    
+    /**
+     * Construct an initially empty grid range of the specified dimension.
+     */
+    private GridRange(final int dimension) {
+        index = new int[dimension*2];
     }
     
     /**
@@ -219,6 +226,52 @@ public class GridRange implements Dimensioned, Serializable {
      */
     public int getLength(final int dimension) {
         return index[dimension+index.length/2] - index[dimension];
+    }
+    
+    /**
+     * Returns a new grid range that encompass only some dimensions of this grid range.
+     * This method copy this grid range's index into a new grid range, beginning at
+     * dimension <code>lower</code> and extending to dimension <code>upper-1</code>.
+     * Thus the dimension of the subgrid range is <code>upper-lower</code>.
+     *
+     * @param  lower The first dimension to copy, inclusive.
+     * @param  upper The last  dimension to copy, exclusive.
+     * @return The subgrid range.
+     * @throws IndexOutOfBoundsException if an index is out of bounds.
+     */
+    public GridRange getSubGridRange(final int lower, final int upper) {
+        final int curDim = index.length/2;
+        final int newDim = upper-lower;
+        if (lower<0 || lower>curDim) {
+            throw new IndexOutOfBoundsException(org.geotools.resources.cts.Resources.format(
+                    org.geotools.resources.cts.ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
+                    "lower", new Integer(lower)));
+        }
+        if (newDim<0 || upper>curDim) {
+            throw new IndexOutOfBoundsException(org.geotools.resources.cts.Resources.format(
+                    org.geotools.resources.cts.ResourceKeys.ERROR_ILLEGAL_ARGUMENT_$2,
+                    "upper", new Integer(upper)));
+        }
+        final GridRange gridRange = new GridRange(newDim);
+        System.arraycopy(index, lower,        gridRange.index, 0,      newDim);
+        System.arraycopy(index, lower+curDim, gridRange.index, newDim, newDim);
+        return gridRange;
+    }
+    
+    /**
+     * Returns a {@link Rectangle} with the same bounds as this <code>GridRange</code>.
+     * This is a convenience method for interoperability with Java2D.
+     *
+     * @throws IllegalStateException if this grid range is not two-dimensional.
+     */
+    public Rectangle toRectangle() throws IllegalStateException {
+        if (index.length == 4) {
+            return new Rectangle(index[0], index[1], index[2]-index[0], index[3]-index[1]);
+        } else {
+            throw new IllegalStateException(org.geotools.resources.cts.Resources.format(
+                    org.geotools.resources.cts.ResourceKeys.ERROR_NOT_TWO_DIMENSIONAL_$1,
+                    new Integer(getDimension())));
+        }
     }
     
     /**
