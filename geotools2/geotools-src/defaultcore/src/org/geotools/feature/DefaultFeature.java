@@ -33,7 +33,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author Chris Holmes, TOPP <br>
  * @author Rob Hranac, TOPP
  * @author Ian Schneider ARS-USDA
- * @version $Id: DefaultFeature.java,v 1.8 2003/08/29 08:30:57 seangeo Exp $
+ * @version $Id: DefaultFeature.java,v 1.9 2003/09/02 18:36:51 ianschneider Exp $
  *
  * @task TODO: look at synchronization (or locks as IanS thinks)
  */
@@ -250,6 +250,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
             throw new IllegalAttributeException(type, val, iae);
         }
     }
+    
 
     /**
      * Sets all attributes for this feature, passed as an array.  All
@@ -299,28 +300,7 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
             throw new IllegalAttributeException("No attribute named " + xPath);
         }
 
-        AttributeType type = schema.getAttributeType(idx);
-
-        if (type.isGeometry()) {
-            bounds = null;
-        }
-
-        Object parseAtt = attribute;
-
-        try {
-            Object val = type.parse(attribute);
-            type.validate(val);
-
-            parseAtt = val;
-        } catch (IllegalArgumentException iae) {
-            throw new IllegalAttributeException(type, attribute, iae);
-        }
-
-        if (type.isGeometry()) {
-            bounds = null;
-        }
-
-        attributes[idx] = parseAtt;
+        setAttribute(idx, attribute);
     }
 
     /**
@@ -482,6 +462,14 @@ public class DefaultFeature implements Feature, org.geotools.util.Cloneable {
 
         if (!featureId.equals(feat.getID())) {
             return false;
+        }
+        
+        for (int i = 0, ii = attributes.length; i < ii; i++) {
+            Object otherAtt = feat.getAttribute(i);
+            if (attributes[i] == null && otherAtt != null)
+                return false;
+            if (! attributes[i].equals(otherAtt))
+              return false;
         }
 
         return true;
