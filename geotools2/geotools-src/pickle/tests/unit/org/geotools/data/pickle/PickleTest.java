@@ -7,13 +7,23 @@
 
 package org.geotools.data.pickle;
 
-import junit.framework.*;
-import java.net.*;
-import com.vividsolutions.jts.geom.*;
-import java.awt.*;
-import java.io.*;
-import java.util.*;
-import org.geotools.feature.*;
+import java.awt.Color;
+import java.awt.Rectangle;
+import java.io.File;
+import java.util.Date;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.geotools.feature.AttributeType;
+import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.feature.FeatureType;
+import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.SchemaException;
 
 /**
  * @author Ian Schneider

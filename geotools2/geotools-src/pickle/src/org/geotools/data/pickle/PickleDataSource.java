@@ -35,10 +35,11 @@ public class PickleDataSource extends AbstractDataSource {
   public void setFeatures(FeatureCollection collection) throws DataSourceException {
     FileOutputStream obj = null;
     FileOutputStream clz = null;
+    PickledFeatureProtocol protocol = null;
     try {
       obj = new FileOutputStream(objectFile);
       clz = new FileOutputStream(classFile);
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.getWriter(obj,clz);
+      protocol = PickledFeatureProtocol.getWriter(obj,clz);
       protocol.write(collection);
     } catch (IOException ioe) {
       throw new DataSourceException("IOError",ioe);
@@ -48,29 +49,39 @@ public class PickleDataSource extends AbstractDataSource {
           obj.close();
         if (clz != null)
           clz.close();
+        if (protocol != null)
+          protocol.close();
       } catch (Exception e) {}
     }
   }
   
   
   public void getFeatures(FeatureCollection collection, Query query) throws DataSourceException {
+    PickledFeatureProtocol protocol = null;
     try {
       FileInputStream obj = new FileInputStream(objectFile);
       FileInputStream clz = new FileInputStream(classFile);
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.getReader(obj,clz);
+      protocol = PickledFeatureProtocol.getReader(obj,clz);
       protocol.read(collection);
     } catch (Exception e) {
       e.printStackTrace();
+    } finally {
+      try {
+        protocol.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
   
   public Feature getFeature(int idx) throws DataSourceException {
     FileInputStream obj = null;
     FileInputStream clz = null;
+    PickledFeatureProtocol protocol = null;
     try {
       obj = new FileInputStream(objectFile);
       clz = new FileInputStream(classFile);
-      PickledFeatureProtocol protocol = PickledFeatureProtocol.getReader(obj,clz);
+      protocol = PickledFeatureProtocol.getReader(obj,clz);
       return protocol.read(idx);
     } catch (Exception e) {
       e.printStackTrace();
@@ -80,6 +91,8 @@ public class PickleDataSource extends AbstractDataSource {
           obj.close();
         if (clz != null)
           clz.close();
+        if (protocol != null)
+          protocol.close();
       } catch (Exception e) {}
     }
     return null;
