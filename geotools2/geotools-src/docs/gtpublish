@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.1 2002/12/05 20:24:38 camerons Exp $
+# $Id: gtpublish,v 1.2 2002/12/12 19:23:15 camerons Exp $
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
 # Results are stored in the ${target} directory.
@@ -12,20 +12,24 @@
 # Original Author: Cameron Shorter cameron@shorter.net
 #
 
-source="sdocbook"
+imageSource="sdocbook/images ../sldstyling/xdocs/images"
+docbookSource="sdocbook"
 target="www"
-#xsl=/home/cameron/work/geotools2/extbin/gtbuild/docbook-xsl/html/docbook.xsl 
 xsl=../../extbin/gtbuild/docbook-xsl/html/docbook.xsl 
 
-sourceFiles="${source}/*.sgml ${source}/*.xml"
+sourceFiles="${docbookSource}/*.xml"
+#sourceFiles="${docbookSource}/*.sgml ${docbookSource}/*.xml"
+
 mkdir -p ${target}
 
 # copy the image files
 mkdir -p ${target}/images
-for file in `find ${source}/images -print | grep -v "/CVS"`; do
-    targetFile=`echo $file | sed -e"s/^.*images/images/"`
-    mkdir -p ${target}/`dirname ${targetFile}`
-    cp ${file} ${target}/${targetFile}
+for imageDir in ${imageSource}; do
+    for file in `find ${imageDir} -print | grep -v "/CVS"`; do
+        targetFile=`echo $file | sed -e"s/^.*images/images/"`
+        mkdir -p ${target}/`dirname ${targetFile}`
+        cp ${file} ${target}/${targetFile}
+    done
 done
 
 # translate the docbook files
