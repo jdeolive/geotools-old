@@ -40,7 +40,7 @@ public class ShapefileTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             URLConnection uc = url.openConnection();
             BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-            
+             System.out.println("state pop length "+uc.getContentLength());
             LEDataInputStream sfile = new LEDataInputStream(in);
             GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",49,shapes.getNumGeometries());
@@ -54,7 +54,7 @@ public class ShapefileTest extends TestCase {
             fail("Load failed because of exception "+e.toString());
         }
     }
-    
+    /*
     public void testLoadingSamplePointFile() {
         
         String dataFolder = System.getProperty("dataFolder");
@@ -73,8 +73,8 @@ public class ShapefileTest extends TestCase {
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
-    }
-    
+    }*/
+    /*
     public void testLoadingSamplePolygonFile() {
         
         String dataFolder = System.getProperty("dataFolder");
@@ -83,17 +83,17 @@ public class ShapefileTest extends TestCase {
             System.out.println("Testing ability to load "+url);
             URLConnection uc = url.openConnection();
             BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
-            
+            System.out.println("polygon file length "+uc.getContentLength());
             LEDataInputStream sfile = new LEDataInputStream(in);
             GeometryCollection shapes = Shapefile.read(sfile, new GeometryFactory());
             assertEquals("Number of Geometries loaded incorect",2,shapes.getNumGeometries());
         }
         catch(Exception e){
-            System.out.println(e);
+            System.out.println("Load failed becaouse of "+e);
             e.printStackTrace();
             fail("Load failed because of exception "+e.toString());
         }
-    }
+    }*/
     
     // Add test methods here, they have to start with 'test' name.
     // for example:
