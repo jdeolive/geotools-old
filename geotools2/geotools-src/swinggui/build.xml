@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE project [
-    <!ENTITY common SYSTEM "../gtbuild/common.xml">
-]>
 
-<project basedir="." default="all" name="swinggui">
-    &common;
+<project basedir="." default="release" name="gmldatasource">
+
+  <!-- Runs default build; don't modify this target and run it as default -->
+  <target name="release">
+    <property file="build.ant.properties"/>
+    <property name="dir.module" value="${basedir}"/>           
+    <ant antfile="common.xml" dir="../gtbuild" target="all" inheritAll="true"/>
+  </target>
+
+  <!-- Now, set your module-specific build targets here -->
+
 </project>
