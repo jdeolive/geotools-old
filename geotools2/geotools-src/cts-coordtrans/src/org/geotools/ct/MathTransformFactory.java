@@ -107,7 +107,7 @@ import org.geotools.resources.DescriptorNaming;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.17 2003/01/20 23:16:18 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.18 2003/02/27 14:30:34 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -158,7 +158,10 @@ public class MathTransformFactory {
             DEFAULT = new MathTransformFactory(new MathTransformProvider[] {
                 new              MatrixTransform.Provider(),      // Affine (default to 4x4)
                 new           MercatorProjection.Provider(),      // Mercator_1SP
-                new   LambertConformalProjection.Provider(),      // Lambert_Conformal_Conic_2SP
+                new   LambertConformalProjection.Provider(false, true),  // Lambert_Conformal_Conic_1SP
+                new   LambertConformalProjection.Provider(true,  true),  // Lambert_Conformal_Conic_2SP
+                new   LambertConformalProjection.Provider(false, false), // Lambert_Conic_Conformal_1SP
+                new   LambertConformalProjection.Provider(true,  false), // Lambert_Conic_Conformal_2SP
                 new      StereographicProjection.Provider(),      // Stereographic
                 new      StereographicProjection.Provider(true),  // Polar_Stereographic
                 new      StereographicProjection.Provider(false), // Oblique_Stereographic
@@ -688,7 +691,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.17 2003/01/20 23:16:18 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.18 2003/02/27 14:30:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

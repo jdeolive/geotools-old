@@ -60,7 +60,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Référence: John P. Snyder (Map Projections - A Working Manual,
  *            U.S. Geological Survey Professional Paper 1395, 1987)
  *
- * @version $Id: LambertConformalProjection.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
+ * @version $Id: LambertConformalProjection.java,v 1.3 2003/02/27 14:30:34 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -90,12 +90,27 @@ final class LambertConformalProjection extends ConicProjection {
     protected LambertConformalProjection(final Projection parameters)
         throws MissingParameterException
     {
+        this(parameters, true);
+    }
+
+    /**
+     * Construct an 1SP or 2SP projection.
+     */
+    LambertConformalProjection(final Projection parameters, final boolean sp2)
+        throws MissingParameterException
+    {
         //////////////////////////
         //   Fetch parameters   //
         //////////////////////////
         super(parameters);
-        phi1= latitudeToRadians(parameters.getValue("standard_parallel1", 30), true);
-        phi2= latitudeToRadians(parameters.getValue("standard_parallel2", 45), true);
+        if (sp2) {
+            phi1= latitudeToRadians(parameters.getValue("standard_parallel1", 30), true);
+            phi2= latitudeToRadians(parameters.getValue("standard_parallel2", 45), true);
+        } else {
+            // TODO: what should be the values for 1SP?
+            phi1 = latitudeToRadians(parameters.getValue("standard_parallel2", 49.5), true);
+            phi2 = phi1;
+        }
         
         //////////////////////////
         //  Compute constants   //
@@ -256,25 +271,45 @@ final class LambertConformalProjection extends ConicProjection {
     /**
      * Informations about a {@link LambertConformalProjection}.
      *
-     * @version $Id: LambertConformalProjection.java,v 1.2 2003/01/18 12:58:32 desruisseaux Exp $
+     * @version $Id: LambertConformalProjection.java,v 1.3 2003/02/27 14:30:34 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MapProjection.Provider {
         /**
-         * Construct a new provider.
+         * <code>true</code> for 2SP, or <code>false</code> for 1SP projection.
          */
-        public Provider() {
-            super("Lambert_Conformal_Conic_2SP", ResourceKeys.LAMBERT_CONFORMAL_PROJECTION);
-            remove("scale_factor");
-            put("standard_parallel1", 30.0, LATITUDE_RANGE);
-            put("standard_parallel2", 45.0, LATITUDE_RANGE);
+        private final boolean sp2;
+
+        /**
+         * Construct a new provider.
+         *
+         * @param sp2 <code>true</code> for 2SP, or <code>false</code> for 1SP.
+         * @param <code>true</code> for using OGC name, or <code>false</code> for
+         *        inverting "Conformal" and "Conic" order. The later is used by EPSG.
+         */
+        public Provider(final boolean sp2, final boolean ogc) {
+            super(ogc ?
+                  (sp2 ? "Lambert_Conformal_Conic_2SP" : "Lambert_Conformal_Conic_1SP") :
+                  (sp2 ? "Lambert_Conic_Conformal_2SP" : "Lambert_Conic_Conformal_1SP"),
+                  ResourceKeys.LAMBERT_CONFORMAL_PROJECTION);
+            if (sp2) {
+                remove("scale_factor");
+                put("standard_parallel1", 30.0, LATITUDE_RANGE);
+                put("standard_parallel2", 45.0, LATITUDE_RANGE);
+            }
+            this.sp2 = sp2;
         }
         
         /**
          * Create a new map projection.
          */
         protected Object create(final Projection parameters) throws MissingParameterException {
-            return new LambertConformalProjection(parameters);
+            if (!sp2) {
+                java.util.logging.Logger.getLogger("org.geotools.ct")
+                    .warning("Lambert_Conformal_Conic_1SP is broken in current implementation. "+
+                             "DO NOT RELY ON IT.");
+            }
+            return new LambertConformalProjection(parameters, sp2);
         }
     }
 }
