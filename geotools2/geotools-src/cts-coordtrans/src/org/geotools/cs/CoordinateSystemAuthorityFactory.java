@@ -68,7 +68,7 @@ import org.geotools.units.Unit;
  * A commonly used authority is EPSG, which is also
  * used in the GeoTIFF standard.
  *
- * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.6 2002/07/31 10:19:29 desruisseaux Exp $
+ * @version $Id: CoordinateSystemAuthorityFactory.java,v 1.7 2002/10/17 18:14:37 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -403,7 +403,7 @@ public abstract class CoordinateSystemAuthorityFactory {
         /**
          * Returns the underlying implementation.
          */
-        public CoordinateSystemAuthorityFactory unwrap() {
+        public CoordinateSystemAuthorityFactory getImplementation() {
             return CoordinateSystemAuthorityFactory.this;
         }
         

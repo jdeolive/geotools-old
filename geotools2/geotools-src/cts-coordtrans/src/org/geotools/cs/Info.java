@@ -45,6 +45,7 @@ import org.opengis.cs.CS_AngularUnit;
 import org.geotools.units.Unit;
 import org.geotools.util.WeakHashSet;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -84,7 +85,7 @@ import java.io.Serializable;
  *       All of the other metadata items should be left empty.</li>
  * </ul>
  *
- * @version $Id: Info.java,v 1.7 2002/10/09 19:35:53 desruisseaux Exp $
+ * @version $Id: Info.java,v 1.8 2002/10/17 18:14:37 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -554,7 +555,7 @@ public class Info implements Serializable {
      * for methods throwing {@link UnsupportedOperationException}). This
      * class is suitable for RMI use.
      */
-    class Export extends RemoteObject implements CS_Info {
+    class Export extends RemoteObject implements RemoteProxy, CS_Info {
         /**
          * The originating adapter.
          */
@@ -570,7 +571,7 @@ public class Info implements Serializable {
         /**
          * Returns the underlying implementation.
          */
-        public final Info unwrap() {
+        public final Serializable getImplementation() throws RemoteException {
             return Info.this;
         }
         

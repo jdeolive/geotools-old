@@ -80,6 +80,7 @@ import javax.media.jai.ParameterListDescriptorImpl;
 // Geotools dependencies
 import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
+import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
@@ -89,7 +90,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * <code>org.opengis.cs</code> package.</FONT>  All methods accept
  * null argument. All OpenGIS objects are suitable for RMI use.
  *
- * @version $Id: Adapters.java,v 1.6 2002/07/29 18:00:24 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.7 2002/10/17 18:14:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters {
@@ -118,7 +119,7 @@ public class Adapters {
      * Gets the default adapters.
      */
     public static synchronized Adapters getDefault() {
-        if (DEFAULT==null) {
+        if (DEFAULT == null) {
             DEFAULT = new Adapters(org.geotools.pt.Adapters.getDefault());
         }
         return DEFAULT;
@@ -218,7 +219,7 @@ public class Adapters {
      * Constructs an array of OpenGIS structures from a parameters list.
      */
     public CS_ProjectionParameter[] export(final ParameterList parameters) {
-        if (parameters==null) {
+        if (parameters == null) {
             return null;
         }
         final String[] names = parameters.getParameterListDescriptor().getParamNames();
@@ -307,7 +308,7 @@ public class Adapters {
      * Returns an OpenGIS structure for conversion info.
      */
     public CS_WGS84ConversionInfo export(final WGS84ConversionInfo info) {
-        if (info==null) {
+        if (info == null) {
             return null;
         }
         final CS_WGS84ConversionInfo nf = new CS_WGS84ConversionInfo();
@@ -328,7 +329,7 @@ public class Adapters {
      * the specified unit.
      */
     public CS_Unit export(final Unit unit) {
-        if (unit==null) {
+        if (unit == null) {
             return null;
         }
         final Info info = new Info(unit.getLocalizedName());
@@ -365,7 +366,7 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public Info wrap(final CS_Info info) throws RemoteException {
-        if (info==null) {
+        if (info == null) {
             return null;
         }
         if (info instanceof CS_Datum) {
@@ -374,8 +375,8 @@ public class Adapters {
         if (info instanceof CS_CoordinateSystem) {
             return wrap((CS_CoordinateSystem) info);
         }
-        if (info instanceof Info.Export) {
-            return ((Info.Export)info).unwrap();
+        if (info instanceof RemoteProxy) {
+            return (Info) ((RemoteProxy)info).getImplementation();
         }
         return new Info(new InfoProperties.Adapter(info));
     }
@@ -385,7 +386,7 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public CoordinateSystem wrap(final CS_CoordinateSystem cs) throws RemoteException {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
         if (cs instanceof CS_CompoundCoordinateSystem) {
@@ -403,8 +404,8 @@ public class Adapters {
         if (cs instanceof CS_HorizontalCoordinateSystem) {
             return wrap(( CS_HorizontalCoordinateSystem)cs);
         }
-        if (cs instanceof CoordinateSystem.Export) {
-            return (CoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (CoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         // CoordinateSystem is abstract
         throw new UnsupportedOperationException("Unknow CS not yet implemented");
@@ -417,11 +418,11 @@ public class Adapters {
     public CompoundCoordinateSystem wrap(final CS_CompoundCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof CoordinateSystem.Export) {
-            return (CompoundCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (CompoundCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         return new CompoundCoordinateSystem(new InfoProperties.Adapter(cs),
                                             wrap(cs.getHeadCS()), wrap(cs.getTailCS()));
@@ -432,11 +433,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public LocalCoordinateSystem wrap(final CS_LocalCoordinateSystem cs) throws RemoteException {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof CoordinateSystem.Export) {
-            return (LocalCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (LocalCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         final LocalDatum datum = wrap(cs.getLocalDatum());
         final Unit[]     units = new Unit[cs.getDimension()];
@@ -455,11 +456,11 @@ public class Adapters {
     public GeocentricCoordinateSystem wrap(final CS_GeocentricCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof CoordinateSystem.Export) {
-            return (GeocentricCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (GeocentricCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         checkDimension(cs, 3);
         final Unit              unit = wrap(cs.getLinearUnit());
@@ -481,11 +482,11 @@ public class Adapters {
     public VerticalCoordinateSystem wrap(final CS_VerticalCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof CoordinateSystem.Export) {
-            return (VerticalCoordinateSystem) ((CoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (VerticalCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         checkDimension(cs, 1);
         final VerticalDatum datum = wrap(cs.getVerticalDatum());
@@ -501,13 +502,13 @@ public class Adapters {
     public HorizontalCoordinateSystem wrap(final CS_HorizontalCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
         if (cs instanceof CS_GeographicCoordinateSystem) return wrap((CS_GeographicCoordinateSystem)cs);
         if (cs instanceof  CS_ProjectedCoordinateSystem) return wrap( (CS_ProjectedCoordinateSystem)cs);
-        if (cs instanceof HorizontalCoordinateSystem.Export) {
-            return (HorizontalCoordinateSystem) ((HorizontalCoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (HorizontalCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         // HorizontalCoordinateSystem is abstract
         throw new UnsupportedOperationException("Unknown CS not yet implemented");
@@ -520,11 +521,11 @@ public class Adapters {
     public GeographicCoordinateSystem wrap(final CS_GeographicCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof HorizontalCoordinateSystem.Export) {
-            return (GeographicCoordinateSystem) ((HorizontalCoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (GeographicCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         checkDimension(cs, 2);
         final Unit              unit = wrap(cs.getAngularUnit());
@@ -543,11 +544,11 @@ public class Adapters {
     public ProjectedCoordinateSystem wrap(final CS_ProjectedCoordinateSystem cs)
             throws RemoteException
     {
-        if (cs==null) {
+        if (cs == null) {
             return null;
         }
-        if (cs instanceof HorizontalCoordinateSystem.Export) {
-            return (ProjectedCoordinateSystem) ((HorizontalCoordinateSystem.Export)cs).unwrap();
+        if (cs instanceof RemoteProxy) {
+            return (ProjectedCoordinateSystem) ((RemoteProxy)cs).getImplementation();
         }
         checkDimension(cs, 2);
         final GeographicCoordinateSystem gcs = wrap(cs.getGeographicCoordinateSystem());
@@ -564,11 +565,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public Projection wrap(final CS_Projection projection) throws RemoteException {
-        if (projection==null) {
+        if (projection == null) {
             return null;
         }
-        if (projection instanceof Info.Export) {
-            return (Projection) ((Info.Export)projection).unwrap();
+        if (projection instanceof RemoteProxy) {
+            return (Projection) ((RemoteProxy)projection).getImplementation();
         }
         final CS_ProjectionParameter[] parameters = new CS_ProjectionParameter[projection.getNumParameters()];
         for (int i=0; i<parameters.length; i++) {
@@ -583,11 +584,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public PrimeMeridian wrap(final CS_PrimeMeridian meridian) throws RemoteException {
-        if (meridian==null) {
+        if (meridian == null) {
             return null;
         }
-        if (meridian instanceof Info.Export) {
-            return (PrimeMeridian) ((Info.Export)meridian).unwrap();
+        if (meridian instanceof RemoteProxy) {
+            return (PrimeMeridian) ((RemoteProxy)meridian).getImplementation();
         }
         return new PrimeMeridian(new InfoProperties.Adapter(meridian),
                                  wrap(meridian.getAngularUnit()), meridian.getLongitude());
@@ -598,11 +599,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public Ellipsoid wrap(final CS_Ellipsoid ellipsoid) throws RemoteException {
-        if (ellipsoid==null) {
+        if (ellipsoid == null) {
             return null;
         }
-        if (ellipsoid instanceof Info.Export) {
-            return (Ellipsoid) ((Info.Export)ellipsoid).unwrap();
+        if (ellipsoid instanceof RemoteProxy) {
+            return (Ellipsoid) ((RemoteProxy)ellipsoid).getImplementation();
         }
         final CharSequence        name = new InfoProperties.Adapter(ellipsoid);
         final double     semiMajorAxis = ellipsoid.getSemiMajorAxis();
@@ -631,7 +632,7 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public Datum wrap(final CS_Datum datum) throws RemoteException {
-        if (datum==null) {
+        if (datum == null) {
             return null;
         }
         if (datum instanceof CS_LocalDatum) {
@@ -643,8 +644,8 @@ public class Adapters {
         if (datum instanceof CS_HorizontalDatum) {
             return wrap((CS_HorizontalDatum)datum);
         }
-        if (datum instanceof Datum.Export) {
-            return (Datum) ((Datum.Export)datum).unwrap();
+        if (datum instanceof RemoteProxy) {
+            return (Datum) ((RemoteProxy)datum).getImplementation();
         }
         return new Datum(new InfoProperties.Adapter(datum), wrap(datum.getDatumType()));
     }
@@ -654,11 +655,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public LocalDatum wrap(final CS_LocalDatum datum) throws RemoteException {
-        if (datum==null) {
+        if (datum == null) {
             return null;
         }
-        if (datum instanceof Datum.Export) {
-            return (LocalDatum) ((Datum.Export)datum).unwrap();
+        if (datum instanceof RemoteProxy) {
+            return (LocalDatum) ((RemoteProxy)datum).getImplementation();
         }
         return new LocalDatum(new InfoProperties.Adapter(datum), 
                               (DatumType.Local) wrap(datum.getDatumType()));
@@ -669,11 +670,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public HorizontalDatum wrap(final CS_HorizontalDatum datum) throws RemoteException {
-        if (datum==null) {
+        if (datum == null) {
             return null;
         }
-        if (datum instanceof Datum.Export) {
-            return (HorizontalDatum) ((Datum.Export)datum).unwrap();
+        if (datum instanceof RemoteProxy) {
+            return (HorizontalDatum) ((RemoteProxy)datum).getImplementation();
         }
         return new HorizontalDatum(new InfoProperties.Adapter(datum),
                                    (DatumType.Horizontal) wrap(datum.getDatumType()),
@@ -686,11 +687,11 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public VerticalDatum wrap(final CS_VerticalDatum datum) throws RemoteException {
-        if (datum==null) {
+        if (datum == null) {
             return null;
         }
-        if (datum instanceof Datum.Export) {
-            return (VerticalDatum) ((Datum.Export)datum).unwrap();
+        if (datum instanceof RemoteProxy) {
+            return (VerticalDatum) ((RemoteProxy)datum).getImplementation();
         }
         return new VerticalDatum(new InfoProperties.Adapter(datum),
                                  (DatumType.Vertical) wrap(datum.getDatumType()));
@@ -714,7 +715,7 @@ public class Adapters {
      * Returns an axis array for an OpenGIS structure array.
      */
     final AxisInfo[] wrap(final CS_AxisInfo[] axis) {
-        if (axis==null) {
+        if (axis == null) {
             return null;
         }
         final AxisInfo[] a=new AxisInfo[axis.length];
@@ -728,7 +729,7 @@ public class Adapters {
      * Returns a parameter list for an array of OpenGIS structures.
      */
     public ParameterList wrap(final CS_ProjectionParameter[] parameters) {
-        if (parameters==null) {
+        if (parameters == null) {
             return null;
         }
         int count=0;
@@ -756,7 +757,7 @@ public class Adapters {
      * Returns conversion info for an OpenGIS structure.
      */
     public WGS84ConversionInfo wrap(final CS_WGS84ConversionInfo info) {
-        if (info==null) {
+        if (info == null) {
             return null;
         }
         final WGS84ConversionInfo nf = new WGS84ConversionInfo();
@@ -776,7 +777,9 @@ public class Adapters {
      * @throws RemoteException if a remote call fails.
      */
     public Unit wrap(final CS_Unit unit) throws RemoteException {
-        if (unit==null) return null;
+        if (unit == null) {
+            return null;
+        }
         if (unit instanceof CS_LinearUnit) {
             final double metersPerUnit = ((CS_LinearUnit)unit).getMetersPerUnit();
             return Unit.METRE.scale(metersPerUnit);
