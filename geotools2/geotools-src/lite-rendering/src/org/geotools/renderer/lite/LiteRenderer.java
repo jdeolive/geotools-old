@@ -22,40 +22,11 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureCollections;
-import org.geotools.filter.Filter;
-import org.geotools.gc.GridCoverage;
-import org.geotools.map.Context;
-import org.geotools.map.Layer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.styling.ExternalGraphic;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Fill;
-import org.geotools.styling.Font;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.Halo;
-import org.geotools.styling.LabelPlacement;
-import org.geotools.styling.LinePlacement;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.Mark;
-import org.geotools.styling.PointPlacement;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Stroke;
-import org.geotools.styling.Style;
-import org.geotools.styling.Symbol;
-import org.geotools.styling.Symbolizer;
-import org.geotools.styling.TextMark;
-import org.geotools.styling.TextSymbolizer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -88,6 +59,37 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.FeatureCollections;
+import org.geotools.filter.Filter;
+import org.geotools.gc.GridCoverage;
+import org.geotools.map.Context;
+import org.geotools.map.Layer;
+import org.geotools.renderer.Renderer;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.LabelPlacement;
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointPlacement;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Stroke;
+import org.geotools.styling.Style;
+import org.geotools.styling.Symbol;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextMark;
+import org.geotools.styling.TextSymbolizer;
+
 
 
 /**
@@ -113,7 +115,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.19 2003/08/04 16:01:10 ianturton Exp $
+ * @version $Id: LiteRenderer.java,v 1.20 2003/08/05 05:15:04 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -152,6 +154,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
     /** The image loader */
     private static ImageLoader imageLoader = new ImageLoader();
+    
+    private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
+    private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
 
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
@@ -615,6 +620,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("applying symbolizer " + symbolizers[m]);
             }
+            
+            resetFill(graphics);
+            resetStroke(graphics);
 
             if (symbolizers[m] instanceof PolygonSymbolizer) {
                 renderPolygon(feature, (PolygonSymbolizer) symbolizers[m]);
@@ -931,7 +939,6 @@ public class LiteRenderer implements Renderer, Renderer2D {
             rotation *= (Math.PI / 180.0);
         } else if (
             placement instanceof LinePlacement && geom instanceof LineString){
-//                && !(geom instanceof LineString)) {
             // @TODO: if the geometry is a ring or a polygon try to find out 
             // some "axis" to follow in the label placement
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -1176,9 +1183,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param fill eventual feature filling
      * @param rotation text rotation
      */
-    private void renderString(
-        Graphics2D graphic, double x, double y, double dx, double dy, TextLayout tl, Feature feature,
-        Fill fill, double rotation) {
+    void renderString(Graphics2D graphic, double x, double y, double dx,
+                      double dy, TextLayout tl, Feature feature, Fill fill,
+                      double rotation) {
         AffineTransform temp = graphic.getTransform();
         AffineTransform labelAT = new AffineTransform();
 
@@ -1193,7 +1200,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         double shearY = temp.getShearY();
         double scaleY = temp.getScaleY();
-
+        double scaleX = temp.getScaleX();
         double originalRotation = Math.atan(shearY / scaleY);
 
         if (LOGGER.isLoggable(Level.FINER)) {
@@ -1201,21 +1208,24 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         labelAT.rotate(rotation - originalRotation);
-
+        double xToyRatio = Math.abs(scaleX/scaleY);
+        labelAT.scale(xToyRatio, 1.0/xToyRatio);
         graphic.setTransform(labelAT);
 
         applyFill(graphic, fill, feature);
+        
 
         // we move this to the centre of the image.
         if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer(
-                "about to draw at " + x + "," + y
-                + " with the start of the string at " + (x + dx) + ","
-                + (y + dy));
+            LOGGER.finer("about to draw at " + x + "," + y +
+                         " with the start of the string at " + (x + dx) +
+                         "," + (y + dy));
         }
 
         tl.draw(graphic, (float) dx, (float) dy);
 
+
+        //graphics.drawString(label,(float)x,(float)y);
         resetFill(graphic);
         graphic.setTransform(temp);
 
@@ -1806,7 +1816,18 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         graphic.setComposite(
-            AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            DEFAULT_COMPOSITE);
+    }
+    
+    /**
+     * Resets the current graphics2D fill
+     */
+    private void resetStroke(Graphics2D graphic) {
+        if (LOGGER.isLoggable(Level.FINER)) {
+            LOGGER.finer("reseting the graphics");
+        }
+
+        graphic.setStroke(DEFAULT_STROKE);
     }
 
     /**
