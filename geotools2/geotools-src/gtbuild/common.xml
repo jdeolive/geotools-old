@@ -167,6 +167,7 @@
             <classpath>
                 <path path="src"/>
                 <path refid="path.compile" />
+                <path path="${dir.module}/../../extbin/gtbuild/lib/junit.jar"/>
             </classpath>
     </javac>
   </target>
