@@ -343,16 +343,17 @@ public class InProcessLockingManager implements LockingManager {
      * @param transaction
      */
     public synchronized void refreshLock(String authID, Transaction transaction) {
+        if( authID == null ) return;
+        
         Lock lock;
-
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
-	    lock = (Lock) i.next();
-	    
-	    if (lock.isExpired()) {
-		i.remove();
-	    } else if (lock.isMatch(authID)) {
-		lock.refresh();
-	    }
+    	    lock = (Lock) i.next();
+    	    
+    	    if (lock.isExpired()) {
+    		    i.remove();
+            } else if (lock.isMatch(authID)) {
+                lock.refresh();
+    	    }
         }
     }
 
@@ -362,17 +363,18 @@ public class InProcessLockingManager implements LockingManager {
      * @param authID
      * @param transaction
      */
-    public void releaseLock(String authID, Transaction transaction) {
+    public void releaseLock(String authID, Transaction transaction) {        
+        if( authID == null ) return;
+        
         Lock lock;
-
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
-	      lock = (Lock) i.next();
+	       lock = (Lock) i.next();
 
-                if (lock.isExpired()) {
-                    i.remove();
-                } else if (lock.isMatch(authID)) {
-                    i.remove();
-                }
+            if (lock.isExpired()) {
+                i.remove();
+            } else if (lock.isMatch(authID)) {
+                i.remove();
+            }
         }
     }
 
@@ -387,8 +389,9 @@ public class InProcessLockingManager implements LockingManager {
      * @return true if lock exists for authID
      */
     public boolean lockExists(String authID) {
+        if( authID == null ) return false;
+        
         Lock lock;
-
         for (Iterator i = allLocks().iterator(); i.hasNext();) {
             lock = (Lock) i.next();
 
