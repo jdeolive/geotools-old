@@ -7,7 +7,7 @@
         <datasource class="Shapefile">
             <param name="filename" value="maps/statepop.shp"/>
         </datasource>
-        <description>The USA</description>
+        <description>USA</description>
         <Style id="thick outline" filename="styles/polyshp.sld"/>
         <Style id="dotty" filename="styles/funkypolyshp.sld"/>
         <Style id="population" filename="styles/popshade.sld"/>
@@ -17,6 +17,8 @@
         <Style id="normal" filename="styles/normal.sld" default="true"></Style>
         <Style id="employ/persons" filename="styles/usa_math.sld"></Style>
     </Layer>
+    
+   
   
     <Layer id="postgistest">
         <datasource class="PostGIS">

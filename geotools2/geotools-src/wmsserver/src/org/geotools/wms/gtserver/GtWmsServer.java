@@ -123,6 +123,8 @@ public class GtWmsServer implements WMSServer {
                     styles.put(entry.id,style);
                 }
                 
+                
+                
                 if (entry.datasource.equalsIgnoreCase("PostGIS")) {
                     System.out.println("pulling proeprties");
                     String host = entry.properties.getProperty("host");

@@ -31,4 +31,11 @@
       </exec>
     </target>   
     
+     <target name="war:war">
+      <exec executable="maven.bat">
+        <arg value="war:war"/> 
+      </exec>
+    </target>  
+    
+    
 </project>

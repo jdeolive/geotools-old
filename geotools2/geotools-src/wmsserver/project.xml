@@ -118,6 +118,27 @@
       </properties>
     </dependency>
     <dependency>
+      <id>imagedatasource</id>
+      <version>0.1</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>gcs-coverage</id>
+      <version>0.6</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+      <properties>
+         <war.bundle.jar>true</war.bundle.jar>
+      </properties>
+    </dependency>
+    <dependency>
       <id>littleEndian</id>
       <version>1.0</version>
       <properties>
