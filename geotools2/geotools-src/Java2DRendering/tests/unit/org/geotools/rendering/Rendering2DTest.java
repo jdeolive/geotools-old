@@ -68,21 +68,21 @@ public class Rendering2DTest extends TestCase {
         LineString line = makeSampleLineString(geomFac);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
         FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
-        FeatureFactory lineFac = new FeatureFactory(lineType);
+        FeatureFactory lineFac = new FlatFeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
         Polygon polygon = makeSamplePolygon(geomFac);
         
         AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
         FeatureType polygonType = new FeatureTypeFlat(polygonAttribute);
-        FeatureFactory polygonFac = new FeatureFactory(polygonType);
+        FeatureFactory polygonFac = new FlatFeatureFactory(polygonType);
         
         Feature polygonFeature = polygonFac.create(new Object[]{polygon});
         
         Point point = makeSamplePoint(geomFac);
         AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
-        FeatureFactory pointFac = new FeatureFactory(pointType);
+        FeatureFactory pointFac = new FlatFeatureFactory(pointType);
         
         Feature pointFeature = pointFac.create(new Object[]{point});
         
