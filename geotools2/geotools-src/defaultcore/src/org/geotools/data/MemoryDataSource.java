@@ -23,15 +23,23 @@ package org.geotools.data;
 /**
  * A memory-based datasource.
  *
- * @version $Id: MemoryDataSource.java,v 1.2 2002/06/04 16:28:42 loxnard Exp $
+ * @version $Id: MemoryDataSource.java,v 1.3 2002/07/11 16:33:34 loxnard Exp $
  * @author James Macgill, CCG
  * @author Ian Turton, CCG
  */
 
-import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 
+/**
+ * A special datasource implementation which provides access to
+ * features stored in memory.  Unlike other datasources, it is not
+ * connected to any external resource.  Instead, all of the features 
+ * it provides are stored internally.
+ * It is very useful for testing and development when a datasource
+ * with only a limited number of features is required.  It may also be
+ * adapted in future to act as a cache for other datasources.
+ */
 public class MemoryDataSource implements DataSource {
     EnvelopeExtent bbox = new EnvelopeExtent();
     /**
@@ -59,9 +67,9 @@ public class MemoryDataSource implements DataSource {
      * @throws DataSourceException if anything goes wrong
      */
     public void importFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
-        for(int i=0;i<features.size();i++){
-            Feature f = (Feature)features.elementAt(i);
-            if(ex.containsFeature(f)){
+        for (int i = 0; i < features.size(); i++){
+            Feature f = (Feature) features.elementAt(i);
+            if (ex.containsFeature(f)){
                 ft.addFeatures(new Feature[]{f});
             }
         }
@@ -71,12 +79,20 @@ public class MemoryDataSource implements DataSource {
      * Saves the given features to the datasource.
      * @param ft feature table to get features from
      * @param ex an extent defining which features to write - null means all
-     * @throws DataSourceException if anything goes wrong or if exporting is not supported
+     * @throws DataSourceException if anything goes wrong or if exporting is
+     * not supported.
      */
     public void exportFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
         //do nothing
     }
     
+    /**
+     * Adds a new feature to the list of those stored within the datasource.
+     * The default geometry of the feature will be used to extend the bounding
+     * box of the datasource.
+     *
+     * @param f The feature to add 
+     */
     public void addFeature(Feature f){
         features.addElement(f);
         bbox.combine(new EnvelopeExtent(f.getDefaultGeometry().getEnvelopeInternal()));
@@ -85,7 +101,7 @@ public class MemoryDataSource implements DataSource {
     /**
      * Gets the extent of this datasource using the speed of
      * this datasource as set by the parameter.
-     * @param quick if true then a quick (and possibly dirty) estimate of
+     * @param speed if true then a quick (and possibly dirty) estimate of
      * the extent is returned. If false then a slow but accurate extent
      * will be returned.
      * @return the extent of the datasource or null if unknown and too
