@@ -88,10 +88,36 @@ import org.geotools.resources.SwingUtilities;
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.9 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.10 2003/06/03 18:09:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
+    /**
+     * Enumeration class for columns to be shown in a {@link LoggingPanel}.
+     * Valid columns include {@link #LOGGER LOGGER}, {@link #CLASS CLASS},
+     * {@link #METHOD METHOD}, {@link #TIME_OF_DAY TIME_OF_DAY}, {@link #LEVEL LEVEL}
+     * and {@link #MESSAGE MESSAGE}.
+     *
+     * @task TODO: Use the enum keyword once J2SE 1.5 will be available.
+     */
+    public static final class Column {
+        final int index;
+        Column(final int index) {
+            this.index = index;
+        }
+    }
+
+    /*
+     * NOTE: Values for the following contants MUST match
+     * index in the LoggingTableModel.COLUMN_NAMES array.
+     */
+    /** Constant for {@link #setColumnVisible}. */  public static final Column LOGGER      = new Column(0);
+    /** Constant for {@link #setColumnVisible}. */  public static final Column CLASS       = new Column(1);
+    /** Constant for {@link #setColumnVisible}. */  public static final Column METHOD      = new Column(2);
+    /** Constant for {@link #setColumnVisible}. */  public static final Column TIME_OF_DAY = new Column(3);
+    /** Constant for {@link #setColumnVisible}. */  public static final Column LEVEL       = new Column(4);
+    /** Constant for {@link #setColumnVisible}. */  public static final Column MESSAGE     = new Column(5);
+
     /**
      * The background color for the columns prior to the logging message.
      */
@@ -198,6 +224,27 @@ public class LoggingPanel extends JPanel {
      */
     public Handler getHandler() {
         return model;
+    }
+
+    /**
+     * Returns <code>true</code> if the given column is visible.
+     *
+     * @param column The column to show or hide. May be one of {@link #LOGGER}, {@link #CLASS},
+     *               {@link #METHOD}, {@link #TIME_OF_DAY}, {@link #LEVEL} or {@link #MESSAGE}.
+     */
+    public boolean isColumnVisible(final Column column) {
+        return model.isColumnVisible(column.index);
+    }
+
+    /**
+     * Show or hide the given column.
+     *
+     * @param column The column to show or hide. May be one of {@link #LOGGER}, {@link #CLASS},
+     *               {@link #METHOD}, {@link #TIME_OF_DAY}, {@link #LEVEL} or {@link #MESSAGE}.
+     * @param visible The visible state for the specified column.
+     */
+    public void setColumnVisible(final Column column, final boolean visible) {
+        model.setColumnVisible(column.index, visible);
     }
 
     /**

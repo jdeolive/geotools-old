@@ -69,12 +69,13 @@ import org.geotools.resources.gui.ResourceKeys;
  * This model is used by {@link LoggingPanel} for displaying logging messages in
  * a {@link javax.swing.JTable}.
  *
- * @version $Id: LoggingTableModel.java,v 1.5 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: LoggingTableModel.java,v 1.6 2003/06/03 18:09:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class LoggingTableModel extends Handler implements TableModel {
     /**
-     * Resource keys for column names.
+     * Resource keys for default column names. <STRONG>NOTE: Order is significant.</STRONG>
+     * If the order is changed, then the constants in {@link LoggingPanel} must be updated.
      */
     private static final int[] COLUMN_NAMES = new int[] {
         ResourceKeys.LOGGER,
@@ -84,6 +85,12 @@ final class LoggingTableModel extends Handler implements TableModel {
         ResourceKeys.LEVEL,
         ResourceKeys.MESSAGE
     };
+
+    /**
+     * Resource keys for column names. This is usuall the same array than <code>COLUMN_NAMES</code>.
+     * However, method {@link #setColumnVisible} may add or remove column in this list.
+     */
+    private int[] columnNames = COLUMN_NAMES;
 
     /**
      * The last {@link LogRecord}s stored. This array will grows as needed up to
@@ -155,6 +162,56 @@ final class LoggingTableModel extends Handler implements TableModel {
     }
 
     /**
+     * Returns <code>true</code> if the given column is visible.
+     *
+     * @param index One of {@link LoggingPanel} constants, which maps to entries in
+     *        {@link COLUMN_NAMES}. For example <code>0</code> for the logger,
+     *        <code>1</code> for the class, etc.
+     */
+    final boolean isColumnVisible(int index) {
+        final int key = COLUMN_NAMES[index];
+        for (int i=0; i<columnNames.length; i++) {
+            if (columnNames[i] == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Show or hide the given column.
+     *
+     * @param index One of {@link LoggingPanel} constants, which maps to entries in
+     *        {@link COLUMN_NAMES}. For example <code>0</code> for the logger,
+     *        <code>1</code> for the class, etc.
+     * @param visible The visible state for the specified column.
+     */
+    final void setColumnVisible(final int index, final boolean visible) {
+        final int key = COLUMN_NAMES[index];
+        int[] names = new int[COLUMN_NAMES.length];
+        int count = 0;
+        for (int i=0; i<COLUMN_NAMES.length; i++) {
+            final int toTest = COLUMN_NAMES[i];
+            if (toTest == key) {
+                if (visible) {
+                    names[count++] = toTest;
+                }
+                continue;
+            }
+            for (int j=0; j<columnNames.length; j++) {
+                if (columnNames[j] == toTest) {
+                    names[count++] = toTest;
+                    break;
+                }
+            }
+        }
+        columnNames = names = XArray.resize(names, count);
+        cache.clear();
+        fireTableChanged(new TableModelEvent(this, TableModelEvent.HEADER_ROW));
+        assert isColumnVisible(index) == visible : visible;
+    }
+
+    /**
      * Publish a {@link LogRecord}. If the maximal capacity has been reached,
      * the oldiest record will be discarted.
      */
@@ -204,7 +261,7 @@ final class LoggingTableModel extends Handler implements TableModel {
      * Returns the number of columns in the model.
      */
     public int getColumnCount() {
-        return COLUMN_NAMES.length;
+        return columnNames.length;
     }
 
     /**
@@ -225,7 +282,7 @@ final class LoggingTableModel extends Handler implements TableModel {
      * Returns the name of the column at <code>columnIndex</code>.
      */
     public String getColumnName(final int columnIndex) {
-        return Resources.format(COLUMN_NAMES[columnIndex]);
+        return Resources.format(columnNames[columnIndex]);
     }
 
     /**
@@ -236,12 +293,19 @@ final class LoggingTableModel extends Handler implements TableModel {
         String[] row = (String[]) cache.get(record);
         if (row == null) {
             row = new String[getColumnCount()];
-            row[0] = record.getLoggerName();
-            row[1] = getShortClassName(record.getSourceClassName());
-            row[2] = record.getSourceMethodName();
-            row[3] = dateFormat.format(new Date(record.getMillis()));
-            row[4] = record.getLevel().getLocalizedName();
-            row[5] = getFormatter().formatMessage(record);
+            for (int i=0; i<row.length; i++) {
+                final String value;
+                switch (columnNames[i]) {
+                    case ResourceKeys.LOGGER:      value=record.getLoggerName(); break;
+                    case ResourceKeys.CLASS:       value=getShortClassName(record.getSourceClassName()); break;
+                    case ResourceKeys.METHOD:      value=record.getSourceMethodName(); break;
+                    case ResourceKeys.TIME_OF_DAY: value=dateFormat.format(new Date(record.getMillis())); break;
+                    case ResourceKeys.LEVEL:       value=record.getLevel().getLocalizedName(); break;
+                    case ResourceKeys.MESSAGE:     value=getFormatter().formatMessage(record); break;
+                    default: throw new AssertionError(i);
+                }
+                row[i] = value;
+            }
             cache.put(record, row);
             assert cache.size() <= capacity;
         }
