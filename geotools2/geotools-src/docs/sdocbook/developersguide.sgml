@@ -33,7 +33,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/08 19:32:06 $</date>
+    <date>$Date: 2002/12/08 19:58:57 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -938,7 +938,7 @@ id=&#34;index&#34;&#62;
             <title>Use of gtpulish</title>
 
             <literallayout><computeroutput>$ cd ~/geotools/geotools-src/docs
-$ gtpubish
+$ ./gtpubish
 $ netscape ~/geotools/geotools-src/docs/www/design.html</computeroutput></literallayout>
           </example>
 
