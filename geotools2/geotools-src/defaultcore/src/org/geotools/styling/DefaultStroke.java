@@ -1,11 +1,3 @@
-/*
- * DefaultStroke.java
- * TODO:This is unfinised as it currently reutrns fixed values with no way to change them.
- * Created on April 11, 2002, 2:08 PM
- */
-
-package org.geotools.styling;
-
 /**
  * Geotools - OpenSource mapping toolkit
  *            (C) 2002, Center for Computational Geography
@@ -23,14 +15,19 @@ package org.geotools.styling;
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
- *
- *
- * @author jamesm
- */
+ **/
+
+package org.geotools.styling;
+
+
+ /**
+  *
+  * TODO:This is unfinished as it currently returns fixed values with no way
+  * to change them.
+  *
+  * @version $Id: DefaultStroke.java,v 1.9 2002/06/04 17:55:51 loxnard Exp $
+  * @author James Macgill, CCG
+  */
 
 import org.geotools.filter.*;
 
@@ -49,7 +46,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     public DefaultStroke() {
         try{
             color = new ExpressionLiteral("#000000");
-            dashArray = null;//HACK: is this an aceptable return?
+            dashArray = null;//HACK: is this an acceptable return?
             dashOffset = new ExpressionLiteral(new Integer(0));
             fillGraphic = null;
             strokeGraphic = null;
@@ -66,10 +63,12 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     /**
      * This parameter gives the solid color that will be used for a stroke.<br>
-     * The color value is RGB-encoded using two hexidecimal digits per primary-color component in the
-     * order Red, Green, Blue, prefixed wih the hash (#) sign.  The hexidecimal digits between A and F
-     * may be in either upper or lower case.  For example, full red is encoded as "#ff0000" (with no
-     * quotation marks).  The default color is defined to be black ("#000000").
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component in the order Red, Green, Blue, prefixed with the
+     * hash (#) sign.  The hexidecimal digits between A and F may be in either
+     * upper or lower case.  For example, full red is encoded as "#ff0000" 
+     * (with no quotation marks).  The default color is defined to be
+     * black ("#000000").
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
      *
@@ -81,10 +80,12 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
-     * The color value is RGB-encoded using two hexidecimal digits per primary-color component in the
-     * order Red, Green, Blue, prefixed wih the hash (#) sign.  The hexidecimal digits between A and F
-     * may be in either upper or lower case.  For example, full red is encoded as "#ff0000" (with no
-     * quotation marks).  The default color is defined to be black ("#000000").
+     * The color value is RGB-encoded using two hexidecimal digits per
+     * primary-color component in the order Red, Green, Blue, prefixed with the
+     * hash (#) sign.  The hexidecimal digits between A and F may be in either
+     * upper or lower case.  For example, full red is encoded as "#ff0000" 
+     * (with no quotation marks).  The default color is defined to be
+     * black ("#000000").
      *
      * Note: in CSS this parameter is just called Stroke and not Color.
      *
@@ -97,14 +98,19 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     /**
      * This parameter encodes the dash pattern as a series of floats.<br>
-     * The first number gives the length in pixels of the dash to draw, the second gives the amount of space to leave, and this pattern repeats.<br>
-     * If an odd number of values is given, then the pattern is expanded by repeating it twice to give an even number of values.
+     * The first number gives the length in pixels of the dash to draw,
+     * the second gives the amount of space to leave, and this pattern
+     * repeats.<br>
+     * If an odd number of values is given, then the pattern is expanded
+     * by repeating it twice to give an even number of values.
      * The default is to draw an unbroken line.<br>
      *
      * For example, "2 1 3 2" would produce:<br>
-     * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
+     * <code>--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;
+     * ---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--</code>
      *
-     * @return The dash pattern as an array of float values in the form "dashlength gaplength ..."
+     * @return The dash pattern as an array of float values in the form
+     * "dashlength gaplength ..."
      */
     public float[] getDashArray() {
         if(dashArray == null) return new float[0];
@@ -126,24 +132,26 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
      * --&nbsp;---&nbsp;&nbsp;--&nbsp;---&nbsp;&nbsp;--&nbsp;
      * ---&nbsp;&nbsp;--</code>
      *
-     * @param dashPattern The dash pattern as an array of float values in the form
-     * "dashlength gaplength ..."
+     * @param dashPattern The dash pattern as an array of float values in the
+     * form "dashlength gaplength ..."
      */
     public void setDashArray(float[] dashPattern) {
         dashArray = dashPattern;
     }
     
     /**
-     * This param determins where the dash pattern should start from.
-     * @param offset The distance into the dash pattern that should act as the start.
+     * This param determines where the dash pattern should start from.
+     * @param offset The distance into the dash pattern that should act as
+     *        the start.
      */
     public Expression getDashOffset() {
         return dashOffset;
     }
     
     /**
-     * This param determins where the dash pattern should start from.
-     * @param offset The distance into the dash pattern that should act as the start.
+     * This param determines where the dash pattern should start from.
+     * @param offset The distance into the dash pattern that should act as
+     *        the start.
      */
     public void setDashOffset(Expression offset){
         if(offset == null) return;
@@ -152,44 +160,58 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     
     
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will be used and specifies the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will
+     * be used and specifies the fill graphic to use.
      *
-     * @return The graphic to use as a stipple fill.  If null, then no Stipple fill should be used.
+     * @return The graphic to use as a stipple fill.
+     *         If null, then no Stipple fill should be used.
      */
     public Graphic getGraphicFill() {
         return fillGraphic;
     }
     
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will be used and specifies the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will
+     * be used and specifies the fill graphic to use.
      *
-     * @param graphic The graphic to use as a stipple fill.  If null, then no Stipple fill should be used.
+     * @param graphic The graphic to use as a stipple fill.
+     *        If null, then no Stipple fill should be used.
      */
     public void setGraphicFill(Graphic graphic) {
         fillGraphic = graphic;
     }
     
     /**
-     * This parameter indicates that a repeated-linear-graphic graphic stroke type will be used and specifies the graphic to use.
+     * This parameter indicates that a repeated-linear-graphic graphic
+     * stroke type will be used and specifies the graphic to use.
      *
-     * Proper stroking with a linear graphic requires two "hot-spot" points within the space of the graphic to indicate where the rendering line starts and stops.
-     * In the case of raster images with no special mark-up, this line will be assumed to be the middle pixel row of the image, starting from the first pixel column and
-     * ending at the last pixel column.
+     * Proper stroking with a linear graphic requires two "hot-spot" points
+     * within the space of the graphic to indicate where the rendering line
+     * starts and stops.
+     * In the case of raster images with no special mark-up, this line will
+     * be assumed to be the middle pixel row of the image, starting from the
+     * first pixel column and ending at the last pixel column.
      *
-     * @return The graphic to use as a linear graphic.  If null, then no graphic stroke should be used.
+     * @return The graphic to use as a linear graphic.
+     *         If null, then no graphic stroke should be used.
      */
     public Graphic getGraphicStroke() {
         return strokeGraphic;
     }
     
     /**
-     * This parameter indicates that a repeated-linear-graphic graphic stroke type will be used and specifies the graphic to use.
+     * This parameter indicates that a repeated-linear-graphic graphic stroke
+     * type will be used and specifies the graphic to use.
      *
-     * Proper stroking with a linear graphic requires two "hot-spot" points within the space of the graphic to indicate where the rendering line starts and stops.
-     * In the case of raster images with no special mark-up, this line will be assumed to be the middle pixel row of the image, starting from the first pixel column and
-     * ending at the last pixel column.
+     * Proper stroking with a linear graphic requires two "hot-spot" points
+     * within the space of the graphic to indicate where the rendering line
+     * starts and stops.
+     * In the case of raster images with no special mark-up, this line will
+     * be assumed to be the middle pixel row of the image, starting from the
+     * first pixel column and ending at the last pixel column.
      *
-     * @param graphic The graphic to use as a linear graphic.  If null, then no graphic stroke should be used.
+     * @param graphic The graphic to use as a linear graphic.
+     *        If null, then no graphic stroke should be used.
      */
     public void setGraphicStroke(Graphic graphic) {
         strokeGraphic = graphic;
@@ -198,7 +220,8 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     /**
      * This parameter controls how line strings should be capped.
      *
-     * @return The cap style.  This will be one of "butt", "round" and "square".  There is no defined default.
+     * @return The cap style.  This will be one of "butt", "round" and "square"
+     *         There is no defined default.
      */
     public Expression getLineCap() {
         return lineCap;
@@ -207,7 +230,8 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     /**
      * This parameter controls how line strings should be capped.
      *
-     * @param cap The cap style.  This can be one of "butt", "round" and "square".  There is no defined default.
+     * @param cap The cap style. This can be one of "butt", "round" and "square"
+     *        There is no defined default.
      */
     public void setLineCap(Expression cap) {
         if(cap==null) return;
@@ -217,7 +241,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     /**
      * This parameter controls how line strings should be joined together.
      *
-     * @return The join style.  This will be one of "miter", "round" and
+     * @return The join style.  This will be one of "mitre", "round" and
      * "bevel".  There is no defined default.
      */
     public Expression getLineJoin() {
@@ -227,7 +251,7 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     /**
      * This parameter controls how line strings should be joined together.
      *
-     * @param join The join style.  This will be one of "miter", "round" and
+     * @param join The join style.  This will be one of "mitre", "round" and
      * "bevel". There is no defined default.
      */
     public void setLineJoin(Expression join) {
@@ -236,26 +260,34 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     }
     
     /**
-     * This specifies the level of translucency to use when rendering the stroke.<br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
-     * representing totally transparent and 1.0 representing totally opaque.  A linear scale of
-     * translucency is used for intermediate values.<br>
-     * For example, "0.65" would represent 65% opacity.  The default value is 1.0 (opaque).
+     * This specifies the level of translucency to use when rendering the
+     * stroke.<br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0
+     * with 0.0 representing totally transparent and 1.0 representing totally
+     * opaque.  A linear scale of translucency is used for intermediate
+     * values.<br>
+     * For example, "0.65" would represent 65% opacity.
+     * The default value is 1.0 (opaque).
      *
-     * @return The opacity of the stroke, where 0.0 is completely transparent and 1.0 is completely opaque.
+     * @return The opacity of the stroke, where 0.0 is completely transparent
+     * and 1.0 is completely opaque.
      */
     public Expression getOpacity() {
         return opacity;
     }
     
     /**
-     * This specifies the level of translucency to use when rendering the stroke.<br>
-     * The value is encoded as a floating-point value between 0.0 and 1.0 with 0.0
-     * representing totally transparent and 1.0 representing totally opaque.  A linear scale of
-     * translucency is used for intermediate values.<br>
-     * For example, "0.65" would represent 65% opacity.  The default value is 1.0 (opaque).
+     * This specifies the level of translucency to use when rendering the
+     * stroke.<br>
+     * The value is encoded as a floating-point value between 0.0 and 1.0
+     * with 0.0 representing totally transparent and 1.0 representing totally
+     * opaque.  A linear scale of translucency is used for intermediate
+     * values.<br>
+     * For example, "0.65" would represent 65% opacity.
+     * The default value is 1.0 (opaque).
      *
-     * @param level The opacity of the stroke, where 0.0 is completely transparent and 1.0 is completely opaque.
+     * @param level The opacity of the stroke, where 0.0 is completely
+     * transparent and 1.0 is completely opaque.
      */
     public void setOpacity(Expression level) {
         if(level == null) return;
@@ -263,20 +295,26 @@ public class DefaultStroke implements org.geotools.styling.Stroke {
     }
     
     /**
-     * This parameter gives the absolute width (thickness) of a stroke in pixels encoded as a float.
-     * The default is 1.0.  Fractional numbers are allowed but negative numbers are not.
+     * This parameter gives the absolute width (thickness) of a stroke in
+     * pixels encoded as a float.
+     * The default is 1.0.  Fractional numbers are allowed but negative
+     * numbers are not.
      *
-     * @return The width of the stroke in pixels.  This may be fractional but not negative.
+     * @return The width of the stroke in pixels.  This may be fractional
+     * but not negative.
      */
     public Expression getWidth() {
         return width;
     }
     
     /**
-     * This parameter sets the absolute width (thickness) of a stroke in pixels encoded as a float.
-     * The default is 1.0.  Fractional numbers are allowed but negative numbers are not.
+     * This parameter sets the absolute width (thickness) of a stroke in
+     * pixels encoded as a float.
+     * The default is 1.0.  Fractional numbers are allowed but negative
+     * numbers are not.
      *
-     * @param pixels The width of the stroke in pixels.  This may be fractional but not negative.
+     * @param pixels The width of the stroke in pixels.  This may be fractional
+     * but not negative.
      */
     
     

@@ -1,14 +1,6 @@
-/*
- * DefaultStyle.java
- *
- * Created on April 12, 2002, 2:21 PM
- */
-
-package org.geotools.styling;
-
 /**
  * Geotools - OpenSource mapping toolkit
- *            (C) 2002, Center for Computational Geography
+ *            (C) 2002, Centre for Computational Geography
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -23,13 +15,13 @@ package org.geotools.styling;
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
- *
- * Contacts:
- *     UNITED KINDOM: James Macgill j.macgill@geog.leeds.ac.uk
- *
- *
- * @author jamesm
+ */
+
+package org.geotools.styling;
+
+/**
+ * @version $Id: DefaultStyle.java,v 1.3 2002/06/04 17:57:08 loxnard Exp $
+ * @author James Macgill, CCG
  */
 public class DefaultStyle implements org.geotools.styling.Style {
 
@@ -56,7 +48,7 @@ public class DefaultStyle implements org.geotools.styling.Style {
     }
     
     public String getTitle() {
-        return "defalt style";
+        return "default style";
     }
     
     public boolean isDefault() {
