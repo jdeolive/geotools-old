@@ -49,9 +49,20 @@ public class testGtWmsServer extends TestCase {
         }
     }
     
+    public void testPostGIS() {
+        try {
+            BufferedImage map = server.getMap(new String[] {"postgistest"}, null, "EPSG:4326", new double[] {425000, 420000,430000, 440000}, 620, 400, false, null);
+            ImageView view = new ImageView(map, "a map from postgis");
+            view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
     public void testGetMap() {
         try {
-            BufferedImage map = server.getMap(new String[] {"first"}, null, "EPSG:4326", new double[] {-130, 20, -60, 50}, 320, 200, false, null);
+            BufferedImage map = server.getMap(new String[] {"first","rail"}, new String[] {"silly","dull"}, "EPSG:4326", new double[] {-82, 36, -60, 42}, 620, 400, false, null);
             ImageView view = new ImageView(map, "the map");
             view.createFrame();
         }
@@ -59,5 +70,7 @@ public class testGtWmsServer extends TestCase {
             fail("WMSException : "+wmsexp.getMessage());
         }
     }
+    
+   
 }
 
