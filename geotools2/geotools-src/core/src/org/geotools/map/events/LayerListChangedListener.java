@@ -20,11 +20,12 @@
 package org.geotools.map.events;
 
 import java.util.EventListener;
+import java.util.EventObject;
 
 /**
  * Methods to handle a change in the list of Layers.
  * @author Cameron Shorter
- * @version $Id: LayerListChangedListener.java,v 1.2 2002/08/09 12:54:38 camerons Exp $
+ * @version $Id: LayerListChangedListener.java,v 1.3 2002/09/22 03:38:03 camerons Exp $
  */
 public interface LayerListChangedListener extends EventListener {
 
@@ -33,5 +34,5 @@ public interface LayerListChangedListener extends EventListener {
      * @param LayerListChangedEvent The new extent.
      */
     void LayerListChanged(
-            LayerListChangedEvent layerListChangedEvent);
+            EventObject layerListChangedEvent);
 }

@@ -36,12 +36,12 @@ package org.geotools.gui.swing;
 import java.awt.*;
 import java.awt.geom.*;
 import javax.swing.*;
+import java.util.EventObject;
 
 // Geotools classes
 import org.geotools.gui.swing.ZoomPane;
 import org.geotools.map.*;
 import org.geotools.map.events.AreaOfInterestChangedListener;
-import org.geotools.map.events.AreaOfInterestChangedEvent;
 import org.geotools.map.DefaultAreaOfInterestModel;
 
 import org.geotools.gui.swing.event.ZoomChangeEvent;
@@ -63,7 +63,7 @@ import com.vividsolutions.jts.geom.*;
  * of the painting area (it doesn't have to be in pixel units) and
  * <CODE>paintComponent(Graphics2D)</CODE> which performs the actual painting.
  *
- * $Id: MapPane.java,v 1.4 2002/07/22 09:30:19 jmacgill Exp $
+ * $Id: MapPane.java,v 1.5 2002/09/22 03:38:03 camerons Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -145,8 +145,8 @@ public class MapPane extends ZoomPane implements ZoomChangeListener, AreaOfInter
     /** Process an AreaOfInterestChangedEvent, probably involves a redraw.
      * @param areaOfInterestChangedEvent The new extent.
      */
-    public void areaOfInterestChanged(AreaOfInterestChangedEvent aoiEvent) {
-        Envelope e = aoiEvent.getAreaOfInterest();
+    public void areaOfInterestChanged(EventObject aoiEvent) {
+        Envelope e = aoi.getAreaOfInterest();
         if(fullArea == null){
             fullArea = e;
         }

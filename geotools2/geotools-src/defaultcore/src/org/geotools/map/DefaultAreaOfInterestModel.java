@@ -25,12 +25,13 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.5 2002/09/19 20:03:33 camerons Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.6 2002/09/22 03:38:03 camerons Exp $
  * @author Cameron Shorter
  * 
  */
 
 import java.util.Vector;
+import java.util.EventObject;
 import org.opengis.cs.*;
 import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
@@ -79,10 +80,8 @@ public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
         Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying
         // those that are interested in this event
-        AreaOfInterestChangedEvent ece = new AreaOfInterestChangedEvent(
-                this,
-                this.areaOfInterest,
-                this.coordinateSystem);
+        EventObject ece = new EventObject(
+                this);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
             if (listeners[i] == AreaOfInterestChangedListener.class) {
                 ((AreaOfInterestChangedListener)

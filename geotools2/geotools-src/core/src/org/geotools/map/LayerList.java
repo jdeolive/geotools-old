@@ -25,13 +25,12 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: LayerList.java,v 1.2 2002/09/01 12:02:32 camerons Exp $
+ * @version $Id: LayerList.java,v 1.3 2002/09/22 03:38:02 camerons Exp $
  * @author Cameron Shorter
  * @task TODO: Add incrementOrder(layer) decrementOrderLayer
  * makeFirst(layer) makLast(Layer)
  */
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Layer;
 

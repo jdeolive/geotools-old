@@ -18,13 +18,14 @@
  *
  */
 package org.geotools.map.events;
+import java.util.EventObject;
 
 import java.util.EventListener;
 
 /**
  * Methods to handle a change in AreaOfInterest
  * @author <a href="mailto:cameron@shorter.net">Cameron Shorter</a>
- * @version $Id: AreaOfInterestChangedListener.java,v 1.2 2002/08/09 12:50:23 camerons Exp $
+ * @version $Id: AreaOfInterestChangedListener.java,v 1.3 2002/09/22 03:38:03 camerons Exp $
  */
 public interface AreaOfInterestChangedListener extends EventListener {
 
@@ -33,5 +34,5 @@ public interface AreaOfInterestChangedListener extends EventListener {
      * @param areaOfInterestChangedEvent The new extent.
      */
     void areaOfInterestChanged(
-            AreaOfInterestChangedEvent areaOfInterestChangedEvent);
+            EventObject areaOfInterestChangedEvent);
 }

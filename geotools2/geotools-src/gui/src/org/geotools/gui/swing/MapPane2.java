@@ -29,10 +29,9 @@ import java.awt.Rectangle;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.events.AreaOfInterestChangedEvent;
+import java.util.EventObject;
 import org.geotools.map.events.AreaOfInterestChangedListener;
 import org.geotools.map.AreaOfInterestModel;
-import org.geotools.map.events.LayerListChangedEvent;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
@@ -46,7 +45,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.9 2002/09/19 20:31:05 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.10 2002/09/22 03:38:03 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -201,7 +200,7 @@ public class MapPane2 extends JScrollPane implements
      * @param areaOfInterestChangedEvent The new extent.
      */
     public void areaOfInterestChanged(
-            AreaOfInterestChangedEvent areaOfInterestChangedEvent) {
+            EventObject areaOfInterestChangedEvent) {
         repaint(getVisibleRect());
     }
     
@@ -210,7 +209,7 @@ public class MapPane2 extends JScrollPane implements
      * @param LayerListChangedEvent The new extent.
      */
     public void LayerListChanged(
-            LayerListChangedEvent layerListChangedEvent) {
+            EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
     }
     
