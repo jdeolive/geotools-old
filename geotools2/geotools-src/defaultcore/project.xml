@@ -84,7 +84,13 @@
       <id>opengis+css</id>
       <version>0.1</version>
     </dependency>
+        <dependency>
+      <id>junit</id>
+      <version>3.7</version>
+      <type>test</type>
+      <url>http://junit.org/</url>
+    </dependency>
     </dependencies>
- 
+   
 </project>
 

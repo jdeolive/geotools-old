@@ -3,33 +3,16 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-algorithms</name>
+  <extend>../../project.xml</extend>
   <id>algorithms</id>
-  <logo>/images/algorithms.gif</logo>
+ 
   <currentVersion>0.1</currentVersion>
-  <organization>
-    <name>GeoTools</name>
-    <url>http://www.geotools.org</url>
-    <logo>/images/gtLogo.gif</logo>
-  </organization>
-  <inceptionYear>1996</inceptionYear>
+  
   <package>org.geotools</package>
   <shortDescription>Useful Algorithms</shortDescription>
   <gumpRepositoryId>geotools</gumpRepositoryId>
   <description>A set of useful algorithms for working with Geometries.</description>
-  <url>http://www.geotools.org/</url>
-  <cvsWebUrl/>
-  <issueTrackingUrl/>
-  <siteAddress>www.geotools.org</siteAddress>
-  <siteDirectory/>
-  <distributionDirectory/>
   
-  <repository>
-    <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/algorithms</connection>
-    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/algorithms/</url>
-  </repository>
-  
-
-  <mailingLists/>
   <developers>
     <developer>
       <name>James Macgill</name>
@@ -54,10 +37,7 @@
         
     </developers>
   <dependencies>
-    <dependency>
-      <id>log4j</id>
-      <version>1.2.3</version>
-    </dependency>
+    
     <dependency>
       <id>JTS</id>
       <version>1.0</version>
@@ -67,19 +47,11 @@
       <id>core</id>
       <version>0.1</version>
     </dependency>
+        <dependency>
+      <id>defaultcore</id>
+      <version>0.1</version>
+    </dependency>
     </dependencies>
-  <build>
-    <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      <sourceDirectory>src/</sourceDirectory>
-    <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
-    <integrationUnitTestSourceDirectory/>
-    <aspectSourceDirectories/>
-    <unitTestPatterns>
-      <unitTestPattern>include = **/*Test.java</unitTestPattern>
-    </unitTestPatterns>
-    <integrationUnitTestPatterns/>
-    <jarResources/>
-    <jars/>
-  </build>
+  
 </project>
 

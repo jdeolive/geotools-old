@@ -1,344 +1,172 @@
-<project default="java:jar"
-  xmlns:j="jelly:core"
-  xmlns:u="jelly:util"
-  xmlns:ant="jelly:ant"
-  xmlns:m="maven"
-  xmlns:reactor="reactor"
-  xmlns:deploy="deploy"
-  xmlns:maven="jelly:org.apache.maven.jelly.tags.project.MavenTagLibrary">
+<!-- ==================================================================== -->
+<!-- R E A C T O R                                                        -->
+<!-- ==================================================================== -->
+<!-- This is a template for a reactor that will hopefully allow users     -->
+<!-- to easily set up their own reactors. The best the reactor can do     -->
+<!-- now is take a set of projects and process them according to their    -->
+<!-- sorted dependencies.                                                 -->
+<!--                                                                      -->
+<!-- This particular reactor will take a set of projects and:             -->
+<!--                                                                 	    -->
+<!-- a) sort the order of processing based on dependencies                -->
+<!-- b) clean                                                             -->
+<!-- c) compile                                                           -->
+<!-- d) run unit tests                                                    -->
+<!-- e) build the project jar                                             -->
+<!-- f) install the project jar in the local repository jar so the        -->
+<!--    subsequent builds may use it.                                     -->
+<!--                                                                      -->
+<!-- In addition to the build, documentation for each of the projects     -->
+<!-- will be produced and a front-end site will be produced using general -->
+<!-- information about the parent project and information gleaned from    -->
+<!-- each of the individual projects. The attempt is to try and           -->
+<!-- alleviate the manual aggregation of specific project information     -->
+<!-- that needs to be present on the front-end site. So you might want    -->
+<!-- to glean the navigation or a short synopsis of each project          -->
+<!-- automatically.                                                       -->
+<!--                                                                      -->
+<!-- The hope is to provide a model and a set of best practices for       -->
+<!-- collaborative development. How to set up a multi-component project   -->
+<!-- like the commons; how to perform meaningful CI on multi-component    -->
+<!-- projects; how to produce meaningful documentation with minimal       -->
+<!-- developer input; how to set up tests; how to manage dependencies;    -->
+<!-- and who knows what else.                                             -->
+<!--                                                                      -->
+<!-- There are a few things coming in the near future that should make    -->
+<!-- the reactor truly useful. We have made some Quartz Jelly tags so     -->
+<!-- that we can schedule reactors using familiar cron-like semantics. We -->
+<!-- also have Werkflow Jelly tags so that we can capture the various     -->
+<!-- states of the reactor and perform arbitrary actions based any        -->
+<!-- number and combination of conditions.                                -->
+<!-- ==================================================================== -->
 
-  <goal name="maven:init">
-    <j:choose>
-      <j:when test="${systemScope['os.name'].startsWith('Windows')}">
-        <j:set var="maven.bin.script" value="${maven.home}/bin/maven.bat"/>
-      </j:when>
-      <j:otherwise>
-        <j:set var="maven.bin.script" value="${maven.home}/bin/maven"/>
-      </j:otherwise>
-    </j:choose>
-  </goal>
-
-  <goal name="maven:reactor-install">
-
-      <maven:maven
-        basedir="${maven.src.dir}/plugins-build/reactor"
-        descriptor="${maven.src.dir}/plugins-build/reactor/project.xml"
-        goals="clean,plugin"
-        ignoreFailures="false"
-      />
-
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- G E N E R A T E  P L U G I N  D O C U M E N T A T I O N            -->
-  <!-- ================================================================== -->
-
-  <goal name="maven:module-docs"
-    description="Build each Maven plugin's documentation">
-
-      <reactor:execute
-        basedir="${maven.src.dir}/../geotools-src"
-        glob="resources/project.xml"
-        goals="xdoc"
-        banner="Generating Docs For"
-        ignoreFailures="true"
-      />
-
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- D E V E L O P E R  &  B O O T S T R A P  G O A L S                 -->
-  <!-- ================================================================== -->
-
-  <goal name="maven:modules-build"
-    description="Build each Module in ${base} into an installable jar">
-
-      <reactor:execute
-        basedir="${maven.src.dir}/../geotools-src"
-        glob="resources/project.xml,defaultcore/project.xml,core/project.xml"
-        goals="clean,java:jar,jar:install"
-        banner="Building"
-        ignoreFailures="false"
-      />
-
-  </goal>
-
-  <goal name="maven:plugins-install"
-    description="Copy all plugin jars from ${maven.src.dir}/plugins/*/target to ${maven.home}/plugins">
-
-    <copy todir="${maven.home}/plugins" filtering="no" overwrite="yes" verbose="true" flatten="true">
-      <fileset dir="${maven.src.dir}/plugins-build">
-        <include name="*/target/*${plugin.name}*.jar"/>
-      </fileset>
-    </copy>
-    <delete verbose="true" includeEmptyDirs="true" quiet="true">
-      <fileset dir="${maven.home}/plugins">
-        <include name="**/**"/>
-        <exclude name="*${plugin.name}*.jar"/>
-      </fileset>
-    </delete>
-  </goal>
-
-  <goal name="maven:plugins" prereqs="maven:plugins-build,maven:plugins-install"
-    description="Build and install all plugins to ${maven.home}/plugins" />
-
-  <goal name="maven:plugin-build" prereqs="maven:init"
-    description="Build a plugin by name from $${plugin.name} into an installable jar">
-        <echo>
-+----------------------------------------
-| Building ${plugin.name}
-+----------------------------------------
-        </echo>
-
-        <exec executable="${maven.bin.script}">
-          <arg line="--nobanner"/>
-          <arg line="-d ${maven.src.dir}/plugins-build/${plugin.name}"/>
-          <arg line="-p ${maven.src.dir}/plugins-build/${plugin.name}/project.xml"/>
-        </exec>
-  </goal>
-
-  <goal name="maven:plugin-install"
-    description="Install a specific jar for a plugin by name from $${plugin.name}">
-    <copy todir="${maven.home}/plugins" filtering="no" overwrite="yes"
-      verbose="true" flatten="true">
-      <fileset dir="${maven.src.dir}/plugins-build">
-        <include name="${plugin.name}/target/*${plugin.name}*.jar"/>
-      </fileset>
-    </copy>
-    <delete verbose="true" includeEmptyDirs="true" quiet="true">
-      <fileset dir="${maven.home}/plugins">
-        <include name="**/*${plugin.name}*/**"/>
-        <exclude name="*${plugin.name}*.jar"/>
-      </fileset>
-    </delete>
-  </goal>
-
-  <goal name="maven:plugin" prereqs="maven:plugin-build,maven:plugin-install"
-    description="Build and install a plugin ( named with $${plugin.name} ) to ${maven.home}/plugins">
-  </goal>
-
-  <goal name="maven:jar-install"
-        description="Compile Maven and put a new jar in ${maven.home}/lib.">
-    <attainGoal name="java:jar"/>
-    <copy file="${maven.build.dir}/${maven.final.name}.jar"
-          tofile="${maven.home}/lib/${maven.final.name}.jar"
-          overwrite="yes"/>
-    <copy file="${maven.build.dir}/${maven.final.name}.jar"
-          tofile="${maven.repo.local}/maven/jars/${maven.final.name}.jar"
-          overwrite="yes"/>
-  </goal>
-
-  <goal name="maven:cvs-update" description="Update Maven from CVS">
-    <!-- For some reason, "-q" doesn't work in the command line ... -->
-    <cvs command="update" dest="${basedir}">
-        <argument value="-dPA"/>
-   </cvs>
-  </goal>
-
-  <goal name="maven:dependencies-update"
-        description="Download Maven dependencies from the remote repositories">
-
-    <echo>Downloading the dependencies...</echo>
-
-    <property name="maven.get.jars.baseUrl"
-      value="${maven.repo.remote}"/>
-
-    <j:forEach var="dependency" items="${pom.dependencies}">
-
-    <get src="${maven.get.jars.baseUrl}/${dependency.getProjectId()}/jars/${dependency.getArtifact()}"
-      dest="${maven.home}/lib/${dependency.getArtifact()}"
-      verbose="false"
-      usetimestamp="true"/>
-
-    </j:forEach>
-
-  </goal>
+<project default="build"
+         xmlns:reactor="reactor"
+         xmlns:m="maven"
+         xmlns:texen="texen">
 
   <!-- ================================================================== -->
-  <!-- U P D A T E   F R O M   W E B                                      -->
+  <!-- B U I L D                                                          -->
   <!-- ================================================================== -->
-  <!-- Update the project, then download dependencies. As the POM         -->
-  <!-- changes, it may contain different dependencies.                    -->
-  <!-- ================================================================== -->
-  <goal name="maven:update"
-        description="Update the project source, then download dependencies">
-    <attainGoal name="maven:cvs-update"/>
-    <attainGoal name="maven:dependencies-update"/>
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- I N S T A L L   D E F A U L T   G O A L                            -->
-  <!-- ================================================================== -->
-  <!-- This is meant to avoid having to bootstrap for such trivial things -->
-  <!-- as modifying plugins or maven's code.                              -->
-  <!-- ================================================================== -->
-
-  <goal name="maven:install"
-        description="Build and copy new plugins and a new maven jar to ${maven.home}">
-
-    <attainGoal name="maven:plugins-build"/>
-    <attainGoal name="maven:plugins-install"/>
-    <!--
-      When we'll have online / offline mechanisms, we will check to see if
-      we have to do anything related to the web.
-    <attainGoal name="install:from-web"/>
-    -->
-  </goal>
-
-  <!-- ================================================================== -->
-  <!-- M A V E N  I N S T A L L E R                                       -->
-  <!-- ================================================================== -->
-
-  <property name="tag" value="${pom.id}-${pom.currentVersion}"/>
-
-  <goal name="maven:installer" description="Create a Maven installer jar">
-
-    <property name="installersDir" value="installers"/>
-    <property name="installersBase" value="${installersDir}/${tag}"/>
-
-    <delete dir="${installersDir}"/>
-    <mkdir dir="${installersBase}"/>
-
-    <copy todir="${installersBase}">
-      <fileset dir="${maven.home}">
-        <include name="plugins/*.jar"/>
-        <include name="bin/*"/>
-        <include name="lib/*"/>
-        <include name="maven-project.xsd"/>
-      </fileset>
-    </copy>
-
-    <mkdir dir="${installersBase}/repository"/>
-
-    <tar longfile="gnu" tarfile="${tag}.tar">
-      <tarfileset dir="${installersDir}">
-        <exclude name="**/maven"/>
-      </tarfileset>
-      <tarfileset dir="${installersDir}" mode="755">
-        <include name="**/maven"/>
-      </tarfileset>
-    </tar>
-
-    <gzip
-      zipfile="${tag}.tar.gz"
-      src="${tag}.tar"
-    />
-
-    <delete file="${tag}.tar"/>
-
-    <!-- Create a zip file -->
-    <zip zipfile="${tag}.zip">
-      <zipfileset dir="${installersDir}"/>
-    </zip>
-
-  </goal>
-
-  <goal name="maven:installer-deploy"
-    description="Deploy an installable Maven jar to the remote repo??">
-
-    <m:user-check user="${maven.username}"/>
-    <attainGoal name="maven:installer"/>
-
-    <tar longfile="gnu" tarfile="installers.tar">
-      <tarfileset dir="${basedir}">
-        <include name="${tag}.tar.gz"/>
-        <include name="${tag}.zip"/>
-      </tarfileset>
-    </tar>
-
-    <deploy:artifact
-      artifact="installers.tar"
-      type="distributions"
-      assureDirectoryCommand="mkdir -p"
-      siteCommand="cd @deployDirectory@;tar xUvf installers.tar;chmod -R g+u *;rm installers.tar"
-    />
-
-  </goal>
-
-  <!-- 
-    These two goals are the start of the merge of plugin docs and
-    the main maven documentation. pre-xdoc-transform will be changed
-    from a 'goal' to a 'preGoal' on 'xdoc:transform'.
-    'postSite' will be changed to a 'postGoal' on 'site'.
-    
-    Plugin docs will generated and then copied into
-    target/docs/reference/plugins/${plugin}/
-    
-    A simple home page listing the plugins and linking to their
-    docs will be generated in pre xdoc:transform, and processed into
-    target/docs/reference/plugins/index.html
-  -->
-       
-  <preGoal name="xdoc:transform">
-  	<!-- use a template to create the plugins home page
-  		 if it's an xdoc, it must be done before xdoc:transform
-  		 and should generate to ${maven.gen.docs}/reference/plugins/index.xml
-  	  -->
-    <mkdir dir="${maven.gen.docs}/reference/plugins/"/>
-    <j:file name="${maven.gen.docs}/reference/plugins/index.xml"
-      prettyPrint="true">
-      <document>
-        <properties>
-          <title>Maven Plugins</title>
-          <author email="dion@multitask.com.au">dIon Gillard</author>
-        </properties>
-        <body>
-          <section name="Plugin Listing">
-            <p>
-              The following plugins are provided along with Maven
-            </p>
-            <ul>
-              <ant:fileScanner var="pluginProjects">
-                <fileset dir="${basedir}">
-                  <include name="src/plugins-build/*/project.xml" />
-                </fileset>
-             </ant:fileScanner>
-             <j:forEach items="${pluginProjects.iterator()}" var="plugin">
-               <j:set var="pluginName" value="${plugin.parentFile.name}" />
-               <li>
-                 <a href="./${pluginName}/index.html">${pluginName}</a>
-               </li>
-             </j:forEach>
-            </ul>
-          </section>
-        </body>
-      </document>
-    </j:file>
-
-  </preGoal>
-
-  <postGoal name="site:generate">
-
-  	<!-- use a reactor to gen the plugins sites, should use
-  	     maven:plugin-docs, except it calls xdoc, rather than site.
-  	  -->
+  
+  <goal name="build">
+  
     <reactor:execute
-      basedir="${basedir}"
-      glob="src/plugins-build/*/project.xml"
-      goals="site"
+      basedir="${maven.src.dir}/../geotools-src"
+      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml"
+      goals="clean,jar:install"
+      banner="Building"
+      ignoreFailures="true"
+    />
+  
+  </goal>
+  
+  
+  
+  <!-- ================================================================== -->
+  <!-- W E B S I T E                                                      -->
+  <!-- ================================================================== -->
+  
+  <goal name="site">
+
+    <!--
+      ||
+      || Generate the documentation for each of the commons projects.
+      ||
+    -->
+    
+    <reactor:execute
+      basedir="${maven.src.dir}/../geotools-src"
+      glob="resources/project.xml,defaultcore/project.xml,core/project.xml,shapefile/project.xml,algorithms/project.xml"
+      goals="site:generate"
       banner="Generating site for"
       ignoreFailures="true"
     />
-    <!-- create the parent directory for the docs -->
-    <mkdir dir="${maven.docs.dest}/reference/plugins" />
+
     
-    <!-- copy them all to ${maven.docs.dest}/reference/plugins/${plugin.id}/ -->
-    <ant:fileScanner var="pluginProjects">
-      <fileset dir="${basedir}">
-        <include name="src/plugins-build/*/project.xml" />
-      </fileset>
-    </ant:fileScanner>
-    <j:forEach items="${pluginProjects.iterator()}" var="plugin">
-      <j:set var="pluginName" value="${plugin.parentFile.name}" />
-      <mkdir dir="${maven.docs.dest}/reference/plugins/${pluginName}/" />
-      <copy toDir="${maven.docs.dest}/reference/plugins/${pluginName}/">
-        <fileset dir="src/plugins-build/${pluginName}/target/docs/">
-          <include name="**" />
-        </fileset>
-      </copy>
-    </j:forEach>
-    <!-- yeehah -->
-  </postGoal>
+    
+
+  </goal>
   
+  <!-- ================================================================== -->
+  <!-- F R O N T  E N D  W E B S I T E                                    -->
+  <!-- ================================================================== -->
+  
+  <goal name="site-front-end">
+  
+    <reactor:execute
+      basedir="${maven.src.dir}/../geotools-src"
+      glob="resources/project.xml,defaultcore/project.xml,core/project.xml"
+      goals="noop"
+      ignoreFailures="false"
+    />
+    
+    <!--
+      ||
+      || Generate the documentation for the front-end site. First we will
+      || generate the navigation based on the projects that we just
+      || processed, then we will generate the front-end site itself.
+      ||
+    -->
+    
+    <echo>
+      reactor list = ${reactorProjects}
+    </echo>
+    
+    <attainGoal name="init-texen-tag"/>
+    
+    <texen:generate
+      controlTemplate="navigation.vm"
+      outputDirectory="${basedir}/xdocs"
+      templatePath="d:/workspace/"
+      outputFile="navigation.xml"
+      reactorProjects="${reactorProjects}"
+    />
+
+    <attainGoal name="xdoc"/>
+
+  </goal>
+
+  <!-- ================================================================== -->
+  <!-- F R O N T  E N D  W E B S I T E                                    -->
+  <!-- ================================================================== -->
+
+  <goal
+    name="deploy-front-end-site">
+
+    <m:user-check user="${maven.username}"/>
+    
+    <attainGoal name="site-front-end"/>
+
+    <!-- This needs to taken from the project properties -->
+    <property name="maven.homepage" value="/x1/home/jvanzyl/public_html/jakarta-commons/"/>
+
+    <echo>
+      siteAddress = ${pom.siteAddress}
+      siteDirectory = ${maven.homepage}
+    </echo>
+
+    <tar tarfile="${maven.final.name}-site.tar" basedir="${maven.docs.dest}"/>
+    <gzip zipfile="${maven.final.name}-site.tar.gz" src="${maven.final.name}-site.tar"/>
+    <delete file="${maven.final.name}-site.tar"/>
+    
+    <!-- Make sure the destination directory exists before trying to copy -->
+    <exec dir="." executable="${maven.ssh.executable}">
+      <arg line="${pom.siteAddress} -l ${maven.username} 'mkdir -p ${maven.homepage}'"/>
+    </exec>
+
+    <exec dir="." executable="${maven.scp.executable}">
+      <arg value="${maven.final.name}-site.tar.gz"/>
+      <arg value="${maven.username}@${pom.siteAddress}:${maven.homepage}"/>
+    </exec>
+
+    <exec dir="." executable="${maven.ssh.executable}">
+      <arg line="${pom.siteAddress} -l ${maven.username} 'cd ${maven.homepage};gunzip ${maven.final.name}-site.tar.gz;tar xUvf ${maven.final.name}-site.tar;chmod -R g+u *;rm ${maven.final.name}-site.tar'"/>
+    </exec>
+
+    <delete file="${maven.final.name}-site.tar.gz"/>
+        
+  </goal>
+
 </project>
 
