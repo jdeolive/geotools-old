@@ -116,6 +116,7 @@ import java.util.logging.LogRecord;
 // Miscellaneous
 import java.util.Arrays;
 import java.io.Serializable;
+import org.geotools.renderer.DeformableViewer;
 import org.geotools.resources.gui.Resources;
 import org.geotools.resources.gui.ResourceKeys;
 
@@ -196,7 +197,8 @@ import org.geotools.resources.gui.ResourceKeys;
  * the minimum and maximum of a graph's axes.  The table below shows the 
  * keyboard presses assigned to each zoom:
  *
- * <P><TABLE ALIGN=CENTER BORDER=2>
+ * <P><TABLE ALIGN="CENTER" BORDER="2">
+ * <TR BGCOLOR="#CCCCFF"><TH>Key</TH>                      <TH>Purpose</TH>     <TH>{@link Action} name</TH></TR>
  * <TR><TD><IMG SRC="doc-files/keyboard/up.png"></TD>      <TD>Scroll up</TD>   <TD><code>"Up"</code></TD></TR>
  * <TR><TD><IMG SRC="doc-files/keyboard/down.png"></TD>    <TD>Scroll down</TD> <TD><code>"Down"</code></TD></TR>
  * <TR><TD><IMG SRC="doc-files/keyboard/left.png"></TD>    <TD>Scroll left</TD> <TD><code>"Left"</code></TD></TR>
@@ -220,10 +222,10 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.6 2002/08/20 21:53:57 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.7 2003/01/24 23:41:39 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public abstract class ZoomPane extends JComponent{
+public abstract class ZoomPane extends JComponent implements DeformableViewer {
     /**
      * Minimum width and height of this component.
      */
@@ -1485,8 +1487,33 @@ public abstract class ZoomPane extends JComponent{
      * corrected to make as if it pointed at the pixel itself, but in the
      * absence of the magnifying glass. In effect, the presence of the
      * magnifying glass can move the apparent position of the pixels.
+     *
+     * @deprecated Use {@link #correctApparentPixelPosition} instead.
+     *             This is use a method's name change; the behavior is the same.
      */
     public final void correctPointForMagnifier(final Point2D point) {
+        correctApparentPixelPosition(point);
+    }
+
+    /**
+     * Corrects a pixel's coordinates for removing the effect of the magnifying glass.
+     * Without this method, transformations from pixels to geographic coordinates would
+     * not give accurate results for pixels inside the magnifier since the magnifier moves
+     * the pixel's apparent position. Invoking this method will remove deformation
+     * effects using the following steps:
+     * <ul>
+     *   <li>If the pixel's coordinate <code>point</code> is outside the magnifier,
+     *       then this method do nothing.</li>
+     *   <li>Otherwise, if the pixel's coordinate is inside the magnifier, then this
+     *       method update <code>point</code> in such a way that it contains the
+     *       position that the exact same pixel would have in the absence of magnifier.</li>
+     * </ul>
+     *
+     * @param point In input, a pixel's coordinate as it appears on the screen.
+     *              In output, the coordinate that the same pixel would have if
+     *              the magnifier wasn't presents.
+     */
+    public final void correctApparentPixelPosition(final Point2D point) {
         if (magnifier != null && magnifier.contains(point)) {
             final double centerX = magnifier.getCenterX();
             final double centerY = magnifier.getCenterY();
@@ -1747,8 +1774,7 @@ public abstract class ZoomPane extends JComponent{
      * Method called automatically when user moves the mouse wheel. This method
      * performs a zoom centred on the mouse position.
      */
-    private final void mouseWheelMoved(final MouseWheelEvent event)
-    {
+    private final void mouseWheelMoved(final MouseWheelEvent event) {
         if (event.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
             int rotation  = event.getUnitsToScroll();
             double scale  = 1 + (AMOUNT_SCALE - 1) * Math.abs(rotation);
@@ -1758,7 +1784,7 @@ public abstract class ZoomPane extends JComponent{
                 magnifierPower *= scale;
                 repaintMagnifier();
             } else {
-                correctPointForMagnifier(point);
+                correctApparentPixelPosition(point);
                 transform(UNIFORM_SCALE & type, scale, point);
             }
             event.consume();
@@ -2376,7 +2402,7 @@ public abstract class ZoomPane extends JComponent{
      * @param area The coordinates to log (may be <code>null</code>).
      */
     private static void log(final String methodName, final Rectangle2D area) {
-        log("org.geotools.swing.ZoomPane", methodName, area);
+        log("ZoomPane", methodName, area);
     }
 
     /**
