@@ -31,7 +31,7 @@ import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: StyleImpl.java,v 1.18 2003/09/06 04:52:31 seangeo Exp $
+ * @version $Id: StyleImpl.java,v 1.19 2003/10/10 18:33:24 ianschneider Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style, Cloneable {
@@ -97,6 +97,10 @@ public class StyleImpl implements org.geotools.styling.Style, Cloneable {
     }
 
     public void setIsDefault(boolean isDefault) {
+        defaultB = isDefault;
+    }
+
+    public void setDefault(boolean isDefault) {
         defaultB = isDefault;
     }
 
