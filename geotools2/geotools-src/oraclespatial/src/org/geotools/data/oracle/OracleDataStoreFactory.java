@@ -168,7 +168,7 @@ public class OracleDataStoreFactory
      * @return True if the classes to make an oracle connection are present.
      * @task Figure out a class to check the SDOAPI for, and check it.
      */
-    public boolean available() {
+    public boolean isAvailable() {
         try {
             Class.forName(JDBC_DRIVER);
         } catch (ClassNotFoundException cnfe) {
