@@ -57,7 +57,7 @@ import org.geotools.map.Layer;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.88 2003/07/17 19:05:28 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.89 2003/08/11 20:29:47 aaime Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -180,10 +180,8 @@ Renderer2D {
    *        calculation of scale.
    * @param s A style object.  Contains a set of FeatureTypeStylers that are
    *        to be applied in order to control the rendering process.
-   *
-   * @deprecated Use render(Graphics, Rectangle) instead.
    */
-  public void render(Feature[] features, Envelope map, Style s) {
+  public void render(FeatureCollection fc, Envelope map, Style s) {
     Date start = new Date();
     
     if (graphics == null) {
@@ -193,7 +191,7 @@ Renderer2D {
     }
     
     if (LOGGER.isLoggable(Level.FINE)) {
-      LOGGER.fine("renderering " + features.length + " features");
+      LOGGER.fine("renderering " + fc.size() + " features");
     }
     
     mapExtent = map;
@@ -215,6 +213,8 @@ Renderer2D {
     
     //extract the feature type stylers from the style object and process them
     FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
+    Feature[] features = new Feature[fc.size()];
+    features = (Feature[]) fc.toArray(features);
     processStylers(features, featureStylers);
     
     Date end = new Date();

@@ -112,7 +112,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.23 2003/08/10 15:18:17 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.24 2003/08/11 20:29:46 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -399,12 +399,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * cause some features to be rendered multiple times or not at all.
      * </p>
      *
-     * @param features An array of features to be rendered.
+     * @param fc the feature collection to be rendered
      * @param map Controls the full extent of the input space.  Used in the calculation of scale.
      * @param s A style object.  Contains a set of FeatureTypeStylers that are to be applied in
      *        order to control the rendering process.
      */
-    public void render(Feature[] features, Envelope map, Style s) {
+    public void render(FeatureCollection fc, Envelope map, Style s) {
         if (graphics == null) {
             LOGGER.info("renderer passed null graphics");
 
@@ -435,18 +435,13 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
-        FeatureCollection fc = FeatureCollections.newCollection();
-
-        for (int i = 0; i < features.length; i++) {
-            fc.add(features[i]);
-        }
 
         processStylers(fc, featureStylers);
 
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
             double elapsed = (endTime - startTime) / 1000.0;
-            LOGGER.fine("Rendered " + features.length + " features in " + elapsed + " sec.");
+            LOGGER.fine("Rendered " + fc.size() + " features in " + elapsed + " sec.");
         }
     }
 

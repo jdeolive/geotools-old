@@ -312,9 +312,7 @@ public class RenderStyleBuilderTest extends TestCase {
         renderer.setInteractive(interactive);
 
         Date start = new Date();
-        Feature[] features = new Feature[ft.size()];
-        features = (Feature[]) ft.toArray(features);
-        renderer.render(features, ex, style);
+        renderer.render(ft, ex, style);
 
         Date end = new Date();
         System.out.println("Time to render to screen: " + (end.getTime() - start.getTime()));

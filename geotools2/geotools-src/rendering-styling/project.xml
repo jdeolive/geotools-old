@@ -97,6 +97,11 @@
       <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>  
+    <dependency>
+      <id>vecmath</id>
+      <version>1.2.1</version>
+      <url>http://java.sun.com/products/java-media/3D/</url>
+    </dependency>
     </dependencies>
 
     <build>

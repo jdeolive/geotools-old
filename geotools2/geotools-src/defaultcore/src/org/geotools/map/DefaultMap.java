@@ -14,57 +14,63 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
-import java.util.ArrayList;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 import org.geotools.renderer.*;
 import org.geotools.styling.*;
 import org.opengis.cs.*;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+
 
 //logging
 //import java.util.logging.Logger;
 
-
 /**
- * DOCUMENT ME!
+ * 
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.15 2003/08/05 20:04:39 jmacgill Exp $
+ * @version $Id: DefaultMap.java,v 1.16 2003/08/11 20:29:46 aaime Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
 public class DefaultMap implements org.geotools.map.Map {
-//    private static final Logger LOGGER =
-//        Logger.getLogger("org.geotools.defaultcore");
+    //    private static final Logger LOGGER =
+    //        Logger.getLogger("org.geotools.defaultcore");
     private Hashtable tables = new Hashtable();
     private List tableOrder = new ArrayList();
 
     /**
-     * DOCUMENT ME!
+     * 
      *
      * @param ft the featureCollection to draw
      * @param style the Style to use in drawing the object
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
      */
-    public void addFeatureTable(
-        FeatureCollection ft,
-        Style style
-    ) {
-        if(ft == null) throw new IllegalArgumentException("Feature Collection can not be null in DefaultMap.addFeatureTable");
-        if(style == null) throw new IllegalArgumentException("Style can not be null in DefaultMap.addFeatureTable");
+    public void addFeatureTable(FeatureCollection ft, Style style) {
+        if (ft == null) {
+            throw new IllegalArgumentException(
+                "Feature Collection can not be null in DefaultMap.addFeatureTable");
+        }
+
+        if (style == null) {
+            throw new IllegalArgumentException(
+                "Style can not be null in DefaultMap.addFeatureTable");
+        }
+
         tables.put(ft, style);
         tableOrder.add(ft);
     }
 
     /**
-     * DOCUMENT ME!
+     * 
      *
-     * @param fc DOCUMENT ME!
+     * @param fc 
      */
     public void removeFeatureTable(FeatureCollection fc) {
         tables.remove(fc);
@@ -72,37 +78,29 @@ public class DefaultMap implements org.geotools.map.Map {
     }
 
     /**
-     * renders the portion of the map conteined within a specified reagion
-     * using a supplied renderer.
+     * renders the portion of the map conteined within a specified reagion using a supplied
+     * renderer.
      *
      * @param renderer The renderer which will draw the map.
      * @param envelope The region to draw
      *
-     * @task TODO: Look at performace implication of calling FeatureCollection
-     *       each time
-     * @task HACK: DataSourceExceptions cought but not processed
      */
-    public void render(
-        Renderer renderer,
-        Envelope envelope
-    ) {
+    public void render(Renderer renderer, Envelope envelope) {
         java.util.Iterator layers = tableOrder.iterator();
-        
+
         while (layers.hasNext()) {
-            FeatureCollection ft = (FeatureCollection) layers.next();
-            Style style = (Style) tables.get(ft);
+            FeatureCollection fc = (FeatureCollection) layers.next();
+            Style style = (Style) tables.get(fc);
 
-
-
-                renderer.render( (Feature[]) ft.toArray(new Feature[ft.size()]), envelope, style);
-            
+            renderer.render(fc, envelope, style);
         }
     }
 
     /**
-     * DOCUMENT ME!
+     * Sets the coordinate system for on-the-fly reprojection
      *
-     * @param cs DOCUMENT ME!
+     * @param cs target coordinate system
      */
-    public void setCoordinateSystem(CS_CoordinateSystem cs) {}
+    public void setCoordinateSystem(CS_CoordinateSystem cs) {
+    }
 }

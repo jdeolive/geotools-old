@@ -84,7 +84,7 @@ public class TextStyleBuilderTest extends TestCase {
     }
 
     public static Test suite() {
-        TestSuite suite = new TestSuite(TextTest.class);
+        TestSuite suite = new TestSuite(TextStyleBuilderTest.class);
 
         return suite;
     }

@@ -23,12 +23,19 @@
 
 package org.geotools.renderer;
 
-import java.awt.Graphics;import org.geotools.feature.Feature;import org.geotools.styling.Style;import com.vividsolutions.jts.geom.Coordinate;import com.vividsolutions.jts.geom.Envelope;
+import java.awt.Graphics;
+
+import org.geotools.feature.Feature;
+import org.geotools.styling.Style;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import org.geotools.feature.FeatureCollection;
 
 /**
  * This is very much work in progress.
  *
- * @version $Id: Renderer.java,v 1.19 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: Renderer.java,v 1.20 2003/08/11 20:29:47 aaime Exp $
  * @author James Macgill
  */
 
@@ -48,14 +55,11 @@ public interface Renderer {
      * The features should fill the viewport but may well extend beyond it.
      * Features should be cropped (if appropriate) to the specified viewport.
      *
-     * @task REVSIT: Think more in whether Renderer should be called by Map or
-     *               if Map should be called by Renderer
-     *
-     * @param f The features to render
+     * @param fc The feature collection to render
      * @param viewport The visible extent to be rendered
      * @param style The style definition to apply to each feature
      */
-    void render(Feature f[], Envelope viewport, Style style);
+    void render(FeatureCollection fc, Envelope viewport, Style style);
 
     /**
      * Getter for property interactive.
