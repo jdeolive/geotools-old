@@ -29,19 +29,19 @@ import java.awt.font.GlyphVector;
  * Style used to represent labels over lines, polygons and points
  *
  * @author Andrea Aime
- * @version $Id: TextStyle2D.java,v 1.1 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: TextStyle2D.java,v 1.2 2003/11/08 11:23:36 aaime Exp $
  */
 public class TextStyle2D extends Style2D {
     GlyphVector textGlyphVector;
     Shape haloShape;
     String label;
     Font font;
-    float rotation;
+    double rotation;
     boolean absoluteLineDisplacement;
-    float anchorX;
-    float anchorY;
-    float displacementX;
-    float displacementY;
+    double anchorX;
+    double anchorY;
+    double displacementX;
+    double displacementY;
     Paint haloFill;
     Composite haloComposite;
     float haloRadius;
@@ -55,14 +55,14 @@ public class TextStyle2D extends Style2D {
     /**
      * @return
      */
-    public float getAnchorX() {
+    public double getAnchorX() {
         return anchorX;
     }
 
     /**
      * @return
      */
-    public float getAnchorY() {
+    public double getAnchorY() {
         return anchorY;
     }
 
@@ -97,7 +97,7 @@ public class TextStyle2D extends Style2D {
     /**
      * @return
      */
-    public float getRotation() {
+    public double getRotation() {
         return rotation;
     }
 
@@ -128,14 +128,14 @@ public class TextStyle2D extends Style2D {
     /**
      * @param i
      */
-    public void setAnchorX(float f) {
+    public void setAnchorX(double f) {
         anchorX = f;
     }
 
     /**
      * @param i
      */
-    public void setAnchorY(float f) {
+    public void setAnchorY(double f) {
         anchorY = f;
     }
 
@@ -170,7 +170,7 @@ public class TextStyle2D extends Style2D {
     /**
      * @param f
      */
-    public void setRotation(float f) {
+    public void setRotation(double f) {
         rotation = f;
     }
 
@@ -205,28 +205,28 @@ public class TextStyle2D extends Style2D {
     /**
      * @return Returns the displacementX.
      */
-    public float getDisplacementX() {
+    public double getDisplacementX() {
         return displacementX;
     }
 
     /**
      * @param displacementX The displacementX to set.
      */
-    public void setDisplacementX(float displacementX) {
+    public void setDisplacementX(double displacementX) {
         this.displacementX = displacementX;
     }
 
     /**
      * @return Returns the displacementY.
      */
-    public float getDisplacementY() {
+    public double getDisplacementY() {
         return displacementY;
     }
 
     /**
      * @param displacementY The displacementY to set.
      */
-    public void setDisplacementY(float displacementY) {
+    public void setDisplacementY(double displacementY) {
         this.displacementY = displacementY;
     }
 

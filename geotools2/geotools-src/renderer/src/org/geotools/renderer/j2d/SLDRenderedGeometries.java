@@ -149,7 +149,7 @@ public class SLDRenderedGeometries extends RenderedGeometries {
                     graphics.setComposite(ms2d.getContourComposite());
                     graphics.draw(transformedShape);
                 }
-            }
+            } 
         } else if (style instanceof TextStyle2D) {
             // get the point onto the shape has to be painted
             float[] coords = new float[2];
@@ -157,22 +157,32 @@ public class SLDRenderedGeometries extends RenderedGeometries {
             iter.currentSegment(coords);
 
             AffineTransform old = graphics.getTransform();
-            graphics.setTransform(IDENTITY_TRANSFORM);
             AffineTransform temp = new AffineTransform(old);
             TextStyle2D ts2d = (TextStyle2D) style;
             GlyphVector textGv = ts2d.getTextGlyphVector(graphics);
-            Rectangle2D bounds = textGv.getLogicalBounds();
+            Rectangle2D bounds = textGv.getVisualBounds();
             
-            temp.translate(coords[0] + (ts2d.getAnchorX() * (-bounds.getWidth())),
-                coords[1] + (ts2d.getAnchorY() * bounds.getHeight()));
+            temp.translate(coords[0], coords[1]);
 
+            double x = 0;
+            double y = 0;
             if (ts2d.isAbsoluteLineDisplacement()) {
-                temp.rotate(ts2d.getRotation());
-                temp.translate(0.0, ts2d.getDisplacementY());
+                double offset = ts2d.getDisplacementY();
+                
+                if (offset > 0.0) { // to the left of the line
+                    y = -offset;
+                } else if(offset < 0) {
+                    y = -offset + bounds.getHeight();
+                } else {
+                    y = bounds.getHeight() / 2;
+                }
+                x = -bounds.getWidth() / 2;
             } else {
-                temp.translate(ts2d.getDisplacementX(), ts2d.getDisplacementY());
-                temp.rotate(ts2d.getRotation());
+                x = ts2d.getAnchorX() * (-bounds.getWidth()) + ts2d.getDisplacementX();
+                y = ts2d.getAnchorY() * (bounds.getHeight()) + ts2d.getDisplacementY();
             }
+            temp.rotate(ts2d.getRotation());
+            temp.translate(x, y);
 
             graphics.setTransform(temp);
             if(ts2d.getHaloFill() != null) {

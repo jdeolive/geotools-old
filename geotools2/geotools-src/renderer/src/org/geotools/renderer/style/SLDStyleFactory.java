@@ -417,11 +417,11 @@ public class SLDStyleFactory {
             ts2d.setAbsoluteLineDisplacement(true);
         }
 
-        ts2d.setAnchorX((float) anchorX);
-        ts2d.setAnchorY((float) anchorY);
+        ts2d.setAnchorX(anchorX);
+        ts2d.setAnchorY(anchorY);
         ts2d.setRotation((float) rotation);
-        ts2d.setDisplacementX((float) dispX);
-        ts2d.setDisplacementY((float) dispY);
+        ts2d.setDisplacementX(dispX);
+        ts2d.setDisplacementY(dispY);
 
         // setup fill and composite
         ts2d.setFill(getPaint(symbolizer.getFill(), feature));
