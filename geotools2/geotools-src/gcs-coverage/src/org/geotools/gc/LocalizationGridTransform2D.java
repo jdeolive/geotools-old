@@ -71,7 +71,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * interpolation. If input coordinates are outside the grid range, then output
  * coordinates are extrapolated.
  *
- * @version $Id: LocalizationGridTransform2D.java,v 1.14 2003/07/02 13:24:50 desruisseaux Exp $
+ * @version $Id: LocalizationGridTransform2D.java,v 1.15 2003/08/22 12:42:07 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -276,8 +276,8 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                 xi = srcPts1[srcOff++];
                 yi = srcPts1[srcOff++];
             }
-            final int  col = Math.max(Math.min((int)xi, maxCol), minCol);
-            final int  row = Math.max(Math.min((int)yi, maxRow), minRow);
+            final int col = Math.max(Math.min((int)xi, maxCol), minCol);
+            final int row = Math.max(Math.min((int)yi, maxRow), minRow);
             final int offset00 = computeOffset(col, row);
             final int offset01 = offset00 + CP_LENGTH*width; // Une ligne plus bas
             final int offset10 = offset00 + CP_LENGTH;  // Une colonne à droite
@@ -467,7 +467,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                         assert transform(target, null).distanceSq(source) < 1E-3 : target;
                     } else {
                         // Point is outside the grid. Use the global transform for uniformity.
-                        global.inverseTransform(source, target);
+                        inverseTransform(source, target);
                     }
                     return;
                 }
@@ -505,7 +505,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                         assert transform(target, null).distanceSq(source) < 1E-3 : target;
                     } else {
                         // Point is outside the grid. Use the global transform for uniformity.
-                        global.inverseTransform(source, target);
+                        inverseTransform(source, target);
                     }
                     return;
                 }
@@ -517,7 +517,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                         target.x = bestX;
                         target.y = bestY;
                     } else {
-                        global.inverseTransform(source, target);
+                        inverseTransform(source, target);
                     }
                     return;
                 }
@@ -541,7 +541,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
                     target.x = bestX;
                     target.y = bestY;
                 } else {
-                    global.inverseTransform(source, target);
+                    inverseTransform(source, target);
                 }
                 return;
             }
@@ -554,8 +554,40 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
         throw new TransformException(Resources.format(ResourceKeys.ERROR_NO_CONVERGENCE));
     }
 
+    /**
+     * Inverse transforms a point using the {@link #global} affine transform, and
+     * make sure that the result point is outside the grid. This method is used
+     * for the transformation of a point which shouldn't be found in the grid.
+     *
+     * @param  source The source coordinate point.
+     * @param  target The target coordinate point (should not be <code>null</code>).
+     * @throws NoninvertibleTransformException if the transform is non-invertible.
+     *
+     * @task REVISIT: Current implementation project an inside point on the nearest border.
+     *                Could we do something better?
+     */
+    private void inverseTransform(final Point2D source, final Point2D.Double target)
+            throws NoninvertibleTransformException
+    {
+        if (global.inverseTransform(source, target) != target) {
+            throw new AssertionError(); // Should not happen.
+        }
+        double x = target.x + 0.5; // Will checks the position of pixel center.
+        double y = target.y + 0.5;
+        if (x>=0 && x<width && y>=0 && y<height) {
+            // Project on the nearest border. TODO: Could we do something better here?
+            x -= 0.5 * width;
+            y -= 0.5 * height;
+            if (Math.abs(x) < Math.abs(y)) {
+                target.x = x>0 ? width  : -1;
+            } else {
+                target.y = y>0 ? height : -1;
+            }
+        }
+    }
+
     /** 
-     * Retourne la transformation inverse.
+     * Returns the inverse transform.
      */
     public MathTransform inverse() {
         if (inverse == null) {
@@ -568,7 +600,7 @@ final class LocalizationGridTransform2D extends AbstractMathTransform implements
      * The inverse transform. This inner class is
      * the inverse of the enclosing math transform.
      *
-     * @version $Id: LocalizationGridTransform2D.java,v 1.14 2003/07/02 13:24:50 desruisseaux Exp $
+     * @version $Id: LocalizationGridTransform2D.java,v 1.15 2003/08/22 12:42:07 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D,
