@@ -73,7 +73,7 @@ import org.geotools.resources.gui.ResourceKeys;
  *       internal frames instead of frames.</li>
  * </ul>
  *
- * @version $Id: SwingUtilities.java,v 1.2 2002/09/08 15:37:43 desruisseaux Exp $
+ * @version $Id: SwingUtilities.java,v 1.3 2002/09/08 15:48:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class SwingUtilities {
@@ -118,7 +118,7 @@ public final class SwingUtilities {
                 throw new IllegalArgumentException();
             }
             if (owner instanceof JDesktopPane) {
-                final JInternalFrame frame = new JInternalFrame(title);
+                final JInternalFrame frame = new JInternalFrame(title, true, true, true, true);
                 frame.setDefaultCloseOperation(JInternalFrame.DISPOSE_ON_CLOSE);
                 frame.addInternalFrameListener(InternalWindowListener.wrap(listener));
                 ((JDesktopPane) owner).add(frame);
