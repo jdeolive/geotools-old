@@ -22,7 +22,7 @@
   </condition>
   <!-- I have no idea what the correct command for maven on a mac is so assumed it has more sense than windows
    if you know better please fix. -->
-  <condition property="maven" value="maven">
+  <condition property="maven" value="/home/preston/ian/maven-1.0-beta-7/bin/maven" >
       <or>
         <not>
             <equals arg1="${mavenunix}" arg2="$${mavenunix}"/>
@@ -34,6 +34,7 @@
         <istrue value="${mavenmac}"/> as above -->
     </or>
   </condition>
+	<echo message="maven = ${maven}"/>
 </target>
     <target name="test" depends="init">
         
