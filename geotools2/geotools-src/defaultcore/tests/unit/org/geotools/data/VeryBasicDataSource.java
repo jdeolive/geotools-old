@@ -134,7 +134,7 @@ public class VeryBasicDataSource extends AbstractDataSource
      * @tasks TODO: implement this method.
      */
     public FeatureType getSchema(){
-	return null;
+	return new DummyFeatureType("typeName");
     }
 
 
