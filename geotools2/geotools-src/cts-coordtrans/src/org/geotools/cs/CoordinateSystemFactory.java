@@ -99,7 +99,7 @@ import org.geotools.ct.MathTransformFactory;
  * that use feet units.  This factory lets an application create such a hybrid
  * coordinate system.
  *
- * @version $Id: CoordinateSystemFactory.java,v 1.11 2003/01/20 23:16:07 desruisseaux Exp $
+ * @version $Id: CoordinateSystemFactory.java,v 1.12 2003/02/15 13:23:03 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -547,7 +547,7 @@ public class CoordinateSystemFactory {
      * using {@link #createProjectionParameterList}. Example:
      *
      * <blockquote><pre>
-     * &nbsp;{link ParameterList} param = {@link #createProjectionParameterList createProjectionParameterList}("Transverse_Mercator")
+     * &nbsp;{@link ParameterList} param = {@link #createProjectionParameterList createProjectionParameterList}("Transverse_Mercator")
      * &nbsp;                                    .setParameter("semi_major", 6378206.4)
      * &nbsp;                                    .setParameter("semi_minor", 6356583.8);
      * &nbsp;{@link Projection} proj = createProjection("My projection", "Transverse_Mercator", param);

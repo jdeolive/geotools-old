@@ -55,7 +55,7 @@ import java.rmi.RemoteException;
  * any other math transform to inject itself into the base coordinate
  * system.
  *
- * @version $Id: FittedCoordinateSystem.java,v 1.1 2003/01/20 23:16:09 desruisseaux Exp $
+ * @version $Id: FittedCoordinateSystem.java,v 1.2 2003/02/15 13:23:03 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -107,30 +107,30 @@ public class FittedCoordinateSystem extends CoordinateSystem {
     public FittedCoordinateSystem(final CharSequence     name,
                                   final CoordinateSystem base,
                                   final MathTransform  toBase,
-                                  final AxisInfo[]       axes)
+                                        AxisInfo[]       axes)
     {
         super(name);
         ensureNonNull(  "base",   base);
         ensureNonNull("toBase", toBase);
+        this.base   = base;
+        this.toBase = toBase;
+        if (axes != null) {
+            this.axes = axes = (AxisInfo[])axes.clone();
+        } else {
+            this.axes = axes = new AxisInfo[base.getDimension()];
+            for (int i=0; i<axes.length; i++) {
+                axes[i] = base.getAxis(i);
+            }
+        }
+        for (int i=0; i<axes.length; i++) {
+            ensureNonNull("axes", axes, i);
+        }
         int dim1, dim2;
         if ((dim1=toBase.getDimTarget()) != (dim2=base.getDimension())) {
             throw new MismatchedDimensionException(dim1, dim2);
         }
         if ((dim1=toBase.getDimSource()) != (dim2=axes.length)) {
             throw new MismatchedDimensionException(dim1, dim2);
-        }
-        this.base   = base;
-        this.toBase = toBase;
-        if (axes != null) {
-            this.axes = (AxisInfo[])axes.clone();
-        } else {
-            this.axes = new AxisInfo[base.getDimension()];
-            for (int i=0; i<this.axes.length; i++) {
-                this.axes[i] = base.getAxis(i);
-            }
-        }
-        for (int i=0; i<this.axes.length; i++) {
-            ensureNonNull("axes", this.axes, i);
         }
     }
 
