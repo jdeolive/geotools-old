@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,48 +13,52 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
-
 package org.geotools.map;
 
 import org.geotools.gui.tools.Tool;
 import org.geotools.map.events.SelectedToolListener;
+import java.util.List;
+
 
 /**
- * The tool which will process mouse events on a MapPane.
- * @version $Id: ToolList.java,v 1.2 2003/04/14 21:37:16 jmacgill Exp $
- * @author  Cameron Shorter
+ * A list of tools provided by the MapViewer to the operator, including the
+ * selectedTool which is the current tool in use.  An event is sent to
+ * interested classes when the selectedTool changes.<br>
+ * No event is sent if a tool is added or removed from the ToolList as the
+ * ToolList is expected to be set up once at startup and not change after
+ * that.
+ *
+ * @author Cameron Shorter
+ * @version $Id: ToolList.java,v 1.3 2003/05/17 11:14:07 camerons Exp $
  */
-
-public interface ToolList {
-
+public interface ToolList extends List {
     /**
      * Register interest in being called when Tool changes.
+     *
      * @param listener The object to notify when tool changes.
      */
-    public void addSelectedToolListener(
-            SelectedToolListener listener);
+    public void addSelectedToolListener(SelectedToolListener listener);
 
     /**
      * Remove interest in bening notified when Tool changes.
+     *
      * @param listener The listener.
      */
     public void removeSelectedToolListener(SelectedToolListener listener);
 
     /**
-     * Get the tool.
-     * @return The selected tool.
+     * Get the SelectedTool.  Null will be returned if there is no
+     * selectedTool.
+     *
+     * @return The SelectedTool.
      */
-    public Tool getTool();
+    public Tool getSelectedTool();
 
     /**
-     * Set the tool.
-     * @param tool The new tool.
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     * Set the SelectedTool.
+     *
+     * @param tool The new SelectedTtool.
      */
-    public void setTool(Tool tool) throws IllegalArgumentException;
+    public void setSelectedTool(Tool tool);
 }

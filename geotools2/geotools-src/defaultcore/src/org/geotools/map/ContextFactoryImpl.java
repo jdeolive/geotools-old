@@ -36,8 +36,8 @@ import java.util.logging.Logger;
  */
 public class ContextFactoryImpl extends ContextFactory {
     /** The class used for identifying for logging. */
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.map.ContextFactoryImpl");
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.map.ContextFactoryImpl");
 
     /** Translates between coordinate systems */
     private Adapters adapters = Adapters.getDefault();
@@ -94,47 +94,58 @@ public class ContextFactoryImpl extends ContextFactory {
      * Create a Context with default parameters.<br>
      * boundingBox = WGS84 GeographicCoordinateSystem, (-180,-90),(180,90)<br>
      * layerList = empty list <br>
-     * toolList = Pan, ZoomIn, ZoomOut<br>
+     * toolList = Pan, ZoomIn, ZoomOut, selectedTool=ZoomIn<br>
      * title = "" <br>
      * _abstract = ""<br>
      * keywords = empty array<br>
      * contactInformation = ""<br>
      *
      * @return A default Context class.
+     *
+     * @throws RuntimeException If there is a FactoryException or
+     *         RemoteException.
      */
     public Context createContext() {
         try {
-        CoordinateSystem cs = CoordinateSystemFactory.getDefault()
-                                                     .createGeographicCoordinateSystem("WGS84",
-                HorizontalDatum.WGS84);
-        org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
-        Envelope envelope2 = new Envelope(envelope.getMinimum(0),
-                envelope.getMaximum(0), envelope.getMinimum(1),
-                envelope.getMaximum(1));
+            CoordinateSystem cs = CoordinateSystemFactory.getDefault()
+                                                         .createGeographicCoordinateSystem("WGS84",
+                    HorizontalDatum.WGS84);
+            org.geotools.pt.Envelope envelope = cs.getDefaultEnvelope();
+            Envelope envelope2 = new Envelope(envelope.getMinimum(0),
+                    envelope.getMaximum(0), envelope.getMinimum(1),
+                    envelope.getMaximum(1));
 
-        CS_CoordinateSystem cs1 = adapters.export(cs);
+            CS_CoordinateSystem cs1 = adapters.export(cs);
 
-        return createContext(createBoundingBox(envelope2, cs1),
-            createLayerList(), //
-            createToolList(ToolFactory.createFactory().createPanTool()), //
-            "", // title
-            "", // _abstract
-            null, // keywords
-            "" // contactInformation
-        );
-        }
-        catch (org.geotools.cs.FactoryException e) {
-            LOGGER.warning(
-                "CS Factory Exception, check your CLASSPATH.  Cause is: "
-                + e.getCause()
+            // Create a toolList with Pan, ZoomIn, ZoomOut tools
+            ToolList toolList = createToolList();
+            ToolFactory toolFactory = ToolFactory.createFactory();
+            Tool tool = toolFactory.createZoomTool(2.0);
+            toolList.add(tool);
+
+            toolList.setSelectedTool(tool);
+
+            tool = toolFactory.createZoomTool(0.5);
+            toolList.add(tool);
+
+            tool = toolFactory.createPanTool();
+            toolList.add(tool);
+
+            return createContext(createBoundingBox(envelope2, cs1),
+                createLayerList(), // empty LayerList
+                toolList, //
+                "", // title
+                "", // _abstract
+                null, // keywords
+                "" // contactInformation
             );
+        } catch (org.geotools.cs.FactoryException e) {
+            LOGGER.warning(
+                "CS Factory Exception, check your CLASSPATH.  Cause is: " +
+                e.getCause());
             throw new RuntimeException();
-        }
-        catch (java.rmi.RemoteException e) {
-            LOGGER.warning(
-                "CS RemoteExcepion.  Cause is: "
-                + e.getCause()
-            );
+        } catch (java.rmi.RemoteException e) {
+            LOGGER.warning("CS RemoteExcepion.  Cause is: " + e.getCause());
             throw new RuntimeException();
         }
     }
@@ -166,15 +177,11 @@ public class ContextFactoryImpl extends ContextFactory {
     }
 
     /**
-     * Creates a ToolList.
+     * Creates an empty ToolList with selectedTool=null.
      *
-     * @param tool The selected tool.
-     *
-     * @return A new ToolList.
-     *
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
+     * @return An empty ToolList.
      */
-    public ToolList createToolList(Tool tool) throws IllegalArgumentException {
-        return new ToolListImpl(tool);
+    public ToolList createToolList() {
+        return new ToolListImpl();
     }
 }

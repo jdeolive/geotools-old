@@ -158,16 +158,9 @@ public abstract class ContextFactory {
     public abstract LayerList createLayerList();
 
     /**
-     * Creates a SelectedTool.
+     * Creates an empty ToolList with selectedTool=null.
      *
-     * @param tool The selected tool.
-     *
-     * @return A ToolList with one tool.
-     *
-     * @throws IllegalArgumentException if an argument is <code>null</code>.
-     *
-     * @task TODO This interface should return an empty ToolList.
+     * @return An empty ToolList.
      */
-    public abstract ToolList createToolList(Tool tool)
-        throws IllegalArgumentException;
+    public abstract ToolList createToolList();
 }

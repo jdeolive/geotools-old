@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.demos;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -60,12 +59,12 @@ import javax.swing.*;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.14 2003/05/09 11:53:43 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.15 2003/05/17 11:14:07 camerons Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.demos.MapViewer");
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.demos.MapViewer");
 
     /** Translates between coordinate systems */
     private Adapters adapters = Adapters.getDefault();
@@ -88,6 +87,7 @@ public class MapViewer {
      *
      * @throws RuntimeException When there is a FactoryException or Problem
      *         reading the SLD style sheets.
+     *
      * @task TODO remove references to RemoteException when we can.
      */
     private MapPaneImpl createMapPane() {
@@ -103,13 +103,9 @@ public class MapViewer {
 
             // Create a Style
             StyleFactory styleFactory = StyleFactory.createStyleFactory();
-            SLDStyle sldStyle =
-                new SLDStyle(
-                    styleFactory,
+            SLDStyle sldStyle = new SLDStyle(styleFactory,
                     ClassLoader.getSystemResource(
-                        "org/geotools/demos/simple.sld"
-                    )
-                );
+                        "org/geotools/demos/simple.sld"));
             Style[] style = sldStyle.readXML();
 
             // Create a DataSource
@@ -120,8 +116,7 @@ public class MapViewer {
             populateDataSource(datasource2, 50, 50, "road");
 
             // Create a Context
-            context =
-                contextFactory.createContext();
+            context = contextFactory.createContext();
             layer = contextFactory.createLayer(datasource1, style[0]);
             layer.setTitle("river layer");
             context.getLayerList().addLayer(layer);
@@ -131,18 +126,14 @@ public class MapViewer {
             layer.setTitle("road layer");
             context.getLayerList().addLayer(layer);
 
-            
             // Create MapPane
             mapPane = new MapPaneImpl(context);
-            mapPane.setBorder(
-                new javax.swing.border.TitledBorder("MapPane Map")
-            );
+            mapPane.setBorder(new javax.swing.border.TitledBorder("MapPane Map"));
             mapPane.setBackground(Color.BLACK);
             mapPane.setPreferredSize(new Dimension(300, 300));
         } catch (IllegalFeatureException e) {
-            LOGGER.warning(
-                "Error styling features.  Cause is: " + e.getCause()
-            );
+            LOGGER.warning("Error styling features.  Cause is: " +
+                e.getCause());
             throw new RuntimeException();
         }
 
@@ -162,64 +153,52 @@ public class MapViewer {
         toolMenu.setText("Tool");
 
         panMenuItem.setText("Pan");
-        panMenuItem.addActionListener(
-            new java.awt.event.ActionListener() {
+        panMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     panActionPerformed(evt);
                 }
-            }
-        );
+            });
         toolMenu.add(panMenuItem);
 
         zoomInMenuItem.setText("Zoom In");
-        zoomInMenuItem.addActionListener(
-            new java.awt.event.ActionListener() {
+        zoomInMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     zoomInActionPerformed(evt);
                 }
-            }
-        );
+            });
         toolMenu.add(zoomInMenuItem);
 
         zoomOutMenuItem.setText("Zoom Out");
-        zoomOutMenuItem.addActionListener(
-            new java.awt.event.ActionListener() {
+        zoomOutMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     zoomOutActionPerformed(evt);
                 }
-            }
-        );
+            });
         toolMenu.add(zoomOutMenuItem);
 
         zoomPanMenuItem.setText("Zoom Pan");
-        zoomPanMenuItem.addActionListener(
-            new java.awt.event.ActionListener() {
+        zoomPanMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     zoomPanActionPerformed(evt);
                 }
-            }
-        );
+            });
         toolMenu.add(zoomPanMenuItem);
 
         noToolMenuItem.setText("No Tool");
-        noToolMenuItem.addActionListener(
-            new java.awt.event.ActionListener() {
+        noToolMenuItem.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     noToolActionPerformed(evt);
                 }
-            }
-        );
+            });
         toolMenu.add(noToolMenuItem);
 
         // Create frame
         JFrame frame = new JFrame();
-        frame.addWindowListener(
-            new java.awt.event.WindowAdapter() {
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
                 public void windowClosing(java.awt.event.WindowEvent evt) {
                     exitForm(evt);
                 }
-            }
-        );
+            });
 
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
@@ -232,27 +211,32 @@ public class MapViewer {
 
     private void panActionPerformed(java.awt.event.ActionEvent evt) {
         ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setTool(toolFactory.createPanTool());
+        context.getToolList().setSelectedTool(toolFactory.createPanTool());
+        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     private void zoomInActionPerformed(java.awt.event.ActionEvent evt) {
         ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setTool(toolFactory.createZoomTool(2));
+        context.getToolList().setSelectedTool(toolFactory.createZoomTool(2));
+        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     private void zoomOutActionPerformed(java.awt.event.ActionEvent evt) {
         ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setTool(toolFactory.createZoomTool(0.5));
+        context.getToolList().setSelectedTool(toolFactory.createZoomTool(0.5));
+        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     private void zoomPanActionPerformed(java.awt.event.ActionEvent evt) {
         ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setTool(toolFactory.createZoomTool(1));
+        context.getToolList().setSelectedTool(toolFactory.createZoomTool(1));
+        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     private void noToolActionPerformed(java.awt.event.ActionEvent evt) {
         ToolFactory toolFactory = ToolFactory.createFactory();
-        context.getToolList().setTool(null);
+        context.getToolList().setSelectedTool(null);
+        LOGGER.info("Tool Event=" + evt.getActionCommand());
     }
 
     /**
@@ -264,11 +248,8 @@ public class MapViewer {
      *
      * @return a line
      */
-    private LineString makeSampleLineString(
-        final GeometryFactory geomFac,
-        double xoff,
-        double yoff
-    ) {
+    private LineString makeSampleLineString(final GeometryFactory geomFac,
+        double xoff, double yoff) {
         Coordinate[] linestringCoordinates = new Coordinate[8];
         linestringCoordinates[0] = new Coordinate(5.0d + xoff, 5.0d + yoff);
         linestringCoordinates[1] = new Coordinate(6.0d + xoff, 5.0d + yoff);
@@ -283,23 +264,21 @@ public class MapViewer {
 
         return line;
     }
+
     /**
      * Create a test LineString.
      *
      * @param geomFac The geometry factory to use
-     * @param xoff The starting x postion
-     * @param yoff The starting y position
      *
      * @return a line
      */
-    private LineString makeSampleLineString2(
-        final GeometryFactory geomFac
-    ) {
+    private LineString makeSampleLineString2(final GeometryFactory geomFac) {
         Coordinate[] linestringCoordinates = new Coordinate[4];
         linestringCoordinates[0] = new Coordinate(-170.0d, -80.0d);
         linestringCoordinates[1] = new Coordinate(-170.0d, 80.0d);
         linestringCoordinates[2] = new Coordinate(170.0d, 80.0d);
         linestringCoordinates[3] = new Coordinate(170.0d, -80.0d);
+
         LineString line = geomFac.createLineString(linestringCoordinates);
 
         return line;
@@ -315,40 +294,30 @@ public class MapViewer {
      *
      * @throws IllegalFeatureException for IllegalFeatures
      */
-    private void populateDataSource(
-        MemoryDataSource dataSource,
-        double xoff,
-        double yoff,
-        String featureTypeName
-    ) throws IllegalFeatureException {
+    private void populateDataSource(MemoryDataSource dataSource, double xoff,
+        double yoff, String featureTypeName) throws IllegalFeatureException {
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac, xoff, yoff);
-        AttributeType lineAttribute =
-            new AttributeTypeDefault("centerline",
-                line.getClass()
-            );
-        FeatureType lineType =
-            new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        AttributeType lineAttribute = new AttributeTypeDefault("centerline",
+                line.getClass());
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[] { line });
 
         LineString line2 = makeSampleLineString(geomFac, xoff + 2, yoff);
-        lineType =
-            new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         lineFac = new FeatureFactory(lineType);
 
         Feature lineFeature2 = lineFac.create(new Object[] { line2 });
 
         LineString line3 = makeSampleLineString(geomFac, xoff + 4, yoff);
-        lineType =
-            new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         lineFac = new FeatureFactory(lineType);
 
         Feature lineFeature3 = lineFac.create(new Object[] { line3 });
 
         LineString line4 = makeSampleLineString2(geomFac);
-        lineType =
-            new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
+        lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
         lineFac = new FeatureFactory(lineType);
 
         Feature lineFeature4 = lineFac.create(new Object[] { line4 });

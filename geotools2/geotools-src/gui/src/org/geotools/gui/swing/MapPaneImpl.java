@@ -14,7 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-
 package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -37,8 +36,8 @@ import org.geotools.map.events.LayerListListener;
 import org.geotools.map.events.SelectedToolListener;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
-import java.awt.Dimension;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -75,22 +74,22 @@ import javax.swing.JPanel;
 
 
 /**
- * This widget is responsible for marshalling the rendering of a map.
- * It processes Listener events and calls the Renderer as required.
- * It maintains the correct aspect ratio by resizing the Context's
- * BoundingBox when this component changes size.
+ * This widget is responsible for marshalling the rendering of a map. It
+ * processes Listener events and calls the Renderer as required. It maintains
+ * the correct aspect ratio by resizing the Context's BoundingBox when this
+ * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.23 2003/05/05 11:34:58 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.24 2003/05/17 11:14:07 camerons Exp $
  *
- * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
- * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
+ * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
+ *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
  */
 public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     LayerListListener, ComponentListener, SelectedToolListener {
     /** The class used for identifying for logging. */
-    private static final Logger LOGGER =
-        Logger.getLogger("org.geotools.gui.swing.MapPaneImpl");
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.gui.swing.MapPaneImpl");
 
     /** The class to use to render this MapPane. */
     Java2DRenderer renderer;
@@ -118,12 +117,13 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         } else {
             this.renderer = new Java2DRenderer(context);
             this.context = context;
-            
+
             // Request to be notified when map parameters change
             context.getBbox().addAreaOfInterestChangedListener(this);
             context.getLayerList().addLayerListChangedListener(this);
             context.getToolList().addSelectedToolListener(this);
-            context.getToolList().getTool().addMouseListener(this, context);
+            context.getToolList().getSelectedTool().addMouseListener(this,
+                context);
             addComponentListener(this);
 
             // A zero sized mapPane cannot be resized later and doesn't behave
@@ -132,7 +132,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
             // use absolute positioning
             this.setLayout(null);
-            
+
             // set up the varialbes associated with this tool.
             initialiseTool();
         }
@@ -164,36 +164,33 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
 
             if (bBox != null) {
                 LOGGER.info("AreaOfInterest calculated during rendering");
-                context.getBbox().setAreaOfInterest(
-                    context.getLayerList().getBbox(false),
-                    null
-                );
+                context.getBbox().setAreaOfInterest(context.getLayerList()
+                                                           .getBbox(false), null);
             }
         }
-        int w=getWidth() - getInsets().left - getInsets().right;
-        int h=getHeight() - getInsets().top - getInsets().bottom;
-        
+
+        int w = getWidth() - getInsets().left - getInsets().right;
+        int h = getHeight() - getInsets().top - getInsets().bottom;
+
         // prevent divide by zero errors
-        if (h==0){
-            h=2;
+        if (h == 0) {
+            h = 2;
         }
-        
+
         try {
-            renderer.paint(
-                (Graphics2D)graphics,
-                new Rectangle(getInsets().left, getInsets().top,w,h),
-                dotToCoordinateTransform.createInverse()
-            );
+            renderer.paint((Graphics2D) graphics,
+                new Rectangle(getInsets().left, getInsets().top, w, h),
+                dotToCoordinateTransform.createInverse());
         } catch (java.awt.geom.NoninvertibleTransformException e) {
-            LOGGER.warning("Transform error while rendering. Cause is: "
-            + e.getCause());
+            LOGGER.warning("Transform error while rendering. Cause is: " +
+                e.getCause());
         }
     }
 
     /**
      * Process an AreaOfInterestChangedEvent, involves a redraw.
      *
-     * @param areaOfInterestChangedEvent The new extent.
+     * @param boundingBoxEvent The new extent.
      */
     public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
         updateTransform();
@@ -219,11 +216,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      * @param event The click point.
      */
     protected void processMouseEvent(final MouseEvent event) {
-        super.processMouseEvent(
-            new GeoMouseEvent(
-                event,
-                MathTransformFactory.getDefault(
-                    ).createAffineTransform(dotToCoordinateTransform)));
+        super.processMouseEvent(new GeoMouseEvent(event,
+                MathTransformFactory.getDefault().createAffineTransform(dotToCoordinateTransform)));
     }
 
     /**
@@ -236,11 +230,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      * @param event The mouse point.
      */
     protected void processMouseMotionEvent(final MouseEvent event) {
-        super.processMouseMotionEvent(
-            new GeoMouseEvent(
-                event,
-                MathTransformFactory.getDefault(
-                    ).createAffineTransform(dotToCoordinateTransform)));
+        super.processMouseMotionEvent(new GeoMouseEvent(event,
+                MathTransformFactory.getDefault().createAffineTransform(dotToCoordinateTransform)));
     }
 
     /**
@@ -248,39 +239,41 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @param e ComponentEvent.
      */
-    public void componentHidden(ComponentEvent e) {}
+    public void componentHidden(ComponentEvent e) {
+    }
 
     /**
      * Invoked when the component's position changes.
      *
      * @param e ComponentEvent.
      */
-    public void componentMoved(ComponentEvent e) {}
+    public void componentMoved(ComponentEvent e) {
+    }
 
     /**
      * Invoked when the component's size changes, change the AreaOfInterest so
      * that the aspect ratio remains the same.  One axis will remain the same
-     * width/height while the other axis will expand to fit the new aspect
-     * ratio.<br>
-     * The method will trigger an AreaOfInterestEvent which in turn will
-     * cause a repaint.
+     * width/height while the other axis will expand to fit the new aspect ratio.<br>
+     * The method will trigger an AreaOfInterestEvent which in turn will cause
+     * a repaint.
      *
      * @param e ComponentEvent.
+     *
+     * @throws java.lang.reflect.UndeclaredThrowableException DOCUMENT ME!
      */
     public void componentResized(ComponentEvent e) {
-        int w=getWidth() - getInsets().left - getInsets().right;
-        int h=getHeight() - getInsets().top - getInsets().bottom;
-        double newAspectRatio = (double)w/(double)h;
-        
+        int w = getWidth() - getInsets().left - getInsets().right;
+        int h = getHeight() - getInsets().top - getInsets().bottom;
+        double newAspectRatio = (double) w / (double) h;
+
         AffineTransform at = new AffineTransform();
         Envelope aoi = context.getBbox().getAreaOfInterest();
-        
-        double contextAspectRatio=
-            (double)(aoi.getMaxX() - aoi.getMinX())
-            /(double)(aoi.getMaxY() - aoi.getMinY());
-        
+
+        double contextAspectRatio = (double) (aoi.getMaxX() - aoi.getMinX()) / (double) (aoi.getMaxY() -
+            aoi.getMinY());
+
         // No need to resize if the aspect ratio is correct.
-        if (contextAspectRatio==newAspectRatio){
+        if (contextAspectRatio == newAspectRatio) {
             return;
         }
 
@@ -296,13 +289,15 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             at.translate(0, -(aoi.getMinY() + aoi.getMaxY()) / 2);
         }
 
-        MathTransform transform =
-            MathTransformFactory.getDefault().createAffineTransform(at);
+        MathTransform transform = MathTransformFactory.getDefault()
+                                                      .createAffineTransform(at);
+
         try {
             context.getBbox().transform(adapters.export(transform));
         } catch (java.rmi.RemoteException exception) {
             // TODO: We should not hide a checked exception that way.
-            throw new java.lang.reflect.UndeclaredThrowableException(exception, "Remote call failed");
+            throw new java.lang.reflect.UndeclaredThrowableException(exception,
+                "Remote call failed");
         }
     }
 
@@ -311,46 +306,46 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      *
      * @param e ComponentEvent.
      */
-    public void componentShown(ComponentEvent e) {}
+    public void componentShown(ComponentEvent e) {
+    }
 
     /**
-     * Called when the selectedTool on a MapPane changes.
-     * Register for mouseEvents on behalf of the tool, and set the Cursor.
+     * Called when the selectedTool on a MapPane changes. Register for
+     * mouseEvents on behalf of the tool, and set the Cursor.
+     *
      * @param event ComponenetEvent.
      */
     public void selectedToolChanged(EventObject event) {
         initialiseTool();
     }
-    
+
     /**
      * Initialise variables associated with the tool.
      */
-    private void initialiseTool(){
-        if (context.getToolList().getTool() != null) {
-            context.getToolList().getTool().addMouseListener(this, context);
-            setCursor(context.getToolList().getTool().getCursor());
-        }
-        else {
+    private void initialiseTool() {
+        if (context.getToolList().getSelectedTool() != null) {
+            context.getToolList().getSelectedTool().addMouseListener(this,
+                context);
+            setCursor(context.getToolList().getSelectedTool().getCursor());
+        } else {
             setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
-    
+
     /**
-     * Re-evaluate the screen to CoordinateSystem transform, this method
-     * should be called whenever the MapPane resizes, boundingBox resizes,
-     * or coordinateSystem changes.
+     * Re-evaluate the screen to CoordinateSystem transform, this method should
+     * be called whenever the MapPane resizes, boundingBox resizes, or
+     * coordinateSystem changes.
      */
     public void updateTransform() {
         //Real World Coordinates
-        Envelope aoi=context.getBbox().getAreaOfInterest();
-        
+        Envelope aoi = context.getBbox().getAreaOfInterest();
+
         // Scaling
-        double scaleX=(aoi.getMaxX()-aoi.getMinX())
-            /(getWidth()-getInsets().left
-              -getInsets().right);
-        double scaleY=(aoi.getMaxY()-aoi.getMinY())
-            /(getHeight()-getInsets().top
-              -getInsets().bottom);
+        double scaleX = (aoi.getMaxX() - aoi.getMinX()) / (getWidth() -
+            getInsets().left - getInsets().right);
+        double scaleY = (aoi.getMaxY() - aoi.getMinY()) / (getHeight() -
+            getInsets().top - getInsets().bottom);
 
         // x'=(x-leftBorder)*scaleX+csMinX
         //   = x*scaleX -leftBorder*scaleX+csMinX
@@ -359,32 +354,24 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         //
         // This equates to an AffineTransform:
         //
-	// [ x']   [  m00  m01  m02  ] [ x ]   [ m00x + m01y + m02 ]
-	// [ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
-	// [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
+        // [ x']   [  m00  m01  m02  ] [ x ]   [ m00x + m01y + m02 ]
+        // [ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
+        // [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
         //
         // [x'] [scaleX  0       -leftBorder*scaleX+csMinX         ][x]
         // [y']=[0       -scaleY (maxY-bottomBorder)*scaleY+csMinY][y]
         // [1 ] [0       0       1                                ][1]
-
-        dotToCoordinateTransform=new AffineTransform(
+        dotToCoordinateTransform = new AffineTransform(
             // m00: ScaleX
-            scaleX,
-            
+            scaleX, 
             // m10
-            0.0,
-            
+            0.0, 
             // m01:
-            0.0,
-            
-            // m11: -ScaleY
-            -scaleY,
-            
+            0.0, -scaleY, 
             // m02: TransformX
-            aoi.getMinX()-scaleX*getInsets().left,
-            
+            aoi.getMinX() - (scaleX * getInsets().left),
+                (
             // m12: TransformY
-            (getHeight()-getInsets().bottom)*scaleY
-            +aoi.getMinY());
-     }
+            (getHeight() - getInsets().bottom) * scaleY) + aoi.getMinY());
+    }
 }
