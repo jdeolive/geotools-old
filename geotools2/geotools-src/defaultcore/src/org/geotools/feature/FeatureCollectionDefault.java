@@ -35,7 +35,7 @@ import org.geotools.filter.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema. 
  * 
- * @version $Id: FeatureCollectionDefault.java,v 1.7 2002/08/06 22:27:15 desruisseaux Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.8 2002/08/08 11:09:18 jmacgill Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -146,8 +146,10 @@ public class FeatureCollectionDefault implements FeatureCollection {
      *
      * @see #getfeatures(Extent ex)
      */
-    public Feature[] getFeatures() {
-        return (Feature[]) features.toArray(new Feature[features.size()]);
+    public Feature[] getFeatures() {    
+        Feature[] list = (Feature[]) features.toArray(new Feature[features.size()]);
+        LOGGER.exiting("FeatureCollectionDefault", "getFeatures", list);
+        return list;
     }
     
 
