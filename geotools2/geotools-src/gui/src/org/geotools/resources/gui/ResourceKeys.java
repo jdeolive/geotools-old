@@ -47,8 +47,10 @@ public interface ResourceKeys
     public static final int HIDE                     =     3;
     public static final int HORIZONTAL_COMPONENT     =    58;
     public static final int IMAGES                   =    67;
+    public static final int IMAGE_CLASS_$1           =    95;
     public static final int IMAGE_SIZE               =    87;
     public static final int IMAGE_SIZE_$3            =    77;
+    public static final int INDEX                    =    97;
     public static final int INFORMATIONS             =    94;
     public static final int JAVA_VENDOR_$1           =    68;
     public static final int JAVA_VERSION_$1          =    69;
@@ -67,6 +69,7 @@ public interface ResourceKeys
     public static final int NO_DETAILS_$1            =     6;
     public static final int OK                       =    39;
     public static final int OPERATIONS               =    63;
+    public static final int OPERATION_$1             =    96;
     public static final int OS_NAME_$1               =    70;
     public static final int OS_VERSION_$2            =    71;
     public static final int OTHERS                   =    53;

@@ -29,6 +29,8 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.util.Locale;
+import java.util.ResourceBundle;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -58,8 +60,11 @@ import java.awt.image.renderable.RenderableImage;
 
 // JAI dependencies
 import javax.media.jai.JAI;
+import javax.media.jai.OperationNode;
 import javax.media.jai.PropertySource;
 import javax.media.jai.PropertyChangeEmitter;
+import javax.media.jai.RegistryElementDescriptor;
+import javax.media.jai.OperationDescriptor;
 
 // Geotools dependencies
 import org.geotools.resources.Utilities;
@@ -80,10 +85,29 @@ import org.geotools.resources.gui.ResourceKeys;
  * informations about the {@linkplain ColorModel color model}, {@linkplain SampleModel
  * sample model}, image size, tile size, etc.
  *
- * @version $Id: ImageProperties.java,v 1.1 2003/07/27 21:27:00 desruisseaux Exp $
+ * @version $Id: ImageProperties.java,v 1.2 2003/07/28 22:36:53 desruisseaux Exp $
  * @author Martin Desruisseaux
+ *
+ * @see ParameterEditor
+ * @see OperationTreeBrowser
  */
 public class ImageProperties extends JPanel {
+    /**
+     * The operation name, or the image class name if the image is not an instance of
+     * {@link OperationNode}.
+     */
+    private final JLabel operationName = new JLabel(" ");
+
+    /**
+     * The operation description.
+     */
+    private final JLabel operationDescription = new JLabel(" ");
+
+    /**
+     * The operation vendor and version.
+     */
+    private final JLabel operationVersion = new JLabel(" ");
+
     /**
      * The text area for image size.
      */
@@ -135,31 +159,40 @@ public class ImageProperties extends JPanel {
         final JTabbedPane     tabs = new JTabbedPane();
         final GridBagConstraints c = new GridBagConstraints();
         /*
-         * Build the image quicklook tab.
+         * Build the image preview tab.
          */
         if (true) {
             viewer = new Viewer();
             tabs.addTab(resources.getString(ResourceKeys.PREVIEW), viewer);
         }
         /*
-         * Build the global information tab.
+         * Build the informations tab.
          */
         if (true) {
             final JPanel panel = new JPanel(new GridBagLayout());
-            c.insets.left=6; c.anchor=c.WEST;
-            c.gridy=0;
-            c.gridx=0; panel.add(getLabel(ResourceKeys.IMAGE_SIZE, resources), c);
-            c.gridx=1; panel.add(imageSize, c); c.gridy++;
-            c.gridx=0; panel.add(getLabel(ResourceKeys.TILES_SIZE, resources), c);
-            c.gridx=1; panel.add(tileSize, c); c.gridy++; 
-            c.gridx=0; panel.add(getLabel(ResourceKeys.DATA_TYPE, resources), c);
-            c.gridx=1; panel.add(dataType, c); c.gridy++;
-            c.gridx=0; panel.add(getLabel(ResourceKeys.SAMPLE_MODEL, resources), c);
-            c.gridx=1; panel.add(sampleModel, c); c.gridy++;
-            c.gridx=0; panel.add(getLabel(ResourceKeys.COLOR_MODEL, resources), c);
-            c.gridx=1; panel.add(colorModel, c); c.gridy++;
-            c.gridx=0; panel.add(getLabel(ResourceKeys.COLORS, resources), c);
-            c.gridx=1; c.anchor=c.CENTER; c.fill=c.HORIZONTAL; c.weightx=1;
+            c.anchor=c.WEST; c.fill=c.HORIZONTAL; c.insets.left=9;
+            c.gridx=0; c.gridwidth=2; c.weightx=1;
+            c.gridy=0; panel.add(operationName,        c);
+            c.gridy++; panel.add(operationDescription, c); c.insets.bottom=15;
+            c.gridy++; panel.add(operationVersion,     c);
+
+            final int ytop = c.gridy;
+            c.gridwidth=1; c.weightx=0; c.insets.bottom=0;
+            c.gridy++; panel.add(getLabel(ResourceKeys.IMAGE_SIZE,   resources), c);
+            c.gridy++; panel.add(getLabel(ResourceKeys.TILES_SIZE,   resources), c);
+            c.gridy++; panel.add(getLabel(ResourceKeys.DATA_TYPE,    resources), c);
+            c.gridy++; panel.add(getLabel(ResourceKeys.SAMPLE_MODEL, resources), c);
+            c.gridy++; panel.add(getLabel(ResourceKeys.COLOR_MODEL,  resources), c);
+            c.gridy++; panel.add(getLabel(ResourceKeys.COLORS,       resources), c);
+
+            c.gridx=1; c.gridy=ytop; c.weightx=1;
+            c.gridy++; panel.add(imageSize,   c);
+            c.gridy++; panel.add(tileSize,    c);
+            c.gridy++; panel.add(dataType,    c);
+            c.gridy++; panel.add(sampleModel, c);
+            c.gridy++; panel.add(colorModel,  c);
+            c.gridy++; c.anchor=c.CENTER; c.insets.right=6;
+
             panel.add(colorBar, c);
             tabs.addTab(resources.getString(ResourceKeys.INFORMATIONS), panel);
         }
@@ -196,6 +229,45 @@ public class ImageProperties extends JPanel {
     }
 
     /**
+     * Set the operation name, description and version for the given image. If the image is
+     * an instance of {@link OperationNode}, then a description of the operation will be fetch
+     * from its resources bundle.
+     *
+     * @param image The image, or <code>null</code> if none.
+     */
+    private void setDescription(final Object image) {
+        String name        = " ";
+        String description = " ";
+        String version     = " ";
+        final Locale    locale    = getLocale();
+        final Resources resources = Resources.getResources(locale);
+        if (image instanceof OperationNode) {
+            final String mode;
+            final RegistryElementDescriptor descriptor;
+            final OperationNode operation = (OperationNode) image;
+            name       = operation.getOperationName();
+            mode       = operation.getRegistryModeName();
+            descriptor = operation.getRegistry().getDescriptor(mode, name);
+            if (descriptor instanceof OperationDescriptor) {
+                final ResourceBundle bundle;
+                bundle      = ((OperationDescriptor) descriptor).getResourceBundle(locale);
+                name        = bundle   .getString("LocalName");
+                description = bundle   .getString("Description");
+                version     = resources.getString(ResourceKeys.VERSION_$1,
+                              bundle   .getString("Version")) + ", " +
+                              bundle   .getString("Vendor");
+                name = resources.getString(ResourceKeys.OPERATION_$1, name);
+            }
+        } else if (image != null) {
+            name = Utilities.getShortClassName(image);
+            name = resources.getString(ResourceKeys.IMAGE_CLASS_$1, name);
+        }
+        operationName       .setText(name       );
+        operationDescription.setText(description);
+        operationVersion    .setText(version    );
+    }
+
+    /**
      * Set all text fields to <code>null</code>. This method do not set the {@link #properties}
      * table; this is left to the caller.
      */
@@ -226,6 +298,7 @@ public class ImageProperties extends JPanel {
             return;
         }
         clear();
+        setDescription(image);
         properties.setSource(image);
         viewer.setImage((RenderedImage)null);
     }
@@ -243,6 +316,7 @@ public class ImageProperties extends JPanel {
                               new Float(image.getWidth()),
                               new Float(image.getHeight())));
         }
+        setDescription(image);
         properties.setSource(image);
         viewer.setImage(image);
     }
@@ -277,6 +351,7 @@ public class ImageProperties extends JPanel {
                 colorBar.setColors((IndexColorModel) null);
             }
         }
+        setDescription(image);
         properties.setSource(image);
         viewer.setImage(image);
     }
@@ -333,7 +408,7 @@ public class ImageProperties extends JPanel {
                 final int pos = buffer.length();
                 buffer.append(name.substring(last, i));
                 buffer.append(' ');
-                if (pos!=0 && i<length-1 && Character.isLowerCase(name.charAt(i+1))) {
+                if (pos!=0 && last<length-1 && Character.isLowerCase(name.charAt(last+1))) {
                     buffer.setCharAt(pos, Character.toLowerCase(buffer.charAt(pos)));
                 }
                 last = i;
@@ -359,7 +434,7 @@ public class ImageProperties extends JPanel {
      * as a listener for property changes. The changes can be emitted from any thread,
      * which may or may not be the <cite>Swing</cite> thread.
      *
-     * @version $Id: ImageProperties.java,v 1.1 2003/07/27 21:27:00 desruisseaux Exp $
+     * @version $Id: ImageProperties.java,v 1.2 2003/07/28 22:36:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @task TODO: Check for <code>WritablePropertySource</code> and make cells editable
@@ -589,7 +664,7 @@ public class ImageProperties extends JPanel {
      * immediately, while renderable image will be rendered in a background thread when first
      * requested.
      *
-     * @version $Id: ImageProperties.java,v 1.1 2003/07/27 21:27:00 desruisseaux Exp $
+     * @version $Id: ImageProperties.java,v 1.2 2003/07/28 22:36:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Viewer extends ZoomPane implements Runnable {
@@ -636,23 +711,27 @@ public class ImageProperties extends JPanel {
             rendered   = null;
             running    = false;
             reset();
+            repaint();
         }
 
         /**
          * Set the source rendered image.
          */
         public void setImage(RenderedImage image) {
-            final float scale = Math.min(((float)RENDERED_SIZE) / image.getWidth(),
-                                         ((float)RENDERED_SIZE) / image.getHeight());
-            if (scale < 1) {
-                final Float sc = new Float(scale);
-                image = JAI.create("Scale",
-                                   new ParameterBlock().addSource(image).add(sc).add(sc));
+            if (image != null) {
+                final float scale = Math.min(((float)RENDERED_SIZE) / image.getWidth(),
+                                             ((float)RENDERED_SIZE) / image.getHeight());
+                if (scale < 1) {
+                    final Float sc = new Float(scale);
+                    image = JAI.create("Scale",
+                                       new ParameterBlock().addSource(image).add(sc).add(sc));
+                }
             }
             renderable = null;
             rendered   = image;
             running    = false;
             reset();
+            repaint();
         }
 
         /**

@@ -32,7 +32,6 @@ package org.geotools.gui.swing;
 import java.util.List;
 import java.util.Locale;
 import javax.swing.JTree;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
@@ -47,14 +46,18 @@ import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderableImage;
 import java.awt.image.RenderedImage;
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Container;
 import java.awt.Component;
 import java.awt.Dimension;
 
 // JAI dependencies
+import javax.media.jai.KernelJAI;
+import javax.media.jai.LookupTableJAI;
+import javax.media.jai.PropertySource;
 import javax.media.jai.OperationNode;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
-import javax.media.jai.PropertySource;
 
 // Geotools dependencies
 import org.geotools.resources.Utilities;
@@ -72,15 +75,39 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * tree. Each source image is a children node (with potentially their own source images and/or
  * parameters) and each parameter is a children leaf.
  *
- * @version $Id: OperationTreeBrowser.java,v 1.2 2003/07/27 21:27:00 desruisseaux Exp $
+ * @version $Id: OperationTreeBrowser.java,v 1.3 2003/07/28 22:36:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
+ *
+ * @see ImageProperties
+ * @see ParameterEditor
+ * @see RegisteredOperationBrowser
  */
 public class OperationTreeBrowser extends JPanel {
+    /** Key for {@link PropertySource}. */  private static final String IMAGE     = "Image";
+    /** Key for parameter card.         */  private static final String PARAMETER = "Parameter";
+
     /**
-     * The image properties viewer.
+     * The image properties panel. Will be constructed only when first needed,
+     * and the added to the card layout with the <code>IMAGE</code> name.
      */
-    private final ImageProperties imageProperties = new ImageProperties();
+    private ImageProperties imageProperties;
+
+    /**
+     * The parameter properties panel. Will be constructed only when first needed,
+     * and the added to the card layout with the <code>PARAMETER</code> name.
+     */
+    private ParameterEditor parameterEditor;
+
+    /**
+     * The properties panel. The content for this panel depends on
+     * the selected tree item, but usually includes the following:
+     * <ul>
+     *   <li>An {@link ImageProperties} instance.</li>
+     *   <li>An {@link ParameterEditor} instance.</li>
+     * </ul>
+     */
+    private final Container cards = new JPanel(new CardLayout());
 
     /**
      * Construct a new browser for the given image.
@@ -89,16 +116,18 @@ public class OperationTreeBrowser extends JPanel {
      */
     public OperationTreeBrowser(final RenderedImage source) {
         super(new BorderLayout());
+        final Listeners listeners = new Listeners();
         final JTree tree = new JTree(getTree(source, getDefaultLocale()));
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.setBorder(BorderFactory.createEmptyBorder(6,6,0,0));
-
-        final JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                                                new JScrollPane(tree), imageProperties);
-        add(split, BorderLayout.CENTER);
-        setPreferredSize(new Dimension(600,250));
-        final Listeners listeners = new Listeners();
         tree.addTreeSelectionListener(listeners);
+
+        final JSplitPane split;
+        split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(tree), cards);
+        split.setDividerLocation(220);
+        add(split, BorderLayout.CENTER);
+
+        setPreferredSize(new Dimension(600,250));
     }
 
     /**
@@ -191,32 +220,115 @@ public class OperationTreeBrowser extends JPanel {
     /**
      * The listener for various event in the {@link OperationTreeBrowser} widget.
      *
-     * @version $Id: OperationTreeBrowser.java,v 1.2 2003/07/27 21:27:00 desruisseaux Exp $
+     * @version $Id: OperationTreeBrowser.java,v 1.3 2003/07/28 22:36:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements TreeSelectionListener {
         /** 
-         * Called whenever the value of the selection changes.
+         * Called whenever the value of the selection changes. This method uses the
+         * {@link TreeNode#getAllowsChildren} in order to determines if the selection
+         * is a source (allows children = <code>true</code>) or a parameter
+         * (allows children = <code>false</code>).
          */
         public void valueChanged(final TreeSelectionEvent event) {
-            Object selection = null;
+            Object        selection  = null;   // The selected tree element.
+            boolean       isSource   = false;  // Is 'selected' a source or a parameter?
+            OperationNode operation  = null;   // The parent of the selected element as an op.
+            int           paramIndex = -1;     // The index of the selected element.
             final TreePath path = event.getPath();
             if (path != null) {
                 selection = path.getLastPathComponent();
+                /*
+                 * Some of piece of code in the following block can work with the Swing's
+                 * TreeNode (i.e. it doesn't require the fixed Geotools's TreeNode).
+                 */
+                if (selection instanceof javax.swing.tree.TreeNode) {
+                    javax.swing.tree.TreeNode node = (javax.swing.tree.TreeNode)selection;
+                    isSource = node.getAllowsChildren();
+                    node = node.getParent();
+                    if (node instanceof TreeNode) {
+                        final Object candidate = ((TreeNode)node).getUserObject();
+                        if (candidate instanceof OperationNode) {
+                            operation = (OperationNode) candidate;
+                            final int count = node.getChildCount();
+                            for (int n=-1,i=0; i<count; i++) {
+                                final javax.swing.tree.TreeNode leaf=node.getChildAt(i);
+                                if (!leaf.getAllowsChildren()) {
+                                    n++; // Count only parameters, not sources.
+                                }
+                                if (leaf == selection) {
+                                    paramIndex = n;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
                 if (selection instanceof TreeNode) {
                     selection = ((TreeNode) selection).getUserObject();
                 }
             }
-            if (selection instanceof RenderedImage) {
-                imageProperties.setImage((RenderedImage) selection);
-            } else if (selection instanceof RenderableImage) {
-                imageProperties.setImage((RenderableImage) selection);
-            } else if (selection instanceof PropertySource) {
-                imageProperties.setImage((PropertySource) selection);
+            if (isSource) {
+                showSourceEditor(selection);
             } else {
-                imageProperties.setImage((PropertySource) null);
+                showParameterEditor(selection);
+            }
+            if (parameterEditor != null) {
+                parameterEditor.setDescription(operation, paramIndex);
             }
         }
+    }
+
+    /**
+     * Invoked when the user clicks on a source node in the operation tree (left pane).
+     * This method show a properties panel in the right pane appropriate for the given
+     * selection.
+     *
+     * @param  selection The user selection. This object is usually an instance of
+     *         {@link RenderedImage}, {@link RenderableImage} or {@link PropertySource}.
+     * @return <code>true</code> if this method has been able to find an editor, or
+     *         <code>false</code> otherwise.
+     */
+    protected boolean showSourceEditor(final Object selection) {
+        if (imageProperties == null) {
+            imageProperties = new ImageProperties();
+            cards.add(imageProperties, IMAGE);
+        }
+        ((CardLayout) cards.getLayout()).show(cards, IMAGE);
+        if (selection instanceof RenderedImage) {
+            imageProperties.setImage((RenderedImage) selection);
+            return true;
+        }
+        if (selection instanceof RenderableImage) {
+            imageProperties.setImage((RenderableImage) selection);
+            return true;
+        }
+        if (selection instanceof PropertySource) {
+            imageProperties.setImage((PropertySource) selection);
+            return true;
+        }
+        imageProperties.setImage((PropertySource) null);
+        return false;
+    }
+
+    /**
+     * Invoked when the user clicks on a parameter node in the operation tree (left pane).
+     * This method show a properties panel in the right pane appropriate for the given
+     * selection.
+     *
+     * @param  selection The user selection. This object is usually an instance of
+     *         {@link Number}, {@link KernelJAI}, {@link LookupTableJAI} or some other
+     *         parameter object.
+     * @return <code>true</code> if this method has been able to find an editor, or
+     *         <code>false</code> otherwise.
+     */
+    protected boolean showParameterEditor(final Object selection) {
+        if (parameterEditor == null) {
+            parameterEditor = new ParameterEditor();
+            cards.add(parameterEditor, PARAMETER);
+        }
+        ((CardLayout) cards.getLayout()).show(cards, PARAMETER);
+        return parameterEditor.setParameterValue(selection) != null;
     }
 
     /**

@@ -36,6 +36,10 @@ import java.util.Iterator;
 import java.util.Comparator;
 import java.util.Collections;
 import java.util.ResourceBundle;
+import java.util.MissingResourceException;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+
 import javax.swing.Box;
 import javax.swing.JTree;
 import javax.swing.JLabel;
@@ -77,7 +81,7 @@ import org.geotools.resources.gui.Resources;
 /**
  * Browse through the registered JAI operations.
  *
- * @version $Id: RegisteredOperationBrowser.java,v 1.1 2003/07/25 18:05:04 desruisseaux Exp $
+ * @version $Id: RegisteredOperationBrowser.java,v 1.2 2003/07/28 22:36:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RegisteredOperationBrowser extends JPanel {
@@ -113,43 +117,87 @@ public class RegisteredOperationBrowser extends JPanel {
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(final TreeSelectionEvent event) {
-                final TreePath path = event.getNewLeadSelectionPath();
-                if (path != null) {
-                    for (int i=path.getPathCount(); --i>=0;) {
-                        Object candidate = path.getPathComponent(i);
-                        if (candidate instanceof TreeNode) {
-                            candidate = ((TreeNode) candidate).getUserObject();
-                            if (candidate instanceof OperationDescriptor) {
-                                selected((OperationDescriptor) candidate);
-                                return;
-                            }
-                        }
-                    }
-                }
-                selected(null);
+                selected(event.getNewLeadSelectionPath());
             }
         });
     }
 
     /**
+     * Invoked when the user selected a new operation in the tree. This method find the
+     * {@link OperationDescriptor} for the selected node and invokes {@link #selected}.
+     *
+     * @param path The selected tree path, or <code>null</code> if none.
+     */
+    private void selected(final TreePath path) {
+        if (path != null) {
+            for (int i=path.getPathCount(); --i>=0;) {
+                final Object component = path.getPathComponent(i);
+                Object candidate = component;
+                if (candidate instanceof TreeNode) {
+                    candidate = ((TreeNode) candidate).getUserObject();
+                    /*
+                     * Note: The missing 'getUserObject()' method is fixed
+                     *       in Geotools TreeNode, not the Swing one...
+                     */
+                }
+                if (candidate instanceof OperationDescriptor) {
+                    int index = -1;
+                    /*
+                     * Fetch the parameter index. Note: the Swing TreeNode is suffisient
+                     * for this task (no need for the fixed Geotools's TreeNode).
+                     */
+                    if (component instanceof javax.swing.tree.TreeNode) {
+                        final javax.swing.tree.TreeNode node = (javax.swing.tree.TreeNode)component;
+                        final Object leaf = path.getLastPathComponent();
+                        for (index=node.getChildCount(); --index>=0;) {
+                            if (node.getChildAt(index) == leaf) {
+                                break;
+                            }
+                        }
+                    }
+                    selected((OperationDescriptor) candidate, index);
+                    return;
+                }
+            }
+        }
+        selected(null, -1);
+    }
+
+    /**
      * Invoked when the user selected a new operation in the tree. The default implementation
-     * display the operation description in the text area.
+     * display the operation or parameter description in the text area.
      *
      * @param operation The selected operation, or <code>null</code> if no operation is
      *        selected.
+     * @param param Index of the selected parameter, or <code>-1</code> if no parameter
+     *        is selected.
      */
-    protected void selected(final OperationDescriptor operation) {
-        final String description, version;
+    protected void selected(final OperationDescriptor operation, final int param) {
+        String description = " ";
+        String version     = " ";
         if (operation != null) {
+            final String key;
             final Locale locale = getLocale();
             final ResourceBundle resources = operation.getResourceBundle(locale);
-            description = resources.getString("Description");
-            version     = Resources.getResources(locale).getString(ResourceKeys.VERSION_$1,
-                          resources.getString("Version")) + ", " +
-                          resources.getString("Vendor");
-        } else {
-            description = " ";
-            version     = " ";
+            if (param >= 0) {
+                key = "arg"+param+"Desc";
+            } else {
+                key = "Description";
+            }
+            try {
+                description = resources.getString(key);
+                version     = Resources.getResources(locale).getString(ResourceKeys.VERSION_$1,
+                              resources.getString("Version")) + ", " +
+                              resources.getString("Vendor");
+            } catch (MissingResourceException exception) {
+                /*
+                 * A description was missing for this operation or parameter. This is not a big
+                 * deal; just left some label blank. Log the exception with a low level, since
+                 * this warning is not really important.
+                 */
+                Logger.getLogger("org.geotools.gui.swing").log(Level.FINER,
+                                 exception.getLocalizedMessage(), exception);
+            }
         }
         this.description.setText(description);
         this.version    .setText(version    );
