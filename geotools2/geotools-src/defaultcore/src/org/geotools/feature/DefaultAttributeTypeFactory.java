@@ -24,11 +24,15 @@ import com.vividsolutions.jts.geom.Geometry;
  * Factory for creating DefaultAttributeTypes.
  *
  * @author Ian Schneider
- * @version $Id: DefaultAttributeTypeFactory.java,v 1.9 2003/12/19 00:38:22 jive Exp $
+ * @version $Id: DefaultAttributeTypeFactory.java,v 1.10 2004/02/11 21:31:18 ianschneider Exp $
  */
 public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
     /**
-     * Creates the DefaultAttributeType.
+     * Create an AttributeType with the given name, Class, nillability, and
+     * fieldLength meta-data. This method will itself call <code>
+     * createAttributeType(String,Class,boolean,int,Object) </code> with null
+     * as the default value. To use your own default value, use the above
+     * method, providing your default value.
      *
      * @param name The name of the AttributeType to create.
      * @param clazz the class of the AttributeType to create.
@@ -38,14 +42,8 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
      */
     protected AttributeType createAttributeType(String name, Class clazz, 
         boolean isNillable, int fieldLength) {
-        Object defaultValue = null;
-        if (Number.class.isAssignableFrom(clazz)) {
-            defaultValue = DefaultAttributeType.Numeric.defaultValue;
-        } else if (CharSequence.class.isAssignableFrom(clazz)) {
-            defaultValue = "";
-        }
 
-        return createAttributeType(name,clazz,isNillable,fieldLength,defaultValue);
+        return createAttributeType(name,clazz,isNillable,fieldLength,null);
     }
 
     /**
@@ -59,12 +57,16 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
      */
     protected AttributeType createAttributeType(String name, FeatureType type,
         boolean isNillable) {
+            
         return new DefaultAttributeType.Feature(name, type, isNillable,null);
     }
     
-    protected AttributeType createAttributeType(String name, Class clazz, boolean isNillable, int fieldLength, Object defaultValue) {
-        if (! isNillable && defaultValue == null)
-            throw new IllegalArgumentException("Cannot provide a null default value for non-nillable attribute");
+    /**
+     * Implementation of AttributeType creation.
+     */
+    protected AttributeType createAttributeType(String name, Class clazz, 
+        boolean isNillable, int fieldLength, Object defaultValue) {
+            
         if (Number.class.isAssignableFrom(clazz)) {
             return new DefaultAttributeType.Numeric(
                 name, clazz, isNillable,fieldLength,defaultValue);
@@ -78,7 +80,12 @@ public class DefaultAttributeTypeFactory extends AttributeTypeFactory {
         
         return new DefaultAttributeType(name, clazz, isNillable,fieldLength,defaultValue);
     }
-    protected AttributeType createAttributeType( String name, Class clazz, boolean isNillable, int fieldLength, Object defaultValue, Object metaData ){
+    
+    
+    protected AttributeType createAttributeType( String name, Class clazz, 
+        boolean isNillable, int fieldLength, Object defaultValue, 
+        Object metaData ){
+            
         if( Geometry.class.isAssignableFrom( clazz) && metaData instanceof CoordinateReferenceSystem ){
             return createAttributeType( name, clazz, isNillable, fieldLength, defaultValue, (CoordinateReferenceSystem) metaData );
         }
