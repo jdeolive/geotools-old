@@ -52,21 +52,23 @@ import org.geotools.io.LineWriter;
 
 
 /**
- * A formatter writting log message on a single line. This formatter is used by Geotools 2
- * instead of {@link SimpleFormatter}. The main difference is that this formatter use only
- * one line per message instead of two. For example, a message formatted by
+ * A formatter writting log message on a single line. This formatter is used by 
+ * Geotools 2 instead of {@link SimpleFormatter}. The main difference is that 
+ * this formatter use only one line per message instead of two. For example, a 
+ * message formatted by
  * <code>MonolineFormatter</code> looks like:
  *
  * <blockquote><pre>
- * [core FINE] A log message logged with level FINE from the "org.geotools.core" logger.
- * </pre></blockquote>
+ * [core FINE] A log message logged with level FINE from the "org.geotools.core" 
+ * logger.</pre></blockquote>
  *
- * @version $Id: MonolineFormatter.java,v 1.3 2002/08/19 18:15:30 desruisseaux Exp $
+ * @version $Id: MonolineFormatter.java,v 1.4 2002/08/30 18:54:03 robhranac Exp $
  * @author Martin Desruisseaux
  */
 public class MonolineFormatter extends Formatter {
+
     /**
-     * The string to write at the begining of every log header (e.g. "[FINE core]").
+     * The string to write at the begining of all log headers (e.g. "[FINE core]")
      */
     private static final String PREFIX = "[";
 
@@ -85,7 +87,8 @@ public class MonolineFormatter extends Formatter {
      * The line separator. This is the value of the "line.separator"
      * property at the time the <code>MonolineFormatter</code> was created.
      */
-    private final String lineSeparator = System.getProperty("line.separator", "\n");
+    private final String lineSeparator = 
+        System.getProperty("line.separator", "\n");
 
     /**
      * The line separator for the message body. This line always begin with
@@ -95,17 +98,19 @@ public class MonolineFormatter extends Formatter {
     private String bodyLineSeparator = lineSeparator;
 
     /**
-     * The minimum amount of spaces to use for writting level and module name before the message.
-     * For example if this value is 12, then a message from module "org.geotools.core" with level
-     * FINE would be formatted as "<code>[core&nbsp;&nbsp;FINE]</code> <cite>the message</cite>"
+     * The minimum amount of spaces to use for writting level and module name 
+     * before the message.  For example if this value is 12, then a message from 
+     * module "org.geotools.core" with level FINE would be formatted as 
+     * "<code>[core&nbsp;&nbsp;FINE]</code> <cite>the message</cite>"
      * (i.e. the whole <code>[&nbsp;]</code> part is 12 characters wide).
      */
     private final int margin;
 
     /**
-     * The base logger name. This is used for shortening the logger name when formatting
-     * message. For example, if the base logger name is "org.geotools" and a log record
-     * come from the "org.geotools.core" logger, it will be formatted as "[LEVEL core]"
+     * The base logger name. This is used for shortening the logger name when 
+     * formatting message. For example, if the base logger name is "org.geotools" 
+     * and a log record come from the "org.geotools.core" logger, it will be 
+     * formatted as "[LEVEL core]"
      * (i.e. the "org.geotools" part is ommited).
      */
     private final String base;
@@ -126,11 +131,11 @@ public class MonolineFormatter extends Formatter {
     /**
      * Construct a <code>MonolineFormatter</code>.
      *
-     * @param base   The base logger name. This is used for shortening the logger name
-     *               when formatting message. For example, if the base logger name is
-     *               "org.geotools" and a log record come from the "org.geotools.core"
-     *               logger, it will be formatted as "[LEVEL core]" (i.e. the
-     *               "org.geotools" part is ommited).
+     * @param base   The base logger name. This is used for shortening the logger 
+     *               name when formatting message. For example, if the base 
+     *               logger name is "org.geotools" and a log record come from 
+     *               the "org.geotools.core" logger, it will be formatted as 
+     *               "[LEVEL core]" (i.e. the "org.geotools" part is ommited).
      */
     public MonolineFormatter(final String base) {
         this.base   = base.trim();
@@ -165,9 +170,9 @@ public class MonolineFormatter extends Formatter {
             writer.write(SUFFIX);
             writer.flush(); // Force the writting of whitespaces.
             /*
-             * Now format the message. We will use a line separator made of the usual EOL
-             * ("\r", "\n", or "\r\n", which is plateform specific) following by some amout
-             * of space in order to align message body.
+             * Now format the message. We will use a line separator made of the 
+             * usual EOL ("\r", "\n", or "\r\n", which is plateform specific) 
+             * following by some amout of space in order to align message body.
              */
             final int margin  = buffer.length();
             assert margin >= this.margin;
@@ -187,14 +192,16 @@ public class MonolineFormatter extends Formatter {
     }
 
     /**
-     * Setup a <code>MonolineFormatter</code> for the specified logger and its children.
-     * This method search for all instances of {@link ConsoleHandler} using the {@link
-     * SimpleFormatter}. If such instances are found, they are replaced by a single
-     * instance of <code>MonolineFormatter</code> writting to the {@linkplain System#out
-     * standard output stream} (instead of the {@linkplain System#err standard error stream}).
-     * This action has no effect on any loggers outside the <code>base</code> namespace.
+     * Setup a <code>MonolineFormatter</code> for the specified logger and its 
+     * children.  This method search for all instances of {@link ConsoleHandler} 
+     * using the {@link SimpleFormatter}. If such instances are found, they are 
+     * replaced by a single instance of <code>MonolineFormatter</code> writting 
+     * to the {@linkplain System#out standard output stream} (instead of the 
+     * {@linkplain System#err standard error stream}).  This action has no effect 
+     * on any loggers outside the <code>base</code> namespace.
      *
-     * @param base The base logger name to apply the change on (e.g. "org.geotools").
+     * @param base The base logger name to apply the change on 
+     * (e.g. "org.geotools").
      */
     public static void init(final String base) {
         Formatter monoline = null;
@@ -207,9 +214,10 @@ public class MonolineFormatter extends Formatter {
             final Handler[] handlers = parent.getHandlers();
             for (int i=0; i<handlers.length; i++) {
                 /*
-                 * Search for a ConsoleHandler. Search is performed in the target handler
-                 * and all its parent loggers. When a ConsoleHandler is found, it will be
-                 * replaced by the Stdout handler for 'logger' only.
+                 * Search for a ConsoleHandler. Search is performed in the target 
+                 * handler and all its parent loggers. When a ConsoleHandler is 
+                 * found, it will be replaced by the Stdout handler for 'logger' 
+                 * only.
                  */
                 Handler handler = handlers[i];
                 if (handler.getClass().equals(ConsoleHandler.class)) {
@@ -237,15 +245,18 @@ public class MonolineFormatter extends Formatter {
      * Invoked when an error occurs during the initialization.
      */
     private static void unexpectedException(final Exception e) {
-        Utilities.unexpectedException("org.geotools.resources", "GeotoolsHandler", "init", e);
+        Utilities.unexpectedException("org.geotools.resources", 
+                                      "GeotoolsHandler", "init", e);
     }
 
     /**
-     * Returns the header width. This is the default value to use for {@link #margin},
-     * if no value has been explicitely set. This value can be set in user's preferences.
+     * Returns the header width. This is the default value to use for 
+     * {@link #margin}, if no value has been explicitely set. This value can be 
+     * set in user's preferences.
      */
     private static int getHeaderWidth() {
-        return Preferences.userNodeForPackage(MonolineFormatter.class).getInt("logging.header", 15);
+        return Preferences.userNodeForPackage(MonolineFormatter.class).
+            getInt("logging.header", 15);
     }
 
     /**
@@ -253,19 +264,22 @@ public class MonolineFormatter extends Formatter {
      * for next {@link MonolineFormatter} to be created.
      */
     static void setHeaderWidth(final int margin) {
-        Preferences.userNodeForPackage(MonolineFormatter.class).putInt("logging.header", margin);
+        Preferences.userNodeForPackage(MonolineFormatter.class).
+            putInt("logging.header", margin);
     }
 
     /**
-     * A {@link ConsoleHandler} sending output to {@link System#out} instead of {@link System#err}.
-     * This handler will use a {@link MonolineFormatter} writting log message on a single line.
+     * A {@link ConsoleHandler} sending output to {@link System#out} instead of 
+     * {@link System#err}  This handler will use a {@link MonolineFormatter} 
+     * writting log message on a single line.
      *
-     * @task TODO: This class should subclass {@link ConsoleHandler}. Unfortunatly, this is
-     *             currently not possible because {@link ConsoleHandler#setOutputStream}
-     *             close {@link System#err}. If this bug get fixed, then {@link #close}
-     *             no longer need to be overriden.
+     * @task TODO: This class should subclass {@link ConsoleHandler}. 
+     * Unfortunatly, this is currently not possible because 
+     * {@link ConsoleHandler#setOutputStream} close {@link System#err}. If this 
+     * bug get fixed, then {@link #close} no longer need to be overriden.
      */
     private static final class Stdout extends StreamHandler {
+
         /**
          * Construct a handler.
          *

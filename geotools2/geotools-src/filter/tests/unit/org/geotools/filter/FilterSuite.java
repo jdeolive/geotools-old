@@ -8,6 +8,7 @@
 package org.geotools.filter;
 
 import junit.framework.*;
+import java.util.logging.Level;
 
 
 /**
@@ -16,6 +17,10 @@ import junit.framework.*;
  */
 public class FilterSuite extends TestCase {
     
+    static {
+        org.geotools.resources.Geotools.init("Log4JFormatter", Level.INFO);
+    }
+
     public FilterSuite(java.lang.String testName) {
         super(testName);
     }
@@ -25,15 +30,16 @@ public class FilterSuite extends TestCase {
     }
     
     public static Test suite() {
-        org.apache.log4j.BasicConfigurator.configure();
         TestSuite suite = new TestSuite("All filter tests");
+        suite.addTestSuite(ParserTest.class);
+        /*
         suite.addTestSuite(LiteralTest.class);
         suite.addTestSuite(AttributeTest.class);
         suite.addTestSuite(BetweenTest.class);
         suite.addTestSuite(MathTest.class);
         suite.addTestSuite(DOMParserTest.class);
-        suite.addTestSuite(ParserTest.class);
         suite.addTestSuite(XMLEncoderTest.class);
+        */
         return suite;
     }
     

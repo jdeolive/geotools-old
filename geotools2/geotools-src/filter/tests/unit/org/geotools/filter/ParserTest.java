@@ -1,3 +1,4 @@
+
 /*
  *    Geotools - OpenSource mapping toolkit
  *    (C) 2002, Centre for Computational Geography
@@ -22,14 +23,11 @@ package org.geotools.filter;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 //import org.apache.xerces.jaxp.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
@@ -46,10 +44,13 @@ import org.geotools.gml.GMLFilterDocument;
  * @author James MacGill, CCG
  * @author Rob Hranac, TOPP
  */                                
-public class ParserTest extends TestCase implements FilterHandler {
+public class ParserTest 
+    extends TestCase 
+    implements FilterHandler {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger(ParserTest.class);
+    private static final Logger LOGGER = 
+        Logger.getLogger("org.geotools.filter");
 
     /** Feature on which to preform tests */
     private Filter filter = null;
@@ -71,8 +72,6 @@ public class ParserTest extends TestCase implements FilterHandler {
     boolean setup=false;
     public ParserTest(String testName) {
         super(testName);
-        _log.info("running parser tests");
-        System.out.println("running parser tests"); 
         dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
@@ -93,8 +92,6 @@ public class ParserTest extends TestCase implements FilterHandler {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.INFO);
         TestSuite suite = new TestSuite(ParserTest.class);
         return suite;
     }
@@ -111,13 +108,13 @@ public class ParserTest extends TestCase implements FilterHandler {
         if(setup) return;
         setup=true;
         // Create the schema attributes
-        _log.debug("creating flat feature...");
+        LOGGER.fine("creating flat feature...");
         AttributeType geometryAttribute = 
             new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        LOGGER.fine("created geometry attribute");
         AttributeType booleanAttribute = 
             new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        LOGGER.fine("created boolean attribute");
         AttributeType charAttribute = 
             new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute = 
@@ -137,25 +134,25 @@ public class ParserTest extends TestCase implements FilterHandler {
         
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute); 
-        _log.debug("created feature type and added geometry");
+        LOGGER.fine("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        LOGGER.fine("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        LOGGER.fine("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        LOGGER.fine("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        LOGGER.fine("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        LOGGER.fine("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        LOGGER.fine("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        LOGGER.fine("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        LOGGER.fine("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
-        _log.debug("added string to feature type");
+        LOGGER.fine("added string to feature type");
 
         // Creates coordinates for the linestring
         Coordinate[] coords = new Coordinate[3];
@@ -179,103 +176,103 @@ public class ParserTest extends TestCase implements FilterHandler {
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
+        LOGGER.fine("...flat feature created");
     }
 
     public void test1()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test1.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }
     
     public void test2()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test2.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }
 
     public void test3a()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test3a.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }
 
     
     public void test3b()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test3b.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }
     
     public void test4()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test4.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
         
     public void test8()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test8.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
 
     public void test9()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test9.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
 
     public void test11()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test11.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
 
     public void test12()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test12.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
 
     public void test13()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test13.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
     
     public void test14()
         throws Exception {
         Filter test = parseDocument(dataFolder+"/test14.xml");
-        _log.info("filter: " + test.getClass().toString());
-        _log.info("parsed: " + test.toString());
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
     }    
 
     public Filter parseDocument(String uri) 
         throws Exception {
         
-        _log.debug("about to parse: " + uri);
         SAXParserFactory factory = SAXParserFactory.newInstance();
-        _log.debug("just created factory");
+        LOGGER.info("about to parse: " + uri);
+        LOGGER.fine("just created factory");
 
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
-        FilterFilter filterFilter = new FilterFilter(this, testSchema);						
-        _log.debug("just created filter filter");
-        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);						
-        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);						
-        _log.debug("about to make parser");
+        FilterFilter filterFilter = new FilterFilter(this, testSchema);
+        LOGGER.fine("just created filter filter");
+        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);
+        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+        LOGGER.fine("about to make parser");
         //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); // uncomment to use xerces parser
-        _log.debug("just made parser");
+        LOGGER.fine("just made parser");
         
         //parser.setContentHandler(documentFilter);
         //parser.parse(uri);
@@ -286,7 +283,7 @@ public class ParserTest extends TestCase implements FilterHandler {
         ParserAdapter p = new ParserAdapter(parser.getParser());
         p.setContentHandler(documentFilter);
         p.parse(uri);
-        _log.debug("just parsed: " + uri);
+        LOGGER.fine("just parsed: " + uri);
 
         return filter;
     }

@@ -69,6 +69,8 @@ public class XMLEncoderTest extends TestCase {
     boolean setup = false;
     public XMLEncoderTest(String testName) {
         super(testName);
+        BasicConfigurator.configure();
+        _log.getLoggerRepository().setThreshold(Level.DEBUG);
         _log.info("running XMLEncoderTests");;
         dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
@@ -91,8 +93,6 @@ public class XMLEncoderTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        _log.getLoggerRepository().setThreshold(Level.DEBUG);
         
         TestSuite suite = new TestSuite(XMLEncoderTest.class);
         return suite;
@@ -107,7 +107,6 @@ public class XMLEncoderTest extends TestCase {
     protected void setUp() throws SchemaException, IllegalFeatureException {
         if(setup) return;
         setup=true;
-        _log.getLoggerRepository().setThreshold(Level.INFO);
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute =

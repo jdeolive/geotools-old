@@ -45,13 +45,16 @@
   <!-- SET OPTIONAL TASK DEFINITIONS                                         -->
   <!-- ===================================================================== -->
   <target name="taskdefs">
-    <taskdef classname="org.netbeans.nbbuild.ForEach" classpathref="path.netbeans" name="forEach"/>        
+    <taskdef classname="org.netbeans.nbbuild.ForEach" 
+             classpathref="path.netbeans" name="forEach"/>        
 
-    <taskdef classname="org.netbeans.nbbuild.CheckValue" classpathref="path.netbeans" name="check"/>        
+    <taskdef classname="org.netbeans.nbbuild.CheckValue" 
+             classpathref="path.netbeans" 
+             name="check"/>        
 
-    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" classpathref="path.checkstyle" name="checkstyle"/>
-    
-    <!-- taskdef classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask" classpath="path.junit" name="junit"/ -->
+    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" 
+             classpathref="path.checkstyle" 
+             name="checkstyle"/> 
   </target>
 
 
@@ -105,7 +108,7 @@
   <!-- ===================================================================== -->
   <!-- PREPARE DEPENDENCIES                                                  -->
   <!-- ===================================================================== -->
-  <!-- essentially a dummy target to set the classpath then build the depencies  -->
+  <!-- a dummy target to set the classpath then build the dependencies  -->
   <target depends="init,set-classpath,add-extbin" name="prepare-compile">
     <echo message="Prep-compile: ${project.name}"/>
     <antcall target="dependancies"/>

@@ -24,7 +24,6 @@
       <formatter type="plain" usefile="false"/>
       <sysproperty key="dataFolder" value="${basedir}/tests/unit/testData"/>
       <classpath>
-        <pathelement path="../../extbin/filter/lib/xerces.jar"/>
         <pathelement path="../../extbin/core/lib/JTS.jar"/>
         <pathelement path="../../extbin/core/lib/log4j-1.2.3.jar"/>
         <pathelement path="./tests/unit"/>

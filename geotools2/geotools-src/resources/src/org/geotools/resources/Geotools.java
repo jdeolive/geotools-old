@@ -32,16 +32,20 @@
  */
 package org.geotools.resources;
 
+import java.util.logging.Level;
+
 
 /**
- * A central place where to provides system-wide services for Geotools. The {@link #init}
- * method should be invoked once during some Geotools's class initialization. Current
- * implementation just setup a custom logger for the <code>"org.geotools"</code> package.
+ * A central place where to provides system-wide services for Geotools. The 
+ * {@link #init} method should be invoked once during some Geotools's class 
+ * initialization. Current implementation just setup a custom logger for the
+ * <code>"org.geotools"</code> package.
  *
- * @version $Id: Geotools.java,v 1.1 2002/08/19 18:15:29 desruisseaux Exp $
+ * @version $Id: Geotools.java,v 1.2 2002/08/30 18:54:03 robhranac Exp $
  * @author Martin Desruisseaux
  */
 public final class Geotools {
+
     /**
      * Do not allow instanciation of this class.
      */
@@ -53,5 +57,17 @@ public final class Geotools {
      */
     public static void init() {
         MonolineFormatter.init("org.geotools");
+    }
+
+    /**
+     * Performs a system-wide initialization for Geotools.
+     */
+    public static void init(String type, Level level) {
+        if(type.equals("Log4JFormatter")) {
+            Log4JFormatter.init("org.geotools", level);
+        }
+        else {
+            MonolineFormatter.init("org.geotools");
+        }
     }
 }
