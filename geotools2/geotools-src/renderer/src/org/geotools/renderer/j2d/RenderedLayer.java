@@ -56,8 +56,6 @@ import java.beans.PropertyChangeListener;
 // Miscellaneous J2SE
 import java.util.Locale;
 import java.util.EventListener;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 // Java Advanced Imaging
 import javax.media.jai.PlanarImage; // For Javadoc
@@ -72,8 +70,6 @@ import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.XAffineTransform;
-import org.geotools.resources.renderer.Resources;
-import org.geotools.resources.renderer.ResourceKeys;
 
 
 /**
@@ -82,17 +78,10 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Transformations to the {@linkplain RenderingContext#mapCS rendering coordinate system}
  * are performed on the fly at rendering time.
  *
- * @version $Id: RenderedLayer.java,v 1.6 2003/01/28 16:12:15 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.7 2003/01/31 23:15:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedLayer {
-    /**
-     * Minimum amout of milliseconds during rendering before logging a message.
-     * A message will be logged only if rendering take longer. This is used for
-     * tracking down performance bottleneck.
-     */
-    private static final int TIME_THRESHOLD = 200;
-
     /**
      * The default stroke to use if no stroke can be infered from
      * {@link #getPreferredPixelSize}.
@@ -218,8 +207,8 @@ public abstract class RenderedLayer {
      * @param  locale The desired locale, or <code>null</code> for a default locale.
      * @return This layer's name.
      *
-     * @see Renderer#getLocale
-     * @see Component#getLocale
+     * @see #getLocale
+     * @see Renderer#getName
      */
     public String getName(final Locale locale) {
         return Utilities.getShortClassName(this) + '[' + getZOrder() + ']';
@@ -571,7 +560,6 @@ public abstract class RenderedLayer {
         assert Thread.holdsLock(getTreeLock());
         if (visible) {
             if (paintedArea==null || clipBounds==null || paintedArea.intersects(clipBounds)) {
-                long time = System.currentTimeMillis();
                 if (stroke == null) {
                     final Dimension2D s = getPreferredPixelSize();
                     if (s != null) {
@@ -592,18 +580,6 @@ public abstract class RenderedLayer {
                     this.paintedArea = context.paintedArea;
                 }
                 context.paintedArea = null;
-                /*
-                 * If this layer took a long time to renderer, log a message.
-                 */
-                time = System.currentTimeMillis()-time;
-                if (time > TIME_THRESHOLD) {
-                    final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINEST,
-                                             ResourceKeys.PAINTING_$2, getName(null),
-                                             new Double(time/1000.0));
-                    record.setSourceClassName(Utilities.getShortClassName(this));
-                    record.setSourceMethodName("paint");
-                    Renderer.LOGGER.log(record);
-                }
             }
         }
     }

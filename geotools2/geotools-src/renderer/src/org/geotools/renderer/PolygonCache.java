@@ -51,7 +51,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * There is at most one instance of this class for each instance of {@link Polygon}. This
  * class is strictly for internal use by {@link PolygonPathIterator}.
  *
- * @version $Id: PolygonCache.java,v 1.1 2003/01/29 23:18:05 desruisseaux Exp $
+ * @version $Id: PolygonCache.java,v 1.2 2003/01/31 23:15:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: More work are needed: hold a strong reference to the array for some time before
@@ -98,6 +98,12 @@ final class PolygonCache {
      * Number of valid elements in {@link #array}. This is twice the number of valid points.
      */
     private int length;
+
+    /**
+     * <code>true</code> if the last call of {@link #getRenderingArray} has recomputed
+     * the cache array. This information is for statistics purpose only.
+     */
+    private boolean recomputed;
 
     /**
      * Construct a new empty cache. This constructor is used by {@link Polygon#getCache} only.
@@ -152,6 +158,7 @@ final class PolygonCache {
             this.array = array = XArray.resize(array, length);
             if (newTransform.equals(transform)) {
                 lockCount++;
+                recomputed = false;
                 return array;
             }
             if (lockCount == 0) try {
@@ -160,6 +167,7 @@ final class PolygonCache {
                 change.transform(array, 0, array, 0, length/2);
                 transform = newTransform;
                 lockCount = 1;
+                recomputed = false;
                 return array;
             } catch (NoninvertibleTransformException exception) {
                 Utilities.unexpectedException("org.geotools.renderer", "Polygon",
@@ -168,21 +176,27 @@ final class PolygonCache {
             } else {
                 // Should be uncommon. Doesn't hurt, but may be a memory issue for big polygon.
                 Polygon.LOGGER.info(Resources.format(ResourceKeys.WARNING_EXCESSIVE_MEMORY_USAGE));
-                this.array = array = null; // A new array will be allocated later.
+                this.array = array = new float[32];
             }
+        } else {
+            this.array = array = new float[32];
         }
         /*
          * Reconstruit le tableau de points à partir des données de bas niveau.
          * La projection cartographique sera appliquée par {@link Polygon#toArray}.
          */
-        this.array = array = new float[32];
         final float[][] arrays = new float[][]{array};
         length = polygon.toArray(arrays, polygon.getRenderingResolution());
         this.array = array = arrays[0];
         assert (length & 1) == 0;
+        if (array.length >= 2*length) {
+            // If the array is much bigger then needed, trim to size.
+            this.array = array = XArray.resize(array, length);
+        }
         lockCount  = 1;
         transform  = newTransform;
         transform.transform(array, 0, array, 0, length/2);
+        recomputed = true;
         return array;
     }
 
@@ -203,7 +217,7 @@ final class PolygonCache {
         if (intern == array) {
             // TODO: in some future version, we should wait a little bit longer
             //       before to change a strong reference into a soft one.
-                this.array = new SoftReference(array);
+            this.array = new SoftReference(array);
         }
         else if (!(intern instanceof Reference) || ((Reference)intern).get()!=array) {
             // This cache doesn't own the array. Nothing to do.
@@ -219,5 +233,13 @@ final class PolygonCache {
      */
     final int getLength() {
         return length;
+    }
+
+    /**
+     * Returns <code>true</code> if the last call of {@link #getRenderingArray} has recomputed
+     * the cache array. This information is for statistics purpose only.
+     */
+    final boolean recomputed() {
+        return recomputed;
     }
 }

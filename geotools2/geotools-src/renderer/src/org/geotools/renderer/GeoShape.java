@@ -62,6 +62,7 @@ import org.geotools.ct.CannotCreateTransformException;
 import org.geotools.ct.CoordinateTransformation;
 import org.geotools.ct.TransformException;
 import org.geotools.resources.Utilities;
+import org.geotools.util.Statistics;
 
 
 /**
@@ -75,7 +76,7 @@ import org.geotools.resources.Utilities;
  * which can be changed dynamically (i.e. the shapes can be reprojected). Futhermore,
  * <code>GeoShape</code>s can compress and share their data in order to reduce memory footprint.
  *
- * @version $Id: GeoShape.java,v 1.3 2003/01/30 23:34:39 desruisseaux Exp $
+ * @version $Id: GeoShape.java,v 1.4 2003/01/31 23:15:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class GeoShape implements Shape, Cloneable, Serializable {
@@ -260,11 +261,12 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
     public abstract int getPointCount();
 
     /**
-     * Returns the shape's mean resolution. This resolution is the mean distance between
+     * Returns the shape's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this shape  (ignoring "extra" points used for
-     * drawing a border, if there is one). This method try to returns linear units (usually
-     * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
-     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * drawing a border, if there is one).  This method try to express the resolution in
+     * linear units (usually meters) no matter if the coordinate systems is actually a
+     * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
+     * More specifically:
      * <ul>
      *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
      *       one, then the resolution is expressed in units of the underlying
@@ -274,9 +276,15 @@ public abstract class GeoShape implements Shape, Cloneable, Serializable {
      *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
      * </ul>
      *
-     * @return The mean resolution, or {@link Float#NaN} if this shape doesn't have any point.
+     * @return Statistics about the resolution, or <code>null</code> if this shape doesn't
+     *         contains any point. If non-null, the statistics object contains
+     *         {@linkplain Statistics#minimum minimum},
+     *         {@linkplain Statistics#maximum maximum},
+     *         {@linkplain Statistics#mean mean},
+     *         {@linkplain Statistics#rms root mean square} and
+     *         {@linkplain Statistics#standardDeviation standard deviation}.
      */
-    public abstract float getResolution();
+    public abstract Statistics getResolution();
 
     /**
      * Set the shape's resolution. This method try to interpolate new points in such a way

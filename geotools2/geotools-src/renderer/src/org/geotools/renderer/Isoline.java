@@ -40,7 +40,7 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.PathIterator;
 import java.awt.geom.AffineTransform;
 
-// Collections
+// Collections and utils
 import java.util.Set;
 import java.util.List;
 import java.util.Arrays;
@@ -51,11 +51,7 @@ import java.util.AbstractSet;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
-
-// Logging and resources
 import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.cs.Ellipsoid;
@@ -63,6 +59,7 @@ import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
 import org.geotools.cs.ProjectedCoordinateSystem;
 import org.geotools.cs.GeographicCoordinateSystem;
+import org.geotools.util.Statistics;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.renderer.Resources;
@@ -81,7 +78,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * for <code>Isoline</code> is convenient for sorting isolines in increasing
  * order of altitude.
  *
- * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
+ * @version $Id: Isoline.java,v 1.8 2003/01/31 23:15:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -114,7 +111,7 @@ public class Isoline extends GeoShape implements Comparable {
      * If a polygon is to be returned, it must be cloned again. Cloning polygons allow to
      * protect their state, especially the <code>Polygon.setRenderingResolution(...)</code>
      * value which is implementation details and should be hidden to the user. The only
-     * exception to this rule is calls to {@link Isoline.Renderer#paint}, which do not
+     * exception to this rule is calls to {@link Polygon.Renderer#paint}, which do not
      * clone polygons for performance reasons.
      */
     private Polygon[] polygons;
@@ -137,6 +134,12 @@ public class Isoline extends GeoShape implements Comparable {
      * pour accélérer certaines vérifications.
      */
     private Rectangle2D bounds;
+
+    /**
+     * The statistics about resolution, or <code>null</code> if none.
+     * This object is computed when first requested and cached for next uses.
+     */
+    private Statistics resolution;
 
     /**
      * Construct an initialy empty isoline. Polygon may be added using one
@@ -480,47 +483,45 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Paint this isoline using the specified {@link Isoline.Renderer}.
+     * Paint this isoline using the specified {@link Polygon.Renderer}.
      * This method is faster than <code>graphics.draw(this)</code> since
      * it reuse internal cache when possible.
      *
-     * @param  renderer The destination renderer. The {@link Isoline.Renderer#paint}
+     * @param  renderer The destination renderer. The {@link Polygon.Renderer#paint}
      *         method will be invoked for each polygon to renderer.
      */
-    public synchronized void paint(final Isoline.Renderer renderer) {
+    public synchronized void paint(final Polygon.Renderer renderer) {
+        int rendered=0, recomputed=0;
         final Shape clip = renderer.getClip();
         if (clip.intersects(getCachedBounds())) {
             if (!sorted) {
                 sort();
             }
-            int numPoints = 0;
-            int numDecimated = 0;
             for (int i=polygonCount; --i>=0;) {
                 final Polygon polygon = polygons[i];
                 synchronized (polygon) {
                     if (clip.intersects(polygon.getCachedBounds())) {
+                        /*
+                         * Compute the rendering resolution and paint the polygon.
+                         */
                         float resolution = polygon.getRenderingResolution();
                         resolution = renderer.getRenderingResolution(resolution);
-                        int n = polygon.setRenderingResolution(resolution);
-                        numDecimated += Math.round(n*(polygon.getResolution()/resolution));
-                        numPoints    += n;
+                        polygon.setRenderingResolution(resolution);
                         renderer.paint(polygon);
+                        /*
+                         * Get statistical data for monitoring the cache performance.
+                         */
+                        final PolygonCache cache = polygon.getCache();
+                        final int numPts = cache.getLength()/2;
+                        rendered += numPts;
+                        if (cache.recomputed()) {
+                            recomputed += numPts;
+                        }
                     }
                 }
             }
-            if (numPoints!=0 && LOGGER.isLoggable(Level.FINER)) {
-                // FINER is the default level for entering, returning, or throwing an exception.
-                final LogRecord record = Resources.getResources(null).getLogRecord(Level.FINER,
-                                         ResourceKeys.REBUILD_CACHE_ARRAY_$3,
-                                         new Float(value),
-                                         new Integer(numPoints),
-                                         new Float(Math.min((float)numDecimated /
-                                                            (float)numPoints, 1)));
-                record.setSourceClassName ("Isoline");
-                record.setSourceMethodName("paint");
-                LOGGER.log(record);
-            }
         }
+        renderer.paintCompleted(rendered, recomputed);
     }
 
     /**
@@ -809,11 +810,12 @@ public class Isoline extends GeoShape implements Comparable {
     }
 
     /**
-     * Returns the isoline's mean resolution. This resolution is the mean distance between
+     * Returns the isoline's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this isoline  (ignoring "extra" points used for
-     * drawing a border, if there is one). This method try to returns linear units (usually
-     * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
-     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * drawing a border, if there is one). This method try to express the resolution in
+     * linear units (usually meters) no matter if the coordinate systems is actually a
+     * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
+     * More specifically:
      * <ul>
      *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
      *       one, then the resolution is expressed in units of the underlying
@@ -823,23 +825,20 @@ public class Isoline extends GeoShape implements Comparable {
      *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
      * </ul>
      *
-     * @return The mean resolution, or {@link Float#NaN} if this isoline doesn't have any point.
-     *
      * @see Polygon#getResolution
      */
-    public synchronized float getResolution() {
-        int    sumCount      = 0;
-        double sumResolution = 0;
-        for (int i=polygonCount; --i>=0;) {
-            final Polygon polygon  = polygons[i];
-            final float resolution = polygon.getResolution();
-            if (!Float.isNaN(resolution)) {
-                final int count = polygon.getPointCount();
-                sumResolution += count*(double)resolution;
-                sumCount      += count;
+    public synchronized Statistics getResolution() {
+        if (resolution == null) {
+            for (int i=polygonCount; --i>=0;) {
+                final Statistics toAdd = polygons[i].getResolution();
+                if (resolution == null) {
+                    resolution = toAdd;
+                } else {
+                    resolution.add(toAdd);
+                }
             }
         }
-        return (float) (sumResolution/sumCount);
+        return (Statistics) resolution.clone();
     }
 
     /**
@@ -1033,7 +1032,8 @@ public class Isoline extends GeoShape implements Comparable {
      * sa vitesse normale).
      */
     final void clearCache() {
-        bounds = null;
+        bounds     = null;
+        resolution = null;
         for (int i=polygonCount; --i>=0;) {
             polygons[i].clearCache();
         }
@@ -1056,7 +1056,7 @@ public class Isoline extends GeoShape implements Comparable {
      * The set of polygons under a point. The check of inclusion
      * or intersection will be performed only when needed.
      *
-     * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
+     * @version $Id: Isoline.java,v 1.8 2003/01/31 23:15:36 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class FilteredSet extends AbstractSet {
@@ -1177,52 +1177,5 @@ public class Isoline extends GeoShape implements Comparable {
                 }
             };
         }
-    }
-
-
-
-
-    /**
-     * This interface defines the method required by any object that
-     * would like to be a renderer for polygons in an {@link Isoline}.
-     * The {@link #paint} method is invoked by {@link Isoline#paint}.
-     *
-     * @version $Id: Isoline.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
-     * @author Martin Desruisseaux
-     *
-     * @see Isoline#paint
-     * @see org.geotools.renderer.j2d.RenderedIsoline
-     */
-    public static interface Renderer {
-        /**
-         * Returns the clip area in units of the isoline's coordinate system.
-         * This is usually "real world" metres or degrees of latitude/longitude.
-         *
-         * @see Isoline#getCoordinateSystem
-         */
-        public abstract Shape getClip();
-
-        /**
-         * Returns the rendering resolution, in units of the isoline's coordinate system
-         * (usually metres or degrees). A larger resolution speed up rendering, while a
-         * smaller resolution draw more precise map.
-         *
-         * @param  current The current rendering resolution.
-         * @return the <code>current</code> rendering resolution if it still good enough,
-         *         or a new resolution if a change is needed.
-         *
-         * @see Isoline#getCoordinateSystem
-         */
-        public abstract float getRenderingResolution(float current);
-
-        /**
-         * Draw or fill a polygon. {@link Isoline#paint} invokes this method with a decimated and/or
-         * clipped polygon in argument. This polygon expose some internal state of {@link Isoline}.
-         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
-         * in order to avoid unexpected behaviour.
-         *
-         * @param polygon The polygon to draw. <strong>Do not modify.</strong>
-         */
-        public abstract void paint(final Polygon polygon);
     }
 }

@@ -80,11 +80,11 @@ import org.geotools.ct.MathTransform;
 
 // Miscellaneous
 import org.geotools.util.WeakHashSet;
+import org.geotools.util.Statistics;
 import org.geotools.resources.XMath;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Arguments;
 import org.geotools.resources.Utilities;
-import org.geotools.resources.Statistics;
 import org.geotools.resources.XRectangle2D;
 import org.geotools.resources.CTSUtilities;
 import org.geotools.resources.renderer.Resources;
@@ -103,7 +103,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polygon.java,v 1.7 2003/01/30 23:34:39 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.8 2003/01/31 23:15:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
@@ -379,7 +379,7 @@ public class Polygon extends GeoShape {
      * Retourne le système de coordonnées natif des points de
      * {@link #data}, ou <code>null</code> s'il n'est pas connu.
      */
-    private CoordinateSystem getSourceCS() {
+    private CoordinateSystem getInternalCS() {
         // copy 'coordinateTransform' reference in order to avoid synchronization
         final CoordinateTransformation coordinateTransform = this.coordinateTransform;
         return (coordinateTransform!=null) ? coordinateTransform.getSourceCS() : null;
@@ -402,7 +402,7 @@ public class Polygon extends GeoShape {
      *
      * @throws CannotCreateTransformException Si la transformation ne peut pas être créée.
      */
-    private CoordinateTransformation getCoordinateTransformation(final CoordinateSystem cs)
+    private CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
             throws CannotCreateTransformException
     {
         // copy 'coordinateTransform' reference in order to avoid synchronization
@@ -451,10 +451,11 @@ public class Polygon extends GeoShape {
         // we want a 'TransformException' in case of failure.
         coordinateSystem = CTSUtilities.getCoordinateSystem2D(coordinateSystem);
         if (coordinateSystem == null) {
-            coordinateSystem = getSourceCS();
+            coordinateSystem = getInternalCS();
             // May still null. Its ok.
         }
-        final CoordinateTransformation transformCandidate = getCoordinateTransformation(coordinateSystem);
+        final CoordinateTransformation transformCandidate =
+                getTransformationFromInternalCS(coordinateSystem);
         /*
          * Compute bounds now. The getBounds2D(...) method scan every point.
          * Concequently, if a exception must be throws, it will be thrown now.
@@ -559,7 +560,7 @@ public class Polygon extends GeoShape {
     private Rectangle2D getCachedBounds(final CoordinateSystem coordinateSystem)
             throws TransformException
     {
-        if (Utilities.equals(getSourceCS(),         coordinateSystem)) return getDataBounds();
+        if (Utilities.equals(getInternalCS(),       coordinateSystem)) return getDataBounds();
         if (Utilities.equals(getCoordinateSystem(), coordinateSystem)) return getCachedBounds();
         Rectangle2D bounds=Polyline.getBounds2D(data, getMathTransform2D(coordinateTransform));
         if (bounds == null) {
@@ -607,9 +608,9 @@ public class Polygon extends GeoShape {
      * @param  transformation Transformation à utiliser pour convertir les points de {@link #data},
      *         ou <code>null</code> pour ne pas faire de transformation. Si une transformation
      *         non-nulle est spécifiée, elle devrait avoir été obtenue par un appel à la méthode
-     *         <code>getCoordinateTransformation(targetCS)</code>. Tous les points du polygone seront
-     *         alors projetés selon le système de coordonnées <code>targetCS</code>. Autant que
-     *         possible, il est plus efficace de ne calculer que la projection inverse du point
+     *         <code>getTransformationFromInternalCS(targetCS)</code>. Tous les points du polygone
+     *         seront alors projetés selon le système de coordonnées <code>targetCS</code>. Autant
+     *         que possible, il est plus efficace de ne calculer que la projection inverse du point
      *         (<var>x</var>,<var>y</var>) et de spécifier <code>null</code> pour cet argument.
      * @return <code>true</code> si le point est à l'intérieur de ce polygone.
      *
@@ -847,13 +848,13 @@ public class Polygon extends GeoShape {
          * intersection entre <code>shape</code> et <code>this</code>.
          */
         if (interiorType != UNCLOSED) try {
-            final CoordinateSystem coordinateSystem = getSourceCS();
+            final CoordinateSystem coordinateSystem = getInternalCS();
             if (getDataBounds().contains(shape.getCachedBounds(coordinateSystem))) {
                 final Point2D.Float firstPt = new Point2D.Float();
                 final  Line2D.Float segment = new  Line2D.Float();
                 final Polyline.Iterator  it = new Polyline.Iterator(shape.data,
-                                              shape.getMathTransform2D(
-                                              shape.getCoordinateTransformation(coordinateSystem)));
+                                          shape.getMathTransform2D(
+                                          shape.getTransformationFromInternalCS(coordinateSystem)));
                 if (it.next(firstPt)!=null && contains(firstPt.x, firstPt.y, null)) {
                     segment.x2 = firstPt.x;
                     segment.y2 = firstPt.y;
@@ -891,7 +892,7 @@ public class Polygon extends GeoShape {
      *
      * @param  line Ligne dont on veut déterminer si elle intercepte ce polygone.
      *         Cette ligne doit obligatoirement être exprimée selon le système de
-     *         coordonnées natif de {@link #array}, c'est-à-dire {@link #getSourceCS}.
+     *         coordonnées natif de {@link #array}, c'est-à-dire {@link #getInternalCS}.
      * @return <code>true</code> si la ligne <code>line</code> intercepte ce poylgone.
      */
     private boolean intersects(final Line2D line) {
@@ -979,13 +980,13 @@ public class Polygon extends GeoShape {
      */
     private boolean intersects(final Polygon shape, final boolean checkEdgeOnly) {
         try {
-            final CoordinateSystem coordinateSystem = getSourceCS();
+            final CoordinateSystem coordinateSystem = getInternalCS();
             if (getDataBounds().intersects(shape.getCachedBounds(coordinateSystem))) {
                 final Point2D.Float firstPt = new Point2D.Float();
                 final  Line2D.Float segment = new  Line2D.Float();
                 final Polyline.Iterator  it = new Polyline.Iterator(shape.data,
-                                              shape.getMathTransform2D(
-                                              shape.getCoordinateTransformation(coordinateSystem)));
+                                          shape.getMathTransform2D(
+                                          shape.getTransformationFromInternalCS(coordinateSystem)));
                 if (it.next(firstPt) != null) {
                     if (checkEdgeOnly || !contains(firstPt.x, firstPt.y)) {
                         segment.x2 = firstPt.x;
@@ -1045,20 +1046,14 @@ public class Polygon extends GeoShape {
      * Cette information est utilisée par les objets {@link PolygonPathIterator}.
      *
      * @param  resolution Résolution à appliquer.
-     * @return Nombre de points qui seront à recalculer, ou 0 si la cache
-     *         a pu être réutilisée. Cette information n'est fournie qu'à
-     *         des fins de statistiques.
      */
-    final int setRenderingResolution(final float resolution) {
+    final void setRenderingResolution(final float resolution) {
         assert Thread.holdsLock(this);
-        int newResolution = (int) ((resolution / getResolution()) * RESOLUTION_FACTOR);
+        int newResolution = (int) ((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
         newResolution = Math.max(0, Math.min(0xFF, newResolution));
         if ((byte)newResolution != renderingResolution) {
             cache = null;
             renderingResolution = (byte)newResolution;
-            return Polyline.getPointCount(data);
-        } else {
-            return 0;
         }
     }
 
@@ -1067,7 +1062,7 @@ public class Polygon extends GeoShape {
      */
     final float getRenderingResolution() {
         assert Thread.holdsLock(this);
-        return ((int)renderingResolution & 0xFF) * getResolution() / RESOLUTION_FACTOR;
+        return ((int)renderingResolution & 0xFF) * getMeanResolution() / RESOLUTION_FACTOR;
     }
 
     /**
@@ -1282,7 +1277,7 @@ public class Polygon extends GeoShape {
         if (toAppend == null) {
             return;
         }
-        if (!Utilities.equals(getSourceCS(), toAppend.getSourceCS())) {
+        if (!Utilities.equals(getInternalCS(), toAppend.getInternalCS())) {
             throw new UnsupportedOperationException(); // TODO.
         }
         if (interiorType != UNCLOSED || toAppend.interiorType != UNCLOSED) {
@@ -1373,11 +1368,26 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the polygon's mean resolution. This resolution is the mean distance between
+     * Returns the mean resolution. This method cache the result for faster processing.
+     *
+     * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
+     */
+    final float getMeanResolution() {
+        assert Thread.holdsLock(this);
+        if (!(resolution > 0)) { // '!' take NaN in account
+            final Statistics stats = getResolution();
+            resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
+        }
+        return resolution;
+    }
+
+    /**
+     * Returns the polygon's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this polygon  (ignoring "extra" points used for
-     * drawing a border, if there is one). This method try to returns linear units (usually
-     * meters) no matter if the coordinate systems is actually a {@link ProjectedCoordinateSystem}
-     * or a {@link GeographicCoordinateSystem}. More specifically:
+     * drawing a border, if there is one). This method try to express the resolution in
+     * linear units (usually meters) no matter if the coordinate systems is actually a
+     * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
+     * More specifically:
      * <ul>
      *   <li>If the coordinate system is a {@linkplain GeographicCoordinateSystem geographic}
      *       one, then the resolution is expressed in units of the underlying
@@ -1386,19 +1396,18 @@ public class Polygon extends GeoShape {
      *       ProjectedCoordinateSystem projected} one), the resolution is expressed in
      *       {@linkplain ProjectedCoordinateSystem#getUnits units of the coordinate system}.</li>
      * </ul>
-     *
-     * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
      */
-    public synchronized float getResolution() {
-        if (!(resolution > 0)) try { // '!' take NaN in account
-            final Statistics stats = Polyline.getResolution(data, coordinateTransform);
+    public synchronized Statistics getResolution() {
+        try {
+            Statistics stats = Polyline.getResolution(data, coordinateTransform);
             resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
+            return stats;
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
             // has already successfully projected every points.
             unexpectedException("getResolution", exception);
+            return null;
         }
-        return resolution;
     }
 
     /**
@@ -1420,7 +1429,7 @@ public class Polygon extends GeoShape {
              * If the underlying data are not cartesian neither, create a temporary sterographic
              * projection for computation purpose.
              */
-            targetCS = getSourceCS();
+            targetCS = getInternalCS();
             if (targetCS instanceof GeographicCoordinateSystem) {
                 final GeographicCoordinateSystem geoCS = (GeographicCoordinateSystem) targetCS;
                 final Ellipsoid ellipsoid = geoCS.getHorizontalDatum().getEllipsoid();
@@ -1433,7 +1442,7 @@ public class Polygon extends GeoShape {
                 targetCS = new ProjectedCoordinateSystem(name, geoCS, projection);
             }
         }
-        Polyline.setResolution(data, getCoordinateTransformation(targetCS), resolution);
+        Polyline.setResolution(data, getTransformationFromInternalCS(targetCS), resolution);
         clearCache(); // Clear everything in the cache.
     }
 
@@ -1499,7 +1508,7 @@ public class Polygon extends GeoShape {
      *         if no clip has been performed, or a new clipped polygon otherwise.
      */
 //    final Polygon getClipped(final Clipper clipper) {
-//        final Rectangle2D clip = clipper.setCoordinateSystem(getSourceCS());
+//        final Rectangle2D clip = clipper.setCoordinateSystem(getInternalCS());
 //        final Rectangle2D bounds = getDataBounds();
 //        if (clip.contains(bounds)) {
 //            return this;
@@ -1569,18 +1578,25 @@ public class Polygon extends GeoShape {
              * the resolution (which is in linear unit, usually meters) to angular units.
              * The formula used below is only an approximation (probably not the best one).
              * It estimate the average of latitudinal and longitudinal angles corresponding
-             * to the distance 'resolution' in the middle of the polygon's bounds.
+             * to the distance 'resolution' in the middle of the polygon's bounds. The average
+             * is weighted according the width/height ratio of the polygon's bounds.
              */
             final CoordinateSystem cs = getCoordinateSystem();
             final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(cs);
             if (ellipsoid != null) {
-                final Unit unit = cs.getUnits(1);
-                double latitude = getCachedBounds().getCenterY();
+                final Unit          unit = cs.getUnits(1);
+                final Rectangle2D bounds = getCachedBounds();
+                double             width = bounds.getWidth();
+                double            height = bounds.getHeight();
+                double          latitude = bounds.getCenterY();
                 latitude = Unit.RADIAN.convert(latitude, unit);
                 final double sin = Math.sin(latitude);
                 final double cos = Math.cos(latitude);
-                resolution *= (0.5 + 0.5/cos) * XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
-                                                            cos/ellipsoid.getSemiMinorAxis());
+                final double normalize = width+height;
+                width  /= normalize;
+                height /= normalize;
+                resolution *= (height + width/cos) * XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
+                                                                 cos/ellipsoid.getSemiMinorAxis());
                 // Assume that longitude has the same unit than latitude.
                 resolution = (float) unit.convert(resolution, Unit.RADIAN);
             }
@@ -1601,7 +1617,7 @@ public class Polygon extends GeoShape {
                         centerX,            centerY-resolution,
                         centerX,            centerY+resolution
                     };
-                    tr.transform(coords, 0, coords, 0, coords.length/2);
+                    tr.inverse().transform(coords, 0, coords, 0, coords.length/2);
                     resolution = (float) (0.25*(
                                           XMath.hypot(coords[2]-coords[0], coords[3]-coords[1]) +
                                           XMath.hypot(coords[6]-coords[4], coords[7]-coords[5])));
@@ -1821,5 +1837,72 @@ public class Polygon extends GeoShape {
             buffer.append(lineSeparator);
             out.write(buffer.toString());
         } while (hasNext);
+    }
+
+
+
+
+    /**
+     * This interface defines the method required by any object that
+     * would like to be a renderer for polygons in an {@link Isoline}.
+     * The {@link #paint} method is invoked by {@link Isoline#paint}.
+     *
+     * @version $Id: Polygon.java,v 1.8 2003/01/31 23:15:37 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     *
+     * @see Polygon
+     * @see Isoline#paint
+     * @see org.geotools.renderer.j2d.RenderedIsoline
+     */
+    public static interface Renderer {
+        /**
+         * Returns the clip area in units of polygon and isoline's coordinate system (both use
+         * the same). This is usually "real world" metres or degrees of latitude/longitude.
+         *
+         * @see Polygon#getCoordinateSystem
+         * @see Isoline#getCoordinateSystem
+         */
+        public abstract Shape getClip();
+
+        /**
+         * Returns the rendering resolution, in units of polygon and isoline's coordinate system.
+         * (usually metres or degrees). A larger resolution speed up rendering, while a smaller
+         * resolution draw more precise map.
+         *
+         * @param  current The current rendering resolution.
+         * @return the <code>current</code> rendering resolution if it still good enough,
+         *         or a new resolution if a change is needed.
+         *
+         * @see Polygon#getCoordinateSystem
+         * @see Isoline#getCoordinateSystem
+         */
+        public abstract float getRenderingResolution(float current);
+
+        /**
+         * Draw or fill a polygon. {@link Isoline#paint} invokes this method with a decimated and/or
+         * clipped polygon in argument. This polygon expose some internal state of {@link Isoline}.
+         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
+         * in order to avoid unexpected behaviour.
+         *
+         * @param polygon The polygon to draw. <strong>Do not modify.</strong>
+         */
+        public abstract void paint(final Polygon polygon);
+
+        /**
+         * Invoked once after a series of polygons has been painted. This method is typically
+         * invoked by {@link Isoline#paint} after all isoline's polygons has been painted.
+         * Some implementation may choose to release resources here. The arguments provided
+         * to this method are for information purpose only.
+         *
+         * @param rendered The total number of <em>rendered</em> points. This number is
+         *        always smaller than {@link Isoline#getPointCount}  since the renderer
+         *        may have clipped or decimated data. This is the number of points keep
+         *        in the cache.
+         * @param recomputed The number of points that has been recomputed (i.e. decompressed,
+         *        decimated, projected and transformed). They are points that was not reused
+         *        from the cache. This number is always smaller than or equals to
+         *        <code>rendered</code>.
+         */
+        public abstract void paintCompleted(int rendered, int recomputed);
     }
 }

@@ -52,6 +52,7 @@ import java.util.ArrayList;
 
 // Geotools dependencies
 import org.geotools.units.Unit;
+import org.geotools.util.Statistics;
 import org.geotools.cs.Ellipsoid;
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.ct.TransformException;
@@ -70,7 +71,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -101,7 +102,7 @@ public class RenderedIsoline extends RenderedLayer {
      * the last time.   It may not be the same than this {@linkplain #getCoordinateSystem
      * layer's coordinate system}.
      */
-    protected final Isoline isoline;
+    private final Isoline isoline;
 
     /**
      * Clipped isolines or polygons. A clipped isoline may be faster to renderer
@@ -125,6 +126,11 @@ public class RenderedIsoline extends RenderedLayer {
     private Paint foreground = FILL_COLOR;
 
     /**
+     * The number of points in {@link #isoline}. For statistics purpose only.
+     */
+    private final int numPoints;
+
+    /**
      * The renderer to use for painting polygons.
      * Will be created only when first needed.
      */
@@ -137,7 +143,8 @@ public class RenderedIsoline extends RenderedLayer {
      */
     public RenderedIsoline(Isoline isoline) {
         isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
-        this.isoline = isoline;
+        this.isoline   = isoline;
+        this.numPoints = isoline.getPointCount();
         final CoordinateSystem isolineCS = isoline.getCoordinateSystem();
         try {
             setCoordinateSystem(isolineCS);
@@ -157,24 +164,27 @@ public class RenderedIsoline extends RenderedLayer {
          * Compute the preferred area and the preferred pixel size.
          */
         final Rectangle2D  bounds = isoline.getBounds2D();
-        final float    resolution = isoline.getResolution();
-        final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
-        final double dx,dy;
-        if (ellipsoid != null) {
-            // Transforms the resolution into a pixel size in the middle of 'bounds'.
-            // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
-            //       For the inverse of "real" radius, we would have to swap sin and cos.
-            final double   y = Math.toRadians(bounds.getCenterY());
-            final double sin = Math.sin(y);
-            final double cos = Math.cos(y);
-            final double   r = XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
-                                           cos/ellipsoid.getSemiMinorAxis());
-            dy = Math.toDegrees(resolution*r);
-            dx = dy*cos;
-        } else {
-            dx = dy = resolution;
+        final Statistics resStats = isoline.getResolution();
+        if (resStats != null) {
+            final double dx,dy;
+            final double   resolution = resStats.mean();
+            final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(isolineCS);
+            if (ellipsoid != null) {
+                // Transforms the resolution into a pixel size in the middle of 'bounds'.
+                // Note: 'r' is the inverse of **apparent** ellipsoid's radius at latitude 'y'.
+                //       For the inverse of "real" radius, we would have to swap sin and cos.
+                final double   y = Math.toRadians(bounds.getCenterY());
+                final double sin = Math.sin(y);
+                final double cos = Math.cos(y);
+                final double   r = XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
+                                               cos/ellipsoid.getSemiMinorAxis());
+                dy = Math.toDegrees(resolution*r);
+                dx = dy*cos;
+            } else {
+                dx = dy = resolution;
+            }
+            setPreferredPixelSize(new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy));
         }
-        setPreferredPixelSize(new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy));
         setPreferredArea(bounds);
         if (clipped != null) {
             clipped.add(isoline);
@@ -233,10 +243,10 @@ public class RenderedIsoline extends RenderedLayer {
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    private final class IsolineRenderer implements Isoline.Renderer {
+    private final class IsolineRenderer implements Polygon.Renderer {
         /**
          * The minimum and maximum rendering resolution
          * in units of the isoline's coordinate system.
@@ -296,10 +306,23 @@ public class RenderedIsoline extends RenderedLayer {
             graphics.setPaint(contour);
             graphics.draw(polygon);
         }
+
+        /**
+         * Invoked once after a series of polygons has been painted.
+         *
+         * @param rendered The total number of <em>rendered</em> points.
+         * @param recomputed The number of points that has been recomputed
+         *        (i.e. decompressed, decimated, projected and transformed).
+         */
+        public void paintCompleted(final int rendered, final int recomputed) {
+            renderer.recomputedPts += recomputed;
+            renderer.renderedPts   += rendered;
+            renderer.totalPts      += numPoints;
+        }
     }
 
     /**
-     * Drawn the isoline.
+     * Draw the isoline.
      *
      * @param  context The set of transformations needed for transforming geographic
      *         coordinates (<var>longitude</var>,<var>latitude</var>) into pixels coordinates.
@@ -335,15 +358,17 @@ public class RenderedIsoline extends RenderedLayer {
             if (ellipsoid != null) {
                 final Unit xUnit = isolineCS.getUnits(0);
                 final Unit yUnit = isolineCS.getUnits(1);
+                final double  R2 = 0.70710678118654752440084436210485; // sqrt(0.5)
                 final double   x = Unit.DEGREE.convert(bounds.getCenterX(), xUnit);
                 final double   y = Unit.DEGREE.convert(bounds.getCenterY(), yUnit);
-                final double  dx = Unit.DEGREE.convert(0.5/XAffineTransform.getScaleX0(tr), xUnit);
-                final double  dy = Unit.DEGREE.convert(0.5/XAffineTransform.getScaleY0(tr), yUnit);
+                final double  dx = Unit.DEGREE.convert(R2/XAffineTransform.getScaleX0(tr), xUnit);
+                final double  dy = Unit.DEGREE.convert(R2/XAffineTransform.getScaleY0(tr), yUnit);
                 r = ellipsoid.orthodromicDistance(x-dx, y-dy, x+dy, y+dy);
             } else {
                 // Assume a cartesian coordinate system.
-                r = 1/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
-                                (r=tr.getShearX())*r + (r=tr.getShearY())*r);
+                final double R2 = 1.4142135623730950488016887242097; // sqrt(2)
+                r = R2/Math.sqrt((r=tr.getScaleX())*r + (r=tr.getScaleY())*r +
+                                 (r=tr.getShearX())*r + (r=tr.getShearY())*r);
             }
             if (isolineRenderer == null) {
                 isolineRenderer = new IsolineRenderer();
@@ -367,7 +392,7 @@ public class RenderedIsoline extends RenderedLayer {
      * class is automatically registered at the {@link RenderedIsoline} construction
      * stage.
      *
-     * @version $Id: RenderedIsoline.java,v 1.3 2003/01/30 23:34:40 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.4 2003/01/31 23:15:38 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Tools extends org.geotools.renderer.j2d.Tools {
