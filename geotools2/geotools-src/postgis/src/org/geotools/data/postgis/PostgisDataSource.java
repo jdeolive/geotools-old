@@ -43,7 +43,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.10 2002/12/20 20:00:35 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.11 2002/12/26 18:40:21 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -237,6 +237,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	  int srid = querySRID(db, tableName);
 	((FeatureTypeFlat)retSchema).setSRID(srid);
 	}
+	retSchema = retSchema.setTypeName(tableName);
 	return retSchema;
     }
 
