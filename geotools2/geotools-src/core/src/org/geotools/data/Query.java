@@ -76,11 +76,11 @@ import java.util.Arrays;
  * 
  *
  * @author Chris Holmes
- * @version $Id: Query.java,v 1.12 2004/01/05 08:09:02 jive Exp $
+ * @version $Id: Query.java,v 1.13 2004/03/07 02:08:58 cholmesny Exp $
  */
 public interface Query {
     /** So getMaxFeatures does not return null we use a very large number. */
-    static final int DEFAULT_MAX = 100000000;
+    static final int DEFAULT_MAX = Integer.MAX_VALUE;
 
     /**
      * Implements a query that will fetch all features from a datasource. This
