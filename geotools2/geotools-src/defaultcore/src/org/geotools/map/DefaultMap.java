@@ -18,6 +18,7 @@
 package org.geotools.map;
 
 import com.vividsolutions.jts.geom.Envelope;
+import java.util.ArrayList;
 import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
 import org.geotools.feature.*;
@@ -25,6 +26,7 @@ import org.geotools.renderer.*;
 import org.geotools.styling.*;
 import org.opengis.cs.*;
 import java.util.Hashtable;
+import java.util.List;
 
 //logging
 import java.util.logging.Logger;
@@ -34,7 +36,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.11 2003/05/16 21:10:19 jmacgill Exp $
+ * @version $Id: DefaultMap.java,v 1.12 2003/06/03 15:10:16 ianturton Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
@@ -42,7 +44,7 @@ public class DefaultMap implements org.geotools.map.Map {
     private static final Logger LOGGER =
         Logger.getLogger("org.geotools.defaultcore");
     private Hashtable tables = new Hashtable();
-
+    private List tableOrder = new ArrayList();
 
     /**
      * DOCUMENT ME!
@@ -55,6 +57,7 @@ public class DefaultMap implements org.geotools.map.Map {
         Style style
     ) {
         tables.put(ft, style);
+        tableOrder.add(ft);
     }
 
     /**
@@ -64,6 +67,7 @@ public class DefaultMap implements org.geotools.map.Map {
      */
     public void removeFeatureTable(FeatureCollection fc) {
         tables.remove(fc);
+        tableOrder.remove(fc);
     }
 
     /**
@@ -81,10 +85,10 @@ public class DefaultMap implements org.geotools.map.Map {
         Renderer renderer,
         Envelope envelope
     ) {
-        java.util.Enumeration layers = tables.keys();
-
-        while (layers.hasMoreElements()) {
-            FeatureCollection ft = (FeatureCollection) layers.nextElement();
+        java.util.Iterator layers = tableOrder.iterator();
+        
+        while (layers.hasNext()) {
+            FeatureCollection ft = (FeatureCollection) layers.next();
             Style style = (Style) tables.get(ft);
 
             try {
