@@ -7,7 +7,7 @@
   <section id="requirements">
     <title>Requirements</title>
 
-    <para>Before developing geotools2, you should download and install the
+    <para>Before developing GeoTools2, you should download and install the
     following:</para>
 
     <itemizedlist>
@@ -25,7 +25,7 @@
       </listitem>
 
       <listitem>
-        <para>Java Advance Imaging Libraries (JAI) are used by geotools when
+        <para>Java Advance Imaging Libraries (JAI) are used by GeoTools when
         rendering. The libraries should be installed into your JRE libraries.
         See the <ulink url="http://java.sun.com/products/java-media/jai/">Java
         Advanced Imaging Libraries pages</ulink> for details.</para>
@@ -87,7 +87,7 @@
     <section id="cvs">
       <title>Code Versioning (using CVS with ssh)</title>
 
-      <para>To edit geotools files you will need to set up CVS and ssh on your
+      <para>To edit GeoTools files you will need to set up CVS and ssh on your
       computer so that you can access the files stored on <ulink
       url="http://sourceforge.net">http://sourceforge.net</ulink>. How to
       setup ssh and cvs for use with Sourceforge is explained in the documents
@@ -100,7 +100,7 @@
     <section id="moduleversionnumbers">
       <title>Module version numbers</title>
 
-      <para>Each geotools2 module contains it&#39;s own version number.
+      <para>Each GeoTools2 module contains it&#39;s own version number.
       Version numbers are based on 3 digits, <emphasis>&#60;major&#62;.&#60;minor&#62;.&#60;patch&#62;</emphasis>.
       It looks like <emphasis>2.3.4 </emphasis>.</para>
 
@@ -181,8 +181,8 @@ cvs tag -R r2_3_4</programlisting>
     <section id="irc">
       <title>Internet Chat Relay</title>
 
-      <para>Geotools developers meet regulary to discuss issues such as
-      design. Meeting times are anounced on the geotools-dvlp email list. At
+      <para>GeoTools developers meet regularly to discuss issues such as
+      design. Meeting times are announced on the geotools-dvlp email list. At
       the time of writing, developers meet weekly at <emphasis>19:30 Monday
       UTC</emphasis>. Check <ulink
       url="http://www.timeanddate.com/worldclock/">http://www.timeanddate.com/worldclock/</ulink>
@@ -190,7 +190,7 @@ cvs tag -R r2_3_4</programlisting>
 
       <para>If you are new to IRC, you will need to find an IRC client. The
       later versions of Netscape and Mozilla have IRC built in, and you can
-      connect to a geotools meeting simply by using the URL: <ulink
+      connect to a GeoTools meeting simply by using the URL: <ulink
       url="irc://irc.eu.freenode.net#getools">irc://irc.eu.freenode.net#geotools</ulink>.</para>
 
       <para>The information you need to configure your IRC client are:</para>
@@ -237,7 +237,7 @@ cvs tag -R r2_3_4</programlisting>
       <para>Much of the development discussion happens on the geotools-devel
       email list. Refer to <ulink
       url="http://sourceforge.net/mail/?group_id=4091">http://sourceforge.net/mail/?group_id=4091</ulink>
-      for a list of geotools lists.</para>
+      for a list of GeoTools lists.</para>
     </section>
   </section>
 
@@ -285,26 +285,34 @@ cvs tag -R r2_3_4</programlisting>
       Committer can nominate that Contributor or the Contributor can ask for
       it.</para>
 
-      <para>Once a Contributor is nominated, all of the Committers for a
-      subproject will vote. If there are at least 3 positive votes and no
-      negative votes, the Contributor is converted into a Committer and given
-      write access to the source code repository for that subproject. This is
-      an example offer letter that should be sent to the volunteer after 3
-      positive votes have been received:</para>
+      <para>Once a Contributor is nominated, all existing committers will
+        vote. If there are at least 3 positive votes and no negative votes, the
+        Contributor is converted into a Committer and given write access to the
+        source code repository. This is an example offer letter that should be
+        sent to the volunteer after 3 positive votes have been received:</para>
 
       <blockquote>
         <para>Dear Contributor,</para>
 
         <para>Our project would like to offer you commit privileges. We have
-        been impressed with your contributions up till now, and believe that
-        your involvement will improve the quality of the code we produce. If
-        you are interested in having commit privileges, please set up an
-        account with http://sourceforge.net and let us know your account name.</para>
+          been impressed with your contributions up till now, and believe that
+          your involvement will improve the quality of the code we produce. If
+          you are interested in having commit privileges, please set up an
+          account with <ulink url="http://sourceforge.net/">
+          http://sourceforge.net</ulink> and let us know your account
+          name.</para>
 
         <para>We all hope that you accept this invitation.</para>
 
-        <para>The Geotools Project Management Committee.</para>
+        <para>The GeoTools Project Management Committee.</para>
       </blockquote>
+
+      <para>Committers are asked to coordinate their efforts with the
+        maintainers of the modules they wish to modify/extend.  Contact details
+        for each module's maintainer can be found at
+        http://modules.geotools.org/&#60;module&#62;/team-list.html e.g.  <ulink
+          url="http://modules.geotools.org/shapefile/team-list.html">
+          http://modules.geotools.org/shapefile/team-list.html</ulink></para>
 
       <para>At times, Committers may go inactive for a variety of reasons. A
       Committer that has been inactive for 6 months or more may lose their
@@ -334,7 +342,7 @@ cvs tag -R r2_3_4</programlisting>
 
     <para>In future, bugs will be tracked using the <ulink
     url="http://sourceforge.net/tracker/?group_id=4091&#38;atid=104091">sourceforge
-    bug tracking system for geotools</ulink>.</para>
+    bug tracking system for GeoTools</ulink>.</para>
 
     <section id="inlinetasktracking">
       <title>Inline Task Tracking</title>
@@ -396,7 +404,7 @@ void example(int i) {
       <para>The project file tells you the name of the module, who maintains
       it, who develops it, what version it has reached and what it depends on.
       Note that as all the modules have some things in common the module
-      project files actually extend one which can be found in the geotools2
+      project files actually extend one which can be found in the GeoTools2
       root directory.</para>
 
       <para>The most important part of the project file is the dependencies
@@ -431,7 +439,7 @@ void example(int i) {
 
         <para>And change it to: <command>SET MAVEN_OPTS=-Xmx256m</command></para>
 
-        <para>You must also have the JAI extention from sun installed as it is
+        <para>You must also have the JAI extension from sun installed as it is
         required by a number of modules.</para>
       </section>
 
@@ -449,7 +457,7 @@ void example(int i) {
 maven build</programlisting>
 
         <para>All being well maven should download the required .jar files and
-        build geotools modules. At the end of this process it will display a
+        build GeoTools modules. At the end of this process it will display a
         list of all the modules which were built and installed correctly.</para>
 
         <para>The first build takes a while due to the download time for the
@@ -460,7 +468,7 @@ maven build</programlisting>
         <programlisting>cd $GEOTOOLS_HOME/geotools2
 maven build -o</programlisting>
 
-        <para>To do: Geotools2 still has some unit tests which require you to
+        <para>To do: GeoTools2 still has some unit tests which require you to
         be connected to the internet while building. This should be fixed.</para>
       </section>
 
@@ -489,7 +497,7 @@ maven build -o</programlisting>
         <para>It should do a complete build, note that if you have not done a
         full build yet then the build may fail because it can&#39;t find the
         jar for a module it depends on. An error caused by not having another
-        GT2 module installed can be a little missleading, for example the
+        GT2 module installed can be a little misleading, for example the
         error may look something like: <command>Error: unable to download
         core-0.1.jar</command>. This is because Maven failed to find
         core-0.1.jar in the local repository (where a full build should have
@@ -571,7 +579,7 @@ maven build -o</programlisting>
 
             <listitem>
               <para>a control file which marshals the building of ALL modules
-              and will soon generate a full website.</para>
+              and will soon generate a full web-site.</para>
             </listitem>
           </varlistentry>
 
@@ -620,7 +628,7 @@ maven build -o</programlisting>
         particular in the <ulink
         url="http://maven.apache.org/reference/project-descriptor.html">project
         descriptor</ulink> part of the reference section. So, we only show
-        that the things specific to a geotools2 module project.xml file here.</para>
+        that the things specific to a GeoTools2 module project.xml file here.</para>
 
         <variablelist>
           <varlistentry>
@@ -629,7 +637,7 @@ maven build -o</programlisting>
             <listitem>
               <para>The &#60;extend&#62; tag allows one project.xml file to
               inherit items from another. Modules should extend the
-              project.xml within the top level geotools2 directory. Also, the
+              project.xml within the top level GeoTools2 directory. Also, the
               path given to the other project.xml file mush begin with
               ${basedir} in order for maven to find it. For example:
               &#60;extend&#62;${basedir}/../../project.xml&#60;extend&#62;</para>
@@ -642,7 +650,7 @@ maven build -o</programlisting>
             <listitem>
               <para>The id should reflect the name of the module. However,
               because the main project.xml defined groupId to be gt2, there is
-              no need to prepend a geotools prefix. Examples are core and
+              no need to prepend a GeoTools prefix. Examples are core and
               defaultcore.</para>
             </listitem>
           </varlistentry>
@@ -656,15 +664,15 @@ maven build -o</programlisting>
               was used to specify the jar file as well as the prefix, and so
               more than one jar was not allowed within a project. This has
               been fixed with the beta8 version of maven, but there are still
-              many old style dependecies in the project files. New
+              many old style dependencies in the project files. New
               dependencies, and in particular any dependency on another
-              geotools2 module should use the new style, which uses a groupId
+              GeoTools2 module should use the new style, which uses a groupId
               to identify the project and an artifactId to identify the jar
               within that project. ArtifactIds correspond to modules in
-              geotools2. Also, be aware that dependencies are not transitive.
+              GeoTools2. Also, be aware that dependencies are not transitive.
               In other words, suppose module B has a dependency on module A.
               If you are creating module C, and have a dependency on module B,
-              then you do not automatically have a depency on module A. If C
+              then you do not automatically have a dependency on module A. If C
               depends on A, then you must add the dependency manually.</para>
 
               <example>
@@ -686,7 +694,7 @@ maven build -o</programlisting>
       <section id="mavenremotestructure">
         <title>Remote File Structure</title>
 
-        <para>There is a repository of jars required by geotools2 stored on
+        <para>There is a repository of jars required by GeoTools2 stored on
         the sourceforge site, you can browse it online at: <ulink
         url="http://www.geotools.org/gt2modules/extbin">http://www.geotools.org/gt2modules/extbin</ulink></para>
 
@@ -731,7 +739,7 @@ maven build -o</programlisting>
         <para>Maven complicates things on the logging front, as it does a lot
         of redirection. By default the logs from testing end up in
         <filename>target/test-reports</filename> of each module sub-directory.
-        There should be XML and txt files for the results of each test. Be
+        There should be XML and text files for the results of each test. Be
         sure to check both, as one of the wrinkles of maven makes it so the
         output isn&#39;t always exactly the same. To have maven display the
         logging as it tests instead of just writing to files set the
@@ -780,7 +788,7 @@ ant</programlisting>
   <section id="design">
     <title>Design</title>
 
-    <para>Designing involves laying out packages, classes and dependancies
+    <para>Designing involves laying out packages, classes and dependencies
     between them.</para>
 
     <section id="designdocumentation">
@@ -802,13 +810,13 @@ ant</programlisting>
       class diagrams and generating stub classes during the design phase of
       development.</para>
 
-      <para>Using Poseidon you can reverse engineer the Geotools2 code and
+      <para>Using Poseidon you can reverse engineer the GeoTools2 code and
       view class diagrams, javadocs and code using a powerful graphical
-      interface. It is a good way to quickly navigate through the Geotools2
+      interface. It is a good way to quickly navigate through the GeoTools2
       design. Poseidon can&#39;t reverse engineer too much of the code at once
       because it sometimes runs out of memory, and sometimes freezes (which is
       possibly due to running out of memory). Below is a few tips I used to
-      import Geotools2 files into Poseidon.</para>
+      import GeoTools2 files into Poseidon.</para>
 
       <variablelist>
         <varlistentry>
@@ -845,7 +853,7 @@ ant</programlisting>
       <filename>geotools2/design/</filename>.</para>
 
       <para>All diagrams are created with Poseidon 1.5 or greater which is not
-      backwardly compatable with earlier versions.</para>
+      backwardly compatible with earlier versions.</para>
 
       <para>To do: Need to rework this section to focus on UML/design first
       and Poseidon second.</para>
@@ -863,8 +871,8 @@ ant</programlisting>
 
       <para><ulink url="http://www.netbeans.org">Netbeans</ulink> is a free
       java IDE which also provides a framework for adding extra functionality.
-      Geotools2 is developed using the same modular structure as Netbeans and
-      we plan to integrate geotools into Netbeans. Sun have repackaged
+      GeoTools2 is developed using the same modular structure as Netbeans and
+      we plan to integrate GeoTools into Netbeans. Sun have repackaged
       Netbeans and called it <ulink
       url="http://wwws.sun.com/software/sundev/jde/index.html">Sun ONE Studio</ulink>
       (previously Forte for J).</para>
@@ -872,7 +880,7 @@ ant</programlisting>
       <section id="netbeansprerequisites">
         <title>Prerequisites</title>
 
-        <para>Before setting up Netbeans for geotools development you need to:</para>
+        <para>Before setting up Netbeans for GeoTools development you need to:</para>
 
         <itemizedlist>
           <listitem>
@@ -886,12 +894,12 @@ ant</programlisting>
           </listitem>
 
           <listitem>
-            <para>Have checked out the geotools2 CVS repository into a local
+            <para>Have checked out the GeoTools2 CVS repository into a local
             directory on your computer.</para>
           </listitem>
 
           <listitem>
-            <para>The geotools .jar files need to be created in the release
+            <para>The GeoTools .jar files need to be created in the release
             directory, which is done by running the ant or maven build
             scripts. To do: I don&#39;t think this step is required any more.</para>
           </listitem>
@@ -901,7 +909,7 @@ ant</programlisting>
       <section id="netbeanscompileoptions">
         <title>Compile Options</title>
 
-        <para>As <link linkend="java">mentioned</link>, geotools needs to be
+        <para>As <link linkend="java">mentioned</link>, GeoTools needs to be
         compiled with a recent Java compiler. This is done from the following
         windows:</para>
 
@@ -916,7 +924,7 @@ ant</programlisting>
         <title>Adding Modules</title>
 
         <para>A few modules should be added to the standard Netbeans install
-        to help geotools development. For use installed from the Netbeans
+        to help GeoTools development. For use installed from the Netbeans
         Update center use:</para>
 
         <itemizedlist>
@@ -952,16 +960,16 @@ ant</programlisting>
           <listitem>
             <para><filename>View over a Filesystem</filename> is a &#34;must
             have&#34; module of Netbeans. It allows you to mount each module
-            within CVS and is almost essential for geotools development within
+            within CVS and is almost essential for GeoTools development within
             Netbeans. The default Netbeans only allows you to mount one source
-            directory but geotools has a source directory for each geotools
+            directory but GeoTools has a source directory for each GeoTools
             module.</para>
           </listitem>
 
           <listitem>
             <para><link linkend="jalopy">Jalopy</link> is a Source Code
-            Formatter which should be used to ensure Geotools code is written
-            in a consistant style. Download the <ulink
+            Formatter which should be used to ensure GeoTools code is written
+            in a consistent style. Download the <ulink
             url="http://jalopy.sourceforge.net/download.html">zipped</ulink>
             .nbm file and install from a local directory.</para>
 
@@ -976,8 +984,8 @@ ant</programlisting>
 
           <listitem>
             <para><filename>RefactorIt</filename> is a useful module for
-            changing many classes at once, and provide a free licence for open
-            source projects like geotools. See <xref linkend="refactorit" />
+            changing many classes at once, and provide a free license for open
+            source projects like GeoTools. See <xref linkend="refactorit" />
             for more details. Installation instructions are in the download.</para>
           </listitem>
 
@@ -1001,17 +1009,17 @@ ant</programlisting>
 
         <variablelist>
           <varlistentry>
-            <term>Geotools Repository</term>
+            <term>GeoTools Repository</term>
 
             <listitem>
-              <para>You will need to mount the geotools2 repository. In the
+              <para>You will need to mount the GeoTools2 repository. In the
               Explorer window, right click on Filesystems, select
               <command>Mount-&#62;Version Control-&#62;CVS</command>. Select
-              the geotools2 directory that you have already booked out from
+              the GeoTools2 directory that you have already booked out from
               CVS. Don&#39;t worry about the relative mount point, it will be
               covered by &#34;View over Filesystem&#34; below. You
               shouldn&#39;t need to change the CVS and ssh parameters, they
-              will have been picked up correctly from when you booked geotools
+              will have been picked up correctly from when you booked GeoTools
               out from CVS manually.</para>
             </listitem>
           </varlistentry>
@@ -1054,7 +1062,7 @@ ant</programlisting>
             <term>External Jar files</term>
 
             <listitem>
-              <para>This project is dependant on a number of external
+              <para>This project is dependent on a number of external
               packages. After running <literal>maven,</literal> you will be
               able to find jars for these external packages at:
               <filename>$MAVEN_HOME/repository/&#60;module&#62;/jars/*.jar</filename>.</para>
@@ -2063,11 +2071,11 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
   </section>
 
   <section id="CodingStandards">
-    <title>Coding Convensions</title>
+    <title>Coding Conventions</title>
 
-    <para>Coding convensions describe the coding styles developers should use
+    <para>Coding conventions describe the coding styles developers should use
     when writing code. For example, whether you use 2, 4, or 8 space indents.
-    Standardising on a coding style across a project improves legibility of
+    Standardizing on a coding style across a project improves legibility of
     the code, and automatic code formatters make conforming to these standards
     easy.</para>
 
