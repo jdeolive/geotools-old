@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -38,7 +38,7 @@ import java.text.ChoiceFormat;
 
 
 /**
- * Simple mathematical functions. Some of those function will
+ * Simple mathematical functions. Some of these functions will
  * be removed if JavaSoft provide a standard implementation
  * or fix some issues in Bug Parade:<br>
  * <ul>
@@ -54,10 +54,10 @@ public final class XMath
 {
     /**
      * Natural logarithm of 10.
-     * Approximatively equals to 2.302585.
+     * Approximately equal to 2.302585.
      */
     public static final double LN10=2.3025850929940456840179914546844;
-
+    
     /**
      * Table of some integer powers of 10. Used
      * for fast computation of {@link #pow10(int)}.
@@ -73,9 +73,9 @@ public final class XMath
      */
     private XMath() {
     }
-
+    
     /**
-     * Compute the hypothenuse (<code>sqrt(x²+y²)</code>).
+     * Compute the hypotenuse (<code>sqrt(x²+y²)</code>).
      */
     public static double hypot(final double x, final double y) {
         return Math.sqrt(x*x + y*y);
@@ -88,7 +88,7 @@ public final class XMath
     public static double log10(final double x) {
         return Math.log(x)/LN10;
     }
-
+    
     /**
      * Compute 10 power <var>x</var>.
      */
@@ -100,10 +100,10 @@ public final class XMath
             return Math.pow(10, x);
         }
     }
-
+    
     /**
-     * Compute 10 power <var>x</var>. This computation is very fast
-     * for small power of 10 and avoir some rounding error issue (see
+     * Compute <var>x</var> to the power of 10. This computation is very fast
+     * for small power of 10 but has some rounding error issues (see
      * http://developer.java.sun.com/developer/bugParade/bugs/4358794.html).
      */
     public static double pow10(final int x) {
@@ -119,11 +119,13 @@ public final class XMath
         }
         try {
             /*
-             * Note: Method 'Math.pow(10,x)' has rounding errors: it doesn't always returns the
-             *       closest IEEE floating point representation. Method 'Double.parseDouble("1E"+x)'
-             *       gives as good or better numbers for ALL integer powers, but is much slower.
-             *       The difference is usually negligible, but powers of 10 is a special case
-             *       since it is often used for scaling axis or formatting human-readable output.
+             * Note: Method 'Math.pow(10,x)' has rounding errors: it doesn't
+             *       always return the closest IEEE floating point
+             *       representation. Method 'Double.parseDouble("1E"+x)' gives
+             *       as good or better numbers for ALL integer powers, but is
+             *       much slower.  The difference is usually negligible, but
+             *       powers of 10 are a special case since they are often
+             *       used for scaling axes or formatting human-readable output.
              *       We hope that the current workaround is only temporary.
              *       (see http://developer.java.sun.com/developer/bugParade/bugs/4358794.html).
              */
