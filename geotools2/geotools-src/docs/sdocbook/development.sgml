@@ -621,7 +621,8 @@ ant</programlisting>
 
         <listitem>
           <para>The geotools .jar files need to be created in the release
-          directory, which is done by running the ant or maven build scripts.</para>
+          directory, which is done by running the ant or maven build scripts.
+          To do: I don&#39;t think this step is required any more.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -741,8 +742,9 @@ ant</programlisting>
             Select all <filename>geotools2/geotools-src/&#60;module_name&#62;/src</filename>
             directories in the Filesystem Explorer then select
             <command>Tools-&#62;Mount As New Filesystem</command>. If you are
-            running any test or demonstration programs, you will probably also
-            need to mount their directory using the same method.</para>
+            running any test or demonstration programs, you will mount their
+            directories in a similar manner: Select <filename>geotools2/geotools-src/&#60;module_name&#62;/test</filename>
+            then select <command>Tools-&#62;Mount As New Filesystem</command>.</para>
           </listitem>
         </varlistentry>
 
@@ -774,6 +776,23 @@ ant</programlisting>
 
       <para>You can now view your files by selecting the <command>Project</command>
       tab in the explorer.</para>
+    </section>
+
+    <section id="netbeansbak">
+      <title>Backup Configuration</title>
+
+      <para>Netbeans occasionally gets into a funny state and refuses to
+      debug, or execute, or something. So it is a good idea to backup your
+      netbeans configuration directory.</para>
+
+      <example>
+        <title>Backup Netbeans configuration (in unix)</title>
+
+        <programlisting># change to your home directory
+cd ~
+# copy the netbeans configuration directory
+cp -pr .netbeans/ .netbeans.orig</programlisting>
+      </example>
     </section>
   </section>
 
@@ -820,7 +839,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.16 2003/01/26 22:36:12 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.17 2003/02/09 04:43:45 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
