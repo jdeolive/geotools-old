@@ -122,7 +122,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * geotools will rely on these relations. See java.lang.Object for details.
  * </li></ol>
  *
- * @version $Id: Feature.java,v 1.7 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: Feature.java,v 1.8 2003/07/23 14:46:45 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Rob Hranac, TOPP
  * @author Ian Schneider, USDA-ARS
@@ -166,7 +166,7 @@ public interface Feature {
     /**
      * A "null" Object representing a null value for a given attribute.
      */
-    static final Object NULL_ATTRIBUTE = new NULL();
+//    static final Object NULL_ATTRIBUTE = new NULL();
     
     /** Not straight forward, this is a "null" object to represent the value null for a
      * given attribute which is nullable.

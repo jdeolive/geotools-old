@@ -92,7 +92,6 @@ public class FeatureCollectionIteration {
 
         for (int i = 0; i < cnt; i++) {
             AttributeType type = schema.getAttributeType(i);
-            String attName = type.getName();
 
             // recurse if attribute type is another collection
             if (FeatureCollection.class.isAssignableFrom(type.getType())) {

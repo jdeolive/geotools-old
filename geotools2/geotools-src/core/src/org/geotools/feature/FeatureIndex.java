@@ -27,7 +27,7 @@ package org.geotools.feature;
  *
  * @author Ray Gallagher
  * @author Ian Schneider
- * @version $Id: FeatureIndex.java,v 1.6 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: FeatureIndex.java,v 1.7 2003/07/23 14:46:45 ianschneider Exp $
  */
 public interface FeatureIndex extends CollectionListener {
     /** Gets an "in order" Iterator of the Features as indexed.
@@ -36,11 +36,11 @@ public interface FeatureIndex extends CollectionListener {
     java.util.Iterator getFeatures();
     
     /** Find all the Features within this index using a key.
-     * @return A FeatureCollection containing the matches. May be empty.
+     * @return A java.util.Collection containing the matches. May be empty.
      * @throws IllegalArgumentException If the key is incompatable with this index.
      * @param key A key to look up the Features with.
      */    
-    FeatureCollection find(Object key) throws IllegalArgumentException;
+    java.util.Collection find(Object key) throws IllegalArgumentException;
     
     /** Find the first Feature using the given key.
      * @return A Feature, or null if none is found.
