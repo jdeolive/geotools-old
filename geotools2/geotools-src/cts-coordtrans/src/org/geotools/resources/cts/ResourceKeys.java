@@ -54,6 +54,7 @@ public interface ResourceKeys
     public static final int LONGITUDE                                   =    25;
     public static final int NORMAL                                      =    26;
     public static final int NORTH                                       =    27;
+    public static final int ORTHOGRAPHIC_PROJECTION                     =    96;
     public static final int ORTHOMETRIC                                 =    28;
     public static final int OTHER                                       =    29;
     public static final int OUTSIDE                                     =    30;
@@ -81,6 +82,7 @@ public interface ResourceKeys
     public static final int ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1      =    46;
     public static final int ERROR_COLINEAR_AXIS_$2                      =    47;
     public static final int ERROR_DUPLICATED_VALUES_$1                  =    48;
+    public static final int ERROR_ELLIPTICAL_NOT_SUPPORTED              =    97;
     public static final int ERROR_ILLEGAL_ANGLE_PATTERN_$1              =    49;
     public static final int ERROR_ILLEGAL_ARGUMENT_$2                   =    50;
     public static final int ERROR_ILLEGAL_ARRAY_LENGTH_FOR_DIMENSION_$1 =    51;
@@ -113,6 +115,7 @@ public interface ResourceKeys
     public static final int ERROR_NO_TRANSFORM_FOR_CLASSIFICATION_$1    =    72;
     public static final int ERROR_NULL_ARGUMENT_$1                      =    73;
     public static final int ERROR_NULL_VALUE_$2                         =    74;
+    public static final int ERROR_POINT_OUTSIDE_HEMISPHERE              =    98;
     public static final int ERROR_POLE_PROJECTION_$1                    =    76;
     public static final int ERROR_UNEXPECTED_PARAMETER_$1               =    86;
     public static final int ERROR_UNKNOW_TYPE_$1                        =    77;

@@ -80,7 +80,7 @@ import org.geotools.resources.Arguments;
  *
  * This is probably the most important test case for the whole CTS module.
  *
- * @version $Id: ScriptTest.java,v 1.3 2003/08/21 09:42:03 desruisseaux Exp $
+ * @version $Id: ScriptTest.java,v 1.4 2004/01/11 17:11:55 desruisseaux Exp $
  * @author Yann Cézard
  * @author Remi Eve
  * @author Martin Desruisseaux
@@ -95,6 +95,11 @@ public class ScriptTest extends TestCase {
      * A test file to parse and execute for stereographic projection.
      */
     private static final String STEREOGRAPHIC_SCRIPT = "test-data/Stereographic_TestScript.txt";
+
+    /**
+     * A test file to parse and execute for stereographic projection.
+     */
+    private static final String ORTHOGRAPHIC_SCRIPT = "test-data/Orthographic_TestScript.txt";
 
     /**
      * A test file to parse and execute for Albers equals area projection.
@@ -494,6 +499,17 @@ public class ScriptTest extends TestCase {
     }
 
     /**
+     * Run the {@link #ORTHOGRAPHIC_SCRIPT}.
+     *
+     * @throws IOException If {@link #ORTHOGRAPHIC_SCRIPT} can't be read.
+     * @throws FactoryException if a line can't be parsed.
+     * @throws TransformException if the transformation can't be run.
+     */
+    public void testOrthographic() throws IOException, FactoryException {
+        runScript(ORTHOGRAPHIC_SCRIPT);
+    }
+
+    /**
      * Run the {@link #ALBERS_SCRIPT}.
      *
      * @throws IOException If {@link #STEREOGRAPHIC_SCRIPT} can't be read.
@@ -521,6 +537,8 @@ public class ScriptTest extends TestCase {
      * <ul>
      *     <li>java -ea org.geotools.cs.ScriptTest -test=Simple</li>
      *     <li>java -ea org.geotools.cs.ScriptTest -test=Stereographic</li>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=Orthographic</li>
+     *     <li>java -ea org.geotools.cs.ScriptTest -test=AlbersEqualArea</li>
      *     <li>java -ea org.geotools.cs.ScriptTest -test=OpenGIS</li>
      * </ul>
      *
@@ -540,6 +558,10 @@ public class ScriptTest extends TestCase {
         }
         if (script==null || script.equalsIgnoreCase("Stereographic")) {
             test.testStereographic();
+            done = true;
+        }
+        if (script==null || script.equalsIgnoreCase("Orthographic")) {
+            test.testOrthographic();
             done = true;
         }
         if (script==null || script.equalsIgnoreCase("AlbersEqualArea")) {

@@ -48,7 +48,7 @@ import org.geotools.resources.cts.Resources;
 /**
  * Base class for {@link MapProjection} provider.
  *
- * @version $Id: Provider.java,v 1.9 2003/08/21 09:42:02 desruisseaux Exp $
+ * @version $Id: Provider.java,v 1.10 2004/01/11 17:11:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Provider extends MathTransformProvider {
@@ -78,6 +78,7 @@ public abstract class Provider extends MathTransformProvider {
                 new Stereographic   .Provider(true,  false),        // Polar_Stereographic
                 new Stereographic   .Provider(false, true),         // Oblique_Stereographic_EPSG
                 new Stereographic   .Provider(true,  true),         // Polar_Stereographic_EPSG
+                new Orthographic    .Provider(),                    // Orthographic
                 new AlbersEqualArea .Provider()                     // Albers_Conic_Equal_Area
             };
             for (int i=0; i<DEFAULT.length; i++) {
