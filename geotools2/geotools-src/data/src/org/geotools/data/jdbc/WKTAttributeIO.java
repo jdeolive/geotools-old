@@ -16,23 +16,21 @@
  */
 package org.geotools.data.jdbc;
 
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.jdbc.JDBCDataStore.FeatureTypeInfo;
+import org.geotools.data.jdbc.QueryData.RowData;
+import org.geotools.feature.AttributeType;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.geotools.data.DataSourceException;
-import org.geotools.data.jdbc.JDBCDataStore.FeatureTypeInfo;
-import org.geotools.data.jdbc.QueryData.RowData;
-import org.geotools.feature.AttributeType;
-
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
 
 
 /**
@@ -48,7 +46,7 @@ import com.vividsolutions.jts.io.WKTWriter;
  * </p>
  *
  * @author Chris Holmes
- * @version $Id: WKTAttributeIO.java,v 1.6 2003/11/28 08:49:51 seangeo Exp $
+ * @version $Id: WKTAttributeIO.java,v 1.7 2003/12/02 21:59:08 cholmesny Exp $
  */
 public class WKTAttributeIO extends ResultSetAttributeIO {
     /** The logger for the filter module. */
@@ -64,9 +62,11 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
     /** Well Known Text writer (from JTS). */
     private static WKTWriter geometryWriter = new WKTWriter();
     private int columnIndex;
+
     public WKTAttributeIO(QueryData queryData, AttributeType metadata,
         int columnIndex) {
-        super(new AttributeType[] { metadata }, queryData, columnIndex, columnIndex + 1);
+        super(new AttributeType[] { metadata }, queryData, columnIndex,
+            columnIndex + 1);
 
         AttributeType[] attTypes = new AttributeType[] { metadata };
 
@@ -98,12 +98,12 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
         try {
             RowData rd = queryData.getRowData(this);
 
-            String wkt = rd.read(columnIndex).toString();
+            Object wkt = rd.read(columnIndex);
 
             if (wkt == null) {
                 retObject = null;
             } else {
-                retObject = geometryReader.read(wkt);
+                retObject = geometryReader.read(wkt.toString());
             }
 
             //LOGGER.fine("returning " + retObject);
@@ -129,21 +129,20 @@ public class WKTAttributeIO extends ResultSetAttributeIO {
         }
 
         // Ive commented this out - let the SQLException be thrown 
-//        try {
-//            //can we check if on insert row?  I'm pretty sure this method
-//            //won't work on an insert row, since it's not in the database yet.
-//            //The regular update ones we can just use update sql.
-//            if (resultSet.isAfterLast()) {
-//                throw new IOException(
-//                    "cannot insert WKT on insert row, must use"
-//                    + " a full sql insert statement");
-//            }
-//        } catch (SQLException e) {
-//            String msg = "SQL Error calling isLast on result set";
-//            LOGGER.log(Level.SEVERE, msg, e);
-//            throw new IOException(msg + ":" + e.getMessage());
-//        }
-
+        //        try {
+        //            //can we check if on insert row?  I'm pretty sure this method
+        //            //won't work on an insert row, since it's not in the database yet.
+        //            //The regular update ones we can just use update sql.
+        //            if (resultSet.isAfterLast()) {
+        //                throw new IOException(
+        //                    "cannot insert WKT on insert row, must use"
+        //                    + " a full sql insert statement");
+        //            }
+        //        } catch (SQLException e) {
+        //            String msg = "SQL Error calling isLast on result set";
+        //            LOGGER.log(Level.SEVERE, msg, e);
+        //            throw new IOException(msg + ":" + e.getMessage());
+        //        }
         Statement statement = null;
 
         try {
