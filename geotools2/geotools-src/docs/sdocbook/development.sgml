@@ -56,15 +56,62 @@
     how successful you are and we can include it here.</para>
   </section>
 
-  <section id="cvs">
-    <title>Code Versioning (using CVS with ssh)</title>
+  <section id="configurationmanagement">
+    <title>Configuration Management</title>
 
-    <para>To edit geotools files you will need to set up CVS and ssh on your
-    computer so that you can access the files stored on <ulink
-    url="http://sourceforge.net">http://sourceforge.net</ulink>. How to setup
-    ssh and cvs for use with Sourceforge is explained in the documents at:
-    <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
-    (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>).</para>
+    <section id="cvs">
+      <title>Code Versioning (using CVS with ssh)</title>
+
+      <para>To edit geotools files you will need to set up CVS and ssh on your
+      computer so that you can access the files stored on <ulink
+      url="http://sourceforge.net">http://sourceforge.net</ulink>. How to
+      setup ssh and cvs for use with Sourceforge is explained in the documents
+      at: <ulink url="https://sourceforge.net/docman/?group_id=1">https://sourceforge.net/docman/?group_id=1</ulink>
+      (search for <emphasis>ssh</emphasis> and <emphasis>cvs</emphasis>). An
+      excellect CVS manual can be found at <ulink
+      url="http://cvsbook.red-bean.com/">http://cvsbook.red-bean.com/</ulink>.</para>
+    </section>
+
+    <section>
+      <title>Module version numbers</title>
+
+      <para>Each geotools2 module contains it&#39;s own version number.
+      Version numbers are based on 3 digits, <emphasis>&#60;major&#62;.&#60;minor&#62;.&#60;bug
+      fixes&#62;</emphasis>. It looks like <emphasis>X.Y.Z</emphasis> .</para>
+
+      <variablelist>
+        <varlistentry>
+          <term>major version</term>
+
+          <listitem>
+            <para>Major version number should be incremented to indicate that
+            a module has lost full compatibility to earlier versions. So you
+            can safely upgrade to later versions of a module so long as the
+            major version has not changed.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>minor version</term>
+
+          <listitem>
+            <para>The second digit (minor) is incremented whenever new
+            features are added. Modules are forward compatible across minor
+            versions, but usually not backward compatible.</para>
+          </listitem>
+        </varlistentry>
+
+        <varlistentry>
+          <term>bug fix version</term>
+
+          <listitem>
+            <para>The last digit is for bug fixes. It is used to indicate
+            fixes in bugs only. No new features were made and full
+            compatiblity is preserved.</para>
+          </listitem>
+        </varlistentry>
+      </variablelist>
+    </section>
   </section>
 
   <section id="poseidon">
@@ -78,7 +125,7 @@
     <para>Using Poseidon you can reverse engineer the Geotools2 code and view
     class diagrams, javadocs and code using a powerful graphical interface. It
     is a good way to quickly navigate through the Geotools2 design. Poseidon
-    can&#39;t revserse engineer too much of the code at once because it
+    can&#39;t reverse engineer too much of the code at once because it
     sometimes runs out of memory, and sometimes freezes (which is possibly due
     to running out of memory). Below is a few tips I used to import Geotools2
     files into Poseidon.</para>
@@ -345,7 +392,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.6 2003/01/09 20:56:45 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.7 2003/01/10 19:23:29 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -484,8 +531,8 @@ public class ThisClass {
 
             <mediaobject>
               <imageobject>
-                <imagedata fileref="images/developersguide/dir_structure.png"
-                format="PNG" />
+                <imagedata format="PNG"
+                fileref="images/developersguide/dir_structure.png" />
               </imageobject>
 
               <textobject>
@@ -738,6 +785,53 @@ org.geotools.cts.level = INFO</programlisting>
     if some of the geotools files don&#39;t compile.</para>
   </section>
 
+  <section id="codeprofiling">
+    <title>Code Profiling</title>
+
+    <para>Code profilers are tools which analyse performance and memory of
+    applications. Good free tools that we have used are a combination of hprof
+    (provided with JDK) and HPJMeter (which analyzes profiling data from
+    hprof).</para>
+
+    <para>To run hprof the same way you need to run the JVM with the following
+    parameters added: <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a</command></para>
+
+    <para>If you are running from Netbeans, select <command>options-&#62;debugging
+    and executing-&#62;execution types-&#62;external executor</command>. By
+    using the context menu, copy it and paste again in the execution types,
+    then rename the new executor &#34;HProf External executor&#34; (or
+    whatever you like). In options, look at the &#34;External process&#34;
+    option, open the modification dialog, in arguments add at the beginning:
+    <command>-Xrunhprof:cpu=samples,thread=n,depth=40,cutoff=0,format=a
+    {assertEnabled}</command> Now <emphasis>hprof</emphasis> will be launched
+    every time you select this kind of executor. Then close, go in the expert
+    pane and set a working directory, Eg <filename>/home/&#60;username&#62;/tmp/hprof</filename>,
+    so that hprof dumps the resulting text file in this directory. This
+    setting modifies the working directory of the java jvm. Close the options
+    dialog and go select the file you want to profile, open file properties,
+    and set, in the execution properties, the &#34;HProf External
+    profiler&#34;. Run. At the end of the run you&#39;ll find a java.hprof.txt
+    file that can be opened with HPJMeter.</para>
+
+    <para>to do:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Add links to HPJMeter</para>
+      </listitem>
+
+      <listitem>
+        <para>Reference hprof/HPJMeter documentation</para>
+      </listitem>
+
+      <listitem>
+        <para>Andrea Aim kindly provided this section, but I have not checked
+        it. If you use this section of the doc, please let the editor know if
+        it is correct or not.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
   <section id="building">
     <title>Building</title>
 
@@ -912,7 +1006,7 @@ org.geotools.cts.level = INFO</programlisting>
         additional web pages that go into the web site</para>
       </section>
 
-      <section id="mavenprojectstructure">
+      <section id="mavenremotestructure">
         <title>Remote File Structure:</title>
 
         <para>There is a repository of jars required by geotools2 stored on
