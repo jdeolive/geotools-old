@@ -26,7 +26,6 @@ public class DataSourceFinder {
      public static DataSource getDataSource(HashMap params) throws DataSourceException
     {
         Iterator ps = Service.providers(DataSourceFactorySpi.class); 
-        System.out.println("Available Data Sources");
         while(ps.hasNext()){
             DataSourceFactorySpi fac = (DataSourceFactorySpi)ps.next();
             System.out.println(fac.getDescription());
