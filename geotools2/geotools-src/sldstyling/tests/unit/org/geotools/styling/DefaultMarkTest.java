@@ -107,6 +107,7 @@ public class DefaultMarkTest extends TestCase {
         File f = new File(dataFolder,"markTest.sld");
         System.out.println("testing reader using "+f.toString());
         SLDStyle style = new SLDStyle(f);
+        
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         Frame frame = new Frame("default mark test");
@@ -129,7 +130,10 @@ public class DefaultMarkTest extends TestCase {
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
         File file = new File(dataFolder, "DefaultMarkTest.jpg"); 
         FileOutputStream out = new FileOutputStream(file);
-        ImageIO.write(image, "JPEG", out); 
+        boolean fred = ImageIO.write(image, "JPEG", out); 
+        if(!fred){
+            System.out.println("Failed to write image to " + file.toString());
+        }
         
         Thread.sleep(5000);
         frame.dispose();

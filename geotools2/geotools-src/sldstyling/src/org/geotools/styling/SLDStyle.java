@@ -40,7 +40,7 @@ import org.w3c.dom.*;
  *
  * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.23 2002/10/16 16:49:57 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.24 2002/10/17 16:54:28 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle implements org.geotools.styling.Style {
@@ -55,15 +55,19 @@ public class SLDStyle implements org.geotools.styling.Style {
     private Document dom;
     private StyleFactory factory;
     
-    SLDStyle(){
-        factory = StyleFactory.createStyleFactory();
+    public SLDStyle(){
+        try{
+            factory = StyleFactory.createStyleFactory();
+        } catch (Exception e){
+            System.err.println("Exception creating StyleFactory " + e);
+        }
     }
     /**
      * Creates a new instance of SLDStyler
      * 
      * @param filename The file to be read.
      */
-    SLDStyle(String filename) {
+    public SLDStyle(String filename) {
         this();
         File f = new File(filename);
         setInput(f);
@@ -75,7 +79,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param f the File to be read
      */
-    SLDStyle(File f) {
+    public SLDStyle(File f) {
         this();
         setInput(f);
         readXML();
@@ -86,7 +90,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param url the URL to be read.
      */
-    SLDStyle(URL url) {
+    public SLDStyle(URL url) {
         this();
         setInput(url);
         readXML();
@@ -97,7 +101,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param s The inputstream to be read
      */
-    SLDStyle(InputStream s) {
+    public SLDStyle(InputStream s) {
         this();
         instream = s;
         readXML();
@@ -517,7 +521,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("Fill")) {
-                symbol.setFill((FillImpl) parseFill(child));
+                symbol.setFill(parseFill(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("Label")) {
@@ -683,7 +687,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("processing external graphic ");
         }
 
-        ExternalGraphicImpl extgraph = new ExternalGraphicImpl();
+        ExternalGraphic extgraph = factory.createExternalGraphic();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -971,7 +975,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing font");
         }
 
-        FontImpl font = new FontImpl();
+        Font font = factory.createFont();
         NodeList list = ((Element) root).getElementsByTagName("CssParameter");
 
         for (int i = 0; i < list.getLength(); i++) {
@@ -1041,7 +1045,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing pointPlacement");
         }
 
-        PointPlacementImpl dpp = new PointPlacementImpl();
+        PointPlacement dpp = factory.createPointPlacement();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1073,7 +1077,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing linePlacement");
         }
 
-        LinePlacementImpl dlp = new LinePlacementImpl();
+        LinePlacement dlp = factory.createLinePlacement();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1097,7 +1101,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing anchorPoint");
         }
 
-        AnchorPointImpl dap = new AnchorPointImpl();
+        AnchorPoint dap = factory.createAnchorPoint();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1125,7 +1129,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing displacment");
         }
 
-        DisplacementImpl dd = new DisplacementImpl();
+        Displacement dd = factory.createDisplacement();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1153,7 +1157,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing halo");
         }
 
-        HaloImpl halo = new HaloImpl();
+        Halo halo = factory.createHalo();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -1165,7 +1169,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
 
             if (child.getNodeName().equalsIgnoreCase("Fill")) {
-                halo.setFill((FillImpl) parseFill(child));
+                halo.setFill(parseFill(child));
             }
 
             if (child.getNodeName().equalsIgnoreCase("Radius")) {

@@ -27,10 +27,12 @@ import org.geotools.filter.Expression;
  * A Displacement gives X and Y offset displacements to use for rendering
  * a text label near a point.
  *
- * $Id: Displacement.java,v 1.2 2002/07/12 15:38:35 loxnard Exp $
+ * $Id: Displacement.java,v 1.3 2002/10/17 16:55:23 ianturton Exp $
  * @author  Ian Turton, CCG
  */
 public interface Displacement {
     Expression getDisplacementX();
+    void setDisplacementX(Expression x);
     Expression getDisplacementY();
+    void setDisplacementY(Expression y);
 }

@@ -27,7 +27,7 @@ import java.util.logging.Logger;
 
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.1 2002/10/14 14:18:06 ianturton Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.2 2002/10/17 16:54:55 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
@@ -42,7 +42,8 @@ public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
     /** Creates a new instance of DefaultExternalGraphic */
     public ExternalGraphicImpl(){
     }
-
+    
+    
     public void setURI(String uri){
         try {
             setLocation(new URL(uri));

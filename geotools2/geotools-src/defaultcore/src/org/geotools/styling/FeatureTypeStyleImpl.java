@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.1 2002/10/14 14:16:14 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.2 2002/10/17 16:54:55 ianturton Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
@@ -31,8 +31,11 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     String title = "title";
     String abstractStr = "abstract";
     /** Creates a new instance of DefaultFeatureTypeStyle */
-    public FeatureTypeStyleImpl() {
+    protected FeatureTypeStyleImpl() {
         ruleList = new Rule[0];
+    }
+    protected FeatureTypeStyleImpl(Rule[] rules) {
+        ruleList = rules;
     }
     
     public String getFeatureTypeName() {
@@ -43,8 +46,11 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
         return ruleList;
     }
     
-    public String[] getSymantecTypeIdentifiers() {
+    public String[] getSemantecTypeIdentifiers() {
         return new String[]{"generic:geometry"};//HACK: - generic catch all identifier
+    }
+    public void setSemantecTypeIdentifiers(String[] types) {
+        // since these are defined yet we can ignore it
     }
     
     public void setRules(Rule[] rules){

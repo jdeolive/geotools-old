@@ -95,40 +95,40 @@ public class TextSymbolTest extends TestCase {
         //The following is complex, and should be built from
         //an SLD document and not by hand
         
-        org.geotools.styling.DefaultFont font = new org.geotools.styling.DefaultFont();
-        font.setFontFamily(new ExpressionLiteral(dataFolder + "/geog.ttf"));
+        org.geotools.styling.FontImpl font = new org.geotools.styling.FontImpl();
+        font.setFontFamily(new ExpressionLiteral(dataFolder + "geog.ttf"));
         font.setFontSize(new ExpressionAttribute(pointType, "size"));
         
         ExpressionAttribute symbExpr = new ExpressionAttribute(pointType, "symbol");
         TextMark textMark = new TextMark(font,symbExpr);
         
-        org.geotools.styling.DefaultFont font2 = new org.geotools.styling.DefaultFont();
+        org.geotools.styling.FontImpl font2 = new org.geotools.styling.FontImpl();
         font2.setFontFamily(new ExpressionLiteral("MapInfo Cartographic"));
         font2.setFontSize(new ExpressionAttribute(pointType, "size"));
         textMark.addFont(font2);
         
-        org.geotools.styling.DefaultFont font3 = new org.geotools.styling.DefaultFont();
+        org.geotools.styling.FontImpl font3 = new org.geotools.styling.FontImpl();
         font3.setFontFamily(new ExpressionLiteral("ESRI Cartography"));
         font3.setFontSize(new ExpressionAttribute(pointType, "size"));
         textMark.addFont(font3);
         
-        DefaultGraphic graphic = new DefaultGraphic();
+        GraphicImpl graphic = new GraphicImpl();
         graphic.addSymbol(textMark);
-        DefaultPointSymbolizer pointsym = new DefaultPointSymbolizer();
+        PointSymbolizerImpl pointsym = new PointSymbolizerImpl();
         pointsym.setGeometryPropertyName("centre");
         pointsym.setGraphic(graphic);
         
-        DefaultRule rule3 = new DefaultRule();
+        RuleImpl rule3 = new RuleImpl();
         rule3.setSymbolizers(new Symbolizer[]{pointsym});
-        DefaultFeatureTypeStyle fts3 = new DefaultFeatureTypeStyle();
+        FeatureTypeStyleImpl fts3 = new FeatureTypeStyleImpl();
         fts3.setRules(new Rule[]{rule3});
         fts3.setFeatureTypeName("testPoint");
-        DefaultStyle style = new DefaultStyle();
+        StyleImpl style = new StyleImpl();
         style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts3});
         
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
-        Frame frame = new Frame();
+        Frame frame = new Frame("text symbol test");
         frame.addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
         });

@@ -118,6 +118,7 @@ public class RenderStyleTest extends TestCase {
         
         System.out.println("testing reader using "+f.toString());
         SLDStyle style = new SLDStyle(f);
+        
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         Frame frame = new Frame("rendering test");
