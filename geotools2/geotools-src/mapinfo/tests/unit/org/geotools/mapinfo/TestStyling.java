@@ -24,14 +24,14 @@ import java.util.Iterator;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import com.vividsolutions.jts.geom.*;
-import org.apache.log4j.*;
+import java.util.logging.Logger;
 /**
  *
  * @author iant
  */
 public class TestStyling extends TestCase {
     // change loging level if problems occur in this test
-     Logger _log = Logger.getLogger("MifMid");
+     Logger _log = Logger.getLogger("org.geotools.MifMid");
     MapInfoDataSource dsMapInfo;
     boolean setup = false;
     String dataFolder;
@@ -64,7 +64,7 @@ public class TestStyling extends TestCase {
     }
     
     public void testStyling() throws Exception{
-        _log.getLoggerRepository().setThreshold(Level.DEBUG);
+        
         String miffile = dataFolder + "baltic/basins.mif";
         dsMapInfo.readMifMid(miffile);
     }
