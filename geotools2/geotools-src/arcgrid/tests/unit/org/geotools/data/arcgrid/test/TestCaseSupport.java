@@ -30,7 +30,7 @@ public abstract class TestCaseSupport extends TestCase {
   }
   
   protected InputStream getTestResourceAsStream(String name) {
-    InputStream in = TestCaseSupport.class.getResourceAsStream("/testData/" + name);
+    InputStream in = TestCaseSupport.class.getResourceAsStream("testData/" + name);
     if (in == null)
       throw new RuntimeException("Could not locate resource : " + name);
     return in;
