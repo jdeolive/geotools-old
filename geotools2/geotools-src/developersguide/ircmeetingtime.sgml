@@ -1,0 +1,13 @@
+  <section id="ircmeetingtime">
+    <title>IRC Meeting Time</title>
+
+    <para>This project&#39;s developers meet regularly to discuss issues such
+    as design. At the time of writing, developers meet weekly at
+    <emphasis>19:30 Monday UTC</emphasis>. Check <ulink
+    url="http://www.timeanddate.com/worldclock/">http://www.timeanddate.com/worldclock/</ulink>
+    to find what this time translates to in your part of the world.</para>
+
+    <para>Members of the Project Management Committee (PMC) who are regular
+    IRC participants should let others know if they are not coming so that the
+    meeting is not delayed on their behalf.</para>
+  </section>

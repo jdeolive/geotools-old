@@ -1,0 +1,33 @@
+  <section id="ircserversettings">
+    <title>IRC Server Settings</title>
+
+    <para>The information you need to configure your IRC client are:</para>
+
+    <variablelist>
+      <varlistentry>
+        <term>Server</term>
+
+        <listitem>
+          <para>Pick one from <ulink
+          url="http://freenode.net/irc_servers.shtml">http://freenode.net/irc_servers.shtml</ulink>,
+          eg: irc.eu.freenode.net.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Channel</term>
+
+        <listitem>
+          <para>#geotools</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>Port</term>
+
+        <listitem>
+          <para>6667</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </section>
