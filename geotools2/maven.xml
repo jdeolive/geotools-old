@@ -73,11 +73,30 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
       banner="Building"
       postProcessing="true"
       ignoreFailures="true"
+    />  
+
+    <j:set
+      var = "ok"
+      value = "${reactorProjects}"
     />
     
-    <echo>
-      modules built and installed:  ${reactorProjects}
-    </echo>
+    <maven:reactor
+      basedir="${basedir}/geotools-src"
+      includes="*/project.xml"
+      postProcessing="true"
+      ignoreFailures="true"
+    />
+    
+    <j:forEach var="module" items="${reactorProjects}">
+        <j:set var = "status" value = "failed"/>
+        <j:forEach var="item" items="${ok}">
+            <j:if test="${item == module}">
+                <j:set var = "status" value = "installed"/>
+            </j:if>
+         </j:forEach>
+         <echo>Module ${module} : ${status}</echo>
+    </j:forEach>
+    
   
   </goal>
   
@@ -100,8 +119,6 @@ xmlns:velocity="jelly:org.apache.commons.jelly.tags.velocity.VelocityTagLibrary"
     </echo>
   
   </goal>
-  
-  
   
   <!-- ================================================================== -->
   <!-- W E B S I T E                                                      -->
