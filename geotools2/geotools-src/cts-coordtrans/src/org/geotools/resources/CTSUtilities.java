@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.6 2003/01/22 23:08:41 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.7 2003/01/25 21:52:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -75,6 +75,38 @@ public final class CTSUtilities {
             }
         }
         return -1;
+    }
+
+    /**
+     * Returns a sub-coordinate system for the specified dimension range.
+     *
+     * @param  cs    The coordinate system to decompose.
+     * @param  lower The first dimension to keep, inclusive.
+     * @param  upper The last  dimension to keep, exclusive.
+     * @return The sub-coordinate system, or <code>null</code> if <code>cs</code> can't
+     *         be decomposed for dimensions in the range <code>[lower..upper]</code>.
+     */
+    public static CoordinateSystem getSubCoordinateSystem(CoordinateSystem cs, int lower, int upper)
+    {
+        if (lower<0 || lower>upper || upper>cs.getDimension()) {
+            throw new IndexOutOfBoundsException(Resources.format(
+                            ResourceKeys.ERROR_INDEX_OUT_OF_BOUNDS_$1,
+                            new Integer(lower<0 ? lower : upper)));
+        }
+        while (lower!=0 || upper!=cs.getDimension()) {
+            if (!(cs instanceof CompoundCoordinateSystem)) {
+                return null;
+            }
+            final CompoundCoordinateSystem ccs = (CompoundCoordinateSystem) cs;
+            cs = ccs.getHeadCS();
+            final int headDim = cs.getDimension();
+            if (lower >= headDim) {
+                cs = ccs.getTailCS();
+                lower -= headDim;
+                upper -= headDim;
+            }
+        }
+        return cs;
     }
     
     /**
