@@ -55,7 +55,7 @@ import javax.media.jai.util.Range;
  *
  * @author Martin Desruisseaux
  * @author Andrea Aime
- * @version $Id: RenderedLayerFactory.java,v 1.7 2003/07/21 21:24:52 jmacgill Exp $
+ * @version $Id: RenderedLayerFactory.java,v 1.8 2003/07/22 03:00:38 jmacgill Exp $
  */
 public class RenderedLayerFactory {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.renderer.j2d");
@@ -242,7 +242,6 @@ public class RenderedLayerFactory {
      */
     private boolean featureMatching(Feature feature, String ftsTypeName, Filter filter) {
         String typeName = feature.getFeatureType().getTypeName();
-        System.out.println("matching "+typeName+" against "+ftsTypeName);
         if(typeName == null){
             return false;
         }
