@@ -48,8 +48,8 @@ public class Shapefile {
     public static final int MULTIPOINTM = 28;
     public static final int MULTIPOINTZ = 18;
     public static final int UNDEFINED = -1;
+
     //Types 2,4,6,7 and 9 were undefined at time or writeing
-    
     private URL baseURL;
 
     /**
@@ -58,21 +58,24 @@ public class Shapefile {
      */
     public Shapefile(URL url) throws java.io.IOException {
         baseURL = url;
+
         // simple test just to verify that the baseURL makes sense
         URLConnection uc = baseURL.openConnection();
     }
 
     /**
-     * Opens a buffered endian input stream from the provided url. 
+     * Opens a buffered endian input stream from the provided url.
      */
     private EndianDataInputStream getInputStream() throws IOException {
         InputStream is = baseURL.openConnection().getInputStream();
-        if(is == null)
+        if (is == null) {
             throw new IOException("Could make a connection to the URL: " + baseURL);
+        }
 
         return new EndianDataInputStream(new BufferedInputStream(is));
     }
-    
+
+
     /**
      * Opens an endian buffered output stream from the provided url
      */
@@ -81,16 +84,18 @@ public class Shapefile {
         OutputStream os = new FileOutputStream(baseURL.getFile());
         return new EndianDataOutputStream(new BufferedOutputStream(os));
     }
-    
+
 
     /**
      * Gets the bounds from the shapefile's header. Warning, opens the
      * shape file each time is called, use with care.
      */
-    public com.vividsolutions.jts.geom.Envelope getBounds() throws IOException {
+    public com.vividsolutions.jts.geom.Envelope getBounds()
+                                                   throws IOException {
         return getHeader().getBounds();
     }
-    
+
+
     /**
      * Returns the whole shapefile header. Warning, opens the
      * shape file each time is called, use with care.
@@ -102,15 +107,17 @@ public class Shapefile {
             file = getInputStream();
             mainHeader = new ShapefileHeader(file);
         } finally {
-            if(file != null) {
-                try { 
-                    file.close(); 
-                } catch(Exception e) {}
+            if (file != null) {
+                try {
+                    file.close();
+                } catch (Exception e) {
+                }
             }
         }
-            
+
         return mainHeader;
     }
+
 
     /**
      * Initialises a shapefile from disk.
@@ -118,7 +125,7 @@ public class Shapefile {
      * @param file A LEDataInputStream that conects to the shapefile to read
      */
     public GeometryCollection read(GeometryFactory geometryFactory)
-        throws IOException, ShapefileException {
+                            throws IOException, ShapefileException {
         EndianDataInputStream file = getInputStream();
         ArrayList list = null;
 
@@ -131,12 +138,14 @@ public class Shapefile {
 
             if (mainHeader.getVersion() < VERSION) {
                 System.err.println("Sf-->Warning, Shapefile format (" + mainHeader.getVersion() +
-                    ") older that supported (" + VERSION + "), attempting to read anyway");
+                                   ") older that supported (" + VERSION +
+                                   "), attempting to read anyway");
             }
 
             if (mainHeader.getVersion() > VERSION) {
                 System.err.println("Sf-->Warning, Shapefile format (" + mainHeader.getVersion() +
-                    ") newer that supported (" + VERSION + "), attempting to read anyway");
+                                   ") newer that supported (" + VERSION +
+                                   "), attempting to read anyway");
             }
 
             Geometry body;
@@ -157,21 +166,22 @@ public class Shapefile {
                     contentLength = file.readIntBE();
 
                     body = handler.read(file, geometryFactory, contentLength - 4); //-4 is the recordNumber/contentlength size
-                    if(body != null)
+                    if (body != null) {
                         list.add(body);
+                    }
                 }
             } catch (EOFException e) {
-            } 
+            }
         } finally {
-            if(file != null) {
-                try { 
-                    file.close(); 
-                } catch(Exception e) {}
+            if (file != null) {
+                try {
+                    file.close();
+                } catch (Exception e) {
+                }
             }
         }
 
-        return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(
-                new Geometry[] {  }));
+        return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[] {  }));
     }
 
 
@@ -182,12 +192,10 @@ public class Shapefile {
 
     //ShapeFileDimentions =>    2=x,y ; 3=x,y,m ; 4=x,y,z,m
     public void write(GeometryCollection geometries, int ShapeFileDimentions)
-        throws IOException, Exception {
+               throws IOException, Exception {
         EndianDataOutputStream file = getOutputStream();
         ShapefileHeader mainHeader = new ShapefileHeader(geometries, ShapeFileDimentions);
         mainHeader.write(file);
-
-        int pos = 50; // header length in WORDS
 
         int numShapes = geometries.getNumGeometries();
         Geometry body;
@@ -202,14 +210,11 @@ public class Shapefile {
         for (int i = 0; i < numShapes; i++) {
             body = geometries.getGeometryN(i);
 
-            //file.setLittleEndianMode(false);
             file.writeIntBE(i + 1);
-            file.writeIntBE(handler.getLength(body) + 4);
+            // file.writeIntBE(handler.getLength(body) + 4);
+            file.writeIntBE(handler.getLength(body));
 
-            // file.setLittleEndianMode(true);
-            pos += 4; // length of header in WORDS
             handler.write(body, file);
-            pos += handler.getLength(body); // length of shape in WORDS
         }
 
         file.flush();
@@ -219,12 +224,11 @@ public class Shapefile {
 
     //ShapeFileDimentions =>    2=x,y ; 3=x,y,m ; 4=x,y,z,m
     public synchronized void writeIndex(GeometryCollection geometries, URL url,
-        int ShapeFileDimentions) throws IOException, Exception {
+                                        int ShapeFileDimentions)
+                                 throws IOException, Exception {
         Geometry geom;
-        
-        EndianDataOutputStream file = new EndianDataOutputStream(new FileOutputStream(
-                    new File(url.getFile())));
 
+        EndianDataOutputStream file = new EndianDataOutputStream(new FileOutputStream(new File(url.getFile())));
 
         ShapeHandler handler;
         int nrecords = geometries.getNumGeometries();
@@ -245,11 +249,11 @@ public class Shapefile {
         //file.setLittleEndianMode(false);
         for (int i = 0; i < nrecords; i++) {
             geom = geometries.getGeometryN(i);
-            len = handler.getLength(geom) + 4;
+            len = handler.getLength(geom);
 
             file.writeIntBE(pos);
             file.writeIntBE(len);
-            pos = pos + len;
+            pos = pos + len + 4;
         }
 
         file.flush();
@@ -310,12 +314,13 @@ public class Shapefile {
 
 
     public static ShapeHandler getShapeHandler(Geometry geom, int ShapeFileDimentions)
-        throws Exception {
+                                        throws Exception {
         return getShapeHandler(getShapeType(geom, ShapeFileDimentions));
     }
 
 
-    public static ShapeHandler getShapeHandler(int type) throws InvalidShapefileException {
+    public static ShapeHandler getShapeHandler(int type)
+                                        throws InvalidShapefileException {
         switch (type) {
             case Shapefile.POINT:
                 return new PointHandler();
@@ -360,11 +365,10 @@ public class Shapefile {
 
     //ShapeFileDimentions =>    2=x,y ; 3=x,y,m ; 4=x,y,z,m
     public static int getShapeType(Geometry geom, int ShapeFileDimentions)
-        throws ShapefileException {
+                            throws ShapefileException {
         if ((ShapeFileDimentions != 2) && (ShapeFileDimentions != 3) && (ShapeFileDimentions != 4)) {
-            throw new ShapefileException(
-                "invalid ShapeFileDimentions for getShapeType - expected 2,3,or 4 but got " +
-                ShapeFileDimentions + "  (2=x,y ; 3=x,y,m ; 4=x,y,z,m)");
+            throw new ShapefileException("invalid ShapeFileDimentions for getShapeType - expected 2,3,or 4 but got " +
+                                         ShapeFileDimentions + "  (2=x,y ; 3=x,y,m ; 4=x,y,z,m)");
 
             //ShapeFileDimentions = 2;
         }
@@ -425,35 +429,34 @@ public class Shapefile {
     }
 
 
-    public synchronized ArrayList readIndex()
-        throws IOException {
-        EndianDataInputStream file = getInputStream();
+    public synchronized ArrayList readIndex(URL url) throws IOException {
+        EndianDataInputStream file = new EndianDataInputStream(new FileInputStream(new File(url.getFile())));
 
         ShapefileHeader head = new ShapefileHeader(file);
 
         int pos = 0;
         int len = 0;
-        
+
         ArrayList indexes = new ArrayList();
-        
+
         try {
-            while(true) {
+            while (true) {
                 IndexRecord ir = new IndexRecord();
                 ir.offset = file.readIntBE();
                 ir.length = file.readIntBE();
                 indexes.add(ir);
             }
-        } catch (EOFException e) {}
+        } catch (EOFException e) {
+        }
 
         //file.setLittleEndianMode(false);
         file.close();
-        
+
         return indexes;
     }
-    
+
     public class IndexRecord {
         public int offset;
         public int length;
     }
-    
 }
