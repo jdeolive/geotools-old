@@ -56,7 +56,7 @@ public class PropertyDataStore extends AbstractDataStore {
         return new PropertyFeatureReader( directory, typeName );        
     }
     protected FeatureWriter getFeatureWriter(String typeName) throws IOException {
-        return new PropertyFeatureWriter( directory, typeName );
+        return new PropertyFeatureWriter( this, typeName );
     }
     public void createSchema(FeatureType featureType) throws IOException {
         String typeName = featureType.getTypeName();

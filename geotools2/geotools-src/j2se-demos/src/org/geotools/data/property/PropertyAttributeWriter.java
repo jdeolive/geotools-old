@@ -41,6 +41,16 @@ public class PropertyAttributeWriter implements AttributeWriter {
     public AttributeType getAttributeType(int index) throws ArrayIndexOutOfBoundsException {
         return type.getAttributeType(index);
     }
+    public boolean hasNext() throws IOException {
+        return false;
+    }    
+    public void next() throws IOException {
+        if( writer == null){
+            throw new IOException("Writer has been closed");
+        }
+        writer.newLine();
+        writer.flush();
+    }            
     public void echoLine( String line ) throws IOException{
         if( writer == null ){
             throw new IOException("Writer has been closed");
@@ -60,19 +70,13 @@ public class PropertyAttributeWriter implements AttributeWriter {
         if( writer == null){
             throw new IOException("Writer has been closed");
         }
-        String text;
-        if( position == 0 ){
-            writer.write("=");
-        }
-        else {
-            writer.write("|");
-        }
+        writer.write( position == 0 ? "=" : "|" );
         if( attribute instanceof Geometry){
             writer.write( ((Geometry)attribute).toText() );
         }
         else {
             writer.write( attribute.toString() );
-        }                                
+        }
     }
     public void close() throws IOException {
         if( writer == null){
@@ -82,14 +86,4 @@ public class PropertyAttributeWriter implements AttributeWriter {
         writer = null;
         type = null;        
     }
-    public void next() throws IOException {
-        if( writer == null){
-            throw new IOException("Writer has been closed");
-        }
-        writer.newLine();
-        writer.flush();
-    }
-    public boolean hasNext() throws IOException {
-        return false;
-    }            
 }

@@ -18,23 +18,23 @@
 
     <orderedlist>
       <listitem>
-        <para>DataStore Implementation</para>
+        <para>DataStore Tutorial 1: Implementation</para>
       </listitem>
 
       <listitem>
-        <para>DataStore Use</para>
+        <para>DataStore Tutorial 2: Use</para>
       </listitem>
 
       <listitem>
-        <para>DataStore Extension</para>
+        <para>DataStore Tutorial 3: Extension</para>
       </listitem>
 
       <listitem>
-        <para>DataStore Capabilities</para>
+        <para>DataStore Tutorial 4: Capabilities</para>
       </listitem>
 
       <listitem>
-        <para>DataStore Optimization</para>
+        <para>DataStore Tutorial 5: Optimization</para>
       </listitem>
     </orderedlist>
   </sect1>

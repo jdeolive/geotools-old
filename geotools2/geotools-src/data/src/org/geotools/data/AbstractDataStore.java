@@ -16,8 +16,12 @@
  */
 package org.geotools.data;
 
+import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.filter.Filter;
+
+import com.vividsolutions.jts.geom.Envelope;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -64,7 +68,7 @@ public abstract class AbstractDataStore implements DataStore {
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
 
     /** Manages listener lists for FeatureSource implementation */
-    protected FeatureListenerManager listenerManager = new FeatureListenerManager();
+    public FeatureListenerManager listenerManager = new FeatureListenerManager();
     
     /**
      * Flags AbstractDataStore to allow Modification.
@@ -105,7 +109,23 @@ public abstract class AbstractDataStore implements DataStore {
     protected InProcessLockingManager createLockingManager() {
         return new InProcessLockingManager();
     }
-
+    
+    public void fireAdded( Feature newFeature ){
+        String typeName = newFeature.getFeatureType().getTypeName();
+        listenerManager.fireFeaturesAdded( typeName, Transaction.AUTO_COMMIT, newFeature.getBounds() );
+    }
+    public void fireRemoved( Feature removedFeature ){
+        String typeName = removedFeature.getFeatureType().getTypeName();
+        listenerManager.fireFeaturesRemoved( typeName, Transaction.AUTO_COMMIT, removedFeature.getBounds() );
+    }
+    public void fireChanged( Feature before, Feature after ){
+        String typeName = after.getFeatureType().getTypeName();
+        Envelope bounds = new Envelope();
+        bounds.expandToInclude( before.getBounds() );
+        bounds.expandToInclude( after.getBounds() );
+        listenerManager.fireFeaturesChanged( typeName, Transaction.AUTO_COMMIT, bounds );
+    }
+    
     public abstract String[] getTypeNames();
 
     public abstract FeatureType getSchema(String typeName)

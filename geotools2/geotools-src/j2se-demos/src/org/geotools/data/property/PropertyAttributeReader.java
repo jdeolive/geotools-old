@@ -98,9 +98,6 @@ public class PropertyAttributeReader implements AttributeReader {
         }
         return line.substring( 0, split );        
     }
-    public String getLine(){
-        return line;
-    }
     public Object read(int index)
         throws IOException, ArrayIndexOutOfBoundsException {
         if( line == null ){
