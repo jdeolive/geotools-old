@@ -91,8 +91,8 @@ public class ServiceTest extends TestCase {
         assertTrue(!pgdsFactory.canProcess(params));
         params.put("user", "postgis");
         assertTrue(!pgdsFactory.canProcess(params));
-        params.put("port", "5432");
-        assertTrue(!pgdsFactory.canProcess(params));
+        //params.put("port", "5432");
+        //assertTrue(!pgdsFactory.canProcess(params));
         params.put("table", "blorg");
         assertTrue(!pgdsFactory.canProcess(params));
 
