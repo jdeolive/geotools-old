@@ -19,7 +19,7 @@ alternate="yes"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/07/21 10:41:05 $</date>
+    <date>$Date: 2002/07/24 22:19:37 $</date>
 
     <abstract>
       <para>Guide to aid <filename>geotools2</filename> development.</para>
@@ -249,30 +249,6 @@ alternate="yes"
       how successful you are and we can include it here.</para>
     </section>
 
-    <section id="building">
-      <title>Building</title>
-
-      <para>To do:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>using ant</para>
-        </listitem>
-
-        <listitem>
-          <para>using maven</para>
-        </listitem>
-
-        <listitem>
-          <para>insert the &#34;howto-build.html&#34; doc into here</para>
-        </listitem>
-
-        <listitem>
-          <para></para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
     <section id="CodingStandards">
       <title>Coding Standards</title>
 
@@ -330,7 +306,8 @@ alternate="yes"
 
       <itemizedlist>
         <listitem>
-          <para></para>
+          <para>XXE seems to remove the &#60;return&#62; chars from the
+          template file above. Work out an alternative.</para>
         </listitem>
 
         <listitem>
@@ -373,6 +350,30 @@ alternate="yes"
       </itemizedlist>
     </section>
 
+    <section id="building">
+      <title>Building</title>
+
+      <para>To do:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>using ant</para>
+        </listitem>
+
+        <listitem>
+          <para>using maven</para>
+        </listitem>
+
+        <listitem>
+          <para>insert the &#34;howto-build.html&#34; doc into here</para>
+        </listitem>
+
+        <listitem>
+          <para></para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
     <section id="testing">
       <title>Testing</title>
 
@@ -395,6 +396,40 @@ alternate="yes"
           <para></para>
         </listitem>
       </itemizedlist>
+    </section>
+
+    <section>
+      <title id="inlinetasktracking">Inline Task Tracking</title>
+
+      <para>You can place <computeroutput>@task</computeroutput> markers in
+      the javadoc sections to track areas for rework. During the maven build
+      process, the tags are extracted to build a report page. Example output
+      can be viewed at: <ulink
+      url="http://modules.geotools.org/core/task_list.html">http://modules.geotools.org/core/task_list.html</ulink>.</para>
+
+      <para>The following tags are available:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>TODO:</para>
+        </listitem>
+
+        <listitem>
+          <para>REVISIT:</para>
+        </listitem>
+
+        <listitem>
+          <para>HACK:</para>
+        </listitem>
+      </itemizedlist>
+
+      <example>
+        <title>Inline task tracking within a method</title>
+
+        <programlisting>/** * This is an example method. * @param i This
+        explains the variable. * @task TODO: This method should have some
+        code. */ void example(int i) { }</programlisting>
+      </example>
     </section>
 
     <section id="documentation">
