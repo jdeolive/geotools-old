@@ -42,6 +42,7 @@ import java.awt.geom.Point2D;
 import java.util.Locale;
 import java.util.Arrays;
 import java.util.Collection;
+import java.io.Serializable;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListDescriptor;
 
@@ -61,15 +62,21 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * Provides transformation services between ellipsoidal and cartographic
  * projections. Ellipsoidal height values remain unchanged.
+ * <br><br>
+ * <strong>NOTE:</strong>This class may move in an other package later. Serialization of this
+ * class is appropriate for short-term storage or RMI use, but will probably not be compatible
+ * with future version. For long term storage, WKT (Well Know Text) or XML (not yet implemented)
+ * are more appropriate.
  *
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
-abstract class MapProjection extends AbstractMathTransform implements MathTransform2D {
+abstract class MapProjection extends AbstractMathTransform implements MathTransform2D, Serializable
+{
     /**
      * Maximal error (in metres) tolerated in assertion, in enabled. When
      * assertions are enabled, every direct projection is followed by an
@@ -784,7 +791,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -816,7 +823,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.4 2003/01/17 22:28:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {

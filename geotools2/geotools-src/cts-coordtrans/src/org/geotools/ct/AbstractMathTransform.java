@@ -35,6 +35,19 @@
  */
 package org.geotools.ct;
 
+// J2SE and vecmath dependencies
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
+import java.io.Serializable;
+import java.util.Locale;
+import java.awt.Shape;
+import java.awt.geom.Point2D;
+import java.awt.geom.GeneralPath;
+import java.awt.geom.PathIterator;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.IllegalPathStateException;
+import javax.vecmath.SingularMatrixException;
+
 // OpenGIS dependencies
 import org.opengis.pt.PT_Matrix;
 import org.opengis.pt.PT_CoordinatePoint;
@@ -52,18 +65,6 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
-// J2SE and vecmath dependencies
-import java.lang.ref.WeakReference;
-import java.lang.ref.Reference;
-import java.util.Locale;
-import java.awt.Shape;
-import java.awt.geom.Point2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.PathIterator;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.IllegalPathStateException;
-import javax.vecmath.SingularMatrixException;
-
 
 /**
  * Provides a default implementations for most methods required by the
@@ -75,7 +76,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.7 2002/08/02 10:11:01 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.8 2003/01/17 22:28:03 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -615,14 +616,25 @@ public abstract class AbstractMathTransform implements MathTransform {
     }
     
     /**
-     * Default implementation for inverse math transform.
-     * This inner class is the inverse of the enclosing
-     * math transform.
+     * Default implementation for inverse math transform. This inner class is the inverse
+     * of the enclosing {@link MathTransform}. It is serializable only if the enclosing
+     * math transform is also serializable.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.7 2002/08/02 10:11:01 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.8 2003/01/17 22:28:03 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
-    protected abstract class Inverse extends AbstractMathTransform {
+    protected abstract class Inverse extends AbstractMathTransform implements Serializable {
+        /**
+         * Serial number for interoperability with different versions. This serial number is
+         * especilly important for inner classes, since the default <code>serialVersionUID</code>
+         * computation will not produce consistent results across implementations of different
+         * Java compiler. This is because different compilers may generate different names for
+         * synthetic members used in the implementation of inner classes. See:
+         *
+         * http://developer.java.sun.com/developer/bugParade/bugs/4211550.html
+         */
+        private static final long serialVersionUID = -864892964444937416L;
+
         /**
          * Construct an inverse math transform.
          */
