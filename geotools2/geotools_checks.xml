@@ -41,7 +41,9 @@
 		<property name="cacheFile" value="${checkstyle.cache.file}"/>
 		<!-- Checks for Javadoc comments.                     -->
 		<!-- See http://checkstyle.sf.net/config_javadoc.html -->
-		<module name="JavadocMethod"/>
+		<module name="JavadocMethod">
+			<property name="scope" value="protected"/>
+		</module>
 		<module name="JavadocType"/>
 		<module name="JavadocVariable"/>
 		<!-- Checks for Naming Conventions.                  -->
