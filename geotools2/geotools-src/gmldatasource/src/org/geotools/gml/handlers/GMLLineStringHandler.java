@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author  ian
  */
-public class GMLLineStringHandler implements org.geotools.gml.GMLHandler {
+public class GMLLineStringHandler extends org.geotools.gml.GMLHandler {
     ArrayList coordList = new ArrayList();
     /** Creates a new instance of GMLLineStringHandler */
     public GMLLineStringHandler() {

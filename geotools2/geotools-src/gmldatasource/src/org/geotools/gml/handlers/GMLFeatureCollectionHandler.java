@@ -11,13 +11,14 @@ import java.util.*;
  *
  * @author  ian
  */
-public class GMLFeatureCollectionHandler implements org.geotools.gml.GMLHandler {
+public class GMLFeatureCollectionHandler extends org.geotools.gml.GMLHandler {
     ArrayList list = new ArrayList();
     /** Creates a new instance of GMLFeatureCollectionHandler */
     public GMLFeatureCollectionHandler() {
     }
 
     public Geometry finish(GeometryFactory gf) {
+        System.out.println("building feature collection");
         return (Geometry)gf.createGeometryCollection((Geometry[])list.toArray(new Geometry[]{}));
     }
     
@@ -26,6 +27,7 @@ public class GMLFeatureCollectionHandler implements org.geotools.gml.GMLHandler 
     }
     
     public void addGeometry(Geometry g) {
+        System.out.println("adding "+g+" to featurecollection");
         list.add(g);
     }
     

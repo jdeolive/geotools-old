@@ -11,7 +11,7 @@ import com.vividsolutions.jts.geom.*;
  *
  * @author  ian
  */
-public class GMLPointHandler implements GMLHandler {
+public class GMLPointHandler extends GMLHandler {
     Coordinate c;
     /** Creates a new instance of GMLPointHandler */
     public GMLPointHandler() {

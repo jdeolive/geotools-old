@@ -13,7 +13,7 @@ import java.util.*;
  *
  * @author  ian
  */
-public class GMLPolygonHandler implements org.geotools.gml.GMLHandler {
+public class GMLPolygonHandler extends org.geotools.gml.GMLHandler {
     LinearRing shell;
     ArrayList holes = new ArrayList();
     protected static CGAlgorithms cga = new RobustCGAlgorithms();
@@ -22,21 +22,27 @@ public class GMLPolygonHandler implements org.geotools.gml.GMLHandler {
     }
     
     public Geometry finish(GeometryFactory gf) {
+        System.out.println("Building finished poly "+shell+" with "+holes.size()+" holes");
         return gf.createPolygon(shell,(LinearRing[])holes.toArray(new LinearRing[0]));
         
     }
     
     public void addGeometry(Geometry g) {
-        if(g.getGeometryType().equalsIgnoreCase("LinerRing")){
+        if(g.getGeometryType().equalsIgnoreCase("LinearRing")){
             LinearRing ring = (LinearRing)g;
             Coordinate[] points= ring.getCoordinates();
             if(cga.isCCW(points)){
+                System.out.println("adding hole");
                 holes.add(ring);
             }
             else{
+                System.out.println("setting outer");
                 shell=ring;
             }
-        } // else error?
+        }else{
+            System.err.println("PolygonHandler was expecting linearRing but got "+g.getGeometryType());
+        // else error?
+        }
         
     }
     

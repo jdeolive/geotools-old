@@ -12,7 +12,7 @@ import java.util.*;
  *
  * @author  ian
  */
-public class GMLLinearRingHandler implements org.geotools.gml.GMLHandler {
+public class GMLLinearRingHandler extends org.geotools.gml.GMLHandler {
     ArrayList coordList = new ArrayList();
     /** Creates a new instance of GMLLinearRingHandler */
     public GMLLinearRingHandler() {
