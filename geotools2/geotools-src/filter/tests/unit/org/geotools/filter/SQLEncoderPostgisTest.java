@@ -24,10 +24,6 @@ import java.io.*;
 import java.util.*;
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
-import org.apache.log4j.Level;
-import org.apache.log4j.Hierarchy;
-import org.apache.log4j.Logger;
-import org.apache.log4j.BasicConfigurator;
 import junit.framework.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
@@ -35,7 +31,9 @@ import org.geotools.feature.*;
 import org.geotools.data.*;
 import org.geotools.gml.GMLFilterGeometry;
 import org.geotools.gml.GMLFilterDocument;
-
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import org.geotools.resources.Geotools;
 
 /**
  * Unit test for SQLEncoderPostgis.  This is a complimentary 
@@ -47,7 +45,7 @@ import org.geotools.gml.GMLFilterDocument;
 public class SQLEncoderPostgisTest extends TestCase {
     
     /** Standard logging instance */
-    private static Logger _log = Logger.getLogger("filter");
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
     
     /** Feature on which to preform tests */
     private Filter filter = null;
@@ -61,7 +59,11 @@ public class SQLEncoderPostgisTest extends TestCase {
     /** Test suite for this test case */
     TestSuite suite = null;
     
-    
+    static {
+	Geotools.init("Log4JFormatter", Level.FINER);
+    }
+
+        
     /**
      * Constructor with test name.
      */
@@ -69,7 +71,7 @@ public class SQLEncoderPostgisTest extends TestCase {
     boolean setup = false;
     public SQLEncoderPostgisTest(String testName) {
         super(testName);
-        _log.info("running SQLEncoderTests");;
+        LOGGER.info("running SQLEncoderTests");;
 	 dataFolder = System.getProperty("dataFolder");
 	        if(dataFolder==null){
             //then we are being run by maven
@@ -91,11 +93,8 @@ public class SQLEncoderPostgisTest extends TestCase {
      * @return A test suite for this unit test.
      */
     public static Test suite() {
-        BasicConfigurator.configure();
-        //_log.getLoggerRepository().setThreshold(Level.DEBUG);
-        
+                
         TestSuite suite = new TestSuite(SQLEncoderPostgisTest.class);
-	suite.addTestSuite(CapabilitiesTest.class);
 	return suite;
     }
     
@@ -108,15 +107,14 @@ public class SQLEncoderPostgisTest extends TestCase {
     protected void setUp() throws SchemaException, IllegalFeatureException {
         if(setup) return;
         setup=true;
-        _log.getLoggerRepository().setThreshold(Level.INFO);
-        // Create the schema attributes
-        _log.debug("creating flat feature...");
+	// Create the schema attributes
+        LOGGER.finer("creating flat feature...");
         AttributeType geometryAttribute =
         new AttributeTypeDefault("testGeometry", LineString.class);
-        _log.debug("created geometry attribute");
+        LOGGER.finer("created geometry attribute");
         AttributeType booleanAttribute =
         new AttributeTypeDefault("testBoolean", Boolean.class);
-        _log.debug("created boolean attribute");
+        LOGGER.finer("created boolean attribute");
         AttributeType charAttribute =
         new AttributeTypeDefault("testCharacter", Character.class);
         AttributeType byteAttribute =
@@ -136,25 +134,25 @@ AttributeType shortAttribute =
         
         // Builds the schema
         testSchema = new FeatureTypeFlat(geometryAttribute);
-        _log.debug("created feature type and added geometry");
+        LOGGER.finer("created feature type and added geometry");
         testSchema = testSchema.setAttributeType(booleanAttribute);
-        _log.debug("added boolean to feature type");
+        LOGGER.finer("added boolean to feature type");
         testSchema = testSchema.setAttributeType(charAttribute);
-        _log.debug("added character to feature type");
+        LOGGER.finer("added character to feature type");
         testSchema = testSchema.setAttributeType(byteAttribute);
-        _log.debug("added byte to feature type");
+        LOGGER.finer("added byte to feature type");
         testSchema = testSchema.setAttributeType(shortAttribute);
-        _log.debug("added short to feature type");
+        LOGGER.finer("added short to feature type");
         testSchema = testSchema.setAttributeType(intAttribute);
-        _log.debug("added int to feature type");
+        LOGGER.finer("added int to feature type");
         testSchema = testSchema.setAttributeType(longAttribute);
-        _log.debug("added long to feature type");
+        LOGGER.finer("added long to feature type");
         testSchema = testSchema.setAttributeType(floatAttribute);
-        _log.debug("added float to feature type");
+        LOGGER.finer("added float to feature type");
         testSchema = testSchema.setAttributeType(doubleAttribute);
-        _log.debug("added double to feature type");
+        LOGGER.finer("added double to feature type");
         testSchema = testSchema.setAttributeType(stringAttribute);
-        _log.debug("added string to feature type");
+        LOGGER.finer("added string to feature type");
 
         
         GeometryFactory geomFac = new GeometryFactory();
@@ -181,8 +179,8 @@ AttributeType shortAttribute =
         // Creates the feature itself
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
-        _log.debug("...flat feature created");
-        _log.getLoggerRepository().setThreshold(Level.DEBUG);
+        LOGGER.finer("...flat feature created");
+        
     }
     
     public void test1()
@@ -198,12 +196,12 @@ AttributeType shortAttribute =
 
 	 SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
 	 String out = encoder.encode((AbstractFilter)gf);
-	 _log.debug("Resulting SQL filter is \n"+ out);
+	 LOGGER.finer("Resulting SQL filter is \n"+ out);
 	 assertTrue(out.equals("WHERE testGeometry && GeometryFromText(" +
 			       "'POLYGON ((0 0, 0 300, 300 300, 300 0, 0 0))'"
 			       +", 2346)"));
 
-	 //        Filter test = parseDocument(dataFolder+"/test1.xml");
+
     }
     
     public void test2() throws Exception {
@@ -218,7 +216,7 @@ AttributeType shortAttribute =
 	
 	SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
 	String out = encoder.encode((AbstractFilter)gf);
-	_log.debug("Resulting SQL filter is \n"+ out);
+	LOGGER.finer("Resulting SQL filter is \n"+ out);
 	 assertTrue(out.equals("WHERE GeometryFromText(" +
 			       "'POLYGON ((10 10, 10 300, 300 300, 300 10, 10 10))'"
 			       +", 2346) && testGeometry"));
@@ -238,7 +236,7 @@ AttributeType shortAttribute =
 	    SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
 	    String out = encoder.encode((AbstractFilter)gf);
 	} catch (SQLEncoderException e) {
-	    _log.debug(e.getMessage());
+	    LOGGER.finer(e.getMessage());
 	    assertTrue(e.getMessage().equals("Filter type not supported"));
 	}
     }
