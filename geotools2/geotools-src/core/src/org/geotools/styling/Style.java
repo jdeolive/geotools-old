@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: Style.java,v 1.11 2003/09/06 04:14:12 seangeo Exp $
+ * @version $Id: Style.java,v 1.12 2003/10/10 18:31:28 ianschneider Exp $
  * @author James Macgill
  */
 public interface Style {
@@ -33,7 +33,11 @@ public interface Style {
     String getAbstract();
     void setAbstract(String abstractStr);
     boolean isDefault();
+    /**
+     * @deprecated Not proper bean pattern, use setDefault(boolean)
+     */
     void setIsDefault(boolean isDefault);
+    void setDefault(boolean isDefault);
     FeatureTypeStyle[] getFeatureTypeStyles();
     void setFeatureTypeStyles(FeatureTypeStyle[] types);
     void addFeatureTypeStyle(FeatureTypeStyle type);
