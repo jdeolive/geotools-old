@@ -34,7 +34,7 @@ import org.geotools.filter.Expression;
  * fully represent strokes as set out by this interface.  For example, opacity
  * may not be supported.
  *
- * @version $Id: Mark.java,v 1.8 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: Mark.java,v 1.9 2002/07/12 15:32:18 loxnard Exp $
  * @author James Macgill
  */
 public interface Mark {
@@ -47,7 +47,7 @@ public interface Mark {
      * 
      * @return The well-known name of a shape.  The default value is "square".
      */
-    public Expression getWellKnownName();
+    Expression getWellKnownName();
     
     /**
      * This paramterer defines which stroke style should be used when
@@ -55,18 +55,18 @@ public interface Mark {
      * 
      * @return The Stroke definition to use when rendering the Mark.
      **/
-    public Stroke getStroke();
+    Stroke getStroke();
     
     /**
      * This parameter defines which fill style to use when rendering the Mark.
      *
      * @return the Fill definition to use when rendering the Mark.
      **/
-    public Fill getFill();
+    Fill getFill();
     
     
     
-    public Expression getSize();
-    public Expression getRotation();
+    Expression getSize();
+    Expression getRotation();
 }
 

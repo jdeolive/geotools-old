@@ -29,7 +29,7 @@ package org.geotools.styling;
  * type may be in context and it must match the syntax and semantics of all
  * attribute references inside of the FeatureTypeStyle.
  *
- * @version $Id: FeatureTypeStyle.java,v 1.5 2002/06/04 15:27:35 loxnard Exp $
+ * @version $Id: FeatureTypeStyle.java,v 1.6 2002/07/12 15:26:42 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface FeatureTypeStyle {
@@ -42,7 +42,7 @@ public interface FeatureTypeStyle {
      * be styled by this feature type styler.
      * @return the name of types that this styler applies to
      */
-    public String getFeatureTypeName();
+    String getFeatureTypeName();
     
     /**
      * Sets the type name of the features that this styler should be
@@ -50,7 +50,7 @@ public interface FeatureTypeStyle {
      * TODO: should a set method be declared in this interface at all?
      * @param name The TypeName of the features to be styled by this instance.
      */
-    public void setFeatureTypeName(String name);
+    void setFeatureTypeName(String name);
     
     /**
      * The SemanticTypeIdentifiers is experimental and is intended to be used
@@ -70,7 +70,7 @@ public interface FeatureTypeStyle {
      * @return An array of strings representing systematic types which
      *         could be styled by this instance.
      **/
-    public String[] getSymantecTypeIdentifiers();
+    String[] getSymantecTypeIdentifiers();
     
     /**
      * Rules govern the appearance of any given feature to be styled by
@@ -80,6 +80,6 @@ public interface FeatureTypeStyle {
      *
      * @return The full set of rules contained in this styler.
      */
-    public Rule[] getRules();
+    Rule[] getRules();
 }
 

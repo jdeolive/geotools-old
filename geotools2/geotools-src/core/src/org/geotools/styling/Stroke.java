@@ -44,7 +44,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  *
- * @version $Id: Stroke.java,v 1.7 2002/06/04 16:08:34 loxnard Exp $
+ * @version $Id: Stroke.java,v 1.8 2002/07/12 15:35:13 loxnard Exp $
  * @author James Macgill
  */
 public interface Stroke {
@@ -62,7 +62,7 @@ public interface Stroke {
      *
      * @return The color of the stroke encoded as a hexidecimal RGB value.
      **/
-    public Expression getColor();
+    Expression getColor();
     
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
@@ -73,7 +73,7 @@ public interface Stroke {
      * @return The width of the stroke in pixels.  
      *         This may be fractional but not negative.
      **/
-    public Expression getWidth();
+    Expression getWidth();
     
     /**
      * This specifies the level of translucency to use when rendering the
@@ -88,7 +88,7 @@ public interface Stroke {
      * @return The opacity of the stroke, where 0.0 is completely transparent
      *         and 1.0 is completely opaque.
      */
-    public Expression getOpacity();
+    Expression getOpacity();
     
     /**
      * This parameter controls how line strings should be joined together.
@@ -96,7 +96,7 @@ public interface Stroke {
      * @return The join style.  This will be one of "mitre", "round" and
      *         "bevel".  There is no defined default.
      */
-    public Expression getLineJoin();
+    Expression getLineJoin();
     
     /**
      * This parameter controls how line strings should be capped.
@@ -104,7 +104,7 @@ public interface Stroke {
      * @return The cap style.  This will be one of "butt", "round" and
      *         "square".  There is no defined default.
      */
-    public Expression getLineCap();
+    Expression getLineCap();
     
     /**
      * This parameter encodes the dash pattern as a seqeuence of floats.<br>
@@ -121,7 +121,7 @@ public interface Stroke {
      * @return The dash pattern as an array of float values in the form
      *         "dashlength gaplength ..."
      */
-    public float[] getDashArray();
+    float[] getDashArray();
     
    /**
     * A dash array need not start from the beginning.  This method allows for
@@ -129,7 +129,7 @@ public interface Stroke {
     *
     * @return The distance, in pixels, that any dash array should start from.
     */
-    public Expression getDashOffset();
+    Expression getDashOffset();
     
     
     /**
@@ -139,7 +139,7 @@ public interface Stroke {
      * @return The graphic to use as a stipple fill.  
      *         If null, then no Stipple fill should be used.
      */
-    public Graphic getGraphicFill();
+    Graphic getGraphicFill();
     
     /**
      * This parameter indicates that a repeated-linear-graphic graphic stroke 
@@ -155,13 +155,17 @@ public interface Stroke {
      * @return The graphic to use as a linear graphic.
      *         If null, then no graphic stroke should be used.
      */
-    public Graphic getGraphicStroke();
+    Graphic getGraphicStroke();
 
 }
 
 /*
  * $Log: Stroke.java,v $
+ * Revision 1.8  2002/07/12 15:35:13  loxnard
+ * Removed redundant public modifiers
+ *
  * Revision 1.7  2002/06/04 16:08:34  loxnard
+ *
  * Misc JavaDoc
  *
  * Revision 1.6  2002/05/30 18:10:49  ianturton
@@ -172,7 +176,8 @@ public interface Stroke {
  * improved javadoc comments
  *
  * Revision 1.4  2002/05/01 16:51:53  jmacgill
- * dash array is now returned as a float array and not a string of space seperated floats
+ * dash array is now returned as a float array and not a string of space
+ * separated floats
  *
  * Revision 1.3  2002/03/28 10:54:10  jmacgill
  * work in progress

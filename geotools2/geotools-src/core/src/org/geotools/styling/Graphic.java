@@ -51,7 +51,7 @@ package org.geotools.styling;
  *
  * TODO: There are no setter methods in this interface, is this a problem?
  *
- * @version $Id: Graphic.java,v 1.4 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: Graphic.java,v 1.5 2002/07/12 15:30:55 loxnard Exp $
  * @author James Macgill, CCG
  */
 
@@ -72,7 +72,7 @@ public interface Graphic {
      *         but in different formats.  If null is returned, use
      *         getMarks instead.
      */
-    public ExternalGraphic[] getExternalGraphics();
+    ExternalGraphic[] getExternalGraphics();
 
     //TODO: The following may be a handy extra to have in this interface.
     //public ExternalGraphic getExternalGraphic(String formats);
@@ -89,7 +89,7 @@ public interface Graphic {
      * By default, a "square" with 50% gray fill and black outline with a size
      * of 6 pixels (unless a size is specified) is provided.
      */    
-    public Mark[] getMarks();
+    Mark[] getMarks();
     
      
     /**
@@ -105,7 +105,7 @@ public interface Graphic {
      * @return The opacity of the Graphic, where 0.0 is completely 
      *         transparent and 1.0 is completely opaque.
      */
-    public Expression getOpacity();
+    Expression getOpacity();
     
     /**
      * This paramteter gives the absolute size of the graphic in pixels
@@ -120,7 +120,7 @@ public interface Graphic {
      * @return The size of the graphic.  The default is context specific.
      *         Negative values are not possible.
      */
-    public Expression getSize();
+    Expression getSize();
     
     /**
      * This parameter defines the rotation of a graphic in the clockwise
@@ -131,7 +131,7 @@ public interface Graphic {
      *         represent counter-clockwise rotation.
      *         The default is 0.0 (no rotation).
      */
-    public Expression getRotation();
+    Expression getRotation();
     
 }
 

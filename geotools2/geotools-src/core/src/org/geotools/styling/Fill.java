@@ -39,7 +39,7 @@ import org.geotools.filter.Expression;
  * The graphical parameters and their values are derived from SVG/CSS2
  * standards with names and semantics which are as close as possible.<p>
  * 
- * @version $Id: Fill.java,v 1.6 2002/06/04 15:30:23 loxnard Exp $
+ * @version $Id: Fill.java,v 1.7 2002/07/12 15:30:06 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface Fill {
@@ -57,7 +57,7 @@ public interface Fill {
      *
      * @return The color of the Fill encoded as a hexidecimal RGB value.
      **/
-    public Expression getColor();
+    Expression getColor();
     
     
     /**
@@ -72,7 +72,7 @@ public interface Fill {
      * @return The opacity of the fill, where 0.0 is completely transparent and
      * 1.0 is completely opaque.
      */
-    public Expression getOpacity();
+    Expression getOpacity();
     
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be 
@@ -81,7 +81,7 @@ public interface Fill {
      * @return The graphic to use as a stipple fill.  If null then no stipple
      * fill should be used.
      */
-    public Graphic getGraphicFill();
+    Graphic getGraphicFill();
 }
 
 

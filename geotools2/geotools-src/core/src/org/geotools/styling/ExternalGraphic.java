@@ -38,7 +38,7 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @version $Id: ExternalGraphic.java,v 1.3 2002/06/04 15:21:15 loxnard Exp $
+ * @version $Id: ExternalGraphic.java,v 1.4 2002/07/12 15:26:05 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface ExternalGraphic {
@@ -47,14 +47,14 @@ public interface ExternalGraphic {
      * Provides the URL for where the external graphic resource can be located.
      * @return The URL of the ExternalGraphic
      */
-    public URL getLocation();
+    URL getLocation();
     
     /**
      * Provides the format of the external graphic.
      * @return The format of the external graphic.  Reported as its MIME type
      * in a String object.
      */
-    public String getFormat();
+    String getFormat();
     
 }
 

@@ -49,7 +49,7 @@ package org.geotools.styling;
  * @task add getFilters method to interface.
  * @task add hasElseFilter method to interface.
  *
- * @version $Id: Rule.java,v 1.4 2002/06/05 19:27:35 jmacgill Exp $
+ * @version $Id: Rule.java,v 1.5 2002/07/12 15:33:46 loxnard Exp $
  * @author James Macgill
  */
 public interface Rule {
@@ -61,7 +61,7 @@ public interface Rule {
      * @return The smallest (inclusive) denominator value that this rule will
      *         be active for.
      **/
-    public double getMinScaleDenominator();
+    double getMinScaleDenominator();
     
     /**
      * The largest value for scale denominator at which symbolizers contained
@@ -70,7 +70,7 @@ public interface Rule {
      * @return The largest (exclusive) denominator value that this rule will
      *         be active for.
      **/
-    public double getMaxScaleDenominator();
+    double getMaxScaleDenominator();
     //public Filter[] getFilters();
     //public boolean hasElseFilter();
     
@@ -82,7 +82,7 @@ public interface Rule {
      * @return An array of Graphic objects, any of which can be used as
      *         the legend.
      **/
-    public Graphic[] getLegendGraphic();
+    Graphic[] getLegendGraphic();
     
     /**
      * The symbolizers contain the actual styling information for different
@@ -102,7 +102,7 @@ public interface Rule {
      *         the features addressed by the FeatureTypeStyler which contains
      *         this rule.
      */
-    public Symbolizer[] getSymbolizers();
+    Symbolizer[] getSymbolizers();
 
 }
 
