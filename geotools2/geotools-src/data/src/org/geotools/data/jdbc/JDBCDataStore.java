@@ -146,7 +146,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.22 2004/01/20 05:43:57 jive Exp $
+ * $Id: JDBCDataStore.java,v 1.23 2004/04/05 12:11:48 cholmesny Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -794,6 +794,7 @@ public abstract class JDBCDataStore implements DataStore {
         try {
             conn = getConnection(transaction);
             statement = conn.createStatement(resultSetType, concurrency);
+	    statement.setFetchSize(200);
             rs = statement.executeQuery(sqlQuery);
 
             FeatureTypeInfo info = getFeatureTypeInfo(tableName);
