@@ -8,7 +8,7 @@ package org.geotools.proj4j.projections;
 import org.geotools.proj4j.*;
 /**
  *
- * @author  jamesm
+ * @author  jamesm 
  */
 
 
@@ -40,7 +40,7 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     t *= t;
     al = cosphi * lp.lam;
     als = al * al;
-    al /= Math.sqrt(1. - es * sinphi * sinphi);
+    al /= Math.sqrt(1. - ellipse.es * sinphi * sinphi);
     n = esp * cosphi * cosphi;
     xy.x = k0 * al * (1.+FC3*als*(1.-t+n+
     .05  * als * (5. + t * (t - 18.) + n * (14. - 58. * t)+
@@ -75,7 +75,7 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     protected LP  eInverse(XY xy) throws ProjectionException { LP lp = new LP();; // ellipsoid
     double n, con, cosphi, d, ds, sinphi, t;
     
-    lp.phi = MeridinalDistance.invMlfn(ml0 + xy.y / k0, es, en);
+    lp.phi = MeridinalDistance.invMlfn(ml0 + xy.y / k0, ellipse.es, en);
     if (Math.abs(lp.phi) >= HALFPI ) {
         lp.phi = xy.y < 0. ? -HALFPI : HALFPI;
         lp.lam = 0.;
@@ -84,11 +84,11 @@ public class Tmerc extends org.geotools.proj4j.Projection {
         cosphi = Math.cos(lp.phi);
         t = Math.abs(cosphi) > 1e-10 ? sinphi/cosphi : 0.;
         n = esp * cosphi * cosphi;
-        d = xy.x * Math.sqrt(con = 1. - es * sinphi * sinphi) / k0;
+        d = xy.x * Math.sqrt(con = 1. - ellipse.es * sinphi * sinphi) / k0;
         con *= t;
         t *= t;
         ds = d * d;
-        lp.phi -= (con * ds / (1.-es)) * .5  * (1. -
+        lp.phi -= (con * ds / (1.-ellipse.es)) * .5  * (1. -
         ds * FC4  * (5. + t * (3. - 9. *  n) +
         n * (1. - 4 * n) -
         ds * FC6  * (61. + t * (90. - 252. * n  +
@@ -125,10 +125,10 @@ public class Tmerc extends org.geotools.proj4j.Projection {
     
     public void setParams(ParamSet ps)throws ProjectionException{
         super.setParams(ps);
-        if(es!=0){
-            en = MeridinalDistance.enfn(es);
+        if(ellipse.es!=0){
+            en = MeridinalDistance.enfn(ellipse.es);
             ml0 = MeridinalDistance.mlfn(phi0, Math.sin(phi0), Math.cos(phi0), en);
-            esp = es / (1. - es);
+            esp = ellipse.es / (1. - ellipse.es);
             useEllips = true;
         }
         else{

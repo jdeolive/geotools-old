@@ -22,7 +22,7 @@ public class Utm extends Tmerc implements Constants{
         super.setParams(params);
         int zone;
 
-	if (es==0) throw new ProjectionException("elliptical usage required");
+	if (ellipse.es==0) throw new ProjectionException("elliptical usage required");
 	y0 = params.contains("south") ? 10000000. : 0.;
 	x0 = 500000.;
 	if (params.contains("zone")){ /* zone input ? */
