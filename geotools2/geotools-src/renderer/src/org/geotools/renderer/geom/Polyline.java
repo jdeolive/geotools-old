@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.20 2003/06/25 15:14:15 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.21 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -196,7 +196,7 @@ public class Polyline extends Geometry {
     private boolean isClosed;
 
     /**
-     * <code>true</code> if this polyline has been {@linkplain #freeze frozen}.
+     * <code>true</code> if this polyline has been frozen (see <code>freeze()</code>).
      * Invoking a mutator method like {@link #setResolution} on a frozen geometry
      * will thrown a {@link UnmodifiableGeometryException}.
      */
@@ -509,7 +509,7 @@ public class Polyline extends Geometry {
      * to reprojecting all polyline's points from the old coordinate system to the
      * new one.
      *
-     * @param  The new coordinate system. A <code>null</code> value resets the
+     * @param  coordinateSystem The new coordinate system. A <code>null</code> value resets the
      *         coordinate system given at construction time.
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged (as if this method has

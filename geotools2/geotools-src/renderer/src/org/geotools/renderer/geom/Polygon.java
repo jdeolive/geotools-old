@@ -61,7 +61,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * A polygon bounded by one exterior ring (the &quot;shell&quot;) and zero or more interior rings
  * (the &quot;holes&quot;). Shell and holes are stored as {@link Polyline} objects.
  *
- * @version $Id: Polygon.java,v 1.14 2003/05/30 18:20:52 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.15 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends Polyline {
@@ -136,8 +136,8 @@ public class Polygon extends Polyline {
      * to reproject all polygon's points from the old coordinate system to the
      * new one.
      *
-     * @param  The new coordinate system. A <code>null</code> value reset the default
-     *         coordinate system (usually the one that best fits internal data).
+     * @param  coordinateSystem The new coordinate system. A <code>null</code> value reset
+     *         the default coordinate system (usually the one that best fits internal data).
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged, as if this method has
      *         never been invoked.
@@ -304,7 +304,8 @@ public class Polygon extends Polyline {
     /**
      * Tests if the specified coordinates are inside the boundary of this polygon.
      *
-     * @param  x,&nbsp;y the specified coordinates in this polygon coordinate system.
+     * @param  x the specified <var>x</var> coordinates in this polygon coordinate system.
+     * @param  y the specified <var>y</var> coordinates in this polygon coordinate system.
      * @return <code>true</code> if the specified coordinates are inside the polygon
      *         boundary and outside any hole; <code>false</code> otherwise.
      */

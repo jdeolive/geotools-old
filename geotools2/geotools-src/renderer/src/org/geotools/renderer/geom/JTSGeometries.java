@@ -62,7 +62,7 @@ import org.geotools.renderer.array.JTSArray;
  * A geometry collection backed by one or many JTS
  * {@link com.vividsolutions.jts.geom.Geometry} objects.
  *
- * @version $Id: JTSGeometries.java,v 1.2 2003/05/31 12:41:27 desruisseaux Exp $
+ * @version $Id: JTSGeometries.java,v 1.3 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class JTSGeometries extends GeometryCollection {
@@ -90,8 +90,8 @@ public class JTSGeometries extends GeometryCollection {
      * Construct an initialy empty collection.
      * Geometries can be added using {@link #add} method.
      *
-     * @param coordinateSystem The coordinate system to use for all
-     *        points in this geometry, or <code>null</code> if unknow.
+     * @param cs The coordinate system to use for all points in this geometry,
+     *           or <code>null</code> if unknow.
      */
     public JTSGeometries(final CoordinateSystem cs) {
         super(cs);

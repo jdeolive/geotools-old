@@ -97,7 +97,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * <code>GeometryCollection</code> is convenient for sorting collections in alphabetical order
  * or isobaths in increasing order of altitude.
  *
- * @version $Id: GeometryCollection.java,v 1.8 2003/06/16 22:04:54 desruisseaux Exp $
+ * @version $Id: GeometryCollection.java,v 1.9 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @task TODO: Add a 'getTree(boolean)' method returning a TreeNode. Would be usefull for debugging.
@@ -154,7 +154,7 @@ public class GeometryCollection extends Geometry implements Comparable {
     private UnmodifiableRectangle bounds;
 
     /**
-     * <code>true</code> if this collection has been {@linkplain #freeze frozen}.
+     * <code>true</code> if this collection has been frozen (see <code>freeze()</code>).
      * Invoking a mutator method like {@link #setResolution} on a frozen geometry
      * will thrown a {@link UnmodifiableGeometryException}.
      */
@@ -287,8 +287,8 @@ public class GeometryCollection extends Geometry implements Comparable {
      * Set the geometry's coordinate system. Calling this method is equivalent
      * to reprojecting all geometries from the old coordinate system to the new one.
      *
-     * @param  The new coordinate system. A <code>null</code> value resets the
-     *         coordinate system given at construction time.
+     * @param  coordinateSystem The new coordinate system. A <code>null</code> value
+     *         resets the coordinate system given at construction time.
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will remain unchanged (as if this method has
      *         never been invoked).
@@ -350,7 +350,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * pairs in this {@link #getCoordinateSystem geometry's coordinate system}. <code>NaN</code>
      * values will be considered as disjoint lines.
      *
-     * @param  data Coordinate array (may contain NaNs). These data will be copied. Consequently,
+     * @param  array Coordinate array (may contain NaNs). These data will be copied. Consequently,
      *         any modification on <code>data</code> will have no impact on the geometries created
      *         by this method.
      * @param  lower Index of the first <var>x</var> ordinate to add to the polyline.
@@ -554,10 +554,11 @@ public class GeometryCollection extends Geometry implements Comparable {
      * isobath). The <code>toComplete</code> argument tells which isobaths to complete with
      * the map border provided by the <code>mapBounds</code> argument.
      *
-     * @param  The bounded shape of the map, or <code>null</code> for assuming a rectangular
-     *         map inferred from this geometry. This is the bounding shape of the software that
-     *         created the polylines, not an arbitrary clip that the application would like.
-     * @param  toComplete {@link #setName value} of collections to complete with map border,
+     * @param  mapBounds The bounded shape of the map, or <code>null</code> for assuming a
+     *         rectangular map inferred from this geometry. This is the bounding shape of
+     *         the software that created the polylines, not an arbitrary clip that the
+     *         application would like.
+     * @param  toComplete {@link #setValue value} of collections to complete with map border,
      *         or <code>null</code> if none.
      * @param  progress An optional progress listener (<code>null</code> in none). This is an
      *         optional but recommanded argument, since the computation may be very long.
@@ -611,7 +612,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * geometry will try to share as much internal data as possible with <code>this</code> in order
      * to keep memory footprint low.
      *
-     * @param  clip The clipping area.
+     * @param  clipper The clipping area.
      * @return <code>null</code> if this geometry doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped geometry otherwise.
      */
@@ -1401,7 +1402,7 @@ public class GeometryCollection extends Geometry implements Comparable {
      * The collection of geometries meeting a condition.
      * The check for inclusion or intersection will be performed only when first needed.
      *
-     * @version $Id: GeometryCollection.java,v 1.8 2003/06/16 22:04:54 desruisseaux Exp $
+     * @version $Id: GeometryCollection.java,v 1.9 2003/07/11 16:59:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static abstract class Filtered extends AbstractCollection {

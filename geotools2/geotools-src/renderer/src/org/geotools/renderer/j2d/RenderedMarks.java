@@ -71,7 +71,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.13 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.14 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -652,8 +652,8 @@ public abstract class RenderedMarks extends RenderedLayer {
      * few marks changed,  and when the change was slight  (e.g. a change of color).  If a lot of
      * marks changed, then invoking {@link #repaint()} may be more effective.
      *
-     * @param An iterator over the mark to be repainted.
-     *        Only the current mark will be repainted.
+     * @param iterator An iterator over the mark to be repainted.
+     *                 Only the current mark will be repainted.
      *
      * @task TODO: If the shape expanded or if the mark moved, we would need to repaint
      *             a bigger area. We can do this with the information provided by the
@@ -673,7 +673,7 @@ public abstract class RenderedMarks extends RenderedLayer {
                 transformedShape.shape = markShapes[i];
                 if (transformedShape.shape != null) {
                     transformedShape.setTransform(markTransforms, i*TRANSFORM_RECORD_LENGTH);
-                    repaint(transformedShape.getBounds());
+                    repaintComponent(transformedShape.getBounds());
                     return;
                 }
             }

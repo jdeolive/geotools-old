@@ -36,7 +36,7 @@ public class LineStyle2D extends Style2D {
     protected Composite contourComposite;
 
     /**
-     * Returns the stroke for the {@linkPlain org.geotools.renderer.geom.Polyline polyline} to be
+     * Returns the stroke for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to be
      * rendered, or <code>null</code> if none.
      *
      * @return the current stroke or null if none
@@ -46,7 +46,7 @@ public class LineStyle2D extends Style2D {
     }
 
     /**
-     * Sets the stroke for the {@linkPlain org.geotools.renderer.geom.Polyline polyline} to be
+     * Sets the stroke for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to be
      * rendered
      *
      * @param stroke The stroke, or null if the contour doesn't need to be stroked
@@ -56,7 +56,7 @@ public class LineStyle2D extends Style2D {
     }
 
     /**
-     * Returns the contour color for the {@linkPlain org.geotools.renderer.geom.Polyline polyline}
+     * Returns the contour color for the {@linkplain org.geotools.renderer.geom.Polyline polyline}
      * to be rendered, or <code>null</code> if none.
      *
      * @return the current contour, or null if none
@@ -66,7 +66,7 @@ public class LineStyle2D extends Style2D {
     }
 
     /**
-     * Sets the contour color for the {@linkPlain org.geotools.renderer.geom.Polyline polyline} to
+     * Sets the contour color for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to
      * be rendered
      *
      * @param contour
@@ -76,7 +76,7 @@ public class LineStyle2D extends Style2D {
     }
 
     /**
-     * Returns the contour Composite for the {@linkPlain org.geotools.renderer.geom.Polyline
+     * Returns the contour Composite for the {@linkplain org.geotools.renderer.geom.Polyline
      * polyline} to be rendered, or <code>null</code> if the contour is to be opaque
      *
      * @return the current contour composite, or null if opaque
@@ -86,7 +86,7 @@ public class LineStyle2D extends Style2D {
     }
 
     /**
-     * Sets the contour Composite for the {@linkPlain org.geotools.renderer.geom.Polyline polyline}
+     * Sets the contour Composite for the {@linkplain org.geotools.renderer.geom.Polyline polyline}
      * to be rendered. Set it to <code>null</code> if the contour is to be opaque
      *
      * @param contourComposite

@@ -38,14 +38,17 @@ import java.awt.Shape;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 import java.awt.image.renderable.ParameterBlock;
+import java.awt.image.WritableRenderedImage;
 import java.awt.image.RenderedImage;
-import java.awt.RenderingHints;
+import java.awt.image.TileObserver;
+import java.awt.image.Raster;
 import java.util.Map;
 import java.util.Locale;
 import java.util.WeakHashMap;
@@ -55,9 +58,9 @@ import java.util.logging.LogRecord;
 
 // JAI dependencies
 import javax.media.jai.JAI;
-import javax.media.jai.RenderedOp;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ImageLayout;
+import javax.media.jai.TileRequest;
 
 // Geotools dependencies
 import org.geotools.pt.Envelope;
@@ -82,6 +85,7 @@ import org.geotools.resources.XDimension2D;
 import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.renderer.Resources;
 import org.geotools.resources.renderer.ResourceKeys;
+import org.geotools.resources.DeferredPlanarImage;
 
 
 /**
@@ -90,10 +94,19 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.17 2003/05/13 11:00:47 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.18 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-public class RenderedGridCoverage extends RenderedLayer {
+public class RenderedGridCoverage extends RenderedLayer implements TileObserver {
+    /**
+     * Tells if the deferred painting of tiles is enabled. When enabled, tiles will be painted
+     * only if they are already computed. If they are not, tile computation will be trigged in
+     * a background thread and the layer will be repainted later.
+     * <br><br>
+     * Note: Deferred painting work only if {@link #USE_PYRAMID} is <code>true</code>.
+     */
+    private static final boolean ENABLE_DEFFERED_PAINTING = true;
+
     /**
      * Tells if we should try an optimisation using pyramidal images.
      */
@@ -122,6 +135,11 @@ public class RenderedGridCoverage extends RenderedLayer {
     private static final int MIN_SIZE = 512;
 
     /**
+     * The minimum tile size in scaled image.
+     */
+    private static final int MIN_TILE_SIZE = 128;
+
+    /**
      * Default value for the {@linkplain #getZOrder z-order}.
      */
     private static final float DEFAULT_Z_ORDER = Float.NEGATIVE_INFINITY;
@@ -134,8 +152,8 @@ public class RenderedGridCoverage extends RenderedLayer {
      * Note: Two coverages could be backed by the same {@link RenderedImage}. Consequently, it
      *       would be more efficient to use the grid coverage's {@link RenderedImage} as a key
      *       rather than the grid coverage itself. Unfortunatly, we can't because the rendered
-     *       image if referenced in values,  both directly in the array and indirectly through
-     *       the operation chains. The solution to this problem required the implementation of
+     *       image is referenced by values,  both directly in the array and indirectly through
+     *       the operation chain.  The solution to this problem required the implementation of
      *       the following RFE ("add joined weak references"):
      *
      *       http://developer.java.sun.com/developer/bugParade/bugs/4630118.html
@@ -159,15 +177,25 @@ public class RenderedGridCoverage extends RenderedLayer {
 
     /**
      * A list of multi-resolution images. Image at index 0 is identical to
-     * {@link GridCoverage#getRenderedImage()}.  Other indexs contains the
+     * {@link GridCoverage#getRenderedImage()}.   Other index contains the
      * image at lower resolution for faster rendering.
      */
-    private RenderedImage[] images;
+    private PlanarImage[] images;
 
     /**
-     * Last image used in {@link #images}. Used for logging only.
+     * The transform from the image to the coordinate system used the last
+     * time the image was rendered. Note that this transform apply to the
+     * image <code>images[level]</code>, which may or may not be the same
+     * than <code>coverage.getRenderedImage()</code>.
      */
-    private transient int lastLevel;
+    private final AffineTransform gridToCS = new AffineTransform();
+
+    /**
+     * The index of the image from {@link #images} used during the last rendering.
+     * Used together with {@link #gridToCS} in order to transform tile indices in
+     * geographical coordinates.
+     */
+    private int level;
 
     /**
      * The default {@linkplain #getZOrder z-order} for this layer.
@@ -323,6 +351,25 @@ public class RenderedGridCoverage extends RenderedLayer {
     }
 
     /**
+     * Register or unregister <code>this</code> as a {@link TileObserver}.
+     */
+    private void setTileObserver(final boolean register) {
+        assert Thread.holdsLock(getTreeLock());
+        if (images != null) {
+            for (int i=0; i<images.length; i++) {
+                if (images[i] instanceof WritableRenderedImage) {
+                    final WritableRenderedImage writable = (WritableRenderedImage) images[i];
+                    if (register) {
+                        writable.addTileObserver(this);
+                    } else {
+                        writable.removeTileObserver(this);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * Initialize this object after a change of <strong>rendering</strong> grid coverage. This
      * change may occurs as a result of {@link #setGridCoverage} or {@link #setCoordinateSystem}.
      * This method constructs a chain of images with lower resolution.  Together with tiling,
@@ -335,8 +382,10 @@ public class RenderedGridCoverage extends RenderedLayer {
      */
     private void initialize() {
         assert Thread.holdsLock(getTreeLock());
+        setTileObserver(false);
         clearCache();
         if (coverage == null) {
+            images             = null;
             preferredArea      = null;
             preferredPixelSize = null;
             zOrder  = DEFAULT_Z_ORDER;
@@ -355,66 +404,79 @@ public class RenderedGridCoverage extends RenderedLayer {
          */
         if (!USE_PYRAMID) {
             images = null;
-            lastLevel = 0;
+            level  = 0;
             return;
         }
         /*
          * Compute the number of levels-1 (i.e. compute the maximal level allowed).
          * If the result is 0, then there is no point to construct a chain of images.
          */
-        final RenderedImage image = coverage.getRenderedImage();
+        final PlanarImage image = PlanarImage.wrapRenderedImage(coverage.getRenderedImage());
         final int maxLevel = Math.max(0, (int)(Math.log((double)MIN_SIZE/
                              Math.max(image.getWidth(), image.getHeight()))/LOG_DOWN_SAMPLER));
-        if (maxLevel == 0) {
-            images = null;
-            lastLevel = 0;
-            return;
-        }
+
         synchronized (RenderedGridCoverage.class) {
             /*
              * Verify if a chain of images already exists. This chain
              * can be shared among many 'RenderedGridCoverage' instances.
              */
             if (sharedImages != null) {
-                images = (RenderedImage[]) sharedImages.get(coverage);
+                images = (PlanarImage[]) sharedImages.get(coverage);
                 if (images != null) {
                     assert images.length == maxLevel+1;
+                    setTileObserver(true);
                     return;
                 }
             }
             /*
-             * Gets the JAI instance to use and construct the chain of "Scale" operations.
-             * Reminder: JAI will differ the execution of "Scale" operation until they are
-             * requested, and only requested tiles will be computed.
+             * Set the rendering hints and gets the JAI instance to use for the chain of scaled
+             * images.  Reminder: JAI will differ the execution of "Scale" operation until they
+             * are requested, and only requested tiles will be computed.
              */
-            final JAI jai;
-            final RenderingHints hints;
-            hints       = (renderer!=null) ? renderer.hints : null;
-            jai         = (JAI) getJAI(hints);
-            images      = new RenderedImage[maxLevel+1];
-            images[0]   = image;
-            lastLevel   = 0;
-            float scale = DOWN_SAMPLER;
+            RenderingHints hints = ImageUtilities.getRenderingHints(image);
+            if (renderer!=null && renderer.hints!=null) {
+                if (hints != null) {
+                    hints.add(renderer.hints);
+                } else {
+                    hints = new RenderingHints(renderer.hints);
+                }
+                if (hints.get(JAI.KEY_IMAGE_LAYOUT) == null) {
+                    hints.put(JAI.KEY_IMAGE_LAYOUT, new ImageLayout());
+                }
+            } else if (hints==null) {
+                hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, new ImageLayout());
+            }
+            final ImageLayout layout = (ImageLayout) hints.get(JAI.KEY_IMAGE_LAYOUT);
+            final JAI jai  = (JAI) getJAI(hints);
+            this.images    = new PlanarImage[maxLevel+1];
+            this.images[0] = getDeferredImage(image);
+            this.level     = 0;
+            float scale    = DOWN_SAMPLER;
+            /*
+             * Set the parameters and loop over each level in the pyramid.
+             */
             final ParameterBlock parameters = new ParameterBlock();
             parameters.addSource(image);
             for (int i=1; i<=maxLevel; i++) {
                 parameters.removeParameters();
                 parameters.add(scale); // xScale
                 parameters.add(scale); // yScale
-                final RenderedOp opImage = jai.createNS("Scale", parameters, hints);
-                RenderingHints tileHints = ImageUtilities.getRenderingHints(opImage);
-                if (tileHints != null) {
-                    tileHints.add(opImage.getRenderingHints());
-                    opImage.setRenderingHints(tileHints);
-                }
-                images[i] = opImage;
-                assert Math.max(opImage.getWidth(), opImage.getHeight()) >= MIN_SIZE;
+                /*
+                 * Set the tile layout and create the scaled image.
+                 */
+                final ImageLayout ly = (ImageLayout) layout.clone();
+                ly.setTileWidth (getTileSize(ly.getTileWidth (image), image.getWidth(),  scale));
+                ly.setTileHeight(getTileSize(ly.getTileHeight(image), image.getHeight(), scale));
+                hints.put(JAI.KEY_IMAGE_LAYOUT, ly);
+                images[i] = getDeferredImage(jai.createNS("Scale", parameters, hints));
+                assert Math.max(images[i].getWidth(), images[i].getHeight()) >= MIN_SIZE;
                 scale *= DOWN_SAMPLER;
             }
             if (sharedImages == null) {
                 sharedImages = new WeakHashMap();
             }
             sharedImages.put(coverage, images);
+            setTileObserver(true);
         }
     }
 
@@ -443,6 +505,44 @@ public class RenderedGridCoverage extends RenderedLayer {
             }
         }
         return JAI.getDefaultInstance();
+    }
+
+    /**
+     * Suggest a tile size for the specified scale factor. This method performs the following steps:
+     * <ul>
+     *   <li>Scale the tile as of <code>tileSize*scale</code>.</li>
+     *   <li>Find the closest multiple of the original <code>tileSize</code>.</li>
+     *   <li>If necessary, reduces the tile size in order to gets an integer number
+     *       of tiles in <code>imageSize*scale</code>.</li>
+     * </ul>
+     */
+    private static int getTileSize(int tileSize, int imageSize, final float scale) {
+        imageSize   = Math.round(imageSize*scale);
+        int reduced = Math.round(tileSize*scale);
+        reduced *= Math.max(Math.round((float)tileSize/(float)reduced), 1);
+        if (reduced >= imageSize) {
+            return imageSize;
+        }
+        tileSize = reduced;
+        while (reduced >= MIN_TILE_SIZE) {
+            if ((imageSize % reduced) == 0) {
+                return reduced;
+            }
+            reduced--;
+        }
+        return tileSize;
+    }
+
+    /**
+     * Returns a deferred view of the specified image.
+     */
+    private static PlanarImage getDeferredImage(PlanarImage image) {
+        if (ENABLE_DEFFERED_PAINTING) {
+            if (!(image instanceof DeferredPlanarImage)) {
+                image = new DeferredPlanarImage(image);
+            }
+        }
+        return image;
     }
 
     /**
@@ -588,15 +688,14 @@ public class RenderedGridCoverage extends RenderedLayer {
                                              ResourceKeys.ERROR_NON_AFFINE_TRANSFORM), exception);
             }
             final Graphics2D graphics = context.getGraphics();
-            final AffineTransform gridToCS;
-            final RenderedImage   image; // The image to display (will be computed below).
+            PlanarImage image; // The image to display (will be computed below).
             if (images != null) {
                 /*
                  * Compute which level (i.e. which decimated image)  is more appropriate for the
                  * current zoom. If level different than 0 (the original image) is choosen, then
                  * then the 'gridToCS' transform will need to be adjusted.
                  */
-                gridToCS = graphics.getTransform();
+                gridToCS.setTransform(graphics.getTransform());
                 gridToCS.concatenate(gridToCoordinate);
                 final int level = Math.max(0,
                                   Math.min(images.length-1,
@@ -612,7 +711,7 @@ public class RenderedGridCoverage extends RenderedLayer {
                  * If the level has changed, log a message (only for information).
                  * It help to track performance issue.
                  */
-                if (level != lastLevel) {
+                if (level != this.level) {
                     final Logger logger = Renderer.LOGGER;
                     if (logger.isLoggable(Level.FINE)) {
                         final Locale locale = getLocale();
@@ -624,36 +723,73 @@ public class RenderedGridCoverage extends RenderedLayer {
                         record.setSourceMethodName("paint");
                         logger.log(record);
                     }
-                    lastLevel = level;
+                    this.level = level;
                 }
                 image = images[level];
             } else {
-                gridToCS = new AffineTransform(gridToCoordinate);
-                image = coverage.getRenderedImage();                
+                gridToCS.setTransform(gridToCoordinate);
+                image = PlanarImage.wrapRenderedImage(coverage.getRenderedImage());
             }
-            /*
-             * Draw the image now, or just prefetch tiles if this method is invoked from
-             * the 'prefetch' method.
-             */
             gridToCS.translate(-0.5, -0.5); // Map to upper-left corner.
             if (doDraw) {
+                /*
+                 * Paint the image. If printing, then the image should be fully painted
+                 * immediately (no deferred painting).
+                 */
+                if (context.isPrinting()) {
+                    while (image instanceof DeferredPlanarImage) {
+                        image = ((DeferredPlanarImage) image).getSourceImage(0);
+                    }
+                }
                 graphics.drawRenderedImage(image, gridToCS);
                 context.addPaintedArea(preferredArea, context.mapCS);
-            } else if (image instanceof PlanarImage) {
-                final PlanarImage planar = (PlanarImage) image;
+            } else {
+                /*
+                 * Prefetch tiles in a background thread, but do not paint them yet.
+                 * Invoked a few milliseconds before the actual rendering occurs.
+                 */
                 gridToCS.preConcatenate(graphics.getTransform());
                 Rectangle bounds = new Rectangle(context.getPaintingArea());
                 try {
                     bounds = (Rectangle)XAffineTransform.inverseTransform(gridToCS, bounds, bounds);
-                    final Point[] indices = planar.getTileIndices(bounds);
+                    final Point[] indices = image.getTileIndices(bounds);
                     if (indices != null) {
-                        planar.prefetchTiles(indices);
+                        image.prefetchTiles(indices);
                     }
                 } catch (NoninvertibleTransformException exception) {
                     // Should not happen in most cases
                     throw new TransformException(exception.getLocalizedMessage(), exception);
                 }
             }
+        }
+    }
+
+    /**
+     * Notify that a tile in the {@link GridCoverage#getRenderedImage coverage's image} has
+     * been updated. The default implementation {@link #repaint repaint} the modified tiles
+     * if <code>willBeWritable</code> is <code>false</code> (i.e. the update is finished).
+     *
+     * @param   source The image that owns the tile.
+     * @param   tileX  The X index of the tile that is being updated.
+     * @param   tileY  The Y index of the tile that is being updated.
+     * @param   willBeWritable If true, the tile will be grabbed for writing;
+     *          otherwise it is being released.
+     */
+    public void tileUpdate(final WritableRenderedImage source,
+                           final int tileX, final int tileY,
+                           final boolean willBeWritable)
+    {
+        if (!willBeWritable) {
+            Rectangle2D bounds;
+            if (images!=null && images.length>level) {
+                final PlanarImage image = images[level];
+                bounds = new Rectangle2D.Double(image.tileXToX(tileX  ), image.tileYToY(tileY  ),
+                                                image.tileXToX(tileX+1), image.tileYToY(tileY+1));
+                bounds = XAffineTransform.transform(gridToCS, bounds, bounds);
+            } else {
+                bounds = null;
+            }
+            repaint(bounds);
         }
     }
 
@@ -735,24 +871,35 @@ public class RenderedGridCoverage extends RenderedLayer {
     public void dispose() {
         synchronized (getTreeLock()) {
             super.dispose();
-            /*
-             * We will not dispose the planar image if there is any
-             * chance that it is referenced outside of this class.
-             */
+            setTileObserver(false);
             if (coverage != null) {
+                /*
+                 * We will not dispose the planar image if there is any
+                 * chance that it is referenced outside of this class.
+                 */
                 final RenderedImage image = coverage.getRenderedImage();
                 if (!GCSUtilities.uses(sourceCoverage.geophysics(false), image)) {
+                    if (images != null) {
+                        synchronized (RenderedGridCoverage.class) {
+                            sharedImages.remove(coverage);
+                        }
+                        for (int i=0; i<images.length; i++) {
+                            images[i].dispose();
+                        }
+                    }
                     if (image instanceof PlanarImage) {
                         ((PlanarImage) image).dispose();
                     }
                 }
             }
+            // Do not dispose images, since they may be used
+            // by an other RenderedGridCoverage instance.
             coverage           = null;
             sourceCoverage     = null;
             preferredArea      = null;
             preferredPixelSize = null;
             images             = null;
-            lastLevel          = 0;
+            level              = 0;
             zOrder = DEFAULT_Z_ORDER;
         }
     }

@@ -90,7 +90,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.6 2003/06/02 16:32:40 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.7 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -146,7 +146,7 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     /**
      * Set the style attached to this geometry.
      *
-     * @param The new style for this geometry, or <code>null</code> if none.
+     * @param style The new style for this geometry, or <code>null</code> if none.
      */
     public void setStyle(final Style style) {
         this.style = style;
@@ -162,8 +162,8 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * to reproject all geometry's points from the old coordinate system to the
      * new one.
      *
-     * @param  The new coordinate system. A <code>null</code> value reset the default
-     *         coordinate system (usually the one that best fits internal data).
+     * @param  coordinateSystem The new coordinate system. A <code>null</code> value reset
+     *         the default coordinate system (usually the one that best fits internal data).
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged, as if this method has
      *         never been invoked.
@@ -274,7 +274,8 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     /**
      * Tests if the specified coordinates are inside the boundary of this geometry.
      *
-     * @param  x,&nbsp;y the specified coordinates in this geometry coordinate system.
+     * @param  x the specified <var>x</var> coordinates in this geometry coordinate system.
+     * @param  y the specified <var>y</var> coordinates in this geometry coordinate system.
      * @return <code>true</code> if the specified coordinates are inside 
      *         the geometry boundary; <code>false</code> otherwise.
      */
@@ -358,7 +359,7 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      * geometry will try to share as much internal data as possible with <code>this</code> in order
      * to keep memory footprint low.
      *
-     * @param  clip The clipping area.
+     * @param  clipper The clipping area.
      * @return <code>null</code> if this geometry doesn't intersect the clip, <code>this</code>
      *         if no clip has been performed, or a new clipped geometry otherwise.
      */

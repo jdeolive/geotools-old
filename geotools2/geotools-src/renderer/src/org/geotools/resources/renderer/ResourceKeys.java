@@ -21,6 +21,7 @@ package org.geotools.resources.renderer;
  */
 public interface ResourceKeys
 {
+    public static final int DEFERRED_TILE_PAINTING_$2                =    19;
     public static final int ERROR                                    =     0;
     public static final int INITIALIZING_TRANSFORMATION_$2           =     1;
     public static final int PAINTING_$2                              =     2;

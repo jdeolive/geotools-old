@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.15 2003/05/27 18:22:44 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.16 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -180,6 +180,14 @@ public final class RenderingContext {
     private Shape mapBounds;
 
     /**
+     * <code>true</code> if the map is printed instead of painted on screen.
+     * When printing, layers like {@link RenderedGridCoverage} should block
+     * until all data are available instead of painting only available data
+     * and invokes {@link RenderedLayer#repaint()} later.
+     */
+    private boolean isPrinting;
+
+    /**
      * Construct a new <code>RenderingContext</code> for the specified {@link Renderer}.
      */
     RenderingContext(final Renderer         renderer,
@@ -200,8 +208,9 @@ public final class RenderingContext {
      * @param graphics The destination graphics.
      * @param bounds   The drawing area in device coordinates.
      */
-    final void init(final Graphics2D graphics, final Rectangle bounds) {
+    final void init(final Graphics2D graphics, final Rectangle bounds, final boolean isPrinting) {
         this.graphics    = graphics;
+        this.isPrinting  = isPrinting;
         this.bounds      = bounds;
         this.mapBounds   = null;
         this.mapToDevice = (graphics!=null) ? graphics.getTransform() : null;
@@ -347,6 +356,16 @@ public final class RenderingContext {
             throws CannotCreateTransformException
     {
         return renderer.getMathTransform(sourceCS, targetCS, "RenderingContext","getMathTransform");
+    }
+
+    /**
+     * Returns <code>true</code> if the map is printed instead of painted on screen.
+     * When printing, layers like {@link RenderedGridCoverage} should block until all
+     * data are available instead of painting only available data and invokes
+     * {@link RenderedLayer#repaint()} later.
+     */
+    public boolean isPrinting() {
+        return isPrinting;
     }
 
     /**

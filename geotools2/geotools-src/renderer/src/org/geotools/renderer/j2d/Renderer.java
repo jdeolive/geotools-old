@@ -107,7 +107,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.32 2003/06/25 15:14:16 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.33 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1287,6 +1287,18 @@ public class Renderer implements Renderer2D {
 
     /**
      * Paint this <code>Renderer</code> and all visible layers it contains.
+     *
+     * @deprecated Use {@link #paint(Graphics2D,Rectangle,AffineTransform,boolean)} instead.
+     */
+    public void paint(final Graphics2D         graph,
+                      final Rectangle zoomableBounds,
+                      final AffineTransform     zoom)
+    {
+        paint(graph, zoomableBounds, zoom, mapPane==null);
+    }
+
+    /**
+     * Paint this <code>Renderer</code> and all visible layers it contains.
      * This method invokes {@link RenderedLayer#paint} for each layer.
      *
      * @param graph  The graphics handler to draw to.
@@ -1296,10 +1308,15 @@ public class Renderer implements Renderer2D {
      * @param zoom   A transform which converts &quot;World coordinates&quot; to
      *               output coordinates. This transform is usually provided by
      *               {@link org.geotools.gui.swing.ZoomPane#zoom}.
+     * @param isPrinting <code>true</code> if the map is printed instead of painted on screen.
+     *               When printing, layers like {@link RenderedGridCoverage} should block until
+     *               all data are available instead of painting only available data and invokes
+     *               {@link RenderedLayer#repaint()} later.
      */
     public synchronized void paint(final Graphics2D         graph,
                                    final Rectangle zoomableBounds,
-                                   final AffineTransform     zoom)
+                                   final AffineTransform     zoom,
+                                   final boolean       isPrinting)
     {
         statistics.init();
         sortLayers();
@@ -1390,7 +1407,7 @@ public class Renderer implements Renderer2D {
              */
             graphics.transform(zoom);
             graphics.addRenderingHints(hints);
-            context.init(graphics, zoomableBounds);
+            context.init(graphics, zoomableBounds, isPrinting);
             if (prefetch) {
                 // Prepare data in separated threads.
                 for (int i=0; i<layerCount; i++) {
@@ -1408,7 +1425,7 @@ public class Renderer implements Renderer2D {
                 }
             }
         } finally {
-            context.init(null, null);
+            context.init(null, null, false);
             RenderedLayer.setDirtyArea(layers, layerCount, null);
             graphics.setTransform(toDevice);
         }
@@ -1436,6 +1453,18 @@ public class Renderer implements Renderer2D {
             }
             mapPane.repaint();
         }
+    }
+
+    /**
+     * Transform the specified rectangle from the rendering coordinate system to the "dot"
+     * coordinate system used by Java2D. The transformation used is the one used the last
+     * time the {@link #paint} method was invoked.
+     *
+     * @param  bounds The rectangle in "real world" rendering coordinates.
+     * @return The rectangle in "dot" (or Java2D) coordinates.
+     */
+    final Rectangle mapToText(final Rectangle2D bounds) {
+        return (Rectangle) XAffineTransform.transform(mapToText, bounds, new Rectangle());
     }
 
     /**

@@ -34,7 +34,7 @@ public class PolygonStyle2D extends LineStyle2D {
     protected Composite fillComposite;
 
     /**
-     * Returns the filling color for the {@linkPlain org.geotools.renderer.geom.Polygon polygon} to
+     * Returns the filling color for the {@linkplain org.geotools.renderer.geom.Polygon polygon} to
      * be rendered, or <code>null</code> if none.
      *
      * @return the current fill or null if none
@@ -44,7 +44,7 @@ public class PolygonStyle2D extends LineStyle2D {
     }
 
     /**
-     * Sets filling color for the {@linkPlain org.geotools.renderer.geom.Polygon polygon} to be
+     * Sets filling color for the {@linkplain org.geotools.renderer.geom.Polygon polygon} to be
      * rendered. Set it to <code>null</code> if no filling is to be performed.
      *
      * @param fill
@@ -54,7 +54,7 @@ public class PolygonStyle2D extends LineStyle2D {
     }
 
     /**
-     * Returns the fill Composite for the {@linkPlain org.geotools.renderer.geom.Polyline polyline}
+     * Returns the fill Composite for the {@linkplain org.geotools.renderer.geom.Polyline polyline}
      * to be rendered, or <code>null</code> if the contour is to be opaque
      *
      * @return the current fill composite or null if none
@@ -64,7 +64,7 @@ public class PolygonStyle2D extends LineStyle2D {
     }
 
     /**
-     * Sets the fill Composite for the {@linkPlain org.geotools.renderer.geom.Polyline polyline} to
+     * Sets the fill Composite for the {@linkplain org.geotools.renderer.geom.Polyline polyline} to
      * be rendered. Set it to <code>null</code> if the contour is to be opaque
      *
      * @param contourComposite

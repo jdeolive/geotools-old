@@ -79,11 +79,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  *   </li>
  * </ul>
  *
- * @version $Id: CompressionLevel.java,v 1.1 2003/05/27 18:22:43 desruisseaux Exp $
+ * @version $Id: CompressionLevel.java,v 1.2 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#compress
- * @see Geometry#getMemoryUsage
  */
 public final class CompressionLevel extends EnumeratedParameter {
     /**

@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.23 2003/06/25 15:14:16 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.24 2003/07/11 16:59:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
@@ -130,11 +130,11 @@ public abstract class RenderedLayer {
     private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
 
     /**
-     * The widget area (in screen coordinates) enqueued for painting, or <code>null</code> if no
-     * painting is in process. This field is set by the {@link Renderer} only when its {@link
-     * Renderer#paint} method is begining its work, and reset to <code>null</code> as soon as
-     * this layer has been painted. This information is used by {@link #repaint(Rectangle)} in
-     * order to avoid repainting twice the same area.
+     * The widget area (in screen coordinates) enqueued for painting, or <code>null</code>
+     * if no painting is in process. This field is set by the {@link Renderer} only when its
+     * {@link Renderer#paint} method is begining its work, and reset to <code>null</code> as
+     * soon as this layer has been painted. This information is used by {@link #repaintComponent}
+     * in order to avoid repainting twice the same area.
      */
     private transient Shape dirtyArea;
 
@@ -533,13 +533,34 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Indique que cette couche a besoin d'être redéssinée. La couche ne sera pas redessinée
-     * immediatement, mais seulement un peu plus tard. Cette méthode <code>repaint()</code>
-     * peut être appelée à partir de n'importe quel thread (pas nécessairement celui de
-     * <i>Swing</i>).
+     * Advises that this layer need to be repainted. The layer will not be repainted immediately,
+     * but at some later time depending on the widget implementation (e.g. <cite>Swing</cite>).
+     * This <code>repaint()</code> method can be invoked from any thread; it doesn't need to be
+     * the <cite>Swing</cite> thread.
      */
     public void repaint() {
-        repaint(paintedArea!=null ? paintedArea.getBounds() : null);
+        repaintComponent(paintedArea!=null ? paintedArea.getBounds() : null);
+    }
+
+    /**
+     * Advises that some region need to be repainted. This layer will not be repainted immediately,
+     * but at some later time depending on the widget implementation (e.g. <cite>Swing</cite>).
+     * This <code>repaint(...)</code> method can be invoked from any thread; it doesn't need to
+     * be the <cite>Swing</cite> thread.
+     *
+     * @param bounds The dirty region to repaint, in the &quot;real world&quot;
+     *        {@linkplain #getCoordinateSystem rendering coordinate system}. A
+     *        <code>null</code> value repaint everything.
+     */
+    public void repaint(final Rectangle2D bounds) {
+        if (bounds != null) {
+            final Renderer renderer = this.renderer;
+            if (renderer != null) {
+                repaintComponent(renderer.mapToText(bounds));
+                return;
+            }
+        }
+        repaint();
     }
 
     /**
@@ -549,7 +570,7 @@ public abstract class RenderedLayer {
      *
      * @param bounds Coordonnées (en points) de la partie à redessiner.
      */
-    final void repaint(final Rectangle bounds) {
+    final void repaintComponent(final Rectangle bounds) {
         /*
          * Implementation note: this method copy references 'dirtyArea', 'renderer' and
          * 'mapPane' in order to avoid the need for synchronization. According the Java
@@ -582,7 +603,7 @@ public abstract class RenderedLayer {
         } else {
             EventQueue.invokeLater(new Runnable() {
                 public void run() {
-                    repaint(bounds);
+                    repaintComponent(bounds);
                 }
             });
         }
