@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.23 2004/03/08 11:31:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -314,21 +314,6 @@ public class Category implements Serializable {
              new NumberRange(Integer.class, new Integer(lower), true,
                                             new Integer(upper), false), scale, offset);
     }
-
-    /**
-     * Construct a quantitative category for sample values in the specified range.
-     *
-     * @deprecated Replaced by constructor with the same signature except for {@link Range}
-     *             arguments, which are replaced by {@link NumberRange}.
-     */
-    public Category(final String  name,
-                    final Color[] colors,
-                    final Range   sampleValueRange,
-                    final double  scale,
-                    final double  offset) throws IllegalArgumentException
-    {
-        this(name, colors, NumberRange.wrap(sampleValueRange), scale, offset);
-    }
     
     /**
      * Construct a quantitative category for sample values in the specified range.
@@ -380,22 +365,6 @@ public class Category implements Serializable {
                     ResourceKeys.ERROR_BAD_COEFFICIENT_$2, "offset", new Double(offset)));
         }
     }
-
-    /**
-     * Construct a quantitative category mapping samples to geophysics values in the specified
-     * range.
-     *
-     * @deprecated Replaced by constructor with the same signature except for {@link Range}
-     *             arguments, which are replaced by {@link NumberRange}.
-     */
-    public Category(final String  name,
-                    final Color[] colors,
-                    final Range   sampleValueRange,
-                    final Range   geophysicsValueRange) throws IllegalArgumentException
-    {
-        this(name, colors, NumberRange.wrap(sampleValueRange),
-                           NumberRange.wrap(geophysicsValueRange));
-    }
     
     /**
      * Construct a quantitative category mapping samples to geophysics values in the specified
@@ -433,20 +402,6 @@ public class Category implements Serializable {
              createLinearTransform(sampleValueRange, geophysicsValueRange));
         inverse.range = NumberRange.wrap(geophysicsValueRange);
         assert range.equals(NumberRange.wrap(sampleValueRange));
-    }
-    
-    /**
-     * Construct a qualitative or quantitative category for samples in the specified range.
-     *
-     * @deprecated Replaced by constructor with the same signature except for {@link Range}
-     *             arguments, which are replaced by {@link NumberRange}.
-     */
-    public Category(final String          name,
-                    final Color[]         colors,
-                    final Range           sampleValueRange,
-                    final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
-    {
-        this(name, colors, NumberRange.wrap(sampleValueRange), sampleToGeophysics);
     }
 
     /**
@@ -975,7 +930,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.22 2003/11/12 14:13:52 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.23 2004/03/08 11:31:22 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {
