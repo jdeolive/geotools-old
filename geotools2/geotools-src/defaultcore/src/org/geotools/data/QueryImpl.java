@@ -16,18 +16,20 @@
  */
 package org.geotools.data;
 
-import java.util.List;
-import java.util.ArrayList;
-import org.geotools.filter.Filter;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.SchemaException;
+import org.geotools.filter.Filter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
- * The query object is used by the getFeature method of the DataSource
- * interface, to encapsulate a request.  It defines which feature type  to
- * query, what properties to retrieve and what constraints (spatial  and
- * non-spatial) to apply to those properties.  It is designed to  closesly
+ * The query object is used by the {@link DataSource#GetFeature} method of the
+ * DataSource interface, to encapsulate a request.  It defines which feature
+ * type  to query, what properties to retrieve and what constraints (spatial
+ * and non-spatial) to apply to those properties.  It is designed to  closesly
  * match a WFS Query element of a GetFeature request.   The only difference is
  * the addition of the maxFeatures element, which  allows more control over
  * the features selected.  It allows a full  GetFeature request to properly
@@ -37,38 +39,70 @@ import org.geotools.feature.SchemaException;
  * @author Chris Holmes
  */
 public class QueryImpl implements Query {
-    
-
+    /** The properties to fetch */
     private AttributeType[] properties;
 
+    /** The maximum numbers of features to fetch */
     private int maxFeatures = 100000000;
 
+    /** The filter to constrain the request. */
     private Filter filter;
 
+    /** The typeName to get */
     private String typeName;
 
-    private String handle;    
+    /** The handle associated with this query. */
+    private String handle;
 
+    /**
+     * No argument constructor.
+     */
     public QueryImpl() {
     }
 
-    public QueryImpl(String typeName, Filter filter){
-	this.typeName = typeName;
-	this.filter = filter;
+    /**
+     * Constructor that sets the filter.
+     *
+     * @param filter the OGC filter to constrain the request.
+     */
+    public QueryImpl(Filter filter) {
+        this.filter = filter;
     }
 
-    public QueryImpl(String typeName, Filter filter, int maxFeatures){
-	this(typeName, filter);
-	this.maxFeatures = maxFeatures;
-	this.properties = properties;
+    /**
+     * Constructor that sets the filter and properties
+     *
+     * @param filter the OGC filter to constrain the request.
+     * @param properties an array of the properties to fetch.
+     */
+    public QueryImpl(Filter filter, AttributeType[] properties) {
+        this(filter);
+        this.properties = properties;
+    }
+
+    /**
+     * Constructor that sets all fields.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     * @param filter the OGC filter to constrain the request.
+     * @param maxFeatures the maximum number of features to be returned.
+     * @param properties an array of the properties to fetch.
+     * @param handle the name to associate with the query.
+     */
+    public QueryImpl(String typeName, Filter filter, int maxFeatures,
+        AttributeType[] properties, String handle) {
+        this(filter, properties);
+        this.maxFeatures = maxFeatures;
+        this.handle = handle;
     }
 
     /**
      * The property names is used to specify the attributes that should be
-     * selected for the return feature collection.  If no property names are
-     * specified then the full schema should be used (all property names). The
-     * property names can be determined with a getSchema call from the
-     * DataSource interface.
+     * selected for the return feature collection.  If the property array is
+     * null, then the datasource should return all available properties, its
+     * full schema.  If an array of  specified then the full schema should be
+     * used (all property names). The property names can be determined with a
+     * getSchema call from the DataSource interface.
      * 
      * <p>
      * This replaces our funky setSchema method of retrieving select
@@ -98,64 +132,118 @@ public class QueryImpl implements Query {
      *       I'm not sure how.
      */
     public AttributeType[] getProperties() {
-	return properties;
+        return properties;
     }
 
     /**
-     * Sets the properties to retrieve from the db.  If the boolean to load
-     * all properties is set to true then the AttributeTypes that are not
-     * in the database's schema will just be filled with null values.
+     * Sets the properties to retrieve from the db.  If the boolean to load all
+     * properties is set to true then the AttributeTypes that are not in the
+     * database's schema will just be filled with null values.
      *
      * @param properties The attribute Types to load from the datasouce.
      */
     public void setProperties(AttributeType[] properties) {
-	this.properties = properties;
+        this.properties = properties;
     }
 
     /**
-     * Convenience method to get valid properties given a schema and a list
-     * of propertyNames.  It checks the property
-     * names against the schema, throwing a schema exception if a requested
-     * propertyName is not in the schema.  
+     * Sets the proper attributeTypes constructed from a schema and a  list of
+     * propertyNames.
      *
      * @param schema The schema to validate the propertyNames against.
-     * @param propertyNames the names of the properties to check against the schema.
-     * @return an array of properties of the propertyNames with types from the 
-     * passed in schema.
-     * @task REVISIT: perhaps a boolean to not throw exceptions?  Just return all
-     * propertynames that match the schema, leave them out if they don't match.
+     * @param propertyNames the names of the properties to check against the
+     *        schema. If null or of size 0 then all attributes from the schema
+     *        should be fetched.
+     *
+     * @throws SchemaException if any of the propertyNames do not have an
+     *         attributeType of the same name in the schema.
+     *
+     * @task REVISIT: perhaps a boolean to not throw exceptions?  Just return
+     *       all propertynames that match the schema, leave them out if they
+     *       don't match.
      */
-    public static AttributeType[] getProperties(FeatureType schema, 
-						String[] propertyNames) 
-	throws SchemaException {
-	AttributeType[] properties = new AttributeType[propertyNames.length];
-	for(int i = 0; i < propertyNames.length; i++) {
-	    String curPropName = propertyNames[i];
-	    //process typeName prefixes here?  Like road.nlanes, road/nlanes,
-	    //or rns:nlanes?  Change them all to just nlanes?
-	    properties[i] = 
-		schema.getAttributeType(curPropName);
- 	    if (properties[i] == null) {
-		//report the available props in the error report.
-		AttributeType[] available = schema.getAttributeTypes();
-		StringBuffer props = new StringBuffer();
-		for (int j = 0; j < available.length; j++){
-		    props.append(available[j].getName());
-		    if (j < available.length - 1) {
-			props.append(", ");
-		    }
-		}
-		
-		throw new SchemaException("property name: " + 
-				       curPropName + " is "
-				       +"not a part of featureType"
-				       + ", the available properties"
-				       + " are: " + props);
-	    }
-	}
-	return properties;
+    public void setProperties(FeatureType schema, List propertyNames)
+        throws SchemaException {
+        this.properties = getValidProperties(schema, propertyNames);
     }
-	
+
+    /**
+     * Convenience method to determine if the query should use the full schema
+     * (all properties) of the data source for the features returned.  This
+     * method is equivalent to if (query.getProperties() == null), but allows
+     * for more clarity on the part of datasource implementors, so they do not
+     * need to examine and use null values.  All Query implementations should
+     * return true for this function if getProperties returns null.
+     *
+     * @return if all datasource attributes should be included in the  schema
+     *         of the returned FeatureCollection.
+     */
+    public boolean retrieveAllProperties() {
+        return properties == null;
+    }
+
+    /**
+     * Convenience method to get valid properties given a schema and a list of
+     * propertyNames.  It checks the property names against the schema,
+     * throwing a schema exception if a requested propertyName is not in the
+     * schema.  This method should be used by users who only have a list of
+     * the property names and not the attributeTypes.
+     *
+     * @param schema The schema to validate the propertyNames against.
+     * @param propertyNames the names of the properties to check against the
+     *        schema. If null or of size 0 then all attributes from the schema
+     *        should be fetched.
+     *
+     * @return an array of properties of the propertyNames with types from the
+     *         passed in schema.
+     *
+     * @throws SchemaException if any of the propertyNames do not have an
+     *         attributeType of the same name in the schema.
+     *
+     * @task REVISIT: perhaps a boolean to not throw exceptions?  Just return
+     *       all propertynames that match the schema, leave them out if they
+     *       don't match.
+     * @task REVISIT: private?  package?  Somewhere in feature package? Someone
+     *       might want to use it.
+     */
+    public static AttributeType[] getValidProperties(FeatureType schema,
+        List propertyNames) throws SchemaException {
+        if ((propertyNames == null) || (propertyNames.size() == 0)) {
+            return schema.getAttributeTypes();
+        } else {
+            AttributeType[] properties = new AttributeType[propertyNames.size()];
+            int i = 0;
+
+            for (Iterator iter = propertyNames.iterator(); iter.hasNext();
+                    i++) {
+                String curPropName = iter.next().toString();
+
+                //process typeName prefixes here?  Like road.nlanes, road/nlanes,
+                //or rns:nlanes?  Change them all to just nlanes?
+                properties[i] = schema.getAttributeType(curPropName);
+
+                if (properties[i] == null) {
+                    //report the available props in the error report.
+                    AttributeType[] available = schema.getAttributeTypes();
+                    StringBuffer props = new StringBuffer();
+
+                    for (int j = 0; j < available.length; j++) {
+                        props.append(available[j].getName());
+
+                        if (j < (available.length - 1)) {
+                            props.append(", ");
+                        }
+                    }
+
+                    throw new SchemaException("property name: " + curPropName +
+                        " is " + "not a part of featureType" +
+                        ", the available properties" + " are: " + props);
+                }
+            }
+
+            return properties;
+        }
+    }
 
     /**
      * The optional maxFeatures can be used to limit the number of features
@@ -171,12 +259,18 @@ public class QueryImpl implements Query {
      *
      * @return the max features the getFeature call should return.
      */
-    public int getMaxFeatures(){
-	return this.maxFeatures;
+    public int getMaxFeatures() {
+        return this.maxFeatures;
     }
 
-    public void setMaxFeatures(int maxFeatures){
-	this.maxFeatures = maxFeatures;
+    /**
+     * Sets the max features to retrieved by this query.
+     *
+     * @param maxFeatures the maximum number of features the getFeature call
+     *        should return.
+     */
+    public void setMaxFeatures(int maxFeatures) {
+        this.maxFeatures = maxFeatures;
     }
 
     /**
@@ -186,8 +280,18 @@ public class QueryImpl implements Query {
      *
      * @return The filter that defines constraints on the query.
      */
-    public Filter getFilter(){
-	return this.filter;
+    public Filter getFilter() {
+        return this.filter;
+    }
+
+    /**
+     * Sets the filter to constrain the query.
+     *
+     * @param filter the OGC filter to limit the datasource getFeatures
+     *        request.
+     */
+    public void setFilter(Filter filter) {
+        this.filter = filter;
     }
 
     /**
@@ -200,11 +304,37 @@ public class QueryImpl implements Query {
      * will allow us to create a postgis datasource that can make use of the
      * whole db, specifying with each request which type to get.
      * </p>
+     * 
+     * <p>
+     * Geotools currently limits datasources to a one to one relationship
+     * between featureType and datasource, so datasources can ignore this
+     * field of the query for now.
+     * </p>
      *
      * @return the name of the feature type to be returned with this query.
+     *
+     * @task REVISIT: the transaction methods do not work with different
+     *       typenames, so that will have to be resolved before typenames are
+     *       used. Perhaps a MultiType interface?  We will also need to
+     *       rethink the  getSchema, and probably schemas in general, as they
+     *       could be more than one FeatureType in datasources that support
+     *       multiple types.  If users wish to use more than one type in a
+     *       datasource whose backend naturally supports multiple types (like
+     *       postgis) they should just construct a datasource for each type,
+     *       generally on different connections so as to avoid
+     *       getFeature/multi-transaction confusion.
      */
-    public String getTypeName(){
-	return this.typeName;
+    public String getTypeName() {
+        return this.typeName;
+    }
+
+    /**
+     * Sets the typename.
+     *
+     * @param typeName the name of the featureType to retrieve.
+     */
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
     /**
@@ -215,8 +345,17 @@ public class QueryImpl implements Query {
      *
      * @return the mnemonic name of the query request.
      */
-    public String getHandle(){
-	return this.handle;
+    public String getHandle() {
+        return this.handle;
+    }
+
+    /**
+     * Sets a mnemonic name for the query request.
+     *
+     * @param handle the name to refer to this query.
+     */
+    public void setHandle(String handle) {
+        this.handle = handle;
     }
 
     /**
@@ -239,9 +378,48 @@ public class QueryImpl implements Query {
      * </p>
      *
      * @return the version of the feature to return.
+     *
+     * @throws UnsupportedOperationException if a user attempts to use this
+     *         method - no versioning supported yet.
      */
     public String getVersion() {
-	throw new UnsupportedOperationException("No feature versioning yet");
+        throw new UnsupportedOperationException("No feature versioning yet");
     }
 
+    /**
+     * Over ride of toString
+     *
+     * @return a string representation of this query object.
+     */
+    public String toString() {
+        StringBuffer returnString = new StringBuffer("Query:");
+
+        if (handle != null) {
+            returnString.append(" [" + handle + "]");
+        }
+
+        returnString.append("\n   feature type: " + typeName);
+
+        if (filter != null) {
+            returnString.append("\n   filter: " + filter.toString());
+        }
+
+        returnString.append("\n   [properties: ");
+
+        if ((properties == null) || (properties.length == 0)) {
+            return returnString + " ALL ]";
+        } else {
+            for (int i = 0; i < properties.length; i++) {
+                returnString.append(properties[i].toString());
+
+                if (i < (properties.length - 1)) {
+                    returnString.append(", ");
+                }
+            }
+
+            returnString.append("]");
+
+            return returnString.toString();
+        }
+    }
 }
