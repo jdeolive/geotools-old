@@ -113,15 +113,15 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.10 2003/05/13 11:00:46 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.11 2003/05/19 15:07:19 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
  */
 public class Polygon extends GeoShape {
     /**
-     * Version number for compatibility with bathymetries
-     * registered under previous versions.
+     * Version number for compatibility with geometries serialized with previous versions
+     * of this class.
      */
     private static final long serialVersionUID = 6197907210475790821L;
 
@@ -132,8 +132,7 @@ public class Polygon extends GeoShape {
     private static final double EPS = 1E-6;
 
     /**
-     * Projection to use for calculations that require
-     * a Cartesian coordinate system.
+     * Projection to use for calculations that require a Cartesian coordinate system.
      */
     private static final String CARTESIAN_PROJECTION = "Stereographic";
 
@@ -141,6 +140,15 @@ public class Polygon extends GeoShape {
      * The enum value for <code>InteriorType == null</code>.
      */
     private static final int UNCLOSED = InteriorType.UNCLOSED;
+
+    /**
+     * Last coordinate transformation used for computing {@link #coordinateTransform}.
+     * Used in order to avoid the costly call to {@link CoordinateSystemFactory} methods
+     * when the same transform is requested many consecutive time, which is a very common
+     * situation.
+     */
+    private static CoordinateTransformation lastCoordinateTransform =
+                    getIdentityTransform(GeographicCoordinateSystem.WGS84);
 
     /**
      * Un des maillons de la chaîne de polylignes, ou
@@ -192,23 +200,10 @@ public class Polygon extends GeoShape {
     private byte interiorType = (byte) UNCLOSED;
 
     /**
-     * Average resolution of the polygon. This field contains the average distance between
-     * two points of the polygon, or {@link Float#NaN} if this resolution still hasn't been
-     * calculated.
-     */
-    private float resolution = Float.NaN;
-
-    /**
-     * The resolution to apply at rendering time, as a multiple of
-     * <code>{@link #resolution}/{@link #RESOLUTION_FACTOR}</code>.
+     * The resolution to apply at rendering time.
      * The value 0 means that all data should be used.
      */
-    private transient byte renderingResolution;
-
-    /**
-     * A constant for compacting {@link #renderingResolution} as a single <code>byte</code>.
-     */
-    private static final int RESOLUTION_FACTOR = 4;
+    private transient float renderingResolution;
 
     /**
      * Soft reference to a <code>float[]</code> table. This table is used to
@@ -256,7 +251,6 @@ public class Polygon extends GeoShape {
         dataBounds          = polygon.dataBounds;
         bounds              = polygon.bounds;
         flattened           = polygon.flattened;
-        resolution          = polygon.resolution;
         interiorType        = polygon.interiorType;
     }
 
@@ -453,12 +447,20 @@ public class Polygon extends GeoShape {
             throws CannotCreateTransformException
     {
         // copy 'coordinateTransform' reference in order to avoid synchronization
-        final CoordinateTransformation coordinateTransform = this.coordinateTransform;
+        CoordinateTransformation coordinateTransform = this.coordinateTransform;
         if (cs!=null && coordinateTransform!=null) {
             if (cs.equals(coordinateTransform.getTargetCS(), false)) {
                 return coordinateTransform;
             }
-            return getCoordinateTransformation(coordinateTransform.getSourceCS(), cs);
+            coordinateTransform = lastCoordinateTransform;
+            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
+                if (coordinateTransform.getSourceCS().equals(getInternalCS(), false)) {
+                    return coordinateTransform;
+                }
+            }
+            coordinateTransform=getCoordinateTransformation(coordinateTransform.getSourceCS(), cs);
+            lastCoordinateTransform = coordinateTransform;
+            return coordinateTransform;
         }
         return null;
     }
@@ -512,7 +514,6 @@ public class Polygon extends GeoShape {
          * only after projection has succeeded.
          */
         this.coordinateTransform = transformCandidate;
-        this.resolution = Float.NaN;
         this.cache = null;
         this.flattened = checkFlattenedShape();
     }
@@ -1144,27 +1145,14 @@ public class Polygon extends GeoShape {
      * @param  resolution Resolution to apply.
      */
     final void setRenderingResolution(final float resolution) {
-        int newResolution = 0;
-        if (resolution != 0) {
-            /*
-             * NOTE 1:
-             *     We could execute this code unconditionally, but 'setRenderingResolution(0)'
-             *     is sometimes invoked from non-synchronized block, immediately after cloning.
-             *     The 'if' condition avoids the 'assert' in this method and its dependencies,
-             *     as well as the execution of the (potentially heavy) 'getMeanResolution()'.
-             *
-             * NOTE 2:
-             *     Must round 'newResolution' toward nearest integer (not toward 0), otherwise
-             *     rounding errors will be such that   'setResolution(getResolution())'   will
-             *     decrease 'resolution' by one, which will force unnecessary cache invalidation.
-             */
-            assert Thread.holdsLock(this);
-            newResolution = Math.round((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
-            newResolution = Math.max(0, Math.min(0xFF, newResolution));
-        }
-        if ((byte)newResolution != renderingResolution) {
+        /*
+         * NOTE: 'setRenderingResolution(0)' is sometimes invoked from
+         *       non-synchronized block, immediately after cloning.
+         */
+        assert resolution==0 || Thread.holdsLock(this);
+        if (!Float.isNaN(resolution) && resolution!=renderingResolution) {
             cache = null;
-            renderingResolution = (byte)newResolution;
+            renderingResolution = resolution;
         }
     }
 
@@ -1172,9 +1160,7 @@ public class Polygon extends GeoShape {
      * Returns the rendering resolution. Value 0 means the best available resolution.
      */
     final float getRenderingResolution() {
-        assert Thread.holdsLock(this);
-        final float r = ((int)renderingResolution & 0xFF) * getMeanResolution() / RESOLUTION_FACTOR;
-        return Float.isNaN(r) ? 0 : r;
+        return renderingResolution;
     }
 
     /**
@@ -1448,18 +1434,8 @@ public class Polygon extends GeoShape {
                 dataBounds = null;
             }
         }
-        bounds = null;
-        cache  = null;
-        if (resolution > 0) {
-            if (toAppend.resolution > 0) {
-                final int thisCount =          getPointCount();
-                final int thatCount = toAppend.getPointCount();
-                resolution = (resolution*thisCount + toAppend.resolution*thatCount) / (thisCount + thatCount);
-                assert resolution > 0;
-                return;
-            }
-        }
-        resolution = Float.NaN;
+        bounds    = null;
+        cache     = null;
         flattened = checkFlattenedShape();
     }
 
@@ -1541,22 +1517,6 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the mean resolution. This method caches the result for faster processing.
-     *
-     * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
-     */
-    final float getMeanResolution() {
-        assert Thread.holdsLock(this);
-        if (!(resolution > 0)) { // '!' take NaN in account
-            final Statistics stats = getResolution();
-            resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
-        }
-        assert Float.isNaN(resolution) ||
-               Math.abs(getResolution().mean()-resolution) <= EPS*resolution : resolution;
-        return resolution;
-    }
-
-    /**
      * Returns the polygon's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this polygon  (ignoring "extra" points used for
      * drawing a border, if there is one). This method tries to express the resolution in
@@ -1574,10 +1534,7 @@ public class Polygon extends GeoShape {
      */
     public synchronized Statistics getResolution() {
         try {
-            final Statistics stats = Polyline.getResolution(data, coordinateTransform);
-            assert !(stats!=null && Math.abs(resolution-stats.mean())>EPS*resolution) : resolution;
-            resolution = (stats!=null) ? (float)stats.mean() : Float.NaN;
-            return stats;
+            return Polyline.getResolution(data, coordinateTransform);
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
             // has already successfully projected every points.
@@ -1853,7 +1810,6 @@ public class Polygon extends GeoShape {
         cache      = null;
         bounds     = null;
         dataBounds = null;
-        resolution = Float.NaN;
         flattened  = checkFlattenedShape();
     }
 
@@ -1997,7 +1953,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.10 2003/05/13 11:00:46 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.11 2003/05/19 15:07:19 desruisseaux Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon
