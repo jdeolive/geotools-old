@@ -50,7 +50,6 @@ import java.util.Arrays;
 import java.io.Serializable;
 
 // JAI dependencies
-import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
 // Vecmath (Java3D) dependencies
@@ -61,7 +60,7 @@ import javax.vecmath.SingularMatrixException;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.6 2002/10/10 14:44:21 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.7 2003/04/14 21:08:14 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -389,7 +388,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.6 2002/10/10 14:44:21 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.7 2003/04/14 21:08:14 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {

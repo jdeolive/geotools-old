@@ -53,7 +53,6 @@ import java.io.Serializable;
 import java.io.ObjectInputStream;
 
 // JAI dependencies
-import javax.media.jai.util.Range;
 import javax.media.jai.ParameterList;
 
 
@@ -62,7 +61,7 @@ import javax.media.jai.ParameterList;
  * coordinate points. Input points must be longitudes, latitudes
  * and heights above the ellipsoid.
  *
- * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
+ * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
  * @author Frank Warmerdam
  * @author Martin Desruisseaux
  */
@@ -504,7 +503,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * Inverse of a geocentric transform.
      *
-     * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements Serializable {
@@ -552,7 +551,7 @@ final class GeocentricTransform extends AbstractMathTransform implements Seriali
     /**
      * The provider for {@link GeocentricTransform}.
      *
-     * @version $Id: GeocentricTransform.java,v 1.8 2003/02/26 12:04:02 desruisseaux Exp $
+     * @version $Id: GeocentricTransform.java,v 1.9 2003/04/14 21:08:13 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
