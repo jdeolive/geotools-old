@@ -16,10 +16,6 @@
  */
 package org.geotools.styling;
 
-import org.geotools.filter.Expression;
-import org.geotools.filter.FilterFactory;
-import java.awt.Color;
-import java.util.Iterator;
 import org.geotools.algorithms.classification.EqualClasses;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
@@ -28,7 +24,11 @@ import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
+import org.geotools.filter.Expression;
+import org.geotools.filter.FilterFactory;
 import org.geotools.filter.IllegalFilterException;
+import java.awt.Color;
+import java.util.Iterator;
 
 
 /**
@@ -38,7 +38,7 @@ import org.geotools.filter.IllegalFilterException;
  */
 public class StyleBuilder {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
-    .getLogger("org.geotools.styling");
+        .getLogger("org.geotools.styling");
     public static final String LINE_JOIN_MITRE = "mitre";
     public static final String LINE_JOIN_ROUND = "round";
     public static final String LINE_JOIN_BEVEL = "bevel";
@@ -245,7 +245,12 @@ public class StyleBuilder {
      * @return the fill created
      */
     public Fill createFill() {
-        return sf.getDefaultFill();
+        Fill f = sf.getDefaultFill();
+        f.setColor(literalExpression("#808080"));
+        f.setBackgroundColor(literalExpression("#808080"));
+        f.setOpacity(literalExpression(1.0));
+
+        return f;
     }
 
     /**
@@ -328,6 +333,18 @@ public class StyleBuilder {
     public Fill createFill(Expression color, Expression backgroundColor,
         Expression opacity, Graphic fill) {
         return sf.createFill(color, backgroundColor, opacity, fill);
+    }
+
+    /**
+     * Returns the array of all the well known mark names
+     *
+     * @return DOCUMENT ME!
+     */
+    public String[] getWellKnownMarkNames() {
+        return new String[] {
+            MARK_SQUARE, MARK_CIRCLE, MARK_TRIANGLE, MARK_STAR, MARK_CROSS,
+            MARK_ARROW, MARK_X
+        };
     }
 
     /**
@@ -461,6 +478,22 @@ public class StyleBuilder {
     }
 
     /**
+     * Creates the default graphic object
+     *
+     * @return the graphic object
+     */
+    public Graphic createGraphic() {
+        Graphic gr = sf.getDefaultGraphic();
+
+        Mark mark = createMark(MARK_SQUARE, Color.decode("#808080"),
+                Color.BLACK, 1);
+        gr.setMarks(new Mark[] { mark });
+        gr.setSize(literalExpression(6.0));
+
+        return gr;
+    }
+
+    /**
      * creates a graphic object
      *
      * @param externalGraphic an external graphic to use if displayable
@@ -474,17 +507,17 @@ public class StyleBuilder {
         Graphic gr = sf.getDefaultGraphic();
 
         if (externalGraphic != null) {
-            gr.setExternalGraphics(new ExternalGraphic[] {externalGraphic});
+            gr.setExternalGraphics(new ExternalGraphic[] { externalGraphic });
         }
 
         if (mark != null) {
-            gr.setMarks(new Mark[] {mark});
+            gr.setMarks(new Mark[] { mark });
         } else {
             gr.setMarks(new Mark[0]);
         }
 
         if (symbol != null) {
-            gr.setSymbols(new Symbol[] {symbol});
+            gr.setSymbols(new Symbol[] { symbol });
         } else {
             gr.setSymbols(new Symbol[0]);
         }
@@ -511,15 +544,15 @@ public class StyleBuilder {
         Symbol[] symbols = null;
 
         if (externalGraphic != null) {
-            egs = new ExternalGraphic[] {externalGraphic};
+            egs = new ExternalGraphic[] { externalGraphic };
         }
 
         if (mark != null) {
-            marks = new Mark[] {mark};
+            marks = new Mark[] { mark };
         }
 
         if (symbol != null) {
-            symbols = new Symbol[] {symbol};
+            symbols = new Symbol[] { symbol };
         }
 
         return createGraphic(egs, marks, symbols, literalExpression(opacity),
@@ -954,7 +987,11 @@ public class StyleBuilder {
      * @return the new polygon symbolizer
      */
     public PolygonSymbolizer createPolygonSymbolizer() {
-        return sf.createPolygonSymbolizer();
+        PolygonSymbolizer ps = sf.createPolygonSymbolizer();
+        ps.setFill(createFill());
+        ps.setStroke(createStroke());
+
+        return ps;
     }
 
     /**
@@ -1060,6 +1097,23 @@ public class StyleBuilder {
     }
 
     /**
+     * Creates a default text symbolizer. Warning: there is no definition of a
+     * default text symbolizer in the SLD standard, this is provided just for
+     * convenience and uniformity with the other symbolizers
+     *
+     * @return the default text symbolizer
+     */
+    public TextSymbolizer createTextSymbolizer() {
+        TextSymbolizer ts = sf.createTextSymbolizer();
+
+        ts.setFill(createFill(Color.BLACK));
+        ts.setLabel(literalExpression("Label"));
+        ts.setFonts(new Font[] { createFont("Lucida Sans", 10) });
+
+        return ts;
+    }
+
+    /**
      * create a textsymbolizer
      *
      * @param color the color of the text
@@ -1073,8 +1127,8 @@ public class StyleBuilder {
      */
     public TextSymbolizer createTextSymbolizer(Color color, Font font,
         String attributeName) throws org.geotools.filter.IllegalFilterException {
-        return createTextSymbolizer(createFill(color), new Font[] {font}, null,
-            attributeExpression(attributeName), null, null);
+        return createTextSymbolizer(createFill(color), new Font[] { font },
+            null, attributeExpression(attributeName), null, null);
     }
 
     /**
@@ -1106,8 +1160,8 @@ public class StyleBuilder {
      */
     public TextSymbolizer createStaticTextSymbolizer(Color color, Font font,
         String label) {
-        return createTextSymbolizer(createFill(color), new Font[] {font}, null,
-            literalExpression(label), null, null);
+        return createTextSymbolizer(createFill(color), new Font[] { font },
+            null, literalExpression(label), null, null);
     }
 
     /**
@@ -1214,7 +1268,8 @@ public class StyleBuilder {
      */
     public Rule createRule(Symbolizer symbolizer, double minScaleDenominator,
         double maxScaleDenominator) {
-        return createRule(new Symbolizer[] {symbolizer}, Double.NaN, Double.NaN);
+        return createRule(new Symbolizer[] { symbolizer }, Double.NaN,
+            Double.NaN);
     }
 
     /**
@@ -1322,7 +1377,7 @@ public class StyleBuilder {
         String featureTypeStyleName, Symbolizer symbolizer,
         double minScaleDenominator, double maxScaleDenominator) {
         return createFeatureTypeStyle(featureTypeStyleName,
-            new Symbolizer[] {symbolizer}, minScaleDenominator,
+            new Symbolizer[] { symbolizer }, minScaleDenominator,
             maxScaleDenominator);
     }
 
@@ -1345,7 +1400,49 @@ public class StyleBuilder {
 
         // setup the feature type style
         FeatureTypeStyle fts = sf.createFeatureTypeStyle();
-        fts.setRules(new Rule[] {r});
+        fts.setRules(new Rule[] { r });
+
+        if (featureTypeStyleName != null) {
+            fts.setFeatureTypeName(featureTypeStyleName);
+        }
+
+        return fts;
+    }
+
+    /**
+     * create a Feature type styler
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param r - the rule that driver this feature typ style
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Rule r) {
+        // setup the feature type style
+        FeatureTypeStyle fts = sf.createFeatureTypeStyle();
+        fts.setRules(new Rule[] { r });
+
+        if (featureTypeStyleName != null) {
+            fts.setFeatureTypeName(featureTypeStyleName);
+        }
+
+        return fts;
+    }
+
+    /**
+     * create a Feature type styler see the SLD Spec for more details of
+     * scaleDenominators
+     *
+     * @param featureTypeStyleName - name for the feature type styler
+     * @param rules - the rules that make up the FeatureTypeStyle
+     *
+     * @return the new feature type styler
+     */
+    public FeatureTypeStyle createFeatureTypeStyle(
+        String featureTypeStyleName, Rule[] rules) {
+        FeatureTypeStyle fts = sf.createFeatureTypeStyle();
+        fts.setRules(rules);
 
         if (featureTypeStyleName != null) {
             fts.setFeatureTypeName(featureTypeStyleName);
@@ -1434,9 +1531,10 @@ public class StyleBuilder {
      * @return the expression
      */
     public Expression colorExpression(Color color) {
-        if(color == null)
+        if (color == null) {
             return null;
-        
+        }
+
         String redCode = Integer.toHexString(color.getRed());
         String greenCode = Integer.toHexString(color.getGreen());
         String blueCode = Integer.toHexString(color.getBlue());
@@ -1476,7 +1574,38 @@ public class StyleBuilder {
      *
      * @return the expression
      */
+    public Expression literalExpression(int value) {
+        return ff.createLiteralExpression(value);
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     */
     public Expression literalExpression(String value) {
+        Expression result = null;
+
+        if (value != null) {
+            result = ff.createLiteralExpression(value);
+        }
+
+        return result;
+    }
+
+    /**
+     * create a literal expression representing the value
+     *
+     * @param value the value to be encoded
+     *
+     * @return the expression
+     *
+     * @throws IllegalFilterException DOCUMENT ME!
+     */
+    public Expression literalExpression(Object value)
+        throws IllegalFilterException {
         Expression result = null;
 
         if (value != null) {
@@ -1504,87 +1633,115 @@ public class StyleBuilder {
 
         return attribute;
     }
-    /** given a feature collection and an array of colours build a style 
-     * with the given number of classes on the named column
+
+    /**
+     * given a feature collection and an array of colours build a style  with
+     * the given number of classes on the named column
+     *
+     * @param fc DOCUMENT ME!
+     * @param name DOCUMENT ME!
+     * @param colors DOCUMENT ME!
+     * @param schema DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalFilterException DOCUMENT ME!
      */
-    public Style buildClassifiedStyle(FeatureCollection fc, String name, String[] colors,
-        FeatureType schema) throws IllegalFilterException{
+    public Style buildClassifiedStyle(FeatureCollection fc, String name,
+        String[] colors, FeatureType schema) throws IllegalFilterException {
         //grab attribute col
-        AttributeExpression value = ff.createAttributeExpression(schema,name);
+        AttributeExpression value = ff.createAttributeExpression(schema, name);
         String geomName = schema.getDefaultGeometry().getName();
-        
-        double [] values = new double[fc.size()];
+
+        double[] values = new double[fc.size()];
         Iterator it = fc.iterator();
-        int count=0;
-        while(it.hasNext()){
-            Feature f = (Feature)it.next();
-            values[count++] = ((Number)f.getAttribute(name)).doubleValue();
+        int count = 0;
+
+        while (it.hasNext()) {
+            Feature f = (Feature) it.next();
+            values[count++] = ((Number) f.getAttribute(name)).doubleValue();
         }
+
         //pass to classification algorithm
         EqualClasses ec = new EqualClasses(colors.length, values);
+
         //build style
         double[] breaks = ec.getBreaks();
         Style ret = createStyle();
-//        ret.setName(name);
-        Rule[] rules = new Rule[colors.length+1];
+
+        //        ret.setName(name);
+        Rule[] rules = new Rule[colors.length + 1];
         CompareFilter cf1 = ff.createCompareFilter(AbstractFilter.COMPARE_LESS_THAN);
         cf1.addLeftValue(value);
         cf1.addRightValue(ff.createLiteralExpression(breaks[0]));
         LOGGER.fine(cf1.toString());
         rules[0] = sf.createRule();
         rules[0].setFilter(cf1);
-//        rules[0].setName("lowest");
+
+        //        rules[0].setName("lowest");
         Color c = this.createColor(colors[0]);
-        PolygonSymbolizer symb1 = createPolygonSymbolizer(c,Color.black,1.0);
+        PolygonSymbolizer symb1 = createPolygonSymbolizer(c, Color.black, 1.0);
+
         //@todo: this should set the geometry name but currently this breaks the legend
-//        symb1.setGeometryPropertyName(geomName);
-        rules[0].setSymbolizers(new Symbolizer[]{symb1});
-        LOGGER.fine("added low class "+breaks[0]+" "+colors[0]);
-//        LOGGER.fine(rules[0].toString());
-        for(int i=1;i<colors.length-1;i++){
-            
+        //        symb1.setGeometryPropertyName(geomName);
+        rules[0].setSymbolizers(new Symbolizer[] { symb1 });
+        LOGGER.fine("added low class " + breaks[0] + " " + colors[0]);
+
+        //        LOGGER.fine(rules[0].toString());
+        for (int i = 1; i < (colors.length - 1); i++) {
             rules[i] = sf.createRule();
+
             BetweenFilter cf = ff.createBetweenFilter();
-            cf.addLeftValue(ff.createLiteralExpression(breaks[i-1]));
+            cf.addLeftValue(ff.createLiteralExpression(breaks[i - 1]));
             cf.addRightValue(ff.createLiteralExpression(breaks[i]));
             cf.addMiddleValue(value);
             LOGGER.fine(cf.toString());
             c = this.createColor(colors[i]);
-            LOGGER.fine("color "+c.toString());
-            PolygonSymbolizer symb = createPolygonSymbolizer(c,Color.black,1.0);
-//            symb.setGeometryPropertyName(geomName);
-            rules[i].setSymbolizers(new Symbolizer[]{symb});
+            LOGGER.fine("color " + c.toString());
+
+            PolygonSymbolizer symb = createPolygonSymbolizer(c, Color.black, 1.0);
+
+            //            symb.setGeometryPropertyName(geomName);
+            rules[i].setSymbolizers(new Symbolizer[] { symb });
             rules[i].setFilter(cf);
-//            rules[i].setName("class "+i);
-            LOGGER.fine("added class "+breaks[i-1]+"->"+breaks[i]+" "+colors[i]);
+
+            //            rules[i].setName("class "+i);
+            LOGGER.fine("added class " + breaks[i - 1] + "->" + breaks[i] + " "
+                + colors[i]);
         }
+
         CompareFilter cf2 = ff.createCompareFilter(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
         cf2.addLeftValue(value);
-        cf2.addRightValue(ff.createLiteralExpression(breaks[colors.length-2]));
+        cf2.addRightValue(ff.createLiteralExpression(breaks[colors.length - 2]));
         LOGGER.fine(cf2.toString());
-        rules[colors.length-1] = sf.createRule();
-        rules[colors.length-1].setFilter(cf2);
-        rules[colors.length-1].setName(geomName);
-        c = this.createColor(colors[colors.length-1]);
-        PolygonSymbolizer symb2 = createPolygonSymbolizer(c,Color.black,1.0);
-//        symb2.setGeometryPropertyName(geomName);
-        
-        rules[colors.length-1].setSymbolizers(new Symbolizer[]{symb2});
-        LOGGER.fine("added upper class "+breaks[colors.length-2]+"  "+colors[colors.length-1]);
+        rules[colors.length - 1] = sf.createRule();
+        rules[colors.length - 1].setFilter(cf2);
+        rules[colors.length - 1].setName(geomName);
+        c = this.createColor(colors[colors.length - 1]);
+
+        PolygonSymbolizer symb2 = createPolygonSymbolizer(c, Color.black, 1.0);
+
+        //        symb2.setGeometryPropertyName(geomName);
+        rules[colors.length - 1].setSymbolizers(new Symbolizer[] { symb2 });
+        LOGGER.fine("added upper class " + breaks[colors.length - 2] + "  "
+            + colors[colors.length - 1]);
         rules[colors.length] = sf.createRule();
-        PolygonSymbolizer elsePoly = createPolygonSymbolizer(Color.black,1.0);
-        rules[colors.length].setSymbolizers(new Symbolizer[]{elsePoly});
+
+        PolygonSymbolizer elsePoly = createPolygonSymbolizer(Color.black, 1.0);
+        rules[colors.length].setSymbolizers(new Symbolizer[] { elsePoly });
         rules[colors.length].setIsElseFilter(true);
+
         FeatureTypeStyle ft = sf.createFeatureTypeStyle(rules);
         ft.setFeatureTypeName("feature");
         ft.setName(name);
         ret.addFeatureTypeStyle(ft);
-        
+
         return ret;
     }
-    
-    private Color createColor(String text){
-        int i = Integer.decode("0x"+text).intValue();
-        return Color.decode(""+i);
+
+    private Color createColor(String text) {
+        int i = Integer.decode("0x" + text).intValue();
+
+        return Color.decode("" + i);
     }
 }
