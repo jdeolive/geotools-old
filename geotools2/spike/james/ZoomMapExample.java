@@ -15,7 +15,7 @@ import org.geotools.shapefile.*;
 import org.geotools.datasource.extents.EnvelopeExtent;
 import java.awt.event.*;
 import java.awt.*;
-import org.geotools.swinggui.*;
+import org.geotools.gui.swing.*;
 
 import javax.swing.*;
 
@@ -38,7 +38,7 @@ public class ZoomMapExample extends java.awt.Panel{
         
         //String dataFolder = "d:\\work\\java\\geotools2/geotools-src\\shapefile\\tests\\unit\\testData";
         try{
-            java.net.URL url = new java.net.URL("file:///" + uri);
+            java.net.URL url = new java.net.URL("file://" + uri);
             System.out.println("Testing ability to load "+url);
             org.geotools.shapefile.Shapefile shapefile = new org.geotools.shapefile.Shapefile(url);
             org.geotools.shapefile.ShapefileDataSource datasource = new org.geotools.shapefile.ShapefileDataSource(shapefile);
@@ -64,7 +64,7 @@ public class ZoomMapExample extends java.awt.Panel{
         polysym.setFill(null);
         DefaultStroke stroke = new DefaultStroke();
         //stroke.setDashArray(new float[]{5,3});
-        stroke.setWidth(2);
+        stroke.setWidth(null);
         //stroke.setOpacity(.4);
         polysym.setStroke(stroke);
         DefaultRule rule = new DefaultRule();
