@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.6 2002/10/07 15:09:14 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.7 2003/01/09 21:41:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
@@ -99,7 +99,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
             new Category(Resources.format(ResourceKeys.NODATA), Color.black, 0);
 
     /**
-     * The inverse transform. The following rule must hold:
+     * The inverse transform, never <code>null</code>.
+     * The following rule must hold:
      *
      * <ul>
      *   <li>If <code>this</code> is an instance of {@link CategoryList}, then

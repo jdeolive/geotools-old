@@ -68,7 +68,7 @@ import org.geotools.resources.Utilities;
  *     TableWriter out=new TableWriter(new OutputStreamWriter(System.out), 3);
  *     out.write("Prénom\tNom\n");
  *     out.nextLine('-');
- *     out.write("Id‰phonse\tLaporte\nSarah\tCoursi\nYvan\tDubois");
+ *     out.write("Idéphonse\tLaporte\nSarah\tCoursi\nYvan\tDubois");
  *     out.flush();
  * </pre></blockquote>
  *
@@ -77,12 +77,12 @@ import org.geotools.resources.Utilities;
  * <blockquote><pre>
  *      Prénom      Nom
  *      ---------   -------
- *      Id‰phonse   Laporte
+ *      Idéphonse   Laporte
  *      Sarah       Coursi
  *      Yvan        Dubois
  * </pre></blockquote>
  *
- * @version 1.0
+ * @version $Id: TableWriter.java,v 1.2 2003/01/09 21:41:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TableWriter extends FilterWriter {

@@ -130,7 +130,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations. 
  *
- * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
+ * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -416,6 +416,10 @@ public class PropertyParser {
      * The source (the file path or the URL) specified
      * during the last call to a <code>load(...)</code>
      * method.
+     *
+     * @see #load(File)
+     * @see #load(URL)
+     * @see #load(BufferedReader)
      */
     private String source;
     
@@ -498,10 +502,9 @@ public class PropertyParser {
     
     /**
      * Read all properties from a text file. The default implementation invokes
-     * {@link #parseLine} for each non-empty line found in the stream.
-     * Note that this method do not invokes {@link #clear} prior the loading.
-     * Consequently, the loaded properties will be added to the set of existing
-     * properties.
+     * {@link #load(BufferedReader)}. Note that this method do not invokes {@link #clear}
+     * prior the loading. Consequently, the loaded properties will be added to the set of
+     * existing properties.
      *
      * @param  in The file to read until EOF.
      * @throws IOException if an error occurs during loading.
@@ -520,10 +523,9 @@ public class PropertyParser {
     
     /**
      * Read all properties from an URL. The default implementation invokes
-     * {@link #parseLine} for each non-empty line found in the stream.
-     * Note that this method do not invokes {@link #clear} prior the loading.
-     * Consequently, the loaded properties will be added to the set of existing
-     * properties.
+     * {@link #load(BufferedReader)}. Note that this method do not invokes {@link #clear}
+     * prior the loading. Consequently, the loaded properties will be added to the set of
+     * existing properties.
      *
      * @param  in The URL to read until EOF.
      * @throws IOException if an error occurs during loading.
@@ -542,12 +544,14 @@ public class PropertyParser {
     
     /**
      * Read all properties from a stream. The default implementation invokes
-     * {@link #parseLine} for each non-empty line found in the stream.
-     * Note that this method do not invokes {@link #clear} prior the loading.
-     * Consequently, the loaded properties will be added to the set of existing
-     * properties.
-     *
-     * This method is not public because it doesn't set the {@link #source} field.
+     * {@link #parseLine} for each non-empty line found in the stream. Notes:
+     * <ul>
+     *   <li>This method is not yet public because it has no way to know how
+     *       to set the {@link #getSource source} property.</li>
+     *   <li>This method is not synchronized. Synchronization, if wanted,
+             must be done from the public frontend.</li>
+     *   <li>This method do not invokes {@link #clear} prior the loading.</li>
+     * </ul>
      *
      * @param in The stream to read until EOF. The stream will not be closed.
      * @throws IOException if an error occurs during loading.
@@ -1719,7 +1723,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
+     * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1782,7 +1786,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.8 2002/11/06 16:45:54 ianturton Exp $
+     * @version $Id: PropertyParser.java,v 1.9 2003/01/09 21:41:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {

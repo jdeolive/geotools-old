@@ -102,7 +102,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.13 2002/11/06 16:47:20 ianturton Exp $
+ * @version $Id: SampleDimension.java,v 1.14 2003/01/09 21:41:20 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -252,10 +252,9 @@ public class SampleDimension implements Serializable {
     /**
      * Construct a sample dimension with the specified list of categories.
      *
-     * @param list The list of categories.
+     * @param list The list of categories, or <code>null</code>.
      */
-    private SampleDimension(final CategoryList list)
-    {
+    private SampleDimension(final CategoryList list) {
         MathTransform1D main = null;
         boolean  isMainValid = true;
         boolean  qualitative = false;
@@ -271,12 +270,11 @@ public class SampleDimension implements Serializable {
                 }
                 main = candidate;
             }
-            this.isGeophysics       = list.isScaled(true);
-        }else{
+            this.isGeophysics = list.isScaled(true);
+        } else {
             this.isGeophysics = false;
         }
         this.categories         = list;
-        
         this.hasQualitative     = qualitative;
         this.hasQuantitative    = (main != null);
         this.sampleToGeophysics = isMainValid ? main : null;
@@ -286,23 +284,23 @@ public class SampleDimension implements Serializable {
      * Construct a new sample dimension with the same categories and
      * units than the specified sample dimension.
      *
-     * @param other The other sample dimension.
+     * @param other The other sample dimension, or <code>null</code>.
      */
     protected SampleDimension(final SampleDimension other) {
         
-        if(other != null){
+        if (other != null) {
             inverse            = other.inverse;
             categories         = other.categories;
             isGeophysics       = other.isGeophysics;
             hasQualitative     = other.hasQualitative;
             hasQuantitative    = other.hasQuantitative;
             sampleToGeophysics = other.sampleToGeophysics;
-        }else{
-            inverse = null;
-            categories = null;
-            isGeophysics = false;
-            hasQualitative = false;
-            hasQuantitative = false;
+        } else {
+            // 'inverse' will be set when needed.
+            categories         = null;
+            isGeophysics       = false;
+            hasQualitative     = false;
+            hasQuantitative    = false;
             sampleToGeophysics = null;
         }
     }
@@ -326,7 +324,7 @@ public class SampleDimension implements Serializable {
      * Used by constructors only.
      */
     private static CategoryList list(final String[] names, final Color[] colors) {
-        if (names.length!=colors.length) {
+        if (names.length != colors.length) {
             throw new IllegalArgumentException(
                     Resources.format(ResourceKeys.ERROR_MISMATCHED_ARRAY_LENGTH));
         }
@@ -804,12 +802,18 @@ public class SampleDimension implements Serializable {
             return this;
         }
         if (inverse == null) {
-            if(categories != null && categories.inverse != null){
+            if (categories != null) {
                 inverse = new SampleDimension(categories.inverse);
-            }else{
-                inverse = new SampleDimension();
+                inverse.inverse = this;
+            } else {
+                /*
+                 * If there is no categories, then there is no real difference between
+                 * "geophysics" and "indexed" sample dimensions.  Both kinds of sample
+                 * dimensions would be identical objects, so we are better to just
+                 * returns 'this'.
+                 */
+                inverse = this;
             }
-            inverse.inverse = this;
         }
         return inverse;
     }
