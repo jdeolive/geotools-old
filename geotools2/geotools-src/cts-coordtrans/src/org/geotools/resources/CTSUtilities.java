@@ -50,7 +50,7 @@ import java.awt.geom.Rectangle2D;
  * "official" package, but instead in this private one. <strong>Do not rely on
  * this API!</strong> It may change in incompatible way in any future version.
  *
- * @version $Id: CTSUtilities.java,v 1.7 2003/01/25 21:52:02 desruisseaux Exp $
+ * @version $Id: CTSUtilities.java,v 1.8 2003/01/30 23:33:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class CTSUtilities {
@@ -204,6 +204,30 @@ public final class CTSUtilities {
             final CompoundCoordinateSystem comp = (CompoundCoordinateSystem) cs;
             if ((ell=getEllipsoid(comp.getHeadCS())) != null) return ell;
             if ((ell=getEllipsoid(comp.getTailCS())) != null) return ell;
+        }
+        return null;
+    }
+
+    /**
+     * Returns the ellipsoid used by the specified coordinate system,
+     * providing that the two first dimensions use an instance of
+     * {@link GeographicCoordinateSystem}. Otherwise (i.e. if the
+     * two first dimensions are not geographic), returns <code>null</code>.
+     */
+    public static Ellipsoid getHeadGeoEllipsoid(final CoordinateSystem coordinateSystem) {
+        if (coordinateSystem instanceof GeographicCoordinateSystem) {
+            final HorizontalDatum datum = ((GeographicCoordinateSystem) coordinateSystem).getHorizontalDatum();
+            if (datum != null) {
+                final Ellipsoid ellipsoid = datum.getEllipsoid();
+                if (ellipsoid != null) {
+                    return ellipsoid;
+                }
+            }
+            return Ellipsoid.WGS84; // Should not happen with a valid coordinate system.
+        }
+        if (coordinateSystem instanceof CompoundCoordinateSystem) {
+            // Check only head CS. Do not check tail CS!
+            return getHeadGeoEllipsoid(((CompoundCoordinateSystem) coordinateSystem).getHeadCS());
         }
         return null;
     }
