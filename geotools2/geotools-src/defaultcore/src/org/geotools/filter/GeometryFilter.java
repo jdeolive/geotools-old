@@ -44,7 +44,7 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.10 2002/08/14 20:38:18 cholmesny Exp $
+ * @version $Id: GeometryFilter.java,v 1.11 2002/10/08 09:34:52 jmacgill Exp $
  * @author Rob Hranac, TOPP
  */
 public class GeometryFilter extends AbstractFilter {
@@ -172,7 +172,7 @@ public class GeometryFilter extends AbstractFilter {
             return left.within(right);
         }
         else if (filterType == GEOMETRY_BBOX) {
-            return left.within(right);
+            return left.intersects(right);
         }
 
         // Note that this is a pretty permissive logic
