@@ -287,11 +287,16 @@ public class DataUtilities {
         if ((countA == countB) && (match == countA)) {
             // all attributes in typeA agreed with typeB
             // (same order and type)
-            if (typeA.getNamespace().equals(typeB.getNamespace())) {
-                return 1;
-            } else {
-                // everything matches up
+            if (typeA.getNamespace() == null) {
+            	if(typeB.getNamespace() == null) {
+            		return 0;
+            	} else {
+            		return 1;
+            	}
+            } else if(typeA.getNamespace().equals(typeB.getNamespace())) {
                 return 0;
+            } else {
+                return 1;
             }
         }
 
