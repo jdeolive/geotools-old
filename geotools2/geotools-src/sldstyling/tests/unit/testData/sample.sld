@@ -273,6 +273,18 @@ A styling layer used for the unit tests of sldstyler
                     </mark>
                 </graphic>
             </PointSymbolizer>
+            <TextSymbolizer>
+                <Label><Literal>Point Label</Literal></Label>
+                <Font>
+                    <CssParameter name="font-family">Arial</CssParameter>
+                    <CssParameter name="font-Size">10</CssParameter>
+                </Font>
+                <Fill>
+                    <CssParameter name="fill">#00FF00</CssParameter>
+                </Fill>
+                <Halo/>
+            </TextSymbolizer>
+                    
         </rule>
     </FeatureTypeStyle>
 </UserStyle>

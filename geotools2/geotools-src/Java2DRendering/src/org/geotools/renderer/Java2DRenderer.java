@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.33 2002/07/02 16:47:31 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.34 2002/07/03 16:42:14 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -87,6 +87,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      */
     private static final java.util.HashMap capLookup = new java.util.HashMap();
     /**
+     * Holds a lookup bewteen SLD names and java constants.
+     */
+    private static final java.util.HashMap fontStyleLookup = new java.util.HashMap();
+    /**
      * Holds a list of well-known marks.
      */
     static HashSet wellKnownMarks = new java.util.HashSet();
@@ -100,6 +104,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         capLookup.put("butt",   new Integer(BasicStroke.CAP_BUTT));
         capLookup.put("round",  new Integer(BasicStroke.CAP_ROUND));
         capLookup.put("square", new Integer(BasicStroke.CAP_SQUARE));
+        
+        fontStyleLookup.put("normal", new Integer(java.awt.Font.PLAIN));
+        fontStyleLookup.put("italic", new Integer(java.awt.Font.ITALIC));
+        fontStyleLookup.put("oblique", new Integer(java.awt.Font.ITALIC));
+        fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
         /**
          * A list of wellknownshapes that we know about:
          * square, circle, triangle, star, cross, x.
@@ -282,8 +291,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 renderLine(feature,(LineSymbolizer)symbolizers[m]);
             }else if(symbolizers[m] instanceof PointSymbolizer){
                 renderPoint(feature,(PointSymbolizer)symbolizers[m]);
+            }else if(symbolizers[m] instanceof TextSymbolizer){
+                renderText(feature,(TextSymbolizer)symbolizers[m]);
             }
-            
             //else if...
             //TODO: support other symbolizers
         }
@@ -389,16 +399,124 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             renderMark(geom,sldgraphic);
         }
     }
-    
-    private void renderExternalGraphic(Geometry geom, Graphic graphic){
-        BufferedImage img = getExternalGraphic(graphic);
-        if(img!=null){
-            renderImage((Point)geom,img,(int)graphic.getSize(),graphic.getRotation());
-        }else{
-            // if we get to here we need to render the marks;
-            renderMark(geom,graphic);
+    String[] fontFamilies = null;
+    private void renderText(Feature feature, TextSymbolizer symbolizer) {
+        try{
+            
+            _log.debug("rendering text");
+            
+            String geomName =symbolizer.geometryPropertyName();
+            Geometry geom = findGeometry(feature, geomName);
+            if(geom.isEmpty()){
+                _log.debug("empty geometry");
+                return;
+            }
+            Object obj = symbolizer.getLabel().getValue(feature);
+            if(obj == null){
+                _log.debug("Null label in render text");
+                return;
+            }
+            String label = obj.toString();
+            _log.debug("label is "+label);
+            if(label==null) return;
+            org.geotools.styling.Font font = symbolizer.getFont();
+
+            if(fontFamilies == null){
+                java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+                fontFamilies = ge.getAvailableFontFamilyNames();
+                _log.debug("there are "+fontFamilies.length+" fonts available");
+            }
+            String requestedFont = font.getFontFamily().getValue(feature).toString();
+            if(requestedFont==null) { requestedFont="serif"; }
+            java.awt.Font javaFont = null ;
+            
+            for(int i=0;i<fontFamilies.length;i++){
+                //_log.debug("checking "+requestedFont+" v "+fontFamilies[i]);
+                if(requestedFont.equalsIgnoreCase(fontFamilies[i])){
+                    String reqStyle = (String)font.getFontStyle().getValue(feature);
+                    int styleCode;
+                    if(fontStyleLookup.containsKey(reqStyle)){
+                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                    }
+                    else{
+                        styleCode = java.awt.Font.PLAIN;
+                    }
+                    String reqWeight = (String)font.getFontWeight().getValue(feature);
+                    if(reqWeight.equalsIgnoreCase("Bold")){
+                        styleCode = styleCode|java.awt.Font.BOLD;
+                    }
+                    int size = ((Number)font.getFontSize().getValue(feature)).intValue();
+                    _log.debug("requesting "+requestedFont+" "+styleCode+" "+size);
+                    javaFont = new java.awt.Font(requestedFont,styleCode,size);
+                    break;
+                }
+            }
+            if(javaFont!=null){
+                graphics.setFont(javaFont);
+            }
+            
+            AffineTransform temp = graphics.getTransform();
+            AffineTransform labelAT = new AffineTransform();
+            double x=0,y=0,rotation=0;
+            double tx=0,ty=0;
+            Rectangle2D rect = graphics.getFont().getStringBounds(label,graphics.getFontRenderContext());
+            LabelPlacement tmp  = symbolizer.getLabelPlacement();
+            if(tmp instanceof PointPlacement){
+                //HACK: this will fail if the geometry of the feature isn't a point
+                _log.debug("setting pointPlacement");
+                tx = ((Point)feature.getDefaultGeometry()).getX();
+                ty = ((Point)feature.getDefaultGeometry()).getY();
+                PointPlacement p = (PointPlacement)tmp;
+                x = ((Number)p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*rect.getWidth();
+                y = ((Number)p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*rect.getHeight();
+                x += ((Number)p.getDisplacement().getDisplacementX().getValue(feature)).doubleValue();
+                y += ((Number)p.getDisplacement().getDisplacementY().getValue(feature)).doubleValue();
+                rotation = ((Number)p.getRotation().getValue(feature)).doubleValue();
+            }else if(tmp instanceof LinePlacement){
+                _log.debug("setting line placement");
+                //HACK: this will fail if the geometry of the feature is not a string
+                double offset = ((Number)((LinePlacement)tmp).getPerpendicularOffset().getValue(feature)).doubleValue();
+                LineString line = ((LineString)feature.getDefaultGeometry());
+                Point start = line.getStartPoint();
+                Point end = line.getEndPoint();
+                double dx = end.getX()-start.getX();
+                double dy = end.getY() - start.getY();
+                double slope = Math.atan2(dy,dx);
+                tx = dx/2.0;
+                ty = dy/2.0;
+                x = rect.getMinX()+offset*Math.sin(slope);
+                y = rect.getMinY()+offset*Math.cos(slope);
+            }
+            Point2D mapCentre = new Point2D.Double(tx,ty);
+            Point2D graphicCentre = new Point2D.Double();
+            temp.transform(mapCentre,graphicCentre);
+            labelAT.translate(graphicCentre.getX(),graphicCentre.getY());
+            labelAT.rotate(rotation);
+            
+            //        markAT.scale(drawSize,drawSize);
+            graphics.setTransform(labelAT);
+            // we move this to the centre of the image.
+            _log.debug("about to draw at "+tx+","+ty);
+            graphics.drawString(label,(float)x,(float)y);
+            graphics.setTransform(temp);
+            return;
+                    } catch (org.geotools.filter.MalformedFilterException mfe){
+            _log.debug("MalformedFilterException in RenderText\n"+mfe);
+            
+            return;
         }
-        return;
+        }
+        
+        private void renderExternalGraphic(Geometry geom, Graphic graphic){
+            BufferedImage img = getExternalGraphic(graphic);
+            if(img!=null){
+                renderImage((Point)geom,img,(int)graphic.getSize(),graphic.getRotation());
+            }else{
+                // if we get to here we need to render the marks;
+                renderMark(geom,graphic);
+            }
+            return;
+
     }
     private BufferedImage getExternalGraphic(Graphic graphic){
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
@@ -552,7 +670,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
-
+            
             fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gr.getRotation());
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -686,32 +804,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     private void drawWithGraphicStroke(Graphics2D graphic, GeneralPath path, org.geotools.styling.Graphic gFill){
         _log.debug("drawing a graphicalStroke");
         
-        /* HACK: should modify setTexture to be able to extract the iamge and rect directly */
-        /*
-        setTexture(graphic,gFill);
-        BufferedImage image = ((java.awt.TexturePaint)graphic.getPaint()).getImage();
-        Rectangle2D anchorRect = ((java.awt.TexturePaint)graphic.getPaint()).getAnchorRect();
-        BufferedImage image = getExternalGraphic(gr);
-        int imageWidth = (int)gFill.getSize();//(int)anchorRect.getWidth();
-        int imageHeight = (int)gFill.getSize();// (int)anchorRect.getHeight();
-        int midx = imageWidth/2;
-        int midy = imageHeight/2;
-        _log.debug("got image w:"+imageWidth+" h:"+imageHeight);
-        
-        double unitSize = Math.max(imageWidth,imageHeight);
-        double drawSize = gFill.getSize()/unitSize;
-        _log.debug("size "+gFill.getSize());
-        double scaleX = 1;
-        double scaleY = 1; //drawSize/-graphic.getTransform().getScaleY();
-        _log.debug("scale X "+scaleX+" Y "+scaleY);
-       
-        AffineTransform at2 = new AffineTransform();
-        AffineTransformOp op;
-        BufferedImage image2;
-        RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
-        hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
-         */
         
         // get the image to draw
         BufferedImage image = getExternalGraphic(gFill);
@@ -725,7 +817,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
-
+            
             fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gFill.getRotation());
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -796,7 +888,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     at2.scale(scaleX,scaleY);
                     op = new AffineTransformOp(at2,hints);
                     image2 =  op.filter(image, null);
-                    */
+                     */
                     double rotation = theta-(Math.PI/2d);
                     double x = previous[0]+dx/2d,y=previous[1]+dy/2d;
                     

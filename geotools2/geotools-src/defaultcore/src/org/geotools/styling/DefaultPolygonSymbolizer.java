@@ -21,14 +21,14 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultPolygonSymbolizer.java,v 1.3 2002/06/04 17:43:05 loxnard Exp $
+ * @version $Id: DefaultPolygonSymbolizer.java,v 1.4 2002/07/03 16:42:14 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSymbolizer {
 
     private Fill fill = new DefaultFill();
     private Stroke stroke = new DefaultStroke();
-    
+    private String geometryPropertyName = null;
     /** Creates a new instance of DefaultPolygonStyler */
     public DefaultPolygonSymbolizer() {
     }
@@ -53,9 +53,14 @@ public class DefaultPolygonSymbolizer implements org.geotools.styling.PolygonSym
      * that should be used.  If null then the default geometry should be used.
      */
     public String geometryPropertyName() {
-        return null;
+        return geometryPropertyName;
     }
-    
+    public String getGeometryPropertyName() {
+        return geometryPropertyName;
+    }
+    public void setGeometryPropertyName(String name){
+        geometryPropertyName = name;
+    }
     /**
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry.

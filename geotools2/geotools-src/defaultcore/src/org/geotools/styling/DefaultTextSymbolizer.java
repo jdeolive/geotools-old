@@ -12,14 +12,15 @@ import org.geotools.filter.*;
  * @author  iant
  */
 public class DefaultTextSymbolizer implements TextSymbolizer {
-    Fill fill = new DefaultFill();
+    DefaultFill fill = new DefaultFill();
     Font font = new DefaultFont();
     Halo halo = new DefaultHalo();
-    LabelPlacement labelPlacement = null;
+    LabelPlacement labelPlacement = new DefaultPointPlacement();
     String geometryPropertyName = null;
     Expression label = null;
     /** Creates a new instance of DefaultTextSymbolizer */
     public DefaultTextSymbolizer() {
+        fill.setColor("#000000"); // default text fill is black
     }
     
     /**
@@ -52,7 +53,7 @@ public class DefaultTextSymbolizer implements TextSymbolizer {
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.Fill fill) {
+    public void setFill(org.geotools.styling.DefaultFill fill) {
         this.fill = fill;
     }
     /**

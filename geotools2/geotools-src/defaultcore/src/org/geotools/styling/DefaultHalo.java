@@ -14,16 +14,17 @@ import org.geotools.filter.*;
 public class DefaultHalo implements Halo {
     private static org.apache.log4j.Logger _log =
     org.apache.log4j.Logger.getLogger(DefaultHalo.class);        
-    private Fill fill = new DefaultFill();
+    private DefaultFill fill = new DefaultFill();
     private Expression radius = null;
     /** Creates a new instance of DefaultHalo */
     public DefaultHalo() {
         try{
-            radius = new org.geotools.filter.ExpressionLiteral(new Integer(0));
+            radius = new org.geotools.filter.ExpressionLiteral(new Integer(1));
         } catch (org.geotools.filter.IllegalFilterException ife){
             _log.fatal("Failed to build defaultHalo: "+ife);
             System.err.println("Failed to build defaultHalo: "+ife);
-        }        
+        }
+        fill.setColor("#FFFFFF"); // default halo is white
     }
     
     /** Getter for property fill.
@@ -36,7 +37,7 @@ public class DefaultHalo implements Halo {
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
-    public void setFill(org.geotools.styling.Fill fill) {
+    public void setFill(org.geotools.styling.DefaultFill fill) {
         this.fill = fill;
     }
     

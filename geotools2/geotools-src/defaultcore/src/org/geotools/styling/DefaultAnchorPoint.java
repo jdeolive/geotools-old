@@ -19,8 +19,8 @@ public class DefaultAnchorPoint implements AnchorPoint {
     /** Creates a new instance of DefaultAnchorPoint */
     public DefaultAnchorPoint() {
         try{
-            anchorPointX = new org.geotools.filter.ExpressionLiteral(new Integer(0));
-            anchorPointY = new org.geotools.filter.ExpressionLiteral(new Integer(0));
+            anchorPointX = new org.geotools.filter.ExpressionLiteral(new Double(0.0));
+            anchorPointY = new org.geotools.filter.ExpressionLiteral(new Double(0.5));
         } catch (org.geotools.filter.IllegalFilterException ife){
             _log.fatal("Failed to build defaultAnchorPoint: "+ife);
             System.err.println("Failed to build defaultAnchorPoint: "+ife);

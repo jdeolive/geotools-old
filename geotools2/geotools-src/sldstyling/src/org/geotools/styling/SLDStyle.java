@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.14 2002/07/03 09:31:18 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.15 2002/07/03 16:42:14 ianturton Exp $
  * @author Ian Turton, CCG
  *
  *
@@ -265,7 +265,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 symbolizers.add(parsePointSymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("TextSymbolizer")){
-                //TODO: implement symbolizers.add(parseTextymbolizer(child));
+                symbolizers.add(parseTextSymbolizer(child));
             }
             if (child.getNodeName().equalsIgnoreCase("RasterSymbolizer")){
                 //TODO: implement symbolizers.add(parseRasterSymbolizer(Child));
@@ -306,14 +306,46 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             if(child.getNodeName().equalsIgnoreCase("Geometry")){
-                // hmm I don't understand the spec here?
-                // TODO: read spec carefully
+                symbol.setGeometryPropertyName(child.getNodeValue());
             }
             if(child.getNodeName().equalsIgnoreCase("Stroke")){
                 symbol.setStroke(parseStroke(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Fill")){
                 symbol.setFill(parseFill(child));
+            }
+        }
+        return symbol;
+    }
+    
+    public TextSymbolizer parseTextSymbolizer(Node root){
+        DefaultTextSymbolizer symbol = new DefaultTextSymbolizer();
+        symbol.setFill(null);
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("Geometry")){
+                symbol.setGeometryPropertyName(child.getNodeValue());
+            }
+            if(child.getNodeName().equalsIgnoreCase("Fill")){
+                symbol.setFill((DefaultFill)parseFill(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Label")){
+                _log.debug("parsing label "+child.getNodeValue());
+                symbol.setLabel(parseCssParameter(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Font")){
+                symbol.setFont(parseFont(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("LabelPlacement")){
+                symbol.setLabelPlacement(parseLabelPlacement(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Halo")){
+                symbol.setHalo(parseHalo(child));
             }
         }
         return symbol;
@@ -583,6 +615,154 @@ public class SLDStyle implements org.geotools.styling.Style {
         return ExpressionXmlParser.parseExpression(literal);
     }
     
-
+    private Font parseFont(Node root){
+        _log.debug("parsing font");
+        DefaultFont font = new DefaultFont();
+        NodeList list = ((Element)root).getElementsByTagName("CssParameter");
+        for(int i=0;i<list.getLength();i++){
+            Node child = list.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            Element param = (Element)child;
+            NamedNodeMap map =  param.getAttributes();
+            for(int k=0;k<map.getLength();k++){
+                String res = map.item(k).getNodeValue();
+                if(res.equalsIgnoreCase("font-family")){
+                    font.setFontFamily(parseCssParameter(child));
+                }
+                if(res.equalsIgnoreCase("font-style")){
+                    font.setFontStyle(parseCssParameter(child));
+                }
+                if(res.equalsIgnoreCase("font-size")){
+                    font.setFontSize(parseCssParameter(child));
+                }
+                if(res.equalsIgnoreCase("font-weight")){
+                    font.setFontWeight(parseCssParameter(child));
+                }
+            }
+        }
+        return font;
+    }
     
+    private LabelPlacement parseLabelPlacement(Node root){
+        _log.debug("parsing labelPlacement");
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("PointPlacement")){
+                return parsePointPlacement(child);
+            }
+            if(child.getNodeName().equalsIgnoreCase("LinePlacement")){
+                return parseLinePlacement(child);
+            }
+        }
+        return null;
+    }
+    
+    private PointPlacement parsePointPlacement(Node root){
+        _log.debug("parsing pointPlacement");
+        DefaultPointPlacement dpp = new DefaultPointPlacement();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("AnchorPoint")){
+                dpp.setAnchorPoint(parseAnchorPoint(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Displacement")){
+                dpp.setDisplacement(parseDisplacement(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Rotation")){
+                dpp.setRotation(ExpressionXmlParser.parseExpression(child));
+            }
+        }
+        return dpp;
+    }
+    
+    private LinePlacement parseLinePlacement(Node root){
+        _log.debug("parsing linePlacement");
+        DefaultLinePlacement dlp = new DefaultLinePlacement();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("PerpendicularOffset")){
+                dlp.setPerpendicularOffset(ExpressionXmlParser.parseExpression(child));
+            }
+        }
+        return dlp;
+    }
+        
+    private AnchorPoint parseAnchorPoint(Node root){
+        _log.debug("parsing anchorPoint");
+        DefaultAnchorPoint dap = new DefaultAnchorPoint();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("AnchorPointX")){ 
+                dap.setAnchorPointX(ExpressionXmlParser.parseExpression(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("AnchorPointY")){ 
+                dap.setAnchorPointY(ExpressionXmlParser.parseExpression(child));
+            }
+        }
+        return dap;
+    }
+    private Displacement parseDisplacement(Node root){
+        _log.debug("parsing displacment");
+        DefaultDisplacement dd = new DefaultDisplacement();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("DisplacementX")){ 
+                dd.setDisplacementX(ExpressionXmlParser.parseExpression(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("DisplacementY")){ 
+                dd.setDisplacementY(ExpressionXmlParser.parseExpression(child));
+            }
+        }
+        return dd;
+    }
+    
+    private Halo parseHalo(Node root){
+        _log.debug("parsing halo");
+        DefaultHalo halo = new DefaultHalo();
+        NodeList children = root.getChildNodes();
+        for(int i=0; i<children.getLength(); i++){
+            Node child = children.item(i);
+            if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
+                continue;
+            }
+            
+            if(child.getNodeName().equalsIgnoreCase("Fill")){ 
+                halo.setFill((DefaultFill)parseFill(child));
+            }
+            if(child.getNodeName().equalsIgnoreCase("Radius")){ 
+                halo.setRadius(ExpressionXmlParser.parseExpression(child));
+            }
+        }
+        return halo;
+    }
 }
+
+        
