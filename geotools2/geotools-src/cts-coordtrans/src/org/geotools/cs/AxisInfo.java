@@ -49,7 +49,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * Details of axis. This is used to label axes,
  * and indicate the orientation.
  *
- * @version 1.00
+ * @version $Id: AxisInfo.java,v 1.2 2002/06/05 14:31:07 loxnard Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -125,8 +125,9 @@ public class AxisInfo implements Serializable {
     /**
      * Construct an AxisInfo.
      *
-     * @param name The axis name. Possible values are <code>X</code>, <code>Y</code>,
-     *             <code>Long</code>, <code>Lat</code> or any other short string.
+     * @param name The axis name. Possible values are <code>X</code>,
+     *             <code>Y</code>, <code>Long</code>, <code>Lat</code>
+     *             or any other short string.
      * @param orientation The axis orientation.
      */
     public AxisInfo(final String name, final AxisOrientation orientation) {
@@ -140,7 +141,7 @@ public class AxisInfo implements Serializable {
      * Returns the localized name of this axis.
      * The default implementation returns {@link #name}.
      *
-     * @param  locale The locale, or <code>null</code> for the default locale.
+     * @param locale The locale, or <code>null</code> for the default locale.
      * @return The localized string.
      */
     public String getName(final Locale locale) {
@@ -172,7 +173,7 @@ public class AxisInfo implements Serializable {
     }
     
     /**
-     * Returns the Well Know Text (WKT) for this axis.
+     * Returns the Well Known Text (WKT) for this axis.
      * The WKT is part of OpenGIS's specification and
      * looks like <code>AXIS["name",NORTH]</code>.
      */
@@ -190,9 +191,6 @@ public class AxisInfo implements Serializable {
     
     /**
      * Localized {@link AxisInfo}.
-     *
-     * @version 1.0
-     * @author Martin Desruisseaux
      */
     private static final class Localized extends AxisInfo {
         /**
@@ -206,7 +204,7 @@ public class AxisInfo implements Serializable {
         private final int key;
         
         /**
-         * Construct a localized axis info.
+         * Constructs a localized axis info.
          */
         public Localized(final String name, final int key, final AxisOrientation orientation) {
             super(name, orientation);
