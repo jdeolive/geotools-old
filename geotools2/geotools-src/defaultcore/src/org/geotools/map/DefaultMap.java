@@ -36,7 +36,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author James Macgill, CCG
- * @version $Id: DefaultMap.java,v 1.12 2003/06/03 15:10:16 ianturton Exp $
+ * @version $Id: DefaultMap.java,v 1.13 2003/06/05 11:21:20 ianturton Exp $
  *
  * @deprecated Use ContextImpl instead.
  */
@@ -49,13 +49,15 @@ public class DefaultMap implements org.geotools.map.Map {
     /**
      * DOCUMENT ME!
      *
-     * @param ft DOCUMENT ME!
-     * @param style DOCUMENT ME!
+     * @param ft the featureCollection to draw
+     * @param style the Style to use in drawing the object
      */
     public void addFeatureTable(
         FeatureCollection ft,
         Style style
     ) {
+        if(ft == null) throw new IllegalArgumentException("Feature Collection can not be null in DefaultMap.addFeatureTable");
+        if(style == null) throw new IllegalArgumentException("Style can not be null in DefaultMap.addFeatureTable");
         tables.put(ft, style);
         tableOrder.add(ft);
     }
