@@ -22,6 +22,8 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
 /**
  *
  * @author jamesm
@@ -30,6 +32,7 @@ public class Rendering2DTest extends TestCase {
     
     public Rendering2DTest(java.lang.String testName) {
         super(testName);
+        BasicConfigurator.configure();
     }
     
     public static void main(java.lang.String[] args) {
@@ -50,21 +53,29 @@ public class Rendering2DTest extends TestCase {
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac);
         AttributeType lineAttribute = new AttributeTypeDefault("centerline", line.getClass());
-        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature"); 
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("linefeature");
         FeatureFactory lineFac = new FeatureFactory(lineType);
         Feature lineFeature = lineFac.create(new Object[]{line});
         
         Polygon polygon = makeSamplePolygon(geomFac);
         
         AttributeType polygonAttribute = new AttributeTypeDefault("edge", polygon.getClass());
-        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute); 
+        FeatureType polygonType = new FeatureTypeFlat(polygonAttribute);
         FeatureFactory polygonFac = new FeatureFactory(polygonType);
         
         Feature polygonFeature = polygonFac.create(new Object[]{polygon});
-    
+        
+        Point point = makeSamplePoint(geomFac);
+        AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
+        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("pointfeature");
+        FeatureFactory pointFac = new FeatureFactory(pointType);
+        
+        Feature pointFeature = pointFac.create(new Object[]{point});
+        
         MemoryDataSource datasource = new MemoryDataSource();
         datasource.addFeature(lineFeature);
         datasource.addFeature(polygonFeature);
+        datasource.addFeature(pointFeature);
         
         FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
@@ -72,6 +83,8 @@ public class Rendering2DTest extends TestCase {
         
         //The following is complex, and should be built from
         //an SLD document and not by hand
+        DefaultPointSymbolizer pointsym = new DefaultPointSymbolizer();
+        
         DefaultLineSymbolizer linesym = new DefaultLineSymbolizer();
         DefaultStroke myStroke = new DefaultStroke();
         myStroke.setColor("#0000ff");
@@ -93,8 +106,13 @@ public class Rendering2DTest extends TestCase {
         fts2.setRules(new Rule[]{rule2});
         fts2.setFeatureTypeName("linefeature");
         
+        DefaultRule rule3 = new DefaultRule();
+        rule3.setSymbolizers(new Symbolizer[]{pointsym});
+        DefaultFeatureTypeStyle fts3 = new DefaultFeatureTypeStyle();
+        fts3.setRules(new Rule[]{rule3});
+        fts3.setFeatureTypeName("pointfeature");
         DefaultStyle style = new DefaultStyle();
-        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2});
+        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts,fts2,fts3});
         
         map.addFeatureTable(ft,style);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
@@ -109,6 +127,11 @@ public class Rendering2DTest extends TestCase {
         renderer.setOutput(p.getGraphics(),p.getBounds());
         map.render(renderer,ex.getBounds());//and finaly try and draw it!
         Thread.sleep(5000);
+    }
+    private Point makeSamplePoint(final GeometryFactory geomFac) {
+        Coordinate c = new Coordinate(14.0d,14.0d);
+        Point point = geomFac.createPoint(c);
+        return point;
     }
     
     private LineString makeSampleLineString(final GeometryFactory geomFac) {

@@ -240,7 +240,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             }
             else if(symbolizers[m] instanceof LineSymbolizer){
                 renderLine(feature,(LineSymbolizer)symbolizers[m]);
+            }else if(symbolizers[m] instanceof PointSymbolizer){
+                renderPoint(feature,(PointSymbolizer)symbolizers[m]);
             }
+            
             //else if...
             //TODO: support other symbolizers
         }
@@ -314,7 +317,51 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void renderPoint(Feature feature, PointSymbolizer symbolizer){
-        Graphic sldgraphic = symbolizer.getGraphic();
+        _log.info("rendering a point from "+feature);
+        org.geotools.styling.Graphic sldgraphic = symbolizer.getGraphic();
+        _log.debug("sldgraphic = "+sldgraphic);
+       
+        String geomName =symbolizer.geometryPropertyName();
+        Geometry geom = findGeometry(feature, geomName);
+        if(geom.isEmpty()){
+            _log.debug("empty geometry");
+            return;
+        }
+        // TODO: consider if mark and externalgraphic should share an ancestor?
+        /*if(null != (Object)sldgraphic.getExternalGraphics()){
+            _log.debug("rendering External graphic");
+            renderExternalGraphic(geom,sldgraphic);
+        }else{ */
+            _log.debug("rendering mark");
+            renderMark(geom,sldgraphic);
+        //}
+    }
+    
+    private void renderExternalGraphic(Geometry geom, Graphic graphic){
+        // TODO: implement this metthod
+    }
+    
+    private void renderMark(Geometry geom, Graphic graphic){
+        Mark marks[] = graphic.getMarks();
+        // TODO: allow the use of more than the first mark
+        Fill fill = marks[0].getFill();
+        Stroke stroke = marks[0].getStroke();
+        _log.info("Drawing a "+marks[0].getWellKnownName()+" mark");
+        GeneralPath path = createGeneralPath(marks[0].getGeometry(geom,this.graphics.getTransform().getScaleX()));
+        _log.debug("mark "+marks[0].getGeometry(geom,this.graphics.getTransform().getScaleX()));
+        if(fill!=null){
+            graphics.setColor(Color.decode(fill.getColor()));
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)fill.getOpacity()));
+            _log.debug("filling mark");
+            graphics.fill(path);
+            // shouldn't we reset the graphics when we'return finished?
+            graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f));
+        }
+        if(stroke != null) {
+            applyStroke(stroke);
+            _log.debug("mark path is "+graphics.getTransform().createTransformedShape(path).getBounds2D().toString());
+            graphics.draw(path);
+        }
     }
     /**
      * Convenience method for applying a geotools Stroke object
