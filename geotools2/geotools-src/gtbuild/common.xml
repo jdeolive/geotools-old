@@ -1,5 +1,5 @@
      <property file="build.ant.properties"/>
-    <target depends="release" name="all"> 
+    <target depends="modificationset,release" name="all"> 
             <!-- WRITEME -->
     </target>
 
@@ -130,4 +130,10 @@
         <for-each startdir=".." locations="${dependancy}" target="release" inheritall="false" >
             <property name="releaseFolder" value="${releaseFolder}"/>
         </for-each>
+    </target>
+    <target name="modificationset" if="${lastBuildAttemptTime}">
+    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
+
+        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2"/>
+    </modificationset>
     </target>

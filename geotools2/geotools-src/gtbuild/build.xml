@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
-    <target name="modificationset">
-    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastGoodBuildTime}" quietperiod="30">
-
-        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2" localworkingcopy="../.."/>
-    </modificationset>
-    </target>
+    
     <target name="init">
         <property file="build.ant.properties"/>
         <path id="netbeans.ext">
@@ -35,7 +30,7 @@
         <mkdir dir="${releaseFolder}"/>
     </target>    
     
-    <target depends="build" name="all">
+    <target depends="build,modificationset" name="all">
         <!-- WRITEME -->
     </target>
 
@@ -49,5 +44,10 @@
     </target>
 
     <target depends="build" name="release"/>
-    <target depends="all,modificationset" name="masterbuild"/>
+    <target name="modificationset" if="${lastBuildAttemptTime}">
+    <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
+
+        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2"/>
+    </modificationset>
+    </target>
 </project>
