@@ -20,23 +20,46 @@
 
 package org.geotools.shapefile;
 
-import java.io.*;
-import cmp.LEDataStream.*;
-import com.vividsolutions.jts.geom.*;
+import cmp.LEDataStream.LEDataInputStream;
+import cmp.LEDataStream.LEDataOutputStream;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.TopologyException;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import java.io.IOException;
+
+
 
 /**
  * Wrapper for a Shapefile arc.
  *
- * @version $Id: MultiLineHandler.java,v 1.3 2002/06/05 12:49:03 loxnard Exp $
+ * @version $Id: MultiLineHandler.java,v 1.4 2002/07/11 17:25:55 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class MultiLineHandler implements ShapeHandler{
+    /**
+     * default constructor, currently empty.
+     */
     public MultiLineHandler(){};
-    public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory) throws IOException,TopologyException,InvalidShapefileException {
+    
+    /**
+     * Reads and constructs a MultiLineString from the inputstream.
+     * The input stream should be in the right position before this method
+     * is called.
+     * @param file An inputstream attached to a shapefile
+     * @param geometryFactory The factory to use when constructing
+     *        the MultiLineString
+     */
+    public Geometry read( LEDataInputStream file , GeometryFactory geometryFactory)
+    throws IOException,TopologyException,InvalidShapefileException {
         file.setLittleEndianMode(true);
         int shapeType = file.readInt();//ignored
         double box[] = new double[4];
-        for ( int i = 0; i<4; i++ ){
+        for ( int i =0; i<4; i++ ){
             box[i] = file.readDouble();
         }//we don't need the box....
         
@@ -70,6 +93,13 @@ public class MultiLineHandler implements ShapeHandler{
         return geometryFactory.createMultiLineString(lines);
     }
     
+    /**
+     * Writes a MultiLineString to the outputstream.
+     * The output stream should be in the right position before this method
+     * is called.
+     * @param Geometry the MultiLineString to write out.
+     * @param file An ledataoutputstream attached to a shapefile
+     */
     public void write(Geometry geometry,LEDataOutputStream file)throws IOException{
         MultiLineString multi = (MultiLineString)geometry;
         file.setLittleEndianMode(true);
@@ -104,11 +134,16 @@ public class MultiLineHandler implements ShapeHandler{
     
     /**
      * Gets the type of shape stored (Shapefile.ARC)
+     * @param int The constant Shapefile.ARC
      */
     public int getShapeType(){
         return Shapefile.ARC;
     }
     
+    /**
+     * Gets the length (in terms of file length) of the record entry
+     * @param int The length of the header entry.
+     */
     public int getLength(Geometry geometry){
         
         return (44+(4*((GeometryCollection)geometry).getNumGeometries()));
@@ -118,7 +153,11 @@ public class MultiLineHandler implements ShapeHandler{
 
 /*
  * $Log: MultiLineHandler.java,v $
+ * Revision 1.4  2002/07/11 17:25:55  jmacgill
+ * updated javadocs
+ *
  * Revision 1.3  2002/06/05 12:49:03  loxnard
+ *
  * Added licence statement and cvs id tag
  *
  * Revision 1.2  2002/03/05 10:23:59  jmacgill
