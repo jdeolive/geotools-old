@@ -15,7 +15,7 @@
 
 <project basedir="." default="release" name="gmldatasource">
 
-  <property name="path.cvs" value="-drobhranac@cvs.geotools.sourceforge.net:/cvsroot/geotools"/>           
+  <property name="path.cvs" value=":pserver:robhranac@cvs.geotools.sourceforge.net:/cvsroot/geotools"/>           
 
   <!-- Runs default build; don't modify this target and run it as default -->
   <target name="release">
@@ -27,8 +27,7 @@
   <target name="diff">
     <property file="build.ant.properties"/>
     <property name="dir.module" value="${basedir}"/>
-    <!--<cvspass cvsroot="${path.cvs}" password="Randy9514."/>-->
-    <cvs cvsRoot="${path.cvs}" command="diff -u -N" output="diff.txt" package="geotools2/geotools-src/gmldatasource/src"/>
+    <cvs cvsRoot="${path.cvs}" command="diff -u -N" output="diff.txt" package="src"/>
   </target>
 
   <!-- Documentation for GML -->
