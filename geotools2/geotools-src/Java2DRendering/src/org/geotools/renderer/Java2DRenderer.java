@@ -191,11 +191,18 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         float[] dashes = stroke.getDashArray();
         for(int i = 0;i<dashes.length;i++){
-            dashes[i] /= (float)scale;
+            dashes[i] = (float)Math.max(1,dashes[i]/(float)scale);
         }
-        BasicStroke stroke2d = new BasicStroke(
-        (float)stroke.getWidth()/(float)scale, capCode, joinCode,
-        (float)(Math.max(1,10/scale)),dashes, (float)stroke.getDashOffset()/(float)scale);
+        BasicStroke stroke2d;
+        if(dashes.length > 0){
+            stroke2d = new BasicStroke(
+            (float)stroke.getWidth()/(float)scale, capCode, joinCode,
+            (float)(Math.max(1,10/scale)),dashes, (float)stroke.getDashOffset()/(float)scale);
+            
+        } else {
+            stroke2d = new BasicStroke((float)stroke.getWidth()/(float)scale, capCode, joinCode,
+            (float)(Math.max(1,10/scale)));
+        }
         graphics.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,(float)stroke.getOpacity()));
         graphics.setStroke(stroke2d);
         graphics.setColor(Color.decode(stroke.getColor()));
