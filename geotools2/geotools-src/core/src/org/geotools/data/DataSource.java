@@ -31,14 +31,9 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.9 2003/05/08 19:01:25 cholmesny Exp $
+ * @version $Id: DataSource.java,v 1.10 2003/05/13 15:02:03 cholmesny Exp $
  */
 public interface DataSource {
-
-    /**************************************************************************
-     * Feature retrieval methods.
-     *************************************************************************/
-
     /**
      * Loads features from the datasource into the passed collection, based on
      * the passed query.  Note that all data sources must support this method
@@ -46,16 +41,18 @@ public interface DataSource {
      *
      * @param collection The collection to put the features into.
      * @param query a datasource query object.  It encapsulates requested
-     *        information, such as typeName, maxFeatures and filter.  
+     *        information, such as typeName, maxFeatures and filter.
      *
      * @throws DataSourceException For all data source errors.
+     *
+     * @see Query
      */
     void getFeatures(FeatureCollection collection, Query query)
         throws DataSourceException;
 
     /**
      * Loads features from the datasource into the passed collection, based on
-     * the passed filter. 
+     * the passed filter.
      *
      * @param collection The collection to put the features into.
      * @param filter An OpenGIS filter; specifies which features to retrieve.
@@ -69,11 +66,14 @@ public interface DataSource {
      * Loads features from the datasource into the returned collection, based
      * on the passed query.
      *
-     * @param filter An OpenGIS filter; specifies which features to retrieve.
+     * @param query a datasource query object.  It encapsulates requested
+     *        information, such as typeName, maxFeatures and filter.
      *
      * @return Collection The collection to put the features into.
      *
      * @throws DataSourceException For all data source errors.
+     *
+     * @see Query
      */
     FeatureCollection getFeatures(Query query) throws DataSourceException;
 
@@ -89,11 +89,6 @@ public interface DataSource {
      */
     FeatureCollection getFeatures(Filter filter) throws DataSourceException;
 
-    /**************************************************************************
-     * Data source modification methods
-     *************************************************************************/
-
-
     /**
      * Adds all features from the passed feature collection to the datasource.
      *
@@ -103,7 +98,7 @@ public interface DataSource {
      *
      * @throws DataSourceException if anything goes wrong.
      * @throws UnsupportedOperationException if the addFeatures method is not
-     * supported by this datasource.
+     *         supported by this datasource.
      */
     Set addFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException;
@@ -129,9 +124,11 @@ public interface DataSource {
      * @param value The values to put in the attribute types.
      * @param filter An OGC filter to note which attributes to modify.
      *
-     * @throws DataSourceException If modificaton is not supported, if the
-     *         attribute and object arrays are not eqaul length, or if the
-     *         object types do not match the attribute types.
+     * @throws DataSourceException if the attribute and object arrays are not
+     *         eqaul length, if the object types do not match the attribute
+     *         types, or if there are backend errors.
+     * @throws UnsupportedOperationException if the modifyFeatures method is
+     *         not supported by this datasource.
      */
     void modifyFeatures(AttributeType[] type, Object[] value, Filter filter)
         throws DataSourceException, UnsupportedOperationException;
@@ -147,8 +144,8 @@ public interface DataSource {
      *
      * @throws DataSourceException If modificaton is not supported, if the
      *         object type do not match the attribute type.
-     * @throws UnsupportedOperationException if the addFeatures method is not
-     *         supported by this datasource.
+     * @throws UnsupportedOperationException if the modifyFeatures method is
+     *         not supported by this datasource.
      */
     void modifyFeatures(AttributeType type, Object value, Filter filter)
         throws DataSourceException, UnsupportedOperationException;
@@ -160,15 +157,12 @@ public interface DataSource {
      *
      * @param collection - the collection to be written
      *
+     * @throws DataSourceException if there are any datasource errors.
      * @throws UnsupportedOperationException if the setFeatures method is not
      *         supported by this datasource.
      */
     void setFeatures(FeatureCollection collection)
         throws DataSourceException, UnsupportedOperationException;
-
-    /**************************************************************************
-     * DataSource Transaction methods.
-     *************************************************************************/
 
     /**
      * Makes all transactions made since the previous commit/rollback
@@ -206,6 +200,10 @@ public interface DataSource {
      * @param autoCommit <tt>true</tt> to enable auto-commit mode,
      *        <tt>false</tt> to disable it.
      *
+     * @throws DataSourceException if there are problems with the datasource.
+     * @throws UnsupportedOperationException if rollbacks are not supported by
+     *         this datasource.
+     *
      * @see #setAutoCommit(boolean)
      */
     void setAutoCommit(boolean autoCommit)
@@ -220,14 +218,9 @@ public interface DataSource {
      *
      * @throws DataSourceException if a datasource access error occurs.
      *
-     * @see #setAutoCommit(oolean)
+     * @see #setAutoCommit(boolean)
      */
     boolean getAutoCommit() throws DataSourceException;
-
-
-    /**************************************************************************
-     * DataSource Utility methods
-     *************************************************************************/
 
     /**
      * Gets the DatasSourceMetaData object associated with this datasource.
@@ -245,12 +238,14 @@ public interface DataSource {
      *
      * @return the schema of features created by this datasource.
      *
+     * @throws DataSourceException if there are any problems getting the
+     *         schema.
+     *
      * @task REVISIT: Our current FeatureType model is not yet advanced enough
      *       to handle multiple featureTypes.  Should getSchema take a
      *       typeName now that  a query takes a typeName, and thus DataSources
      *       can now support multiple types? Or just wait until we can
      *       programmatically make powerful enough schemas?
-     * @throws DataSourceException if there are any problems getting the schema.
      */
     FeatureType getSchema() throws DataSourceException;
 
@@ -261,6 +256,8 @@ public interface DataSource {
      * attributeTypes from the currently used schema.
      *
      * @param schema the new schema to be used to create features.
+     *
+     * @throws DataSourceException if there are any errors.
      *
      * @deprecated Use the properties of the query object to accomplish the
      *             same functionality.
@@ -281,6 +278,9 @@ public interface DataSource {
      *
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate.
+     *
+     * @throws DataSourceExceptions if there are errors getting the bounding
+     *         box.
      *
      * @task REVISIT: Consider changing return of getBbox to Filter once
      *       Filters can be unpacked
