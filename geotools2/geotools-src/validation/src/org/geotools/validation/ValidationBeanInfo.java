@@ -36,8 +36,8 @@ import java.util.ResourceBundle;
  * Utility class extending SimpleBeanInfo with our own helper functions.
  *
  * @author David Zwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: ValidationBeanInfo.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: ValidationBeanInfo.java,v 1.3 2004/04/26 18:45:54 jive Exp $
  */
 public class ValidationBeanInfo extends SimpleBeanInfo {
     /**
@@ -81,7 +81,25 @@ public class ValidationBeanInfo extends SimpleBeanInfo {
             return new PropertyDescriptor[0];
         }
     }
-
+    /** Based on getCLass().getName() return target Bean type */
+    protected Class beanType(){
+    	Class type = getClass();
+    	String typeName = type.getName();
+    	if( typeName.endsWith( "BeanInfo" ) ){
+    		typeName = typeName.substring(0,typeName.length()-8);
+    		try {
+				return Class.forName( typeName );
+			} catch (ClassNotFoundException e) {
+				return null;
+			}    		
+    	}
+    	return null;    	
+    }
+    /** Return bundle for the property file for out beanType */
+    protected ResourceBundle getResourceBundle() {
+    	return getResourceBundle( beanType () );
+    }    
+    /** Return bundle for the property file for the provided class */
     protected ResourceBundle getResourceBundle(Class cls) {
         Locale locale = Locale.getDefault();
 
@@ -91,7 +109,9 @@ public class ValidationBeanInfo extends SimpleBeanInfo {
             return ResourceBundle.getBundle(cls.getName());
         }
     }
-
+    protected PropertyDescriptor createPropertyDescriptor(String name, ResourceBundle bundle) throws IntrospectionException {
+    	return createPropertyDescriptor( name, beanType(), bundle );
+    }    
     protected PropertyDescriptor createPropertyDescriptor(String name,
         Class cls, ResourceBundle resourceBundle) throws IntrospectionException {
         PropertyDescriptor pd = new PropertyDescriptor(name, cls);
@@ -121,8 +141,8 @@ public class ValidationBeanInfo extends SimpleBeanInfo {
      * </p>
      *
      * @author dzwiers, Refractions Research, Inc.
-     * @author $Author: dmzwiers $ (last modification)
-     * @version $Id: ValidationBeanInfo.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+     * @author $Author: jive $ (last modification)
+     * @version $Id: ValidationBeanInfo.java,v 1.3 2004/04/26 18:45:54 jive Exp $
      */
     class URLPropertyEditor extends PropertyEditorSupport {
         /** the editor's data */
