@@ -25,13 +25,17 @@ package org.geotools.validation.relate;
 
 import java.beans.PropertyDescriptor;
 
+import org.geotools.validation.DefaultIntegrityValidationBeanInfo;
+
 /**
  * @author Pati
  *
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class IntersectsIntegrityBeanInfo {
+public class IntersectsIntegrityBeanInfo
+	extends DefaultIntegrityValidationBeanInfo 
+{
 	/**
 	 * 
 	 */
