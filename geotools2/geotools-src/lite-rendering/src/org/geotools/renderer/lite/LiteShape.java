@@ -41,7 +41,7 @@ import com.vividsolutions.jts.geom.*;
  * so that the geometry can be used by java2d without coordinate
  * cloning
  *
- * @version $Id: LiteShape.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * @version $Id: LiteShape.java,v 1.2 2003/02/14 15:51:02 ianturton Exp $
  * @author Andrea Aime
  */
 public class LiteShape implements java.awt.Shape {
@@ -52,7 +52,7 @@ public class LiteShape implements java.awt.Shape {
     
     /** Creates a new instance of GeometryShape */
     public LiteShape(Geometry g) {
-        System.out.println("Shape created");
+        //System.out.println("Shape created");
         geometry = g;
     }
     
@@ -268,7 +268,7 @@ public class LiteShape implements java.awt.Shape {
     public PathIterator getPathIterator(AffineTransform at) {
         PathIterator pi = null;
         
-        System.out.println("Path iterator");
+        //System.out.println("Path iterator");
         
         // return iterator according to the kind of geometry we include
         if(this.geometry instanceof com.vividsolutions.jts.geom.Polygon)
