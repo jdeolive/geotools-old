@@ -23,7 +23,7 @@ package org.geotools.algorithms;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * @version $Id: GeometryProperties.java,v 1.3 2002/06/05 11:51:43 loxnard Exp $
+ * @version $Id: GeometryProperties.java,v 1.4 2002/07/12 17:40:21 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface GeometryProperties {
@@ -39,7 +39,7 @@ public interface GeometryProperties {
      * @param g The Geometry to calculate the area of.
      * @return The total area of the Geometry.
      */
-    public double getArea(Geometry g);
+    double getArea(Geometry g);
     
     /**
      * Calculates and returns the perimeter of the specified geometry.<br>
@@ -52,6 +52,6 @@ public interface GeometryProperties {
      * @param g The Geometry to calculate the area of.
      * @return The total area of the Geometry.
      */
-    public double getPerimeter(Geometry g);
+    double getPerimeter(Geometry g);
 }
 
