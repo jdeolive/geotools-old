@@ -100,7 +100,7 @@ import org.geotools.renderer.array.ArrayData;
  * object, usually specified at construction time. A set of polygons can be built from an array
  * of (<var>x</var>,<var>y</var>) coordinates or from a geometric shape using one of
  * {@link #getInstances(float[],CoordinateSystem) getInstances(...)} factory methods.
- * <strong>Points given to factory methods should not contains map border.</strong>
+ * <strong>Points given to factory methods should not contain map border.</strong>
  * Border points (orange points in the figure below) are treated specially and must
  * be specified using {@link #appendBorder appendBorder(...)} or
  * {@link #prependBorder prependBorder(...)} methods.
@@ -112,27 +112,27 @@ import org.geotools.renderer.array.ArrayData;
  * ISO-19107. Do not rely on it.</STRONG>
  * </TD></TR></TABLE>
  *
- * @version $Id: Polygon.java,v 1.7 2003/02/11 16:02:33 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.8 2003/02/19 17:35:52 jmacgill Exp $
  * @author Martin Desruisseaux
  *
  * @see Isoline
  */
 public class Polygon extends GeoShape {
     /**
-     * Numéro de version pour compatibilité avec des
-     * bathymétries enregistrées sous d'anciennes versions.
+     * Version number for compatibility with bathymetries
+     * registered under previous versions.
      */
     private static final long serialVersionUID = 6197907210475790821L;
 
     /**
-     * Small number for comparaisons (mostly in assertions).
+     * Small number for comparisons (mostly in assertions).
      * Should be in the range of precision of <code>float</code> type.
      */
     private static final double EPS = 1E-6;
 
     /**
-     * Projection à utiliser pour les calculs qui
-     * exigent un système de coordonnées cartésien.
+     * Projection to use for calculations that require
+     * a Cartesian coordinate system.
      */
     private static final String CARTESIAN_PROJECTION = "Stereographic";
 
@@ -149,51 +149,51 @@ public class Polygon extends GeoShape {
     private Polyline data;
 
     /**
-     * Transformation permettant de passer du système de coordonnées des points <code>data</code>
-     * vers le système de coordonnées de ce polygone. {@link CoordinateTransformation#getSourceCS}
-     * doit obligatoirement être le système de coordonnées de <code>data</code>, tandis que
-     * {@link CoordinateTransformation#getTargetCS} doit être le système de coordonnées du polygone.
-     * Lorsque ce polygone utilise le même système de coordonnées que <code>data</code> (ce qui
-     * est le cas la plupart du temps), alors ce champ contiendra une transformation identité.
-     * Ce champ peut être nul si le système de coordonnées de <code>data</code> n'est pas connu.
+     * Transformation that allows you to pass from the <code>data</code> point coordinate system
+     * to the coordinate system of this polygon. {@link CoordinateTransformation#getSourceCS}
+     * absolutely must be the <code>data</code> coordinate system, whilst
+     * {@link CoordinateTransformation#getTargetCS} must be the polygon's coordinate system.
+     * When this polygon uses the same coordinate system as <code>data</code> (which is normally
+     * the case), this field will contain an identity transformation.
+     * This field can be null if <code>data</code>'s coordinate system is unknown.
      */
     private CoordinateTransformation coordinateTransform;
 
     /**
-     * Rectangle englobant complètement tous les points de <code>data</code>. Ce
-     * rectangle est une information très utile pour repérer plus rapidement les
-     * traits qui n'ont pas besoin d'être redessinés (par exemple sous l'effet d'un zoom).
-     * <strong>Le rectangle {@link Rectangle2D} référencé par ce champ ne doit jamais être
-     * modifié</strong>, car il peut être partagé par plusieurs objets {@link Polygon}.
+     * Rectangle completely encompassing all <code>data</code>'s points. This
+     * rectangle is very useful for quickly spotting features which don't need to be
+     * redrawn (for example, when zoomed in on).
+     * <strong>The rectangle {@link Rectangle2D} referenced by this field must never be
+     * modified</strong>, as it could be shared by several objects {@link Polygon}.
      */
     private transient Rectangle2D dataBounds;
 
     /**
-     * Rectangle englobant complètement les coordonnées projetées de ce polygone.
-     * Ce champs est utilisé comme une cache pour la méthode {@link #getBounds2D()}
-     * afin de la rendre plus rapide.
+     * Rectangle completely encompassing the projected coordinates of this polygon.
+     * This field is used as a cache for the {@link #getBounds2D()} method to make it
+     * quicker.
      *
-     * <strong>Le rectangle {@link Rectangle2D} référencé par ce champ ne doit jamais être
-     * modifié</strong>, car il peut être partagé par plusieurs objets {@link Polygon}.
+     * <strong>The {@link Rectangle2D} rectangle referenced by this field should never be
+     * modified</strong>, as it could be shared by several objects {@link Polygon}.
      */
     private transient Rectangle2D bounds;
 
     /**
-     * <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * <code>true</code> if {@link #getPathIterator} will return a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
     private transient boolean flattened;
 
     /**
-     * Indique si cette forme a été fermée. Si le polygone a été fermé, alors ce champ
-     * aura la valeur {@link InteriorType#ELEVATION} ou {@link InteriorType#DEPRESSION}.
+     * Indicates whether this shape has been closed. If the polygon has been closed, this field
+     * will have the value {@link InteriorType#ELEVATION} or {@link InteriorType#DEPRESSION}.
      */
     private byte interiorType = (byte) UNCLOSED;
 
     /**
-     * Résolution moyenne du polygone. Ce champ contient la distance moyenne entre
-     * deux points du polygone, ou {@link Float#NaN} si cette résolution n'a pas
-     * encore été calculée.
+     * Average resolution of the polygon. This field contains the average distance between
+     * two points of the polygon, or {@link Float#NaN} if this resolution still hasn't been
+     * calculated.
      */
     private float resolution = Float.NaN;
 
@@ -210,13 +210,13 @@ public class Polygon extends GeoShape {
     private static final int RESOLUTION_FACTOR = 4;
 
     /**
-     * Référence molle vers un tableau <code>float[]</code>. Ce tableau est utilisé
-     * pour conserver en mémoire des points qui ont déjà été projetés ou transformés.
+     * Soft reference to a <code>float[]</code> table. This table is used to
+     * keep in memory the points that have already been projected or transformed.
      */
     private transient PolygonCache cache;
 
     /**
-     * Construit un polygone initialement vide.
+     * Constructs a polygon which is initially empty.
      */
     private Polygon(final CoordinateTransformation coordinateTransform) {
         this.coordinateTransform = coordinateTransform;
@@ -236,16 +236,16 @@ public class Polygon extends GeoShape {
      * Construct an empty polygon. Use {@link #append} to add points.
      *
      * @param coordinateSystem The coordinate system to use for all
-     *        points in this polygon, or <code>null</code> if unknow.
+     *        points in this polygon, or <code>null</code> if unknown.
      */
     public Polygon(final CoordinateSystem coordinateSystem) {
         this(getIdentityTransform(getCoordinateSystem2D(coordinateSystem)));
     }
 
     /**
-     * Construct a new polygon with the same data than the specified
+     * Construct a new polygon with the same data as the specified
      * polygon. The new polygon will have a copy semantic. However,
-     * implementation try to share as much internal data as possible
+     * implementation tries to share as much internal data as possible
      * in order to reduce memory footprint.
      */
     public Polygon(final Polygon polygon) {
@@ -266,7 +266,7 @@ public class Polygon extends GeoShape {
      *
      * @param rectangle Rectangle to copy in the new polygon.
      * @param coordinateSystem The rectangle's coordinate system,
-     *        or <code>null</code> if unknow.
+     *        or <code>null</code> if unknown.
      */
     Polygon(final PointArray data, final CoordinateSystem coordinateSystem) {
         this(coordinateSystem);
@@ -280,7 +280,7 @@ public class Polygon extends GeoShape {
      *
      * @param rectangle Rectangle to copy in the new polygon.
      * @param coordinateSystem The rectangle's coordinate system,
-     *        or <code>null</code> if unknow.
+     *        or <code>null</code> if unknown.
      */
     public Polygon(final Rectangle2D rectangle, final CoordinateSystem coordinateSystem) {
         this(coordinateSystem);
@@ -303,17 +303,16 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Construit des polygones à partir des coordonnées (<var>x</var>,<var>y</var>) spécifiées.
-     * Les valeurs <code>NaN</code> au début et à la fin de <code>data</code> seront ignorées.
-     * Celles qui apparaissent au milieu auront pour effet de séparer le trait en plusieurs
-     * polygones.
+     * Constructs polygons from specified (<var>x</var>,<var>y</var>) coordinates.
+     * <code>NaN</code> values at the beginning and end of <code>data</code> will be ignored.
+     * Those that appear in the middle will separate the feature in a number of polygons.
      *
-     * @param  data Tableau de coordonnées (peut contenir des NaN). Ces données seront copiées,
-     *         de sorte que toute modification future de <code>data</code> n'aura pas d'impact
-     *         sur les polygones créés.
-     * @param  coordinateSystem Système de coordonnées des points de <code>data</code>.
-     *         Cet argument peut être nul si le système de coordonnées n'est pas connu.
-     * @return Tableau de polygones. Peut avoir une longueur de 0, mais ne sera jamais nul.
+     * @param  data Coordinates table (may contain NaNs). These data will be copied,
+     *         in such a way that any future modifications of <code>data</code> will have no impact
+     *         on the polygons created.
+     * @param  coordinateSystem <code>data</code> point coordinate system.
+     *         This argument can be null if the coordinate system is unknown.
+     * @return Polygon table. May have 0 length, but will never be null.
      */
     public static Polygon[] getInstances(final float[] data, final CoordinateSystem coordinateSystem) {
         final Polyline[] polylines = Polyline.getInstances(data);
@@ -329,15 +328,15 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Construit des polygones à partir de la forme géométrique spécifiée. Si <code>shape</code>
-     * est déjà de la classe <code>Polygon</code>, il sera retourné dans un tableau de longueur 1.
-     * Dans les autres cas, cette méthode peut retourner un tableau de longueur de 0, mais ne
-     * retourne jamais <code>null</code>.
+     * Constructs polygons from the specified geometric shape. If <code>shape</code>
+     * is already from the <code>Polygon</code> class, it will be returned in a table of length 1.
+     * In all other cases, this method can return a table of 0 length, but never returns
+     * <code>null</code>.
      *
-     * @param  shape Forme géométrique à copier dans un ou des polygones.
-     * @param  coordinateSystem Système de coordonnées des points de <code>shape</code>.
-     *         Cet argument peut être nul si le système de coordonnées n'est pas connu.
-     * @return Tableau de polygones. Peut avoir une longueur de 0, mais ne sera jamais nul.
+     * @param  shape Geometric shape to copy in one or more polygons.
+     * @param  coordinateSystem <code>shape</code> point coordinate system.
+     *         This argument may be null if the coordinate system is unknown.
+     * @return Polygon table.  Can have 0 length, but will never be null.
      */
     public static Polygon[] getInstances(final Shape shape, CoordinateSystem coordinateSystem) {
         coordinateSystem = getCoordinateSystem2D(coordinateSystem);
@@ -354,10 +353,9 @@ public class Polygon extends GeoShape {
                 throw new IllegalPathStateException();
             }
             /*
-             * Une fois entré dans ce bloc, le tableau <code>array</code> contient
-             * déjà le premier point aux index 0 (pour x) et 1 (pour y). On ajoute
-             * maintenant les autres points tant qu'ils correspondent à des
-             * instructions <code>LINETO</code>.
+             * Once in this block, the table <code>array</code> already contains
+             * the first point at index 0 (for x) and 1 (for y). Now the other points
+             * are added so that they correspond to the <code>LINETO</code> instructions.
              */
             int index = 2;
             InteriorType interiorType = null;
@@ -410,7 +408,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Same as {@link CTSUtilities#getCoordinateSystem2D}, but wrap the {@link TransformException}
+     * Same as {@link CTSUtilities#getCoordinateSystem2D}, but wraps the {@link TransformException}
      * into an {@link IllegalArgumentException}. Used for constructors only. Other methods still
      * use the method throwing a transform exception.
      */
@@ -425,8 +423,8 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne le système de coordonnées natif des points de
-     * {@link #data}, ou <code>null</code> s'il n'est pas connu.
+     * Returns the native coordinate system of {@link #data}'s points, or <code>null</code>
+     * if unknown.
      */
     private CoordinateSystem getInternalCS() {
         // copy 'coordinateTransform' reference in order to avoid synchronization
@@ -435,7 +433,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the polygon's coordinate system, or <code>null</code> if unknow.
+     * Returns the polygon's coordinate system, or <code>null</code> if unknown.
      */
     public CoordinateSystem getCoordinateSystem() {
         // copy 'coordinateTransform' reference in order to avoid synchronization
@@ -444,12 +442,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne la transformation qui permet de passer du système de coordonnées
-     * des points {@link #data} vers le système de coordonnées spécifié.   Si au
-     * moins un des systèmes de coordonnées n'est pas connu, alors cette méthode
-     * retourne <code>null</code>.
+     * Returns the transform which allows you to pass from the {@link #data} point coordinate
+     * system to the specified coordinate system.  If at least one of the coordinate systems
+     * is unknown, this method returns <code>null</code>.
      *
-     * @throws CannotCreateTransformException Si la transformation ne peut pas être créée.
+     * @throws CannotCreateTransformException If the transform cannot be created.
      */
     final CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
             throws CannotCreateTransformException
@@ -469,7 +466,7 @@ public class Polygon extends GeoShape {
      * Returns a math transform for the specified transformations.
      * If no transformation is available, or if it is the identity
      * transform, then this method returns <code>null</code>. This
-     * method accept null argument.
+     * method accepts null argument.
      */
     static MathTransform2D getMathTransform2D(final CoordinateTransformation transformation) {
         if (transformation != null) {
@@ -482,11 +479,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Set the polygon's coordinate system. Calling this method is equivalents
-     * to reproject all polygon's points from the old coordinate system to the
+     * Sets the polygon's coordinate system. Calling this method is equivalent
+     * to reprojecting all polygon's points from the old coordinate system to the
      * new one.
      *
-     * @param  The new coordinate system. A <code>null</code> value reset the
+     * @param  The new coordinate system. A <code>null</code> value resets the
      *         coordinate system given at construction time.
      * @throws TransformException If a transformation failed. In case of failure,
      *         the state of this object will stay unchanged (as if this method has
@@ -505,13 +502,13 @@ public class Polygon extends GeoShape {
         final CoordinateTransformation transformCandidate =
                 getTransformationFromInternalCS(coordinateSystem);
         /*
-         * Compute bounds now. The getBounds2D(...) method scan every point.
-         * Concequently, if a exception must be throws, it will be thrown now.
+         * Compute bounds now. The getBounds2D(...) method scans every point.
+         * Consequently, if an exception must be thrown, it will be thrown now.
          */
         bounds = Polyline.getBounds2D(data, (MathTransform2D)transformCandidate.getMathTransform());
         /*
          * Store the new coordinate transform
-         * only after projection succeded.
+         * only after projection has succeeded.
          */
         this.coordinateTransform = transformCandidate;
         this.resolution = Float.NaN;
@@ -520,9 +517,8 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Indique si la transformation spécifiée est la transformation identitée.
-     * Une transformation nulle (<code>null</code>) est considérée comme étant
-     * une transformation identitée.
+     * Indicates whether the specified transform is the identity transform.
+     * A null transform (<code>null</code>) is considered to be an identity transform.
      */
     private static boolean isIdentity(final CoordinateTransformation coordinateTransform) {
         return coordinateTransform==null || coordinateTransform.getMathTransform().isIdentity();
@@ -530,7 +526,7 @@ public class Polygon extends GeoShape {
 
     /**
      * Test if this polygon is empty. An
-     * empty polygon contains no point.
+     * empty polygon contains no points.
      */
     public synchronized boolean isEmpty() {
         return Polyline.getPointCount(data) == 0;
@@ -541,7 +537,7 @@ public class Polygon extends GeoShape {
      * borders. This method uses a cache, such that after a first calling,
      * the following calls should be fairly quick.
      *
-     * @return A bounding box of this polygons. Changes to the
+     * @return A bounding box of this polygon. Changes to the
      *         fields of this rectangle will not affect the cache.
      */
     public synchronized Rectangle2D getBounds2D() {
@@ -552,7 +548,7 @@ public class Polygon extends GeoShape {
      * Returns the smallest bounding box containing {@link #getBounds2D}.
      *
      * @deprecated This method is required by the {@link Shape} interface,
-     *             but it doesn't provides enough precision for most cases.
+     *             but it doesn't provide enough precision for most cases.
      *             Use {@link #getBounds2D()} instead.
      */
     public synchronized Rectangle getBounds() {
@@ -562,22 +558,22 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne un rectangle englobant tous les points de {@link #data}. Parce que cette méthode
-     * retourne directement le rectangle de la cache et non une copie, le rectangle retourné ne
-     * devrait jamais être modifié.
+     * Returns a rectangle encompassing all {@link #data}'s points. Because this method returns
+     * the rectangle directly from the cache and not a copy, the returned rectangle should
+     * never be modified.
      *
-     * @return Un rectangle englobant toutes les points de {@link #data}.
-     *         Ce rectangle peut être vide, mais ne sera jamais nul.
+     * @return A rectangle encompassing all {@link #data}'s points.
+     *         This rectangle may be empty, but will never be null.
      */
     private Rectangle2D getDataBounds() {
         // assert Thread.holdsLock(this);
         // Can't make this assertion, because this method is invoked
-        // by {@link #getCachedBounds}. See the later for details.
+        // by {@link #getCachedBounds}. See later for details.
 
         if (dataBounds == null) {
             dataBounds = getBounds(data, null);
             if (isIdentity(coordinateTransform)) {
-                bounds = dataBounds; // Avoid computing the same rectangle two times
+                bounds = dataBounds; // Avoid computing the same rectangle twice
             }
         }
         assert equalsEps(getBounds(data, null), dataBounds) : dataBounds;
@@ -585,7 +581,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Return the bounding box of this isoline. This methode returns
+     * Return the bounding box of this isoline. This method returns
      * a direct reference to the internally cached bounding box. DO
      * NOT MODIFY!
      */
@@ -594,7 +590,7 @@ public class Polygon extends GeoShape {
         if (bounds == null) {
             bounds = getBounds(data, coordinateTransform);
             if (isIdentity(coordinateTransform)) {
-                dataBounds = bounds; // Avoid computing the same rectangle two times
+                dataBounds = bounds; // Avoid computing the same rectangle twice
             }
         }
         assert equalsEps(getBounds(data, coordinateTransform), bounds) : bounds;
@@ -602,15 +598,15 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne un rectangle englobant tous les points projetés dans le système de coordonnées
-     * spécifié. Cette méthode tentera de retourner un des rectangles de la cache interne lorsque
-     * approprié. Parce que cette méthode peut retourner directement le rectangle de la cache et
-     * non une copie, le rectangle retourné ne devrait jamais être modifié.
+     * Returns a rectangle encompassing all the points projected in the specified coordinate system.
+     * This method will try to return one of the rectangles from the internal cache when appropriate.
+     * Because this method can return the rectangle directly from the cache and not a copy, the
+     * returned rectangle should never be modified.
      *
-     * @param  Le système de coordonnées selon lequel projeter les points.
-     * @return Un rectangle englobant tous les points de ce polygone.
-     *         Ce rectangle peut être vide, mais ne sera jamais nul.
-     * @throws TransformException si une projection cartographique a échouée.
+     * @param  The coordinate system according to which the points should be projected.
+     * @return A rectangle encompassing all the points of this polygon.
+     *         This rectangle may be empty, but will never be null.
+     * @throws TransformException if a cartographic projection fails.
      */
     private Rectangle2D getCachedBounds(final CoordinateSystem coordinateSystem)
             throws TransformException
@@ -630,14 +626,14 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Retourne en rectangle englobant tous les points de <code>data</code>.  Cette méthode ne
-     * devrait être appelée que dans un contexte où l'on sait que la projection cartographique
-     * ne devrait jamais échouer.
+     * Returns a rectangle encompassing all <code>data</code>'s points.  This method should
+     * only be called in a context where it is known that the cartographic projection 
+     * should never fail.
      *
-     * @param  data Un des maillons de la chaîne de tableaux de points (peut être nul).
-     * @param  coordinateTransform Transformation à appliquer sur les points de <code>data</code>.
-     * @return Un rectangle englobant toutes les points de <code>data</code>.
-     *         Ce rectangle peut être vide, mais ne sera jamais nul.
+     * @param  data One of the links in the chain of point tables (may be null).
+     * @param  coordinateTransform Transform to apply on <code>data</code>'s points.
+     * @return A rectangle encompassing all <code>data</code>'s points.
+     *         This rectangle may be empty, but will never be null.
      */
     private static Rectangle2D getBounds(final Polyline data,
                                          final CoordinateTransformation coordinateTransform)
@@ -651,7 +647,7 @@ public class Polygon extends GeoShape {
             }
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
-            // has already successfully projected every points.
+            // has already successfully projected every point.
             unexpectedException("getBounds2D", exception);
             bounds = null;
         }
@@ -659,9 +655,9 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Check if two rectangles are almost equals (except for an epsilon value).    If one or
-     * both argument is <code>null</code>, then this method does nothing. This method occurs
-     * when one rectangle come from the cache and hasn't been computed yet.   This method is
+     * Check if two rectangles are almost equal (except for an epsilon value).  If one or
+     * both arguments are <code>null</code>, then this method does nothing. This method occurs
+     * when one rectangle comes from the cache and hasn't been computed yet.  This method is
      * used for assertions only.
      */
     private static boolean equalsEps(final Rectangle2D expected, final Rectangle2D actual) {
@@ -676,23 +672,23 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Indique si la coordonnée (<var>x</var>,<var>y</var>) spécifiée est à l'intérieur
-     * de ce polygone. Le polygone doit avoir été fermé avant l'appel de cette méthode
-     * (voir {@link #close}), sans quoi cette méthode retournera toujours <code>false</code>.
+     * Indicates whether the specified (<var>x</var>,<var>y</var>) coordinate is inside this
+     * polygon.  The polygon should have been closed before the call to this method
+     * (see {@link #close}), without which this method will always return <code>false</code>.
      *
-     * @param  x Coordonnée <var>x</var> du point à tester.
-     * @param  y Coordonnée <var>y</var> du point à tester.
-     * @param  transformation Transformation à utiliser pour convertir les points de {@link #data},
-     *         ou <code>null</code> pour ne pas faire de transformation. Si une transformation
-     *         non-nulle est spécifiée, elle devrait avoir été obtenue par un appel à la méthode
-     *         <code>getTransformationFromInternalCS(targetCS)</code>. Tous les points du polygone
-     *         seront alors projetés selon le système de coordonnées <code>targetCS</code>. Autant
-     *         que possible, il est plus efficace de ne calculer que la projection inverse du point
-     *         (<var>x</var>,<var>y</var>) et de spécifier <code>null</code> pour cet argument.
-     * @return <code>true</code> si le point est à l'intérieur de ce polygone.
+     * @param  x <var>x</var> coordinate of the point to test.
+     * @param  y <var>y</var> coordinate of the point to test.
+     * @param  transformation Transform to use for converting {@link #data}'s points,
+     *         or <code>null</code> if no transform is required. If a non-null transform
+     *         is specified, it should have been obtained by a call to the method 
+     *         <code>getTransformationFromInternalCS(targetCS)</code>. All the polygon's points
+     *         will then be projected according to the <code>targetCS</code> coordinate system. Where
+     *         possible, it is more efficient to calculate only the inverse projection of point
+     *         (<var>x</var>,<var>y</var>) and to specify <code>null</code> for this argument.
+     * @return <code>true</code> if the point is inside this polygon.
      *
-     * @author André Gosselin (version originale en C)
-     * @author Martin Desruisseaux (adaptation pour le Java)
+     * @author André Gosselin (original C version)
+     * @author Martin Desruisseaux (Java adaptation)
      */
     private boolean contains(final float x, final float y,
                              final CoordinateTransformation transformation)
@@ -701,11 +697,11 @@ public class Polygon extends GeoShape {
             return false;
         }
         /*
-         * Imaginez une ligne droite partant du point (<var>x</var>,<var>y</var>)
-         * et allant jusqu'à l'infini à droite du point (c'est-à-dire vers l'axe
-         * des <var>x</var> positifs). On comptera le nombre de fois que le polygone
-         * intercepte cette ligne. Si ce nombre est impair, le point est à l'intérieur
-         * du polygone. La variable <code>nInt</code> fera ce comptage.
+         * Imagine a straight line starting at point (<var>x</var>,<var>y</var>)
+         * and going to infinity to the right of this point (i.e., towards the <var>x</var>
+         * positive axis). We count the number of times the polygon intercepts this line.
+         * If the number is odd, the point is inside the polygon. The variable <code>nInt</code>
+         * will do this counting.
          */
         int   nInt                 = 0;
         int   intSuspended         = 0;
@@ -715,10 +711,10 @@ public class Polygon extends GeoShape {
         float x1                   = Float.NaN;
         float y1                   = Float.NaN;
         /*
-         * Extrait un premier point. Il y aura un problème dans l'algorithme qui suit
-         * si le premier point est sur la même ligne horizontale que le point à vérifier.
-         * Pour contourner le problème, on recherchera le premier point qui n'est pas sur
-         * la même ligne horizontale.
+         * Extracts a first point.  There will be a problem in the following algorithm if the
+         * first point is on the same horizontal line as the point to check.
+         * To solve the problem, we look for the first point that isn't on the same horizontal
+         * line.
          */
         while (true) {
             final float x0=x1;
@@ -731,9 +727,9 @@ public class Polygon extends GeoShape {
             y1 = nextPt.y;
             if (y1 != y) break;
             /*
-             * Vérifie si le point tombe exactement
-             * sur le segment (x0,y0)-(x1-y1). Si oui,
-             * ce n'est pas la peine d'aller plus loin.
+             * Checks whether the point falls exactly on the
+             * segment (x0,y0)-(x1-y1). If it does,
+             * it's not worth going any further.
              */
             if (x0 < x1) {
                 if (x>=x0 && x<=x1) return true;
@@ -742,16 +738,15 @@ public class Polygon extends GeoShape {
             }
         }
         /*
-         * Balaye tous les points du polygone. Lorsque le dernier point sera
-         * extrait, la variable <code>count</code> sera ajustée de façon à ne
-         * rebalayer que les points qui doivent être repassés.
+         * Sweeps through all the points of the polygon. When the last point is extracted
+         * the variable <code>count</code> is adjusted so that only the points that need
+         * passing through again are 're-swept'.
          */
         for (int count=-1; count!=0; count--) {
             /*
-             * Obtient le point suivant. Si on a atteint la fin du polygone,
-             * alors on refermera le polygone si ce n'était pas déjà fait.
-             * Si le polygone avait déjà été refermé, alors ce sera la fin
-             * de la boucle.
+             * Obtains the following point.  If we have reached the end of the polygon,
+             * we reclose the polygon if this has not already been done.
+             * If the polygon had already been reclosed, that is the end of the loop.
              */
             final float x0=x1;
             final float y0=y1;
@@ -764,11 +759,11 @@ public class Polygon extends GeoShape {
             x1=nextPt.x;
             y1=nextPt.y;
             /*
-             * On dispose maintenant d'un segment de droite allant des coordonnées
-             * (<var>x0</var>,<var>y0</var>) jusqu'à (<var>x1</var>,<var>y1</var>).
-             * Si on s'apperçoit que le segment de droite est complètement au dessus
-             * ou complètement en dessous du point (<var>x</var>,<var>y</var>), alors
-             * on sait qu'il n'y a pas d'intersection à droite et on continue la boucle.
+             * We now have a right-hand segment going from the coordinates
+             * (<var>x0</var>,<var>y0</var>) to (<var>x1</var>,<var>y1</var>).
+             * If we realise that the right-hand segment is completely above or completely
+             * below the point (<var>x</var>,<var>y</var>), we know that there is no right-hand
+             * intersection and we continue the loop.
              */
             if (y0 < y1) {
                 if (y<y0 || y>y1) continue;
@@ -776,29 +771,29 @@ public class Polygon extends GeoShape {
                 if (y<y1 || y>y0) continue;
             }
             /*
-             * On sait maintenant que notre segment passe soit à droite, ou soit à gauche
-             * de notre point. On calcule maintenant la coordonnée <var>xi</var> à laquelle
-             * à lieu l'intersection (avec la droite horizontale passant par notre point).
+             * We now know that our segment passes either to the right or the left of our point.
+             * We now calculate the coordinate <var>xi</var> where the intersection takes place
+             * (with the horizontal right passing through our point).
              */
             final float dy = y1-y0;
             final float xi = x0 + (x1-x0)*(y-y0)/dy;
             if (!Float.isInfinite(xi) && !Float.isNaN(xi)) {
                 /*
-                 * Si l'intersection est complètement à gauche du point, alors il n'y
-                 * a évidemment pas d'intersection à droite et on continue la boucle.
-                 * Sinon, si l'intersection se fait exactement à la coordonnée <var>x</var>
-                 * (c'est peu probable...), alors notre point est exactement sur la bordure
-                 * du polygone et le traitement est terminé.
+                 * If the intersection is completely to the left of the point, there is evidently
+                 * no intersection to the right and we continue the loop.
+                 * Otherwise, if the intersection occurs precisely at the coordinate <var>x</var>
+                 * (which is unlikely...), this means our point is exactly on the border of the polygon
+                 * and the treatment ends.
                  */
                 if (x >  xi) continue;
                 if (x == xi) return true;
             } else {
                 /*
-                 * Un traitement particulier est fait si le segment est horizontal. La valeur
-                 * <var>xi</var> n'est pas valide (on peut voir ça comme si l'intersection se
-                 * faisait partout sur la droite plutôt qu'en un seul point). Au lieu de faire
-                 * les vérifications avec <var>xi</var>, on les fera plutôt avec les <var>x</var>
-                 * minimal et maximal du segment.
+                 * There is a special treatment if the segment is horizontal. The value
+                 * <var>xi</var> isn't valid (we can visualize that as if intersections were 
+                 * found all over the right-hand side rather than on a single point). Instead
+                 * of performing checks with <var>xi</var>, we will do them with the minimum and
+                 * maximum <var>x</var>s of the segment.
                  */
                 if (x0 < x1) {
                     if (x >  x1) continue;
@@ -809,13 +804,13 @@ public class Polygon extends GeoShape {
                 }
             }
             /*
-             * On sait maintenant qu'il y a une intersection à droite. En principe, il
-             * suffirait d'incrémenter 'nInt'. Toutefois, on doit faire attention au cas
-             * cas où <var>y</var> serait exactement à la hauteur d'une des extrémités du
-             * segment. Y a t'il intersection ou pas? Ça dépend si les prochains segments
-             * continuent dans la même direction ou pas. On ajustera un drapeau, de sorte
-             * que la décision d'incrémenter 'nInt' ou pas sera prise plus tard dans la
-             * boucle, quand les autres segments auront été examinés.
+             * We now know that there is an intersection on the right.  In principal, it
+             * would be sufficient to increment 'nInt'.  However, we should pay particular
+             * attention to the case where <var>y</var> is at exactly the same height as one of the
+             * extremities of the segment.  Is there an intersection or not?  That depends on
+             * whether the following segments continue in the same direction or not.  We adjust
+             * a flag, so that the decision to increment 'nInt' or not is taken later in the loop
+             * when the other segments have been examined.
              */
             if (x0==x1 && y0==y1) {
                 continue;
@@ -834,28 +829,27 @@ public class Polygon extends GeoShape {
             else nInt++;
         }
         /*
-         * Si le nombre d'intersection à droite du point est impaire,
-         * alors le point est à l'intérieur du polygone. Sinon, il est
-         * à l'extérieur.
+         * If the number of intersections to the right of the point is odd, the point is
+         * inside the polygon.  Otherwise, it is outside.
          */
         return (nInt & 1)!=0;
     }
 
     /**
-     * Indique si la coordonnée (<var>x</var>,<var>y</var>) spécifiée est à l'intérieur
-     * de ce polygone. Les coordonnées du point doivent être exprimées selon le système
-     * de coordonnées du polygone, soit {@link #getCoordinateSystem()}. Le polygone doit
-     * aussi avoir été fermé avant l'appel de cette méthode (voir {@link #close}), sans
-     * quoi cette méthode retournera toujours <code>false</code>.
+     * Indicates whether the specified (<var>x</var>,<var>y</var>) coordinate is inside
+     * this polygon.  The point's coordinates must be expressed according to the polygon's
+     * coordinate system, that is {@link #getCoordinateSystem()}. The polygon must also
+     * have been closed before the call to this method (see {@link #close}), if it wasn't
+     * this method will always return <code>false</code>.
      */
     public synchronized boolean contains(double x, double y) {
         // IMPLEMENTATION NOTE: The polygon's native point array ({@link #data}) and the
-        // (x,y) point may use different coordinate systems. For efficiency raisons, the
-        // (x,y) point is projected to the "native" polygon's coordinate system  instead
-        // of projecting all polygon's points. As a result, point very close to the polygon's
+        // (x,y) point may use different coordinate systems. For efficiency reasons, the
+        // (x,y) point is projected to the "native" polygon's coordinate system instead
+        // of projecting all polygon's points. As a result, points very close to the polygon's
         // edge may appear inside (when viewed on screen) while this method returns <code>false</code>,
-        // and vis-versa. This is because some projections transform straight lines
-        // into curves, but the Polygon class ignore curves and always use straight
+        // and vice-versa. This is because some projections transform straight lines
+        // into curves, but the Polygon class ignores curves and always uses straight
         // lines between any two points.
         if (coordinateTransform!=null) try {
             final MathTransform transform = coordinateTransform.getMathTransform();
@@ -866,22 +860,22 @@ public class Polygon extends GeoShape {
                 y = point.getY();
             }
         } catch (TransformException exception) {
-            // Si la projection a échouée, alors le point est probablement en dehors
-            // du polygone (puisque tous les points du polygone sont projetables).
+            // If the projection fails, the point is probably outside the polygon
+            // (since all the polygon's points are projectable).
             return false;
         }
         /*
-         * On vérifie d'abord si le rectangle 'dataBounds' contient
-         * le point, avant d'appeler la coûteuse méthode 'contains'.
+         * First we check whether the rectangle 'dataBounds' contains
+         * the point, before calling the costly method 'contains'.
          */
         return getDataBounds().contains(x,y) && contains((float)x, (float)y, null);
     }
 
     /**
-     * Vérifie si un point <code>pt</code> est à l'intérieur de ce polygone. Les coordonnées
-     * du point doivent être exprimées selon le système de coordonnées du polygone, soit
-     * {@link #getCoordinateSystem()}. Le polygone doit aussi avoir été fermé avant l'appel
-     * de cette méthode (voir {@link #close}), sans quoi cette méthode retournera toujours
+     * Checks whether a point <code>pt</code> is inside this polygon. The point's coordinates
+     * must be expressed according to the polygon's coordinate system, that is
+     * {@link #getCoordinateSystem()}. The polygon must also have been closed before the call
+     * to this method (see {@link #close}), if it wasn't this method will always return
      * <code>false</code>.
      */
     public boolean contains(final Point2D pt) {
@@ -890,7 +884,7 @@ public class Polygon extends GeoShape {
 
     /**
      * Test if the interior of this contour entirely contains the given rectangle.
-     * The rectangle's coordinates must expressed in this contour's coordinate
+     * The rectangle's coordinates must be expressed in this contour's coordinate
      * system (as returned by {@link #getCoordinateSystem}).
      */
     public synchronized boolean contains(final Rectangle2D rect) {
@@ -920,9 +914,9 @@ public class Polygon extends GeoShape {
      */
     private boolean containsPolygon(final Polygon shape) {
         /*
-         * Cette méthode retourne <code>true</code> si ce polygone contient
-         * au moins un point de <code>shape</code> et qu'il n'y a aucune
-         * intersection entre <code>shape</code> et <code>this</code>.
+         * This method returns <code>true</code> if this polygon contains at least
+         * one point of <code>shape</code> and there is no intersection 
+         * between <code>shape</code> and <code>this</code>.
          */
         if (interiorType != UNCLOSED) try {
             final CoordinateSystem coordinateSystem = getInternalCS();
@@ -945,8 +939,8 @@ public class Polygon extends GeoShape {
                 }
             }
         } catch (TransformException exception) {
-            // Conservatly return 'false' if some points from 'shape' can't be projected into
-            // {@link #data}'s coordinate system.   This behavior is compliant with the Shape
+            // Conservatively returns 'false' if some points from 'shape' can't be projected into
+            // {@link #data}'s coordinate system.  This behavior is compliant with the Shape
             // specification. Futhermore, those points are probably outside this polygon since
             // all polygon's points are projectable.
         }
@@ -954,8 +948,8 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Indique si les points (x1,y1) et (x2,y2)
-     * de la ligne spécifiée sont identiques.
+     * Indicates whether or not the points (x1,y1) and (x2,y2)
+     * from the specified line are identical.
      */
     private static boolean isSingular(final Line2D.Float segment) {
         return Float.floatToIntBits(segment.x1)==Float.floatToIntBits(segment.x2) &&
@@ -963,19 +957,19 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Determine si la ligne <code>line</code> intercepte une des lignes de
-     * ce polygone. Le polygone sera automatiquement refermé si nécessaire;
-     * il n'est donc pas nécessaire que le dernier point répète le premier.
+     * Determines whether the line <code>line</code> intercepts one of this polygon's lines.
+     * The polygon will automatically be reclosed if necessary;
+     * it is therefore not necessary for the last point to repeat the first.
      *
-     * @param  line Ligne dont on veut déterminer si elle intercepte ce polygone.
-     *         Cette ligne doit obligatoirement être exprimée selon le système de
-     *         coordonnées natif de {@link #array}, c'est-à-dire {@link #getInternalCS}.
-     * @return <code>true</code> si la ligne <code>line</code> intercepte ce poylgone.
+     * @param  line Line we want to check to see if it intercepts this polygon.
+     *         This line absolutely must be expressed according to the native coordinate system
+     *         of {@link #array}, i.e. {@link #getInternalCS}.
+     * @return <code>true</code> if the line <code>line</code> intercepts this polygon.
      */
     private boolean intersects(final Line2D line) {
         final Point2D.Float firstPt = new Point2D.Float();
         final  Line2D.Float segment = new  Line2D.Float();
-        final Polyline.Iterator  it = new Polyline.Iterator(data, null); // Ok même si 'data' est nul.
+        final Polyline.Iterator  it = new Polyline.Iterator(data, null); // Ok even if 'data' is null.
         if (it.next(firstPt) != null) {
             segment.x2 = firstPt.x;
             segment.y2 = firstPt.y;
@@ -993,7 +987,7 @@ public class Polygon extends GeoShape {
 
     /**
      * Tests if the interior of the contour intersects the interior of a specified rectangle.
-     * The rectangle's coordinates must expressed in this contour's coordinate
+     * The rectangle's coordinates must be expressed in this contour's coordinate
      * system (as returned by {@link #getCoordinateSystem}).
      */
     public synchronized boolean intersects(final Rectangle2D rect) {
@@ -1002,7 +996,7 @@ public class Polygon extends GeoShape {
 
     /**
      * Tests if the interior of the contour intersects the interior of a specified shape.
-     * The shape's coordinates must expressed in this contour's coordinate
+     * The shape's coordinates must be expressed in this contour's coordinate
      * system (as returned by {@link #getCoordinateSystem}).
      */
     public synchronized boolean intersects(final Shape shape) {
@@ -1023,7 +1017,7 @@ public class Polygon extends GeoShape {
      *
      * If this polygon is <em>closed</em> (if it is an island or a lake),
      * this method will return <code>true</code> if at least one point of
-     * <code>s</code> lies inside this polygons. If this polygons is not
+     * <code>s</code> lies inside this polygon. If this polygon is not
      * closed, then this method will return the same thing as
      * {@link #intersectsEdge}.
      */
@@ -1032,12 +1026,12 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Test if the edge of this polygons intercepts the edge of a
-     * specified polygons.
+     * Test if the edge of this polygon intercepts the edge of a
+     * specified polygon.
      *
-     * This should never happen with an error free bathymery map. However,
+     * This should never happen with an error-free bathymery map. However,
      * it could happen if the two polygons don't use the same units. For
-     * example, this method may be use to test if an isoline of 15 degrees
+     * example, this method may be used to test if an isoline of 15 degrees
      * celsius intercepts an isobath of 30 meters.
      *
      * @param s polygons to test.
@@ -1048,12 +1042,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Implémentation des méthodes <code>intersects[Polygon|Edge](Polygon)</code>.
+     * Implémentation of the <code>intersects[Polygon|Edge](Polygon)</code> methods.
      *
-     * @param  shape polygones à vérifier.
-     * @param  checkEdgeOnly <code>true</code> pour ne vérifier que
-     *         les bordures, sans tenir compte de l'intérieur de ce
-     *         polygone.
+     * @param  shape polygons to check.
+     * @param  checkEdgeOnly <code>true</code> to only check edges, without bothering with
+     *         the inside of this polygon.
      */
     private boolean intersects(final Polygon shape, final boolean checkEdgeOnly) {
         assert Thread.holdsLock(this);
@@ -1082,7 +1075,7 @@ public class Polygon extends GeoShape {
             }
             return false;
         } catch (TransformException exception) {
-            // Conservatly return 'true' if some points from 'shape' can't be projected into
+            // Conservatively return 'true' if some points from 'shape' can't be projected into
             // {@link #data}'s coordinate system.  This behavior is compliant with the Shape
             // specification.
             return true;
@@ -1112,7 +1105,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
     final boolean isFlattenedShape() {
@@ -1121,7 +1114,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns <code>true</code> if {@link #getPathIterator} will returns a flattened iterator.
+     * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
     final boolean checkFlattenedShape() {
@@ -1143,25 +1136,25 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Spécifie la résolution à appliquer au moment du traçage du polygone.
-     * Cette information est utilisée par les objets {@link PolygonPathIterator}.
+     * Specifies the resolution to apply when rendering the polygon.
+     * This information is used by {@link PolygonPathIterator} objects.
      *
-     * @param  resolution Résolution à appliquer.
+     * @param  resolution Resolution to apply.
      */
     final void setRenderingResolution(final float resolution) {
         int newResolution = 0;
         if (resolution != 0) {
             /*
              * NOTE 1:
-             *     We could execute this code inconditionnaly, but 'setRenderingResolution(0)'
-             *     is sometime invoked from non-synchronized block, immediately after cloning.
-             *     The 'if' condition avoid the 'assert' in this methods and its dependencies,
+             *     We could execute this code unconditionally, but 'setRenderingResolution(0)'
+             *     is sometimes invoked from non-synchronized block, immediately after cloning.
+             *     The 'if' condition avoids the 'assert' in this method and its dependencies,
              *     as well as the execution of the (potentially heavy) 'getMeanResolution()'.
              *
              * NOTE 2:
              *     Must round 'newResolution' toward nearest integer (not toward 0), otherwise
              *     rounding errors will be such that   'setResolution(getResolution())'   will
-             *     decrease 'resolution' by one, which will force uncessary cache invalidation.
+             *     decrease 'resolution' by one, which will force unnecessary cache invalidation.
              */
             assert Thread.holdsLock(this);
             newResolution = Math.round((resolution / getMeanResolution()) * RESOLUTION_FACTOR);
@@ -1184,9 +1177,9 @@ public class Polygon extends GeoShape {
 
     /**
      * Returns an estimation of memory usage in bytes. This method is for information
-     * purpose only. The memory really used by two polygons may be lower than the sum
+     * purposes only. The memory really used by two polygons may be lower than the sum
      * of their  <code>getMemoryUsage()</code>  return values, since polylgons try to
-     * share their data when possible. Furthermore, this method do not take in account
+     * share their data when possible. Furthermore, this method does not take into account
      * the extra bytes generated by Java Virtual Machine for each objects.
      *
      * @return An <em>estimation</em> of memory usage in bytes.
@@ -1206,9 +1199,9 @@ public class Polygon extends GeoShape {
      * Returns all polygon's points. Point coordinates are stored in {@link Point2D}
      * objects using this polygon's coordinate system ({@link #getCoordinateSystem}).
      * This method returns an immutable collection: changes done to <code>Polygon</code>
-     * after calling this method will not affect the collection. Despite this method has
-     * a copy semantic, the collection will share many internal structures in such a way
-     * that memory consumption should stay low.
+     * after calling this method will not affect the collection. Despite the fact that
+     * this method has a copy semantic, the collection will share many internal structures
+     * in such a way that memory consumption should stay low.
      *
      * @return The polygon's points as a collection of {@link Point2D} objects.
      */
@@ -1237,8 +1230,8 @@ public class Polygon extends GeoShape {
      * Stores the value of the first point into the specified point object.
      *
      * @param  point Object in which to store the unprojected coordinate.
-     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was nul.
-     * @throws NoSuchElementException If this polygons contains no point.
+     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was null.
+     * @throws NoSuchElementException If this polygon contains no point.
      *
      * @see #getFirstPoints(Point2D[])
      * @see #getLastPoint(Point2D)
@@ -1261,7 +1254,7 @@ public class Polygon extends GeoShape {
      * Stores the value of the last point into the specified point object.
      *
      * @param  point Object in which to store the unprojected coordinate.
-     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was nul.
+     * @return <code>point</code>, or a new {@link Point2D} if <code>point</code> was null.
      * @throws NoSuchElementException If this polygon contains no point.
      *
      * @see #getLastPoints(Point2D[])
@@ -1274,7 +1267,7 @@ public class Polygon extends GeoShape {
             point = transform.transform(point, point);
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
-            // has already successfully projected every points.
+            // has already successfully projected every point.
             unexpectedException("getLastPoint", exception);
         }
         assert !Double.isNaN(point.getX()) && !Double.isNaN(point.getY());
@@ -1300,7 +1293,7 @@ public class Polygon extends GeoShape {
             }
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
-            // has already successfully projected every points.
+            // has already successfully projected every point.
             unexpectedException("getFirstPoints", exception);
         }
         assert points.length==0 || Utilities.equals(getFirstPoint(null), points[0]);
@@ -1325,23 +1318,23 @@ public class Polygon extends GeoShape {
             }
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
-            // has already successfully projected every points.
+            // has already successfully projected every point.
             unexpectedException("getLastPoints", exception);
         }
         assert points.length==0 || Utilities.equals(getLastPoint(null), points[points.length-1]);
     }
 
     /**
-     * Ajoute des points au début de ce polygone.  Ces points seront considérés comme
-     * faisant partie de la bordure de la carte, et non comme des points représentant
-     * une structure géographique.
+     * Adds points to the start of this polygon.  These points will be considered to 
+     * form part of the map border, and not considered as points representing
+     * a geographic structure.
      *
-     * @param  border Coordonnées à ajouter sous forme de paires de nombres (x,y).
-     * @param  lower  Index du premier <var>x</var> à ajouter à la bordure.
-     * @param  upper  Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @throws IllegalStateException si ce polygone a déjà été fermé.
-     * @throws TransformException si <code>border</code> contient des points
-     *         invalides pour le système de coordonnées natif de ce polygone.
+     * @param  border Coordinates to add as (x,y) number pairs.
+     * @param  lower  Index of the first <var>x</var> to add to the border.
+     * @param  upper  Index following that of the last <var>y</var> to add to the border.
+     * @throws IllegalStateException if this polygon has already been closed.
+     * @throws TransformException if <code>border</code> contains points that are invalid
+     *         for this polygon's native coordinate system.
      */
     public void prependBorder(final float[] border, final int lower, final int upper)
             throws TransformException
@@ -1350,16 +1343,16 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Ajoute des points à la fin de ce polygone.  Ces points seront considérés comme
-     * faisant partie de la bordure de la carte, et non comme des points représentant
-     * une structure géographique.
+     * Adds points to the end of this polygon.  These points will be considered to
+     * form part of the map border, and not considered as points representing 
+     * a geographic structure.
      *
-     * @param  border Coordonnées à ajouter sous forme de paires de nombres (x,y).
-     * @param  lower  Index du premier <var>x</var> à ajouter à la bordure.
-     * @param  upper  Index suivant celui du dernier <var>y</var> à ajouter à la bordure.
-     * @throws IllegalStateException si ce polygone a déjà été fermé.
-     * @throws TransformException si <code>border</code> contient des points
-     *         invalides pour le système de coordonnées natif de ce polygone.
+     * @param  border Coordinates to add as (x,y) number pairs.
+     * @param  lower  Index of the first <var>x</var> to add to the border.
+     * @param  upper  Index following that of the last <var>y</var> to add to the border.
+     * @throws IllegalStateException if this polygon has already been closed.
+     * @throws TransformException if <code>border</code> contains points that are invalid
+     *         for this polygon's native coordinate system.
      */
     public void appendBorder(final float[] border, final int lower, final int upper)
             throws TransformException
@@ -1368,7 +1361,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Prepend a border expressed in an arbitrary coordinate system.
+     * Prepends a border expressed in an arbitrary coordinate system.
      * If <code>cs</code> is null, then the internal CS is assumed.
      */
     final void prependBorder(final float[] border, final int lower, final int upper,
@@ -1379,7 +1372,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Append a border expressed in an arbitrary coordinate system.
+     * Appends a border expressed in an arbitrary coordinate system.
      * If <code>cs</code> is null, then the internal CS is assumed.
      */
     final void appendBorder(final float[] border, final int lower, final int upper,
@@ -1390,11 +1383,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Implémentation de <code>appendBorder(...)</code> et <code>prependBorder(...)</code>.
+     * Implementation of <code>appendBorder(...)</code> and <code>prependBorder(...)</code>.
      *
      * @param cs The border coordinate system, or <code>null</code> for the internal CS.
-     * @param append <code>true</code> pour effectuer l'opération <code>appendBorder</code>, ou
-     *               <code>false</code> pour effectuer l'opération <code>prependBorder</code>.
+     * @param append <code>true</code> to carry out the operation <code>appendBorder</code>, or
+     *               <code>false</code> to carry out the operation <code>prependBorder</code>.
      */
     private synchronized void addBorder(float[] border, int lower, int upper,
                                         final CoordinateSystem cs, final boolean append)
@@ -1420,19 +1413,19 @@ public class Polygon extends GeoShape {
         dataBounds = null;
         bounds     = null;
         cache      = null;
-        // No change to resolution, since its doesn't take border in account.
+        // No change to resolution, since it doesn't take border into account.
     }
 
     /**
-     * Ajoute à la fin de ce polygone les données du polygone spécifié.
-     * Cette méthode ne fait rien si <code>toAppend</code> est nul.
+     * Adds to the end of this polygon the data of the specified polygon.
+     * This method does nothing if <code>toAppend</code> is null.
      *
-     * @param  toAppend Polygone à ajouter à la fin de <code>this</code>.
-     *         Le polygone <code>toAppend</code> ne sera pas modifié.
-     * @throws IllegalStateException    si ce polygone a déjà été fermé.
-     * @throws IllegalArgumentException si le polygone <code>toAppend</code> a déjà été fermé.
-     * @throws TransformException si <code>toAppend</code> contient des points
-     *         invalides pour le système de coordonnées natif de ce polygone.
+     * @param  toAppend Polygon to add to the end of <code>this</code>.
+     *         The polygon <code>toAppend</code> will not be modified.
+     * @throws IllegalStateException    if this polygon has already been closed.
+     * @throws IllegalArgumentException if the polygon <code>toAppend</code> has already been closed.
+     * @throws TransformException if <code>toAppend</code> contains points that are invalid
+     *         for this polygon's native coordinate system.
      */
     public synchronized void append(final Polygon toAppend) throws TransformException {
         if (toAppend == null) {
@@ -1495,7 +1488,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns wether this polygon is closed or not.
+     * Returns whether this polygon is closed or not.
      */
     final boolean isClosed() {
         return interiorType != UNCLOSED;
@@ -1514,9 +1507,9 @@ public class Polygon extends GeoShape {
     }
     
     /**
-     * Return a polygons with the point of this polygons from <code>lower</code>
+     * Returns a polygon with the point of this polygon from <code>lower</code>
      * inclusive to <code>upper</code> exclusive. The returned polygon may not be
-     * closed, i.e. {@link #getInteriorType} may returns <code>null</code>.
+     * closed, i.e. {@link #getInteriorType} may return <code>null</code>.
      * If no data are available in the specified range, this method returns
      * <code>null</code>.
      */
@@ -1536,9 +1529,9 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Return a polygons with the point of this polygons from <code>lower</code>
+     * Returns a polygon with the point of this polygon from <code>lower</code>
      * inclusive to the end. The returned polygon may not be closed, i.e. {@link
-     * #getInteriorType} may returns <code>null</code>. If no data are available
+     * #getInteriorType} may return <code>null</code>. If no data are available
      * in the specified range, this method returns <code>null</code>.
      */
     final synchronized Polygon subpoly(final int lower) {
@@ -1546,7 +1539,7 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns the mean resolution. This method cache the result for faster processing.
+     * Returns the mean resolution. This method caches the result for faster processing.
      *
      * @return The mean resolution, or {@link Float#NaN} if this polygon doesn't have any point.
      */
@@ -1564,8 +1557,8 @@ public class Polygon extends GeoShape {
     /**
      * Returns the polygon's resolution.  The mean resolution is the mean distance between
      * every pair of consecutive points in this polygon  (ignoring "extra" points used for
-     * drawing a border, if there is one). This method try to express the resolution in
-     * linear units (usually meters) no matter if the coordinate systems is actually a
+     * drawing a border, if there is one). This method tries to express the resolution in
+     * linear units (usually meters) no matter whether the coordinate system is actually a
      * {@link ProjectedCoordinateSystem} or a {@link GeographicCoordinateSystem}.
      * More specifically:
      * <ul>
@@ -1592,23 +1585,23 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Set the polygon's resolution. This method try to interpolate new points in such a way
+     * Sets the polygon's resolution. This method tries to interpolate new points in such a way
      * that every point is spaced by exactly <code>resolution</code> units (usually meters)
      * from the previous one.
      *
-     * @param  resolution Desired resolution, in the same units than {@link #getResolution}.
+     * @param  resolution Desired resolution, in the same units as {@link #getResolution}.
      * @throws TransformException If some coordinate transformations were needed and failed.
-     *         There is no guaranteed on contour's state in case of failure.
+     *         There is no guarantee on contour's state in case of failure.
      */
     public synchronized void setResolution(final double resolution) throws TransformException {
         CoordinateSystem targetCS = getCoordinateSystem();
         if (CTSUtilities.getHeadGeoEllipsoid(targetCS) != null) {
             /*
-             * The 'Polyline.setResolution(...)' algorithm require a cartesian coordinate system.
-             * If this polygon's coordinate system is not cartesian, check if the underlying data
-             * used a cartesian CS  (this polygon may be a "view" of the data under an other CS).
-             * If the underlying data are not cartesian neither, create a temporary sterographic
-             * projection for computation purpose.
+             * The 'Polyline.setResolution(...)' algorithm requires a cartesian coordinate system.
+             * If this polygon's coordinate system is not cartesian, check whether the underlying data
+             * used a cartesian CS  (this polygon may be a "view" of the data under another CS).
+             * If the underlying data are not cartesian either, create a temporary sterographic
+             * projection for computation purposes.
              */
             targetCS = getInternalCS();
             if (targetCS instanceof GeographicCoordinateSystem) {
@@ -1628,14 +1621,14 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Compress this polygon. Compression is destructive, i.e. it may lost data. This method
-     * process in two steps:
+     * Compress this polygon. Compression is destructive, i.e. it may lose data. This method
+     * processes in two steps:
      *
      * First, it invokes <code>{@link #setResolution setResolution}(dx&nbsp;+&nbsp;factor*std)</code>
      * where <var>dx</var> is the {@linkplain #getResolution mean resolution} of this
      * polygon and <var>std</var> is the resolution's standard deviation.
      *
-     * Second, it replace absolute positions (left handed image) by relative positions
+     * Second, it replaces absolute positions (left handed image) by relative positions
      * (right handed image), i.e. distances relative to the previous point.  Since all
      * distances are of similar magnitude, distances can be coded in <code>byte</code>
      * primitive type instead of <code>float</code>.
@@ -1655,7 +1648,7 @@ public class Polygon extends GeoShape {
      *         used to shares its data with an other polygon, compressing one polygon
      *         may actually increase memory usage since the two polygons will no longer
      *         share their data.
-     * @throws TransformException Si une erreur est survenue lors d'une projection cartographique.
+     * @throws TransformException If an error has come up during a cartographic projection.
      */
     public synchronized float compress(final float factor) throws TransformException {
         final Statistics stats = Polyline.getResolution(data, coordinateTransform);
@@ -1673,12 +1666,12 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Returns a polygon approximatively equals to this polygon clipped to the specified bounds.
-     * The clip is only approximative  in that the resulting polygon may extends outside the clip
-     * area. However, it is garanted that the resulting polygon contains at least all the interior
+     * Returns a polygon approximately equal to this polygon clipped to the specified bounds.
+     * The clip is only approximative in that the resulting polygon may extend outside the clip
+     * area. However, it is guaranteed that the resulting polygon contains at least all the interior
      * of the clip area.
      *
-     * If this method can't performs the clip, or if it believe that it doesn't worth to do a clip,
+     * If this method can't perform the clip, or if it believes that it isn't worth doing a clip,
      * it returns <code>this</code>. If this polygon doesn't intersect the clip area, then this
      * method returns <code>null</code>. Otherwise, a new polygon is created and returned. The new
      * polygon will try to share as much internal data as possible with <code>this</code> in order
@@ -1698,9 +1691,9 @@ public class Polygon extends GeoShape {
             return null;
         }
         /*
-         * Selon toutes apparences, le polygone n'est ni complètement à l'intérieur
-         * ni complètement en dehors de <code>clip</code>. Il faudra donc se resoudre
-         * à faire une vérification plus poussée (et plus couteuse).
+         * It would appear that the polygon is neither completely inside nor completely
+         * outside <code>clip</code>.  It is therefore necessary to resolve to perform
+         * a more powerful (and more costly) check.
          */
         final Polygon clipped = clipper.clip(this);
         if (clipped != null) {
@@ -1718,7 +1711,7 @@ public class Polygon extends GeoShape {
      * @param  point Coordinates (usually mouse coordinates). Must be
      *         specified in this polygon's coordinate system
      *         (as returned by {@link #getCoordinateSystem}).
-     * @param  locale The desired locale for the tool tips.
+     * @param  locale The desired locale for the tooltips.
      * @return The tooltip text for the given location,
      *         or <code>null</code> if there is none.
      */
@@ -1730,9 +1723,9 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Return a copy of all coordinates of this polygon. Coordinates are usually
+     * Returns a copy of all coordinates of this polygon. Coordinates are usually
      * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
-     * pairs, depending of the {@linkplain #getCoordinateSystem coordinate system
+     * pairs, depending on the {@linkplain #getCoordinateSystem coordinate system
      * in use}.
      *
      * @param  The destination array. The coordinates will be filled in {@link ArrayData#array}
@@ -1746,11 +1739,11 @@ public class Polygon extends GeoShape {
         try {
             /*
              * If the polygon's coordinate system is geographic, then we must translate
-             * the resolution (which is in linear unit, usually meters) to angular units.
+             * the resolution (which is in linear units, usually meters) to angular units.
              * The formula used below is only an approximation (probably not the best one).
-             * It estimate the average of latitudinal and longitudinal angles corresponding
+             * It estimates the average of latitudinal and longitudinal angles corresponding
              * to the distance 'resolution' in the middle of the polygon's bounds. The average
-             * is weighted according the width/height ratio of the polygon's bounds.
+             * is weighted according to the width/height ratio of the polygon's bounds.
              */
             final CoordinateSystem cs = getCoordinateSystem();
             final Ellipsoid ellipsoid = CTSUtilities.getHeadGeoEllipsoid(cs);
@@ -1768,7 +1761,7 @@ public class Polygon extends GeoShape {
                 height /= normalize;
                 resolution *= (height + width/cos) * XMath.hypot(sin/ellipsoid.getSemiMajorAxis(),
                                                                  cos/ellipsoid.getSemiMinorAxis());
-                // Assume that longitude has the same unit than latitude.
+                // Assume that longitude has the same unit as latitude.
                 resolution = (float) unit.convert(resolution, Unit.RADIAN);
             }
             /*
@@ -1795,29 +1788,29 @@ public class Polygon extends GeoShape {
                 }
             }
             /*
-             * Gets the array and transform it, if needed.
+             * Gets the array and transforms it, if needed.
              */
             Polyline.toArray(data, dest, resolution, getMathTransform2D(coordinateTransform));
         } catch (TransformException exception) {
             // Should not happen, since {@link #setCoordinateSystem}
-            // has already successfully projected every points.
+            // has already successfully projected every point.
             unexpectedException("toArray", exception);
         }
     }
 
     /**
-     * Return a copy of all coordinates of this polygon. Coordinates are usually
+     * Returns a copy of all coordinates of this polygon. Coordinates are usually
      * (<var>x</var>,<var>y</var>) or (<var>longitude</var>,<var>latitude</var>)
-     * pairs, depending of the {@linkplain #getCoordinateSystem coordinate system
-     * in use}. This method never return <code>null</code>, but may return an array
+     * pairs, depending on the {@linkplain #getCoordinateSystem coordinate system
+     * in use}. This method never returns <code>null</code>, but may return an array
      * of length 0 if no data are available.
      *
      * @param  resolution The minimum distance desired between points, in the same units
-     *         than for the {@link #getResolution} method  (i.e. linear units as much as
+     *         as for the {@link #getResolution} method  (i.e. linear units as much as
      *         possible - usually meters - even for geographic coordinate system).
      *         If <code>resolution</code> is greater than 0, then points that are closer
-     *         than <code>resolution</code> from previous points will be skiped. This method
-     *         is not required to perform precise distances computation.
+     *         than <code>resolution</code> from previous points will be skipped. This method
+     *         is not required to perform precise distance computations.
      * @return The coordinates expressed in this
      *         {@linkplain #getCoordinateSystem polygon's coordinate system}.
      */
@@ -1854,7 +1847,7 @@ public class Polygon extends GeoShape {
     /**
      * Return a clone of this polygon. The clone has a deep copy semantic,
      * i.e. any change to the current polygon (including adding new points)
-     * will not affect the clone,  and vis-versa   (any change to the clone
+     * will not affect the clone,  and vice-versa   (any change to the clone
      * will not affect the current polygon). However, the two polygons will
      * share many internal structures in such a way that memory consumption
      * for polygon's clones should be kept low.
@@ -1866,12 +1859,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Efface toutes les informations qui étaient conservées dans une cache interne.
-     * Cette méthode peut être appelée lorsque l'on sait que ce polygone ne sera plus
-     * utilisé avant un certain temps. Elle ne cause la perte d'aucune information,
-     * mais rendra la prochaine utilisation de ce polygone plus lente (le temps que
-     * les caches internes soient reconstruites,  après quoi le polygone retrouvera
-     * sa vitesse normale).
+     * Clears all information that was kept in an internal cache.
+     * This method can be called when we know that this polygon will no longer be used
+     * before a particular time. It does not cause the loss of any information but
+     * will make the next use of this polygon slower (the time during which the internal
+     * caches are reconstructed, after which the polygon will resume its normal speed).
      */
     final synchronized void clearCache() {
         cache      = null;
@@ -1890,11 +1882,11 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Méthode appelée lorsqu'une erreur inatendue est survenue.
+     * Method called when an unexpected error has occurred.
      *
-     * @param  method Nom de la méthode dans laquelle est survenu l'exception.
-     * @param  exception L'exception survenue.
-     * @throws IllegalPathStateException systématiquement relancée.
+     * @param  method Name of the method in which the exception has occurred.
+     * @param  exception The exception which has occurred.
+     * @throws IllegalPathStateException systematically rethrown.
      */
     static void unexpectedException(final String method, final TransformException exception) {
         Polyline.unexpectedException("Polygon", method, exception);
@@ -1906,27 +1898,27 @@ public class Polygon extends GeoShape {
 
     /**
      * Write all point coordinates to the specified stream.
-     * This method is usefull for debugging purpose.
+     * This method is useful for debugging purposes.
      *
      * @param  out The destination stream, or <code>null</code> for the standard output.
      * @param  locale Desired locale, or <code>null</code> for a default one.
-     * @throws IOException If an error occured while writting to the destination stream.
+     * @throws IOException If an error occured while writing to the destination stream.
      */
     public void print(final Writer out, final Locale locale) throws IOException {
         print(new String[]{getName(locale)}, new Collection[]{getPoints()}, out, locale);
     }
 
     /**
-     * Write side-by-side all point coordinates of many polygons.
-     * This method is usefull for checking the result of a coordinate
-     * transformation; one could write side-by-side the original and
-     * transformed polygons. Note that this method may require unicode
+     * Write all point coordinates of many polygons side by side.
+     * This method is useful for checking the result of a coordinate
+     * transformation; one could write the original and transformed
+     * polygons side by side. Note that this method may require unicode
      * support for proper output.
      *
-     * @param  polygons The set of polygons. polygons may have different length.
+     * @param  polygons The set of polygons. Polygons may have different lengths.
      * @param  out The destination stream, or <code>null</code> for the standard output.
      * @param  locale Desired locale, or <code>null</code> for a default one.
-     * @throws IOException If an error occured while writting to the destination stream.
+     * @throws IOException If an error occured while writing to the destination stream.
      */
     public static void print(final Polygon[] polygons, final Writer out, final Locale locale)
             throws IOException
@@ -1942,14 +1934,14 @@ public class Polygon extends GeoShape {
     }
 
     /**
-     * Write side-by-side all points from arbitrary collections.
+     * Write all points from arbitrary collections side by side.
      * Note that this method may require unicode support for proper output.
      *
-     * @param  titles The column's titles. Should have the same length than <code>points</code>.
-     * @param  points Array of points collections. Collections may have different size.
+     * @param  titles The column's titles. Should have the same length as <code>points</code>.
+     * @param  points Array of points collections. Collections may have different sizes.
      * @param  out The destination stream, or <code>null</code> for the standard output.
      * @param  locale Desired locale, or <code>null</code> for a default one.
-     * @throws IOException If an error occured while writting to the destination stream.
+     * @throws IOException If an error occured while writing to the destination stream.
      */
     public static void print(final String[] titles, final Collection[] points, Writer out, Locale locale)
             throws IOException
@@ -2021,7 +2013,7 @@ public class Polygon extends GeoShape {
      * would like to be a renderer for polygons in an {@link Isoline}.
      * The {@link #paint} method is invoked by {@link Isoline#paint}.
      *
-     * @version $Id: Polygon.java,v 1.7 2003/02/11 16:02:33 desruisseaux Exp $
+     * @version $Id: Polygon.java,v 1.8 2003/02/19 17:35:52 jmacgill Exp $
      * @author Martin Desruisseaux
      *
      * @see Polygon
@@ -2040,11 +2032,11 @@ public class Polygon extends GeoShape {
 
         /**
          * Returns the rendering resolution, in units of polygon and isoline's coordinate system.
-         * (usually metres or degrees). A larger resolution speed up rendering, while a smaller
-         * resolution draw more precise map.
+         * (usually metres or degrees). A larger resolution speeds up rendering, while a smaller
+         * resolution draws more precise maps.
          *
          * @param  current The current rendering resolution.
-         * @return the <code>current</code> rendering resolution if it still good enough,
+         * @return the <code>current</code> rendering resolution if it is still good enough,
          *         or a new resolution if a change is needed.
          *
          * @see Polygon#getCoordinateSystem
@@ -2054,8 +2046,8 @@ public class Polygon extends GeoShape {
 
         /**
          * Draw or fill a polygon. {@link Isoline#paint} invokes this method with a decimated and/or
-         * clipped polygon in argument. This polygon expose some internal state of {@link Isoline}.
-         * <strong>Do not modify it, neither keep a reference to it after this method call</strong>
+         * clipped polygon in argument. This polygon exposes some internal state of {@link Isoline}.
+         * <strong>Do not modify it, nor keep a reference to it after this method call</strong>
          * in order to avoid unexpected behaviour.
          *
          * @param polygon The polygon to draw. <strong>Do not modify.</strong>
@@ -2063,18 +2055,18 @@ public class Polygon extends GeoShape {
         public abstract void paint(final Polygon polygon);
 
         /**
-         * Invoked once after a series of polygons has been painted. This method is typically
-         * invoked by {@link Isoline#paint} after all isoline's polygons has been painted.
-         * Some implementation may choose to release resources here. The arguments provided
-         * to this method are for information purpose only.
+         * Invoked once after a series of polygons have been painted. This method is typically
+         * invoked by {@link Isoline#paint} after all isoline's polygons have been painted.
+         * Some implementations may choose to release resources here. The arguments provided
+         * to this method are for information purposes only.
          *
          * @param rendered The total number of <em>rendered</em> points. This number is
          *        always smaller than {@link Isoline#getPointCount}  since the renderer
-         *        may have clipped or decimated data. This is the number of points keep
+         *        may have clipped or decimated data. This is the number of points kept
          *        in the cache.
-         * @param recomputed The number of points that has been recomputed (i.e. decompressed,
-         *        decimated, projected and transformed). They are points that was not reused
-         *        from the cache. This number is always smaller than or equals to
+         * @param recomputed The number of points that have been recomputed (i.e. decompressed,
+         *        decimated, projected and transformed). They are points that were not reused
+         *        from the cache. This number is always smaller than or equal to
          *        <code>rendered</code>.
          * @param resolution The mean resolution of rendered polygons.
          */
