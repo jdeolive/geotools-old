@@ -35,12 +35,10 @@ package org.geotools.resources;
 // Utilities
 import java.util.Locale;
 import java.util.Enumeration;
-import java.util.ListResourceBundle;
 import java.util.NoSuchElementException;
 import java.util.MissingResourceException;
 
 // Text format
-import java.text.Format;
 import java.text.MessageFormat;
 
 // Input / output
@@ -69,7 +67,7 @@ import java.util.logging.LogRecord;
  * declarative interface is never loaded at run time. This class also
  * provides facilities for string formatting using {@link MessageFormat}.
  *
- * @version $Id: ResourceBundle.java,v 1.6 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: ResourceBundle.java,v 1.7 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ResourceBundle extends java.util.ResourceBundle {

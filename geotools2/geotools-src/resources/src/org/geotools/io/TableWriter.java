@@ -37,8 +37,6 @@ import java.io.Writer;
 import java.io.FilterWriter;
 import java.io.StringWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 
 // Miscellaneous
 import java.util.List;
@@ -83,7 +81,7 @@ import org.geotools.resources.Utilities;
  *      Yvan        Dubois
  * </pre></blockquote>
  *
- * @version $Id: TableWriter.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: TableWriter.java,v 1.5 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TableWriter extends FilterWriter {
@@ -942,7 +940,7 @@ public class TableWriter extends FilterWriter {
      * A class wrapping a cell's content and its text's alignment.
      * This class if for internal use only.
      *
-     * @version $Id: TableWriter.java,v 1.4 2003/05/13 10:58:20 desruisseaux Exp $
+     * @version $Id: TableWriter.java,v 1.5 2003/08/04 18:21:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Cell {

@@ -50,7 +50,6 @@ import java.util.regex.Pattern;
 import java.util.prefs.Preferences;
 
 // Resources
-import org.geotools.resources.Utilities;
 import org.geotools.resources.rsc.Resources;
 import org.geotools.resources.rsc.ResourceKeys;
 
@@ -71,7 +70,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * The default implementation print the localized error message to standard output {@link #out}
  * and exits the virtual machine with a call to {@link System#exit} with error code 1.
  *
- * @version $Id: Arguments.java,v 1.5 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: Arguments.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Arguments {

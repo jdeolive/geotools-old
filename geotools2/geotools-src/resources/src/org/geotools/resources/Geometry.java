@@ -39,10 +39,10 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.Rectangle2D;
-import java.awt.geom.GeneralPath;
+import java.awt.geom.GeneralPath; // For javadoc
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.PathIterator;
-import java.awt.geom.AffineTransform;
+import java.awt.geom.AffineTransform; // For javadoc
 
 
 /**

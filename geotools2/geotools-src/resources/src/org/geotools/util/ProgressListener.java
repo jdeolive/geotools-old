@@ -35,7 +35,6 @@ package org.geotools.util;
 
 // Miscellaneous
 import javax.swing.ProgressMonitor; // For JavaDoc
-import org.geotools.resources.Utilities;
 
 
 /**
@@ -68,7 +67,7 @@ import org.geotools.resources.Utilities;
  * is used for reducing the amount of calls to {@link #progress} (only once every 256 steps).
  * This is not mandatory, but may speed up the process.
  *
- * @version $Id: ProgressListener.java,v 1.3 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: ProgressListener.java,v 1.4 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gui.headless.ProgressPrinter

@@ -44,10 +44,8 @@ import java.util.Arrays;
 
 // Input/output
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.DataOutputStream;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -77,7 +75,7 @@ import java.lang.reflect.Field;
  * don't need to be included in the final JAR file. They are used at
  * compile time only and no other classes should keep reference to them.
  *
- * @version $Id: ResourceCompiler.java,v 1.5 2003/05/13 10:58:20 desruisseaux Exp $
+ * @version $Id: ResourceCompiler.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class ResourceCompiler implements Comparator {
@@ -94,11 +92,6 @@ final class ResourceCompiler implements Comparator {
      * The class name for the interfaces to be generated.
      */
     private static final String CLASS_NAME = "ResourceKeys";
-
-    /**
-     * File name prefix for properties and resource files.
-     */
-    private static final String PREFIX = "resources";
 
     /**
      * Extension for properties files.

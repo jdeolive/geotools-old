@@ -32,18 +32,13 @@
  */
 package org.geotools.util;
 
-// Collections
-import java.util.Set;
-import java.util.List;
+// Collections and references
+import java.util.Set;   // For JavaDoc
 import java.util.Arrays;
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.AbstractSet;
 import java.util.WeakHashMap; // For JavaDoc
-import java.util.Iterator;
-
-// References
 import java.lang.ref.WeakReference;
-import java.lang.ref.ReferenceQueue;
 
 // Logging
 import java.util.logging.Level;
@@ -52,7 +47,6 @@ import java.util.logging.LogRecord;
 
 // Geotools dependencies
 import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
 
 
 /**
@@ -70,7 +64,7 @@ import org.geotools.resources.Utilities;
  * <br><br>
  * The <code>WeakHashSet</code> class is thread-safe.
  *
- * @version $Id: WeakHashSet.java,v 1.5 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: WeakHashSet.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see WeakHashMap

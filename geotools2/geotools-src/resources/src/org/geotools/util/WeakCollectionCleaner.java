@@ -33,8 +33,8 @@
 package org.geotools.util;
 
 // J2SE dependencies
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;     // For javadoc
+import java.lang.ref.WeakReference; // For javadoc
 import java.lang.ref.ReferenceQueue;
 
 // Geotools dependencies
@@ -49,7 +49,7 @@ import org.geotools.resources.Utilities;
  * which remove their entry from the collection when {@link Reference#clear}
  * is invoked.
  *
- * @version $Id: WeakCollectionCleaner.java,v 1.2 2003/05/13 10:58:21 desruisseaux Exp $
+ * @version $Id: WeakCollectionCleaner.java,v 1.3 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class WeakCollectionCleaner extends Thread {

@@ -36,8 +36,6 @@ package org.geotools.math;
 // J2SE dependencies
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.awt.geom.PathIterator;
-import java.awt.geom.IllegalPathStateException;
 import javax.vecmath.MismatchedSizeException;
 import java.io.Serializable;
 
@@ -53,7 +51,7 @@ import java.io.Serializable;
  * can be computed for a given <var>x</var> value using the {@link #y} method. Method
  * {@link #x} compute the converse and should work even if the line is vertical.
  *
- * @version $Id: Line.java,v 1.5 2003/07/23 14:17:46 desruisseaux Exp $
+ * @version $Id: Line.java,v 1.6 2003/08/04 18:21:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Point2D

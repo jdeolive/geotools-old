@@ -33,10 +33,7 @@
 package org.geotools.resources;
 
 // Collections and arrays
-import java.util.List;
 import java.util.Arrays;
-import java.util.ArrayList;
-import java.lang.reflect.Array;
 
 // Logging
 import java.util.logging.Level;

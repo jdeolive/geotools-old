@@ -39,7 +39,6 @@ import javax.swing.filechooser.FileFilter;
 
 // Regular expression
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 
 /**
