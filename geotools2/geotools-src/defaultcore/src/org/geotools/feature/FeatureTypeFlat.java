@@ -37,7 +37,7 @@ import org.geotools.data.*;
  * do not allow any nested elements, but they also restrict the attribute
  * objects to be very simple data types.</p>
  *
- * @version $Id: FeatureTypeFlat.java,v 1.14 2002/07/25 09:44:58 ianturton Exp $
+ * @version $Id: FeatureTypeFlat.java,v 1.15 2002/07/25 16:59:52 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureTypeFlat implements FeatureType {
@@ -136,8 +136,8 @@ public class FeatureTypeFlat implements FeatureType {
                        isAssignableFrom(attributeTypes[i].getType())) &&
                      (attributeTypes[i].getOccurrences() == 1)) {
             _log.debug("is ok geometry");
-                isValid = isValid && (geometryPosition == -1);
-                geometryPosition = i;
+                
+                if(geometryPosition == -1 ) geometryPosition = i;
                 _log.debug("GeomPosition = " + geometryPosition);
                 nameMap.put(attributeTypes[i].getName(), attributeTypes[i]);
                 attributeTypes[i] = attributeTypes[i].setPosition(i);
@@ -146,13 +146,14 @@ public class FeatureTypeFlat implements FeatureType {
             // if it is neither, set validity flag to false
             else {
             _log.debug("is bad");
-                isValid = false; 
+                isValid = false;
+                throw new SchemaException("tried to add nonconforming and non geometry attribute");
             }
         }
 
         // check validity...note that a geometry must have been assigned
         // copy valid array (for immutability), otherwise throw exception
-        if (isValid && (geometryPosition != -1)) {
+        if (isValid) {
             this.attributeTypes = new AttributeType[n];
             System.arraycopy(attributeTypes, 0, this.attributeTypes, 0, n);
         }

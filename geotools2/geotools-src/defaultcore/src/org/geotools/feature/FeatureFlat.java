@@ -21,7 +21,7 @@
 package org.geotools.feature;
 
 import java.util.*;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import com.vividsolutions.jts.geom.*;
 
 /**
@@ -32,13 +32,13 @@ import com.vividsolutions.jts.geom.*;
  * trivial, since all allowed attribute objects (from the feature type) are
  * immutable.
  *
- * @version $Id: FeatureFlat.java,v 1.11 2002/07/12 18:26:34 robhranac Exp $
+ * @version $Id: FeatureFlat.java,v 1.12 2002/07/25 16:59:51 ianturton Exp $
  * @author Rob Hranac, VFNY
  */
 public class FeatureFlat implements Feature {
 
     /** Logging instance for this class. */
-    private static Category _log = Category.getInstance(FeatureFlat.class.getName());
+    private static Logger _log = Logger.getLogger(FeatureFlat.class);
 
     /** Flat feature type schema for this feature. */
     private final String featureId;
@@ -108,7 +108,7 @@ public class FeatureFlat implements Feature {
         // Gets the number of attributes from feature and uses to set valid flag
         int n = schema.attributeTotal();
         boolean isValid = (n == attributes.length);
-        //_log.info("schema attributes: " + n);
+        //_log.debug("schema attributes: " + n);
         _log.debug("passed attributes: " + attributes.length);
         _log.debug("is valid: " + isValid);
 
@@ -119,22 +119,22 @@ public class FeatureFlat implements Feature {
                 isValid;
             //String existingType = schema.getAttributeType(i).getType();
             //String targetType = attributes[i].getClass().getName();
-            //_log.info("target type:" + attributes[i].toString());
-            //_log.info("validity check:" + schema.getAttributeType(i).getName());
-            //_log.info("existing type:" + existingType );
-            //_log.info("target type:" + targetType );
+            //_log.debug("target type:" + attributes[i].toString());
+            //_log.debug("validity check:" + schema.getAttributeType(i).getName());
+            //_log.debug("existing type:" + existingType );
+            //_log.debug("target type:" + targetType );
             //if( !(existingType.equals( targetType ) ) ) {
             //  isValid = false;
             //}
-            //_log.info("is valid: " + isValid);
+            //_log.debug("is valid: " + isValid);
         }
 
         // Add if it is valid, otherwise throw an exception.
         if (isValid) {
-            //_log.info("about to copy");
+            //_log.debug("about to copy");
             this.attributes = new Object[n];
             System.arraycopy(attributes, 0, this.attributes, 0, n);
-            //_log.info("just copied");
+            //_log.debug("just copied");
         }
         else {
             throw new IllegalFeatureException("You have attempted to create an invalid feature " +
@@ -194,10 +194,10 @@ public class FeatureFlat implements Feature {
     public Object getAttribute(String xPath)
         throws IllegalFeatureException {
 
-        //_log.info("looking for attribute: " + xPath);
+        _log.debug("looking for attribute: " + xPath);
         AttributeType definition = null;
-        //_log.info("has attribute: " + schema.hasAttributeType(xPath));
-        //_log.info("attribute is: " + schema.getAttributeType(xPath).toString());
+        _log.debug("has attribute: " + schema.hasAttributeType(xPath));
+        _log.debug("attribute is: " + schema.getAttributeType(xPath).toString());
         if (schema.hasAttributeType(xPath)) {
             definition = schema.getAttributeType(xPath);
         }
@@ -205,8 +205,8 @@ public class FeatureFlat implements Feature {
             String message = "Could not find requested attribute: " + xPath;
             throw new IllegalFeatureException(message);
         }
-        //_log.info("position is: " + definition.getPosition());
-        //_log.info("attribute is: " + attributes[definition.getPosition()].toString());
+        _log.debug("position is: " + definition.getPosition());
+        _log.debug("attribute is: " + attributes[definition.getPosition()].toString());
         return attributes[definition.getPosition()];
     }
 
@@ -286,7 +286,7 @@ public class FeatureFlat implements Feature {
 
             definition = schema.getAttributeType(xPath);
             if (definition.getType().isAssignableFrom(attribute.getClass())) {
-                //_log.info("position: " + definition.getPosition());
+                //_log.debug("position: " + definition.getPosition());
                 attributes[definition.getPosition()] = attribute;
             }
             else {
