@@ -11,16 +11,15 @@
         <ant antfile="build-maven.xml" dir="..\shapefile" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\defaultcore" inheritall="true" target="maven:install-jar"/>
         <ant antfile="build-maven.xml" dir="..\resources" inheritall="true" target="maven:install-jar"/>
+        
+        <ant antfile="build-maven.xml" dir="..\Java2DRendering" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\gmldatasource" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\postgis" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\gui" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:install-jar"/>
+        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:install-jar"/>
     </target>
-    
-    <target name="tests">
-        <ant antfile="build-maven.xml" dir="..\Java2DRendering" inheritall="true" target="maven:test"/>
-        <ant antfile="build-maven.xml" dir="..\gmldatasource" inheritall="true" target="maven:test"/>
-        <ant antfile="build-maven.xml" dir="..\postgis" inheritall="true" target="maven:test"/>
-        <ant antfile="build-maven.xml" dir="..\gui" inheritall="true" target="maven:test"/>
-        <ant antfile="build-maven.xml" dir="..\filter" inheritall="true" target="maven:test"/>
-        <ant antfile="build-maven.xml" dir="..\cts-coordtrans" inheritall="true" target="maven:test"/>
-    </target>
+   
     
     <target depends="tests" name="sites">
         <ant antfile="build-maven.xml" dir="..\core" inheritall="true" target="maven:site"/>
