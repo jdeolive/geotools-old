@@ -313,6 +313,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         graphics.draw(path);
     }
     
+    private void renderPoint(Feature feature, PointSymbolizer symbolizer){
+        Graphic sldgraphic = symbolizer.getGraphic();
+    }
     /**
      * Convenience method for applying a geotools Stroke object
      * as a Graphics2D Stroke object
