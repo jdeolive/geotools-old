@@ -66,6 +66,7 @@ public class LayerReader extends DefaultHandler {
     public static final String ATTRIB_NAME = "name";
     public static final String ATTRIB_VALUE = "value";
     public static final String ATTRIB_FILENAME = "filename";
+    public static final String ATTRIB_DEFAULTSTYLE = "default";
     
     
     public LayerReader() {
@@ -145,9 +146,14 @@ public class LayerReader extends DefaultHandler {
                 currentLayer.styles = new HashMap();
             }
             currentLayer.styles.put(attrs.getValue(ATTRIB_ID), attrs.getValue(ATTRIB_FILENAME));
+            String style = attrs.getValue(ATTRIB_DEFAULTSTYLE);
+            //System.out.println("default style attrib is " + style);
+            if(style != null && style.equalsIgnoreCase("true")){
+                currentLayer.defaultStyle = attrs.getValue(ATTRIB_ID);
+            }
         }
         
-        
+
     }
     
     /** Characters. */

@@ -40,6 +40,8 @@ public class LayerEntry
 	public Properties properties;
         /** The styles for this layer */
         public HashMap styles;
+        /** The default style for this layer */
+        public String defaultStyle;
 }
 
 
