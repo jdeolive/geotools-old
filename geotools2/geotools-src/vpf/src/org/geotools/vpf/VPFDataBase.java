@@ -29,7 +29,7 @@ import java.util.List;
  * Class <code>VPFDataBase</code> is responsible for 
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VPFDataBase.java,v 1.4 2003/04/11 12:36:24 kobit Exp $
+ * @version $Id: VPFDataBase.java,v 1.5 2003/04/17 10:18:33 kobit Exp $
  */
 public class VPFDataBase implements FileConstants {
 
@@ -65,6 +65,11 @@ public class VPFDataBase implements FileConstants {
         }
     }
 
+    /**
+     * Method <code>getMinX</code> is used to perform 
+     *
+     * @return a <code><code>double</code></code> value
+     */
     public double getMinX() {
         double xmin = libraries[0].get(VPFLibraryIfc.FIELD_XMIN).getAsDouble();
         for (int i = 1; i < libraries.length; i++) {
