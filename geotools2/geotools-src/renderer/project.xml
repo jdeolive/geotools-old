@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <pomVersion>3</pomVersion>
+  <extend>../../project.xml</extend>
+  <name>geotools-renderer</name>
+  <id>renderer</id>
+  <currentVersion>0.1</currentVersion>
+  <shortDescription>Rendering module</shortDescription>
+  <description>Rendering module (include a Java2D renderer).</description>
+
+  <developers>
+    <developer>
+      <name>James Macgill</name>
+      <id>jmacgill</id>
+      <email>jmacgill@users.sourceforge.net</email>
+      <organization>CCG</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Ian Turton</name>
+      <id>ianturton</id>
+      <email>ianturton@users.sourceforge.net</email>
+      <organization>CCG</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Martin Desruisseaux</name>
+      <id>desruisseaux</id>
+      <email>desruisseaux@users.sourceforge.net</email>
+      <organization>Institut de recherche pour le developpement</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+  <dependencies>
+    <dependency>
+      <id>resources</id>
+      <version>0.1</version>
+    </dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
+      <id>gcs-coverage</id>
+      <version>0.6</version>
+    </dependency>
+  </dependencies>
+  
+</project>
