@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.22 2004/01/28 22:22:40 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.23 2004/02/05 15:59:17 aaime Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -327,12 +327,15 @@ public class DefaultAttributeType implements AttributeType {
 
             return;
         }
-
-        if ((attribute != null) && !type.isAssignableFrom(attribute.getClass())) {
+        /* This gets already checked in the parse() method, no need to do it
+           twice since this method will be called for every single attribute
+           of every single feature...
+        else if (!type.isAssignableFrom(attribute.getClass())) {
             throw new IllegalArgumentException(attribute.getClass().getName()
                 + " is not an acceptable class for " + getName()
                 + " as it is not assignable from " + type);
         }
+        */
     }
 
     public Object createDefaultValue() {
