@@ -57,7 +57,7 @@ import org.geotools.map.Layer;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.85 2003/07/17 07:09:51 ianschneider Exp $
+ * @version $Id: Java2DRenderer.java,v 1.86 2003/07/17 16:29:04 ianschneider Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -590,5 +590,21 @@ Renderer2D {
   public void setInteractive(boolean interactive) {
     this.interactive = interactive;
   }
+
+  /** Getter for property scaleDenominator.
+     * @return Value of property scaleDenominator.
+     *
+     */
+    public double getScaleDenominator() {
+        return scaleDenominator;
+    }
+
+    /** Setter for property scaleDenominator.
+     * @param scaleDenominator New value of property scaleDenominator.
+     *
+     */
+    protected void setScaleDenominator(double scaleDenominator) {
+        this.scaleDenominator = scaleDenominator;
+    }
 
 }
