@@ -80,7 +80,7 @@ public class FilterXMLParser {
                     NamedNodeMap kids = child.getAttributes();
                     for(int i=0;i<kids.getLength();i++){
                         Node kid = kids.item(i);
-                        if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
+                        //if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
                         String res = kid.getNodeName();
                         if(res.equalsIgnoreCase("wildCard")){
                             wildcard = kid.getNodeValue();
@@ -88,12 +88,13 @@ public class FilterXMLParser {
                         if(res.equalsIgnoreCase("singleChar")){
                             single = kid.getNodeValue();
                         }
-                        if(res.equalsIgnoreCase("escape")){
+                        if(res.equalsIgnoreCase("escapeChar")){
                             escape = kid.getNodeValue();
                         }
                     }
                     if(!(wildcard==null||single==null||escape==null||pattern==null)){
                         LikeFilter lfilter = new LikeFilter();
+                        _log.debug("Building like filter "+value.toString()+"\n"+pattern+" "+wildcard+" "+single+" "+escape);
                         lfilter.setValue(value);
                         lfilter.setPattern(pattern,wildcard,single,escape);
                         return lfilter;
@@ -134,6 +135,14 @@ public class FilterXMLParser {
                     
                     while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
                     _log.debug("add right value -> "+value+"<-");
+                    if(!(value.getNodeName().equalsIgnoreCase("Literal")
+                    ||value.getNodeName().equalsIgnoreCase("propertyname"))){
+                        Element literal = value.getOwnerDocument().createElement("literal");
+                        
+                        literal.appendChild(value);
+                        _log.debug("Built new literal "+literal);
+                        value = literal;
+                    }
         
                     filter.addRightGeometry(ExpressionXmlParser.parseExpression(value));
                     return filter;
