@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.9 2003/03/30 20:06:42 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.10 2003/04/01 10:41:38 camerons Exp $
  *
  */
 
@@ -235,27 +235,27 @@ public class MapViewer {
 
     private void panActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(toolFactory.createPanTool());
+        context.getToolList().setTool(toolFactory.createPanTool());
     }
 
     private void zoomInActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(toolFactory.createZoomTool(2));
+        context.getToolList().setTool(toolFactory.createZoomTool(2));
     }
 
     private void zoomOutActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(toolFactory.createZoomTool(0.5));
+        context.getToolList().setTool(toolFactory.createZoomTool(0.5));
     }
 
     private void zoomPanActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(toolFactory.createZoomTool(1));
+        context.getToolList().setTool(toolFactory.createZoomTool(1));
     }
 
     private void noToolActionPerformed(java.awt.event.ActionEvent evt){
         ToolFactory toolFactory=ToolFactory.createFactory();
-        context.getSelectedTool().setTool(null);
+        context.getToolList().setTool(null);
     }
 
     /**
