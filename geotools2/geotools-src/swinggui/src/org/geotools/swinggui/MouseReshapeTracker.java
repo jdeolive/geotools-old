@@ -63,7 +63,7 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.JFormattedTextField;
-import org.geotools.swing.ExceptionMonitor;
+import org.geotools.swinggui.ExceptionMonitor;
 
 // Events
 import java.awt.event.KeyEvent;

@@ -30,7 +30,7 @@
  *             Institut Maurice-Lamontagne
  *             mailto:osl@osl.gc.ca
  */
-package org.geotools.swing;
+package org.geotools.swinggui;
 
 // Geometry
 import java.awt.Shape;

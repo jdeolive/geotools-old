@@ -53,8 +53,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import org.geotools.swing.event.ZoomChangeEvent;
-import org.geotools.swing.event.ZoomChangeListener;
+import org.geotools.swinggui.event.ZoomChangeEvent;
+import org.geotools.swinggui.event.ZoomChangeListener;
 
 // Geometry
 import java.awt.Shape;

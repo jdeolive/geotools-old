@@ -5,8 +5,8 @@
  */
 
 package org.geotools.swinggui.tables;
-import org.geotools.featuretable.FeatureTable;
-import org.geotools.datasource.*;
+import org.geotools.feature.*;
+import org.geotools.data.*;
 
 /**
  * An implementaion of swings TableModel which allows FeatureTables to be displayed.
@@ -16,7 +16,7 @@ import org.geotools.datasource.*;
 public class FeatureTableModel extends javax.swing.table.AbstractTableModel implements javax.swing.table.TableModel {
     /** Holds the FeatureTable that will be represented by this model
      */    
-    protected FeatureTable featureTable;
+    protected FeatureCollection featureTable;
     
     
     /** Creates a new instance of FeatureTableModel */
@@ -26,11 +26,11 @@ public class FeatureTableModel extends javax.swing.table.AbstractTableModel impl
     /** Set which featuretable to represent
      * @param featureTable The feature table to represent.  This could fire a Table Structure Changed event.
      */    
-    public void setFeatureTable(FeatureTable featureTable){
-        this.featureTable = featureTable;
+    public void setFeatureCollection(FeatureCollection featureCollection){
+        this.featureTable = featureCollection;
         this.fireTableStructureChanged();
     }
-    //TODO:This assumes that all features have the same number of attributes, which may not be true
+
     /** The number of columns in the feature table
      * Note, for the moment this is determined by the first feature.
      * @return the number of columns in this feature table
@@ -58,7 +58,8 @@ public class FeatureTableModel extends javax.swing.table.AbstractTableModel impl
         if(featureTable==null)return null;
         Feature features[] = featureTable.getFeatures();
         if(features.length==0)return null;
-        return features[0].getAttributeNames()[col];
+        AttributeType[] attribDefn = features[0].getSchema().getAllAttributeTypes();
+        return attribDefn[col].getName();
     }
         
     
