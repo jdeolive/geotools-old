@@ -30,7 +30,7 @@ import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.8 2002/06/05 12:59:45 loxnard Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.9 2002/07/12 14:58:50 loxnard Exp $
  * @author James Macgill, CCG
  */
 public class ShapefileDataSource implements org.geotools.data.DataSource {
@@ -50,44 +50,44 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     /**
      * Loads Feature rows for the given Extent from the datasource.
      */
-    public void importFeatures(FeatureCollection ft,Extent ex) throws DataSourceException {
-        if(ex instanceof EnvelopeExtent){
-            try{
+    public void importFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
+        if (ex instanceof EnvelopeExtent){
+            try {
                 GeometryCollection shapes = shapefile.read(new GeometryFactory());
                 List features = new ArrayList();
-                EnvelopeExtent ee = (EnvelopeExtent)ex;
+                EnvelopeExtent ee = (EnvelopeExtent) ex;
                 Envelope bounds = ee.getBounds();
                 Geometry typical = shapes.getGeometryN(0);
                 AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class);
                 
                 FeatureType shapefileType = new FeatureTypeFlat(geometryAttribute);
-                System.out.println("schema is "+shapefileType);
+                System.out.println("schema is " + shapefileType);
                 FeatureFactory fac = new FeatureFactory(shapefileType);
                 int count = shapes.getNumGeometries();
                 //Feature[] features = new Feature[count];
-                for(int i=0;i<count;i++){
+                for(int i = 0; i < count; i++){
                     //Feature feat = new FlatFeature();
                     
                     Object [] row = new Object[1];
-                    row[0] = (Geometry)shapes.getGeometryN(i);
-                    System.out.println("adding geometry"+row[0]);
+                    row[0] = (Geometry) shapes.getGeometryN(i);
+                    System.out.println("adding geometry" + row[0]);
                     Feature feature = fac.create(row);
-                    if(ex.containsFeature(feature)){
+                    if (ex.containsFeature(feature)){
                         ft.addFeatures(new Feature[]{feature});
                     }
                 }
             }
-            catch(IOException ioe){
-                throw new DataSourceException("IO Exception loading data : "+ioe.getMessage());
+            catch (IOException ioe){
+                throw new DataSourceException("IO Exception loading data : " + ioe.getMessage());
             }
-            catch(ShapefileException se){
-                throw new DataSourceException("Shapefile Exception loading data : "+se.getMessage());
+            catch (ShapefileException se){
+                throw new DataSourceException("Shapefile Exception loading data : " + se.getMessage());
             }
-            catch(TopologyException te){
-                throw new DataSourceException("Topology Exception loading data : "+te.getMessage());
+            catch (TopologyException te){
+                throw new DataSourceException("Topology Exception loading data : " + te.getMessage());
             }
-            catch(IllegalFeatureException ife){
-                throw new DataSourceException("Illegal Feature Exception loading data : "+ife.getMessage());
+            catch (IllegalFeatureException ife){
+                throw new DataSourceException("Illegal Feature Exception loading data : " + ife.getMessage());
             }
             
             
@@ -99,7 +99,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
      * Saves the given features to the datasource.
      * TODO: write the export code.
      */
-    public void exportFeatures(FeatureCollection ft,Extent ex) throws DataSourceException {
+    public void exportFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
         throw new DataSourceException("Exporting of shapefiles not yet supported");
        /* GeometryFactory fac = new GeometryFactory();
         GeometryCollection gc = fac.createGeometryCollection((GeometryCollection[])features.toArray(new Geometry[0]));
