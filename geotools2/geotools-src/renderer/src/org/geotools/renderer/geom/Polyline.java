@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.24 2003/08/29 14:31:39 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.25 2003/10/16 09:41:22 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -473,20 +473,21 @@ public class Polyline extends Geometry {
             throws CannotCreateTransformException
     {
         // copy 'coordinateTransform' reference in order to avoid synchronization
-        CoordinateTransformation coordinateTransform = this.coordinateTransform;
-        if (cs!=null && coordinateTransform!=null) {
-            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
-                return coordinateTransform;
+        CoordinateTransformation ct = coordinateTransform;
+        if (cs!=null && ct!=null) {
+            if (cs.equals(ct.getTargetCS(), false)) {
+                return ct;
             }
-            coordinateTransform = lastCoordinateTransform;
-            if (cs.equals(coordinateTransform.getTargetCS(), false)) {
-                if (equivalents(coordinateTransform.getSourceCS(), getInternalCS())) {
-                    return coordinateTransform;
+            final CoordinateSystem internalCS = ct.getSourceCS();
+            ct = lastCoordinateTransform;
+            if (cs.equals(ct.getTargetCS(), false)) {
+                if (equivalents(ct.getSourceCS(), internalCS)) {
+                    return ct;
                 }
             }
-            coordinateTransform=getCoordinateTransformation(coordinateTransform.getSourceCS(), cs);
-            lastCoordinateTransform = coordinateTransform;
-            return coordinateTransform;
+            ct = getCoordinateTransformation(internalCS, cs);
+            lastCoordinateTransform = ct;
+            return ct;
         }
         return null;
     }
