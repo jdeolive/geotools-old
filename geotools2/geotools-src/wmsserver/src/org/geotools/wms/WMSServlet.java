@@ -156,7 +156,7 @@ public class WMSServlet extends HttpServlet {
         else if (sRequest.trim().equalsIgnoreCase("GetCapabilities") || sRequest.trim().equalsIgnoreCase("capabilities")) {
             doGetCapabilities(request, response);
         }
-        else if (sRequest.trim().equalsIgnoreCase("GetMap")) {
+        else if (sRequest.trim().equalsIgnoreCase("GetMap") || sRequest.trim().equalsIgnoreCase("Map")) {
             doGetMap(request, response);
         }
         else if (sRequest.trim().equalsIgnoreCase("GetFeatureInfo")) {
@@ -298,8 +298,10 @@ public class WMSServlet extends HttpServlet {
      * @param outStream OutputStream of the formatted image
      */
     public void formatImageOutputStream(String format, BufferedImage image, OutputStream outStream) throws WMSException {
+        if (format.equalsIgnoreCase("jpeg")){format = "image/jpeg";}
         if (!format.equalsIgnoreCase(DEFAULT_FORMAT))
             throw new WMSException(WMSException.WMSCODE_INVALIDFORMAT, "Invalid format : "+format);
+        
         JPEGImageEncoderImpl j = new JPEGImageEncoderImpl(outStream);
         try {
             j.encode(image);
@@ -539,7 +541,7 @@ public class WMSServlet extends HttpServlet {
         if (root.name!=null) xml += tab+"<Name>"+root.name+"</Name>\n";
         xml += tab+"<Title>"+root.title+"</Title>\n";
         xml += tab+"<Abstract></Abstract>\n";
-        xml += tab+"<LatLongBoundingBox minx=\""+root.bbox[0]+"\" miny=\""+root.bbox[1]+"\" maxx=\""+root.bbox[2]+"\" maxy=\""+root.bbox[3]+"\" />\n";
+        xml += tab+"<LatLonBoundingBox minx=\""+root.bbox[0]+"\" miny=\""+root.bbox[1]+"\" maxx=\""+root.bbox[2]+"\" maxy=\""+root.bbox[3]+"\" />\n";
         if (root.srs!=null) xml += tab+"<SRS>"+root.srs+"</SRS>\n";
         // Styles
         if (root.styles!=null) {
