@@ -213,12 +213,26 @@ cvs tag -R r2_3_4</programlisting>
     </section>
   </section>
 
+  <section id="decisionmaking">
+    <title>Decision Making</title>
+
+    <para>To date we have not needed a formal decision making process, however
+    eventually we will probably need to put one in place.</para>
+
+    <para>Issues are discussed on email and IRC. Sometime we have an informal
+    vote on IRC to resolve issues.</para>
+  </section>
+
   <section id="bugs">
     <title>Bug Tracking</title>
 
-    <para>Geotools bugs are tracked using the sourceforge site.</para>
+    <para>During alpha development, issues are embedded into the code using
+    <link linkend="inlinetasktracking">@task</link> tags which can be read
+    from the maven output files.</para>
 
-    <para>to do: flesh out this section.</para>
+    <para>In future, bugs will be tracked using the <ulink
+    url="http://sourceforge.net/tracker/?group_id=4091&#38;atid=104091">sourceforge
+    bug tracking system for geotools</ulink>.</para>
   </section>
 
   <section id="building">
@@ -845,7 +859,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.20 2003/02/23 20:06:53 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.21 2003/02/28 20:31:40 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -1048,14 +1062,13 @@ void example(int i) {
       </itemizedlist>
     </section>
 
-    <section>
-      <title>to do</title>
+    <section id="checkcodingstandards">
+      <title>Auto-checking Coding Standards</title>
 
-      <itemizedlist>
-        <listitem>
-          <para>Note the auto checking of coding standards.</para>
-        </listitem>
-      </itemizedlist>
+      <para>We intend to set up automatic checking of coding standards using
+      <ulink url="http://pmd.sourceforge.net/">pmd</ulink>.</para>
+
+      <para>To do: Flesh out this section once we start using pmd.</para>
     </section>
   </section>
 
