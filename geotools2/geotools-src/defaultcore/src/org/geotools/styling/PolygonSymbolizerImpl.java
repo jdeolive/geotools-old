@@ -20,11 +20,10 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.9 2003/08/07 01:11:29 seangeo Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.10 2003/08/09 03:05:28 seangeo Exp $
  * @author James Macgill, CCG
  */
-public class PolygonSymbolizerImpl
-    implements org.geotools.styling.PolygonSymbolizer {
+public class PolygonSymbolizerImpl implements PolygonSymbolizer, Cloneable {
     private Fill fill = new FillImpl();
     private Stroke stroke = new StrokeImpl();
     private String geometryPropertyName = null;

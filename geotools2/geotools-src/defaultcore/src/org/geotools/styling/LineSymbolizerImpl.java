@@ -20,10 +20,10 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.10 2003/08/07 01:11:29 seangeo Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.11 2003/08/09 03:05:28 seangeo Exp $
  * @author James Macgill
  */
-public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
+public class LineSymbolizerImpl implements LineSymbolizer, Cloneable {
     private Stroke stroke = null;
     private String geometryName = null;
 

@@ -20,10 +20,10 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.13 2003/08/07 01:11:30 seangeo Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.14 2003/08/09 03:05:28 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class TextSymbolizerImpl implements TextSymbolizer {
+public class TextSymbolizerImpl implements TextSymbolizer, Cloneable {
     private static final org.geotools.filter.FilterFactory filterFactory = 
             org.geotools.filter.FilterFactory.createFilterFactory();
     private Fill fill;

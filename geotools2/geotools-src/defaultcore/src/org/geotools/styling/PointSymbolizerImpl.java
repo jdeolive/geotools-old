@@ -20,10 +20,10 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.8 2003/08/07 01:11:30 seangeo Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.9 2003/08/09 03:05:28 seangeo Exp $
  * @author Ian Turton, CCG
  */
-public class PointSymbolizerImpl implements PointSymbolizer {
+public class PointSymbolizerImpl implements PointSymbolizer, Cloneable {
     private String geometryPropertyName = null;
     private Graphic graphic = new GraphicImpl();
 
