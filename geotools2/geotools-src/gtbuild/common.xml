@@ -222,8 +222,10 @@
         
   <!-- Cleans the tests for this module. -->
   <target name="clean-tests" if="testsuite">
-    <echo message="${project.name} cleaning tests"/>    
-    <fileset dir="tests/unit/org/" includes="**/*.class"/>
+    <echo message="${project.name} cleaning tests"/>  
+    <delete quiet="true">  
+        <fileset dir="tests/unit/org/" includes="**/*.class"/>
+    </delete>
   </target>
     
 
