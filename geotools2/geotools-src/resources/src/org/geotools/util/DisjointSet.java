@@ -58,7 +58,7 @@ import java.util.NoSuchElementException;
  *
  * Disjoint sets are thread-safe.
  *
- * @version 1.0
+ * @version $Id: DisjointSet.java,v 1.4 2002/08/03 10:31:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class DisjointSet extends AbstractSet {
