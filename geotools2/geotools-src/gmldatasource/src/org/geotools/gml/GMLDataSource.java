@@ -42,7 +42,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.22 2003/05/08 19:08:35 cholmesny Exp $
+ * @version $Id: GMLDataSource.java,v 1.23 2003/05/15 18:20:28 cholmesny Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl
@@ -259,6 +259,19 @@ implements DataSource, GMLHandlerFeature {
         }
         collection.addFeatures(typedFeatures);
         
+    }
+
+       /**
+     * Loads all features from the datasource into the returned collection.
+     * Filter.NONE can also be used to get all features.  Calling this
+     * function is equivalent to using {@link Query.ALL}
+     *
+     * @return Collection The collection to put the features into.
+     *
+     * @throws DataSourceException For all data source errors.
+     */
+    public FeatureCollection getFeatures() throws DataSourceException {
+        return getFeatures(Query.ALL);
     }
     
     /** Modifies the passed attribute types with the passed objects in all
