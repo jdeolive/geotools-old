@@ -28,10 +28,10 @@ import org.geotools.feature.*;
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpression.java,v 1.2 2002/10/23 16:56:12 ianturton Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.1 2002/10/24 12:03:17 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LiteralExpression extends DefaultExpression {
+public class LiteralExpressionImpl extends DefaultExpressionImpl {
 
 
     /** Holds a reference to the literal. */
@@ -41,7 +41,7 @@ public class LiteralExpression extends DefaultExpression {
     /**
      * Constructor with literal.
      */
-    public LiteralExpression () {
+    public LiteralExpressionImpl () {
     }
 
 
@@ -51,7 +51,7 @@ public class LiteralExpression extends DefaultExpression {
      * @param literal The literal to store inside this expression.
      * @throws IllegalFilterException This literal type is not in scope.
      */
-    public LiteralExpression (Object literal)
+    public LiteralExpressionImpl (Object literal)
         throws IllegalFilterException {
         
         this.setLiteral(literal);
@@ -65,7 +65,7 @@ public class LiteralExpression extends DefaultExpression {
      *
      * @param literal The integer to store inside this expression.
      */
-    public LiteralExpression (int value){
+    public LiteralExpressionImpl (int value){
         try{
             this.setLiteral(new Integer(value));
         }
@@ -84,7 +84,7 @@ public class LiteralExpression extends DefaultExpression {
      *
      * @param literal The double to store inside this expression.
      */
-    public LiteralExpression (double value){
+    public LiteralExpressionImpl (double value){
         try{
             this.setLiteral(new Double(value));
         }
@@ -102,7 +102,7 @@ public class LiteralExpression extends DefaultExpression {
      *
      * @param literal The double to store inside this expression.
      */
-    public LiteralExpression (String value){
+    public LiteralExpressionImpl (String value){
         try{
             this.setLiteral(value);
         }
@@ -181,7 +181,7 @@ public class LiteralExpression extends DefaultExpression {
      */
     public boolean equals(Object obj) {
 	return (obj.getClass() == this.getClass() && 
-		     this.literal.equals(((LiteralExpression)obj).getLiteral()));
+		     this.literal.equals(((LiteralExpressionImpl)obj).getLiteral()));
     }
     
 }

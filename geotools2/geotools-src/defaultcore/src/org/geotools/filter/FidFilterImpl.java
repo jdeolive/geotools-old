@@ -37,10 +37,10 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilter.java,v 1.4 2002/10/23 17:13:54 robhranac Exp $
+ * @version $Id: FidFilterImpl.java,v 1.1 2002/10/24 12:02:57 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class FidFilter extends AbstractFilterImpl {
+public class FidFilterImpl extends AbstractFilterImpl {
 
     /** Logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
@@ -50,7 +50,7 @@ public class FidFilter extends AbstractFilterImpl {
 
 
     /** Empty constructor. */
-    public FidFilter () {
+    public FidFilterImpl () {
         filterType = AbstractFilter.FID; 
     }
 
@@ -59,7 +59,7 @@ public class FidFilter extends AbstractFilterImpl {
      *
      * @param initialFid The type of comparison.
      */
-    public FidFilter (String initialFid) {
+    public FidFilterImpl (String initialFid) {
         filterType = AbstractFilter.FID;
         addFid(initialFid);
     }
@@ -111,10 +111,10 @@ public class FidFilter extends AbstractFilterImpl {
      */
     public boolean equals(Object filter) {
         LOGGER.finest("condition: " + filter);
-        LOGGER.finest("condition: " + ((FidFilter) filter).filterType);
+        LOGGER.finest("condition: " + ((FidFilterImpl) filter).filterType);
         if((filter != null) &&
-           (((FidFilter) filter).filterType == AbstractFilter.FID)) {
-            return fids.equals(((FidFilter) filter).fids);        
+           (((FidFilterImpl) filter).filterType == AbstractFilter.FID)) {
+            return fids.equals(((FidFilterImpl) filter).fids);        
         }
         else {
             return false;        

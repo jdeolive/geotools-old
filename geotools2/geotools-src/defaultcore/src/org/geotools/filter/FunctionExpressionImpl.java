@@ -14,10 +14,10 @@ import org.geotools.feature.*;
  *
  * @author  James
  */
-public abstract class FunctionExpression extends org.geotools.filter.DefaultExpression {
+public abstract class FunctionExpressionImpl extends org.geotools.filter.DefaultExpressionImpl {
     
     /** Creates a new instance of FunctionExpression */
-    public FunctionExpression() {
+    public FunctionExpressionImpl() {
     }
     /*
      * @task HACK: this shoud return a proper type for Functions

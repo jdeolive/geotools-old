@@ -24,7 +24,7 @@ public abstract class AbstractFilterImpl extends org.geotools.filter.AbstractFil
      */
     public Filter or(Filter filter) {
         try {
-            return new LogicFilter(this, filter, LOGIC_OR);
+            return new LogicFilterImpl(this, filter, LOGIC_OR);
         }
         catch (IllegalFilterException e) {
             return filter;
@@ -39,7 +39,7 @@ public abstract class AbstractFilterImpl extends org.geotools.filter.AbstractFil
      */
     public Filter and(Filter filter) {
         try {
-            return new LogicFilter(this, filter, LOGIC_AND);
+            return new LogicFilterImpl(this, filter, LOGIC_AND);
         }
         catch (IllegalFilterException e) {
             return filter;
@@ -53,7 +53,7 @@ public abstract class AbstractFilterImpl extends org.geotools.filter.AbstractFil
      */
     public Filter not() {
         try {
-            return new LogicFilter(this, LOGIC_NOT);
+            return new LogicFilterImpl(this, LOGIC_NOT);
         }
         catch (IllegalFilterException e) {
             return this;

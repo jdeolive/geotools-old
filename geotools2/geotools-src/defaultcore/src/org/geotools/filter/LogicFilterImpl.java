@@ -34,10 +34,10 @@ import org.geotools.feature.*;
  * This filter holds one or more filters together and relates them logically
  * with an internally defined type (AND, OR, NOT).
  *
- * @version $Id: LogicFilter.java,v 1.11 2002/10/23 17:15:24 robhranac Exp $
+ * @version $Id: LogicFilterImpl.java,v 1.1 2002/10/24 12:03:26 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class LogicFilter extends AbstractFilterImpl {
+public class LogicFilterImpl extends AbstractFilterImpl {
 
     /** The logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
@@ -51,7 +51,7 @@ public class LogicFilter extends AbstractFilterImpl {
      *
      * @param filterType The final relation between all sub filters.
      */
-    public LogicFilter (short filterType)
+    public LogicFilterImpl (short filterType)
         throws IllegalFilterException {
         LOGGER.finest("filtertype "+filterType);
         if (isLogicFilter(filterType)) {
@@ -69,7 +69,7 @@ public class LogicFilter extends AbstractFilterImpl {
      * @param filterType The final relation between all sub filters.
      * @throws IllegalFilterException Does not conform to logic filter structure
      */
-    public LogicFilter (Filter filter, short filterType)
+    public LogicFilterImpl (Filter filter, short filterType)
         throws IllegalFilterException {
 
         if (isLogicFilter(filterType)) {
@@ -89,7 +89,7 @@ public class LogicFilter extends AbstractFilterImpl {
      * @param filterType The final relation between all sub filters.
      * @throws IllegalFilterException Does not conform to logic filter structure
      */
-    public LogicFilter (Filter filter1, Filter filter2, short filterType)
+    public LogicFilterImpl (Filter filter1, Filter filter2, short filterType)
         throws IllegalFilterException {
 
         if (isLogicFilter(filterType)) {
@@ -271,7 +271,7 @@ public class LogicFilter extends AbstractFilterImpl {
     public boolean equals(Object obj) {
         if (obj != null && 
             obj.getClass() == this.getClass()){
-            LogicFilter logFilter = (LogicFilter)obj;
+            LogicFilterImpl logFilter = (LogicFilterImpl)obj;
             LOGGER.finest("filter type match:"  + 
                           (logFilter.getFilterType() == this.filterType));
             LOGGER.finest("same size:"  + 

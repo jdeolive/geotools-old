@@ -31,10 +31,10 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: LikeFilter.java,v 1.14 2002/10/23 16:52:40 ianturton Exp $
+ * @version $Id: LikeFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LikeFilter extends AbstractFilterImpl {
+public class LikeFilterImpl extends AbstractFilterImpl {
 
     /**
      * The logger for the default core module.
@@ -63,7 +63,7 @@ public class LikeFilter extends AbstractFilterImpl {
     /**
      * Constructor which flags the operator as like.
      */
-    public LikeFilter () {
+    public LikeFilterImpl () {
         filterType = LIKE;
     }
 
@@ -77,7 +77,7 @@ public class LikeFilter extends AbstractFilterImpl {
     public void setValue(Expression attribute)
         throws IllegalFilterException {
         
-        if( (attribute.getType() != DefaultExpression.ATTRIBUTE_STRING) ||
+        if( (attribute.getType() != DefaultExpressionImpl.ATTRIBUTE_STRING) ||
             permissiveConstruction ) {
             this.attribute = attribute;
         }
@@ -295,7 +295,7 @@ public class LikeFilter extends AbstractFilterImpl {
      */           
      public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    LikeFilter lFilter = (LikeFilter)obj;
+	    LikeFilterImpl lFilter = (LikeFilterImpl)obj;
 	    return (lFilter.getFilterType() == this.filterType &&
 		    lFilter.getValue().equals(this.attribute) &&
 		    lFilter.getPattern().equals(this.pattern));

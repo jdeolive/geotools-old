@@ -13,14 +13,14 @@ package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.*;
 
-public class BBoxExpression extends org.geotools.filter.LiteralExpression {
+public class BBoxExpressionImpl extends org.geotools.filter.LiteralExpression {
     private GeometryFactory gfac = new GeometryFactory();
     /** Creates a new instance of BBoxExpression */
-    public BBoxExpression() throws IllegalFilterException{
+    public BBoxExpressionImpl() throws IllegalFilterException{
         this(new Envelope());
     }
-    public BBoxExpression(Envelope env) throws IllegalFilterException{
-        expressionType = DefaultExpression.LITERAL_GEOMETRY;
+    public BBoxExpressionImpl(Envelope env) throws IllegalFilterException{
+        expressionType = DefaultExpressionImpl.LITERAL_GEOMETRY;
         setBounds(env);
     }
     

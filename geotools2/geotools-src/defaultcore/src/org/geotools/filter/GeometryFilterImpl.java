@@ -44,10 +44,10 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.13 2002/10/23 17:14:51 robhranac Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class GeometryFilter extends AbstractFilterImpl {
+public class GeometryFilterImpl extends AbstractFilterImpl {
 
     /** Class logger */
     private static final Logger LOGGER =  Logger.getLogger("org.geotools.filter");
@@ -65,7 +65,7 @@ public class GeometryFilter extends AbstractFilterImpl {
      * @param filterType The type of comparison.
      * @throws IllegalFilterException Non-geometry type.
      */
-    public GeometryFilter (short filterType) 
+    public GeometryFilterImpl (short filterType) 
         throws IllegalFilterException {
         
         if (isGeometryFilter(filterType)) {
@@ -88,7 +88,7 @@ public class GeometryFilter extends AbstractFilterImpl {
         throws IllegalFilterException {
         
         // Checks if this is geometry filter or not and handles appropriately
-        if (DefaultExpression.isGeometryExpression(leftGeometry.getType())  ||
+        if (DefaultExpressionImpl.isGeometryExpression(leftGeometry.getType())  ||
             permissiveConstruction) {
             this.leftGeometry = leftGeometry;
         }
@@ -108,7 +108,7 @@ public class GeometryFilter extends AbstractFilterImpl {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if (DefaultExpression.isGeometryExpression(rightGeometry.getType()) ||
+        if (DefaultExpressionImpl.isGeometryExpression(rightGeometry.getType()) ||
             permissiveConstruction) {
             this.rightGeometry = rightGeometry;
         }
@@ -246,7 +246,7 @@ public class GeometryFilter extends AbstractFilterImpl {
      */
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    GeometryFilter geomFilter = (GeometryFilter)obj;
+	    GeometryFilterImpl geomFilter = (GeometryFilterImpl)obj;
             LOGGER.finest("filter type match:"  + 
                           (geomFilter.getFilterType() == this.filterType));
             LOGGER.finest("left geom match:"  + 

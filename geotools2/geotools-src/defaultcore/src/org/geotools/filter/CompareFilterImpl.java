@@ -45,10 +45,10 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.7 2002/10/23 16:56:12 ianturton Exp $
+ * @version $Id: CompareFilterImpl.java,v 1.1 2002/10/24 12:03:08 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class CompareFilter extends AbstractFilterImpl {
+public class CompareFilterImpl extends AbstractFilterImpl {
 
     /**
      * The logger for the default core module.
@@ -68,7 +68,7 @@ public class CompareFilter extends AbstractFilterImpl {
      * @param filterType The type of comparison.
      * @throws IllegalFilterException Non-compare type.
      */
-    public CompareFilter (short filterType)
+    public CompareFilterImpl (short filterType)
         throws IllegalFilterException {
         
         if (isCompareFilter(filterType)) {
@@ -92,7 +92,7 @@ public class CompareFilter extends AbstractFilterImpl {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpressionImpl.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.leftValue = leftValue;
             }
@@ -119,7 +119,7 @@ public class CompareFilter extends AbstractFilterImpl {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpressionImpl.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.rightValue = rightValue;
             }
@@ -229,7 +229,7 @@ public class CompareFilter extends AbstractFilterImpl {
      */
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    CompareFilter cFilter = (CompareFilter)obj;
+	    CompareFilterImpl cFilter = (CompareFilterImpl)obj;
 	    return (cFilter.getFilterType() == this.filterType &&
 		    cFilter.getLeftValue().equals(this.leftValue) &&
 		    cFilter.getRightValue().equals(this.rightValue));

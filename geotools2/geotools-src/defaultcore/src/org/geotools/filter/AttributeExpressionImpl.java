@@ -34,10 +34,10 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpression.java,v 1.2 2002/10/23 16:52:40 ianturton Exp $
+ * @version $Id: AttributeExpressionImpl.java,v 1.1 2002/10/24 12:02:57 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class AttributeExpression extends DefaultExpression {
+public class AttributeExpressionImpl extends DefaultExpressionImpl {
 
     /**
      * The logger for the default core module.
@@ -56,7 +56,7 @@ public class AttributeExpression extends DefaultExpression {
      *
      * @param schema The schema for this attribute.
      */
-    public AttributeExpression (FeatureType schema) {
+    public AttributeExpressionImpl (FeatureType schema) {
         this.schema = schema;
     }
 
@@ -65,7 +65,7 @@ public class AttributeExpression extends DefaultExpression {
      *
      * @param attributePath The initial (required) sub filter.
      */
-    public AttributeExpression (FeatureType schema, String attributePath)
+    public AttributeExpressionImpl (FeatureType schema, String attributePath)
         throws IllegalFilterException {
 
         this.schema = schema;
@@ -143,7 +143,7 @@ public class AttributeExpression extends DefaultExpression {
      */
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    AttributeExpression expAttr = (AttributeExpression)obj;
+	    AttributeExpressionImpl expAttr = (AttributeExpressionImpl)obj;
 	    return (expAttr.getType() == this.expressionType &&
 		    expAttr.getAttributePath().equals(this.attributePath) &&
 		    expAttr.schema.toString().equals(this.schema.toString()));

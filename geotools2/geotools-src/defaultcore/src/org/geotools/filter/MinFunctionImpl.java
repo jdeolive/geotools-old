@@ -12,12 +12,12 @@ import org.geotools.feature.Feature;
  *
  * @author  James
  */
-public class MinFunction extends org.geotools.filter.FunctionExpression {
+public class MinFunctionImpl extends org.geotools.filter.FunctionExpressionImpl {
     
     Expression a,b;
     
     /** Creates a new instance of MinFunction */
-    public MinFunction() {
+    public MinFunctionImpl() {
     }
     
     
