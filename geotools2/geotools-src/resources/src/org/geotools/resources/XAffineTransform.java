@@ -56,7 +56,7 @@ public abstract class XAffineTransform extends AffineTransform {
     /**
      * Serial number for interoperability with different versions.
      */
-//  private static final long serialVersionUID = 4891543057571195291L;
+    private static final long serialVersionUID = 5215291166450556451L;
 
     /**
      * Tolerance value for floating point comparisons.
