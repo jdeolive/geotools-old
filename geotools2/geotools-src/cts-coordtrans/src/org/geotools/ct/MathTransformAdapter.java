@@ -102,7 +102,10 @@ class MathTransformAdapter extends AbstractMathTransform implements Serializable
      *
      * @throws RemoteException if a remote call failed.
      */
-    public MathTransformAdapter(final CT_MathTransform transform) throws RemoteException {
+    public MathTransformAdapter(final CT_MathTransform transform)
+        throws RemoteException
+    {
+        super(transform);
         this.transform  = transform;
         this.dimSource  = transform.getDimSource();
         this.dimTarget  = transform.getDimTarget();
@@ -243,13 +246,6 @@ class MathTransformAdapter extends AbstractMathTransform implements Serializable
      */
     public final boolean isIdentity() {
         return isIdentity;
-    }
-    
-    /**
-     * Returns the underlying OpenGIS interface.
-     */
-    final Object toOpenGIS(final Object adapters) {
-        return transform;
     }
     
     /**

@@ -53,6 +53,8 @@ import org.geotools.resources.cts.Resources;
 import org.geotools.resources.cts.ResourceKeys;
 
 // J2SE and vecmath dependencies
+import java.lang.ref.WeakReference;
+import java.lang.ref.Reference;
 import java.util.Locale;
 import java.awt.Shape;
 import java.awt.geom.Point2D;
@@ -77,6 +79,24 @@ import javax.vecmath.SingularMatrixException;
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
+    /**
+     * OpenGIS object returned by {@link #cachedOpenGIS}.
+     * It may be a hard or a weak reference.
+     */
+    private transient Object proxy;
+
+    /**
+     * Construct a math transform which is an adapter for
+     * the specified {@link CT_MathTransform} interface.
+     *
+     * @param opengis The {@link CT_MathTransform} interface. We declare
+     *        a generic {@link Object} in order to avoid too early class
+     *        loading of OpenGIS's interfaces.
+     */
+    AbstractMathTransform(final Object opengis) {
+        proxy = opengis;
+    }
+
     /**
      * Construct a math transform.
      */
@@ -466,13 +486,29 @@ public abstract class AbstractMathTransform implements MathTransform {
     
     /**
      * Returns an OpenGIS interface for this math transform.
-     * The returned object is suitable for RMI use.
+     * The returned object is suitable for RMI use. This method
+     * look in the cache. If no interface was previously cached,
+     * then this method create a new adapter  and cache the result.
      *
-     * Note: The returned type is a generic {@link Object} in order
-     *       to avoid too early class loading of OpenGIS interface.
+     * @param  adapters The originating {@link Adapters}.
+     * @return A {@link CT_MathTransform} object. The returned type
+     *         is a generic {@link Object} in order to avoid too early
+     *         class loading of OpenGIS interface.
      */
-    Object toOpenGIS(final Object adapters) {
-        return new MathTransformExport(adapters, this);
+    final Object cachedOpenGIS(final Object adapters) {
+        if (proxy!=null) {
+            if (proxy instanceof Reference) {
+                final Object ref = ((Reference) proxy).get();
+                if (ref!=null) {
+                    return ref;
+                }
+            } else {
+                return proxy;
+            }
+        }
+        final Object opengis = new MathTransformExport(adapters, this);
+        proxy = new WeakReference(opengis);
+        return opengis;
     }
     
     /**

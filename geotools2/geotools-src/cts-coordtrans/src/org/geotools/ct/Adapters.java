@@ -46,7 +46,6 @@ import org.opengis.ct.CT_CoordinateTransformationFactory;
 
 // Resources
 import org.geotools.resources.XArray;
-import org.geotools.util.WeakHashSet;
 
 // J2SE and JAI dependencies
 import java.rmi.RemoteException;
@@ -82,20 +81,6 @@ public class Adapters {
     public final org.geotools.pt.Adapters PT;
     
     /**
-     * A weak hash set for for {@link MathTransformExport} objects.
-     */
-    private static final WeakHashSet MATH_EXPORTS = new WeakHashSet() {
-        protected int hashCode(final Object object) {
-            return super.hashCode(MathTransformExport.unwrap(object));
-        }
-        
-        protected boolean equals(final Object object1, final Object object2) {
-            return super.equals(MathTransformExport.unwrap(object1),
-                                MathTransformExport.unwrap(object2));
-        }
-    };
-    
-    /**
      * Default constructor.
      *
      * @param CS The underlying adapters from the <code>org.geotools.cs</code> package.
@@ -122,16 +107,16 @@ public class Adapters {
         if (transform==null) {
             return null;
         }
-        Object exported = MATH_EXPORTS.get(transform);
-        if (exported==null) {
-            if (transform instanceof AbstractMathTransform) {
-                exported = ((AbstractMathTransform) transform).toOpenGIS(this);
-            } else {
-                exported = new MathTransformExport(this, transform);
-            }
-            exported = MATH_EXPORTS.canonicalize(exported);
+        if (transform instanceof AbstractMathTransform) {
+            final AbstractMathTransform atr = (AbstractMathTransform) transform;
+            return (CT_MathTransform) atr.cachedOpenGIS(this);
         }
-        return (CT_MathTransform) exported;
+        // TODO: We don't have any cache mechanism for math transforms that are
+        //       not AbstractMathTransform subclass (e.g. AffineTransform2D). A
+        //       better solution would be to do the cache inside this Adapters,
+        //       but we need something like a WeakHashMap with WeakReference on
+        //       values rather than keys...
+        return new MathTransformExport(this, transform);
     }
     
     /**
