@@ -222,7 +222,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * by the user through the scrollbars will be translated by calls to
  * {@link #transform}.</p>
  *
- * @version $Id: ZoomPane.java,v 1.9 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: ZoomPane.java,v 1.10 2003/05/15 08:45:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class ZoomPane extends JComponent implements DeformableViewer {
@@ -1792,11 +1792,9 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
     }
 
     /**
-     * Method called each time the size or the position of the component
-     * changes.
+     * Method called each time the size or the position of the component changes.
      */
-    private final void processSizeEvent(final ComponentEvent event)
-    {
+    private final void processSizeEvent(final ComponentEvent event) {
         if (!isValid(visibleArea) || zoomIsReset) {
             reset();
         }
@@ -1876,7 +1874,6 @@ public abstract class ZoomPane extends JComponent implements DeformableViewer {
             /*
              * Adds the scrollbars in the scroll pane.
              */
-            final Rectangle bounds = getZoomableBounds(); // Cached Rectangle: do not modify.
             final GridBagConstraints c = new GridBagConstraints();
             if (scrollbarX != null) {
                 c.gridx = 0; c.weightx = 1;

@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.16 2003/05/13 10:59:49 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.17 2003/05/15 08:48:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -798,6 +798,12 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     /**
      * Serialize a single instance of this object.
      * This is an optimisation for speeding up RMI.
+     *
+     * We keep this method private because we don't need to canonicalize
+     * <code>GeophysicsCategoryList</code> for most serialization/deserialization
+     * operations. Canonicalizing {@link CategoryList} is suffisient because
+     * if two {@link CategoryList} objects are not equal, then we are sure
+     * that their enclosed <code>GeophysicsCategoryList</code> are not equal neither.
      */
     private Object writeReplace() throws ObjectStreamException {
         return Category.pool.canonicalize(this);

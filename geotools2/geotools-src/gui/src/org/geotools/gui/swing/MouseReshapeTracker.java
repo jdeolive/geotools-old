@@ -133,11 +133,10 @@ import org.geotools.resources.Utilities;
  * }
  * </pre></blockquote>
  *
- * @version $Id: MouseReshapeTracker.java,v 1.6 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: MouseReshapeTracker.java,v 1.7 2003/05/15 08:45:31 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-class MouseReshapeTracker extends MouseInputAdapter implements Shape
-{
+class MouseReshapeTracker extends MouseInputAdapter implements Shape {
     /**
      * Minimum width the rectangle should have, in pixels.
      */
@@ -301,8 +300,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
     /**
      * Cursor codes corresponding to a given {@link adjustingSides} value.
      */
-    private static final int[] CURSORS = new int[]
-    {
+    private static final int[] CURSORS = new int[] {
         Cursor.     MOVE_CURSOR, // 0000 =       |      |       |
         Cursor. N_RESIZE_CURSOR, // 0001 =       |      |       | NORTH
         Cursor. S_RESIZE_CURSOR, // 0010 =       |      | SOUTH |
@@ -324,8 +322,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * not correspond to the binary combinations of the four
      * cardinal corners.
      */
-    private static final int[] SWING_TO_CUSTOM=new int[]
-    {
+    private static final int[] SWING_TO_CUSTOM = new int[] {
         SwingConstants.NORTH,      NORTH,
         SwingConstants.SOUTH,      SOUTH,
         SwingConstants.EAST,       EAST,
@@ -373,11 +370,11 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
 
     /**
      * Method called automatically after reading this object
-     * in order to finish the construction of certain
-     * fields.
+     * in order to finish the construction of certain fields.
      */
-    private void readObject(final ObjectInputStream in) throws IOException,
-                                                               ClassNotFoundException {
+    private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException
+    {
+        in.defaultReadObject();
         drawnShape = logicalShape;
         update();
     }
@@ -1296,8 +1293,7 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      * necessary to call this method each time the mouse moves;
      * it is done automatically.
      */
-    public void updateEditors()
-    {
+    public void updateEditors() {
         if (editors != null) {
             for (int i = 0; i < editors.length; i++) {
                 editors[i].updateText();
@@ -1343,7 +1339,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      *               of the recognised codes.
      */
     public synchronized JComponent addEditor(final Format format, final int side,
-                                             Component toRepaint) throws IllegalArgumentException
+                                             Component toRepaint)
+            throws IllegalArgumentException
     {
         final JComponent       component;
         final JFormattedTextField editor;
@@ -1441,7 +1438,8 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
      *         isn't one of the valid codes.
      */
     public void setEditorsSynchronized(final int axis, final boolean state)
-                                       throws IllegalArgumentException {
+            throws IllegalArgumentException
+    {
         switch (axis) {
             case SwingConstants.HORIZONTAL: synchronizeX = state; break;
             case SwingConstants.VERTICAL:   synchronizeY = state; break;
@@ -1541,8 +1539,10 @@ class MouseReshapeTracker extends MouseInputAdapter implements Shape
          * @param toRepaint Component to repaint after the field has been
          *        edited, or <code>null</code> if there isn't one.
          */
-        public Control(final JFormattedTextField editor, final boolean isDate,
-                       final int side, final Component toRepaint)
+        public Control(final JFormattedTextField editor,
+                       final boolean             isDate,
+                       final int                 side,
+                       final Component           toRepaint)
         {
             this.editor    = editor;
             this.isDate    = isDate;

@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.17 2003/05/13 10:59:49 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.18 2003/05/15 08:48:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -943,7 +943,7 @@ public class Category implements Serializable {
      * We keep this method private because we don't need to canonicalize
      * <code>GeophysicsCategory</code> for most serialization/deserialization
      * operations. Canonicalizing {@link Category} is suffisient because
-     * if two {@link Category} objects are not equal, then we are are sure
+     * if two {@link Category} objects are not equal, then we are sure
      * that their enclosed <code>GeophysicsCategory</code> are not equal neither.
      */
     private Object writeReplace() throws ObjectStreamException {
@@ -963,7 +963,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.17 2003/05/13 10:59:49 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.18 2003/05/15 08:48:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {
