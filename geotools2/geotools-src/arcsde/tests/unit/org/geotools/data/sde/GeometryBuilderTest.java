@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * DOCUMENT ME!
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilderTest.java,v 1.4 2003/11/14 17:21:05 groldan Exp $
+ * @version $Id: GeometryBuilderTest.java,v 1.5 2003/11/17 17:15:08 groldan Exp $
  */
 public class GeometryBuilderTest extends TestCase
 {
@@ -173,7 +173,6 @@ public class GeometryBuilderTest extends TestCase
         catch (Exception ex)
         {
             ex.printStackTrace();
-
             fail(ex.getMessage());
         }
     }
