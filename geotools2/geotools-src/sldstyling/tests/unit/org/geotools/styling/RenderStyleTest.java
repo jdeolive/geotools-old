@@ -104,8 +104,13 @@ public class RenderStyleTest extends TestCase {
         FeatureCollection ft = new FeatureCollectionDefault(datasource);
         
         org.geotools.map.Map map = new DefaultMap();
-        
-        File f = new File(System.getProperty("dataFolder"),"sample.sld");
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        File f = new File(dataFolder,"sample.sld");
         System.out.println("testing reader using "+f.toString());
         SLDStyle style = new SLDStyle(f);
         map.addFeatureTable(ft,style);

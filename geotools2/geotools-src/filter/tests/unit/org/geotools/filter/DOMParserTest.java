@@ -170,10 +170,16 @@ public class DOMParserTest extends TestCase {
     }
     
     public void testParser() throws Exception {
-        parseDocument(System.getProperty("dataFolder")+"/iantest.xml");
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        parseDocument(dataFolder+"/iantest.xml");
         for(int i=1;i<11;i++){
             System.out.println("test number "+i);
-            parseDocument(System.getProperty("dataFolder")+"/test"+i+".xml");
+            parseDocument(dataFolder+"/test"+i+".xml");
         }
 
     }

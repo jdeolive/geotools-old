@@ -25,7 +25,7 @@ import java.util.*;
 import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
-import org.apache.xerces.jaxp.*;
+//import org.apache.xerces.jaxp.*;
 import org.apache.log4j.Level;
 import org.apache.log4j.Hierarchy;
 import org.apache.log4j.Logger;
@@ -67,8 +67,15 @@ public class ParserTest extends TestCase implements FilterHandler {
     /** 
      * Constructor with test name.
      */
+    String dataFolder ="";
     public ParserTest(String testName) {
         super(testName);
+        dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
     }        
     
     /** 
@@ -172,21 +179,21 @@ public class ParserTest extends TestCase implements FilterHandler {
 
     public void test1()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test1.xml");
+        Filter test = parseDocument(dataFolder+"/test1.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
     
     public void test2()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test2.xml");
+        Filter test = parseDocument(dataFolder+"/test2.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
 
     public void test3a()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3a.xml");
+        Filter test = parseDocument(dataFolder+"/test3a.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
@@ -194,56 +201,56 @@ public class ParserTest extends TestCase implements FilterHandler {
     
     public void test3b()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test3b.xml");
+        Filter test = parseDocument(dataFolder+"/test3b.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }
     
     public void test4()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test4.xml");
+        Filter test = parseDocument(dataFolder+"/test4.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
         
     public void test8()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test8.xml");
+        Filter test = parseDocument(dataFolder+"/test8.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
 
     public void test9()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test9.xml");
+        Filter test = parseDocument(dataFolder+"/test9.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
 
     public void test11()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test11.xml");
+        Filter test = parseDocument(dataFolder+"/test11.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
 
     public void test12()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test12.xml");
+        Filter test = parseDocument(dataFolder+"/test12.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
 
     public void test13()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test13.xml");
+        Filter test = parseDocument(dataFolder+"/test13.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
     
     public void test14()
         throws Exception {
-        Filter test = parseDocument("/home/rob/wfs/geotools/geotools2/geotools-src/filter/tests/unit/data/test14.xml");
+        Filter test = parseDocument(dataFolder+"/test14.xml");
         _log.info("filter: " + test.getClass().toString());
         _log.info("parsed: " + test.toString());
     }    
@@ -252,7 +259,7 @@ public class ParserTest extends TestCase implements FilterHandler {
         throws Exception {
         
         _log.debug("about to parse: " + uri);
-        SAXParserFactory factory = SAXParserFactoryImpl.newInstance();
+        SAXParserFactory factory = SAXParserFactory.newInstance();
         _log.debug("just created factory");
 
         // chains all the appropriate filters together (in correct order)

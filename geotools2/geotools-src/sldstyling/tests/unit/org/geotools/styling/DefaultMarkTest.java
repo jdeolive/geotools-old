@@ -94,8 +94,13 @@ public class DefaultMarkTest extends TestCase {
         ft.addFeatures(features);
         
         org.geotools.map.Map map = new DefaultMap();
-        
-        File f = new File(System.getProperty("dataFolder"),"markTest.sld");
+        String dataFolder = System.getProperty("dataFolder");
+        if(dataFolder==null){
+            //then we are being run by maven
+            dataFolder = System.getProperty("basedir");
+            dataFolder+="/tests/unit/testData";
+        }
+        File f = new File(dataFolder,"markTest.sld");
         System.out.println("testing reader using "+f.toString());
         SLDStyle style = new SLDStyle(f);
         map.addFeatureTable(ft,style);

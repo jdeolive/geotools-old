@@ -32,6 +32,7 @@ public class FilterSuite extends TestCase {
         suite.addTestSuite(BetweenTest.class);
         suite.addTestSuite(MathTest.class);
         suite.addTestSuite(DOMParserTest.class);
+        suite.addTestSuite(ParserTest.class);
         return suite;
     }
     
