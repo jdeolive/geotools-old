@@ -3,37 +3,31 @@
 <!-- Created by jamesm on 15 August 2002, 12:47 -->
 
 <WMSServer>
-    <Layer id="first" srs="EPSG:4326">
+    <Layer id="USA" srs="EPSG:4326">
         <datasource class="Shapefile">
             <param name="filename" value="maps/statepop.shp"/>
         </datasource>
-    <description>A test layer</description>
-    <Style id="dull" filename="styles/polyshp.sld"/>
-    <Style id="silly" filename="styles/funkypolyshp.sld"/>
-    <Style id="population" filename="styles/popshade.sld"/>
-   </Layer>
-   
-   <Layer id="1881" srs="EPSG:27700">
-        <datasource class="Shapefile">
-            <param name="filename" value="maps/1881.shp"/>
-        </datasource>
-    <description>A test layer</description>
-    <Style id="dull" filename="styles/polyshp.sld"/>
-    <Style id="silly" filename="styles/funkypolyshp.sld"/>
-    <Style id="1881" filename="styles/1881.sld"/>
-   </Layer>
-   
-   
+        <description>The USA</description>
+        <Style id="thick outline" filename="styles/polyshp.sld"/>
+        <Style id="dotty" filename="styles/funkypolyshp.sld"/>
+        <Style id="population" filename="styles/popshade.sld"/>
+        <Style id="highlight" filename="styles/usa_penn.sld"></Style>
+        <Style id="bbox" filename="styles/usa_central.sld"></Style>
+        <Style id="male/female" filename="styles/usa_ratio.sld"></Style>
+        <Style id="normal" filename="styles/normal.sld" default="true"></Style>
+    </Layer>
+  
     <Layer id="postgistest">
         <datasource class="PostGIS">
-            <param name="host" value="feathers.leeds.ac.uk"></param>
-            <param name="user" value="postgis_ro"/>
-            <param name="passwd" value="postgis_ro"/>
+            <param name="host" value="your.host.com"></param>
+            <param name="user" value="username"/>
+            <param name="passwd" value="password"/>
             <param name="port" value="5432"/>
-            <param name="table" value="testset"/>
-            <param name="database" value="postgis_test"/>
+            <param name="table" value="tablename"/>
+            <param name="database" value="database"/>
         </datasource>
-    <description>Random Test</description>
+        <Style id="normal" filename="styles/normal.sld" default="true"></Style>
+        <description>PostGIS Connection</description>
    </Layer>
 </WMSServer>
 
