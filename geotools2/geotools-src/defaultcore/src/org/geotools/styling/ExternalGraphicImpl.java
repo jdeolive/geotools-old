@@ -15,13 +15,14 @@
  *    You should have received a copy of the GNU Lesser General Public
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
+ * 
  */
 package org.geotools.styling;
 
 // J2SE dependencies
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Map;
 
 // Geotools dependencies
 import org.geotools.util.Cloneable;
@@ -29,7 +30,7 @@ import org.geotools.util.EqualsUtils;
 
 
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.9 2003/09/06 04:52:31 seangeo Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.10 2004/04/08 13:26:05 jfc173 Exp $
  * @author Ian Turton, CCG
  */
 public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
@@ -41,6 +42,7 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
     private URL location = null;
     private String format = null;
     private String uri = null;
+    private Map customProps = null;
 
     public void setURI(String uri) {
         this.uri = uri;   
@@ -140,4 +142,12 @@ public class ExternalGraphicImpl implements ExternalGraphic, Symbol, Cloneable {
         return false;
     }
 
+    public java.util.Map getCustomProperties() {
+        return customProps;
+    }
+    
+    public void setCustomProperties(java.util.Map list) {
+        customProps = list;
+    }
+    
 }
