@@ -21,7 +21,7 @@
 package org.geotools.renderer;
 
 /**
- * @version $Id: Java2DMark.java,v 1.4 2002/07/01 11:31:16 ianturton Exp $
+ * @version $Id: Java2DMark.java,v 1.5 2002/07/12 16:33:49 loxnard Exp $
  * @author Ian Turton
  */
 
@@ -35,7 +35,7 @@ public class Java2DMark {
     public Java2DMark() {
         
     }
-    static GeneralPath cross,star,triangle,arrow;
+    static GeneralPath cross, star, triangle, arrow;
     static Shape X;
     static{
             cross = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -45,15 +45,15 @@ public class Java2DMark {
             cross.lineTo(-0.125f, 0.5f);
             cross.lineTo(-0.125f, 0.125f);
             cross.lineTo(-0.5f, 0.125f);
-            cross.lineTo(-0.5f,-0.125f);
-            cross.lineTo(-0.125f,-0.125f);
-            cross.lineTo(-0.125f,-0.5f);
-            cross.lineTo( 0.125f,-0.5f);
-            cross.lineTo( 0.125f,-0.125f);
-            cross.lineTo( 0.5f,-0.125f);
+            cross.lineTo(-0.5f, -0.125f);
+            cross.lineTo(-0.125f, -0.125f);
+            cross.lineTo(-0.125f, -0.5f);
+            cross.lineTo( 0.125f, -0.5f);
+            cross.lineTo( 0.125f, -0.125f);
+            cross.lineTo( 0.5f, -0.125f);
             cross.lineTo( 0.5f, 0.125f);
             AffineTransform at = new AffineTransform();
-            at.rotate(Math.PI/4.0);
+            at.rotate(Math.PI / 4.0);
             X = cross.createTransformedShape(at);
             star = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
             star.moveTo(0.191f, 0.0f);
@@ -68,60 +68,60 @@ public class Java2DMark {
             star.lineTo(0.5f, 0.162f); 
             star.lineTo(0.191f, 0.0f);
             at = new AffineTransform();
-            at.translate(-.5,-.5);
+            at.translate(-.5, -.5);
             star.transform(at);
             triangle = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-            triangle.moveTo(0f,1f);
-            triangle.lineTo(0.866f,-.5f);
-            triangle.lineTo(-0.866f,-.5f);
-            triangle.lineTo(0f,1f);
+            triangle.moveTo(0f, 1f);
+            triangle.lineTo(0.866f, -.5f);
+            triangle.lineTo(-0.866f, -.5f);
+            triangle.lineTo(0f, 1f);
             at = new AffineTransform();
             
-            at.translate(0,-.25);
-            at.scale(.5,.5);
+            at.translate(0, -.25);
+            at.scale(.5, .5);
            
             triangle.transform(at);
             
             arrow = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
-            arrow.moveTo(0f,-.5f);
-            arrow.lineTo(.5f,0f);
-            arrow.lineTo(0f,.5f);
-            arrow.lineTo(0f,.1f);
-            arrow.lineTo(-.5f,.1f);
-            arrow.lineTo(-.5f,-.1f);
-            arrow.lineTo(0f,-.1f);
-            arrow.lineTo(0f,-.5f);
+            arrow.moveTo(0f, -.5f);
+            arrow.lineTo(.5f, 0f);
+            arrow.lineTo(0f, .5f);
+            arrow.lineTo(0f, .1f);
+            arrow.lineTo(-.5f, .1f);
+            arrow.lineTo(-.5f, -.1f);
+            arrow.lineTo(0f, -.1f);
+            arrow.lineTo(0f, -.5f);
             
     }
     static Shape getWellKnownMark(String wellKnownName){
-        _log.debug("fetching mark of name "+wellKnownName);
-        if(wellKnownName.equalsIgnoreCase("cross")){
+        _log.debug("fetching mark of name " + wellKnownName);
+        if (wellKnownName.equalsIgnoreCase("cross")){
             _log.debug("returning cross");
             return cross;
         }
-        if(wellKnownName.equalsIgnoreCase("circle")){
+        if (wellKnownName.equalsIgnoreCase("circle")){
             _log.debug("returning circle");
-            return new java.awt.geom.Ellipse2D.Double(-.5,-.5,1.,1.);
+            return new java.awt.geom.Ellipse2D.Double(-.5, -.5, 1., 1.);
         }
-        if(wellKnownName.equalsIgnoreCase("triangle")){
+        if (wellKnownName.equalsIgnoreCase("triangle")){
             _log.debug("returning triangle");
             
             return triangle;
         }
-        if(wellKnownName.equalsIgnoreCase("X")){
+        if (wellKnownName.equalsIgnoreCase("X")){
             _log.debug("returning X");
             return X;
         }
-        if(wellKnownName.equalsIgnoreCase("star")){
+        if (wellKnownName.equalsIgnoreCase("star")){
             _log.debug("returning star");
             return star;
         }
-        if(wellKnownName.equalsIgnoreCase("arrow")){
+        if (wellKnownName.equalsIgnoreCase("arrow")){
             _log.debug("returning arrow");
             return arrow;
         }
         // failing that return a square?
         _log.debug("returning square");
-        return new Rectangle2D.Double(-.5,-.5,1.,1.);
+        return new Rectangle2D.Double(-.5, -.5, 1., 1.);
     }
 }

@@ -1,14 +1,28 @@
-/*
- * ImageLoader.java
+/**
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
  *
- * Created on 07 June 2002, 14:58
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
  */
 
 package org.geotools.renderer;
 
 /**
- *
- * @author  iant
+ * $Id: ImageLoader.java,v 1.5 2002/07/12 16:36:23 loxnard Exp $
+ * @author Ian Turton
  */
 import java.net.*;
 import java.awt.*;
@@ -25,7 +39,9 @@ public class ImageLoader implements Runnable{
     static int imageID = 1;
     static java.awt.Toolkit tk = java.awt.Toolkit.getDefaultToolkit();
     private static Logger _log = Logger.getLogger(ImageLoader.class);
-    /** Creates a new instance of ImageLoader */
+    /**
+     * Creates a new instance of ImageLoader
+     */
     public ImageLoader() {
     }
     URL location;
@@ -37,14 +53,14 @@ public class ImageLoader implements Runnable{
         //_log.debug("adding image, interactive? "+interactive);
         Thread t = new Thread(this);
         t.start();
-        if(interactive){
+        if (interactive){
             //_log.debug("fast return");
             return;
-        }else{
-            waiting=true;
-            while(waiting){
+        } else{
+            waiting = true;
+            while (waiting){
                 //_log.debug("waiting..."+waiting);
-                try{
+                try {
                     Thread.sleep(500);
                 } catch (InterruptedException e){
                 }
@@ -59,17 +75,17 @@ public class ImageLoader implements Runnable{
             
     }
     
-    public BufferedImage get(URL location,boolean interactive){
-        if(images.containsKey(location)){
+    public BufferedImage get(URL location, boolean interactive){
+        if (images.containsKey(location)){
             //_log.debug("found it ");
-            return (BufferedImage)images.get(location);
-        }else{
-            if(!interactive){
-                images.put(location,null);
+            return (BufferedImage) images.get(location);
+        } else{
+            if (!interactive){
+                images.put(location, null);
             }
             //_log.debug("adding "+location);
-            add(location,interactive);
-            return (BufferedImage)images.get(location);
+            add(location, interactive);
+            return (BufferedImage) images.get(location);
         }
     }
     
@@ -79,47 +95,47 @@ public class ImageLoader implements Runnable{
         try {
             img = tk.createImage(location);
             myID = imageID++;
-            tracker.addImage(img,myID);
+            tracker.addImage(img, myID);
             
         } catch ( Exception e ) {
-            _log.error("Exception fetching image from "+location+"\n"+e);
+            _log.error("Exception fetching image from " + location + "\n" + e);
             images.remove(location);
             waiting = false;
             return;
         }
         
-        try{
-            while((tracker.statusID(myID,true)&tracker.LOADING)!=0){
-                tracker.waitForID(myID,500);
+        try {
+            while ((tracker.statusID(myID, true)&tracker.LOADING) != 0){
+                tracker.waitForID(myID, 500);
                 //_log.debug(""+myID+"loading - waiting....");
             }
         } catch (InterruptedException ie){
         }
         
-        int state=tracker.statusID(myID,true);
+        int state = tracker.statusID(myID, true);
         
         
-        if(state==tracker.ERRORED){
-            _log.debug(""+myID+" Error loading");
+        if (state == tracker.ERRORED){
+            _log.debug("" + myID + " Error loading");
             images.remove(location);
             waiting = false;
             return;
         }
         
-        if((state&tracker.COMPLETE) == tracker.COMPLETE){
+        if ((state&tracker.COMPLETE) == tracker.COMPLETE){
             //_log.debug(""+myID+"completed load");
             int iw = img.getWidth(obs);
             int ih = img.getHeight(obs);
             BufferedImage bi = new BufferedImage(iw, ih, BufferedImage.TYPE_INT_ARGB);
             Graphics2D big = bi.createGraphics();
-            big.drawImage(img,0,0,obs);
-            images.put(location,bi);
+            big.drawImage(img, 0, 0, obs);
+            images.put(location, bi);
         
             waiting = false;
             return;
         }
         
-        _log.debug(""+myID+" whoops - some other outcome "+state);
+        _log.debug("" + myID + " whoops - some other outcome " + state);
         waiting = false;
         return;
     }
