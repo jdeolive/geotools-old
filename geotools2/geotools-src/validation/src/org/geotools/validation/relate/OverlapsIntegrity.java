@@ -51,7 +51,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * 
  * <b>Puropse:</b><br>
  * <p>
- * Tests to see if a Geometry overlaps, partiella or entirely, with another Geometry.
+ * Tests to see if a Geometry overlaps, partially or entirely, with another Geometry.
  * 
  * <b>Description:</b><br>
  * <p>
