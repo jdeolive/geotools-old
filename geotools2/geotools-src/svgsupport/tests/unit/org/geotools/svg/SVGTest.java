@@ -86,8 +86,8 @@ public class SVGTest extends TestCase {
             Map map = new DefaultMap();
             StyleFactory sFac = StyleFactory.createStyleFactory();
             SLDStyle reader = new SLDStyle(sFac,f);
-            Style style = reader.readXML();
-            map.addFeatureTable(fc,style);
+            Style[] style = reader.readXML();
+            map.addFeatureTable(fc,style[0]);
             System.out.println("schema for first feature is " + fc.getFeatures(new EnvelopeExtent(new Envelope(0,30,0,30)))[1].getSchema());
             //fc.getFeatures(new Extent())[0].getSchema();
             url = new URL("file:///"+dataFolder+"/"+outfile);
