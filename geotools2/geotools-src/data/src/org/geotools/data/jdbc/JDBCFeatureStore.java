@@ -38,7 +38,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
+import java.util.logging.Logger;
 
 /**
  * This is a starting point for providing your own FeatureStore implementation.
@@ -58,7 +58,12 @@ import java.util.Set;
  *       SwingUtilities.runLater...
  */
 public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore {
-    /** Current Transaction this FeatureSource is opperating against */
+    
+   /** The logger for the postgis module. */
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.data.jdbc");
+
+/** Current Transaction this FeatureSource is opperating against */
     protected Transaction transaction = Transaction.AUTO_COMMIT;
 
     public JDBCFeatureStore(JDBCDataStore jdbcDataStore, FeatureType featureType) {
@@ -419,6 +424,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
      *      java.lang.Object, org.geotools.filter.Filter)
      */
     public void setFeatures(FeatureReader reader) throws IOException {
+	LOGGER.info("setFeatures called " + reader);
         String typeName = getSchema().getTypeName();
         FeatureWriter writer = getDataStore().getFeatureWriter(typeName,
                 getTransaction());
@@ -428,6 +434,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
         try {
             while (writer.hasNext()) {
                 feature = writer.next();
+		LOGGER.info("removing feature " + feature);
                 writer.remove();
             }
 
@@ -448,7 +455,7 @@ public class JDBCFeatureStore extends JDBCFeatureSource implements FeatureStore 
                         + typeName + " out of provided feature: "
                         + feature.getID(), writeProblem);
                 }
-
+		LOGGER.info("writing feature " + newFeature);
                 writer.write();
             }
         } finally {
