@@ -31,7 +31,7 @@ import org.geotools.datasource.extents.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.11 2002/07/20 08:55:52 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.12 2002/07/20 13:30:12 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class ShapefileDataSource implements org.geotools.data.DataSource {
@@ -49,24 +49,7 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
     }
     
     
-    /**
-     * Saves the given features to the datasource.
-     * @task TODO: write the export code.
-     */
-    public void exportFeatures(FeatureCollection ft, Extent ex) throws DataSourceException {
-        throw new DataSourceException("Exporting of shapefiles not yet supported");
-       /* GeometryFactory fac = new GeometryFactory();
-        GeometryCollection gc = fac.createGeometryCollection((GeometryCollection[])features.toArray(new Geometry[0]));
-        try{
-            shapefile.write(gc);
-        }
-        catch(Exception e){
-            {
-               throw new DataSourceException(e.getMessage());
-            }
-        }*/
-        
-    }
+   
  
     
  
