@@ -33,7 +33,7 @@ import java.util.HashMap;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.14 2003/09/22 17:47:46 cholmesny Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.15 2003/11/05 01:29:31 seangeo Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -116,7 +116,8 @@ public class DefaultAttributeType implements AttributeType {
             src instanceof Boolean ||
             src instanceof Short ||
             src instanceof Long ||
-            src instanceof Character){
+            src instanceof Character ||
+            src instanceof Number){
             return src; 
         }        
         
