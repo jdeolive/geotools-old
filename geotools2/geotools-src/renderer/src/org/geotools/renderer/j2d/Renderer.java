@@ -118,7 +118,7 @@ import org.geotools.renderer.Renderer2D;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.41 2003/09/02 12:34:11 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.42 2003/11/02 21:10:26 aaime Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer implements Renderer2D {
@@ -1657,8 +1657,12 @@ public class Renderer implements Renderer2D {
             /*
              * Set a flag for avoiding some 'paint' events while we are actually painting...
              */
-            RenderedLayer.setDirtyArea(layers, layerCount, clipBounds.contains(zoomableBounds) ?
-                                                           XRectangle2D.INFINITY : clipBounds);
+            Rectangle2D rect = null;
+            if(clipBounds != null) 
+                rect = clipBounds.contains(zoomableBounds) ? XRectangle2D.INFINITY : clipBounds;
+            else
+                rect = XRectangle2D.INFINITY;
+            RenderedLayer.setDirtyArea(layers, layerCount, rect);
             /*
              * If the zoom has changed, send a notification to all layers before to start the
              * rendering. Layers will update their cache, which is used in order to decide if
