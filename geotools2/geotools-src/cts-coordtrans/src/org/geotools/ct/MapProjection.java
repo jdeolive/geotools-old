@@ -65,7 +65,7 @@ import org.geotools.resources.cts.ResourceKeys;
  * @see AffineTransform
  * @see PerspectiveTransform
  *
- * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
+ * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
  * @author André Gosselin
  * @author Martin Desruisseaux
  */
@@ -527,7 +527,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
             throws TransformException
     {
         final double x0 = ptSrc.getX();
-        final double y0 = ptDst.getY();
+        final double y0 = ptSrc.getY();
         ptDst = inverseTransform(x0, y0, ptDst);
         final double x = Math.toDegrees(ptDst.getX());
         final double y = Math.toDegrees(ptDst.getY());
@@ -784,7 +784,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Inverse of a map projection.
      *
-     * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Inverse extends AbstractMathTransform.Inverse implements MathTransform2D {
@@ -816,7 +816,7 @@ abstract class MapProjection extends AbstractMathTransform implements MathTransf
     /**
      * Informations about a {@link MapProjection}.
      *
-     * @version $Id: MapProjection.java,v 1.2 2002/07/10 18:19:45 desruisseaux Exp $
+     * @version $Id: MapProjection.java,v 1.3 2003/01/10 10:18:39 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static abstract class Provider extends MathTransformProvider {
