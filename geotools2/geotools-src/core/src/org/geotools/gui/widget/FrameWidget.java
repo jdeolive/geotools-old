@@ -21,57 +21,15 @@
 
 package org.geotools.gui.widget;
 
-//import com.vividsolutions.jts.geom.Coordinate;
-//import com.vividsolutions.jts.geom.GeometryFactory;
-//import com.vividsolutions.jts.geom.LineString;
-//import com.vividsolutions.jts.geom.Polygon;
-//import java.net.URL;
-//import java.awt.BorderLayout;
-//import java.awt.Color;
-//import java.awt.Dimension;
-//import java.awt.Rectangle;
-//import java.io.File;
-//import java.io.IOException;
-//import java.util.logging.Logger;
-//import javax.swing.JButton;
-//import javax.swing.JFileChooser;
-//import javax.swing.JFrame;
-//import org.opengis.cs.CS_CoordinateSystem;
-//import org.geotools.cs.CoordinateSystemFactory;
-//import org.geotools.cs.Datum;
-//import org.geotools.cs.FactoryException;
-//import org.geotools.cs.HorizontalDatum;
-//import org.geotools.data.DataSource;
-//import org.geotools.data.DataSourceException;
-//import org.geotools.data.MemoryDataSource;
-//import org.geotools.feature.AttributeType;
-//import org.geotools.feature.AttributeTypeDefault;
-//import org.geotools.feature.Feature;
-//import org.geotools.feature.FeatureType;
-//import org.geotools.feature.FeatureTypeFlat;
-//import org.geotools.feature.FeatureFactory;
-//import org.geotools.gml.GMLDataSource;
-//import org.geotools.gui.tools.ToolFactory;
-//import org.geotools.gui.tools.PanTool;
-//import org.geotools.gui.swing.PanelWidget;
+import java.awt.event.WindowListener;
 import org.geotools.gui.widget.Widget;
 import org.geotools.gui.widget.PanelWidget;
-//import org.geotools.gui.widget.MapPane;
-//import org.geotools.gui.widget.WidgetFactory;
-//import org.geotools.map.BoundingBoxImpl;
-//import org.geotools.map.Context;
-//import org.geotools.map.ContextImpl;
-//import org.geotools.map.DefaultLayer;
-//import org.geotools.map.DefaultLayerList;
-//import org.geotools.styling.SLDStyle;
-//import org.geotools.styling.Style;
-//import org.geotools.styling.StyleFactory;
 
 /**
  * A frame which can contain other widgets.
  *
  * @author Cameron Shorter
- * @version $Id: FrameWidget.java,v 1.1 2003/02/08 03:43:25 camerons Exp $
+ * @version $Id: FrameWidget.java,v 1.2 2003/02/09 09:48:08 camerons Exp $
  *
  */
 
@@ -108,4 +66,27 @@ public interface FrameWidget extends Widget {
      * Pack the widgets within this frame.
      */
     public void pack();
+
+    /**
+     * Adds the specified window listener to receive window events from
+     * this window.
+     * If l is null, no exception is thrown and no action is performed.
+     *
+     * @param 	l the window listener
+     * @see #removeWindowListener
+     * @see #getWindowListeners
+     */ 
+    public void addWindowListener(WindowListener l);
+ 
+   /**
+     * Makes the Window visible. If the Window and/or its owner
+     * are not yet displayable, both are made displayable.  The 
+     * Window will be validated prior to being made visible.  
+     * If the Window is already visible, this will bring the Window 
+     * to the front.
+     * @see       Component#isDisplayable
+     * @see       #toFront
+     * @see       Component#setVisible
+     */
+    public void show();
 }

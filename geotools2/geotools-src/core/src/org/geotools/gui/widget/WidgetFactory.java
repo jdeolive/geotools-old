@@ -7,7 +7,7 @@ import org.geotools.gui.tools.AbstractTool;
 import org.geotools.map.Context;
 /**
  * Factory for constructing Tool classes.
- * @version $Id: WidgetFactory.java,v 1.2 2003/02/08 03:30:34 camerons Exp $
+ * @version $Id: WidgetFactory.java,v 1.3 2003/02/09 09:48:08 camerons Exp $
  * @author Cameron Shorter
  */
 public abstract class WidgetFactory {
@@ -33,7 +33,7 @@ public abstract class WidgetFactory {
             }
             if (factory==null) {
                 factory = createFactory(
-                    "org.geotools.gui.widget.WidgetFactoryImpl");
+                    "org.geotools.gui.swing.WidgetFactoryImpl");
             }
         }
         return factory;
@@ -44,7 +44,7 @@ public abstract class WidgetFactory {
      * @return An instance of the Factory, or null if the Factory could not
      * be created.
      * @param factoryClass The name of the factory, eg:
-     * "org.geotools.gui.widget.WidgetFactoryImpl".
+     * "org.geotools.gui.swing.WidgetFactoryImpl".
      */
     public static WidgetFactory createFactory(String factoryClass) {
         try{
