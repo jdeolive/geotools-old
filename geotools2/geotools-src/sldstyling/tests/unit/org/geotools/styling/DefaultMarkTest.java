@@ -40,13 +40,13 @@ public class DefaultMarkTest extends TestCase {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(RenderStyleTest.class);
+        TestSuite suite = new TestSuite(DefaultMarkTest.class);
         return suite;
     }
     
     public void testSimpleRender()throws Exception {
         //same as the datasource test, load in some features into a table
-        
+        System.out.println("\n\nMark Test\n");
         // Request extent
         EnvelopeExtent ex = new EnvelopeExtent(0, 35, 0, 35);
         
@@ -54,9 +54,9 @@ public class DefaultMarkTest extends TestCase {
         ArrayList features = new ArrayList();
         String[] marks = {"Circle","Triangle","Cross","Star","X","Square","Arrow"};
         for(int i=0; i<marks.length; i++){
-            System.out.println("building test"+marks[i]+" at "+((double)i*5.0+2.0)+",25");
+            
             Point point = makeSamplePoint(geomFac,(double)i*5.0+2.0, 25.0);
-            System.out.println(""+point.toString());
+            
             AttributeType pointAttribute = new AttributeTypeDefault("centre", point.getClass());
             FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("test"+marks[i]);
             FeatureFactory pointFac = new FeatureFactory(pointType);

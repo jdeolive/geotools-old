@@ -1,0 +1,154 @@
+/*
+ * TextTest.java
+ *
+ * Created on 04 July 2002, 10:02
+ */
+
+package org.geotools.styling;
+
+import org.geotools.renderer.*;
+import org.geotools.data.*;
+import com.vividsolutions.jts.geom.*;
+import org.geotools.datasource.extents.*;
+import org.geotools.feature.*;
+import org.geotools.styling.*;
+import org.geotools.map.*;
+import java.util.*;
+import java.io.*;
+import junit.framework.*;
+import java.awt.Frame;
+import java.awt.Panel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.*;
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+
+/**
+ *
+ * @author  iant
+ */
+public class TextTest extends TestCase {
+    
+    /** Creates a new instance of TextTest */
+    public TextTest(java.lang.String testName) {
+        super(testName);
+       
+    }
+    
+    public static void main(java.lang.String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
+    
+    public static Test suite() {
+        TestSuite suite = new TestSuite(TextTest.class);
+        return suite;
+    }
+    
+    public void testTextRender()throws Exception {
+        System.out.println("\n\nText Test\n\n");
+        EnvelopeExtent ex = new EnvelopeExtent(0, 50, 0, 100);
+        Frame frame = new Frame("text test");
+        frame.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+        });
+        frame.setSize(300,600);
+        GeometryFactory geomFac = new GeometryFactory();
+        ArrayList features = new ArrayList();
+        int points = 4;
+        int rows = 3;
+        AttributeType[] pointAttribute = new AttributeType[3];
+        pointAttribute[0] = new AttributeTypeDefault("centre", com.vividsolutions.jts.geom.Point.class);
+        pointAttribute[1] = new AttributeTypeDefault("size",Double.class);
+        pointAttribute[2] = new AttributeTypeDefault("rotation",Double.class);
+        FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
+        FeatureFactory pointFac = new FeatureFactory(pointType);
+        for(int j=0;j<rows;j++){
+            double angle =0.0;
+            for(int i=0; i<points; i++){
+
+                Point point = makeSamplePoint(geomFac,
+                    2.0+(double)i*((ex.getBounds().getWidth()-4)/points), 
+                    50.0+(double)j*((50)/rows));
+                
+                Double size = new Double(5.0+j*5);
+                Double rotation = new Double(angle);
+                angle+=90.0;
+                Feature pointFeature = pointFac.create(new Object[]{point,size,rotation});
+                System.out.println(""+pointFeature);
+                features.add(pointFeature);
+            }
+        }
+        
+        AttributeType[] lineAttribute = new AttributeType[3];
+        lineAttribute[0] = new AttributeTypeDefault("edge", com.vividsolutions.jts.geom.LineString.class);
+        lineAttribute[1] = new AttributeTypeDefault("size",Double.class);
+        lineAttribute[2] = new AttributeTypeDefault("perpendicularoffset",Double.class);
+        FeatureType lineType = new FeatureTypeFlat(lineAttribute).setTypeName("testLine");
+        FeatureFactory lineFac = new FeatureFactory(lineType);
+        rows = 2;
+        points = 3;
+        
+        double off = 1;
+        for(int j=0;j<rows;j++){
+            double angle =0.0;
+            int sign = 1;
+            for(int i=0; i<points; i++){
+                LineString line = makeSimpleLineString(geomFac,i*ex.getBounds().getWidth()/points,j*20,sign*20,20);
+                Double size = new Double(12);
+                Double poffset = new Double(off);
+                sign--;
+                Feature lineFeature = lineFac.create(new Object[]{line,size,poffset});
+                features.add(lineFeature);
+            }   
+            off-=2;
+        }
+        
+        System.out.println("got "+features.size()+" features");
+        FeatureCollectionDefault ft = new FeatureCollectionDefault();
+        ft.addFeatures(features);
+        
+        org.geotools.map.Map map = new DefaultMap();
+        File f = new File(System.getProperty("dataFolder"),"textTest.sld");
+        System.out.println("testing reader using "+f.toString());
+        SLDStyle style = new SLDStyle(f);
+        map.addFeatureTable(ft,style);
+        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+        
+        Panel p = new Panel();
+        frame.add(p);
+        
+        frame.setLocation(600,0);
+        frame.setVisible(true);
+        renderer.setOutput(p.getGraphics(),p.getBounds());
+        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        Thread.sleep(5000);
+    }
+    private Point makeSamplePoint(final GeometryFactory geomFac,double x, double y) {
+        Coordinate c = new Coordinate(x,y);
+        Point point = geomFac.createPoint(c);
+        return point;
+    }
+    private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
+        Coordinate[] linestringCoordinates = new Coordinate[4];
+        linestringCoordinates[0] = new Coordinate(0.0d+xoff,0.0d+yoff);
+        linestringCoordinates[1] = new Coordinate(10.0d+xoff,10.0d+yoff);
+        linestringCoordinates[2] = new Coordinate(15.0d+xoff,20.0d+yoff);
+        linestringCoordinates[3] = new Coordinate(20.0d+xoff,30.0d+yoff);
+        
+        LineString line = geomFac.createLineString(linestringCoordinates);
+        
+        return line;
+    }
+    private LineString makeSimpleLineString(final GeometryFactory geomFac, double xstart, double ystart, double width, double height) {
+        Coordinate[] linestringCoordinates = new Coordinate[2];
+        linestringCoordinates[0] = new Coordinate(xstart,ystart);
+        
+        linestringCoordinates[1] = new Coordinate(xstart+width,ystart+height);
+        
+        LineString line = geomFac.createLineString(linestringCoordinates);
+        
+        return line;
+    }
+}

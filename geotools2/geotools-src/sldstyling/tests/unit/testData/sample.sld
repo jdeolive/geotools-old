@@ -103,7 +103,7 @@ A styling layer used for the unit tests of sldstyler
                 <Graphic>
                     <size>10</size>
                     <ExternalGraphic>
-                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/rail.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/rail.gif"/>
                         <format>image/gif</format>
                     </ExternalGraphic>
                     <mark>
@@ -177,7 +177,7 @@ A styling layer used for the unit tests of sldstyler
                 <graphic>
                     <size>20</size>
                     <externalGraphic>
-                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/blob.gif"/>
                         <format>image/gif</format>
                     </externalGraphic>
                     
@@ -251,7 +251,7 @@ A styling layer used for the unit tests of sldstyler
                     
                     <rotation>45.0</rotation>
                     <externalGraphic>
-                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/blob.gif"/>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.ccg.leeds.ac.uk/ian/geotools/icons/blob.gif"/>
                         <format>image/gif</format>
                     </externalGraphic>
                     <mark>
@@ -276,7 +276,7 @@ A styling layer used for the unit tests of sldstyler
             <TextSymbolizer>
                 <Label><Literal>Point Label</Literal></Label>
                 <Font>
-                    <CssParameter name="font-family">Arial</CssParameter>
+                    <CssParameter name="font-family">Times</CssParameter>
                     <CssParameter name="font-Size">10</CssParameter>
                 </Font>
                 <Fill>

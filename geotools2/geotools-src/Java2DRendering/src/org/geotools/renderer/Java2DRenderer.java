@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.35 2002/07/03 20:26:31 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.36 2002/07/04 16:46:49 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -419,85 +419,128 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             String label = obj.toString();
             _log.debug("label is "+label);
             if(label==null) return;
-            org.geotools.styling.Font font = symbolizer.getFont();
+            
 
             if(fontFamilies == null){
                 java.awt.GraphicsEnvironment ge = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
                 fontFamilies = ge.getAvailableFontFamilyNames();
-                _log.debug("there are "+fontFamilies.length+" fonts available");
+                //_log.debug("there are "+fontFamilies.length+" fonts available");
             }
-            String requestedFont = font.getFontFamily().getValue(feature).toString();
-            if(requestedFont==null) { requestedFont="serif"; }
-            java.awt.Font javaFont = null ;
             
-            for(int i=0;i<fontFamilies.length;i++){
-                //_log.debug("checking "+requestedFont+" v "+fontFamilies[i]);
-                if(requestedFont.equalsIgnoreCase(fontFamilies[i])){
-                    String reqStyle = (String)font.getFontStyle().getValue(feature);
-                    int styleCode;
-                    if(fontStyleLookup.containsKey(reqStyle)){
-                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+            java.awt.Font javaFont = null ;
+            org.geotools.styling.Font[] fonts = symbolizer.getFonts();
+            int styleCode = 0;
+            int size = 6;
+            String requestedFont = "";
+            for(int k=0;k<fonts.length;k++){
+                requestedFont = fonts[k].getFontFamily().getValue(feature).toString();
+
+                
+
+                for(int i=0;i<fontFamilies.length;i++){
+                    //_log.debug(fontFamilies[i]);
+                    if(requestedFont.equalsIgnoreCase(fontFamilies[i])){
+                        String reqStyle = (String)fonts[k].getFontStyle().getValue(feature);
+                        
+                        if(fontStyleLookup.containsKey(reqStyle)){
+                            styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                        }
+                        else{
+                            styleCode = java.awt.Font.PLAIN;
+                        }
+                        String reqWeight = (String)fonts[k].getFontWeight().getValue(feature);
+                        if(reqWeight.equalsIgnoreCase("Bold")){
+                            styleCode = styleCode|java.awt.Font.BOLD;
+                        }
+                        size = ((Number)fonts[k].getFontSize().getValue(feature)).intValue();
+                        _log.debug("requesting "+requestedFont+" "+styleCode+" "+size);
+                        javaFont = new java.awt.Font(requestedFont,styleCode,size);
+                        break;
                     }
-                    else{
-                        styleCode = java.awt.Font.PLAIN;
-                    }
-                    String reqWeight = (String)font.getFontWeight().getValue(feature);
-                    if(reqWeight.equalsIgnoreCase("Bold")){
-                        styleCode = styleCode|java.awt.Font.BOLD;
-                    }
-                    int size = ((Number)font.getFontSize().getValue(feature)).intValue();
-                    _log.debug("requesting "+requestedFont+" "+styleCode+" "+size);
-                    javaFont = new java.awt.Font(requestedFont,styleCode,size);
-                    break;
                 }
+                if(javaFont!=null) break;
+            }
+            LabelPlacement placement = symbolizer.getLabelPlacement();
+            Halo halo = symbolizer.getHalo();
+            if(halo!=null){
+                
+                float radius = ((Number)halo.getRadius().getValue(feature)).floatValue();
+                
+                applyFill(graphics,halo.getFill(),feature);
+                //drawText(graphics,feature,label,placement);
+                resetFill();
             }
             if(javaFont!=null){
                 graphics.setFont(javaFont);
             }
+            applyFill(graphics,symbolizer.getFill(),feature);
             
+            drawText(graphics,feature,label,placement);
+            resetFill();
+            
+        }catch (org.geotools.filter.MalformedFilterException mfe){
+            _log.fatal("Malformed Filter exception:"+mfe);
+            return;
+        }
+    }
+    private void drawText(Graphics2D graphics, Feature feature, String label,LabelPlacement placement){
+        try{    
             AffineTransform temp = graphics.getTransform();
             AffineTransform labelAT = new AffineTransform();
             double x=0,y=0,rotation=0;
             double tx=0,ty=0;
             Rectangle2D rect = graphics.getFont().getStringBounds(label,graphics.getFontRenderContext());
-            LabelPlacement tmp  = symbolizer.getLabelPlacement();
-            if(tmp instanceof PointPlacement){
+            
+            if(placement instanceof PointPlacement){
                 //HACK: this will fail if the geometry of the feature isn't a point
                 _log.debug("setting pointPlacement");
                 tx = ((Point)feature.getDefaultGeometry()).getX();
                 ty = ((Point)feature.getDefaultGeometry()).getY();
-                PointPlacement p = (PointPlacement)tmp;
+                PointPlacement p = (PointPlacement)placement;
                 x = ((Number)p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*rect.getWidth();
                 y = ((Number)p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*rect.getHeight();
                 x += ((Number)p.getDisplacement().getDisplacementX().getValue(feature)).doubleValue();
                 y += ((Number)p.getDisplacement().getDisplacementY().getValue(feature)).doubleValue();
                 rotation = ((Number)p.getRotation().getValue(feature)).doubleValue();
-            }else if(tmp instanceof LinePlacement){
+                rotation*=Math.PI/180.0;
+            }else if(placement instanceof LinePlacement){
                 _log.debug("setting line placement");
-                //HACK: this will fail if the geometry of the feature is not a string
-                double offset = ((Number)((LinePlacement)tmp).getPerpendicularOffset().getValue(feature)).doubleValue();
+                //HACK: this will fail if the geometry of the feature is not a linestring
+                double offset = ((Number)((LinePlacement)placement).getPerpendicularOffset().getValue(feature)).doubleValue();
                 LineString line = ((LineString)feature.getDefaultGeometry());
                 Point start = line.getStartPoint();
                 Point end = line.getEndPoint();
                 double dx = end.getX()-start.getX();
                 double dy = end.getY() - start.getY();
-                double slope = Math.atan2(dy,dx);
-                tx = dx/2.0;
-                ty = dy/2.0;
-                x = rect.getMinX()+offset*Math.sin(slope);
-                y = rect.getMinY()+offset*Math.cos(slope);
+                rotation = Math.atan2(dx,dy)-Math.PI/2.0;
+                tx = dx/2.0 + start.getX();
+                ty = dy/2.0 + start.getY();
+                x = -rect.getWidth()/2.0;
+                
+                y=0;
+                if(offset >= 0.0 ){ // to the left of the line
+                    y = -offset;
+                }else{
+                    y = y = offset+rect.getHeight();
+                }
+                
+                _log.debug("offset = "+offset+" x = "+x+" y "+y);
             }
+            
             Point2D mapCentre = new Point2D.Double(tx,ty);
             Point2D graphicCentre = new Point2D.Double();
             temp.transform(mapCentre,graphicCentre);
             labelAT.translate(graphicCentre.getX(),graphicCentre.getY());
+            
+            _log.debug("rotation "+rotation);
+            
             labelAT.rotate(rotation);
             
             //        markAT.scale(drawSize,drawSize);
             graphics.setTransform(labelAT);
             // we move this to the centre of the image.
             _log.debug("about to draw at "+tx+","+ty);
-            applyFill(graphics,symbolizer.getFill(),feature);
+            
             graphics.drawString(label,(float)x,(float)y);
             resetFill();
             graphics.setTransform(temp);
@@ -507,6 +550,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             return;
         }
+        
         }
         
         private void renderExternalGraphic(Geometry geom, Graphic graphic){

@@ -2,7 +2,7 @@
  * SLDStyleSuite.java
  * JUnit based test
  *
- * $Id: SLDStyleSuite.java,v 1.4 2002/06/03 16:10:13 ianturton Exp $
+ * $Id: SLDStyleSuite.java,v 1.5 2002/07/04 16:46:49 ianturton Exp $
  */                
 
 package org.geotools.styling;
@@ -34,6 +34,8 @@ public class SLDStyleSuite extends TestCase {
         //suite.addTestSuite(SLDStyleTest.class);
         suite.addTestSuite(RenderStyleTest.class);
         suite.addTestSuite(DefaultMarkTest.class);
+        suite.addTestSuite(TextTest.class);
+
         return suite;
     }
 }
