@@ -24,6 +24,7 @@ import java.io.*;
 import java.util.*;
 import java.net.*;
 
+import javax.xml.parsers.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
@@ -36,7 +37,7 @@ import org.geotools.data.*;
  * The source of data for Features. Shapefiles, databases, etc. are referenced 
  * through this interface.
  * 
- * @version $Id: GMLDataSource.java,v 1.15 2002/06/05 10:09:52 loxnard Exp $
+ * @version $Id: GMLDataSource.java,v 1.16 2002/06/20 14:05:10 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class GMLDataSource extends XMLFilterImpl 
@@ -103,10 +104,13 @@ public class GMLDataSource extends XMLFilterImpl
             GMLFilterFeature featureFilter = new GMLFilterFeature(this);						
             GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);						
             GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-            XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+            //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
+            SAXParserFactory fac = SAXParserFactory.newInstance();
+            SAXParser parser = fac.newSAXParser();
             
-            parser.setContentHandler(documentFilter);
-            parser.parse(uri);
+            ParserAdapter p = new ParserAdapter(parser.getParser());
+            p.setContentHandler(documentFilter);
+            p.parse(uri);
         }
         catch (IOException e) {
             throw new DataSourceException("Error reading URI: " + uri );
@@ -114,7 +118,9 @@ public class GMLDataSource extends XMLFilterImpl
         catch (SAXException e) {
             throw new DataSourceException("Parsing error: " + e.getMessage());
         }
-        
+        catch (ParserConfigurationException e){
+            throw new DataSourceException("Parsing error: " + e.getMessage());
+        }
         Feature[] typedFeatures = new Feature[features.size()];
         for ( int i = 0; i < features.size(); i++ ) {
             typedFeatures[i] = (Feature) features.get(i);
