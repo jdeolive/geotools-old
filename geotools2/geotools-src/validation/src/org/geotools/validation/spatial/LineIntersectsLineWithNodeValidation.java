@@ -47,8 +47,8 @@ import com.vividsolutions.jts.geom.LineString;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineIntersectsLineWithNodeValidation.java,v 1.4 2004/02/27 19:44:12 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: LineIntersectsLineWithNodeValidation.java,v 1.5 2004/04/26 21:01:59 jive Exp $
  */
 public class LineIntersectsLineWithNodeValidation
     extends LineLineAbstractValidation {
@@ -147,11 +147,13 @@ public class LineIntersectsLineWithNodeValidation
     	Set m = new HashSet();
     	while(i<c.size()){
     		m.add(c.getCoordinate(i));
+    		i++;
     	}
     	i=0;c=a2;
     	while(i<c.size()){
     		if(!m.add(c.getCoordinate(i)))
     			return true;
+    		i++;
     	}
     	return false;
     }
