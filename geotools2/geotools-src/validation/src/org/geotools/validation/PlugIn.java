@@ -195,14 +195,17 @@ public class PlugIn {
                 property.getWriteMethod().invoke(bean,
                     new Object[] { entry.getValue() });
             } catch (IllegalArgumentException e) {
+            	String val = entry.getValue() == null? entry.getValue().toString():"null";
                 throw new ValidationException("test failed to configure "
-                    + plugInName + " " + entry.getKey(), e);
+                    + plugInName + " " + entry.getKey()+ " "+val, e);
             } catch (IllegalAccessException e) {
-                throw new ValidationException("test failed to configure "
-                    + plugInName + " " + entry.getKey(), e);
+				String val = entry.getValue() == null? entry.getValue().toString():"null";
+				throw new ValidationException("test failed to configure "
+					+ plugInName + " " + entry.getKey()+ " "+val, e);
             } catch (InvocationTargetException e) {
-                throw new ValidationException("test failed to configure "
-                    + plugInName + " " + entry.getKey(), e);
+				String val = entry.getValue() == null? entry.getValue().toString():"null";
+				throw new ValidationException("test failed to configure "
+					+ plugInName + " " + entry.getKey()+ " "+val, e);
             }
         }
     }

@@ -46,7 +46,7 @@ import com.vividsolutions.jts.geom.Polygon;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineNotTouchingPolygonInteriorValidation.java,v 1.4 2004/02/27 19:44:12 dmzwiers Exp $
+ * @version $Id: LineNotTouchingPolygonInteriorValidation.java,v 1.5 2004/04/15 18:18:01 dmzwiers Exp $
  */
 public class LineNotTouchingPolygonInteriorValidation
     extends LinePolygonAbstractValidation {
@@ -77,11 +77,15 @@ public class LineNotTouchingPolygonInteriorValidation
     	boolean r = true;
     	
         FeatureSource fsLine = (FeatureSource) layers.get(getLineTypeRef());
+        if(fsLine == null)
+        	return true;
         FeatureResults frLine = fsLine.getFeatures();
         FeatureCollection fcLine = frLine.collection();
         FeatureIterator fLine = fcLine.features();
         
         FeatureSource fsPoly = (FeatureSource) layers.get(getRestrictedPolygonTypeRef());
+        if(fsPoly == null)
+        	return true;
         FeatureResults frPoly = fsPoly.getFeatures();
         FeatureCollection fcPoly = frPoly.collection();
                 
