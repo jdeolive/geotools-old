@@ -76,8 +76,8 @@
       <!-- This section excludes the tests, comment out if your
                  testData/testparams.properties are set correctly -->
       <excludes>
-        <exclude>**/SdeDataStoreTest.java</exclude>
-        <exclude>**/SdeConnectionPoolTest.java</exclude>
+        <exclude>**/ArcSDEDataStoreTest.java</exclude>
+        <exclude>**/ArcSDEConnectionPoolTest.java</exclude>
       </excludes>
       <!-- End exclude tests -->
       <resources>

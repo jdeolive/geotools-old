@@ -20,8 +20,8 @@ package org.geotools.filter;
 import com.esri.sde.sdk.client.*;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
-import org.geotools.data.sde.GeometryBuilder;
-import org.geotools.data.sde.GeometryBuildingException;
+import org.geotools.data.arcsde.GeometryBuilder;
+import org.geotools.data.arcsde.GeometryBuildingException;
 
 import java.util.ArrayList;
 import java.util.List;

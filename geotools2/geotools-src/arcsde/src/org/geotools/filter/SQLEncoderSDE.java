@@ -16,12 +16,10 @@
  */
 package org.geotools.filter;
 
+import java.io.*;
+import java.util.logging.*;
+
 import com.esri.sde.sdk.client.*;
-import org.geotools.data.sde.SdeAdapter;
-import java.io.Writer;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 /**
@@ -103,7 +101,7 @@ public class SQLEncoderSDE extends SQLEncoder
      */
     public void visit(FidFilter filter)
     {
-        long[] fids = SdeAdapter.getNumericFids(filter.getFids());
+        long[] fids = getNumericFids(filter.getFids());
         int nFids = fids.length;
 
         if (nFids == 0)
@@ -137,16 +135,52 @@ public class SQLEncoderSDE extends SQLEncoder
         }
     }
 
-    /*
-    * @task TODO: look forward for Like filter implementation or contribute in
-    *       doing so.  public void visit(LikeFilter filter) throws
-    *       UnsupportedOperationException { log.finer("exporting like
-    *       filter"); try { String pattern = filter.getPattern(); String
-    *       wildCard = filter.getWildcardMulti(); pattern =
-    *       pattern.replaceAll(wildCard, "%"); ((DefaultExpression)
-    *       filter.getValue()).accept(this); out.write(" LIKE ");
-    *       out.write("'" + pattern + "'"); } catch (java.io.IOException ioe)
-    *       { throw new RuntimeException(ioe.getMessage(), ioe); }}
-    */
+    /**
+     * DOCUMENT ME!
+     *
+     * @param stringFids DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     *
+     */
+    public static long[] getNumericFids(String[] stringFids)
+        throws IllegalArgumentException
+    {
+      int nfids = stringFids.length;
+      long[] fids = new long[nfids];
 
+      for (int i = 0; i < nfids; i++) {
+        fids[i] = getNumericFid(stringFids[i]);
+      }
+
+      return fids;
+    }
+
+    /**
+     * Returns the numeric identifier of a FeatureId, given by the full
+     * qualified name of the featureclass prepended to the ArcSDE feature id.
+     * ej: SDE.SDE.SOME_LAYER.1
+     *
+     * @param fid a geotools FeatureID
+     *
+     * @return an ArcSDE feature ID
+     *
+     * @throws IllegalArgumentException DOCUMENT ME!
+     */
+    public static long getNumericFid(String fid)
+        throws IllegalArgumentException
+    {
+      int dotIndex = fid.lastIndexOf('.');
+
+      try {
+        return Long.decode(fid.substring(++dotIndex)).longValue();
+      }
+      catch (Exception ex) {
+        throw new IllegalArgumentException("FeatureID " + fid
+                                           +
+            " does not seems as a valid ArcSDE FID");
+      }
+    }
 }
