@@ -107,6 +107,7 @@ public class XMLEncoderTest extends TestCase {
     protected void setUp() throws SchemaException, IllegalFeatureException {
         if(setup) return;
         setup=true;
+        _log.getLoggerRepository().setThreshold(Level.INFO);
         // Create the schema attributes
         _log.debug("creating flat feature...");
         AttributeType geometryAttribute =
@@ -178,6 +179,7 @@ public class XMLEncoderTest extends TestCase {
         FeatureFactory factory = new FeatureFactory(testSchema);
         testFeature = factory.create(attributes);
         _log.debug("...flat feature created");
+        _log.getLoggerRepository().setThreshold(Level.DEBUG);
     }
     
     public void test1()
@@ -254,8 +256,10 @@ public class XMLEncoderTest extends TestCase {
             Node child = null;
             for(int i=0;i<list.getLength();i++){
                 child = list.item(i);
+                _log.getLoggerRepository().setThreshold(Level.INFO);
                 if(child == null || child.getNodeType() != Node.ELEMENT_NODE) continue;
                 filter = FilterXMLParser.parseFilter(child);
+                _log.getLoggerRepository().setThreshold(Level.DEBUG);
                 _log.debug("filter: " + filter.getClass().toString());
                 StringWriter output = new StringWriter();
                 XMLEncoder encode = new XMLEncoder(output,(AbstractFilter)filter);
