@@ -137,7 +137,7 @@ public class GtWmsServer implements WMSServer {
                 }
                 
                 LOGGER.finer("after mod url is " + url);
-                
+                LOGGER.info("Loading "+url);
                 HashMap props = new HashMap(entry.properties);
                 DataSource ds = DataSourceFinder.getDataSource(props);
                 LOGGER.finer("Loading layer with " + ds);
@@ -194,7 +194,7 @@ public class GtWmsServer implements WMSServer {
 //            exp.printStackTrace();
             LOGGER.severe("Exception loading layers " +
             exp.getClass().getName() + " : " + exp.getMessage());
-            throw new RuntimeException("Exception loading layers ",exp);
+//            throw new RuntimeException("Exception loading layers ",exp);
         }
     }
     
