@@ -86,7 +86,7 @@ import org.geotools.resources.SwingUtilities;
  * This panel is initially set to listen to messages of level {@link Level#CONFIG} or higher.
  * This level can be changed with <code>{@link #getHandler}.setLevel(aLevel)</code>.
  *
- * @version $Id: LoggingPanel.java,v 1.3 2002/09/01 22:47:18 desruisseaux Exp $
+ * @version $Id: LoggingPanel.java,v 1.4 2002/09/02 13:17:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class LoggingPanel extends JPanel {
@@ -184,6 +184,22 @@ public class LoggingPanel extends JPanel {
      */
     public Handler getHandler() {
         return model;
+    }
+
+    /**
+     * Returns the capacity. This is the maximum number of {@link LogRecord}s the handler
+     * can memorize. If more messages are logged, then the earliest messages will be discarted.
+     */
+    public int getCapacity() {
+        return model.getCapacity();
+    }
+
+    /**
+     * Set the capacity. This is the maximum number of {@link LogRecord}s the handler can
+     * memorize. If more messages are logged, then the earliest messages will be discarted.
+     */
+    public void setCapacity(final int capacity) {
+        model.setCapacity(capacity);
     }
 
     /**
