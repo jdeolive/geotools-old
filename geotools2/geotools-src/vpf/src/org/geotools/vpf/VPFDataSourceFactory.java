@@ -24,7 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -48,13 +48,13 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
     /**
      * Describe <code><code>createDataSource</code></code> method here.
      *
-     * @param hashMap a <code><code>HashMap</code></code> value
+     * @param hashMap a <code><code>Map</code></code> value
      *
      * @return a <code><code>DataSource</code></code> value
      *
      * @exception DataSourceException if an error occurs
      */
-    public DataSource createDataSource(HashMap hashMap)
+    public DataSource createDataSource(Map hashMap)
         throws DataSourceException {
         if (!canProcess(hashMap)) {
             return null;
@@ -89,11 +89,11 @@ public class VPFDataSourceFactory implements DataSourceFactorySpi {
     /**
      * Describe <code><code>canProcess</code></code> method here.
      *
-     * @param hashMap a <code><code>HashMap</code></code> value
+     * @param hashMap a <code><code>Map</code></code> value
      *
      * @return a <code><code>boolean</code></code> value
      */
-    public boolean canProcess(HashMap hashMap) {
+    public boolean canProcess(Map hashMap) {
         if (!hashMap.containsKey("url")) {
             return false;
         }
