@@ -51,7 +51,7 @@ import java.nio.channels.*;
 import java.nio.charset.Charset;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.11 2003/06/07 02:59:07 crotwell Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.12 2003/06/10 21:30:43 jmacgill Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  */
@@ -90,9 +90,10 @@ public class ShapefileDataSource extends AbstractDataSource implements org.geoto
       dbfext = ".DBF";
       shxext = ".SHX";
     }
-    shpURL = new File(filename + shpext).toURL();
-    dbfURL = new File(filename + dbfext).toURL();
-    shxURL = new File(filename + shxext).toURL();
+    shpURL = new URL(filename + shpext);
+    dbfURL = new URL(filename + dbfext);
+    shxURL = new URL(filename + shxext);
+
   }
 
   public ShapefileDataSource(URL shpURL, URL dbfURL, URL shxURL) {
