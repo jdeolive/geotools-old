@@ -44,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.21 2003/04/11 00:31:46 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.22 2003/04/23 17:33:11 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -119,8 +119,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	this.fidColumn = getFidColumn(dbConnection, tableName);
 	try {
 	    this.schema = makeSchema(tableName, dbConnection, fidColumn);
-	} catch (Exception e) {
-	    throw new DataSourceException("Couldn't make schema: " + e);
+	} catch (DataSourceException e) {
+	    throw new DataSourceException("Couldn't make schema: " + e, e);
 	}
 	this.srid = getSrid();
 	if (schema.getDefaultGeometry() != null) {
@@ -282,14 +282,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	closeResultSet(result);
 	FeatureType retSchema =  
 	    FeatureTypeFactory.create(attributes).setTypeName(tableName);
-	if (retSchema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
-	    //((FeatureTypeFlat)retFeature).setSRID(srid); 
-	    // first way depends on static srid, which could change if another
-	    //object calls the static method.  querySRID is slower, as 
-	    //another connection must be made, but will be sure to get it right
-	  int srid = querySRID(dbConnection, tableName);
-	((FeatureTypeFlat)retSchema).setSRID(srid);
-	}
 	return retSchema;
 	}
 	catch(SQLException e) {
@@ -320,19 +312,12 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * possible, if not then it queries the datasource.
      *
      * @return the srid of this schema.
-     * @tasks: REVISIT: consider doing away with assigning srid from schema.
-     * Just ignore the srid of the schema coming in?  Because it always should
-     * be the same as the postgis backend.
      */
     private int getSrid() {
 	int srid = 0;
-	//if (schema.getClass().isAssignableFrom(FeatureTypeFlat.class)) {
-	//    srid = ((FeatureTypeFlat)schema).getSRID();
-	//    if (srid != 0) return srid; //if 0 then it was not initialized, 
-	//}    //so it should be found with querySRID.
 	try {
 	    srid = querySRID(dbConnection, tableName);  //this will slow things 
-	} catch (Exception e) {     //srid should be set in schema.
+	} catch (DataSourceException e) {     //srid should be set in schema.
 	    //TODO: error checking here.
 	}
 	return srid;
@@ -453,6 +438,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * Creates a SQL statement for the PostGIS database.
      *
      * @return Full SQL statement.
+     * @tasks REVISIT: put all the sql construction in a helper class?
      */ 
     public String makeSql(Filter filter, String tableName,
 			  FeatureType schema, boolean useLimit) 
@@ -574,10 +560,8 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
                 // grab featureId, which always appears first 
                 featureId = result.getString(1);
 		//featureId's can't start with numbers.
-		if (Character.isDigit(featureId.charAt(0))){
-		    //so prepend the table name.
-		    featureId = tableName + "." + featureId;
-		}
+		featureId = createFid(featureId);
+		
 
                 // create an individual attribute by looping through columns
                 //LOGGER.finer("reading feature: " + resultCounter);
@@ -623,6 +607,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     }
 
 
+    private String createFid(String featureId){
+	if (Character.isDigit(featureId.charAt(0))){
+	    //so prepend the table name.
+	    featureId = tableName + "." + featureId;
+	}
+	return featureId;
+    }
+
     /**
      * Returns a feature collection, based on the passed filter.  The
      * schema of the features passed in must match the schema
@@ -639,6 +631,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      */ 
     public Set addFeatures(FeatureCollection collection)
         throws DataSourceException {
+	Set curFids = getFidSet();
 	Feature[] featureArr = collection.getFeatures();
         if (featureArr.length > 0) {
 	    try { 
@@ -656,7 +649,42 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		throw new DataSourceException(message, e);
 	    }    
 	}
-	return null;
+	Set newFids = getFidSet();
+	newFids.removeAll(curFids);
+	//Set retFids = new HashSet(newFids.size());
+	//for (Iterator i = newFids.iterator(); i.hasNext;){
+	return newFids;
+    }
+
+    private Set getFidSet() throws DataSourceException {
+	HashSet fids = new HashSet();
+	try {
+	    
+	Statement statement = dbConnection.createStatement();
+	FeatureType fidSchema = 
+		    FeatureTypeFactory.create(new AttributeType[0]);
+	String sql = makeSql(null, tableName, schema, false);
+	ResultSet result = statement.executeQuery( sql);
+	while (result.next()){
+	    //REVISIT: this formatting could be done after the remove,
+	    //would speed things up, but also would make that code ugly.
+	    fids.add(createFid(result.getString(1)));
+	}
+	result.close();
+	statement.close();
+	}catch(SQLException e) {
+	    String message = "Some sort of database connection error: " 
+		+ e.getMessage();
+		LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+	catch(SchemaException e) {
+	    String message = "Had problems creating the feature type..." 
+			   + e.getMessage();
+	    LOGGER.warning(message);
+	    throw new DataSourceException(message, e);
+	}
+	return fids;
     }
 
     /**
@@ -669,6 +697,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @return an insert sql statement.
      */ 
     private String makeInsertSql(String tableName, Feature feature){
+	
 	String attrValue = new String();
 	StringBuffer sql = new StringBuffer("INSERT INTO " + tableName + "(");
 	FeatureType featureSchema = feature.getSchema();
