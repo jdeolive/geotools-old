@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project basedir="." default="all" name="geotools">
     
-    <target name="init">
+    <target name="init" depends="modificationset">
         <property file="build.ant.properties"/>
         <path id="netbeans.ext">
 
@@ -44,10 +44,12 @@
     </target>
 
     <target depends="build" name="release"/>
+   
     <target name="modificationset" if="${lastBuildAttemptTime}">
+    <echo message="checking modificationset against ${lastBuildAttemptTime}"/>
     <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
 
-        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools geotools2"/>
+        <cvselement cvsroot=":pserver:anoncvs@cvs.geotools.org:/cvsroot/geotools"/>
     </modificationset>
     </target>
 </project>
