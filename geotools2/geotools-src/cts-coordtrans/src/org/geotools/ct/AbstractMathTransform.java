@@ -75,7 +75,7 @@ import javax.vecmath.SingularMatrixException;
  * Subclasses must declare <code>implements&nbsp;MathTransform2D</code>
  * themself if they know to maps two-dimensional coordinate systems.
  *
- * @version $Id: AbstractMathTransform.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: AbstractMathTransform.java,v 1.4 2002/07/15 18:28:43 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class AbstractMathTransform implements MathTransform {
@@ -441,6 +441,42 @@ public abstract class AbstractMathTransform implements MathTransform {
         throw new NoninvertibleTransformException(
                 Resources.format(ResourceKeys.ERROR_NONINVERTIBLE_TRANSFORM));
     }
+
+    /**
+     * Concatenates in an optimized way a {@link MathTransform} <code>other</code> to this
+     * <code>MathTransform</code>. A new math transform is created to perform the combined
+     * transformation. The <code>applyOtherFirst</code> value determine the transformation
+     * order as bellow:
+     *
+     * <ul>
+     *   <li>If <code>applyOtherFirst</code> is <code>true</code>, then transforming a point
+     *       <var>p</var> by the combined transform is equivalent to first transforming
+     *       <var>p</var> by <code>other</code> and then transforming the result by the
+     *       original transform <code>this</code>.</li>
+     *   <li>If <code>applyOtherFirst</code> is <code>false</code>, then transforming a point
+     *       <var>p</var> by the combined transform is equivalent to first transforming
+     *       <var>p</var> by the original transform <code>this</code> and then transforming
+     *       the result by <code>other</code>.</li>
+     * </ul>
+     *
+     * If no special optimization is available for the combined transform, then this method
+     * returns <code>null</code>.  In the later case, the concatenation will be prepared by
+     * {@link MathTransformFactory} using a generic {@link ConcatenatedTransform}.
+     *
+     * The default implementation always returns <code>null</code>. This method is ought to be
+     * overrided by subclasses capable of concatenating some combinaison of transforms in a
+     * special way. Examples are {@link ExponentialTransform1D} and {@link LogarithmicTransform1D}.
+     *
+     * @param  other The math transform to apply.
+     * @param  applyOtherFirst <code>true</code> if the transformation order is <code>other</code>
+     *         followed by <code>this</code>, or <code>false</code> if the transformation order is
+     *         <code>this</code> followed by <code>other</code>.
+     * @return The combined math transform, or <code>null</code> if no optimized combined
+     *         transform is available.
+     */
+    MathTransform concatenate(final MathTransform other, final boolean applyOtherFirst) {
+        return null;
+    }
     
     /**
      * Returns a hash value for this transform.
@@ -562,7 +598,7 @@ public abstract class AbstractMathTransform implements MathTransform {
      * This inner class is the inverse of the enclosing
      * math transform.
      *
-     * @version $Id: AbstractMathTransform.java,v 1.3 2002/07/10 18:20:13 desruisseaux Exp $
+     * @version $Id: AbstractMathTransform.java,v 1.4 2002/07/15 18:28:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected abstract class Inverse extends AbstractMathTransform {

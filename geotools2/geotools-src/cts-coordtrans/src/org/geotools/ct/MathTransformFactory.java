@@ -100,7 +100,7 @@ import javax.vecmath.GMatrix;
  * systems mean, it is not necessary or desirable for a math transform object
  * to keep information on its source and target coordinate systems.
  *
- * @version $Id: MathTransformFactory.java,v 1.5 2002/07/12 20:38:17 desruisseaux Exp $
+ * @version $Id: MathTransformFactory.java,v 1.6 2002/07/15 18:28:43 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -145,7 +145,9 @@ public class MathTransformFactory {
                 new      StereographicProjection.Provider(false), // Oblique_Stereographic
                 new TransverseMercatorProjection.Provider(),      // Transverse_Mercator
                 new          GeocentricTransform.Provider(false), // Ellipsoid_To_Geocentric
-                new          GeocentricTransform.Provider(true)   // Geocentric_To_Ellipsoid
+                new          GeocentricTransform.Provider(true),  // Geocentric_To_Ellipsoid
+                new       ExponentialTransform1D.Provider(false), // Exponential
+                new       ExponentialTransform1D.Provider(true)   // Logarithmic
             });
             for (int i=DEFAULT.providers.length; --i>=0;) {
                 final MathTransformProvider provider = DEFAULT.providers[i];
@@ -306,6 +308,22 @@ public class MathTransformFactory {
             tr1 = createConcatenatedTransform(tr1, ctr.transform1);
             tr2 = ctr.transform2;
         }
+        /*
+         * Before to create a general {@link ConcatenatedTransform} object, give a
+         * chance to {@link AbstractMathTransform} to returns an optimized object.
+         */
+        if (tr1 instanceof AbstractMathTransform) {
+            final MathTransform optimized = ((AbstractMathTransform) tr1).concatenate(tr2, false);
+            if (optimized != null) {
+                return (MathTransform) pool.canonicalize(optimized);
+            }
+        }
+        if (tr2 instanceof AbstractMathTransform) {
+            final MathTransform optimized = ((AbstractMathTransform) tr2).concatenate(tr1, true);
+            if (optimized != null) {
+                return (MathTransform) pool.canonicalize(optimized);
+            }
+        }
         return (MathTransform) pool.canonicalize(ConcatenatedTransform.create(this, tr1, tr2));
     }
     
@@ -445,6 +463,9 @@ public class MathTransformFactory {
     {
         final MathTransform transform;
         classification = classification.trim();
+        if (classification.equalsIgnoreCase("Affine")) {
+            return createAffineTransform(MatrixTransform.Provider.getMatrix(parameters));
+        }
         transform = getMathTransformProvider(classification).create(parameters);
         return (MathTransform) pool.canonicalize(transform);
     }
@@ -566,7 +587,7 @@ public class MathTransformFactory {
      * place to check for non-implemented OpenGIS methods (just check for methods throwing
      * {@link UnsupportedOperationException}). This class is suitable for RMI use.
      *
-     * @version $Id: MathTransformFactory.java,v 1.5 2002/07/12 20:38:17 desruisseaux Exp $
+     * @version $Id: MathTransformFactory.java,v 1.6 2002/07/15 18:28:43 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Export extends RemoteObject implements CT_MathTransformFactory {

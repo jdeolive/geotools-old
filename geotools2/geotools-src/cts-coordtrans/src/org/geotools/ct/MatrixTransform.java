@@ -57,7 +57,7 @@ import javax.media.jai.util.Range;
 /**
  * Transforms multi-dimensional coordinate points using a {@link Matrix}.
  *
- * @version $Id: MatrixTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+ * @version $Id: MatrixTransform.java,v 1.3 2002/07/15 18:28:44 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  */
@@ -385,7 +385,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
     /**
      * The provider for {@link MatrixTransform}.
      *
-     * @version $Id: MatrixTransform.java,v 1.2 2002/07/10 18:20:13 desruisseaux Exp $
+     * @version $Id: MatrixTransform.java,v 1.3 2002/07/15 18:28:44 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Provider extends MathTransformProvider {
@@ -426,14 +426,22 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
          * @return A {@link MathTransform} object of this classification.
          */
         public MathTransform create(final ParameterList parameters) {
-            return staticCreate(parameters);
+            final Matrix matrix = getMatrix(parameters);
+            if (matrix.isAffine()) {
+                switch (matrix.getNumRow()) {
+                    case 3: return new AffineTransform2D(matrix.toAffineTransform2D());
+                    case 2: return new LinearTransform1D(matrix.getElement(0,0),
+                                                         matrix.getElement(0,1));
+                }
+            }
+            return new MatrixTransform(matrix);
         }
-        
+
         /**
-         * Static version of {@link #create}, for use by
+         * Construct a matrix from a parameter block. This method is used by
          * {@link MathTransformFactory#createParameterizedTransform}.
          */
-        public static MathTransform staticCreate(final ParameterList parameters) {
+        public static Matrix getMatrix(final ParameterList parameters) {
             final int numRow = parameters.getIntParameter("Num_row");
             final int numCol = parameters.getIntParameter("Num_col");
             final Matrix  matrix = new Matrix(numRow, numCol);
@@ -449,10 +457,7 @@ final class MatrixTransform extends AbstractMathTransform implements LinearTrans
                     }
                 }
             }
-            if (numRow==3 && matrix.isAffine()) {
-                return new AffineTransform2D(matrix.toAffineTransform2D());
-            }
-            return new MatrixTransform(matrix);
+            return matrix;
         }
     }
 }
