@@ -68,7 +68,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/pointTest.shp");
+            URL url = new URL("file:///"+dataFolder+"/pointtest.shp");
             System.out.println("Testing ability to load "+url);
             URLConnection uc = url.openConnection();
             BufferedInputStream in = new BufferedInputStream(uc.getInputStream());
@@ -93,7 +93,7 @@ public class ShapefileTest extends TestCase {
             dataFolder+="/tests/unit/testData";
         }
         try{
-            URL url = new URL("file:///"+dataFolder+"/polygonTest.shp");
+            URL url = new URL("file:///"+dataFolder+"/polygontest.shp");
             System.out.println("Testing ability to load "+url);
             
             Shapefile shapefile = new Shapefile(url);
