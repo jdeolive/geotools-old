@@ -75,6 +75,7 @@ import javax.media.jai.util.Range;
 // Resources
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
+import org.geotools.resources.ComponentColorModelJAI;
 
 
 /**
@@ -109,7 +110,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *       subclass setting the <code>padValue</code> field.</li>
  * </ul>
  *
- * @version 1.0
+ * @version $Id: RawBinaryImageReader.java,v 1.2 2002/08/10 12:32:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RawBinaryImageReader extends SimpleImageReader {
@@ -575,8 +576,15 @@ public class RawBinaryImageReader extends SimpleImageReader {
                     final boolean isAlphaPremultiplied = finalColorModel.isAlphaPremultiplied();
                     final int             transparency = finalColorModel.getTransparency();
                     final int            transfertType = finalColorModel.getTransferType();
-                    finalColorModel = new ComponentColorModel(newColorSpace, bits, hasAlpha, isAlphaPremultiplied, transparency, transfertType);
-                    return new BufferedImage(finalColorModel, image.getRaster(), image.isAlphaPremultiplied(), null);
+                    if (USE_JAI_MODEL) {
+                        finalColorModel = new ComponentColorModelJAI(newColorSpace, bits, hasAlpha,
+                                                 isAlphaPremultiplied, transparency, transfertType);
+                    } else {
+                        finalColorModel = new ComponentColorModel(newColorSpace, bits, hasAlpha,
+                                              isAlphaPremultiplied, transparency, transfertType);
+                    }
+                    return new BufferedImage(finalColorModel, image.getRaster(),
+                                             image.isAlphaPremultiplied(), null);
                 }
             }
         }
@@ -670,8 +678,14 @@ public class RawBinaryImageReader extends SimpleImageReader {
          * the stream image data type.
          */
         final ColorSpace colorSpace = getColorSpace(imageIndex, sourceBands, destinationBands);
-        final ColorModel colorModel = new ComponentColorModel(colorSpace, false, false,
-        Transparency.OPAQUE, streamModel.getDataType());
+        final ColorModel colorModel;
+        if (USE_JAI_MODEL) {
+            colorModel = new ComponentColorModelJAI(colorSpace, false, false, Transparency.OPAQUE,
+                                                    streamModel.getDataType());
+        } else {
+            colorModel = new ComponentColorModel(colorSpace, false, false, Transparency.OPAQUE,
+                                                 streamModel.getDataType());
+        }
         imageTypeList.add(0, new ImageTypeSpecifier(colorModel, streamModel));
         /*
          * Add an image type matching the target

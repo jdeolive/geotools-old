@@ -52,6 +52,9 @@ import javax.imageio.ImageReadParam;
 import javax.media.jai.PlanarImage;
 import javax.media.jai.ComponentSampleModelJAI;
 
+// Geotools dependencies
+import org.geotools.resources.ComponentColorModelJAI;
+
 
 /**
  * A class describing how a raw binary stream is to be decoded. In the context of
@@ -60,7 +63,7 @@ import javax.media.jai.ComponentSampleModelJAI;
  * width and height. The <code>RawBinaryImageReadParam</code> gives a chance
  * to specify those missing informations.
  *
- * @version 1.0
+ * @version $Id: RawBinaryImageReadParam.java,v 1.2 2002/08/10 12:32:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RawBinaryImageReadParam extends ImageReadParam {
@@ -215,10 +218,10 @@ public class RawBinaryImageReadParam extends ImageReadParam {
             for (int i=numBands; --i>=0;) bankIndices[i]=i;
             if (SimpleImageReader.USE_JAI_MODEL) {
                 sampleModel = new ComponentSampleModelJAI(targetDataType, width, height,
-                1, width, bankIndices, bandOffsets);
+                                                          1, width, bankIndices, bandOffsets);
             } else {
                 return ImageTypeSpecifier.createBanded(colorSpace, bankIndices, bandOffsets,
-                targetDataType, false, false);
+                                                       targetDataType, false, false);
             }
         }
         /*
@@ -227,9 +230,9 @@ public class RawBinaryImageReadParam extends ImageReadParam {
          */
         if (sampleModel instanceof ComponentSampleModel) {
             // This is the most common case.
-            colorModel = new ComponentColorModel(getColorSpace(numBands),
-            false, false, Transparency.OPAQUE,
-            sampleModel.getDataType());
+            colorModel = new ComponentColorModelJAI(getColorSpace(numBands),
+                                                    false, false, Transparency.OPAQUE,
+                                                    sampleModel.getDataType());
         } else {
             // Fallback to JAI helper method if we have a less common case.
             colorModel = PlanarImage.createColorModel(sampleModel);
@@ -322,7 +325,7 @@ public class RawBinaryImageReadParam extends ImageReadParam {
      *         or <code>null</code> if unknow.
      */
     public SampleModel getStreamSampleModel() {
-        return model=getStreamSampleModel(null);
+        return model = getStreamSampleModel(null);
     }
     
     /**

@@ -68,6 +68,7 @@ import javax.media.jai.ComponentSampleModelJAI;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
+import org.geotools.resources.ComponentColorModelJAI;
 
 
 /**
@@ -85,7 +86,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <a href="http://java.sun.com/products/java-media/jai/">Java Advanced Imaging</a>
  * operators after reading.
  *
- * @version 1.0
+ * @version $Id: SimpleImageReader.java,v 1.2 2002/08/10 12:32:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see RawBinaryImageReader
@@ -286,8 +287,10 @@ public abstract class SimpleImageReader extends ImageReader {
         final ColorSpace colorSpace = getColorSpace(imageIndex, 0, numBands);
         
         if (USE_JAI_MODEL) {
-            final ColorModel cm = new ComponentColorModel(colorSpace, null, false, false, Transparency.OPAQUE, dataType);
-            return new ImageTypeSpecifier(cm, new ComponentSampleModelJAI(dataType, 1, 1, 1, 1, bankIndices, bandOffsets));
+            final ColorModel cm = new ComponentColorModelJAI(colorSpace, null, false, false,
+                                                             Transparency.OPAQUE, dataType);
+            return new ImageTypeSpecifier(cm, new ComponentSampleModelJAI(dataType, 1, 1, 1, 1,
+                                                                     bankIndices, bandOffsets));
         } else {
             return ImageTypeSpecifier.createBanded(colorSpace, bankIndices,
                                                    bandOffsets, dataType, false, false);
