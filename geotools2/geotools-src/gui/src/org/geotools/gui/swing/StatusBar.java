@@ -33,6 +33,7 @@
 package org.geotools.gui.swing;
 
 // J2SE dependencies
+import java.text.Format;
 import java.util.Arrays;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -44,11 +45,18 @@ import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JPopupMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.BorderFactory;
 import javax.swing.BoundedRangeModel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 // Image I/O
 import javax.imageio.ImageReader;
@@ -82,7 +90,7 @@ import org.geotools.resources.gui.ResourceKeys;
  * {@link #getCoordinateFormat}.setCoordinateSystem(...);
  * </pre></blockquote>
  *
- * @version $Id: StatusBar.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
+ * @version $Id: StatusBar.java,v 1.5 2003/07/18 13:28:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StatusBar extends JComponent implements MouseMotionListener {
@@ -117,6 +125,12 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     private MouseCoordinateFormat format;
 
     /**
+     * The contextual menu for the "coordinate" area of status bar.
+     * Will be created only when first needed.
+     */
+    private transient JPopupMenu coordinateMenu;
+
+    /**
      * Progression d'une opération quelconque. Ce sera
      * souvent la progression de la lecture d'une image.
      */
@@ -140,6 +154,16 @@ public class StatusBar extends JComponent implements MouseMotionListener {
         public void mouseExited(final MouseEvent e) {
             setCoordinate(null);
         }
+        public void mousePressed(final MouseEvent event) {
+            if (event.isPopupTrigger()) {
+                trigPopup(event);
+            }
+        }
+        public void mouseReleased(final MouseEvent event) {
+            if (event.isPopupTrigger()) {
+                trigPopup(event);
+            }
+        }
     };
 
     /**
@@ -161,6 +185,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
         size.width=250; coordinate.setPreferredSize(size);
         progress.setBorder(BorderFactory.createLoweredBevelBorder());
         this.progress = progress.getModel();
+        coordinate.addMouseListener(listener);
     }
 
     /**
@@ -225,10 +250,12 @@ public class StatusBar extends JComponent implements MouseMotionListener {
      * @param text The coordinate to display, or <code>null</code> if none.
      */
     public void setText(String text) {
+        final String old = message.getText();
         if (text==null || text.length()==0) {
             text = NULL;
         }
         message.setText(this.text=text);
+        firePropertyChange("text", old, text);
     }
 
     /**
@@ -236,12 +263,16 @@ public class StatusBar extends JComponent implements MouseMotionListener {
      * This is the text to show in the coordinate area, at the right side.
      *
      * @param text The coordinate to display, or <code>null</code> if none.
+     *
+     * @task REVISIT: This method doesn't fire a 'PropertyChangeEvent' for
+     *       performance reason (this method is invoked very often). Should we?
      */
     public void setCoordinate(String text) {
         if (text==null || text.length()==0) {
             text = NULL;
         }
         coordinate.setText(text);
+        // Do not fire event for performance reason. Should we?
     }
 
     /**
@@ -267,7 +298,9 @@ public class StatusBar extends JComponent implements MouseMotionListener {
      * A null value reset the default format.
      */
     public void setCoordinateFormat(final MouseCoordinateFormat format) {
+        final MouseCoordinateFormat old = this.format;
         this.format = format;
+        firePropertyChange("coordinateFormat", old, format);
     }
 
     /**
@@ -294,6 +327,60 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     }
 
     /**
+     * Invoked when a contextual menu has been trigged on a component.
+     *
+     * @param component The component on which the popup menu was trigged.
+     */
+    final void trigPopup(final MouseEvent event) {
+        final Component component = event.getComponent();
+        if (component == coordinate) {
+            if (coordinateMenu == null) {
+                coordinateMenu = new JPopupMenu();
+                final MenuListener listener = new MenuListener();
+                final Resources resources = Resources.getResources(getLocale());
+                JMenuItem item = coordinateMenu.add(resources.getMenuLabel(ResourceKeys.FORMAT));
+                item.addActionListener(listener);
+                addPropertyChangeListener("coordinateFormat", listener);
+            }
+            coordinateMenu.show(component, event.getX(), event.getY());
+        }
+    }
+
+    /**
+     * Listeners for the popup menus.
+     */
+    private final class MenuListener implements ActionListener, PropertyChangeListener {
+        /**
+         * The format chooser. Will be constructed only when first needed.
+         */
+        private transient FormatChooser chooser;
+
+        /**
+         * Invoked when the user select the "Format" menu item.
+         */
+        public void actionPerformed(final ActionEvent event) {
+            if (chooser == null) {
+                chooser = new FormatChooser(getCoordinateFormat());
+            }
+            final Resources resources = Resources.getResources(getLocale());
+            if (chooser.showDialog(StatusBar.this,
+                                   resources.getString(ResourceKeys.COORDINATE_FORMAT)))
+            {
+                setCoordinateFormat((MouseCoordinateFormat) chooser.getFormat());
+            }
+        }
+
+        /**
+         * Invoked when a status bar property changed.
+         */
+        public void propertyChange(final PropertyChangeEvent event) {
+            if (chooser != null) {
+                chooser.setFormat(getCoordinateFormat());
+            }
+        }
+    }
+
+    /**
      * Returns a image I/O progress listener. This object can be used for updating the progress
      * bare in this status bar. This method can be invoked from any thread, and the progress
      * listener's methods can be invoked from any thread too (it doesn't need to be the
@@ -313,7 +400,7 @@ public class StatusBar extends JComponent implements MouseMotionListener {
     /**
      * Classe chargée de réagir au progrès de la lecture.
      *
-     * @version $Id: StatusBar.java,v 1.4 2003/05/13 11:01:39 desruisseaux Exp $
+     * @version $Id: StatusBar.java,v 1.5 2003/07/18 13:28:53 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class ProgressListener implements IIOReadProgressListener, Runnable {
