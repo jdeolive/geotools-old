@@ -21,10 +21,17 @@ import org.geotools.feature.*;
  */
 public class PickleTest extends TestCase {
   
-  static String tempFile = System.getProperty("java.io.tmpdir","") + "/tmp_pickle_delete_me";
+  int cnt = 0;
+  static String tmpFile = System.getProperty("java.io.tmpdir","") + "/tmp_pickle_delete_me";
   
   public PickleTest(String testName) {
     super(testName);
+  }
+  
+  private File tmpFile() {
+    File f = new File(tmpFile + cnt++);
+    f.deleteOnExit();
+    return f;
   }
   
   public static Test suite(Class c) {
@@ -50,7 +57,7 @@ public class PickleTest extends TestCase {
    *
    */
   public void testMultiFeatureTypeStorage() throws Exception {
-    File file = new File(tempFile);
+    File file = tmpFile();
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     String[] names = new String[] { "Color","Sweetness","Worms" };
     Class[] clazz = new Class[] { Color.class,Integer.class,Boolean.class };
@@ -86,7 +93,7 @@ public class PickleTest extends TestCase {
    * Test support for storage of arbitrary (non-primitive) objects.
    */
   public void testWriteWithArbitraryObjects() throws Exception {
-    File file = new File(tempFile);
+    File file = tmpFile();
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     String[] name = new String[] {"date","rect","innerClass"};
     Class[] clazz = new Class[] {Date.class,Rectangle.class,InnerClassTestObject.class};
@@ -123,7 +130,7 @@ public class PickleTest extends TestCase {
    *
    */
   public void testWriteWithSharedObjects() throws Exception {
-    File file = new File(tempFile);
+    File file = tmpFile();
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     AttributeType[] atts = new AttributeType[1];
     atts[0] = AttributeTypeFactory.newAttributeType("rect", Rectangle.class);
@@ -150,7 +157,7 @@ public class PickleTest extends TestCase {
    * Test support for unicode names and values.
    */
   public void testUnicodeSupport() throws Exception {
-    File file = new File(tempFile);
+    File file = tmpFile();
     PickleDataSource pds = new PickleDataSource(file.getParentFile(), file.getName());
     AttributeType[] atts = new AttributeType[1];
     atts[0] = AttributeTypeFactory.newAttributeType("\uAAAA\uBBBB\uCCCC\uDDDD\uEEEE", String.class);
