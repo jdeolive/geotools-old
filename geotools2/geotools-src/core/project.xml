@@ -108,6 +108,11 @@
       <version>0.1</version>
       <url>http://www.opengis.org</url>
     </dependency>
+    <dependency>
+      <id>opengis</id>
+      <version>SNAPSHOT</version>
+      <url>http://www.geotools.org</url>
+    </dependency>
   </dependencies>
   <build>
     <unitTest>
