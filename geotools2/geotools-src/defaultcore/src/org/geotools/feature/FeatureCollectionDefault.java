@@ -141,8 +141,10 @@ public class FeatureCollectionDefault implements FeatureCollection {
         for(int i=0;i<toLoad.length;i++){
             //TODO: move this code to its own method?
             if(toLoad[i]!=null){
-                System.out.println("loading "+i);
-                data.importFeatures(this,toLoad[i]);
+                if(data != null ){
+                    System.out.println("loading "+i);
+                    data.importFeatures(this,toLoad[i]);
+                }
                 if(loadedExtent==null){
                     loadedExtent = toLoad[i];
                 }
@@ -180,6 +182,9 @@ public class FeatureCollectionDefault implements FeatureCollection {
      */
     public void addFeatures(Feature[] features) {
         this.features.addAll( Arrays.asList(features) );
+    }
+    public void addFeatures(List features){
+        this.features.addAll(features);
     }
     
     
