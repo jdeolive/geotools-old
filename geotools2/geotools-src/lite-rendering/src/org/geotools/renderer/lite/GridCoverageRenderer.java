@@ -48,7 +48,7 @@ import org.geotools.resources.XAffineTransform;
 /**
  * A helper class for rendering {@link GridCoverage} objects.
  *
- * @version $Id: GridCoverageRenderer.java,v 1.1 2003/02/09 09:49:15 aaime Exp $
+ * @version $Id: GridCoverageRenderer.java,v 1.2 2003/05/11 15:21:15 aaime Exp $
  * @author Martin Desruisseaux
  */
 final class GridCoverageRenderer {
@@ -59,7 +59,7 @@ final class GridCoverageRenderer {
      *
      * @task TODO: Test if JAI 1.1 gives better result now.
      */
-    private static final boolean USE_PYRAMID = false;
+    private static final boolean USE_PYRAMID = true;
     
     /**
      * Decimation factor for image. A value of 0.5 means that each
@@ -106,7 +106,12 @@ final class GridCoverageRenderer {
     /**
      */
     public GridCoverageRenderer(GridCoverage gridCoverage) {
-        image = gridCoverage.getRenderedImage();
+        try {
+            image = gridCoverage.geophysics(false).getRenderedImage();
+        } catch (Exception e) {
+            System.out.println("Using geophysics image");
+            image = gridCoverage.getRenderedImage();
+        }
         gridGeometry = gridCoverage.getGridGeometry();
         images   = USE_PYRAMID ? new ImageMIPMap(image, AffineTransform.getScaleInstance(DOWN_SAMPLER, DOWN_SAMPLER), null) : null;
         maxLevel = Math.max((int) (Math.log((double)MIN_SIZE/(double)Math.max(image.getWidth(), image.getHeight()))/LOG_DOWN_SAMPLER), 0);
@@ -126,7 +131,11 @@ final class GridCoverageRenderer {
         if (images==null) {
             final AffineTransform transform = new AffineTransform(gridToCoordinate);
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
-            graphics.drawRenderedImage(image, transform);
+            try {
+                graphics.drawRenderedImage(image, transform);
+            } catch (Exception e) {
+                graphics.drawRenderedImage(getGoodImage(image), transform);
+            }
         } else {
             /*
              * Calcule quel "niveau" d'image serait le plus approprié.
@@ -152,5 +161,12 @@ final class GridCoverageRenderer {
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
             graphics.drawRenderedImage(images.getImage(level), transform);
         }
+    }
+    
+    private RenderedImage getGoodImage(RenderedImage img) {
+        BufferedImage good = new BufferedImage(img.getWidth(), img.getHeight(), BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g2d = (Graphics2D) good.getGraphics();
+        g2d.drawRenderedImage(img, new AffineTransform());
+        return good;
     }
 }
