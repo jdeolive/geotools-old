@@ -12,7 +12,7 @@
      <!-- TODO: failOnViolation should be set to true eventualy -->
     <target name="checkstyle1" if="toBeChecked">
          <echo message="using ${licence.header} as header check file"/>
-         <checkstyle failOnViolation="false"> 
+         <checkstyle failOnViolation="false" maxLineLen="100"> 
             <fileset dir="src" includes="**/*.java"/>
             
             <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
@@ -20,7 +20,7 @@
     </target>
     <target name="checkstyle2" if="toBeCheckedToScreen">
          <echo message="using ${licence.header} as header check file"/>
-         <checkstyle failOnViolation="false"> 
+         <checkstyle failOnViolation="false" maxLineLen="100"> 
             <fileset dir="src" includes="**/*.java"/>
             <formatter type="plain"/>
             <formatter toFile="CHECKSTYLE-report.txt" type="plain"/>
