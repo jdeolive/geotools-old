@@ -53,7 +53,7 @@ import org.geotools.cs.GeographicCoordinateSystem;
  * {@linkplain Renderer#getCoordinateSystem renderer's coordinate system}), but
  * is usually two-dimensional.
  *
- * @version $Id: MouseCoordinateFormat.java,v 1.5 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: MouseCoordinateFormat.java,v 1.6 2003/02/27 14:32:45 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MouseCoordinateFormat extends CoordinateFormat {
@@ -122,7 +122,7 @@ public class MouseCoordinateFormat extends CoordinateFormat {
      *         par le curseur de la souris.
      */
     public String format(final GeoMouseEvent event) {
-        final Renderer renderer = event.renderer;
+        final Renderer renderer = event.context.renderer;
         try {
             point = event.getCoordinate(getCoordinateSystem(), point);
         } catch (TransformException exception) {

@@ -63,7 +63,7 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.7 2003/02/26 12:06:06 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.8 2003/02/27 14:32:44 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
@@ -73,17 +73,12 @@ public final class GeoMouseEvent extends MouseEvent {
     private static final long serialVersionUID = 2151488551541106023L;
 
     /**
-     * The renderer used by the viewer that emmited this event.
-     * This field is read by {@link MouseCoordinateFormat#format}.
-     */
-    final Renderer renderer;
-
-    /**
      * A snapshot of the coordinate systems in use at the time this event were fired. Since
      * all coordinate system fields are immutables, they are guarantee to be consistent with
      * the mouse coordinates even if some {@link MouseListener} changed the renderer state.
+     * This field is read by {@link MouseCoordinateFormat}.
      */
-    private final RenderingContext context;
+    final RenderingContext context;
 
     /**
      * "Real world" two-dimensional coordinate of mouse location, in the user
@@ -115,7 +110,6 @@ public final class GeoMouseEvent extends MouseEvent {
               event.getClickCount(),   // the number of mouse clicks associated with event
               event.isPopupTrigger(),  // a boolean, true if this event is a trigger for a popup-menu
               event.getButton());      // which of the mouse buttons has changed state (JDK 1.4 only).
-        this.renderer = renderer;
         context = renderer.getRenderingContext();
     }
 
@@ -154,7 +148,7 @@ public final class GeoMouseEvent extends MouseEvent {
     public Point2D getMapCoordinate(Point2D dest) {
         dest = getPixelCoordinate(dest);
         try {
-            final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
+            final MathTransform2D transform = (MathTransform2D) context.renderer.getMathTransform(
                             context.textCS, context.mapCS, "GeoMouseEvent", "getMapCoordinate");
             return transform.transform(dest, dest);
         } catch (TransformException exception) {
@@ -199,7 +193,7 @@ public final class GeoMouseEvent extends MouseEvent {
              * memory than swapping 'sourceCS' and 'targetCS' arguments.
              */
             cs = CTSUtilities.getCoordinateSystem2D(cs);
-            final MathTransform2D transform = (MathTransform2D) renderer.getMathTransform(
+            final MathTransform2D transform = (MathTransform2D) context.renderer.getMathTransform(
                             cs, context.mapCS, "GeoMouseEvent", "getCoordinate").inverse();
             point = transform.transform(point, point);
             px = point.getX();
@@ -265,7 +259,7 @@ public final class GeoMouseEvent extends MouseEvent {
          * Inverting the returned transform in this case is both faster and consume less
          * memory than swapping 'sourceCS' and 'targetCS' arguments.
          */
-        final MathTransform transform = renderer.getMathTransform(
+        final MathTransform transform = context.renderer.getMathTransform(
                         cs, context.mapCS, "GeoMouseEvent", "getCoordinate").inverse();
         dest = transform.transform(coord, dest);
         if (dest.ord.length == 2) {

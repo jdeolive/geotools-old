@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * &nbsp;&nbsp;&nbsp;{@link #deviceCS}
  * </p>
  *
- * @version $Id: RenderingContext.java,v 1.10 2003/02/10 23:09:48 desruisseaux Exp $
+ * @version $Id: RenderingContext.java,v 1.11 2003/02/27 14:32:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer#paint
@@ -93,9 +93,9 @@ import org.geotools.resources.renderer.ResourceKeys;
  */
 public final class RenderingContext {
     /**
-     * The originating {@link Renderer}.
+     * The originating {@link Renderer}. This field is read by {@link GeoMouseEvent}.
      */
-    private final Renderer renderer;
+    final Renderer renderer;
 
     /**
      * The graphics where painting occurs. This graphics is initialized with
