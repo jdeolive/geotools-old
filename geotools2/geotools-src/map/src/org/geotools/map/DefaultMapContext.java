@@ -184,10 +184,10 @@ public class DefaultMapContext implements MapContext {
      * @param collection Then new layer that has been added.
      * @param style DOCUMENT ME!
      */
-//    public void addLayer(FeatureCollection collection, Style style) {
-//        DefaultMapLayer layer = new DefaultMapLayer(collection, style, "");
-//        this.addLayer(layer);
-//    }
+    public void addLayer(FeatureCollection collection, Style style) {
+        DefaultMapLayer layer = new DefaultMapLayer(collection, style, "");
+        this.addLayer(layer);
+    }
 
     /**
      * Remove a layer and trigger a {@link LayerListEvent}.

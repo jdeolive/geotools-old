@@ -36,7 +36,7 @@ import java.util.Iterator;
  * Specification.
  *
  * @author Cameron Shorter
- * @version $Id: MapContext.java,v 1.1 2003/12/04 23:20:33 aaime Exp $
+ * @version $Id: MapContext.java,v 1.2 2003/12/06 11:15:49 aaime Exp $
  */
 public interface MapContext {
     /**
@@ -71,7 +71,7 @@ public interface MapContext {
      *
      * @param layer Then new layer that has been added.
      */
-    // void addLayer(FeatureCollection collection, Style style);
+    void addLayer(FeatureCollection collection, Style style);
 
     /**
      * Remove a layer, if present, and trigger a {@link LayerListEvent}.

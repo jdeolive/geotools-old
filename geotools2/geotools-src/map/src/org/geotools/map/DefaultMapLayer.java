@@ -31,10 +31,11 @@ import org.geotools.map.MapLayer;
 import org.geotools.map.event.MapLayerEvent;
 import org.geotools.styling.Style;
 import java.io.IOException;
+import org.geotools.data.DataUtilities;
 
 
 /**
- * DOCUMENT ME!
+ * Default implementation of the MapLayer implementation
  *
  * @author wolf
  */
@@ -101,11 +102,11 @@ public class DefaultMapLayer implements MapLayer {
      *
      * @param collection the source feature collection
      * @param style the style used to represent this layer
+     * @param title DOCUMENT ME!
      */
-
-    //    public DefaultMapLayer(FeatureCollection collection, Style style, String title) {
-    //        this(DataUtilities.source(collection), style, title);
-    //    }
+    public DefaultMapLayer(FeatureCollection collection, Style style, String title) {
+        this(DataUtilities.source(collection), style, title);
+    }
 
     /**
      * Creates a new instance of DefaultMapLayer using a non-emtpy feature collection as a
@@ -114,9 +115,9 @@ public class DefaultMapLayer implements MapLayer {
      * @param collection the source feature collection
      * @param style the style used to represent this layer
      */
-//    public DefaultMapLayer(FeatureCollection collection, Style style) {
-//        this(DataUtilities.source(collection), style, "");
-//    }
+    public DefaultMapLayer(FeatureCollection collection, Style style) {
+        this(DataUtilities.source(collection), style, "");
+    }
 
     /**
      * Getter for property featureSource.

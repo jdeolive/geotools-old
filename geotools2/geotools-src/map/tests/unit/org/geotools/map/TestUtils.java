@@ -81,7 +81,7 @@ public class TestUtils {
     
     public static DefaultMapLayer buildLayer(double offset, String styleName, String title) throws Exception {
         FeatureCollection fc = buildFeatureCollection(10);
-        return new DefaultMapLayer(DataUtilities.source(fc), buildStyle(styleName), title);
+        return new DefaultMapLayer(fc, buildStyle(styleName), title);
     }
     
 }
