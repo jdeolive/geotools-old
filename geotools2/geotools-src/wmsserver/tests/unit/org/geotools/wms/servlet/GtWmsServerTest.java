@@ -1,5 +1,6 @@
 package org.geotools.wms.servlet;
 
+import java.awt.Graphics;
 import junit.framework.*;
 
 import org.geotools.wms.*;
@@ -9,25 +10,27 @@ import org.geotools.resources.*;
 import java.awt.image.*;
 import java.io.*;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import org.geotools.feature.Feature;
 
-public class testGtWmsServer extends TestCase {
+public class GtWmsServerTest extends TestCase {
     WMSServer server;
   
     private static Logger LOGGER = Logger.getLogger("org.geotools.wmsserver");
     
-    public testGtWmsServer(String name) {
+    public GtWmsServerTest(String name) {
         super(name);
         Geotools.init();
-        Logger.getLogger("org.geotools.shapefile").setLevel(Level.ALL);
+        Logger.getLogger("org.geotools.wmsserver").setLevel(Level.ALL);
         LOGGER.setLevel(Level.FINE);
         LOGGER.info("test constructed");
        
     }
     
     public static void main(String args[]) {
-        junit.textui.TestRunner.run(testGtWmsServer.class);
+        junit.textui.TestRunner.run(GtWmsServerTest.class);
     }
     
     public void setUp() throws Exception {
@@ -54,7 +57,9 @@ public class testGtWmsServer extends TestCase {
             Capabilities cap = server.getCapabilities();
             System.out.println(cap);
             WMSServlet temp = new WMSServlet();
-            System.out.println(temp.capabilitiesToXML(cap));
+            //System.out.println(temp.capabilitiesToXML(cap));
+            Vector styles = cap.getAvailableStyles("first");
+            assertTrue("style 'dull' not found", styles.contains("dull"));
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
@@ -77,6 +82,19 @@ public class testGtWmsServer extends TestCase {
             BufferedImage map = server.getMap(new String[] {"first"}, new String[] {"population"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400, false, null);
             ImageView view = new ImageView(map, "the map");
             view.createFrame();
+        }
+        catch(WMSException wmsexp) {
+            fail("WMSException : "+wmsexp.getMessage());
+        }
+    }
+    
+     public void testGetFeatureInfo() {
+        try {
+            Feature[] features = server.getFeatureInfo(new String[] {"first"}, "EPSG:4326", new double[] {-130, 16, -60, 52}, 620, 400,1 , 210, 250);
+            assertNotNull("No features returned", features);
+            assertEquals(1,features.length);
+            Object atrib[] = features[0].getAttributes();
+            assertEquals("Wyoming",atrib[1].toString());
         }
         catch(WMSException wmsexp) {
             fail("WMSException : "+wmsexp.getMessage());
