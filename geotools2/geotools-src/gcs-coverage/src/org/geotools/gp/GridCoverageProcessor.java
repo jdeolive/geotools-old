@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.8 2002/08/12 14:05:29 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.9 2002/08/20 21:40:38 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -95,7 +95,7 @@ public class GridCoverageProcessor {
                 cache.setMemoryCapacity(targetCapacity);
             }
         }
-        Logger.getLogger("org.geotools.gcs").config("Java Advanced Imaging: "+JAI.getBuildVersion());
+        Logger.getLogger("org.geotools.gp").config("Java Advanced Imaging: "+JAI.getBuildVersion());
     }
     
     /**
@@ -358,7 +358,7 @@ public class GridCoverageProcessor {
                                      operationName, interp);
             record.setSourceClassName("GridCoverageProcessor");
             record.setSourceMethodName("doOperation");
-            Logger.getLogger("org.geotools.gcs").log(record);
+            Logger.getLogger("org.geotools.gp").log(record);
         }
         return coverage;
     }

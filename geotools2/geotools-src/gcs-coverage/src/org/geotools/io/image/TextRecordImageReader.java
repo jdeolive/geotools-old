@@ -229,7 +229,7 @@ public class TextRecordImageReader extends TextImageReader {
         super(provider, rawImageType);
         clear();
         if (rawImageType == DataBuffer.TYPE_DOUBLE) {
-            Logger.getLogger("org.geotools.gcs").warning("Type double is deprecated.");
+            Logger.getLogger("org.geotools.io.image").warning("Type double is deprecated.");
         }
     }
     
