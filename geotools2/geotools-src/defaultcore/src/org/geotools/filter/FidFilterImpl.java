@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilterImpl.java,v 1.4 2002/10/25 11:37:35 ianturton Exp $
+ * @version $Id: FidFilterImpl.java,v 1.5 2002/12/23 21:06:00 cholmesny Exp $
  * @author Rob Hranac, TOPP
  */
 public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
@@ -111,15 +111,18 @@ public class FidFilterImpl extends AbstractFilterImpl implements FidFilter {
      */
     public boolean equals(Object filter) {
         LOGGER.finest("condition: " + filter);
-        LOGGER.finest("condition: " + ((FidFilterImpl) filter).filterType);
-        if((filter != null) &&
-           (((FidFilterImpl) filter).filterType == AbstractFilter.FID)) {
-            return fids.equals(((FidFilterImpl) filter).fids);        
-        }
-        else {
-            return false;        
-        }     
-    } 
+	 if (filter != null && filter.getClass() == this.getClass()){
+	     LOGGER.finest("condition: " + ((FidFilterImpl) filter).filterType);
+	     if(((FidFilterImpl) filter).filterType == AbstractFilter.FID) {
+		 return fids.equals(((FidFilterImpl) filter).fids);        
+	     }
+	     else {
+		 return false;        
+	     }     
+	 } else {
+	     return false;
+	 }
+    }
     
        /** Used by FilterVisitors to perform some action on this filter instance.
      * Typicaly used by Filter decoders, but may also be used by any thing which needs
