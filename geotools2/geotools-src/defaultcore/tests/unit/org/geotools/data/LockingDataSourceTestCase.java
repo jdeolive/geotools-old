@@ -230,9 +230,9 @@ public class LockingDataSourceTestCase extends TestCase {
     }
 
     public void testSetFeatureLock() {
-        ds.setFeatureLock( FeatureLock.CURRENT_TRANSACTION );
+        ds.setFeatureLock( FeatureLock.TRANSACTION );
         ds.setFeatureLock(FeatureLockFactory.generate("Test", 3600));
-        ds.setFeatureLock( FeatureLock.CURRENT_TRANSACTION );
+        ds.setFeatureLock( FeatureLock.TRANSACTION );
         ds.setFeatureLock(FeatureLockFactory.generate("Forever", 0));
         ds.setFeatureLock(FeatureLockFactory.generate("Invalid", -1));
     }

@@ -82,7 +82,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      * Require all fids be unlocked
      * </p>
      */
-    protected FeatureLock lock = FeatureLock.CURRENT_TRANSACTION;
+    protected FeatureLock lock = FeatureLock.TRANSACTION;
 
     //J-
     /**
@@ -245,7 +245,7 @@ class MemoryLockingDataSource extends MemoryDataSource
     protected void endTransaction() {
         releaseTransactionLock();
         authorization = new HashSet();
-        lock = FeatureLock.CURRENT_TRANSACTION;
+        lock = FeatureLock.TRANSACTION;
     }
 
     /**
@@ -677,7 +677,7 @@ class MemoryLockingDataSource extends MemoryDataSource
      * @throws DataSourceException DOCUMENT ME!
      */
     protected int lockFidsSet(Set fids) throws DataSourceException {
-        if ((lock == FeatureLock.CURRENT_TRANSACTION) && getAutoCommit()) {
+        if ((lock == FeatureLock.TRANSACTION) && getAutoCommit()) {
             throw new DataSourceException(
                 "Cannot lock features without either a transaction or FeatureLock.");
         }
@@ -1005,7 +1005,7 @@ class MemoryLockingDataSource extends MemoryDataSource
     }
 
     protected MemoryLock createMemoryLock(FeatureLock featureLock) {
-        if (featureLock == FeatureLock.CURRENT_TRANSACTION) {
+        if (featureLock == FeatureLock.TRANSACTION) {
             // per transaction lock
             return MemoryLock.CURRENT_TRANSACTION;
         }

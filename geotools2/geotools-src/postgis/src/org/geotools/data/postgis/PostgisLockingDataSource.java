@@ -56,7 +56,7 @@ public class PostgisLockingDataSource extends PostgisDataSource
             "org.geotools.postgislock");
 
     /** Current FeatureLock (use FeatureLock.CURRENT_LOCK) */
-    private FeatureLock featureLock = FeatureLock.CURRENT_TRANSACTION;
+    private FeatureLock featureLock = FeatureLock.TRANSACTION;
 
     /**
      * Sets the table and datasource, rolls a new schema from the db.
@@ -120,8 +120,8 @@ public class PostgisLockingDataSource extends PostgisDataSource
         if (lock == null) {
             throw new UnsupportedOperationException(
                 "A Feature Lock is required Did you mean to use "
-                + "FeatureLock.CURRENT_TRANSACTION rather than null?");
-        } else if (lock == FeatureLock.CURRENT_TRANSACTION) {
+                + "FeatureLock.TRANSACTION rather than null?");
+        } else if (lock == FeatureLock.TRANSACTION) {
             // use Lock for duration of the Transaction
             //            
             featureLock = lock;
@@ -146,7 +146,7 @@ public class PostgisLockingDataSource extends PostgisDataSource
      * @see org.geotools.data.LockingDataSource#lockFeatures(org.geotools.data.Query)
      */
     public int lockFeatures(Query query) throws DataSourceException {
-        if (featureLock == FeatureLock.CURRENT_TRANSACTION) {
+        if (featureLock == FeatureLock.TRANSACTION) {
             // row lock features against the current transaction
             return rowLockFeatures(query);
         } else {
