@@ -23,12 +23,12 @@ import cmp.LEDataStream.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapeHandler.java,v 1.2 2002/06/05 12:52:10 loxnard Exp $
+ * @version $Id: ShapeHandler.java,v 1.3 2002/07/12 13:57:59 loxnard Exp $
  * @author James Macgill, CCG
  */
 public interface ShapeHandler {
-    public int getShapeType();
-    public Geometry read(LEDataInputStream file,GeometryFactory geometryFactory) throws java.io.IOException,TopologyException,InvalidShapefileException;
-    public void write(Geometry geometry,LEDataOutputStream file) throws java.io.IOException;
-    public int getLength(Geometry geometry); //length in 16bit words
+    int getShapeType();
+    Geometry read(LEDataInputStream file, GeometryFactory geometryFactory) throws java.io.IOException, TopologyException, InvalidShapefileException;
+    void write(Geometry geometry, LEDataOutputStream file) throws java.io.IOException;
+    int getLength(Geometry geometry); //length in 16bit words
 }
