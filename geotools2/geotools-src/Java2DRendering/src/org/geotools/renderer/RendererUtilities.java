@@ -982,7 +982,35 @@ public class RendererUtilities {
 
                 return javaFont;
             }
+            if(requestedFont.equalsIgnoreCase("serif")||requestedFont.equalsIgnoreCase("SansSerif")||requestedFont.equalsIgnoreCase("MonoSpaced")){
+                String reqStyle = (String) fonts[k].getFontStyle()
+                                                   .getValue(feature);
 
+                if (fontStyleLookup.containsKey(reqStyle)) {
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
+                } else {
+                    styleCode = java.awt.Font.PLAIN;
+                }
+
+                String reqWeight = (String) fonts[k].getFontWeight()
+                                                    .getValue(feature);
+
+                if (reqWeight.equalsIgnoreCase("Bold")) {
+                    styleCode = styleCode | java.awt.Font.BOLD;
+                }
+
+                size = ((Number) fonts[k].getFontSize().getValue(feature)).intValue();
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("requesting " + requestedFont + " " + 
+                                  styleCode + " " + size);
+                }
+
+                javaFont = new java.awt.Font(requestedFont, styleCode, size);
+                loadedFonts.put(requestedFont, javaFont);
+
+                return javaFont;
+            }
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest("not a system font");
             }
