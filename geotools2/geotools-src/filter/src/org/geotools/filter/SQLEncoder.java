@@ -55,6 +55,7 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
     //private static String escapedWildcardSingle = "\\.\\?";
     // The escaped version of the multiple wildcard for the REGEXP pattern. 
     //private static String escapedWildcardMulti = "\\.\\*";
+
     /** error message for exceptions */
     private static final String IO_ERROR = "io problem writing filter";
 
@@ -79,6 +80,8 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
         capabilities.addType(AbstractFilter.COMPARE_GREATER_THAN_EQUAL);
         capabilities.addType(AbstractFilter.NULL);
         capabilities.addType(AbstractFilter.BETWEEN);
+        capabilities.addType((short) 12345);
+        capabilities.addType((short) -12345);
     }
 
     /** Map of comparison types to sql representation */
@@ -223,9 +226,27 @@ public class SQLEncoder implements org.geotools.filter.FilterVisitor {
      * accept(FilterVisitor);
      *
      * @param filter The filter to visit
+     *
+     * @throws RuntimeException for IO Encoding problems.
+     *
+     * @task REVISIT: I don't think Filter.NONE and Filter.ALL should be
+     *       handled here.  They should have their own methods, but they don't
+     *       have interfaces, so I don't know if that's possible.
      */
     public void visit(Filter filter) {
-        log.warning("exporting unknown filter type");
+        try {
+            //HACK: 12345 are Filter.NONE and Filter.ALL, they
+            //should have some better names though.
+            if (filter.getFilterType() == 12345) {
+                out.write("TRUE");
+            } else if (filter.getFilterType() == -12345) {
+                out.write("FALSE");
+            }
+
+            log.warning("exporting unknown filter type");
+        } catch (java.io.IOException ioe) {
+            throw new RuntimeException(IO_ERROR, ioe);
+        }
     }
 
     /**
