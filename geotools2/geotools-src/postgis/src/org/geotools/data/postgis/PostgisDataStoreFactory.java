@@ -243,7 +243,7 @@ public class PostgisDataStoreFactory
      * 
      * @return <tt>true</tt> if the postgresql jar is on the classpath.
      */
-    public boolean available() {
+    public boolean isAvailable() {
         try {
             Class.forName(DRIVER_CLASS);
         } catch (ClassNotFoundException cnfe) {
