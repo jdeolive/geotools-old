@@ -235,8 +235,8 @@ public class GTopo30DataSource extends AbstractDataSource
         ImageReadParam irp = null;
         
         // Make some decision about tiling. Let's say that, for the moment, I want
-        // to read approximately a meg at a time
-        int tileRows = (int) Math.ceil((1024 * 1024) / (ncols * 2));
+        // to read approximately 128k at a time
+        int tileRows = (int) Math.ceil((1024 * 128) / (ncols * 2));
         ImageLayout il = new ImageLayout(0, 0, ncols, nrows, 0, 0, ncols, tileRows, sm, cm);
 
         // First operator: read the image
