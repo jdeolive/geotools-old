@@ -9,7 +9,8 @@ import org.xml.sax.helpers.*;
 
 import com.vividsolutions.jts.geom.*;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
+import org.geotools.feature.*;
 
 
 /**

@@ -11,9 +11,9 @@ import java.util.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-import org.geotools.datasource.*;
+import org.geotools.data.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.featuretable.*;
+import org.geotools.feature.*;
 
 
 /**
@@ -99,14 +99,14 @@ public class TestParser {
                            "resource:" + uri);
         
         GMLDataSource data = new GMLDataSource(uri);
-        FlatFeatureTable featureCollection = new FlatFeatureTable(data);
+        FeatureCollectionDefault featureCollection = new FeatureCollectionDefault(data);
 
         Vector parsedFeatures = 
            new Vector(java.util.Arrays.asList(featureCollection.getFeatures()));  
-        FlatFeature tempFeature;
+        FeatureFlat tempFeature;
         
         for( int i = 0; i < parsedFeatures.size() ; i++ ) {
-            tempFeature = (FlatFeature) parsedFeatures.get(i);
+            tempFeature = (FeatureFlat) parsedFeatures.get(i);
             System.out.println("Parsed feature is ... "
                                + tempFeature.toString() );						
         }

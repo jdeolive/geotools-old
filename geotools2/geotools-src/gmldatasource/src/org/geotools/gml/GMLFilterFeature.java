@@ -9,6 +9,8 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import com.vividsolutions.jts.geom.*;
 
+import org.geotools.feature.*;
+
 
 /**
  * LEVEL3 GML filter: translates JTS elements and attribute data into features.
@@ -29,7 +31,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     private GMLHandlerFeature parent;
     
     /** Factory for the JTS geometries. */
-    private FlatFeature currentFeature = new FlatFeature();
+    private FeatureFlat currentFeature;// = new FeatureFlat();
     
     /** Stores current feature attributes */
     private Vector attributes = new Vector();
@@ -89,7 +91,9 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
      */
     public void geometry(Geometry geometry) {
         //insideGeometry = true;
-        currentFeature.setGeometry(geometry);
+        attributeNames.addElement("geometry");
+        attributes.addElement(geometry);
+        //currentFeature.setGeometry(geometry);
     }
     
     
@@ -119,14 +123,14 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
         if ( localName.endsWith("Member") ) {
             attributes = new Vector();
             attributeNames = new Vector();
-            currentFeature = new FlatFeature();
+            //currentFeature = new FeatureFlat();
             insideFeature = true;
             tempValue=null;
         } else if (insideFeature) {
             for(int i = 0; i<atts.getLength(); i++){
                 String name = atts.getLocalName(i);
                 if (name.equalsIgnoreCase("fid")){
-                    currentFeature.setTypeName(localName);
+                    //currentFeature.setTypeName(localName);
                 }
                 attributes.add(atts.getValue(i));
                 attributeNames.add(name);
@@ -136,7 +140,7 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
             return;
         } else {
             System.out.println("Start of something that is not a Feature"+
-               " or Attribute\n"+ qName);
+            " or Attribute\n"+ qName);
         }
     }
     
@@ -189,8 +193,23 @@ public class GMLFilterFeature extends XMLFilterImpl implements GMLHandlerJTS {
     throws SAXException {
         
         if ( localName.endsWith("Member") ) {
-            currentFeature.setAttributes((Object []) attributes.toArray());
-            parent.feature( currentFeature );
+            AttributeType attDef[] = new AttributeTypeDefault[attributes.size()];
+            for(int i=0;i<attributes.size();i++){
+                attDef[i] = new AttributeTypeDefault((String)attributeNames.get(i),attributes.get(i).getClass());
+            }
+            try{
+                FeatureType schema = FeatureTypeFactory.create(attDef);
+                FeatureFactory fac = new FeatureFactory(schema);
+                Feature feature = fac.create((Object []) attributes.toArray());
+                //currentFeature.setAttributes((Object []) attributes.toArray());
+                parent.feature( feature );
+            }
+            catch(org.geotools.feature.SchemaException sve){
+                //TODO: work out what to do in this case!
+            }
+            catch(org.geotools.feature.IllegalFeatureException ife){
+                //TODO: work out what to do in this case!
+            }
             insideFeature = false;
             
         } else if (insideAttribute) {

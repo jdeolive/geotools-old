@@ -7,8 +7,8 @@ import java.net.*;
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 
-import org.geotools.featuretable.*;
-import org.geotools.datasource.*;
+import org.geotools.feature.*;
+import org.geotools.data.*;
 //import org.geotools.filter.*;
 
 
@@ -16,7 +16,7 @@ import org.geotools.datasource.*;
  * The source of data for Features. Shapefiles, database, etc. are referenced 
  * through this interface.
  * 
- *@version $Id: GMLDataSource.java,v 1.13 2002/05/03 11:44:36 ianturton Exp $
+ *@version $Id: GMLDataSource.java,v 1.14 2002/05/23 18:06:52 jmacgill Exp $
  */
 public class GMLDataSource extends XMLFilterImpl 
     implements DataSource, GMLHandlerFeature {
@@ -73,7 +73,7 @@ public class GMLDataSource extends XMLFilterImpl
      * @param filter an extent defining which features to load - null means all features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureTable featureCollection, Extent filter)
+    public void importFeatures(FeatureCollection featureCollection, Extent filter)
         throws DataSourceException {
         
         // chains all the appropriate filters together (in correct order)
@@ -111,7 +111,7 @@ public class GMLDataSource extends XMLFilterImpl
      * @param ex extent to define which features to write - null means all
      * @throws DataSourceException if anything goes wrong or if exporting is not supported
      */
-    public void exportFeatures(FeatureTable ft, Extent ex)
+    public void exportFeatures(FeatureCollection ft, Extent ex)
         throws DataSourceException {
         throw new DataSourceException("Cannot add features to read only GML: "
                                       + uri);
