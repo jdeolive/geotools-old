@@ -26,7 +26,7 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 
 /**
- * @version $Id: DefaultFill.java,v 1.6 2002/06/04 16:55:37 loxnard Exp $
+ * @version $Id: DefaultFill.java,v 1.7 2002/06/24 10:51:10 ianturton Exp $
  * @author James Macgill, CCG
  */
 
@@ -139,7 +139,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
      * Setter for property graphic.
      * @param graphic New value of property graphic.
      */
-    public void setGraphicFill(org.geotools.styling.Graphic graphic) {
+    public void setGraphicFill(org.geotools.styling.Graphic graphicFill) {
         this.graphicFill = graphicFill;
     }
     
