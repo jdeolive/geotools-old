@@ -49,6 +49,8 @@ import java.io.*;
 import java.net.URL;
 
 // Formatting
+import java.util.Date;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
@@ -128,9 +130,9 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Once the mapping is etablished, <code>PropertyParser</code> provides a set of
  * <code>getXXX()</code> methods for constructing various objects from those informations.
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
- * object using available informations. 
+ * object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -194,7 +196,11 @@ public class PropertyParser {
      * @see #DATUM
      * @see #PROJECTION
      */
-    public static final Key ELLIPSOID = new Key("Ellipsoid");
+    public static final Key ELLIPSOID = new Key("Ellipsoid") {
+        public Object getValue(final GridCoverage coverage) {
+            return CTSUtilities.getEllipsoid(coverage.getCoordinateSystem());
+        }
+    };
 
     /**
      * Key for the projection classification. This is the classification name required
@@ -209,7 +215,11 @@ public class PropertyParser {
      * @see #FALSE_EASTING
      * @see #FALSE_NORTHING
      */
-    public static final Key PROJECTION = new Key("Projection");
+    public static final Key PROJECTION = new Key("Projection") {
+        public Object getValue(final GridCoverage coverage) {
+            return CTSUtilities.getProjection(coverage.getCoordinateSystem());
+        }
+    };
 
     /**
      * Optional key for the projection name. The {@link #getProjection} method looks for
@@ -220,7 +230,12 @@ public class PropertyParser {
      * @see #PROJECTION
      * @see #COORDINATE_SYSTEM_NAME
      */
-    public static final Key PROJECTION_NAME = new Key("Projection name");
+    public static final Key PROJECTION_NAME = new Key("Projection name") {
+        public Object getValue(final GridCoverage coverage) {
+            final Projection proj = CTSUtilities.getProjection(coverage.getCoordinateSystem());
+            return (proj!=null) ? proj.getName(null) : null;
+        }
+    };
 
     /**
      * Optional Key for the coordinate system name.
@@ -228,7 +243,12 @@ public class PropertyParser {
      *
      * @see #PROJECTION_NAME
      */
-    public static final Key COORDINATE_SYSTEM_NAME = new Key("CoordinateSystem name");
+    public static final Key COORDINATE_SYSTEM_NAME = new Key("CoordinateSystem name") {
+        public Object getValue(final GridCoverage coverage) {
+            final CoordinateSystem cs = coverage.getCoordinateSystem();
+            return (cs!=null) ? cs.getName(null) : null;
+        }
+    };
 
     /**
      * Key for the <code>"semi_major"</code> projection parameter.
@@ -242,7 +262,7 @@ public class PropertyParser {
      * @see #FALSE_NORTHING
      * @see #PROJECTION
      */
-    public static final Key SEMI_MAJOR = new Key("semi_major");
+    public static final Key SEMI_MAJOR = new ProjectionKey("semi_major");
 
     /**
      * Key for the <code>"semi_minor"</code> projection parameter.
@@ -256,7 +276,7 @@ public class PropertyParser {
      * @see #FALSE_NORTHING
      * @see #PROJECTION
      */
-    public static final Key SEMI_MINOR = new Key("semi_minor");
+    public static final Key SEMI_MINOR = new ProjectionKey("semi_minor");
 
     /**
      * Key for the <code>"latitude_of_origin"</code> projection parameter.
@@ -270,7 +290,7 @@ public class PropertyParser {
      * @see #FALSE_NORTHING
      * @see #PROJECTION
      */
-    public static final Key LATITUDE_OF_ORIGIN = new Key("latitude_of_origin");
+    public static final Key LATITUDE_OF_ORIGIN = new ProjectionKey("latitude_of_origin");
 
     /**
      * Key for the <code>"central_meridian"</code> projection parameter.
@@ -284,7 +304,7 @@ public class PropertyParser {
      * @see #FALSE_NORTHING
      * @see #PROJECTION
      */
-    public static final Key CENTRAL_MERIDIAN = new Key("central_meridian");
+    public static final Key CENTRAL_MERIDIAN = new ProjectionKey("central_meridian");
 
     /**
      * Key for the <code>"false_easting"</code> projection parameter.
@@ -298,7 +318,7 @@ public class PropertyParser {
      * @see #FALSE_NORTHING
      * @see #PROJECTION
      */
-    public static final Key FALSE_EASTING = new Key("false_easting");
+    public static final Key FALSE_EASTING = new ProjectionKey("false_easting");
 
     /**
      * Key for the <code>"false_northing"</code> projection parameter.
@@ -312,12 +332,13 @@ public class PropertyParser {
      * @see #FALSE_EASTING
      * @see #PROJECTION
      */
-    public static final Key FALSE_NORTHING = new Key("false_northing");
+    public static final Key FALSE_NORTHING = new ProjectionKey("false_northing");
 
     /**
      * Key for the minimal <var>x</var> value (western limit).
      * This is usually the longitude coordinate of the <em>upper left</em> corner.
-     * The {@link #getEnvelope} method looks for this property.
+     * The {@link #getEnvelope} method looks for this property in order to set the
+     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>0</strong>.
      *
      * @see #X_MAXIMUM
      * @see #Y_MINIMUM
@@ -325,38 +346,13 @@ public class PropertyParser {
      * @see #X_RESOLUTION
      * @see #Y_RESOLUTION
      */
-    public static final Key X_MINIMUM = new Key("XMinimum");
-
-    /**
-     * Key for the maximal <var>y</var> value (northern limit).
-     * This is usually the latitude coordinate of the <em>upper left</em> corner.
-     * The {@link #getEnvelope} method looks for this property.
-     *
-     * @see #X_MINIMUM
-     * @see #X_MAXIMUM
-     * @see #Y_MINIMUM
-     * @see #X_RESOLUTION
-     * @see #Y_RESOLUTION
-     */
-    public static final Key Y_MAXIMUM = new Key("YMaximum");
-
-    /**
-     * Key for the maximal <var>x</var> value (eastern limit).
-     * This is usually the longitude coordinate of the <em>bottom right</em> corner.
-     * The {@link #getEnvelope} method looks for this property.
-     *
-     * @see #X_MINIMUM
-     * @see #Y_MINIMUM
-     * @see #Y_MAXIMUM
-     * @see #X_RESOLUTION
-     * @see #Y_RESOLUTION
-     */
-    public static final Key X_MAXIMUM = new Key("XMaximum");
+    public static final Key X_MINIMUM = new EnvelopeKey("XMinimum", (byte)0, EnvelopeKey.MINIMUM);
 
     /**
      * Key for the minimal <var>y</var> value (southern limit).
      * This is usually the latitude coordinate of the <em>bottom right</em> corner.
-     * The {@link #getEnvelope} method looks for this property.
+     * The {@link #getEnvelope} method looks for this property. in order to set the
+     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>1</strong>.
      *
      * @see #X_MINIMUM
      * @see #X_MAXIMUM
@@ -364,11 +360,64 @@ public class PropertyParser {
      * @see #X_RESOLUTION
      * @see #Y_RESOLUTION
      */
-    public static final Key Y_MINIMUM = new Key("YMinimum");
+    public static final Key Y_MINIMUM = new EnvelopeKey("YMinimum", (byte)1, EnvelopeKey.MINIMUM);
+
+    /**
+     * Key for the minimal <var>z</var> value.
+     * This is usually the minimal altitude.
+     * The {@link #getEnvelope} method looks for this property in order to set the
+     * {@linkplain Envelope#getMinimum minimal coordinate} for dimension <strong>2</strong>.
+     *
+     * @see #Z_MAXIMUM
+     * @see #Z_RESOLUTION
+     * @see #DEPTH
+     */
+    public static final Key Z_MINIMUM = new EnvelopeKey("ZMinimum", (byte)2, EnvelopeKey.MINIMUM);
+
+    /**
+     * Key for the maximal <var>x</var> value (eastern limit).
+     * This is usually the longitude coordinate of the <em>bottom right</em> corner.
+     * The {@link #getEnvelope} method looks for this property in order to set the
+     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>0</strong>.
+     *
+     * @see #X_MINIMUM
+     * @see #Y_MINIMUM
+     * @see #Y_MAXIMUM
+     * @see #X_RESOLUTION
+     * @see #Y_RESOLUTION
+     */
+    public static final Key X_MAXIMUM = new EnvelopeKey("XMaximum", (byte)0, EnvelopeKey.MAXIMUM);
+
+    /**
+     * Key for the maximal <var>y</var> value (northern limit).
+     * This is usually the latitude coordinate of the <em>upper left</em> corner.
+     * The {@link #getEnvelope} method looks for this property in order to set the
+     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>1</strong>.
+     *
+     * @see #X_MINIMUM
+     * @see #X_MAXIMUM
+     * @see #Y_MINIMUM
+     * @see #X_RESOLUTION
+     * @see #Y_RESOLUTION
+     */
+    public static final Key Y_MAXIMUM = new EnvelopeKey("YMaximum", (byte)1, EnvelopeKey.MAXIMUM);
+
+    /**
+     * Key for the maximal <var>z</var> value.
+     * This is usually the maximal altitude.
+     * The {@link #getEnvelope} method looks for this property in order to set the
+     * {@linkplain Envelope#getMaximum maximal coordinate} for dimension <strong>2</strong>.
+     *
+     * @see #Z_MINIMUM
+     * @see #Z_RESOLUTION
+     * @see #DEPTH
+     */
+    public static final Key Z_MAXIMUM = new EnvelopeKey("ZMaximum", (byte)2, EnvelopeKey.MAXIMUM);
 
     /**
      * Key for the resolution among the <var>x</var> axis.
-     * The {@link #getEnvelope} method looks for this property.
+     * The {@link #getEnvelope} method looks for this property in
+     * order to infer the coordinates for dimension <strong>0</strong>.
      *
      * @see #X_MINIMUM
      * @see #X_MAXIMUM
@@ -376,11 +425,13 @@ public class PropertyParser {
      * @see #Y_MAXIMUM
      * @see #Y_RESOLUTION
      */
-    public static final Key X_RESOLUTION = new Key("XResolution");
+    public static final Key X_RESOLUTION = new EnvelopeKey("XResolution", (byte)0,
+                                                           EnvelopeKey.RESOLUTION);
 
     /**
      * Key for the resolution among the <var>y</var> axis.
-     * The {@link #getEnvelope} method looks for this property.
+     * The {@link #getEnvelope} method looks for this property in
+     * order to infer the coordinates for dimension <strong>1</strong>.
      *
      * @see #X_MINIMUM
      * @see #X_MAXIMUM
@@ -390,27 +441,54 @@ public class PropertyParser {
      * @see #WIDTH
      * @see #HEIGHT
      */
-    public static final Key Y_RESOLUTION = new Key("YResolution");
+    public static final Key Y_RESOLUTION = new EnvelopeKey("YResolution", (byte)1,
+                                                           EnvelopeKey.RESOLUTION);
+
+    /**
+     * Key for the resolution among the <var>z</var> axis.
+     * The {@link #getEnvelope} method looks for this property in
+     * order to infer the coordinates for dimension <strong>2</strong>.
+     *
+     * @see #Z_MINIMUM
+     * @see #Z_MAXIMUM
+     * @see #DEPTH
+     */
+    public static final Key Z_RESOLUTION = new EnvelopeKey("ZResolution", (byte)2,
+                                                           EnvelopeKey.RESOLUTION);
 
     /**
      * Key for the image's width in pixels.
-     * The {@link #getGridRange} method looks for this property.
+     * The {@link #getGridRange} method looks for this property in order to infer the
+     * {@linkplain GridRange#getLength grid size} along the dimension <strong>0</strong>.
      *
      * @see #HEIGHT
      * @see #X_RESOLUTION
      * @see #Y_RESOLUTION
      */
-    public static final Key WIDTH = new Key("Width");
+    public static final Key WIDTH = new EnvelopeKey("Width", (byte)0, EnvelopeKey.SIZE);
 
     /**
      * Key for the image's height in pixels.
-     * The {@link #getGridRange} method looks for this property.
+     * The {@link #getGridRange} method looks for this property in order to infer the
+     * {@linkplain GridRange#getLength grid size} along the dimension <strong>1</strong>.
      *
      * @see #WIDTH
      * @see #X_RESOLUTION
      * @see #Y_RESOLUTION
      */
-    public static final Key HEIGHT = new Key("Height");
+    public static final Key HEIGHT = new EnvelopeKey("Height", (byte)1, EnvelopeKey.SIZE);
+
+    /**
+     * Key for the image's &quot;depth&quot; in pixels. This property may exists for 3D images,
+     * but some implementations accept at most 1 pixel depth among the third dimension.
+     * The {@link #getGridRange} method looks for this property in order to infer the
+     * {@linkplain GridRange#getLength grid size} along the dimension <strong>2</strong>.
+     *
+     * @see #Z_MINIMUM
+     * @see #Z_MAXIMUM
+     * @see #Z_RESOLUTION
+     */
+    public static final Key DEPTH = new EnvelopeKey("Depth", (byte)2, EnvelopeKey.SIZE);
     
     /**
      * The source (the file path or the URL) specified
@@ -466,8 +544,9 @@ public class PropertyParser {
     private final CoordinateSystemFactory factory;
     
     /**
-     * The locale to use for formatting messages,
-     * or <code>null</code> for a default locale.
+     * The locale to use for formatting messages, or <code>null</code> for a default locale.
+     * This is <strong>not</strong> the local to use for parsing the file. This later locale
+     * is specified by {@link #getLocale}.
      */
     private Locale locale;
     
@@ -629,11 +708,53 @@ public class PropertyParser {
     }
     
     /**
-     * Add all properties from the specified image.
+     * Add all properties from the specified grid coverage. This convenience method can be used
+     * together with {@link #listProperties} as a way to format the properties for an arbitrary
+     * grid coverage. The default implementation performs the following step:
+     * <ul>
+     *   <li>For each <code>key</code> declared with
+     *       <code>{@linkplain #addAlias addAlias}(<strong>key</strong>, alias)</code>, fetchs
+     *       a value with <code>key.{linkplain Key#getValue getValue}(coverage)</code>.</li>
+     *   <li>For each value found, {@linkplain #add(String, Object) add} the value under the
+     *       name of the first alias found for the <code>key</code>.</li>
      *
-     * @param  Image with properties to add to this <code>PropertyParser</code>.
+     * @param coverage The grid coverage with properties to add to this <code>PropertyParser</code>.
      * @throws AmbiguousPropertyException if a property is defined twice.
      *
+     * @see #add(RenderedImage)
+     * @see #add(PropertySource,String)
+     * @see #add(String,Object)
+     * @see #listProperties
+     */
+    public synchronized void add(final GridCoverage coverage)
+            throws AmbiguousPropertyException
+    {
+        for (final Iterator it=naming.entrySet().iterator(); it.hasNext();) {
+            final Map.Entry entry = (Map.Entry) it.next();
+            final Key key = (Key) entry.getKey();
+            if (key instanceof AliasKey) {
+                continue;
+            }
+            final Set alias = (Set) entry.getValue();
+            if (alias==null || alias.isEmpty()) {
+                continue;
+            }
+            final AliasKey keyAsAlias = (AliasKey) alias.iterator().next();
+            /*
+             * 'key' is one of the enumerations (X_MINIMUM, WIDTH, ELLIPSOID, etc...).
+             * 'keyAsAlias' is the name to use for storing the value for this key.
+             */
+            add(keyAsAlias, key.getValue(coverage));
+        }
+    }
+    
+    /**
+     * Add all properties from the specified image.
+     *
+     * @param  image The image with properties to add to this <code>PropertyParser</code>.
+     * @throws AmbiguousPropertyException if a property is defined twice.
+     *
+     * @see #add(GridCoverage)
      * @see #add(PropertySource,String)
      * @see #add(String,Object)
      */
@@ -663,6 +784,7 @@ public class PropertyParser {
      *         will be added.
      * @throws AmbiguousPropertyException if a property is defined twice.
      *
+     * @see #add(GridCoverage)
      * @see #add(RenderedImage)
      * @see #add(String,Object)
      */
@@ -694,11 +816,29 @@ public class PropertyParser {
      * @throws AmbiguousPropertyException if a different value already exists for the specified
      *         alias, or for an other alias bound to the same {@link Key}.
      *
+     * @see #add(GridCoverage)
      * @see #add(RenderedImage)
      * @see #add(PropertySource,String)
      * @see #parseLine
      */
-    public synchronized void add(String alias, Object value)
+    public synchronized void add(String alias, final Object value)
+        throws AmbiguousPropertyException
+    {
+        final AliasKey aliasAsKey;
+        if (alias != null) {
+            alias = alias.trim();
+            aliasAsKey = new AliasKey(alias);
+        }
+        else aliasAsKey = null;
+        add(aliasAsKey, value);
+    }
+
+    /**
+     * Implementation of the {@link #add(String, Object)} method. This method is invoked by
+     * {@link #add(GridCoverage)}, which iterates through each {@link AliasKey} declared in
+     * {@link #naming}.
+     */
+    private void add(final AliasKey aliasAsKey, Object value)
         throws AmbiguousPropertyException
     {
         assert isValid();
@@ -713,12 +853,6 @@ public class PropertyParser {
         if (properties==null) {
             properties = new LinkedHashMap();
         }
-        final AliasKey aliasAsKey;
-        if (alias!=null) {
-            alias = alias.trim();
-            aliasAsKey = new AliasKey(alias);
-        }
-        else aliasAsKey = null;
         /*
          * Consistency check:
          *
@@ -733,6 +867,7 @@ public class PropertyParser {
         Iterator iterator = null;
         while (true) {
             if (oldValue!=null && !oldValue.equals(value)) {
+                final String alias = aliasAsKey.toString();
                 throw new AmbiguousPropertyException(Resources.getResources(locale).
                           getString(ResourceKeys.ERROR_INCONSISTENT_PROPERTY_$1, alias),
                           checkKey, alias);
@@ -945,9 +1080,33 @@ public class PropertyParser {
     }
     
     /**
+     * Returns a property as a <code>double</code> value. The default implementation invokes
+     * {@link #getAsDouble(Key)} or {@link #getAsDate(Key)} according the property type: the
+     * property is assumed to be a number, except if <code>cs</code> is a
+     * {@link TemporalCoordinateSystem}. In this later case, the property is assumed to be a
+     * {@link Date}.
+     *
+     * @param  key The key of the desired property. Keys are case-insensitive.
+     * @param  cs  The coordinate system for the dimension of the key to be queried,
+     *             or <code>null</code> if unknow.
+     * @return Value for the specified key as a <code>double</code>.
+     * @throws MissingPropertyException if no value exists for the specified key.
+     * @throws PropertyException if the value can't be parsed as a <code>double</code>.
+     */
+    private double getAsDouble(final Key key, final CoordinateSystem cs) throws PropertyException {
+        if (cs instanceof TemporalCoordinateSystem) {
+            final Date time  = getAsDate(key);
+            final Date epoch = ((TemporalCoordinateSystem) cs).getEpoch();
+            return cs.getUnits(0).convert(time.getTime() - epoch.getTime(), Unit.MILLISECOND);
+        } else {
+            return getAsDouble(key);
+        }
+    }
+    
+    /**
      * Returns a property as a <code>double</code> value. The default implementation
      * invokes <code>{@link #get get}(key)</code> and parse the resulting value with
-     * {@link NumberFormat#parse(String)} for the {@link #getLocale} locale.
+     * {@link NumberFormat#parse(String)} for the {@linkplain #getLocale current locale}.
      *
      * @param  key The key of the desired property. Keys are case-insensitive.
      * @return Value for the specified key as a <code>double</code>.
@@ -998,6 +1157,31 @@ public class PropertyParser {
         }
         return integer;
     }
+    
+    /**
+     * Returns a property as a {@link Date} value. The default implementation
+     * invokes <code>{@link #get get}(key)</code> and parse the resulting value with
+     * {@link DateFormat#parse(String)} for the {@linkplain #getLocale current locale}.
+     *
+     * @param  key The key of the desired property. Keys are case-insensitive.
+     * @return Value for the specified key as a {@link Date}.
+     * @throws MissingPropertyException if no value exists for the specified key.
+     * @throws PropertyException if the value can't be parsed as a date.
+     */
+    public synchronized Date getAsDate(final Key key) throws PropertyException {
+        final Object value = get(key);
+        if (value instanceof Date) {
+            return (Date) (((Date) value).clone());
+        }
+        try {
+            return getDateFormat().parse(value.toString());
+        } catch (ParseException exception) {
+            final PropertyException e;
+            e = new PropertyException(exception.getLocalizedMessage(), key, lastAlias);
+            e.initCause(exception);
+            throw e;
+        }
+    }
 
     /**
      * Get the object to use for parsing numbers.
@@ -1012,6 +1196,24 @@ public class PropertyParser {
             }
         }
         final NumberFormat format = NumberFormat.getNumberInstance(getLocale());
+        cache(CACHE_KEY, format);
+        return format; // Do not clone, since this method is private.
+    }
+
+    /**
+     * Get the object to use for parsing dates.
+     */
+    private DateFormat getDateFormat() throws PropertyException {
+        assert Thread.holdsLock(this);
+        final String CACHE_KEY = "DateFormat";
+        if (cache != null) {
+            final Object candidate = cache.get(CACHE_KEY);
+            if (candidate instanceof DateFormat) {
+                return (DateFormat) candidate;
+            }
+        }
+        final DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+                                                                 DateFormat.SHORT, getLocale());
         cache(CACHE_KEY, format);
         return format; // Do not clone, since this method is private.
     }
@@ -1464,12 +1666,14 @@ public class PropertyParser {
          * No Envelope is available in the cache.
          * Compute it now and cache it for future use.
          */
-        final GridRange   range = getGridRange();
-        final Envelope envelope = new Envelope(range.getDimension());
+        final GridRange     range = getGridRange();
+        final Envelope   envelope = new Envelope(range.getDimension());
+        final CoordinateSystem cs = getCoordinateSystem();
         switch (envelope.getDimension()) {
             default: // TODO: What should we do with other dimensions? Open question...
-            case 2: setRange(Y_MINIMUM, Y_MAXIMUM, Y_RESOLUTION, envelope, 1, range); // fallthrough
-            case 1: setRange(X_MINIMUM, X_MAXIMUM, X_RESOLUTION, envelope, 0, range); // fallthrough
+            case 3: setRange(Z_MINIMUM, Z_MAXIMUM, Z_RESOLUTION, envelope, 2, range, cs); // fall t.
+            case 2: setRange(Y_MINIMUM, Y_MAXIMUM, Y_RESOLUTION, envelope, 1, range, cs); // fall t.
+            case 1: setRange(X_MINIMUM, X_MAXIMUM, X_RESOLUTION, envelope, 0, range, cs); // fall t.
             case 0: break;
         }
         cache(CACHE_KEY, envelope);
@@ -1486,32 +1690,36 @@ public class PropertyParser {
      * @param resKey    Property name for the resolution.
      * @param envelope  The envelope to set.
      * @param dimension The dimension in the envelope to set.
+     * @param gridRange The grid range.
+     * @param cs        The coordinate system
      * @throws PropertyException if a property can't be set, or if an ambiguity has been found.
      */
     private void setRange(final Key minKey, final Key maxKey, final Key resKey,
-                          final Envelope envelope, final int dimension, final GridRange gridRange)
+                          final Envelope envelope,   final int dimension,
+                          final GridRange gridRange, CoordinateSystem cs)
         throws PropertyException
     {
         assert Thread.holdsLock(this);
+        cs = CTSUtilities.getSubCoordinateSystem(cs, dimension, dimension+1);
         if (!contains(resKey)) {
-            envelope.setRange(dimension, getAsDouble(minKey), getAsDouble(maxKey));
+            envelope.setRange(dimension, getAsDouble(minKey, cs), getAsDouble(maxKey, cs));
             return;
         }
-        final double resolution = getAsDouble(resKey);
+        final double resolution = getAsDouble(resKey, cs);
         final String lastAlias = this.lastAlias; // Protect from change
         final int range = gridRange.getLength(dimension);
         if (!contains(maxKey)) {
-            final double min = getAsDouble(minKey);
+            final double min = getAsDouble(minKey, cs);
             envelope.setRange(dimension, min, min + resolution*range);
             return;
         }
         if (!contains(minKey)) {
-            final double max = getAsDouble(maxKey);
+            final double max = getAsDouble(maxKey, cs);
             envelope.setRange(dimension, max - resolution*range, max);
             return;
         }
-        final double min = getAsDouble(minKey);
-        final double max = getAsDouble(maxKey);
+        final double min = getAsDouble(minKey, cs);
+        final double max = getAsDouble(maxKey, cs);
         envelope.setRange(dimension, min, max);
         if (Math.abs((min-max)/resolution - range) > EPS) {
             throw new AmbiguousPropertyException(Resources.getResources(locale).getString(
@@ -1553,6 +1761,7 @@ public class PropertyParser {
         Arrays.fill(upper, 1);
         switch (dimension) {
             default: // fall through
+            case 3:  upper[2] = getAsInt(DEPTH );  // fall through
             case 2:  upper[1] = getAsInt(HEIGHT);  // fall through
             case 1:  upper[0] = getAsInt(WIDTH );  // fall through
             case 0:  break;
@@ -1577,6 +1786,10 @@ public class PropertyParser {
      * Sets the current {@link Locale} of this <code>PropertyParser</code>
      * to the given value. A value of <code>null</code> removes any previous
      * setting, and indicates that the parser should localize as it sees fit.
+     *
+     * Note: this is the locale to use for formatting error messages, not the
+     *       locale to use for parsing the file. The locale for parsing is
+     *       specified by {@link #getLocale}.
      */
     final synchronized void setUserLocale(final Locale locale) {
         this.locale = locale;
@@ -1591,6 +1804,9 @@ public class PropertyParser {
      *
      * @param  out Stream to write properties to.
      * @throws IOException if an error occured while listing properties.
+     *
+     * @see #add(GridCoverage)
+     * @see #toString
      */
     public synchronized void listProperties(final Writer out) throws IOException {
         final String lineSeparator = System.getProperty("line.separator", "\n");
@@ -1615,12 +1831,18 @@ public class PropertyParser {
                 final Map.Entry entry = (Map.Entry) it.next();
                 final Key key = (Key) entry.getKey();
                 if (key != null) {
+                    Object value = entry.getValue();
+                    if (value instanceof Number) {
+                        value = getNumberFormat().format(value);
+                    } else if (value instanceof Date) {
+                        value = getDateFormat().format(value);
+                    }
                     final boolean isKnow = (naming!=null && naming.containsKey(key));
                     out.write(isKnow ? "  " : "? ");
                     out.write(String.valueOf(key));
                     out.write(Utilities.spaces(maxLength-key.toString().length()));
                     out.write(" = ");
-                    out.write(String.valueOf(entry.getValue()));
+                    out.write(String.valueOf(value));
                     out.write(lineSeparator);
                 }
             }
@@ -1723,7 +1945,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -1755,6 +1977,17 @@ loop:       for (int i=str.length(); --i>=0;) {
         }
 
         /**
+         * Returns the value for this key from the specified grid coverage. For example the key
+         * {@link X_MINIMUM} will returns <code>coverage.getEnvelope().getMinimum(0)</code>.
+         *
+         * @param coverage The grid coverage from which to fetch the value.
+         * @return The value, or <code>null</code> if none.
+         */
+        public Object getValue(final GridCoverage coverage) {
+            return null;
+        }
+
+        /**
          * Returns the name for this key. This is the name supplied to the constructor
          * (i.e. case and whitespaces are preserved).
          */
@@ -1781,12 +2014,126 @@ loop:       for (int i=str.length(); --i>=0;) {
     }
 
     /**
+     * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
+     *
+     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private static final class EnvelopeKey extends Key {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = -7928870614384957795L;
+
+        /*
+         * BitMask  1 = Minimum value
+         *          2 = Maximum value
+         *          4 = Apply on Envelope
+         *          8 = Apply on GridRange
+         */
+        /** Property for {@link Envelope#getLength}.  */ public static final byte LENGTH     = 4|0;
+        /** Property for {@link Envelope#getMinimum}. */ public static final byte MINIMUM    = 4|1;
+        /** Property for {@link Envelope#getMaximum}. */ public static final byte MAXIMUM    = 4|2;
+        /** Property for {@link GridRange#getLength}. */ public static final byte SIZE       = 8|0;
+        /** Property for {@link GridRange#getLower}.  */ public static final byte LOWER      = 8|1;
+        /** Property for {@link GridRange#getUpper}.  */ public static final byte UPPER      = 8|2;
+        /** Property for the resolution.              */ public static final byte RESOLUTION = 4|8;
+
+        /**
+         * The dimension from which to fetch the value.
+         */
+        private final byte dimension;
+
+        /**
+         * The method to use for fetching the value. Should be one of {@link #MINIMUM},
+         * {@link #MAXIMUM}, {@link #LOWER}, {@link #UPPER} or  {@link #RESOLUTION}.
+         */
+        private final byte method;
+
+        /**
+         * Construct a key with the specified name.
+         */
+        public EnvelopeKey(final String name, final byte dimension, final byte method) {
+            super(name);
+            this.dimension = dimension;
+            this.method    = method;
+        }
+
+        /**
+         * Returns the value for this key from the specified grid coverage.
+         */
+        public Object getValue(final GridCoverage coverage) {
+            Envelope envelope = null;
+            GridRange   range = null;
+            if ((method & 4) != 0) {
+                envelope = coverage.getEnvelope();
+                if (envelope==null || envelope.getDimension()<=dimension) {
+                    return null;
+                }
+            }
+            if ((method & 8) != 0) {
+                range = coverage.getGridGeometry().getGridRange();
+                if (range==null || range.getDimension()<=dimension) {
+                    return null;
+                }
+            }
+            switch (method) {
+                default     : throw new AssertionError(method);
+                case LENGTH : return new Double (envelope.getLength (dimension));
+                case MINIMUM: return new Double (envelope.getMinimum(dimension));
+                case MAXIMUM: return new Double (envelope.getMaximum(dimension));
+                case SIZE   : return new Integer(   range.getLength (dimension));
+                case LOWER  : return new Integer(   range.getLower  (dimension));
+                case UPPER  : return new Integer(   range.getUpper  (dimension));
+                case RESOLUTION: {
+                    return new Double(envelope.getLength(dimension)/range.getLength(dimension));
+                }
+            }
+        }
+    }
+
+    /**
+     * A key for properties derived from {@link Projection}.
+     * The key name must be the projection parameter name.
+     *
+     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     */
+    private static final class ProjectionKey extends Key {
+        /**
+         * Serial number for interoperability with different versions.
+         */
+        private static final long serialVersionUID = -6913177345764406058L;
+
+        /**
+         * Construct a key with the specified name.
+         */
+        public ProjectionKey(final String name) {
+            super(name);
+        }
+
+        /**
+         * Returns the value for this key from the specified grid coverage.
+         */
+        public Object getValue(final GridCoverage coverage) {
+            final Projection projection= CTSUtilities.getProjection(coverage.getCoordinateSystem());
+            if (projection != null) try {
+                return new Double(projection.getValue(toString()));
+            } catch (MissingParameterException exception) {
+                // No value set for the specified parameter.
+                // This is not an error. Just ignore...
+            }
+            return null;
+        }
+    }
+
+    /**
      * A case-insensitive key for alias name. We use a different class because the
      * <code>equals</code> method must returns <code>false</code> when comparing
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.10 2003/01/12 16:48:39 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
