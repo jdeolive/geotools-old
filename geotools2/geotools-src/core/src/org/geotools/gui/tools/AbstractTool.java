@@ -1,6 +1,6 @@
 package org.geotools.gui.tools;
 
-import org.geotools.gui.widget.AbstractWidget;
+import org.geotools.gui.widget.Widget;
 import org.geotools.map.Context;
 
 /**
@@ -19,7 +19,7 @@ public abstract interface AbstractTool {
      * not been set yet, then null is returned.
      * @param The MapPane from which this Tool get's MouseEvents.
      */
-    public AbstractWidget getWidget();
+    public Widget getWidget();
     
     /**
      * Set the Widget which sends MouseEvents and contains widget size
@@ -28,7 +28,7 @@ public abstract interface AbstractTool {
      * @throws IllegalStateException if the widget has already been set to
      * another widget.
      */
-    public void setWidget(AbstractWidget widget) throws IllegalStateException;
+    public void setWidget(Widget widget) throws IllegalStateException;
     
     /**
      * Get the context.  If context has not been set yet, then null is returned.
