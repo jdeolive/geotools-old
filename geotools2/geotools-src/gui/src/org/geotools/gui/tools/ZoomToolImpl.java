@@ -39,17 +39,18 @@ import javax.swing.event.MouseInputAdapter;
 
 /**
  * Provides both Click/Zoom and Drag/Zoom functionality.
- * Processes MouseEvents on behalf of MapPanel and constructs a
+ * Processes MouseEvents on behalf of MapPane and constructs a
  * CordinateTransform for the map's Context.<br>
 
- * For Click/Zoom, pan the map so that the new extent has the click point in the middle of the
+ * For Click/Zoom, pan the map so that the new extent has the click point in 
+ * the middle of the
  * map and then zoom in/out by the zoomFactor.<br>
  *
  * For Drag/Zoom, pan to the center of the dragged area and zoom in to include
  * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.8 2003/04/01 10:40:05 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.9 2003/04/22 20:39:21 camerons Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private static final Logger LOGGER =
@@ -57,7 +58,8 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private Adapters adapters = Adapters.getDefault();
 
     /**
-     * The factor to zoom in/out by, zoomFactor=0.5 means zoom in, zoomFactor=2
+     * The factor to zoom in/out by when using click/zoom. zoomFactor=0.5 means
+     * zoom in, zoomFactor=2
      * means zoom out. Defaults to 2.
      */
     private double inverseZoomFactor = 0.5;
@@ -130,26 +132,15 @@ public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
                 (pressPoint.getOrdinate(1)+releasePoint.getOrdinate(1))/2);
             
             // Calculate the inverseZoomFactor
-            // zoomFactor=max(displayWidth/zoomWidth,displayHeight/zoomHeight)
+            // zoomFactor=min(zoomWidth/displayWidth,zoomHeight/displayHeight)
             Envelope aoi = context.getBbox().getAreaOfInterest();
-            double izf=Math.min(
-                (aoi.getMaxX()-aoi.getMinX())/
-                Math.abs(pressPoint.getOrdinate(0)+releasePoint.getOrdinate(0)),
-                (aoi.getMaxY()-aoi.getMinY())/
-                Math.abs(pressPoint.getOrdinate(1)+releasePoint.getOrdinate(1)));
+            double izf=Math.max(
+                Math.abs(pressPoint.getOrdinate(0)-releasePoint.getOrdinate(0))/
+                (aoi.getMaxX()-aoi.getMinX()),
+                Math.abs(pressPoint.getOrdinate(1)-releasePoint.getOrdinate(1))/
+                (aoi.getMaxY()-aoi.getMinY()));
             
             applyZoomTransform(midpoint,izf);
-            
-//            at.setToIdentity();
-//            at.translate(
-//                pressPoint.getOrdinate(0) - releasePoint.getOrdinate(0),
-//                pressPoint.getOrdinate(1) - releasePoint.getOrdinate(1)
-//            );
-//
-//            MathTransform transform =
-//                MathTransformFactory.getDefault().createAffineTransform(at);
-//
-//            context.getBbox().transform(adapters.export(transform));
         } catch (TransformException t) {
             LOGGER.warning(
                 "Transform exception prevented mouseClicks from being processed"
