@@ -119,7 +119,7 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.29 2004/01/09 16:35:25 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.30 2004/01/12 06:44:45 seangeo Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -574,36 +574,42 @@ public class LiteRenderer implements Renderer, Renderer2D {
                         ruleList.add(r);    
                     }
                 }
-            }
-
+            }         
+           
             // process the features according to the rules
             FeatureReader reader = features.reader();
             while(reader.hasNext()) {
+                boolean doElse = true;
                 Feature feature = reader.next();
-
-                // applicable rules
-                for (Iterator it = ruleList.iterator(); it.hasNext(); ) {
-                    Rule r = (Rule) it.next();
-                    
-                    Filter filter = r.getFilter();
-                    Symbolizer[] symbolizers = r.getSymbolizers();
-
-                    String typeName = feature.getFeatureType().getTypeName();
-
-                    if (((typeName != null)
-                            && (feature.getFeatureType().isDescendedFrom(null,
-                                fts.getFeatureTypeName())
-                            || typeName.equalsIgnoreCase(fts.getFeatureTypeName())))
-                            && ((filter == null) || filter.contains(feature))) {
-                        processSymbolizers(feature, symbolizers);
+                String typeName = feature.getFeatureType().getTypeName();
+                
+                if ( (typeName != null) &&
+                     (  feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName()) ||
+                        typeName.equalsIgnoreCase(fts.getFeatureTypeName()))) {
+                  
+                   // applicable rules
+                	for (Iterator it = ruleList.iterator(); it.hasNext(); ) {
+                   		 Rule r = (Rule) it.next();
+                        // if this rule applies
+                        if (isWithInScale(r) && !r.hasElseFilter()) {
+                            Filter filter = r.getFilter();
+    
+                            if ((filter == null) || filter.contains(feature)) {
+                                doElse = false;
+	                            Symbolizer[] symbolizers = r.getSymbolizers();
+                                processSymbolizers(feature, symbolizers);
+                            }
+                        }
                     }
-                }
-
-                // rules with an else filter
-                for (Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
-                    Rule r = (Rule) it.next();
-                    Symbolizer[] symbolizers = r.getSymbolizers();
-                    processSymbolizers(feature, symbolizers);
+    
+                    if (doElse) {
+                        // rules with an else filter
+                		for (Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
+                    		Rule r = (Rule) it.next();
+                    		Symbolizer[] symbolizers = r.getSymbolizers();
+                    		processSymbolizers(feature, symbolizers);
+               			}
+                    }
                 }
             }
         }
