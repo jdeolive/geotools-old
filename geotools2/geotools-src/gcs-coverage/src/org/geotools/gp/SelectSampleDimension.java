@@ -62,7 +62,7 @@ import org.geotools.resources.ImageUtilities;
  * color model is to select a different visible band. Consequently, the "SelectSampleDimension"
  * name still appropriate in this context.
  *
- * @version $Id: SelectSampleDimension.java,v 1.1 2003/03/14 18:27:37 desruisseaux Exp $
+ * @version $Id: SelectSampleDimension.java,v 1.2 2003/03/30 22:43:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SelectSampleDimension extends GridCoverage {
@@ -243,7 +243,7 @@ final class SelectSampleDimension extends GridCoverage {
     /**
      * An operation for selecting bands.
      *
-     * @version $Id: SelectSampleDimension.java,v 1.1 2003/03/14 18:27:37 desruisseaux Exp $
+     * @version $Id: SelectSampleDimension.java,v 1.2 2003/03/30 22:43:41 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     final static class Operation extends org.geotools.gp.Operation {
@@ -276,7 +276,7 @@ final class SelectSampleDimension extends GridCoverage {
                     new Object[] {  // defines the valid values for each parameter.
                         null,
                         null,
-                        new Range(Integer.class, new Integer(0), new Integer(Integer.MAX_VALUE))
+                        RANGE_0
                     }
             ));
         }

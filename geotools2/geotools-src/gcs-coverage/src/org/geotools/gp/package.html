@@ -53,13 +53,64 @@
     supports the following operations:</P>
 
     <UL>
+      <LI><A HREF="#Convolve">Convolve</A></LI>
       <LI><A HREF="#GradientMagnitude">GradientMagnitude</A></LI>
       <LI><A HREF="#Interpolate">Interpolate</A></LI>
+      <LI><A HREF="#LaplaceType1Filter">LaplaceType1Filter</A></LI>
+      <LI><A HREF="#LaplaceType2Filter">LaplaceType2Filter</A></LI>
+      <LI><A HREF="#MaxFilter">MaxFilter</A></LI>
+      <LI><A HREF="#MedianFilter">MedianFilter</A></LI>
+      <LI><A HREF="#MinFilter">MinFilter</A></LI>
       <LI><A HREF="#Recolor">Recolor</A></LI>
       <LI><A HREF="#Resample">Resample</A></LI>
       <LI><A HREF="#Rescale">Rescale</A></LI>
       <LI><A HREF="#SelectSampleDimension">SelectSampleDimension</A></LI>
     </UL>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="Convolve">Convolve</A></H2>
+    <P ALIGN="justify">Computes each output sample by multiplying elements
+    of a kernel with the samples surrounding a particular source sample.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Convolve"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"kernel"</td>
+        <td>{@link javax.media.jai.KernelJAI}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
 
     <P>&nbsp;</P>
     <HR>
@@ -81,6 +132,7 @@
     and vertical) gradient masks.</P>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"GradientMagnitude"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.GradientMagnitudeDescriptor GradientMagnitude}&quot;</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -130,6 +182,11 @@
     {@linkplain org.geotools.gc.GridCoverage#getGridGeometry grid geometry}.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
+
+
+
+
+
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
@@ -140,6 +197,7 @@
     on all sample dimensions.</P>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Interpolate"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;N/A<BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -187,6 +245,279 @@
     <code>new String[]{"Bicubic", "Bilinear", "NearestNeighbor"}</code>.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="LaplaceType1Filter">LaplaceType1Filter</A></H2>
+    <P ALIGN="justify">Perform a laplacian filter operation on a grid coverage.
+    This is a high pass filter which highlights the edges having positive and
+    negative brightness slopes. This filter mulitples the co-efficients in the
+    tabe below with the corresponding grid data value in the kernel window.
+    The new grid value will be calculated as the sum of
+    <code>(grid value * co-efficient)</code> for each kernel cell divised by 9.</P>
+    <TABLE border='1' cellpadding='6'>
+      <TR align="center"> <TD>0</TD>  <TD>-1</TD>   <TD>0</TD></TR>
+      <TR align="center"><TD>-1</TD>   <TD>4</TD>  <TD>-1</TD></TR>
+      <TR align="center"> <TD>0</TD>  <TD>-1</TD>   <TD>0</TD></TR>
+    </TABLE>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"LaplaceType1Filter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="LaplaceType2Filter">LaplaceType2Filter</A></H2>
+    <P ALIGN="justify">Perform a laplacian filter operation on a grid coverage.
+    This is a high pass filter which highlights the edges having positive and
+    negative brightness slopes. This filter mulitples the co-efficients in the
+    tabe below with the corresponding grid data value in the kernel window.
+    The new grid value will be calculated as the sum of
+    <code>(grid value * co-efficient)</code> for each kernel cell divised by 9.</P>
+    <TABLE border='1' cellpadding='6'>
+      <TR align="center"><TD>-1</TD>  <TD>-1</TD>  <TD>-1</TD></TR>
+      <TR align="center"><TD>-1</TD>   <TD>8</TD>  <TD>-1</TD></TR>
+      <TR align="center"><TD>-1</TD>  <TD>-1</TD>  <TD>-1</TD></TR>
+    </TABLE>
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"LaplaceType1Filter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.ConvolveDescriptor Convolve}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="MaxFilter">MaxFilter</A></H2>
+    <P ALIGN="justify">Non-linear filter which is useful for removing isolated
+    lines or pixels while preserving the overall appearance of an image. The
+    filter is implemented by moving a mask over the image. For each position
+    of the mask, the center pixel is replaced by the max of the pixel values
+    covered by the mask.
+    There are several shapes possible for the mask, which are enumerated in the
+    {@linkplain javax.media.jai.operator.MaxFilterDescriptor JAI documentation}.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MaxFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MaxFilterDescriptor MaxFilter}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Xsize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Ysize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"maskShape"</td>
+        <td>{@link javax.media.jai.operator.MaxFilterShape}</td>
+        <td>{@link javax.media.jai.operator.MaxFilterDescriptor#MAX_MASK_SQUARE}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P ALIGN="justify"><STRONG>Note:</STRONG> In current implementation,
+    <code>Xsize</code> and <code>Ysize</code> must have the same value
+    (i.e. rectangular shapes are not supported).</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="MedianFilter">MedianFilter</A></H2>
+    <P ALIGN="justify">Non-linear filter which is useful for removing isolated
+    lines or pixels while preserving the overall appearance of an image. The
+    filter is implemented by moving a mask over the image. For each position
+    of the mask, the center pixel is replaced by the median of the pixel values
+    covered by the mask. This filter results in a smoothing of the image values.
+    There are several shapes possible for the mask, which are enumerated in the
+    {@linkplain javax.media.jai.operator.MedianFilterDescriptor JAI documentation}.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MedianFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MedianFilterDescriptor MedianFilter}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Xsize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Ysize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"maskShape"</td>
+        <td>{@link javax.media.jai.operator.MedianFilterShape}</td>
+        <td>{@link javax.media.jai.operator.MedianFilterDescriptor#MEDIAN_MASK_SQUARE}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P ALIGN="justify"><STRONG>Note:</STRONG> In current implementation,
+    <code>Xsize</code> and <code>Ysize</code> must have the same value
+    (i.e. rectangular shapes are not supported).</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
+    <P>&nbsp;</P>
+    <HR>
+    <P>&nbsp;</P>
+    <H2><A NAME="MinFilter">MinFilter</A></H2>
+    <P ALIGN="justify">Non-linear filter which is useful for removing isolated
+    lines or pixels while preserving the overall appearance of an image. The
+    filter is implemented by moving a mask over the image. For each position
+    of the mask, the center pixel is replaced by the min of the pixel values
+    covered by the mask.
+    There are several shapes possible for the mask, which are enumerated in the
+    {@linkplain javax.media.jai.operator.MinFilterDescriptor JAI documentation}.</P>
+
+    <P><STRONG>Name:</STRONG>&nbsp;<CODE>"MinFilter"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.MinFilterDescriptor MinFilter}&quot;</CODE><BR>
+       <STRONG>Parameters:</STRONG></P>
+    <table border='3' cellpadding='6' bgcolor='F4F8FF'>
+      <tr bgcolor='#B9DCFF'>
+        <th>Name</th>
+        <th>Class</th>
+        <th>Default value</th>
+        <th>Minimum value</th>
+        <th>Maximum value</th>
+      </tr>
+      <tr>
+        <td>"Source"</td>
+        <td>{@link org.geotools.gc.GridCoverage}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Xsize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"Ysize"</td>
+        <td>{@link java.lang.Integer}</td>
+        <td align="center">3</td>
+        <td align="center">1</td>
+        <td align="center">N/A</td>
+      </tr>
+      <tr>
+        <td>"maskShape"</td>
+        <td>{@link javax.media.jai.operator.MinFilterShape}</td>
+        <td>{@link javax.media.jai.operator.MinFilterDescriptor#MIN_MASK_SQUARE}</td>
+        <td align="center">N/A</td>
+        <td align="center">N/A</td>
+      </tr>
+    </table>
+    <P ALIGN="justify"><STRONG>Note:</STRONG> In current implementation,
+    <code>Xsize</code> and <code>Ysize</code> must have the same value
+    (i.e. rectangular shapes are not supported).</P>
+    <P><A HREF="#operation-list">Back to summary</A></P>
+
+
+
+
+
+
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
@@ -219,6 +550,7 @@
     </PRE></BLOCKQUOTE>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Recolor"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;N/A<BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -245,6 +577,11 @@
     </table>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
+
+
+
+
+
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
@@ -270,6 +607,8 @@
     </UL>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Resample"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.AffineDescriptor Affine}&quot;</CODE>
+               or <CODE>&quot;{@linkplain javax.media.jai.operator.WarpDescriptor Warp}&quot;</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -317,6 +656,11 @@
     at construction time.</P>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
+
+
+
+
+
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
@@ -332,6 +676,7 @@
     </CODE></BLOCKQUOTE>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"Rescale"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.RescaleDescriptor Rescale}&quot;</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>
@@ -365,6 +710,11 @@
     </table>
     <P><A HREF="#operation-list">Back to summary</A></P>
 
+
+
+
+
+
     <P>&nbsp;</P>
     <HR>
     <P>&nbsp;</P>
@@ -388,6 +738,7 @@
     inherit its source's visible sample dimension.</P>
 
     <P><STRONG>Name:</STRONG>&nbsp;<CODE>"SelectSampleDimension"</CODE><BR>
+       <STRONG>JAI operator:</STRONG>&nbsp;<CODE>&quot;{@linkplain javax.media.jai.operator.BandSelectDescriptor BandSelect}&quot;</CODE><BR>
        <STRONG>Parameters:</STRONG></P>
     <table border='3' cellpadding='6' bgcolor='F4F8FF'>
       <tr bgcolor='#B9DCFF'>

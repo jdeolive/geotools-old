@@ -95,10 +95,15 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Subclasses should override the two last <code>derive</code> methods. The
  * default implementation for other methods should be sufficient in most cases.
  *
- * @version $Id: OperationJAI.java,v 1.13 2003/03/30 17:31:21 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.14 2003/03/30 22:43:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
+    /**
+     * Serial number for interoperability with different versions.
+     */
+    private static final long serialVersionUID = -5974520239347639965L;
+
     /**
      * The rendered mode for JAI operation.
      */
@@ -129,8 +134,7 @@ public class OperationJAI extends Operation {
      * @param operationName JAI operation name (e.g. "GradientMagnitude").
      */
     public OperationJAI(final String operationName) {
-        this((OperationDescriptor) JAI.getDefaultInstance().
-                getOperationRegistry().getDescriptor(RENDERED_MODE, operationName));
+        this(getOperationDescriptor(operationName));
     }
     
     /**
@@ -141,8 +145,24 @@ public class OperationJAI extends Operation {
      *        for most JAI operations).
      */
     public OperationJAI(final OperationDescriptor descriptor) {
-        super(descriptor.getName(), getParameterListDescriptor(descriptor));
-        this.descriptor = descriptor;
+        this(descriptor.getName(), descriptor, getParameterListDescriptor(descriptor));
+    }
+
+    /**
+     * Construct an OpenGIS operation from a JAI operation.
+     *
+     * @param The operation name for {@link GridCoverageProcessor} registration.
+     *        May or may not be the same than JAI operation name.
+     * @param operationDescriptor The operation descriptor. This descriptor must supports
+     *        supports the "rendered" mode (which is the case for most JAI operations).
+     * @param paramDescriptor The parameters descriptor.
+     */
+    OperationJAI(final String name,
+                 final OperationDescriptor operationDescriptor,
+                 final ParameterListDescriptor paramDescriptor)
+    {
+        super(name, paramDescriptor);
+        this.descriptor = operationDescriptor;
     }
     
     /**
@@ -154,6 +174,14 @@ public class OperationJAI extends Operation {
         if (!RenderedImage.class.isAssignableFrom(classe)) {
             throw new IllegalArgumentException(classe.getName());
         }
+    }
+
+    /**
+     * Returns the operation descriptor for the specified operation name.
+     */
+    static OperationDescriptor getOperationDescriptor(final String name) {
+        return (OperationDescriptor) JAI.getDefaultInstance().
+                getOperationRegistry().getDescriptor(RENDERED_MODE, name);
     }
     
     /**
@@ -193,7 +221,7 @@ public class OperationJAI extends Operation {
                 ranges  [i] = parent.getParamValueRange(names[i]);
             }
         }
-        return new ParameterListDescriptorImpl(null, names, classes, defaults, ranges);
+        return new ParameterListDescriptorImpl(descriptor, names, classes, defaults, ranges);
     }
     
     /**
@@ -221,6 +249,26 @@ public class OperationJAI extends Operation {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns <code>true</code> if grid coverage should be transformed from sample values
+     * to geophysics value before to apply an operation.
+     */
+    boolean computeOnGeophysicsValues() {
+        return true;
+    }
+
+    /**
+     * Set a parameter. This method can be overriden in order to apply some conversions
+     * from OpenGIS to JAI parameters.
+     *
+     * @param block The parameter block in which to set a parameter.
+     * @param name  The parameter OpenGIS name.
+     * @param value The parameter OpenGIS value.
+     */
+    void setParameter(final ParameterBlockJAI block, final String name, final Object value) {
+        block.setParameter(name, value);
     }
 
     /**
@@ -260,7 +308,7 @@ public class OperationJAI extends Operation {
             final Object param = parameters.getObjectParameter(name);
             if (contains(sourceNames, name)) {
                 GridCoverage source = ((GridCoverage) param);
-                if (COMPUTE_ON_GEOPHYSICS_VALUES) {
+                if (computeOnGeophysicsValues()) {
                     final GridCoverage old = source;
                     source = source.geophysics(true);
                     if (srcCount == MASTER_SOURCE_INDEX) {
@@ -270,7 +318,7 @@ public class OperationJAI extends Operation {
                 block.addSource(source.getRenderedImage());
                 sources[srcCount++] = source;
             } else {
-                block.setParameter(name, param);
+                setParameter(block, name, param);
             }
         }
         GridCoverage result = doOperation(sources, block, hints);
@@ -418,7 +466,7 @@ public class OperationJAI extends Operation {
      */
     protected SampleDimension[] deriveSampleDimension(final SampleDimension[][] bandLists,
                                                       final CoordinateSystem cs,
-                                                      final ParameterList    parameters)
+                                                      final ParameterList parameters)
     {
         /*
          * Compute the number of bands. Sources with only 1 band are treated as

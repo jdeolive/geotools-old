@@ -51,6 +51,7 @@ import javax.media.jai.Interpolation;
 import javax.media.jai.ParameterList;
 import javax.media.jai.ParameterListImpl;
 import javax.media.jai.ParameterListDescriptor;
+import javax.media.jai.EnumeratedParameter;
 
 // OpenGIS dependencies
 import org.opengis.gp.GP_Operation;
@@ -73,7 +74,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * name of the operation, operation description, and number of source grid
  * coverages required for the operation.
  *
- * @version $Id: Operation.java,v 1.8 2003/03/14 12:35:48 desruisseaux Exp $
+ * @version $Id: Operation.java,v 1.9 2003/03/30 22:43:41 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -82,16 +83,6 @@ public abstract class Operation implements Serializable {
      * Serial number for interoperability with different versions.
      */
     private static final long serialVersionUID = -1280778129220703728L;
-
-    /**
-     * <code>true</code> if all comutations should be applied on geophysics
-     * values, or <code>false</code> if the image data should be use "as is".
-     *
-     * @task TODO: We should make this option configurable as a rendering hint.
-     *             The value should probably be an enumeration: GEOPHYSICS,
-     *             SAMPLE or AS_IS.
-     */
-    static final boolean COMPUTE_ON_GEOPHYSICS_VALUES = true;
     
     /**
      * List of valid names. Note: the "Optimal" type is not
@@ -116,22 +107,29 @@ public abstract class Operation implements Serializable {
         Interpolation.INTERP_BICUBIC,
         Interpolation.INTERP_BICUBIC_2
     };
-    
+
+    /** Convenient constant */ static final Integer ZERO  = new Integer(0);
+    /** Convenient constant */ static final Integer ONE   = new Integer(1);
+    /** Convenient constant */ static final Integer TWO   = new Integer(2);
+    /** Convenient constant */ static final Integer THREE = new Integer(3);
+    /** Convenient constant */ static final Range RANGE_0 = new Range(Integer.class, ZERO, null);
+    /** Convenient constant */ static final Range RANGE_1 = new Range(Integer.class, ONE,  null);
+
     /**
      * The name of the processing operation.
      */
     private final String name;
     
     /**
-     * The parameters descriptors.
+     * The parameters descriptor.
      */
     private final ParameterListDescriptor descriptor;
     
     /**
      * Construct an operation.
      *
-     * @param The name of the processing operation.
-     * @param The parameters descriptors.
+     * @param name The name of the processing operation.
+     * @param descriptor The parameters descriptor.
      */
     public Operation(final String name, final ParameterListDescriptor descriptor) {
         this.name       = name;
@@ -148,7 +146,7 @@ public abstract class Operation implements Serializable {
     }
     
     /**
-     * Returns the description of the processing operation. If no description,
+     * Returns the description of the processing operation. If there is no description,
      * returns <code>null</code>. If no description is available in the specified
      * locale, a default one will be used.
      *
@@ -382,10 +380,14 @@ public abstract class Operation implements Serializable {
             for (int j=0; j<length; j++) {
                 value = Array.get(array, j);
                 if (value != ParameterListDescriptor.NO_PARAMETER_DEFAULT) {
-                    if (value instanceof GridCoverage) {
+                    if (value == null) {
+                        value = "(automatic)";
+                    } else if (value instanceof GridCoverage) {
                         value = ((GridCoverage) value).getName(null);
                     } else if (value instanceof Interpolation) {
                         value = getInterpolationName((Interpolation) value);
+                    } else if (value instanceof EnumeratedParameter) {
+                        value = ((EnumeratedParameter) value).getName();
                     } else if (value instanceof Color) {
                         final Color c = (Color) value;
                         value = "RGB["+c.getRed()+','+c.getGreen()+','+c.getBlue()+']';

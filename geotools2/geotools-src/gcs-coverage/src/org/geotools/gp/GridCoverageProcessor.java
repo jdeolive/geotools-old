@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.17 2003/03/30 17:31:21 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.18 2003/03/30 22:43:41 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -123,9 +123,18 @@ public class GridCoverageProcessor {
      * Construct a grid coverage processor with no operation and using the
      * default {@link JAI} instance. Operations can be added by invoking
      * the {@link #addOperation} method at construction time.
+     *
+     * Rendering hints will be initialized with the following hints:
+     * <ul>
+     *   <li>{@link JAI#KEY_REPLACE_INDEX_COLOR_MODEL} set to {@link Boolean#FALSE}.</li>
+     * </ul>
+     *
+     * @task TODO: Uncomment the <code>new RenderingHints</code> line when we
+     *             will upgrade to JAI 1.1.2.
      */
     protected GridCoverageProcessor() {
         hints = null;
+        // hints = new RenderingHints(JAI.KEY_REPLACE_INDEX_COLOR_MODEL, Boolean.FALSE);
     }
 
     /**
@@ -160,11 +169,17 @@ public class GridCoverageProcessor {
             DEFAULT = new GridCoverageProcessor();
             DEFAULT.addOperation(new Interpolator.Operation());
             DEFAULT.addOperation(new Resampler.Operation());
-            DEFAULT.addOperation(new GradientMagnitudeOperation());
+            DEFAULT.addOperation(new SelectSampleDimension.Operation());
             DEFAULT.addOperation(new OperationJAI("Rescale"));
             DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
-            DEFAULT.addOperation(new SelectSampleDimension.Operation());
+            DEFAULT.addOperation(new FilterOperation("MinFilter"));
+            DEFAULT.addOperation(new FilterOperation("MaxFilter"));
+            DEFAULT.addOperation(new FilterOperation("MedianFilter"));
+            DEFAULT.addOperation(new ConvolveOperation("LaplaceType1Filter", ConvolveOperation.LAPLACE_TYPE_1));
+            DEFAULT.addOperation(new ConvolveOperation("LaplaceType2Filter", ConvolveOperation.LAPLACE_TYPE_2));
+            DEFAULT.addOperation(new ConvolveOperation());
+            DEFAULT.addOperation(new GradientMagnitudeOperation());
         }
         return DEFAULT;
     }
