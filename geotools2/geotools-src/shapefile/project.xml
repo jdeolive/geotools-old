@@ -80,5 +80,18 @@
         <sourceDirectory>src</sourceDirectory>
     </build>
     <logo>/images/shapefile.gif</logo>
+    <contributors>
+            
+        <contributor>
+      <name>Dave Blasby</name>
+      
+      
+      <organization>Refractions Research</organization>
+            <roles>
+               <role>Bug Fixer</role>
+               
+            </roles>
+        </contributor>
+  </contributors>
 </project>
 
