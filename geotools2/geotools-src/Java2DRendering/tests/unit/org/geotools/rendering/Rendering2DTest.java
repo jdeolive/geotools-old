@@ -128,45 +128,4 @@ public class Rendering2DTest extends TestCase {
         }
         return null;
     }
-    
-    class MemoryDataSource implements DataSource{
-        
-        private Vector features = new Vector();
-        
-        /** Stops this DataSource from loading
-         */
-        public void stopLoading() {
-            //do nothing
-        }
-        
-        /** Loads Feature rows for the given Extent from the datasource
-         * @param ft featureTable to load features into
-         * @param ex an extent defining which features to load - null means all features
-         * @throws DataSourceException if anything goes wrong
-         */
-        public void importFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
-            for(int i=0;i<features.size();i++){
-                Feature f = (Feature)features.elementAt(i);
-                //if(ex.containsFeature(f)){
-                ft.addFeature(f);
-                //}
-            }
-        }
-        
-        /** Saves the given features to the datasource
-         * @param ft feature table to get features from
-         * @param ex extent to define which features to write - null means all
-         * @throws DataSourceException if anything goes wrong or if exporting is not supported
-         */
-        public void exportFeatures(FeatureTable ft, Extent ex) throws DataSourceException {
-            //do nothing
-        }
-        
-        public void addFeature(Feature f){
-            features.addElement(f);
-        }
-        
-    }
-    
-    
 }
