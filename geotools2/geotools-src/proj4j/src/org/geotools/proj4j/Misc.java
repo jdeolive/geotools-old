@@ -61,9 +61,9 @@ public class Misc {
                     return Double.MAX_VALUE;
                 }
                 s = tok.nextToken();//should be a seperator;
-                if(s.equalsIgnoreCase("d")) n=0; break;
-                else if(e.equals("\'")) n=1; break;
-                else if(e.equals("\"")) n=2; break;
+                if(s.equalsIgnoreCase("d")) {n=0; break;}
+                else if(e.equals("\'")){ n=1; break ;}
+                else if(e.equals("\"")){ n=2; break ;}
                 else if(s.equalsIgnoreCase("r")){
 			if (nl!=0) {
 				//pj_errno = -16;
