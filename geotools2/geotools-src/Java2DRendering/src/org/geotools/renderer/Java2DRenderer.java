@@ -59,7 +59,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Cameron Shorter
- * @version $Id: Java2DRenderer.java,v 1.78 2003/05/06 20:14:39 camerons Exp $
+ * @version $Id: Java2DRenderer.java,v 1.79 2003/05/07 11:17:48 camerons Exp $
  *
  * @task TODO Remove deprecated methods.
  */
@@ -232,7 +232,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
      * @param transform A transform which converts World coordinates to Screen
      *        coordinates.
      *
-     * @task TODO Use AffineTransform variable.
+     * @task TODO Need to check if the Layer CoordinateSystem is different
+     * to the BoundingBox rendering CoordinateSystem and if so, then transform
+     * the coordinates.
      */
     public void paint(Graphics2D graphics, Rectangle paintArea,
         AffineTransform transform) {
@@ -263,8 +265,10 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer,
                     LOGGER.fine("renderering " + features.length + " features");
                 }
 
-                //set up the affine transform and calculate scale values
-                AffineTransform at = setUpTransform(mapExtent, paintArea);
+                // TODO: Need to check if the Layer CoordinateSystem is
+                // different to the BoundingBox rendering CoordinateSystem and
+                // if so, then transform the coordinates.
+                AffineTransform at = transform;
 
                 if (LOGGER.isLoggable(Level.FINE)) {
                     LOGGER.fine("Affine Transform is " + at);
