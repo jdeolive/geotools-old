@@ -26,6 +26,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import org.geotools.cs.CoordinateSystem;
+import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.CollectionEvent;
@@ -547,92 +548,7 @@ public class DataUtilities {
 
         final FeatureType featureType;
 
-        if (collection.size() == 0) {
-            featureType = DefaultFeatureType.EMPTY;
-        } else {
-            featureType = ((Feature) collection.iterator().next()).getFeatureType();
-        }
-
-        DataStore store = new AbstractDataStore() {
-
-                {
-                    collection.addListener(new CollectionListener() {
-                            public void collectionChanged(CollectionEvent tce) {
-                                Envelope bounds = getFeaturesEnvelope(tce.getFeatures());
-                                String typeName = featureType.getTypeName();
-
-                                switch (tce.getEventType()) {
-                                case CollectionEvent.FEATURES_ADDED:
-                                    listenerManager.fireFeaturesAdded(typeName,
-                                        Transaction.AUTO_COMMIT, bounds);
-
-                                    break;
-
-                                case CollectionEvent.FEATURES_CHANGED:
-                                    listenerManager.fireFeaturesChanged(typeName,
-                                        Transaction.AUTO_COMMIT, bounds);
-
-                                    break;
-
-                                case CollectionEvent.FEATURES_REMOVED:
-                                    listenerManager.fireFeaturesRemoved(typeName,
-                                        Transaction.AUTO_COMMIT, bounds);
-
-                                    break;
-                                }
-                            }
-
-                            private Envelope getFeaturesEnvelope(Feature[] features) {
-                                Envelope env = features[0].getBounds();
-
-                                for (int i = 1; i < features.length; i++) {
-                                    env.expandToInclude(features[i].getBounds());
-                                }
-
-                                return env;
-                            }
-                        });
-                }
-
-                public String[] getTypeNames() {
-                    return new String[] { featureType.getTypeName() };
-                }
-
-                public FeatureType getSchema(String typeName)
-                    throws IOException {
-                    if ((typeName != null) && typeName.equals(featureType.getTypeName())) {
-                        return featureType;
-                    }
-
-                    throw new IOException(typeName + " not available");
-                }
-
-                protected FeatureReader getFeatureReader(String typeName)
-                    throws IOException {
-                    return reader(collection);
-                }
-
-                public Envelope getBounds(Query query) {
-                    if (query.getFilter() == Filter.ALL) {
-                        return collection.getBounds();
-                    } else {
-                        Envelope bounds = new Envelope();
-                        Filter filter = query.getFilter();
-                        int featureCount = 0;
-                        for(Iterator it = collection.iterator(); it.hasNext(); )  {
-                            Feature f = (Feature) it.next();
-                            if(filter.contains(f)) {
-                                bounds.expandToInclude(f.getBounds());
-                                featureCount++;
-                                if(featureCount >= query.getMaxFeatures())
-                                    break;
-                            }
-                        }
-                        
-                        return bounds;
-                    }
-                }
-            };
+        DataStore store = new CollectionDataStore(collection);
 
         try {
             return store.getFeatureSource(store.getTypeNames()[0]);
