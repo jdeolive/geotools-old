@@ -54,7 +54,7 @@ import org.geotools.styling.Style;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.15 2003/03/29 22:32:55 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.16 2003/03/30 20:07:49 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.
@@ -100,8 +100,8 @@ public class MapPaneImpl extends JPanel implements
             this.renderer=new Java2DRenderer(context);
             this.context=context;
             context.getBbox().addAreaOfInterestChangedListener(this);
-            context.getSelectedTool().addSelectedToolListener(this);
-            context.getSelectedTool().getTool().addMouseListener(this,context);
+            context.getToolList().addSelectedToolListener(this);
+            context.getToolList().getTool().addMouseListener(this,context);
             
             // Create a transform for this mapPane.
             this.dotToCoordinateTransform=new DotToCoordinateTransformImpl(
@@ -230,8 +230,8 @@ public class MapPaneImpl extends JPanel implements
      */
     public void selectedToolChanged(EventObject event)
     {
-        if (context.getSelectedTool().getTool()!=null){
-            context.getSelectedTool().getTool().addMouseListener(this,context);
+        if (context.getToolList().getTool()!=null){
+            context.getToolList().getTool().addMouseListener(this,context);
         }
     }
     

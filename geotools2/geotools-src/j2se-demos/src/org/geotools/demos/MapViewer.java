@@ -61,7 +61,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.8 2003/03/29 23:02:31 camerons Exp $
+ * @version $Id: MapViewer.java,v 1.9 2003/03/30 20:06:42 camerons Exp $
  *
  */
 
@@ -135,7 +135,7 @@ public class MapViewer {
             tool=toolFactory.createPanTool();
             
             // Create SelectedTool
-            ToolList selectedTool=contextFactory.createSelectedTool(
+            ToolList selectedTool=contextFactory.createToolList(
                 tool);
 
             // Create a Context
