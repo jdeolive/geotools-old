@@ -18,8 +18,11 @@
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTReader;
 import java.io.*;
 import java.util.EmptyStackException;
+import java.util.HashSet;
 import java.util.Stack;
 import org.geotools.filter.*;
 import org.geotools.filter.parser.*;
@@ -27,16 +30,17 @@ import org.geotools.filter.parser.*;
 /**
  * ExpressionBuilder is the main entry point for parsing Expressions and Filters
  * from a non-xml language.
- * 
+ *
  * @author  Ian Schneider
  */
 public class ExpressionBuilder {
+    
     
     /**
      * Parse the input string into either a Filter or an Expression.
      */
     public static Object parse(String input) throws ParseException {
-        ExpressionCompiler c = new ExpressionCompiler(new StringReader(input));
+        ExpressionCompiler c = new ExpressionCompiler(input);
         try {
             c.CompilationUnit();
         } catch (TokenMgrError tme) {
@@ -53,7 +57,7 @@ public class ExpressionBuilder {
     /**
      * Returns a formatted error string, showing the original input, along with
      * a pointer to the location of the error and the error message itself.
-     */ 
+     */
     public static String getFormattedErrorMessage(ParseException pe,String input) {
         StringBuffer sb = new StringBuffer(input);
         sb.append('\n');
@@ -70,8 +74,11 @@ public class ExpressionBuilder {
         Stack stack = new Stack();
         FilterFactory factory = FilterFactory.createFilterFactory();
         ExpressionException exception = null;
-        public ExpressionCompiler(Reader r) {
-            super(r);
+        String input;
+        WKTReader reader;
+        ExpressionCompiler(String input) {
+            super(new StringReader(input));
+            this.input = input;
         }
         
         StackItem popStack() {
@@ -102,7 +109,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected double doubleValue() throws ExpressionException {
+        double doubleValue() throws ExpressionException {
             try {
                 return ((Number) expression().getValue(null)).doubleValue();
             } catch (ClassCastException cce) {
@@ -110,7 +117,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected int intValue() throws ExpressionException {
+        int intValue() throws ExpressionException {
             try {
                 return ((Number) expression().getValue(null)).intValue();
             } catch (ClassCastException cce) {
@@ -118,7 +125,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected String stringValue() throws ExpressionException {
+        String stringValue() throws ExpressionException {
             return expression().getValue(null).toString();
         }
         
@@ -135,11 +142,11 @@ public class ExpressionBuilder {
             }
         }
         
-        protected String token() {
+        String token() {
             return getToken(0).image;
         }
         
-        protected MathExpression mathExpression(short type) throws ExpressionException {
+        MathExpression mathExpression(short type) throws ExpressionException {
             try {
                 MathExpression e = factory.createMathExpression(type);
                 Expression right = expression();
@@ -152,7 +159,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected LogicFilter logicFilter(short type) throws ExpressionException {
+        LogicFilter logicFilter(short type) throws ExpressionException {
             try {
                 Filter right = filter();
                 Filter left = filter();
@@ -162,7 +169,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected CompareFilter compareFilter(short type) throws ExpressionException {
+        CompareFilter compareFilter(short type) throws ExpressionException {
             try {
                 CompareFilter f = factory.createCompareFilter(type);
                 Expression right = expression();
@@ -175,7 +182,7 @@ public class ExpressionBuilder {
             }
         }
         
-        protected Object buildObject(Node n) throws ExpressionException {
+        Object buildObject(Node n) throws ExpressionException {
             short type;
             switch (n.getType()) {
                 
@@ -232,16 +239,41 @@ public class ExpressionBuilder {
                 case JJTNENODE:
                     return compareFilter(AbstractFilter.COMPARE_NOT_EQUALS);
                     
-                    // Unsupported for now
+                    
+                    // Geometries:
+                case JJTWKTNODE:
+                    Token end = n.getToken();
+                    while (true) {
+                        if (end.next == null)
+                            break;
+                        end = end.next;
+                    }
+                    return geometry(n.getToken(),end);
+                    
+                    
+                    // Unsupported (for now)
                 case JJTTRUENODE:
                 case JJTFALSENODE:
                     throw new ExpressionException("Unsupported syntax",getToken(0));
             }
-            System.out.println("DUDE : " + n);
+            
             return null;
         }
         
-        protected Object parseFunction(Node n) throws ExpressionException {
+        LiteralExpression geometry(Token start,Token end) throws ExpressionException {
+            if (reader == null)
+                reader = new WKTReader();
+            try {
+                Geometry g = reader.read(input.substring(start.beginColumn - 1,end.endColumn));
+                return factory.createLiteralExpression(g);
+            } catch (com.vividsolutions.jts.io.ParseException e) {
+                throw new ExpressionException(e.getMessage(),start);
+            } catch (Exception e) {
+                throw new ExpressionException("Error building WKT Geometry",start,e);
+            }
+        }
+        
+        Object parseFunction(Node n) throws ExpressionException {
             String function = n.getToken().image;
             if ("box".equalsIgnoreCase(function)) {
                 if (n.jjtGetNumChildren() != 4) {
@@ -283,7 +315,7 @@ public class ExpressionBuilder {
                 
             } else if ("like".equalsIgnoreCase(function)) {
                 if (n.jjtGetNumChildren() != 2) {
-                    throw new ExpressionException("Like filter requires two argument",getToken(0));
+                    throw new ExpressionException("Like filter requires at least two arguments",getToken(0));
                 }
                 LikeFilter f = factory.createLikeFilter();
                 f.setPattern(stringValue(), "*", ".?", "//");
@@ -295,15 +327,44 @@ public class ExpressionBuilder {
                 return f;
             }
             
+            short geometryFilterType = lookupGeometryFilter(function);
+            if (geometryFilterType >= 0)
+                return buildGeometryFilter(geometryFilterType);
+            
             throw new ExpressionException("Could not build function : " + function,getToken(0));
         }
         
+        /**
+         * @todo this is sheer laziness
+         */
+        short lookupGeometryFilter(String name) {
+            java.lang.reflect.Field[] f = AbstractFilter.class.getFields();
+            name = name.toUpperCase();
+            for (int i = 0, ii = f.length; i < ii; i++) {
+                if (f[i].getName().endsWith(name)) 
+                    try {return f[i].getShort(null);} catch (Exception e) {}
+            }
+            return -1;
+        }
+        
+        GeometryFilter buildGeometryFilter(short type) throws ExpressionException {
+            Expression right = expression();
+            Expression left = expression();
+            try {
+                GeometryFilter f = factory.createGeometryFilter(type);
+                f.addLeftGeometry(left);
+                f.addRightGeometry(right);
+                return f;
+            } catch (IllegalFilterException ife) {
+                throw new ExpressionException("Exception building GeometryFilter",getToken(0),ife);
+            }
+        }
     }
     
     static class StackItem {
         Object built;
         Token token;
-        public StackItem(Object b,Token t) {
+        StackItem(Object b,Token t) {
             built = b;
             token = t;
         }

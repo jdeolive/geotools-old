@@ -45,7 +45,7 @@ public class ExpressionParser {
 PARSER_END(ExpressionParser)
 
 
-SKIP : /* WHITE SPACE */
+SPECIAL_TOKEN : /* WHITE SPACE */
 {
   " "
 | "\t"
@@ -99,14 +99,35 @@ TOKEN [IGNORE_CASE]:  /* keywords */
    < FALSE: "false">
 }
 
+TOKEN [IGNORE_CASE]: /* geometry markers */
+{
+  //< GEOMETRY: <POINT> | <LINESTRING> | <POLYGON> | <MULTIPOINT> | <MULTILINESTRING> | <MULTIPOLYGON> | <GEOMETRYCOLLECTION>> |
+  < POINT: "point"> |
+  < LINESTRING: "linestring"> |
+  < POLYGON: "polygon"> |
+  < MULTIPOINT: "multipoint"> |
+  < MULTILINESTRING: "multilinestring"> |
+  < MULTIPOLYGON: "multipolygon"> |
+  < GEOMETRYCOLLECTION: "geometrycollection">
+}
+
+TOKEN:
+{
+  < LP: "("> |
+  < RP: ")">
+}
+
+// Note, because float and int can technically have the same grammar,
+// put int first to make token manager have preference for it...
 TOKEN : /* Literals */
 {
   < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* > |
   //< PATH: <IDENTIFIER> ( "/" <IDENTIFIER> )* > |
   < INTEGER_LITERAL: ("-")? (<DIGIT>)+ > |
   < FLOATING_LITERAL: 
-    ( <DIGIT> )* "." ( <DIGIT> )* (<EXPONENT>)? |
-    ( <DIGIT> )+ <EXPONENT>
+    ("-")? 
+    ( ( <DIGIT> )* "." ( <DIGIT> )+ (<EXPONENT>)? ) |
+    ( ( <DIGIT> )+ ("." ( <DIGIT> )*)? (<EXPONENT>)? )
   > |
   < #LETTER: [ "a"-"z", "A"-"Z" , "_"] > |
   < #DIGIT: [ "0"-"9"] > |
@@ -205,7 +226,7 @@ void PrimaryExpression() #void :
 {}
 {
   
-  Literal() |
+  LOOKAHEAD(2) Literal() |
   "(" Expression() ")" |
   Evaluate()
 }
@@ -230,7 +251,8 @@ void Literal() #void :
   IntegerLiteral() |
   FloatingLiteral() |
   BooleanLiteral() |
-  StringLiteral() 
+  StringLiteral() |
+  Geometry() 
 }
 
 void IntegerLiteral() #IntegerNode:
@@ -273,5 +295,97 @@ void FunctionArg() #void:
   Literal() | Attribute()
 }
 
+/*
+JAVACODE
+Token skipToEnd() {
+    Token wkt = getToken(0);
+    Token t = wkt;
+    int nesting = 1;
+    while (nesting > 0) {
+      t = getNextToken();
+      if (t.kind == LP) nesting++;
+      if (t.kind == RP) nesting--;
+    }
+    return wkt;
+}
 
+void Geometry() #WKTNode:
+{}
+{
+  jjtThis.token = <GEOMETRY>
+  <LP> skipToEnd()
+}
+*/
+
+void Geometry() #void:
+{}
+{
+  Point() |
+  LineString() |
+  Polygon() |
+  MultiPoint() |
+  MultiLineString() |
+  MultiPolygon() |
+  GeometryCollection()
+}
+
+void Coord() #void:
+{}
+{
+  (<FLOATING_LITERAL> | <INTEGER_LITERAL>) (<FLOATING_LITERAL> | <INTEGER_LITERAL>) [(<FLOATING_LITERAL> | <INTEGER_LITERAL>)]
+}
+
+void Coords() #void:
+{}
+{
+  "(" Coord() ("," Coord())* ")"
+}
+
+void CoordsList() #void:
+{}
+{
+  "(" Coords() ("," Coords())* ")"
+}
+
+void Point() #WKTNode:
+{} 
+{
+  jjtThis.token = <POINT> ( "(" Coord() ")" ) 
+}
+
+void LineString() #WKTNode:
+{}
+{
+  jjtThis.token = <LINESTRING> ( Coords() ) 
+}
+
+void Polygon() #WKTNode:
+{}
+{
+  jjtThis.token = <POLYGON> ( Coords() ) 
+}
+
+void MultiPoint() #WKTNode:
+{}
+{
+  jjtThis.token = <MULTIPOINT> ( CoordsList() ) 
+}
+
+void MultiLineString() #WKTNode:
+{}
+{
+  jjtThis.token = <MULTILINESTRING> ( CoordsList() )
+}
+
+void MultiPolygon() #WKTNode:
+{}
+{
+  jjtThis.token = <MULTIPOLYGON> ( CoordsList() )
+}
+
+void GeometryCollection() #WKTNode:
+{}
+{
+  jjtThis.token = <GEOMETRYCOLLECTION> "(" Geometry() ("," Geometry())* ")"
+}
 

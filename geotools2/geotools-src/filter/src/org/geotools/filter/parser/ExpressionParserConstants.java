@@ -17,12 +17,21 @@ public interface ExpressionParserConstants {
   int LTE = 20;
   int TRUE = 21;
   int FALSE = 22;
-  int IDENTIFIER = 23;
-  int INTEGER_LITERAL = 24;
-  int FLOATING_LITERAL = 25;
-  int LETTER = 26;
-  int DIGIT = 27;
-  int EXPONENT = 28;
+  int POINT = 23;
+  int LINESTRING = 24;
+  int POLYGON = 25;
+  int MULTIPOINT = 26;
+  int MULTILINESTRING = 27;
+  int MULTIPOLYGON = 28;
+  int GEOMETRYCOLLECTION = 29;
+  int LP = 30;
+  int RP = 31;
+  int IDENTIFIER = 32;
+  int INTEGER_LITERAL = 33;
+  int FLOATING_LITERAL = 34;
+  int LETTER = 35;
+  int DIGIT = 36;
+  int EXPONENT = 37;
 
   int DEFAULT = 0;
   int IN_SQ = 1;
@@ -52,6 +61,15 @@ public interface ExpressionParserConstants {
     "<LTE>",
     "\"true\"",
     "\"false\"",
+    "\"point\"",
+    "\"linestring\"",
+    "\"polygon\"",
+    "\"multipoint\"",
+    "\"multilinestring\"",
+    "\"multipolygon\"",
+    "\"geometrycollection\"",
+    "\"(\"",
+    "\")\"",
     "<IDENTIFIER>",
     "<INTEGER_LITERAL>",
     "<FLOATING_LITERAL>",
@@ -62,8 +80,6 @@ public interface ExpressionParserConstants {
     "\"-\"",
     "\"*\"",
     "\"/\"",
-    "\"(\"",
-    "\")\"",
     "\",\"",
   };
 
