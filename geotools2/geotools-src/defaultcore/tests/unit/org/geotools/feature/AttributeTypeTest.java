@@ -50,6 +50,26 @@ public class AttributeTypeTest extends TestCase {
         assertEquals(Double.class, type.getType());
     }
     
+    
+    public void testEquals(){
+        AttributeType typeA = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
+        AttributeType typeB = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
+        AttributeType typeC = AttributeTypeFactory.newAttributeType("differnetName", Double.class);
+        AttributeType typeD = AttributeTypeFactory.newAttributeType("testAttribute", Integer.class);
+        AttributeType typeE = AttributeTypeFactory.newAttributeType(null, Integer.class);
+        AttributeType typeF = AttributeTypeFactory.newAttributeType(null, Integer.class);
+        assertTrue(null == typeF.getName());
+        assertTrue(typeA.equals(typeA));
+        assertTrue(typeA.equals(typeB));
+        assertTrue(typeE.equals(typeF));
+        assertTrue(!typeA.equals(typeC));
+        assertTrue(!typeA.equals(typeD));
+        assertTrue(!typeA.equals(null));
+        assertTrue(!typeA.equals(typeE));
+    }
+        
+        
+        
     public void testIsNillable(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals(true, type.isNillable());
