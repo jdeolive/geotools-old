@@ -43,9 +43,14 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.2 2002/08/03 19:21:11 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.3 2002/08/04 10:51:01 camerons Exp $
  * @author Cameron Shorter
+ * @task REVISIT: We probably should have a StyleModel which sends
+ * StyleModelEvents when the Style changes.  Note that the Style should not
+ * be stored with the MapModel/LayerModel because a user may want to display
+ * 2 maps which use the same data, but a different style.
  */
+
 public class MapPane2 extends JPanel implements
     AreaOfInterestChangedListener, LayerListChangedListener
 {
@@ -85,15 +90,17 @@ public class MapPane2 extends JPanel implements
      * @param layerModel The layerModel where all the layers for this view are
      * kept.
      * @param areaOfInterestModel The model which stores the area of interest.
-     * @task The style should be moved into the layer model.
+     * @param style The style used by this MapPane's renderer.
      */
     public MapPane2(
             Tool tool,
             LayerModel layerModel,
-            AreaOfInterestModel areaOfInterestModel) {        
+            AreaOfInterestModel areaOfInterestModel,
+            Style style) {        
         this.tool=tool;
         this.layerModel=layerModel;
         this.areaOfInterestModel=areaOfInterestModel;
+        this.style=style;
         this.renderer=new Java2DRenderer();
         
         // Initialise the Tool to use this MapPane.
@@ -123,6 +130,23 @@ public class MapPane2 extends JPanel implements
     }
 
     /**
+     * Set the style to be used by this MapPane's renderer.
+     * @param style The style to use.
+     */
+    public void setStyle(Style style) {
+        this.style=style;
+        this.repaint(this.getVisibleRect());
+    }
+
+    /**
+     * Get the style used by this MapPane's renderer.
+     * @param style The style to use.
+     */
+    public Style getStyle() {
+        return this.style;
+    }
+
+    /**
      * Render this mapPane.
      * @param graphics The graphics object to paint to.
      * @task TODO fill in exception.  This should impliment logging.
@@ -130,17 +154,18 @@ public class MapPane2 extends JPanel implements
     public void paintComponent(Graphics graphics)
     {
         renderer.setOutput(graphics, this.getBounds());
-        for (int i=0;i<layerModel.getLayers().length;i++) {
-            try {
-                renderer.render(
-                        layerModel.getLayers()[i].getFeatures(
-                            new EnvelopeExtent(
-                                areaOfInterestModel.getAreaOfInterest())),
-                        areaOfInterestModel.getAreaOfInterest(),
-                        this.style);
-                        //layerModel.getStyle());
-            } catch (DataSourceException exception) {
-                // log exception
+        if ((layerModel!=null) && (layerModel.getLayers()!=null)){
+            for (int i=0;i<layerModel.getLayers().length;i++) {
+                try {
+                    renderer.render(
+                            layerModel.getLayers()[i].getFeatures(
+                                new EnvelopeExtent(
+                                    areaOfInterestModel.getAreaOfInterest())),
+                            areaOfInterestModel.getAreaOfInterest(),
+                            this.style);
+                } catch (DataSourceException exception) {
+                    // log exception
+                }
             }
         }
     }
@@ -162,5 +187,4 @@ public class MapPane2 extends JPanel implements
             LayerListChangedEvent layerListChangedEvent) {
         this.repaint(this.getVisibleRect());
     }
-    
 }
