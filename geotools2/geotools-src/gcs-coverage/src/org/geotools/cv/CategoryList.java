@@ -82,7 +82,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.5 2002/08/10 12:33:44 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.6 2002/10/07 15:09:14 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
@@ -1073,7 +1073,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
     }
     
     /**
-     * Transform a raster. Only the currrent band in <code>iterator</code> will be transformed.
+     * Transform a raster. Only the current band in <code>iterator</code> will be transformed.
      * The transformed value are write back in the <code>iterator</code>. If a different
      * destination raster is wanted, a {@link org.geotools.resources.DualRectIter} may be used.
      *
@@ -1089,9 +1089,11 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         double minimum = category.minimum;
         long   rawBits = Double.doubleToRawLongBits(minimum);
         MathTransform1D tr = category.transform;
-        double maxTr = Double.POSITIVE_INFINITY;
-        double minTr = Double.NEGATIVE_INFINITY;
-        if (overflowFallback != null) {
+        double maxTr, minTr;
+        if (overflowFallback == null) {
+            maxTr = Double.POSITIVE_INFINITY;
+            minTr = Double.NEGATIVE_INFINITY;
+        } else {
             maxTr = category.inverse.maximum;
             minTr = category.inverse.minimum;
         }
@@ -1118,6 +1120,8 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                             minTr = category.inverse.minimum;
                         }
                     }
+                    assert Double.isNaN(value) ? Double.doubleToRawLongBits(value) == rawBits
+                                               : (value>=minimum && value<=maximum) : value;
                     value = tr.transform(value);
                     if (value > maxTr) {
                         value = maxTr;
