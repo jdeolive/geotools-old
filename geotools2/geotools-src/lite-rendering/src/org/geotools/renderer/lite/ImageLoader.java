@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 
 
 /**
- * $Id: ImageLoader.java,v 1.5 2003/08/10 15:07:06 aaime Exp $
+ * $Id: ImageLoader.java,v 1.6 2003/11/15 14:12:10 aaime Exp $
  *
  * @author Ian Turton
  */
@@ -120,6 +120,9 @@ class ImageLoader implements Runnable {
                     LOGGER.warning(e.toString());
                 }
             }
+            
+            if(elapsed > timeout)
+                LOGGER.warning("Image loading timed out for " + location);
 
             if (LOGGER.isLoggable(Level.FINEST)) {
                 LOGGER.finest(imgId + " complete?: " + (isFlagUp(imgId, tracker.COMPLETE)));
