@@ -21,7 +21,12 @@ public class Transformer {
     
     {
         boolean       needDatumShift;
-        
+        if(dstdefn==null){
+            dstdefn = srcdefn.getLatLongProjection();
+        }
+        else if(srcdefn==null){
+            srcdefn = dstdefn.getLatLongProjection();
+        }
         if( point_offset == 0 )
             point_offset = 1;//erm, why? (could be to avoid mult by 0)
         
