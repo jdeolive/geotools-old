@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!-- ========================================================================
      GeoTools Common BUILD FILE
      This build file is licensed under the LGPL 
@@ -15,8 +15,7 @@
                Ian Turton, CCG
                Rob Hranac, VFNY
     ======================================================================== -->
-
-<project name="geotools" default="all">
+<project default="all" name="geotools">
 
   <!-- ===================================================================== -->
   <!-- SET PROPERTIES                                                        -->
@@ -45,39 +44,33 @@
   <!-- SET OPTIONAL TASK DEFINITIONS                                         -->
   <!-- ===================================================================== -->
   <target name="taskdefs">
-    <taskdef name="forEach" 
-           classname="org.netbeans.nbbuild.ForEach" 
-           classpathref="path.netbeans"/>        
+    <taskdef classname="org.netbeans.nbbuild.ForEach" classpathref="path.netbeans" name="forEach"/>        
 
-    <taskdef name="check" 
-           classname="org.netbeans.nbbuild.CheckValue" 
-           classpathref="path.netbeans"/>        
+    <taskdef classname="org.netbeans.nbbuild.CheckValue" classpathref="path.netbeans" name="check"/>        
 
-    <taskdef name="checkstyle" 
-           classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" 
-           classpathref="path.checkstyle"/>
+    <taskdef classname="com.puppycrawl.tools.checkstyle.CheckStyleTask" classpathref="path.checkstyle" name="checkstyle"/>
   </target>
 
 
   <!-- ===================================================================== -->
   <!-- INITIALIZE                                                            -->
   <!-- ===================================================================== -->
-  <target name="init" depends="taskdefs, modificationset">
+  <target depends="taskdefs, modificationset" name="init">
     <mkdir dir="${releaseFolder}"/>
-    <condition property="has.dependancies" >
+    <condition property="has.dependancies">
       <not>
         <equals arg1="${dependancy}" arg2="$${dependancy}"/>
       </not>
     </condition>
-    <condition property="has.extbin" >           
+    <condition property="has.extbin">           
       <not>
         <equals arg1="${extbin}" arg2="$${extbin}"/>
       </not>            
     </condition>
-    <condition property="cond.styleCheck" >
+    <condition property="cond.styleCheck">
       <equals arg1="${checking}" arg2="true"/>
     </condition>
-    <condition property="cond.styleCheckToScreen" >
+    <condition property="cond.styleCheckToScreen">
       <equals arg1="${checking}" arg2="screen"/>
     </condition> 
     <condition property="test.check">
@@ -100,13 +93,13 @@
   <!-- PREPARE DEPENDENCIES                                                  -->
   <!-- ===================================================================== -->
   <!-- essentially a dummy target to set the classpath then build the depencies  -->
-  <target name="prepare-compile" depends="init,set-classpath,add-extbin" >
+  <target depends="init,set-classpath,add-extbin" name="prepare-compile">
     <echo message="Prep-compile: ${project.name}"/>
     <antcall target="dependancies"/>
   </target>
 
   <!-- build a class path including extbin for this module -->
-  <target name="add-extbin" if="has.extbin">
+  <target if="has.extbin" name="add-extbin">
     <path id="path.compile">
       <path refid="path.external.core"/>
       <fileset dir="${releaseFolder}"/>
@@ -123,9 +116,9 @@
   </target>
 
   <!-- Recursively prepare dependencies -->
-  <target name="dependancies" if="has.dependancies" >
+  <target if="has.dependancies" name="dependancies">
     <echo message="${project.name} calling dependancies"/>
-    <forEach startdir="${dir.base}" locations="${dependancy}" target="release" inheritall="false">
+    <forEach inheritall="false" locations="${dependancy}" startdir="${dir.base}" target="release">
       <property name="releaseFolder" value="${releaseFolder}"/>
       <property name="lastBuildAttemptTime" value="${lastBuildAttemptTime}"/>
       <property name="checking" value="false"/>
@@ -142,10 +135,10 @@
   <!--   checking=screen - checks to file and screen                         -->
   <!-- TODO: 3                                                               --> 
   <!--   failOnViolation should be set to true eventualy                     -->
-  <target name="checkstyle" depends="checkToFile,checkToScreen"/>
+  <target depends="checkToFile,checkToScreen" name="checkstyle"/>
 
   <!-- Check this style to a file -->
-  <target name="checkToFile" if="cond.styleCheck">
+  <target if="cond.styleCheck" name="checkToFile">
     <echo message="using ${licence.header} as header check file"/>
     <checkstyle failOnViolation="false" maxLineLen="100"> 
       <fileset dir="${dir.source}" includes="**/*.java"/>
@@ -155,7 +148,7 @@
   </target>
 
   <!-- Check this style to the screen -->
-  <target name="checkToScreen" if="cond.styleCheckToScreen">
+  <target if="cond.styleCheckToScreen" name="checkToScreen">
     <echo message="using ${licence.header} as header check file"/>
     <checkstyle failOnViolation="false" maxLineLen="100"> 
       <fileset dir="${dir.source}" includes="**/*.java"/>
@@ -169,41 +162,40 @@
   <!-- COMPILE TASKS                                                         -->
   <!-- ===================================================================== -->
   <!-- Compiles all code for the module. -->
-  <target name="compile" depends="prepare-compile" 
-        description="compile the code for the package">
+  <target depends="prepare-compile" description="compile the code for the package" name="compile">
     <echo message="${dir.source}"/>
-    <javac debug="true" srcdir="${dir.source}" classpathref="path.compile"/>
+    <javac classpathref="path.compile" debug="true" source="1.4" srcdir="${dir.source}"/>
   </target>
 
   <!-- Compiles all test code for the module. -->
-  <target name="compile-test" depends="compile" if="cond.test">
+  <target depends="compile" if="cond.test" name="compile-test">
     <javac debug="true" srcdir="${dir.test}">
             <classpath>
                 <path path="${dir.module}/src"/>
-                <path refid="path.compile" />
+                <path refid="path.compile"/>
                 <path path="${dir.module}/../../extbin/gtbuild/lib/junit.jar"/>
             </classpath>
     </javac>
   </target>
 
   <!-- Runs the unit tests on the module, if any exist. -->
-  <target name="test" depends="compile-test,checkstyle" if="cond.test">
-    <junit fork="true" printsummary="true" haltonfailure="true">
-      <formatter type="brief" />
+  <target depends="compile-test,checkstyle" if="cond.test" name="test">
+    <junit fork="true" haltonfailure="true" printsummary="true">
+      <formatter type="brief"/>
       <sysproperty key="dataFolder" value="${dir.module}/tests/unit/testData"/>
       <classpath>
         <path path="${dir.module}/src"/>
         <path path="${dir.module}/tests/unit"/>
         <path path="${dir.module}/../../extbin/core/lib/JTS.jar"/>
         <path path="${dir.module}/../../extbin/core/lib/log4j.jar"/>
-        <path refid="path.compile" />
+        <path refid="path.compile"/>
       </classpath>
       <test fork="false" name="${testsuite}" todir="${dir.module}"/>
     </junit>
   </target>
 
   <!-- Copies all external libraries to release folder -->
-  <target name="copy-extlib" if="has.extbin">
+  <target if="has.extbin" name="copy-extlib">
     <echo message="${project.name}: copying from ${extbin} to ${releaseFolder}"/>
     <copy todir="${releaseFolder}">
       <fileset dir="${extbin}"/>
@@ -215,17 +207,17 @@
   <!-- MAJOR TASKS                                                           -->
   <!-- ===================================================================== -->
   <!-- The default target for this project; should compile everything. -->
-  <target name="all" depends="release"/>
+  <target depends="release" name="all"/>
 
   <!-- Prepares a jar for this module. -->
-  <target name="release" depends="test">
+  <target depends="test" name="release">
     <mkdir dir="${releaseFolder}"/>
     <jar basedir="${dir.source}" jarfile="${releaseFolder}/${project.name}.jar"/>
     <antcall target="copy-extlib"/>
   </target>
     
   <!-- Cleans the module. -->
-  <target name="clean" depends="init"> 
+  <target depends="init" name="clean"> 
     <echo message="${project.name} cleaning src + ${releaseFolder}"/>
     <delete quiet="true">
       <fileset dir="src" includes="**/*.class"/>
@@ -235,7 +227,7 @@
   </target>
         
   <!-- Cleans the tests for this module. -->
-  <target name="clean-tests" if="testsuite">
+  <target if="testsuite" name="clean-tests">
     <echo message="${project.name} cleaning tests"/>  
     <delete quiet="true">  
         <fileset dir="tests/unit/org/" includes="**/*.class"/>
@@ -247,12 +239,12 @@
   <!-- AUTOMATED TASKS                                                       -->
   <!-- ===================================================================== -->
   <!-- Ummm...I have no idea what this does. -->
-  <target name="modificationset" if="${lastBuildAttemptTime}">
+  <target if="${lastBuildAttemptTime}" name="modificationset">
     <path id="cruisecontrol.ext">
       <fileset dir="../../extbin/gtbuild/lib/"/>
       <pathelement location="../../extbin/gtbuild/lib/cruisecontrol.jar"/>
     </path>
-    <taskdef name="modificationset" classname="net.sourceforge.cruisecontrol.ModificationSet">
+    <taskdef classname="net.sourceforge.cruisecontrol.ModificationSet" name="modificationset">
       <classpath refid="cruisecontrol.ext"/>        
     </taskdef>
     <modificationset dateformat="yyyy-MMM-dd HH:mm:ss" lastbuild="${lastBuildAttemptTime}" quietperiod="30">
