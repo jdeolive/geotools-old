@@ -31,6 +31,8 @@ package org.geotools.gui.swing;
 import java.awt.*;
 import javax.swing.*;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
 
 // JUnit dependencies
 import junit.framework.*;
@@ -42,14 +44,24 @@ import org.geotools.resources.Arguments;
 /**
  * Tests a set of widgets.
  *
- * @version $Id: MiscellaneousWidgetTest.java,v 1.2 2003/04/14 20:12:05 desruisseaux Exp $
+ * @version $Id: MiscellaneousWidgetTest.java,v 1.3 2003/05/12 22:25:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class MiscellaneousWidgetTest extends TestCase {
     /**
+     * Set to <code>true</code> if window should be keep once the test is completed.
+     */
+    private static boolean keep;
+
+    /**
      * The location of the next frame to show.
      */
     private int location;
+
+    /**
+     * The list of widget created up to date.
+     */
+    private final List widgets = new ArrayList();
 
     /**
      * Construct the test case.
@@ -64,6 +76,7 @@ public class MiscellaneousWidgetTest extends TestCase {
     public static void main(final String[] args) {
         final Arguments arguments = new Arguments(args);
         Locale.setDefault(arguments.locale);
+        keep = arguments.getFlag("-keep");
         junit.textui.TestRunner.run(suite());
     }
 
@@ -76,16 +89,30 @@ public class MiscellaneousWidgetTest extends TestCase {
     }
 
     /**
+     * Dispose all widgets. This method is called after tests are executed.
+     */
+    protected void tearDown() throws Exception {
+        for (int i=widgets.size(); --i>=0;) {
+            final Window window = (Window)widgets.get(i);
+            window.dispose();
+        }
+        super.tearDown();
+    }
+
+    /**
      * Show a component.
      */
     private void show(final Component component, final String title) {
         final JFrame frame = new JFrame(title);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.getContentPane().add(component);
         frame.setLocation(location, location);
         frame.pack();
         frame.show();
         location += 15;
+        if (!keep) {
+            widgets.add(frame);
+        }
     }
 
     /**
