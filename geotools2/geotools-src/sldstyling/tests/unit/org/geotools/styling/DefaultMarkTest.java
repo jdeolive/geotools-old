@@ -51,7 +51,7 @@ public class DefaultMarkTest extends TestCase {
         //same as the datasource test, load in some features into a table
         System.out.println("\n\nMark Test\n");
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(0, 35, 0, 45);
+        EnvelopeExtent ex = new EnvelopeExtent(0, 45, 0, 45);
         
         GeometryFactory geomFac = new GeometryFactory();
         ArrayList features = new ArrayList();
@@ -109,9 +109,9 @@ public class DefaultMarkTest extends TestCase {
         
         StyleFactory factory = StyleFactory.createStyleFactory();
         SLDStyle stylereader = new SLDStyle(factory,f);
-        Style style = stylereader.readXML();
+        Style[] style = stylereader.readXML();
         
-        map.addFeatureTable(ft,style);
+        map.addFeatureTable(ft,style[0]);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         Frame frame = new Frame("default mark test");
         frame.addWindowListener(new WindowAdapter() {

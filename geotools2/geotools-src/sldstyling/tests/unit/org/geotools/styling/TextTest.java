@@ -124,8 +124,8 @@ public class TextTest extends TestCase {
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
         SLDStyle stylereader = new SLDStyle(factory,f);
-        Style style = stylereader.readXML();
-        map.addFeatureTable(ft,style);
+        Style[] style = stylereader.readXML();
+        map.addFeatureTable(ft,style[0]);
         Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
         
         Panel p = new Panel();

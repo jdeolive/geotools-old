@@ -5,7 +5,7 @@
  */
 
 package org.geotools.styling;
-import org.geotools.renderer.*;
+//import org.geotools.renderer.*;
 import org.geotools.data.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.datasource.extents.*;
@@ -25,6 +25,7 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 import javax.swing.*;
+import org.geotools.renderer.Java2DRenderer;
 
 
 /**
@@ -51,7 +52,7 @@ public class RenderStyleTest extends TestCase {
         //same as the datasource test, load in some features into a table
         
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(40, 300, 30, 350);
+        EnvelopeExtent ex = new EnvelopeExtent(30, 350, 30, 350);
         
         GeometryFactory geomFac = new GeometryFactory();
         LineString line = makeSampleLineString(geomFac,0,0);
@@ -120,39 +121,49 @@ public class RenderStyleTest extends TestCase {
         System.out.println("testing reader using "+f.toString());
         StyleFactory factory = StyleFactory.createStyleFactory();
         SLDStyle stylereader = new SLDStyle(factory,f);
-        Style style = stylereader.readXML();
+        Style[] style = stylereader.readXML();
+        for(int i = 0; i< style.length; i++){
+            map.addFeatureTable(ft,style[i]);
+            Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
+            Frame frame = new Frame("rendering test");
+            frame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
+            });
+            Panel p = new Panel();
+            
+            frame.add(p);
+            
+            frame.setSize(300,300);
+            p.setSize(300,300); // make the panel square ?
+            frame.setLocation(300*i,0);
+            frame.setVisible(true);
+            renderer.setOutput(p.getGraphics(),p.getBounds());
+            renderer.setInteractive(false);
+            Date start = new Date();
+            map.render(renderer,ex.getBounds());//and finaly try and draw it!
+            Date end = new Date();
+            System.out.println("Time to render to screen: " +(end.getTime() - start.getTime()));
+            int[] wa={400,400,600},ha={400,600,400};
+            for(int j=0;j<wa.length;j++){
+                int w = wa[j];
+                int h= ha[j];
+                
+                BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
+                Graphics g = image.getGraphics();
+                g.setColor(Color.white);
+                g.fillRect(0,0,w,h);
+                renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
+                start = new Date();
+                map.render(renderer,ex.getBounds());//and finaly try and draw it!
+                end = new Date();
+                System.out.println("Time to render to image: " +(end.getTime() - start.getTime()));
+                File file = new File(dataFolder, "RenderStyleTest"+i+"_"+j+".jpg"); 
+                FileOutputStream out = new FileOutputStream(file);
+                ImageIO.write(image, "JPEG", out); 
+            }
+            //Thread.sleep(5000);
+        }
         
-        map.addFeatureTable(ft,style);
-        Java2DRenderer renderer = new org.geotools.renderer.Java2DRenderer();
-        Frame frame = new Frame("rendering test");
-        frame.addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {e.getWindow().dispose(); }
-        });
-        Panel p = new Panel();
-        frame.add(p);
-        frame.setSize(300,300);
-        frame.setVisible(true);
-        renderer.setOutput(p.getGraphics(),p.getBounds());
-        renderer.setInteractive(false);
-        Date start = new Date();
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
-        Date end = new Date();
-        System.out.println("Time to render to screen: " +(end.getTime() - start.getTime()));
-        int w=400,h=400;
-        BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
-        Graphics g = image.getGraphics();
-        g.setColor(Color.white);
-        g.fillRect(0,0,w,h);
-        renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
-        start = new Date();
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
-        end = new Date();
-        System.out.println("Time to render to image: " +(end.getTime() - start.getTime()));
-        File file = new File(dataFolder, "RenderStyleTest.jpg"); 
-        FileOutputStream out = new FileOutputStream(file);
-        ImageIO.write(image, "JPEG", out); 
-        //Thread.sleep(5000);
-        frame.dispose();
     }
     
     private LineString makeSampleLineString(final GeometryFactory geomFac, double xoff, double yoff) {
