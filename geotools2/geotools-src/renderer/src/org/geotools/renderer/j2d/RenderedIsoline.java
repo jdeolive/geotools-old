@@ -35,6 +35,7 @@ package org.geotools.renderer.j2d;
 // Geometry
 import java.awt.Shape;
 import java.awt.geom.Point2D;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 
@@ -72,7 +73,7 @@ import org.geotools.resources.CTSUtilities;
  * used for isobaths. Each isobath (e.g. sea-level, 50 meters, 100 meters...)
  * require a different instance of <code>RenderedIsoline</code>.
  *
- * @version $Id: RenderedIsoline.java,v 1.12 2003/02/28 22:26:50 desruisseaux Exp $
+ * @version $Id: RenderedIsoline.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedIsoline extends RenderedLayer {
@@ -152,6 +153,18 @@ public class RenderedIsoline extends RenderedLayer {
     private transient IsolineRenderer isolineRenderer;
 
     /**
+     * The default {@linkplain #getPreferredArea preferred area} for this layer.
+     * Used only if the user didn't set explicitely a preferred area.
+     */
+    private Rectangle2D preferredArea;
+
+    /**
+     * The default {@linkplain #getPreferredPixelSize preferred pixel size} for this layer.
+     * Used only if the user didn't set explicitely a preferred pixel size.
+     */
+    private Dimension2D preferredPixelSize;
+
+    /**
      * Construct a layer for the specified isoline.
      *
      * @param isoline The isoline, or <code>null</code> if none.
@@ -189,9 +202,7 @@ public class RenderedIsoline extends RenderedLayer {
                 isoline = (Isoline)isoline.clone(); // Remind: underlying data are shared, not cloned.
                 isoline.setCoordinateSystem(getCoordinateSystem());
                 numPoints = isoline.getPointCount();
-                setZOrder(isoline.value);
             } else {
-                setZOrder(0);
                 numPoints = 0;
             }
             this.isoline = isoline;
@@ -219,14 +230,14 @@ public class RenderedIsoline extends RenderedLayer {
         }
     }
  
-    /*
+    /**
      * Compute the preferred area and the preferred pixel size.
      */
     private void updatePreferences() {
         assert Thread.holdsLock(getTreeLock());
         if (isoline == null) {
-            setPreferredArea(null);
-            setPreferredPixelSize(null);
+            preferredArea = null;
+            preferredPixelSize = null;
             return;
         }
         final Rectangle2D  bounds = isoline.getBounds2D();
@@ -249,9 +260,9 @@ public class RenderedIsoline extends RenderedLayer {
             } else {
                 dx = dy = resolution;
             }
-            setPreferredPixelSize(new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy));
+            preferredPixelSize = new XDimension2D.Double(TICKNESS*dx , TICKNESS*dy);
         }
-        setPreferredArea(bounds);
+        preferredArea = bounds;
     }
 
     /**
@@ -300,12 +311,54 @@ public class RenderedIsoline extends RenderedLayer {
     }
 
     /**
+     * Returns the preferred area for this layer. If no preferred area has been explicitely
+     * set, then this method returns the isoline's bounding box.
+     */
+    public Rectangle2D getPreferredArea() {
+        synchronized (getTreeLock()) {
+            final Rectangle2D area = super.getPreferredArea();
+            if (area != null) {
+                return area;
+            }
+            return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : null;
+        }
+    }
+
+    /**
+     * Returns the preferred pixel size in rendering coordinates. If no preferred pixel size
+     * has been explicitely set, then this method returns the isoline's pixel size.
+     */
+    public Dimension2D getPreferredPixelSize() {
+        synchronized (getTreeLock()) {
+            final Dimension2D size = super.getPreferredPixelSize();
+            if (size != null) {
+                return size;
+            }
+            return (preferredPixelSize!=null) ? (Dimension2D) preferredPixelSize.clone() : null;
+        }
+    }
+
+    /**
+     * Returns the <var>z-order</var> for this layer. Layers with highest <var>z-order</var>
+     * will be painted on top of layers with lowest <var>z-order</var>. If no order has been
+     * explicitely set, then the default <var>z-order</var> is {@link Isoline#value}.
+     */
+    public float getZOrder() {
+        synchronized (getTreeLock()) {
+            if (isoline==null || isZOrderSet()) {
+                return super.getZOrder();
+            }
+            return isoline.value;
+        }
+    }
+
+    /**
      * The renderer for polygons. An instance of this class is attached to each instance
      * of {@link RenderedIsoline} when its <code>paint(...)</code> method is invoked for
      * the first time.  The <code>paint(...)</code> must initialize the fields before to
      * renderer polygons, and reset them to <code>null</code> once the rendering is completed.
      *
-     * @version $Id: RenderedIsoline.java,v 1.12 2003/02/28 22:26:50 desruisseaux Exp $
+     * @version $Id: RenderedIsoline.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class IsolineRenderer implements Polygon.Renderer {

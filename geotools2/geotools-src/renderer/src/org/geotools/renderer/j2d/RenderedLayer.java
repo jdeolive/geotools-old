@@ -85,13 +85,18 @@ import org.geotools.resources.renderer.ResourceKeys;
  * {@link #setVisible setVisible}(true);
  * </pre></blockquote>
  *
- * @version $Id: RenderedLayer.java,v 1.12 2003/03/01 22:06:35 desruisseaux Exp $
+ * @version $Id: RenderedLayer.java,v 1.13 2003/03/02 22:16:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Renderer
  * @see RenderingContext
  */
 public abstract class RenderedLayer {
+    /**
+     * The default {@linkplain #getZOrder z-order}.
+     */
+    private static final float DEFAULT_Z_ORDER = Float.POSITIVE_INFINITY;
+
     /**
      * The default stroke to use if no stroke can be infered from
      * {@link #getPreferredPixelSize}.
@@ -162,13 +167,12 @@ public abstract class RenderedLayer {
      * (par exemple -30 pour l'isobath à 30 mètres de profondeur). La valeur
      * {@link Float#POSITIVE_INFINITY} fait dessiner une couche par dessus tout le reste,
      * tandis que la valeur {@link Float#NEGATIVE_INFINITY} la fait dessiner en dessous.
-     * La valeur {@link Float#NaN} n'est pas valide. La valeur par défaut est
-     * {@link Float#POSITIVE_INFINITY}.
+     * La valeur {@link Float#NaN} signifie que l'ordre z n'a pas encore été défini.
      *
      * @see #getZOrder
      * @see #setZOrder
      */
-    private float zOrder = Float.POSITIVE_INFINITY;
+    private float zOrder = Float.NaN;
 
     /**
      * Listeners to be notified about any changes in this layer's properties.
@@ -379,23 +383,23 @@ public abstract class RenderedLayer {
     }
 
     /**
-     * Retourne l'ordre <var>z</var> à laquelle cette couche devrait être dessinée.
-     * Les couches avec un <var>z</var> élevé seront dessinées par dessus celles
-     * qui ont un <var>z</var> plus bas. La valeur retournée par défaut est
+     * Returns the <var>z-order</var> for this layer. Layers with highest <var>z-order</var>
+     * will be painted on top of layers with lowest <var>z-order</var>. The default value is
      * {@link Float#POSITIVE_INFINITY}.
      *
      * @see #setZOrder
      */
     public float getZOrder() {
-        return zOrder;
+        final float zOrder = this.zOrder; // Avoid synchronization
+        return Float.isNaN(zOrder) ? DEFAULT_Z_ORDER : zOrder;
     }
 
     /**
-     * Modifie l'altitude <var>z</var> à laquelle sera dessinée cette couche. La
-     * valeur spécifiée viendra remplacer la valeur par défaut que retournait
-     * normalement {@link #getZOrder}.
+     * Set the <var>z-order</var> for this layer. Layers with highest <var>z-order</var>
+     * will be painted on top of layers with lowest <var>z-order</var>. The specified
+     * <var>z-order</var> replaces the default value returned by {@link #getZValue}.
      *
-     * @throws IllegalArgumentException si <code>zorder</code> est {@link Float#NaN}.
+     * @throws IllegalArgumentException if the specified <code>zOrder</code> is {@link Float#NaN}.
      */
     public void setZOrder(final float zOrder) throws IllegalArgumentException {
         if (Float.isNaN(zOrder)) {
@@ -410,7 +414,15 @@ public abstract class RenderedLayer {
             this.zOrder = zOrder;
             repaint();
         }
-        listeners.firePropertyChange("zOrder", new Float(oldZOrder), new Float(zOrder));
+        listeners.firePropertyChange("zOrder", Float.isNaN(oldZOrder) ? null :
+                                     new Float(oldZOrder), new Float(zOrder));
+    }
+
+    /**
+     * Returns <code>true</code> if the {@linkplain #getZOrder z-order} has been explicitely set.
+     */
+    final boolean isZOrderSet() {
+        return !Float.isNaN(zOrder);
     }
 
     /**
@@ -782,7 +794,7 @@ public abstract class RenderedLayer {
             preferredArea      = null;
             preferredPixelSize = null;
             visible            = false;
-            zOrder             = Float.POSITIVE_INFINITY;
+            zOrder             = Float.NaN;
             coordinateSystem   = GeographicCoordinateSystem.WGS84;
             final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {

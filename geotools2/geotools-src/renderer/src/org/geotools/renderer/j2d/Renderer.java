@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.18 2003/03/01 22:06:35 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.19 2003/03/02 22:16:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -334,6 +334,10 @@ public class Renderer {
                 }
                 if (propertyName.equalsIgnoreCase("coordinateSystem")) {
                     computePreferredArea("RenderedLayer", "setCoordinateSystem");
+                    return;
+                }
+                if (propertyName.equalsIgnoreCase("gridCoverage")) {
+                    computePreferredArea("RenderedLayer", "setGridCoverage");
                     return;
                 }
             }

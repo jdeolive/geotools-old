@@ -85,14 +85,14 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.6 2003/03/01 22:06:34 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.7 2003/03/02 22:16:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
     /**
      * Default value for the {@linkplain #getZOrder z-order}.
      */
-    private static final float DEFAULT_Z_ORDER = 0;
+    private static final float DEFAULT_Z_ORDER = Float.POSITIVE_INFINITY;
 
     /**
      * The default shape for displaying data with only 1 band.
@@ -201,6 +201,18 @@ public class RenderedGridMarks extends RenderedMarks {
     private Color color = DEFAULT_COLOR;
 
     /**
+     * The default {@linkplain #getZOrder z-order} for this layer.
+     * Used only if the user didn't set explicitely a z-order.
+     */
+    private float zOrder = DEFAULT_Z_ORDER;
+
+    /**
+     * The default {@linkplain #getPreferredArea preferred area} for this layer.
+     * Used only if the user didn't set explicitely a preferred area.
+     */
+    private Rectangle2D preferredArea;
+
+    /**
      * Procède à la lecture binaire de cet objet, puis initialise des champs internes.
      */
     private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -217,9 +229,7 @@ public class RenderedGridMarks extends RenderedMarks {
      * @param coverage The grid coverage, or <code>null</code> if none.
      */
     public RenderedGridMarks(final GridCoverage coverage) {
-        if (coverage == null) {
-            setZOrder(DEFAULT_Z_ORDER);
-        } else try {
+        if (coverage != null) try {
             numBands = coverage.getRenderedImage().getSampleModel().getNumBands();
             if (numBands >= 2) {
                 numBands = 2;
@@ -273,6 +283,9 @@ public class RenderedGridMarks extends RenderedMarks {
             }
             super.setCoordinateSystem(cs);
             gridToCoordinateSystem = candidate;
+            if (coverage != null) {
+                updatePreferences();
+            }
         }
     }
  
@@ -331,10 +344,7 @@ public class RenderedGridMarks extends RenderedMarks {
         final GridCoverage oldCoverage;
         synchronized (getTreeLock()) {
             oldCoverage = this.coverage;
-            final Rectangle2D preferredArea;
-            float zOrder = DEFAULT_Z_ORDER;
             if (coverage == null) {
-                preferredArea = null;
                 clearCoverage();
             } else {
                 coverage = coverage.geophysics(true);
@@ -354,22 +364,27 @@ public class RenderedGridMarks extends RenderedMarks {
                 /*
                  * Change this object's state only after all checks passed.
                  */
-                gridToCoordinateSystem = getGridToCoordinateSystem(coverage, getCoordinateSystem(),
-                                                                   "setGridCoverage");
+                gridToCoordinateSystem  = getGridToCoordinateSystem(coverage, getCoordinateSystem(),
+                                                                    "setGridCoverage");
                 this.coverage = coverage;
                 this.image    = PlanarImage.wrapRenderedImage(coverage.getRenderedImage());
                 this.mainSD   = sampleX;
-                final Envelope envelope = coverage.getEnvelope();
-                preferredArea = envelope.getSubEnvelope(0,2).toRectangle2D();
-                if (envelope.getDimension()>=3) {
-                    zOrder = (float)envelope.getCenter(2);
-                }
+                updatePreferences();
             }
-            setZOrder(zOrder);
-            setPreferredArea(preferredArea);
         }
         listeners.firePropertyChange("gridCoverage", oldCoverage, coverage);
         repaint();
+    }
+
+    /**
+     * Compute the preferred area and the z-order.
+     */
+    private void updatePreferences() throws TransformException {
+        assert Thread.holdsLock(getTreeLock());
+        final Envelope envelope = coverage.getEnvelope();
+        zOrder = envelope.getDimension()>=3 ? (float)envelope.getCenter(2) : DEFAULT_Z_ORDER;
+        preferredArea= envelope.getSubEnvelope(0,2).toRectangle2D();
+        preferredArea= CTSUtilities.transform(gridToCoordinateSystem, preferredArea, preferredArea);
     }
 
     /**
@@ -509,6 +524,41 @@ public class RenderedGridMarks extends RenderedMarks {
      */
     public Color getColor() {
         return color;
+    }
+
+    /**
+     * Returns the preferred area for this layer. If no preferred area has been explicitely
+     * set, then this method returns the grid coverage's bounding box.
+     */
+    public Rectangle2D getPreferredArea() {
+        synchronized (getTreeLock()) {
+            final Rectangle2D area = super.getPreferredArea();
+            if (area != null) {
+                return area;
+            }
+            return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : null;
+        }
+    }
+
+    /**
+     * Returns the <var>z-order</var> for this layer. If the grid coverage
+     * has at least 3 dimension, then the default <var>z-order</var> is
+     *
+     * <code>gridCoverage.getEnvelope().getCenter(2)</code>.
+     *
+     * Otherwise, the default value is {@link Float#POSITIVE_INFINITY} in order to paint
+     * the marks over everything else. The default value can be overriden with a call to
+     * {@link #setZOrder}.
+     *
+     * @see #setZOrder
+     */
+    public float getZOrder() {
+        synchronized (getTreeLock()) {
+            if (isZOrderSet()) {
+                return super.getZOrder();
+            }
+            return zOrder;
+        }
     }
 
     /**
@@ -770,9 +820,11 @@ public class RenderedGridMarks extends RenderedMarks {
      * Clear all informations relative to the grid coverage.
      */
     private void clearCoverage() {
-        coverage = null;
-        image    = null;
-        mainSD   = null;
+        coverage      = null;
+        image         = null;
+        mainSD        = null;
+        preferredArea = null;
+        zOrder        = DEFAULT_Z_ORDER;
         gridToCoordinateSystem = MathTransform2D.IDENTITY;
     }
 

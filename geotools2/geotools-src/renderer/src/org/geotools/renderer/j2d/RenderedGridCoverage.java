@@ -36,6 +36,7 @@ package org.geotools.renderer.j2d;
 import java.awt.Shape;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
@@ -80,7 +81,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * in order to display an image in many {@link org.geotools.gui.swing.MapPane} with
  * different zoom.
  *
- * @version $Id: RenderedGridCoverage.java,v 1.8 2003/03/01 22:06:33 desruisseaux Exp $
+ * @version $Id: RenderedGridCoverage.java,v 1.9 2003/03/02 22:16:01 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridCoverage extends RenderedLayer {
@@ -148,12 +149,6 @@ public class RenderedGridCoverage extends RenderedLayer {
     private GridCoverage coverage;
 
     /**
-     * The {@link #coverage} area in the coverage's coordinate system.
-     * Computed once for ever and reused for every {@link #paint} invocations.
-     */
-    private Rectangle2D coverageArea;
-
-    /**
      * A list of multi-resolution images. Image at index 0 is identical to
      * {@link GridCoverage#getRenderedImage()}.  Other indexs contains the
      * image at lower resolution for faster rendering.
@@ -164,6 +159,24 @@ public class RenderedGridCoverage extends RenderedLayer {
      * Last image used in {@link #images}. Used for logging only.
      */
     private transient int lastLevel;
+
+    /**
+     * The default {@linkplain #getZOrder z-order} for this layer.
+     * Used only if the user didn't set explicitely a z-order.
+     */
+    private float zOrder = DEFAULT_Z_ORDER;
+
+    /**
+     * The default {@linkplain #getPreferredArea preferred area} for this layer.
+     * Used only if the user didn't set explicitely a preferred area.
+     */
+    private Rectangle2D preferredArea;
+
+    /**
+     * The default {@linkplain #getPreferredPixelSize preferred pixel size} for this layer.
+     * Used only if the user didn't set explicitely a preferred pixel size.
+     */
+    private Dimension2D preferredPixelSize;
 
     /**
      * Point dans lequel mémoriser les coordonnées logiques d'un pixel
@@ -280,12 +293,18 @@ public class RenderedGridCoverage extends RenderedLayer {
     private void initialize() {
         assert Thread.holdsLock(getTreeLock());
         clearCache();
-        updatePreferences();
         if (coverage == null) {
-            coverageArea = null;
+            preferredArea      = null;
+            preferredPixelSize = null;
+            zOrder  = DEFAULT_Z_ORDER;
             return;
         }
-        coverageArea = coverage.getEnvelope().getSubEnvelope(0, 2).toRectangle2D();
+        final Envelope envelope = coverage.getEnvelope();
+        final GridRange   range = coverage.getGridGeometry().getGridRange();
+        preferredArea = envelope.getSubEnvelope(0, 2).toRectangle2D();
+        zOrder = envelope.getDimension()>=3 ? (float)envelope.getCenter(2) : DEFAULT_Z_ORDER;
+        preferredPixelSize = new XDimension2D.Double(envelope.getLength(0)/range.getLength(0),
+                                                     envelope.getLength(1)/range.getLength(1));
         /*
          * The rest of this method compute the chain of decimated images.
          * In input,  this method use the following fields: {@link #coverage}, {@link #renderer}.
@@ -405,24 +424,50 @@ public class RenderedGridCoverage extends RenderedLayer {
     }
 
     /**
-     * Update the {@linkplain #getPreferredArea preferred area},
-     * {@linkplain #getPreferredPixelSize preferred pixel size}
-     * and {@linkplain #getZOrder z-order} properties.
+     * Returns the preferred area for this layer. If no preferred area has been explicitely
+     * set, then this method returns the grid coverage's bounding box.
      */
-    private void updatePreferences() {
-        assert Thread.holdsLock(getTreeLock());
-        if (coverage == null) {
-            setPreferredArea(null);
-            setPreferredPixelSize(null);
-            setZOrder(DEFAULT_Z_ORDER);
-            return;
+    public Rectangle2D getPreferredArea() {
+        synchronized (getTreeLock()) {
+            final Rectangle2D area = super.getPreferredArea();
+            if (area != null) {
+                return area;
+            }
+            return (preferredArea!=null) ? (Rectangle2D) preferredArea.clone() : null;
         }
-        final Envelope envelope = coverage.getEnvelope();
-        final GridRange   range = coverage.getGridGeometry().getGridRange();
-        setPreferredArea(envelope.getSubEnvelope(0, 2).toRectangle2D());
-        setZOrder(envelope.getDimension()>=3 ? (float)envelope.getCenter(2) : DEFAULT_Z_ORDER);
-        setPreferredPixelSize(new XDimension2D.Double(envelope.getLength(0)/range.getLength(0),
-                                                      envelope.getLength(1)/range.getLength(1)));
+    }
+
+    /**
+     * Returns the preferred pixel size in rendering coordinates. If no preferred pixel size
+     * has been explicitely set, then this method returns the grid coverage's pixel size.
+     */
+    public Dimension2D getPreferredPixelSize() {
+        synchronized (getTreeLock()) {
+            final Dimension2D size = super.getPreferredPixelSize();
+            if (size != null) {
+                return size;
+            }
+            return (preferredPixelSize!=null) ? (Dimension2D) preferredPixelSize.clone() : null;
+        }
+    }
+
+    /**
+     * Returns the <var>z-order</var> for this layer. If the grid coverage
+     * has at least 3 dimension, then the default <var>z-order</var> is
+     *
+     * <code>gridCoverage.getEnvelope().getCenter(2)</code>.
+     *
+     * Otherwise, the default value is {@link Float#NEGATIVE_INFINITY} in order to paint
+     * the coverage under anything else.  The default value can be overriden with a call
+     * to {@link #setZOrder}.
+     */
+    public float getZOrder() {
+        synchronized (getTreeLock()) {
+            if (isZOrderSet()) {
+                return super.getZOrder();
+            }
+            return zOrder;
+        }
     }
 
     /**
@@ -510,7 +555,7 @@ public class RenderedGridCoverage extends RenderedLayer {
             }
             transform.translate(-0.5, -0.5); // Map to upper-left corner.
             context.getGraphics().drawRenderedImage(image, transform);
-            context.addPaintedArea(coverageArea, context.mapCS);
+            context.addPaintedArea(preferredArea, context.mapCS);
         }
     }
 
@@ -604,10 +649,13 @@ public class RenderedGridCoverage extends RenderedLayer {
                     }
                 }
             }
-            coverage = sourceCoverage = null;
-            coverageArea = null;
-            images       = null;
-            lastLevel    = 0;
+            coverage           = null;
+            sourceCoverage     = null;
+            preferredArea      = null;
+            preferredPixelSize = null;
+            images             = null;
+            lastLevel          = 0;
+            zOrder = DEFAULT_Z_ORDER;
         }
     }
 }
