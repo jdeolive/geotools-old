@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project basedir="." default="html" name="developersguide">
+
+  <!-- Now, set your module-specific build targets here -->
+  <target name="html">
+
+  <style basedir="xdocs"
+      destdir="www"
+      extension=".html"
+      style="docbook-xsl/html/docbook.xsl"
+      includes="*.sgml"
+      />
+  </target>
+
+</project>
