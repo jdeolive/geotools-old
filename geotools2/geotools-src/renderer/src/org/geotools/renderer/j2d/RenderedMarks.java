@@ -70,7 +70,7 @@ import org.geotools.resources.XAffineTransform;
  * Subclasses must override the {@link #getMarkIterator} method in order to returns informations
  * about marks.
  *
- * @version $Id: RenderedMarks.java,v 1.11 2003/03/21 23:05:31 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.12 2003/03/21 23:30:41 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -576,6 +576,9 @@ public abstract class RenderedMarks extends RenderedLayer {
                     glyphVectors   = null;
                     glyphPositions = null;
                 }
+                if (numShapes == 0) {
+                    markIndex = null;
+                }
                 if (markIndex != null) {
                     markIndex = XArray.resize(markIndex, numShapes);
                 }
@@ -597,6 +600,9 @@ public abstract class RenderedMarks extends RenderedLayer {
              * Loops over all rendered marks (which may not be all marks know to the MarkIterator)
              * and gets the arguments to be sent to MarkIterator.paint(...).
              */
+            if (markIndex == null) {
+                return;
+            }
             Point2D.Float  labelXY = null;
             AffineTransform iconXY = null;
             for (int i=0; i<markIndex.length; i++) {
