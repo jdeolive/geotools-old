@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.9 2002/09/19 10:35:27 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.10 2002/10/17 18:13:26 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -494,8 +494,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             final PreparedStatement stmt;
             stmt = prepareStatement("Object", "select TABLE_NAME"
                                                + " from [Codes]"
-                                               + " where CODE_MINIMUM < ?"
-                                               + " and CODE_MAXIMUM > ?");
+                                               + " where RECORD_ID >= 4"
+                                               + " and CODE_MINIMUM <= ?"
+                                               + " and CODE_MAXIMUM >= ?");
             stmt.setString(1, code);
             stmt.setString(2, code);
             final ResultSet result = stmt.executeQuery();
@@ -509,6 +510,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         }
         if (type == null) {
              throw new NoSuchAuthorityCodeException(code);
+        }
+        if (type.equalsIgnoreCase("Coordinate Reference System")) {
+            return createCoordinateSystem(code);
         }
         if (type.equalsIgnoreCase("Coordinate System")) {
             return createCoordinateSystem(code);
