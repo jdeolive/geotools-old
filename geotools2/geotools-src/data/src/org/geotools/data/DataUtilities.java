@@ -25,19 +25,21 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.GeometryAttributeType;
 import org.geotools.feature.AttributeTypeFactory;
+import org.geotools.feature.CollectionEvent;
+import org.geotools.feature.CollectionListener;
+import org.geotools.feature.DefaultAttributeType;
+import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollections;
 import org.geotools.feature.FeatureType;
 import org.geotools.feature.FeatureTypeFactory;
+import org.geotools.feature.GeometryAttributeType;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
-import org.geotools.feature.DefaultAttributeType;
 import org.geotools.filter.AttributeExpression;
 import org.geotools.filter.BetweenFilter;
 import org.geotools.filter.CompareFilter;
@@ -59,9 +61,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.Map.Entry;
 
 
 /**
@@ -75,16 +77,16 @@ public class DataUtilities {
     static {
         typeMap.put("String", String.class);
         typeMap.put("string", String.class);
-        typeMap.put("\"\"", String.class);        
+        typeMap.put("\"\"", String.class);
         typeMap.put("Integer", Integer.class);
         typeMap.put("int", Integer.class);
-        typeMap.put("0", Integer.class);               
+        typeMap.put("0", Integer.class);
         typeMap.put("Double", Double.class);
         typeMap.put("double", Double.class);
         typeMap.put("0.0", Double.class);
         typeMap.put("Float", Float.class);
         typeMap.put("float", Float.class);
-        typeMap.put("0.0f", Float.class);        
+        typeMap.put("0.0f", Float.class);
         typeMap.put("Geometry", Geometry.class);
         typeMap.put("Point", Point.class);
         typeMap.put("LineString", LineString.class);
@@ -92,7 +94,7 @@ public class DataUtilities {
         typeMap.put("MultiPoint", MultiPoint.class);
         typeMap.put("MultiLineString", MultiLineString.class);
         typeMap.put("MultiPolygon", MultiPolygon.class);
-        typeMap.put("GeometryCollection", GeometryCollection.class);        
+        typeMap.put("GeometryCollection", GeometryCollection.class);
     }
 
     public static String[] attributeNames(FeatureType featureType) {
@@ -140,8 +142,8 @@ public class DataUtilities {
      * Performs a depth first traversal on Filter.
      * 
      * <p>
-     * Filters can contain Expressions and other Filters, this method will call
-     * visitor.visit( Filter ) and visitor.visit( Expression )
+     * Filters can contain Expressions and other Filters, this method will call visitor.visit(
+     * Filter ) and visitor.visit( Expression )
      * </p>
      *
      * @param set Set of Filter and Expression information
@@ -225,13 +227,13 @@ public class DataUtilities {
      * </ul>
      * 
      * <p>
-     * Comparison is based on AttributeTypes, an IOException is thrown if the
-     * AttributeTypes are not compatiable.
+     * Comparison is based on AttributeTypes, an IOException is thrown if the AttributeTypes are
+     * not compatiable.
      * </p>
      * 
      * <p>
-     * Namespace is not considered in this opperations. You may still need to
-     * reType to get the correct namesapce, or reorder.
+     * Namespace is not considered in this opperations. You may still need to reType to get the
+     * correct namesapce, or reorder.
      * </p>
      *
      * @param typeA FeatureType beind compared
@@ -312,8 +314,7 @@ public class DataUtilities {
             return true;
         }
 
-        if (a.getName().equals(b.getName())
-                && a.getClass().equals(b.getClass())) {
+        if (a.getName().equals(b.getName()) && a.getClass().equals(b.getClass())) {
             return true;
         }
 
@@ -363,8 +364,8 @@ public class DataUtilities {
      *
      * @return A new Feature of type featureType
      *
-     * @throws IllegalAttributeException if we could not create featureType
-     *         instance with acceptable default values
+     * @throws IllegalAttributeException if we could not create featureType instance with
+     *         acceptable default values
      */
     public static Feature template(FeatureType featureType)
         throws IllegalAttributeException {
@@ -378,28 +379,31 @@ public class DataUtilities {
 
     public static Object[] defaultValues(FeatureType featureType)
         throws IllegalAttributeException {
-        return defaultValues(featureType,null);
-    }
-    
-    public static Feature template(FeatureType featureType,Object[] atts)
-        throws IllegalAttributeException {
-        return featureType.create(defaultValues(featureType,atts));
+        return defaultValues(featureType, null);
     }
 
-    public static Feature template(FeatureType featureType, String featureID,Object[] atts)
+    public static Feature template(FeatureType featureType, Object[] atts)
         throws IllegalAttributeException {
-        return featureType.create(defaultValues(featureType,atts), featureID);
+        return featureType.create(defaultValues(featureType, atts));
     }
-    
-    public static Object[] defaultValues(FeatureType featureType,Object[] values) 
+
+    public static Feature template(FeatureType featureType, String featureID, Object[] atts)
         throws IllegalAttributeException {
-        if (values == null)
+        return featureType.create(defaultValues(featureType, atts), featureID);
+    }
+
+    public static Object[] defaultValues(FeatureType featureType, Object[] values)
+        throws IllegalAttributeException {
+        if (values == null) {
             values = new Object[featureType.getAttributeCount()];
-        else if (values.length !=  featureType.getAttributeCount())
+        } else if (values.length != featureType.getAttributeCount()) {
             throw new ArrayIndexOutOfBoundsException("values");
+        }
+
         for (int i = 0; i < featureType.getAttributeCount(); i++) {
             values[i] = defaultValue(featureType.getAttributeType(i));
         }
+
         return values;
     }
 
@@ -407,16 +411,15 @@ public class DataUtilities {
      * Provides a defautlValue for attributeType.
      * 
      * <p>
-     * Will return null if attributeType isNillable(), or attempt to use
-     * Reflection, or attributeType.parse( null )
+     * Will return null if attributeType isNillable(), or attempt to use Reflection, or
+     * attributeType.parse( null )
      * </p>
      *
      * @param attributeType
      *
      * @return null for nillable attributeType, attempt at reflection
      *
-     * @throws IllegalAttributeException If value cannot be constructed for
-     *         attribtueType
+     * @throws IllegalAttributeException If value cannot be constructed for attribtueType
      */
     public static Object defaultValue(AttributeType attributeType)
         throws IllegalAttributeException {
@@ -453,8 +456,8 @@ public class DataUtilities {
             // not sure if parse was expected to handle this
         }
 
-        throw new IllegalAttributeException(
-            "Could not create a default value for " + attributeType.getName());
+        throw new IllegalAttributeException("Could not create a default value for "
+            + attributeType.getName());
     }
 
     /**
@@ -465,6 +468,7 @@ public class DataUtilities {
      * @return FeatureReader spaning provided feature array
      *
      * @throws IOException If provided features Are null or empty
+     * @throws NoSuchElementException DOCUMENT ME!
      */
     public static FeatureReader reader(final Feature[] features)
         throws IOException {
@@ -473,110 +477,212 @@ public class DataUtilities {
         }
 
         return new FeatureReader() {
-            Feature[] array = features;
-            int offset = -1;
+                Feature[] array = features;
+                int offset = -1;
 
-            public FeatureType getFeatureType() {
-                return features[0].getFeatureType();
-            }
-
-            public Feature next() throws IOException {
-                if (!hasNext()) {
-                    throw new NoSuchElementException("No more features");
+                public FeatureType getFeatureType() {
+                    return features[0].getFeatureType();
                 }
-                return array[++offset];
-            }
 
-            public boolean hasNext() throws IOException {
-                return (array != null) && (offset < (array.length - 1));
-            }
+                public Feature next() throws IOException {
+                    if (!hasNext()) {
+                        throw new NoSuchElementException("No more features");
+                    }
 
-            public void close() throws IOException {
-                array = null;
-                offset = -1;
-            }
-        };
-    }
-    public static FeatureSource source( final Feature featureArray[] ) throws IOException{
-        if (featureArray == null || featureArray.length == 0) {
-            throw new IOException("Provided collection was empty");
-        }        
-        final FeatureType featureType = featureArray[0].getFeatureType();
-        
-        DataStore arrayStore = new AbstractDataStore(){
-            public String[] getTypeNames() {
-                return new String[]{ featureType.getTypeName() };
-            }
-            public FeatureType getSchema(String typeName) throws IOException {
-                if( typeName != null &&
-                    typeName.equals( featureType.getTypeName() ) ){
-                    return featureType;        
+                    return array[++offset];
                 }
-                throw new IOException( typeName + " not available");
-            }
-            protected FeatureReader getFeatureReader(String typeName) throws IOException {
-                return reader( featureArray );
-            }
-        };
-        return arrayStore.getFeatureSource( arrayStore.getTypeNames()[0]);
+
+                public boolean hasNext() throws IOException {
+                    return (array != null) && (offset < (array.length - 1));
+                }
+
+                public void close() throws IOException {
+                    array = null;
+                    offset = -1;
+                }
+            };
     }
-    public static FeatureSource source( final FeatureCollection collection ) throws IOException{
+
+    public static FeatureSource source(final Feature[] featureArray) {
+        final FeatureType featureType;
+
+        if ((featureArray == null) || (featureArray.length == 0)) {
+            featureType = DefaultFeatureType.EMPTY;
+        } else {
+            featureType = featureArray[0].getFeatureType();
+        }
+
+        DataStore arrayStore = new AbstractDataStore() {
+                public String[] getTypeNames() {
+                    return new String[] { featureType.getTypeName() };
+                }
+
+                public FeatureType getSchema(String typeName)
+                    throws IOException {
+                    if ((typeName != null) && typeName.equals(featureType.getTypeName())) {
+                        return featureType;
+                    }
+
+                    throw new IOException(typeName + " not available");
+                }
+
+                protected FeatureReader getFeatureReader(String typeName)
+                    throws IOException {
+                    return reader(featureArray);
+                }
+            };
+
+        try {
+            return arrayStore.getFeatureSource(arrayStore.getTypeNames()[0]);
+        } catch (IOException e) {
+            throw new RuntimeException("Something is wrong with the geotools code, "
+                + "this exception should not happen", e);
+        }
+    }
+
+    public static FeatureSource source(final FeatureCollection collection) {
+        if (collection == null) {
+            throw new NullPointerException();
+        }
+
+        final FeatureType featureType;
+
+        if (collection.size() == 0) {
+            featureType = DefaultFeatureType.EMPTY;
+        } else {
+            featureType = ((Feature) collection.iterator().next()).getFeatureType();
+        }
+
+        DataStore store = new AbstractDataStore() {
+
+                {
+                    collection.addListener(new CollectionListener() {
+                            public void collectionChanged(CollectionEvent tce) {
+                                Envelope bounds = getFeaturesEnvelope(tce.getFeatures());
+                                String typeName = featureType.getTypeName();
+
+                                switch (tce.getEventType()) {
+                                case CollectionEvent.FEATURES_ADDED:
+                                    listenerManager.fireFeaturesAdded(typeName,
+                                        Transaction.AUTO_COMMIT, bounds);
+
+                                    break;
+
+                                case CollectionEvent.FEATURES_CHANGED:
+                                    listenerManager.fireFeaturesChanged(typeName,
+                                        Transaction.AUTO_COMMIT, bounds);
+
+                                    break;
+
+                                case CollectionEvent.FEATURES_REMOVED:
+                                    listenerManager.fireFeaturesRemoved(typeName,
+                                        Transaction.AUTO_COMMIT, bounds);
+
+                                    break;
+                                }
+                            }
+
+                            private Envelope getFeaturesEnvelope(Feature[] features) {
+                                Envelope env = features[0].getBounds();
+
+                                for (int i = 1; i < features.length; i++) {
+                                    env.expandToInclude(features[i].getBounds());
+                                }
+
+                                return env;
+                            }
+                        });
+                }
+
+                public String[] getTypeNames() {
+                    return new String[] { featureType.getTypeName() };
+                }
+
+                public FeatureType getSchema(String typeName)
+                    throws IOException {
+                    if ((typeName != null) && typeName.equals(featureType.getTypeName())) {
+                        return featureType;
+                    }
+
+                    throw new IOException(typeName + " not available");
+                }
+
+                protected FeatureReader getFeatureReader(String typeName)
+                    throws IOException {
+                    return reader(collection);
+                }
+
+                public Envelope getBounds(Query query) {
+                    if (query.getFilter() == Filter.ALL) {
+                        return collection.getBounds();
+                    } else {
+                        Envelope bounds = new Envelope();
+                        Filter filter = query.getFilter();
+                        int featureCount = 0;
+                        for(Iterator it = collection.iterator(); it.hasNext(); )  {
+                            Feature f = (Feature) it.next();
+                            if(filter.contains(f)) {
+                                bounds.expandToInclude(f.getBounds());
+                                featureCount++;
+                                if(featureCount >= query.getMaxFeatures())
+                                    break;
+                            }
+                        }
+                        
+                        return bounds;
+                    }
+                }
+            };
+
+        try {
+            return store.getFeatureSource(store.getTypeNames()[0]);
+        } catch (IOException e) {
+            throw new RuntimeException("Something is wrong with the geotools code, "
+                + "this exception should not happen", e);
+        }
+    }
+
+    // @TODO: remove all the IOExceptions from these methods, they don't make sense
+    // see the source(...) code for examples on how to do it
+    public static FeatureResults results(Feature[] featureArray)
+        throws IOException {
+        return results(collection(featureArray));
+    }
+
+    public static FeatureResults results(final FeatureCollection collection)
+        throws IOException {
         if (collection.size() == 0) {
             throw new IOException("Provided collection was empty");
-        }        
-        final FeatureType featureType = collection.features().next().getFeatureType();
-        
-        DataStore arrayStore = new AbstractDataStore(){
-            public String[] getTypeNames() {
-                return new String[]{ featureType.getTypeName() };
-            }
-            public FeatureType getSchema(String typeName) throws IOException {
-                if( typeName != null &&
-                    typeName.equals( featureType.getTypeName() ) ){
-                    return featureType;        
+        }
+
+        return new FeatureResults() {
+                public FeatureType getSchema() throws IOException {
+                    return collection.features().next().getFeatureType();
                 }
-                throw new IOException( typeName + " not available");
-            }
-            protected FeatureReader getFeatureReader(String typeName) throws IOException {
-                return reader( collection );
-            }
-        };
-        return arrayStore.getFeatureSource( arrayStore.getTypeNames()[0]);
-    }
-    public static FeatureResults results( Feature featureArray[] ) throws IOException{
-        return results( collection( featureArray ));
-    }
-    public static FeatureResults results( final FeatureCollection collection ) throws IOException{
-        if (collection.size() == 0) {
-            throw new IOException("Provided collection was empty");
-        }        
-        return new FeatureResults(){
-            public FeatureType getSchema() throws IOException {
-                return collection.features().next().getFeatureType();                
-            }
 
-            public FeatureReader reader() throws IOException {
-                return DataUtilities.reader(collection);
-            }
+                public FeatureReader reader() throws IOException {
+                    return DataUtilities.reader(collection);
+                }
 
-            public Envelope getBounds() throws IOException {
-                return collection.getBounds();
-            }
+                public Envelope getBounds() throws IOException {
+                    return collection.getBounds();
+                }
 
-            public int getCount() throws IOException {
-                return collection.size();
-            }
+                public int getCount() throws IOException {
+                    return collection.size();
+                }
 
-            public FeatureCollection collection() throws IOException {
-                return collection;
-            }
-        };
+                public FeatureCollection collection() throws IOException {
+                    return collection;
+                }
+            };
     }
-    public static FeatureReader reader( Collection collection) throws IOException {
-        return reader(
-            (Feature[]) collection.toArray( new Feature[ collection.size() ] )
-        );    
+
+    public static FeatureReader reader(Collection collection)
+        throws IOException {
+        return reader((Feature[]) collection.toArray(new Feature[collection.size()]));
     }
+
     public static FeatureCollection collection(Feature[] features) {
         FeatureCollection collection = FeatureCollections.newCollection();
 
@@ -587,84 +693,92 @@ public class DataUtilities {
         return collection;
     }
 
-    public static boolean attributesEqual(Object att, Object otherAtt){
-	if (att == null) {
-	    if (otherAtt != null) {
+    public static boolean attributesEqual(Object att, Object otherAtt) {
+        if (att == null) {
+            if (otherAtt != null) {
                 return false;
             }
         } else {
-            if (! att.equals(otherAtt)){
-                if( att instanceof Geometry &&
-                    otherAtt instanceof Geometry ){
+            if (!att.equals(otherAtt)) {
+                if (att instanceof Geometry && otherAtt instanceof Geometry) {
                     // we need to special case Geometry
                     // as JTS is broken
-                   // Geometry.equals( Object ) and Geometry.equals( Geometry )
+                    // Geometry.equals( Object ) and Geometry.equals( Geometry )
                     // are different 
                     // (We should fold this knowledge into AttributeType...)
                     // 
-                    if( !((Geometry)att).equals( (Geometry) otherAtt )){
-                	return false;   
+                    if (!((Geometry) att).equals((Geometry) otherAtt)) {
+                        return false;
                     }
-        	}
-                else {
+                } else {
                     return false;
-                }            
+                }
             }
         }
-	
-	return true;
+
+        return true;
     }
-    public static FeatureType createSubType( FeatureType featureType, String properties[], CoordinateSystem override ) throws SchemaException {
-        if( properties == null && override == null){
-            return featureType;
-        }
-        boolean same = featureType.getAttributeCount() == properties.length;
-        for( int i=0; i<featureType.getAttributeCount() && same; i++ ){
-            AttributeType type = featureType.getAttributeType( i );
-            same = type.getName().equals( properties[i] ) &&
-                   ((override != null && type instanceof GeometryAttributeType)
-                   ? ((GeometryAttributeType) type).getCoordinateSystem().equals( override )
-                   : true);                              
-        }
-        if( same ){
+
+    public static FeatureType createSubType(FeatureType featureType, String[] properties,
+        CoordinateSystem override) throws SchemaException {
+        if ((properties == null) && (override == null)) {
             return featureType;
         }
 
-        AttributeType types[] = new AttributeType[ properties.length ];
-        for( int i=0; i<properties.length;i++){
-            types[i]= featureType.getAttributeType( properties[i] );
-            if( override != null && types[i] instanceof GeometryAttributeType){
-                types[i] = new DefaultAttributeType.Geometric( (DefaultAttributeType.Geometric) types[i], override );            
+        boolean same = featureType.getAttributeCount() == properties.length;
+
+        for (int i = 0; (i < featureType.getAttributeCount()) && same; i++) {
+            AttributeType type = featureType.getAttributeType(i);
+            same = type.getName().equals(properties[i])
+                && (((override != null) && type instanceof GeometryAttributeType)
+                ? ((GeometryAttributeType) type).getCoordinateSystem().equals(override) : true);
+        }
+
+        if (same) {
+            return featureType;
+        }
+
+        AttributeType[] types = new AttributeType[properties.length];
+
+        for (int i = 0; i < properties.length; i++) {
+            types[i] = featureType.getAttributeType(properties[i]);
+
+            if ((override != null) && types[i] instanceof GeometryAttributeType) {
+                types[i] = new DefaultAttributeType.Geometric((DefaultAttributeType.Geometric) types[i],
+                        override);
             }
         }
-        return FeatureTypeFactory.newFeatureType(
-            types,
-            featureType.getTypeName(),
-            featureType.getNamespace()
-        );
+
+        return FeatureTypeFactory.newFeatureType(types, featureType.getTypeName(),
+            featureType.getNamespace());
     }
-    public static FeatureType createSubType( FeatureType featureType, String properties[]) throws SchemaException{
-        if( properties == null ){
+
+    public static FeatureType createSubType(FeatureType featureType, String[] properties)
+        throws SchemaException {
+        if (properties == null) {
             return featureType;
         }
+
         boolean same = featureType.getAttributeCount() == properties.length;
-        for( int i=0; i<featureType.getAttributeCount() && same; i++ ){
-                same = featureType.getAttributeType( i ).getName().equals( properties[i] );
+
+        for (int i = 0; (i < featureType.getAttributeCount()) && same; i++) {
+            same = featureType.getAttributeType(i).getName().equals(properties[i]);
         }
-        if( same ){
+
+        if (same) {
             return featureType;
         }
-        
-        AttributeType types[] = new AttributeType[ properties.length ];
-        for( int i=0; i<properties.length;i++){
-            types[i]= featureType.getAttributeType( properties[i] );            
+
+        AttributeType[] types = new AttributeType[properties.length];
+
+        for (int i = 0; i < properties.length; i++) {
+            types[i] = featureType.getAttributeType(properties[i]);
         }
-        return FeatureTypeFactory.newFeatureType(
-            types,
-            featureType.getTypeName(),
-            featureType.getNamespace()
-        );
+
+        return FeatureTypeFactory.newFeatureType(types, featureType.getTypeName(),
+            featureType.getNamespace());
     }
+
     /**
      * Utility method for FeatureType construction.
      * 
@@ -684,8 +798,7 @@ public class DataUtilities {
      * Example:<code>name:"",age:0,geom:Geometry,centroid:Point,url:java.io.URL"</code>
      * </p>
      *
-     * @param identification identification of FeatureType:
-     *        (<i>namesapce</i>).<i>typeName</i>
+     * @param identification identification of FeatureType: (<i>namesapce</i>).<i>typeName</i>
      * @param typeSpec Specification for FeatureType
      *
      * @return
@@ -695,10 +808,8 @@ public class DataUtilities {
     public static FeatureType createType(String identification, String typeSpec)
         throws SchemaException {
         int split = identification.lastIndexOf('.');
-        String namespace = (split == -1) ? null
-                                         : identification.substring(0, split);
-        String typeName = (split == -1) ? identification
-                                        : identification.substring(split + 1);
+        String namespace = (split == -1) ? null : identification.substring(0, split);
+        String typeName = (split == -1) ? identification : identification.substring(split + 1);
 
         FeatureTypeFactory typeFactory = FeatureTypeFactory.newInstance(typeName);
         typeFactory.setNamespace(namespace);
@@ -732,43 +843,62 @@ public class DataUtilities {
 
         return typeFactory.getFeatureType();
     }
-    public static Feature parse( FeatureType type, String fid, String text[] )
+
+    public static Feature parse(FeatureType type, String fid, String[] text)
         throws IllegalAttributeException {
-        Object attributes[] = new Object[ text.length ];
-        for( int i=0; i < text.length; i++ ){
-            attributes[i] = type.getAttributeType(i).parse( text[i] );
+        Object[] attributes = new Object[text.length];
+
+        for (int i = 0; i < text.length; i++) {
+            attributes[i] = type.getAttributeType(i).parse(text[i]);
         }
-        return type.create( attributes, fid );            
+
+        return type.create(attributes, fid);
     }
-    /** Record typeSpec for the provided featureType */
-    public static String spec( FeatureType featureType ){
-        AttributeType types[] = featureType.getAttributeTypes();
+
+    /**
+     * Record typeSpec for the provided featureType
+     *
+     * @param featureType DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
+    public static String spec(FeatureType featureType) {
+        AttributeType[] types = featureType.getAttributeTypes();
         StringBuffer buf = new StringBuffer();
-        for( int i=0; i<types.length; i++ ){
-            buf.append( types[i].getName() );
+
+        for (int i = 0; i < types.length; i++) {
+            buf.append(types[i].getName());
             buf.append(":");
-            buf.append( typeMap( types[i].getType() ) );
-            if(i<types.length-1){
+            buf.append(typeMap(types[i].getType()));
+
+            if (i < (types.length - 1)) {
                 buf.append(",");
             }
         }
+
         return buf.toString();
     }
+
     static Class type(String typeName) throws ClassNotFoundException {
         if (typeMap.containsKey(typeName)) {
             return (Class) typeMap.get(typeName);
         }
+
         return Class.forName(typeName);
     }
-    static String typeMap( Class type){
-        for( Iterator i=typeMap.entrySet().iterator(); i.hasNext(); ){
+
+    static String typeMap(Class type) {
+        for (Iterator i = typeMap.entrySet().iterator(); i.hasNext();) {
             Map.Entry entry = (Entry) i.next();
-            if( entry.getValue().equals(type) ){
+
+            if (entry.getValue().equals(type)) {
                 return (String) entry.getKey();
             }
         }
+
         return type.getName();
     }
+
     /**
      * Returns AttributeType based on String specification (based on UML).
      * 
@@ -801,6 +931,7 @@ public class DataUtilities {
      * <p>
      * Where <i>hint</i> is "nilable".
      * </p>
+     *
      * @param typeSpec
      *
      * @return
@@ -809,33 +940,34 @@ public class DataUtilities {
      */
     static AttributeType createAttribute(String typeSpec)
         throws SchemaException {
-            
-        int split = typeSpec.indexOf(":");       
-        
+        int split = typeSpec.indexOf(":");
+
         String name;
         String type;
         String hint = null;
-        if( split == -1 ){
-            name = typeSpec;
-            type = "String";                        
-        }
-        else {                       
-            name = typeSpec.substring(0, split );
 
-            int split2 = typeSpec.indexOf( ":", split+1 );            
-            if( split2 == -1 ){
-                type = typeSpec.substring( split+1 );
+        if (split == -1) {
+            name = typeSpec;
+            type = "String";
+        } else {
+            name = typeSpec.substring(0, split);
+
+            int split2 = typeSpec.indexOf(":", split + 1);
+
+            if (split2 == -1) {
+                type = typeSpec.substring(split + 1);
+            } else {
+                type = typeSpec.substring(split + 1, split2);
+                hint = typeSpec.substring(split2 + 1);
             }
-            else {                
-                type = typeSpec.substring( split+1, split2 );
-                hint = typeSpec.substring( split2+1 );                
-            }            
         }
+
         try {
-            if( hint != null && hint.indexOf("nillable") != -1 ){
-                return AttributeTypeFactory.newAttributeType(name, type(type), true );
+            if ((hint != null) && (hint.indexOf("nillable") != -1)) {
+                return AttributeTypeFactory.newAttributeType(name, type(type), true);
             }
-            return AttributeTypeFactory.newAttributeType(name, type(type) );
+
+            return AttributeTypeFactory.newAttributeType(name, type(type));
         } catch (ClassNotFoundException e) {
             throw new SchemaException("Could not type " + name + " as:" + type);
         }
@@ -845,13 +977,13 @@ public class DataUtilities {
      * A quick and dirty FilterVisitor.
      * 
      * <p>
-     * This is useful when creating FilterVisitors for use with traverseDepth(
-     * Filter, FilterVisitor ) method.
+     * This is useful when creating FilterVisitors for use with traverseDepth( Filter,
+     * FilterVisitor ) method.
      * </p>
      * 
      * <p>
-     * visit( Filter ) and visit( Expression ) will pass their arguments off to
-     * more specialized functions.
+     * visit( Filter ) and visit( Expression ) will pass their arguments off to more specialized
+     * functions.
      * </p>
      */
     public abstract static class AbstractFilterVisitor implements FilterVisitor {
