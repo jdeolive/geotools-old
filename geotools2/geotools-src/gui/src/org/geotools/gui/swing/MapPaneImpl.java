@@ -23,34 +23,36 @@ package org.geotools.gui.swing;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.Color;
-import java.awt.Graphics;
-import java.lang.IllegalArgumentException;
-import javax.swing.JPanel;
-import java.util.logging.Logger;
 import java.awt.Dimension;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.Graphics;
 import java.awt.Rectangle;
+import java.lang.IllegalArgumentException;
+import java.util.EventObject;
+import java.util.logging.Logger;
+import javax.swing.JPanel;
+import org.geotools.data.DataSourceException;
+import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
+import org.geotools.gui.swing.event.GeoMouseEvent;
 import org.geotools.gui.tools.AbstractTool;
-import java.awt.event.MouseListener;
-import java.util.EventObject;
-import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.BoundingBox;
-import org.geotools.map.events.LayerListListener;
 import org.geotools.map.Context;
+import org.geotools.map.events.BoundingBoxListener;
+import org.geotools.map.events.LayerListListener;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
 import org.geotools.renderer.Java2DRenderer;
 import org.geotools.styling.Style;
-import org.geotools.datasource.extents.EnvelopeExtent;
-import org.geotools.data.DataSourceException;
 
 /**
  * This class provides core functionality for drawing a map.
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPaneImpl.java,v 1.10 2003/03/08 07:40:00 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.11 2003/03/12 09:31:58 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -198,5 +200,45 @@ public class MapPaneImpl extends PanelWidgetImpl implements
      */
     public void layerListChanged(EventObject layerListChangedEvent) {
         repaint(getVisibleRect());
+    }
+
+    /**
+     * Processes mouse events occurring on this component. This method
+     * overrides the default AWT's implementation in order to wrap the
+     * <code>MouseEvent</code> into a {@link GeoMouseEvent}. Then, the default
+     * AWT's implementation is invoked in * order to pass this event to any
+     * registered {@link MouseListener} objects.
+     */
+    protected void processMouseEvent(final MouseEvent event) {
+        super.processMouseEvent(
+            new GeoMouseEvent(
+                event,
+                renderer.getDotToCoordinateSystem(
+                    new Rectangle(
+                        getInsets().left,
+                        getInsets().top,
+                        getWidth()-getInsets().left-getInsets().right,
+                        getHeight()-getInsets().top-getInsets().bottom)
+                    )));
+    }
+
+    /**
+     * Processes mouse motion events occurring on this component. This method
+     * overrides the default AWT's implementation in order to wrap the
+     * <code>MouseEvent</code> into a {@link GeoMouseEvent}. Then, the default
+     * AWT's implementation is invoked in order to pass this event to any
+     * registered {@link MouseMotionListener} objects.
+     */
+    protected void processMouseMotionEvent(final MouseEvent event) {
+        super.processMouseMotionEvent(
+            new GeoMouseEvent(
+                event,
+                renderer.getDotToCoordinateSystem(
+                    new Rectangle(
+                        getInsets().left,
+                        getInsets().top,
+                        getWidth()-getInsets().left-getInsets().right,
+                        getHeight()-getInsets().top-getInsets().bottom)
+                    )));
     }
 }
