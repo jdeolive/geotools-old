@@ -13,7 +13,7 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
       <surname>Shorter</surname>
     </author>
 
-    <date>$Date: 2002/11/04 11:15:58 $</date>
+    <date>$Date: 2002/11/08 11:03:20 $</date>
 
     <abstract>
       <para>Glossary of terms used in the Geotools2 project.</para>
@@ -37,6 +37,10 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
           <entry>CTS</entry>
 
           <entry>Coordinate Transform Service</entry>
+        </row>
+
+        <row>
+          <entry>GPL</entry>
         </row>
       </thead>
 
@@ -101,6 +105,10 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
         </row>
 
         <row>
+          <entry>LGPL</entry>
+        </row>
+
+        <row>
           <entry>OGC</entry>
 
           <entry><ulink url="http://opengis.org">Open GIS Consortium</ulink></entry>
@@ -112,6 +120,16 @@ href="file:/home/cameron/work/geotools2/extbin/gtbuild/xxe/css/docbook41.css"
           <entry>SDK</entry>
 
           <entry>Software Development Kit</entry>
+        </row>
+
+        <row>
+          <entry>SRS</entry>
+
+          <entry>Spacial Reference System</entry>
+
+          <entry>Spacial Reference System (as defined by the OGC). An
+          alpha-numeric ID which specifies what coordinate system you are
+          using. Eg: SRS=&#34;EPSG:4326&#34;.</entry>
         </row>
 
         <row>
