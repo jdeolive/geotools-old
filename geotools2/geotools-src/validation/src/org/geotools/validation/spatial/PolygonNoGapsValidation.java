@@ -24,10 +24,14 @@ package org.geotools.validation.spatial;
 
 import java.util.Map;
 
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
 import org.geotools.validation.DefaultFeatureValidation;
 import org.geotools.validation.ValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -39,7 +43,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PolygonNoGapsValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @version $Id: PolygonNoGapsValidation.java,v 1.4 2004/02/27 23:41:22 dmzwiers Exp $
  */
 public class PolygonNoGapsValidation extends DefaultFeatureValidation {
     /**
@@ -73,7 +77,34 @@ public class PolygonNoGapsValidation extends DefaultFeatureValidation {
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        //TODO Fix Me
-        return false;
+        FeatureSource polySource = (FeatureSource) layers.get(getTypeRef());
+
+        Object[] poly1 = polySource.getFeatures().collection().toArray();
+
+        if (!envelope.contains(polySource.getBounds())) {
+            results.error((Feature) poly1[0],
+                "Polygon Feature Source is not contained within the Envelope provided.");
+
+            return false;
+        }
+
+        if(poly1.length>0){
+        	Geometry layer = ((Feature)poly1[0]).getDefaultGeometry();
+        	for (int i = 1; i < poly1.length; i++) {
+            	layer = layer.union(((Feature) poly1[i]).getDefaultGeometry());
+        	}
+        	if(layer instanceof Polygon){
+        		Polygon p = (Polygon)layer;
+        		if(p.getNumInteriorRing()!=0){
+                	results.error((Feature)poly1[0],"The generated result was had gaps.");
+                	return false;
+        		}
+        		return true;
+        	}
+        	results.error((Feature)poly1[0],"The generated result was not of type polygon.");
+        	return false;
+        }
+
+        return true;
     }
 }
