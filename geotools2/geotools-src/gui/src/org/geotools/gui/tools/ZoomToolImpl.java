@@ -38,11 +38,18 @@ import javax.swing.event.MouseInputAdapter;
 
 
 /**
- * Pan the map so that the new extent has the click point in the middle of the
- * map and then zoom in/out by the zoomFactor.
+ * Provides both Click/Zoom and Drag/Zoom functionality.
+ * Processes MouseEvents on behalf of MapPanel and constructs a
+ * CordinateTransform for the map's Context.<br>
+
+ * For Click/Zoom, pan the map so that the new extent has the click point in the middle of the
+ * map and then zoom in/out by the zoomFactor.<br>
+ *
+ * For Drag/Zoom, pan to the center of the dragged area and zoom in to include
+ * that area.
  *
  * @author Cameron Shorter
- * @version $Id: ZoomToolImpl.java,v 1.7 2003/04/01 10:33:09 camerons Exp $
+ * @version $Id: ZoomToolImpl.java,v 1.8 2003/04/01 10:40:05 camerons Exp $
  */
 public class ZoomToolImpl extends PanToolImpl implements ZoomTool {
     private static final Logger LOGGER =

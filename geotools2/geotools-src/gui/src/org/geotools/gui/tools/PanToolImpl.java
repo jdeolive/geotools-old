@@ -37,10 +37,12 @@ import javax.swing.event.MouseInputAdapter;
 
 
 /**
- * DOCUMENT ME!
+ * Provides both Click/Pan and Drap/Pan functionality.
+ * Processes MouseEvents on behalf of MapPanel and constructs a
+ * CordinateTransform for the map's Context.
  *
  * @author $author$
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  */
 public class PanToolImpl extends AbstractTool implements PanTool {
     private static final Logger LOGGER =
