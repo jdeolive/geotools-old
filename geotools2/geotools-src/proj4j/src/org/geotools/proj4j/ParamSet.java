@@ -71,8 +71,10 @@ Hashtable params = new Hashtable();
         return null;
     }
     
-    public float getRadiansParam(String paramName){
-        return -1f;
+    public double getRadiansParam(String paramName){
+        Object value = params.get(paramName);
+        if(value!=null)return Misc.dmsToR(value.toString());
+        return 0;
     }
     
 }
