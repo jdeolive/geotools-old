@@ -43,20 +43,15 @@ import com.vividsolutions.jts.geom.Envelope;
  * The source of data for Features. Shapefiles, databases, etc. are referenced
  * through this interface.
  *
- * @version $Id: GMLDataSource.java,v 1.2 2003/07/26 15:28:36 dledmonds Exp $
+ * @version $Id: GMLDataSource.java,v 1.3 2003/07/31 21:12:03 dledmonds Exp $
  * @author Ian Turton, CCG
  */
-public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
-//implements DataSource { , GMLHandlerFeature {
+public class GMLDataSource extends AbstractDataSource {
 
     /**
      * The logger for the GML module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.data.gml");
-    
-    // unused now ...
-    /** Specifies the default parser (Xerces). */
-    // private String defaultParser = "org.apache.xerces.parsers.SAXParser";
     
     /** Holds a URI for the GML data. */
     private URL url;
@@ -65,15 +60,35 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     private FeatureCollection features = FeatureCollections.newCollection();
     
     
+    /**
+     * Creates a new GMLDataSource
+     *
+     * @param uri URI of file to parse
+     *
+     * @throws DataSourceException 
+     */
     public GMLDataSource(String uri) throws DataSourceException {
         setUri(uri);
     }
     
-    public GMLDataSource(URL uri) throws DataSourceException{
+    /**
+     * Creates a new GMLDataSource
+     *
+     * @param uri URI of file to parse
+     *
+     * @throws DataSourceException
+     */
+    public GMLDataSource(URL uri) throws DataSourceException {
         setUri(uri);
     }
     
-    
+    /**
+     * Sets the URI of the file to parse
+     *
+     * @param uri URI of file to parse
+     *
+     * @throws DataSourceException
+     */
     public void setUri(String uri) throws DataSourceException {
         try{
             url = new URL(uri);
@@ -83,103 +98,69 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
         }
     }
     
-    public void setUri(URL uri) throws DataSourceException{
-        /*try {
-            in = uri.openStream();
-        } catch (IOException e){
-            throw new DataSourceException("Error reading url " + uri.toString() + " in GMLGeometryDataSource" +
-            "\n" + e);
-        }
-        this.uri = new InputSource(in);*/
-        
-        
+    /**
+     * Sets the URI of the file to parse
+     *
+     * @param uri URI of file to parse
+     *
+     * @throws DataSourceException
+     */
+    public void setUri(URL uri) throws DataSourceException {
         this.url = uri;
     }
     
-    // unused now ...
-    //public void setParser(String parser) {
-    //    this.defaultParser = parser;
-    //}
-    
-    
-//    public void feature(Feature feature) {
-//        features.add(feature);
-//    }
-    
-    
-    
-    
-    
-    
     /**
      * Stops this DataSource from loading.
+     * <b>not yet implemented</b>
+     *
      * @task TODO: Implement ability to abort loading
      */
     public void abortLoading() {
         //can't be done at the moment
     }
     
-    
-    /** Adds all features from the passed feature collection to the datasource.
+    /** 
+     * Adds all features from the passed feature collection to the datasource.
      *
      * @param collection The collection from which to add the features.
+     *
      * @throws DataSourceException If anything goes wrong or if exporting is
-     * not supported.
-     * @throw UnsupportedOperationException
+     *         not supported.
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
+     *
      * @task TODO: Implement addFeatures method
      */
     public Set addFeatures(FeatureCollection collection) throws DataSourceException, UnsupportedOperationException {
-         return super.addFeatures( collection );
+        return super.addFeatures( collection );
     }
     
-
-    
-    /** Gets the bounding box of this datasource using the speed of
+    /**  
+     * Gets the bounding box of this datasource using the speed of
      * this datasource as set by the parameter.
      *
-     * @param speed If true then a quick (and possibly dirty) estimate of
-     * the extent is returned. If false then a slow but accurate extent
-     * will be returned
      * @return The extent of the datasource or null if unknown and too
-     * expensive for the method to calculate.
+     *         expensive for the method to calculate.
+     *
+     * @throws DataSourecException for all errors getting the bounds
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
+     *
      * @task TODO: implement quick bbox.  This will return slow no matter what.
      */
     public Envelope getBounds() throws DataSourceException, UnsupportedOperationException {
-            //scan whole file
-//      try {
-//        // GMLFilterFeature featureFilter = new GMLFilterFeature(this);
-//        GMLFilterFeature featureFilter = new GMLFilterFeature( new GMLReceiver( features ) );
-//        GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
-//        GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-//        //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
-//        SAXParserFactory fac = SAXParserFactory.newInstance();
-//        SAXParser parser = fac.newSAXParser();
-//        
-//        ParserAdapter p = new ParserAdapter(parser.getParser());
-//        p.setContentHandler(documentFilter);
-//        p.parse(getInputSource());
-//      }
-//      catch (Exception e) {
-//        return null;
-//      }
         parse();
-        
-//      Envelope bbox = new Envelope();
-//      for ( int i = 0; i < features.size(); i++ ) {
-//        Envelope bbox2;
-//        bbox2 = ((Feature) features.get(i)).getDefaultGeometry().getEnvelopeInternal();
-//        bbox.expandToInclude(bbox2);
-//      }
-//      return bbox;
-      return features.getBounds();
-        
+        return features.getBounds();
     }
     
-    /** Loads features from the datasource into the returned collection, based on
+    /** 
+     * Loads features from the datasource into the returned collection, based on
      * the passed filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
+     *
      * @return Collection The collection to put the features into.
+     *
      * @throws DataSourceException For all data source errors.
      */
     public FeatureCollection getFeatures(Filter filter) throws DataSourceException {
@@ -189,10 +170,16 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     }
     
     /**
+     * Loads features from the datasource into the returned collection, based on
+     * the passed Query
      *
+     * @param query Query to apply to datasource
+     *
+     * @return FeatureCollection containing the results
+     *
+     * @throws DataSourceException For all data source errors.
      */
-    public FeatureCollection getFeatures(Query query) 
-	throws DataSourceException {
+    public FeatureCollection getFeatures(Query query) throws DataSourceException {
 	Filter filter = null;
 	if (query != null) {
 	    filter = query.getFilter();
@@ -201,7 +188,13 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     }
 
     /**
+     * Loads features into the passed FeatureCollection, based on the passed
+     * Query.
      *
+     * @param collection FeatureCollection to load features into
+     * @param query Query to apply to the datasource
+     *
+     * @throws DataSourceException for all datasurce errors
      */
     public void getFeatures(FeatureCollection collection, Query query)
 	throws DataSourceException {
@@ -212,62 +205,24 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
 	getFeatures(collection, filter);
     }
 
-    /** Loads features from the datasource into the passed collection, based on
+    /** 
+     * Loads features from the datasource into the passed collection, based on
      * the passed filter.  Note that all data sources must support this method
      * at a minimum.
      *
      * @param collection The collection to put the features into.
      * @param filter An OpenGIS filter; specifies which features to retrieve.
+     *
      * @throws DataSourceException For all data source errors.
      */
     public void getFeatures(FeatureCollection collection, Filter filter) throws DataSourceException {
-        // chains all the appropriate filters together (in correct order)
-        //  and initiates parsing
-//        try {
-//            //GMLFilterFeature featureFilter = new GMLFilterFeature(this);
-//            GMLFilterFeature featureFilter = new GMLFilterFeature( new GMLReceiver( features ) );
-//            GMLFilterGeometry geometryFilter = new GMLFilterGeometry(featureFilter);
-//            GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
-//            //XMLReader parser = XMLReaderFactory.createXMLReader(defaultParser);
-//            SAXParserFactory fac = SAXParserFactory.newInstance();
-//            SAXParser parser = fac.newSAXParser();
-//            
-//            ParserAdapter p = new ParserAdapter(parser.getParser());
-//            p.setContentHandler(documentFilter);
-//            p.parse(getInputSource());
-//        }
-//        catch (IOException e) {
-//            throw new DataSourceException("Error reading URI: " + url );
-//        }
-//        catch (SAXException e) {
-//            throw new DataSourceException("Parsing error: " + e.getMessage());
-//        }
-//        catch (ParserConfigurationException e){
-//            throw new DataSourceException("Parsing error: " + e.getMessage());
-//        }
         parse();
         
         FilteringIteration.filter(features,filter);
         collection.addAll(features);
-        
-//        Iterator list = features.iterator();
-//        
-//        while(list.hasNext()){
-//            if (!filter.contains((Feature) list.next())) {
-//                list.remove();
-//                LOGGER.finer("feature filtered out");
-//            }
-//        }
-        
-        
-//        Feature[] typedFeatures = new Feature[features.size()];
-//        for (int i = 0; i < features.size(); i++) {
-//            typedFeatures[i] = (Feature) features.get(i);
-//        }
-//        collection.addFeatures(typedFeatures);
     }
 
-       /**
+    /**
      * Loads all features from the datasource into the returned collection.
      * Filter.NONE can also be used to get all features.  Calling this
      * function is equivalent to using {@link Query.ALL}
@@ -287,8 +242,12 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      * @param type The attributes to modify.
      * @param value The values to put in the attribute types.
      * @param filter An OGC filter to note which attributes to modify.
+     *
      * @throws DataSourceException If modificaton is not supported, if
-     * the object type do not match the attribute type.
+     *         the object type do not match the attribute type.
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
+     *
      * @task TODO: Implement support for modification of features (single attribute)
      */
     public void modifyFeatures(AttributeType type, Object value, Filter filter) throws DataSourceException, UnsupportedOperationException {
@@ -301,9 +260,13 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      * @param type The attributes to modify.
      * @param value The values to put in the attribute types.
      * @param filter An OGC filter to note which attributes to modify.
+     *
      * @throws DataSourceException If modificaton is not supported, if
-     * the attribute and object arrays are not eqaul length, or if the object
-     * types do not match the attribute types.
+     *         the attribute and object arrays are not eqaul length, or 
+     *         if the object types do not match the attribute types.
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
+     *
      * @task TODO: Implement support for modification of feature (multi attribute)
      */
     public void modifyFeatures(AttributeType[] type, Object[] value, Filter filter) throws DataSourceException, UnsupportedOperationException {
@@ -314,8 +277,12 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      * collection.
      *
      * @param filter An OpenGIS filter; specifies which features to remove.
+     *
      * @throws DataSourceException If anything goes wrong or if deleting is
-     * not supported.
+     *         not supported.
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
+     *
      * @task TODO: Implement support for removal of features
      */
     public void removeFeatures(Filter filter) throws DataSourceException, UnsupportedOperationException {
@@ -323,7 +290,11 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     }
     
     /**
+     * Gets an InputSource for the URI to parse
      *
+     * @return InputSource InputSource for the URI to parse
+     *
+     * @throws DataSourceException if anything goes wrong
      */
     private InputSource getInputSource() throws DataSourceException{
         InputStream in;
@@ -337,7 +308,9 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     }
 
     /**
+     * Parses the gml held in the URI and stores the Features
      *
+     * @throws DataSourceException for any errors
      */
     private void parse() throws DataSourceException {
         try {
@@ -364,32 +337,6 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
         }
     }
 
-    
-    /**************************************************
-      Data source utility methods.
-     **************************************************/
-
-    /**
-     * Gets the DatasSourceMetaData object associated with this datasource.  
-     * This is the preferred way to find out which of the possible datasource
-     * interface methods are actually implemented, query the DataSourceMetaData
-     * about which methods the datasource supports.
-     * @task REVISIT: way for datasource to change hasFastBbox after bbox is
-     * calculated.
-     */
-//    public DataSourceMetaData getMetaData(){
-//	return new DataSourceMetaData() {
-//		public boolean supportsAdd(){ return false; }
-//		public boolean supportsModify(){ return false; }
-//		public boolean supportsRemove(){ return false; }
-//		public boolean supportsRollbacks(){ return false; }
-//		public boolean supportsSetFeatures(){return false;}
-//		public boolean hasFastBbox(){return true;}
-//		public boolean supportsAbort(){return false;}
-//		public boolean supportsGetBbox(){return true;}
-//	    };
-//    }
-    
     /**
      * Creates the a metaData object.
      *
@@ -403,13 +350,17 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
         
         return metaData;
     }
-
 	    
     /**
      * Deletes the all the current Features of this datasource and adds the
      * new collection.  Primarily used as a convenience method for file 
      * datasources.  
+     *
      * @param collection - the collection to be written
+     *
+     * @throws DataSourceException if there are any problems setting the collection
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
      */
     public void setFeatures(FeatureCollection collection) throws DataSourceException, UnsupportedOperationException {
 	super.setFeatures( collection );
@@ -421,6 +372,7 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      *
      * @throws DataSourceException if there are any problems getting the
      *         schema.
+     *
      * @tasks TODO: implement this, as all datasources _should_ have this 
      * method.
      */
@@ -433,13 +385,16 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      * created with.  This allows the user to obtain the attributes he wants,
      * by calling getSchema and then creating a new schema using the 
      * attributeTypes from the currently used schema.  
+     *
      * @param schema the new schema to be used to create features.
+     *
+     * @throws DataSourceException if there are problems setting the Schema
      */
     public void setSchema(FeatureType schema) throws DataSourceException {
 	throw new DataSourceException("schema methods not supported");
     }
     
-       /**
+    /**
      * Makes all transactions made since the previous commit/rollback
      * permanent.  This method should be used only when auto-commit mode has
      * been disabled.   If autoCommit is true then this method does nothing.
@@ -481,14 +436,14 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
      * @param autoCommit <tt>true</tt> to enable auto-commit mode,
      *        <tt>false</tt> to disable it.
      *
-     * @throws DataSourceException DOCUMENT ME!
-     * @throws UnsupportedOperationException DOCUMENT ME!
+     * @throws DataSourceException if there are problems with the datasource
+     * @throws UnsupportedOperationException if the datasource does not support 
+     *         this operation
      *
      * @see #setAutoCommit(boolean)
      */
     public void setAutoCommit(boolean autoCommit)
         throws DataSourceException, UnsupportedOperationException {
-	
 	super.setAutoCommit( autoCommit );
     }
 
@@ -508,6 +463,5 @@ public class GMLDataSource extends AbstractDataSource { //extends XMLFilterImpl
     public boolean getAutoCommit() throws DataSourceException {
         return true;
     }
-    
     
 }
