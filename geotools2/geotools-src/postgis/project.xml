@@ -37,15 +37,18 @@
     </developers>
   <dependencies>
    <dependency>
-      <id>core</id>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
       <dependency>
-      <id>resources</id>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>defaultcore</id>
+      <artifactId>defaultcore</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
@@ -57,7 +60,8 @@
       <version>1.0</version>
     </dependency>
       <dependency>
-      <id>filter</id>
+      <artifactId>filter</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>

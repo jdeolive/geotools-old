@@ -4,7 +4,7 @@
   <pomVersion>3</pomVersion>
   <name>geotools-gtbuild</name>
   <id>gtbuild</id>
-  <groupID>GT2</groupID>
+  <groupId>gt2</groupId>
   <logo>/images/${pom.artifactId}.gif</logo>
   <currentVersion>0.1</currentVersion>
   <organization>
@@ -24,6 +24,11 @@
   <siteDirectory>/seis/raid1/Apache/htdocs/software/geotools/${pom.artifactId}</siteDirectory>
   <distributionDirectory>/home/groups/g/ge/geotools/htdocs/gt2</distributionDirectory>
   <distributionSite>geotools.sf.net</distributionSite>
+
+<!--
+  <distributionDirectory>/seis/raid1/Apache/htdocs/software/mavenRepository</distributionDirectory>
+  <distributionSite>www.seis.sc.edu</distributionSite>
+-->
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot:geotools/geotools2/geotools-src/${pom.artifactId}</connection>
@@ -139,15 +144,18 @@
     
     <integrationUnitTestPatterns/>
     <sourceDirectory>src</sourceDirectory>
+<!--
     <resourcesSourceDirectory>src</resourcesSourceDirectory>
+-->
     <resources>
       <resource>
        <directory>${basedir}/src/</directory>
         <includes>
           <!-- The following seems to fail, not sure why -->
-          <!--  <include>*.serialized</include> 
-            <include>*.txt</include> 
-            <include>*.utf</include> -->
+            <include>**/*.serialized</include> 
+            <include>**/*.txt</include> 
+            <include>**/*.utf</include> 
+            <include>**/*.properties</include> 
         </includes>
       </resource>
     </resources>

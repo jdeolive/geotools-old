@@ -37,7 +37,8 @@
     </developers>
   <dependencies>
     <dependency>
-      <id>core</id>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
@@ -45,15 +46,18 @@
       <version>1.2</version>
     </dependency>
         <dependency>
-      <id>defaultcore</id>
+      <artifactId>defaultcore</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>gmldatasource</id>
+      <artifactId>gmldatasource</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>resources</id>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
     </dependencies>

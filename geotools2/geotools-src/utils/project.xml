@@ -34,7 +34,8 @@
     </dependency>  
     
     <dependency>
-      <id>sldstyling</id>
+      <artifactId>sldstyling</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>  
     

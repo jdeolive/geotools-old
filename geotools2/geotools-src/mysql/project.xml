@@ -48,11 +48,13 @@
             <version>2.0.14</version>
         </dependency>   
         <dependency>
-      <id>defaultcore</id>
+      <artifactId>defaultcore</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>core</id>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
     </dependencies>

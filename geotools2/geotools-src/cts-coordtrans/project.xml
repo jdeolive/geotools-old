@@ -31,7 +31,8 @@
       <version>0.1</version>
     </dependency>
     <dependency>
-      <id>resources</id>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
     <dependency>
@@ -39,7 +40,8 @@
       <version>1.2.1</version>
     </dependency>
     <dependency>
-      <id>core</id>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
   </dependencies>

@@ -29,11 +29,13 @@
   </developers>
   <dependencies>
     <dependency>
-      <id>resources</id>
+      <artifactId>resources</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
     <dependency>
-      <id>cts-coordtrans</id>
+      <artifactId>cts-coordtrans</artifactId>
+      <groupId>gt2</groupId>
       <version>0.6</version>
     </dependency>
     <dependency>

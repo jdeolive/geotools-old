@@ -32,17 +32,20 @@
       <version>2.1</version>
     </dependency>  
         <dependency>
-      <id>core</id>
+      <artifactId>core</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>defaultcore</id>
+      <artifactId>defaultcore</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
        
         
         <dependency>
-      <id>filter</id>
+      <artifactId>filter</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
@@ -50,15 +53,18 @@
       <version>1.2</version>
     </dependency>
         <dependency>
-      <id>java2drendering</id>
+      <artifactId>java2drendering</artifactId>
+      <groupId>gt2</groupId>
       <version>0.1</version>
     </dependency>
         <dependency>
-      <id>gcs-coverage</id>
+      <artifactId>gcs-coverage</artifactId>
+      <groupId>gt2</groupId>
       <version>0.6</version>
     </dependency>
         <dependency>
-      <id>cts-coordtrans</id>
+      <artifactId>cts-coordtrans</artifactId>
+      <groupId>gt2</groupId>
       <version>0.6</version>
     </dependency>
     </dependencies>
