@@ -31,7 +31,7 @@ import java.util.Set;
  * @author Ray Gallagher
  * @author Rob Hranac, TOPP
  * @author Chris Holmes, TOPP
- * @version $Id: DataSource.java,v 1.10 2003/05/13 15:02:03 cholmesny Exp $
+ * @version $Id: DataSource.java,v 1.11 2003/05/14 23:22:53 cholmesny Exp $
  */
 public interface DataSource {
     /**
@@ -82,12 +82,24 @@ public interface DataSource {
      * on the passed filter.
      *
      * @param filter An OpenGIS filter; specifies which features to retrieve.
+     *               <tt>null</tt> is not allowed, use Filter.NONE instead.
      *
      * @return Collection The collection to put the features into.
      *
      * @throws DataSourceException For all data source errors.
      */
     FeatureCollection getFeatures(Filter filter) throws DataSourceException;
+
+    /**
+     * Loads all features from the datasource into the returned collection.
+     * Filter.NONE can also be used to get all features.  Calling this
+     * function is equivalent to using {@link Query.ALL}
+     *
+     * @return Collection The collection to put the features into.
+     *
+     * @throws DataSourceException For all data source errors.
+     */
+    FeatureCollection getFeatures() throws DataSourceException;
 
     /**
      * Adds all features from the passed feature collection to the datasource.
@@ -279,7 +291,7 @@ public interface DataSource {
      * @return The bounding box of the datasource or null if unknown and too
      *         expensive for the method to calculate.
      *
-     * @throws DataSourceExceptions if there are errors getting the bounding
+     * @throws DataSourceException if there are errors getting the bounding
      *         box.
      *
      * @task REVISIT: Consider changing return of getBbox to Filter once
