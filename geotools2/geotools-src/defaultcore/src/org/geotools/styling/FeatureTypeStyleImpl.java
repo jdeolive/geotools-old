@@ -22,7 +22,7 @@ package org.geotools.styling;
 import java.util.*;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.3 2002/10/21 16:10:18 ianturton Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.4 2002/10/22 10:46:45 ianturton Exp $
  * @author James Macgill
  */
 public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
@@ -55,7 +55,10 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     }
     
     public void setRules(Rule[] rules){
-        ruleList.add( Arrays.asList(rules));
+        //ruleList.add( Arrays.asList(rules));
+        for(int i=0;i<rules.length;i++){
+            addRule(rules[i]);
+        }
     }
     
     public void addRule(Rule rule){

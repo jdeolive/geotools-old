@@ -22,7 +22,7 @@ package org.geotools.styling;
 import java.util.ArrayList;
 import java.util.Arrays;
 /**
- * @version $Id: StyleImpl.java,v 1.4 2002/10/21 16:10:18 ianturton Exp $
+ * @version $Id: StyleImpl.java,v 1.5 2002/10/22 10:46:45 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
@@ -53,16 +53,21 @@ public class StyleImpl implements org.geotools.styling.Style {
     }
     
     public FeatureTypeStyle[] getFeatureTypeStyles() {
-       if( featureTypeStyleList.size() == 0){
-           return new FeatureTypeStyle[0];
+       if( featureTypeStyleList == null || featureTypeStyleList.size() == 0){
+           System.out.println("returning null styler");
+           return new FeatureTypeStyleImpl[]{new FeatureTypeStyleImpl()};
        }
-       
-       return (FeatureTypeStyle[]) featureTypeStyleList.toArray(new FeatureTypeStyle[0]);
+       System.out.println("number of fts set " + featureTypeStyleList.size());
+       return (FeatureTypeStyle[]) featureTypeStyleList.toArray(new FeatureTypeStyle[]{});
        
     }
     
     public void setFeatureTypeStyles(FeatureTypeStyle[] featureTypeStyles){
-        featureTypeStyleList.add(java.util.Arrays.asList(featureTypeStyles));
+        //featureTypeStyleList.add(java.util.Arrays.asList(featureTypeStyles));
+        for(int i=0;i<featureTypeStyles.length;i++){
+            addFeatureTypeStyle(featureTypeStyles[i]);
+        }
+        System.err.println("StyleImpl added " + featureTypeStyleList.size() + " feature types");
     }
     
     public String getName() {
