@@ -22,23 +22,23 @@ package org.geotools.renderer;
  * to the styler. So a renderer "knows" how to draw lines but a styler "knows"
  * how to draw roads as lines.
  */
-import org.geotools.proj4.*;
-import org.geotools.proj4.projections.*;
+import org.geotools.proj4j.*;
+import org.geotools.proj4j.projections.*;
 public abstract class Renderer{
-/** The best quality the output can accept
- */
+    /** The best quality the output can accept
+     */
     int maxQuality;
-/** The quality that is currently requested by the output
- */
+    /** The quality that is currently requested by the output
+     */
     int currentQuality;
-/** the size in geographic units of the centre pixel of the display
- */
+    /** the size in geographic units of the centre pixel of the display
+     */
     int scaledPixelSize;
-/** does the output scheme support transparency
- */
+    /** does the output scheme support transparency
+     */
     boolean transparent;
-/** the required output SRS
- */
+    /** the required output SRS
+     */
     Projection output;
     Viewer view;
     /** Constructs a Renderer
@@ -110,14 +110,14 @@ public abstract class Renderer{
     /** Getter for property output.
      * @return Value of property output.
      */
-    public SRS getOutput() {
+    public Projection getOutput() {
         return output;
     }
     
     /** Setter for property output.
      * @param output New value of property output.
      */
-    protected void setOutput(SRS output) {
+    protected void setOutput(Projection output) {
         this.output = output;
     }
     
@@ -126,43 +126,43 @@ public abstract class Renderer{
      * @param y geographic coordinate
      * @param source input spatial reference system
      */
-    public abstract void drawPoint(double x, double y, SRS source);
+    public abstract void drawPoint(double x, double y, Projection source);
     /** draw a line on the output device
      * @param x geographic coordinates
      * @param y geographic coordinates
      * @param source input spatial reference system
      * @param s line style descriptor
      */
-    public abstract void drawLine(double [] x, double [] y, LineStyle s, SRS source);
+    public abstract void drawLine(double [] x, double [] y, LineStyle s, Projection source);
     /** draw a polygon on the output device
      * @param x geographic coordinates
      * @param y geographic coordinates
      * @param source input spatial reference system
      * @param s line style descriptor
      */
-    public abstract void drawPolygon(double [] x, double [] y, LineStyle s, SRS source);
+    public abstract void drawPolygon(double [] x, double [] y, LineStyle s, Projection source);
     /** draw a filled polygon on the output device
      * @param x geographic coordinates
      * @param y geographic coordinates
      * @param source input spatial reference system
      * @param f Fill style descriptor
      */
-    public abstract void fillPolygon(double [] x, double [] y, FillStyle f, SRS source);
+    public abstract void fillPolygon(double [] x, double [] y, FillStyle f, Projection source);
     /** draw a circle on the output device
      * @param x geographic coordinate
      * @param y geographic coordinate
      * @param r radius in geographic units
      * @param source input spatial reference system
      */
-    public abstract void drawCircle(double x, double y, double r, SRS source);
-   /** converts a point in the input SRS to the output SRS
+    public abstract void drawCircle(double x, double y, double r, Projection source);
+    /** converts a point in the input SRS to the output SRS
      * if these equal each other then this is a null op otherwise the
      * point is converted to the common reference system from the input and then to the output system.
      * @param input the input SRS
      * @param inpt the point to be converted
      * @return point in output SRS
      */
-    protected double[] convertPointToOutput(SRS input, double x, double y){
+    protected XY convertPointToOutput(Projection input, double x, double y){
         double [] inpt = new double[2];
         inpt[0]=x;
         inpt[1]=y;
@@ -175,17 +175,22 @@ public abstract class Renderer{
      * @param inpt the point to be converted
      * @return point in output SRS
      */
-    protected double[] convertPointToOutput(SRS input, double[] inpt){
-        if(input.equals(output)) return inpt;
-        return output.toInput(input.toCommon(inpt));
+    protected XY convertPointToOutput(Projection input, double[] inpt){
+        try{
+            XY xy = new XY(inpt[0],inpt[1]);
+            if(input.isDatumEqual(output)) return xy;
+            return output.forward(input.inverse(xy));
+        }catch(ProjectionException e){
+            return null;
+        }
     }
     /** Converts a geographic point to a screen coordinate
      * implementations with a builtin afine transformtion should override this method
      * @param inpt input point
      * @return screen coordinates [x,y]
-     */    
+     */
     protected int[] convertPointToScreen(double x, double y){
-        // something with affine transforrms and scales 
+        // something with affine transforrms and scales
         int [] out = new int[2];
         out[0]=(int)x;
         out[1]=(int)y;
@@ -196,9 +201,9 @@ public abstract class Renderer{
      * implementations with a builtin afine transformtion should override this method
      * @param inpt input point
      * @return screen coordinates [x,y]
-     */    
+     */
     protected int[] convertPointToScreen(double[] inpt){
-       return convertPointToScreen(inpt[0],inpt[1]);
+        return convertPointToScreen(inpt[0],inpt[1]);
     }
     protected int convertDistanceToScreen(double d){
         // something else with scales
