@@ -43,7 +43,7 @@ import java.util.logging.Logger;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FIDFeatureReader.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: FIDFeatureReader.java,v 1.3 2003/11/06 19:03:51 ianschneider Exp $
  */
 public class FIDFeatureReader implements FeatureReader {
     /** The logger for the data module. */
@@ -106,7 +106,6 @@ public class FIDFeatureReader implements FeatureReader {
 
     protected Feature readFeature(AttributeReader atts)
         throws IllegalAttributeException, IOException {
-        LOGGER.fine("reading feature ");
 
         //Seems like doing it here could be a bit expensive.
         //The other option from this is to have this constructed with two

@@ -27,34 +27,31 @@ import java.util.logging.Logger;
  * ResultSetFIDReader should be used.
  *
  * @author Chris Holmes
- * @version $Id: DefaultFIDReader.java,v 1.2 2003/11/04 00:28:49 cholmesny Exp $
+ * @version $Id: DefaultFIDReader.java,v 1.3 2003/11/06 19:03:52 ianschneider Exp $
  */
 public class DefaultFIDReader implements FIDReader {
     protected static final String CLOSE_MESG = "Close has already been called"
         + " on this FIDReader";
 
-    /** The logger for the jdbc module. */
-    private static final Logger LOGGER = Logger.getLogger(
-            "org.geotools.data.jdbc");
-
-    /** A flag to track the status of the result set. */
-    protected boolean isClosed = false;
+    private int len;
     protected int index = 0;
-    protected String typeName;
+    protected StringBuffer buffer;
 
     public DefaultFIDReader(String typeName) {
-        this.typeName = typeName;
+        buffer = new StringBuffer(typeName);
+        buffer.append('.');
+        len = typeName.length() + 1;
     }
 
     public DefaultFIDReader(FeatureType featureType) {
-        this.typeName = featureType.getTypeName();
+        this(featureType.getTypeName());
     }
 
     /**
      * Release any resources associated with this reader
      */
     public void close() {
-        this.isClosed = true;
+        index = -1;
     }
 
     /**
@@ -65,7 +62,7 @@ public class DefaultFIDReader implements FIDReader {
      * @throws IOException If closed
      */
     public boolean hasNext() throws IOException {
-        if (isClosed) {
+        if (index < 0) {
             throw new IOException(CLOSE_MESG);
         }
 
@@ -80,13 +77,14 @@ public class DefaultFIDReader implements FIDReader {
      * @throws IOException If closed
      */
     public String next() throws IOException {
-        if (isClosed) {
+        if (index < 0) {
             throw new IOException(CLOSE_MESG);
         }
 
-        index++;
-        LOGGER.finer("reading fid " + index);
+        buffer.delete(len,buffer.length());
+        buffer.append(++index);
 
-        return typeName + "." + index;
+        return buffer.toString();
     }
+    
 }
