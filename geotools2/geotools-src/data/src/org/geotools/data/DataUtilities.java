@@ -16,21 +16,24 @@
  */
 package org.geotools.data;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPoint;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import org.geotools.cs.CoordinateSystem;
 import org.geotools.data.collection.CollectionDataStore;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.CollectionEvent;
-import org.geotools.feature.CollectionListener;
 import org.geotools.feature.DefaultAttributeType;
 import org.geotools.feature.DefaultFeatureType;
 import org.geotools.feature.Feature;
@@ -55,16 +58,16 @@ import org.geotools.filter.LiteralExpression;
 import org.geotools.filter.LogicFilter;
 import org.geotools.filter.MathExpression;
 import org.geotools.filter.NullFilter;
-import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Set;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.MultiPoint;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -98,6 +101,13 @@ public class DataUtilities {
         typeMap.put("GeometryCollection", GeometryCollection.class);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public static String[] attributeNames(FeatureType featureType) {
         String[] names = new String[featureType.getAttributeCount()];
 
@@ -108,6 +118,13 @@ public class DataUtilities {
         return names;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param filter DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public static String[] attributeNames(Filter filter) {
         if (filter == null) {
             return new String[0];
@@ -135,6 +152,12 @@ public class DataUtilities {
         return names;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param filter DOCUMENT ME!
+     * @param visitor DOCUMENT ME!
+     */
     public static void traverse(Filter filter, FilterVisitor visitor) {
         traverse(traverseDepth(filter), visitor);
     }
@@ -143,8 +166,8 @@ public class DataUtilities {
      * Performs a depth first traversal on Filter.
      * 
      * <p>
-     * Filters can contain Expressions and other Filters, this method will call visitor.visit(
-     * Filter ) and visitor.visit( Expression )
+     * Filters can contain Expressions and other Filters, this method will call
+     * visitor.visit( Filter ) and visitor.visit( Expression )
      * </p>
      *
      * @param set Set of Filter and Expression information
@@ -228,13 +251,13 @@ public class DataUtilities {
      * </ul>
      * 
      * <p>
-     * Comparison is based on AttributeTypes, an IOException is thrown if the AttributeTypes are
-     * not compatiable.
+     * Comparison is based on AttributeTypes, an IOException is thrown if the
+     * AttributeTypes are not compatiable.
      * </p>
      * 
      * <p>
-     * Namespace is not considered in this opperations. You may still need to reType to get the
-     * correct namesapce, or reorder.
+     * Namespace is not considered in this opperations. You may still need to
+     * reType to get the correct namesapce, or reorder.
      * </p>
      *
      * @param typeA FeatureType beind compared
@@ -287,23 +310,31 @@ public class DataUtilities {
         if ((countA == countB) && (match == countA)) {
             // all attributes in typeA agreed with typeB
             // (same order and type)
-//            if (typeA.getNamespace() == null) {
-//            	if(typeB.getNamespace() == null) {
-//            		return 0;
-//            	} else {
-//            		return 1;
-//            	}
-//            } else if(typeA.getNamespace().equals(typeB.getNamespace())) {
-//                return 0;
-//            } else {
-//                return 1;
-//            }
+            //            if (typeA.getNamespace() == null) {
+            //            	if(typeB.getNamespace() == null) {
+            //            		return 0;
+            //            	} else {
+            //            		return 1;
+            //            	}
+            //            } else if(typeA.getNamespace().equals(typeB.getNamespace())) {
+            //                return 0;
+            //            } else {
+            //                return 1;
+            //            }
             return 0;
         }
 
         return 1;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param a DOCUMENT ME!
+     * @param b DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public static boolean isMatch(AttributeType a, AttributeType b) {
         if (a == b) {
             return true;
@@ -321,7 +352,8 @@ public class DataUtilities {
             return true;
         }
 
-        if (a.getName().equals(b.getName()) && a.getClass().equals(b.getClass())) {
+        if (a.getName().equals(b.getName())
+                && a.getClass().equals(b.getClass())) {
             return true;
         }
 
@@ -371,36 +403,87 @@ public class DataUtilities {
      *
      * @return A new Feature of type featureType
      *
-     * @throws IllegalAttributeException if we could not create featureType instance with
-     *         acceptable default values
+     * @throws IllegalAttributeException if we could not create featureType
+     *         instance with acceptable default values
      */
     public static Feature template(FeatureType featureType)
         throws IllegalAttributeException {
         return featureType.create(defaultValues(featureType));
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     * @param featureID DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     */
     public static Feature template(FeatureType featureType, String featureID)
         throws IllegalAttributeException {
         return featureType.create(defaultValues(featureType), featureID);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     */
     public static Object[] defaultValues(FeatureType featureType)
         throws IllegalAttributeException {
         return defaultValues(featureType, null);
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     * @param atts DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     */
     public static Feature template(FeatureType featureType, Object[] atts)
         throws IllegalAttributeException {
         return featureType.create(defaultValues(featureType, atts));
     }
 
-    public static Feature template(FeatureType featureType, String featureID, Object[] atts)
-        throws IllegalAttributeException {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     * @param featureID DOCUMENT ME!
+     * @param atts DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     */
+    public static Feature template(FeatureType featureType, String featureID,
+        Object[] atts) throws IllegalAttributeException {
         return featureType.create(defaultValues(featureType, atts), featureID);
     }
 
-    public static Object[] defaultValues(FeatureType featureType, Object[] values)
-        throws IllegalAttributeException {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     * @param values DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     * @throws ArrayIndexOutOfBoundsException DOCUMENT ME!
+     */
+    public static Object[] defaultValues(FeatureType featureType,
+        Object[] values) throws IllegalAttributeException {
         if (values == null) {
             values = new Object[featureType.getAttributeCount()];
         } else if (values.length != featureType.getAttributeCount()) {
@@ -418,15 +501,16 @@ public class DataUtilities {
      * Provides a defautlValue for attributeType.
      * 
      * <p>
-     * Will return null if attributeType isNillable(), or attempt to use Reflection, or
-     * attributeType.parse( null )
+     * Will return null if attributeType isNillable(), or attempt to use
+     * Reflection, or attributeType.parse( null )
      * </p>
      *
      * @param attributeType
      *
      * @return null for nillable attributeType, attempt at reflection
      *
-     * @throws IllegalAttributeException If value cannot be constructed for attribtueType
+     * @throws IllegalAttributeException If value cannot be constructed for
+     *         attribtueType
      */
     public static Object defaultValue(AttributeType attributeType)
         throws IllegalAttributeException {
@@ -463,8 +547,8 @@ public class DataUtilities {
             // not sure if parse was expected to handle this
         }
 
-        throw new IllegalAttributeException("Could not create a default value for "
-            + attributeType.getName());
+        throw new IllegalAttributeException(
+            "Could not create a default value for " + attributeType.getName());
     }
 
     /**
@@ -510,6 +594,16 @@ public class DataUtilities {
             };
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureArray DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws RuntimeException DOCUMENT ME!
+     */
     public static FeatureSource source(final Feature[] featureArray) {
         final FeatureType featureType;
 
@@ -526,7 +620,8 @@ public class DataUtilities {
 
                 public FeatureType getSchema(String typeName)
                     throws IOException {
-                    if ((typeName != null) && typeName.equals(featureType.getTypeName())) {
+                    if ((typeName != null)
+                            && typeName.equals(featureType.getTypeName())) {
                         return featureType;
                     }
 
@@ -542,11 +637,22 @@ public class DataUtilities {
         try {
             return arrayStore.getFeatureSource(arrayStore.getTypeNames()[0]);
         } catch (IOException e) {
-            throw new RuntimeException("Something is wrong with the geotools code, "
+            throw new RuntimeException(
+                "Something is wrong with the geotools code, "
                 + "this exception should not happen", e);
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param collection DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws NullPointerException DOCUMENT ME!
+     * @throws RuntimeException DOCUMENT ME!
+     */
     public static FeatureSource source(final FeatureCollection collection) {
         if (collection == null) {
             throw new NullPointerException();
@@ -559,7 +665,8 @@ public class DataUtilities {
         try {
             return store.getFeatureSource(store.getTypeNames()[0]);
         } catch (IOException e) {
-            throw new RuntimeException("Something is wrong with the geotools code, "
+            throw new RuntimeException(
+                "Something is wrong with the geotools code, "
                 + "this exception should not happen", e);
         }
     }
@@ -571,6 +678,15 @@ public class DataUtilities {
         return results(collection(featureArray));
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param collection DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     */
     public static FeatureResults results(final FeatureCollection collection)
         throws IOException {
         if (collection.size() == 0) {
@@ -600,11 +716,28 @@ public class DataUtilities {
             };
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param collection DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IOException DOCUMENT ME!
+     */
     public static FeatureReader reader(Collection collection)
         throws IOException {
-        return reader((Feature[]) collection.toArray(new Feature[collection.size()]));
+        return reader((Feature[]) collection.toArray(
+                new Feature[collection.size()]));
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param features DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public static FeatureCollection collection(Feature[] features) {
         FeatureCollection collection = FeatureCollections.newCollection();
 
@@ -615,6 +748,14 @@ public class DataUtilities {
         return collection;
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param att DOCUMENT ME!
+     * @param otherAtt DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     */
     public static boolean attributesEqual(Object att, Object otherAtt) {
         if (att == null) {
             if (otherAtt != null) {
@@ -642,16 +783,21 @@ public class DataUtilities {
     }
 
     /**
-     * Create a derived FeatureType<p>
+     * Create a derived FeatureType
      * 
+     * <p></p>
+     *
      * @param featureType
      * @param properties
      * @param override
+     *
      * @return
+     *
      * @throws SchemaException
      */
-    public static FeatureType createSubType(FeatureType featureType, String[] properties,
-        CoordinateSystem override) throws SchemaException {
+    public static FeatureType createSubType(FeatureType featureType,
+        String[] properties, CoordinateSystem override)
+        throws SchemaException {
         if ((properties == null) && (override == null)) {
             return featureType;
         }
@@ -661,8 +807,10 @@ public class DataUtilities {
         for (int i = 0; (i < featureType.getAttributeCount()) && same; i++) {
             AttributeType type = featureType.getAttributeType(i);
             same = type.getName().equals(properties[i])
-                && (((override != null) && type instanceof GeometryAttributeType)
-                ? ((GeometryAttributeType) type).getCoordinateSystem().equals(override) : true);
+                && (((override != null)
+                && type instanceof GeometryAttributeType)
+                ? ((GeometryAttributeType) type).getCoordinateSystem().equals(override)
+                : true);
         }
 
         if (same) {
@@ -680,12 +828,22 @@ public class DataUtilities {
             }
         }
 
-        return FeatureTypeFactory.newFeatureType(types, featureType.getTypeName(),
-            featureType.getNamespace());
+        return FeatureTypeFactory.newFeatureType(types,
+            featureType.getTypeName(), featureType.getNamespace());
     }
 
-    public static FeatureType createSubType(FeatureType featureType, String[] properties)
-        throws SchemaException {
+    /**
+     * DOCUMENT ME!
+     *
+     * @param featureType DOCUMENT ME!
+     * @param properties DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws SchemaException DOCUMENT ME!
+     */
+    public static FeatureType createSubType(FeatureType featureType,
+        String[] properties) throws SchemaException {
         if (properties == null) {
             return featureType;
         }
@@ -706,8 +864,8 @@ public class DataUtilities {
             types[i] = featureType.getAttributeType(properties[i]);
         }
 
-        return FeatureTypeFactory.newFeatureType(types, featureType.getTypeName(),
-            featureType.getNamespace());
+        return FeatureTypeFactory.newFeatureType(types,
+            featureType.getTypeName(), featureType.getNamespace());
     }
 
     /**
@@ -729,7 +887,8 @@ public class DataUtilities {
      * Example:<code>name:"",age:0,geom:Geometry,centroid:Point,url:java.io.URL"</code>
      * </p>
      *
-     * @param identification identification of FeatureType: (<i>namesapce</i>).<i>typeName</i>
+     * @param identification identification of FeatureType:
+     *        (<i>namesapce</i>).<i>typeName</i>
      * @param typeSpec Specification for FeatureType
      *
      * @return
@@ -739,8 +898,10 @@ public class DataUtilities {
     public static FeatureType createType(String identification, String typeSpec)
         throws SchemaException {
         int split = identification.lastIndexOf('.');
-        String namespace = (split == -1) ? null : identification.substring(0, split);
-        String typeName = (split == -1) ? identification : identification.substring(split + 1);
+        String namespace = (split == -1) ? null
+                                         : identification.substring(0, split);
+        String typeName = (split == -1) ? identification
+                                        : identification.substring(split + 1);
 
         FeatureTypeFactory typeFactory = FeatureTypeFactory.newInstance(typeName);
         typeFactory.setNamespace(namespace);
@@ -760,23 +921,34 @@ public class DataUtilities {
             attributeType = createAttribute(types[i]);
             typeFactory.addType(attributeType);
 
-            if( geometryAttribute == null && attributeType instanceof GeometryAttributeType ){
-                if (geometryIndex == -1 ){
+            if ((geometryAttribute == null)
+                    && attributeType instanceof GeometryAttributeType) {
+                if (geometryIndex == -1) {
+                    geometryAttribute = (GeometryAttributeType) attributeType;
+                } else if (geometryIndex == i) {
                     geometryAttribute = (GeometryAttributeType) attributeType;
                 }
-                else if (geometryIndex == i ) {
-                    geometryAttribute = (GeometryAttributeType) attributeType;
-                }                
             }
         }
 
         if (geometryAttribute != null) {
-            typeFactory.setDefaultGeometry( geometryAttribute);
+            typeFactory.setDefaultGeometry(geometryAttribute);
         }
 
         return typeFactory.getFeatureType();
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @param type DOCUMENT ME!
+     * @param fid DOCUMENT ME!
+     * @param text DOCUMENT ME!
+     *
+     * @return DOCUMENT ME!
+     *
+     * @throws IllegalAttributeException DOCUMENT ME!
+     */
     public static Feature parse(FeatureType type, String fid, String[] text)
         throws IllegalAttributeException {
         Object[] attributes = new Object[text.length];
@@ -830,6 +1002,129 @@ public class DataUtilities {
         }
 
         return type.getName();
+    }
+
+    /**
+     * Takes two {@link Query}objects and produce a new one by mixing the
+     * restrictions of both of them.
+     * 
+     * <p>
+     * The policy to mix the queries components is the following:
+     * 
+     * <ul>
+     * <li>
+     * typeName: type names MUST match (not checked if some or both queries
+     * equals to <code>Query.ALL</code>)
+     * </li>
+     * <li>
+     * handle: you must provide one since no sensible choice can be done
+     * between the handles of both queries
+     * </li>
+     * <li>
+     * maxFeatures: the lower of the two maxFeatures values will be used (most
+     * restrictive)
+     * </li>
+     * <li>
+     * attributeNames: the attributes of both queries will be joined in a
+     * single set of attributes. IMPORTANT: only <b><i>explicitly</i></b>
+     * requested attributes will be joint, so, if the method
+     * <code>retrieveAllProperties()</code> of some of the queries returns
+     * <code>true</code> it does not means that all the properties will be
+     * joined. You must create the query with the names of the properties you
+     * want to load.
+     * </li>
+     * <li>
+     * filter: the filtets of both queries are or'ed
+     * </li>
+     * </ul>
+     * </p>
+     *
+     * @param firstQuery Query against this DataStore
+     * @param secondQuery DOCUMENT ME!
+     * @param handle DOCUMENT ME!
+     *
+     * @return Query restricted to the limits of definitionQuery
+     *
+     * @throws NullPointerException if some of the queries is null
+     * @throws IllegalArgumentException if the type names of both queries do
+     *         not match
+     */
+    public static Query mixQueries(Query firstQuery, Query secondQuery,
+        String handle) {
+        if ((firstQuery == null) || (secondQuery == null)) {
+            throw new NullPointerException("got a null query argument");
+        }
+
+        if (firstQuery.equals(Query.ALL)) {
+            return secondQuery;
+        } else if (secondQuery.equals(Query.ALL)) {
+            return firstQuery;
+        }
+
+        if (!firstQuery.getTypeName().equals(secondQuery.getTypeName())) {
+            String msg = "Type names do not match: " + firstQuery.getTypeName()
+                + " != " + secondQuery.getTypeName();
+            throw new IllegalArgumentException(msg);
+        }
+
+        //none of the queries equals Query.ALL, mix them
+        //use the more restrictive max features field
+        int maxFeatures = Math.min(firstQuery.getMaxFeatures(),
+                secondQuery.getMaxFeatures());
+
+        //join attributes names
+        String[] propNames = joinAttributes(firstQuery.getPropertyNames(),
+                secondQuery.getPropertyNames());
+
+        //join filters
+        Filter filter = firstQuery.getFilter();
+        Filter filter2 = secondQuery.getFilter();
+
+        if ((filter == null) || filter.equals(Filter.NONE)) {
+            filter = filter2;
+        } else if ((filter2 != null) && !filter2.equals(Filter.NONE)) {
+            filter = filter.and(filter2);
+        }
+
+        //build the mixed query
+        String typeName = firstQuery.getTypeName();
+
+        return new DefaultQuery(typeName, filter, maxFeatures, propNames, handle);
+    }
+
+    /**
+     * Creates a set of attribute names from the two input lists of names,
+     * maintaining the order of the first list and appending the non repeated
+     * names of the second.
+     *
+     * @param atts1 the first list of attribute names, who's order will be
+     *        maintained
+     * @param atts2 the second list of attribute names, from wich the non
+     *        repeated names will be appended to the resulting list
+     *
+     * @return Set of attribute names from <code>atts1</code> and
+     *         <code>atts2</code>
+     */
+    private static String[] joinAttributes(String[] atts1, String[] atts2) {
+        String[] propNames = null;
+        List atts = new LinkedList();
+
+        if (atts1 != null) {
+            atts.addAll(Arrays.asList(atts1));
+        }
+
+        if (atts2 != null) {
+            for (int i = 0; i < atts2.length; i++) {
+                if (!atts.contains(atts2[i])) {
+                    atts.add(atts2[i]);
+                }
+            }
+        }
+
+        propNames = new String[atts.size()];
+        atts.toArray(propNames);
+
+        return propNames;
     }
 
     /**
@@ -897,7 +1192,8 @@ public class DataUtilities {
 
         try {
             if ((hint != null) && (hint.indexOf("nillable") != -1)) {
-                return AttributeTypeFactory.newAttributeType(name, type(type), true);
+                return AttributeTypeFactory.newAttributeType(name, type(type),
+                    true);
             }
 
             return AttributeTypeFactory.newAttributeType(name, type(type));
@@ -910,16 +1206,21 @@ public class DataUtilities {
      * A quick and dirty FilterVisitor.
      * 
      * <p>
-     * This is useful when creating FilterVisitors for use with traverseDepth( Filter,
-     * FilterVisitor ) method.
+     * This is useful when creating FilterVisitors for use with traverseDepth(
+     * Filter, FilterVisitor ) method.
      * </p>
      * 
      * <p>
-     * visit( Filter ) and visit( Expression ) will pass their arguments off to more specialized
-     * functions.
+     * visit( Filter ) and visit( Expression ) will pass their arguments off to
+     * more specialized functions.
      * </p>
      */
     public abstract static class AbstractFilterVisitor implements FilterVisitor {
+        /**
+         * DOCUMENT ME!
+         *
+         * @param filter DOCUMENT ME!
+         */
         public void visit(Filter filter) {
             if (filter instanceof BetweenFilter) {
                 visit((BetweenFilter) filter);
@@ -938,30 +1239,75 @@ public class DataUtilities {
             }
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param betweenFilter DOCUMENT ME!
+         */
         public void visit(BetweenFilter betweenFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param comparefilter DOCUMENT ME!
+         */
         public void visit(CompareFilter comparefilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param geometryFilter DOCUMENT ME!
+         */
         public void visit(GeometryFilter geometryFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param likeFilter DOCUMENT ME!
+         */
         public void visit(LikeFilter likeFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param logicFilter DOCUMENT ME!
+         */
         public void visit(LogicFilter logicFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param nullFilter DOCUMENT ME!
+         */
         public void visit(NullFilter nullFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param fidFilter DOCUMENT ME!
+         */
         public void visit(FidFilter fidFilter) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param attributeExpression DOCUMENT ME!
+         */
         public void visit(AttributeExpression attributeExpression) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param expression DOCUMENT ME!
+         */
         public void visit(Expression expression) {
             if (expression instanceof AttributeExpression) {
                 visit((AttributeExpression) expression);
@@ -974,21 +1320,47 @@ public class DataUtilities {
             }
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param literalExpression DOCUMENT ME!
+         */
         public void visit(LiteralExpression literalExpression) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param mathExpression DOCUMENT ME!
+         */
         public void visit(MathExpression mathExpression) {
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param functionExpression DOCUMENT ME!
+         */
         public void visit(FunctionExpression functionExpression) {
         }
     }
 
+    /**
+     * DOCUMENT ME!
+     *
+     * @author $author$
+     * @version $Revision: 1.22 $
+     */
     public abstract static class Traversal extends AbstractFilterVisitor {
         abstract void traverse(Filter filter);
 
         abstract void traverse(Expression expression);
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param betweenFilter DOCUMENT ME!
+         */
         public void visit(BetweenFilter betweenFilter) {
             traverse(betweenFilter.getLeftValue());
             visit(betweenFilter.getLeftValue());
@@ -1000,6 +1372,11 @@ public class DataUtilities {
             visit(betweenFilter.getRightValue());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param compareFilter DOCUMENT ME!
+         */
         public void visit(CompareFilter compareFilter) {
             traverse(compareFilter.getLeftValue());
             visit(compareFilter.getLeftValue());
@@ -1008,6 +1385,11 @@ public class DataUtilities {
             visit(compareFilter.getRightValue());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param geometryFilter DOCUMENT ME!
+         */
         public void visit(GeometryFilter geometryFilter) {
             traverse(geometryFilter.getLeftGeometry());
             visit(geometryFilter.getLeftGeometry());
@@ -1016,11 +1398,21 @@ public class DataUtilities {
             visit(geometryFilter.getRightGeometry());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param likeFilter DOCUMENT ME!
+         */
         public void visit(LikeFilter likeFilter) {
             traverse(likeFilter.getValue());
             visit(likeFilter.getValue());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param logicFilter DOCUMENT ME!
+         */
         public void visit(LogicFilter logicFilter) {
             for (Iterator i = logicFilter.getFilterIterator(); i.hasNext();) {
                 traverse((Expression) i.next());
@@ -1028,11 +1420,21 @@ public class DataUtilities {
             }
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param nullFilter DOCUMENT ME!
+         */
         public void visit(NullFilter nullFilter) {
             traverse(nullFilter.getNullCheckValue());
             visit(nullFilter.getNullCheckValue());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param mathExpression DOCUMENT ME!
+         */
         public void visit(MathExpression mathExpression) {
             traverse(mathExpression.getLeftValue());
             visit(mathExpression.getLeftValue());
@@ -1041,6 +1443,11 @@ public class DataUtilities {
             visit(mathExpression.getRightValue());
         }
 
+        /**
+         * DOCUMENT ME!
+         *
+         * @param functionExpression DOCUMENT ME!
+         */
         public void visit(FunctionExpression functionExpression) {
             Expression[] args = functionExpression.getArgs();
 
