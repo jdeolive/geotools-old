@@ -4,8 +4,8 @@
 <section id="development">
   <title>Development</title>
 
-  <section id="requirements">
-    <title>Requirements</title>
+  <section id="dependancies">
+    <title>Dependancies</title>
 
     <para>Before developing GeoTools2, you should download and install the
     following:</para>
@@ -16,12 +16,8 @@
       </listitem>
 
       <listitem>
-        <para>ant version 1.5beta1 or later. [to do: Do we still need ant, or
-        does it come with maven?]</para>
-      </listitem>
-
-      <listitem>
-        <para>maven beta 8</para>
+        <para>maven beta 8 [Todo: Note, as of June 2003, people were
+        experiencing problems with beta 9]</para>
       </listitem>
 
       <listitem>
@@ -783,6 +779,13 @@ ant</programlisting>
 ant</programlisting>
       </example>
     </section>
+
+    <section id="continuousbuild">
+      <title>Continuous Build</title>
+
+      <para>To do: Explain Continuous Build, with section explaining
+      CruiseControl, (once we get it working).</para>
+    </section>
   </section>
 
   <section id="design">
@@ -979,6 +982,20 @@ ant</programlisting>
             </blockquote>
 
             <para>After installing, refer to the <link linkend="jalopy">Jalopy</link>
+            section to configure.</para>
+          </listitem>
+
+          <listitem>
+            <para><ulink url="http://pmd.sourceforge.net">PMD</ulink> checks
+            code for poor programming patterns. Download the zipped .nbm file
+            and install from a local directory.</para>
+
+            <blockquote>
+              <para><command>Tools-&#62;Update Center-&#62;Install Manually
+              Downloaded Modules-&#62;&#60;select .nbm file&#62;</command></para>
+            </blockquote>
+
+            <para>After installing, refer to the <link linkend="pmd">PMD</link>
             section to configure.</para>
           </listitem>
 
@@ -2358,6 +2375,16 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
       </section>
     </section>
 
+    <section id="pmd">
+      <title>PMD</title>
+
+      <para><ulink url="http://pmd.sourceforge.net">PMD</ulink> automatically
+      checks code for poor programming patterns.</para>
+
+      <para>To do: Reference PMD configuration file. Explain the patterns that
+      are checked.</para>
+    </section>
+
     <section id="directorynames">
       <title>Directory Naming Conventions</title>
 
@@ -2476,13 +2503,11 @@ start &#34;Emacs console&#34; /min bash --login -c -c &#34;/emacs-21.2/bin/emacs
       </itemizedlist>
     </section>
 
-    <section id="checkcodingstandards">
-      <title>Auto-checking Coding Standards</title>
+    <section>
+      <title>Exception Handling Policy</title>
 
-      <para>We intend to set up automatic checking of coding standards using
-      <ulink url="http://pmd.sourceforge.net/">pmd</ulink>.</para>
-
-      <para>To do: Flesh out this section once we start using pmd.</para>
+      <para>To do: Write this. Ideally some large project will offer their
+      exception handling policy so we don&#39;t have to re-invent the wheel.</para>
     </section>
   </section>
 
