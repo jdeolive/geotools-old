@@ -3,7 +3,7 @@
 <project>
   <pomVersion>3</pomVersion>
   <name>geotools-docs</name>
-   <extend>${basedir}/../../project.xml</extend>
+  <extend>${basedir}/../../project.xml</extend>
   <id>docs</id>
   <logo>/images/docs.gif</logo>
   <currentVersion>0.1</currentVersion>
@@ -35,16 +35,16 @@
       <id>camerons</id>
       <email>camerons@users.sourceforge.net</email>
       <organization>none</organization>
-            <roles>
-                <role>Module Maintainer</role>
-            </roles>
-        </developer>
-    </developers>
+      <roles>
+        <role>Module Maintainer</role>
+      </roles>
+    </developer>
+  </developers>
   <dependencies>
   </dependencies>
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-      
+    
     
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
@@ -54,7 +54,7 @@
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
-        <sourceDirectory>src/</sourceDirectory>
-    </build>
+    <sourceDirectory>src/</sourceDirectory>
+  </build>
 </project>
 

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.8 2003/07/22 10:01:57 camerons Exp $
+# $Id: gtpublish,v 1.9 2003/09/05 11:47:55 kobit Exp $
 #
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
@@ -51,6 +51,8 @@ for file in $sourceFiles; do
 #     baseFile=`echo $baseFile | sed -e"s/\.sgml$//"`
 #     baseFile=`echo $baseFile | sed -e"s/\.xml$//"`
     # Code simplified a little by Artur Hefczyc Tue Jun 03 12:05:56 2003
+    # Please let me know it there will be problems on other
+    # operating systems. I tested it on CygWin+WinXP and Gentoo linux.
     baseFile=`basename $file .xml`
     baseFile=`basename $baseFile .sgml`
     xsltproc --novalid --xinclude \
