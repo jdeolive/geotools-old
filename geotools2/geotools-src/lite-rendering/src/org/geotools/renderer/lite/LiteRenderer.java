@@ -16,6 +16,45 @@
  */
 package org.geotools.renderer.lite;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
+import org.geotools.data.DataUtilities;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureResults;
+import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
+import org.geotools.feature.IllegalAttributeException;
+import org.geotools.filter.Filter;
+import org.geotools.gc.GridCoverage;
+import org.geotools.map.MapContext;
+import org.geotools.map.MapLayer;
+import org.geotools.renderer.Renderer;
+import org.geotools.renderer.Renderer2D;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.FeatureTypeStyle;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.LabelPlacement;
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointPlacement;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.RasterSymbolizer;
+import org.geotools.styling.Rule;
+import org.geotools.styling.Stroke;
+import org.geotools.styling.Style;
+import org.geotools.styling.Symbol;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextMark;
+import org.geotools.styling.TextSymbolizer;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
@@ -53,49 +92,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.imageio.ImageIO;
-
-import org.geotools.data.DataUtilities;
-import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureResults;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.IllegalAttributeException;
-import org.geotools.filter.Filter;
-import org.geotools.gc.GridCoverage;
-import org.geotools.map.MapContext;
-import org.geotools.map.MapLayer;
-import org.geotools.renderer.Renderer;
-import org.geotools.renderer.Renderer2D;
-import org.geotools.styling.ExternalGraphic;
-import org.geotools.styling.FeatureTypeStyle;
-import org.geotools.styling.Fill;
-import org.geotools.styling.Font;
-import org.geotools.styling.Graphic;
-import org.geotools.styling.Halo;
-import org.geotools.styling.LabelPlacement;
-import org.geotools.styling.LinePlacement;
-import org.geotools.styling.LineSymbolizer;
-import org.geotools.styling.Mark;
-import org.geotools.styling.PointPlacement;
-import org.geotools.styling.PointSymbolizer;
-import org.geotools.styling.PolygonSymbolizer;
-import org.geotools.styling.RasterSymbolizer;
-import org.geotools.styling.Rule;
-import org.geotools.styling.Stroke;
-import org.geotools.styling.Style;
-import org.geotools.styling.Symbol;
-import org.geotools.styling.Symbolizer;
-import org.geotools.styling.TextMark;
-import org.geotools.styling.TextSymbolizer;
-
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
 
 
 /**
@@ -119,7 +116,7 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.30 2004/01/12 06:44:45 seangeo Exp $
+ * @version $Id: LiteRenderer.java,v 1.31 2004/02/12 11:22:21 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -160,7 +157,6 @@ public class LiteRenderer implements Renderer, Renderer2D {
     private static final Composite DEFAULT_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
             1.0f);
     private static final java.awt.Stroke DEFAULT_STROKE = new BasicStroke();
-    
     private static final AffineTransform IDENTITY_TRANSFORM = new AffineTransform();
 
     static { //static block to populate the lookups
@@ -270,10 +266,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
     public void setConcatTransforms(boolean flag) {
         concatTransforms = flag;
     }
-    
+
     /**
-     * Returns the amount of time the renderer waits for loading an external image
-     * before giving up and examining the other images in the Graphic object
+     * Returns the amount of time the renderer waits for loading an external image before giving up
+     * and examining the other images in the Graphic object
      *
      * @return the timeout in milliseconds
      */
@@ -380,7 +376,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
                 try {
                     mapExtent = this.context.getAreaOfInterest();
-                    
+
                     // TODO: extract attributes and bounding box so that
                     // only the needed features with the needed geometries 
                     // will be loaded
@@ -407,7 +403,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * cause some features to be rendered multiple times or not at all.
      * </p>
      *
-     * @param fc the feature collection to be rendered
+     * @param features the feature collection to be rendered
      * @param map Controls the full extent of the input space.  Used in the calculation of scale.
      * @param s A style object.  Contains a set of FeatureTypeStylers that are to be applied in
      *        order to control the rendering process.
@@ -445,12 +441,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
 
         try {
-			processStylers(DataUtilities.results(features), featureStylers);
-		} catch (IOException ioe) {
-			LOGGER.log(Level.SEVERE, "I/O error while rendering the layer", ioe);
-		} catch (IllegalAttributeException iae) {
-			LOGGER.log(Level.SEVERE, "Illegal attribute exception while rendering the layer", iae);
-		}
+            processStylers(DataUtilities.results(features), featureStylers);
+        } catch (IOException ioe) {
+            LOGGER.log(Level.SEVERE, "I/O error while rendering the layer", ioe);
+        } catch (IllegalAttributeException iae) {
+            LOGGER.log(Level.SEVERE, "Illegal attribute exception while rendering the layer", iae);
+        }
 
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
@@ -551,6 +547,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
      *
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
+     *
+     * @throws IOException DOCUMENT ME!
+     * @throws IllegalAttributeException DOCUMENT ME!
      */
     private void processStylers(final FeatureResults features,
         final FeatureTypeStyle[] featureStylers) throws IOException, IllegalAttributeException {
@@ -565,50 +564,54 @@ public class LiteRenderer implements Renderer, Renderer2D {
             Rule[] rules = fts.getRules();
             List ruleList = new ArrayList();
             List elseRuleList = new ArrayList();
+
             for (int j = 0; j < rules.length; j++) {
                 Rule r = rules[j];
-                if(isWithInScale(r)) {
-                    if(r.hasElseFilter()) {
-                        elseRuleList.add(r);    
+
+                if (isWithInScale(r)) {
+                    if (r.hasElseFilter()) {
+                        elseRuleList.add(r);
                     } else {
-                        ruleList.add(r);    
+                        ruleList.add(r);
                     }
                 }
-            }         
-           
+            }
+
             // process the features according to the rules
             FeatureReader reader = features.reader();
-            while(reader.hasNext()) {
+
+            while (reader.hasNext()) {
                 boolean doElse = true;
                 Feature feature = reader.next();
                 String typeName = feature.getFeatureType().getTypeName();
-                
-                if ( (typeName != null) &&
-                     (  feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName()) ||
-                        typeName.equalsIgnoreCase(fts.getFeatureTypeName()))) {
-                  
-                   // applicable rules
-                	for (Iterator it = ruleList.iterator(); it.hasNext(); ) {
-                   		 Rule r = (Rule) it.next();
+
+                if ((typeName != null)
+                        && (feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName())
+                        || typeName.equalsIgnoreCase(fts.getFeatureTypeName()))) {
+                    // applicable rules
+                    for (Iterator it = ruleList.iterator(); it.hasNext();) {
+                        Rule r = (Rule) it.next();
+
                         // if this rule applies
                         if (isWithInScale(r) && !r.hasElseFilter()) {
                             Filter filter = r.getFilter();
-    
+
                             if ((filter == null) || filter.contains(feature)) {
                                 doElse = false;
-	                            Symbolizer[] symbolizers = r.getSymbolizers();
+
+                                Symbolizer[] symbolizers = r.getSymbolizers();
                                 processSymbolizers(feature, symbolizers);
                             }
                         }
                     }
-    
+
                     if (doElse) {
                         // rules with an else filter
-                		for (Iterator it = elseRuleList.iterator(); it.hasNext(); ) {
-                    		Rule r = (Rule) it.next();
-                    		Symbolizer[] symbolizers = r.getSymbolizers();
-                    		processSymbolizers(feature, symbolizers);
-               			}
+                        for (Iterator it = elseRuleList.iterator(); it.hasNext();) {
+                            Rule r = (Rule) it.next();
+                            Symbolizer[] symbolizers = r.getSymbolizers();
+                            processSymbolizers(feature, symbolizers);
+                        }
                     }
                 }
             }
@@ -652,7 +655,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * Renders the given feature as a polygon using the specified symbolizer. Geometry types other
      * than inherently area types can be used. If a line is used then the line string is closed
      * for filling (only) by connecting its end point to its start point. This is an internal
-     * method that should only be called by processSymbolizers. 
+     * method that should only be called by processSymbolizers.
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
@@ -714,7 +717,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * method that should only be called by processSymbolizers Geometry types other than
      * inherently linear types can be used. If a point geometry is used, it should be interpreted
      * as a line of zero length and two end caps.  If a polygon is used (or other "area" type)
-     * then its closed outline will be used as the line string (with no end caps). 
+     * then its closed outline will be used as the line string (with no end caps).
      *
      * @param feature The feature to render
      * @param symbolizer The polygon symbolizer to apply
@@ -879,18 +882,21 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         Font[] fonts = symbolizer.getFonts();
         java.awt.Font javaFont = getFont(feature, fonts);
-        
+
         // fall back on a default font to avoid null pointer exception
-        if(javaFont == null)
+        if (javaFont == null) {
             javaFont = graphics.getFont();
+        }
 
         LabelPlacement placement = symbolizer.getLabelPlacement();
 
         // TextLayout tl = new TextLayout(label, graphics.getFont(), graphics.getFontRenderContext());
         AffineTransform oldTx = graphics.getTransform();
         graphics.setTransform(IDENTITY_TRANSFORM);
+
         GlyphVector gv = javaFont.createGlyphVector(graphics.getFontRenderContext(), label);
         graphics.setTransform(oldTx);
+
         Rectangle2D textBounds = gv.getVisualBounds();
         double x = 0;
         double y = 0;
@@ -956,7 +962,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
             if (offset > 0.0) { // to the left of the line
                 y = -offset;
-            } else if(offset < 0) {
+            } else if (offset < 0) {
                 y = -offset + textBounds.getHeight();
             } else {
                 y = textBounds.getHeight() / 2;
@@ -1150,7 +1156,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param y anchor point y coordinate
      * @param dx horizontal offset
      * @param dy vertical offset
-     * @param tl used to draw the string
+     * @param gv used to draw the string
      * @param feature the feature whose string is associated
      * @param fill eventual feature filling
      * @param rotation text rotation
@@ -1193,8 +1199,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         graphic.drawGlyphVector(gv, (float) dx, (float) dy);
-        // tl.draw(graphic, (float) dx, (float) dy);
 
+        // tl.draw(graphic, (float) dx, (float) dy);
         //graphics.drawString(label,(float)x,(float)y);
         resetFill(graphic);
         graphic.setTransform(temp);
@@ -1210,7 +1216,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param y anchor point y coordinate
      * @param dx horizontal offset
      * @param dy vertical offset
-     * @param tl used to draw the string
+     * @param gv used to draw the string
      * @param feature the feature whose string is associated
      * @param rotation text rotation
      */
@@ -1249,7 +1255,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         double xToyRatio = Math.abs(scaleX / scaleY);
         labelAT.scale(xToyRatio, 1.0 / xToyRatio);
-        
+
         graphics.setTransform(labelAT);
 
         AffineTransform at = new AffineTransform();
@@ -1258,7 +1264,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         // Shape sha = tl.getOutline(at);
         applyFill(graphics, halo.getFill(), feature);
 
-        Shape haloShape = new BasicStroke(2f * radius, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND).createStrokedShape(gv.getOutline((float) dx, (float) dy));
+        Shape haloShape = new BasicStroke(2f * radius, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND)
+            .createStrokedShape(gv.getOutline((float) dx, (float) dy));
         graphics.fill(haloShape);
         resetFill(graphics);
         graphics.setTransform(temp);
@@ -1329,24 +1336,20 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         if (supportedGraphicFormats.contains(eg.getFormat().toLowerCase())) {
-            if (eg.getFormat().equalsIgnoreCase("image/gif")
-                    || eg.getFormat().equalsIgnoreCase("image/jpg")
-                    || eg.getFormat().equalsIgnoreCase("image/png")) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("a java supported format");
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("a java supported format");
+            }
+
+            try {
+                BufferedImage img = imageLoader.get(eg.getLocation(), isInteractive());
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("Image return = " + img);
                 }
 
-                try {
-                    BufferedImage img = imageLoader.get(eg.getLocation(), isInteractive());
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("Image return = " + img);
-                    }
-
-                    return img;
-                } catch (MalformedURLException e) {
-                    LOGGER.warning("ExternalGraphicURL was badly formed");
-                }
+                return img;
+            } catch (MalformedURLException e) {
+                LOGGER.warning("ExternalGraphicURL was badly formed");
             }
         }
 
@@ -1525,8 +1528,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
         markAT.rotate(rotation - originalRotation);
 
         Rectangle2D bounds = shape.getBounds2D();
+
         // getbounds is broken, but getBounds2D is not :-)
-        double unitSize = Math.max(bounds.getWidth(), bounds.getHeight()); 
+        double unitSize = Math.max(bounds.getWidth(), bounds.getHeight());
         double drawSize = (double) size / unitSize;
         markAT.scale(drawSize, -drawSize);
 
@@ -1631,13 +1635,15 @@ public class LiteRenderer implements Renderer, Renderer2D {
         }
 
         String symbol = mark.getSymbol().getValue(feature).toString();
+
         // TextLayout tl = new TextLayout(symbol, javaFont, graphic.getFontRenderContext());
         AffineTransform oldTx = graphic.getTransform();
         graphic.setTransform(IDENTITY_TRANSFORM);
+
         GlyphVector gv = javaFont.createGlyphVector(graphic.getFontRenderContext(), symbol);
         graphic.setTransform(oldTx);
+
         Rectangle2D textBounds = gv.getVisualBounds();
-        
 
         // TODO: consider if symbols should carry an offset
         double dx = textBounds.getWidth() / 2.0;
@@ -2059,8 +2065,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
                 double remainder = len - dist;
                 int remainingWidth = (int) remainder;
-                if (remainingWidth > 0) {
 
+                if (remainingWidth > 0) {
                     //clip and render image
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("about to use clipped image " + remainder);
@@ -2150,8 +2156,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
     }
 
     /**
-     * Sets the interactive status of the renderer. An interactive renderer won't wait
-     * for long image loading, preferring an alternative mark instead
+     * Sets the interactive status of the renderer. An interactive renderer won't wait for long
+     * image loading, preferring an alternative mark instead
      *
      * @param interactive new value for the interactive property
      */

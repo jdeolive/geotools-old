@@ -21,14 +21,6 @@
  */
 package org.geotools.renderer.style;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Point;
-import org.geotools.feature.*;
-import org.geotools.filter.Expression;
-import org.geotools.styling.*;
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Canvas;
@@ -54,11 +46,40 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.imageio.ImageIO;
-import javax.media.jai.util.*;
+import javax.media.jai.util.Range;
+
+import org.geotools.feature.Feature;
+import org.geotools.filter.Expression;
+import org.geotools.styling.ExternalGraphic;
+import org.geotools.styling.Fill;
+import org.geotools.styling.Font;
+import org.geotools.styling.Graphic;
+import org.geotools.styling.Halo;
+import org.geotools.styling.LabelPlacement;
+import org.geotools.styling.LinePlacement;
+import org.geotools.styling.LineSymbolizer;
+import org.geotools.styling.Mark;
+import org.geotools.styling.PointPlacement;
+import org.geotools.styling.PointSymbolizer;
+import org.geotools.styling.PolygonSymbolizer;
+import org.geotools.styling.Symbol;
+import org.geotools.styling.Symbolizer;
+import org.geotools.styling.TextMark;
+import org.geotools.styling.TextSymbolizer;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.LineString;
 
 
 /**
@@ -130,18 +151,18 @@ public class SLDStyleFactory {
         wellKnownMarks.add("x");
         wellKnownMarks.add("arrow");
     }
-    
+
     private static Set getSupportedGraphicFormats() {
-        if(supportedGraphicFormats == null) {
+        if (supportedGraphicFormats == null) {
             supportedGraphicFormats = new java.util.HashSet();
-        
+
             String[] types = ImageIO.getReaderMIMETypes();
 
             for (int i = 0; i < types.length; i++) {
                 supportedGraphicFormats.add(types[i]);
             }
         }
-        
+
         return supportedGraphicFormats;
     }
 
@@ -154,8 +175,6 @@ public class SLDStyleFactory {
      *        symbolizer
      *
      * @return A rendered style equivalent to the symbolizer
-     *
-     * @throws UnsupportedOperationException if an unknown symbolizer is passed to this method
      */
     public Style2D createStyle(Feature f, Symbolizer symbolizer, Range scaleRange) {
         Style2D style = null;
@@ -784,23 +803,20 @@ public class SLDStyleFactory {
         return composite;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param style
-     * @param fill
-     * @param feature
-     */
     protected Paint getPaint(Fill fill, Feature feature) {
         if (fill == null) {
             return null;
         }
 
         // get fill color
-        Paint fillPaint = Color.decode((String) fill.getColor().getValue(feature));
+        Paint fillPaint = null;
 
-        if (LOGGER.isLoggable(Level.FINER)) {
-            LOGGER.finer("Setting fill: " + fillPaint.toString());
+        if (fill.getColor() != null) {
+            fillPaint = Color.decode((String) fill.getColor().getValue(feature));
+
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("Setting fill: " + fillPaint.toString());
+            }
         }
 
         // if a graphic fill is to be used, prepare the paint accordingly....
@@ -818,6 +834,8 @@ public class SLDStyleFactory {
      *
      * @param fill
      * @param feature
+     *
+     * @return
      */
     protected Composite getComposite(Fill fill, Feature feature) {
         if (fill == null) {
@@ -831,14 +849,6 @@ public class SLDStyleFactory {
         return composite;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param gr DOCUMENT ME!
-     * @param feature DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
     public TexturePaint getTexturePaint(org.geotools.styling.Graphic gr, Feature feature) {
         BufferedImage image = getExternalGraphic(gr);
 
@@ -852,6 +862,11 @@ public class SLDStyleFactory {
             }
 
             org.geotools.styling.Mark mark = getMark(gr, feature);
+
+            if (mark == null) {
+                return null;
+            }
+
             int size = 200;
 
             image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
@@ -923,24 +938,20 @@ public class SLDStyleFactory {
         }
 
         if (getSupportedGraphicFormats().contains(eg.getFormat().toLowerCase())) {
-            if (eg.getFormat().equalsIgnoreCase("image/gif")
-                    || eg.getFormat().equalsIgnoreCase("image/jpg")
-                    || eg.getFormat().equalsIgnoreCase("image/png")) {
-                if (LOGGER.isLoggable(Level.FINER)) {
-                    LOGGER.finer("a java supported format");
+            if (LOGGER.isLoggable(Level.FINER)) {
+                LOGGER.finer("a java supported format");
+            }
+
+            try {
+                BufferedImage img = imageLoader.get(eg.getLocation(), false);
+
+                if (LOGGER.isLoggable(Level.FINEST)) {
+                    LOGGER.finest("Image return = " + img);
                 }
 
-                try {
-                    BufferedImage img = imageLoader.get(eg.getLocation(), false);
-
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("Image return = " + img);
-                    }
-
-                    return img;
-                } catch (java.net.MalformedURLException e) {
-                    LOGGER.warning("ExternalGraphic has a malformed url: " + e);
-                }
+                return img;
+            } catch (java.net.MalformedURLException e) {
+                LOGGER.warning("ExternalGraphic has a malformed url: " + e);
             }
         }
 
@@ -1029,11 +1040,11 @@ public class SLDStyleFactory {
      * Evaluates an expression over the passed feature, if the expression or the result is null,
      * the default value will be returned
      *
-     * @param e DOCUMENT ME!
-     * @param feature DOCUMENT ME!
-     * @param defaultValue DOCUMENT ME!
+     * @param e
+     * @param feature
+     * @param defaultValue
      *
-     * @return DOCUMENT ME!
+     * @return
      */
     private String evaluateExpression(Expression e, Feature feature, String defaultValue) {
         String result = defaultValue;
@@ -1049,13 +1060,6 @@ public class SLDStyleFactory {
         return result;
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param joinType DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
     public static int lookUpJoin(String joinType) {
         if (SLDStyleFactory.joinLookup.containsKey(joinType)) {
             return ((Integer) joinLookup.get(joinType)).intValue();
@@ -1064,13 +1068,6 @@ public class SLDStyleFactory {
         }
     }
 
-    /**
-     * DOCUMENT ME!
-     *
-     * @param capType DOCUMENT ME!
-     *
-     * @return DOCUMENT ME!
-     */
     public static int lookUpCap(String capType) {
         if (SLDStyleFactory.capLookup.containsKey(capType)) {
             return ((Integer) capLookup.get(capType)).intValue();
