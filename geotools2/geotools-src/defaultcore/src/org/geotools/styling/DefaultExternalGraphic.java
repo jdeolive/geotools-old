@@ -23,31 +23,24 @@ import java.net.*;
 import java.io.*;
 import org.apache.log4j.Category;
 /**
- * @version $Id: DefaultExternalGraphic.java,v 1.2 2002/06/04 16:50:55 loxnard Exp $
+ * @version $Id: DefaultExternalGraphic.java,v 1.3 2002/06/07 16:41:44 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultExternalGraphic implements ExternalGraphic {
     URL location = null;
     String format = "";
     
-    private static Category _log = Category.getInstance("defaultcore.styling");
+    private static Category _log = Category.getInstance(DefaultExternalGraphic.class);
     /** Creates a new instance of DefaultExternalGraphic */
     public DefaultExternalGraphic(){
     }
-    public DefaultExternalGraphic(String uri) {
-        try{
-            setLocation(new URL(uri));
-            URLConnection conn = location.openConnection();
-            format = conn.getContentType();
-        } catch (IOException e){
-        _log.info("Exception opening uri "+uri+"\n"+e);
-        }
-    }
+
     public void setURI(String uri){
         try{
             setLocation(new URL(uri));
         } catch (MalformedURLException e){
-            _log.info("Exception setting uri "+uri+"\n"+e);
+            _log.info("Exception setting uri: "+uri+"\n"+e);
+            e.printStackTrace();
         }
     }
     /**
@@ -81,14 +74,6 @@ public class DefaultExternalGraphic implements ExternalGraphic {
      */
     public void setLocation(java.net.URL location) {
         this.location = location;
-    }
-    
-    public InputStream getGraphic(){
-        try{
-            return location.openStream();
-        } catch (IOException e){
-            return null;
-        }
     }
     
 }

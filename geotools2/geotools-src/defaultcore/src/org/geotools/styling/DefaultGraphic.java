@@ -22,7 +22,7 @@ package org.geotools.styling;
 import java.util.*;
 
 /**
- * @version $Id: DefaultGraphic.java,v 1.6 2002/06/04 16:59:35 loxnard Exp $
+ * @version $Id: DefaultGraphic.java,v 1.7 2002/06/07 16:41:44 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultGraphic implements org.geotools.styling.Graphic {
@@ -39,10 +39,7 @@ public class DefaultGraphic implements org.geotools.styling.Graphic {
         
     }
     
-    public DefaultGraphic(String extgraphic){
-        ExternalGraphic eg = new DefaultExternalGraphic(extgraphic);
-        externalGraphics.add(eg);
-    }
+
     /**
      * Provides a list of external graphics which can be used to represent
      * this graphic.

@@ -40,15 +40,17 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
 
 //util imports
 import java.util.HashMap;
+import java.util.HashSet;
 
 //Logging system
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.20 2002/06/04 19:34:54 loxnard Exp $
+ * @version $Id: Java2DRenderer.java,v 1.21 2002/06/07 16:42:23 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -73,8 +75,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     /**
      * Holds a list of well-known marks.
      */
-    static HashMap wellKnownMarks = new java.util.HashMap();
-    
+    static HashSet wellKnownMarks = new java.util.HashSet();
+    static HashSet supportedGraphicFormats = new java.util.HashSet();
+    static ImageLoader imageLoader = new ImageLoader();
     static { //static block to populate the lookups
         joinLookup.put("miter", new Integer(BasicStroke.JOIN_MITER));
         joinLookup.put("bevel", new Integer(BasicStroke.JOIN_BEVEL));
@@ -87,13 +90,15 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
          * A list of wellknownshapes that we know about:
          * square, circle, triangle, star, cross, x.
          */
-        wellKnownMarks.put("Square","Square");
-        wellKnownMarks.put("Triangle","Triangle");
-        wellKnownMarks.put("Cross","Cross");
-        wellKnownMarks.put("Circle","Circle");
-        wellKnownMarks.put("Star","Square");
-        wellKnownMarks.put("X","Square");
-        // TODO: implement the remaining symbols
+        wellKnownMarks.add("Square");
+        wellKnownMarks.add("Triangle");
+        wellKnownMarks.add("Cross");
+        wellKnownMarks.add("Circle");
+        wellKnownMarks.add("Star");
+        wellKnownMarks.add("X");
+        
+        supportedGraphicFormats.add("image/gif");
+        supportedGraphicFormats.add("image/jpg");
     }
     
     /**
@@ -354,15 +359,29 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
         for(int i=0;i<extgraphics.length;i++){
-            _log.info("got a "+extgraphics[i].getFormat());
+            ExternalGraphic eg = extgraphics[i];
+            _log.info("got a "+eg.getFormat());
+            if(supportedGraphicFormats.contains(eg.getFormat().toLowerCase())){
+                if(eg.getFormat().equalsIgnoreCase("image/gif") ||
+                eg.getFormat().equalsIgnoreCase("image/jpg")){
+                    BufferedImage img = imageLoader.get(eg.getLocation());
+                    if(img!=null){
+                        renderImage((Point)geom,img,(int)graphic.getSize(),graphic.getRotation());
+                        return;
+                    }
+                }
+            }
         }
+        // if we get to here we need to render the marks;
+        renderMark(geom,graphic);
     }
+    
     
     private void renderMark(Geometry geom, Graphic graphic){
         Mark marks[] = graphic.getMarks();
         Mark mark;
-        int size = 6;
-        double rotation = 0;
+        int size = 6; // size in pixels
+        double rotation = 0.0; // rotation in degrees
         
         if(marks == null || marks.length==0){
             _log.debug("choosing a default mark as no marks returned");
@@ -371,7 +390,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         }
         
         for(int i = 0; i<marks.length; i++){
-            if(wellKnownMarks.containsKey(marks[i].getWellKnownName())){
+            if(wellKnownMarks.contains(marks[i].getWellKnownName())){
                 mark = marks[i];
                 size = (int)graphic.getSize();
                 rotation = graphic.getRotation()*Math.PI/180d;
@@ -389,7 +408,29 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         fillMark((Point)geom,mark,size,rotation);
         drawMark((Point)geom,mark,size,rotation);
     }
-    
+    private void renderImage(com.vividsolutions.jts.geom.Point point, BufferedImage img, int size,
+    double rotation){
+        _log.info("drawing Image");
+        AffineTransform temp = graphics.getTransform();
+        AffineTransform markAT = new AffineTransform();
+        double tx = point.getX();
+        double ty = point.getY();
+        Point2D mapCentre = new Point2D.Double(tx,ty);
+        Point2D graphicCentre = new Point2D.Double();
+        temp.transform(mapCentre,graphicCentre);
+        markAT.translate(graphicCentre.getX(),graphicCentre.getY());
+        markAT.rotate(rotation);
+
+        double unitSize = Math.max(img.getWidth(),img.getHeight());
+        
+        double drawSize = (double)size/unitSize;
+        _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
+        markAT.scale(drawSize,-drawSize);
+        graphics.setTransform(markAT);
+        graphics.drawImage(img,-img.getWidth()/2,-img.getHeight()/2,null);
+        graphics.setTransform(temp);
+        return;
+    }
     private void drawMark(com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
         if(mark.getStroke()== null){
             return;
@@ -406,8 +447,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         temp.transform(mapCentre,graphicCentre);
         markAT.translate(graphicCentre.getX(),graphicCentre.getY());
         markAT.rotate(rotation);
-        double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        //_log.debug("width + height "+shape.getBounds().getWidth()+" "+shape.getBounds().getHeight());
+        //double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        double unitSize = 1.0; // getbounds is broken !!!
         double drawSize = (double)size/unitSize;
+        _log.debug("unitsize "+unitSize+" size = "+size+" -> scale "+drawSize);
         markAT.scale(drawSize,-drawSize);
         graphics.setTransform(markAT);
         graphics.draw(shape);
@@ -430,7 +474,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         temp.transform(mapCentre,graphicCentre);
         markAT.translate(graphicCentre.getX(),graphicCentre.getY());
         markAT.rotate(rotation);
-        double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        //_log.debug("width + height "+shape.getBounds().getWidth()+" "+shape.getBounds().getHeight());
+        //double unitSize = Math.max(shape.getBounds().getWidth(),shape.getBounds().getHeight());
+        double unitSize = 1.0; // getbounds is broken !!!
         double drawSize = (double)size/unitSize;
         markAT.scale(drawSize,-drawSize);
         
@@ -440,7 +486,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         graphics.setTransform(temp);
         resetFill();
         return;
- 
+        
     }
     private void applyFill(Fill fill, Feature feature){
         if(fill == null ) return;

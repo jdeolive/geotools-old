@@ -24,7 +24,7 @@ package org.geotools.styling;
  * A class to read and parse an SLD file based on verion 0.7.2 of
  * the OGC Styled Layer Descriptor Spec.
  *
- * @version $Id: SLDStyle.java,v 1.7 2002/06/05 12:08:33 loxnard Exp $
+ * @version $Id: SLDStyle.java,v 1.8 2002/06/07 16:43:09 ianturton Exp $
  * @author Ian Turton, CCG
  *
 
@@ -32,7 +32,6 @@ package org.geotools.styling;
 
 import org.w3c.dom.*;
 import javax.xml.parsers.*;
-//import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
 import java.net.*;
 import java.io.*;
 import java.util.*;
@@ -159,10 +158,9 @@ public class SLDStyle implements org.geotools.styling.Style {
         
         
         Node n = nodes.item(0);
-        //AdapterNode root = new AdapterNode(n);
-        //System.out.println(""+root.printNodes());
         
         NodeList children = n.getChildNodes();
+        
         _log.debug(""+children.getLength()+" children to process");
         for(int i=0; i<children.getLength(); i++){
             Node child = children.item(i);
@@ -171,7 +169,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
             
             _log.debug("processing "+child.getNodeName());
-            //System.out.println("hasChildren "+child.hasChildNodes()+" attribs "+child.hasAttributes());
+            
             if( child.getNodeName().equalsIgnoreCase("Name")){
                 setName(child.getFirstChild().getNodeValue());
             }
@@ -254,7 +252,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             if( child.getNodeName().equalsIgnoreCase("LegendGraphic")){
                 NodeList g = ((Element)child).getElementsByTagName("Graphic");
                 for(int k=0;k<g.getLength();k++){
-                    rule.addLegendGraphic(new DefaultGraphic(g.item(k).getNodeValue()));
+                    rule.addLegendGraphic(parseGraphic(g.item(k)));
                 }
             }
             if (child.getNodeName().equalsIgnoreCase("LineSymbolizer")){
@@ -341,6 +339,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         return symbol;
     }
     private Graphic parseGraphic(Node root){
+        _log.debug("processing graphic");
         DefaultGraphic graphic = new DefaultGraphic();
         
         NodeList children = root.getChildNodes();
@@ -355,6 +354,7 @@ public class SLDStyle implements org.geotools.styling.Style {
                 // TODO: read spec carefully
             }
             if(child.getNodeName().equalsIgnoreCase("ExternalGraphic")){
+                _log.debug("parsing extgraphic "+child);
                 graphic.addExternalGraphic(parseExternalGraphic(child));
             }
             if(child.getNodeName().equalsIgnoreCase("Mark")){
@@ -395,6 +395,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     }
     
     private ExternalGraphic parseExternalGraphic(Node root){
+        _log.debug("processing external graphic ");
         DefaultExternalGraphic extgraph = new DefaultExternalGraphic();
         NodeList children = root.getChildNodes();
         for(int i=0; i<children.getLength(); i++){
@@ -402,10 +403,13 @@ public class SLDStyle implements org.geotools.styling.Style {
             if(child == null || child.getNodeType() != Node.ELEMENT_NODE){
                 continue;
             }
+            
             if(child.getNodeName().equalsIgnoreCase("OnLineResource")){
+                _log.debug("seting ExtGraph uri "+child.getNodeValue());
                 extgraph.setURI(child.getNodeValue());
             }
             if(child.getNodeName().equalsIgnoreCase("format")){
+                _log.debug("seting ExtGraph format "+child.getNodeValue());
                 extgraph.setFormat(child.getNodeValue());
             }
         }
