@@ -40,8 +40,7 @@ public abstract class TestCaseSupport extends TestCase {
         fout.close();
       }
     } catch (java.io.IOException ioe) {
-      ioe.printStackTrace();
-      //throw new RuntimeException("Error extracting test data " + ioe.getMessage(),ioe); 
+      throw new RuntimeException("Error extracting test data " + ioe.getMessage(),ioe); 
     }
   }
   
