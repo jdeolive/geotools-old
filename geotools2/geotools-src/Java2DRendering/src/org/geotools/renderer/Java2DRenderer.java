@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.39 2002/07/05 20:21:11 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.40 2002/07/08 14:28:07 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -478,17 +478,22 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             double x=0,y=0,rotation=0;
             double tx=0,ty=0;
             Rectangle2D rect = graphics.getFont().getStringBounds(label,graphics.getFontRenderContext());
-            
+            TextLayout tl =new TextLayout(label,graphics.getFont(),graphics.getFontRenderContext());
+            Rectangle2D textBounds = tl.getBounds();
+            _log.debug("basic bounds:"+rect.toString());
+            _log.debug("textl bounds:"+textBounds.toString()); // interestingly these aren't the same.
             if(placement instanceof PointPlacement){
                 //HACK: this will fail if the geometry of the feature isn't a point
                 _log.debug("setting pointPlacement");
                 tx = ((Point)feature.getDefaultGeometry()).getX();
                 ty = ((Point)feature.getDefaultGeometry()).getY();
                 PointPlacement p = (PointPlacement)placement;
-                x = ((Number)p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*rect.getWidth();
-                y = ((Number)p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*rect.getHeight();
+                x = ((Number)p.getAnchorPoint().getAnchorPointX().getValue(feature)).doubleValue()*-textBounds.getWidth();
+                y = ((Number)p.getAnchorPoint().getAnchorPointY().getValue(feature)).doubleValue()*textBounds.getHeight();
+                _log.debug("anchor point ("+x+","+y+")");
                 x += ((Number)p.getDisplacement().getDisplacementX().getValue(feature)).doubleValue();
                 y += ((Number)p.getDisplacement().getDisplacementY().getValue(feature)).doubleValue();
+                _log.debug("total displacement ("+x+","+y+")");
                 rotation = ((Number)p.getRotation().getValue(feature)).doubleValue();
                 rotation*=Math.PI/180.0;
             }else if(placement instanceof LinePlacement){
@@ -503,13 +508,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                 rotation = Math.atan2(dx,dy)-Math.PI/2.0;
                 tx = dx/2.0 + start.getX();
                 ty = dy/2.0 + start.getY();
-                x = -rect.getWidth()/2.0;
+                x = -textBounds.getWidth()/2.0;
                 
                 y=0;
                 if(offset >= 0.0 ){ // to the left of the line
                     y = -offset;
                 }else{
-                    y = y = offset+rect.getHeight();
+                    y = offset+textBounds.getHeight();
                 }
                 
                 _log.debug("offset = "+offset+" x = "+x+" y "+y);
@@ -524,13 +529,11 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             labelAT.rotate(rotation);
             
-            //        markAT.scale(drawSize,drawSize);
             graphics.setTransform(labelAT);
             Halo halo = symbolizer.getHalo();
 
             if(halo!=null){
                 _log.debug("doing halo");
-                TextLayout tl =new TextLayout(label,graphics.getFont(),graphics.getFontRenderContext());
                 
                 /*
                  * create an outline shape from the TextLayout 
@@ -547,8 +550,8 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             applyFill(graphics,symbolizer.getFill(),feature);
             // we move this to the centre of the image.
             _log.debug("about to draw at "+tx+","+ty);
-            
-            graphics.drawString(label,(float)x,(float)y);
+            tl.draw(graphics,(float)x,(float)y);
+            //graphics.drawString(label,(float)x,(float)y);
             resetFill();
             graphics.setTransform(temp);
             return;

@@ -31,6 +31,50 @@ that allows you to describe the latyer in more detail
             </PointSymbolizer>
         </rule>
     </FeatureTypeStyle>
+    <FeatureTypeStyle>
+        <FeatureTypeName>labelPoint</FeatureTypeName>
+        <rule>
+            <TextSymbolizer>
+                <Label><PropertyName>name</PropertyName></Label>
+                <Font>
+                    <CssParameter name="font-family">Times New Roman</CssParameter>
+                    <CssParameter name="font-Size">
+                        <literal>10</literal>
+                    </CssParameter>
+                </Font>
+                <Font>
+                    <CssParameter name="font-family">Arial</CssParameter>
+                    <CssParameter name="font-Size">
+                        <literal>10</literal>
+                    </CssParameter>
+                </Font>
+                <LabelPlacement>
+                    <PointPlacement>
+                        <AnchorPoint>
+                            <AnchorPointX><PropertyName>X</PropertyName> </AnchorPointX>
+                            <AnchorPointY><PropertyName>Y</PropertyName> </AnchorPointY>
+                        </AnchorPoint>
+                    </PointPlacement>
+                </LabelPlacement>
+                <Fill>
+                    <CssParameter name="fill">#000000</CssParameter>
+                </Fill>
+                <Halo/>
+            </TextSymbolizer>
+            <PointSymbolizer>
+                <graphic>
+                    <size>4</size>
+                    <mark>
+                        <wellknownname>circle</wellknownname>
+                        <Fill>
+                            <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+                            <CssParameter name="fill">#FF0000</CssParameter>
+                        </Fill>
+                    </mark>
+                </graphic>
+            </PointSymbolizer>
+        </rule>
+    </FeatureTypeStyle>
 </UserStyle>
 </NamedLayer>
 </StyledLayerDescriptor>

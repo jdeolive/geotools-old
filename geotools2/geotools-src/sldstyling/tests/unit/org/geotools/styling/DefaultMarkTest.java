@@ -48,7 +48,7 @@ public class DefaultMarkTest extends TestCase {
         //same as the datasource test, load in some features into a table
         System.out.println("\n\nMark Test\n");
         // Request extent
-        EnvelopeExtent ex = new EnvelopeExtent(0, 35, 0, 35);
+        EnvelopeExtent ex = new EnvelopeExtent(0, 35, 0, 45);
         
         GeometryFactory geomFac = new GeometryFactory();
         ArrayList features = new ArrayList();
@@ -61,19 +61,33 @@ public class DefaultMarkTest extends TestCase {
         FeatureType pointType = new FeatureTypeFlat(pointAttribute).setTypeName("testPoint");
         FeatureFactory pointFac = new FeatureFactory(pointType);
         
+        AttributeType[] labelAttribute = new AttributeType[4];
+        labelAttribute[0] = new AttributeTypeDefault("centre", com.vividsolutions.jts.geom.Point.class);
+        labelAttribute[1] = new AttributeTypeDefault("name",String.class);
+        labelAttribute[2] = new AttributeTypeDefault("X",Double.class);
+        labelAttribute[3] = new AttributeTypeDefault("Y",Double.class);
+        FeatureType labelType = new FeatureTypeFlat(labelAttribute).setTypeName("labelPoint");
+        FeatureFactory labelFac = new FeatureFactory(labelType);
         String[] marks = {"Circle","Triangle","Cross","Star","X","Square","Arrow"};
         double size = 6;
         double rotation = 0;
-        int rows = 5;
+        int rows = 7;
         for(int j=0;j<rows;j++){
+            Point point = makeSamplePoint(geomFac,2,5.0+j*5);
+            Feature pointFeature = labelFac.create(new Object[]{point,""+size+"/"+rotation,new Double(0.3),new Double(.5)});
+            features.add(pointFeature);
             for(int i=0; i<marks.length; i++){
-                Point point = makeSamplePoint(geomFac,(double)i*5.0+2.0, 5.0+j*5);
-                Feature pointFeature = pointFac.create(new Object[]{point,new Double(size),new Double(rotation),marks[i]});
-                System.out.println(""+pointFeature);
+                point = makeSamplePoint(geomFac,(double)i*5.0+10.0, 5.0+j*5);
+                pointFeature = pointFac.create(new Object[]{point,new Double(size),new Double(rotation),marks[i]});
                 features.add(pointFeature);
             }
             size+=2;
             rotation+=45;
+        }
+        for(int i=0; i<marks.length; i++){
+            Point point = makeSamplePoint(geomFac,(double)i*5.0+10.0,5.0+rows*5);
+            Feature pointFeature = labelFac.create(new Object[]{point,marks[i],new Double(.5),new Double(0)});
+            features.add(pointFeature);
         }
         System.out.println("got "+features.size()+" features");
         FeatureCollectionDefault ft = new FeatureCollectionDefault();
