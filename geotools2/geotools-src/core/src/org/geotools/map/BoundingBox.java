@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBox.java,v 1.2 2002/12/21 00:40:56 camerons Exp $
+ * @version $Id: BoundingBox.java,v 1.3 2003/01/28 11:00:43 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -51,7 +51,7 @@ public interface BoundingBox extends Cloneable{
      * to all listeners.
      */
     public void addAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl,
+            BoundingBoxListener ecl,
             boolean sendEvent);
 
     /**
@@ -59,14 +59,14 @@ public interface BoundingBox extends Cloneable{
      * @param ecl The object to notify when AreaOfInterest has changed.
      */
     public void addAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl);
+            BoundingBoxListener ecl);
 
     /**
      * Remove interest in receiving an AreaOfInterestChangedEvent.
      * @param ecl The object to stop sending AreaOfInterestChanged Events.
      */
     public void removeAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl);
+            BoundingBoxListener ecl);
 
     /**
      * Set a new AreaOfInterest and trigger an AreaOfInterestEvent.

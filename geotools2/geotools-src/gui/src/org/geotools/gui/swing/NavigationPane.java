@@ -32,7 +32,7 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author  jamesm
  */
-public class NavigationPane extends javax.swing.JComponent implements org.geotools.map.events.AreaOfInterestChangedListener{
+public class NavigationPane extends javax.swing.JComponent implements org.geotools.map.events.BoundingBoxListener{
     /**
      * The maximum extent of any aoi to be displayed.
      * This determins the extent of the map displayed in this panel,

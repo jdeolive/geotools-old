@@ -29,7 +29,7 @@ import org.geotools.cs.CoordinateSystemFactory;
 import org.geotools.cs.Datum;
 import org.geotools.cs.FactoryException;
 import org.geotools.cs.HorizontalDatum;
-import org.geotools.map.events.AreaOfInterestChangedListener;
+import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.BoundingBoxImpl;
 import org.opengis.cs.CS_CoordinateSystem;
 
@@ -38,7 +38,7 @@ import org.opengis.cs.CS_CoordinateSystem;
  *
  * @author Cameron Shorter
  */                                
-public class BoundingBoxImplTest extends TestCase implements AreaOfInterestChangedListener {
+public class BoundingBoxImplTest extends TestCase implements BoundingBoxListener {
     
     private static final Logger LOGGER = Logger.getLogger("org.geotools.map.BoundingBoxImplTest");
     

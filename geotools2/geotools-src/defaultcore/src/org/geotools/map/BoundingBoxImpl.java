@@ -28,7 +28,7 @@ package org.geotools.map;
  * Extent and CoordinateSystem are cloned during construction and when returned.
  * This is to ensure only this class can change their values.
  *
- * @version $Id: BoundingBoxImpl.java,v 1.3 2003/01/15 21:56:22 desruisseaux Exp $
+ * @version $Id: BoundingBoxImpl.java,v 1.4 2003/01/28 11:00:43 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -75,9 +75,9 @@ public class BoundingBoxImpl implements BoundingBox{
      * to all listeners.
      */
     public void addAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl,
+            BoundingBoxListener ecl,
             boolean sendEvent){
-        listenerList.add(AreaOfInterestChangedListener.class, ecl);
+        listenerList.add(BoundingBoxListener.class, ecl);
         if (sendEvent){
             fireAreaOfInterestChangedListener();
         }
@@ -88,7 +88,7 @@ public class BoundingBoxImpl implements BoundingBox{
      * @param ecl The object to notify when AreaOfInterest has changed.
      */
     public void addAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl){
+            BoundingBoxListener ecl){
         addAreaOfInterestChangedListener(ecl,false);
     }
 
@@ -97,8 +97,8 @@ public class BoundingBoxImpl implements BoundingBox{
      * @param ecl The object to stop sending AreaOfInterestChanged Events.
      */
     public void removeAreaOfInterestChangedListener(
-            AreaOfInterestChangedListener ecl) {
-        listenerList.remove(AreaOfInterestChangedListener.class, ecl);
+            BoundingBoxListener ecl) {
+        listenerList.remove(BoundingBoxListener.class, ecl);
     }
 
     /**
@@ -113,8 +113,8 @@ public class BoundingBoxImpl implements BoundingBox{
         EventObject ece = new EventObject(
                 this);
         for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == AreaOfInterestChangedListener.class) {
-                ((AreaOfInterestChangedListener)
+            if (listeners[i] == BoundingBoxListener.class) {
+                ((BoundingBoxListener)
                     listeners[i + 1]).areaOfInterestChanged(ece);
             }
         }

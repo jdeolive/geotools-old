@@ -33,7 +33,7 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.tools.Tool;
 import java.util.EventObject;
-import org.geotools.map.events.AreaOfInterestChangedListener;
+import org.geotools.map.events.BoundingBoxListener;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Context;
@@ -49,7 +49,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.18 2003/01/28 10:18:11 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.19 2003/01/28 11:00:53 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -58,7 +58,7 @@ import org.geotools.data.DataSourceException;
  */
 
 public class MapPane2 extends JPanel implements
-    AreaOfInterestChangedListener, LayerListChangedListener
+    BoundingBoxListener, LayerListChangedListener
 {
     /**
      * The current tool for this MapPane.

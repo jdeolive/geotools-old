@@ -40,7 +40,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2003/01/09 10:54:13 $</date>
+    <date>$Date: 2003/01/28 11:00:45 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -53,13 +53,8 @@ id="index">
   <section id="introduction">
     <title>Introduction</title>
 
-    <section id="identification">
-      <title>Identification.</title>
-
-      <para>This document aims to help new <ulink url="http://geotools.org">Geotools2</ulink>
-      developers get up to speed and track practices of existing developers in
-      order to keep the project consistent.</para>
-    </section>
+    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
+        href="developmentid.sgml"/>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
         href="systemoverview.sgml"/>
