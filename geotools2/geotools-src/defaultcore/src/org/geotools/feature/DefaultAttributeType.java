@@ -18,7 +18,13 @@ package org.geotools.feature;
 
 import com.vividsolutions.jts.geom.Geometry;
 import java.math.*;
-
+import java.util.List;
+import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 /**
  * Simple, immutable class to store attributes.  This class should be
@@ -27,7 +33,7 @@ import java.math.*;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.13 2003/09/15 15:27:16 ianschneider Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.14 2003/09/22 17:47:46 cholmesny Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -92,6 +98,91 @@ public class DefaultAttributeType implements AttributeType {
      */
     public boolean isNillable() {
         return nillable;
+    }
+
+    public Object duplicate(Object src) throws IllegalAttributeException {
+         if( src == null ){
+            return null;
+        }
+        //
+        // The following are things I expect
+        // Features will contain.
+        // 
+        if( src instanceof String ||
+            src instanceof Integer ||
+            src instanceof Double ||
+            src instanceof Float ||
+            src instanceof Byte ||
+            src instanceof Boolean ||
+            src instanceof Short ||
+            src instanceof Long ||
+            src instanceof Character){
+            return src; 
+        }        
+        
+        if( src instanceof Object[]){
+            Object array[] = (Object[]) src;
+            Object copy[] = new Object[ array.length ];
+            for( int i=0; i<array.length;i++){
+                copy[i] = duplicate(array[i]);
+            }
+            return copy;
+        }
+        if( src instanceof Geometry ){
+            Geometry geometry = (Geometry) src;
+            return geometry.clone(); 
+        }
+        if( src instanceof org.geotools.feature.Feature ){
+            org.geotools.feature.Feature feature = 
+                (org.geotools.feature.Feature) src;
+            return feature.getFeatureType().duplicate(feature);
+        }
+        // 
+        // We are now into diminishing returns
+        // I don't expect Features to contain these often
+        // (eveything is still nice and recursive)
+        //
+        Class type = src.getClass();
+
+        if( type.isArray() && type.getComponentType().isPrimitive() ){
+            int length = Array.getLength( src );
+            Object copy = Array.newInstance( type.getComponentType(), length );
+            System.arraycopy( src, 0, copy,0, length );
+            return copy;
+        }            
+        if( type.isArray() ){          
+            int length = Array.getLength( src );
+            Object copy = Array.newInstance( type.getComponentType(), length );
+            for( int i=0; i<length; i++){                
+                Array.set( copy, i, duplicate( Array.get( src, i)));
+            }
+            return copy;
+        }
+        if( src instanceof List ){
+            List list = (List) src;
+            List copy = new ArrayList( list.size() );
+            
+            for( Iterator i=list.iterator(); i.hasNext();){                
+                copy.add( duplicate( i.next() ) );
+            }
+            return Collections.unmodifiableList( copy );
+        }
+        if( src instanceof Map ){
+            Map map = (Map) src;
+            Map copy = new HashMap( map.size() );
+            
+            for( Iterator i=map.entrySet().iterator(); i.hasNext();){
+                Map.Entry entry = (Map.Entry) i.next();
+                copy.put( entry.getKey(), duplicate( entry.getValue() ) );
+            }
+            return Collections.unmodifiableMap( copy );
+        }
+        //
+        // I have lost hope and am returning the orgional reference
+        // Please extend this to support additional classes.
+        //
+        // And good luck getting Cloneable to work
+        throw new IllegalAttributeException( "Do not know how to deep copy "+type.getName() );                 
     }
 
     /**
