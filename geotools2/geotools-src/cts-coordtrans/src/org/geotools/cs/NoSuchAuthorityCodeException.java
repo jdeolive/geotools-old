@@ -37,22 +37,22 @@ package org.geotools.cs;
 
 
 /**
- * Throws if {@link CoordinateSystemAuthorityFactory}
+ * Thrown if {@link CoordinateSystemAuthorityFactory}
  * can't find a requested authority code.
  *
- * @version 1.0
+ * @version $Id: NoSuchAuthorityCodeException.java,v 1.2 2002/06/05 16:06:14 loxnard Exp $
  * @author Martin Desruisseaux
  */
 public class NoSuchAuthorityCodeException extends FactoryException {
     /**
-     * Construct an exception with no message.
+     * Constructs an exception with no message.
      */
     public NoSuchAuthorityCodeException() {
         super();
     }
     
     /**
-     * Construct an exception with the specified detail message.
+     * Constructs an exception with the specified detail message.
      */
     public NoSuchAuthorityCodeException(final String message) {
         super(message);
