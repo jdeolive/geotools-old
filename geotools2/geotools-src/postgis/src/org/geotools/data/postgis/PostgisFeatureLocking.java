@@ -35,6 +35,7 @@ import org.geotools.filter.Filter;
 //geotools imports
 import java.io.IOException;
 import java.util.NoSuchElementException;
+import java.util.logging.Logger;
 
 
 /**
@@ -57,10 +58,13 @@ import java.util.NoSuchElementException;
  * </p>
  *
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.8 2003/11/25 04:05:55 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.9 2003/12/30 01:44:24 cholmesny Exp $
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore
     implements FeatureLocking {
+    /** The logger for the postgis module. */
+    private static final Logger LOGGER = Logger.getLogger(
+            "org.geotools.data.postgis");
     FeatureLock featureLock = FeatureLock.TRANSACTION;
 
     public PostgisFeatureLocking(PostgisDataStore postgisDataStore,
@@ -155,38 +159,15 @@ public class PostgisFeatureLocking extends PostgisFeatureStore
                 + getSchema().getTypeName() + ":" + query);
         }
 
-        //
-        // WILD HACK FOR SPEED
-        //
-        boolean SPEED_HACK_ENABLED = true;
-
-        if (SPEED_HACK_ENABLED && (query.getPropertyNames() == Query.NO_NAMES)
-                && query.getFilter() instanceof FidFilter) {
-            Transaction transaction = getTransaction();
-            FidFilter fidFilter = (FidFilter) query.getFilter();
-            String[] fids = fidFilter.getFids();
-            int count = 0;
-
-            for (int i = 0; i < fids.length; i++) {
-                try {
-                    lockingManager.lockFeatureID(typeName, fids[i],
-                        transaction, featureLock);
-                    count++;
-                } catch (IOException io) {
-                    // could not aquire - don't increment count
-                }
-            }
-
-            return count;
-        }
-
         // Reduce the Query to only return the FetureID here?
-        //
+        // Good idea, but it's not working right now, so we're just using the query passed in.
         Query optimizedQuery = new DefaultQuery(typeName, query.getFilter(),
                 query.getMaxFeatures(), Query.NO_NAMES, query.getHandle());
-        FeatureReader reader = getFeatures(optimizedQuery).reader();
+        FeatureReader reader = getFeatures(query).reader();
         Feature feature;
         int count = 0;
+        LOGGER.info("got reader from query " + optimizedQuery
+            + ", reader has next " + reader.hasNext());
 
         try {
             while (reader.hasNext()) {
@@ -195,7 +176,10 @@ public class PostgisFeatureLocking extends PostgisFeatureStore
                     lockingManager.lockFeatureID(typeName, feature.getID(),
                         transaction, featureLock);
                     count++;
+                    LOGGER.info("locked feature " + feature);
                 } catch (FeatureLockException locked) {
+                    LOGGER.info("feature lock exception");
+
                     // could not aquire - don't increment count                
                 } catch (NoSuchElementException nosuch) {
                     throw new DataSourceException("Problem with "
