@@ -41,6 +41,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.logging.Level;
 
 
@@ -50,7 +51,7 @@ import java.util.logging.Level;
  *
  * @author Ian Turton
  * @author Sean Geoghegan
- * @version $Id: SLDStyle.java,v 1.39 2003/11/14 22:19:48 jmacgill Exp $
+ * @version $Id: SLDStyle.java,v 1.40 2003/11/15 08:41:17 aaime Exp $
  */
 public class SLDStyle {
     private static final java.util.logging.Logger LOGGER = java.util.logging.Logger
@@ -968,13 +969,12 @@ public class SLDStyle {
                 }
                 
                 if (res.equalsIgnoreCase("dasharray")
-                || res.equalsIgnoreCase("stroke-dasharray")) {
-                    java.util.StringTokenizer stok = new java.util.StringTokenizer(child.getFirstChild()
-                    .getNodeValue(),
-                    " ");
+                        || res.equalsIgnoreCase("stroke-dasharray")) {
+                    String dashString = child.getFirstChild().getNodeValue();
+                    StringTokenizer stok = new StringTokenizer(dashString, " ");
                     float[] dashes = new float[stok.countTokens()];
-                    
-                    for (int l = 0; l < stok.countTokens(); l++) {
+
+                    for (int l = 0; l < dashes.length; l++) {
                         dashes[l] = Float.parseFloat(stok.nextToken());
                     }
                     
@@ -1315,10 +1315,10 @@ public class SLDStyle {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing halo");
         }
-        
-        Halo halo = factory.createHalo(factory.getDefaultFill(),
-        FILTERFACTORY.createLiteralExpression(0.0));
-        
+        Halo halo = factory.createHalo(
+            factory.createFill(FILTERFACTORY.createLiteralExpression("#FFFFFF")),
+                FILTERFACTORY.createLiteralExpression(1.0));
+
         NodeList children = root.getChildNodes();
         
         for (int i = 0; i < children.getLength(); i++) {
