@@ -132,11 +132,7 @@ public class PolygonHandler implements ShapeHandler {
     
     ArrayList shells = new ArrayList();
     ArrayList holes = new ArrayList();
-    Coordinate[] coords = new Coordinate[numPoints];
-    
-    for (int t = 0; t < numPoints; t++) {
-      coords[t] = new Coordinate(buffer.getDouble(), buffer.getDouble());
-    }
+    Coordinate[] coords = readCoordinates(buffer, numPoints);
     
     if (shapeType == ShapeType.POLYGONZ) {
       //z
@@ -203,6 +199,74 @@ public class PolygonHandler implements ShapeHandler {
       );
     } else {
       // build an association between shells and holes
+      final ArrayList holesForShells = assignHolesToShells(shells, holes);
+      
+      Geometry g = buildGeometries(shells, holes, holesForShells);
+      
+      return g;
+    }
+  }
+
+  /**
+   * @param buffer
+   * @param numPoints
+   * @return
+   */
+  private Coordinate[] readCoordinates(final ByteBuffer buffer, final int numPoints) {
+      Coordinate[] coords = new Coordinate[numPoints];
+      
+      for (int t = 0; t < numPoints; t++) {
+        coords[t] = new Coordinate(buffer.getDouble(), buffer.getDouble());
+      }
+
+      return coords;
+  }
+
+  /**
+   * @param shells
+   * @param holes
+   * @param holesForShells
+   * @return
+   */
+  private Geometry buildGeometries(final ArrayList shells, final ArrayList holes, final ArrayList holesForShells) {
+      Polygon[] polygons;
+      
+      // if we have shells, lets use them
+      if (shells.size() > 0)
+        polygons = new Polygon[shells.size()];
+      // oh, this is a bad record with only holes
+      else
+        polygons = new Polygon[holes.size()];
+      
+      // this will do nothing for the "only holes case"
+      for (int i = 0; i < shells.size(); i++) {
+        polygons[i] = geometryFactory.createPolygon((LinearRing) shells.get(i),
+        (LinearRing[]) ((ArrayList) holesForShells.get(i)).toArray(new LinearRing[0]));
+      }
+      
+      // this will take care of the "only holes case"
+      // we just reverse each hole
+      if (shells.size() == 0) {
+        for (int i = 0, ii = holes.size(); i < ii; i++) {
+          LinearRing hole = (LinearRing) holes.get(i);
+          polygons[i] = geometryFactory.createPolygon(
+            JTSUtilities.reverseRing(hole),
+            new LinearRing[0]
+          );
+        }
+      }
+      
+      Geometry g = geometryFactory.createMultiPolygon(polygons);
+
+      return g;
+  }
+
+  /**
+   * @param shells
+   * @param holes
+   * @return
+   */
+  private ArrayList assignHolesToShells(final ArrayList shells, final ArrayList holes) {
       ArrayList holesForShells = new ArrayList(shells.size());
       for (int i = 0; i < shells.size(); i++) {
         holesForShells.add(new ArrayList());
@@ -253,38 +317,8 @@ public class PolygonHandler implements ShapeHandler {
           ((ArrayList) holesForShells.get(shells.indexOf(minShell))).add(testRing);
         }
       }
-      
-      Polygon[] polygons;
-      
-      // if we have shells, lets use them
-      if (shells.size() > 0)
-        polygons = new Polygon[shells.size()];
-      // oh, this is a bad record with only holes
-      else
-        polygons = new Polygon[holes.size()];
-      
-      // this will do nothing for the "only holes case"
-      for (int i = 0; i < shells.size(); i++) {
-        polygons[i] = geometryFactory.createPolygon((LinearRing) shells.get(i),
-        (LinearRing[]) ((ArrayList) holesForShells.get(i)).toArray(new LinearRing[0]));
-      }
-      
-      // this will take care of the "only holes case"
-      // we just reverse each hole
-      if (shells.size() == 0) {
-        for (int i = 0, ii = holes.size(); i < ii; i++) {
-          LinearRing hole = (LinearRing) holes.get(i);
-          polygons[i] = geometryFactory.createPolygon(
-            JTSUtilities.reverseRing(hole),
-            new LinearRing[0]
-          );
-        }
-      }
-      
-      Geometry g = geometryFactory.createMultiPolygon(polygons);
-      
-      return g;
-    }
+
+      return holesForShells;
   }
   
   private MultiPolygon createMulti(LinearRing single) {
@@ -403,6 +437,9 @@ public class PolygonHandler implements ShapeHandler {
 
 /*
  * $Log: PolygonHandler.java,v $
+ * Revision 1.3  2003/05/19 21:38:55  jmacgill
+ * refactored read method to break it up a little
+ *
  * Revision 1.2  2003/05/19 20:51:30  ianschneider
  * removed System.out print statements
  *
