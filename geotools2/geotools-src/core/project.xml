@@ -60,6 +60,33 @@
             <role>Java Developer</role>
           </roles>
       </developer>
+      <developer>
+          <name>Martin Desruisseaux</name>
+          <id>desruisseaux</id>
+          <email>desruisseaux@users.sourceforge.net</email>
+          <organization>Institut de Recherche pour le Developpement (IRD)</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Ian Schneider</name>
+          <id>ianschne</id>
+          <email>ianschne@users.sourceforge.net</email>
+          <organization>USDA ARS</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>
+      <developer>
+          <name>Sean Geoghegan</name>
+          <id>seangeo</id>
+          <email>sean.geoghegan@dsto.defence.gov.au</email>
+          <organization>Defence Science and Technology Organisation</organization>
+          <roles>
+            <role>Java Developer</role>
+          </roles>
+      </developer>       
     </developers>
     
     <dependencies>
