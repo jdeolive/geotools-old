@@ -92,6 +92,9 @@ public class DefaultQuery implements Query {
      *
      * @param filter the OGC filter to constrain the request.
      * @param properties an array of the properties to fetch.
+     *
+     * @deprecated Use a constructor with the typeName, as datastores depend on
+     *             it.
      */
     public DefaultQuery(Filter filter, String[] properties) {
         this(filter);
@@ -110,7 +113,7 @@ public class DefaultQuery implements Query {
     public DefaultQuery(String typeName, Filter filter, int maxFeatures,
         String[] propNames, String handle) {
         this(typeName, filter);
-	this.properties = properties;
+        this.properties = propNames;
         this.maxFeatures = maxFeatures;
         this.handle = handle;
     }
