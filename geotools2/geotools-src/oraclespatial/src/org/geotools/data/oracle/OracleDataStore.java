@@ -9,6 +9,7 @@ package org.geotools.data.oracle;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import oracle.jdbc.OracleConnection;
 import oracle.sdoapi.OraSpatialManager;
@@ -40,8 +41,8 @@ public class OracleDataStore extends JDBCDataStore {
      * @param connectionPool
      * @throws DataSourceException
      */
-    public OracleDataStore(ConnectionPool connectionPool, String schemaName) throws IOException {
-        super(connectionPool, schemaName);
+    public OracleDataStore(ConnectionPool connectionPool, String schemaName, Map fidGeneration) throws IOException {
+        this(connectionPool, schemaName, schemaName, fidGeneration);
     }
     
     /**
@@ -49,8 +50,8 @@ public class OracleDataStore extends JDBCDataStore {
      * @param namespace
      * @throws DataSourceException
      */
-    public OracleDataStore(ConnectionPool connectionPool, String namespace, String schemaName) throws IOException {
-        super(connectionPool, namespace, schemaName);
+    public OracleDataStore(ConnectionPool connectionPool, String namespace, String schemaName, Map fidGeneration) throws IOException {
+        super(connectionPool, schemaName, fidGeneration, namespace);
     }
 
     /** Crops non feature type tables. 

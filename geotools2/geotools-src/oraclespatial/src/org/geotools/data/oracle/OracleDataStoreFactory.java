@@ -17,6 +17,7 @@ package org.geotools.data.oracle;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.geotools.data.DataSourceException;
@@ -127,7 +128,7 @@ public class OracleDataStoreFactory
             ocFactory.setLogin(user, passwd);
 
             ConnectionPool pool = ocFactory.getConnectionPool();
-            OracleDataStore dataStore = new OracleDataStore(pool, schema);
+            OracleDataStore dataStore = new OracleDataStore(pool, schema, new HashMap());
 
             return dataStore;
         } catch (SQLException ex) {
