@@ -32,13 +32,13 @@ import java.util.logging.Logger;
  *
  * @author iant
  */
-public class TestLoad extends TestCaseSupport {
+public class LoadTest extends TestCaseSupport {
     // change loging level if problems occur in this test
     Logger _log = Logger.getLogger("MifMid");
     MapInfoDataSource dsMapInfo;
     boolean setup = false;
     String dataFolder;
-    public TestLoad(java.lang.String testName) {
+    public LoadTest(java.lang.String testName) {
         super(testName);
         
         
@@ -51,7 +51,7 @@ public class TestLoad extends TestCaseSupport {
     }
     
     public static Test suite() {
-        TestSuite suite = new TestSuite(TestLoad.class);
+        TestSuite suite = new TestSuite(LoadTest.class);
         
         return suite;
     }
@@ -72,6 +72,29 @@ public class TestLoad extends TestCaseSupport {
         
     }
     
+     public void testSomeQuotes() throws Exception{
+        URL url = this.getTestResource("de-dk-nl.mif");
+        dsMapInfo = new MapInfoDataSource(url);
+        // Load file
+        Vector objects = dsMapInfo.readMifMid();
+        System.out.println("Read "+objects.size()+" features");
+        assertEquals("Wrong number of features read ",4,objects.size());
+        assertEquals("First feature name is wrong","Denmark",((Feature)objects.get(0)).getAttribute("NAME"));
+        assertEquals("First feature id is wrong",8.0,((Double)((Feature)objects.get(0)).getAttribute("ID")).doubleValue(),0);
+        
+    }
+    
+     public void testDelimInQuotes() throws Exception{
+        URL url = this.getTestResource("delimInQuotes.mif");
+        dsMapInfo = new MapInfoDataSource(url);
+        // Load file
+        Vector objects = dsMapInfo.readMifMid();
+        System.out.println("Read "+objects.size()+" features");
+        assertEquals("Wrong number of features read ",4,objects.size());
+        assertEquals("First feature name is wrong","Denmark, DK",((Feature)objects.get(0)).getAttribute("NAME"));
+        assertEquals("First feature id is wrong",8.0,((Double)((Feature)objects.get(0)).getAttribute("ID")).doubleValue(),0);
+    }
+   
     
     
     
