@@ -296,4 +296,15 @@ public class OracleDataStoreTest extends TestCase {
         FeatureResults fr = fs.getFeatures();
         assertEquals(0, fr.getCount());
     }
+    
+    public void testPropertySelect() throws Exception {
+        DataStore ds = new OracleDataStore(cPool, properties.getProperty("schema"), new HashMap());
+        DefaultQuery q = new DefaultQuery("ORA_TEST_POINTS",Filter.NONE);
+        q.setPropertyNames(new String[]{"NAME"});
+        FeatureReader fr = ds.getFeatureReader(q, Transaction.AUTO_COMMIT);
+        Feature f = fr.next();
+        FeatureType ft = f.getFeatureType();
+        assertEquals(1, ft.getAttributeCount());
+        assertEquals("NAME", ft.getAttributeType(0).getName());        
+    }
 }
