@@ -26,7 +26,7 @@ import com.vividsolutions.jts.geom.Geometry;
  *
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
- * @version $Id: DefaultAttributeType.java,v 1.8 2003/07/22 18:35:14 cholmesny Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.9 2003/07/31 09:08:35 seangeo Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -295,7 +295,7 @@ public class DefaultAttributeType implements AttributeType {
                 return Long.decode(value.toString());
             }
 
-            if (type.isAssignableFrom(Number.class)) {
+            if (Number.class.isAssignableFrom(type)) {
                 return new Double(value.toString());
             }
 
