@@ -10,59 +10,63 @@ import com.vividsolutions.jts.geom.*;
 
 
 /** 
- * Specifies how a GML Geometry handler should behave.
+ * Specifies how a generic OGC simple geometry handler should behave.
  *
  * @author Ian Turton, CCG Leeds
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandler.java,v 1.1 2002/04/03 01:30:15 robhranac Exp $
+ * @version $Id: SubHandler.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
  */
 public abstract class SubHandler {
 
 
+		/** Indicates start of a geometry */
     public static final int GEOMETRY_START = 1;
-
+		/** Indicates end of a geometry */
     public static final int GEOMETRY_END = 2;
-
+		/** Indicates a sub geometry message */
     public static final int GEOMETRY_SUB = 3;
 
 
     /** 
-		 * Adds a coordinate to the object being built if appropriate
+		 * Adds a coordinate to the object being built if appropriate.
 		 *
-     * @param c the coordinate to add
+     * @param coordinate Coordinate to add
      */    
     public abstract void addCoordinate(Coordinate coordinate);
 
 
     /**
-		 * Adds a geometry to the object being built if appropriate
+		 * Tells the handler that it just saw a subhandler.
 		 *
-     * @param message the geometry being added
-     * @param type the geometry being added
+     * @param message The sub geometry message (i.e. isInnerBoundary).
+     * @param type The type of sub message (start, end, etc.)
      */    
     public void subGeometry(String message, int type) {
 		}
 
 
     /**
-		 * Adds a geometry to the object being built if appropriate
+		 * Determines whether or not the geometry is ready to return.
+		 *
+     * @param message The geometry to inspect.
+		 * @return Flag for a complete geometry.
      */    
     public abstract boolean isComplete(String message);
 
 
     /** 
-		 * Builds the object and returns it
+		 * Creates a new JTS geometry.
 		 * 
-     * @param gf geometry factroy to use for the build
-     * @return the geometry that repesents this object
+     * @param geometryFactory The JTS geometry factory to use for geometry creation.
+     * @return An OGC simple geometry type for return.
      */    
     public abstract Geometry create(GeometryFactory geometryFactory);
     
 
     /**
-		 * A short description of the handler
+		 * Describes the handler.
      *
-     * @return string representation
+     * @return String representation of the current handler.
      */    
     public String toString(){
         String name = this.getClass().getName();

@@ -18,6 +18,10 @@ import org.xml.sax.helpers.*;
  * is the 'parent' of GMLFilterDocument, etc.  Each parent recieves pre-processed data from 
  * its child either via the defalut content handler methods or the specialized GMLHandler
  * methods.</p>
+ * <p>This small class simply illustrates how simple it is to parse GML into JTS objects using the
+ * structure in this package.  You are encouraged to copy the code in this class and use it as a starting
+ * point for your own GML parser.  Of course, you should replace <code>TestHandler</code> with your own
+ * class.  The only requirement of your new class is that it implements <code>GMLHandlerJTS</code>.  That's it!</p>
  * 
  * @author Rob Hranac, Vision for New York
  * @version alpha, 12/01/01
@@ -27,7 +31,7 @@ public class TestParser {
 
 		public static void main (String[] args) {
 
-				// set URI from the command line
+				// set URI from the command line and echo the submitted URI
 				String uri = args[0];
 				System.out.println("Parsing XML file:" + uri);
 

@@ -8,12 +8,13 @@ package org.geotools.gml;
 
 import com.vividsolutions.jts.geom.*;
 
+
 /** 
  * Creates a simple OGC box. 
  *
  * @author Ian Turton, CCG Leeds
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerBox.java,v 1.1 2002/04/03 01:30:15 robhranac Exp $
+ * @version $Id: SubHandlerBox.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
  */
 public class SubHandlerBox extends SubHandler {
 

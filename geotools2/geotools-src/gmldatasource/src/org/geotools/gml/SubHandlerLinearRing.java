@@ -15,7 +15,7 @@ import org.geotools.gml.*;
  * 
  * @author Ian Turton, CCG Leeds
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerLinearRing.java,v 1.1 2002/04/03 01:30:15 robhranac Exp $
+ * @version $Id: SubHandlerLinearRing.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
  */
 public class SubHandlerLinearRing extends SubHandler {
 
@@ -29,8 +29,9 @@ public class SubHandlerLinearRing extends SubHandler {
     }
 
     /**
+		 * Adds a coordinate to the LinearRing.
 		 *
-     * @param coordinate
+     * @param coordinate The coordinate to add to the LinearRing.
 		 */    
     public void addCoordinate(Coordinate coordinate) {
         coordinateList.add(coordinate);
@@ -38,15 +39,15 @@ public class SubHandlerLinearRing extends SubHandler {
     
 
     /**
-		 * Determine whether or not this Point is ready to be created.
+		 * Determine whether or not this LinearRing is ready to be created.
+		 *
+     * @param message The current geometry type in the GML stream.
      * @return Ready for creation flag
      */    
     public boolean isComplete(String message){
 
-
-
+				// makes sure that this LinearRing has more than one coordinate and its first and last are identical
 				if( coordinateList.size() > 1 ) {
-
 						Coordinate firstCoordinate = (Coordinate) coordinateList.get(0);
 						Coordinate lastCoordinate = (Coordinate) coordinateList.get( coordinateList.size() - 1 );
 						if( lastCoordinate.equals(lastCoordinate) ) { 
@@ -63,10 +64,10 @@ public class SubHandlerLinearRing extends SubHandler {
 
 
     /** 
-		 * build the linearRing
+		 * Create the LinearRing.
 		 *
-     * @param geometryFactory geometry factory used for the build
-     * @return geomerty of the linearring
+     * @param geometryFactory The geometry factory used for the build.
+     * @return LinearRing geometry created.
      */    
     public Geometry create(GeometryFactory geometryFactory) {
         try{

@@ -14,9 +14,7 @@ import com.vividsolutions.jts.geom.*;
 /**
  * Simple test implementation of <code>GMLHandlerJTS</code>.
  *
- * <p>This filter simply seperates and passes GML events to a GMLGeometryFilter.  The main
- * simplification that it performs is to pass along coordinates as an abstracted CoordType,
- * regardless of their notation in the GML (Coord vs. Coordinates).</p>
+ * This very simple handler just prints every JTS geometry that it gets to the standard output.
  * 
  * @author Rob Hranac, Vision for New York
  * @version alpha, 12/01/01

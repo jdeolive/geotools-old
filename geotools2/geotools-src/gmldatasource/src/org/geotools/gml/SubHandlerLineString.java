@@ -7,7 +7,7 @@
 package org.geotools.gml;
 
 import java.util.*;
-import org.geotools.gml.*;
+
 import com.vividsolutions.jts.geom.*;
 
 
@@ -16,21 +16,23 @@ import com.vividsolutions.jts.geom.*;
  *
  * @author Ian Turton, CCG Leeds
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerLineString.java,v 1.1 2002/04/03 01:30:15 robhranac Exp $
+ * @version $Id: SubHandlerLineString.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
  */
 public class SubHandlerLineString extends SubHandler {
 
 
+		/** List of coordinates for LineString. */
     private ArrayList coordinateList = new ArrayList();
 
 
-    /** Creates a new instance of SubHandlerLineString */
+    /** Empty constructor. */
     public SubHandlerLineString() {}
 
 
     /** 
-		 * Adds a coordinate to the string.
-     * @param coordinate Coordinate to add
+		 * Adds a coordinate to the LineString.
+		 *
+     * @param coordinate Coordinate to add to LineString.
 		 */    
     public void addCoordinate(Coordinate coordinate) {
         coordinateList.add(coordinate);
@@ -38,7 +40,9 @@ public class SubHandlerLineString extends SubHandler {
 
 
     /**
-		 * Determine whether or not this Point is ready to be created.
+		 * Determine whether or not this LineString is ready to be created.
+		 *
+     * @param message The geometry type.
      * @return Ready for creation flag
      */    
     public boolean isComplete(String message){
@@ -50,15 +54,11 @@ public class SubHandlerLineString extends SubHandler {
 
     /** 
 		 * Create the LineString.
+		 *
      * @param geometryFactory The geomerty factory needed to do the build.
      * @return JTS LineString geometry
      */    
     public Geometry create(GeometryFactory geometryFactory) {
         return geometryFactory.createLineString( (Coordinate[]) coordinateList.toArray(new Coordinate[]{}) );
     }
-    
-
-
-
-    
 }

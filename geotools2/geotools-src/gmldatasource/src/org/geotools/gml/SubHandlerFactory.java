@@ -15,23 +15,24 @@ import com.vividsolutions.jts.geom.*;
  * Creates the appropriate SubHandler element for a given OGC simple geometry type.
  *
  * @author Rob Hranac, Vision for New York
- * @version $Id: SubHandlerFactory.java,v 1.1 2002/04/03 01:30:15 robhranac Exp $
+ * @version $Id: SubHandlerFactory.java,v 1.2 2002/04/12 18:51:59 robhranac Exp $
  */
 public class SubHandlerFactory {
 
 
+		/** List of all valid OGC multi geometry types. */
 		private static final Collection BASE_GEOMETRY_TYPES = new Vector( java.util.Arrays.asList(new String[] {"MultiPoint","MultiLineString","MultiPolygon"}) );
 
+
     /** 
-		 * Adds a coordinate to the object being built if appropriate
-		 *
+		 * Empty contrsuctor.
      */    
     public SubHandlerFactory() {
 		}
 
-
     /**
-		 * Adds a geometry to the object being built if appropriate
+		 * Creates a new subhandler, based on the appropriate OGC simple geometry type.  Note that some types are aggregated into 
+		 * a generic 'multi' type.
 		 *
      * @param type Type of sub-handler to return.
      */    
@@ -43,8 +44,6 @@ public class SubHandlerFactory {
 			  else if( type.equals("Polygon") )             { return new SubHandlerPolygon(); }
 			  else if( type.equals("Box") )                 { return new SubHandlerBox(); }
 			  else if( BASE_GEOMETRY_TYPES.contains(type) ) { return new SubHandlerMulti(); }
-				/*else if( type.equals("MultiLineString") ) { return new SubHandlerMultiLineString(); }
-			  else if( type.equals("MultiPolygon") )    { return new SubHandlerMultiPolygon(); } */
 				else                                          { return null; }
 		}
 
