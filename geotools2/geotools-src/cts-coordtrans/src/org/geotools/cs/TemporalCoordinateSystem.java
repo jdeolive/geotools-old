@@ -50,7 +50,7 @@ import org.geotools.resources.cts.ResourceKeys;
 /**
  * A one-dimensional coordinate system suitable for time measurements.
  *
- * @version $Id: TemporalCoordinateSystem.java,v 1.6 2003/01/20 23:16:15 desruisseaux Exp $
+ * @version $Id: TemporalCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class TemporalCoordinateSystem extends CoordinateSystem {
@@ -126,7 +126,11 @@ public class TemporalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Overrides {@link CoordinateSystem#getDatum()}.
+     * Gets the temporal datum, which indicates the measurement method.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public, change its return type to {@link TemporalDatum}
+     *                and deprecate the {@link #getTemporalDatum} method.
      */
     final Datum getDatum() {
         return getTemporalDatum();

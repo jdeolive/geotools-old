@@ -52,7 +52,7 @@ import java.rmi.RemoteException;
 /**
  * A 2D coordinate system suitable for positions on the Earth's surface.
  *
- * @version $Id: HorizontalCoordinateSystem.java,v 1.6 2003/01/20 23:16:10 desruisseaux Exp $
+ * @version $Id: HorizontalCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -111,7 +111,11 @@ public abstract class HorizontalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Overrides {@link CoordinateSystem#getDatum()}.
+     * Returns the horizontal datum.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public, change its return type to {@link HorizontalDatum}
+     *                and deprecate the {@link #getHorizontalDatum} method.
      */
     final Datum getDatum() {
         return getHorizontalDatum();

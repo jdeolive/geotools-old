@@ -72,7 +72,7 @@ import java.rmi.RemoteException;
  * of the Earth.  This mapping from the mathematical space into real-world
  * locations is called a Datum.
  *
- * @version $Id: CoordinateSystem.java,v 1.5 2003/01/15 21:46:34 desruisseaux Exp $
+ * @version $Id: CoordinateSystem.java,v 1.6 2003/03/28 10:22:52 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -152,8 +152,18 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     public abstract Unit getUnits(int dimension);
     
     /**
-     * If all dimensions use the same units, returns these
-     * units. Otherwise, returns <code>null</code>.
+     * If all dimensions use the same units, returns these units.
+     * Otherwise, returns <code>null</code>.
+     *
+     * @task REVISIT: This method is currently used in place of  <code>getLinearUnit()</code>  and
+     *                <code>getAngularUnit()</code> which, according OpenGIS specification, should
+     *                appears in various subclasses.  Geotools implementation ommits those methods
+     *                because they don't bring much, since we are using a common <code>Unit</code>
+     *                class for all units rather than <code>CS_[Linear/Angular]Unit</code>. Should
+     *                we make this method public? It would be usefull to
+     *                <code>org.geotools.io.coverage.PropertyParser.UNITS</code>, but we need to
+     *                decide what to do if units are not the same for all axis (returning null is
+     *                probably not the best thing to do).
      */
     final Unit getUnits() {
         Unit units = null;
@@ -169,9 +179,17 @@ public abstract class CoordinateSystem extends Info implements Dimensioned {
     }
     
     /**
-     * Returns the datum.
+     * Returns the datum, which indicates the measurement method.
+     *
+     * @throws IllegalStateException If this coordinate system has more than one datum.
+     *         This exception can occurs if this coordinate system is an instance of
+     *         {@link CompoundCoordinateSystem}.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em> make
+     *                this method public. It should probably be abstract. This method would be
+     *                usefull to <code>org.geotools.io.coverage.PropertyParser.DATUM</code>.
      */
-    Datum getDatum() {
+    Datum getDatum() throws IllegalStateException {
         return null;
     }
     

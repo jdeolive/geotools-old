@@ -66,7 +66,7 @@ import javax.vecmath.MismatchedSizeException;
  * (E.g. from a database of transformations, which is created and
  * maintained from real-world measurements.)
  *
- * @version $Id: LocalCoordinateSystem.java,v 1.7 2003/01/20 23:16:12 desruisseaux Exp $
+ * @version $Id: LocalCoordinateSystem.java,v 1.8 2003/03/28 10:22:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -159,7 +159,11 @@ public class LocalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Overrides {@link CoordinateSystem#getDatum()}.
+     * Gets the local datum.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public, change its return type to {@link LocalDatum}
+     *                and deprecate the {@link #getLocalDatum} method.
      */
     final Datum getDatum() {
         return getLocalDatum();

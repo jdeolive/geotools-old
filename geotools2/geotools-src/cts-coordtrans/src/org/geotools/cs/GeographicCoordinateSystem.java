@@ -65,7 +65,7 @@ import java.rmi.RemoteException;
  * which this is by examining the axes. You should also check the angular
  * units, since not all geographic coordinate systems use degrees.
  *
- * @version $Id: GeographicCoordinateSystem.java,v 1.6 2003/01/20 23:16:10 desruisseaux Exp $
+ * @version $Id: GeographicCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -258,7 +258,7 @@ public class GeographicCoordinateSystem extends HorizontalCoordinateSystem {
      */
     String addString(final StringBuffer buffer, final Unit context) {
         buffer.append(", ");
-        buffer.append(getDatum());
+        buffer.append(getHorizontalDatum());
         buffer.append(", ");
         buffer.append(meridian.toString(unit));
         buffer.append(", ");

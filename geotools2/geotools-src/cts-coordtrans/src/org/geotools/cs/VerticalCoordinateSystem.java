@@ -54,7 +54,7 @@ import java.rmi.RemoteException;
 /**
  * A one-dimensional coordinate system suitable for vertical measurements.
  *
- * @version $Id: VerticalCoordinateSystem.java,v 1.6 2003/01/20 23:16:15 desruisseaux Exp $
+ * @version $Id: VerticalCoordinateSystem.java,v 1.7 2003/03/28 10:22:53 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -136,7 +136,11 @@ public class VerticalCoordinateSystem extends CoordinateSystem {
     }
     
     /**
-     * Overrides {@link CoordinateSystem#getDatum()}.
+     * Gets the vertical datum, which indicates the measurement method.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public, change its return type to {@link VerticalDatum}
+     *                and deprecate the {@link #getVerticalDatum} method.
      */
     final Datum getDatum() {
         return getVerticalDatum();

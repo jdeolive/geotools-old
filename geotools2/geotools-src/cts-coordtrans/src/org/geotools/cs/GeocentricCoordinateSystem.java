@@ -61,7 +61,7 @@ import java.rmi.RemoteException;
  * will point East (e.g. a right handed system), but you should
  * check the axes for non-default values.
  *
- * @version $Id: GeocentricCoordinateSystem.java,v 1.7 2003/01/20 23:16:10 desruisseaux Exp $
+ * @version $Id: GeocentricCoordinateSystem.java,v 1.8 2003/03/28 10:22:52 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -191,6 +191,10 @@ public class GeocentricCoordinateSystem extends CoordinateSystem {
     
     /**
      * Overrides {@link CoordinateSystem#getDatum()}.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public, change its return type to {@link HorizontalDatum}
+     *                and deprecate the {@link #getHorizontalDatum} method.
      */
     final Datum getDatum() {
         return getHorizontalDatum();

@@ -57,7 +57,7 @@ import java.rmi.RemoteException;
  * geographic or a projected coordinate system with a horizontal datum.
  * The other is a one-dimensional coordinate system with a vertical datum.
  *
- * @version $Id: CompoundCoordinateSystem.java,v 1.7 2003/01/25 14:00:57 desruisseaux Exp $
+ * @version $Id: CompoundCoordinateSystem.java,v 1.8 2003/03/28 10:22:52 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -177,6 +177,26 @@ public class CompoundCoordinateSystem extends CoordinateSystem {
         }
         throw new IndexOutOfBoundsException(Resources.format(
                     ResourceKeys.ERROR_INDEX_OUT_OF_BOUNDS_$1, new Integer(dimension)));
+    }
+    
+    /**
+     * Returns the datum, which indicates the measurement method.
+     *
+     * @throws IllegalStateException If this coordinate system has more than one datum.
+     *
+     * @task REVISIT: in a future version (when J2SE 1.5 will be available), we <em>may</em>
+     *                make this method public.
+     */
+    Datum getDatum() throws IllegalStateException {
+        final Datum head = getHeadCS().getDatum();
+        final Datum tail = getTailCS().getDatum();
+        if (tail == null) return head;
+        if (head == null) return tail;
+        if (head.equals(tail)) {
+            return head;
+        }
+        // TODO: Put a localized message here
+        throw new IllegalStateException();
     }
     
     /**
