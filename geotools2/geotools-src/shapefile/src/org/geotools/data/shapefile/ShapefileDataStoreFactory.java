@@ -30,10 +30,12 @@ import java.util.logging.Logger;
  * Implementation of the DataStore service provider interface for Shapefiles.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: ShapefileDataStoreFactory.java,v 1.2 2004/01/07 16:10:17 ianschneider Exp $
+ * @version $Id: ShapefileDataStoreFactory.java,v 1.3 2004/02/11 18:42:32 ianschneider Exp $
  */
 public class ShapefileDataStoreFactory
     implements org.geotools.data.DataStoreFactorySpi {
+        
+    private static final Param PARAM = new Param("url", URL.class, "url to a .shp file");
 
     /**
      * Takes a list of params which describes how to access a restore and
@@ -49,8 +51,12 @@ public class ShapefileDataStoreFactory
         boolean accept = false;
 
         if (params.containsKey("url")) {
-            String url = (String) params.get("url");
-            accept = url.toUpperCase().endsWith("SHP");
+            try {
+                URL url = (URL) PARAM.lookUp(params);
+                accept = url.getFile().toUpperCase().endsWith("SHP");
+            } catch (IOException ioe) {
+                // yes, I am eating this
+            }
         }
 
         return accept;
@@ -73,13 +79,17 @@ public class ShapefileDataStoreFactory
         DataStore ds = null;
 
         if (canProcess(params)) {
-            String location = (String) params.get("url");
 
+            URL url = null;
             try {
-                ds = new ShapefileDataStore(new URL(location));
+                url = (URL) PARAM.lookUp(params);
+                ds = new ShapefileDataStore(url);
             } catch (MalformedURLException mue) {
                 throw new DataSourceException("Unable to attatch datastore to "
-                    + location, mue);
+                    + url, mue);
+            } catch (java.io.IOException ioe) {
+                throw new DataSourceException("Unable to locate/parse URL",ioe);
+               
             }
         }
 
@@ -87,14 +97,13 @@ public class ShapefileDataStoreFactory
     }
 
     /**
-     * Postgis cannot create a new database.
-     *
+     * Not implemented yet.
      * @param params
      *
      * @return
      *
      * @throws IOException DOCUMENT ME!
-     * @throws UnsupportedOperationException Cannot create new database
+     * @throws UnsupportedOperationException 
      */
     public DataStore createNewDataStore(Map params) throws IOException {
         throw new UnsupportedOperationException("Not yet implemented");
@@ -119,6 +128,6 @@ public class ShapefileDataStoreFactory
      * @see org.geotools.data.DataStoreFactorySpi#getParametersInfo()
      */
     public Param[] getParametersInfo() {
-        return new Param[] { new Param("url", String.class, "url to a .shp file") };
+        return new Param[] { PARAM };
     }
 }
