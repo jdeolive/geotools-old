@@ -42,7 +42,7 @@ import junit.framework.AssertionFailedError;
  * spherical tests here tests real spheres (tests in <code>"Simple_TestScript"</code>
  * are not exactly spherical).
  *
- * @version $Id: ProjectionTest.java,v 1.2 2003/11/12 14:13:34 desruisseaux Exp $
+ * @version $Id: ProjectionTest.java,v 1.3 2004/01/25 21:39:00 desruisseaux Exp $
  * @author Rueben Schulz
  */
 public class ProjectionTest extends TestCase {
@@ -232,7 +232,7 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_major", 6378245.0);
         params.setParameter("semi_minor", 6356863.019);
         params.setParameter("central_meridian", 51.0);
-        params.setParameter("standard_parallel1", 42.0);
+        params.setParameter("standard_parallel_1", 42.0);
         params.setParameter("false_easting", 0.0);
         params.setParameter("false_northing", 0.0);
         transform = mtFactory.createParameterizedTransform("Mercator_2SP", params);
@@ -247,7 +247,7 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_major", 6370997.0);
         params.setParameter("semi_minor", 6370997.0);
         params.setParameter("central_meridian", 180.0);
-        params.setParameter("standard_parallel1", 60.0);
+        params.setParameter("standard_parallel_1", 60.0);
         params.setParameter("false_easting", -500000.0);
         params.setParameter("false_northing", -1000000.0);
         transform = mtFactory.createParameterizedTransform("Mercator_2SP", params);
@@ -314,8 +314,8 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_minor", 6356583.8);
         params.setParameter("central_meridian", -99.0);
         params.setParameter("latitude_of_origin", 27.833333333);
-        params.setParameter("standard_parallel1", 28.383333333);
-        params.setParameter("standard_parallel2", 30.283333333);
+        params.setParameter("standard_parallel_1", 28.383333333);
+        params.setParameter("standard_parallel_2", 30.283333333);
         params.setParameter("false_easting", 609601.218);        //metres
         params.setParameter("false_northing", 0.0);
         transform = mtFactory.createParameterizedTransform("Lambert_Conformal_Conic_2SP", params);
@@ -330,8 +330,8 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_minor", 6370997.0);
         params.setParameter("central_meridian", -120.0);
         params.setParameter("latitude_of_origin", 0.0);
-        params.setParameter("standard_parallel1", 2.0);
-        params.setParameter("standard_parallel2", 60.0);
+        params.setParameter("standard_parallel_1", 2.0);
+        params.setParameter("standard_parallel_2", 60.0);
         params.setParameter("false_easting", 0.0);
         params.setParameter("false_northing", 0.0);
         transform = mtFactory.createParameterizedTransform("Lambert_Conic_Conformal_2SP", params);
@@ -346,8 +346,8 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_minor", 6356752.31424518);
         params.setParameter("central_meridian", 0.0);
         params.setParameter("latitude_of_origin", -50.0);
-        params.setParameter("standard_parallel1", -40.0);
-        params.setParameter("standard_parallel2", -40.0);
+        params.setParameter("standard_parallel_1", -40.0);
+        params.setParameter("standard_parallel_2", -40.0);
         params.setParameter("false_easting", 100000.0);
         params.setParameter("false_northing", 0.0);
         transform = mtFactory.createParameterizedTransform("Lambert_Conformal_Conic_2SP", params);
@@ -370,8 +370,8 @@ public class ProjectionTest extends TestCase {
         params.setParameter("semi_minor", 6356911.946);
         params.setParameter("central_meridian", 4.356939722);
         params.setParameter("latitude_of_origin", 90.0);
-        params.setParameter("standard_parallel1", 49.833333333);
-        params.setParameter("standard_parallel2", 51.166666666);
+        params.setParameter("standard_parallel_1", 49.833333333);
+        params.setParameter("standard_parallel_2", 51.166666666);
         params.setParameter("false_easting", 150000.01);
         params.setParameter("false_northing", 5400088.44);
         transform = mtFactory.createParameterizedTransform("Lambert_Conic_Conformal_2SP_Belgium", params);
