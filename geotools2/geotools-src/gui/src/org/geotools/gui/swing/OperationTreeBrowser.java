@@ -75,7 +75,11 @@ import org.geotools.gui.swing.tree.DefaultMutableTreeNode;
  * tree. Each source image is a children node (with potentially their own source images and/or
  * parameters) and each parameter is a children leaf.
  *
- * @version $Id: OperationTreeBrowser.java,v 1.4 2003/07/29 15:40:34 desruisseaux Exp $
+ * <p>&nbsp;</p>
+ * <p align="center"><img src="doc-files/OperationTreeBrowser.png"></p>
+ * <p>&nbsp;</p>
+ *
+ * @version $Id: OperationTreeBrowser.java,v 1.5 2003/07/29 18:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  * @author Lionel Flahaut 
  *
@@ -220,7 +224,7 @@ public class OperationTreeBrowser extends JPanel {
     /**
      * The listener for various event in the {@link OperationTreeBrowser} widget.
      *
-     * @version $Id: OperationTreeBrowser.java,v 1.4 2003/07/29 15:40:34 desruisseaux Exp $
+     * @version $Id: OperationTreeBrowser.java,v 1.5 2003/07/29 18:04:37 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class Listeners implements TreeSelectionListener {
@@ -333,17 +337,21 @@ public class OperationTreeBrowser extends JPanel {
     }
 
     /**
-     * Show the operation chain for the given image in the given owner.
+     * Show the operation chain in the given owner.
      *
-     * @param image The last image from an operation chain.
-     * @param owner The owner widget, or <code>null</code> if none.
+     * @param  owner The owner widget, or <code>null</code> if none.
+     * @param  title The widget title, or <code>null</code> for a default one.
+     * @return <code>true</code> if the user clicked on the &quot;Ok&quot; button.
      */
-    public static void showDialog(final RenderedImage image, final Component owner) {
-        final OperationTreeBrowser browser = new OperationTreeBrowser(image);
-        final String title = Resources.getResources(getDefaultLocale())
-                                      .getString(ResourceKeys.OPERATIONS);
-        if (SwingUtilities.showOptionDialog(owner, browser, title)) {
-            // TODO: User clicked on "Ok".
+    public boolean showDialog(final Component owner, String title) {
+        if (title == null) {
+            title = Resources.getResources(getLocale())
+                             .getString(ResourceKeys.OPERATIONS);
         }
+        if (SwingUtilities.showOptionDialog(owner, this, title)) {
+            // TODO: User clicked on "Ok".
+            return true;
+        }
+        return false;
     }
 }
