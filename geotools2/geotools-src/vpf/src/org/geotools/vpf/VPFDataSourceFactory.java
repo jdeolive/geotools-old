@@ -1,112 +1,115 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License.
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  *
  */
+
 package org.geotools.vpf;
 
+import org.geotools.data.DataSource;
+import org.geotools.data.DataSourceException;
+import org.geotools.data.DataSourceFactorySpi;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.DataSourceFactorySpi;
 
 
 /**
- * Class VPFDataSourceFactory.java is responsible for 
- *
+ * Class VPFDataSourceFactory.java is responsible for
+ * 
  * <p>
  * Created: Fri Mar 28 15:54:32 2003
  * </p>
+ *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
  * @version 1.0.0
  */
-
 public class VPFDataSourceFactory implements DataSourceFactorySpi {
+    /**
+     * Creates a new VPFDataSourceFactory object.
+     */
+    public VPFDataSourceFactory() {}
 
-  public VPFDataSourceFactory() 
-  {
-    
-  }
-  
-  // Implementation of org.geotools.data.DataSourceFactorySpi
+    // Implementation of org.geotools.data.DataSourceFactorySpi
 
-  /**
-   * Describe <code><code>createDataSource</code></code> method here.
-   *
-   * @param hashMap a <code><code>HashMap</code></code> value
-   * @return a <code><code>DataSource</code></code> value
-   * @exception DataSourceException if an error occurs
-   */
-  public DataSource createDataSource(HashMap hashMap) throws DataSourceException
-  {
-    if(!canProcess(hashMap)){
-      return null;
-    }
-    try 
-    {
-      File file = new File(new URI((String)hashMap.get("url")));
-      return new VPFDataSource(file);
-    }
-    catch (URISyntaxException e)
-    {
-      return null;
-    } // end of try-catch
-  }
+    /**
+     * Describe <code><code>createDataSource</code></code> method here.
+     *
+     * @param hashMap a <code><code>HashMap</code></code> value
+     *
+     * @return a <code><code>DataSource</code></code> value
+     *
+     * @exception DataSourceException if an error occurs
+     */
+    public DataSource createDataSource(HashMap hashMap)
+        throws DataSourceException {
+        if (!canProcess(hashMap)) {
+            return null;
+        }
 
-  /**
-   * Describe <code><code>getDescription</code></code> method here.
-   *
-   * @return a <code><code>String</code></code> value
-   */
-  public String getDescription()
-  {
-    return "Vector Product Format data source implementation.";
-  }
+        try {
+            File file = new File(new URI((String) hashMap.get("url")));
 
-  /**
-   * Describe <code><code>canProcess</code></code> method here.
-   *
-   * @param hashMap a <code><code>HashMap</code></code> value
-   * @return a <code><code>boolean</code></code> value
-   */
-  public boolean canProcess(HashMap hashMap)
-  {
-    if(!hashMap.containsKey("url")){
-      return false;
+            return new VPFDataSource(file);
+        } catch (URISyntaxException e) {
+            return null;
+        }
+
+        // end of try-catch
     }
-    String url =  (String)hashMap.get("url");
-    try 
-    {
-      File file = new File(new File(new URI(url)), "dht");
-      if(file.exists() && !file.isDirectory())
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      } // end of else
+
+    /**
+     * Describe <code><code>getDescription</code></code> method here.
+     *
+     * @return a <code><code>String</code></code> value
+     */
+    public String getDescription() {
+        return "Vector Product Format data source implementation.";
     }
-    catch (URISyntaxException e)
-    {
-      return false;
-    } // end of try-catch
-  }
-  
-}// VPFDataSourceFactory
+
+    /**
+     * Describe <code><code>canProcess</code></code> method here.
+     *
+     * @param hashMap a <code><code>HashMap</code></code> value
+     *
+     * @return a <code><code>boolean</code></code> value
+     */
+    public boolean canProcess(HashMap hashMap) {
+        if (!hashMap.containsKey("url")) {
+            return false;
+        }
+
+        String url = (String) hashMap.get("url");
+
+        try {
+            File file = new File(new File(new URI(url)), "dht");
+
+            if (file.exists() && !file.isDirectory()) {
+                return true;
+            } else {
+                return false;
+            }
+
+            // end of else
+        } catch (URISyntaxException e) {
+            return false;
+        }
+
+        // end of try-catch
+    }
+}
+
+
+// VPFDataSourceFactory

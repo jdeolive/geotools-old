@@ -1,108 +1,121 @@
 /*
- * Geotools - OpenSource mapping toolkit
- * (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation;
- * version 2.1 of the License.
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
  *
  */
+
 package org.geotools.vpf.io;
 
 import org.geotools.vpf.ifc.VPFHeader;
 
+
 /**
- * VariableIndexHeader.java
- *
- *
- * Created: Tue Mar 11 23:41:57 2003
+ * VariableIndexHeader.java Created: Tue Mar 11 23:41:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexHeader.java,v 1.3 2003/03/24 16:38:24 kobit Exp $
+ * @version $Id: VariableIndexHeader.java,v 1.4 2003/04/04 09:15:49 kobit Exp $
  */
 public class VariableIndexHeader implements VPFHeader {
+    /**
+     * Variable constant <code>VARIABLE_INDEX_HEADER_LENGTH</code> keeps value
+     * of
+     */
+    public static final int VARIABLE_INDEX_HEADER_LENGTH = 8;
 
-  public static final int VARIABLE_INDEX_HEADER_LENGTH = 8;
-  public static final int VARIABLE_INDEX_ROW_SIZE = 8;
-  
-  protected int entriesNumber = 0;
-  protected int vpfHeaderLen = 0;
+    /** Variable constant <code>VARIABLE_INDEX_ROW_SIZE</code> keeps value of */
+    public static final int VARIABLE_INDEX_ROW_SIZE = 8;
 
-  public VariableIndexHeader(int entriesNumber, int vpfHeaderLen)
-  {
-	this.entriesNumber = entriesNumber;
-	this.vpfHeaderLen = vpfHeaderLen;
-  } // VariableIndexHeader constructor
+    /** Variable variable <code>entriesNumber</code> keeps value of */
+    protected int entriesNumber = 0;
 
-  /**
-   * Returns particular <code>VPFHeader</code> length.
-   *
-   * @return an <code>int</code> value of header length.
-   */
-  public int getLength()
-  {
-	return VARIABLE_INDEX_HEADER_LENGTH;
-  }
-  
-  /**
-   * Method <code><code>getRecordSize</code></code> is used to return
-   * size in bytes of records stored in this table. If table keeps variable
-   * length records <code>-1</code> should be returned.
-   *
-   * @return an <code><code>int</code></code> value
-   */
-  public int getRecordSize()
-  {
-    return VARIABLE_INDEX_ROW_SIZE;
-  }
-  
-  /**
-   * Gets the value of <code>entriesNumber</code>
-   *
-   * @return the value of <code>entriesNumber</code>
-   */
-  public int getEntriesNumber() 
-  {
-	return this.entriesNumber;
-  }
+    /** Variable variable <code>vpfHeaderLen</code> keeps value of */
+    protected int vpfHeaderLen = 0;
 
-//   /**
-//    * Sets the value of entriesNumber
-//    *
-//    * @param argEntriesNumber Value to assign to this.entriesNumber
-//    */
-//   public void setEntriesNumber(int argEntriesNumber)
-//   {
-// 	this.entriesNumber = argEntriesNumber;
-//   }
+    /**
+     * Creates a new VariableIndexHeader object.
+     *
+     * @param entriesNumber DOCUMENT ME!
+     * @param vpfHeaderLen DOCUMENT ME!
+     */
+    public VariableIndexHeader(
+        int entriesNumber,
+        int vpfHeaderLen
+    ) {
+        this.entriesNumber = entriesNumber;
+        this.vpfHeaderLen = vpfHeaderLen;
+    }
 
-  /**
-   * Gets the value of <code>vpfHeaderLen</code>
-   *
-   * @return the value of <code>vpfHeaderLen</code>
-   */
-  public int getVpfHeaderLen() 
-  {
-	return this.vpfHeaderLen;
-  }
+    // VariableIndexHeader constructor
 
-//   /**
-//    * Sets the value of vpfHeaderLen
-//    *
-//    * @param argVpfHeaderLen Value to assign to this.vpfHeaderLen
-//    */
-//   public void setVpfHeaderLen(int argVpfHeaderLen)
-//   {
-// 	this.vpfHeaderLen = argVpfHeaderLen;
-//   }
-  
-} // VariableIndexHeader
+    /**
+     * Returns particular <code>VPFHeader</code> length.
+     *
+     * @return an <code>int</code> value of header length.
+     */
+    public int getLength() {
+        return VARIABLE_INDEX_HEADER_LENGTH;
+    }
+
+    /**
+     * Method <code><code>getRecordSize</code></code> is used to return size in
+     * bytes of records stored in this table. If table keeps variable length
+     * records <code>-1</code> should be returned.
+     *
+     * @return an <code><code>int</code></code> value
+     */
+    public int getRecordSize() {
+        return VARIABLE_INDEX_ROW_SIZE;
+    }
+
+    /**
+     * Gets the value of <code>entriesNumber</code>
+     *
+     * @return the value of <code>entriesNumber</code>
+     */
+    public int getEntriesNumber() {
+        return this.entriesNumber;
+    }
+
+    //   /**
+    //    * Sets the value of entriesNumber
+    //    *
+    //    * @param argEntriesNumber Value to assign to this.entriesNumber
+    //    */
+    //   public void setEntriesNumber(int argEntriesNumber)
+    //   {
+    // 	this.entriesNumber = argEntriesNumber;
+    //   }
+
+    /**
+     * Gets the value of <code>vpfHeaderLen</code>
+     *
+     * @return the value of <code>vpfHeaderLen</code>
+     */
+    public int getVpfHeaderLen() {
+        return this.vpfHeaderLen;
+    }
+
+    //   /**
+    //    * Sets the value of vpfHeaderLen
+    //    *
+    //    * @param argVpfHeaderLen Value to assign to this.vpfHeaderLen
+    //    */
+    //   public void setVpfHeaderLen(int argVpfHeaderLen)
+    //   {
+    // 	this.vpfHeaderLen = argVpfHeaderLen;
+    //   }
+}
+
+
+// VariableIndexHeader
