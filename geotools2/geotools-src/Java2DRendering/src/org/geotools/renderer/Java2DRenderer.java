@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.41 2002/07/08 16:53:45 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.42 2002/07/09 13:13:04 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -960,29 +960,41 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     double dy = coords[1]-previous[1];
                     double len = Math.sqrt(dx*dx+dy*dy)*scaleX - imageWidth;
                     if(len<=0){
-                        len=1;
+                        len=imageWidth-1;
                     }
                     double theta = Math.atan2(dx,dy);
                     dx = Math.sin(theta)*imageWidth/scaleX;
                     dy = Math.cos(theta)*imageHeight/scaleY;
                     //int dx2 = (int)Math.round(dy/2d);
                     //int dy2 = (int)Math.round(dx/2d);
-                    _log.debug("dx = "+dx+" dy "+dy+" step = "+Math.sqrt(dx*dx+dy*dy));
-                    /*
-                    at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                    at2.scale(scaleX,scaleY);
-                    op = new AffineTransformOp(at2,hints);
-                    image2 =  op.filter(image, null);
-                     */
+                    //_log.debug("dx = "+dx+" dy "+dy+" step = "+Math.sqrt(dx*dx+dy*dy));
+                    
                     double rotation = theta-(Math.PI/2d);
-                    double x = previous[0]+dx/2d,y=previous[1]+dy/2d;
+                    double x = previous[0]+dx/2.0,y=previous[1]+dy/2.0;
                     
                     _log.debug("len ="+len+" imageWidth "+imageWidth);
-                    for(double dist =0;dist<len;dist+=imageWidth){
+                    double dist =0;
+                    for(dist =0;dist<len;dist+=imageWidth){
                         /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
                         renderImage(x,y,image,size,rotation);
+                        
                         x+= dx;
                         y+= dy;
+                    }
+                    _log.debug("loop end dist "+dist+" len "+len);
+                    if((dist-len)>1.0){
+                        int remainder = (int)(dist - len);
+                        if(remainder<0) break;
+                        //clip and render image
+                        _log.debug("about to use cliped image "+remainder);
+                        
+                        BufferedImage img = new BufferedImage(imageWidth,imageHeight,BufferedImage.TYPE_INT_ARGB);
+                        Graphics2D ig = img.createGraphics();
+                        ig.setClip(0,0,remainder,imageHeight);
+                        ig.drawImage(image,0,0,imageWidth,imageHeight,obs);
+                        
+                        renderImage(x,y,img,size,rotation);
+                                                
                     }
                     break;
             }
