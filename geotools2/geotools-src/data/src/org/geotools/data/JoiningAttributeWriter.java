@@ -65,7 +65,6 @@ public class JoiningAttributeWriter implements AttributeWriter {
     public boolean hasNext() throws IOException {
         for (int i = 0, ii = writers.length; i < ii; i++) {
             if (writers[i].hasNext()) {
-                System.out.println("This has next" + writers[i]);
                 return true;
             }
         }
@@ -73,7 +72,6 @@ public class JoiningAttributeWriter implements AttributeWriter {
     }
 
     public void next() throws IOException {
-        System.out.println("Joining next()");
         for (int i = 0, ii = writers.length; i < ii; i++) {            
             //if (writers[i].hasNext()) Dont want to check this, need to be able to insert
                 writers[i].next();
