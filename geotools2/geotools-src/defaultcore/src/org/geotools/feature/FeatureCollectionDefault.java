@@ -1,6 +1,7 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
@@ -12,22 +13,31 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *
  */
-
 package org.geotools.feature;
 
 // J2SE dependencies
-import java.util.*;
+import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+
 // Geotools dependencies
-import org.geotools.data.*;
-import org.geotools.datasource.extents.*;
-import org.geotools.filter.*;
+import org.geotools.data.DataSource;
+import org.geotools.data.Extent;
+import org.geotools.data.DataSourceException;
+import org.geotools.datasource.extents.EnvelopeExtent;
+import org.geotools.filter.FilterFactory;
+import org.geotools.filter.GeometryFilter;
+import org.geotools.filter.AbstractFilter;
+import org.geotools.filter.LiteralExpression;
+import org.geotools.filter.IllegalFilterException;
 
 
 /**
@@ -35,7 +45,7 @@ import org.geotools.filter.*;
  * to requesting clients.  It does not guarantee that features are of a certain
  * type or that they follow a specific schema.
  *
- * @version $Id: FeatureCollectionDefault.java,v 1.11 2003/04/11 22:44:57 ianschneider Exp $
+ * @version $Id: FeatureCollectionDefault.java,v 1.12 2003/05/15 18:52:47 cholmesny Exp $
  * @author  James Macgill, CCG<br>
  * @author  Rob Hranac, VFNY<br>
  */
@@ -81,9 +91,10 @@ public class FeatureCollectionDefault implements FeatureCollection {
   
   
   
-    /* ***********************************************************************
-     * Managing data source and extents.
-     * ***********************************************************************/
+   /* ***********************************************************************
+    * Managing data source and extents.
+    * ***********************************************************************/
+  
   /**
    * Creates a new instance of DefaultFeatureTable.
    *
@@ -121,8 +132,26 @@ public class FeatureCollectionDefault implements FeatureCollection {
     return this.loadedExtent;
   }
   
-  
-  
+   /**
+     * Gets the bounding box for the features in this feature collection.
+     *
+     * @return the envelope of the default geometries contained by this feature
+     * collection.
+     * @task TODO: do not recalculate each time.  Keep the calculated envelope
+     * in the object.  Would be nice to get rid of extent stuff first, so 
+     * it doesn't lead to confusion as to what's going on.
+     */
+    public Envelope getBoundingBox() {
+	Envelope bounding = new Envelope();
+	for (Iterator i = features.iterator(); i.hasNext();){
+	    Geometry geom = ((Feature)i.next()).getDefaultGeometry();
+	    bounding.expandToInclude(geom.getEnvelopeInternal());
+	}
+	return bounding;
+    }
+    
+
+
     /* ***********************************************************************
      * Managing collection listeners.
      * ***********************************************************************/
