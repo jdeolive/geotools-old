@@ -197,9 +197,9 @@ public class SLDParser {
     private NodeList findElements(final org.w3c.dom.Element element, final String name) {
         NodeList nodes = element.getElementsByTagNameNS("*",name);
         
-       // if(nodes.getLength() == 0){
-       //     nodes = element.getElementsByTagName("sld:"+name);
-       // }
+        if(nodes.getLength() == 0){
+            nodes = element.getElementsByTagName(name);
+        }
 
         return nodes;
     }
@@ -212,10 +212,11 @@ public class SLDParser {
             javax.xml.parsers.DocumentBuilder db = dbf.newDocumentBuilder();
             dom = db.parse(instream);
             // for our next trick do something with the dom.
+       
             NodeList nodes  = findElements(dom, "StyledLayerDescriptor");
      
             
-            StyledLayerDescriptor sld = parseDescriptor(nodes.item(0));//should only be one per file
+            StyledLayerDescriptor sld = parseDescriptor( dom.getDocumentElement());//should only be one per file
             return sld;
             
             
