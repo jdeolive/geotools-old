@@ -6,7 +6,8 @@
 
 package org.geotools.data;
 
-import java.util.HashMap;
+import java.util.logging.Logger;
+import java.util.Map;
 import java.util.Iterator;
 import org.geotools.data.DataSource;
 import org.geotools.data.DataSourceFactorySpi;
@@ -19,16 +20,20 @@ import sun.misc.Service;
  */
 public class DataSourceFinder {
     
-    /** Creates a new instance of GeometryFactory */
+    /** The logger for the data module.  */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.data");
+
+    /** Creates a new instance of DataSourceFactory */
     public DataSourceFinder() {
     }
     
-     public static DataSource getDataSource(HashMap params) throws DataSourceException
+     public static DataSource getDataSource(Map params) throws DataSourceException
     {
         Iterator ps = Service.providers(DataSourceFactorySpi.class); 
+        LOGGER.finer("Available Data Sources:");
         while(ps.hasNext()){
             DataSourceFactorySpi fac = (DataSourceFactorySpi)ps.next();
-            System.out.println(fac.getDescription());
+            LOGGER.finer(fac.getDescription());
             if(fac.canProcess(params)){
                 return fac.createDataSource(params);
             }
