@@ -46,6 +46,9 @@ public class SdeFeatureReader implements FeatureReader
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.data.sde");
 
+    /** built from the table name to prepend to feature ids */
+    private String fidPrefix;
+
     /** SDE datasource working on */
     private SdeDataSource dataSource;
 
@@ -92,7 +95,6 @@ public class SdeFeatureReader implements FeatureReader
     {
         //this.sdeConn = sdeConnection;
         this.query = query;
-
         this.dataSource = dataSource;
 
         //create a FeatureType based on attributes specified in query
@@ -106,7 +108,6 @@ public class SdeFeatureReader implements FeatureReader
             this.geometryBuilder = GeometryBuilder.builderFor(geometryAttribute
                     .getType());
         }
-
         rewind();
     }
 
@@ -134,17 +135,11 @@ public class SdeFeatureReader implements FeatureReader
         try
         {
             String[] qcols = { "count(*)" };
-
             sdeConn = dataSource.getConnectionPool().getConnection();
-
             this.sdeQuery = prepareQuery(query, qcols, sdeConn);
-
             dataSource.getConnectionPool().release(sdeConn);
-
             SeRow sdeRow = sdeQuery.fetch();
-
             size = sdeRow.getInteger(0).intValue();
-
             size = Math.min(size, query.getMaxFeatures());
         }
         catch (SeException ex)
@@ -178,11 +173,8 @@ public class SdeFeatureReader implements FeatureReader
         if (query.retrieveAllProperties()) //retrieve all properties
         {
             FeatureType schema = dataSource.getSchema();
-
             AttributeType[] atts = schema.getAttributeTypes();
-
             qcols = new String[atts.length];
-
             for (int i = 0; i < atts.length; i++)
                 qcols[i] = atts[i].getName();
         }
@@ -216,9 +208,7 @@ public class SdeFeatureReader implements FeatureReader
         try
         {
             sdeQuery = createSeQuery(sdeConn, qcols);
-
             sdeQuery.prepareQuery();
-
             sdeQuery.execute();
         }
         catch (SeException ex)
@@ -245,28 +235,19 @@ public class SdeFeatureReader implements FeatureReader
         throws DataSourceException, SeException
     {
         SeQuery sdeQuery = null;
-
         SeLayer sdeLayer = dataSource.getSdeLayer();
-
+        fidPrefix = sdeLayer.getQualifiedName() + ".";
         SeSqlConstruct seSql = new SeSqlConstruct(sdeLayer.getName());
-
         Filter filter = query.getFilter();
-
         SQLUnpacker unpacker = new SQLUnpacker(SQLEncoderSDE.getCapabilities());
-
         unpacker.unPackAND(filter);
 
         //unpacker.unPackOR(filter);
         Filter sqlFilter = unpacker.getSupported();
-
         Filter unsupportedFilter = unpacker.getUnSupported();
-
         unpacker = new SQLUnpacker(GeometryEncoderSDE.getCapabilities());
-
         unpacker.unPackAND(unsupportedFilter);
-
         Filter geometryFilter = unpacker.getSupported();
-
         unsupportedFilter = unpacker.getUnSupported();
 
         //figure out which of the filter we can use.
@@ -275,19 +256,14 @@ public class SdeFeatureReader implements FeatureReader
             try
             {
                 sqlEncoder.setLayer(sdeLayer);
-
                 String where = sqlEncoder.encode(sqlFilter);
-
                 LOGGER.fine("applying where clause: '" + where + "'");
-
                 seSql.setWhere(where);
             }
             catch (SQLEncoderException sqle)
             {
                 String message = "Encoder error" + sqle.getMessage();
-
                 LOGGER.warning(message);
-
                 throw new DataSourceException(message, sqle);
             }
         }
@@ -299,9 +275,7 @@ public class SdeFeatureReader implements FeatureReader
             try
             {
                 geometryEncoder.setLayer(sdeLayer);
-
                 geometryEncoder.encode(geometryFilter);
-
                 SeFilter[] sdeSpatialFilters = geometryEncoder
                     .getSpatialFilters();
 
@@ -319,15 +293,12 @@ public class SdeFeatureReader implements FeatureReader
             catch (GeometryEncoderException ex)
             {
                 String message = "Encoder error" + ex.getMessage();
-
                 LOGGER.warning(message);
-
                 throw new DataSourceException(message, ex);
             }
         }
 
         calculateResultEnvelope(sdeQuery, seSql);
-
         return sdeQuery;
     }
 
@@ -344,9 +315,7 @@ public class SdeFeatureReader implements FeatureReader
             try
             {
                 SeQueryInfo queryInfo = new SeQueryInfo();
-
                 queryInfo.setConstruct(seSql);
-
                 //sdeQuery.prepareQueryInfo(queryInfo);
                 SeExtent ext = sdeQuery.calculateLayerExtent(queryInfo);
 
@@ -372,7 +341,6 @@ public class SdeFeatureReader implements FeatureReader
         if (currentIndex >= query.getMaxFeatures())
         {
             close();
-
             return false;
         }
 
@@ -389,9 +357,7 @@ public class SdeFeatureReader implements FeatureReader
     public Feature next() throws DataSourceException
     {
         /*check again, perhaps the user calls next() without calling hasNext()
-
          *first violating the filter
-
          */
         if (!hasNext())
         {
@@ -406,7 +372,6 @@ public class SdeFeatureReader implements FeatureReader
             try
             {
                 feature = rowToFeature(sdeRow, queryType);
-
                 sdeRow = sdeQuery.fetch();
             }
             catch (SeException ex)
@@ -444,15 +409,10 @@ public class SdeFeatureReader implements FeatureReader
         throws IllegalAttributeException, SeException, DataSourceException
     {
         Feature f = null;
-
         int nCols = type.getAttributeCount();
-
         Object[] values = new Object[nCols];
-
         AttributeType att;
-
         SeShape sdeShape;
-
         String featureId = null;
 
         for (int i = 0; i < nCols; i++)
@@ -462,9 +422,7 @@ public class SdeFeatureReader implements FeatureReader
             if (att.isGeometry())
             {
                 sdeShape = row.getShape(i);
-
-                featureId = String.valueOf(sdeShape.getFeatureId().longValue());
-
+                featureId = new StringBuffer(fidPrefix).append(sdeShape.getFeatureId().longValue()).toString();
                 values[i] = geometryBuilder.construct(sdeShape);
             }
             else
@@ -487,21 +445,15 @@ public class SdeFeatureReader implements FeatureReader
     public void rewind() throws DataSourceException
     {
         LOGGER.fine("--------------rewind()-----------");
-
         this.currentIndex = 0;
-
         String[] qcols = getColumns(query);
-
         SeConnection sdeConn = null;
 
         try
         {
             sdeConn = dataSource.getConnectionPool().getConnection();
-
             this.sdeQuery = prepareQuery(query, qcols, sdeConn);
-
             sdeRow = sdeQuery.fetch();
-
             dataSource.getConnectionPool().release(sdeConn);
         }
         catch (SeException ex)
