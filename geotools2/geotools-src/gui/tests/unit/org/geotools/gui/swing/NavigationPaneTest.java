@@ -9,7 +9,7 @@ package org.geotools.gui.swing;
 
 import junit.framework.*;
 import org.geotools.datasource.extents.*;
-import org.geotools.map.BoundingBoxImpl;
+import org.geotools.map.ContextFactory;
 import org.geotools.map.BoundingBox;
 import org.geotools.ct.Adapters;
 import org.geotools.cs.GeographicCoordinateSystem;
@@ -45,8 +45,10 @@ public class NavigationPaneTest extends TestCase {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setVisible(true);
         
-        BoundingBox aoi = new BoundingBoxImpl(new Envelope(20, 40, 30, 70), 
-        Adapters.getDefault().export(GeographicCoordinateSystem.WGS84) );
+        ContextFactory contextFactory = ContextFactory.createFactory();
+        BoundingBox aoi = 
+            contextFactory.createBoundingBox(new Envelope(20, 40, 30, 70), 
+            Adapters.getDefault().export(GeographicCoordinateSystem.WGS84) );
         nav.setAoiModel(aoi);
         nav.setTotalAoi(new Envelope(0,500,0,500));
         for(int i = 0; i < 10; i++){
