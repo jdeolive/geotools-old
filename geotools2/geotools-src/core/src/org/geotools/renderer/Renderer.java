@@ -25,18 +25,17 @@ package org.geotools.renderer;
 
 import java.awt.Graphics;
 
-import org.geotools.feature.Feature;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.styling.Style;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
-import org.geotools.feature.FeatureCollection;
 
 /**
  * Base interface for renderer. This is very much work in progress.
  * <strong>Note: this interface will changes in future versions.</strong>
  *
- * @version $Id: Renderer.java,v 1.21 2003/08/18 19:54:38 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.22 2003/12/23 17:20:06 aaime Exp $
  * @author James Macgill
  */
 public interface Renderer {
