@@ -779,6 +779,11 @@ public class MemoryDataStoreTest extends DataTestCase {
 
         assertCovers("all", expected, all.collection());
         assertEquals(roadBounds, all.collection().getBounds());
+        
+        FeatureResults some = road.getFeatures( rd12Filter );
+        assertEquals(2, some.getCount());
+        assertEquals( rd12Bounds, some.getBounds() );                
+        
     }
 
     public void testGetFeatureSourceRiver()

@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
+import org.geotools.filter.FidFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.FilterFactory;
 
@@ -48,8 +49,10 @@ public class DataTestCase extends TestCase {
     protected FeatureType subRoadType; // road: id,geom
     protected Feature[] roadFeatures;
     protected Envelope roadBounds;
+    protected Envelope rd12Bounds;    
     protected Filter rd1Filter;
     protected Filter rd2Filter;
+    protected Filter rd12Filter;
     protected Feature newRoad;
     protected FeatureType riverType; // river: id, geom, river, flow
     protected FeatureType subRiverType; // river: river, flow     
@@ -106,9 +109,19 @@ public class DataTestCase extends TestCase {
                     new Integer(3), line(new int[] { 3, 2, 4, 2, 5, 3 }), "r3"
                 }, "road.rd3");
         roadBounds = new Envelope(1, 5, 0, 4);
-        rd1Filter = FilterFactory.createFilterFactory().createFidFilter("road.rd1");
-        rd2Filter = FilterFactory.createFilterFactory().createFidFilter("road.rd2");
+        FilterFactory factory = FilterFactory.createFilterFactory();
+        rd1Filter = factory.createFidFilter("road.rd1");
+        rd2Filter = factory.createFidFilter("road.rd2");
 
+        FidFilter create = factory.createFidFilter();
+        create.addFid("road.rd1");
+        create.addFid("road.rd2");
+        
+        rd12Filter = create;
+        
+        rd12Bounds = new Envelope();
+        rd12Bounds.expandToInclude(roadFeatures[0].getBounds());
+        rd12Bounds.expandToInclude(roadFeatures[1].getBounds());        
         //   + 2,3
         //  / rd4
         // + 1,2
