@@ -32,10 +32,11 @@
  */
 package org.geotools.resources;
 
-// Collections
+// Collections and arrays
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.lang.reflect.Array;
 
 // Logging
 import java.util.logging.Level;
@@ -211,18 +212,36 @@ public final class Utilities {
 
     /**
      * Returns a short class name for the specified class. This method will
-     * omit the package name. For example, it will return "String" instead
-     * of "java.lang.String" for a {@link String} object.
+     * omit the package name.  For example, it will return "String" instead
+     * of "java.lang.String" for a {@link String} object. It will also name
+     * array according Java language usage,  for example "double[]" instead
+     * of "[D".
      *
      * @param  object The object (may be <code>null</code>).
      * @return A short class name for the specified object.
      */
-    public static String getShortName(final Class classe) {
-        if (classe==null) return "<*>";
-        final String name = classe.getName();
-        final int   lower = name.lastIndexOf('.');
-        final int   upper = name.length();
-        return name.substring(lower+1, upper).replace('$','.');
+    public static String getShortName(Class classe) {
+        if (classe == null) {
+            return "<*>";
+        }
+        int dimension = 0;
+        Class el;
+        while ((el = classe.getComponentType()) != null) {
+            classe = el;
+            dimension++;
+        }
+        String name = classe.getName();
+        final int lower = name.lastIndexOf('.');
+        final int upper = name.length();
+        name = name.substring(lower+1, upper).replace('$','.');
+        if (dimension != 0) {
+            StringBuffer buffer = new StringBuffer(name);
+            do {
+                buffer.append("[]");
+            } while (--dimension != 0);
+            name = buffer.toString();
+        }
+        return name;
     }
 
     /**
