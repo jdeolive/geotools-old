@@ -38,11 +38,12 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author dzwiers, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: LineCoveredByFeatureLineValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: LineCoveredByFeatureLineValidation.java,v 1.4 2004/04/20 03:59:18 jive Exp $
  */
 public class LineCoveredByFeatureLineValidation
     extends DefaultIntegrityValidation {
+    
     /**
      * LineCoveredByFeatureLineValidation constructor.
      * 
@@ -55,7 +56,7 @@ public class LineCoveredByFeatureLineValidation
     }
 
     /**
-     * Ensure Line is covered by the Polygon Boundary.
+     * Ensure Line is covered by the Line.
      * 
      * <p></p>
      *
@@ -74,6 +75,7 @@ public class LineCoveredByFeatureLineValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
+        
         //TODO Fix Me
         return false;
     }

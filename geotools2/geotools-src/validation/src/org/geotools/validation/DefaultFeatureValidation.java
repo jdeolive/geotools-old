@@ -22,6 +22,12 @@ package org.geotools.validation;
 
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
+
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
+
 import java.util.logging.Logger;
 
 
@@ -34,8 +40,8 @@ import java.util.logging.Logger;
  * </p>
  *
  * @author Jody Garnett, Refractions Research, Inc.
- * @author $Author: dmzwiers $ (last modification)
- * @version $Id: DefaultFeatureValidation.java,v 1.2 2004/02/17 17:19:14 dmzwiers Exp $
+ * @author $Author: jive $ (last modification)
+ * @version $Id: DefaultFeatureValidation.java,v 1.3 2004/04/20 03:58:00 jive Exp $
  */
 public class DefaultFeatureValidation implements FeatureValidation {
     /** The logger for the validation module. */
@@ -186,4 +192,59 @@ public class DefaultFeatureValidation implements FeatureValidation {
 
         return false;
     }
+    
+    //
+    // Convience Methods
+    //
+    /**
+     * Retrives a single LineString from feature.getDefaultGeometry.
+     * <p>
+     * If feature contains MultiLineString (or GeometryCollection ) of length
+     * 1 it will be deemed sufficient. Shapefiles are determined to work with
+     * MultiLineStrings of length 1 forcing the creation of this method.
+     * </p>
+     * 
+     * <p>
+     * If feature.getDefaultGeometry returns <code>null</code> this method
+     * will return null. For most cases the validation should just be abandoned
+     * with a warning; the user can separately specify a NullZero check. This
+     * will prevent the same error (a null value) being reproted by
+     * each and every SpatialValidation test.
+     * </p>
+     * 
+     * @param feature Feature
+     * @return feature.getDefaultGeomertry as a LineString, or <code>null</code>
+     * @throws ClassCastException If feature.getDefaultGeometry is the wrong type
+     */
+    protected LineString getDefaultLineString( Feature feature ) throws ClassCastException {
+        Geometry geom = feature.getDefaultGeometry();
+        if (geom == null) {
+            // Ignore null value, user can use NullZero check
+            return null;
+        }        
+        if( geom instanceof LineString ){
+            return (LineString) geom;            
+        }
+        else if( geom instanceof MultiLineString ){
+            // Shapefiles are determined to give us their contents as
+            // a MultiLineString - forcing our hand in this case
+            //
+            MultiLineString lines = (MultiLineString) geom;
+            if( lines.getNumGeometries() == 1){
+                return (LineString) lines.getGeometryN(0);
+            }
+            throw new ClassCastException("MultiLineString does not contain a single LineString");
+        }
+        else if( geom instanceof GeometryCollection ){
+            GeometryCollection geoms = (GeometryCollection) geom;
+            if( geoms.getNumGeometries() == 1 &&
+                geoms.getGeometryN( 0 ) instanceof LineString ){
+                return (LineString) geoms.getGeometryN(0);
+            }
+            throw new ClassCastException("GeometryCollection does not contain a single LineString");            
+        }
+        else {
+            throw new ClassCastException("Cannot convert to LineString");
+        }                
+    }    
 }
