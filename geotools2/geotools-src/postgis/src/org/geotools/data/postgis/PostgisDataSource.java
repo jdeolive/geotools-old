@@ -43,7 +43,7 @@ import org.geotools.resources.Geotools;
  *
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisDataSource.java,v 1.28 2003/07/17 07:09:56 ianschneider Exp $
+ * @version $Id: PostgisDataSource.java,v 1.29 2003/07/18 23:15:09 cholmesny Exp $
  */
 public class PostgisDataSource extends AbstractDataSource
     implements org.geotools.data.DataSource {
@@ -138,78 +138,6 @@ public class PostgisDataSource extends AbstractDataSource
 	    encoder.setSRID(srid);
         }
 
-    }
-
-    /**
-     * Sets the table and datasource, rolls a new schema from the db.
-     *
-     * @param dbConnection The datasource holding the table.
-     * @param tableName the name of the table that holds the features.
-     * @param maxFeatures The maximum numbers of features to return.
-     *
-     * @throws DataSourceException if there were problems making schema.
-     *
-     * @deprecated the maxFeatures here was a hack. Use {@link
-     *             #getFeatures(Query)} instead.
-     */
-    public PostgisDataSource(Connection dbConnection, String tableName,
-        int maxFeatures) throws DataSourceException {
-        // create the return response type
-        this(dbConnection, tableName);
-        this.maxFeatures = maxFeatures;
-    }
-
-    /**
-     * Sets the table, datasource and schema.  This is a convenience method for
-     * greater speed.  It does no type-checking on the schema, so  things will
-     * break if the schema passed in and that held by the  datasource don't
-     * match up.
-     *
-     * @param dbConnection The datasource holding the table.
-     * @param tableName the name of the table that holds the features.
-     * @param schema the attributes and id held by this table of features.
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @task REVISIT: type-check the schema?  Would sacrifice the speed gained
-     *       by passing in schema, so might not be worth it.
-     * @deprecated the passed in schema was a hack to get the right properties.
-     *             Use {@link #getFeatures(Query)} instead.
-     */
-    public PostgisDataSource(Connection dbConnection, String tableName,
-        FeatureType schema) throws DataSourceException {
-        this.dbConnection = dbConnection;
-        this.tableName = tableName;
-        this.schema = schema;
-
-
-        if (schema.getDefaultGeometry() != null) {
-	    this.srid = querySRID(dbConnection, tableName);
-            encoder.setDefaultGeometry(schema.getDefaultGeometry().getName());
-	    encoder.setSRID(srid);
-        }
-
-
-        this.fidColumn = getFidColumn(dbConnection, tableName);
-    }
-
-    /**
-     * Sets the table, datasource, schema and maxFeature.
-     *
-     * @param dbConnection The datasource holding the table.
-     * @param tableName the name of the table that holds the features.
-     * @param schema the attributes and id held by this table of features.
-     * @param maxFeatures The maximum numbers of features to return.
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @deprecated the maxFeatures and passed in schema here was a hack. Use
-     *             {@link #getFeatures(Query)} instead.
-     */
-    public PostgisDataSource(Connection dbConnection, String tableName,
-        FeatureType schema, int maxFeatures) throws DataSourceException {
-        this(dbConnection, tableName, schema);
-        this.maxFeatures = maxFeatures;
     }
 
     /**
@@ -932,22 +860,22 @@ public class PostgisDataSource extends AbstractDataSource
             }
 
             if (unEncodableFilter != null) {
-                featureArr = (Feature[]) getFeatures(unEncodableFilter).toArray();
+                FeatureCollection coll = getFeatures(unEncodableFilter);
 
-                if (featureArr.length > 0) {
+                if (coll.size() > 0) {
                     whereStmt = " WHERE ";
 
-                    for (int i = 0; i < featureArr.length; i++) {
-                        fid = formatFid(featureArr[i]);
+                    for (FeatureIterator iter = coll.features();iter.hasNext();){
+                        fid = formatFid(iter.next());
                         whereStmt += (fidColumn + " = " + fid);
 
-                        if (i < (featureArr.length - 1)) {
+                        if (iter.hasNext()) {
                             whereStmt += " OR ";
                         }
                     }
 
                     sql = makeModifySql(type, value, whereStmt);
-                    LOGGER.finer("unencoded modify is " + sql);
+                    LOGGER.fine("unencoded modify is " + sql);
                     statement.executeUpdate(sql);
                 }
             }
@@ -1163,40 +1091,6 @@ public class PostgisDataSource extends AbstractDataSource
     }
 
     /**
-     * DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @deprecated, replaced by {@link #setAutoCommit(boolean)}
-     */
-    public void startMultiTransaction() throws DataSourceException {
-        try {
-            dbConnection.setAutoCommit(false);
-        } catch (SQLException e) {
-            String message = "Some sort of database error: " + e.getMessage();
-            LOGGER.warning(message);
-            throw new DataSourceException(message, e);
-        }
-    }
-
-    /**
-     * DOCUMENT ME!
-     *
-     * @throws DataSourceException DOCUMENT ME!
-     *
-     * @deprecated, replaced by {@link #commit()}
-     */
-    public void endMultiTransaction() throws DataSourceException {
-        try {
-            dbConnection.commit();
-        } catch (SQLException e) {
-            String message = "Some sort of database error: " + e.getMessage();
-            LOGGER.warning(message);
-            throw new DataSourceException(message, e);
-        }
-    }
-
-    /**
      * Creates the a metaData object.  This method should be overridden in any
      * subclass implementing any functions beyond getFeatures, so that clients
      * recieve the proper information about the datasource's capabilities.
@@ -1232,15 +1126,5 @@ public class PostgisDataSource extends AbstractDataSource
     //   return new Envelope();
     //}
 
-    /**
-     * Gets the bounding box of this datasource using the speed of  this
-     * datasource as set by the parameter.
-     *
-     * @task REVISIT:Consider changing return of getBbox to Filter once Filters
-     *       can be unpacked
-     */
 
-    //public Envelope getBbox(boolean speed) {
-    //   return new Envelope();
-    //}    
 }
