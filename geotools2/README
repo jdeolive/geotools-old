@@ -10,7 +10,8 @@ j2se-demos and svgsupport modules, in particular, contain code which actually do
 
 For information on building geotools2, see the guide in the gtbuild module in geotools-src
 (geotools-src/gt-build/www/howto-build.html).  For a more general overview of the development
-process, see the Developers Guide (a recent copy of which should be included in this release).
+process, see the Developers Guide, the most recent copy of which can be viewed by using the
+following link at the end of this document
 
 There are a number of apsects of this code which are undergoing active change, some at a quite
 fundamental level, so expect classes to be renamed or to disappear completely in future snapshots.
@@ -56,6 +57,13 @@ http://www.geotools.org
 Good luck and many thanks for your interest in GeoTools2
 
 The GeoTools2 development team.
+
+
+----
+The following link generates the developers guide from the latest docbook source,
+appologies for the length of the link, a better solution will be available soon.
+
+http://www.cartesia.org/data/docbook/docbook.php?xml=http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/geotools/geotools2/geotools-src/developersguide/xdocs/developersguide.sgml&imgUrl=http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/*checkout*/geotools/geotools2/geotools-src/developersguide/xdocs/
 
   
 
