@@ -25,6 +25,7 @@ package org.geotools.styling;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 /**
  * Holds a reference to an external graphics file with a URL to its location
@@ -39,7 +40,7 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @version $Id: ExternalGraphic.java,v 1.10 2004/02/16 09:01:19 aaime Exp $
+ * @version $Id: ExternalGraphic.java,v 1.11 2004/04/08 13:27:07 jfc173 Exp $
  * @author James Macgill, CCG
  */
 public interface ExternalGraphic extends Symbol {
@@ -72,5 +73,9 @@ public interface ExternalGraphic extends Symbol {
      * in a String object.
      */
     void setFormat(String format);
+    
+    public void setCustomProperties(Map list);
+    
+    public Map getCustomProperties();
 }
 
