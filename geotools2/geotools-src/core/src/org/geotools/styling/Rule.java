@@ -32,14 +32,62 @@ package org.geotools.styling;
  * MinScale means there is no lower bound to the scale-denominator range
  * (lim[x->0+](x)), and a missing MaxScale means there is no upper bound
  * (infinity).  0.28mm 
+ *
+ * TODO: add getFitlers method to interface
+ * TODO: add hasElseFilter method to interface
+ *
+ * @author James Macgill
  */
 public interface Rule {
-    
+   
+    /**
+     * The smallest value for scale denominator at which symbolizers contained
+     * by this rule should be applied.
+     *
+     * @return The smallest(inclusive) denomiator value that this rule will be
+     *         active for.
+     **/
     public double getMinScaleDenominator();
+    
+    /**
+     * The largest value for scale denominator at which symbolizers contained
+     * by this rule should be applied.
+     *
+     * @return The largest(exclusive) denomiator value that this rule will be
+     *         active for.
+     **/
     public double getMaxScaleDenominator();
     //public Filter[] getFilters();
     //public boolean hasElseFilter();
+    
+    /**
+     * A set of equivlent Graphics in different formats which can be used
+     * as a legend against features stylalized by the symbolizers in this
+     * rule.
+     *
+     * @return An array of Graphic objects, any of which can be used as
+     *         the legend.
+     **/
     public Graphic[] getLegendGraphic();
+    
+    /**
+     * The symbolizers contain the actual styling information for different
+     * geometry types.  A single feature may be rendered by more than one
+     * of the symbolizers returned by this method.  It is important that the
+     * symbolizers be applied in the order in which they are returned if the
+     * end result is to be as inteded.
+     * All symbolizers should be applied to all features which make it through
+     * the filters in this rule regardless of the features geometry.
+     * For example, a polygon symbolizer should be applied to line geometries
+     * and even points.  If this is not the desired beavior ensure that ether
+     * the filters block inapprorpriate features or that the FeatureTypeStyler
+     * which contains this rull has its FeatureTypeName or 
+     * SymanticTypeIdentifier set appropriatly.
+     *
+     * @return An array of symbolizers to be applied, in sequence, to all of
+     *         the features addressed by the FeatureTypeStyler which contains
+     *         this rule.
+     */
     public Symbolizer[] getSymbolizers();
 
 }
