@@ -1,14 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <?xml-stylesheet type="text/css"
-href="file:/usr/java/xxe-m13p1-bin/css/docbook41.css"
+href="file:.././../../extbin/gtbuild/xxe/css/docbook41.css"
 ?>
-<?xml-stylesheet type="text/css"
-href="file:/usr/java/xxe-m13p1-bin/css/docbook.css"
-title="Previous docbook stylesheet"
-alternate="yes"
-?>
-<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
-"file:/usr/share/sgml/simple4125/sdocbook.dtd">
+<!DOCTYPE article PUBLIC "-//Norman Walsh//DTD Simplified DocBook XML V4.1.2.4//EN"
+"file:.././../../extbin/gtbuild/xxe/dtd/sdocbook/sdocbook.dtd">
 <article
 id="index"
 ><articleinfo
@@ -21,7 +16,7 @@ id="index"
 >Shorter</surname
 ></author
 ><date
->$Date: 2002/07/25 20:00:16 $</date
+>$Date: 2002/07/26 20:18:39 $</date
 ><abstract
 ><para
 >Guide to aid <filename
@@ -332,7 +327,11 @@ import dir.dir.SomeClass2;
  * Description of this class.
  *
  * @author Your Name
- * @version <emphasis>$Id</emphasis> <emphasis>:$</emphasis>
+ * @version <emphasis
+>$Id</emphasis
+> <emphasis
+>:$</emphasis
+>
  */ 
 public class ThisClass { 
     /**
@@ -596,7 +595,7 @@ url="http://www.oasis-open.org/committees/docbook/xml/simple/sdocbook/elements.h
 ><ulink
 url="http://www.oasis-open.org/docbook/documentation/reference/html/docbook.html"
 >Docbook, the Definitive Guide</ulink
-> provides comprehensive documentation about Docbook. At the time of writing, this reference referred to version 3 of Docbook, while the Simplified Docbook used by geotools is based on version 4.1.2.5.</para
+> provides comprehensive documentation about Docbook. At the time of writing, this reference referred to version 3 of Docbook, while the Simplified Docbook used by geotools is version 4.1.2.4.</para
 ></listitem
 ></itemizedlist
 ></section
