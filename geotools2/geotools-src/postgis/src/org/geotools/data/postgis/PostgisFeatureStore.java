@@ -83,7 +83,7 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.6 2003/12/30 01:42:34 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.7 2004/04/05 12:08:45 cholmesny Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: make individual operations truly atomic.  If the transaction is
@@ -297,7 +297,9 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         Object[] attributes = feature.getAttributes(null);
 
         for (int j = 0; j < attributes.length; j++) {
-            if (types[j].isGeometry()) {
+	    if (attributes[j] == null) {
+		sql.append("null");
+	    } else if (types[j].isGeometry()) {
                 int srid = getSRID(types[j].getName());
                 String geoText = geometryWriter.write((Geometry) attributes[j]);
                 sql.append("GeometryFromText('");
@@ -313,10 +315,12 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             if (j < (attributes.length - 1)) {
                 sql.append(", ");
             }
+	    
         }
 
         sql.append(");");
 
+	LOGGER.fine("insert statement is " + sql);
         return sql.toString();
     }
 
