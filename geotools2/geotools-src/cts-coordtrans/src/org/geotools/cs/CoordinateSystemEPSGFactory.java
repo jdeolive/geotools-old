@@ -119,7 +119,7 @@ import org.geotools.pt.AngleFormat; // For Javadoc
  * would be as good). If sexagesimal degrees are really wanted, subclasses should overrides
  * the {@link #replaceAxisUnit} method.
  *
- * @version $Id: CoordinateSystemEPSGFactory.java,v 1.18 2004/01/09 15:51:36 desruisseaux Exp $
+ * @version $Id: CoordinateSystemEPSGFactory.java,v 1.19 2004/01/25 20:20:14 desruisseaux Exp $
  * @author Yann Cézard
  * @author Martin Desruisseaux
  */
@@ -142,6 +142,31 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     private static final String IMPLEMENTATION = "EPSG Factory";
 
     /**
+     * List of tables and columns to test for codes values.
+     * Elements at even index are table name.
+     * Elements at odd index are column name.
+     *
+     * This table is used by the {@link #createObject} method in order to detect
+     * which of the following methods should be invoked for a given code:
+     *
+     * {@link #createCoordinateSystem}
+     * {@link #createDatum}
+     * {@link #createEllipsoid}
+     * {@link #createUnit}
+     *
+     * The order is significant: it is the key for a <code>switch</code> statement.
+     *
+     * @see #createObject
+     * @see #lastObjectType
+     */
+    private static final String[] OBJECT_TABLES = {
+        "[Coordinate Reference System]", "COORD_REF_SYS_CODE", // [0]: createCoordinateSystem
+        "[Datum]",                       "DATUM_CODE",         // [1]: createDatum
+        "[Ellipsoid]",                   "ELLIPSOID_CODE",     // [2]: createEllipsoid
+        "[Unit of Measure]",             "UOM_CODE"            // [3]: createUnit
+    };
+
+    /**
      * Default mapping for {@link #namesMap}.
      *
      * @task REVISIT: How to know if "Geographic/geocentric conversions"
@@ -150,17 +175,20 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
     private static String[] DEFAULT_PARAM_MAP = {
         // Parameters names
         "Latitude of natural origin",         "latitude_of_origin",
+        "Latitude of false origin",           "latitude_of_origin",
         "Longitude of natural origin",        "central_meridian",
+        "Longitude of false origin",          "central_meridian",
         "Scale factor at natural origin",     "scale_factor",
         "False easting",                      "false_easting",
         "False northing",                     "false_northing",
         "Easting at false origin",            "false_easting",
         "Northing at false origin",           "false_northing",
-        "Latitude of 1st standard parallel",  "standard_parallel1",
-        "Latitude of 2nd standard parallel",  "standard_parallel2",
+        "Latitude of 1st standard parallel",  "standard_parallel_1",
+        "Latitude of 2nd standard parallel",  "standard_parallel_2",
 
         // Projection names
         "Lambert Conic Conformal (2SP)",      "Lambert_Conformal_Conic_2SP",
+        "Albers Equal Area",                  "Albers_Conic_Equal_Area",
 //      "Geographic/geocentric conversions",  "Geocentric_To_Ellipsoid"
 //      TODO: How to know if it is "Geocentric_To_Ellipsoid" or "Ellipsoid_To_Geocentric"?
     };
@@ -185,7 +213,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * while values are {@link PreparedStatement} objects.
      */
     private final Map statements = new IdentityHashMap();
-        
+
+    /**
+     * Last object type returned by {@link #createObject}, or -2 if none.
+     * This type is an index in the {@link #OBJECT_TABLES} array and is
+     * strictly for {@link #createObject} internal use.
+     */
+    private int lastObjectType = -2;
+
     /**
      * The connection to the EPSG database.
      */
@@ -219,8 +254,8 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *                 <blockquote><code>
      *                 Class.forName(driver).newInstance();
      *                 </code></blockquote>
-     *                 A message is logged to <code>"org.geotools.cts"</code> whatever
-     *                 the loading succed of fail. For JDBC-ODBC bridge, a typical value
+     *                 A message is logged to <code>"org.geotools.cts"</code> wether
+     *                 the loading sucseeds of fails. For JDBC-ODBC bridge, a typical value
      *                 for this argument is <code>"sun.jdbc.odbc.JdbcOdbcDriver"</code>.
      *                 This argument needs to be non-null only once for a specific driver.
      *
@@ -343,7 +378,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      * software (for example "<code>SELECT * FROM [Coordinate Reference System]</code>").
      * If a port of EPSG database is to be used with an other software, then this method should be
      * overriden in order to adapt the SQL syntax. For example a subclass connecting to a
-     * <cite>PostgreeSQL</cite> database could replace all spaces ("&nbsp;") between
+     * <cite>PostgreSQL</cite> database could replace all spaces ("&nbsp;") between
      * watching braces ("[" and "]") by underscore ("_").
      *
      * @param  statement The statement in MS-Access syntax.
@@ -574,44 +609,64 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
      *         store. This exception usually have {@link SQLException} as its cause.
      */
     public synchronized Object createObject(final String code) throws FactoryException {
-        String type = null;
-        try {
-            final PreparedStatement stmt;
-            stmt = prepareStatement("Object", "select TABLE_NAME"
-                                               + " from [Codes]"
-                                               + " where RECORD_ID >= 4"
-                                               + " and CODE_MINIMUM <= ?"
-                                               + " and CODE_MAXIMUM >= ?");
-            stmt.setString(1, code);
-            stmt.setString(2, code);
-            final ResultSet result = stmt.executeQuery();
-            while (result.next()) {
-                final String str = getString(result, 1, code);
-                type = (String) ensureSingleton(str, type, code);
+        final String       KEY = "Object";
+        PreparedStatement stmt = (PreparedStatement) statements.get(KEY); // Null allowed.
+        StringBuffer     query = null; // Will be created only if the last statement doesn't suit.
+        /*
+         * Iterates through all tables listed in OBJECT_TABLES, starting with the table used during
+         * the last call to 'createObject(code)'.  This approach assumes that two consecutive calls
+         * will often return the same type of object.  If the object type changed, then this method
+         * will have to discard the old prepared statement and prepare a new one, which may be a
+         * costly operation. Only the last successful prepared statement is cached, in order to keep
+         * the amount of statements low. Unsuccessful statements are immediately disposed.
+         */
+        for (int i=-2; i<OBJECT_TABLES.length; i+=2) {
+            if (i == lastObjectType) {
+                // Avoid to test the same table twice.  Note that this test also avoid a
+                // NullPointerException if 'stmt' is null, since 'lastObjectType' should
+                // be -2 in this case.
+                continue;
             }
-            result.close();
-        } catch (SQLException exception) {
-            throw new FactoryException(code, exception);
+            try {
+                if (i >= 0) {
+                    final String table  = OBJECT_TABLES[i  ];
+                    final String column = OBJECT_TABLES[i+1];
+                    if (query == null) {
+                        query = new StringBuffer("select ");
+                    }
+                    query.setLength(7); // 7 is the length of "select " in the line above.
+                    query.append(column);
+                    query.append(" from ");
+                    query.append(table);
+                    query.append(" where ");
+                    query.append(column);
+                    query.append(" = ?");
+                    assert !statements.containsKey(KEY);
+                    stmt = prepareStatement(KEY, query.toString());
+                }
+                stmt.setString(1, code);
+                final ResultSet result = stmt.executeQuery();
+                final boolean  present = result.next();
+                result.close();
+                if (present) {
+                    if (i >= 0) {
+                        lastObjectType = i;
+                    }
+                    switch (lastObjectType) {
+                        case 0:  return createCoordinateSystem(code);
+                        case 2:  return createDatum           (code);
+                        case 4:  return createEllipsoid       (code);
+                        case 6:  return createUnit            (code);
+                        default: throw new AssertionError     (i); // Should not happen
+                    }
+                }
+                statements.remove(KEY);
+                stmt.close();
+            } catch (SQLException exception) {
+                throw new FactoryException(code, exception);
+            }
         }
-        if (type == null) {
-             throw new NoSuchAuthorityCodeException(code);
-        }
-        if (type.equalsIgnoreCase("Coordinate Reference System")) {
-            return createCoordinateSystem(code);
-        }
-        if (type.equalsIgnoreCase("Coordinate System")) {
-            return createCoordinateSystem(code);
-        }
-        if (type.equalsIgnoreCase("Ellipsoid")) {
-            return createEllipsoid(code);
-        }
-        if (type.equalsIgnoreCase("Unit of Measure")) {
-            return createUnit(code);
-        }
-        if (type.matches("[\\w\\s]*Datum[\\w\\s]*")) {
-            return createDatum(code);
-        }
-        throw new FactoryException(Resources.format(ResourceKeys.ERROR_UNKNOW_TYPE_$1, type));
+        throw new NoSuchAuthorityCodeException(code);
     }
 
     /**
@@ -776,8 +831,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         }
         catch (SQLException exception) {
             throw new FactoryException(code, exception);
-        } if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+        }
+        if (returnValue == null) {
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
     }
@@ -823,8 +879,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             result.close();
         } catch (SQLException exception) {
             throw new FactoryException(code, exception);
-        } if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+        }
+        if (returnValue == null) {
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
     }
@@ -911,8 +968,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             result.close();
         } catch (SQLException exception) {
             throw new FactoryException(code, exception);
-        } if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+        }
+        if (returnValue == null) {
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
     }
@@ -934,15 +992,15 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         try {
             final PreparedStatement stmt;
             stmt = prepareStatement("WGS84ConversionInfo", "select CO.COORD_OP_CODE,"
-                                               + " Area.AREA_OF_USE,"
+                                               + " A.AREA_OF_USE,"
                                                + " CO.COORD_OP_METHOD_CODE"
                                                + " from [Coordinate_Operation] as CO,"
                                                + " [Coordinate Reference System] as CRS,"
-                                               + " [Area]"
+                                               + " [Area] as A"
                                                + " where CRS.DATUM_CODE = ?"
                                                + " and CO.SOURCE_CRS_CODE = CRS.COORD_REF_SYS_CODE"
                                                + " and CO.TARGET_CRS_CODE = 4326"
-                                               + " and Area.AREA_CODE = CO.AREA_OF_USE_CODE"
+                                               + " and A.AREA_CODE = CO.AREA_OF_USE_CODE"
                                                + " order by CO.COORD_OP_CODE");
             stmt.setString(1, code);
             final ResultSet result = stmt.executeQuery();
@@ -1049,14 +1107,14 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
                                                + " CS.COORD_SYS_CODE,"
                                                + " COORD_REF_SYS_NAME,"
                                                + " PRIME_MERIDIAN_CODE,"
-                                               + " Datum.DATUM_CODE,"
+                                               + " D.DATUM_CODE,"
                                                + " CRS.REMARKS"
                                                + " from [Coordinate Reference System] as CRS,"
                                                + " [Coordinate System] as CS,"
-                                               + " [Datum]"
+                                               + " [Datum] as D"
                                                + " where COORD_REF_SYS_CODE = ?"
                                                + " and CS.COORD_SYS_CODE = CRS.COORD_SYS_CODE"
-                                               + " and Datum.DATUM_CODE = CRS.DATUM_CODE");
+                                               + " and D.DATUM_CODE = CRS.DATUM_CODE");
             stmt.setString(1, code);
             final ResultSet result = stmt.executeQuery();
             /*
@@ -1084,8 +1142,9 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             result.close();
         } catch (SQLException exception) {
             throw new FactoryException(code, exception);
-        } if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+        }
+        if (returnValue == null) {
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
     }
@@ -1164,7 +1223,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             throw new FactoryException(code, exception);
         }
         if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+            throw new NoSuchAuthorityCodeException(code);
         }
         return (ProjectedCoordinateSystem) returnValue;
     }
@@ -1219,7 +1278,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             throw new FactoryException(code, exception);
         }
         if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue;
     }
@@ -1267,7 +1326,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
             throw new FactoryException(code, exception);
         }
         if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+            throw new NoSuchAuthorityCodeException(code);
         }
         return returnValue; 
     }
@@ -1349,7 +1408,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         }
         result.close();
         if (returnValue == null) {
-             throw new NoSuchAuthorityCodeException(code);
+            throw new NoSuchAuthorityCodeException(code);
         }
         return replaceAxisUnit(returnValue);
     }
@@ -1594,6 +1653,7 @@ public class CoordinateSystemEPSGFactory extends CoordinateSystemAuthorityFactor
         final String newConnection = arguments.getOptionalString("-connection");
         final String  newImplement = arguments.getOptionalString("-implementation");
         final Preferences prefs = Preferences.systemNodeForPackage(CoordinateSystemAuthorityFactory.class);
+
         if (newDriver != null) {
             if (newDriver.length() == 0) {
                 prefs.remove(DRIVER);
