@@ -56,7 +56,7 @@ import org.geotools.resources.XArray;
  * The clipping area to apply on a {@link Geometry} object. A <code>Clipper</code> object
  * contains the clip as a {@link Rectangle2D} and its {@link CoordinateSystem}.
  *
- * @version $Id: Clipper.java,v 1.10 2003/10/07 16:47:23 desruisseaux Exp $
+ * @version $Id: Clipper.java,v 1.11 2003/11/28 23:33:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Geometry#clip
@@ -281,7 +281,7 @@ public final class Clipper {
      * where possible, so that memory consumption should remain reasonable.
      *
      * @param  polyline Polyline to clip in a region.
-     * @return Clipped polyline.
+     * @return Clipped polyline, or null if the polyline doesn't intersects the clip.
      */
     protected Polyline clip(final Polyline polyline) {
         Polyline result = (Polyline) alreadyClipped.get(polyline);
@@ -385,8 +385,8 @@ public final class Clipper {
                  * +--------+  //
                  *            //(x1,y1)
                  */
-                int outcode1=0;
-                int outcode2=0;
+                int outcode1 = 0;
+                int outcode2 = 0;
                 boolean out1, out2;
                 final float x1 = line.x1;
                 final float y1 = line.y1;
@@ -650,24 +650,31 @@ public final class Clipper {
                                                     polyline.getCoordinateSystem());
                 assert results.length == 1;
                 result = results[0];
-                if (isClosed) {
-                    result.close();
-                }
-            } else if (polyline.contains(clip.getCenterX(), clip.getCenterY())) {
-                /*
-                 * If absolutely no point of the polyline is found inside the zoom
-                 * then the zoom is either completely inside or completely outside
-                 * the polyline.  If it is completely inside, we will memorise a rectangle
-                 * that will cover the whole zoom.
-                 */
-                result = new Polyline(clip, polyline.getCoordinateSystem());
                 result.setStyle(polyline.getStyle());
                 if (isClosed) {
                     result.close();
                 }
+            } else {
+                /*
+                 * If absolutely no point of the polyline is found inside the zoom
+                 * then the zoom is either completely inside or completely outside
+                 * the polyline.  If it is completely inside, we will memorize a
+                 * rectangle that will cover the whole zoom.
+                 */
+                final Polyline clipAsPolyline = new Polyline(clip, polyline.getCoordinateSystem());
+                if (polyline.intersects(clipAsPolyline)) {
+                    result = clipAsPolyline;
+                    result.setStyle(polyline.getStyle());
+                    if (isClosed) {
+                        result.close();
+                    }
+                }
             }
         }
-        assert result==null || Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
+        if (result==null || result.isEmpty()) {
+            return null;
+        }
+        assert Utilities.equals(polyline.getStyle(), result.getStyle()) : result;
         alreadyClipped.put(polyline, result);
         return result;
     }

@@ -61,7 +61,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * A polygon bounded by one exterior ring (the "shell") and zero or more interior rings
  * (the "holes"). Shell and holes are stored as {@link Polyline} objects.
  *
- * @version $Id: Polygon.java,v 1.16 2003/11/12 14:14:07 desruisseaux Exp $
+ * @version $Id: Polygon.java,v 1.17 2003/11/28 23:33:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Polygon extends Polyline {
@@ -501,7 +501,7 @@ public class Polygon extends Polyline {
         int count = 0;
         for (int i=0; i<holes.length; i++) {
             clipped = (Polyline)holes[i].clip(clipper);
-            if (clipped!=null && !clipped.isEmpty()) {
+            if (clipped != null) {
                 clip[count++] = clipped;
             }
         }
@@ -515,6 +515,7 @@ public class Polygon extends Polyline {
                 }
             }
         }
+        shell.refreshFlattenedShape();
         return shell;
     }
 
@@ -573,12 +574,12 @@ public class Polygon extends Polyline {
      * Clears all information that was kept in an internal cache.
      */
     synchronized void clearCache() {
-        super.clearCache();
         if (holes != null) {
             for (int i=0; i<holes.length; i++) {
                 holes[i].clearCache();
             }
         }
+        super.clearCache(); // Should be last.
     }
 
     /**

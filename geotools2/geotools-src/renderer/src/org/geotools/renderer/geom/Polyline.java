@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.25 2003/10/16 09:41:22 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.26 2003/11/28 23:33:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -242,7 +242,7 @@ public class Polyline extends Geometry {
                    org.geotools.resources.cts.ResourceKeys.ERROR_CANT_REDUCE_TO_TWO_DIMENSIONS_$1, cs));
             }
         }
-        flattened = checkFlattenedShape();
+        refreshFlattenedShape();
     }
 
     /**
@@ -336,9 +336,9 @@ public class Polyline extends Geometry {
         final CoordinateTransformation ct = getIdentityTransform(coordinateSystem);
         for (int i=0; i<polylines.length; i++) {
             final Polyline polyline = new Polyline(ct);
-            polyline.data      = strings[i];
-            polyline.flattened = polyline.checkFlattenedShape();
-            polylines[i]       = polyline;
+            polyline.data = strings[i];
+            polyline.refreshFlattenedShape();
+            polylines[i] = polyline;
         }
         return polylines;
     }
@@ -407,7 +407,7 @@ public class Polyline extends Geometry {
             for (int i=0; i<strings.length; i++) {
                 final Polyline polyline = new Polyline(ct);
                 polyline.data = strings[i];
-                polyline.flattened = polyline.checkFlattenedShape();
+                polyline.refreshFlattenedShape();
                 if (isClosed) {
                     polyline.close();
                 }
@@ -555,7 +555,7 @@ public class Polyline extends Geometry {
          */
         this.coordinateTransform = transformCandidate;
         this.cache = null;
-        this.flattened = checkFlattenedShape();
+        refreshFlattenedShape();
         assert Utilities.equals(coordinateSystem, getCoordinateSystem());
     }
 
@@ -670,7 +670,7 @@ public class Polyline extends Geometry {
         } else {
             data = LineString.prependBorder(data, border, lower, upper);
         }
-        flattened  = checkFlattenedShape();
+        refreshFlattenedShape();
         dataBounds = null;
         bounds     = null;
         cache      = null;
@@ -751,16 +751,16 @@ public class Polyline extends Geometry {
         }
         bounds    = null;
         cache     = null;
-        flattened = checkFlattenedShape();
+        refreshFlattenedShape();
     }
 
     /**
      * Reverse point order in this polyline.
      */
     public synchronized void reverse() {
-        data      = LineString.reverse(data);
-        flattened = checkFlattenedShape();
-        cache     = null;
+        data  = LineString.reverse(data);
+        cache = null;
+        refreshFlattenedShape();
     }
     
     /**
@@ -780,7 +780,7 @@ public class Polyline extends Geometry {
         }
         final Polyline subPoly = new Polyline(coordinateTransform);
         subPoly.data = sub;
-        subPoly.flattened = subPoly.checkFlattenedShape();
+        subPoly.refreshFlattenedShape();
         subPoly.setStyle(getStyle());
         assert subPoly.getPointCount() == (upper-lower);
         return subPoly;
@@ -799,10 +799,10 @@ public class Polyline extends Geometry {
      * Close this polyline. After closing it, no more points can be added to this polyline.
      */
     public synchronized void close() {
-        data      = LineString.freeze(data, true, null);
-        flattened = checkFlattenedShape();
-        isClosed  = true;
-        cache     = null;
+        data     = LineString.freeze(data, true, null);
+        isClosed = true;
+        cache    = null;
+        refreshFlattenedShape();
     }
 
     /**
@@ -1430,6 +1430,7 @@ public class Polyline extends Geometry {
                 final LineString.Iterator it = new LineString.Iterator(shape.data,
                                           shape.getMathTransform2D(
                                           shape.getTransformationFromInternalCS(coordinateSystem)));
+                // Note: call to contains(...) must NOT call the method overriden in Polygon.
                 if (it.next(firstPt)!=null && contains(firstPt.x, firstPt.y, null)) {
                     segment.x2 = firstPt.x;
                     segment.y2 = firstPt.y;
@@ -1563,7 +1564,8 @@ public class Polyline extends Geometry {
                                           shape.getMathTransform2D(
                                           shape.getTransformationFromInternalCS(coordinateSystem)));
                 if (it.next(firstPt) != null) {
-                    if (checkEdgeOnly || !contains(firstPt.x, firstPt.y)) {
+                    // Note: call to contains(...) must NOT call the method overriden in Polygon.
+                    if (checkEdgeOnly || !contains(firstPt.x, firstPt.y, null)) {
                         segment.x2 = firstPt.x;
                         segment.y2 = firstPt.y;
                         do if (!it.next(segment)) {
@@ -1802,12 +1804,19 @@ public class Polyline extends Geometry {
     }
 
     /**
+     * Reset the {@link #isFlattenedShape() flattened} flag.
+     */
+    final void refreshFlattenedShape() {
+        flattened = checkFlattenedShape();
+    }
+
+    /**
      * Returns <code>true</code> if {@link #getPathIterator} returns a flattened iterator.
      * In this case, there is no need to wrap it into a {@link FlatteningPathIterator}.
      */
     boolean checkFlattenedShape() {
-        return coordinateTransform==null ||
-               coordinateTransform.getMathTransform()==null ||
+        return coordinateTransform == null ||
+               coordinateTransform.getMathTransform().isIdentity() ||
                !LineString.hasBorder(data);
     }
 
@@ -2112,16 +2121,16 @@ public class Polyline extends Geometry {
         cache      = null;
         bounds     = null;
         dataBounds = null;
-        flattened  = checkFlattenedShape();
+        refreshFlattenedShape();
         super.clearCache();
     }
 
     /**
      * Invoked during deserialization.
      */
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+    protected void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
-        flattened = checkFlattenedShape(); // Reasonably fast to compute.
+        refreshFlattenedShape(); // Reasonably fast to compute.
     }
 
     /**

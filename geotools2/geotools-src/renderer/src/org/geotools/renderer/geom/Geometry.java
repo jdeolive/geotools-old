@@ -94,7 +94,7 @@ import org.geotools.util.Cloneable;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.11 2003/09/30 10:39:51 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.12 2003/11/28 23:33:12 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -651,9 +651,10 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
      */
     public String toString() {
         final Format format;
-        final Rectangle2D bounds = getBounds2D();
+        final Rectangle2D  bounds = getBounds2D();
+        final CoordinateSystem cs = getCoordinateSystem();
         Object minX,minY,maxX,maxY;
-        if (getCoordinateSystem() instanceof GeographicCoordinateSystem) {
+        if (cs instanceof GeographicCoordinateSystem) {
             minX   = new Longitude(bounds.getMinX());
             minY   = new Latitude (bounds.getMinY());
             maxX   = new Longitude(bounds.getMaxX());
@@ -675,11 +676,22 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
             buffer.append(name);
             buffer.append("\", ");
         }
-        format.format(minY, buffer, dummy).append('-' );
-        format.format(maxY, buffer, dummy).append("  ");
-        format.format(minX, buffer, dummy).append('-' );
-        format.format(maxX, buffer, dummy).append(" (");
-        buffer.append(getPointCount()); buffer.append(" pts)]");
+        if (cs != null) {
+            buffer.append("cs=\"");
+            buffer.append(cs.getName(null));
+            buffer.append("\", ");
+        }
+        buffer.append("x={");
+        format.format(minY, buffer, dummy).append(" \u2026 ");
+        format.format(maxY, buffer, dummy).append("}, y={");
+        format.format(minX, buffer, dummy).append(" \u2026 ");
+        format.format(maxX, buffer, dummy).append("} (");
+        buffer.append(getPointCount()); buffer.append(" pts)");
+        if (style != null) {
+            buffer.append(", style=");
+            buffer.append(style);
+        }
+        buffer.append(']');
         return buffer.toString();
     }
 }
