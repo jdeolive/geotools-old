@@ -1,0 +1,25 @@
+Class-Path: geotools-cts.jar
+
+Name: org/geotools/cv/
+Specification-Title: OpenGIS® Grid Coverages
+Specification-Version: 1.0
+Specification-Vendor: OpenGIS Consortium, Inc.
+Implementation-Title: Grid Coverages
+Implementation-Version: 0.6
+Implementation-Vendor: Geotools OpenSource project
+
+Name: org/geotools/gc/
+Specification-Title: OpenGIS® Grid Coverages
+Specification-Version: 1.0
+Specification-Vendor: OpenGIS Consortium, Inc.
+Implementation-Title: Grid Coverages
+Implementation-Version: 0.6
+Implementation-Vendor: Geotools OpenSource project
+
+Name: org/geotools/gp/
+Specification-Title: OpenGIS® Grid Coverages
+Specification-Version: 1.0
+Specification-Vendor: OpenGIS Consortium, Inc.
+Implementation-Title: Grid Coverages
+Implementation-Version: 0.6
+Implementation-Vendor: Geotools OpenSource project
