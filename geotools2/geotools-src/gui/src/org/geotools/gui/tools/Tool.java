@@ -2,7 +2,7 @@ package org.geotools.gui.tools;
 
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.JComponent;
-import org.geotools.map.AreaOfInterestModel;
+import org.geotools.map.BoundingBox;
 
 /**
  * Base interface for all the geotools Tools, like PanTool, ZoomTool, etc.
@@ -17,7 +17,7 @@ public class Tool extends MouseInputAdapter {
      * The AreaOfInterestModel which determines the Area being viewed by this
      * Tool's viewer.
      */
-    protected AreaOfInterestModel areaOfInterestModel = null;
+    protected BoundingBox areaOfInterestModel = null;
   
     public Tool()
     {
@@ -62,7 +62,7 @@ public class Tool extends MouseInputAdapter {
      * Zooming/Panning etc.
      */
     public void setAreaOfInterestModel(
-            AreaOfInterestModel areaOfInterestModel)
+            BoundingBox areaOfInterestModel)
     {
         this.areaOfInterestModel=areaOfInterestModel;
     }
@@ -72,7 +72,7 @@ public class Tool extends MouseInputAdapter {
      * @param areaOfInterestModel The AreaOfInterest Class this Tool uses when
      * Zooming/Panning etc.
      */
-    public AreaOfInterestModel getAreaOfInterestModel()
+    public BoundingBox getAreaOfInterestModel()
     {
         return this.areaOfInterestModel;
     }

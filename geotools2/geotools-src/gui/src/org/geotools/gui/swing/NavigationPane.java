@@ -51,7 +51,7 @@ public class NavigationPane extends javax.swing.JComponent implements org.geotoo
     private Envelope subAoi;
     
     /** Holds value of property aoiModel. */
-    private org.geotools.map.AreaOfInterestModel aoiModel;
+    private org.geotools.map.BoundingBox aoiModel;
     
     /** Creates a new instance of NavigationMap */
     public NavigationPane() {
@@ -99,7 +99,7 @@ public class NavigationPane extends javax.swing.JComponent implements org.geotoo
      * Getter for property aoiModel.
      * @return Value of property aoiModel.
      */
-    public org.geotools.map.AreaOfInterestModel getAoiModel() {
+    public org.geotools.map.BoundingBox getAoiModel() {
         return this.aoiModel;
     }
     
@@ -107,7 +107,7 @@ public class NavigationPane extends javax.swing.JComponent implements org.geotoo
      * Setter for property aoiModel.
      * @param aoiModel New value of property aoiModel.
      */
-    public void setAoiModel(org.geotools.map.AreaOfInterestModel aoiModel) {
+    public void setAoiModel(org.geotools.map.BoundingBox aoiModel) {
         this.aoiModel = aoiModel;
         subAoi = aoiModel.getAreaOfInterest();
         this.aoiModel.addAreaOfInterestChangedListener(this);

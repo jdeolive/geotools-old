@@ -42,7 +42,7 @@ import java.util.EventObject;
 import org.geotools.gui.swing.ZoomPane;
 import org.geotools.map.*;
 import org.geotools.map.events.AreaOfInterestChangedListener;
-import org.geotools.map.DefaultAreaOfInterestModel;
+import org.geotools.map.BoundingBoxImpl;
 
 import org.geotools.gui.swing.event.ZoomChangeEvent;
 import org.geotools.gui.swing.event.ZoomChangeListener;
@@ -63,7 +63,7 @@ import com.vividsolutions.jts.geom.*;
  * of the painting area (it doesn't have to be in pixel units) and
  * <CODE>paintComponent(Graphics2D)</CODE> which performs the actual painting.
  *
- * $Id: MapPane.java,v 1.5 2002/09/22 03:38:03 camerons Exp $
+ * $Id: MapPane.java,v 1.6 2002/12/19 11:33:50 camerons Exp $
  * @version 1.0
  * @author Martin Desruisseaux
  */
@@ -71,13 +71,13 @@ public class MapPane extends ZoomPane implements ZoomChangeListener, AreaOfInter
     
     org.geotools.renderer.Java2DRenderer renderer = new Java2DRenderer();
     org.geotools.map.Map map;
-    AreaOfInterestModel aoi;
+    BoundingBox aoi;
     /**
      * Constructs a demonstration zoom pane. This demo allows scale,
      * translation and rotation. Scrolling the pane will repaint
      * immediately (as opposed to waiting for the user to finish adjusting).
      */
-    public MapPane(Map map, AreaOfInterestModel aoi) {
+    public MapPane(Map map, BoundingBox aoi) {
         super(UNIFORM_SCALE | TRANSLATE_X | TRANSLATE_Y | ROTATE | RESET | DEFAULT_ZOOM);
         setPaintingWhileAdjusting(true);
         this.map = map;

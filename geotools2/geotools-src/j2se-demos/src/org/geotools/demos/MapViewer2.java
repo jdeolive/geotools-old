@@ -18,8 +18,8 @@ import org.geotools.gml.GMLDataSource;
 import org.geotools.gui.swing.MapPane2;
 import org.geotools.gui.tools.PanTool;
 import org.geotools.gui.tools.Tool;
-import org.geotools.map.AreaOfInterestModel;
-import org.geotools.map.DefaultAreaOfInterestModel;
+import org.geotools.map.BoundingBox;
+import org.geotools.map.BoundingBoxImpl;
 import org.geotools.map.DefaultLayer;
 import org.geotools.map.DefaultLayerList;
 import org.geotools.map.Layer;
@@ -66,7 +66,7 @@ public class MapViewer2 extends javax.swing.JFrame {
      * Extra initialisation.
      */
     private void initComponents2() {
-        AreaOfInterestModel areaOfInterestModel = new DefaultAreaOfInterestModel(null,null);
+        BoundingBox areaOfInterestModel = new BoundingBoxImpl(null,null);
         LayerList layerList = new DefaultLayerList();
         try {
            GMLDataSource datasource = new GMLDataSource(

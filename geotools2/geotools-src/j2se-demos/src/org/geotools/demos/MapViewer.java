@@ -49,7 +49,7 @@ public class MapViewer extends javax.swing.JFrame {
     private JLabel status;
     private Map map;
     private MapPane master;
-    private AreaOfInterestModel aoi;
+    private BoundingBox aoi;
     
     /** Creates a new instance of MapViewer */
     public MapViewer() {
@@ -106,7 +106,7 @@ public class MapViewer extends javax.swing.JFrame {
         
         this.getContentPane().add(status,"South");
         map = new DefaultMap();
-        aoi = new DefaultAreaOfInterestModel(null,null);
+        aoi = new BoundingBoxImpl(null,null);
         final MapPane master = new MapPane(map,aoi);
         
         this.getContentPane().add(master.createScrollPane(),"Center");

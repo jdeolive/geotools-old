@@ -31,7 +31,7 @@ import org.geotools.feature.FeatureCollectionDefault;
 import org.geotools.gui.tools.Tool;
 import java.util.EventObject;
 import org.geotools.map.events.AreaOfInterestChangedListener;
-import org.geotools.map.AreaOfInterestModel;
+import org.geotools.map.BoundingBox;
 import org.geotools.map.events.LayerListChangedListener;
 import org.geotools.map.Layer;
 import org.geotools.map.LayerList;
@@ -45,7 +45,7 @@ import org.geotools.data.DataSourceException;
  * At the moment, this package is still experimental.  I expect that it will
  * be removed, and the functionality will be moved into other classes like
  * MapPane.
- * @version $Id: MapPane2.java,v 1.10 2002/09/22 03:38:03 camerons Exp $
+ * @version $Id: MapPane2.java,v 1.11 2002/12/19 11:33:50 camerons Exp $
  * @author Cameron Shorter
  * @task REVISIT: We probably should have a StyleModel which sends
  * StyleModelEvents when the Style changes.  Note that the Style should not
@@ -74,7 +74,7 @@ public class MapPane2 extends JScrollPane implements
     /**
      * The areaOfInterest to be drawn by this map.
      */
-    private AreaOfInterestModel areaOfInterestModel;
+    private BoundingBox areaOfInterestModel;
 
     /**
      * The class used for identifying for logging.
@@ -100,7 +100,7 @@ public class MapPane2 extends JScrollPane implements
     public MapPane2(
             Tool tool,
             LayerList layerList,
-            AreaOfInterestModel areaOfInterestModel)
+            BoundingBox areaOfInterestModel)
     {
         this.tool=tool;
         this.layerList=layerList;
