@@ -44,13 +44,16 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilterImpl.java,v 1.4 2002/10/25 11:37:43 ianturton Exp $
+ * @version $Id: GeometryFilterImpl.java,v 1.5 2002/11/11 23:18:05 robhranac Exp $
  * @author Rob Hranac, TOPP
  */
-public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFilter {
+public class GeometryFilterImpl 
+    extends AbstractFilterImpl 
+    implements GeometryFilter {
 
     /** Class logger */
-    private static final Logger LOGGER =  Logger.getLogger("org.geotools.filter");
+    private static final Logger LOGGER =  
+        Logger.getLogger("org.geotools.filter");
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftGeometry = null; 
@@ -65,7 +68,8 @@ public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFi
      * @param filterType The type of comparison.
      * @throws IllegalFilterException Non-geometry type.
      */
-    protected GeometryFilterImpl(short filterType) throws IllegalFilterException {
+    protected GeometryFilterImpl(short filterType) 
+        throws IllegalFilterException {
         
         if (isGeometryFilter(filterType)) {
             this.filterType = filterType;
@@ -241,37 +245,42 @@ public class GeometryFilterImpl extends AbstractFilterImpl implements GeometryFi
      * left and right geometries.
      *
      * @param obj - the object to compare this GeometryFilter against.
-     * @return true if specified object is equal to this filter; false otherwise.
+     * @return true if specified object is equal to this filter; else false
      */
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
 	    GeometryFilterImpl geomFilter = (GeometryFilterImpl)obj;
-            LOGGER.finest("filter type match:"  + 
-                          (geomFilter.getFilterType() == this.filterType));
-            LOGGER.finest("left geom match:"  + 
-                          geomFilter.getLeftGeometry().equals(this.leftGeometry));
-            LOGGER.finest("right geom match:"  + 
-                          geomFilter.getRightGeometry().equals(this.rightGeometry));
-	    return (geomFilter.getFilterType() == this.filterType &&
-		    geomFilter.getLeftGeometry().equals(this.leftGeometry) &&
-		    geomFilter.getRightGeometry().equals(this.rightGeometry));
+            boolean isEqual = true;
+            
+            isEqual = geomFilter.getFilterType() == this.filterType;
+            LOGGER.finest("filter type match:"  + isEqual + "; in:" + geomFilter.getFilterType() + "; out:" + this.filterType);
+            isEqual = (geomFilter.leftGeometry != null) ? 
+                isEqual && geomFilter.leftGeometry.equals(this.leftGeometry):
+                isEqual && (this.leftGeometry == null);
+            LOGGER.finest("left geom match:" +  isEqual + "; in:" + geomFilter.leftGeometry + "; out:" + this.leftGeometry);
+            isEqual = (geomFilter.rightGeometry != null) ? 
+                isEqual && geomFilter.rightGeometry.equals(this.rightGeometry):
+                isEqual && (this.rightGeometry == null);
+            LOGGER.finest("right geom match:" +  isEqual + "; in:" + geomFilter.rightGeometry + "; out:" + this.rightGeometry);
+	    return isEqual;
 	} else {
 	    return false;
 	}
     }
+
    /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
+    * Typicaly used by Filter decoders, but may also be used by any thing which needs
+    * infomration from filter structure.
+    *
+    * Implementations should always call: visitor.visit(this);
+    *
+    * It is importatant that this is not left to a parent class unless the parents
+    * API is identical.
+    *
+    * @param visitor The visitor which requires access to this filter,
+    *                the method must call visitor.visit(this);
+    *
+    */
     public void accept(FilterVisitor visitor) { 
         visitor.visit(this);
     }    

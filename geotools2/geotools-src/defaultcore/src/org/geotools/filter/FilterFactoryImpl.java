@@ -6,15 +6,14 @@
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.Envelope;
-
 import org.geotools.feature.FeatureType;
-
 
 /**
  *
  * @author  iant
  */
 public class FilterFactoryImpl extends FilterFactory { 
+
     /** Creates a new instance of FilterFactoryImpl */
     protected FilterFactoryImpl() {
     }

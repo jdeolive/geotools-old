@@ -21,22 +21,23 @@
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.*;
-
+import com.vividsolutions.jts.geom.Geometry;
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
 /**
  * Defines an expression that holds a literal for return.
  *
- * @version $Id: LiteralExpressionImpl.java,v 1.5 2002/10/25 13:46:23 ianturton Exp $
+ * @version $Id: LiteralExpressionImpl.java,v 1.6 2002/11/11 23:18:05 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class LiteralExpressionImpl extends DefaultExpression implements LiteralExpression { 
+public class LiteralExpressionImpl 
+    extends DefaultExpression 
+    implements LiteralExpression { 
 
 
     /** Holds a reference to the literal. */
     protected Object literal = null;
-
 
     /**
      * Constructor with literal.
@@ -179,9 +180,30 @@ public class LiteralExpressionImpl extends DefaultExpression implements LiteralE
      * @return true if specified object is equal to this expression; false otherwise.
      */
     public boolean equals(Object obj) {
-	return (obj.getClass() == this.getClass() && 
-		     this.literal.equals(((LiteralExpressionImpl)obj).getLiteral()));
+	if(obj.getClass() == this.getClass()) {
+	    LiteralExpressionImpl expLit = (LiteralExpressionImpl) obj;
+            boolean isEqual = (expLit.getType() == this.expressionType);
+
+            if (expressionType == LITERAL_GEOMETRY) {
+                return ((Geometry) this.literal).
+                    equals((Geometry) expLit.getLiteral());                
+            } else if (expressionType == LITERAL_INTEGER) {
+                return ((Integer) this.literal).
+                    equals((Integer) expLit.getLiteral());                
+            } else if (expressionType == LITERAL_STRING) {
+                return ((String) this.literal).
+                    equals((String) expLit.getLiteral());                
+            } else if (expressionType == LITERAL_DOUBLE) {
+                return ((Double) this.literal).
+                    equals((Double) expLit.getLiteral());                
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
+
    /** Used by FilterVisitors to perform some action on this filter instance.
      * Typicaly used by Filter decoders, but may also be used by any thing which needs
      * infomration from filter structure.

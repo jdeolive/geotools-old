@@ -34,15 +34,17 @@ import org.geotools.feature.IllegalFeatureException;
  * This filter holds one or more filters together and relates
  * them logically in an internally defined manner.
  *
- * @version $Id: AttributeExpressionImpl.java,v 1.5 2002/10/25 13:46:23 ianturton Exp $
- * @author Rob Hranac, Vision for New York
+ * @version $Id: AttributeExpressionImpl.java,v 1.6 2002/11/11 23:18:05 robhranac Exp $
+ * @author Rob Hranac, TOPP
  */
-public class AttributeExpressionImpl extends DefaultExpression implements AttributeExpression {  
+public class AttributeExpressionImpl 
+    extends DefaultExpression 
+    implements AttributeExpression {  
 
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core"); 
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
 
     /** Holds all sub filters of this filter. */
     protected String attributePath = new String();
@@ -65,7 +67,8 @@ public class AttributeExpressionImpl extends DefaultExpression implements Attrib
      *
      * @param attributePath The initial (required) sub filter.
      */
-    protected AttributeExpressionImpl(FeatureType schema, String attributePath) throws IllegalFilterException {
+    protected AttributeExpressionImpl(FeatureType schema, String attributePath)
+        throws IllegalFilterException {
 
         this.schema = schema;
         this.expressionType = ATTRIBUTE;
@@ -131,33 +134,46 @@ public class AttributeExpressionImpl extends DefaultExpression implements Attrib
     }
    
 
-      /** 
+    /** 
      * Compares this filter to the specified object.  Returns true 
      * if the passed in object is the same as this expression.  Checks 
      * to make sure the expression types are the same as well as 
      * the attribute paths and schemas.
      *
      * @param obj - the object to compare this ExpressionAttribute against.
-     * @return true if specified object is equal to this filter; false otherwise.
+     * @return true if specified object is equal to this filter; else false
      */
     public boolean equals(Object obj) {
 	if (obj.getClass() == this.getClass()){
-	    AttributeExpressionImpl expAttr = (AttributeExpressionImpl)obj;
-	    return (expAttr.getType() == this.expressionType &&
-		    expAttr.getAttributePath().equals(this.attributePath) &&
-		    expAttr.schema.toString().equals(this.schema.toString()));
-		} else {
+	    AttributeExpressionImpl expAttr = (AttributeExpressionImpl) obj;
+
+            boolean isEqual = (expAttr.getType() == this.expressionType);
+            LOGGER.finest("expression type match:"  + isEqual + "; in:" + 
+                          expAttr.getType() + "; out:" + this.expressionType);
+            isEqual = (expAttr.attributePath != null) ? 
+                isEqual && expAttr.attributePath.equals(this.attributePath):
+                isEqual && (this.attributePath == null);
+            LOGGER.finest("attribute match:"  +  isEqual + "; in:" + expAttr.
+                          getAttributePath() + "; out:" + this.attributePath);
+            isEqual = (expAttr.schema != null) ? 
+                isEqual && expAttr.schema.equals(this.schema):
+                isEqual && (this.schema == null);
+            LOGGER.finest("schema match:" +  isEqual + "; in:" + 
+                          expAttr.schema + "; out:" + this.schema);
+	    return isEqual;
+        } else {
 	    return false;
 	}
     }
+
     /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
+     * Typicaly used by Filter decoders, but may also be used by any thing 
+     * which needs infomration from filter structure.
      *
      * Implementations should always call: visitor.visit(this);
      *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
+     * It is importatant that this is not left to a parent class unless the 
+     * parents API is identical.
      *
      * @param visitor The visitor which requires access to this filter,
      *                the method must call visitor.visit(this);
