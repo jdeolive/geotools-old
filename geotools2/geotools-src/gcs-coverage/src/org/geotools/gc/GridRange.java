@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version $Id: GridRange.java,v 1.8 2003/04/16 19:25:33 desruisseaux Exp $
+ * @version $Id: GridRange.java,v 1.9 2003/05/05 11:35:43 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -175,7 +175,7 @@ public class GridRange implements Dimensioned, Serializable {
      * Construct two-dimensional range defined by a {@link RenderedImage}.
      */
     public GridRange(final RenderedImage image) {
-        this(image,0);
+        this(image, 2);
     }
     
     /**
