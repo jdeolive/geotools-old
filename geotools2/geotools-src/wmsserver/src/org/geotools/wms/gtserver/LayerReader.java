@@ -121,38 +121,46 @@ public class LayerReader extends DefaultHandler {
     /** Start element. */
     public void startElement(String uri, String localName, String qName, Attributes attrs) {
         currentTag = currentTag+"/"+localName;
-        System.out.println(currentTag);
+        System.out.print(currentTag+" ");
         // <layer> tag
         if (currentTag.equalsIgnoreCase(TAG_LAYER)) {
             currentLayer = new LayerEntry();
             currentLayer.id = attrs.getValue(ATTRIB_ID);
+            System.out.println(""+attrs.getValue(ATTRIB_ID));
             String temp = attrs.getValue(ATTRIB_SRS);
             if(temp != null) {
                 currentLayer.srs = attrs.getValue(ATTRIB_SRS);
             }
+            return ;
         }
         // <datasource> tag
         if (currentTag.equalsIgnoreCase(TAG_DATASOURCE)) {
             currentLayer.datasource = attrs.getValue(ATTRIB_CLASS);
+            System.out.println(""+attrs.getValue(ATTRIB_CLASS));
             currentLayer.properties = new Properties();
+            return ;
         }
         // <param> tag
         if (currentTag.equalsIgnoreCase(TAG_PARAM)){
             currentLayer.properties.setProperty(attrs.getValue(ATTRIB_NAME), attrs.getValue(ATTRIB_VALUE));
+            System.out.println(""+attrs.getValue(ATTRIB_NAME)+ " "+attrs.getValue(ATTRIB_VALUE));
+            return ;
         }
         if (currentTag.equalsIgnoreCase(TAG_STYLE)) {
             if(currentLayer.styles == null){
                 currentLayer.styles = new HashMap();
             }
             currentLayer.styles.put(attrs.getValue(ATTRIB_ID), attrs.getValue(ATTRIB_FILENAME));
+            System.out.println(""+attrs.getValue(ATTRIB_ID));
             String style = attrs.getValue(ATTRIB_DEFAULTSTYLE);
             //System.out.println("default style attrib is " + style);
             if(style != null && style.equalsIgnoreCase("true")){
                 currentLayer.defaultStyle = attrs.getValue(ATTRIB_ID);
             }
+            return ;
         }
-        
-
+        System.out.println(" ");
+        return ;
     }
     
     /** Characters. */
