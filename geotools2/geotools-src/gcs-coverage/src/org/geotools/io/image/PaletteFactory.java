@@ -89,7 +89,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version 1.0
+ * @version $Id: PaletteFactory.java,v 1.2 2002/07/23 17:53:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {

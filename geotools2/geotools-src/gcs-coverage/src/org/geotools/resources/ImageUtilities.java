@@ -58,7 +58,7 @@ import javax.media.jai.ImageLayout;
  *
  * It may change in incompatible way in any future version.
  *
- * @version 1.0
+ * @version $Id: ImageUtilities.java,v 1.2 2002/07/23 17:53:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public final class ImageUtilities {
@@ -296,6 +296,6 @@ public final class ImageUtilities {
      * {@link DataBuffer#TYPE_BYTE} or {@link DataBuffer#TYPE_USHORT}.
      */
     private static int getTransferType(final int mapSize) {
-        return (mapSize <= 256) ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_SHORT;
+        return (mapSize <= 256) ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_USHORT;
     }
 }

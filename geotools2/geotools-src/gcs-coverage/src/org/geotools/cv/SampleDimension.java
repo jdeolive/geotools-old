@@ -79,7 +79,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method  returns a non-null value if and only
  * if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.3 2002/07/17 23:30:55 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.4 2002/07/23 17:53:36 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -111,19 +111,12 @@ public class SampleDimension implements Serializable {
      * category. Otherwise, <code>null</code>.
      */
     private final MathTransform1D sampleToGeophysics;
-    
-    /**
-     * Catégorie utilisée lors du dernier encodage ou décodage d'un pixel.  Avant de rechercher
-     * la catégorie appropriée pour un nouveau encodage ou décodage, on vérifiera d'abord si la
-     * catégorie désirée n'est pas la même que la dernière fois, c'est-à-dire {@link #lastCategory}.
-     */
-    private transient Category lastCategory;
 
     /**
      * Construct a sample dimension with no category.
      */
     public SampleDimension() {
-        this((CategoryList) null);
+        this((Category[]) null, null);
     }
     
     /**
@@ -136,7 +129,9 @@ public class SampleDimension implements Serializable {
      *               [0]="Background", [1]="Water", [2]="Forest", [3]="Urban".
      */
     public SampleDimension(final String[] names) {
-        this(new CategoryList(names));
+        // TODO: 'list(...)' should be inlined there if only Sun was to fix RFE #4093999
+        //       ("Relax constraint on placement of this()/super() call in constructors").
+        this(list(names), null);
     }
     
     /**
@@ -147,11 +142,13 @@ public class SampleDimension implements Serializable {
      *               This allows for names to be assigned to numerical values. The first entry
      *               in the sequence relates to a cell value of zero. For example:
      *               [0]="Background", [1]="Water", [2]="Forest", [3]="Urban".
-     * @param colors Color to assign to each category. This array length must be the same
-     *               than <code>names</code>'s length.
+     * @param colors Color to assign to each category. This array must have the same
+     *               length than <code>names</code>.
      */
     public SampleDimension(final String[] names, final Color[] colors) {
-        this(new CategoryList(names, colors));
+        // TODO: 'list(...)' should be inlined there if only Sun was to fix RFE #4093999
+        //       ("Relax constraint on placement of this()/super() call in constructors").
+        this(list(names, colors), null);
     }
     
     /**
@@ -177,7 +174,6 @@ public class SampleDimension implements Serializable {
         categories         = other.categories;
         sampleToGeophysics = other.sampleToGeophysics;
         isQuantitative     = other.isQuantitative;
-        lastCategory       = other.lastCategory;
     }
     
     /**
@@ -205,6 +201,36 @@ public class SampleDimension implements Serializable {
         }
         this.isQuantitative = isQuantitative;
         sampleToGeophysics = (main!=null) ? main.getSampleToGeophysics() : null;
+    }
+    
+    /**
+     * Construct a list of categories.
+     * Used by constructors only.
+     */
+    private static Category[] list(final String[] names) {
+        final Color[] colors = new Color[names.length];
+        final double scale = 255.0/colors.length;
+        for (int i=0; i<colors.length; i++) {
+            final int r = (int)Math.round(scale*i);
+            colors[i] = new Color(r,r,r);
+        }
+        return list(names, colors);
+    }
+    
+    /**
+     * Construct a list of categories.
+     * Used by constructors only.
+     */
+    private static Category[] list(final String[] names, final Color[] colors) {
+        if (names.length!=colors.length) {
+            throw new IllegalArgumentException(
+                    Resources.format(ResourceKeys.ERROR_MISMATCHED_ARRAY_LENGTH));
+        }
+        final Category[] categories = new Category[names.length];
+        for (int i=0; i<categories.length; i++) {
+            categories[i] = new Category(names[i], colors[i], i);
+        }
+        return categories;
     }
     
     /**
@@ -264,14 +290,14 @@ public class SampleDimension implements Serializable {
         if (categoryCount == 0) {
             return new String[0];
         }
-        final int length=Math.max((int)((Category)categories.get(categoryCount-1)).maxSample + 1,0);
+        final int length=Math.max((int)((Category)categories.get(categoryCount-1)).maximum + 1,0);
         final String[] names = new String[length];
         for (int i=0; i<categoryCount; i++) {
             final Category category = (Category) categories.get(i);
-            final int lower = (int) category.minSample;
-            final int upper = (int) category.maxSample;
-            if (lower!=category.minSample || lower<0 ||
-                upper!=category.maxSample || upper<0)
+            final int lower = (int) category.minimum;
+            final int upper = (int) category.maximum;
+            if (lower!=category.minimum || lower<0 ||
+                upper!=category.maximum || upper<0)
             {
                 final Resources resources = Resources.getResources(locale);
                 throw new IllegalStateException("Some categories use non-integer sample values");
@@ -322,11 +348,11 @@ public class SampleDimension implements Serializable {
         for (int i=0; i<categoryCount; i++) {
             final Category category = (Category) categories.get(i);
             if (!category.isQuantitative()) {
-                padValues[count++] = category.minSample;
-                if (category.maxSample != category.minSample) {
-                    int lower = (int) category.minSample;
-                    int upper = (int) category.maxSample;
-                    if (lower!=category.minSample || upper!=category.maxSample) {
+                padValues[count++] = category.minimum;
+                if (category.maximum != category.minimum) {
+                    int lower = (int) category.minimum;
+                    int upper = (int) category.maximum;
+                    if (lower!=category.minimum || upper!=category.maximum) {
                         throw new IllegalStateException("Some categories use non-integer sample values");
                         // TODO: localize this message.
                     }
@@ -350,7 +376,7 @@ public class SampleDimension implements Serializable {
      */
     public double getMinimumValue() {
         if (categories!=null && categories.size()!=0) {
-            return ((Category) categories.get(0)).minSample;
+            return ((Category) categories.get(0)).minimum;
         }
         return Double.NEGATIVE_INFINITY;
     }
@@ -366,7 +392,7 @@ public class SampleDimension implements Serializable {
     public double getMaximumValue() {
         if (categories!=null) {
             for (int i=categories.size(); --i>=0;) {
-                final double value = ((Category) categories.get(i)).maxSample;
+                final double value = ((Category) categories.get(i)).maximum;
                 if (!Double.isNaN(value)) {
                     return value;
                 }
@@ -472,13 +498,7 @@ public class SampleDimension implements Serializable {
      *         to differenciate among many qualitative categories.
      */
     public final double toGeophysicsValue(final double sample) {
-        if (categories != null) {
-            final Category category = categories.getDecoder(sample, lastCategory);
-            if (category != null) {
-                lastCategory = category;
-                return category.toGeophysicsValue(sample);
-            }
-        }
+        // TODO
         return Double.NaN;
     }
     
@@ -495,13 +515,7 @@ public class SampleDimension implements Serializable {
      * @return The sample value.
      */
     public final double toSampleValue(final double value) {
-        if (categories != null) {
-            final Category category = categories.getEncoder(value, lastCategory);
-            if (category!=null) {
-                lastCategory = category;
-                return category.toSampleValue(value);
-            }
-        }
+        // TODO
         return 0;
     }
     
@@ -521,7 +535,7 @@ public class SampleDimension implements Serializable {
     public static RenderedImage toGeophysicsValues(final RenderedImage     image,
                                                    final SampleDimension[] bands)
     {
-        return NumericImage.getInstance(image, getCategories(bands));
+        return ImageAdapter.getInstance(image, getCategories(bands));
     }
     
     /**
@@ -542,7 +556,7 @@ public class SampleDimension implements Serializable {
     public static RenderedImage toSampleValues(final RenderedImage     image,
                                                final SampleDimension[] bands)
     {
-        return ThematicImage.getInstance(image, getCategories(bands));
+        return ImageAdapter.getInstance(image, getCategories(bands));
     }
 
     /**
@@ -567,7 +581,7 @@ public class SampleDimension implements Serializable {
      */
     public String format(final double value, final Locale locale) {
         // TODO: check for categories==null
-        return categories.format(value, locale, lastCategory);
+        return categories.format(value, locale);
     }
     
     /**
@@ -592,6 +606,7 @@ public class SampleDimension implements Serializable {
                                                        final int visibleBand, final int numBands)
     {
         // TODO: check for categories==null
-        return categories.getColorModel(type, visibleBand, numBands);
+//        return categories.getColorModel(type, visibleBand, numBands);
+        return null;
     }
 }

@@ -40,6 +40,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.Locale;
 import java.io.Serializable;
+import java.io.ObjectStreamException;
 
 // JAI dependencies
 import javax.media.jai.util.Range;
@@ -48,10 +49,14 @@ import javax.media.jai.util.Range;
 import org.opengis.cv.CV_SampleDimension;
 
 // Geotools dependencies
+import org.geotools.pt.Matrix;
+import org.geotools.ct.MathTransform;
 import org.geotools.ct.MathTransform1D;
 import org.geotools.ct.TransformException;
+import org.geotools.ct.MathTransformFactory;
 
 // Resources
+import org.geotools.util.WeakHashSet;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gcs.Resources;
@@ -59,12 +64,21 @@ import org.geotools.resources.gcs.ResourceKeys;
 
 
 /**
- * A category delimited by a range of sample values.
- * A category may represent qualitative or quantitative information,   for
- * example geomorphologic structures or geophysics parameters.  Some image
- * mixes both qualitative and quantitative categories. For example, images
- * of Sea Surface Temperature  (SST)  may have a quantitative category for
- * temperature with values ranging from –2 to 35°C,  and three qualitative
+ * A category delimited by a range of sample values. A categogy may be either
+ * <em>qualitative</em> or <em>quantitative</em>.   For exemple, a classified
+ * image may have a qualitative category defining sample value <code>0</code>
+ * as water. An other qualitative category may defines sample value <code>1</code>
+ * as forest, etc.  An other image may define elevation data as sample values
+ * in the range <code>[0..100]</code>.   The later is a <em>quantitative</em>
+ * category, because sample values are related to some measurement in the real
+ * world. For example, elevation data may be related to an altitude in metres
+ * through the following linear relation:
+ *
+ * <var>altitude</var>&nbsp;=&nbsp;<var>sample&nbsp;value</var>&times;100.
+ * 
+ * Some image mixes both qualitative and quantitative categories. For example,
+ * images of Sea Surface Temperature  (SST)  may have a quantitative category
+ * for temperature with values ranging from –2 to 35°C,  and three qualitative
  * categories for cloud, land and ice.
  * <br><br>
  * All categories must have a human readable name. In addition, quantitative
@@ -79,15 +93,24 @@ import org.geotools.resources.gcs.ResourceKeys;
  * More general equation are allowed. For example, <cite>SeaWiFS</cite> images
  * use a logarithmic transform. General transformations are expressed with a
  * {@link MathTransform1D} object.
+ * <br><br>
+ * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.3 2002/07/23 17:53:36 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = -3531834320875149028L;
+    private static final long serialVersionUID = 3718595090877043700L;
+
+    /**
+     * A set of {@link Category} or {@link CategoryList} objects. Used in order to
+     * canonicalize object during deserialization, or as a memory optimisation in
+     * {@link CategoryList} constructor.
+     */
+    static final WeakHashSet pool = new WeakHashSet();
     
     /**
      * The category name (may not be localized).
@@ -95,59 +118,50 @@ public class Category implements Serializable {
     private final String name;
     
     /**
-     * The minimal sample value (inclusive). This category is made of all sample values
-     * in the range <code>minSample</code> to <code>maxSample</code> inclusive.
-     */
-    final double minSample;
-    
-    /**
-     * The maximal sample value (inclusive). This category is made of all sample values
-     * in the range <code>minSample</code> to <code>maxSample</code> inclusive.
-     */
-    final double maxSample;
-    
-    /**
-     * The minimal geophysics value, inclusive. This value is usually (but not always)
-     * equals to <code>{@link #toGeophysicsValue toGeophysicsValue}(minSample)</code>.
+     * The minimal sample value (inclusive). This category is made of all values
+     * in the range <code>minimum</code> to <code>maximum</code> inclusive.
      *
-     * For qualitative categories, this value is <code>NaN</code>.
+     * If this category is an instance of <code>GeophysicsCategory</code>,
+     * then this field is the minimal geophysics value in this category.
+     * For qualitative categories, the geophysics value is one of <code>NaN</code> values.
      */
-    final double minValue;
+    final double minimum;
     
     /**
-     * The maximal geophysics value, inclusive. This value is usually (but not always)
-     * equals to <code>{@link #toGeophysicsValue toGeophysicsValue}(maxSample)</code>.
+     * The maximal sample value (inclusive). This category is made of all values
+     * in the range <code>minimum</code> to <code>maximum</code> inclusive.
      *
-     * For qualitative categories, this value is <code>NaN</code>.
+     * If this category is an instance of <code>GeophysicsCategory</code>,
+     * then this field is the maximal geophysics value in this category.
+     * For qualitative categories, the geophysics value is one of <code>NaN</code> values.
      */
-    final double maxValue;
+    final double maximum;
 
     /**
-     * The range of sample values.
+     * The range of values <code>[minimum..maximum]</code>.
+     * May be computed only when first requested.
      */
-    private final Range sampleRange;
+    Range range;
 
     /**
-     * The range of geophysics value.
-     * Will be computed only when first requested.
-     */
-    private transient Range valueRange;
-
-    /**
-     * The math transform from sample to geophysics values, or
-     * <code>null</code> if this category is a qualitative one.
+     * The math transform from sample to geophysics values (never <code>null</code>).
+     *
+     * If this category is an instance of <code>GeophysicsCategory</code>, then this transform
+     * is the inverse (as computed by {@link MathTransform#inverse()}, except for qualitative
+     * categories. Since {@link #getSampleToGeographic} returns <code>null</code> for
+     * qualitative categories, this difference is not visible to the user.
      *
      * @see CV_SampleDimension#getScale()
      * @see CV_SampleDimension#getOffset()
      */
-    private final MathTransform1D sampleToGeophysics;
+    final MathTransform1D transform;
 
     /**
-     * The math transform from geophysics to sample values, or
-     * <code>null</code> if this category is a qualitative one.
-     * This is equals to <code>{@link #sampleToGeophysics}.inverse()</code>.
+     * A reference to the {@link GeophysicsCategory}. If this category is already an
+     * instance of {@link GeophysicsCategory}, then <code>inverse</code> is a reference
+     * to the {@link Category} object that own it.
      */
-    private final MathTransform1D geophysicsToSample;
+    transient Category inverse;
     
     /**
      * Codes ARGB des couleurs de la catégorie. Les couleurs par
@@ -162,17 +176,55 @@ public class Category implements Serializable {
     private static final int[] DEFAULT = {0xFF000000, 0xFFFFFFFF};
     
     /**
+     * A set of default category colors.
+     */
+    private static final Color[] CYCLE = {
+        Color.blue,    Color.red,   Color.orange, Color.yellow,    Color.pink,
+        Color.magenta, Color.green, Color.cyan,   Color.lightGray, Color.gray
+    };
+    
+    /**
      * Construct a qualitative category for sample value <code>sample</code>.
      *
      * @param  name    The category name.
      * @param  color   The category color, or <code>null</code> for a default color.
      * @param  sample  The sample value as an integer, usually in the range 0 to 255.
      */
-    public static Category create(final String name,
-                                  final Color  color,
-                                  final int    sample)
+    public Category(final String name,
+                    final Color  color,
+                    final int    sample)
     {
-        return new QualitativeCategory(name, color, new Integer(sample));
+        this(name, toARGB(color, sample), new Integer(sample));
+        assert minimum == sample : minimum;
+        assert maximum == sample : maximum;
+    }
+    
+    /**
+     * Construct a qualitative category for sample value <code>sample</code>.
+     *
+     * @param  name    The category name.
+     * @param  color   The category color, or <code>null</code> for a default color.
+     * @param  sample  The sample value as a double. May be one of <code>NaN</code> values.
+     */
+    public Category(final String name,
+                    final Color  color,
+                    final double sample)
+    {
+        this(name, toARGB(color, (int)sample), new Double(sample));
+        assert Double.doubleToRawLongBits(minimum) == Double.doubleToRawLongBits(sample) : minimum;
+        assert Double.doubleToRawLongBits(maximum) == Double.doubleToRawLongBits(sample) : maximum;
+    }
+    
+    /**
+     * Construct a qualitative category for sample value <code>sample</code>.
+     */
+    private Category(final String     name,
+                     final int[]      ARGB,
+                     final Comparable sample)
+    {
+        this(name, ARGB, new Range(sample.getClass(), sample, sample), null);
+        assert Double.isNaN(inverse.minimum) : inverse.minimum;
+        assert Double.isNaN(inverse.maximum) : inverse.maximum;
     }
     
     /**
@@ -202,16 +254,16 @@ public class Category implements Serializable {
      * @throws IllegalArgumentException if <code>scale</code> or <code>offset</code> are
      *         not real numbers.
      */
-    public static Category create(final String  name,
-                                  final Color[] colors,
-                                  final int     lower,
-                                  final int     upper,
-                                  final double  scale,
-                                  final double  offset) throws IllegalArgumentException
+    public Category(final String  name,
+                    final Color[] colors,
+                    final int     lower,
+                    final int     upper,
+                    final double  scale,
+                    final double  offset) throws IllegalArgumentException
     {
-        Range range = new Range(Integer.class, new Integer(lower), true,    // Inclusive
-                                               new Integer(upper), false);  // Exclusive
-        return new LinearCategory(name, toARGB(colors), range, scale, offset);
+        this(name, colors,
+             new Range(Integer.class, new Integer(lower), true, new Integer(upper), false),
+             scale, offset);
     }
     
     /**
@@ -229,10 +281,11 @@ public class Category implements Serializable {
      *                 that an uniform color should be used for all sample values. An array
      *                 of length 0 or a <code>null</code> array means that some default colors
      *                 should be used (usually a gradient from opaque black to opaque white).
-     * @param  lower   The lower sample value, inclusive.
      * @param  sampleValueRange The range of sample values for this category. Element class
      *                 is usually {@link Integer}, but {@link Float} and {@link Double} are
      *                 accepted as well.
+     * @param  scale   The {@link CV_SampleDimension#getScale() scale} value which is multiplied
+     *                 to sample values for this category.
      * @param  offset  The {@link CV_SampleDimension#getOffset() offset} value to add to sample
      *                 values for this category.
      *
@@ -241,13 +294,27 @@ public class Category implements Serializable {
      * @throws IllegalArgumentException if <code>scale</code> or <code>offset</code> are
      *         not real numbers.
      */
-    public static Category create(final String  name,
-                                  final Color[] colors,
-                                  final Range   sampleValueRange,
-                                  final double  scale,
-                                  final double  offset) throws IllegalArgumentException
+    public Category(final String  name,
+                    final Color[] colors,
+                    final Range   sampleValueRange,
+                    final double  scale,
+                    final double  offset) throws IllegalArgumentException
     {
-        return new LinearCategory(name, toARGB(colors), sampleValueRange, scale, offset);
+        this(name, colors, sampleValueRange, createLinearTransform(scale, offset));
+        try {
+            assert Double.doubleToLongBits(transform.derivative(0)) == Double.doubleToLongBits(scale);
+            assert Double.doubleToLongBits(transform.transform (0)) == Double.doubleToLongBits(offset);
+        } catch (TransformException exception) {
+            throw new AssertionError(exception);
+        }
+        if (Double.isNaN(scale) || Double.isInfinite(scale)) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_BAD_COEFFICIENT_$2, "scale", new Double(scale)));
+        }
+        if (Double.isNaN(offset) || Double.isInfinite(offset)) {
+            throw new IllegalArgumentException(Resources.format(
+                    ResourceKeys.ERROR_BAD_COEFFICIENT_$2, "offset", new Double(offset)));
+        }
     }
     
     /**
@@ -277,13 +344,13 @@ public class Category implements Serializable {
      * @throws ClassCastException if the range element class is not a {@link Number} subclass.
      * @throws IllegalArgumentException if the range is invalid.
      */
-    public static Category create(final String  name,
-                                  final Color[] colors,
-                                  final Range   sampleValueRange,
-                                  final Range   geophysicsValueRange)
-        throws IllegalArgumentException
+    public Category(final String  name,
+                    final Color[] colors,
+                    final Range   sampleValueRange,
+                    final Range   geophysicsValueRange) throws IllegalArgumentException
     {
-        return new LinearCategory(name, toARGB(colors), sampleValueRange, geophysicsValueRange);
+        this(name, colors, sampleValueRange,
+             createLinearTransform(sampleValueRange, geophysicsValueRange));
     }
     
     /**
@@ -306,64 +373,10 @@ public class Category implements Serializable {
      * @throws ClassCastException if the range element class is not a {@link Number} subclass.
      * @throws IllegalArgumentException if the range is invalid.
      */
-    public static Category create(final String          name,
-                                  final Color[]         colors,
-                                  final Range           sampleValueRange,
-                                  final MathTransform1D sampleToGeophysics)
-        throws IllegalArgumentException
-    {
-        return create(name, toARGB(colors), sampleValueRange, sampleToGeophysics);
-    }
-
-    /**
-     * Construct a qualitative or quantitative category for sample in the specified range.
-     * This private factory method is used for both qualitative and quantitative category
-     * creation. It also used by {@link #recolor} in order to construct a new category
-     * similar to an existing one except for ARGB codes.
-     */
-    private static Category create(final String          name,
-                                   final int[]           ARGB,
-                                   final Range           sampleValueRange,
-                                   final MathTransform1D sampleToGeophysics)
-        throws IllegalArgumentException
-    {
-        if (sampleToGeophysics == null) {
-            return new QualitativeCategory(name, ARGB, sampleValueRange);
-        }
-        try {
-            if (!Double.isNaN(sampleToGeophysics.derivative(Double.NaN))) {
-                return new LinearCategory(name, ARGB, sampleValueRange, sampleToGeophysics);
-            }
-        } catch (TransformException exception) {
-            // Ignore... We will give up the optimized category.
-        }
-        return new Category(name, ARGB, sampleValueRange, sampleToGeophysics);
-    }
-    
-    /**
-     * Construct a qualitative or quantitative category for samples in the specified range.
-     * Sample values (usually integers) will be converted into geophysics values (usually
-     * floating-point) through an equation specified by a {@link MathTransform1D} object.
-     *
-     * @param  name    The category name.
-     * @param  colors  A set of colors for this category. This array may have any length;
-     *                 colors will be interpolated as needed. An array of length 1 means
-     *                 that an uniform color should be used for all sample values. An array
-     *                 of length 0 or a <code>null</code> array means that some default colors
-     *                 should be used (usually a gradient from opaque black to opaque white).
-     * @param  sampleValueRange The range of sample values for this category. Element class
-     *                 is usually {@link Integer}, but {@link Float} and {@link Double} are
-     *                 accepted as well.
-     * @param  sampleToGeophysics A transform from sample values to geophysics values,
-     *                 or <code>null</code> if this category is not a quantitative one.
-     *
-     * @throws ClassCastException if the range element class is not a {@link Number} subclass.
-     * @throws IllegalArgumentException if the range is invalid.
-     */
-    protected Category(final String          name,
-                       final Color[]         colors,
-                       final Range           sampleValueRange,
-                       final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
+    public Category(final String          name,
+                    final Color[]         colors,
+                    final Range           sampleValueRange,
+                    final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
     {
         this(name, toARGB(colors), sampleValueRange, sampleToGeophysics);
     }
@@ -374,59 +387,140 @@ public class Category implements Serializable {
      * {@link #recolor} in order to construct a new category similar to this one except for
      * ARGB codes.
      */
-    Category(final String          name,
-             final int[]           ARGB,
-             final Range           range,
-             final MathTransform1D sampleToGeophysics) throws IllegalArgumentException
+    private Category(final String    name,
+                     final int[]     ARGB,
+                     final Range     range,
+                     MathTransform1D sampleToGeophysics) throws IllegalArgumentException
     {
-        final Class type = range.getElementClass();
-        this.minSample   = doubleValue(type, range.getMinValue(), range.isMinIncluded() ? 0 : +1);
-        this.maxSample   = doubleValue(type, range.getMaxValue(), range.isMaxIncluded() ? 0 : -1);
-        this.name        = name.trim();
-        this.ARGB        = ARGB;
-        this.sampleRange = range;
-        this.sampleToGeophysics = sampleToGeophysics;
-        // Use '!' in comparaison in order to catch NaN
-        if (!(minSample<=maxSample) || Double.isInfinite(minSample) || Double.isInfinite(maxSample))
+        this.name      = name.trim();
+        this.ARGB      = ARGB;
+        this.range     = range;
+        Class type     = range.getElementClass();
+        boolean minInc = range.isMinIncluded();
+        boolean maxInc = range.isMaxIncluded();
+        this.minimum   = doubleValue(type, range.getMinValue(), minInc ? 0 : +1);
+        this.maximum   = doubleValue(type, range.getMaxValue(), maxInc ? 0 : -1);
+        /*
+         * If we are constructing a qualitative category for a single NaN value,
+         * accept it as a valid one. We will consider it as a geophysics category.
+         */
+        if (sampleToGeophysics==null && minInc && maxInc && Double.isNaN(minimum) &&
+            Double.doubleToRawLongBits(minimum) == Double.doubleToRawLongBits(maximum))
+        {
+            inverse   = this;
+            transform = createLinearTransform(0, minimum);
+            return;
+        }
+        /*
+         * Check the arguments. Use '!' in comparaison in order to reject NaN values,
+         * except for the legal case catched by the "if" block just above.
+         */
+        if (!(minimum<=maximum) || Double.isInfinite(minimum) || Double.isInfinite(maximum))
         {
             throw new IllegalArgumentException(Resources.format(
                     ResourceKeys.ERROR_BAD_RANGE_$2, range.getMinValue(), range.getMaxValue()));
         }
-        if (sampleToGeophysics == null) {
-            geophysicsToSample =  null;
-            minValue = maxValue = toNaN((int) Math.round((minSample+maxSample)/2));
-            return;
-        }
         /*
-         * Compute 'minValue' and 'maxValue' (which must be real numbers) using the supplied
-         * transform. To be strict, we should check if the transform is always increasing or
-         * decreasing with input <var>x</var>. This is always the case for linear and
-         * logarithmic transforms. We ignore more general cases for now.
+         * Now initialize the geophysics category.
          */
-        TransformException cause=null;
+        TransformException cause = null;
         try {
-            geophysicsToSample = (MathTransform1D) sampleToGeophysics.inverse();
-            final double   min = sampleToGeophysics.transform(minSample);
-            final double   max = sampleToGeophysics.transform(maxSample);
-            if (min > max) {
-                this.minValue = max;
-                this.maxValue = min;
-            } else {
-                this.minValue = min;
-                this.maxValue = max;
-            }
-            // Check for NaN
-            if (minValue <= maxValue) {
+            if (sampleToGeophysics == null) {
+                inverse = new GeophysicsCategory(this, false);
+                transform = createLinearTransform(0, inverse.minimum); // sample to geophysics
                 return;
             }
+            transform = sampleToGeophysics; // Must be set before GeophysicsCategory construction!
+            if (sampleToGeophysics.isIdentity()) {
+                inverse = this;
+            } else {
+                inverse = new GeophysicsCategory(this, true);
+            }
+            if (inverse.minimum <= inverse.maximum) {
+                return;
+            }
+            // If we reach this point, geophysics range is NaN. This is an illegal argument.
         } catch (TransformException exception) {
             cause = exception;
         }
         IllegalArgumentException exception = new IllegalArgumentException(Resources.format(
-                    ResourceKeys.ERROR_BAD_TRANSFORM_$1,
-                    Utilities.getShortClassName(sampleToGeophysics)));
+            ResourceKeys.ERROR_BAD_TRANSFORM_$1, Utilities.getShortClassName(sampleToGeophysics)));
         exception.initCause(cause);
         throw exception;
+    }
+
+    /**
+     * Construct a geophysics category. <strong>This constructor should never
+     * be invoked outside {@link GeophysicsCategory} constructor.</strong>
+     *
+     * @param  inverse The originating {@link Category}.
+     * @param  isQuantitative <code>true</code> if the originating category is quantitative.
+     * @throws TransformException if a transformation failed.
+     */
+    Category(final Category inverse, final boolean isQuantitative) throws TransformException {
+        assert  (this    instanceof GeophysicsCategory);
+        assert !(inverse instanceof GeophysicsCategory);
+        this.inverse = inverse;
+        this.name    = inverse.name;
+        this.ARGB    = inverse.ARGB;
+        if (!isQuantitative) {
+            minimum = maximum = toNaN((int) Math.round((inverse.minimum + inverse.maximum)/2));
+            transform = createLinearTransform(0, inverse.minimum); // geophysics to sample
+            return;
+        }
+        /*
+         * Compute 'minimum' and 'maximum' (which must be real numbers) using the transformation
+         * from sample to geophysics values. To be strict, we should use some numerical algorithm
+         * for finding a function's minimum and maximum. For linear and logarithmic functions,
+         * minimum and maximum are always at the bounding input values, so we are using a very
+         * simple algorithm for now.
+         */
+        transform = (MathTransform1D) inverse.transform.inverse();
+        final double min = inverse.transform.transform(inverse.minimum);
+        final double max = inverse.transform.transform(inverse.maximum);
+        if (min > max) {
+            minimum = max;
+            maximum = min;
+        } else {
+            minimum = min;
+            maximum = max;
+        }
+    }
+
+    /**
+     * Returns a linear transform with the supplied scale and offset values.
+     *
+     * @param scale  The scale factor. May be 0 for a constant transform.
+     * @param offset The offset value. May be NaN if this method is invoked from a constructor
+     *               for initializing {@link #transform} for a qualitative category.
+     */
+    private static MathTransform1D createLinearTransform(final double scale, final double offset) {
+        Matrix matrix = new Matrix(2,2);
+        matrix.setElement(0,0, scale);
+        matrix.setElement(0,1, offset);
+        return (MathTransform1D)MathTransformFactory.getDefault().createAffineTransform(matrix);
+    }
+
+    /**
+     * Create a linear transform mapping values from <code>sampleValueRange</code>
+     * to <code>geophysicsValueRange</code>.
+     */
+    private static MathTransform1D createLinearTransform(final Range sampleValueRange,
+                                                         final Range geophysicsValueRange)
+    {
+        if (sampleValueRange.isMinIncluded() != geophysicsValueRange.isMinIncluded() ||
+            sampleValueRange.isMaxIncluded() != geophysicsValueRange.isMaxIncluded())
+        {
+            throw new IllegalArgumentException();
+        }
+        final Class  type      = sampleValueRange.getElementClass();
+        final double minSample = doubleValue(type,     sampleValueRange.getMinValue(), 0);
+        final double maxSample = doubleValue(type,     sampleValueRange.getMaxValue(), 0);
+        final double minValue  = doubleValue(type, geophysicsValueRange.getMinValue(), 0);
+        final double maxValue  = doubleValue(type, geophysicsValueRange.getMaxValue(), 0);
+        final double scale     = (maxValue-minValue) / (maxSample-minSample);
+        final double offset    = minValue - scale*minSample;
+        return createLinearTransform(scale, offset);
     }
 
     /**
@@ -441,9 +535,9 @@ public class Category implements Serializable {
      *                  +1 to return the next representable number, or
      *                   0 to return the number with no change.
      */
-    static double doubleValue(final Class        type,
-                              final Comparable number,
-                              final int     direction)
+    private static double doubleValue(final Class        type,
+                                      final Comparable number,
+                                      final int     direction)
     {
         double value = ((Number) number).doubleValue();
         if (direction != 0) {
@@ -481,7 +575,7 @@ public class Category implements Serializable {
             return value;
         }
         else {
-            throw new IndexOutOfBoundsException(String.valueOf(index));
+            throw new IndexOutOfBoundsException(Integer.toHexString(index));
         }
     }
     
@@ -493,7 +587,7 @@ public class Category implements Serializable {
      * @param  colors The array of colors to convert (may be null).
      * @return The colors as ARGB values. Never null.
      */
-    static int[] toARGB(final Color[] colors) {
+    private static int[] toARGB(final Color[] colors) {
         final int[] ARGB;
         if (colors!=null && colors.length!=0) {
             ARGB = new int[colors.length];
@@ -504,6 +598,17 @@ public class Category implements Serializable {
             ARGB = DEFAULT;
         }
         return ARGB;
+    }
+
+    /**
+     * Returns ARGB values for the specified color. If <code>color</code>
+     * is null, a default ARGB code will be returned.
+     */
+    private static int[] toARGB(Color color, final int sample) {
+        if (color==null) {
+            color = CYCLE[Math.abs(sample) % CYCLE.length];
+        }
+        return toARGB(new Color[] {color});
     }
     
     /**
@@ -535,111 +640,24 @@ public class Category implements Serializable {
     }
 
     /**
-     * Returns the range of values occurring in this category.   If <code>type</code> is
-     * {@link SampleInterpretation#INDEXED}, then the range of sample values is returned.
-     * Otherwise, if <code>type</code> is {@link SampleInterpretation#GEOPHYSICS},  then
-     * the range of geophysics values (as computed by the {@link #getSampleToGeophysics}
-     * transform) is returned.
-     * <br><br>
-     * This method is final because current {@link SampleDimension} implementation
-     * makes some assumptions about range values, for performance reasons.
+     * Returns the range of sample values occurring in this category. Sample values can be
+     * transformed into geophysics values using the {@link #getSampleToGeophysics} transform.
      *
-     * @param  type {@link SampleInterpretation#INDEXED} for the range of sample values (as
-     *         specified to the constructor), or {@link SampleInterpretation#GEOPHYSICS} for
-     *         the range of geophysics values (as transformed by {@link #getSampleToGeophysics}).
-     * @return The range of sample or geophysics values.
-     * @throws IllegalStateException if <code>type</code> is {@link SampleInterpretation#GEOPHYSICS}
-     *         and this category is not a quantitative one (i.e. {@link #getSampleToGeophysics}
-     *         returns <code>null</code>).
+     * @return The range of sample values.
      *
      * @see SampleDimension#getMinimumValue()
      * @see SampleDimension#getMaximumValue()
      */
-    public final Range getRange(final SampleInterpretation type) throws IllegalStateException {
-        if (SampleInterpretation.INDEXED.equals(type)) {
-            return sampleRange;
-        }
-        if (SampleInterpretation.GEOPHYSICS.equals(type)) {
-            if (valueRange == null) {
-                if (sampleToGeophysics==null) {
-                    throw new IllegalStateException(Resources.format(
-                            ResourceKeys.ERROR_QUALITATIVE_CATEGORY_$1, getName(null)));
-                }
-                double min = toGeophysicsValue(((Number) sampleRange.getMinValue()).doubleValue());
-                double max = toGeophysicsValue(((Number) sampleRange.getMaxValue()).doubleValue());
-                boolean minIncluded = sampleRange.isMinIncluded();
-                boolean maxIncluded = sampleRange.isMaxIncluded();
-                if (min > max) {
-                    final double tmp;
-                    final boolean tmpIncluded;
-                    tmp = min;   tmpIncluded = minIncluded;
-                    min = max;   minIncluded = maxIncluded;
-                    max = tmp;   maxIncluded = tmpIncluded;
-                }
-                valueRange = new Range(Double.class,
-                                       new Double(min), minIncluded,
-                                       new Double(max), maxIncluded);
-            }
-            return valueRange;
-        }
-        throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_$2,
-                                           "type", (type!=null) ? type.getName(null) : null));
+    public Range getRange() {
+        return range;
     }
 
     /**
      * Returns a transform from sample values to geophysics values. If this category
      * is not a quantitative one, then this method returns <code>null</code>.
      */
-    public final MathTransform1D getSampleToGeophysics() {
-        return sampleToGeophysics;
-    }
-    
-    /**
-     * Compute the geophysics value from a sample value.
-     * The sample value <var>s</var> should be in the range <code>[minSample..maxSample]</code>,
-     * (supplied at construction time). However, this methods do not performs any range check.
-     * Index out of range may lead to extrapolation, which may or may not have a physical maining.
-     *
-     * @param s  The sample value.
-     * @return   The geophysics value as a real number if this category is a quantitative one,
-     *           or one of <code>NaN</code> values if this category is a qualitative one.
-     *
-     * @see SampleDimension#toGeophysicsValue
-     */
-    double toGeophysicsValue(final double s) {
-        if (sampleToGeophysics != null) try {
-            return sampleToGeophysics.transform(s);
-        } catch (TransformException exception) {
-            return Double.NaN;
-        }
-        return minValue;
-    }
-
-    /**
-     * Compute the sample value from a geophysics value. This operation is the inverse
-     * of {@link #toGeophysicsValue}, except for a range check: if the resulting value
-     * is outside this category's range (<code>[minSample..maxSample]</code>), then it
-     * will be clamp to <code>minSample</code> or <code>maxSample</code> as necessary.
-     *
-     * @param  value The geophysics value. May be one of <code>NaN</code> values.
-     * @return The sample value in the range <code>[minSample..maxSample]</code>.
-     *
-     * @see SampleDimension#toSampleValue
-     */
-    double toSampleValue(final double value) {
-        if (geophysicsToSample != null) try {
-            final double sample = geophysicsToSample.transform(value);
-            if (sample >= maxSample) {
-                return maxSample;
-            }
-            if (sample >= minSample) {
-                return sample;
-            }
-            // If NaN, returns minSample.
-        } catch (TransformException exception) {
-            // Ignore. Will returns minSample.
-        }
-        return minSample;
+    public MathTransform1D getSampleToGeophysics() {
+        return isQuantitative() ? transform : null;
     }
     
     /**
@@ -650,22 +668,11 @@ public class Category implements Serializable {
      *         <code>false</code> if this category is qualitative.
      */
     public boolean isQuantitative() {
-        return sampleToGeophysics != null;
+        return !Double.isNaN(inverse.minimum) && !Double.isNaN(inverse.maximum);
     }
     
     /**
-     * Returns <code>true</code> if sample values are equal to geophysics values in this category.
-     * More specifically, returns <code>true</code> if this category is a quantitative category
-     * and {@link #getSampleToGeophysics() sampleToGeophysics} is an identity transform.
-     *
-     * @deprecated Use <code>{@link #getSampleToGeophysics()}.isIdentity()</code> instead.
-     */
-    public boolean isIdentity() {
-        return sampleToGeophysics!=null && sampleToGeophysics.isIdentity();
-    }
-    
-    /**
-     * Returns a new category for the same sample and geophysics values but
+     * Returns a new category for the same range of sample values but
      * a different color palette.
      *
      * @param colors A set of colors for the new category. This array may have
@@ -682,7 +689,46 @@ public class Category implements Serializable {
         if (Arrays.equals(ARGB, newARGB)) {
             return this;
         }
-        return create(name, newARGB, sampleRange, sampleToGeophysics);
+        final Category newCategory = new Category(name, newARGB, range, getSampleToGeophysics());
+        newCategory.inverse.range = inverse.range; // Share a common instance.
+        return newCategory;
+    }
+
+    /**
+     * Returns a category with a new range of sample values. The
+     * new sample value range will be one of two predefined ranges:
+     *
+     * <ul>
+     *   <li>If <code>toGeophysics</code> is <code>true</code>, then the new range will matches
+     *       the range of <em>geophysics</em> values. In other words, this method rescale the range
+     *       in such a way that {@link #getSampleToGeophysics} will returns an identity transform
+     *       for the new category (or <code>null</code> if this is a qualitative category).</li>
+     *   <li>If <code>toGeophysics</code> is <code>false</code>, then the new range will
+     *       matches the original range specified at construction time. In other words,
+     *       <code>rescale(false)</code> cancel a previous call to <code>rescale(true)</code>.
+     * </ul>
+     *
+     * The following idioms are of common use:
+     *
+     * <ul>
+     *   <li><code>rescale(false).getRange()</code> returns the range of original sample values
+     *       (usually integers). Call to <code>category.rescale(false)</code> can be ommited if
+     *       the <code>category</code> object is know to not be the result of a previous call to
+     *       <code>rescale(true)</code>.</li>
+     *   <li><code>rescale(true).getRange()</code> returns the range of geophysics values, as
+     *       transformed by the {@link #getSampleToGeophysics sampleToGeophysics} transform.</li>
+     * </ul>
+     *
+     * @param  toGeophysics <code>true</code> to gets a category with range over geophysics values,
+     *         or <code>false</code> to get back the original category.
+     * @return The rescaled category. Never <code>null</code>, but may be <code>this</code> if the
+     *         current category is already properly scaled.
+     *
+     * @see SampleDimension#rescale
+     * @see org.geotools.gc.GridCoverage#rescale
+     */
+    public Category rescale(final boolean toGeophysics) {
+        return toGeophysics ? inverse : this;
     }
     
     /**
@@ -705,13 +751,16 @@ public class Category implements Serializable {
         }
         if (object!=null && object.getClass().equals(getClass())) {
             final Category that = (Category) object;
-            return Double.doubleToRawLongBits(this.minSample) == Double.doubleToRawLongBits(that.minSample) &&
-                   Double.doubleToRawLongBits(this.maxSample) == Double.doubleToRawLongBits(that.maxSample) &&
-                   Double.doubleToRawLongBits(this.minValue ) == Double.doubleToRawLongBits(that.minValue ) &&
-                   Double.doubleToRawLongBits(this.maxValue ) == Double.doubleToRawLongBits(that.maxValue ) &&
-                   Utilities.equals(this.sampleToGeophysics, that.sampleToGeophysics) &&
-                   Utilities.equals(this.name, that.name) &&
-                      Arrays.equals(this.ARGB, that.ARGB);
+            if (Double.doubleToRawLongBits(minimum)== Double.doubleToRawLongBits(that.minimum) &&
+                Double.doubleToRawLongBits(maximum)== Double.doubleToRawLongBits(that.maximum) &&
+                Utilities.equals(this.transform, that.transform) &&
+                Utilities.equals(this.range,     that.range) &&
+                Utilities.equals(this.name,      that.name ) &&
+                   Arrays.equals(this.ARGB,      that.ARGB ))
+            {
+                assert !(inverse instanceof GeophysicsCategory) || inverse.equals(that.inverse);
+                return true;
+            }
         }
         return false;
     }
@@ -723,13 +772,36 @@ public class Category implements Serializable {
      */
     public String toString() {
         final StringBuffer buffer = new StringBuffer(Utilities.getShortClassName(this));
-        buffer.append("[\"");
+        buffer.append("(\"");
         buffer.append(name);
         buffer.append("\":[");
-        buffer.append(minSample);
+        buffer.append(minimum);
         buffer.append("..");
-        buffer.append(maxSample); // Inclusive
-        buffer.append("]]");
+        buffer.append(maximum); // Inclusive
+        buffer.append("])");
         return buffer.toString();
+    }
+
+    /**
+     * Serialize a single instance of this object.
+     * This is an optimisation for speeding up RMI.
+     *
+     * We keep this method private because we don't need to canonicalize
+     * {@link GeophysicsCategory} for most serialization/deserialization
+     * operations. Canonicalizing {@link Category} is suffisient because
+     * if two {@link Category} objects are not equal, then we are are sure
+     * that their enclosed {@link GeophysicsCategory} are not equal neither.
+     */
+    private Object writeReplace() throws ObjectStreamException {
+        return pool.canonicalize(this);
+    }
+
+    /**
+     * Canonicalize this category after deserialization.
+     * This is an attempt to reduce memory footprint. This
+     * method is private for the same reason than {@link #writeReplace}.
+     */
+    private Object readResolve() throws ObjectStreamException {
+        return pool.canonicalize(this);
     }
 }

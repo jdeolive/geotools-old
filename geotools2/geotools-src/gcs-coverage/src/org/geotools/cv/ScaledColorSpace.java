@@ -86,19 +86,14 @@ final class ScaledColorSpace extends ColorSpace {
      *
      * @param band La bande à rendre visible (habituellement 0).
      * @param numComponents Nombre de composante (seule la première sera prise en compte).
-     * @param range La plage de valeurs géophysiques, ou <code>null</code> s'il n'y en a pas.
+     * @param minimum La valeur géophysique minimale.
+     * @param maximum La valeur géophysique maximale.
      */
-    public ScaledColorSpace(final int band, final int numComponents, final Range range) {
+    public ScaledColorSpace(final int band, final int numComponents,
+                            final double minimum, final double maximum)
+    {
         super(TYPE_GRAY, numComponents);
         this.band = band;
-        double minimum = 0;
-        double maximum = 1;
-        if (range!=null) {
-            final Comparable minNumber = range.getMinValue();
-            final Comparable maxNumber = range.getMaxValue();
-            if (minNumber instanceof Number) minimum = ((Number)minNumber).doubleValue();
-            if (maxNumber instanceof Number) maximum = ((Number)maxNumber).doubleValue();
-        }
         final double scale  = (maximum-minimum)/(MAX_VALUE-MIN_VALUE);
         final double offset = minimum - MIN_VALUE*scale;
         this.scale  = (float)scale;
