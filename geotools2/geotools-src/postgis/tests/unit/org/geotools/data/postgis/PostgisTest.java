@@ -21,9 +21,9 @@ public class PostgisTest extends TestCase {
     private static final Logger LOGGER = Logger.getLogger
 	("org.geotools.postgis");
     
-     static {
-    	Geotools.init("Log4JFormatter", Level.INFO);
-    }
+    //static {
+    //Geotools.init(Level.FINER);
+    //}
 
     private static String FEATURE_TABLE = "testset";
 
@@ -94,7 +94,7 @@ public class PostgisTest extends TestCase {
 	connection.close();
     }
 
-    public void testImport() {
+        public void testImport() {
         LOGGER.info("starting type enforcement tests...");
         try {
 	postgis.getFeatures(collection,tFilter);
@@ -127,15 +127,16 @@ public class PostgisTest extends TestCase {
         }
         
         LOGGER.info("...ending type enforcement tests");
-    }
+	}
 
-    public void testOwnSchema() throws Exception{
-	
+    public void testProperties() throws Exception{
+	QueryImpl query = new QueryImpl(FEATURE_TABLE, null);
 	AttributeType[] attributes = { 
 	    new AttributeTypeDefault("gid", Integer.class), 
 	    new AttributeTypeDefault("name", String.class)};
-	FeatureType small = FeatureTypeFactory.create(attributes);
-	postgis = new PostgisDataSource(connection, FEATURE_TABLE, small);
+	query.setProperties(attributes);
+	//FeatureType small = FeatureTypeFactory.create(attributes);
+	postgis = new PostgisDataSource(connection, FEATURE_TABLE);
         collection = new FeatureCollectionDefault();
 	postgis.getFeatures(collection,tFilter);
 	Feature feature = collection.getFeatures()[0];
@@ -143,7 +144,7 @@ public class PostgisTest extends TestCase {
 		     feature.getSchema());
     }
 
-     public void testMaxFeatures(){ 
+         public void testMaxFeatures(){ 
 	try { 
  	    postgis = 
 	    new PostgisDataSource(connection, FEATURE_TABLE, 4);
@@ -177,8 +178,8 @@ public class PostgisTest extends TestCase {
             this.fail("...threw filter exception");
         } 
 
-    }
-
+ 	}
+    
     public void testAdd() throws Exception{
 	String name = "test_add";
 	addFeature(name);
@@ -255,7 +256,7 @@ public class PostgisTest extends TestCase {
         //assertEquals(2,collection.getFeatures().length);
         LOGGER.info("...ending type enforcement tests");
  	    
-	} 
+	}
 /*
 
     //this needs to be updated to work with the feathers.leeds.ac.uk database.  But this
@@ -448,6 +449,13 @@ public class PostgisTest extends TestCase {
 	
 	}
 
-    
+    public void testMetaData(){
+	DataSourceMetaData md = postgis.getMetaData();
+	LOGGER.fine("md add " + md.supportsAdd() + ", remove" + 
+		    md.supportsRemove() + ", abort " + md.supportsAbort());
+	assertTrue(md.supportsAdd());
+	assertTrue(md.supportsRemove());
+	assertTrue(md.supportsModify());
+    }
     
 }
