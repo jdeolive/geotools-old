@@ -16,10 +16,11 @@
  */
 package org.geotools.filter;
 
+import com.vividsolutions.jts.geom.Envelope;
 import junit.framework.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.vividsolutions.jts.geom.Envelope;
+
 
 /**
  * Unit test for SQLEncoderPostgis.  This is a complimentary  test suite with
@@ -27,18 +28,16 @@ import com.vividsolutions.jts.geom.Envelope;
  *
  * @author Chris Holmes, TOPP
  */
-public class SQLEncoderPostgisTest extends  FilterTestSupport {    
-
+public class SQLEncoderPostgisTest extends FilterTestSupport {
     /** Test suite for this test case */
     TestSuite suite = null;
 
-    /** Constructor with test name. */
+    /** folder where test data is stored.. */
     String dataFolder = "";
-    boolean setup = false;
 
     public SQLEncoderPostgisTest(String testName) {
         super(testName);
-        LOGGER.info("running SQLEncoderTests");
+        LOGGER.finer("running SQLEncoderTests");
         ;
         dataFolder = System.getProperty("dataFolder");
 
@@ -69,8 +68,6 @@ public class SQLEncoderPostgisTest extends  FilterTestSupport {
         return suite;
     }
 
-
-
     public void test1() throws Exception {
         GeometryFilterImpl gf = new GeometryFilterImpl(AbstractFilter.GEOMETRY_BBOX);
         LiteralExpressionImpl right = new BBoxExpressionImpl(new Envelope(0,
@@ -81,11 +78,13 @@ public class SQLEncoderPostgisTest extends  FilterTestSupport {
                 "testGeometry");
         gf.addLeftGeometry(left);
 
-        SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
+        SQLEncoderPostgis encoder = new SQLEncoderPostgis();
+        encoder.setSRID(2356);
+
         String out = encoder.encode((AbstractFilterImpl) gf);
-        LOGGER.finer("Resulting SQL filter is \n" + out);
-        assertTrue(out.equals("WHERE \"testGeometry\" && GeometryFromText(" +
-                "'POLYGON ((0 0, 0 300, 300 300, 300 0, 0 0))'" + ", 2346)"));
+        LOGGER.fine("Resulting SQL filter is \n" + out);
+        assertEquals("WHERE \"testGeometry\" && GeometryFromText('POLYGON"
+            + " ((0 0, 0 300, 300 300, 300 0, 0 0))'" + ", 2356)", out);
     }
 
     public void test2() throws Exception {
@@ -94,16 +93,15 @@ public class SQLEncoderPostgisTest extends  FilterTestSupport {
                     300, 10, 300));
         gf.addLeftGeometry(left);
 
-        AttributeExpressionImpl right = new AttributeExpressionImpl(testSchema,
-                "testGeometry");
-        gf.addRightGeometry(right);
-
         SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
+        encoder.setDefaultGeometry("testGeometry");
+
         String out = encoder.encode((AbstractFilterImpl) gf);
-        LOGGER.finer("Resulting SQL filter is \n" + out);
-        assertTrue(out.equals("WHERE GeometryFromText(" +
-                "'POLYGON ((10 10, 10 300, 300 300, 300 10, 10 10))'" +
-                ", 2346) && \"testGeometry\""));
+        LOGGER.fine("Resulting SQL filter is \n" + out);
+        assertEquals(out,
+            "WHERE GeometryFromText("
+            + "'POLYGON ((10 10, 10 300, 300 300, 300 10, 10 10))'"
+            + ", 2346) && \"testGeometry\"");
     }
 
     public void test3() throws Exception {
@@ -116,7 +114,8 @@ public class SQLEncoderPostgisTest extends  FilterTestSupport {
 
         SQLEncoderPostgis encoder = new SQLEncoderPostgis(2346);
         String out = encoder.encode((AbstractFilterImpl) compFilter);
-        LOGGER.finer("Resulting SQL filter is \n" + out);
+        LOGGER.fine("Resulting SQL filter is \n" + out);
+        assertEquals(out, "WHERE \"testInteger\" = 5.0");
     }
 
     public void testException() throws Exception {
@@ -134,8 +133,8 @@ public class SQLEncoderPostgisTest extends  FilterTestSupport {
             String out = encoder.encode((AbstractFilterImpl) gf);
             LOGGER.fine("out is " + out);
         } catch (SQLEncoderException e) {
-            LOGGER.finer(e.getMessage());
-            assertTrue(e.getMessage().equals("Filter type not supported"));
+            LOGGER.fine(e.getMessage());
+            assertEquals("Filter type not supported", e.getMessage());
         }
     }
 }
