@@ -8,8 +8,8 @@
   <organization>
     <name>GeoTools</name>
     <url>http://www.geotools.org</url>
-        <logo>/images/gtLogo.gif</logo>
-    </organization>
+    <logo>/images/gtLogo.gif</logo>
+  </organization>
   <inceptionYear>1996</inceptionYear>
   <package>org.geotools</package>
   <shortDescription>gui module</shortDescription>
@@ -24,71 +24,69 @@
   
   <repository>
     <connection>scm:cvs:pserver:anonymous@cvs.geotools.org:/cvsroot/geotools/geotools2/geotools-src/gui</connection>
-    
-        <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gui/</url>
-    </repository>
-  
+    <url>http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/geotools/geotools2/geotools-src/gui/</url>
+  </repository>
 
   <mailingLists/>
+
   <developers>
-            
-        <developer>
+    <developer>
       <name>James Macgill</name>
       <id>jmacgill</id>
       <email>jmacgill@users.sourceforge.net</email>
       <organization>CCG</organization>
-            <roles>
-               <role>Module Maintainer</role>
-               <role>Java Developer</role>
-            </roles>
-        </developer>
-        
-         <developer>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+
+    <developer>
       <name>Martin Desruisseaux</name>
       <id>desruisseaux</id>
       <email>desruisseaux@users.sourceforge.net</email>
-      <organization>none</organization>
-            <roles>
-                <role>Java Developer</role>
-            </roles>
-        </developer>
+      <organization>Institut de Recherche pour le Developpement</organization>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
   </developers>
+
   <dependencies>
-        <dependency>
+    <dependency>
       <id>core</id>
       <version>0.1</version>
     </dependency>
-        <dependency>
-      <id>log4j</id>
-      <version>1.2.3</version>
-    </dependency>
-        <dependency>
+    <dependency>
       <id>JTS</id>
       <version>1.0</version>
     </dependency>
-        
-        <dependency>
+    <dependency>
+      <id>cts-coordtrans</id>
+      <version>0.6</version>
+    </dependency>
+    <dependency>
       <id>java2drendering</id>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>resources</id>
       <version>0.1</version>
     </dependency>
-        <dependency>
+    <dependency>
       <id>defaultcore</id>
       <version>0.1</version>
     </dependency>
         
         
-        <dependency>
+    <dependency>
       <id>opengis-css</id>
       <version>0.1</version>
     </dependency>
-    </dependencies>
+  </dependencies>
+
   <build>
     <nagEmailAddress>jmacgill@users.sourceforge.net</nagEmailAddress>
-    
     <unitTestSourceDirectory>tests/unit</unitTestSourceDirectory>
     <integrationUnitTestSourceDirectory/>
     <aspectSourceDirectories/>
@@ -98,8 +96,7 @@
     <integrationUnitTestPatterns/>
     <jarResources/>
     <jars/>
-        <sourceDirectory>src</sourceDirectory>
-    </build>
-    <logo>/images/gui.gif</logo>
+      <sourceDirectory>src</sourceDirectory>
+  </build>
+  <logo>/images/gui.gif</logo>
 </project>
-
