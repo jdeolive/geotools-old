@@ -336,6 +336,10 @@ public abstract class AbstractDataStore implements DataStore {
             reader = new ReTypeFeatureReader(reader, featureType);
         }
 
+        if (query.getMaxFeatures() != Query.DEFAULT_MAX) {
+	    reader = new MaxFeatureReader(reader, query.getMaxFeatures());
+        }
+
         return reader;        
     }
 
