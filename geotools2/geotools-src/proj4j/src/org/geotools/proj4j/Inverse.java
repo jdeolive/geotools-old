@@ -12,13 +12,9 @@ package org.geotools.proj4j;
  *
  * @author  James Macgill
  */
-public class Inverse {
+public class Inverse implements Constants{
     
-    public static final double HALFPI	=	1.5707963267948966;
-    public static final double FORTPI	=	0.78539816339744833;
-    public static final double PI	=	3.14159265358979323846;
-    public static final double TWOPI	=	6.2831853071795864769;
-    public static final double EPS      =       1.0e-12;
+  
     /** Creates a new instance of Inverse */
     public Inverse() {
     }
