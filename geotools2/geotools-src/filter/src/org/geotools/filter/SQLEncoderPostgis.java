@@ -18,7 +18,6 @@ package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.WKTWriter;
-import java.io.Writer;
 import java.util.logging.Logger;
 
 
@@ -73,36 +72,6 @@ public class SQLEncoderPostgis extends SQLEncoder
     }
 
     /**
-     * Convenience constructor to perform the whole encoding process at once.
-     *
-     * @param out the writer to encode the SQL to.
-     * @param filter the Filter to be encoded.
-     * @param srid The spatial reference id to encode the geometries with.
-     *
-     * @throws SQLEncoderException If filter not supported or io problem.
-     */
-    public SQLEncoderPostgis(Writer out, AbstractFilter filter, int srid)
-        throws SQLEncoderException {
-        this(srid);
-
-        if (capabils.fullySupports(filter)) {
-            super.out = out;
-
-            try {
-                out.write("WHERE ");
-                filter.accept(this);
-
-                //out.write(";"); this should probably be added by client.
-            } catch (java.io.IOException ioe) {
-                log.warning("Unable to export filter: " + ioe);
-                throw new SQLEncoderException("Problem writing filter: ", ioe);
-            }
-        } else {
-            throw new SQLEncoderException("Filter not supported: " + filter);
-        }
-    }
-
-    /**
      * Sets a spatial reference system ESPG number, so that the geometry can be
      * properly encoded for postgis.  If geotools starts actually creating
      * geometries with valid srids then this method will no longer be needed.
@@ -134,8 +103,10 @@ public class SQLEncoderPostgis extends SQLEncoder
      * Turns a geometry filter into the postgis sql bbox statement.
      *
      * @param filter the geometry filter to be encoded.
+     *
+     * @throws RuntimeException for IO exception (need a better error)
      */
-    public void visit(GeometryFilter filter) {
+    public void visit(GeometryFilter filter) throws RuntimeException {
         log.finer("exporting GeometryFilter");
 
         if (filter.getFilterType() == AbstractFilter.GEOMETRY_BBOX) {
@@ -145,7 +116,7 @@ public class SQLEncoderPostgis extends SQLEncoder
 
             try {
                 if (left == null) {
-                    out.write(defaultGeom);
+                    out.write("\"" + defaultGeom + "\"");
                 } else {
                     left.accept(this);
                 }
@@ -153,15 +124,17 @@ public class SQLEncoderPostgis extends SQLEncoder
                 out.write(" && ");
 
                 if (right == null) {
-                    out.write(defaultGeom);
+                    out.write("\"" + defaultGeom + "\"");
                 } else {
                     right.accept(this);
                 }
             } catch (java.io.IOException ioe) {
                 log.warning("Unable to export filter" + ioe);
+                throw new RuntimeException("io error while writing", ioe);
             }
         } else {
             log.warning("exporting unknown filter type, only bbox supported");
+            throw new RuntimeException("Only BBox is currently supported");
         }
     }
 
@@ -170,8 +143,10 @@ public class SQLEncoderPostgis extends SQLEncoder
      * not just sends to the parent class.
      *
      * @param expression the expression to visit and encode.
+     *
+     * @throws RuntimeException for IO exception (need a better error)
      */
-    public void visit(LiteralExpression expression) {
+    public void visit(LiteralExpression expression) throws RuntimeException {
         log.finer("exporting LiteralExpression");
 
         try {
@@ -184,6 +159,7 @@ public class SQLEncoderPostgis extends SQLEncoder
             }
         } catch (java.io.IOException ioe) {
             log.warning("Unable to export expresion" + ioe);
+            throw new RuntimeException("io error while writing", ioe);
         }
     }
 }
