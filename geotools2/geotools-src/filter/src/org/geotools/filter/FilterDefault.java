@@ -1,17 +1,34 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ *    Geotools - OpenSource mapping toolkit
+ *    (C) 2002, Centre for Computational Geography
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; 
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    You should have received a copy of the GNU Lesser General Public
+ *    License along with this library; if not, write to the Free Software
+ *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *    
  */
+
 package org.geotools.filter;
 
 import org.geotools.data.*;
 import org.geotools.feature.*;
 
 /**
- * Implements Filter interface, with constants and default behaviors for methods
+ * Implements Filter interface, with constants and default behaviors for
+ * methods.
  *
- * 
+ * @version $Id: FilterDefault.java,v 1.4 2002/06/05 13:47:00 loxnard Exp $ 
  * @author Rob Hranac, Vision for New York
- * @version 4/18/02
  */
 public class FilterDefault implements Filter {
 
@@ -21,11 +38,11 @@ public class FilterDefault implements Filter {
     /** Sets the permissiveness of the filter construction handling. */
     protected boolean permissiveConstruction = true;
 
-    /* *************************************************************************
+    /* ***********************************************************************
      * This is a listing of all possible filter types, grouped by types that
      * are implemented by a single filter (ie. all logic types are implemented
      * by FilterLogic).
-     * ************************************************************************/
+     * **********************************************************************/
 
     /* Types implemented by FilterLogic */
     /** Defines a logical 'OR' filter. */  
@@ -69,8 +86,10 @@ public class FilterDefault implements Filter {
     /** Defines a comparative greater than/equals filter (is a math filter). */
     public static final short COMPARE_GREATER_THAN_EQUAL = 18;
 
-    /** Defines a between filter, which is implemented by FilterBetween.
-        Note that this filter is defined as a math filter. */
+    /**
+     * Defines a between filter, which is implemented by FilterBetween.
+     * Note that this filter is defined as a math filter.
+     */
     public static final short BETWEEN = 19;
 
     /** Defines a null filter, which is implemented by FilterNull. */
@@ -81,7 +100,8 @@ public class FilterDefault implements Filter {
 
 
     /**
-     * Implements a 'contained by' check for a given feature, defaulting to true
+     * Implements a 'contained by' check for a given feature, defaulting
+     * to true.
      * 
      * @param feature Specified feature to examine.
      * @return Result of 'contains' test.
@@ -156,14 +176,14 @@ public class FilterDefault implements Filter {
     }
     
 
-    /* *************************************************************************
+    /* ************************************************************************
      * Following static methods check for certain aggregate types, based on 
      * (above) declared types.  Note that these aggregate types do not
      * necessarily map directly to the sub-classes of FilterDefault.  In most,
      * but not all, cases, a single class implements an aggregate type.
      * However, there are aggregate types that are implemented by multiple
      * classes (ie. the Math type is implemented by two seperate classes).
-     * ************************************************************************/
+     * ***********************************************************************/
     /**
      * Checks to see if passed type is logic.
      *
