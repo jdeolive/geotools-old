@@ -26,10 +26,11 @@ import org.geotools.feature.FeatureType;
 
 
 /**
- * Implementation of the FilterFactory, generates the filter implementations
- * in defaultcore.
+ * Implementation of the FilterFactory, generates the filter implementations in
+ * defaultcore.
  *
- * @author iant
+ * @author Ian Turton, CCG
+ * @version $Id: FilterFactoryImpl.java,v 1.6 2003/07/22 22:41:07 cholmesny Exp $
  */
 public class FilterFactoryImpl extends FilterFactory {
     /**
@@ -129,7 +130,6 @@ public class FilterFactoryImpl extends FilterFactory {
     }
 
     public FunctionExpression createFunctionExpression(String name) {
-
         int index = -1;
 
         if ((index = name.indexOf("Function")) != -1) {
@@ -141,12 +141,12 @@ public class FilterFactoryImpl extends FilterFactory {
         char c = name.charAt(0);
         name = name.replaceFirst("" + c, "" + Character.toUpperCase(c));
 
-
         try {
-            return (FunctionExpression) Class.forName("org.geotools.filter." +
-                name + "Function").newInstance();
+            return (FunctionExpression) Class.forName("org.geotools.filter."
+                + name + "Function").newInstance();
         } catch (Exception e) {
-            throw new RuntimeException("Unable to create class " + name + "Filter",e);
+            throw new RuntimeException("Unable to create class " + name
+                + "Filter", e);
         }
     }
 

@@ -1,53 +1,86 @@
 /*
- * BBoxExpression.java
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
- * Created on 19 July 2002, 11:39
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
  */
-
 package org.geotools.filter;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.TopologyException;
+
+
 /**
+ * Implements a Bounding Box expression.
  *
- * @author  iant
+ * @author Ian Turton, CCG
+ * @version $Id: BBoxExpressionImpl.java,v 1.4 2003/07/22 22:41:07 cholmesny Exp $
  */
-
-import com.vividsolutions.jts.geom.*;
-
-public class BBoxExpressionImpl extends org.geotools.filter.LiteralExpressionImpl implements BBoxExpression { 
+public class BBoxExpressionImpl
+    extends org.geotools.filter.LiteralExpressionImpl implements BBoxExpression {
+    /** Factory for creating geometries */
     private GeometryFactory gfac = new GeometryFactory();
-    /** Creates a new instance of BBoxExpression */
-    protected BBoxExpressionImpl() throws IllegalFilterException{
+
+    /**
+     * Creates a new instance of BBoxExpression
+     *
+     * @throws IllegalFilterException if there are problems.
+     */
+    protected BBoxExpressionImpl() throws IllegalFilterException {
         this(new Envelope());
     }
-    protected BBoxExpressionImpl(Envelope env) throws IllegalFilterException{
+
+    /**
+     * Creates a new instance of BBoxExpression, with an initial box.
+     *
+     * @param env the envelope to set as the box.
+     *
+     * @throws IllegalFilterException if there are problems.
+     */
+    protected BBoxExpressionImpl(Envelope env) throws IllegalFilterException {
         expressionType = DefaultExpression.LITERAL_GEOMETRY;
         setBounds(env);
     }
-    
+
     /**
-     * Set the bbox for this expreson
-     * @task HACK: currently sets the SRID to null, which can cause
-     *             problems with JTS when it comes to doing spatial tests
+     * Set the bbox for this expression
+     *
+     * @param env The envelope to set as the bounds.
+     *
+     * @throws IllegalFilterException If the box can not be created.
+     *
+     * @task HACK: currently sets the SRID to null, which can cause problems
+     *       with JTS when it comes to doing spatial tests
      */
-    public void setBounds(Envelope env)  throws IllegalFilterException{
-        
-        Coordinate[] c = new Coordinate[5];
-        c[0] = new Coordinate(env.getMinX(), env.getMinY());
-        c[1] = new Coordinate(env.getMinX(), env.getMaxY());
-        c[2] = new Coordinate(env.getMaxX(), env.getMaxY());
-        c[3] = new Coordinate(env.getMaxX(), env.getMinY());
-        c[4] = new Coordinate(env.getMinX(), env.getMinY());
-        LinearRing r = null;
-        try{
-            r = gfac.createLinearRing(c);
-        } catch (TopologyException e){
-            throw new IllegalFilterException(e.toString());
+    public final void setBounds(Envelope env) throws IllegalFilterException {
+        Coordinate[] coords = new Coordinate[5];
+        coords[0] = new Coordinate(env.getMinX(), env.getMinY());
+        coords[1] = new Coordinate(env.getMinX(), env.getMaxY());
+        coords[2] = new Coordinate(env.getMaxX(), env.getMaxY());
+        coords[3] = new Coordinate(env.getMaxX(), env.getMinY());
+        coords[4] = new Coordinate(env.getMinX(), env.getMinY());
+
+        LinearRing ring = null;
+
+        try {
+            ring = gfac.createLinearRing(coords);
+        } catch (TopologyException tex) {
+            throw new IllegalFilterException(tex.toString());
         }
-        
-        super.setLiteral(gfac.createPolygon(r, null));
-        
+
+        super.setLiteral(gfac.createPolygon(ring, null));
     }
-    
-    
-    
 }

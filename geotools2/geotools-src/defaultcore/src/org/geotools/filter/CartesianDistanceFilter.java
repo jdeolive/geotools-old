@@ -17,8 +17,7 @@
 package org.geotools.filter;
 
 import com.vividsolutions.jts.geom.Geometry;
-import org.geotools.data.*;
-import org.geotools.feature.*;
+import org.geotools.feature.Feature;
 
 
 /**
@@ -33,8 +32,8 @@ import org.geotools.feature.*;
  * <p>
  * From the spec: The spatial operators DWithin and Beyond test whether the
  * value of a geometric property is within or beyond a specified distance of
- * the specified literal geometric value.  Distance values are expressed
- * using the Distance element.
+ * the specified literal geometric value.  Distance values are expressed using
+ * the Distance element.
  * </p>
  * 
  * <p>
@@ -46,23 +45,23 @@ import org.geotools.feature.*;
  * <p></p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: CartesianDistanceFilter.java,v 1.1 2003/06/02 23:26:59 cholmesny Exp $
+ * @version $Id: CartesianDistanceFilter.java,v 1.2 2003/07/22 22:41:07 cholmesny Exp $
  *
  * @task REVISIT: add units for distance.
  */
 public class CartesianDistanceFilter extends GeometryFilterImpl
     implements GeometryDistanceFilter {
     /** The distance value */
-    protected double distance;
+    private double distance;
 
     /**
      * Constructor which flags the operator as between.
      *
      * @param filterType The type of filter to create - dwithin and beyond are
-     * allowed.
+     *        allowed.
      *
      * @throws IllegalFilterException If a filter other than dwithin or beyond
-     * is attempted.
+     *         is attempted.
      */
     protected CartesianDistanceFilter(short filterType)
         throws IllegalFilterException {
@@ -71,8 +70,8 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
         if (isGeometryDistanceFilter(filterType)) {
             this.filterType = filterType;
         } else {
-            throw new IllegalFilterException("Attempted to create distance " +
-                "geometry filter with nondistance" + " geometry type.");
+            throw new IllegalFilterException("Attempted to create distance "
+                + "geometry filter with nondistance" + " geometry type.");
         }
     }
 
@@ -114,10 +113,10 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
         Geometry left = null;
 
         if (leftGeometry != null) {
-            Object o = leftGeometry.getValue(feature);
+            Object obj = leftGeometry.getValue(feature);
 
             //LOGGER.finer("leftGeom = " + o.toString()); 
-            left = (Geometry) o;
+            left = (Geometry) obj;
         } else {
             left = feature.getDefaultGeometry();
         }
@@ -129,11 +128,11 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
             //return left.beyond(right);
         } else if (filterType == GEOMETRY_DWITHIN) {
             return left.isWithinDistance(right, distance);
-        }
-        // Note that this is a pretty permissive logic
-        //  if the type has somehow been mis-set (can't happen externally)
-        //  then true is returned in all cases
-        else {
+
+            // Note that this is a pretty permissive logic
+            //  if the type has somehow been mis-set (can't happen externally)
+            //  then true is returned in all cases
+        } else {
             return true;
         }
     }
@@ -161,8 +160,8 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
             return "[ " + leftGeometry.toString() + operator + "null" + " ]";
         }
 
-        return "[ " + leftGeometry.toString() + operator +
-        rightGeometry.toString() + ", distance: " + distance + " ]";
+        return "[ " + leftGeometry.toString() + operator
+        + rightGeometry.toString() + ", distance: " + distance + " ]";
     }
 
     /**
@@ -176,6 +175,19 @@ public class CartesianDistanceFilter extends GeometryFilterImpl
      */
     public boolean equals(Object oFilter) {
         return super.equals(oFilter) && (distance == distance);
+    }
+
+    /**
+     * Override of hashCode method.
+     *
+     * @return a code to hash this object by.
+     */
+    public int hashCode() {
+        int result = super.hashCode();
+        long bits = Double.doubleToLongBits(distance);
+        result = (37 * result) + (int) (bits ^ (bits >>> 32));
+
+        return result;
     }
 
     /**
