@@ -32,6 +32,7 @@ import org.geotools.data.jdbc.ConnectionPool;
  * </p>
  *
  * @author Jody Garnett, Refractions Research
+ * @author Sean Geoghegan, Defence Science and Technology Organisation
  */
 public class OracleDataStoreFactory
     implements DataStoreFactorySpi {
@@ -85,6 +86,7 @@ public class OracleDataStoreFactory
             && params.get("dbtype").equals("oracle") 
             && params.containsKey("host") 
             && params.containsKey("port") 
+            && params.containsKey("user")
             && params.containsKey("passwd") 
             && params.containsKey("instance");
         //J+
@@ -117,7 +119,7 @@ public class OracleDataStoreFactory
         String instance = (String) params.get("instance");
         String user = (String) params.get("user");
         String passwd = (String) params.get("passwd");
-        String tableName = (String) params.get("table");
+        String schema = (String) params.get("schema");
 
         try {
             OracleConnectionFactory ocFactory = new OracleConnectionFactory(host, port, instance);
@@ -125,7 +127,7 @@ public class OracleDataStoreFactory
             ocFactory.setLogin(user, passwd);
 
             ConnectionPool pool = ocFactory.getConnectionPool();
-            OracleDataStore dataStore = new OracleDataStore(pool, tableName);
+            OracleDataStore dataStore = new OracleDataStore(pool, schema);
 
             return dataStore;
         } catch (SQLException ex) {
@@ -160,11 +162,13 @@ public class OracleDataStoreFactory
      */
     public Param[] getParametersInfo() {
         return new Param[]{
-            new Param("oracle"),            
-            new Param("host"),
-            new Param("port"),
-            new Param("passwd"),
-            new Param("instance")            
+            new Param("oracle", String.class, "This must be 'oracle'.", true),            
+            new Param("host", String.class, "The host name of the server.", true),
+            new Param("port", String.class, "The port oracle is running on.", true),
+            new Param("user", String.class, "The user name to log in with.", true),
+            new Param("passwd", String.class, "The password.", true),
+            new Param("instance", String.class, "The name of the Oracle instance to connect to.", true),   
+            new Param("schema", String.class, "The schema to narrow down the exposed tables.", false)                    
         };                
     }    
 }
