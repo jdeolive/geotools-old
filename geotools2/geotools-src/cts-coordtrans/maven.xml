@@ -1,0 +1,16 @@
+<!-- ==================================================================== -->
+<!-- Post goals for the CTS module: compile RMI stubs                     -->
+<!-- ==================================================================== -->
+
+<project>
+
+  <postGoal name="java:compile">
+    <rmic classpath="../opengis/target/classes:../resources/target/classes" base="target/classes" stubversion="1.2">
+      <include name="org/geotools/cs/Info*Unit.class"/>
+      <include name="org/geotools/cs/*Export.class"/>
+      <include name="org/geotools/ct/*Export.class"/>
+    </rmic>
+  </postGoal> 
+
+</project>
+
