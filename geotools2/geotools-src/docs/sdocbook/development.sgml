@@ -1305,12 +1305,12 @@ tar -xzvf /cygdrive/c/tmp/emacs-21.2-fullbin-i386.tar.gz
 		the beginning of the script.</para>
 	    </listitem>
 	  </orderedlist>
-	  All the most necessary components are now installed. To use
-	  them effectively some customization should be done.
+	  <para>All the most necessary components are now installed. To use
+	    them effectively some customization should be done.</para> 
 	</section>
 	<section id="conf">
 	  <title>Step by step configuration</title>
-	  System, CygWin, emacs and JDEE customization hints.
+	  <para>System, CygWin, emacs and JDEE customization hints.</para>
 	  <orderedlist>
 	    <listitem id="envvar">
 	      <para>On Windows systems some variables should be set in
@@ -1503,14 +1503,14 @@ start "Emacs console" /min bash --login -c -c "/emacs-21.2/bin/emacs"
 	<table frame="all">
 	  <title>Most often used commands quick reference table.</title>
 	  <tgroup cols="3" colsep="1" rowsep="1">
-	    <thead valign="center">
+	    <thead valign="middle">
 	      <row>
 		<entry>Function name</entry>
 		<entry>Keys binding</entry>
 		<entry>Description</entry>
 	      </row>
 	    </thead>
-	    <tbody valign="left" >
+	    <tbody valign="middle" >
 	      <row>
 		<entry><command>jde-abbrev-mode</command></entry>
 		<entry>
