@@ -24,5 +24,10 @@
     <ant antfile="common.xml" dir="../gtbuild" target="test" inheritAll="true"/>
   </target>
   
+  <target name="doc">
+    <property name="dir.module" value="${basedir}"/>
+    <ant antfile="../developersguide/build.xml" target="html-docs" inheritAll="true"/>
+  </target>
+    
 
 </project>

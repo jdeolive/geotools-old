@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<?xml-stylesheet type="text/css"
+href="file:/usr/java/xxe-m13p1-bin/css/docbook41.css"
+?>
+<?xml-stylesheet type="text/css"
+href="file:/usr/java/xxe-m13p1-bin/css/docbook.css"
+title="Previous docbook stylesheet"
+alternate="yes"
+?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD Simplified DocBook XML V4.1.2.5//EN"
+"http://www.oasis-open.org/docbook/xml/simple/4.1.2.5/sdocbook.dtd">
+
+<article id="sld">
+  <articleinfo>
+    <title>Getting Started with SLD styling in GeotTools2</title>
+
+    <author>
+      <firstname>Ian</firstname>
+
+      <surname>Turton</surname>
+    </author>
+
+    <date>$Date: 2002/07/10 14:07:24 $</date>
+
+    <abstract>
+      <para>This document provides a simple overview of the Styled Layer Descriptor (SLD)
+       specification from the Open GIS Consortium (OGC). The implementation of SLD in GeoTools2
+       is then discussed and a series of examples are shown.
+      </para>
+    </abstract>
+  </articleinfo>
+
+  <section id="intro">
+    <title>Introduction</title>
+
+    <para>This document aims to help new geotools developers and users get up to speed 
+       with using SLD to style thier maps.
+    </para>
+    </section>
+</article>    
