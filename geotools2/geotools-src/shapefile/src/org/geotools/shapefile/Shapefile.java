@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
  * <b>"ESRI(r) Shapefile - A Technical Description"</b><br>
  * <i>'An ESRI White Paper. May 1997'</i></a><p>
  *
- * @version $Id: Shapefile.java,v 1.10 2002/07/19 16:00:54 ianturton Exp $
+ * @version $Id: Shapefile.java,v 1.11 2002/08/16 16:36:51 jmacgill Exp $
  * @author James Macgill, CCG
  */
 
@@ -149,6 +149,7 @@ public class Shapefile  {
              log.warn("Truncating feature loading. Some features may not have been read");
              log.debug("",e);
         }
+        initialized = false;
         return geometryFactory.createGeometryCollection((Geometry[]) list.toArray(new Geometry[]{}));
     }
     

@@ -23,7 +23,7 @@ package org.geotools.shapefile;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * @version $Id: ShapefileHeader.java,v 1.6 2002/07/12 15:04:20 loxnard Exp $
+ * @version $Id: ShapefileHeader.java,v 1.7 2002/08/16 16:36:51 jmacgill Exp $
  * @author James Macgill, CCG
  */
 public class ShapefileHeader{
@@ -48,7 +48,7 @@ public class ShapefileHeader{
         for (int i = 0; i < 5; i++){
             int tmp = file.readInt();
             if (DEBUG) {
-                System.out.println("Sfh->blank " + tmp);
+                //System.out.println("Sfh->blank " + tmp);
             }
         }
         fileLength = file.readInt();
@@ -121,9 +121,7 @@ public class ShapefileHeader{
             pos += 8;
         }
         
-        if (DEBUG) {
-            System.out.println("Sfh->Position " + pos);
-        }
+       
     }
     
     /*public void writeToIndex(LEDataOutputStream file)throws IOException {

@@ -30,7 +30,7 @@ import org.geotools.filter.*;
 import com.vividsolutions.jts.geom.*;
 
 /**
- * @version $Id: ShapefileDataSource.java,v 1.13 2002/07/24 14:50:30 jmacgill Exp $
+ * @version $Id: ShapefileDataSource.java,v 1.14 2002/08/16 16:36:51 jmacgill Exp $
  * @author James Macgill, CCG
  * @task TODO: add support for reading dbf file
  * @task TODO: add support for the optional spatial index files to improve
@@ -124,14 +124,14 @@ public class ShapefileDataSource implements org.geotools.data.DataSource {
             AttributeType geometryAttribute = new AttributeTypeDefault(Shapefile.getShapeTypeDescription(Shapefile.getShapeType(typical)), Geometry.class);
             
             FeatureType shapefileType = new FeatureTypeFlat(geometryAttribute);
-            System.out.println("schema is " + shapefileType);
+            //System.out.println("schema is " + shapefileType);
             FeatureFactory fac = new FeatureFactory(shapefileType);
             int count = shapes.getNumGeometries();
             //Feature[] features = new Feature[count];
             for (int i = 0; i < count; i++){
                 Object [] row = new Object[1];
                 row[0] = (Geometry) shapes.getGeometryN(i);
-                System.out.println("adding geometry" + row[0]);
+                //System.out.println("adding geometry" + row[0]);
                 Feature feature = fac.create(row);
                 if (filter.contains(feature)){
                     collection.addFeatures(new Feature[]{feature});
