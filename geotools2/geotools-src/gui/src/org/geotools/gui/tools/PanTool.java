@@ -2,6 +2,7 @@ package org.geotools.gui.tools;
 
 import com.vividsolutions.jts.geom.Envelope;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.util.logging.Logger;
 import javax.swing.event.MouseInputAdapter;
@@ -9,12 +10,12 @@ import javax.swing.JComponent;
 import org.geotools.ct.MathTransformFactory;
 import org.geotools.ct.MathTransform2D;
 import org.geotools.ct.TransformException;
-import org.geotools.gui.tools.Tool;
+import org.geotools.gui.tools.MouseTool;
 import org.geotools.map.BoundingBox;
 import org.geotools.map.Context;
 import org.geotools.pt.CoordinatePoint;
 
-public class PanTool extends Tool {
+public class PanTool extends MouseTool {
 
     private static final Logger LOGGER = Logger.getLogger(
         "org.geotools.gui.tools.PanTool");
@@ -22,7 +23,7 @@ public class PanTool extends Tool {
     /**
      * Construct a PanTool.
      */
-    public PanTool(){
+    public PanTool() {
     }
     
 //    /**
@@ -49,9 +50,9 @@ public class PanTool extends Tool {
      * so it would be possible to create Coordinates which are outside real
      * world coordinates.
      */
-    public void MouseClicked(MouseEvent e) throws IllegalStateException {
+    public void MouseClicked(MouseEvent e) {
         if ((widget==null)||(context==null)){
-            throw new IllegalStateException();
+            LOGGER.warning("Widget or Context is NULL");
         }else{
             AffineTransform at = new AffineTransform();
             // x=x(1+(clickX-w/2)/w)
@@ -88,4 +89,19 @@ public class PanTool extends Tool {
      * Set up Click and Drap Pan.
      */
     //public void ...
+    
+    
+    /**
+     * Set the Widget which sends MouseEvents and contains widget size
+     * information.
+     * @param widget The widget to get size information from.
+     * @throws IllegalStateException if the widget has already been set to
+     * another widget.
+     */
+    public void setWidget(JComponent widget) throws IllegalStateException {
+        super.setWidget(widget);
+        if (this.widget!=null){
+            widget.addMouseListener(this);
+        }
+    }
 }
