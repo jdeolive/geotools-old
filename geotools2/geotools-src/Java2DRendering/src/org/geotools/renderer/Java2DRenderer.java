@@ -47,6 +47,7 @@ import java.net.*;
 
 //util imports
 import java.util.*;
+import java.util.Collections;
 import java.util.logging.Level;
 
 //Logging system
@@ -70,7 +71,7 @@ import org.geotools.styling.*;
 
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.61 2002/12/04 15:38:27 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.62 2002/12/05 10:58:32 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -168,7 +169,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
      * a Last used first removed map of generalpaths (shapes) used to represent geometries
      * by caching these we can save a lot of time constructing them.
      */
-    private static LRUMap pathCache = new LRUMap(pathCacheSize);
+    private static Map pathCache = new LRUMap(pathCacheSize);
 
     /**
      * Flag which determines if the renderer is interactive or not.
@@ -206,10 +207,9 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
 
     /** Creates a new instance of Java2DRenderer */
     public Java2DRenderer() {
-        System.out.println("Logger name" + LOGGER.getName());
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.fine("creating new j2drenderer");
-        }
+        LOGGER.fine("creating new j2drenderer");
+        pathCache = Collections.synchronizedMap(pathCache);
+        
     }
 
     /**
