@@ -8,7 +8,7 @@
  * by this tool are belonged to author of 'unittestsgen' utility.
  *
  */
-package org.geotools.vpf;
+package org.geotools.data.vpf.io;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
