@@ -43,6 +43,7 @@ import org.geotools.pt.Matrix;
 import org.geotools.ct.MathTransform;
 import org.geotools.ct.AbstractMathTransform;
 import org.geotools.ct.NoninvertibleTransformException;
+import org.geotools.pt.CoordinatePoint;
 
 
 /**
@@ -54,7 +55,7 @@ import org.geotools.ct.NoninvertibleTransformException;
  * This class is really a special case of {@link MatrixTransform} using a 2&times;2 affine
  * transform. However, this specialized <code>LinearTransform1D</code> class is faster.
  *
- * @version $Id: LinearTransform1D.java,v 1.4 2002/07/22 10:46:39 desruisseaux Exp $
+ * @version $Id: LinearTransform1D.java,v 1.5 2002/07/22 18:23:08 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 class LinearTransform1D extends AbstractMathTransform
@@ -153,6 +154,16 @@ class LinearTransform1D extends AbstractMathTransform
      */
     public boolean isIdentity() {
         return offset==0 && scale==1;
+    }
+    
+    /**
+     * Gets the derivative of this transform at a point.  This implementation is different
+     * from the default {@link AbstractMathTransform#derivative} implementation in that no
+     * coordinate point is required and {@link Double#NaN} may be a legal output value for
+     * some users.
+     */
+    public Matrix derivative(final CoordinatePoint point) throws TransformException {
+        return new Matrix(1, 1, new double[] {scale});
     }
     
     /**
