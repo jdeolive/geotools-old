@@ -50,20 +50,20 @@ import org.geotools.resources.rsc.ResourceKeys;
  * An instance of <code>Statistics</code> is initially empty (i.e. all statistical values are set
  * to {@link Double#NaN NaN}). The statistics are updated every time an {@link #add(double)}
  * method is invoked with a non-{@linkplain Double#NaN NaN} value. A typical usage of this
- * class may be as below:
+ * class is:
  *
  * <blockquote><pre>
  * double[] data = new double[1000];
  * // (Compute some data values here...)
  *
  * Statistics stats = new Statistics();
- * for (int i=0; i<data.length; i++) {
+ * for (int i=0; i&lt;data.length; i++) {
  *     stats.add(data[i]);
  * }
  * System.out.println(stats);
  * </pre></blockquote>
  *
- * @version $Id: Statistics.java,v 1.2 2003/02/05 22:56:34 desruisseaux Exp $
+ * @version $Id: Statistics.java,v 1.3 2003/04/23 10:11:24 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Statistics implements Cloneable, Serializable {
@@ -377,7 +377,7 @@ public class Statistics implements Cloneable, Serializable {
      * <var>s<sub>3</sub></var>-<var>s<sub>2</sub></var>...,
      * which are stored in a {@link #getDeltaStatistics delta} statistics object.
      *
-     * @version $Id: Statistics.java,v 1.2 2003/02/05 22:56:34 desruisseaux Exp $
+     * @version $Id: Statistics.java,v 1.3 2003/04/23 10:11:24 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Delta extends Statistics {
