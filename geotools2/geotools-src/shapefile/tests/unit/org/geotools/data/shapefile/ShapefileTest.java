@@ -39,14 +39,17 @@ public class ShapefileTest extends TestCaseSupport {
   
   public void testLoadingStatePop() throws Exception {
     loadShapes(STATEPOP,49);
+    loadMemoryMapped(STATEPOP,49);
   }
   
   public void testLoadingSamplePointFile() throws Exception {
     loadShapes(POINTTEST, 10);
+    loadMemoryMapped(POINTTEST,10);
   }
   
   public void testLoadingSamplePolygonFile() throws Exception {
     loadShapes(POLYGONTEST, 2);
+    loadMemoryMapped(POLYGONTEST,2);
   }
   
   public void testLoadingTwice() throws Exception {
@@ -64,6 +67,7 @@ public class ShapefileTest extends TestCaseSupport {
    */
   public void testPolygonHoleTouchAtEdge() throws Exception {
     loadShapes(HOLETOUCHEDGE, 1);
+    loadMemoryMapped(HOLETOUCHEDGE,1);
   }
   /**
    * It is posible for a shapefile to have extra information past the end
@@ -72,6 +76,7 @@ public class ShapefileTest extends TestCaseSupport {
    */
   public void testExtraAtEnd() throws Exception {
     loadShapes(EXTRAATEND,3);
+    loadMemoryMapped(EXTRAATEND,3);
   }
   
   public void testIndexFile() throws Exception {
@@ -114,7 +119,15 @@ public class ShapefileTest extends TestCaseSupport {
     ShapefileReadWriteTest.compare(features,fc);
   }
   
-  
+  public void testSkippingRecords() throws Exception {
+    ShapefileReader r = new ShapefileReader(getTestResourceChannel(STATEPOP));
+    int idx = 0;
+    while (r.hasNext()) {
+        idx++;
+        r.nextRecord();
+    }
+    assertEquals(49,idx);
+  }
   
   public void testShapefileReaderRecord() throws Exception {
     ShapefileReader reader = new ShapefileReader(getTestResourceChannel(STATEPOP));
@@ -134,6 +147,16 @@ public class ShapefileTest extends TestCaseSupport {
   
   private void loadShapes(String resource,int expected) throws Exception {
     ShapefileReader reader = new ShapefileReader(getTestResourceChannel(resource));
+    int cnt = 0;
+    while (reader.hasNext()) {
+      reader.nextRecord().shape();
+      cnt++;
+    }
+    assertEquals("Number of Geometries loaded incorect for : " + resource,expected,cnt);
+  }
+  
+  private void loadMemoryMapped(String resource,int expected) throws Exception {
+    ShapefileReader reader = new ShapefileReader(getReadableFileChannel(resource));
     int cnt = 0;
     while (reader.hasNext()) {
       reader.nextRecord().shape();
