@@ -60,7 +60,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * OpenGIS specification and its API is significantly different from Java
  * Advanced Imaging.
  *
- * @version $Id: ParameterInfo.java,v 1.3 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: ParameterInfo.java,v 1.4 2003/07/11 16:57:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -90,8 +90,8 @@ public class ParameterInfo implements Serializable {
     /**
      * Construct a new info for a parameter.
      *
-     * @param  type  The originating parameter list descriptor.
-     * @param  name  The parameter name.
+     * @param  descriptor The originating parameter list descriptor.
+     * @param  name The parameter name.
      * @throws IllegalArgumentException if <code>name</code> is
      *         not a parameter of <code>descriptor</code>.
      */
@@ -117,7 +117,7 @@ public class ParameterInfo implements Serializable {
     /**
      * Construct a new info for a parameter.
      *
-     * @param  type  The originating parameter list descriptor.
+     * @param  descriptor The originating parameter list descriptor.
      * @param  index The parameter index.
      */
     public ParameterInfo(final ParameterListDescriptor descriptor, final int index) {

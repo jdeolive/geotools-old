@@ -83,7 +83,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.24 2003/05/19 13:09:47 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.25 2003/07/11 16:57:47 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -93,14 +93,26 @@ public class GridCoverageProcessor {
      */
     static {
         final long targetCapacity = 0x4000000; // 64 Mo.
+        final long maxMemory = Runtime.getRuntime().maxMemory();
         final TileCache cache = JAI.getDefaultInstance().getTileCache();
-        if (Runtime.getRuntime().maxMemory() > 2*targetCapacity) {
+        if (maxMemory > 2*targetCapacity) {
             if (cache.getMemoryCapacity() < targetCapacity) {
                 cache.setMemoryCapacity(targetCapacity);
             }
         }
-        Logger.getLogger("org.geotools.gp").config("Java Advanced Imaging: "+JAI.getBuildVersion()+
-                     ", TileCache capacity="+(float)(cache.getMemoryCapacity()/(1024*1024))+" Mo");
+        final Logger logger = Logger.getLogger("org.geotools.gp");
+        logger.config("Java Advanced Imaging: "+JAI.getBuildVersion()+
+                    ", TileCache capacity="+(float)(cache.getMemoryCapacity()/(1024*1024))+" Mb");
+        /*
+         * Verify that the tile cache has some reasonable value.  A lot of users seems to
+         * misunderstand the memory setting in Java and set wrong values. If the user set
+         * a tile cache greater than the maximum heap size, tell him that he is looking
+         * for serious trouble.
+         */
+        if (cache.getMemoryCapacity() + (4*1024*1024) >= maxMemory) {
+            logger.severe(Resources.format(ResourceKeys.WARNING_EXCESSIVE_TILE_CACHE_$1,
+                                           new Double(maxMemory/(1024*1024.0))));
+        }
     }
     
     /**
@@ -210,6 +222,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
             DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
+            DEFAULT.addOperation(new OperationJAI(org.geotools.gp.jai.Combine.OPERATION_NAME));
         }
         return DEFAULT;
     }
@@ -231,9 +244,9 @@ public class GridCoverageProcessor {
      * Once accessible, all <code>GridCoverageProcessor</code> instances should be
      * immutable.
      *
-     * @param operation The operation to add.
-     * @param IllegalStateException if an operation already exists
-     *        with the same name than <code>operation</code>.
+     * @param  operation The operation to add.
+     * @throws IllegalStateException if an operation already exists
+     *         with the same name than <code>operation</code>.
      */
     protected synchronized void addOperation(final Operation operation) throws IllegalStateException {
         final CaselessStringKey name = new CaselessStringKey(operation.getName());
@@ -255,7 +268,7 @@ public class GridCoverageProcessor {
     /**
      * Returns the operation for the specified name.
      *
-     * @param  operationName Name of the operation.
+     * @param  name Name of the operation.
      * @return The operation for the given name.
      * @throws OperationNotFoundException if there is no operation for the specified name.
      */
@@ -346,7 +359,7 @@ public class GridCoverageProcessor {
      * @param  argumentName2  The name of the second parameter to set.
      * @param  argumentValue2 The value for the second parameter.
      * @param  argumentName3  The name of the third parameter to set.
-     * @param  argumentValu32 The value for the third parameter.
+     * @param  argumentValu3  The value for the third parameter.
      * @return The result as a grid coverage.
      * @throws OperationNotFoundException if there is no operation named <code>operationName</code>.
      * @throws IllegalArgumentException if there is no parameter with the specified name.
@@ -481,7 +494,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.24 2003/05/19 13:09:47 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.25 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

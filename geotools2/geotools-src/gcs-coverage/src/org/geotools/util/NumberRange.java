@@ -44,7 +44,7 @@ import org.geotools.resources.ClassChanger;
  * A range of numbers. {@linkplain #union Union} and {@linkplain #intersect intersection}
  * are computed as usual, except that widening conversions will be applied as needed.
  *
- * @version $Id: NumberRange.java,v 1.2 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: NumberRange.java,v 1.3 2003/07/11 16:57:49 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class NumberRange extends Range {
@@ -413,7 +413,7 @@ public class NumberRange extends Range {
      * exclusive state. If this range is unbounded, then {@link Double#NEGATIVE_INFINITY} is
      * returned.
      *
-     * @param  included <code>true</code> for the minimum value inclusive,
+     * @param  inclusive <code>true</code> for the minimum value inclusive,
      *         or <code>false</code> for the minimum value exclusive.
      * @return The minimum value, inclusive or exclusive as requested.
      */
@@ -439,7 +439,7 @@ public class NumberRange extends Range {
      * exclusive state. If this range is unbounded, then {@link Double#POSITIVE_INFINITY} is
      * returned.
      *
-     * @param  included <code>true</code> for the maximum value inclusive,
+     * @param  inclusive <code>true</code> for the maximum value inclusive,
      *         or <code>false</code> for the maximum value exclusive.
      * @return The maximum value, inclusive or exclusive as requested.
      */

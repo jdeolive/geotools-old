@@ -59,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version $Id: GridRange.java,v 1.10 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: GridRange.java,v 1.11 2003/07/11 16:57:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -113,8 +113,8 @@ public class GridRange implements Dimensioned, Serializable {
     /**
      * Construct one-dimensional grid range.
      *
-     * @param min The minimal inclusive value.
-     * @param max The maximal exclusive value.
+     * @param lower The minimal inclusive value.
+     * @param upper The maximal exclusive value.
      */
     public GridRange(final int lower, final int upper) {
         index = new int[] {lower, upper};

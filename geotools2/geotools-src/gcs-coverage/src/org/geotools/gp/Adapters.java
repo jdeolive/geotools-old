@@ -54,7 +54,7 @@ import org.geotools.gc.GridCoverage;
  * with <code>org.opengis.gc</code> package.</FONT>
  * All methods accept null argument.
  *
- * @version $Id: Adapters.java,v 1.6 2003/05/13 10:59:52 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.7 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Adapters extends org.geotools.gc.Adapters {
@@ -89,7 +89,7 @@ public class Adapters extends org.geotools.gc.Adapters {
      * {@link #wrap(CV_Coverage)} and {@link #wrap(GC_GridCoverage)} if a Geotools
      * object is not already presents in the cache.
      *
-     * @param  The OpenGIS  object.
+     * @param  coverage The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */

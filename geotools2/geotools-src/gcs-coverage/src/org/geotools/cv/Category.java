@@ -101,7 +101,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.18 2003/05/15 08:48:32 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.19 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see SampleDimension
@@ -121,16 +121,12 @@ public class Category implements Serializable {
     static final WeakHashSet pool = new WeakHashSet();
 
     /**
-     * A default category for "no data" values. This default qualitative category use sample
-     * value 0, which is mapped to geophysics value {@link Float#NaN} for those who work with
-     * floating point images. The rendering color default to a fully transparent color and the
-     * name is "no data" localized to the specified locale.
-     *
-     * @task HACK: Current version use a black color rather than a transparent one.
-     *             It is due to what looks like a bug in IndexColorModel constructor.
-     *             Further investigation are needed.
+     * A default category for &quot;no data&quot; values. This default qualitative category use
+     * sample value 0, which is mapped to geophysics value {@link Float#NaN} for those who work
+     * with floating point images. The rendering color default to a fully transparent color and
+     * the name is &quot;no data&quot; localized to the requested locale.
      */
-    public static final Category NODATA = new Localized(ResourceKeys.NODATA, Color.BLACK, 0);
+    public static final Category NODATA = new Localized(ResourceKeys.NODATA, new Color(0,0,0,0), 0);
 
     /**
      * A default category for the boolean &quot;{@link Boolean#FALSE false}&quot; value. This
@@ -194,8 +190,8 @@ public class Category implements Serializable {
     final MathTransform1D transform;
 
     /**
-     * A reference to the {@link GeophysicsCategory}. If this category is already an
-     * instance of {@link GeophysicsCategory}, then <code>inverse</code> is a reference
+     * A reference to the <code>GeophysicsCategory</code>. If this category is already an
+     * instance of <code>GeophysicsCategory</code>, then <code>inverse</code> is a reference
      * to the {@link Category} object that own it.
      */
     final Category inverse;
@@ -963,7 +959,7 @@ public class Category implements Serializable {
      * A category with a localized name. Used for the pre-defined categories
      * {@link #NODATA}, {@link #FALSE} and {@link #TRUE}.
      *
-     * @version $Id: Category.java,v 1.18 2003/05/15 08:48:32 desruisseaux Exp $
+     * @version $Id: Category.java,v 1.19 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class Localized extends Category {

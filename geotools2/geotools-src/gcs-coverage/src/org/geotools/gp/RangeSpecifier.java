@@ -64,7 +64,7 @@ import org.geotools.resources.Utilities;
  *
  * operation.
  *
- * @version $Id: RangeSpecifier.java,v 1.1 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: RangeSpecifier.java,v 1.2 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RangeSpecifier implements Serializable, Cloneable {
@@ -123,8 +123,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Set the target range to the specified values. Setting this property will clear
-     * the {@linkplain #getTransform transform} property, since those properties are
-     * mutually exclusive.
+     * the {@linkplain #getSampleToGeophysics sample to geophysics transform}, since
+     * those properties are mutually exclusive.
      *
      * @param range The target range.
      */

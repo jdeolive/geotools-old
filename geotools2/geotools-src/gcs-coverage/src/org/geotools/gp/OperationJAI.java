@@ -68,6 +68,7 @@ import org.geotools.resources.Utilities;
 import org.geotools.resources.GCSUtilities;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
+import org.geotools.resources.ImageUtilities;
 
 
 /**
@@ -92,7 +93,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *   <li>{@link #deriveUnit}</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.20 2003/07/04 13:46:36 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.21 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -163,10 +164,23 @@ public class OperationJAI extends Operation {
                            final OperationDescriptor operationDescriptor,
                            final ParameterListDescriptor paramDescriptor)
     {
-        super((name!=null) ? name : operationDescriptor.getName(),
+        super((name!=null) ? name : getName(operationDescriptor),
               (paramDescriptor!=null) ? paramDescriptor
                                       : getParameterListDescriptor(operationDescriptor));
         this.descriptor = operationDescriptor;
+    }
+
+    /**
+     * Returns a name from the specified operation descriptor. If the
+     * name begin with "org.geotools" prefix, the prefix will be ignored.
+     */
+    private static String getName(final OperationDescriptor descriptor) {
+        final String prefix = "org.geotools.";
+        String name = descriptor.getName();
+        if (name.startsWith(prefix)) {
+            name = name.substring(prefix.length());
+        }
+        return name;
     }
     
     /**
@@ -304,7 +318,7 @@ public class OperationJAI extends Operation {
      * </ul>
      *
      * @param  parameters List of name value pairs for the parameters required for the operation.
-     * @param  A set of rendering hints, or <code>null</code> if none.
+     * @param  hints A set of rendering hints, or <code>null</code> if none.
      * @return The result as a grid coverage.
      *
      * @see #deriveGridCoverage
@@ -437,25 +451,47 @@ public class OperationJAI extends Operation {
                 break;
             }
         }
-        ImageLayout layout = new ImageLayout();
-        if (sampleDims!=null && sampleDims.length!=0) {
-            int visibleBand = GCSUtilities.getVisibleBand(source.getRenderedImage());
-            if (visibleBand >= sampleDims.length) {
-                visibleBand = 0;
+        /*
+         * Set the rendering hints image layout. Only the following properties will be set:
+         *
+         *     - Color model
+         *     - Tile width
+         *     - Tile height
+         */
+        RenderingHints hints = ImageUtilities.getRenderingHints(parameters.getSource());
+        ImageLayout   layout = (hints!=null) ? (ImageLayout)hints.get(JAI.KEY_IMAGE_LAYOUT) : null;
+        if (layout==null || !layout.isValid(ImageLayout.COLOR_MODEL_MASK)) {
+            if (sampleDims!=null && sampleDims.length!=0) {
+                if (layout == null) {
+                    layout = new ImageLayout();
+                }
+                int visibleBand = GCSUtilities.getVisibleBand(source.getRenderedImage());
+                if (visibleBand >= sampleDims.length) {
+                    visibleBand = 0;
+                }
+                final ColorModel colors;
+                colors = sampleDims[visibleBand].getColorModel(visibleBand, sampleDims.length);
+                layout = layout.setColorModel(colors);
             }
-            final ColorModel colors;
-            colors = sampleDims[visibleBand].getColorModel(visibleBand, sampleDims.length);
-            layout = layout.setColorModel(colors);
+        }
+        if (layout != null) {
+            if (hints == null) {
+                hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
+            } else {
+                hints.put(JAI.KEY_IMAGE_LAYOUT, layout);
+            }
+        }
+        if (parameters.hints != null) {
+            if (hints != null) {
+                hints.add(parameters.hints); // May overwrite the image layout we just set.
+            } else {
+                hints = parameters.hints;
+            }
         }
         /*
          * Performs the operation using JAI and construct the new grid coverage.
          */
-        final RenderingHints hints = new RenderingHints(JAI.KEY_IMAGE_LAYOUT, layout);
-        final JAI processor = getJAI(parameters.hints);
-        if (parameters.hints != null) {
-            hints.add(parameters.hints); // May overwrite the image layout we just set.
-        }
-        RenderedImage data = processor.createNS(descriptor.getName(), parameters.parameters, hints);
+        RenderedImage data=getJAI(hints).createNS(descriptor.getName(), parameters.parameters, hints);
         return new GridCoverage(deriveName(source, parameters), // The grid coverage name
                                 data,                           // The underlying data
                                 parameters.coordinateSystem,    // The coordinate system.
@@ -708,7 +744,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.20 2003/07/04 13:46:36 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.21 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
@@ -762,6 +798,20 @@ public class OperationJAI extends Operation {
          */
         final RangeSpecifier getRangeSpecifier() {
             return (rangeSpecifiers!=null && rangeSpecifiers.length!=0) ? rangeSpecifiers[0] : null;
+        }
+
+        /**
+         * Returns the first source image, or <code>null</code> if none.
+         */
+        final RenderedImage getSource() {
+            final int n = parameters.getNumSources();
+            for (int i=0; i<n; i++) {
+                final Object source = parameters.getSource(i);
+                if (source instanceof RenderedImage) {
+                    return (RenderedImage) source;
+                }
+            }
+            return null;
         }
     }
 }

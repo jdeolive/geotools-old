@@ -575,7 +575,7 @@ public class TextRecordImageReader extends TextImageReader {
     /**
      * Reads the image indexed by <code>imageIndex</code> and returns it as a complete buffered image.
      *
-     * @param  the index of the image to be retrieved.
+     * @param  imageIndex the index of the image to be retrieved.
      * @param  param Parameters used to control the reading process, or <code>null</code>.
      * @return the desired portion of the image.
      * @throws IOException if an error occurs during reading.

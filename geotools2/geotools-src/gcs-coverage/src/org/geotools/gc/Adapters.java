@@ -64,7 +64,7 @@ import org.geotools.cs.CoordinateSystem;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.10 2003/05/13 10:59:51 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.11 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -84,8 +84,8 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns an OpenGIS interface for a grid range.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  range The Geotools object.
+     * @return The OpenGIS object. 
      */
     public GC_GridRange export(final GridRange range) {
         if (range == null) {
@@ -97,8 +97,8 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns an OpenGIS interface for a grid geometry.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  geometry The Geotools object.
+     * @return The OpenGIS object. 
      */
     public GC_GridGeometry export(final GridGeometry geometry) {
         if (geometry == null) {
@@ -110,8 +110,8 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns an OpenGIS interface for a grid coverage.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  coverage The Geotools object.
+     * @return The OpenGIS object. 
      * @throws RemoteException if the OpenGIS object can't be exported.
      */
     public GC_GridCoverage export(final GridCoverage coverage) throws RemoteException {
@@ -123,8 +123,8 @@ public class Adapters extends org.geotools.cv.Adapters {
      * {@link #export(Coverage)} and {@link #export(GridCoverage)} if an
      * OpenGIS object is not already presents in the cache.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  coverage The Geotools object.
+     * @return The OpenGIS object. 
      * @throws RemoteException if the OpenGIS object can't be exported.
      */
     protected CV_Coverage doExport(final Coverage coverage) throws RemoteException {
@@ -138,7 +138,7 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns a grid range from an OpenGIS's interface.
      *
-     * @param  The OpenGIS  object.
+     * @param  range The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -157,7 +157,7 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns a grid geometry from an OpenGIS's interface.
      *
-     * @param  The OpenGIS  object.
+     * @param  geometry The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -177,7 +177,7 @@ public class Adapters extends org.geotools.cv.Adapters {
     /**
      * Returns a grid coverage from an OpenGIS's interface.
      *
-     * @param  The OpenGIS  object.
+     * @param  coverage The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -190,7 +190,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * {@link #wrap(CV_Coverage)} and {@link #wrap(GC_GridCoverage)} if a Geotools
      * object is not already presents in the cache.
      *
-     * @param  The OpenGIS  object.
+     * @param  coverage The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      *
@@ -253,7 +253,7 @@ public class Adapters extends org.geotools.cv.Adapters {
      * invoking {@link #dispose} will also dispose the serializable image,  which may
      * close socket connection.
      *
-     * @version $Id: Adapters.java,v 1.10 2003/05/13 10:59:51 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.11 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ImageProxy extends RenderedImageAdapter {

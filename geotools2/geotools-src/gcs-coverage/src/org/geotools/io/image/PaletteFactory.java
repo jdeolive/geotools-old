@@ -90,7 +90,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * The number of RGB codes doesn't have to match an {@link IndexColorModel}'s
  * map size. RGB codes will be automatically interpolated RGB values when needed.
  *
- * @version $Id: PaletteFactory.java,v 1.4 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: PaletteFactory.java,v 1.5 2003/07/11 16:57:48 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PaletteFactory {
@@ -283,16 +283,16 @@ public class PaletteFactory {
     /**
      * Load colors from a definition file.
      *
-     * @param  The palette's name to load. This name doesn't need to contains a path
-     *         or an extension. Path and extension are set according value specified
-     *         at construction time.
+     * @param  name The palette's name to load. This name doesn't need to contains a path
+     *              or an extension. Path and extension are set according value specified
+     *              at construction time.
      * @return The set of colors, or <code>null</code> if the set was not found.
      * @throws IOException if an error occurs during reading.
      * @throws IIOException if an error occurs during parsing.
      */
     public Color[] getColors(final String name) throws IOException {
         final BufferedReader reader = getReader(name);
-        if (reader==null) {
+        if (reader == null) {
             return (parent!=null) ? parent.getColors(name) : null;
         }
         final Color[] colors = getColors(reader);
@@ -303,7 +303,7 @@ public class PaletteFactory {
     /**
      * Load colors from an URL.
      *
-     * @param  The palette's URL.
+     * @param  url The palette's URL.
      * @return The set of colors, or <code>null</code> if the set was not found.
      * @throws IOException if an error occurs during reading.
      * @throws IIOException if an error occurs during parsing.
@@ -319,9 +319,9 @@ public class PaletteFactory {
      * Load an index color model from a definition file.
      * The returned model will use index from 0 to 255 inclusive.
      *
-     * @param  The palette's name to load. This name doesn't need to contains a path
-     *         or an extension. Path and extension are set according value specified
-     *         at construction time.
+     * @param  name The palette's name to load. This name doesn't need to contains a path
+     *              or an extension. Path and extension are set according value specified
+     *              at construction time.
      * @return The index color model, or <code>null</code> if the palettes was not found.
      * @throws IOException if an error occurs during reading.
      * @throws IIOException if an error occurs during parsing.

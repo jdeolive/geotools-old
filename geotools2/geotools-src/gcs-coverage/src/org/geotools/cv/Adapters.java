@@ -71,7 +71,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * {@link org.geotools.gp.Adapters org.geotools.<strong>gp</strong>.Adapters}
  * implementation cover this case.
  *
- * @version $Id: Adapters.java,v 1.11 2003/05/13 10:59:49 desruisseaux Exp $
+ * @version $Id: Adapters.java,v 1.12 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see org.geotools.gp.Adapters#getDefault()
@@ -97,8 +97,8 @@ public class Adapters {
     /**
      * Returns an OpenGIS enumeration for a color interpretation.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  colors The Geotools object.
+     * @return The OpenGIS object. 
      */
     public CV_ColorInterpretation export(final ColorInterpretation colors) {
         if (colors == null) {
@@ -110,8 +110,8 @@ public class Adapters {
     /**
      * Returns an OpenGIS enumeration for a color interpretation.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  type The Geotools object.
+     * @return The OpenGIS object. 
      */
     public CV_SampleDimensionType export(final SampleDimensionType type) {
         if (type == null) {
@@ -123,8 +123,8 @@ public class Adapters {
     /**
      * Returns an OpenGIS interface for a sample dimension.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object.
+     * @param  dimension The Geotools object.
+     * @return The OpenGIS object.
      * @throws RemoteException if the OpenGIS object can't be exported.
      */
     public CV_SampleDimension export(final SampleDimension dimension) throws RemoteException {
@@ -137,8 +137,8 @@ public class Adapters {
     /**
      * Returns an OpenGIS interface for a coverage.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  coverage The Geotools object.
+     * @return The OpenGIS object. 
      * @throws RemoteException if the OpenGIS object can't be exported.
      */
     public CV_Coverage export(final Coverage coverage) throws RemoteException {
@@ -161,8 +161,8 @@ public class Adapters {
      * in the cache. Subclasses should override this method instead of
      * {@link #export(Coverage)}.
      *
-     * @param  The Geotools object.
-     * @return The OpenGIS  object. 
+     * @param  coverage The Geotools object.
+     * @return The OpenGIS object. 
      * @throws RemoteException if the OpenGIS object can't be exported.
      */
     protected CV_Coverage doExport(final Coverage coverage) throws RemoteException {
@@ -172,7 +172,7 @@ public class Adapters {
     /**
      * Returns a color interpretation from an OpenGIS's enumeration.
      *
-     * @param  The OpenGIS  object.
+     * @param  colors The OpenGIS object.
      * @return The Geotools object. 
      */
     public ColorInterpretation wrap(final CV_ColorInterpretation colors) {
@@ -182,7 +182,7 @@ public class Adapters {
     /**
      * Returns a sample type from an OpenGIS's enumeration.
      *
-     * @param  The OpenGIS  object.
+     * @param  type The OpenGIS object.
      * @return The Geotools object. 
      */
     public SampleDimensionType wrap(final CV_SampleDimensionType type) {
@@ -192,7 +192,7 @@ public class Adapters {
     /**
      * Returns a sample dimension from an OpenGIS's interface.
      *
-     * @param  The OpenGIS  object.
+     * @param  sd The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -211,7 +211,7 @@ public class Adapters {
      * available separatly from {@link #wrap(CV_SampleDimension)}  in order to allow tests
      * with JUnit.
      *
-     * @param  The OpenGIS  object.
+     * @param  sd The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -264,7 +264,7 @@ public class Adapters {
      * org.geotools.<strong>gc</strong>.Adapters} class, then the returned coverage
      * implementation will be an instance of {@link org.geotools.gc.GridCoverage}.
      *
-     * @param  The OpenGIS  object.
+     * @param  coverage The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -286,7 +286,7 @@ public class Adapters {
      * the cache. Subclasses should override this method instead of
      * {@link #wrap(CV_Coverage)}.
      *
-     * @param  The OpenGIS  object.
+     * @param  coverage The OpenGIS object.
      * @return The Geotools object. 
      * @throws RemoteException if an operation failed while querying the OpenGIS object.
      */
@@ -317,7 +317,7 @@ public class Adapters {
      *        wrapped in an unchecked {@link CannotEvaluateException}.</li>
      * </ul>
      *
-     * @param  The OpenGIS coverage.
+     * @param  coverage The OpenGIS coverage.
      * @return The property source for the specified coverage.
      */
     protected PropertySource getPropertySource(final CV_Coverage coverage) {
@@ -339,7 +339,7 @@ public class Adapters {
      * on a remote machine. {@link RemoteException} are catched and rethrown as a
      * {@link CannotEvaluateException}.
      *
-     * @version $Id: Adapters.java,v 1.11 2003/05/13 10:59:49 desruisseaux Exp $
+     * @version $Id: Adapters.java,v 1.12 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class CoverageProxy extends Coverage {

@@ -155,7 +155,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.21 2003/05/13 10:59:51 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -391,7 +391,7 @@ public class GridCoverage extends Coverage {
      *
      * @throws MismatchedDimensionException If the envelope's dimension
      *         is not the same than the coordinate system's dimension.
-     * @param  IllegalArgumentException if the number of bands differs
+     * @throws IllegalArgumentException if the number of bands differs
      *         from the number of sample dimensions.
      */
     public GridCoverage(final String name,         final WritableRaster raster,
@@ -436,7 +436,7 @@ public class GridCoverage extends Coverage {
      *
      * @throws MismatchedDimensionException If the <code>gridToCS</code> dimension
      *         is not the same than the coordinate system's dimension.
-     * @param  IllegalArgumentException if the number of bands differs
+     * @throws IllegalArgumentException if the number of bands differs
      *         from the number of sample dimensions.
      */
     public GridCoverage(final String name,         final WritableRaster raster,
@@ -508,7 +508,7 @@ public class GridCoverage extends Coverage {
      *                     along <var>x</var> and <var>y</var> axis. The other dimensions are
      *                     optional and may be used to locate the image on a vertical axis or
      *                     on the time axis.
-     * @param sampleDim    Sample dimensions for each image band, or <code>null</code> for
+     * @param bands        Sample dimensions for each image band, or <code>null</code> for
      *                     default sample dimensions. If non-null, then this array's length
      *                     must matches the number of bands in <code>image</code>.
      * @param sources      The sources for this grid coverage, or <code>null</code> if none.
@@ -521,7 +521,7 @@ public class GridCoverage extends Coverage {
      *
      * @throws MismatchedDimensionException If the envelope's dimension
      *         is not the same than the coordinate system's dimension.
-     * @param  IllegalArgumentException if the number of bands differs
+     * @throws IllegalArgumentException if the number of bands differs
      *         from the number of sample dimensions.
      */
     public GridCoverage(final String             name, final RenderedImage    image,
@@ -546,7 +546,7 @@ public class GridCoverage extends Coverage {
      *                     number of dimensions must matches the number of dimensions for
      *                     <code>gridToCS</code>.
      * @param gridToCS     The math transform from grid to coordinate system.
-     * @param sampleDim    Sample dimensions for each image band, or <code>null</code> for
+     * @param bands        Sample dimensions for each image band, or <code>null</code> for
      *                     default sample dimensions. If non-null, then this array's length
      *                     must matches the number of bands in <code>image</code>.
      * @param sources      The sources for this grid coverage, or <code>null</code> if none.
@@ -559,7 +559,7 @@ public class GridCoverage extends Coverage {
      *
      * @throws MismatchedDimensionException If the transform's dimension
      *         is not the same than the coordinate system's dimension.
-     * @param  IllegalArgumentException if the number of bands differs
+     * @throws IllegalArgumentException if the number of bands differs
      *         from the number of sample dimensions.
      */
     public GridCoverage(final String             name, final RenderedImage    image,
@@ -1288,7 +1288,7 @@ testLinear: for (int i=0; i<numBands; i++) {
          */
         if (operation == null) {
             param = param.add(sampleDimensions);
-            operation = "org.geotools.cv.SampleTranscode";
+            operation = "org.geotools.SampleTranscode";
         }
         final Logger logger = Logger.getLogger("org.geotools.gc");
         if (logger.isLoggable(Level.FINE)) {
@@ -1362,7 +1362,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.21 2003/05/13 10:59:51 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1391,7 +1391,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.21 2003/05/13 10:59:51 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.22 2003/07/11 16:57:47 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {

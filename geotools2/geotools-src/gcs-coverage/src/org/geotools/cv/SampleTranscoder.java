@@ -70,9 +70,9 @@ import org.geotools.resources.gcs.ResourceKeys;
  * transformation to geophyics values, or the converse. Images are created using the
  * <code>SampleTranscoder.CRIF</code> inner class, where &quot;CRIF&quot; stands for
  * for {@link java.awt.image.renderable.ContextualRenderedImageFactory}.   The image
- * operation name is &quot;org.geotools.cv.SampleTranscode&quot;.
+ * operation name is &quot;org.geotools.SampleTranscode&quot;.
  *
- * @version $Id: SampleTranscoder.java,v 1.2 2003/05/13 10:59:51 desruisseaux Exp $
+ * @version $Id: SampleTranscoder.java,v 1.3 2003/07/11 16:57:47 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class SampleTranscoder extends PointOpImage {
@@ -80,7 +80,7 @@ final class SampleTranscoder extends PointOpImage {
      * The operation name. <strong>NOTE:</strong> Class {@link org.geotools.gc.GridCoverage}
      * uses this name, but can't refer to this constant since it is in an other package.
      */
-    public static final String OPERATION_NAME = "org.geotools.cv.SampleTranscode";
+    public static final String OPERATION_NAME = "org.geotools.SampleTranscode";
 
     /**
      * Ensemble des catégories qui donnent une signification aux pixels de l'image. La
@@ -172,7 +172,7 @@ final class SampleTranscoder extends PointOpImage {
         public Descriptor() {
             super(new String[][]{{"GlobalName",  OPERATION_NAME},
                                  {"LocalName",   OPERATION_NAME},
-                                 {"Vendor",      "geotools.org"},
+                                 {"Vendor",      "Geotools 2"},
                                  {"Description", "Transformation from sample to geophysics values"},
                                  {"DocURL",      "http://modules.geotools.org/gcs-coverage"},
                                  {"Version",     "1.0"}},

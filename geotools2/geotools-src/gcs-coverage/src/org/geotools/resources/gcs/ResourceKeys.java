@@ -57,6 +57,7 @@ public interface ResourceKeys
     public static final int YELLOW                               =    25;
 
     public static final int WARNING_ADJUSTED_GRID_GEOMETRY_$1    =    74;
+    public static final int WARNING_EXCESSIVE_TILE_CACHE_$1      =    80;
 
     public static final int ERROR_AMBIGIOUS_AXIS_LENGTH          =    26;
     public static final int ERROR_BAD_BAND_NUMBER_$1             =    27;
@@ -87,6 +88,7 @@ public interface ResourceKeys
     public static final int ERROR_NO_IMAGE_INPUT                 =    43;
     public static final int ERROR_NO_IMAGE_READER                =    44;
     public static final int ERROR_NO_TRANSFORM2D_AVAILABLE       =    45;
+    public static final int ERROR_NUMBER_OF_BANDS_MISMATCH       =    79;
     public static final int ERROR_NUMBER_OF_BANDS_MISMATCH_$3    =    46;
     public static final int ERROR_OPERATION_ALREADY_BOUND_$1     =    47;
     public static final int ERROR_OPERATION_NOT_FOUND_$1         =    48;

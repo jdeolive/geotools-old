@@ -2,7 +2,7 @@
 # The registry file for Geotools Grid Coverage implementation
 # This file is automatically parsed by JAI under initialization
 #
-# Version: $Id: registryFile.jai,v 1.1 2002/07/25 22:35:12 desruisseaux Exp $
+# Version: $Id: registryFile.jai,v 1.2 2003/07/11 16:57:47 desruisseaux Exp $
 #
 ############################################################################
 #
@@ -23,19 +23,10 @@
 #
 # Image operation descriptors :
 #
+descriptor  org.geotools.gp.jai.CombineDescriptor
 
-#descriptor      org.geotools.cv.SampleDimension$Descriptor
-
-# Note: previous line is commented out because the specified class is private.
-#       Instead, the registration is done manually inside the SampleDimension
-#       class initializer.
 
 #
 # "rendered" factory objects
 #
-
-#rendered        org.geotools.cv.SampleDimension$CRIF       SampleToGeophysics
-
-# Note: previous line is commented out because the specified class is private.
-#       Instead, the registration is done manually inside the SampleDimension
-#       class initializer.
+rendered  org.geotools.gp.jai.CombineCRIF  org.geotools  org.geotools.Combine Combine
