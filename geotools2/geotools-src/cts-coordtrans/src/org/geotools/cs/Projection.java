@@ -59,7 +59,7 @@ import java.rmi.RemoteException;
 /**
  * A projection from geographic coordinates to projected coordinates.
  *
- * @version $Id: Projection.java,v 1.5 2002/09/04 15:09:44 desruisseaux Exp $
+ * @version $Id: Projection.java,v 1.6 2002/10/08 15:32:09 desruisseaux Exp $
  * @author OpenGIS (www.opengis.org)
  * @author Martin Desruisseaux
  *
@@ -304,6 +304,34 @@ public class Projection extends Info {
      */
     String addString(final StringBuffer buffer, final Unit context) {
         return "PROJECTION";
+    }
+
+    /**
+     * Add the parameters for this projection. This is used
+     * for WKT formatting of {@link ProjectedCoordinateSystem}.
+     */
+    final void addParameters(final StringBuffer buffer, final Unit context) {
+        final String[] names = parameters.getParameterListDescriptor().getParamNames();
+        for (int i=0; i<names.length; i++) {
+            String name = names[i];
+            double value;
+            try {
+                value = parameters.getDoubleParameter(name);
+            } catch (IllegalStateException exception) {
+                // Parameter is not defined.
+                continue;
+            }
+            if (context != null) {
+                final Unit paramUnit = DescriptorNaming.getParameterUnit(name);
+                if (paramUnit!=null && context.canConvert(paramUnit)) {
+                    value = context.convert(value, paramUnit);
+                }
+            }
+            buffer.append("PARAMETER[\"");
+            buffer.append(name);
+            buffer.append("\", ");
+            buffer.append("], ");
+        }
     }
     
     /**
