@@ -37,7 +37,10 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.AttributesImpl;
 import org.xml.sax.helpers.NamespaceSupport;
 import org.xml.sax.helpers.XMLFilterImpl;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -85,15 +88,18 @@ import javax.xml.transform.stream.StreamResult;
  *
  * @author Ian Schneider
  * @author Chris Holmes, TOPP
- * @version $Id: FeatureTransformer.java,v 1.12 2003/11/06 23:30:57 cholmesny Exp $
+ * @version $Id: FeatureTransformer.java,v 1.13 2003/11/10 20:09:47 cholmesny Exp $
  *
  * @todo Add support for schemaLocation
  */
 public class FeatureTransformer extends TransformerBase {
+    /** The logger for the filter module. */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.gml");
     private String collectionPrefix = "wfs";
-    private String collectionNamespace = "http://www.opengis/wfs";
+    private String collectionNamespace = "http://www.opengis.net/wfs";
     private NamespaceSupport nsLookup = new NamespaceSupport();
     private FeatureTypeNamespaces featureTypeNamespaces = new FeatureTypeNamespaces(nsLookup);
+    private SchemaLocationSupport schemaLocation = new SchemaLocationSupport();
 
     public void setCollectionNamespace(String nsURI) {
         collectionNamespace = nsURI;
@@ -119,10 +125,14 @@ public class FeatureTransformer extends TransformerBase {
         return featureTypeNamespaces;
     }
 
+    public void addSchemaLocation(String nsURI, String uri) {
+        schemaLocation.setLocation(nsURI, uri);
+    }
+
     public org.geotools.xml.transform.Translator createTranslator(
         ContentHandler handler) {
         FeatureTranslator t = new FeatureTranslator(handler, collectionPrefix,
-                collectionNamespace, featureTypeNamespaces);
+                collectionNamespace, featureTypeNamespaces, schemaLocation);
         java.util.Enumeration prefixes = nsLookup.getPrefixes();
 
         while (prefixes.hasMoreElements()) {
@@ -183,10 +193,12 @@ public class FeatureTransformer extends TransformerBase {
          * @param prefix DOCUMENT ME!
          * @param ns DOCUMENT ME!
          * @param types DOCUMENT ME!
+         * @param schemaLoc DOCUMENT ME!
          */
         public FeatureTranslator(ContentHandler handler, String prefix,
-            String ns, FeatureTypeNamespaces types) {
-            super(handler, prefix, ns);
+            String ns, FeatureTypeNamespaces types,
+            SchemaLocationSupport schemaLoc) {
+            super(handler, prefix, ns, schemaLoc);
 
             geometryTranslator = new GeometryTransformer.GeometryTranslator(handler);
             this.types = types;
@@ -339,8 +351,8 @@ public class FeatureTransformer extends TransformerBase {
 
                     contentHandler.endElement("", "", name);
                 }
-                 //REVISIT: xsi:nillable is the proper xml way to handle nulls,
 
+                //REVISIT: xsi:nillable is the proper xml way to handle nulls,
                 //but OGC people are fine with just leaving it out.       
             } catch (Exception e) {
                 throw new RuntimeException(e);
