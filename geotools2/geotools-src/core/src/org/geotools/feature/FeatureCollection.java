@@ -25,11 +25,11 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataSource;
 
 /**
- * @version $Id: FeatureCollection.java,v 1.6 2002/08/01 21:56:44 camerons Exp $
+ * @version $Id: FeatureCollection.java,v 1.7 2003/04/11 22:44:00 ianschneider Exp $
  * @author  Ian Turton, CCG<br>
  * @author  Rob Hranac, VFNY
  */
-public interface FeatureCollection {
+public interface FeatureCollection extends java.util.Set {
 
     /* ***********************************************************************
      * Managing data source and extents.
