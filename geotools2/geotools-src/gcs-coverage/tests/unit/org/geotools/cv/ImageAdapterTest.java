@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
  * Test the {@link ImageAdapter} implementation. Image adapter depends
  * heavily on {@link CategoryList}, so this one should be tested first.
  *
- * @version $Id: ImageAdapterTest.java,v 1.3 2002/07/25 22:31:58 desruisseaux Exp $
+ * @version $Id: ImageAdapterTest.java,v 1.4 2002/08/10 12:35:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class ImageAdapterTest extends TestCase {
@@ -103,8 +103,8 @@ public class ImageAdapterTest extends TestCase {
             new Category("Land",        null, 1),
             new Category("Clouds",      null, 2),
             new Category("Temperature", null, 3, 100, 0.1, 5),
-            new Category("Foo",         null, 100, 120, -1, 3),
-            new Category("Tarzan",      null, 120)
+            new Category("Foo",         null, 100, 160, -1, 3),
+            new Category("Tarzan",      null, 160)
         }, null);
     }
 
@@ -138,23 +138,45 @@ public class ImageAdapterTest extends TestCase {
      */
     private RenderedImage testOneBand(final CategoryList band) throws TransformException {
         final int SIZE = 64;
-
+        /*
+         * Construct a 64x64 image with random values.
+         * Samples values are integer in the range 0..160 inclusive.
+         */
         final BufferedImage  source = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_BYTE_INDEXED);
         final DataBufferByte buffer = (DataBufferByte) source.getRaster().getDataBuffer();
         final byte[] array = buffer.getData(0);
         for (int i=0; i<array.length; i++) {
-            array[i] = (byte) random.nextInt(121);
+            array[i] = (byte) random.nextInt(161);
         }
+        /*
+         * Apply the operation. The ImageAdapter class is suppose to transform our
+         * integers into real-world values. Check if the result use floating-points.
+         */
         final RenderedImage target=ImageAdapter.getInstance(source, new CategoryList[]{band}, jai);
         assertEquals(DataBuffer.TYPE_BYTE, source.getSampleModel().getDataType());
         if (source != target) {
             assertEquals(DataBuffer.TYPE_FLOAT, target.getSampleModel().getDataType());
         }
-
-        final double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
-        final double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
+        /*
+         * Now, gets the data as an array and compare it with the expected values.
+         */
+        double[] sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
+        double[] targetData = target.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
         band.transform(sourceData, 0, sourceData, 0, sourceData.length);
         CategoryListTest.compare(sourceData, targetData, EPS);
+        /*
+         * Construct a new image with the resulting data, and apply an inverse transformation.
+         * Compare the resulting values with the original data.
+         */
+        RenderedImage back = PlanarImage.wrapRenderedImage(target).getAsBufferedImage();
+        back = ImageAdapter.getInstance(target, new CategoryList[]{(CategoryList)band.inverse()}, jai);
+        assertEquals(DataBuffer.TYPE_BYTE, back.getSampleModel().getDataType());
+        sourceData = source.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
+        targetData =   back.getData().getSamples(0, 0, SIZE, SIZE, 0, (double[])null);
+        CategoryListTest.compare(sourceData, targetData, EPS);
+        /*
+         * Returns the "geophysics view" of the image.
+         */
         return target;
     }
 }

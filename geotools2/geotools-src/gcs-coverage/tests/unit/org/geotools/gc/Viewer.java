@@ -38,15 +38,18 @@ import java.awt.*;
 import java.awt.geom.*;
 import java.awt.image.*;
 import javax.swing.*;
+import java.util.*;
 
 // JAI dependencies
 import javax.media.jai.PlanarImage;
 import javax.media.jai.GraphicsJAI;
 
 // Geotools dependencies
+import org.geotools.cv.*;
 import org.geotools.gc.*;
 import org.geotools.gp.*;
 import org.geotools.resources.Arguments;
+import org.geotools.resources.Utilities;
 
 
 /**
@@ -54,7 +57,7 @@ import org.geotools.resources.Arguments;
  * capability, no user interaction and ignores the coordinate system. It is just
  * for quick test of grid coverage.
  *
- * @version $Id: Viewer.java,v 1.2 2002/08/09 23:05:30 desruisseaux Exp $
+ * @version $Id: Viewer.java,v 1.3 2002/08/10 12:35:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Viewer extends JPanel {
@@ -62,6 +65,12 @@ public class Viewer extends JPanel {
      * The image to display.
      */
     private final RenderedImage image;
+
+    /**
+     * The main sample dimension, or <code>null</code> if none.
+     * Used by {@link #printPalette} for printing categories.
+     */
+    private SampleDimension categories;
 
     /**
      * The transform from grid to coordinate system.
@@ -87,6 +96,7 @@ public class Viewer extends JPanel {
      */
     public Viewer(final GridCoverage coverage) {
         this(coverage.getRenderedImage());
+        categories = coverage.getSampleDimensions()[0];
     }
 
     /**
@@ -102,15 +112,10 @@ public class Viewer extends JPanel {
      * will be terminated when the user close the frame.
      *
      * @param  coverage The coverage to display.
-     * @return The displayed frame, for information.
+     * @return The viewer, for information.
      */
-    public static JFrame show(final RenderedImage image) {
-        final JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new Viewer(image));
-        frame.pack();
-        frame.show();
-        return frame;
+    public static Viewer show(final RenderedImage image) {
+        return show(new Viewer(image), null);
     }
 
     /**
@@ -118,15 +123,95 @@ public class Viewer extends JPanel {
      * will be terminated when the user close the frame.
      *
      * @param  coverage The coverage to display.
-     * @return The displayed frame, for information.
+     * @return The viewer, for information.
      */
-    public static JFrame show(final GridCoverage coverage) {
-        final JFrame frame = new JFrame(coverage.getName(JComponent.getDefaultLocale()));
+    public static Viewer show(final GridCoverage coverage) {
+        return show(new Viewer(coverage), coverage.getName(JComponent.getDefaultLocale()));
+    }
+
+    /**
+     * A convenience method showing a grid coverage. The application
+     * will be terminated when the user close the frame.
+     *
+     * @param  viewer The viewer to display.
+     * @param  title  The frame title, or <code>null</code> if none.
+     * @return The viewer, for convenience.
+     */
+    private static Viewer show(final Viewer viewer, final String title) {
+        final JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new Viewer(coverage));
+        frame.getContentPane().add(viewer);
         frame.pack();
         frame.show();
-        return frame;
+        return viewer;
+    }
+
+    /**
+     * Print to the color palette to the specified output stream. First, the color model
+     * name is displayed. Next, if the color model is an {@link IndexColorModel}, then the
+     * RGB codes are written for all samples values. Category names or geophysics values,
+     * if any are written after each sample values.
+     *
+     * @param out The writer where to print the palette.
+     */
+    public void printPalette(final PrintWriter out) {
+        final Locale locale = getLocale();
+        final ColorModel model = image.getColorModel();
+        out.print(Utilities.getShortClassName(model));
+        out.println(':');
+        if (model instanceof IndexColorModel) {
+            out.println();
+            out.println("Sample  Colors              Category or geophysics value");
+            out.println("------  ----------------    ----------------------------");
+            final IndexColorModel palette = (IndexColorModel) model;
+            final int size = palette.getMapSize();
+            final byte[] R = new byte[size];
+            final byte[] G = new byte[size];
+            final byte[] B = new byte[size];
+            palette.getReds  (R);
+            palette.getGreens(G);
+            palette.getBlues (B);
+            for (int i=0; i<size; i++) {
+                format(out,   i);  out.print(":    RGB[");
+                format(out, R[i]); out.print(',');
+                format(out, G[i]); out.print(',');
+                format(out, R[i]); out.print(']');
+                if (categories != null) {
+                    final String label = categories.getLabel(i, locale);
+                    if (label != null) {
+                        out.print("    ");
+                        out.print(label);
+                    }
+                }
+                out.println();
+            }
+        } else {
+            out.println(model.getColorSpace());
+        }
+    }
+
+    /**
+     * Format a unsigned byte to the specified output stream.
+     * The number will be right-justified in a cell of 3 spaces width.
+     *
+     * @param The writer where to print the number.
+     * @param value The number to format.
+     */
+    private static void format(final PrintWriter out, final byte value) {
+        format(out, ((int)value) & 0xFF);
+    }
+
+    /**
+     * Format an integer to the specified output stream.
+     * The number will be right-justified in a cell of 3 spaces width.
+     *
+     * @param The writer where to print the number.
+     * @param value The number to format.
+     */
+    private static void format(final PrintWriter out, final int value) {
+        final String str = String.valueOf(value);
+        out.print(Utilities.spaces(3-str.length()));
+        out.print(str);
     }
 
     /**
@@ -135,8 +220,10 @@ public class Viewer extends JPanel {
     public static void main(String[] args) throws IOException {
         final Arguments arguments = new Arguments(args);
         final PrintWriter     out = arguments.out;
+        final Locale       locale = arguments.locale;
         final String    operation = arguments.getOptionalString ("-operation");
         final Boolean  geophysics = arguments.getOptionalBoolean("-geophysics");
+        final boolean     palette = arguments.getFlag           ("-palette");
         args = arguments.getRemainingArguments(1);
         if (args.length == 0) {
             out.println("Usage: Viewer [options] example");
@@ -151,6 +238,7 @@ public class Viewer extends JPanel {
             out.println("                  java org.geotools.gp.GridCoverageProcessor");
             out.println("  -geophysics=[b] Set to 'true' or 'false' for requesting a \"geophysics\"");
             out.println("                  version of data or an indexed version, respectively.");
+            out.println("  -palette        Dumps RGB codes to standard output.");
             out.flush();
             return;
         }
@@ -162,7 +250,12 @@ public class Viewer extends JPanel {
             final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
             coverage = processor.doOperation(operation, coverage);
         }
-        show(coverage);
+        Viewer viewer = new Viewer(coverage);
+        viewer.setLocale(locale);
+        viewer = show(viewer, coverage.getName(locale));
+        if (palette) {
+            viewer.printPalette(out);
+        }
         out.flush();
     }
 }

@@ -68,7 +68,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.4 2002/08/09 11:13:57 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.5 2002/08/10 12:35:26 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -272,9 +272,9 @@ public class GridCoverageTest extends TestCase {
                 categories = new Category[] {
                     new Category("Coast line", decode("#000000"), range(  0,   0), (MathTransform1D)null),
                     new Category("Cloud",      decode("#C3C3C3"), range(  1,   9), (MathTransform1D)null),
-                    new Category("Unused",     decode("#822382"), range( 10,  49), (MathTransform1D)null),
-                    new Category("Sea Surface Temperature", null, range( 50, 210), 0.1, 10.0),
-                    new Category("Unused",     decode("#A0505C"), range(211, 239), (MathTransform1D)null),
+                    new Category("Unused",     decode("#822382"), range( 10,  29), (MathTransform1D)null),
+                    new Category("Sea Surface Temperature", null, range( 30, 219), 0.1, 10.0),
+                    new Category("Unused",     decode("#A0505C"), range(220, 239), (MathTransform1D)null),
                     new Category("Land",       decode("#D2C8A0"), range(240, 254), (MathTransform1D)null),
                     new Category("No data",    decode("#FFFFFF"), range(255, 255), (MathTransform1D)null),
                 };
