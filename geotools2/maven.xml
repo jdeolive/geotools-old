@@ -69,6 +69,26 @@
   
   </goal>
   
+  <goal name="snapshot">
+  
+    <echo>
+      looking for modules in: ${basedir}/geotools-src
+      
+    </echo>
+    <reactor:execute
+      basedir="${basedir}/geotools-src"
+      glob="*/project.xml"
+      goals="clean,jar:deploy-snapshot"
+      banner="Deploying"
+      ignoreFailures="true"
+    />
+    
+    <echo>
+      modules built and deployed:  ${reactorProjects}
+    </echo>
+  
+  </goal>
+  
   
   
   <!-- ================================================================== -->
