@@ -18,56 +18,23 @@ package org.geotools.data.postgis;
 
 
 //JTS imports
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.WKTWriter;
 
 //geotools imports
-import org.geotools.data.AbstractDataSource;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureLock;
 import org.geotools.data.FeatureLockException;
 import org.geotools.data.FeatureLocking;
 import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureResults;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
-import org.geotools.data.jdbc.ConnectionPool;
-import org.geotools.data.jdbc.JDBCFeatureStore;
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.SchemaException;
-import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.Filter;
-import org.geotools.filter.SQLEncoderException;
-import org.geotools.filter.SQLEncoderPostgis;
-import org.geotools.filter.SQLEncoderPostgisGeos;
-import org.geotools.filter.SQLUnpacker;
-import java.io.IOException;
-
-//J2SE imports
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import java.util.logging.Logger;
 
 
 /**
@@ -87,7 +54,7 @@ import java.util.logging.Logger;
  * </p>
  * 
  * @author Jody Garnett, Refractions Research, Inc
- * @version $Id: PostgisFeatureLocking.java,v 1.3 2003/11/21 23:36:02 jive Exp $
+ * @version $Id: PostgisFeatureLocking.java,v 1.4 2003/11/21 23:49:47 jive Exp $
  *
  */
 public class PostgisFeatureLocking extends PostgisFeatureStore implements FeatureLocking {
@@ -228,7 +195,7 @@ public class PostgisFeatureLocking extends PostgisFeatureStore implements Featur
      * @see org.geotools.data.FeatureLocking#unLockFeatures(org.geotools.filter.Filter)
      */
     public void unLockFeatures(Filter filter) throws IOException {
-        unLockFeatures(new DefaultQuery(filter));
+        unLockFeatures(new DefaultQuery( getSchema().getTypeName(), filter));
     }
 
     /**
