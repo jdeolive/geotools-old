@@ -17,28 +17,31 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
 /**
- * @version $Id: PolygonSymbolizerImpl.java,v 1.4 2003/01/10 13:13:21 ianturton Exp $
+ * @version $Id: PolygonSymbolizerImpl.java,v 1.5 2003/07/22 15:55:04 ianturton Exp $
  * @author James Macgill, CCG
  */
-public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbolizer {
-
+public class PolygonSymbolizerImpl
+    implements org.geotools.styling.PolygonSymbolizer {
     private Fill fill = new FillImpl();
     private Stroke stroke = new StrokeImpl();
     private String geometryPropertyName = null;
+
     /** Creates a new instance of DefaultPolygonStyler */
     protected PolygonSymbolizerImpl() {
     }
-    public int hashcode(){
+
+    public int hashcode() {
         int key = 0;
         key = fill.hashCode();
-        key = key *13 + stroke.hashCode();
-        key = key *13 + geometryPropertyName.hashCode();
+        key = (key * 13) + stroke.hashCode();
+        key = (key * 13) + geometryPropertyName.hashCode();
+
         return key;
     }
+
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -61,12 +64,15 @@ public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbol
     public String geometryPropertyName() {
         return geometryPropertyName;
     }
+
     public String getGeometryPropertyName() {
         return geometryPropertyName;
     }
-    public void setGeometryPropertyName(String name){
+
+    public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
+
     /**
      * Provides the graphical-symbolization parameter to use to fill the area
      * of the geometry.
@@ -76,17 +82,17 @@ public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbol
     public Fill getFill() {
         return fill;
     }
-    
+
     /**
      * Sets the graphical-symbolization parameter to use to fill the area
      * of the geometry.
      *
      * @param f The Fill style to use when rendering the area.
      */
-    public void setFill(Fill f){
-        fill = f;
+    public void setFill(Fill fill) {
+        this.fill = fill;
     }
-    
+
     /**
      * Provides the graphical-symbolization parameter to use for the outline
      * of the Polygon.
@@ -96,15 +102,14 @@ public class PolygonSymbolizerImpl implements org.geotools.styling.PolygonSymbol
     public Stroke getStroke() {
         return stroke;
     }
-    
+
     /**
      * Sets the graphical-symbolization parameter to use for the outline
      * of the Polygon.
      *
      * @param s The Stroke style to use when rendering lines.
      */
-    public void setStroke(Stroke s){
-        stroke = s;
+    public void setStroke(Stroke stroke) {
+        this.stroke = stroke;
     }
-    
 }

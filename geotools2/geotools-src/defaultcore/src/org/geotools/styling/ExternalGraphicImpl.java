@@ -17,38 +17,30 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
-// J2SE dependencies
-import java.net.*;
-import java.io.*;
-import java.util.logging.Logger;
-
-
 /**
- * @version $Id: ExternalGraphicImpl.java,v 1.3 2003/05/16 21:10:20 jmacgill Exp $
+ * @version $Id: ExternalGraphicImpl.java,v 1.4 2003/07/22 15:55:05 ianturton Exp $
  * @author Ian Turton, CCG
  */
-public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
-
+public class ExternalGraphicImpl implements ExternalGraphic, Symbol {
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-
-    URL location = null;
+    private static final java.util.logging.Logger LOGGER = 
+            java.util.logging.Logger.getLogger("org.geotools.core");
+    java.net.URL location = null;
     String format = "";
-    
-    
-    public void setURI(String uri){
+
+    public void setURI(String uri) {
         try {
-            setLocation(new URL(uri));
-        } catch (MalformedURLException e){
-            LOGGER.info("Exception setting uri: " + uri + "\n" + e);
-            e.printStackTrace();
+            setLocation(new java.net.URL(uri));
+        } catch (java.net.MalformedURLException mfue) {
+            LOGGER.info("Exception setting uri: " + uri + "\n" + mfue);
+            mfue.printStackTrace();
         }
     }
+
     /**
      * Provides the format of the external graphic.
      * @return The format of the external graphic.  Reported as its MIME type
@@ -57,15 +49,15 @@ public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
     public String getFormat() {
         return format;
     }
-    
+
     /**
      * Provides the URL for where the external graphic resouce can be located.
      * @return The URL of the ExternalGraphic
      */
-    public URL getLocation() {
+    public java.net.URL getLocation() {
         return location;
     }
-    
+
     /**
      * Setter for property Format.
      * @param format New value of property Format.
@@ -73,7 +65,7 @@ public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
     public void setFormat(java.lang.String format) {
         this.format = format;
     }
-    
+
     /**
      * Setter for property location.
      * @param location New value of property location.
@@ -81,5 +73,4 @@ public class ExternalGraphicImpl implements ExternalGraphic,Symbol {
     public void setLocation(java.net.URL location) {
         this.location = location;
     }
-    
 }

@@ -21,7 +21,6 @@
  *     UNITED KINGDOM: James Macgill j.macgill@geog.leeds.ac.uk
  *
  */
-
 package org.geotools.styling;
 
 // J2SE dependencies
@@ -32,28 +31,25 @@ import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: FillImpl.java,v 1.5 2002/10/24 16:54:40 ianturton Exp $
+ * @version $Id: FillImpl.java,v 1.6 2003/07/22 15:52:10 ianturton Exp $
  * @author James Macgill, CCG
  */
-
 public class FillImpl implements org.geotools.styling.Fill {
-    
     /**
      * The logger for the default core module.
      */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression color = null;
     private Expression backgroundColor = null;
     private Expression opacity = null;
-    
     private Graphic graphicFill = null;
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+
     /** Creates a new instance of DefaultFill */
     protected FillImpl() {
-        
     }
-    
+
     /**
      * This parameter gives the solid color that will be used for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -71,6 +67,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     public Expression getColor() {
         return color;
     }
+
     /**
      * This parameter gives the solid color that will be used for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -87,10 +84,11 @@ public class FillImpl implements org.geotools.styling.Fill {
     public void setColor(Expression rgb) {
         color = rgb;
     }
-    public void setColor(String rgb){
+
+    public void setColor(String rgb) {
         color = filterFactory.createLiteralExpression(rgb);
     }
-    
+
     /**
      * This parameter gives the solid color that will be used as a background for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -107,6 +105,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     public Expression getBackgroundColor() {
         return backgroundColor;
     }
+
     /**
      * This parameter gives the solid color that will be used as a background for a Fill.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -123,10 +122,12 @@ public class FillImpl implements org.geotools.styling.Fill {
     public void setBackgroundColor(Expression rgb) {
         backgroundColor = rgb;
     }
-    public void setBackgroundColor(String rgb){
+
+    public void setBackgroundColor(String rgb) {
+        LOGGER.fine("setting bg color with " + rgb + " as a string");
         backgroundColor = filterFactory.createLiteralExpression(rgb);
     }
-    
+
     /**
      * This specifies the level of translucency to use when rendering the fill.
      * <br>
@@ -142,7 +143,7 @@ public class FillImpl implements org.geotools.styling.Fill {
     public Expression getOpacity() {
         return opacity;
     }
-    
+
     /**
      * Setter for property opacity.
      * @param opacity New value of property opacity.
@@ -150,9 +151,11 @@ public class FillImpl implements org.geotools.styling.Fill {
     public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
-    public void setOpacity(String opacity){
+
+    public void setOpacity(String opacity) {
         this.opacity = filterFactory.createLiteralExpression(opacity);
     }
+
     /**
      * This parameter indicates that a stipple-fill repeated graphic will be
      * used and specifies the fill graphic to use.
@@ -160,12 +163,10 @@ public class FillImpl implements org.geotools.styling.Fill {
      * @return graphic The graphic to use as a stipple fill.
      *         If null then no Stipple fill should be used.
      */
-    
-    
     public org.geotools.styling.Graphic getGraphicFill() {
         return graphicFill;
     }
-    
+
     /**
      * Setter for property graphic.
      * @param graphicFill New value of property graphic.
@@ -173,5 +174,4 @@ public class FillImpl implements org.geotools.styling.Fill {
     public void setGraphicFill(org.geotools.styling.Graphic graphicFill) {
         this.graphicFill = graphicFill;
     }
-    
 }

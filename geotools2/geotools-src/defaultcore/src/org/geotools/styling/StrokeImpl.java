@@ -16,52 +16,53 @@
  *    License along with this library; if not, write to the Free Software
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  **/
-
 package org.geotools.styling;
 
 import java.awt.Color;
 
- /**
-  *
-  * TODO:This is unfinished as it currently returns fixed values with no way
-  * to change them.
-  *
-  * @version $Id: StrokeImpl.java,v 1.6 2003/05/12 22:07:26 jmacgill Exp $
-  * @author James Macgill, CCG
-  */
-
+/**
+ *
+ * TODO:This is unfinished as it currently returns fixed values with no way
+ * to change them.
+ *
+ * @version $Id: StrokeImpl.java,v 1.7 2003/07/22 15:52:19 ianturton Exp $
+ * @author James Macgill, CCG
+ */
 import org.geotools.filter.*;
 
+
 public class StrokeImpl implements org.geotools.styling.Stroke {
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression color;
     private float[] dashArray;
-    private Expression dashOffset ;
+    private Expression dashOffset;
     private Graphic fillGraphic;
     private Graphic strokeGraphic;
     private Expression lineCap;
     private Expression lineJoin;
     private Expression opacity;
     private Expression width;
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+
     /** Creates a new instance of Stroke */
     protected StrokeImpl() {
-//        try {
-//            color = new ExpressionLiteral("#000000");
-//            dashArray = null;//HACK: is this an acceptable return?
-//            dashOffset = new ExpressionLiteral(new Integer(0));
-//            fillGraphic = null;
-//            strokeGraphic = null;
-//            lineCap = new ExpressionLiteral("butt");
-//            lineJoin = new ExpressionLiteral("miter");
-//            opacity = new ExpressionLiteral(new Integer(1));
-//            width = new ExpressionLiteral(new Integer(1));
-//        } catch (IllegalFilterException ife){
-//            //we should never be in here
-//            //TODO: log this as a fatal exception
-//            System.err.println("DefaultStroke constructor failed " + ife);
-//        }
+        //        try {
+        //            color = new ExpressionLiteral("#000000");
+        //            dashArray = null;//HACK: is this an acceptable return?
+        //            dashOffset = new ExpressionLiteral(new Integer(0));
+        //            fillGraphic = null;
+        //            strokeGraphic = null;
+        //            lineCap = new ExpressionLiteral("butt");
+        //            lineJoin = new ExpressionLiteral("miter");
+        //            opacity = new ExpressionLiteral(new Integer(1));
+        //            width = new ExpressionLiteral(new Integer(1));
+        //        } catch (IllegalFilterException ife){
+        //            //we should never be in here
+        //            //TODO: log this as a fatal exception
+        //            System.err.println("DefaultStroke constructor failed " + ife);
+        //        }
     }
-    
+
     /**
      * This parameter gives the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -78,9 +79,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getColor() {
         return color;
     }
-    
-    
-    
+
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -94,13 +93,14 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      *
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
-    public void setColor(Expression c) {
-        if(c == null) {
-           return;
+    public void setColor(Expression color) {
+        if (color == null) {
+            return;
         }
-        color = c;
+
+        this.color = color;
     }
-    
+
     /**
      * This parameter sets the solid color that will be used for a stroke.<br>
      * The color value is RGB-encoded using two hexidecimal digits per
@@ -114,11 +114,10 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      *
      * @param c The color of the stroke encoded as a hexidecimal RGB value.
      */
-    public void setColor(String c) {
-            setColor(filterFactory.createLiteralExpression(c));
+    public void setColor(String color) {
+        setColor(filterFactory.createLiteralExpression(color));
     }
-    
-    
+
     /**
      * This parameter encodes the dash pattern as a series of floats.<br>
      * The first number gives the length in pixels of the dash to draw,
@@ -136,14 +135,16 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      * "dashlength gaplength ..."
      */
     public float[] getDashArray() {
-        if (dashArray == null) {
-            return new float[0];
+        float[] ret = new float[0];
+
+        if (dashArray != null) {
+            ret = new float[dashArray.length];
+            System.arraycopy(dashArray, 0, ret, 0, dashArray.length);
         }
-        float[] newArray = new float[dashArray.length];
-        System.arraycopy(dashArray, 0, newArray, 0, dashArray.length);
-        return newArray;
+
+        return ret;
     }
-    
+
     /**
      * This parameter encodes the dash pattern as a series of floats.<br>
      * The first number gives the length in pixels of the dash to draw, the
@@ -163,27 +164,27 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public void setDashArray(float[] dashPattern) {
         dashArray = dashPattern;
     }
-    
+
     /**
      * This param determines where the dash pattern should start from.
      */
     public Expression getDashOffset() {
         return dashOffset;
     }
-    
+
     /**
      * This param determines where the dash pattern should start from.
      * @param offset The distance into the dash pattern that should act as
      *        the start.
      */
-    public void setDashOffset(Expression offset){
+    public void setDashOffset(Expression offset) {
         if (offset == null) {
             return;
         }
+
         dashOffset = offset;
     }
-    
-    
+
     /**
      * This parameter indicates that a stipple-fill repeated graphic will
      * be used and specifies the fill graphic to use.
@@ -194,7 +195,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Graphic getGraphicFill() {
         return fillGraphic;
     }
-    
+
     /**
      * This parameter indicates that a stipple-fill repeated graphic will
      * be used and specifies the fill graphic to use.
@@ -205,7 +206,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public void setGraphicFill(Graphic graphic) {
         fillGraphic = graphic;
     }
-    
+
     /**
      * This parameter indicates that a repeated-linear-graphic graphic
      * stroke type will be used and specifies the graphic to use.
@@ -223,7 +224,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Graphic getGraphicStroke() {
         return strokeGraphic;
     }
-    
+
     /**
      * This parameter indicates that a repeated-linear-graphic graphic stroke
      * type will be used and specifies the graphic to use.
@@ -241,7 +242,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public void setGraphicStroke(Graphic graphic) {
         strokeGraphic = graphic;
     }
-    
+
     /**
      * This parameter controls how line strings should be capped.
      *
@@ -251,7 +252,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getLineCap() {
         return lineCap;
     }
-    
+
     /**
      * This parameter controls how line strings should be capped.
      *
@@ -262,9 +263,10 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         if (cap == null) {
             return;
         }
+
         lineCap = cap;
     }
-    
+
     /**
      * This parameter controls how line strings should be joined together.
      *
@@ -274,7 +276,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getLineJoin() {
         return lineJoin;
     }
-    
+
     /**
      * This parameter controls how line strings should be joined together.
      *
@@ -285,9 +287,10 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         if (join == null) {
             return;
         }
+
         lineJoin = join;
     }
-    
+
     /**
      * This specifies the level of translucency to use when rendering the
      * stroke.<br>
@@ -304,7 +307,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getOpacity() {
         return opacity;
     }
-    
+
     /**
      * This specifies the level of translucency to use when rendering the
      * stroke.<br>
@@ -322,9 +325,10 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         if (level == null) {
             return;
         }
+
         opacity = level;
     }
-    
+
     /**
      * This parameter gives the absolute width (thickness) of a stroke in
      * pixels encoded as a float.
@@ -337,7 +341,7 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
     public Expression getWidth() {
         return width;
     }
-    
+
     /**
      * This parameter sets the absolute width (thickness) of a stroke in
      * pixels encoded as a float.
@@ -347,17 +351,17 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
      * @param expr The width of the stroke in pixels.  This may be fractional
      * but not negative.
      */
-    
-    
-    public void setWidth(Expression expr){
+    public void setWidth(Expression expr) {
         if (expr == null) {
             return;
         }
+
         width = expr;
     }
-    
-    public String toString(){
-        StringBuffer out = new StringBuffer("org.geotools.styling.StrokeImpl:\n");
+
+    public String toString() {
+        StringBuffer out = new StringBuffer(
+                                   "org.geotools.styling.StrokeImpl:\n");
         out.append("\tColor " + this.color + "\n");
         out.append("\tWidth " + this.width + "\n");
         out.append("\tOpacity " + this.opacity + "\n");
@@ -366,12 +370,12 @@ public class StrokeImpl implements org.geotools.styling.Stroke {
         out.append("\tDash Array " + this.dashArray + "\n");
         out.append("\tDash Offset " + this.dashOffset + "\n");
         out.append("\tFill Graphic " + this.fillGraphic + "\n");
-        out.append("\tStroke Graphic " + this.strokeGraphic );
+        out.append("\tStroke Graphic " + this.strokeGraphic);
+
         return out.toString();
     }
-    
-    public Color getColor(org.geotools.feature.Feature f) {
-        return Color.decode((String)this.getColor().getValue(f));
+
+    public Color getColor(org.geotools.feature.Feature feature) {
+        return Color.decode((String) this.getColor().getValue(feature));
     }
-    
 }

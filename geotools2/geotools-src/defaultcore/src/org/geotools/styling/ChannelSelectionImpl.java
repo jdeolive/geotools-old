@@ -36,11 +36,15 @@ public class ChannelSelectionImpl implements ChannelSelection {
     }
 
     public SelectedChannelType[] getSelectedChannels() {
+        SelectedChannelType[] ret;
+
         if (gray == null) {
-            return new SelectedChannelType[] { red, green, blue };
+            ret = new SelectedChannelType[] { red, green, blue };
         } else {
-            return new SelectedChannelType[] { gray };
+            ret = new SelectedChannelType[] { gray };
         }
+
+        return ret;
     }
 
     public void setGrayChannel(SelectedChannelType gray) {
@@ -50,8 +54,8 @@ public class ChannelSelectionImpl implements ChannelSelection {
     public void setRGBChannels(SelectedChannelType[] channels) {
         if (channels.length != 3) {
             throw new IllegalArgumentException(
-                "Three channels are required in setRGBChannels, got " +
-                channels.length);
+                    "Three channels are required in setRGBChannels, got " + 
+                    channels.length);
         }
 
         red = channels[0];
@@ -59,8 +63,9 @@ public class ChannelSelectionImpl implements ChannelSelection {
         blue = channels[2];
     }
 
-    public void setRGBChannels(SelectedChannelType red,
-        SelectedChannelType green, SelectedChannelType blue) {
+    public void setRGBChannels(SelectedChannelType red, 
+                               SelectedChannelType green, 
+                               SelectedChannelType blue) {
         this.red = red;
         this.green = green;
         this.blue = blue;
@@ -75,8 +80,8 @@ public class ChannelSelectionImpl implements ChannelSelection {
             blue = channels[2];
         } else {
             throw new IllegalArgumentException(
-                "Wrong number of elements in setSelectedChannels, expected 1 or 3, got " +
-                channels.length);
+                    "Wrong number of elements in setSelectedChannels, expected 1 or 3, got " + 
+                    channels.length);
         }
     }
 }

@@ -17,65 +17,63 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
-// J2SE dependencies
-import java.util.logging.Logger;
-
-// Geotools dependencies
-import org.geotools.filter.*;
+import org.geotools.filter.Expression;
 
 
 /**
- * @version $Id: DisplacementImpl.java,v 1.3 2002/10/24 16:54:50 ianturton Exp $
+ * @version $Id: DisplacementImpl.java,v 1.4 2003/07/22 15:52:19 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class DisplacementImpl implements Displacement {
-
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private static final java.util.logging.Logger LOGGER = 
+            java.util.logging.Logger.getLogger("org.geotools.core");
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     private Expression displacementX = null;
     private Expression displacementY = null;
+
     /** Creates a new instance of DefaultDisplacement */
     public DisplacementImpl() {
         try {
-            displacementX = filterFactory.createLiteralExpression(new Integer(0));
-            displacementY = filterFactory.createLiteralExpression(new Integer(0));
-        } catch (org.geotools.filter.IllegalFilterException ife){
+            displacementX = filterFactory.createLiteralExpression(
+                                    new Integer(0));
+            displacementY = filterFactory.createLiteralExpression(
+                                    new Integer(0));
+        } catch (org.geotools.filter.IllegalFilterException ife) {
             LOGGER.severe("Failed to build defaultDisplacement: " + ife);
         }
     }
- 
+
     /** Setter for property displacementX.
      * @param displacementX New value of property displacementX.
      */
     public void setDisplacementX(Expression displacementX) {
         this.displacementX = displacementX;
     }
-    
+
     /** Setter for property displacementY.
      * @param displacementY New value of property displacementY.
      */
     public void setDisplacementY(Expression displacementY) {
         this.displacementY = displacementY;
     }
-    
+
     /** Getter for property displacementX.
      * @return Value of property displacementX.
      */
     public Expression getDisplacementX() {
         return displacementX;
     }
-    
+
     /** Getter for property displacementY.
      * @return Value of property displacementY.
      */
     public Expression getDisplacementY() {
         return displacementY;
     }
-    
 }

@@ -3,11 +3,11 @@
  *
  * Created on 13 November 2002, 13:52
  */
-
 package org.geotools.styling;
 
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
+
 
 /** The ContrastEnhancement object defines contrast enhancement for a channel of a false-color image or
  * for a color image.
@@ -45,34 +45,31 @@ import org.geotools.filter.FilterFactory;
  * @author  iant
  */
 public class ContrastEnhancementImpl implements ContrastEnhancement {
-    FilterFactory filterFactory = FilterFactory.createFilterFactory(); 
-    Expression gamma, type;
-    
+    FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    Expression gamma;
+    Expression type;
+
     public Expression getGammaValue() {
         return gamma;
     }
-    
+
     public Expression getType() {
         return type;
-            
     }
-    
 
-    
     public void setGammaValue(Expression gamma) {
         this.gamma = gamma;
     }
-    
+
     public void setHistogram() {
         type = filterFactory.createLiteralExpression("HISTOGRAM");
     }
-    
+
     public void setNormalize() {
         type = filterFactory.createLiteralExpression("NORMALIZE");
     }
-    
+
     public void setType(Expression type) {
-        this.type =type;
+        this.type = type;
     }
-    
 }

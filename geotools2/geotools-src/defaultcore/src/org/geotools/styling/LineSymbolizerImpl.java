@@ -17,26 +17,28 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
 /**
- * @version $Id: LineSymbolizerImpl.java,v 1.5 2003/01/10 13:13:21 ianturton Exp $
+ * @version $Id: LineSymbolizerImpl.java,v 1.6 2003/07/22 15:52:10 ianturton Exp $
  * @author James Macgill
  */
 public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     private Stroke stroke = null;
     private String geometryName = null;
+
     /** Creates a new instance of DefaultLineSymbolizer */
     protected LineSymbolizerImpl() {
     }
-    
-    public int hashcode(){
+
+    public int hashcode() {
         int key = 0;
         key = stroke.hashCode();
-        key = key *13 + geometryName.hashCode();
+        key = (key * 13) + geometryName.hashCode();
+
         return key;
     }
+
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -61,10 +63,11 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     public String geometryPropertyName() {
         return geometryName;
     }
-    public void setGeometryPropertyName(String name){
+
+    public void setGeometryPropertyName(String name) {
         geometryName = name;
     }
-    
+
     /**
      * Provides the graphical-symbolization parameter to use for the
      * linear geometry.
@@ -74,15 +77,14 @@ public class LineSymbolizerImpl implements org.geotools.styling.LineSymbolizer {
     public Stroke getStroke() {
         return stroke;
     }
-    
+
     /**
      * Sets the graphical-symbolization parameter to use for the
      * linear geometry.
      *
      * @param s The Stroke style to use when rendering lines.
      */
-    public void setStroke(Stroke s) {
-        stroke = s;
+    public void setStroke(Stroke stroke) {
+        this.stroke = stroke;
     }
-    
 }

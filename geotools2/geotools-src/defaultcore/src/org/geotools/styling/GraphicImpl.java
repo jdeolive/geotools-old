@@ -35,33 +35,25 @@
  */
 package org.geotools.styling;
 
-
-// Geotools dependencies
-import org.geotools.filter.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-// J2SE dependencies
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import org.geotools.filter.Expression;
 
 
 /**
  * DOCUMENT ME!
  *
  * @author Ian Turton, CCG
- * @version $Id: GraphicImpl.java,v 1.8 2003/06/13 00:42:47 seangeo Exp $
+ * @version $Id: GraphicImpl.java,v 1.9 2003/07/22 15:52:19 ianturton Exp $
  */
 public class GraphicImpl implements org.geotools.styling.Graphic {
     /** The logger for the default core module. */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    private static final FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    private static final java.util.logging.Logger LOGGER = 
+            java.util.logging.Logger.getLogger("org.geotools.core");
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     String geometryPropertyName = "";
-    List externalGraphics = new ArrayList();
-    List marks = new ArrayList();
-    List symbols = new ArrayList();
+    java.util.List externalGraphics = new java.util.ArrayList();
+    java.util.List marks = new java.util.ArrayList();
+    java.util.List symbols = new java.util.ArrayList();
     private Expression rotation = null;
     private Expression size = null;
     private Expression opacity = null;
@@ -79,9 +71,11 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      * @param message DOCUMENT ME!
      * @param exception DOCUMENT ME!
      */
-    private static void severe(final String method, final String message,
-        final Exception exception) {
-        final LogRecord record = new LogRecord(Level.SEVERE, message);
+    private static void severe(final String method, final String message, 
+                               final Exception exception) {
+        final java.util.logging.LogRecord record = new java.util.logging.LogRecord(
+                                                           java.util.logging.Level.SEVERE, 
+                                                           message);
         record.setSourceMethodName(method);
         record.setThrown(exception);
         LOGGER.log(record);
@@ -98,11 +92,12 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      *         instead.
      */
     public ExternalGraphic[] getExternalGraphics() {
+        ExternalGraphic[] ret =null;
         if (externalGraphics.size() > 0) {
-            return (ExternalGraphic[]) externalGraphics.toArray(new ExternalGraphic[0]);
-        } else {
-            return null;
-        }
+            ret=(ExternalGraphic[]) externalGraphics.toArray(
+                             new ExternalGraphic[0]);
+        } 
+        return ret;
     }
 
     public void setExternalGraphics(ExternalGraphic[] externalGraphics) {
@@ -113,9 +108,9 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
         }
     }
 
-    public void addExternalGraphic(ExternalGraphic g) {
-        externalGraphics.add(g);
-        symbols.add(g);
+    public void addExternalGraphic(ExternalGraphic externalGraphic) {
+        externalGraphics.add(externalGraphic);
+        symbols.add(externalGraphic);
     }
 
     /**
@@ -128,11 +123,11 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      *         size of 6 pixels (unless a size is specified) is provided.
      */
     public Mark[] getMarks() {
+        Mark[] ret = new Mark[] { new MarkImpl() };
         if (marks.size() > 0) {
-            return (Mark[]) marks.toArray(new Mark[0]);
-        } else {
-            return new Mark[] { new MarkImpl() };
-        }
+            ret=(Mark[]) marks.toArray(new Mark[0]);
+        } 
+        return ret;
     }
 
     public void setMarks(Mark[] marks) {
@@ -143,15 +138,15 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
         }
     }
 
-    public void addMark(Mark m) {
-        if (m == null) {
+    public void addMark(Mark mark) {
+        if (mark == null) {
             return;
         }
 
-        marks.add(m);
-        symbols.add(m);
-        m.setSize(size);
-        m.setRotation(rotation);
+        marks.add(mark);
+        symbols.add(mark);
+        mark.setSize(size);
+        mark.setRotation(rotation);
     }
 
     /**
@@ -165,11 +160,12 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
      *         size of 6 pixels (unless a size is specified) is provided.
      */
     public Symbol[] getSymbols() {
+        Symbol[] ret = new Symbol[] { new MarkImpl() };
         if (symbols.size() > 0) {
-            return (Symbol[]) symbols.toArray(new Symbol[0]);
-        } else {
-            return new Symbol[] { new MarkImpl() };
-        }
+            ret=(Symbol[]) symbols.toArray(new Symbol[0]);
+        } 
+            return ret;
+        
     }
 
     public void setSymbols(Symbol[] symbols) {
@@ -186,14 +182,15 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
         if (symbol instanceof ExternalGraphic) {
             addExternalGraphic((ExternalGraphic) symbol);
 
-            return;
+            
         }
 
         if (symbol instanceof Mark) {
             addMark((Mark) symbol);
 
-            return;
+           
         }
+        return;
     }
 
     /**
@@ -255,8 +252,8 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
 
     public void setOpacity(double opacity) {
         try {
-            this.opacity = filterFactory.createLiteralExpression(new Double(
-                        opacity));
+            this.opacity = filterFactory.createLiteralExpression(
+                                   new Double(opacity));
         } catch (org.geotools.filter.IllegalFilterException mfe) {
             severe("setOpacity", "Problem setting Opacity", mfe);
         }
@@ -270,17 +267,17 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     public void setRotation(Expression rotation) {
         this.rotation = rotation;
 
-        Iterator i = marks.iterator();
+        java.util.Iterator iter = marks.iterator();
 
-        while (i.hasNext()) {
-            ((MarkImpl) i.next()).setRotation(rotation);
+        while (iter.hasNext()) {
+            ((MarkImpl) iter.next()).setRotation(rotation);
         }
     }
 
     public void setRotation(double rotation) {
         try {
             setRotation(filterFactory.createLiteralExpression(
-                    new Double(rotation)));
+                                new Double(rotation)));
         } catch (org.geotools.filter.IllegalFilterException mfe) {
             severe("setRotation", "Problem setting Rotation", mfe);
         }
@@ -294,10 +291,10 @@ public class GraphicImpl implements org.geotools.styling.Graphic {
     public void setSize(Expression size) {
         this.size = size;
 
-        Iterator i = marks.iterator();
+        java.util.Iterator iter = marks.iterator();
 
-        while (i.hasNext()) {
-            ((MarkImpl) i.next()).setSize(size);
+        while (iter.hasNext()) {
+            ((MarkImpl) iter.next()).setSize(size);
         }
     }
 

@@ -17,42 +17,42 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
-import org.geotools.filter.*;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * @version $Id: TextSymbolizerImpl.java,v 1.8 2003/05/16 21:10:22 jmacgill Exp $
+ * @version $Id: TextSymbolizerImpl.java,v 1.9 2003/07/22 15:55:05 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class TextSymbolizerImpl implements TextSymbolizer {
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     Fill fill;
-    List fonts = new ArrayList();
-    Halo halo; 
+    java.util.List fonts = new java.util.ArrayList();
+    Halo halo;
     LabelPlacement labelPlacement;
     String geometryPropertyName = null;
-    Expression label = null;
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+    org.geotools.filter.Expression label = null;
+
     /** Creates a new instance of DefaultTextSymbolizer */
     protected TextSymbolizerImpl() {
         fill = new FillImpl();
         fill.setColor(filterFactory.createLiteralExpression("#000000")); // default text fill is black
         halo = null;
-        labelPlacement = new PointPlacementImpl(); 
+        labelPlacement = new PointPlacementImpl();
     }
-    public int hashcode(){
+
+    public int hashcode() {
         int key = 0;
         key = fill.hashCode();
-        key = key *13 + fonts.hashCode();
-        key = key *13 + halo.hashCode();
-        key = key *13 + labelPlacement.hashCode();
-        key = key *13 + label.hashCode();
-        key = key *13 + geometryPropertyName.hashCode();
+        key = (key * 13) + fonts.hashCode();
+        key = (key * 13) + halo.hashCode();
+        key = (key * 13) + labelPlacement.hashCode();
+        key = (key * 13) + label.hashCode();
+        key = (key * 13) + geometryPropertyName.hashCode();
+
         return key;
     }
+
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -73,7 +73,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public String geometryPropertyName() {
         return geometryPropertyName;
     }
-    
+
     /**
      * Returns the fill to be used to fill the text when rendered.
      * @return The fill to be used.
@@ -81,24 +81,27 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public Fill getFill() {
         return fill;
     }
-    
+
     /** Setter for property fill.
      * @param fill New value of property fill.
      */
     public void setFill(org.geotools.styling.Fill fill) {
         this.fill = fill;
     }
+
     /**
      * Returns a device independent Font object that is to be used to render
      * the label.
      * @return Device independent Font object to be used to render the label.
      */
     public Font[] getFonts() {
-        if (fonts.size() == 0){
+        if (fonts.size() == 0) {
             fonts.add(new FontImpl());
         }
-        return (Font[]) fonts.toArray(new Font[]{});
+
+        return (Font[]) fonts.toArray(new Font[] {  });
     }
+
     /**
      * Setter for property font.
      * @param font New value of property font.
@@ -106,12 +109,13 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public void addFont(org.geotools.styling.Font font) {
         this.fonts.add(font);
     }
-    
-    public void setFonts(Font[] fonts){
-        for(int i=0;i<fonts.length;i++){
+
+    public void setFonts(Font[] fonts) {
+        for (int i = 0; i < fonts.length; i++) {
             addFont(fonts[i]);
         }
     }
+
     /**
      * A halo fills an extended area outside the glyphs of a rendered text
      * label to make the label easier to read over a background.
@@ -119,6 +123,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public Halo getHalo() {
         return halo;
     }
+
     /**
      * Setter for property halo.
      * @param halo New value of property halo.
@@ -126,21 +131,23 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public void setHalo(org.geotools.styling.Halo halo) {
         this.halo = halo;
     }
+
     /**
      * Returns the label expression.
      * @return Label expression.
      */
-    public Expression getLabel() {
+    public org.geotools.filter.Expression getLabel() {
         return label;
     }
+
     /**
      * Setter for property label.
      * @param label New value of property label.
      */
-    public void setLabel(Expression label){
+    public void setLabel(org.geotools.filter.Expression label) {
         this.label = label;
     }
-    
+
     /**
      * A pointPlacement specifies how a text element should be rendered
      * relative to its geometric point.
@@ -149,7 +156,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public LabelPlacement getLabelPlacement() {
         return labelPlacement;
     }
-    
+
     /**
      * Setter for property labelPlacement.
      * @param labelPlacement New value of property labelPlacement.
@@ -157,7 +164,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public void setLabelPlacement(org.geotools.styling.LabelPlacement labelPlacement) {
         this.labelPlacement = labelPlacement;
     }
-    
+
     /**
      * Getter for property geometryPropertyName.
      * @return Value of property geometryPropertyName.
@@ -165,7 +172,7 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public java.lang.String getGeometryPropertyName() {
         return geometryPropertyName;
     }
-    
+
     /**
      * Setter for property geometryPropertyName.
      * @param geometryPropertyName New value of property geometryPropertyName.
@@ -173,5 +180,4 @@ public class TextSymbolizerImpl implements TextSymbolizer {
     public void setGeometryPropertyName(java.lang.String geometryPropertyName) {
         this.geometryPropertyName = geometryPropertyName;
     }
-    
 }

@@ -17,39 +17,33 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
-// J2SE dependencies
-import java.util.logging.Logger;
-
-// Geotools dependencies
-import org.geotools.filter.*;
-
-
 /**
- * @version $Id: PointPlacementImpl.java,v 1.6 2003/05/23 20:06:51 jmacgill Exp $
+ * @version $Id: PointPlacementImpl.java,v 1.7 2003/07/22 15:52:29 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointPlacementImpl implements PointPlacement {
-
     /**
      * The logger for the default core module.
      */
-    private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
-    private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+    private static final java.util.logging.Logger LOGGER = 
+            java.util.logging.Logger.getLogger("org.geotools.core");
+    private static final org.geotools.filter.FilterFactory filterFactory = 
+            org.geotools.filter.FilterFactory.createFilterFactory();
     AnchorPoint anchorPoint = new AnchorPointImpl();
     Displacement displacement = new DisplacementImpl();
-    Expression rotation = null;
+    org.geotools.filter.Expression rotation = null;
+
     /** Creates a new instance of DefaultPointPlacement */
     public PointPlacementImpl() {
         try {
             rotation = filterFactory.createLiteralExpression(new Integer(0));
-        } catch (org.geotools.filter.IllegalFilterException ife){
+        } catch (org.geotools.filter.IllegalFilterException ife) {
             LOGGER.severe("Failed to build defaultPointPlacement: " + ife);
         }
     }
-    
+
     /**
      * Returns the AnchorPoint which identifies the location inside a text
      * label to use as an "anchor" for positioning it relative to a point
@@ -59,43 +53,40 @@ public class PointPlacementImpl implements PointPlacement {
     public org.geotools.styling.AnchorPoint getAnchorPoint() {
         return anchorPoint;
     }
-    
+
     /**
      * Setter for property anchorPoint.
      * @param anchorPoint New value of property anchorPoint.
      */
     public void setAnchorPoint(org.geotools.styling.AnchorPoint anchorPoint) {
-        if(anchorPoint == null ) {
+        if (anchorPoint == null) {
             this.anchorPoint = new AnchorPointImpl();
-        }
-        else{
+        } else {
             this.anchorPoint = anchorPoint;
         }
     }
-    
+
     /**
      * Returns the Displacement which gives X and Y offset displacements
      * to use for rendering a text label near a point.
      * @return The label displacement.
      */
-    
     public org.geotools.styling.Displacement getDisplacement() {
         return displacement;
     }
-    
+
     /**
      * Setter for property displacement.
      * @param displacement New value of property displacement.
      */
     public void setDisplacement(org.geotools.styling.Displacement displacement) {
-        if(displacement == null ) {
+        if (displacement == null) {
             this.displacement = new DisplacementImpl();
-        }
-        else{
+        } else {
             this.displacement = displacement;
         }
     }
-    
+
     /**
      * Returns the rotation of the label.
      * @return The rotation of the label.
@@ -103,7 +94,7 @@ public class PointPlacementImpl implements PointPlacement {
     public org.geotools.filter.Expression getRotation() {
         return rotation;
     }
-    
+
     /**
      * Setter for property rotation.
      * @param rotation New value of property rotation.
@@ -111,5 +102,4 @@ public class PointPlacementImpl implements PointPlacement {
     public void setRotation(org.geotools.filter.Expression rotation) {
         this.rotation = rotation;
     }
- 
 }

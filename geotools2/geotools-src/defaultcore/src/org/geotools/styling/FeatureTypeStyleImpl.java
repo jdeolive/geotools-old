@@ -17,24 +17,24 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
-import java.util.*;
 
 /**
- * @version $Id: FeatureTypeStyleImpl.java,v 1.6 2003/06/13 00:41:38 seangeo Exp $
+ * @version $Id: FeatureTypeStyleImpl.java,v 1.7 2003/07/22 15:52:19 ianturton Exp $
  * @author James Macgill
  */
-public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeStyle {
-    private List ruleList = new ArrayList();// Possibly not the best storage
+public class FeatureTypeStyleImpl
+    implements org.geotools.styling.FeatureTypeStyle {
+    private java.util.List ruleList = new java.util.ArrayList(); // Possibly not the best storage
     private String featureTypeName = "feature";
     String name = "name";
     String title = "title";
     String abstractStr = "abstract";
+
     /** Creates a new instance of DefaultFeatureTypeStyle */
     protected FeatureTypeStyleImpl() {
-
     }
+
     protected FeatureTypeStyleImpl(Rule[] rules) {
         setRules(rules);
     }
@@ -48,20 +48,22 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     }
 
     public String[] getSemantecTypeIdentifiers() {
-        return new String[]{"generic:geometry"};//HACK: - generic catch all identifier
+        return new String[] { "generic:geometry" }; //HACK: - generic catch all identifier
     }
+
     public void setSemantecTypeIdentifiers(String[] types) {
         // since these are defined yet we can ignore it
     }
 
-    public void setRules(Rule[] rules){
-		ruleList.clear();
-        for(int i=0;i<rules.length;i++){
+    public void setRules(Rule[] rules) {
+        ruleList.clear();
+
+        for (int i = 0; i < rules.length; i++) {
             addRule(rules[i]);
         }
     }
 
-    public void addRule(Rule rule){
+    public void addRule(Rule rule) {
         ruleList.add(rule);
     }
 
@@ -116,5 +118,4 @@ public class FeatureTypeStyleImpl implements org.geotools.styling.FeatureTypeSty
     public void setTitle(java.lang.String title) {
         this.title = title;
     }
-
 }

@@ -3,41 +3,46 @@
  *
  * Created on 13 November 2002, 13:47
  */
-
 package org.geotools.styling;
 
 import org.geotools.filter.Expression;
 import org.geotools.filter.FilterFactory;
+
 
 /**
  *
  * @author  iant
  */
 public class RasterSymbolizerImpl implements RasterSymbolizer {
-    FilterFactory filterFactory = FilterFactory.createFilterFactory(); 
-    ChannelSelection channelSelction = new ChannelSelectionImpl(); 
-    ColorMap colorMap = new ColorMapImpl(); 
+    FilterFactory filterFactory = FilterFactory.createFilterFactory();
+    ChannelSelection channelSelction = new ChannelSelectionImpl();
+    ColorMap colorMap = new ColorMapImpl();
     ContrastEnhancement contrastEnhancement = new ContrastEnhancementImpl();
     ShadedRelief shadedRelief = new ShadedReliefImpl();
     String geometryName = "raster";
     Symbolizer symbolizer;
-    Expression opacity, overlap;
+    Expression opacity;
+    Expression overlap;
+
     /** Creates a new instance of RasterSymbolizerImpl */
     public RasterSymbolizerImpl() {
         opacity = filterFactory.createLiteralExpression(1.0);
         overlap = filterFactory.createLiteralExpression("Random");
     }
-    public int hashcode(){
+
+    public int hashcode() {
         int key = 0;
         key = channelSelction.hashCode();
-        key = key *13 + colorMap.hashCode();
-        key = key *13 + contrastEnhancement.hashCode();
-        key = key *13 + shadedRelief.hashCode();
-        key = key *13 + opacity.hashCode();
-        key = key *13 + overlap.hashCode();
-        key = key *13 + geometryName.hashCode();
+        key = (key * 13) + colorMap.hashCode();
+        key = (key * 13) + contrastEnhancement.hashCode();
+        key = (key * 13) + shadedRelief.hashCode();
+        key = (key * 13) + opacity.hashCode();
+        key = (key * 13) + overlap.hashCode();
+        key = (key * 13) + geometryName.hashCode();
+
         return key;
     }
+
     /** The ChannelSelection element specifies the false-color channel selection for a multi-spectral raster
      * source (such as a multi-band satellite-imagery source).
      * Either a channel may be selected to display in each of red, green, and blue, or a single channel
@@ -51,7 +56,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public ChannelSelection getChannelSelection() {
         return channelSelction;
     }
-    
+
     /** The ColorMap element defines either the colors of a palette-type raster source or the mapping of
      * fixed-numeric pixel values to colors.
      * For example, a DEM raster giving elevations in meters above sea level can be translated to a colored
@@ -68,7 +73,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public ColorMap getColorMap() {
         return colorMap;
     }
-    
+
     /** The ContrastEnhancement element defines contrast enhancement for a channel of a false-color image or
      * for a color image.
      * In the case of a color image, the relative grayscale brightness of a pixel color is used.
@@ -86,7 +91,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public ContrastEnhancement getContrastEnhancement() {
         return contrastEnhancement;
     }
-    
+
     /** The interpretation of Geometry is system-dependent, as raster data may be organized differently from feature data,
      * though omitting this element selects the default raster-data source.  Geometry-type transformations are also
      * system-dependent and it is assumed that this capability will be little used.
@@ -96,7 +101,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public String getGeometryPropertyName() {
         return geometryName;
     }
-    
+
     /** The ImageOutline element specifies that individual source rasters in a multi-raster set (such as a
      * set of satellite-image scenes) should be outlined with either a LineStringSymbol or PolygonSymbol.
      * It is defined as:
@@ -120,7 +125,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public Symbolizer getImageOutline() {
         return symbolizer;
     }
-    
+
     /** fetch the expresion which evaluates to the opacity fo rthis coverage
      * @return The expression
      *
@@ -128,7 +133,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public Expression getOpacity() {
         return opacity;
     }
-    
+
     /** The OverlapBehavior element tells a system how to behave when multiple raster images in a layer
      * overlap each other, for example with satellite-image scenes.
      *  LATEST_ON_TOP and EARLIEST_ON_TOP refer to the time the scene was captured.
@@ -145,7 +150,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public Expression getOverlap() {
         return overlap;
     }
-    
+
     /** The ShadedRelief element selects the application of relief shading (or “hill shading”) to an image for
      * a three-dimensional visual effect.  It is defined as:
      * Exact parameters of the shading are system-dependent (for now).  If the BrightnessOnly flag is “0”
@@ -162,7 +167,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public ShadedRelief getShadedRelief() {
         return shadedRelief;
     }
-    
+
     /** The ChannelSelection element specifies the false-color channel selection for a multi-spectral raster
      * source (such as a multi-band satellite-imagery source).
      * Either a channel may be selected to display in each of red, green, and blue, or a single channel
@@ -176,7 +181,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setChannelSelection(ChannelSelection channel) {
         channelSelction = channel;
     }
-    
+
     /** The ColorMap element defines either the colors of a palette-type raster source or the mapping of
      * fixed-numeric pixel values to colors.
      * For example, a DEM raster giving elevations in meters above sea level can be translated to a colored
@@ -192,7 +197,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setColorMap(ColorMap colorMap) {
         this.colorMap = colorMap;
     }
-    
+
     /** The ContrastEnhancement element defines contrast enhancement for a channel of a false-color image or
      * for a color image.
      * In the case of a color image, the relative grayscale brightness of a pixel color is used.
@@ -207,10 +212,10 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      * @param ce the contrastEnhancement
      *
      */
-    public void setContrastEnhancement(ContrastEnhancement ce) {
-        contrastEnhancement = ce;
+    public void setContrastEnhancement(ContrastEnhancement cEnhancement) {
+        contrastEnhancement = cEnhancement;
     }
-    
+
     /** The interpretation of Geometry is system-dependent, as raster data may be organized differently from feature data,
      * though omitting this element selects the default raster-data source.  Geometry-type transformations are also
      * system-dependent and it is assumed that this capability will be little used.
@@ -220,7 +225,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setGeometryPropertyName(String geometryPropertyName) {
         this.geometryName = geometryPropertyName;
     }
-    
+
     /** The ImageOutline element specifies that individual source rasters in a multi-raster set (such as a
      * set of satellite-image scenes) should be outlined with either a LineStringSymbol or PolygonSymbol.
      * It is defined as:
@@ -243,13 +248,17 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
      *
      */
     public void setImageOutline(Symbolizer symbolizer) {
-        if(symbolizer instanceof LineSymbolizer || symbolizer instanceof PolygonSymbolizer){
+        if (symbolizer instanceof LineSymbolizer || 
+                symbolizer instanceof PolygonSymbolizer) {
             this.symbolizer = symbolizer;
+
             return;
         }
-        throw new IllegalArgumentException("Only a line or polygon symbolizer may be used to outline a raster");
+
+        throw new IllegalArgumentException(
+                "Only a line or polygon symbolizer may be used to outline a raster");
     }
-    
+
     /** sets the opacity for the coverage, it has the usual meaning.
      * @param opacity An expression which evaluates to the the opacity (0-1)
      *
@@ -257,7 +266,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setOpacity(Expression opacity) {
         this.opacity = opacity;
     }
-    
+
     /** The OverlapBehavior element tells a system how to behave when multiple raster images in a layer
      * overlap each other, for example with satellite-image scenes.
      * LATEST_ON_TOP and EARLIEST_ON_TOP refer to the time the scene was captured.
@@ -273,7 +282,7 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setOverlap(Expression overlap) {
         this.overlap = overlap;
     }
-    
+
     /** The ShadedRelief element selects the application of relief shading (or “hill shading”) to an image for
      * a three-dimensional visual effect.  It is defined as:
      * Exact parameters of the shading are system-dependent (for now).  If the BrightnessOnly flag is “0”
@@ -289,5 +298,4 @@ public class RasterSymbolizerImpl implements RasterSymbolizer {
     public void setShadedRelief(ShadedRelief relief) {
         shadedRelief = relief;
     }
-    
 }

@@ -17,25 +17,28 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
-
 package org.geotools.styling;
 
 /**
- * @version $Id: PointSymbolizerImpl.java,v 1.3 2003/01/10 13:13:21 ianturton Exp $
+ * @version $Id: PointSymbolizerImpl.java,v 1.4 2003/07/22 15:52:29 ianturton Exp $
  * @author Ian Turton, CCG
  */
 public class PointSymbolizerImpl implements PointSymbolizer {
     String geometryPropertyName = null;
-    Graphic graphic = new GraphicImpl(); 
+    Graphic graphic = new GraphicImpl();
+
     /** Creates a new instance of DefaultPointSymbolizer */
     protected PointSymbolizerImpl() {
     }
-    public int hashcode(){
+
+    public int hashcode() {
         int key = 0;
         key = graphic.hashCode();
-        key = key *13 + geometryPropertyName.hashCode();
+        key = (key * 13) + geometryPropertyName.hashCode();
+
         return key;
     }
+
     /**
      * This property defines the geometry to be used for styling.<br>
      * The property is optional and if it is absent (null) then the "default"
@@ -56,10 +59,11 @@ public class PointSymbolizerImpl implements PointSymbolizer {
     public String geometryPropertyName() {
         return geometryPropertyName;
     }
+
     public void setGeometryPropertyName(String name) {
         geometryPropertyName = name;
     }
-        
+
     /**
      * Provides the graphical-symbolization parameter to use for the
      * point geometry.
@@ -69,7 +73,7 @@ public class PointSymbolizerImpl implements PointSymbolizer {
     public Graphic getGraphic() {
         return graphic;
     }
-    
+
     /**
      * Setter for property graphic.
      * @param graphic New value of property graphic.
@@ -77,5 +81,4 @@ public class PointSymbolizerImpl implements PointSymbolizer {
     public void setGraphic(org.geotools.styling.Graphic graphic) {
         this.graphic = graphic;
     }
-    
 }
