@@ -4,7 +4,7 @@
   <name>geotools-resources</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>resources</id>
-  <currentVersion>SNAPSHOT</currentVersion>
+  <currentVersion>2.0-B2-SNAPSHOT</currentVersion>
   <versions>
     <version>
       <id>b1</id>
@@ -41,4 +41,20 @@
       <url>http://java.sun.com/products/java-media/3D/</url>
     </dependency>
   </dependencies>
+  <build>
+		
+		<resources>
+			<resource>
+                                <directory>${basedir}/src</directory>
+				<includes>
+                                        <include>**/*.utf</include>
+                                        <include>**/*.properties</include>
+                                        <include>**/*.serialized</include>
+				</includes>
+			</resource>
+		</resources>
+		<jars/>
+		
+	</build>
+  
 </project>

@@ -4,7 +4,7 @@
   <name>geotools-wmsserver</name>
   <extend>${basedir}/../../project.xml</extend>
   <id>wmsserver</id>
-  <currentVersion>SNAPSHOT</currentVersion>
+  <currentVersion>2.0-B2-SNAPSHOT</currentVersion>
   <package>org.geotools</package>
   <shortDescription>wmsserver module</shortDescription>
   <description>wmsserver module</description>
@@ -53,7 +53,7 @@
     <dependency>
       <artifactId>core</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -61,7 +61,7 @@
     <dependency>
       <artifactId>defaultcore</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -69,7 +69,7 @@
     <dependency>
       <artifactId>resources</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -77,7 +77,7 @@
     <dependency>
       <artifactId>sldstyling</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -85,7 +85,7 @@
     <dependency>
       <artifactId>mapinfo</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -93,7 +93,7 @@
     <dependency>
       <artifactId>shapefile</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -101,7 +101,7 @@
     <dependency>
       <artifactId>postgis</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -125,7 +125,7 @@
     <dependency>
       <artifactId>filter</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -141,7 +141,7 @@
     <dependency>
       <artifactId>java2drendering</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -149,7 +149,7 @@
     <dependency>
       <artifactId>lite-rendering</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -157,7 +157,7 @@
     <dependency>
       <artifactId>data</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -165,7 +165,7 @@
     <dependency>
       <artifactId>imagedatasource</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -173,7 +173,7 @@
     <dependency>
       <artifactId>gcs-coverage</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -181,7 +181,7 @@
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
@@ -189,14 +189,14 @@
      <dependency>
       <artifactId>imagedatasource</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
     </dependency>
     <dependency>
       <id>opengis</id>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <url>http://www.geotools.org</url>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
@@ -205,7 +205,7 @@
     <dependency>
       <artifactId>cts-coordtrans</artifactId>
       <groupId>gt2</groupId>
-      <version>SNAPSHOT</version>
+      <version>2.0-B2-SNAPSHOT</version>
       <properties>
         <war.bundle.jar>true</war.bundle.jar>
       </properties>
