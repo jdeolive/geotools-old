@@ -6,7 +6,9 @@
 
 package org.geotools.utils;
 
-import org.geotools.shapefile.Shapefile;
+import org.apache.commons.cli.*;
+
+//import org.geotools.shapefile.Shapefile;
 
 /**
  *
@@ -22,9 +24,35 @@ public class Foo2Bar {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Foo is now Bar");
-        Shapefile shp;
-        System.out.println("shp is " + shp);
+        Option help = new Option("help", "show this message");
+        Option height = OptionBuilder.withArgName( "height" )
+                                .hasArg()
+                                .withDescription(  "hight of output image in pixels" )
+                                .create( "h" );
+
+        
+        Options options = new Options();
+        options.addOption(help);
+        options.addOption(height);
+        
+        CommandLineParser parser = new PosixParser();
+        try {
+            // parse the command line arguments
+            CommandLine line = parser.parse( options, args );
+            //if(line.hasOption("help")){
+                HelpFormatter formatter = new HelpFormatter();
+                formatter.printHelp( "gml2img", options );
+            //}
+        }
+        catch( ParseException exp ) {
+            // oops, something went wrong
+            System.err.println( "Parsing failed.  Reason: " + exp.getMessage() );
+        }
+        
+        
+        
+        //System.out.println("Foo is now Bar");
+        
     }
     
 }
