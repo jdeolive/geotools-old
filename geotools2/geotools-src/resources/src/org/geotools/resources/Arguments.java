@@ -71,7 +71,7 @@ import org.geotools.resources.rsc.ResourceKeys;
  * The default implementation print the localized error message to standard output {@link #out}
  * and exits the virtual machine with a call to {@link System#exit} with error code 1.
  *
- * @version $Id: Arguments.java,v 1.3 2002/08/14 14:29:22 desruisseaux Exp $
+ * @version $Id: Arguments.java,v 1.4 2002/08/24 22:09:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Arguments {
@@ -111,8 +111,9 @@ public class Arguments {
         this.arguments     = (String[]) args.clone();
         this.locale        = getLocale(getOptionalString("-locale"));
         String encoding    = getOptionalString("-encoding");
-        String destination = getOptionalString("-destination");
+        String destination = getOptionalString("-Xout"); // Non-supported parameter.
         PrintWriter out = null;
+        Exception error = null;
         try {
             /*
              * If a destination file was specified,  open the file using the platform
@@ -145,15 +146,16 @@ public class Arguments {
                     }
                 }
             }
-        } catch (UnsupportedEncodingException exception) {
-            illegalArgument(exception);
         } catch (IOException exception) {
-            illegalArgument(exception);
+            error = exception;
         }
         if (out == null) {
             out = new PrintWriter(System.out, true);
         }
         this.out = out;
+        if (error != null) {
+            illegalArgument(error);
+        }
     }
 
     /**
