@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -37,7 +37,7 @@ import java.util.EventListener;
 
 
 /**
- * Defines an object which listens for zoom change events. Zoom change
+ * Defines an object which listens for zoom change events. Zoom changes
  * are indicated by an {@link java.awt.geom.AffineTransform}.
  *
  * @version 1.0
@@ -45,7 +45,7 @@ import java.util.EventListener;
  */
 public interface ZoomChangeListener extends EventListener {
     /**
-     * Invoked when a zoom changed.
+     * Invoked when a zoom changes.
      */
     public abstract void zoomChanged(final ZoomChangeEvent event);
 }

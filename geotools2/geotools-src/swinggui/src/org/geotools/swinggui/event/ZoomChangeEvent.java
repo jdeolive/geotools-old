@@ -1,6 +1,6 @@
 /*
  * Geotools - OpenSource mapping toolkit
- * (C) 2002, Center for Computational Geography
+ * (C) 2002, Centre for Computational Geography
  * (C) 2001, Institut de Recherche pour le Développement
  *
  *    This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
  *
  *
  * Contacts:
- *     UNITED KINDOM: James Macgill
+ *     UNITED KINGDOM: James Macgill
  *             mailto:j.macgill@geog.leeds.ac.uk
  *
  *     FRANCE: Surveillance de l'Environnement Assistée par Satellite
@@ -39,7 +39,7 @@ import java.awt.geom.AffineTransform;
 
 /**
  * An event which indicates that a zoom occurred in a component.
- * This event is usually fire by {@link org.geotools.swing.ZoomPane}.
+ * This event is usually fired by {@link org.geotools.swing.ZoomPane}.
  *
  * @version 1.0
  * @author Martin Desruisseaux
@@ -49,7 +49,7 @@ public class ZoomChangeEvent extends EventObject {
      * An affine transform indicating the zoom change.
      * If <code>oldZoom</code> and <code>newZoom</code> are the affine transform
      * before and after the change respectively, then the following relation
-     * must be hold (in the limit of rounding error):
+     * must hold (within the limits of rounding error):
      *
      * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}(change)</code>
      */
@@ -63,7 +63,7 @@ public class ZoomChangeEvent extends EventObject {
      * @param change An affine transform indicating the zoom change.
      *               If <code>oldZoom</code> and <code>newZoom</code> are the
      *               affine transform before and after the change respectively,
-     *               then the following relation must be hold (in the limit of
+     *               then the following relation must hold (within the limits of
      *               rounding error):
      *
      * <code>newZoom=oldZoom.{@link AffineTransform#concatenate concatenate}(change)</code>
@@ -75,7 +75,7 @@ public class ZoomChangeEvent extends EventObject {
 
     /**
      * Returns the affine transform indicating the zoom change.
-     * Note: for performance raisons, this method do not clone
+     * Note: for performance reasons, this method does not clone
      * the returned transform. Do not change!
      */
     public AffineTransform getChange() {
