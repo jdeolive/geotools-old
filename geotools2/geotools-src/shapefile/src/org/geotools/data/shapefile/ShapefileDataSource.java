@@ -58,7 +58,8 @@ import java.nio.channels.*;
  *       the same FeatureType, compatable Geometry classes, etc.</li>
  * </ol>
  * 
- * @version $Id: ShapefileDataSource.java,v 1.22 2003/11/05 16:21:05 ianschneider Exp $
+ * @deprecated Use org.geotools.data.shapefile.ShapefileDataStore
+ * @version $Id: ShapefileDataSource.java,v 1.23 2003/11/05 22:58:37 ianschneider Exp $
  * @author James Macgill, CCG
  * @author Ian Schneider
  * @author aaimee
@@ -635,7 +636,7 @@ public class ShapefileDataSource extends AbstractDataSource {
       for(int j = 0; j < types.length; j++) {
         // check for supported...
         if (supported[j] > 0) {
-          dbrow[idx++] = forAttribute(attVals[j],types[j].getType());
+          dbrow[idx++] = ShapefileUtilities.forAttribute(attVals[j],types[j].getType());
         }
       }
       dbf.write(dbrow);
@@ -644,44 +645,7 @@ public class ShapefileDataSource extends AbstractDataSource {
     dbf.close();
   }
   
-  /*
-   * Just a place to do marshalling of data.
-   */
-  private Object forAttribute(final Object o,Class colType) {
-    Object object;
-    if(colType == Integer.class) {
-      object = o;
-    } else if ((colType == Short.class) || (colType == Byte.class)) {
-      object = new Integer(((Number) o).intValue());
-    } else if (colType == Double.class) {
-      object = o;
-    } else if (colType == Float.class) {
-      object = new Double(((Number) o).doubleValue());
-    } else if (Number.class.isAssignableFrom(colType)) {
-      object = o;
-    } else if(colType == String.class) {
-      if (o == null) {
-        object = o;
-      } else {
-        object = o.toString();
-      }
-    } else if (colType == Boolean.class) {
-      object = o;
-    } else if(Date.class.isAssignableFrom(colType)) {
-      object = o;
-    } else {
-      // this is kinda bad
-//      Logger l = Logger.getLogger("org.geotools.data.shapefile");
-//      l.warning("cannot determine writeable class for " + colType);
-      if (colType != null) {
-        throw new RuntimeException("Cannot convert " + colType.getName());
-      } else {
-        throw new RuntimeException("Null Class for conversion");
-      }
-    }
-    
-    return object;
-  }
+  
   
   /**
    *look at all the data in the column of the featurecollection, and find the largest string!
@@ -749,61 +713,10 @@ public class ShapefileDataSource extends AbstractDataSource {
     i = fc.iterator();
     int t = 0;
     while (i.hasNext()) {
-      Geometry geom;
-      geom = ((Feature)i.next()).getDefaultGeometry();
-      
-      if (type == ShapeType.POINT) {
-        
-        if((geom instanceof Point)) {
-          allGeoms[t] = geom;
-        } else {
-          allGeoms[t] = new MultiPoint(null, new PrecisionModel(), 0);
-        }
-        
-      } else if (type == ShapeType.ARC) {
-        
-        if((geom instanceof LineString)) {
-          LineString[] l = new LineString[1];
-          l[0] = (LineString) geom;
-          
-          allGeoms[t] = new MultiLineString(l, new PrecisionModel(), 0);
-        } else if(geom instanceof MultiLineString) {
-          allGeoms[t] = geom;
-        } else {
-          allGeoms[t] = new MultiLineString(null, new PrecisionModel(), 0);
-        }
-      } else if (type == ShapeType.POLYGON) {
-        
-        if(geom instanceof Polygon) {
-          //good!
-          Polygon[] p = new Polygon[1];
-          p[0] = (Polygon) geom;
-          
-          allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon(new MultiPolygon(p,
-          geom.getPrecisionModel(),geom.getSRID()));
-        } else if(geom instanceof MultiPolygon) {
-          allGeoms[t] = JTSUtilities.makeGoodShapeMultiPolygon((MultiPolygon) geom);
-        } else {
-          allGeoms[t] = new MultiPolygon(null, geom.getPrecisionModel(),geom.getSRID());
-        }
-        
-      }  else if (type == ShapeType.MULTIPOINT) {
-        
-        if((geom instanceof Point)) {
-          Point[] p = new Point[1];
-          p[0] = (Point) geom;
-          
-          allGeoms[t] = new MultiPoint(p, geom.getPrecisionModel(),geom.getSRID());
-        } else if(geom instanceof MultiPoint) {
-          allGeoms[t] = geom;
-        } else {
-          allGeoms[t] = new MultiPoint(null, geom.getPrecisionModel(),geom.getSRID());
-        }
-        
-        
-      }
-      t++;
-    } // end big crazy for loop
+      Geometry geom = ((Feature)i.next()).getDefaultGeometry();
+
+      allGeoms[t++] = JTSUtilities.convertToCollection(geom, type);
+    } 
     
     result = new GeometryCollection(allGeoms, allGeoms[0].getPrecisionModel(),allGeoms[0].getSRID());
     
