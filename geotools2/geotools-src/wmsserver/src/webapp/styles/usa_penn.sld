@@ -11,19 +11,25 @@ A styling layer used for the unit tests of sldstyler
 <!-- with in a layer you have Named Styles -->
 <UserStyle>
     <!-- again they have names, titles and abstracts -->
-  <Name>railshp</Name>
+  <Name>equal to test</Name>
     <!-- FeatureTypeStyles describe how to render different features -->
     <!-- a feature type for polygons -->
     <FeatureTypeStyle>
       <FeatureTypeName>feature</FeatureTypeName>
       <Rule>
-        <LineSymbolizer>
-          <Stroke>
-                <CssParameter name="stroke-width">1</CssParameter>
-                <CssParameter name="stroke-dasharray">5 5</CssParameter>
-                <CssParameter name="stroke">#AAAAAA</CssParameter>
-          </Stroke>
-        </LineSymbolizer>
+        <!-- like a linesymbolizer but with a fill too -->
+        <Filter>
+            <PropertyIsEqualTo>
+                <PropertyName>STATE_NAME</PropertyName>
+                <Literal>Pennsylvania</Literal>
+            </PropertyIsEqualTo>
+        </Filter>
+        <PolygonSymbolizer>
+           <Fill>
+              <!-- CssParameters allowed are fill (the color) and fill-opacity -->
+              <CssParameter name="fill">#FF0000</CssParameter>
+           </Fill>     
+        </PolygonSymbolizer>
       </Rule>
     </FeatureTypeStyle>
 </UserStyle>
