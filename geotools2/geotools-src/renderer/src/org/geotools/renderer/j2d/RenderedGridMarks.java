@@ -85,7 +85,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  *       Arrows sizes and direction depends of the sample values.</li>
  * </ul>
  *
- * @version $Id: RenderedGridMarks.java,v 1.7 2003/03/02 22:16:02 desruisseaux Exp $
+ * @version $Id: RenderedGridMarks.java,v 1.8 2003/03/03 22:51:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class RenderedGridMarks extends RenderedMarks {
@@ -864,9 +864,14 @@ public class RenderedGridMarks extends RenderedMarks {
     private transient AngleFormat angleFormat;
 
     /**
-     * Retourne l'amplitude de la flèche.
+     * Returns a tooltip text for the specified marks. The default implementation returns
+     * the arrow's amplitude and direction. <strong>Note:</strong> This method is not a
+     * commited part of the API. It may moves elsewhere in a future version.
+     *
+     * @param  index The mark index, from 0 inclusive to {@link #getCount} exclusive.
+     * @return The tool tip text for the specified mark, or <code>null</code> if none.
      */
-    String getToolTipText(final int index) {
+    protected String getToolTipText(final int index) {
         assert Thread.holdsLock(getTreeLock());
         double amplitude = getAmplitude(index);
         if (numBands == 1) {

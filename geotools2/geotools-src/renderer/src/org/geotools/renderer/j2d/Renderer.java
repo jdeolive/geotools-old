@@ -99,7 +99,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * a remote sensing image ({@link RenderedGridCoverage}), a set of arbitrary marks
  * ({@link RenderedMarks}), a map scale ({@link RenderedMapScale}), etc.
  *
- * @version $Id: Renderer.java,v 1.19 2003/03/02 22:16:02 desruisseaux Exp $
+ * @version $Id: Renderer.java,v 1.20 2003/03/03 22:51:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Renderer {
@@ -1474,7 +1474,9 @@ public class Renderer {
      */
     public synchronized void dispose() {
         final RenderedLayer[] layers = new RenderedLayer[layerCount];
-        System.arraycopy(this.layers, 0, layers, 0, layerCount);
+        if (layerCount != 0) {
+            System.arraycopy(this.layers, 0, layers, 0, layerCount);
+        }
         removeAllLayers();
         for (int i=layerCount; --i>=0;) {
             layers[i].dispose();

@@ -91,7 +91,7 @@ import org.geotools.resources.XAffineTransform;
  *   <li>{@link #paint(Graphics2D, Shape, int)}</li>
  * </ul>
  *
- * @version $Id: RenderedMarks.java,v 1.6 2003/03/01 22:06:01 desruisseaux Exp $
+ * @version $Id: RenderedMarks.java,v 1.7 2003/03/03 22:51:46 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class RenderedMarks extends RenderedLayer {
@@ -636,19 +636,19 @@ testPolygon:                for (pit.next(); !pit.isDone(); pit.next()) {
     ////////////    EVENTS (note: may be moved out of this class in a future version)    ////////
     /////////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Point utilisé temporairement lors des mouvements de la souris.
+     * Temporary point for mouse events.
      */
     private transient Point2D point;
 
     /**
-     * Retourne le texte à afficher dans une bulle lorsque le curseur de la souris traîne
-     * sur une marque. L'implémentation par défaut retourne toujours <code>null</code>.
+     * Returns a tooltip text for the specified marks. The default implementation returns
+     * always <code>null</code>. <strong>Note:</strong> This method is not a commited part
+     * of the API. It may moves elsewhere in a future version.
      *
-     * @param  index Index de la marque sur laquelle traîne le curseur.
-     * @return Le texte à afficher lorsque la souris traîne sur cette station.
-     *         Ce texte peut être nul pour signifier qu'il ne faut pas en écrire.
+     * @param  index The mark index, from 0 inclusive to {@link #getCount} exclusive.
+     * @return The tool tip text for the specified mark, or <code>null</code> if none.
      */
-    String getToolTipText(int index) {
+    protected String getToolTipText(int index) {
         return null;
     }
 
