@@ -36,7 +36,7 @@ import org.geotools.feature.*;
  * is enforced by the FilterAbstract class, which considers a BETWEEN operator
  * to be a math filter.
  * 
- * @version $Id: FilterBetween.java,v 1.5 2002/06/05 13:30:20 loxnard Exp $
+ * @version $Id: FilterBetween.java,v 1.6 2002/06/20 23:59:49 jmacgill Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterBetween extends FilterCompare {
@@ -61,7 +61,7 @@ public class FilterBetween extends FilterCompare {
      */
     public void addMiddleValue(Expression middleValue)
         throws IllegalFilterException {
-        
+        System.out.println("middle value type is "+middleValue.getType());
         if( ExpressionDefault.isAttributeExpression(middleValue.getType()) ) {
             this.middleValue = middleValue;
         }
@@ -85,13 +85,21 @@ public class FilterBetween extends FilterCompare {
             throw new MalformedFilterException("Middle expression of between filter not set.");
         }
         else {
+            double left = ((Number) leftValue.getValue(feature)).doubleValue();
+            double right = ((Number) rightValue.getValue(feature)).doubleValue();
+            double mid = ((Number) middleValue.getValue(feature)).doubleValue();
+            return left<=mid && right>=mid;
+        }
+            /*
             int mathResultLeft = ((Double) leftValue.getValue(feature)).
-                compareTo((Double) middleValue.getValue(feature));
-            int mathResultRight = ((Double) rightValue.getValue(feature)).
-                compareTo((Double) middleValue.getValue(feature));
+                compareTo((Number) middleValue.getValue(feature));
+            int mathResultRight = ((Number) rightValue.getValue(feature)).
+                compareTo((Number) middleValue.getValue(feature));
             
             return (mathResultRight >= 0) && (mathResultLeft <= 0);
-        }
+             }
+             */
+        
     }
     
 }
