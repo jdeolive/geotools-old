@@ -52,7 +52,9 @@ import java.net.URL;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 // Collections
 import java.util.Set;
@@ -132,7 +134,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * For example, the {@link #getCoordinateSystem} method constructs a {@link CoordinateSystem}
  * object using available informations.
  *
- * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+ * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class PropertyParser {
@@ -174,7 +176,29 @@ public class PropertyParser {
      * @see #ELLIPSOID
      * @see #PROJECTION
      */
-    public static final Key UNITS = new Key("Units");
+    public static final Key UNITS = new Key("Units") {
+        public Object getValue(final GridCoverage coverage) {
+            /*
+             * TODO: Invokes CoordinateSystem.getUnits() if we
+             *       make this method public in a future version.
+             */
+            Unit unit = null;
+            final CoordinateSystem cs = coverage.getCoordinateSystem();
+            if (cs != null) {
+                for (int i=cs.getDimension(); --i>=0;) {
+                    final Unit candidate = cs.getUnits(i);
+                    if (candidate != null) {
+                        if (unit == null) {
+                            unit = candidate;
+                        } else if (!unit.equals(candidate)) {
+                            return null;
+                        }
+                    }
+                }
+            }
+            return unit;
+        }
+    };
 
     /**
      * Key for the coordinate system datum.
@@ -186,6 +210,10 @@ public class PropertyParser {
      * @see #PROJECTION
      */
     public static final Key DATUM = new Key("Datum");
+    /*
+     * TODO: Invokes CoordinateSystem.getDatum() if we
+     *       make this method public in a future version.
+     */
 
     /**
      * Key for the coordinate system ellipsoid.
@@ -491,15 +519,31 @@ public class PropertyParser {
     public static final Key DEPTH = new EnvelopeKey("Depth", (byte)2, EnvelopeKey.SIZE);
     
     /**
-     * The source (the file path or the URL) specified
-     * during the last call to a <code>load(...)</code>
-     * method.
+     * The source (the file path or the URL) specified during the last call to a
+     * <code>load(...)</code> method.
      *
      * @see #load(File)
      * @see #load(URL)
      * @see #load(BufferedReader)
      */
     private String source;
+
+    /**
+     * The symbol to use as a separator. The full version (<code>separator</code>)
+     * will be used for formatting with {@link #listProperties}, while the trimed
+     * version (<code>trimseparator</code>) will be used for parsing with {@link
+     * #parseLine}.
+     *
+     * @see #getSeparator
+     * @see #setSeparator
+     */
+    private String separator = " = ", trimSeparator = "=";
+
+    /**
+     * The non-localized pattern for formatting numbers (as floating point or as integer)
+     * and dates. If <code>null</code>, then the default pattern is used.
+     */
+    private String numberPattern, datePattern;
     
     /**
      * The properties, or <code>null</code> if none. Keys are the caseless property names
@@ -548,7 +592,7 @@ public class PropertyParser {
      * This is <strong>not</strong> the local to use for parsing the file. This later locale
      * is specified by {@link #getLocale}.
      */
-    private Locale locale;
+    private Locale userLocale;
     
     /**
      * Construct a new <code>PropertyParser</code>
@@ -564,6 +608,83 @@ public class PropertyParser {
      */
     public PropertyParser(final CoordinateSystemFactory factory) {
         this.factory = factory;
+    }
+
+    /**
+     * Returns the characters to use as separator between keys and values. Leading and trailing
+     * spaces will be keep when formatting with {@link #listProperties}, but will be ignored
+     * when parsing with {@link #parseLine}. The default value is <code>"&nbsp;=&nbsp;".
+     */
+    public String getSeparator() {
+        return separator;
+    }
+
+    /**
+     * Set the characters to use as separator between keys and values.
+     */
+    public synchronized void setSeparator(final String separator) {
+        this.trimSeparator = separator.trim();
+        this.separator     = separator;
+    }
+
+    /**
+     * Returns the pattern used for parsing and formatting values of the specified type.
+     * The type should be either <code>Number.class</code> or <code>Date.class</code>.
+     *
+     * if <code>type</code> is assignable to <code>Number.class</code>, then this method
+     * returns the number pattern as specified by {@link DecimalFormat}.
+     *
+     * Otherwise, if <code>type</code> is assignable to <code>Date.class</code>, then this
+     * method returns the date pattern as specified by {@link SimpleDateFormat}.
+     *
+     * In any case, this method returns <code>null</code> if this object should use the default
+     * pattern for the {@linkplain #getLocale data locale}.
+     *
+     * @param  type The data type (<code>Number.class</code> or <code>Date.class</code>).
+     * @return The format pattern for the specified data type, or <code>null</code> for
+     *         the default locale-dependent pattern.
+     * @throws IllegalArgumentException if <code>type</code> is not valid.
+     */
+    public String getFormatPattern(final Class type) {
+        if (Date.class.isAssignableFrom(type)) {
+            return datePattern;
+        }
+        if (Number.class.isAssignableFrom(type)) {
+            return numberPattern;
+        }
+        throw new IllegalArgumentException(Utilities.getShortName(type));
+    }
+
+    /**
+     * Set the pattern to use for parsing and formatting values of the specified type.
+     * The type should be either <code>Number.class</code> or <code>Date.class</code>.
+     *
+     * <ul>
+     *   <li>If <code>type</code> is assignable to <code>{@linkplain Number}.class</code>,
+     *       then <code>pattern</code> should be a {@link DecimalFormat} pattern (example:
+     *       <code>&quot;#0.###&quot;</code>).</li>
+     *   <li>If <code>type</code> is assignable to <code>{@linkplain Date}.class</code>,
+     *       then <code>pattern</code> should be a {@link SimpleDateFormat} pattern (example:
+     *       <code>&quot;yyyy/MM/dd HH:mm&quot;</code>).</li>
+     * </ul>
+     *
+     * @param  type The data type (<code>Number.class</code> or <code>Date.class</code>).
+     * @param  pattern The format pattern for the specified data type, or <code>null</code>
+     *         for the default locale-dependent pattern.
+     * @throws IllegalArgumentException if <code>type</code> is not valid.
+     */
+    public synchronized void setFormatPattern(final Class type, final String pattern) {
+        if (Date.class.isAssignableFrom(type)) {
+            datePattern = pattern;
+            cache = null;
+            return;
+        }
+        if (Number.class.isAssignableFrom(type)) {
+            numberPattern = pattern;
+            cache = null;
+            return;
+        }
+        throw new IllegalArgumentException(Utilities.getShortName(type));
     }
     
     /**
@@ -660,11 +781,10 @@ public class PropertyParser {
     }
     
     /**
-     * Parse a line and add the key-value pair to this property set.
-     * The default implementation take the substring on the left size
-     * of the first '=' character as the key, and the substring on the
-     * right size of '=' as the value. For example, if <code>line</code>
-     * has the following value:
+     * Parse a line and add the key-value pair to this property set. The default implementation
+     * take the substring on the left size of the first separator (usually the '=' character) as
+     * the key, and the substring on the right size of separator as the value. For example,
+     * if <code>line</code> has the following value:
      *
      * <blockquote><pre>
      * Ellipsoid = WGS 1984
@@ -699,7 +819,7 @@ public class PropertyParser {
      * @see #add(String,Object)
      */
     protected boolean parseLine(final String line) throws IIOException {
-        final int index = line.indexOf('=');
+        final int index = line.indexOf(trimSeparator);
         if (index >= 0) {
             add(line.substring(0, index), line.substring(index+1));
             return true;
@@ -729,6 +849,9 @@ public class PropertyParser {
     public synchronized void add(final GridCoverage coverage)
             throws AmbiguousPropertyException
     {
+        if (naming == null) {
+            return;
+        }
         for (final Iterator it=naming.entrySet().iterator(); it.hasNext();) {
             final Map.Entry entry = (Map.Entry) it.next();
             final Key key = (Key) entry.getKey();
@@ -868,7 +991,7 @@ public class PropertyParser {
         while (true) {
             if (oldValue!=null && !oldValue.equals(value)) {
                 final String alias = aliasAsKey.toString();
-                throw new AmbiguousPropertyException(Resources.getResources(locale).
+                throw new AmbiguousPropertyException(Resources.getResources(userLocale).
                           getString(ResourceKeys.ERROR_INCONSISTENT_PROPERTY_$1, alias),
                           checkKey, alias);
             }
@@ -941,13 +1064,13 @@ public class PropertyParser {
         if (property != null) {
             final Object value = getOptional(key); // Checks also alias
             if (value!=null && !value.equals(property)) {
-                throw new AmbiguousPropertyException(Resources.getResources(locale).
+                throw new AmbiguousPropertyException(Resources.getResources(userLocale).
                           getString(ResourceKeys.ERROR_INCONSISTENT_PROPERTY_$1, alias),
                           key, alias);
             }
         }
         if (naming == null) {
-            naming = new HashMap();
+            naming = new LinkedHashMap();
         }
         cache = null;
         // Add the alias for the specified key. This is the information
@@ -1075,7 +1198,7 @@ public class PropertyParser {
         if (value!=null && value!=Image.UndefinedProperty) {
             return value;
         }
-        throw new MissingPropertyException(Resources.getResources(locale).
+        throw new MissingPropertyException(Resources.getResources(userLocale).
                   getString(ResourceKeys.ERROR_UNDEFINED_PROPERTY_$1, key), key, lastAlias);
     }
     
@@ -1152,7 +1275,7 @@ public class PropertyParser {
         final double value = getAsDouble(key);
         final int  integer = (int) value;
         if (value != integer) {
-            throw new PropertyException(Resources.getResources(locale).getString(
+            throw new PropertyException(Resources.getResources(userLocale).getString(
                       ResourceKeys.ERROR_BAD_PARAMETER_$2, lastAlias, new Double(value)), key, lastAlias);
         }
         return integer;
@@ -1196,6 +1319,9 @@ public class PropertyParser {
             }
         }
         final NumberFormat format = NumberFormat.getNumberInstance(getLocale());
+        if (numberPattern!=null && format instanceof DecimalFormat) {
+            ((DecimalFormat) format).applyPattern(numberPattern);
+        }
         cache(CACHE_KEY, format);
         return format; // Do not clone, since this method is private.
     }
@@ -1214,6 +1340,9 @@ public class PropertyParser {
         }
         final DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
                                                                  DateFormat.SHORT, getLocale());
+        if (datePattern!=null && format instanceof SimpleDateFormat) {
+            ((SimpleDateFormat) format).applyPattern(datePattern);
+        }
         cache(CACHE_KEY, format);
         return format; // Do not clone, since this method is private.
     }
@@ -1271,15 +1400,17 @@ public class PropertyParser {
     }
 
     /**
-     * Returns the locale to use when parsing property values as numbers. The default
-     * implementation returns {@link Locale#US}, since it is the locale used in most
-     * file formats.
+     * Returns the locale to use when parsing property values as numbers, angles or dates.
+     * This is <strong>not</strong> the locale used for formatting error messages, if any.
+     * The default implementation returns {@link Locale#US}, since it is the format used
+     * in most data file.
      *
      * @return The locale to use for parsing property values.
      * @throws PropertyException if this information can't be fetched.
      *
      * @see #getAsDouble
      * @see #getAsInt
+     * @see #getAsDate
      */
     public Locale getLocale() throws PropertyException {
         return Locale.US;
@@ -1504,7 +1635,7 @@ public class PropertyParser {
             if ((semiMajorAxisDefined && parameters.getDoubleParameter("semi_major")!=semiMajor) ||
                 (semiMinorAxisDefined && parameters.getDoubleParameter("semi_minor")!=semiMinor))
             {
-                throw new AmbiguousPropertyException(Resources.getResources(locale).
+                throw new AmbiguousPropertyException(Resources.getResources(userLocale).
                           getString(ResourceKeys.ERROR_AMBIGIOUS_AXIS_LENGTH), PROJECTION, lastAlias);
             }
             parameters = parameters.setParameter("semi_major", semiMajor)
@@ -1626,7 +1757,7 @@ public class PropertyParser {
             cache(CACHE_KEY, envelope);
             return (Envelope) envelope.clone();
         } catch (TransformException exception) {
-            throw new PropertyException(Resources.getResources(locale).
+            throw new PropertyException(Resources.getResources(userLocale).
                       getString(ResourceKeys.ERROR_CANT_TRANSFORM_ENVELOPE), exception);
         }
     }
@@ -1722,7 +1853,7 @@ public class PropertyParser {
         final double max = getAsDouble(maxKey, cs);
         envelope.setRange(dimension, min, max);
         if (Math.abs((min-max)/resolution - range) > EPS) {
-            throw new AmbiguousPropertyException(Resources.getResources(locale).getString(
+            throw new AmbiguousPropertyException(Resources.getResources(userLocale).getString(
                       ResourceKeys.ERROR_INCONSISTENT_PROPERTY_$1, resKey), resKey, lastAlias);
         }
     }
@@ -1792,7 +1923,7 @@ public class PropertyParser {
      *       specified by {@link #getLocale}.
      */
     final synchronized void setUserLocale(final Locale locale) {
-        this.locale = locale;
+        userLocale = locale;
     }
     
     /**
@@ -1841,7 +1972,7 @@ public class PropertyParser {
                     out.write(isKnow ? "  " : "? ");
                     out.write(String.valueOf(key));
                     out.write(Utilities.spaces(maxLength-key.toString().length()));
-                    out.write(" = ");
+                    out.write(separator);
                     out.write(String.valueOf(value));
                     out.write(lineSeparator);
                 }
@@ -1868,8 +1999,8 @@ public class PropertyParser {
         try {
             final String     pattern = "DD°MM'SS\"";
             final Envelope  envelope = getGeographicEnvelope();
-            final AngleFormat format = (locale!=null) ? new AngleFormat(pattern, locale) :
-                                                        new AngleFormat(pattern);
+            final AngleFormat format = (userLocale!=null) ? new AngleFormat(pattern, userLocale) :
+                                                            new AngleFormat(pattern);
             buffer.write(format.format(new  Latitude(envelope.getMaximum(1))));
             buffer.write(", ");
             buffer.write(format.format(new Longitude(envelope.getMinimum(0))));
@@ -1945,7 +2076,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>'_'</code> character. For example, the key <code>"false&nbsp;&nbsp;easting"</code>
      * is considered equals to <code>"false_easting"</code>.
      *
-     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static class Key implements Serializable {
@@ -2003,7 +2134,7 @@ loop:       for (int i=str.length(); --i>=0;) {
         }
 
         /**
-         * Compare this key with the supplied keys for equality. Comparaison is case-insensitive
+         * Compare this key with the supplied key for equality. Comparaison is case-insensitive
          * and considere any sequence of whitespaces as a single <code>'_'</code> character, as
          * specified in this class documentation.
          */
@@ -2016,7 +2147,7 @@ loop:       for (int i=str.length(); --i>=0;) {
     /**
      * A key for properties derived from {@link Envelope} and/or {@link GridRange}.
      *
-     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class EnvelopeKey extends Key {
@@ -2079,16 +2210,46 @@ loop:       for (int i=str.length(); --i>=0;) {
             }
             switch (method) {
                 default     : throw new AssertionError(method);
-                case LENGTH : return new Double (envelope.getLength (dimension));
-                case MINIMUM: return new Double (envelope.getMinimum(dimension));
-                case MAXIMUM: return new Double (envelope.getMaximum(dimension));
-                case SIZE   : return new Integer(   range.getLength (dimension));
-                case LOWER  : return new Integer(   range.getLower  (dimension));
-                case UPPER  : return new Integer(   range.getUpper  (dimension));
+                case LENGTH : return new Double(        envelope.getLength (dimension));
+                case MINIMUM: return getValue(coverage, envelope.getMinimum(dimension));
+                case MAXIMUM: return getValue(coverage, envelope.getMaximum(dimension));
+                case SIZE   : return new Integer(          range.getLength (dimension));
+                case LOWER  : return new Integer(          range.getLower  (dimension));
+                case UPPER  : return new Integer(          range.getUpper  (dimension));
                 case RESOLUTION: {
                     return new Double(envelope.getLength(dimension)/range.getLength(dimension));
                 }
             }
+        }
+
+        /**
+         * Returns the specified value as a {@link Double} or {@link Date} object
+         * according the coverage's coordinate system.
+         */
+        private Object getValue(final GridCoverage coverage, final double value) {
+            CoordinateSystem cs = coverage.getCoordinateSystem();
+            if (cs != null) {
+                cs = CTSUtilities.getSubCoordinateSystem(cs, dimension, dimension+1);
+                if (cs instanceof TemporalCoordinateSystem) {
+                    final Date time = ((TemporalCoordinateSystem) cs).getEpoch();
+                    time.setTime(time.getTime() +
+                                 Math.round(Unit.MILLISECOND.convert(value, cs.getUnits(0))));
+                    return time;
+                }
+            }
+            return new Double(value);
+        }
+
+        /**
+         * Compare this key with the supplied key for equality.
+         */
+        public boolean equals(final Object object) {
+            if (super.equals(object)) {
+                final EnvelopeKey that = (EnvelopeKey) object;
+                return this.dimension == that.dimension &&
+                       this.method    == that.method;
+            }
+            return false;
         }
     }
 
@@ -2096,7 +2257,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * A key for properties derived from {@link Projection}.
      * The key name must be the projection parameter name.
      *
-     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class ProjectionKey extends Key {
@@ -2133,7 +2294,7 @@ loop:       for (int i=str.length(); --i>=0;) {
      * <code>AliasKey</code> with ordinary <code>Key</code>s. This kind of key is
      * for internal use only.
      *
-     * @version $Id: PropertyParser.java,v 1.11 2003/03/25 22:43:23 desruisseaux Exp $
+     * @version $Id: PropertyParser.java,v 1.12 2003/03/26 15:45:28 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private static final class AliasKey extends Key {
