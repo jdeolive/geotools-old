@@ -152,6 +152,10 @@ public class DefaultQuery implements Query {
      *        should be fetched.
      */
     public void setPropertyNames(List propNames) {
+        if(propNames == null){
+            this.properties = null;
+            return;
+        }
         String[] stringArr = new String[propNames.size()];
         this.properties = (String[]) propNames.toArray(stringArr);
     }
@@ -168,7 +172,10 @@ public class DefaultQuery implements Query {
      *         of the returned FeatureCollection.
      */
     public boolean retrieveAllProperties() {
-        return properties == null;
+        if(properties == null){
+            return true;
+        }
+        return properties.length == 0;
     }
 
     /**
