@@ -129,17 +129,22 @@ public class VeryBasicDataSource implements DataSource {
                         p.y = (new Double(row[j].toString())).doubleValue();
                 }
                 
-                AttributeType geometryAttribute = new AttributeTypeDefault("testGeometry", Point.class.getName());
-                AttributeType stringAttribute = new AttributeTypeDefault("testString", String.class.getName());
+                AttributeType geometryAttribute = new AttributeTypeDefault("theGeometry", geomFac.createPoint(p).getClass().getName());
+                AttributeType stringAttribute = new AttributeTypeDefault("theString", String.class.getName());
 
                 FeatureType testType = new FeatureTypeFlat(geometryAttribute); 
-                for(int att=0;att<row.length;att++){
-                    testType.setAttributeType(stringAttribute);
+                for(int att=0;att<row.length-1;att++){
+                    testType = testType.setAttributeType(stringAttribute);
                 }
-         
+                
+                
                 System.out.println("adding P "+p);
                 row[0] = geomFac.createPoint(p);
                 System.out.println("as Point "+(Point)row[0]);
+                for(int val=0;val<row.length;val++){
+                    System.out.println("attribue "+val+" is "+row[val].getClass().getName());
+                }
+                System.out.println("Test Type is "+testType);
                 Feature feat = new FeatureFlat((FeatureTypeFlat) testType, row);
 
                 // Filter Feature Feature Filter
