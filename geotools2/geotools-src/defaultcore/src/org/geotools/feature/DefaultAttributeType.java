@@ -44,7 +44,7 @@ import java.util.Map;
  * @author Rob Hranac, VFNY
  * @author Chris Holmes, TOPP
  * @author Ian Schneider
- * @version $Id: DefaultAttributeType.java,v 1.21 2004/01/14 22:34:18 jive Exp $
+ * @version $Id: DefaultAttributeType.java,v 1.22 2004/01/28 22:22:40 ianschneider Exp $
  */
 public class DefaultAttributeType implements AttributeType {
     /** Name of this attribute. */
@@ -230,7 +230,7 @@ public class DefaultAttributeType implements AttributeType {
      * @return hashCode for this object.
      */
     public int hashCode() {
-        return name.hashCode() * type.hashCode();
+        return name.hashCode() ^ type.hashCode();
     }
 
     /**
@@ -393,13 +393,12 @@ public class DefaultAttributeType implements AttributeType {
          *
          * @throws IllegalArgumentException if parsing is attempted and is
          *         unsuccessful.
-         * @throws RuntimeException If it is coded wrong.
          *
          * @task REVISIT: When type is Number, should we always be using
-         *       Double?
+         *       Double? (What else would we do? - IanS)
          */
         public Object parse(Object value)
-            throws IllegalArgumentException, RuntimeException {
+            throws IllegalArgumentException {
             // handle null values first
             if (value == null) {
                 return value;
@@ -440,8 +439,9 @@ public class DefaultAttributeType implements AttributeType {
             }
 
             // nothing else to do
-            throw new RuntimeException(
-                "DefaultAttributeType.Numeric is coded wrong");
+            throw new IllegalArgumentException(
+                "Cannot parse " + value.getClass()
+            );
         }
 
         protected Object parseFromString(String value)
