@@ -26,11 +26,14 @@ public interface ResourceKeys
     public static final int OK                                    =     1;
     public static final int RESET                                 =     2;
 
+    public static final int ERROR_BAD_LOCALE_$1                   =    19;
     public static final int ERROR_BAD_RANGE_$2                    =     3;
     public static final int ERROR_BAD_UNIT_OPERATION_$2           =     4;
     public static final int ERROR_BAD_UNIT_POWER_$2               =     5;
     public static final int ERROR_LINE_TOO_LONG_$3                =     6;
     public static final int ERROR_LINE_TOO_SHORT_$2               =     7;
+    public static final int ERROR_MISSING_PARAMETER_$1            =    22;
+    public static final int ERROR_MISSING_PARAMETER_VALUE_$1      =    20;
     public static final int ERROR_NON_CONVERTIBLE_UNITS_$2        =     8;
     public static final int ERROR_NON_EQUILIBRATED_PARENTHESIS_$2 =     9;
     public static final int ERROR_NOT_AN_INTEGER_$1               =    10;
@@ -41,5 +44,6 @@ public interface ResourceKeys
     public static final int ERROR_NULL_FORMAT_$2                  =    15;
     public static final int ERROR_OPERATION_ALREADY_BOUNDS_$1     =    16;
     public static final int ERROR_PARSE_EXCEPTION_$2              =    17;
+    public static final int ERROR_UNKNOW_PARAMETER_$1             =    21;
     public static final int ERROR_UNPARSABLE_NUMBER_$1            =    18;
 }
