@@ -8,19 +8,20 @@ import org.xml.sax.helpers.*;
 
 import org.geotools.featuretable.*;
 import org.geotools.datasource.*;
+//import org.geotools.filter.*;
 
 
 /**
- * The source of data for Features. Shapefiles, database, etc. are referenced through this 
- * interface.
+ * The source of data for Features. Shapefiles, database, etc. are referenced 
+ * through this interface.
  * 
- *@version $Id: GMLDataSource.java,v 1.10 2002/04/23 20:59:04 robhranac Exp $
+ *@version $Id: GMLDataSource.java,v 1.11 2002/04/26 18:13:45 robhranac Exp $
  */
-public class GMLDataSource extends XMLFilterImpl implements DataSource, GMLHandlerFeature {
-
+public class GMLDataSource extends XMLFilterImpl 
+    implements DataSource, GMLHandlerFeature {
 
     /** Specifies the default parser (Xerces) */
-    private static final String defaultParser = "org.apache.xerces.parsers.SAXParser";
+    private String defaultParser = "org.apache.xerces.parsers.SAXParser";
     
     /** Holds a URI for the GML data */
     private String uri;
@@ -38,6 +39,11 @@ public class GMLDataSource extends XMLFilterImpl implements DataSource, GMLHandl
         this.uri = uri;
     }
     
+
+    public void setParser(String parser) {
+        this.defaultParser = parser;
+    }
+    
     
     public void feature(Feature feature) {
         features.add(feature);
@@ -47,11 +53,11 @@ public class GMLDataSource extends XMLFilterImpl implements DataSource, GMLHandl
     /** 
      * Loads Feature rows for the given Extent from the datasource
      *
-     * @param ft featureTable to load features into
-     * @param ex an extent defining which features to load - null means all features
+     * @param featureCollection featureTable to load features into
+     * @param filter an extent defining which features to load - null means all features
      * @throws DataSourceException if anything goes wrong
      */
-    public void importFeatures(FeatureTable ft, Extent ex)
+    public void importFeatures(FeatureTable featureCollection, Extent filter)
         throws DataSourceException {
         
         // chains all the appropriate filters together (in correct order)
@@ -66,22 +72,22 @@ public class GMLDataSource extends XMLFilterImpl implements DataSource, GMLHandl
             parser.parse(uri);
         }
         catch (IOException e) {
-            System.out.println("Error reading uri: " + uri );
+            throw new DataSourceException("Error reading URI: " + uri );
         }
         catch (SAXException e) {
-            System.out.println("Error in parsing: " + e.getMessage() );
+            throw new DataSourceException("Parsing error: " + e.getMessage());
         }
         
         Feature[] typedFeatures = new Feature[features.size()];
-        for ( int i = 0; i < features.size() ; i++ )
+        for ( int i = 0; i < features.size(); i++ ) {
             typedFeatures[i] = (Feature) features.get(i);
-        
+        }
 
-        ft.addFeatures( typedFeatures );
+        featureCollection.addFeatures( typedFeatures );
         
     }
     
-    
+        
     /** 
      * Saves the given features to the datasource
      *
@@ -91,7 +97,8 @@ public class GMLDataSource extends XMLFilterImpl implements DataSource, GMLHandl
      */
     public void exportFeatures(FeatureTable ft, Extent ex)
         throws DataSourceException {
-        throw new DataSourceException("This data source is read-only!");
+        throw new DataSourceException("Cannot add features to read only GML: "
+                                      + uri);
     }	
     
     
