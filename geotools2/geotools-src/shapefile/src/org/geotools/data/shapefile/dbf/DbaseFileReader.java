@@ -118,7 +118,7 @@ public class DbaseFileReader {
   private void bufferCheck() throws IOException {
     // remaining is less than record length
     // compact the remaining data and read again
-    if (buffer.remaining() < header.getRecordLength()) {
+    if (!buffer.isReadOnly() && buffer.remaining() < header.getRecordLength()) {
       buffer.compact();
       fill(buffer,channel);
       buffer.position(0);
@@ -170,6 +170,8 @@ public class DbaseFileReader {
     row = new Row();
   }
   
+  
+  
   /** Get the header from this file. The header is read upon instantiation.
    * @return The header associated with this file or null if an error occurred.
    */
@@ -184,7 +186,7 @@ public class DbaseFileReader {
     if (channel.isOpen()) {
       channel.close();
     }
-	if(buffer instanceof MappedByteBuffer) {
+	if (buffer instanceof MappedByteBuffer) {
 	  NIOBufferUtils.clean(buffer);
 	}
 	buffer = null;
@@ -262,6 +264,19 @@ public class DbaseFileReader {
     }
     
     return entry;
+  }
+  
+  /**
+   * Transfer, by bytes, the next record to the writer.
+   */
+  public void transferTo(DbaseFileWriter writer) throws IOException {
+      bufferCheck();
+      
+      buffer.limit(buffer.position() + header.getRecordLength());
+      writer.channel.write(buffer);
+      buffer.limit(buffer.capacity());
+      
+      cnt++;
   }
   
   private void read() throws IOException {

@@ -50,7 +50,7 @@ public class DbaseFileWriter  {
   
   private DbaseFileHeader header;
   private DbaseFileWriter.FieldFormatter formatter = new DbaseFileWriter.FieldFormatter();
-  private WritableByteChannel channel;
+  WritableByteChannel channel;
   private ByteBuffer buffer;
   private final Number NULL_NUMBER = new Integer(0);
   private final String NULL_STRING = "";
@@ -82,6 +82,7 @@ public class DbaseFileWriter  {
       ; // do nothing
     }
   }
+  
   
   /** Write a single dbase record.
    * @param record The entries to write.

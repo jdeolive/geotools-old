@@ -79,16 +79,25 @@ public class ShapefileWriter {
 //    }
 //  }
   
+  /**
+   * Allocate some buffers for writing.
+   */
   private void allocateBuffers() {
-    shapeBuffer = ByteBuffer.allocateDirect(64 * 1024);
+    shapeBuffer = ByteBuffer.allocateDirect(16 * 1024);
     indexBuffer = ByteBuffer.allocateDirect(100); 
   }
   
+  /**
+   * Make sure our buffer is of size.
+   */ 
   private void checkShapeBuffer(int size) {
     if (shapeBuffer.capacity() < size) 
         shapeBuffer = ByteBuffer.allocateDirect(size);
   }
   
+  /**
+   * Drain internal buffers into underlying channels.
+   */
   private void drain() throws IOException {
     shapeBuffer.flip();
     indexBuffer.flip();
@@ -121,6 +130,11 @@ public class ShapefileWriter {
       writeHeaders(geometries.getEnvelopeInternal(), type, geometries.getNumGeometries(), fileLength);
   }
   
+  /**
+   * Write the headers for this shapefile including the bounds, shape type, the
+   * number of geometries and the total fileLength (in actual bytes, NOT 
+   * 16 bit words).
+   */
   public void writeHeaders(Envelope bounds,ShapeType type,int numberOfGeometries,int fileLength) throws IOException {
 
       try {
@@ -145,6 +159,22 @@ public class ShapefileWriter {
       drain();
   }
   
+  /**
+   * Allocate internal buffers and position the channels to the beginning
+   * or the record section of the shapefile. The headers MUST be rewritten
+   * after this operation, or the file may be corrupt...
+   */
+  public void skipHeaders() throws IOException {
+    if (shapeBuffer == null)
+        allocateBuffers();
+    shpChannel.position(100);
+    shxChannel.position(100);
+  }
+  
+  /**
+   * Write a single Geometry to this shapefile. The Geometry must be 
+   * compatable with the ShapeType assigned during the writing of the headers.
+   */
   public void writeGeometry(Geometry g) throws IOException {
       if (shapeBuffer == null)
           throw new IOException("Must write headers first");
@@ -175,6 +205,9 @@ public class ShapefileWriter {
       assert(shapeBuffer.position() == 0);
   }
   
+  /**
+   * Close the underlying Channels.
+   */
   public void close() throws IOException {
     shpChannel.close();
     shxChannel.close();
@@ -191,6 +224,10 @@ public class ShapefileWriter {
     shapeBuffer = null;
   }
   
+  /**
+   * Bulk write method for writing a collection of (hopefully) like geometries
+   * of the given ShapeType.
+   */ 
   public void write(GeometryCollection geometries, ShapeType type) throws IOException,ShapefileException {
     handler = type.getShapeHandler();
       
