@@ -84,6 +84,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -116,7 +117,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.35 2004/04/08 03:16:51 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.36 2004/04/08 13:22:55 jfc173 Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -398,6 +399,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     // extract the feature type stylers from the style object
                     // and process them
                     processStylers(results, currLayer.getStyle().getFeatureTypeStyles());
+                    
                 } catch (Exception exception) {
                     LOGGER.warning("Exception " + exception + " rendering layer " + currLayer);
                     exception.printStackTrace();
@@ -564,6 +566,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @throws IOException DOCUMENT ME!
      * @throws IllegalAttributeException DOCUMENT ME!
      */
+    
     private void processStylers(final FeatureResults features,
     final FeatureTypeStyle[] featureStylers) throws IOException, IllegalAttributeException {
         if (LOGGER.isLoggable(Level.FINEST)) {
@@ -596,6 +599,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             while (reader.hasNext()) {
                 boolean doElse = true;
                 Feature feature = reader.next();
+
                 String typeName = feature.getFeatureType().getTypeName();
                 
                 if ((typeName != null)
@@ -615,6 +619,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
                                 Symbolizer[] symbolizers = r.getSymbolizers();
                                 processSymbolizers(feature, symbolizers);
                             }
+
                         }
                     }
                     
@@ -1317,7 +1322,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @return true if the image is not null
      */
     private boolean renderExternalGraphic(Geometry geom, Graphic graphic, ExternalGraphic eg, Feature feature) {
-        BufferedImage img;
+        BufferedImage img = null;  
+        CustomGlyphRenderer cgr = new CustomGlyphRenderer();
         if(eg.getFormat().toLowerCase() == "image/svg"){
             try{
                 URL svgfile = eg.getLocation();
@@ -1333,12 +1339,23 @@ public class LiteRenderer implements Renderer, Renderer2D {
             catch(Exception te){
                 LOGGER.warning("Unable to render external svg file, " + te.getMessage());
                 return false;
+            }          
+        } else if(cgr.canRender(eg.getFormat())){
+            Map props = eg.getCustomProperties();
+            GlyphPropertiesList list = cgr.getGlyphProperties();
+            Set propNames = props.keySet();
+            Iterator it = propNames.iterator();
+            while (it.hasNext()){
+                String nextName = (String) it.next();
+                if (list.hasProperty(nextName)){
+                    list.setPropertyValue(nextName, props.get(nextName));
+                } else {
+                    //DO I WANT TO THROW AN EXCEPTION OR ADD THE NEW PROPERTY TO THE LIST OR DO NOTHING?
+                    System.out.println("Tried to set the property " + nextName + " to a glyph that does not have this property.");
+                }
             }
-            
-            
-            
-        }
-        else{
+            img = cgr.render(graphic, eg, feature);
+        } else {
             img = getImage((ExternalGraphic) eg);
         }
         if (img != null) {
@@ -1626,8 +1643,9 @@ public class LiteRenderer implements Renderer, Renderer2D {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("applying stroke to mark");
             }
-            
-            applyStroke(graphic, mark.getStroke(), null);
+
+            //CHANGED null TO feature IN THE FOLLOWING LINE!!
+            applyStroke(graphic, mark.getStroke(), feature);
             graphic.draw(shape);
         }
         
