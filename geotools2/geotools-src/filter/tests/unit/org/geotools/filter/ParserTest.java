@@ -45,15 +45,11 @@ import org.geotools.gml.GMLFilterDocument;
  * @author Rob Hranac, TOPP
  */                                
 public class ParserTest 
-    extends TestCase 
-    implements FilterHandler {
+    extends TestCase {
     
     /** Standard logging instance */
     private static final Logger LOGGER = 
         Logger.getLogger("org.geotools.filter");
-
-    /** Feature on which to preform tests */
-    private Filter filter = null;
 
     /** Schema on which to preform tests */
     private static FeatureType testSchema = null;
@@ -178,15 +174,6 @@ public class ParserTest
         LOGGER.fine("...flat feature created");
     }
 
-    public void test6()
-        throws Exception {
-        Filter test = parseDocument(dataFolder+"/test6.xml");
-        LOGGER.fine("filter: " + test.getClass().toString());
-        LOGGER.fine("parsed: " + test.toString());
-    }          
-        
-
-
     /*
     public void test1()
         throws Exception {
@@ -230,6 +217,14 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }          
+
+    public void test6()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test6.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }          
+        
         
     public void test8()
         throws Exception {
@@ -272,7 +267,14 @@ public class ParserTest
         LOGGER.fine("filter: " + test.getClass().toString());
         LOGGER.fine("parsed: " + test.toString());
     }    
-    */
+*/    
+    public void test15()
+        throws Exception {
+        Filter test = parseDocument(dataFolder+"/test15.xml");
+        LOGGER.fine("filter: " + test.getClass().toString());
+        LOGGER.fine("parsed: " + test.toString());
+    }    
+        
     public Filter parseDocument(String uri) 
         throws Exception {
         
@@ -282,10 +284,11 @@ public class ParserTest
 
         // chains all the appropriate filters together (in correct order)
         //  and initiates parsing
-        FilterFilter filterFilter = new FilterFilter(this, testSchema);
-        LOGGER.fine("just created filter filter");
+        TestFilterHandler filterHandler = new TestFilterHandler();
+        FilterFilter filterFilter = new FilterFilter(filterHandler, testSchema);
         GMLFilterGeometry geometryFilter = new GMLFilterGeometry(filterFilter);
         GMLFilterDocument documentFilter = new GMLFilterDocument(geometryFilter);
+
         LOGGER.fine("about to make parser");
         //XMLReader parser = XMLReaderFactory.createXMLReader(/*"org.apache.xerces.parsers.SAXParser"*/); 
         // uncomment to use xerces parser
@@ -302,12 +305,8 @@ public class ParserTest
         p.parse(uri);
         LOGGER.fine("just parsed: " + uri);
 
-        return filter;
+        return filterHandler.getFilter();
     }
 
 
-    public void filter(Filter filter) {
-        this.filter = filter;
-    }
-        
 }

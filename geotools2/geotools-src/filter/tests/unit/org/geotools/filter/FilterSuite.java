@@ -18,7 +18,7 @@ import java.util.logging.Level;
 public class FilterSuite extends TestCase {
     
     static {
-        org.geotools.resources.Geotools.init("Log4JFormatter", Level.INFO);
+        org.geotools.resources.Geotools.init("Log4JFormatter", Level.ALL);
     }
 
     public FilterSuite(java.lang.String testName) {
@@ -32,13 +32,14 @@ public class FilterSuite extends TestCase {
     public static Test suite() {
         TestSuite suite = new TestSuite("All filter tests");
         suite.addTestSuite(ParserTest.class);
+        /*
         suite.addTestSuite(LiteralTest.class);
         suite.addTestSuite(AttributeTest.class);
         suite.addTestSuite(BetweenTest.class);
         suite.addTestSuite(MathTest.class);
         suite.addTestSuite(DOMParserTest.class);
-        suite.addTestSuite(XMLEncoderTest.class);
-        
+        suite.addTestSuite(XMLEncoderTest.class);      
+        */
         return suite;
     }
     

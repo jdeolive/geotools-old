@@ -42,10 +42,12 @@ import org.geotools.gml.GMLHandlerJTS;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  * 
- * @version $Id: FilterFilter.java,v 1.11 2002/09/03 17:33:59 robhranac Exp $
+ * @version $Id: FilterFilter.java,v 1.12 2002/09/17 17:33:56 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
+public class FilterFilter 
+    extends XMLFilterImpl 
+    implements GMLHandlerJTS {
 
     /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
@@ -54,7 +56,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     private LogicFactory logicFactory;  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
-    private FilterFactory filterFactory = new FilterFactory();  
+    private FilterFactory filterFactory;  
 
     /** Parent of the filter: must implement GMLHandlerGeometry. */
     private ExpressionFactory expressionFactory;  
@@ -74,6 +76,9 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
     /** Whether or not this parser should consider namespaces. */
     private boolean isFidFilter = false;
     
+    /** Whether or not this parser should consider namespaces. */
+    private boolean insideFilter = false;
+    
     // Static Globals to handle some expected elements
     /** GML namespace string. */
     private static final String GML_NAMESPACE = "http://www.opengis.net/gml";
@@ -89,6 +94,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         this.parent = parent;
         this.schema = schema;
         expressionFactory = new ExpressionFactory(schema);
+        filterFactory = new FilterFactory();  
         logicFactory = new LogicFactory();
     }
     
@@ -110,68 +116,76 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                              String qName, Attributes atts)
         throws SAXException {
 
-        short filterElementType = convertType(localName);
-        LOGGER.finest("types: (xml): " + localName + "; "  + 
-                      "(internal): " + filterElementType);
 
-        try { 
-            if(isFidFilter) {
-                if(filterElementType == AbstractFilter.FID ){
-                    LOGGER.finer("sending attributes to existing FID filter");
-                    filterFactory.setAttributes(atts);
-                }
-                else {
-                    isFidFilter = false;             
-                    LOGGER.finer("is fid (1): " + isFidFilter);
-                    // if the filter is done, pass along to the parent
-                    if( isLogicFilter ) {
-                        logicFactory.add( filterFactory.create());
+        LOGGER.finer("found start element: " + localName);
+        if(localName.equals("Filter")) {
+            insideFilter = true;
+        }
+        else if (insideFilter) {          
+            short filterElementType = convertType(localName);
+            LOGGER.finest("types: (xml): " + localName + "; "  + 
+                          "(internal): " + filterElementType);
+            
+            try { 
+                if(isFidFilter) {
+                    if(filterElementType == AbstractFilter.FID ){
+                        LOGGER.finer("sending attributes to existing FID filter");
+                        filterFactory.setAttributes(atts);
                     }
                     else {
-                        parent.filter( filterFactory.create());
+                        isFidFilter = false;             
+                        LOGGER.finer("is fid (1): " + isFidFilter);
+                        // if the filter is done, pass along to the parent
+                        if( isLogicFilter ) {
+                            logicFactory.add( filterFactory.create());
+                        }
+                        else {
+                            parent.filter( filterFactory.create());
+                        }
                     }
-                }
-            }
-            else {
-                // if at a complex filter start, add it to the logic stack
-                LOGGER.finest("is logic?");
-                if( AbstractFilter.isLogicFilter(filterElementType) ) {
-                    LOGGER.finer("found a logic filter start");
-                    isLogicFilter = true;
-                    logicFactory.start(filterElementType);
-                }
-                
-                // if at a simple filter start, tell the factory
-                else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
-                    LOGGER.finer("found a simple filter start");
-                    filterFactory.start(filterElementType);
-                    if(filterElementType == AbstractFilter.LIKE ){
-                        LOGGER.finer("sending attributes for like filter");
-                        filterFactory.setAttributes(atts);
-                    }
-                    else if(filterElementType == AbstractFilter.FID ){
-                        LOGGER.finer("sending attributes to new FID filter");
-                        filterFactory.setAttributes(atts);
-                        isFidFilter = true;
-                        LOGGER.finer("is fid (3): " + isFidFilter);
-                    }                            
-                }
-                
-                // if at an expression start, tell the factory
-                else if( ExpressionDefault.isExpression(filterElementType) ) {
-                    LOGGER.finest("found an expression filter start");
-                    expressionFactory.start(localName);
                 }
                 else {
+                    // if at a complex filter start, add it to the logic stack
+                    LOGGER.finest("is logic?");
+                    if( AbstractFilter.isLogicFilter(filterElementType) ) {
+                        LOGGER.finer("found a logic filter start");
+                        isLogicFilter = true;
+                        logicFactory.start(filterElementType);
+                    }
+                    
+                    // if at a simple filter start, tell the factory
+                    else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
+                        LOGGER.finer("found a simple filter start");
+                        filterFactory.start(filterElementType);
+                        if(filterElementType == AbstractFilter.LIKE ){
+                            LOGGER.finer("sending attributes for like filter");
+                            filterFactory.setAttributes(atts);
+                        }
+                        else if(filterElementType == AbstractFilter.FID ){
+                            LOGGER.finer("sending attributes to new FID filter");
+                            filterFactory.setAttributes(atts);
+                            isFidFilter = true;
+                            LOGGER.finer("is fid (3): " + isFidFilter);
+                        }                            
+                    }
+                
+                    // if at an expression start, tell the factory
+                    else if( ExpressionDefault.isExpression(filterElementType) ) {
+                        LOGGER.finest("found an expression filter start");
+                        expressionFactory.start(localName);
+                    }
                 }
             }
+            catch (IllegalFilterException e) {
+                throw new SAXException("Attempted to construct illegal filter: " +
+                                       e.getMessage());
+            }
         }
-        catch (IllegalFilterException e) {
-            throw new SAXException("Attempted to construct illegal filter: " +
-                                   e.getMessage());
+        else {
+            parent.startElement(namespaceURI, localName, qName, atts);
         }
     }
-    
+        
     
     /**
      * Reads the only internal characters read by pure GML parsers, which are
@@ -192,15 +206,20 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
         //  grunt-work out of this task for geometry handlers
         //  see the documentation for CoordinatesReader to see what this entails
         String message = new String(ch, start, length);
-        try{
-            LOGGER.finest("sent to expression factory: " + message);
-            expressionFactory.message(message);
+        
+        if(insideFilter) {          
+            try{
+                LOGGER.finest("sending to expression factory: " + message);
+                expressionFactory.message(message);
+            }
+            catch(IllegalFilterException ife){
+                throw new SAXException(ife);
+            }
         }
-        catch(IllegalFilterException ife){
-            throw new SAXException(ife);
+        else {
+            parent.characters(ch, start, length);
         }
     }
-    
     
     /**
      * Checks for GML element end and - if not a coordinates element - sends it
@@ -217,41 +236,18 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
 				throws SAXException {
         
 
-        short filterElementType = convertType(localName);
+        LOGGER.finer("found end element: " + localName);
+        if(localName.equals("Filter")) {
+            insideFilter = false;
+        }       
+        else if (insideFilter) {          
+            short filterElementType = convertType(localName);
         
-        try {
-            if( isFidFilter &&
-                !localName.equals("FeatureId") ) {
-                isFidFilter = false;             
-                LOGGER.finer("is fid (2): " + isFidFilter);
-                // if the filter is done, pass along to the parent
-                if( isLogicFilter ) {
-                    logicFactory.add( filterFactory.create());
-                }
-                else {
-                    parent.filter( filterFactory.create());
-                }
-            }
-            else {    
-                // if at the end of a complex filter, simplify the logic stack
-                //  appropriately
-                if( AbstractFilter.isLogicFilter(filterElementType) ) {
-                    LOGGER.finest("found a logic filter end");
-                    logicFactory.end( filterElementType);
-                    
-                    // if the filter is done, pass along to the parent
-                    if( logicFactory.isComplete()) {
-                        LOGGER.finer("creating logic factory");
-                        parent.filter( logicFactory.create());
-                    }
-                }
-                
-                
-                // if at the end of a simple filter, create it and push it on top of 
-                //  the logic stack
-                else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
-                    LOGGER.finest("found a simple filter end");
-                    
+            try {
+                if( isFidFilter &&
+                    !localName.equals("FeatureId") ) {
+                    isFidFilter = false;             
+                    LOGGER.finer("is fid (2): " + isFidFilter);
                     // if the filter is done, pass along to the parent
                     if( isLogicFilter ) {
                         logicFactory.add( filterFactory.create());
@@ -260,27 +256,59 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
                         parent.filter( filterFactory.create());
                     }
                 }
-                
-                // if at the end of an expression, two cases:
-                //  1. at the end of an outer expression, create it and pass to filter
-                //  2. at end of an inner expression, pass the message along to 
-                //      current outer expression
-                else if( ExpressionDefault.isExpression(filterElementType) ) {
-                    LOGGER.finer("found an expression filter end");
-                    expressionFactory.end(localName);
-                    if( expressionFactory.isReady() ) {
-                        LOGGER.finer("expression factory is ready");
-                        filterFactory.expression( expressionFactory.create());
+                else {    
+                    // if at the end of a complex filter, simplify the logic stack
+                    //  appropriately
+                    if( AbstractFilter.isLogicFilter(filterElementType) ) {
+                        LOGGER.finest("found a logic filter end");
+                        logicFactory.end( filterElementType);
+                        
+                        // if the filter is done, pass along to the parent
+                        if( logicFactory.isComplete()) {
+                            LOGGER.finer("creating logic factory");
+                            parent.filter( logicFactory.create());
+                        }
+                    }
+                    
+                    
+                    // if at the end of a simple filter, create it and push it on 
+                    //  top of the logic stack
+                    else if( AbstractFilter.isSimpleFilter(filterElementType) ) {
+                        LOGGER.finest("found a simple filter end");
+                        
+                        // if the filter is done, pass along to the parent
+                        if( isLogicFilter ) {
+                            logicFactory.add( filterFactory.create());
+                        }
+                        else {
+                            parent.filter( filterFactory.create());
+                        }
+                    }
+                    
+                    // if at the end of an expression, two cases:
+                    //  1. at the end of an outer expression, create it and pass to filter
+                    //  2. at end of an inner expression, pass the message along to 
+                    //      current outer expression
+                    else if( ExpressionDefault.isExpression(filterElementType) ) {
+                        LOGGER.finer("found an expression filter end");
+                        expressionFactory.end(localName);
+                        if( expressionFactory.isReady() ) {
+                            LOGGER.finer("expression factory is ready");
+                            filterFactory.expression( expressionFactory.create());
+                        }
                     }
                 }
             }
+            catch (IllegalFilterException e) {
+                throw new SAXException("Attempted to construct illegal filter: " +
+                                       e.getMessage());
+            }
         }
-        catch (IllegalFilterException e) {
-            throw new SAXException("Attempted to construct illegal filter: " +
-                                   e.getMessage());
+        else {
+            parent.endElement(namespaceURI, localName, qName);
         }
     }		
-    
+        
     /**
      * Gets geometry.
      *
@@ -290,7 +318,7 @@ public class FilterFilter extends XMLFilterImpl implements GMLHandlerJTS {
 
         // Sends the geometry to the expression
         try {
-            LOGGER.finer("got geometry: " + geometry.toString());
+            LOGGER.finer("got geometry: " + geometry);
             expressionFactory.geometry(geometry);
             if( expressionFactory.isReady() ) {
                 LOGGER.finer("expression factory made expression and sent to filter factory");

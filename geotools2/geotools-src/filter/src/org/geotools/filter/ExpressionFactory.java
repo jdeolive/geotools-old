@@ -34,7 +34,7 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: ExpressionFactory.java,v 1.2 2002/08/07 08:10:20 desruisseaux Exp $
+ * @version $Id: ExpressionFactory.java,v 1.3 2002/09/17 17:33:55 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class ExpressionFactory {
@@ -200,41 +200,47 @@ public class ExpressionFactory {
 
         LOGGER.finer("incoming message: " + message);
         LOGGER.finer("should read chars: " + readCharacters);
-
-        // If an attribute path, set it.  Assumes undeclared type.
-        if( currentExpression instanceof ExpressionAttribute &&
-            readCharacters) {
-            ((ExpressionAttribute) currentExpression).setAttributePath(message);
-            currentState = "complete";
-        }
         
-        // This is a relatively loose assignment routine, which uses
-        //  the fact that the three allowed literal types have a strict
-        //  instatiation hierarchy (ie. double can be an int can be a 
-        //  string, but not the other way around).
-        // A better routine would consider the use of this expression
-        //  (ie. will it be compared to a double or searched with a
-        //  like filter?)
-        else if( currentExpression instanceof ExpressionLiteral &&
-                 readCharacters) {
-            try {
-                Object tempLiteral = new Double(message);
-                ((ExpressionLiteral) currentExpression).setLiteral(tempLiteral);
+        if(readCharacters) {
+            // If an attribute path, set it.  Assumes undeclared type.
+            if( currentExpression instanceof ExpressionAttribute) {
+                LOGGER.finer("...");
+                ((ExpressionAttribute) currentExpression).setAttributePath(message);
+                LOGGER.finer("...");
                 currentState = "complete";
+                LOGGER.finer("...");
             }
-            catch(NumberFormatException e1) {
+            
+            // This is a relatively loose assignment routine, which uses
+            //  the fact that the three allowed literal types have a strict
+            //  instatiation hierarchy (ie. double can be an int can be a 
+            //  string, but not the other way around).
+            // A better routine would consider the use of this expression
+            //  (ie. will it be compared to a double or searched with a
+            //  like filter?)
+            else if( currentExpression instanceof ExpressionLiteral) {
                 try {
-                    Object tempLiteral = new Integer(message);
-                    ((ExpressionLiteral) currentExpression).
+                    Object tempLiteral = new Double(message);
+                    ((ExpressionLiteral) currentExpression).setLiteral(tempLiteral);
+                    currentState = "complete";
+                }
+                catch(NumberFormatException e1) {
+                    try {
+                        Object tempLiteral = new Integer(message);
+                        ((ExpressionLiteral) currentExpression).
+                            setLiteral(tempLiteral);
+                        currentState = "complete";
+                    }
+                    catch(NumberFormatException e2) {
+                        Object tempLiteral = message;
+                        ((ExpressionLiteral) currentExpression).
                         setLiteral(tempLiteral);
                         currentState = "complete";
-                }
-                catch(NumberFormatException e2) {
-                    Object tempLiteral = message;
-                    ((ExpressionLiteral) currentExpression).
-                        setLiteral(tempLiteral);
-                    currentState = "complete";
                 }                
+                }
+            }
+            else if (expressionFactory != null) {
+                expressionFactory.message(message);
             }
         }
         else if (expressionFactory != null) {

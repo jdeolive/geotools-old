@@ -35,14 +35,12 @@ import org.geotools.feature.*;
 /**
  * Defines a like filter, which checks to see if an attribute matches a REGEXP.
  *
- * @version $Id: FilterFactory.java,v 1.4 2002/09/03 17:33:59 robhranac Exp $
+ * @version $Id: FilterFactory.java,v 1.5 2002/09/17 17:33:56 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class FilterFactory {
 
-    /**
-     * The logger for the filter module.
-     */
+    /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
 
     /** The (limited) REGEXP pattern. */

@@ -34,10 +34,10 @@ import org.xml.sax.helpers.*;
  * extracts an OGC filter object from an XML stream and passes it to its parent
  * as a fully instantiated OGC filter object.</p>
  *
- * @version $Id: FilterHandler.java,v 1.1 2002/07/16 19:36:48 robhranac Exp $
+ * @version $Id: FilterHandler.java,v 1.2 2002/09/17 17:33:57 robhranac Exp $
  * @author Rob Hranac, Vision for New York
  */
-public interface FilterHandler {
+public interface FilterHandler extends ContentHandler {
 
     /**
      * Constructor with parent, which must implement GMLHandlerJTS.
