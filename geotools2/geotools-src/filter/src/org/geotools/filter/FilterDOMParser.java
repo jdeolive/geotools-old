@@ -34,7 +34,7 @@ import java.util.logging.Logger;
  * A dom based parser to build filters as per OGC 01-067
  *
  * @author Ian Turton, CCG
- * @version $Id: FilterDOMParser.java,v 1.10 2003/08/11 16:49:03 cholmesny Exp $
+ * @version $Id: FilterDOMParser.java,v 1.11 2004/05/07 20:20:46 jmacgill Exp $
  *
  * @task TODO: split this class up into multiple methods.
  */
@@ -110,7 +110,7 @@ public final class FilterDOMParser {
      * @task TODO: split up this insanely long method.
      */
     public static Filter parseFilter(Node root) {
-        LOGGER.finer("parsingFilter " + root.getNodeName());
+        LOGGER.finer("parsingFilter " + root.getLocalName());
 
         //NodeList children = root.getChildNodes();
         //LOGGER.finest("children "+children);
@@ -120,10 +120,13 @@ public final class FilterDOMParser {
             return null;
         }
 
-        LOGGER.finest("processing root " + root.getNodeName());
+        LOGGER.finest("processing root " + root.getLocalName() + " " + root.getNodeName());
 
         Node child = root;
-        String childName = child.getNodeName();
+        String childName = child.getLocalName();
+        if(childName==null){
+            childName= child.getNodeName();//HACK ?
+        }
         LOGGER.finest("looking up " + childName);
 
         if (comparisions.containsKey(childName)) {
@@ -148,8 +151,12 @@ public final class FilterDOMParser {
 
                         if (sibling.getNodeType() == Node.ELEMENT_NODE) {
                             fidElement = (Element) sibling;
-
-                            if ("FeatureId".equals(fidElement.getNodeName())) {
+                            
+                            String fidElementName = fidElement.getLocalName();
+                            if(fidElementName==null){
+                                fidElementName= fidElement.getNodeName();//HACK ?
+                            }
+                            if ("FeatureId".equals(fidElementName)) {
                                 fidFilter.addFid(fidElement.getAttribute("fid"));
                             }
                         }
@@ -186,7 +193,8 @@ public final class FilterDOMParser {
                     for (int i = 0; i < kids.getLength(); i++) {
                         Node kid = kids.item(i);
 
-                        if (kid.getNodeName().equalsIgnoreCase("LowerBoundary")) {
+                        String kidName = (kid.getLocalName()!=null)?kid.getLocalName():kid.getNodeName(); 
+                        if (kidName.equalsIgnoreCase("LowerBoundary")) {
                             value = kid.getFirstChild();
 
                             while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -198,7 +206,7 @@ public final class FilterDOMParser {
                                 .parseExpression(value));
                         }
 
-                        if (kid.getNodeName().equalsIgnoreCase("UpperBoundary")) {
+                        if (kidName.equalsIgnoreCase("UpperBoundary")) {
                             value = kid.getFirstChild();
 
                             while (value.getNodeType() != Node.ELEMENT_NODE) {
@@ -228,7 +236,7 @@ public final class FilterDOMParser {
                             continue;
                         }
 
-                        String res = kid.getNodeName();
+                        String res = (kid.getLocalName()!=null)?kid.getLocalName():kid.getNodeName(); 
 
                         if (res.equalsIgnoreCase("PropertyName")) {
                             value = ExpressionDOMParser.parseExpression(kid);
@@ -246,7 +254,7 @@ public final class FilterDOMParser {
                         Node kid = kids.item(i);
 
                         //if(kid == null || kid.getNodeType() != Node.ELEMENT_NODE) continue;
-                        String res = kid.getNodeName();
+                        String res = (kid.getLocalName()!=null)?kid.getLocalName():kid.getNodeName(); 
 
                         if (res.equalsIgnoreCase("wildCard")) {
                             wildcard = kid.getNodeValue();
@@ -301,7 +309,6 @@ public final class FilterDOMParser {
 
                 LOGGER.finest("add right value -> " + value + "<-");
                 filter.addRightValue(ExpressionDOMParser.parseExpression(value));
-
                 return filter;
             } catch (IllegalFilterException ife) {
                 LOGGER.warning("Unable to build filter: " + ife);
@@ -331,8 +338,9 @@ public final class FilterDOMParser {
 
                 LOGGER.finest("add right value -> " + value + "<-");
 
-                if (!(value.getNodeName().equalsIgnoreCase("Literal")
-                        || value.getNodeName().equalsIgnoreCase("propertyname"))) {
+                String valueName = (value.getLocalName()!=null)?value.getLocalName():value.getNodeName(); 
+                if (!(valueName.equalsIgnoreCase("Literal")
+                        || valueName.equalsIgnoreCase("propertyname"))) {
                     Element literal = value.getOwnerDocument().createElement("literal");
 
                     literal.appendChild(value);
@@ -367,7 +375,7 @@ public final class FilterDOMParser {
                         continue;
                     }
 
-                    LOGGER.finest("adding to logic filter " + kid.getNodeName());
+                    LOGGER.finest("adding to logic filter " + kid.getLocalName());
                     filter.addFilter(parseFilter(kid));
                 }
 
@@ -409,4 +417,5 @@ public final class FilterDOMParser {
 
         return nFilter;
     }
+
 }

@@ -89,7 +89,7 @@ public final class ExpressionDOMParser {
      * @return the geotools representation of the expression held in the node.
      */
     public static Expression parseExpression(Node root) {
-        LOGGER.finer("parsingExpression " + root.getNodeName());
+        LOGGER.finer("parsingExpression " + root.getLocalName());
 
         //NodeList children = root.getChildNodes();
         //LOGGER.finest("children "+children);
@@ -99,135 +99,13 @@ public final class ExpressionDOMParser {
             return null;
         }
 
-        LOGGER.finer("processing root " + root.getNodeName());
+        LOGGER.finer("processing root " + root.getLocalName());
 
         Node child = root;
-
-        if (child.getNodeName().equalsIgnoreCase("add")) {
-            try {
-                LOGGER.fine("processing an Add");
-
-                //Node left = null;
-                //Node right = null;
-                MathExpression math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_ADD);
-                Node value = child.getFirstChild();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add left value -> " + value + "<-");
-                math.addLeftValue(parseExpression(value));
-                value = value.getNextSibling();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add right value -> " + value + "<-");
-                math.addRightValue(parseExpression(value));
-
-                return math;
-            } catch (IllegalFilterException ife) {
-                LOGGER.warning("Unable to build expression " + ife);
-
-                return null;
-            }
-        }
-
-        if (child.getNodeName().equalsIgnoreCase("sub")) {
-            try {
-                //NodeList kids = child.getChildNodes();
-                MathExpression math;
-                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_SUBTRACT);
-
-                Node value = child.getFirstChild();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add left value -> " + value + "<-");
-                math.addLeftValue(parseExpression(value));
-                value = value.getNextSibling();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add right value -> " + value + "<-");
-                math.addRightValue(parseExpression(value));
-
-                return math;
-            } catch (IllegalFilterException ife) {
-                LOGGER.warning("Unable to build expression " + ife);
-
-                return null;
-            }
-        }
-
-        if (child.getNodeName().equalsIgnoreCase("mul")) {
-            try {
-                //NodeList kids = child.getChildNodes();
-                MathExpression math;
-                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_MULTIPLY);
-
-                Node value = child.getFirstChild();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add left value -> " + value + "<-");
-                math.addLeftValue(parseExpression(value));
-                value = value.getNextSibling();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add right value -> " + value + "<-");
-                math.addRightValue(parseExpression(value));
-
-                return math;
-            } catch (IllegalFilterException ife) {
-                LOGGER.warning("Unable to build expression " + ife);
-
-                return null;
-            }
-        }
-
-        if (child.getNodeName().equalsIgnoreCase("div")) {
-            try {
-                MathExpression math;
-                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_DIVIDE);
-
-                Node value = child.getFirstChild();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add left value -> " + value + "<-");
-                math.addLeftValue(parseExpression(value));
-                value = value.getNextSibling();
-
-                while (value.getNodeType() != Node.ELEMENT_NODE) {
-                    value = value.getNextSibling();
-                }
-
-                LOGGER.finer("add right value -> " + value + "<-");
-                math.addRightValue(parseExpression(value));
-
-                return math;
-            } catch (IllegalFilterException ife) {
-                LOGGER.warning("Unable to build expression " + ife);
-
-                return null;
-            }
-        }
-
-        if (child.getNodeName().equalsIgnoreCase("Literal")) {
+       
+        System.out.println("ExpressionParser: NodeValue=" + child.getNodeValue() +" NodeName=" + child.getNodeName() + ": LocalName=" + child.getLocalName() + ": NameSpaceURI=" + child.getNamespaceURI());
+        String childName = (child.getLocalName()!=null)?child.getLocalName():child.getNodeName(); 
+        if (childName.equalsIgnoreCase("Literal")) {
             LOGGER.finer("processing literal " + child);
 
             NodeList kidList = child.getChildNodes();
@@ -302,6 +180,7 @@ public final class ExpressionDOMParser {
                 String nodeValue = kid.getNodeValue();
                 LOGGER.finer("processing " + nodeValue);
 
+//                System.out.println("Node value is: " + nodeValue);
                 // see if it's an int
                 try {
                     try {
@@ -334,8 +213,133 @@ public final class ExpressionDOMParser {
                 }
             }
         }
+        if (childName.equalsIgnoreCase("add")) {
+            try {
+                LOGGER.fine("processing an Add");
 
-        if (child.getNodeName().equalsIgnoreCase("PropertyName")) {
+                //Node left = null;
+                //Node right = null;
+                MathExpression math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_ADD);
+                Node value = child.getFirstChild();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add left value -> " + value + "<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add right value -> " + value + "<-");
+                math.addRightValue(parseExpression(value));
+
+                return math;
+            } catch (IllegalFilterException ife) {
+                LOGGER.warning("Unable to build expression " + ife);
+
+                return null;
+            }
+        }
+
+        if (childName.equalsIgnoreCase("sub")) {
+            try {
+                //NodeList kids = child.getChildNodes();
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_SUBTRACT);
+
+                Node value = child.getFirstChild();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add left value -> " + value + "<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add right value -> " + value + "<-");
+                math.addRightValue(parseExpression(value));
+
+                return math;
+            } catch (IllegalFilterException ife) {
+                LOGGER.warning("Unable to build expression " + ife);
+
+                return null;
+            }
+        }
+
+        if (childName.equalsIgnoreCase("mul")) {
+            try {
+                //NodeList kids = child.getChildNodes();
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_MULTIPLY);
+
+                Node value = child.getFirstChild();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add left value -> " + value + "<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add right value -> " + value + "<-");
+                math.addRightValue(parseExpression(value));
+
+                return math;
+            } catch (IllegalFilterException ife) {
+                LOGGER.warning("Unable to build expression " + ife);
+
+                return null;
+            }
+        }
+
+        if (childName.equalsIgnoreCase("div")) {
+            try {
+                MathExpression math;
+                math = FILTER_FACT.createMathExpression(DefaultExpression.MATH_DIVIDE);
+
+                Node value = child.getFirstChild();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add left value -> " + value + "<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+
+                while (value.getNodeType() != Node.ELEMENT_NODE) {
+                    value = value.getNextSibling();
+                }
+
+                LOGGER.finer("add right value -> " + value + "<-");
+                math.addRightValue(parseExpression(value));
+
+                return math;
+            } catch (IllegalFilterException ife) {
+                LOGGER.warning("Unable to build expression " + ife);
+
+                return null;
+            }
+        }
+
+       
+
+        if (childName.equalsIgnoreCase("PropertyName")) {
             try {
                 //NodeList kids = child.getChildNodes();
                 AttributeExpression attribute = FILTER_FACT
@@ -350,7 +354,7 @@ public final class ExpressionDOMParser {
             }
         }
 
-        if (child.getNodeName().equalsIgnoreCase("Function")) {
+        if (childName.equalsIgnoreCase("Function")) {
             FunctionExpression func = null;
             Element param = (Element) child;
 
@@ -358,7 +362,10 @@ public final class ExpressionDOMParser {
 
             for (int k = 0; k < map.getLength(); k++) {
                 String res = map.item(k).getNodeValue();
-                String name = map.item(k).getNodeName();
+                String name = map.item(k).getLocalName();
+                if (name == null){
+                    name = map.item(k).getNodeName();
+                }
                 LOGGER.fine("attribute " + name + " with value of " + res);
 
                 if (name.equalsIgnoreCase("name")) {
@@ -436,8 +443,8 @@ public final class ExpressionDOMParser {
         List coordList;
         int type = 0;
         Node child = root;
-
-        if (child.getNodeName().equalsIgnoreCase("gml:box")) {
+        String childName = (child.getLocalName()!=null)?child.getLocalName():child.getNodeName(); 
+        if (childName.equalsIgnoreCase("gml:box")) {
             LOGGER.finer("box");
             type = GML_BOX;
             coordList = parseCoords(child);
@@ -468,7 +475,7 @@ public final class ExpressionDOMParser {
             return gfac.createPolygon(ring, null);
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:polygon")) {
+        if (childName.equalsIgnoreCase("gml:polygon")) {
             LOGGER.finer("polygon");
             type = GML_POLYGON;
 
@@ -480,11 +487,12 @@ public final class ExpressionDOMParser {
                 Node kid = kids.item(i);
                 LOGGER.finer("doing " + kid);
 
-                if (kid.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs")) {
+                String kidName = (kid.getLocalName()!=null)?kid.getLocalName():kid.getNodeName(); 
+                if (kidName.equalsIgnoreCase("gml:outerBoundaryIs")) {
                     outer = (LinearRing) parseGML(kid);
                 }
 
-                if (kid.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs")) {
+                if (kidName.equalsIgnoreCase("gml:innerBoundaryIs")) {
                     inner.add((LinearRing) parseGML(kid));
                 }
             }
@@ -497,8 +505,8 @@ public final class ExpressionDOMParser {
             }
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:outerBoundaryIs")
-                || child.getNodeName().equalsIgnoreCase("gml:innerBoundaryIs")) {
+        if (childName.equalsIgnoreCase("gml:outerBoundaryIs")
+                || childName.equalsIgnoreCase("gml:innerBoundaryIs")) {
             LOGGER.finer("Boundary layer");
 
             NodeList kids = ((Element) child).getElementsByTagName(
@@ -507,7 +515,7 @@ public final class ExpressionDOMParser {
             return parseGML(kids.item(0));
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:linearRing")) {
+        if (childName.equalsIgnoreCase("gml:linearRing")) {
             LOGGER.finer("LinearRing");
             coordList = parseCoords(child);
 
@@ -525,7 +533,7 @@ public final class ExpressionDOMParser {
             return ring;
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:linestring")) {
+        if (childName.equalsIgnoreCase("gml:linestring")) {
             LOGGER.finer("linestring");
             type = GML_LINESTRING;
             coordList = parseCoords(child);
@@ -537,7 +545,7 @@ public final class ExpressionDOMParser {
             return line;
         }
 
-        if (child.getNodeName().equalsIgnoreCase("gml:point")) {
+        if (childName.equalsIgnoreCase("gml:point")) {
             LOGGER.finer("point");
             type = GML_POINT;
             coordList = parseCoords(child);
@@ -548,7 +556,7 @@ public final class ExpressionDOMParser {
             return point;
         }
 
-        if (child.getNodeName().toLowerCase().startsWith("gml:multiPolygon")) {
+        if (childName.toLowerCase().startsWith("gml:multiPolygon")) {
             LOGGER.finer("MultiPolygon");
 
             List multi = new ArrayList();
@@ -584,10 +592,13 @@ public final class ExpressionDOMParser {
             Node child = kids.item(i);
             LOGGER.finer("doing " + child);
 
-            //if (child.getNodeName().equalsIgnoreCase("gml:coordinate")) {
+            //if (child.getLocalName().equalsIgnoreCase("gml:coordinate")) {
             //  String internal = child.getNodeValue();
             //}
-            if (child.getNodeName().equalsIgnoreCase("gml:coordinates")) {
+            
+            
+            String childName = (child.getLocalName()!=null)?child.getLocalName():child.getNodeName(); 
+            if (childName.equalsIgnoreCase("gml:coordinates")) {
                 LOGGER.finer("coordinates "
                     + child.getFirstChild().getNodeValue());
 
