@@ -21,7 +21,9 @@
 package org.geotools.gml;
 
 /**
- * @version $Id: GMLException.java,v 1.3 2002/06/05 10:10:35 loxnard Exp $
+ * An exception used to represent any GML related errors.
+ *
+ * @version $Id: GMLException.java,v 1.4 2003/08/03 00:32:09 dledmonds Exp $
  * @author Ian Turton, CCG
  */
 public class GMLException extends java.lang.Exception {
@@ -37,6 +39,7 @@ public class GMLException extends java.lang.Exception {
     /**
      * Constructs an instance of <code>GMLException</code> 
      * with the specified detail message.
+     *
      * @param msg the detail message.
      */
     public GMLException(String msg) {
