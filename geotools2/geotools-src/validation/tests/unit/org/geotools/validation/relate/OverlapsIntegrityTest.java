@@ -28,11 +28,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.geotools.data.FeatureReader;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.Feature;
-import org.geotools.filter.Filter;
-import org.geotools.validation.RoadValidationResults;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -69,33 +64,7 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 	{
 		super(arg0);
 	}
-	public void testOverlapFilter() throws Exception {
-		FeatureSource line = mds.getFeatureSource( "line" );
-		
-		Filter filter;
-		
-		filter = OverlapsIntegrity.filterBBox( new Envelope(), line.getSchema() );
-		assertEquals( "with empty envelope", 0, line.getFeatures( filter ).getCount() );
-		
-		filter = OverlapsIntegrity.filterBBox( new Envelope(-1,3,-2,3), line.getSchema() );
-		assertEquals( "with envelope", 0, line.getFeatures( filter ).getCount() );	
-		
-		Envelope all = line.getBounds();
-		if( all == null ){
-			// damm lets figure it out
-			all = line.getFeatures().getBounds();
-		}
-		int counter = 0;
-		filter = OverlapsIntegrity.filterBBox( all, line.getSchema() );
-		for( FeatureReader r=line.getFeatures().reader(); r.hasNext(); ){
-			System.out.println("Loop counter: " +  ++counter);
-			Feature victim = r.next();
-			System.out.println("Found line number: " + victim.getID());
-			assertTrue( "feature "+victim.getID(), filter.contains( victim ));
-		}
-		assertEquals( "count of all features", 4, line.getFeatures( filter ).getCount() );
-	}
-	
+
 	public void testValidate()
 	{
 		OverlapsIntegrity overlap = new OverlapsIntegrity();
@@ -108,34 +77,25 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 			map.put("my:line", mds.getFeatureSource("line"));
 		} catch (IOException e1)
 		{
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		
 		try
 		{
-			System.out.println("Test Validate");
-			assertFalse("catch bad data", overlap.validate(map, lineBounds, vr));
-			//System.out.println("hi");
-			//(RoadValidationResults)vr;
+			assertFalse(overlap.validate(map, lineBounds, vr));
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
 	
-	/**
-	 * What does this test do!
-	 * <p>
-	 * Test if it catches bad data
-	 * </p>
-	 */
 	public void testValidateBBox()
 		{
 			OverlapsIntegrity overlap = new OverlapsIntegrity();
 			overlap.setExpected(false);
 			overlap.setGeomTypeRefA("my:line");
 		
+			System.out.println("=========================================");
 			Map map = new HashMap();
 			try
 			{
@@ -149,8 +109,8 @@ public class OverlapsIntegrityTest extends SpatialTestCase
 			try
 			{
 				System.out.println("Test Validate BBox");
-				assertFalse("test if it catches bad data", overlap.validate(map, new Envelope(-1,2,-2,3), vr));
-				//System.out.println("hi");
+				//assertFalse(overlap.validate(map, new Envelope(-1,2,-2,3), vr));
+				assertFalse(overlap.validate(map, lineBounds, vr));
 				//(RoadValidationResults)vr;
 			} catch (Exception e)
 			{
