@@ -22,7 +22,7 @@ import org.geotools.feature.FeatureCollectionDefault;
 
 import com.vividsolutions.jts.geom.Envelope;
 
-import org.apache.log4j.BasicConfigurator;
+
 
 /**
  *
@@ -32,7 +32,7 @@ public class SVGTest extends TestCase {
     String dataFolder;
     public SVGTest(java.lang.String testName) {
         super(testName);
-        BasicConfigurator.configure();
+        
         dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven
@@ -51,9 +51,9 @@ public class SVGTest extends TestCase {
     }
     
    public void testGenerateSVG(){
-       GenerateSVG gen = new GenerateSVG();
+       
       try{
-            
+            GenerateSVG gen = new GenerateSVG();
             URL url = new URL("file:///"+dataFolder+"/simple.gml");
             DataSource ds = new GMLDataSource(url);
             FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
@@ -68,8 +68,9 @@ public class SVGTest extends TestCase {
             File f = new File(dataFolder,"simple.sld");
        
             Map map = new DefaultMap();
-            
-            SLDStyle style = new SLDStyle(f);
+            StyleFactory sFac = StyleFactory.createStyleFactory();
+            SLDStyle reader = new SLDStyle(sFac,f);
+            Style style = reader.readXML();
             map.addFeatureTable(fc,style);
        
             url = new URL("file:///"+dataFolder+"/simple.svg");
