@@ -49,7 +49,7 @@ public class PostgisDataStoreFactory
 
     /** Param, package visibiity for JUnit tests */
     static final Param PORT = new Param("port", Integer.class,
-            "postgis connection port", true, new Integer(5432));
+            "postgis connection port (default is 5432)", true, new Integer(5432));
 
     /** Param, package visibiity for JUnit tests */
     static final Param DATABASE = new Param("database", String.class,
@@ -234,6 +234,22 @@ public class PostgisDataStoreFactory
      */
     public String getDescription() {
         return "PostGIS spatial database";
+    }
+
+
+    /**
+     * Determines if the appropriate libraries are present for this datastore
+     * factory to successfully produce postgis datastores.  
+     * 
+     * @return <tt>true</tt> if the postgresql jar is on the classpath.
+     */
+    public boolean available() {
+        try {
+            Class.forName(DRIVER_CLASS);
+        } catch (ClassNotFoundException cnfe) {
+            return false;
+        }
+        return true;
     }
 
     /**
