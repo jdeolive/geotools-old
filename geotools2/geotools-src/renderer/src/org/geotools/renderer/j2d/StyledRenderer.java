@@ -65,7 +65,7 @@ import org.geotools.ct.Adapters;
  * This renderer listen for {@linkplain CollectionEvent feature collection changes}
  * and invokes {@link RenderedLayer#repaint} automatically on changes.
  *
- * @version $Id: StyledRenderer.java,v 1.4 2003/08/28 10:42:17 desruisseaux Exp $
+ * @version $Id: StyledRenderer.java,v 1.5 2003/09/01 13:54:02 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class StyledRenderer extends Renderer {
@@ -118,6 +118,7 @@ public class StyledRenderer extends Renderer {
                 final CoordinateSystem cs = Adapters.getDefault().wrap(box.getCoordinateSystem());
                 if (cs != null) {
                     setCoordinateSystem(cs);
+                    factory.setCoordinateSystem(cs);
                 }
             }
             final LayerList list = context.getLayerList();
@@ -211,7 +212,7 @@ public class StyledRenderer extends Renderer {
      * Map a {@link Layer} to a set of {@link RenderedLayer} and to the listeners
      * needed for catching changes in collection and visibility.
      *
-     * @version $Id: StyledRenderer.java,v 1.4 2003/08/28 10:42:17 desruisseaux Exp $
+     * @version $Id: StyledRenderer.java,v 1.5 2003/09/01 13:54:02 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     private final class LayerEntry implements CollectionListener {

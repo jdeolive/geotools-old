@@ -16,6 +16,14 @@
  */
 package org.geotools.renderer.j2d;
 
+// J2SE dependencies
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // JTS dependencies
 import com.vividsolutions.jts.geom.sfs.SFSGeometry;
@@ -26,6 +34,8 @@ import org.geotools.feature.Feature;
 import org.geotools.feature.IllegalAttributeException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
+import org.geotools.cs.CoordinateSystem;
+import org.geotools.cs.GeographicCoordinateSystem;
 import org.geotools.renderer.geom.JTSGeometries;
 import org.geotools.renderer.style.SLDStyleFactory;
 import org.geotools.renderer.style.Style;
@@ -37,25 +47,16 @@ import org.geotools.styling.RasterSymbolizer;
 import org.geotools.styling.Rule;
 import org.geotools.styling.Symbolizer;
 import org.geotools.styling.TextSymbolizer;
+import org.geotools.util.NumberRange;
 import org.geotools.util.RangeSet;
-
-// J2SE dependencies
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.media.jai.util.Range;
 
 
 /**
  * A factory creating {@link RenderedLayer}s from {@link Feature}s and {@link Style}s.
  *
- * @author Martin Desruisseaux
+ * @version $Id: RenderedLayerFactory.java,v 1.11 2003/09/01 13:54:02 desruisseaux Exp $
  * @author Andrea Aime
- * @version $Id: RenderedLayerFactory.java,v 1.10 2003/08/13 22:45:57 desruisseaux Exp $
+ * @author Martin Desruisseaux
  */
 public class RenderedLayerFactory {
     /**
@@ -69,9 +70,35 @@ public class RenderedLayerFactory {
     private final SLDStyleFactory styleFactory = new SLDStyleFactory();
 
     /**
+     * The default coordinate system for geometry to be created. If a geometry defines explicitly
+     * a coordinate system, then the geometry CS will have precedence over this default CS.
+     *
+     * @see #getCoordinateSystem
+     * @see #setCoordinateSystem
+     */
+    private CoordinateSystem coordinateSystem = GeographicCoordinateSystem.WGS84;
+
+    /**
      * Construct a default factory.
      */
     public RenderedLayerFactory() {
+    }
+
+    /**
+     * Returns the default coordinate system for geometry to be created. If a geometry defines
+     * explicitly a coordinate system, then the geometry CS will have precedence over this
+     * default CS.
+     */
+    public CoordinateSystem getCoordinateSystem() {
+        return coordinateSystem;
+    }
+
+    /**
+     * Set the default coordinate system for geometry to be created. This CS is used only if
+     * a geometry doesn't specifies explicitly its own CS.
+     */
+    public void setCoordinateSystem(final CoordinateSystem coordinateSystem) {
+        this.coordinateSystem = coordinateSystem;
     }
     
     /**
@@ -91,7 +118,7 @@ public class RenderedLayerFactory {
         List renderedLayers = new ArrayList();
 
         // ... and the first geometric layer
-        JTSGeometries geometries = new JTSGeometries();
+        JTSGeometries geometries = new JTSGeometries(coordinateSystem);
 
         // process the styles in order
         FeatureTypeStyle[] featureStylers = SLDStyle.getFeatureTypeStyles();
@@ -109,8 +136,7 @@ public class RenderedLayerFactory {
 
             for (int j = 0; j < features.length; j++) {
                 RangeSet rs = new RangeSet(Double.class);
-                rs.add(new Range(Double.class, new Double(0),
-                        new Double(Double.MAX_VALUE)));
+                rs.add(new NumberRange(0.0, Double.MAX_VALUE));
                 elseFeatureRanges.put(features[j], rs);
             }
 
@@ -123,7 +149,7 @@ public class RenderedLayerFactory {
                     Filter filter = rules[j].getFilter();
                     Symbolizer[] symbolizers = rules[j].getSymbolizers();
                     List ruleFeatures = new ArrayList();
-                    Range ruleRange = buildRuleRange(rules[j]);
+                    NumberRange ruleRange = buildRuleRange(rules[j]);
                     String ftsTypeName = fts.getFeatureTypeName();
 
                     // get all the features that must be rendered according to
@@ -164,7 +190,7 @@ public class RenderedLayerFactory {
                 for (int j = 0; j < rules.length; j++) {
                     if (rules[j].hasElseFilter()) { // if this rule is an else filter
 
-                        Range ruleRange = buildRuleRange(rules[j]);
+                        NumberRange ruleRange = buildRuleRange(rules[j]);
                         Symbolizer[] symbolizers = rules[j].getSymbolizers();
 
                         // for each feature get the list of the ranges that are not catched by rules
@@ -174,12 +200,13 @@ public class RenderedLayerFactory {
                             RangeSet rs = (RangeSet) elseFeatureRanges.get(feature);
 
                             for (Iterator rangeIt = rs.iterator(); rangeIt.hasNext();) {
-                                Range featureRange = (Range) rangeIt.next();
-                                Range finalRange = featureRange.intersect(ruleRange);
+                                NumberRange featureRange = (NumberRange) rangeIt.next();
+                                NumberRange finalRange = (NumberRange) featureRange.intersect(ruleRange);
 
                                 if ((finalRange != null) && !finalRange.isEmpty()) {
                                     geometries = processSymbolizers(feature, symbolizers,
-                                            finalRange, renderedLayers, geometries);
+                                                                    finalRange, renderedLayers,
+                                                                    geometries);
                                 }
                             }
                         }
@@ -212,8 +239,11 @@ public class RenderedLayerFactory {
      *
      * @throws TransformException if a transformation was required and failed.
      */
-    private JTSGeometries processSymbolizers(Feature feature, Symbolizer[] symbolizers,
-        Range scaleRange, List renderedLayers, JTSGeometries geometries)
+    private JTSGeometries processSymbolizers(Feature       feature,
+                                             Symbolizer[]  symbolizers,
+                                             NumberRange   scaleRange,
+                                             List          renderedLayers,
+                                             JTSGeometries geometries)
         throws TransformException {
         for (int i = 0; i < symbolizers.length; i++) {
             Symbolizer symb = symbolizers[i];
@@ -225,7 +255,7 @@ public class RenderedLayerFactory {
             if (symb instanceof RasterSymbolizer) {
                 if (geometries.getGeometries().size() > 0) {
                     renderedLayers.add(new SLDRenderedGeometries(geometries));
-                    geometries = new JTSGeometries();
+                    geometries = new JTSGeometries(coordinateSystem);
                 }
 
                 GridCoverage grid = (GridCoverage) feature.getAttribute("grid");
@@ -253,33 +283,30 @@ public class RenderedLayerFactory {
      */
     private boolean featureMatching(Feature feature, String ftsTypeName, Filter filter) {
         String typeName = feature.getFeatureType().getTypeName();
-        if(typeName == null){
+        if (typeName == null) {
             return false;
         }
-        
-         if( feature.getFeatureType().isDescendedFrom(null, ftsTypeName) || 
-        typeName.equalsIgnoreCase(ftsTypeName)){
-            return ((filter == null) || filter.contains(feature));
-         }
+        if (feature.getFeatureType().isDescendedFrom(null, ftsTypeName) || 
+            typeName.equalsIgnoreCase(ftsTypeName))
+        {
+            return (filter==null) || filter.contains(feature);
+        }
         return false;
-
     }
 
     /**
      * Builds a range from the rule scale specification
      *
      * @param r The rule
-     *
-     * @return The range with minimum and maximun scale (will use minimum and maximum double values
-     *         if unbounded
+     * @return  The range with minimum and maximun scale (will use minimum and maximum double values
+     *          if unbounded).
      */
-    private Range buildRuleRange(Rule r) {
+    private NumberRange buildRuleRange(final Rule r) {
         double min = r.getMinScaleDenominator();
         double max = r.getMaxScaleDenominator();
-        Double Min = Double.isInfinite(min) ? new Double(Double.MIN_VALUE) : new Double(min);
-        Double Max = Double.isInfinite(max) ? new Double(Double.MAX_VALUE) : new Double(max);
-
-        return new Range(Double.class, Min, Max);
+        if (Double.isInfinite(min)) min = Double.MIN_VALUE;
+        if (Double.isInfinite(max)) max = Double.MAX_VALUE;
+        return new NumberRange(min, max);
     }
 
     /**
