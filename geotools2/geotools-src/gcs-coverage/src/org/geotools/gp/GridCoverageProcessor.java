@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.20 2003/04/17 11:39:34 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.21 2003/04/17 13:57:37 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -187,6 +187,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new Resampler.Operation());
             DEFAULT.addOperation(new SelectSampleDimension.Operation());
             DEFAULT.addOperation(new OperationJAI("Rescale"));
+            DEFAULT.addOperation(new InvertOperation());
             DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
             DEFAULT.addOperation(new FilterOperation("MinFilter"));
@@ -196,7 +197,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new ConvolveOperation("LaplaceType2Filter", ConvolveOperation.LAPLACE_TYPE_2));
             DEFAULT.addOperation(new ConvolveOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation());
-            DEFAULT.addOperation(new ThresholdOperation());
+            DEFAULT.addOperation(new BilevelOperation("Threshold", "Binarize"));
         }
         return DEFAULT;
     }
