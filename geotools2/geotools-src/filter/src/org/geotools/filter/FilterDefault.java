@@ -17,6 +17,9 @@ public class FilterDefault implements Filter {
     /** Defines filter type (all valid types defined below). */
     protected short filterType;
 
+    /** Sets the permissiveness of the filter construction handling. */
+    protected boolean permissiveConstruction = true;
+
     /* *************************************************************************
      * This is a listing of all possible filter types, grouped by types that
      * are implemented by a single filter (ie. all logic types are implemented
@@ -77,17 +80,16 @@ public class FilterDefault implements Filter {
 
 
     /**
-     * Implements an 'inside' check for a given feature, defaulting to true.
+     * Implements a 'contained by' check for a given feature, defaulting to true
      * 
      * @param feature Specified feature to examine.
-     * @return Result of 'inside' test.
+     * @return Result of 'contains' test.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
         return true;
     }
     
-
     /**
      * Default implementation for OR - should be sufficient for most filters.
      *
@@ -95,10 +97,14 @@ public class FilterDefault implements Filter {
      * @return ORed filter.
      */
     public Filter or(Filter filter) {
-        return new FilterLogic(this, filter, LOGIC_OR);
+        try {
+            return new FilterLogic(this, filter, LOGIC_OR);
+        }
+        catch(IllegalFilterException e) {
+            return filter;
+        }
     }
     
-
     /**
      * Default implementation for AND - should be sufficient for most filters.
      *
@@ -106,17 +112,46 @@ public class FilterDefault implements Filter {
      * @return ANDed filter.
      */
     public Filter and(Filter filter) {
-        return new FilterLogic(this, filter, LOGIC_AND);
+        try {
+            return new FilterLogic(this, filter, LOGIC_AND);
+        }
+        catch(IllegalFilterException e) {
+            return filter;
+        }
     }
     
-
     /**
      * Default implementation for NOT - should be sufficient for most filters.
      *
      * @return NOTed filter.
      */
     public Filter not() {
-        return new FilterLogic(this, LOGIC_NOT);
+        try {
+            return new FilterLogic(this, LOGIC_NOT);
+        }
+        catch(IllegalFilterException e) {
+            return this;
+        }
+    }
+
+    /**
+     * <p>Permissive construction allows expressions to contain attributes with
+     * insecure types and filters to contain expressions with uninsured types.
+     * In this context, 'uninsured' means that the actual type of the
+     * expression does not have to conform to the declared type.</p>
+     *
+     * <p>All of the filter routines are guaranteed to handle errors correctly
+     * as long as construction is set to be non-permissive.  This means that
+     * the filter may still throw a MalformedFilterException when asked to
+     * evaluate a feature, but it should never throw anything else.  However,
+     * if permissiveness is set, then this is not true.  In this case, it
+     * is entirely possible the filter will fail (during casting) without
+     * a graceful exit.</p>
+     *
+     * @param permissiveConstruction Indicates permissive construction.
+     */
+    public void setPermissive(boolean permissiveConstruction) {
+        permissiveConstruction = permissiveConstruction;
     }
     
 
@@ -200,6 +235,25 @@ public class FilterDefault implements Filter {
             (filterType == GEOMETRY_CONTAINS) ||
             (filterType == GEOMETRY_OVERLAPS) ||
             (filterType == GEOMETRY_BEYOND) ) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Checks to see if passed type is logic.
+     *
+     * @param filterType Type of filter for check.
+     * @return Whether or not this is a logic filter type.
+     */
+    protected static boolean isSimpleFilter(short filterType) {
+
+        if( isCompareFilter(filterType) ||
+            isGeometryFilter(filterType) ||
+            (filterType == NULL) ||
+            (filterType == LIKE) ) {
             return true;
         }
         else {

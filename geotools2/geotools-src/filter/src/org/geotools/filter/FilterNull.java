@@ -49,7 +49,7 @@ public class FilterNull extends FilterDefault {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
 
         if( nullCheck == null ) {

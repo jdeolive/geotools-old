@@ -44,11 +44,12 @@ public class FilterBetween extends FilterCompare {
     public void addMiddleValue(Expression middleValue)
         throws IllegalFilterException {
         
-        if( ExpressionDefault.isAttributeExpression( middleValue.getType() ) ) {
+        if( ExpressionDefault.isAttributeExpression(middleValue.getType()) ) {
             this.middleValue = middleValue;
         }
         else {
-            throw new IllegalFilterException("Attempted to add non-attribute middle expression to between filter.");
+            throw new IllegalFilterException
+                ("Attempted to add non-attribute middle expression to between filter.");
         }
     }
 
@@ -59,7 +60,7 @@ public class FilterBetween extends FilterCompare {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
 
         if( middleValue == null ) {

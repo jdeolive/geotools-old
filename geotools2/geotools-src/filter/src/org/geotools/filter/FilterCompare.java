@@ -47,7 +47,8 @@ public class FilterCompare extends FilterDefault {
             this.filterType = filterType;
         }
         else {
-            throw new IllegalFilterException("Attempted to create compare filter with non-compare type.");
+            throw new IllegalFilterException
+                ("Attempted to create compare filter with non-compare type.");
         }
     }
 
@@ -63,11 +64,13 @@ public class FilterCompare extends FilterDefault {
         
         // Checks if this is math filter or not and handles appropriately
         if( isMathFilter(filterType) ) {
-            if( ExpressionDefault.isMathExpression( leftValue.getType() ) ) {
+            if( ExpressionDefault.isMathExpression(leftValue.getType())  ||
+                permissiveConstruction ) {
                 this.leftValue = leftValue;
             }
             else {
-                throw new IllegalFilterException("Attempted to add non-math expression to math filter.");
+                throw new IllegalFilterException
+                    ("Attempted to add non-math expression to math filter.");
             }
         }
         else {
@@ -88,7 +91,8 @@ public class FilterCompare extends FilterDefault {
         
         // Checks if this is math filter or not and handles appropriately
         if( isMathFilter(filterType) ) {
-            if( ExpressionDefault.isMathExpression( leftValue.getType() ) ) {
+            if( ExpressionDefault.isMathExpression(leftValue.getType())  ||
+                permissiveConstruction ) {
                 this.rightValue = rightValue;
             }
             else {
@@ -108,7 +112,7 @@ public class FilterCompare extends FilterDefault {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
         
         // Checks for error condition

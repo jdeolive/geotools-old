@@ -4,8 +4,6 @@
 package org.geotools.filter;
 
 import org.geotools.datasource.*;
-import org.xml.sax.helpers.*;
-
 
 /**
  * Holds a mathematical relationship between two expressions.

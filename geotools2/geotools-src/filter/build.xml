@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [
+    <!ENTITY common SYSTEM "../gtbuild/common.xml">
+]>
+<!--
+<project basedir="." default="all" name="gmldatasource">
+    &common;
+</project>
+-->
+
+<project basedir="." default="all" name="gmldatasource">
+<!-- RESPONSES -->
+  <property name="dir.main" value="."/>           
+  <property name="dir.source" value="${dir.main}/src"/>           
+  <property name="dir.classes" value="${dir.main}/classes"/>
+
+  <property name="jar.core" value="/home/rob/wfs/geotools/geotools2/geotools-src/core/src"/>
+  <property name="jar.jts" value="/home/rob/wfs/geotools/geotools2/extbin/core/lib/JTS.jar"/>
+  <property name="jar.log4j" value="${dir.main}/release/log4j.jar"/>
+  <property name="jar.xerces" value="${dir.main}/release/xerces.jar"/>
+
+
+  <target name="all">
+    <javac srcdir="${dir.source}" destdir="${dir.classes}" includes="org/geotools/filter/**" classpath="${jar.core}:${jar.jts}:${jar.log4j}:${jar.xerces}"/>
+  </target>
+
+  <target name="document">
+    <javadoc sourcepath="${dir.main}/src"
+						 destdir="${dir.main}/api"
+						 private="true"
+						 windowtitle="saxGML4j Documentation"
+						 classpath="${jar.castor}:${jar.jts}:${jar.xerces}">
+      <package name="org.geotools.gml.*"/>
+      <doctitle><![CDATA[<h1>GeoServer Documentation</h1>]]></doctitle>
+      <bottom><![CDATA[<i>Copyright &#169; 2002 Vision for New York. All Rights Reserved.</i>]]></bottom>
+
+      <!-- link documents -->
+      <link offline="true" href="http://java.sun.com/products/jdk/1.2/docs/api/" packagelistLoc="${dir.misc}/packageLists/jdk"/>
+      <link offline="true" href="http://java.sun.com/j2ee/sdk_1.2.1/techdocs/api/" packagelistLoc="${dir.misc}/packageLists/servlet"/>
+      <link offline="true" href="http://java.sun.com/xml/sax" packagelistLoc="${dir.misc}/packageLists/xerces"/>
+      <link offline="true" href="http://jakarta.apache.org/log4j/docs/api/" packagelistLoc="${dir.misc}/packageLists/log4j"/>
+
+    </javadoc>
+  </target>
+
+
+</project>

@@ -24,6 +24,15 @@ public class ExpressionLiteral extends ExpressionDefault {
     /**
      * Constructor with literal.
      *
+     * @throws IllegalFilterException This literal type is not in scope.
+     */
+    public ExpressionLiteral () {
+    }
+
+
+    /**
+     * Constructor with literal.
+     *
      * @param literal The literal to store inside this expression.
      * @throws IllegalFilterException This literal type is not in scope.
      */
@@ -63,7 +72,9 @@ public class ExpressionLiteral extends ExpressionDefault {
             expressionType = LITERAL_GEOMETRY;
         }
         else {
-            throw new IllegalFilterException("Attempted to add a literal with non-supported type (ie. not Double, Integer, String).");
+            throw new IllegalFilterException
+                ("Attempted to add a literal with non-supported type " +
+                 "(ie. not Double, Integer, String).");
         }
 
         this.literal = literal;

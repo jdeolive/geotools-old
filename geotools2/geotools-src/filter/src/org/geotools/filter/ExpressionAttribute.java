@@ -26,9 +26,38 @@ public class ExpressionAttribute extends ExpressionDefault {
      * @param attributePath The initial (required) sub filter.
      * @param expressionType The final relation between all sub filters.
      */
+    public ExpressionAttribute () {
+        this.expressionType = ATTRIBUTE_UNDECLARED;
+    }
+
+    /**
+     * Constructor with minimum dataset for a valid expression.
+     *
+     * @param attributePath The initial (required) sub filter.
+     * @param expressionType The final relation between all sub filters.
+     */
     public ExpressionAttribute (String attributePath, short expressionType) {
         this.expressionType = expressionType;
         this.attributePath = attributePath;
+    }
+
+
+    /**
+     * Constructor with minimum dataset for a valid expression.
+     *
+     * @param attributePath The initial (required) sub filter.
+     */
+    public void setAttributePath(String attributePath) {
+        this.attributePath = attributePath;
+    }
+
+    /**
+     * Constructor with minimum dataset for a valid expression.
+     *
+     * @param expressionType The final relation between all sub filters.
+     */
+    public void setExpressionType(short expressionType) {
+        this.expressionType = expressionType;
     }
 
     /**
@@ -42,14 +71,21 @@ public class ExpressionAttribute extends ExpressionDefault {
         // MUST HANDLE AN ATTRIBUTE NOT FOUND EXCEPTION HERE
         Object tempAttribute = feature.getAttribute(attributePath);
         
-        // Check to make sure that attribute conforms to advertised type before returning
-        if( ((tempAttribute instanceof Double) && (expressionType == ATTRIBUTE_DOUBLE)) | 
-            ((tempAttribute instanceof Integer) && (expressionType == ATTRIBUTE_INTEGER)) |
-            ((tempAttribute instanceof String) && (expressionType == ATTRIBUTE_STRING)) ) {
+        // Check to make sure that attribute conforms to advertised type before 
+        //  returning
+        if( ((tempAttribute instanceof Double) && 
+             (expressionType == ATTRIBUTE_DOUBLE)) || 
+            ((tempAttribute instanceof Integer) && 
+             (expressionType == ATTRIBUTE_INTEGER)) ||
+            ((tempAttribute instanceof String) && 
+             (expressionType == ATTRIBUTE_STRING)) ||
+            permissiveConstruction ) {
             return tempAttribute;
         }
         else {
-            throw new MalformedFilterException("Attribute does not conform to advertised type: " + expressionType);
+            throw new MalformedFilterException
+                ("Attribute does not conform to advertised type: "
+                 + expressionType);
         }
         
     }

@@ -1,5 +1,6 @@
 /*
- * This code is released under the Apache license, availible at the root GML4j directory.
+ * This code is released under the Apache license, availible at the root GML4j 
+ * directory.
  */
 package org.geotools.filter;
 
@@ -14,17 +15,17 @@ import org.geotools.datasource.*;
 public interface Filter {
 
     /**
-     * Determines whether or not a given feature is 'inside' this filter.
+     * Determines whether or not a given feature is 'contained by' this filter.
      *
-     * <p>This is the core function of any filter.  'Inside' isn't a very
+     * <p>This is the core function of any filter.  'Contains' isn't a very
      * good term for this method because it implies some sort of spatial 
      * relationship between the feature and the filter that may or may 
-     * not exist.  We name this method 'isInside' only because the useage 
-     * of 'inside' in this context is common and better terms are lacking
+     * not exist.  We name this method 'contains' only because the useage 
+     * of 'contains' in this context is common and better terms are lacking
      * However, users of this method should keep in mind the non-spatial nature
-     * of this meaning of 'inside.'  For example, a feature may be 'inside' a
-     * filter if one of the feature's non-spatial property values is equal to 
-     * that of the filter's.</p>
+     * of this meaning of 'contains.'  For example, a feature may be 'contained
+     * by' a filter if one of the feature's non-spatial property values is
+     * equal to that of the filter's.</p>
      *
      * <p>Although some filters can be checked for validity when the are
      * constructed, it is impossible to impose this check on all expressions
@@ -37,14 +38,14 @@ public interface Filter {
      * Integer, String) when it is created.  If the attribute found inside
      * the feature is found not to conform with its stated type, then a
      * <code>MalformedExpressionException</code> is thrown when <code>
-     * isInside</code> is called.  Since <code>ExpressionAttribute</code>
+     * contains</code> is called.  Since <code>ExpressionAttribute</code>
      * classes may be nested inside any filter, all filters must throw
      * this exception.  It is left to callers of this method to deal
      * with it gracefully.</p>
      * 
      * @param feature Specified feature to examine.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException;
     
     /**

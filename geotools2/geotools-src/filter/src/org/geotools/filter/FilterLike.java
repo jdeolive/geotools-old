@@ -46,7 +46,8 @@ public class FilterLike extends FilterDefault {
     public void setValue(Expression attribute)
         throws IllegalFilterException {
         
-        if( attribute.getType() != ExpressionDefault.ATTRIBUTE_STRING ) {
+        if( (attribute.getType() != ExpressionDefault.ATTRIBUTE_STRING) ||
+            permissiveConstruction ) {
             this.attribute = attribute;
         }
         else {
@@ -97,7 +98,7 @@ public class FilterLike extends FilterDefault {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws MalformedFilterException Filter is not internally consistent.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
 
         // Checks to insure that the attribute has been set
@@ -109,7 +110,7 @@ public class FilterLike extends FilterDefault {
         //  (1) If a user-defined wildcard exists, replace with Java wildcard
         //  (2) If a user-defined escape exists, Java wildcard + user-escape
         //  Then, test for matching pattern and return result.
-        {
+        else {
             if( wildcardSingle != null ) {
                 pattern = pattern.replaceAll(wildcardSingle, "?");
                 if( escape != null ) {
@@ -122,7 +123,14 @@ public class FilterLike extends FilterDefault {
                     pattern = pattern.replaceAll(escape + "/*", wildcardMulti);
                 }
             }
-            return ((String) attribute.getValue(feature)).matches(pattern);
+
+            // Note that this converts the atrribue (whatever it is) to a string
+            //  for comparison.  Unlike the math or geometry filters, which
+            //  require specific types to function correctly, this filter
+            //  using the mandatory string representation in Java
+            // Of course, this does not guarantee a meaningful result, but it
+            //  does guarantee a valid result.
+            return attribute.getValue(feature).toString().matches(pattern);
         }
     }
     

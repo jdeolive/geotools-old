@@ -109,10 +109,10 @@ public class FilterLogic extends FilterDefault {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws MalformedFilterException Filter is not correctly formed.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
         
-        boolean isInside = true;
+        boolean contains = true;
 
         // Throw exception if there are no sub filters.
         if( subFilters.isEmpty() ) {
@@ -122,22 +122,22 @@ public class FilterLogic extends FilterDefault {
         // Handles all standard cases
         else if( filterType == LOGIC_OR ) {
             while( !subFilters.empty() ) {
-                isInside = ((Filter) subFilters.pop()).isInside(feature) | isInside;
+                contains = ((Filter) subFilters.pop()).contains(feature) | contains;
             }
         }
         else if( filterType == LOGIC_AND ) {
             while( !subFilters.empty() ) {
-                isInside = ((Filter) subFilters.pop()).isInside(feature) && isInside;
+                contains = ((Filter) subFilters.pop()).contains(feature) && contains;
             }
         }
         else if( filterType == LOGIC_NOT ) {
-            isInside = !((Filter) subFilters.pop()).isInside(feature);
+            contains = !((Filter) subFilters.pop()).contains(feature);
         }
         
         // Note that this is a pretty permissive logic
         //  if the type has somehow be mis-set (can't happen externally)
         //  then true is returned in all cases
-        return isInside;
+        return contains;
     }
         
     /**

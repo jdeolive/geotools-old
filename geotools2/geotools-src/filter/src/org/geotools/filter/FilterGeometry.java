@@ -65,8 +65,9 @@ public class FilterGeometry extends FilterDefault {
     public void addLeftGeometry(Expression leftGeometry)
         throws IllegalFilterException {
         
-        // Checks if this is math filter or not and handles appropriately
-        if( ExpressionDefault.isGeometryExpression( leftGeometry.getType() ) ) {
+        // Checks if this is geometry filter or not and handles appropriately
+        if( ExpressionDefault.isGeometryExpression(leftGeometry.getType())  ||
+            permissiveConstruction ) {
             this.leftGeometry = leftGeometry;
         }
         else {
@@ -85,7 +86,8 @@ public class FilterGeometry extends FilterDefault {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if( ExpressionDefault.isGeometryExpression( rightGeometry.getType() ) ) {
+        if( ExpressionDefault.isGeometryExpression(rightGeometry.getType()) ||
+            permissiveConstruction ) {
             this.rightGeometry = rightGeometry;
         }
         else {
@@ -101,7 +103,7 @@ public class FilterGeometry extends FilterDefault {
      * @return Flag confirming whether or not this feature is inside the filter.
      * @throws IllegalFilterException Filter is not internally consistent.
      */
-    public boolean isInside(Feature feature)
+    public boolean contains(Feature feature)
         throws MalformedFilterException {
         
         // Checks for error condition
