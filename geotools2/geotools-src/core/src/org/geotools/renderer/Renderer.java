@@ -34,11 +34,11 @@ import com.vividsolutions.jts.geom.Envelope;
 public interface Renderer {
 
     //what do we need to do here
-    //what makes sence
+    //what makes sense
     
-    //we could pass in somehting like
+    //we could pass in something like
     
-    public void render(Feature f[],Envelope viewport,Style style);
+    public void render(Feature f[], Envelope viewport, Style style);
     
     //is that enough to go on? lets assume it is.
 }

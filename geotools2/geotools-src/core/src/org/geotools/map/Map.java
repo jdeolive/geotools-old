@@ -21,8 +21,8 @@ import com.vividsolutions.jts.geom.Envelope;
 public interface Map {
     
     public void setCoordinateSystem(CS_CoordinateSystem cs);
-    public void addFeatureTable(FeatureTable ft,Style style);
-    public void render(Renderer renderer,Envelope envelope);
+    public void addFeatureTable(FeatureTable ft, Style style);
+    public void render(Renderer renderer, Envelope envelope);
     
 }
 
