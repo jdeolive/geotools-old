@@ -4,7 +4,7 @@
  * Created on April 30, 2003, 12:16 PM
  */
 
-package org.geotools.coverage;
+package org.geotools.data.gtopo30;
 
 import java.io.InputStream;
 import junit.framework.*;

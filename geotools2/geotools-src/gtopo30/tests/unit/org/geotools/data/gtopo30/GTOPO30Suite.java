@@ -1,4 +1,4 @@
-package org.geotools.coverage;
+package org.geotools.data.gtopo30;
 
 import junit.framework.*;
 

@@ -5,7 +5,7 @@
  * Created on 12 February 2002, 21:27
  */
 
-package org.geotools.coverage;
+package org.geotools.data.gtopo30;
 
 import java.net.URL;
 import junit.framework.*;
