@@ -46,7 +46,7 @@ import java.text.NumberFormat;
  * This class may be removed if JavaSoft provide some language construct
  * functionally equivalent to C/C++'s <code>realloc</code>.
  *
- * @version $Id: XArray.java,v 1.6 2003/10/14 22:06:29 desruisseaux Exp $
+ * @version $Id: XArray.java,v 1.7 2003/11/15 16:01:32 aaime Exp $
  * @author Martin Desruisseaux
  */
 public final class XArray {
@@ -76,7 +76,7 @@ public final class XArray {
      *         <code>array</code>.
      */
     private static Object doResize(final Object array, final int length) {
-        final int current=Array.getLength(array);
+        final int current = array == null ? 0 : Array.getLength(array);
         if (current!=length) {
             final Object newArray=Array.newInstance(array.getClass().getComponentType(), length);
             System.arraycopy(array, 0, newArray, 0, Math.min(current, length));
