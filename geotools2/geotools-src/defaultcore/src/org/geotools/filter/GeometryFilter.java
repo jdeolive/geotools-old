@@ -44,10 +44,10 @@ import org.geotools.feature.*;
  * could be reduced (ie. it is always either true or false).  This approach
  * is very similar to that taken in the FilterCompare class.</p>
  *
- * @version $Id: GeometryFilter.java,v 1.11 2002/10/08 09:34:52 jmacgill Exp $
+ * @version $Id: GeometryFilter.java,v 1.12 2002/10/23 16:52:40 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class GeometryFilter extends AbstractFilter {
+public class GeometryFilter extends AbstractFilterImpl {
 
     /** Holds the 'left' value of this comparison filter. */
     protected Expression leftGeometry = null;
@@ -84,7 +84,7 @@ public class GeometryFilter extends AbstractFilter {
         throws IllegalFilterException {
         
         // Checks if this is geometry filter or not and handles appropriately
-        if (ExpressionDefault.isGeometryExpression(leftGeometry.getType())  ||
+        if (DefaultExpression.isGeometryExpression(leftGeometry.getType())  ||
             permissiveConstruction) {
             this.leftGeometry = leftGeometry;
         }
@@ -104,7 +104,7 @@ public class GeometryFilter extends AbstractFilter {
         throws IllegalFilterException {
         
         // Checks if this is math filter or not and handles appropriately
-        if (ExpressionDefault.isGeometryExpression(rightGeometry.getType()) ||
+        if (DefaultExpression.isGeometryExpression(rightGeometry.getType()) ||
             permissiveConstruction) {
             this.rightGeometry = rightGeometry;
         }
@@ -230,23 +230,7 @@ public class GeometryFilter extends AbstractFilter {
         return "[ " + leftGeometry.toString() + operator + rightGeometry.toString() + " ]";        
     }
             
-    /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
-    }
-    
+
     /** 
      * Compares this filter to the specified object.  Returns true 
      * if the passed in object is the same as this filter.  Checks 

@@ -26,7 +26,7 @@ import org.geotools.feature.*;
 /**
  * Implements a default expression, with helpful variables and static methods.
  *
- * @version $Id: DefaultExpression.java,v 1.1 2002/10/23 16:04:31 ianturton Exp $
+ * @version $Id: DefaultExpression.java,v 1.2 2002/10/23 16:52:40 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class DefaultExpression implements Expression {
@@ -200,7 +200,7 @@ public class DefaultExpression implements Expression {
      *                the method must call visitor.visit(this);
      *
      */
-    public void accept(FilterVisitor visitor) {
+    public void accept(FilterVisitorImpl visitor) {
         visitor.visit(this);
     }    
     

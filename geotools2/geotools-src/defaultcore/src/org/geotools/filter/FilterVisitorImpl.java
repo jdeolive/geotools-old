@@ -33,11 +33,11 @@ package org.geotools.filter;
  * e.g. XML or SQL.  Alternativly it may be to extract specific infomration
  * from the Filter strucure, for example a list of all bboxes.
  *
- * @version $Id: FilterVisitor.java,v 1.3 2002/07/23 11:36:05 ianturton Exp $
+ * @version $Id: FilterVisitorImpl.java,v 1.1 2002/10/23 16:56:12 ianturton Exp $
  * @author James Macgill
  */
-public interface FilterVisitor {
-    
+public interface FilterVisitorImpl extends FilterVisitor{
+    /* TO DO - move to actual filterVisitor interface when all impls done */
     /**
      * Called when accept is called on an AbstractFilter.
      * As it is imposible to create an instance of AbstractFilter this should
@@ -62,10 +62,10 @@ public interface FilterVisitor {
     void visit(LogicFilter filter);
     void visit(NullFilter filter);
     
-    void visit(ExpressionAttribute expression);
-    void visit(ExpressionDefault expression);
-    void visit(ExpressionLiteral expression);
-    void visit(ExpressionMath expression);
+    void visit(AttributeExpression expression);
+    void visit(DefaultExpression expression);
+    void visit(LiteralExpression expression);
+    void visit(MathExpression expression);
     
     
 }

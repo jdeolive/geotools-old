@@ -37,7 +37,7 @@ import org.geotools.feature.*;
  * For example, the left value is the numerator and the right is the
  * denominator in an ExpressionMath division operation.
  *
- * @version $Id: MathExpression.java,v 1.1 2002/10/23 16:04:31 ianturton Exp $
+ * @version $Id: MathExpression.java,v 1.2 2002/10/23 16:52:40 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
 public class MathExpression extends DefaultExpression {
@@ -171,9 +171,7 @@ public class MathExpression extends DefaultExpression {
      *                the method must call visitor.visit(this);
      *
      */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
-    }    
+       
     
     /** 
      * Compares this expression to the specified object.  Returns true 

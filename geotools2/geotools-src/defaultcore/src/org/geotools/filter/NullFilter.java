@@ -26,10 +26,10 @@ import org.geotools.feature.*;
 /**
  * Defines a null filter, which checks to see if an attribute is null.
  *
- * @version $Id: NullFilter.java,v 1.7 2002/08/14 20:38:18 cholmesny Exp $
+ * @version $Id: NullFilter.java,v 1.8 2002/10/23 16:56:12 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class NullFilter extends AbstractFilter {
+public class NullFilter extends AbstractFilterImpl {
 
     /** The null check value, which must be an attribute expression. */
     protected Expression nullCheck = null;
@@ -52,7 +52,7 @@ public class NullFilter extends AbstractFilter {
     public void nullCheckValue(Expression nullCheck)
         throws IllegalFilterException {
         
-        if (nullCheck instanceof ExpressionAttribute) {
+        if (nullCheck instanceof AttributeExpression) {
             this.nullCheck = nullCheck;
         }
         else {
@@ -87,23 +87,6 @@ public class NullFilter extends AbstractFilter {
      */
     public String toString() {
         return "[ " + nullCheck.toString() + " is null ]";
-    }
-    
-    /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
     }
     
     /** 

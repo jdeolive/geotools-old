@@ -45,10 +45,10 @@ import org.geotools.feature.*;
  * be simplified away.  It is up the the filter creator, therefore, to attempt
  * to simplify/make meaningful filter logic.
  * 
- * @version $Id: CompareFilter.java,v 1.6 2002/08/14 19:46:38 cholmesny Exp $
+ * @version $Id: CompareFilter.java,v 1.7 2002/10/23 16:56:12 ianturton Exp $
  * @author Rob Hranac, Vision for New York
  */
-public class CompareFilter extends AbstractFilter {
+public class CompareFilter extends AbstractFilterImpl {
 
     /**
      * The logger for the default core module.
@@ -92,7 +92,7 @@ public class CompareFilter extends AbstractFilter {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (ExpressionDefault.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.leftValue = leftValue;
             }
@@ -119,7 +119,7 @@ public class CompareFilter extends AbstractFilter {
         
         // Checks if this is math filter or not and handles appropriately
         if (isMathFilter(filterType)) {
-            if (ExpressionDefault.isMathExpression(leftValue.getType())  ||
+            if (DefaultExpression.isMathExpression(leftValue.getType())  ||
                 permissiveConstruction) {
                 this.rightValue = rightValue;
             }
@@ -217,22 +217,7 @@ public class CompareFilter extends AbstractFilter {
         return "[ " + leftValue.toString() + operator + rightValue.toString() + " ]";        
     }
             
-    /** Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which needs
-     * infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parents
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
-    }
+
 
     /** 
      * Compares this filter to the specified object.  Returns true 

@@ -37,10 +37,10 @@ import org.geotools.feature.*;
  * This filter stores a series of feature IDs, which are used to distinguish 
  * features uniquely.
  *
- * @version $Id: FidFilter.java,v 1.2 2002/09/17 18:08:04 robhranac Exp $
+ * @version $Id: FidFilter.java,v 1.3 2002/10/23 16:52:40 ianturton Exp $
  * @author Rob Hranac, TOPP
  */
-public class FidFilter extends AbstractFilter {
+public class FidFilter extends AbstractFilterImpl {
 
     /** Logger for the default core module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.core");
@@ -116,23 +116,7 @@ public class FidFilter extends AbstractFilter {
         }     
     }
 
-    /** 
-     * Used by FilterVisitors to perform some action on this filter instance.
-     * Typicaly used by Filter decoders, but may also be used by any thing which 
-     * needs infomration from filter structure.
-     *
-     * Implementations should always call: visitor.visit(this);
-     *
-     * It is importatant that this is not left to a parent class unless the parent
-     * API is identical.
-     *
-     * @param visitor The visitor which requires access to this filter,
-     *                the method must call visitor.visit(this);
-     *
-     */
-    public void accept(FilterVisitor visitor) {
-        visitor.visit(this);
-    }
+ 
 
    
     

@@ -32,7 +32,7 @@ import org.geotools.feature.*;
  * Implements Filter interface, with constants and default behaviors for
  * methods.
  *
- * @version $Id: AbstractFilter.java,v 1.1 2002/10/23 15:45:37 ianturton Exp $ 
+ * @version $Id: AbstractFilter.java,v 1.2 2002/10/23 16:53:08 ianturton Exp $ 
  * @author Rob Hranac, Vision for New York
  */
 public abstract class AbstractFilter implements Filter {
@@ -121,51 +121,9 @@ public abstract class AbstractFilter implements Filter {
      */
     public abstract boolean contains(Feature feature);
     
-    public abstract void accept(FilterVisitor visitor);
+    /* todo: replace public abstract void accept(FilterVisitor visitor); */
     
-    /**
-     * Default implementation for OR - should be sufficient for most filters.
-     *
-     * @param filter Parent of the filter: must implement GMLHandlerGeometry.
-     * @return ORed filter.
-     */
-    public Filter or(Filter filter) {
-        try {
-            return new LogicFilter(this, filter, LOGIC_OR);
-        }
-        catch (IllegalFilterException e) {
-            return filter;
-        }
-    }
     
-    /**
-     * Default implementation for AND - should be sufficient for most filters.
-     *
-     * @param filter Parent of the filter: must implement GMLHandlerGeometry.
-     * @return ANDed filter.
-     */
-    public Filter and(Filter filter) {
-        try {
-            return new LogicFilter(this, filter, LOGIC_AND);
-        }
-        catch (IllegalFilterException e) {
-            return filter;
-        }
-    }
-    
-    /**
-     * Default implementation for NOT - should be sufficient for most filters.
-     *
-     * @return NOTed filter.
-     */
-    public Filter not() {
-        try {
-            return new LogicFilter(this, LOGIC_NOT);
-        }
-        catch (IllegalFilterException e) {
-            return this;
-        }
-    }
 
     /* ************************************************************************
      * Following static methods check for certain aggregate types, based on 
