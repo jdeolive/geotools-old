@@ -24,13 +24,6 @@ package org.geotools.filter;
  */
 public class SQLEncoderException extends Exception {
     /**
-     * Constructor with no argument.
-     */
-    public SQLEncoderException() {
-        super();
-    }
-
-    /**
      * Constructor with message argument.
      *
      * @param message Reason for the exception being thrown
