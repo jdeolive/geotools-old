@@ -1143,6 +1143,251 @@ cp -pr .netbeans/ .netbeans.</programlisting>
       convensions are based on <ulink
       url="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">Sun&#39;s
       coding standards</ulink>.</para>
+
+      <section id="jalopyconfiguration">
+        <title>Jalopy Configuration</title>
+
+        <para>This section details the modifications we made to the Jalopy
+        default configuration. The Jalopy default configuration is based on
+        the <ulink
+        url="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">Sun
+        Java Coding Conventions</ulink>.</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>General</term>
+
+            <listitem>
+              <table>
+                <title>General</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Name</entry>
+
+                      <entry>Geotools</entry>
+                    </row>
+
+                    <row>
+                      <entry>Description</entry>
+
+                      <entry>Geotools Java Coding Conventions</entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Braces</term>
+
+            <listitem>
+              <para>None</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>White Space</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Indentation</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Wrapping</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Blank lines</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Comments</term>
+
+            <listitem>
+              <table>
+                <title>Comments</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Format multi-line</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Imports</term>
+
+            <listitem>
+              <para>None.</para>
+
+              <table>
+                <title>Imports</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Default Grouping Depth</entry>
+
+                      <entry>0 (was 3)</entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Environment</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Javadoc</term>
+
+            <listitem>
+              <table>
+                <title>Javadoc</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Pass/Format Comments</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+
+                    <row>
+                      <entry>Correct tags</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+
+                    <row>
+                      <entry>Correct @throws tags</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+
+                    <row>
+                      <entry>Custom tags</entry>
+
+                      <entry>@task</entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Header</term>
+
+            <listitem>
+              <table>
+                <title>Header</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Text</entry>
+
+                      <entry><programlisting>/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */</programlisting></entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Footer</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Sorting</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Misc</term>
+
+            <listitem>
+              <para>None.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Code Inspector</term>
+
+            <listitem>
+              <table>
+                <title>Code Inspector</title>
+
+                <tgroup cols="2">
+                  <tbody>
+                    <row>
+                      <entry>Enable Code Inspector</entry>
+
+                      <entry>Yes (was No)</entry>
+                    </row>
+                  </tbody>
+                </tgroup>
+              </table>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </section>
     </section>
 
     <section id="directorynames">
