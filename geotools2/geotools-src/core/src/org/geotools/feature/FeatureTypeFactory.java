@@ -17,6 +17,7 @@
 package org.geotools.feature;
 
 import java.io.*;
+import java.util.*;
 import org.geotools.factory.*;
 
 /**
@@ -46,7 +47,7 @@ import org.geotools.factory.*;
  * 
  * This class is not thread-safe.
  *
- * @version $Id: FeatureTypeFactory.java,v 1.2 2003/07/17 07:09:52 ianschneider Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.3 2003/07/21 21:43:44 ianschneider Exp $
  * @author  Ian Schneider
  */
 public abstract class FeatureTypeFactory implements Factory {
@@ -57,6 +58,7 @@ public abstract class FeatureTypeFactory implements Factory {
   private FeatureType type = null;
   private AttributeType defaultGeometry = null;
   private boolean abstractType = false;
+  private java.util.Collection superTypes;
  
   /** An empty public constructor. Subclasses should not provide a constructor. */  
   public FeatureTypeFactory() {} 
@@ -81,9 +83,23 @@ public abstract class FeatureTypeFactory implements Factory {
     factory.importType(original);
     factory.setNamespace(original.getNamespace());
     factory.setDefaultGeometry(original.getDefaultGeometry());
+    FeatureType[] ancestors = original.getAncestors();
+    if (ancestors != null)
+      factory.setSuperTypes(Arrays.asList(ancestors));
     return factory;
   }
   
+  public static FeatureType newFeatureType(
+  AttributeType[] types,String name,String ns,boolean isAbstract,FeatureType[] superTypes) 
+  throws FactoryConfigurationError,
+         SchemaException {
+    FeatureTypeFactory factory = newInstance(name);
+    factory.addTypes(types);
+    factory.setNamespace(ns);
+    if (superTypes != null) 
+      factory.setSuperTypes(Arrays.asList(superTypes));
+    return factory.getFeatureType();
+  }
   /** Create a new FeatureType with the given AttributeTypes. This is a convenience
    * method for creating a new factory which assumes that the first AttributeType,
    * if a geometry, will be the default geometry.
@@ -97,10 +113,7 @@ public abstract class FeatureTypeFactory implements Factory {
   AttributeType[] types,String name,String ns,boolean isAbstract) 
   throws FactoryConfigurationError,
          SchemaException {
-    FeatureTypeFactory factory = newInstance(name);
-    factory.addTypes(types);
-    factory.setNamespace(ns);
-    return factory.getFeatureType();
+    return newFeatureType(types,name,ns,isAbstract,null);
   }
   
   public static FeatureType newFeatureType(
@@ -115,18 +128,6 @@ public abstract class FeatureTypeFactory implements Factory {
          SchemaException {
     return newFeatureType(types,name,null,false);        
   }
-  
-  /** A convenience method for calling newFeatureType(types,null).
-   * @param types
-   * @throws FactoryConfigurationError
-   * @throws SchemaException
-   * @return
-   */  
-//  public static FeatureType newFeatureType(AttributeType[] types) 
-//  throws FactoryConfigurationError,
-//         SchemaException {
-//    return newFeatureType(types,null);        
-//  }
   
   /** Create a new FeatureTypeFactory. This class uses the FactoryFinder.
    * @throws FactoryConfigurationError
@@ -161,6 +162,17 @@ public abstract class FeatureTypeFactory implements Factory {
           throw iae;
       }
     }
+  }
+  
+  public final void setSuperTypes(java.util.Collection types) {
+    superTypes = new java.util.HashSet(types);
+  }
+  
+  public final java.util.Collection getSuperTypes() {
+    Set builtin = getBuiltinTypes();
+    if (superTypes != null)
+      builtin.addAll( superTypes );
+    return builtin;
   }
   
   static FeatureType safeFeatureType(AttributeType[] types,String name,String ns,boolean isAbstract) {
@@ -445,12 +457,18 @@ public abstract class FeatureTypeFactory implements Factory {
     } 
   }
   
+  protected Set getBuiltinTypes() {
+    HashSet builtins = new HashSet();
+    builtins.add(FeatureType.GML_FEATURE);
+    return builtins;
+  }
+  
   /**
    * @return
    */  
-  protected abstract FeatureType createFeatureType();
+  protected abstract FeatureType createFeatureType() throws SchemaException;
   
-  protected abstract FeatureType createAbstractType();
+  protected abstract FeatureType createAbstractType() throws SchemaException;;
   
   /**
    * @param type

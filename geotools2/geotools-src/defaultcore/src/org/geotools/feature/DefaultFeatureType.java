@@ -23,30 +23,29 @@ import java.util.*;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.5 2003/07/19 00:03:06 ianschneider Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.6 2003/07/21 21:45:14 ianschneider Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     private final String typeName;
     private final String namespace;
     private final AttributeType[] types;
-    private final FeatureType[] ancestors = new FeatureType[] {
-      FeatureType.GML_FEATURE 
-    };
+    private final FeatureType[] ancestors;
     private final AttributeType defaultGeom;
     private final int defaultGeomIdx;
 
-    public DefaultFeatureType(String typeName, String namespace, List types,
-        AttributeType defaultGeom) {
+    public DefaultFeatureType(String typeName, String namespace, Collection types, Collection superTypes,
+        AttributeType defaultGeom) throws SchemaException {
         if (typeName == null)
           throw new NullPointerException(typeName);
         this.typeName = typeName;
         this.namespace = (namespace == null) ? "" : namespace;
-        this.types = (DefaultAttributeType[]) types.toArray(new DefaultAttributeType[types.size()]);
-        
+        this.types = (AttributeType[]) types.toArray(new AttributeType[types.size()]);
+        this.ancestors = (FeatureType[]) superTypes.toArray(new FeatureType[superTypes.size()]);
         // do this first...
         this.defaultGeomIdx = find(defaultGeom);
         // before doing this
         this.defaultGeom = defaultGeom;
+          
     }
 
     
@@ -225,9 +224,16 @@ public class DefaultFeatureType implements FeatureType {
     }
     
     static final class Abstract extends DefaultFeatureType {
-      public Abstract(String typeName, String namespace, List types,
-        AttributeType defaultGeom) {
-        super(typeName, namespace, types, defaultGeom);
+      public Abstract(String typeName, String namespace, Collection types, Collection superTypes,
+        AttributeType defaultGeom) throws SchemaException {
+        super(typeName, namespace, types,superTypes,defaultGeom);
+        Iterator st = superTypes.iterator();
+        while (st.hasNext()) {
+          FeatureType ft = (FeatureType) st.next();
+          if (! ft.isAbstract())
+            throw new SchemaException("Abstract type cannot descend from no abstract type : " + ft);
+        }
+          
       }
       public final boolean isAbstract() {
         return true; 
