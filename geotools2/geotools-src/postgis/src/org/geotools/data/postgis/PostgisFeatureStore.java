@@ -16,10 +16,13 @@
  */
 package org.geotools.data.postgis;
 
+import com.vividsolutions.jts.geom.Envelope;
 
 //JTS imports
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 //geotools imports
@@ -32,7 +35,10 @@ import org.geotools.data.FeatureResults;
 import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
 import org.geotools.data.jdbc.ConnectionPool;
+import org.geotools.data.jdbc.JDBCDataStore;
 import org.geotools.data.jdbc.JDBCFeatureStore;
+import org.geotools.data.jdbc.JDBCUtils;
+import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
@@ -77,10 +83,9 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.2 2003/11/21 23:27:59 jive Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.3 2003/12/02 20:07:06 cholmesny Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
- * @task TODO: Optimize getBounds.
  * @task TODO: make individual operations truly atomic.  If the transaction is
  *       an auto-commit one, then it should make a a new jdbc transaction that
  *       rollsback if there are errors while performing its action.
@@ -92,6 +97,12 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
     /** Well Known Text writer (from JTS). */
     private static WKTWriter geometryWriter = new WKTWriter();
+
+    /** Factory for producing geometries (from JTS). */
+    private static GeometryFactory geometryFactory = new GeometryFactory();
+
+    /** Well Known Text reader (from JTS). */
+    private static WKTReader geometryReader = new WKTReader(geometryFactory);
 
     /** Error message prefix for sql connection errors */
     protected static final String CONN_ERROR = "Some sort of database connection error: ";
@@ -118,7 +129,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             encoder.setSRID(srid);
         }
     }
-    
+
     /**
      * Returns a feature collection, based on the passed filter.  The schema of
      * the features passed in must match the schema of the datasource.
@@ -128,6 +139,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      * @return A set of featureIds of the features added.
      *
      * @throws IOException if anything went wrong.
+     * @throws DataSourceException DOCUMENT ME!
      *
      * @task REVISIT: Check to make sure features passed in match schema.
      * @task TODO: get working with the primary key fid column.  This will
@@ -136,9 +148,9 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      *       Or if the fid is supposed to be part of the insert (which doesn't
      *       make sense if we return fids), then we should check for
      *       uniqueness.
-     * @task REVISIT: not sure about previousAutoCommit stuff.  We want to
-     *       make sure that each of these actions is atomic if we're not
-     *       working against a Transaction.
+     * @task REVISIT: not sure about previousAutoCommit stuff.  We want to make
+     *       sure that each of these actions is atomic if we're not working
+     *       against a Transaction.
      */
     public Set addFeatures(FeatureReader reader) throws IOException {
         boolean fail = false;
@@ -162,6 +174,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
                     LOGGER.finer("this sql statement = " + sql);
                     statement.executeUpdate(sql);
                 }
+
                 newFids = getFidSet(conn);
                 LOGGER.fine("fids after add: " + newFids);
                 newFids.removeAll(curFids);
@@ -199,6 +212,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      * @return a set of strings of the featureIds
      *
      * @throws IOException if there were problems connecting to the db backend.
+     * @throws DataSourceException DOCUMENT ME!
      */
     private Set getFidSet(Connection conn) throws IOException {
         Set fids = new HashSet();
@@ -255,22 +269,20 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
      */
     private String makeInsertSql(String tableName, Feature feature)
         throws IOException {
-                    
         String attrValue;
         StringBuffer sql = new StringBuffer();
 
-        sql.append("INSERT INTO \"" );
-        sql.append( tableName );
-        sql.append( "\"(" );
-        
-        
-        FeatureType featureSchema = feature.getFeatureType();            
+        sql.append("INSERT INTO \"");
+        sql.append(tableName);
+        sql.append("\"(");
+
+        FeatureType featureSchema = feature.getFeatureType();
         AttributeType[] types = featureSchema.getAttributeTypes();
 
         for (int i = 0; i < types.length; i++) {
             sql.append("\"");
-            sql.append( types[i].getName() );
-            sql.append( "\"");
+            sql.append(types[i].getName());
+            sql.append("\"");
             sql.append((i < (types.length - 1)) ? ", " : ") ");
         }
 
@@ -282,11 +294,11 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             if (types[j].isGeometry()) {
                 int srid = getSRID(types[j].getName());
                 String geoText = geometryWriter.write((Geometry) attributes[j]);
-                sql.append("GeometryFromText('" );
-                sql.append( geoText );
-                sql.append( "', " );
-                sql.append( srid );
-                sql.append( ")" );
+                sql.append("GeometryFromText('");
+                sql.append(geoText);
+                sql.append("', ");
+                sql.append(srid);
+                sql.append(")");
             } else {
                 attrValue = addQuotes(attributes[j]);
                 sql.append(attrValue);
@@ -296,6 +308,7 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
                 sql.append(", ");
             }
         }
+
         sql.append(");");
 
         return sql.toString();
@@ -345,11 +358,10 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         // check locks!
         // (won't do anything if we use our own
         // database locking)
-        assertFilter( filter );
-        
+        assertFilter(filter);
+
         //boolean previousAutoCommit = getAutoCommit();
         //setAutoCommit(false);
-        
         boolean fail = false;
         SQLUnpacker unpacker = new SQLUnpacker(encoder.getCapabilities());
         unpacker.unPackOR(filter);
@@ -448,8 +460,9 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         // check locks!
         // (won't do anything if we use our own
         // database locking)
-        assertFilter( filter );
-            
+        LOGGER.info("asserting filter " + filter);
+        assertFilter(filter);
+
         //boolean previousAutoCommit = getAutoCommit();
         //setAutoCommit(false);
         boolean fail = false;
@@ -519,8 +532,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         } finally {
             close(statement);
             close(conn, getTransaction(), null);
-
-            //finalizeTransactionMethod(previousAutoCommit, fail);
         }
     }
 
@@ -636,16 +647,6 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
        //setAutoCommit(originalAutoCommit);
        }*/
 
-    /**
-     * Gets a connection from the connection pool.
-     *
-     * @return A single use connection.
-     */
-
-    //protected final Connection getConnection()
-    //  throws IOException {
-    //return getConnection(transaction);
-    //}
     protected PostgisDataStore getPostgisDataStore() {
         return (PostgisDataStore) super.getJDBCDataStore();
     }
@@ -785,5 +786,128 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
 
             return retAttTypes;
         }
+    }
+
+    public Envelope getBounds() throws IOException {
+        return getBounds(Query.ALL);
+    }
+
+    /**
+     * Retrieve Bounds of Query results.
+     * 
+     * <p>
+     * Currently returns null, consider getFeatures( query ).getBounds()
+     * instead.
+     * </p>
+     * 
+     * <p>
+     * Subclasses may override this method to perform the appropriate
+     * optimization for this result.
+     * </p>
+     *
+     * @param query Query we are requesting the bounds of
+     *
+     * @return null representing the lack of an optimization
+     *
+     * @throws IOException DOCUMENT ME!
+     */
+    public Envelope getBounds(Query query) throws IOException {
+        return bounds(query);
+    }
+
+    protected Envelope bounds(Query query) throws IOException {
+        Filter filter = query.getFilter();
+
+        if (filter == Filter.ALL) {
+            return new Envelope();
+        }
+
+        FeatureType schema = getSchema();
+        JDBCDataStore jdbc = getJDBCDataStore();
+        SQLBuilder sqlBuilder = jdbc.getSqlBuilder(schema.getTypeName());
+
+        if (sqlBuilder.getPostQueryFilter(query.getFilter()) != null) {
+            // this would require postprocessing the filter
+            // so we cannot optimize
+            return null;
+        }
+
+        Connection conn = null;
+
+        try {
+            conn = getConnection();
+
+            Envelope retEnv = new Envelope();
+            Filter preFilter = sqlBuilder.getPreQueryFilter(query.getFilter());
+            AttributeType[] attributeTypes = schema.getAttributeTypes();
+
+            for (int j = 0, n = schema.getAttributeCount(); j < n; j++) {
+                if (attributeTypes[j].isGeometry()) {
+                    String attName = attributeTypes[j].getName();
+                    Envelope curEnv = getEnvelope(conn, attName, sqlBuilder,
+                            filter);
+
+                    if (curEnv == null) {
+                        return null;
+                    }
+
+                    retEnv.expandToInclude(curEnv);
+                }
+            }
+
+            LOGGER.finer("returning bounds " + curEnv);
+
+            return retEnv;
+        } catch (SQLException sqlException) {
+            JDBCUtils.close(conn, transaction, sqlException);
+            conn = null;
+            throw new DataSourceException("Could not count "
+                + query.getHandle(), sqlException);
+        } catch (SQLEncoderException e) {
+            // could not encode count
+            // but at least we did not break the connection
+            return null;
+        } catch (ParseException parseE) {
+            String message = "Could not read geometry: " + parseE.getMessage();
+
+            return null;
+        } finally {
+            JDBCUtils.close(conn, transaction, null);
+        }
+    }
+
+    //REVISIT: do we want maxFeatures here too?  If we don't have maxFeatures then the answer
+    //is still always going to be right (and guaranteed to be right, as opposed to two selects
+    // that could be slightly different).  And the performance hit shouldn't be all that much.
+    protected Envelope getEnvelope(Connection conn, String geomName,
+        SQLBuilder sqlBuilder, Filter filter)
+        throws SQLException, SQLEncoderException, IOException, ParseException {
+        String typeName = getSchema().getTypeName();
+        StringBuffer sql = new StringBuffer();
+
+        //StringBuffer sqlBuffer = new StringBuffer();
+        sql.append("SELECT AsText(force_2d(Envelope(Extent(" + geomName
+            + ")))) ");
+        sqlBuilder.sqlFrom(sql, typeName);
+        sqlBuilder.sqlWhere(sql, filter);
+        LOGGER.fine("SQL: " + sql);
+
+        Statement statement = conn.createStatement();
+        ResultSet results = statement.executeQuery(sql.toString());
+        results.next();
+
+        String wkt = results.getString(1);
+        Envelope retEnv = null;
+
+        if (wkt == null) {
+            return null;
+        } else {
+            retEnv = geometryReader.read(wkt).getEnvelopeInternal();
+        }
+
+        results.close();
+        statement.close();
+
+        return retEnv;
     }
 }
