@@ -59,6 +59,7 @@ import org.geotools.ct.MathTransformFactory;
 import org.geotools.util.WeakHashSet;
 import org.geotools.resources.XMath;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -86,9 +87,9 @@ import org.geotools.resources.gcs.ResourceKeys;
  * and geophysics values <var>x</var>.   This transformation is usually (but
  * not always) a linear equation of the form:
  *
- * <center><var>x</var><code>&nbsp;=&nbsp;{@link CV_SampleDimension#getOffset()
+ * <P align="center"><var>x</var><code>&nbsp;=&nbsp;{@link CV_SampleDimension#getOffset()
  * offset}&nbsp;+&nbsp;{@link CV_SampleDimension#getScale()
- * scale}&times;</code><var>s</var></center>
+ * scale}&times;</code><var>s</var></P>
  *
  * More general equation are allowed. For example, <cite>SeaWiFS</cite> images
  * use a logarithmic transform. General transformations are expressed with a
@@ -96,14 +97,14 @@ import org.geotools.resources.gcs.ResourceKeys;
  * <br><br>
  * All <code>Category</code> objects are immutable and thread-safe.
  *
- * @version $Id: Category.java,v 1.9 2003/02/14 23:38:12 desruisseaux Exp $
+ * @version $Id: Category.java,v 1.10 2003/04/12 00:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Category implements Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = -6965856602415518413L;
+    private static final long serialVersionUID = 6215962897884256696L;
 
     /**
      * A set of {@link Category} or {@link CategoryList} objects. Used in order to
@@ -142,13 +143,13 @@ public class Category implements Serializable {
      * May be computed only when first requested, or may be
      * user-supplied (which is why it must be serialized).
      */
-    Range range;
+    NumberRange range;
 
     /**
      * The math transform from sample to geophysics values (never <code>null</code>).
      *
      * If this category is an instance of <code>GeophysicsCategory</code>, then this transform
-     * is the inverse (as computed by {@link MathTransform#inverse()}, except for qualitative
+     * is the inverse (as computed by {@link MathTransform#inverse()}), except for qualitative
      * categories. Since {@link #getSampleToGeophysics} returns <code>null</code> for
      * qualitative categories, this difference is not visible to the user.
      *
@@ -219,11 +220,11 @@ public class Category implements Serializable {
     /**
      * Construct a qualitative category for sample value <code>sample</code>.
      */
-    private Category(final String     name,
-                     final int[]      ARGB,
-                     final Comparable sample)
+    private Category(final String  name,
+                     final int[]   ARGB,
+                     final Number  sample)
     {
-        this(name, ARGB, new Range(sample.getClass(), sample, sample), null);
+        this(name, ARGB, new NumberRange(sample.getClass(), sample, sample), null);
         assert Double.isNaN(inverse.minimum) : inverse.minimum;
         assert Double.isNaN(inverse.maximum) : inverse.maximum;
     }
@@ -263,8 +264,8 @@ public class Category implements Serializable {
                     final double  offset) throws IllegalArgumentException
     {
         this(name, colors,
-             new Range(Integer.class, new Integer(lower), true, new Integer(upper), false),
-             scale, offset);
+             new NumberRange(Integer.class, new Integer(lower), true,
+                                            new Integer(upper), false), scale, offset);
     }
     
     /**
@@ -352,8 +353,8 @@ public class Category implements Serializable {
     {
         this(name, colors, sampleValueRange,
              createLinearTransform(sampleValueRange, geophysicsValueRange));
-        inverse.range = geophysicsValueRange;
-        assert range.equals(sampleValueRange);
+        inverse.range = NumberRange.cast(geophysicsValueRange);
+        assert range.equals(NumberRange.cast(sampleValueRange));
     }
     
     /**
@@ -397,7 +398,7 @@ public class Category implements Serializable {
     {
         this.name      = name.trim();
         this.ARGB      = ARGB;
-        this.range     = range;
+        this.range     = NumberRange.cast(range);
         Class type     = range.getElementClass();
         boolean minInc = range.isMinIncluded();
         boolean maxInc = range.isMaxIncluded();
@@ -497,7 +498,7 @@ public class Category implements Serializable {
      * @param offset The offset value. May be NaN if this method is invoked from a constructor
      *               for initializing {@link #transform} for a qualitative category.
      */
-    private static MathTransform1D createLinearTransform(final double scale, final double offset) {
+    static MathTransform1D createLinearTransform(final double scale, final double offset) {
         Matrix matrix = new Matrix(2,2);
         matrix.setElement(0,0, scale);
         matrix.setElement(0,1, offset);
@@ -682,7 +683,7 @@ public class Category implements Serializable {
      * @see SampleDimension#getColorModel
      */
     public Color[] getColors() {
-        final Color[] colors=new Color[ARGB.length];
+        final Color[] colors = new Color[ARGB.length];
         for (int i=0; i<colors.length; i++) {
             colors[i] = new Color(ARGB[i], true);
         }
@@ -701,6 +702,43 @@ public class Category implements Serializable {
     public Range getRange() {
         assert range != null;
         return range;
+    }
+
+    /**
+     * Transform the specified range using the transform <var>tx</var>.
+     *
+     * @param  tx    The transform to apply.
+     * @param  range The range to transform.
+     * @param  forceDouble <code>true</code> if the range must use the {@link Double} type.
+     * @return A range transformed using the <code>tx</code> transform.
+     * @throws TransformException if the transform can't be applied.
+     */
+    static Range transform(final MathTransform1D tx,
+                           final Range        range,
+                           final boolean forceDouble)
+        throws TransformException
+    {
+        if (tx.isIdentity()) {
+            return range;
+        }
+        double min, max;
+        min = tx.transform(((Number) range.getMinValue()).doubleValue());
+        max = tx.transform(((Number) range.getMaxValue()).doubleValue());
+        boolean minIncluded = range.isMinIncluded();
+        boolean maxIncluded = range.isMaxIncluded();
+        if (min > max) {
+            final double tmp;
+            final boolean tmpIncluded;
+            tmp = min;   tmpIncluded = minIncluded;
+            min = max;   minIncluded = maxIncluded;
+            max = tmp;   maxIncluded = tmpIncluded;
+        }
+        SampleDimensionType type = (forceDouble) ? SampleDimensionType.DOUBLE
+                                                 : SampleDimensionType.getEnum(min, max);
+        final Number xmin = type.wrapSample(min, true);
+        final Number xmax = type.wrapSample(max, true);
+        return new NumberRange(xmin.getClass(), xmin, minIncluded,
+                                                xmax, maxIncluded);
     }
 
     /**
@@ -723,7 +761,7 @@ public class Category implements Serializable {
     }
     
     /**
-     * Returns a new category for the same range of sample values but
+     * Returns a category for the same range of sample values but
      * a different color palette.
      *
      * @param colors A set of colors for the new category. This array may have
@@ -736,13 +774,81 @@ public class Category implements Serializable {
      *         if the new colors are identical to the current ones.
      */
     public Category recolor(final Color[] colors) {
+        assert !(this instanceof GeophysicsCategory) : this;
         final int[] newARGB = toARGB(colors);
         if (Arrays.equals(ARGB, newARGB)) {
             return this;
         }
+        assert range!=null; // May be null only for GeophysicsCategory, which overrides this method.
         final Category newCategory = new Category(name, newARGB, range, getSampleToGeophysics());
         newCategory.inverse.range = inverse.range; // Share a common instance.
         return newCategory;
+    }
+
+    /**
+     * Changes the mapping from sample to geophysics values. This method returns a category with
+     * a {@linkplain #getSampleToGeophysics sample to geophysics} transformation set to the
+     * {@linkplain MathTransformFactory#createConcatenatedTransform concatenation} of the
+     * specified transform <var>tx</var> with this category's transform. For an identical sample
+     * value <var>s</var>, the pseudo-codes below should produce identical results:
+     *
+     * <blockquote><table border='1' cellpadding='12'><tr>
+     * <td nowrap><code>
+     *     double s = ...<br>
+     *     s = tx.transform(s);<br>
+     *     s = getSampleToGeophysics().transform(s);<br>
+     * </code></td>
+     * <td nowrap><code>
+     *     double s = ...<br>
+     *     Category cc = concatenate(tx);<br>
+     *     s = cc.getSampleToGeophysics().transform(s);<br>
+     * </code></td>
+     * </tr></table></blockquote>
+     *
+     * Note that the convention is the same than for
+     * {@link java.awt.geom.AffineTransform#concatenate AffineTransform}: the result is as
+     * if the transform <code>tx</code> was applied first, then this category's transform
+     * last. The resulting category's {@linkplain #getRange range} is adjusted according.
+     *
+     * @param  tx The transform to {@linkplain MathTransformFactory#createConcatenatedTransform
+     *         concatenate} to this {@linkplain #getSampleToGeophysics sample to geophysics}
+     *         transformation.
+     * @param  constraint An optional range constraint. If non-null, then the returned
+     *         category's {@linkplain #getRange range} will not be wider than this constraint.
+     * @return A category using the concatenated transformation.
+     * @throws TransformException If the transformation can't be applied.
+     *
+     * @see #getSampleToGeophysics
+     * @see SampleDimension#rescale
+     */
+    public Category concatenate(MathTransform1D tx, final Range constraint)
+            throws TransformException
+    {
+        if (tx.isIdentity()) {
+            return this;
+        }
+        Range txRange = transform((MathTransform1D)tx.inverse(), getRange(), false);
+        Range reduced = txRange;
+        if (constraint != null) {
+            reduced = reduced.intersect(constraint);
+        }
+        final MathTransform1D current = getSampleToGeophysics();
+        if (current != null) {
+            tx = (MathTransform1D)MathTransformFactory.getDefault()
+                         .createConcatenatedTransform(tx, current);
+            if (tx.isIdentity()) {
+                return geophysics(true);
+            }
+        } else {
+            tx = null;
+        }
+        final Category category = new Category(name, ARGB, reduced, tx);
+        if (reduced.equals(txRange)) {
+            // Share the range (which should be equals) as a slight
+            // optimization. Also help to avoid rounding errors.
+            category.inverse.range = NumberRange.cast(geophysics(true).getRange());
+        }
+        return category;
     }
 
     /**

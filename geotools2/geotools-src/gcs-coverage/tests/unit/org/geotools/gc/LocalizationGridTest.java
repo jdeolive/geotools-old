@@ -51,7 +51,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link GridLocalization} implementation.
  *
- * @version $Id: LocalizationGridTest.java,v 1.6 2002/08/25 14:36:40 desruisseaux Exp $
+ * @version $Id: LocalizationGridTest.java,v 1.7 2003/04/12 00:04:38 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -118,6 +118,13 @@ public class LocalizationGridTest extends TestCase {
      * coordinates when the fitted affine transformation is used.
      */
     private static final double FIT_TOLERANCE = 0.4;
+
+    /**
+     * Run the suite from the command line.
+     */
+    public static void main(final String[] args) {
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Returns the test suite.

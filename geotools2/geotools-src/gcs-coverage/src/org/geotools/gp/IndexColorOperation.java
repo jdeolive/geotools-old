@@ -60,7 +60,7 @@ import org.geotools.resources.ImageUtilities;
  * Operation applied only on image's colors. This operation work
  * only for source image using an {@link IndexColorModel}.
  *
- * @version $Id: IndexColorOperation.java,v 1.8 2003/03/14 17:15:58 desruisseaux Exp $
+ * @version $Id: IndexColorOperation.java,v 1.9 2003/04/12 00:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 abstract class IndexColorOperation extends Operation {
@@ -152,7 +152,7 @@ abstract class IndexColorOperation extends Operation {
      * @param sampleDimension The sample dimension of band <code>band</code>.
      * @param parameters The user-supplied parameters.
      * @return A sample dimension identical to <code>sampleDimension</code> except for
-     *         the colors. Subclasses may conservatively returns <code>band</code>.
+     *         the colors. Subclasses may conservatively returns <code>sampleDimension</code>.
      */
     protected abstract SampleDimension transformColormap(final int[] ARGB,
                                                          final int   band,

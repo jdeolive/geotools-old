@@ -54,7 +54,7 @@ import junit.framework.TestSuite;
  * rely on {@link CategoryList} for many of its work, many <code>SampleDimension</code>
  * tests are actually <code>CategoryList</code> tests.
  *
- * @version $Id: SampleDimensionTest.java,v 1.5 2002/07/26 22:18:33 desruisseaux Exp $
+ * @version $Id: SampleDimensionTest.java,v 1.6 2003/04/12 00:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class SampleDimensionTest extends TestCase {
@@ -74,6 +74,16 @@ public class SampleDimensionTest extends TestCase {
     private static final int[] NO_DATA = {0, 1, 255};
 
     /**
+     * The minimal value for the geophysics category, inclusive.
+     */
+    private static final int minimum = 10;
+
+    /**
+     * The maximal value for the geophysics category, exclusive.
+     */
+    private static final int maximum = 200;
+
+    /**
      * The scale factor for the sample dimension to test.
      */
     private static final double scale  = 0.1;
@@ -83,6 +93,10 @@ public class SampleDimensionTest extends TestCase {
      */
     private static final double offset = 5.0;
 
+    /**
+     * Small number for comparaison.
+     */
+    private static final double EPS = 1E-7;
 
     /**
      * The sample dimension to test.
@@ -93,6 +107,14 @@ public class SampleDimensionTest extends TestCase {
      * Random number generator for this test.
      */
     private Random random;
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        org.geotools.resources.Geotools.init();
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Returns the test suite.
@@ -120,7 +142,7 @@ public class SampleDimensionTest extends TestCase {
         for (int i=0; i<CATEGORIES.length; i++) {
             categories[i] = new Category(CATEGORIES[i], null, NO_DATA[i]);
         }
-        categories[CATEGORIES.length] = new Category("SST", null, 10, 200, scale, offset);
+        categories[CATEGORIES.length] = new Category("SST", null, minimum, maximum, scale, offset);
         test = new SampleDimension(categories, null);
     }
 
@@ -141,11 +163,11 @@ public class SampleDimensionTest extends TestCase {
 
         final SampleDimension invt = test.geophysics(true);
         assertTrue(test != invt);
-        assertTrue  ("identity",  invt.getSampleToGeophysics().isIdentity());
-        assertEquals("scale",     1,    invt.getScale(),        0);
-        assertEquals("offset",    0,    invt.getOffset(),       0);
-        assertEquals("minimum",   6,    invt.getMinimumValue(), 0);
-        assertEquals("maximum",   24.9, invt.getMaximumValue(), 1E-7);
+        assertTrue  ("identity", invt.getSampleToGeophysics().isIdentity());
+        assertEquals("scale",    1,                       invt.getScale(),        0);
+        assertEquals("offset",   0,                       invt.getOffset(),       0);
+        assertEquals("minimum",  minimum   *scale+offset, invt.getMinimumValue(), 0);
+        assertEquals("maximum", (maximum-1)*scale+offset, invt.getMaximumValue(), EPS);
     }
 
     /**
@@ -181,5 +203,25 @@ public class SampleDimensionTest extends TestCase {
         param.setParameter("sampleDimensions", new SampleDimension[] {test});
         final RenderedOp op = JAI.create("GC_SampleTranscoding", param);
         assertTrue(op.getRendering() instanceof ImageAdapter);
+    }
+
+    /**
+     * Test the {@link SampleDimension#rescale} method.
+     */
+    public void testRescale() {
+        SampleDimension scaled;
+        scaled = test.geophysics(true).rescale(2, -6, false);
+        assertEquals("Incorrect scale",     2, scaled.getScale(),        EPS);
+        assertEquals("Incorrect offset",   -6, scaled.getOffset(),       EPS);
+        assertEquals("Incorrect minimum",   0, scaled.getMinimumValue(), EPS);
+        assertEquals("Incorrect maximum", 255, scaled.getMaximumValue(), EPS);
+        System.out.println(scaled);
+
+        scaled = test.geophysics(false).rescale(2, -6, false);
+        assertEquals("Incorrect scale",   scale*2,         scaled.getScale(),        EPS);
+        assertEquals("Incorrect offset",  offset-6*scale,  scaled.getOffset(),       EPS);
+        assertEquals("Incorrect minimum",   0,             scaled.getMinimumValue(), EPS);
+        assertEquals("Incorrect maximum", 255,             scaled.getMaximumValue(), EPS);
+        System.out.println(scaled);
     }
 }

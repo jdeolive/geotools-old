@@ -84,6 +84,7 @@ import org.geotools.ct.TransformException;
 import org.geotools.units.Unit;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.NumberRange;
 import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.RemoteProxy;
 import org.geotools.resources.ClassChanger;
@@ -110,7 +111,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.19 2003/04/10 20:41:08 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.20 2003/04/12 00:04:37 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -286,13 +287,15 @@ public class SampleDimension implements Serializable {
      *         {@link #getCategoryNames}.
      * @param  nodata the values to indicate "no data", or <code>null</code> if none. This is the
      *         values to be returned by {@link #getNoDataValue}.
-     * @param  minimum The lower value, inclusive. If <code>categories</code> was non-null,
-     *         then <code>minimum</code> is usually 0. This is the value to be returned by
-     *         {@link #getMinimumValue}.
-     * @param  maximum The upper value, <strong>inclusive</strong> as well. If
-     *         <code>categories</code> was non-null, then <code>maximum</code> is usually equals
-     *         to <code>categories.length-1</code>. This is the value to be returned by
-     *         {@link #getMaximumValue}.
+     * @param  minimum The lower value, inclusive. The <code>[minimum..maximum]</code> range may or
+     *         may not includes the <code>nodata</code> values; the range will be adjusted as
+     *         needed. If <code>categories</code> was non-null, then <code>minimum</code> is
+     *         usually 0. This is the value to be returned by {@link #getMinimumValue}.
+     * @param  maximum The upper value, <strong>inclusive</strong> as well. The
+     *         <code>[minimum..maximum]</code> range may or may not includes the <code>nodata</code>
+     *         values; the range will be adjusted as needed. If <code>categories</code> was non-null,
+     *         then <code>maximum</code> is usually equals to <code>categories.length-1</code>. This
+     *         is the value to be returned by {@link #getMaximumValue}.
      * @param  scale The value which is multiplied to grid values, or 1 if none. This is the value
      *         to be returned by {@link #getScale}.
      * @param  offset The value to add to grid values, or 0 if none. This is the value to be
@@ -337,46 +340,53 @@ public class SampleDimension implements Serializable {
             throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_RANGE_$2,
                                                new Double(minimum), new Double(maximum)));
         }
+        if (Double.isNaN(scale) || Double.isInfinite(scale) || scale==0) {
+            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_$2,
+                                               "scale", new Double(scale)));
+        }
+        if (Double.isNaN(offset) || Double.isInfinite(offset)) {
+            throw new IllegalArgumentException(Resources.format(ResourceKeys.ERROR_BAD_PARAMETER_$2,
+                                               "offset", new Double(offset)));
+        }
         if (type == null) {
             type = SampleDimensionType.getEnum(minimum, maximum);
         }
         if (color == null) {
             color = ColorInterpretation.PALETTE_INDEX;
         }
-        final int namesCount = (categories!=null) ? categories.length : 0;
-        final List categoryList = new ArrayList(namesCount + 2);
+        final int     nameCount = (categories!=null) ? categories.length : 0;
+        final int   nodataCount = (nodata    !=null) ?     nodata.length : 0;
+        final List categoryList = new ArrayList(nameCount + nodataCount + 2);
         /*
          * STEP 1 - Add a qualitative category for each 'nodata' value.
          *          NAME:  Fetched from 'categories' if available, otherwise default to the value.
          *          COLOR: Fetched from 'palette' if available, otherwise use Category default.
          */
-        if (nodata != null) {
-            for (int i=0; i<nodata.length; i++) {
-                String name = null;
-                final double padValue = nodata[i];
-                final int    intValue = (int) Math.floor(padValue);
-                if (intValue>=0 && intValue<namesCount) {
-                    if (intValue == padValue) {
-                        // This category will be added in step 2 below.
-                        continue;
-                    }
-                    name = categories[intValue];
+        for (int i=0; i<nodataCount; i++) {
+            String name = null;
+            final double padValue = nodata[i];
+            final int    intValue = (int) Math.floor(padValue);
+            if (intValue>=0 && intValue<nameCount) {
+                if (intValue == padValue) {
+                    // This category will be added in step 2 below.
+                    continue;
                 }
-                final Comparable value = (Comparable) type.wrapSample(padValue, false);
-                if (name == null) {
-                    name = value.toString();
-                }
-                final Range range = new Range(value.getClass(), value, value);
-                final Color[] colors = ImageUtilities.subarray(palette, intValue, intValue+1);
-                categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
+                name = categories[intValue];
             }
+            final Number value = type.wrapSample(padValue, false);
+            if (name == null) {
+                name = value.toString();
+            }
+            final NumberRange range = new NumberRange(value.getClass(), value, value);
+            final Color[] colors = ImageUtilities.subarray(palette, intValue, intValue+1);
+            categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
         }
         /*
          * STEP 2 - Add a qualitative category for each category name.
          *          RANGE: Fetched from the index (position) in the 'categories' array.
          *          COLOR: Fetched from 'palette' if available, otherwise use Category default.
          */
-        if (namesCount != 0) {
+        if (nameCount != 0) {
             int lower = 0;
             for (int upper=1; upper<=categories.length; upper++) {
                 final String name = categories[lower].trim();
@@ -397,21 +407,61 @@ public class SampleDimension implements Serializable {
                     min = ClassChanger.cast(min, classe);
                     max = ClassChanger.cast(max, classe);
                 }
-                final Range   range  = new Range(classe, (Comparable)min, (Comparable)max);
+                final NumberRange range = new NumberRange(classe, min, max);
                 final Color[] colors = ImageUtilities.subarray(palette, lower, upper);
                 categoryList.add(new Category(name, colors, range, (MathTransform1D)null));
                 lower = upper;
             }
         }
         /*
-         * STEP 3 - Create at most one quantitative category. The range is from 'minimum' to
-         *          'maximum' inclusive, minus all ranges used by qualitative categories. If
-         *          there is no range left, then no quantitative category is created.
+         * STEP 3 - Changes some qualitative categories into quantitative ones.  The hard questions
+         *          is: do we want to mark a category as "quantitative"?   OpenGIS has no notion of
+         *          "qualitative" versus "quantitative" category. As an heuristic approach, we will
+         *          look for quantitative category if:
+         *
+         *          - 'scale' and 'offset' do not map to an identity transform. Those
+         *            coefficients can be stored in quantitative category only.
+         *
+         *          - 'nodata' were specified. If the user wants to declare "nodata" values,
+         *            then we can reasonably assume that he have real values somewhere else.
+         *
+         *          - Only 1 category were created so far. A classified raster with only one
+         *            category is useless. Consequently, it is probably a numeric raster instead.
+         */
+        boolean needQuantitative = false;
+        if (scale!=1 || offset!=0 || nodataCount!=0 || categoryList.size()<=1) {
+            needQuantitative = true;
+            for (int i=categoryList.size(); --i>=0;) {
+                Category category = (Category) categoryList.get(i);
+                if (!category.isQuantitative()) {
+                    final Range    range = category.getRange();
+                    final Comparable min = range.getMinValue();
+                    final Comparable max = range.getMaxValue();
+                    if (min.compareTo(max) != 0) {
+                        final double xmin = ((Number)min).doubleValue();
+                        final double xmax = ((Number)max).doubleValue();
+                        if (!rangeContains(xmin, xmax, nodata)) {
+                            final String name = category.getName(null);
+                            final Color[] colors = category.getColors();
+                            category = new Category(name, colors, range, scale, offset);
+                            categoryList.set(i, category);
+                            needQuantitative = false;
+                        }
+                    }
+                }
+            }
+        }
+        /*
+         * STEP 4 - Create at most one quantitative category for the remaining sample values.
+         *          The new category will range from 'minimum' to 'maximum' inclusive, minus
+         *          all ranges used by previous categories.  If there is no range left, then
+         *          no new category will be created.  This step will be executed only if the
+         *          information provided by the user seem to be incomplete.
          *
          *          Note that substractions way break a range into many smaller ranges.
          *          The naive algorithm used here try to keep the widest range.
          */
-        if (true) {
+        if (needQuantitative) {
             boolean minIncluded = true;
             boolean maxIncluded = true;
             for (int i=categoryList.size(); --i>=0;) {
@@ -434,50 +484,26 @@ public class SampleDimension implements Serializable {
                     }
                 }
             }
+            // If the remaining range is wide enough, add the category.
             if (maximum-minimum > (minIncluded && maxIncluded ? 0 : 1)) {
                 Number min = type.wrapSample(minimum, false);
                 Number max = type.wrapSample(maximum, false);
                 final Class classe = ClassChanger.getWidestClass(min, max);
                 min = ClassChanger.cast(min, classe);
                 max = ClassChanger.cast(max, classe);
-                final Range  range = new Range(classe, (Comparable)min, minIncluded,
-                                                       (Comparable)max, maxIncluded);
+                final NumberRange range = new NumberRange(classe, min, minIncluded,
+                                                                  max, maxIncluded);
                 final Color[] colors = ImageUtilities.subarray(palette,
                                                      (int)Math.ceil (minimum),
                                                      (int)Math.floor(maximum));
                 categoryList.add(new Category(description!=null ? description : "(automatic)",
                                  colors, range, scale, offset));
-            } else if (description!=null) {
-                /*
-                 * If no quantative category has been added, looks if we could turn an existing
-                 * qualitative category into a quantitative one. This change will be applied only
-                 * if the category name matches the description, which is an approach consistent
-                 * with our default implementation of 'SampleDimension.getDescription()'. Again,
-                 * this is a very heuristic approach.
-                 */
-                for (int i=categoryList.size(); --i>=0;) {
-                    Category category = (Category) categoryList.get(i);
-                    final Range       range = category.getRange();
-                    final Comparable    min = range.getMinValue();
-                    final Comparable    max = range.getMaxValue();
-                    if (min.compareTo(max) != 0) {
-                        minimum = ((Number)min).doubleValue();
-                        maximum = ((Number)max).doubleValue();
-                        if (!rangeContains(minimum, maximum, nodata)) {
-                            final String name = category.getName(null);
-                            if (description.startsWith(name)) {
-                                final Color[] colors = category.getColors();
-                                category = new Category(name, colors, range, scale, offset);
-                                categoryList.set(i, category);
-                            }
-                        }
-                    }
-                }
+                needQuantitative = false;
             }
         }
         /*
-         * Now, the list of categories should be complete. Construct a sample
-         * dimension appropriate for the kind of palette used.
+         * STEP 5 - Now, the list of categories should be complete. Construct a
+         *          sample dimension appropriate for the type of palette used.
          */
         final Category[] cl = (Category[]) categoryList.toArray(new Category[categoryList.size()]);
         if (ColorInterpretation.PALETTE_INDEX.equals(color) ||
@@ -915,15 +941,16 @@ public class SampleDimension implements Serializable {
      * Together with {@link #getScale()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
      * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
-     * which is more general and take care of converting automatically "no data" values into
-     * <code>NaN</code>.
+     * which is more general and take care of converting automatically &quot;no data&quot; values
+     * into <code>NaN</code>.
      *
-     * @return the offset to add to grid values.
+     * @return The offset to add to grid values.
      * @throws IllegalStateException if the transform from sample to geophysics values
      *         is not a linear relation.
      *
      * @see CV_SampleDimension#getOffset()
      * @see #getSampleToGeophysics
+     * @see #rescale
      */
     public double getOffset() throws IllegalStateException {
         return getCoefficient(0);
@@ -939,15 +966,16 @@ public class SampleDimension implements Serializable {
      * Together with {@link #getOffset()} and {@link #getNoDataValue()}, this method provides a
      * limited way to transform sample values into geophysics values. However, the recommended
      * way is to use the {@link #getSampleToGeophysics sampleToGeophysics} transform instead,
-     * which is more general and take care of converting automatically "no data" values into
-     * <code>NaN</code>.
+     * which is more general and take care of converting automatically &quot;no data&quot; values
+     * into <code>NaN</code>.
      *
-     * @return the scale to multiply to grid value.
+     * @return The scale to multiply to grid value.
      * @throws IllegalStateException if the transform from sample to geophysics values
      *         is not a linear relation.
      *
      * @see CV_SampleDimension#getScale()
      * @see #getSampleToGeophysics
+     * @see #rescale
      */
     public double getScale() {
         return getCoefficient(1);
@@ -994,7 +1022,7 @@ public class SampleDimension implements Serializable {
      * already geophysics values (including <code>NaN</code> for "no data" values), then this
      * method returns an identity transform. Otherwise, this method returns a transform expecting
      * sample values as input and computing geophysics value as output. This transform will take
-     * care of converting all "{@linkplain #getNoDataValue() no data values}" into
+     * care of converting all &quot;{@linkplain #getNoDataValue() no data values}&quot; into
      * <code>NaN</code> values.
      * The <code>sampleToGeophysics.{@linkplain MathTransform1D#inverse() inverse()}</code>
      * transform is capable to differenciate <code>NaN</code> values to get back the original
@@ -1003,6 +1031,11 @@ public class SampleDimension implements Serializable {
      * @return The transform from sample to geophysics values, or <code>null</code> if this
      *         sample dimension do not defines any transform (which is not the same that
      *         defining an identity transform).
+     *
+     * @see #getScale
+     * @see #getOffset
+     * @see #getNoDataValue
+     * @see #rescale
      */
     public MathTransform1D getSampleToGeophysics() {
         if (isGeophysics) {
@@ -1132,6 +1165,92 @@ public class SampleDimension implements Serializable {
             return categories.getColorModel(visibleBand, numBands);
         }
         return null;
+    }
+
+    /**
+     * Returns a sample dimension using new {@link #getScale scale} and {@link #getOffset offset}
+     * coefficients. Those coefficients are {@linkplain Category#concatenate concatenated} with
+     * this <code>SampleDimension</code>'s scale and offset. In the special case where this method
+     * is invoked on a geophysics sample dimension (as returned by <code>{@linkplain #geophysics
+     * geophysics}(true)</code>), this is equivalent to creating a sample dimension with exactly
+     * the specified <code>scale</code> and <code>offset</code> coefficients.
+     *
+     * @param scale  The value which is multiplied to grid values for the new sample dimension.
+     * @param offset The value to add to grid values for the new sample dimension.
+     * @param rescaleNodata <code>true</code> if {@linkplain #getNoDataValue nodata values}
+     *                      should be rescaled as well. If <code>false</code>, then only
+     *                      {@linkplain Category#isQuantitative quantitative categories}
+     *                      are rescaled; &quot;no data&quot; values stay inchanged.
+     *
+     * @see #getScale
+     * @see #getOffset
+     * @see Category#concatenate
+     */
+    public SampleDimension rescale(final double scale, final double offset,
+                                   final boolean rescaleNodata)
+    {
+        if (scale==1 && offset==0) {
+            return this;
+        }
+        final MathTransform1D tx = Category.createLinearTransform(scale, offset);
+        /*
+         * We require an array of non-geophysics categories because we want the array to be sorted
+         * in index order without NaN values. This is needed for computing the 'constraint' range.
+         * Furthermore, the result of Category.concatenate(...) is always non-geophysics. We will
+         * switch back to the right type just before to apply the concatenation.
+         */
+        final Category[] categories = (Category[]) geophysics(false).getCategories().toArray();
+        for (int i=0; i<categories.length; i++) {
+            Range constraint = null;
+            if (!rescaleNodata) {
+                if (!categories[i].isQuantitative()) {
+                    continue;
+                }
+                /*
+                 * We are going to rescale a quantitative category that may be bounded by
+                 * qualitative categories. Since the qualitatives categories doesn't move,
+                 * we have to constraint the range for the rescaled category in such a way
+                 * that it will not overlaps with other categories.
+                 */
+                Number      minimum = null;
+                Number      maximum = null;
+                boolean minIncluded = false;
+                boolean maxIncluded = false;
+                for (int j=i; --j>=0;) {
+                    if (!categories[j].isQuantitative()) {
+                        final Range bound = categories[j].geophysics(false).getRange();
+                        minimum = (Number) bound.getMaxValue(); // May be null, but not NaN.
+                        minIncluded = !bound.isMaxIncluded();
+                        break;
+                    }
+                }
+                for (int j=i; ++j<categories.length;) {
+                    if (!categories[j].isQuantitative()) {
+                        final Range bound = categories[j].geophysics(false).getRange();
+                        maximum = (Number) bound.getMinValue(); // May be null, but not NaN.
+                        maxIncluded = !bound.isMinIncluded();
+                        break;
+                    }
+                }
+                if (minimum!=null || maximum!=null) {
+                    final Class classe = ClassChanger.getWidestClass(minimum, maximum);
+                    constraint = new NumberRange(classe,
+                                                 ClassChanger.cast(minimum, classe), minIncluded,
+                                                 ClassChanger.cast(maximum, classe), maxIncluded);
+                }
+            }
+            try {
+                categories[i] = categories[i].geophysics(isGeophysics).concatenate(tx, constraint);
+            } catch (TransformException cause) {
+                // Should not happen for valid coefficients, since the transform is linear.
+                IllegalArgumentException exception = new IllegalArgumentException(Resources.format(
+                                                     ResourceKeys.ERROR_BAD_TRANSFORM_$1,
+                                                     Utilities.getShortClassName(tx)));
+                exception.initCause(cause);
+                throw exception;
+            }
+        }
+        return new SampleDimension(categories, getUnits());
     }
     
     /**

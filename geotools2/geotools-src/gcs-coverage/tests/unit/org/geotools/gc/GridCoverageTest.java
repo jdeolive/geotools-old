@@ -68,7 +68,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.5 2002/08/10 12:35:26 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.6 2003/04/12 00:04:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -243,7 +243,7 @@ public class GridCoverageTest extends TestCase {
      * Returns the number of available image which may be used as example.
      */
     public static int getNumExamples() {
-        return 1;
+        return 1; // TODO: set to '2' if we commit the 'CHL01195.png' image (160 ko).
     }
 
     /**
@@ -282,9 +282,22 @@ public class GridCoverageTest extends TestCase {
                 bounds = new Rectangle2D.Double(35, -41, 45, 46);
                 break;
             }
+            case 1: {
+                unit = "mg/m³";
+                path = "test-data/CHL01195.png";
+                cs   = GeographicCoordinateSystem.WGS84;
+                categories = new Category[] {
+                    new Category("Land",       decode("#000000"), range(255, 255), (MathTransform1D)null),
+                    new Category("No data",    decode("#FFFFFF"), range(  0,   0), (MathTransform1D)null),
+                    new Category("Log chl-a",  null, range(1, 254), 0.015, -1.985)
+                };
+                // 34°N - 45°N ; 07°W - 12°E  (1200 x 700 pixels)
+                bounds = new Rectangle2D.Double(-7, 34, 19, 11);
+                break;
+            }
         }
         final SampleDimension[] bands = new SampleDimension[] {
-            new SampleDimension(categories, Unit.get(unit))
+            new SampleDimension(categories, (unit!=null) ? Unit.get(unit).rename(unit, null) : null)
         };
         final Envelope   envelope = new Envelope(bounds);
         final String     filename = new File(path).getName();

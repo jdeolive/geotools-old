@@ -70,6 +70,7 @@ import org.geotools.pt.MismatchedDimensionException;
 // Resources
 import org.geotools.units.Unit;
 import org.geotools.resources.Utilities;
+import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -82,15 +83,14 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.9 2003/03/20 22:48:40 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.10 2003/04/12 00:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
-class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable
-{
+class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
-    private static final long serialVersionUID = -5176355855537192439L;
+    private static final long serialVersionUID = 2647846361059903365L;
 
     /**
      * Default category for "No data". Will be used only if no such category was explicitly set.
@@ -116,7 +116,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
      * of every categories, excluding <code>NaN</code> values. This field will be computed
      * only when first requested.
      */
-    private transient Range range;
+    private transient NumberRange range;
     
     /**
      * List of {@link Category#minimum} values for each category in {@link #categories}.
@@ -508,7 +508,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
         if (range == null) {
             Range range = null;
             for (int i=0; i<categories.length; i++) {
-                final Range extent = categories[i].getRange();
+                Range extent = categories[i].getRange();
                 if (!Double.isNaN(((Number)extent.getMinValue()).doubleValue()) &&
                     !Double.isNaN(((Number)extent.getMaxValue()).doubleValue()))
                 {
@@ -519,7 +519,7 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                     }
                 }
             }
-            this.range = range;
+            this.range = NumberRange.cast(range);
         }
         return range;
     }

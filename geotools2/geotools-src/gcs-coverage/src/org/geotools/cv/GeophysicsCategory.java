@@ -49,6 +49,7 @@ import org.geotools.ct.MathTransformFactory;
 
 // Resources
 import org.geotools.resources.Utilities;
+import org.geotools.resources.NumberRange;
 import org.geotools.resources.gcs.Resources;
 import org.geotools.resources.gcs.ResourceKeys;
 
@@ -58,7 +59,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * values.   By definition, the {@link #getSampleToGeophysics} method for this class returns
  * the identity transform, or <code>null</code> if this category is a qualitative one.
  *
- * @version $Id: GeophysicsCategory.java,v 1.2 2002/07/26 22:17:33 desruisseaux Exp $
+ * @version $Id: GeophysicsCategory.java,v 1.3 2003/04/12 00:04:37 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class GeophysicsCategory extends Category {
@@ -111,23 +112,7 @@ final class GeophysicsCategory extends Category {
      */
     public Range getRange() throws IllegalStateException {
         if (range == null) try {
-            double min, max;
-            final Range sampleRange = inverse.range;
-            final MathTransform1D sampleToGeophysics = inverse.transform;
-            min = sampleToGeophysics.transform(((Number) sampleRange.getMinValue()).doubleValue());
-            max = sampleToGeophysics.transform(((Number) sampleRange.getMaxValue()).doubleValue());
-            boolean minIncluded = sampleRange.isMinIncluded();
-            boolean maxIncluded = sampleRange.isMaxIncluded();
-            if (min > max) {
-                final double tmp;
-                final boolean tmpIncluded;
-                tmp = min;   tmpIncluded = minIncluded;
-                min = max;   minIncluded = maxIncluded;
-                max = tmp;   maxIncluded = tmpIncluded;
-            }
-            range = new Range(Double.class,
-                              new Double(min), minIncluded,
-                              new Double(max), maxIncluded);
+            range = NumberRange.cast(transform(inverse.transform, inverse.range, true));
         } catch (TransformException cause) {
             IllegalStateException exception = new IllegalStateException(Resources.format(
                                                   ResourceKeys.ERROR_BAD_TRANSFORM_$1,
@@ -151,7 +136,7 @@ final class GeophysicsCategory extends Category {
      * Returns <code>true</code> if this category is quantitative.
      */
     public boolean isQuantitative() {
-        assert !(inverse instanceof GeophysicsCategory);
+        assert !(inverse instanceof GeophysicsCategory) : inverse;
         return inverse.isQuantitative();
     }
     
@@ -160,8 +145,24 @@ final class GeophysicsCategory extends Category {
      * a different color palette.
      */
     public Category recolor(final Color[] colors) {
-        assert !(inverse instanceof GeophysicsCategory);
+        assert !(inverse instanceof GeophysicsCategory) : inverse;
         return inverse.recolor(colors).inverse;
+    }
+
+    /**
+     * Changes the mapping from sample to geophysics values. A special processing is done
+     * for ranges made of {@link Double#NaN} values, since they can't be rescaled directly.
+     */
+    public Category concatenate(final MathTransform1D tx, final Range constraint)
+            throws TransformException
+    {
+        if (!isQuantitative()) {
+            // Assertion: concatenate should transform the range only.
+            assert inverse.getSampleToGeophysics()==null : inverse;
+            return inverse.concatenate(tx, null).inverse;
+            // No 'constraint' argument because NaN values can't be constrained.
+        }
+        return super.concatenate(tx, constraint);
     }
 
     /**
@@ -169,7 +170,7 @@ final class GeophysicsCategory extends Category {
      * original sample values.
      */
     public Category geophysics(final boolean toGeophysics) {
-        assert !(inverse instanceof GeophysicsCategory);
+        assert !(inverse instanceof GeophysicsCategory) : inverse;
         return inverse.geophysics(toGeophysics);
     }
 }

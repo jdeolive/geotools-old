@@ -57,7 +57,7 @@ import org.geotools.resources.Utilities;
  * capability, no user interaction and ignores the coordinate system. It is just
  * for quick test of grid coverage.
  *
- * @version $Id: Viewer.java,v 1.4 2003/02/15 13:24:24 desruisseaux Exp $
+ * @version $Id: Viewer.java,v 1.5 2003/04/12 00:04:38 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class Viewer extends JPanel {
@@ -77,6 +77,11 @@ public class Viewer extends JPanel {
      * Usually an identity transform for this simple viewer.
      */
     private final AffineTransform gridToCoordinateSystem = new AffineTransform();
+
+    /**
+     * The location for the next frame window.
+     */
+    private static int location;
 
     /**
      * Construct a viewer for the specified image.
@@ -141,9 +146,11 @@ public class Viewer extends JPanel {
     private static Viewer show(final Viewer viewer, final String title) {
         final JFrame frame = new JFrame(title);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLocation(location, location);
         frame.getContentPane().add(viewer);
         frame.pack();
         frame.show();
+        location += 64;
         return viewer;
     }
 

@@ -71,15 +71,15 @@ import junit.framework.TestSuite;
  * Visual test of the "Resample" operation. A remote sensing image is projected from a fitted
  * coordinate system to a geographic one.
  *
- * @version $Id: ResampleTest.java,v 1.4 2003/02/18 19:28:50 desruisseaux Exp $
+ * @version $Id: ResampleTest.java,v 1.5 2003/04/12 00:04:38 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
-public final class ResampleTest extends TestCase /* GridCoverageTest */ {
+public final class ResampleTest extends GridCoverageTest {
     /**
      * The source grid coverage.
      */
-//    private GridCoverage coverage;
+    private GridCoverage coverage;
     
     /**
      * Constructs a test case with the given name.
@@ -93,7 +93,7 @@ public final class ResampleTest extends TestCase /* GridCoverageTest */ {
      */
     protected void setUp() throws Exception {
         super.setUp();
-//        coverage = getExample(0);
+        coverage = getExample(0);
     }
 
     /**
@@ -102,76 +102,76 @@ public final class ResampleTest extends TestCase /* GridCoverageTest */ {
      *
      * @param cs Le systeme de coordonées de destination.
      */
-//    private void projectTo(final CoordinateSystem cs, final GridGeometry geometry) {
-//        final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
-//        final String arg1; final Object value1;
-//        final String arg2; final Object value2;
-//        if (cs != null) {
-//            arg1="CoordinateSystem"; value1=cs;
-//            if (geometry != null) {
-//                arg2="GridGeometry"; value2=geometry;
-//            } else {
-//                arg2="InterpolationType"; value2="bilinear";
-//            }
-//        } else {
-//            arg1="GridGeometry";      value1=geometry;
-//            arg2="InterpolationType"; value2="bilinear";
-//        }
-//        final GridCoverage projected = processor.doOperation("Resample", coverage.geophysics(true),
-//                                                              arg1, value1, arg2, value2);
-//        Viewer.show(projected.geophysics(false));
-//        final RenderedImage image = projected.getRenderedImage();
-//        if (image instanceof RenderedOp) {
-//            Logger.getLogger("org.geotools.gp")
-//                .info("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
-//        }
-//    }
+    private void projectTo(final CoordinateSystem cs, final GridGeometry geometry) {
+        final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
+        final String arg1; final Object value1;
+        final String arg2; final Object value2;
+        if (cs != null) {
+            arg1="CoordinateSystem"; value1=cs;
+            if (geometry != null) {
+                arg2="GridGeometry"; value2=geometry;
+            } else {
+                arg2="InterpolationType"; value2="bilinear";
+            }
+        } else {
+            arg1="GridGeometry";      value1=geometry;
+            arg2="InterpolationType"; value2="bilinear";
+        }
+        final GridCoverage projected = processor.doOperation("Resample", coverage.geophysics(true),
+                                                              arg1, value1, arg2, value2);
+        Viewer.show(projected.geophysics(false));
+        final RenderedImage image = projected.getRenderedImage();
+        if (image instanceof RenderedOp) {
+            Logger.getLogger("org.geotools.gp")
+                .info("Applied \""+((RenderedOp) image).getOperationName()+"\" JAI operation.");
+        }
+    }
 
     /**
      * Test the "Resample" operation with an identity transform.
      */
     public void testIdentity() {
-//        projectTo(coverage.getCoordinateSystem(), null);
+        projectTo(coverage.getCoordinateSystem(), null);
     }
 
     /**
      * Test the "Resample" operation with a "Crop" transform.
      */
-//    public void testCrop() {
-//        projectTo(null, new GridGeometry(new GridRange(new Rectangle(50,50,200,200)), null));
-//    }
+    public void testCrop() {
+        projectTo(null, new GridGeometry(new GridRange(new Rectangle(50,50,200,200)), null));
+    }
 
 
     /**
      * Test the "Resample" operation with an "Affine" transform.
      */
-//    public void testAffine() {
-//        AffineTransform atr = AffineTransform.getTranslateInstance(200, 200);
-//        atr.concatenate((AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem());
-//        MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
-//        CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
-//        if (true) {
-//            projectTo(null, new GridGeometry(null, tr));
-//        } else {
-//            /*
-//             * Note: In current Resampler implementation, the affine transform effect tested
-//             *       here will not be visible with the simple viewer used here.  It would be
-//             *       visible however with more elaborated viewer like the one provided in the
-//             *       <code>org.geotools.renderer</code> package.
-//             */
-//            projectTo(cs, null);
-//        }
-//    }
+    public void testAffine() {
+        AffineTransform atr = AffineTransform.getTranslateInstance(200, 200);
+        atr.concatenate((AffineTransform) coverage.getGridGeometry().getGridToCoordinateSystem());
+        MathTransform    tr = MathTransformFactory.getDefault().createAffineTransform(atr);
+        CoordinateSystem cs = new FittedCoordinateSystem("F2", coverage.getCoordinateSystem(), tr, null);
+        if (true) {
+            projectTo(null, new GridGeometry(null, tr));
+        } else {
+            /*
+             * Note: In current Resampler implementation, the affine transform effect tested
+             *       here will not be visible with the simple viewer used here.  It would be
+             *       visible however with more elaborated viewer like the one provided in the
+             *       <code>org.geotools.renderer</code> package.
+             */
+            projectTo(cs, null);
+        }
+    }
 
     /**
      * Test the "Resample" operation with a stereographic coordinate system.
      */
-//    public void testStereographic() {
-//        final CoordinateSystem cs = new ProjectedCoordinateSystem("Stereographic",
-//                GeographicCoordinateSystem.WGS84,
-//                new Projection("Stereographic","Oblique_Stereographic",Ellipsoid.WGS84,null,null));
-//        projectTo(cs, null);
-//    }
+    public void testStereographic() {
+        final CoordinateSystem cs = new ProjectedCoordinateSystem("Stereographic",
+                GeographicCoordinateSystem.WGS84,
+                new Projection("Stereographic","Oblique_Stereographic",Ellipsoid.WGS84,null,null));
+        projectTo(cs, null);
+    }
 
     /**
      * Returns the test suite.
