@@ -247,23 +247,23 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
+            if (child.getLocalName().equalsIgnoreCase("Name")) {
              sld.setName(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Title")) {
+            if (child.getLocalName().equalsIgnoreCase("Title")) {
              sld.setTitle(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+            if (child.getLocalName().equalsIgnoreCase("Abstract")) {
              sld.setAbstract(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("NamedLayer")) {
+            if (child.getLocalName().equalsIgnoreCase("NamedLayer")) {
            
             }
             
-            if (child.getNodeName().equalsIgnoreCase("UserLayer")) {
+            if (child.getLocalName().equalsIgnoreCase("UserLayer")) {
               StyledLayer layer = parseUserLayer(child);
               sld.addStyledLayer(layer);
             }
@@ -284,18 +284,18 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("UserStyle")) {
+            if (child.getLocalName().equalsIgnoreCase("UserStyle")) {
              Style user = parseStyle(child);
              layer.addUserStyle(user);
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
+            if (child.getLocalName().equalsIgnoreCase("Name")) {
               layer.setName(child.getNodeValue());
               
              //   symbol.setStroke(parseStroke(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("LayerFeatureConstraints")) {
+            if (child.getLocalName().equalsIgnoreCase("LayerFeatureConstraints")) {
               layer = new UserLayer();
             }
             
@@ -318,11 +318,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("NamedLayer")) {
+            if (child.getLocalName().equalsIgnoreCase("NamedLayer")) {
              
             }
             
-            if (child.getNodeName().equalsIgnoreCase("UserLayer")) {
+            if (child.getLocalName().equalsIgnoreCase("UserLayer")) {
               
               layer = new UserLayer();
               
@@ -368,24 +368,24 @@ public class SLDParser {
             if ((child == null) || (child.getNodeType() != Node.ELEMENT_NODE)) {
                 continue;
             }
-            
+//            System.out.println("The child is: " + child.getNodeName() + " or " + child.getLocalName() + " prefix is " +child.getPrefix());
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("processing " + child.getNodeName());
+                LOGGER.finest("processing " + child.getLocalName());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
+            if (child.getLocalName().equalsIgnoreCase("Name")) {
                 style.setName(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Title")) {
+            if (child.getLocalName().equalsIgnoreCase("Title")) {
                 style.setTitle(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+            if (child.getLocalName().equalsIgnoreCase("Abstract")) {
                 style.setAbstract(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("FeatureTypeStyle")) {
+            if (child.getLocalName().equalsIgnoreCase("FeatureTypeStyle")) {
                 style.addFeatureTypeStyle(parseFeatureTypeStyle(child));
             }
         }
@@ -395,7 +395,7 @@ public class SLDParser {
     
     private FeatureTypeStyle parseFeatureTypeStyle(Node style) {
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("Parsing featuretype style " + style.getNodeName());
+            LOGGER.finest("Parsing featuretype style " + style.getLocalName());
         }
         
         FeatureTypeStyle ft = factory.createFeatureTypeStyle();
@@ -411,26 +411,26 @@ public class SLDParser {
             }
             
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("processing " + child.getNodeName());
+                LOGGER.finest("processing " + child.getLocalName());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
+            if (child.getLocalName().equalsIgnoreCase("Name")) {
                 ft.setName(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Title")) {
+            if (child.getLocalName().equalsIgnoreCase("Title")) {
                 ft.setTitle(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+            if (child.getLocalName().equalsIgnoreCase("Abstract")) {
                 ft.setAbstract(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("FeatureTypeName")) {
+            if (child.getLocalName().equalsIgnoreCase("FeatureTypeName")) {
                 ft.setFeatureTypeName(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Rule")) {
+            if (child.getLocalName().equalsIgnoreCase("Rule")) {
                 rules.add(parseRule(child));
             }
         }
@@ -442,7 +442,7 @@ public class SLDParser {
     
     private Rule parseRule(Node ruleNode) {
         if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("Parsing rule " + ruleNode.getNodeName());
+            LOGGER.finest("Parsing rule " + ruleNode.getLocalName());
         }
         
         Rule rule = factory.createRule();
@@ -457,22 +457,22 @@ public class SLDParser {
             }
             
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("processing " + child.getNodeName());
+                LOGGER.finest("processing " + child.getLocalName());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Name")) {
+            if (child.getLocalName().equalsIgnoreCase("Name")) {
                 rule.setName(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Title")) {
+            if (child.getLocalName().equalsIgnoreCase("Title")) {
                 rule.setTitle(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Abstract")) {
+            if (child.getLocalName().equalsIgnoreCase("Abstract")) {
                 rule.setAbstract(child.getFirstChild().getNodeValue());
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Filter")) {
+            if (child.getLocalName().equalsIgnoreCase("Filter")) {
                 NodeList list = child.getChildNodes();
                 Node kid = null;
                 
@@ -496,11 +496,11 @@ public class SLDParser {
                 }
             }
             
-            if (child.getNodeName().equalsIgnoreCase("ElseFilter")) {
+            if (child.getLocalName().equalsIgnoreCase("ElseFilter")) {
                 rule.setIsElseFilter(true);
             }
             
-            if (child.getNodeName().equalsIgnoreCase("LegendGraphic")) {
+            if (child.getLocalName().equalsIgnoreCase("LegendGraphic")) {
                 findElements(((Element)child),graphicSt);
                 NodeList g = findElements(((Element) child),graphicSt);
                 ArrayList legends = new ArrayList();
@@ -513,23 +513,23 @@ public class SLDParser {
                 new Graphic[0]));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("LineSymbolizer")) {
+            if (child.getLocalName().equalsIgnoreCase("LineSymbolizer")) {
                 symbolizers.add(parseLineSymbolizer(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("PolygonSymbolizer")) {
+            if (child.getLocalName().equalsIgnoreCase("PolygonSymbolizer")) {
                 symbolizers.add(parsePolygonSymbolizer(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("PointSymbolizer")) {
+            if (child.getLocalName().equalsIgnoreCase("PointSymbolizer")) {
                 symbolizers.add(parsePointSymbolizer(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("TextSymbolizer")) {
+            if (child.getLocalName().equalsIgnoreCase("TextSymbolizer")) {
                 symbolizers.add(parseTextSymbolizer(child));
             }
             
-            //            if (child.getNodeName().equalsIgnoreCase("RasterSymbolizer")) {
+            //            if (child.getLocalName().equalsIgnoreCase("RasterSymbolizer")) {
             //                //TODO: implement symbolizers.add(parseRasterSymbolizer(Child));
             //            }
         }
@@ -558,11 +558,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(geomSt)) {
+            if (child.getLocalName().equalsIgnoreCase(geomSt)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Stroke")) {
+            if (child.getLocalName().equalsIgnoreCase("Stroke")) {
                 symbol.setStroke(parseStroke(child));
             }
         }
@@ -591,15 +591,15 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(geomSt)) {
+            if (child.getLocalName().equalsIgnoreCase(geomSt)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Stroke")) {
+            if (child.getLocalName().equalsIgnoreCase("Stroke")) {
                 symbol.setStroke(parseStroke(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase(fillSt)) {
+            if (child.getLocalName().equalsIgnoreCase(fillSt)) {
                 symbol.setFill(parseFill(child));
             }
         }
@@ -628,28 +628,28 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(geomSt)) {
+            if (child.getLocalName().equalsIgnoreCase(geomSt)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase(fillSt)) {
+            if (child.getLocalName().equalsIgnoreCase(fillSt)) {
                 symbol.setFill(parseFill(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Label")) {
+            if (child.getLocalName().equalsIgnoreCase("Label")) {
                 LOGGER.finest("parsing label " + child.getNodeValue());
                 symbol.setLabel(parseCssParameter(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Font")) {
+            if (child.getLocalName().equalsIgnoreCase("Font")) {
                 fonts.add(parseFont(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("LabelPlacement")) {
+            if (child.getLocalName().equalsIgnoreCase("LabelPlacement")) {
                 symbol.setLabelPlacement(parseLabelPlacement(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Halo")) {
+            if (child.getLocalName().equalsIgnoreCase("Halo")) {
                 symbol.setHalo(parseHalo(child));
             }
         }
@@ -679,11 +679,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(geomSt)) {
+            if (child.getLocalName().equalsIgnoreCase(geomSt)) {
                 symbol.setGeometryPropertyName(parseGeometryName(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase(graphicSt)) {
+            if (child.getLocalName().equalsIgnoreCase(graphicSt)) {
                 symbol.setGraphic(parseGraphic(child));
             }
         }
@@ -707,28 +707,28 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(geomSt)) {
+            if (child.getLocalName().equalsIgnoreCase(geomSt)) {
                 graphic.setGeometryPropertyName(parseGeometryName(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("ExternalGraphic")) {
+            if (child.getLocalName().equalsIgnoreCase("ExternalGraphic")) {
                 LOGGER.finest("parsing extgraphic " + child);
                 graphic.addExternalGraphic(parseExternalGraphic(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Mark")) {
+            if (child.getLocalName().equalsIgnoreCase("Mark")) {
                 graphic.addMark(parseMark(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("opacity")) {
+            if (child.getLocalName().equalsIgnoreCase("opacity")) {
                 graphic.setOpacity(parseCssParameter(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("size")) {
+            if (child.getLocalName().equalsIgnoreCase("size")) {
                 graphic.setSize(parseCssParameter(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("rotation")) {
+            if (child.getLocalName().equalsIgnoreCase("rotation")) {
                 graphic.setRotation(parseCssParameter(child));
             }
         }
@@ -775,15 +775,15 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Stroke")) {
+            if (child.getLocalName().equalsIgnoreCase("Stroke")) {
                 mark.setStroke(parseStroke(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase(fillSt)) {
+            if (child.getLocalName().equalsIgnoreCase(fillSt)) {
                 mark.setFill(parseFill(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("WellKnownName")) {
+            if (child.getLocalName().equalsIgnoreCase("WellKnownName")) {
                 LOGGER.finest("setting mark to "
                 + child.getFirstChild().getNodeValue());
                 mark.setWellKnownName(parseCssParameter(child));
@@ -811,7 +811,7 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("OnLineResource")) {
+            if (child.getLocalName().equalsIgnoreCase("OnLineResource")) {
                 Element param = (Element) child;
                 org.w3c.dom.NamedNodeMap map = param.getAttributes();
                 
@@ -819,7 +819,7 @@ public class SLDParser {
                 
                 for (int k = 0; k < map.getLength(); k++) {
                     String res = map.item(k).getNodeValue();
-                    String name = map.item(k).getNodeName();
+                    String name = map.item(k).getLocalName();
                     
                     if (LOGGER.isLoggable(Level.FINEST)) {
                         LOGGER.finest("processing attribute " + name + "="
@@ -827,20 +827,20 @@ public class SLDParser {
                     }
                     
                     // TODO: process the name space properly
-                    if (map.item(k).getNodeName().equalsIgnoreCase("xlink:href")) {
+                    if (map.item(k).getLocalName().equalsIgnoreCase("xlink:href")) {
                         LOGGER.finest("seting ExtGraph uri " + res);
                         uri = res;
                     }
                 }
             }
             
-            if (child.getNodeName().equalsIgnoreCase("format")) {
+            if (child.getLocalName().equalsIgnoreCase("format")) {
                 LOGGER.finest("format child is " + child);
                 LOGGER.finest("seting ExtGraph format "
                 + child.getFirstChild().getNodeValue());
                 format = (child.getFirstChild().getNodeValue());
             }
-            if (child.getNodeName().equalsIgnoreCase("customProperty")) {
+            if (child.getLocalName().equalsIgnoreCase("customProperty")) {
                 LOGGER.finest("custom child is " + child);
                 String propName = child.getAttributes().getNamedItem("name").getNodeValue();
                 LOGGER.finest("seting custom property " + propName + " to "
@@ -873,7 +873,7 @@ public class SLDParser {
                     continue;
                 }
                 
-                if (child.getNodeName().equalsIgnoreCase(graphicSt)) {
+                if (child.getLocalName().equalsIgnoreCase(graphicSt)) {
                     Graphic g = parseGraphic(child);
                     LOGGER.finest("setting stroke graphicfill with " + g);
                     stroke.setGraphicFill(g);
@@ -896,7 +896,7 @@ public class SLDParser {
                     continue;
                 }
                 
-                if (child.getNodeName().equalsIgnoreCase(graphicSt)) {
+                if (child.getLocalName().equalsIgnoreCase(graphicSt)) {
                     Graphic g = parseGraphic(child);
                     LOGGER.finest("setting stroke graphicStroke with " + g);
                     stroke.setGraphicStroke(g);
@@ -1001,7 +1001,7 @@ public class SLDParser {
                     continue;
                 }
                 
-                if (child.getNodeName().equalsIgnoreCase(graphicSt)) {
+                if (child.getLocalName().equalsIgnoreCase(graphicSt)) {
                     Graphic g = parseGraphic(child);
                     LOGGER.finest("setting fill graphic with " + g);
                     fill.setGraphicFill(g);
@@ -1071,7 +1071,7 @@ public class SLDParser {
             }
             
             if (LOGGER.isLoggable(Level.FINEST)) {
-                LOGGER.finest("about to parse " + child.getNodeName());
+                LOGGER.finest("about to parse " + child.getLocalName());
             }
             
             ret = org.geotools.filter.ExpressionDOMParser.parseExpression(child);
@@ -1156,11 +1156,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("PointPlacement")) {
+            if (child.getLocalName().equalsIgnoreCase("PointPlacement")) {
                 ret = parsePointPlacement(child);
             }
             
-            if (child.getNodeName().equalsIgnoreCase("LinePlacement")) {
+            if (child.getLocalName().equalsIgnoreCase("LinePlacement")) {
                 ret = parseLinePlacement(child);
             }
         }
@@ -1186,15 +1186,15 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("AnchorPoint")) {
+            if (child.getLocalName().equalsIgnoreCase("AnchorPoint")) {
                 ap = (parseAnchorPoint(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Displacement")) {
+            if (child.getLocalName().equalsIgnoreCase("Displacement")) {
                 dp = (parseDisplacement(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Rotation")) {
+            if (child.getLocalName().equalsIgnoreCase("Rotation")) {
                 rotation = (parseCssParameter(child));
             }
         }
@@ -1222,7 +1222,7 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("PerpendicularOffset")) {
+            if (child.getLocalName().equalsIgnoreCase("PerpendicularOffset")) {
                 offset = parseCssParameter(child);
             }
         }
@@ -1249,11 +1249,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("AnchorPointX")) {
+            if (child.getLocalName().equalsIgnoreCase("AnchorPointX")) {
                 x = (parseCssParameter(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("AnchorPointY")) {
+            if (child.getLocalName().equalsIgnoreCase("AnchorPointY")) {
                 y = (parseCssParameter(child));
             }
         }
@@ -1279,11 +1279,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase("DisplacementX")) {
+            if (child.getLocalName().equalsIgnoreCase("DisplacementX")) {
                 x = (parseCssParameter(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("DisplacementY")) {
+            if (child.getLocalName().equalsIgnoreCase("DisplacementY")) {
                 y = (parseCssParameter(child));
             }
         }
@@ -1317,11 +1317,11 @@ public class SLDParser {
                 continue;
             }
             
-            if (child.getNodeName().equalsIgnoreCase(fillSt)) {
+            if (child.getLocalName().equalsIgnoreCase(fillSt)) {
                 halo.setFill(parseFill(child));
             }
             
-            if (child.getNodeName().equalsIgnoreCase("Radius")) {
+            if (child.getLocalName().equalsIgnoreCase("Radius")) {
                 halo.setRadius(parseCssParameter(child));
             }
         }
