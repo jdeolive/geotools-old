@@ -23,6 +23,7 @@ package org.geotools.data.postgis;
 import java.io.*;
 import java.util.*;
 import java.sql.*;
+//import java.sql.SQLException;
 import com.vividsolutions.jts.io.*;
 import com.vividsolutions.jts.geom.*;
 import org.geotools.data.*;
@@ -43,7 +44,7 @@ import java.util.logging.Level;
  *
  * <p>This standard class must exist for every supported datastore.</p>
  *
- * @version $Id: PostgisDataSource.java,v 1.15 2003/01/17 16:36:57 cholmesny Exp $
+ * @version $Id: PostgisDataSource.java,v 1.16 2003/02/04 00:57:44 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
  * @author Chris Holmes, TOPP
  */
@@ -89,7 +90,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     private FeatureType schema = null;
 
     /** A postgis connection. */
-    private javax.sql.DataSource db;
+    private Connection dbConnection;
 
     /** A tablename. */
     private String tableName;
@@ -103,13 +104,13 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @param db The datasource holding the table.
      * @param tableName the name of the table that holds the features.
      */
-    public PostgisDataSource (javax.sql.DataSource db, String tableName) 
+    public PostgisDataSource (Connection dbConnection, String tableName) 
 	throws DataSourceException{
         // create the return response type
-        this.db = db;
+        this.dbConnection = dbConnection;
         this.tableName = tableName;
 	try {
-	    this.schema = makeSchema(tableName, db);
+	    this.schema = makeSchema(tableName, dbConnection);
 	} catch (Exception e) {
 	    throw new DataSourceException("Couldn't make schema: " + e);
 	}
@@ -124,10 +125,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @param maxFeatures The maximum numbers of features to return.
      */
 
-    public PostgisDataSource (javax.sql.DataSource db, String tableName, 
+    public PostgisDataSource (Connection dbConnection, String tableName, 
 			      int maxFeatures) throws DataSourceException {
         // create the return response type
-	this(db, tableName);
+	this(dbConnection, tableName);
         this.maxFeatures = maxFeatures;
     }
 
@@ -143,9 +144,9 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @tasks REVISIT: type-check the schema?  Would sacrifice the speed
      * gained by passing in schema, so might not be worth it.
      */
-    public PostgisDataSource(javax.sql.DataSource db, String tableName, 
+    public PostgisDataSource(Connection dbConnection, String tableName, 
 			     FeatureType schema) throws DataSourceException {
-	this.db = db;
+	this.dbConnection = dbConnection;
 	this.tableName = tableName;
 	this.schema = schema;
 	this.srid = getSrid();
@@ -159,10 +160,10 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * @param schema the attributes and id held by this table of features.
      * @param maxFeatures The maximum numbers of features to return.
      */
-    public PostgisDataSource(javax.sql.DataSource db, String tableName, 
+    public PostgisDataSource(Connection dbConnection, String tableName, 
 			     FeatureType schema, int maxFeatures) 
 	throws DataSourceException {
-	this(db, tableName, schema);
+	this(dbConnection, tableName, schema);
 	this.maxFeatures = maxFeatures;
     }
 
@@ -194,21 +195,31 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
      * Creates a schema from the information in the tablename.
      *
      * @param tableName The name of the table that holds the features.
-     * @param db The datasource to generate a connection to the database 
-     * holding the table.
+     * @param dbConnection The connection to the database holding the table.
      * @return the schema reflecting features held in the table.
      */ 
     public static FeatureType makeSchema(String tableName, 
-                                          javax.sql.DataSource db) 
+                                          java.sql.Connection dbConnection) 
         throws DataSourceException {
 
         try {
-        Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery("SELECT * FROM " 
 						  + tableName + " LIMIT 1;");
+
+	/*DatabaseMetaData dbMeta = dbConnection.getMetaData();
+	ResultSet pkeys = dbMeta.getPrimaryKeys(null, null, tableName);
+	while (pkeys.next()) {
+	    LOGGER.info("table is " + pkeys.getString(3) + ", column is " + 
+			pkeys.getString(4) + "pk name is " +
+			pkeys.getString(6));
+			}*/
+
+	
         ResultSetMetaData metaData = result.getMetaData();
         
+
+
         // initialize some local convenience variables        
         String columnName;
         String columnTypeName;
@@ -229,7 +240,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             // geometry is treated specially
             if( columnTypeName.equals("geometry")) {
                 attributes[i - offset] = 
-                    getGeometryAttribute(db, tableName, columnName);
+                    getGeometryAttribute(dbConnection, tableName, columnName);
             } else  {
                 // set column name and type from database
                 attributes[i - offset] = 
@@ -249,7 +260,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    // first way depends on static srid, which could change if another
 	    //object calls the static method.  querySRID is slower, as 
 	    //another connection must be made, but will be sure to get it right
-	  int srid = querySRID(db, tableName);
+	  int srid = querySRID(dbConnection, tableName);
 	((FeatureTypeFlat)retSchema).setSRID(srid);
 	}
 	return retSchema;
@@ -290,7 +301,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    if (srid != 0) return srid; //if 0 then it was not initialized, 
 	}    //so it should be found with querySRID.
 	try {
-	    srid = querySRID(db, tableName);  //this will slow things considerably
+	    srid = querySRID(dbConnection, tableName);  //this will slow things 
 	} catch (Exception e) {     //srid should be set in schema.
 	    //TODO: error checking here.
 	}
@@ -300,20 +311,19 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     /**
      * Gets the srid from the geometry_columns table of the datasource.
      *
-     * @param db The datasource used to generate the connection.
+     * @param dbConnection The connection to the database.
      * @param tableName the name of the table to find the srid.
      * @return the srid of the first geometry column of the table.
      * @tasks REVISIT: only handles one geometry column, should take
      * the column name if we have more than one srid per feature.
      */
-    public static int querySRID(javax.sql.DataSource db, String tableName) 
+    public static int querySRID(Connection dbConnection, String tableName) 
 	throws Exception {
 	 String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE " + 
             "f_table_name='" + tableName + "';";
 
         // retrieve the result set from the JDBC driver
         //LOGGER.fine("about to make connection, SQL: " + sqlStatement);
-        Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery(sqlStatement);
 	if( result.next()) {
@@ -330,14 +340,14 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
     /**
      * Returns an attribute type for a geometry column in a feature table.
      *
-     * @param db The JDBC data source.
+     * @param dbConnection The JDBC connection.
      * @param tableName The feature table name.
      * @param columnName The geometry column name.
      * @return Geometric attribute.
      * @tasks REVISIT: combine with querySRID, as they use the same select 
      * statement.
      */ 
-    private static AttributeType getGeometryAttribute(javax.sql.DataSource db, 
+    private static AttributeType getGeometryAttribute(Connection dbConnection, 
                                                       String tableName, 
                                                       String columnName) 
         throws Exception {
@@ -349,7 +359,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 
         // retrieve the result set from the JDBC driver
         //LOGGER.fine("about to make connection, SQL: " + sqlStatement);
-        Connection dbConnection = db.getConnection();
         Statement statement = dbConnection.createStatement();
         ResultSet result = statement.executeQuery(sqlStatement);
                 
@@ -426,7 +435,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         try {
             result.close();			
             result.getStatement().close();			
-            result.getStatement().getConnection().close();			
+            //result.getStatement().getConnection().close();			
         }
         catch (SQLException e) {
             LOGGER.warning("Error closing result set.");
@@ -462,13 +471,12 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
         try {
             // retrieve the result set from the JDBC driver
             //LOGGER.fine("about to make connection");
-            Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
 
             // if no schema has been passed to the datasource, roll our own
             //LOGGER.info("schema = " + schema);
 	    if( schema == null) {
-                schema = makeSchema(tableName, db);
+                schema = makeSchema(tableName, dbConnection);
             }
             //LOGGER.fine("just made schema: " + schema.toString());
 
@@ -572,7 +580,6 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    //attributeTypes = schema.getAttributeTypes(); 
 	    //numAttributes = attributeTypes.length;     
 	    try { 
-		Connection dbConnection = db.getConnection();
 		Statement statement = dbConnection.createStatement();
 		for (int i = 0; i < featureArr.length; i++){
 		    String sql = makeInsertSql(tableName, featureArr[i]);
@@ -580,7 +587,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 		    statement.executeUpdate(sql);
 		}
 		statement.close();
-		dbConnection.close();
+		//dbConnection.close();
 	    } catch (SQLException e) {
 		String message = "Some sort of database connection error: " 
 		+ e.getMessage();
@@ -675,7 +682,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Filter unEncodableFilter = unpacker.getUnSupported();
 	
 	try {
-	    Connection dbConnection = db.getConnection();
+	    //Connection dbConnection = db.getConnection();
             Statement statement = dbConnection.createStatement();
 	    
 	    if (encodableFilter != null) {
@@ -708,7 +715,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
             }
 
 	    statement.close();
-	    dbConnection.close();    
+	    //dbConnection.close();    
         } catch (SQLException e) {
 	    String message = "Some sort of database connection error: " 
 		+ e.getMessage();
@@ -752,7 +759,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	Filter unEncodableFilter = unpacker.getUnSupported();
 	
 	try {
-	    Connection dbConnection = db.getConnection();
+	    //Connection dbConnection = db.getConnection();
 	    Statement statement = dbConnection.createStatement();
 	    
 	    if (encodableFilter != null) {
@@ -787,7 +794,7 @@ public class PostgisDataSource implements org.geotools.data.DataSource {
 	    
        
 	    statement.close();
-	    dbConnection.close();    
+	    //dbConnection.close();    
 	} catch (SQLException e) {
 	    String message = "Some sort of database error: " 
 		+ e.getMessage();
