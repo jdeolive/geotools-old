@@ -455,6 +455,12 @@ public class WMSServlet extends HttpServlet {
         } catch (Exception exp) {
             exp.printStackTrace();
             LOGGER.severe("Unable to complete image generation after response started : " + exp + exp.getMessage());
+            if(exp instanceof SecurityException){
+                response.sendError(500,"Image generation failed because of: " +exp.getStackTrace()[0] + " JAI may not have 'write' and 'delete' permissions in temp folder");
+            }
+            else{
+                response.sendError(500,"Image generation failed because of: " +exp.getStackTrace()[0] + "Check JAI configuration");
+            }
         }
 
         out.close();
