@@ -25,7 +25,7 @@ package org.geotools.map;
  * The Tools classes process key and mouse actions, and the Renderers handle
  * displaying of the data.
  *
- * @version $Id: DefaultAreaOfInterestModel.java,v 1.2 2002/07/12 13:39:53 loxnard Exp $
+ * @version $Id: DefaultAreaOfInterestModel.java,v 1.3 2002/07/14 11:57:05 camerons Exp $
  * @author Cameron Shorter
  * 
  */
@@ -36,11 +36,10 @@ import com.vividsolutions.jts.geom.Envelope;
 import javax.swing.event.EventListenerList;
 import org.geotools.map.events.*;
 
-public class DefaultAreaOfInterestModel {
+public class DefaultAreaOfInterestModel implements AreaOfInterestModel {
     
     private Envelope areaOfInterest;
     private CS_CoordinateSystem coordinateSystem;
-    private Vector listeners = new Vector();
     private EventListenerList listenerList = new EventListenerList();
    
     /**
@@ -68,7 +67,6 @@ public class DefaultAreaOfInterestModel {
      */
     public void removeAreaOfInterestChangedListener(
             AreaOfInterestChangedListener ecl) {
-        listeners.removeElement(ecl);
         listenerList.remove(AreaOfInterestChangedListener.class, ecl);
     }
 
