@@ -39,7 +39,7 @@ public class AttributeTypeTest extends TestCase {
         type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, false);
         assertNotNull(type);
     }
-     
+    
     public void testGetName(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals("testAttribute", type.getName());
@@ -50,7 +50,7 @@ public class AttributeTypeTest extends TestCase {
         assertEquals(Double.class, type.getType());
     }
     
-     public void testIsNillable(){
+    public void testIsNillable(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals(true, type.isNillable());
         type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, true);
@@ -58,7 +58,7 @@ public class AttributeTypeTest extends TestCase {
         type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, false);
         assertEquals(false, type.isNillable());
     }
-     
+    
     public void testIsGeometry(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class);
         assertEquals(false, type.isGeometry());
@@ -108,7 +108,7 @@ public class AttributeTypeTest extends TestCase {
         catch(IllegalArgumentException iae){
             this.fail("decended types should be allowed");
         }
-
+        
         
     }
     
@@ -124,9 +124,8 @@ public class AttributeTypeTest extends TestCase {
     
     public void testFeatureValidate() throws SchemaException {
         try{
-                       //FeatureType b = FeatureTypeFactory.newFeatureType(new AttributeType[]{AttributeTypeFactory.newAttributeType("testAttribute", Double.class)},"oneAttribs");
-            //Direct construction should never be used like this, however it is the only way to test
-            //the code fully
+            //FeatureType b = FeatureTypeFactory.newFeatureType(new AttributeType[]{AttributeTypeFactory.newAttributeType("testAttribute", Double.class)},"oneAttribs");
+            
             FeatureType type = FeatureTypeFactory.newFeatureType(new AttributeType[]{},"noAttribs");
             AttributeType feat = AttributeTypeFactory.newAttributeType("foo",  type);
             Feature good = type.create(new Object[]{});
@@ -135,10 +134,30 @@ public class AttributeTypeTest extends TestCase {
         catch(IllegalAttributeException iae){
             fail();
         }
+        Feature bad = null;
+        FeatureType b = FeatureTypeFactory.newFeatureType(new AttributeType[]{AttributeTypeFactory.newAttributeType("testAttribute", Double.class)},"oneAttribs");
+        
+        try{
+            bad = b.create(new Object[]{new Double(4)});
+        }
+        catch(IllegalAttributeException iae){
+            fail();
+        }
+        
+       try{
+            FeatureType type = FeatureTypeFactory.newFeatureType(new AttributeType[]{},"noAttribs");
+            AttributeType feat = AttributeTypeFactory.newAttributeType("foo",  type);
+            feat.validate(bad);
+            fail();
+       }
+       catch(IllegalArgumentException iae){
+           
+       }
+           
         
         
     }
-        
+    
     
     public void testNumericConstruction(){
         //Direct construction should never be used like this, however it is the only way to test
@@ -152,13 +171,13 @@ public class AttributeTypeTest extends TestCase {
         catch(IllegalArgumentException iae){
         }
     }
-        
+    
     
     public void testIsNested(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, true);
         assertEquals(false, type.isNested());
     }
-        
+    
     
     public void testParse(){
         AttributeType type = AttributeTypeFactory.newAttributeType("testAttribute", Double.class, true);
@@ -174,6 +193,6 @@ public class AttributeTypeTest extends TestCase {
         
         
     }
-        
+    
     
 }
