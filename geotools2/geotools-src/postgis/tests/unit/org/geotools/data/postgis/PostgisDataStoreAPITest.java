@@ -102,7 +102,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
     PostgisDataStore data;
     ConnectionPool pool;
 
-    String victim = null;//"testGetFeatureSourceRoad";
+    String victim = null;//"testGetFeatureStoreModifyFeatures1";
     /**
      * Constructor for MemoryDataStoreTest.
      *
@@ -151,7 +151,7 @@ public class PostgisDataStoreAPITest extends DataTestCase {
         }
 
         data = new PostgisDataStore(pool, "public", getName(),
-                PostgisDataStore.OPTIMIZE_SAFE);
+                PostgisDataStore.OPTIMIZE_SQL);
 
         //
         // Update Fixture to reflect the actual data in the database
