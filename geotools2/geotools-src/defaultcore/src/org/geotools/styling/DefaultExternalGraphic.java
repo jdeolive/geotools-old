@@ -23,7 +23,7 @@ import java.net.*;
 import java.io.*;
 import org.apache.log4j.Category;
 /**
- * @version $Id: DefaultExternalGraphic.java,v 1.3 2002/06/07 16:41:44 ianturton Exp $
+ * @version $Id: DefaultExternalGraphic.java,v 1.4 2002/07/11 17:23:03 loxnard Exp $
  * @author Ian Turton, CCG
  */
 public class DefaultExternalGraphic implements ExternalGraphic {
@@ -36,10 +36,10 @@ public class DefaultExternalGraphic implements ExternalGraphic {
     }
 
     public void setURI(String uri){
-        try{
+        try {
             setLocation(new URL(uri));
         } catch (MalformedURLException e){
-            _log.info("Exception setting uri: "+uri+"\n"+e);
+            _log.info("Exception setting uri: " + uri + "\n" + e);
             e.printStackTrace();
         }
     }
@@ -62,7 +62,7 @@ public class DefaultExternalGraphic implements ExternalGraphic {
     
     /**
      * Setter for property Format.
-     * @param Format New value of property Format.
+     * @param format New value of property Format.
      */
     public void setFormat(java.lang.String format) {
         this.format = format;

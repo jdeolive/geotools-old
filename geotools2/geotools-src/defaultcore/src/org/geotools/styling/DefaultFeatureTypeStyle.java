@@ -21,7 +21,7 @@
 package org.geotools.styling;
 
 /**
- * @version $Id: DefaultFeatureTypeStyle.java,v 1.5 2002/06/04 16:52:09 loxnard Exp $
+ * @version $Id: DefaultFeatureTypeStyle.java,v 1.6 2002/07/11 17:24:04 loxnard Exp $
  * @author James Macgill
  */
 public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureTypeStyle {
@@ -52,7 +52,7 @@ public class DefaultFeatureTypeStyle implements org.geotools.styling.FeatureType
     }
     
     public void setFeatureTypeName(String name) {
-        featureTypeName=name;
+        featureTypeName = name;
     }
     
     /**

@@ -26,7 +26,7 @@ package org.geotools.styling;
 import org.geotools.filter.*;
 
 /**
- * @version $Id: DefaultFill.java,v 1.7 2002/06/24 10:51:10 ianturton Exp $
+ * @version $Id: DefaultFill.java,v 1.8 2002/07/11 17:26:48 loxnard Exp $
  * @author James Macgill, CCG
  */
 
@@ -41,12 +41,12 @@ public class DefaultFill implements org.geotools.styling.Fill {
     
     /** Creates a new instance of DefaultFill */
     public DefaultFill() {
-        try{
+        try {
             color = new ExpressionLiteral("#808080");
             opacity = new ExpressionLiteral(new Double(1.0));
         } catch (IllegalFilterException ife){
-            _log.fatal("Failed to build default fill: "+ife);
-            System.err.println("Failed to build default fill: "+ife);
+            _log.fatal("Failed to build default fill: " + ife);
+            System.err.println("Failed to build default fill: " + ife);
         }
     }
     
@@ -78,16 +78,16 @@ public class DefaultFill implements org.geotools.styling.Fill {
      *
      * Note: in CSS this parameter is just called Fill and not Color.
      *
-     * @param The color of the Fill encoded as a hexidecimal RGB value.
+     * @param rgb The color of the Fill encoded as a hexidecimal RGB value.
      */
     public void setColor(Expression rgb) {
         color = rgb;
     }
     public void setColor(String rgb){
-        try{
+        try {
             color = new ExpressionLiteral(rgb);
         } catch (IllegalFilterException ife){
-            _log.debug("error setting color: "+ife);
+            _log.debug("error setting color: " + ife);
         }
     }
     
@@ -116,15 +116,15 @@ public class DefaultFill implements org.geotools.styling.Fill {
         this.opacity = opacity;
     }
     public void setOpacity(String opacity){
-        try{
+        try {
             this.opacity = new ExpressionLiteral(opacity);
         } catch (IllegalFilterException ife){
-            _log.debug("error setting opacity: "+ife);
+            _log.debug("error setting opacity: " + ife);
         }
     }
     /**
-     * This parameter indicates that a stipple-fill repeated graphic will be used and
-     * specifies the fill graphic to use.
+     * This parameter indicates that a stipple-fill repeated graphic will be
+     * used and specifies the fill graphic to use.
      *
      * @return graphic The graphic to use as a stipple fill.
      *         If null then no Stipple fill should be used.
@@ -137,7 +137,7 @@ public class DefaultFill implements org.geotools.styling.Fill {
     
     /**
      * Setter for property graphic.
-     * @param graphic New value of property graphic.
+     * @param graphicFill New value of property graphic.
      */
     public void setGraphicFill(org.geotools.styling.Graphic graphicFill) {
         this.graphicFill = graphicFill;
