@@ -79,7 +79,7 @@ import javax.swing.JPanel;
  * BoundingBox when this component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.18 2003/04/22 20:32:39 camerons Exp $
+ * @version $Id: MapPaneImpl.java,v 1.19 2003/04/24 09:36:50 camerons Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults
  * to 1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -98,7 +98,8 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
     private Adapters adapters = Adapters.getDefault();
 
     /** A transform from screen coordinates to real world coordinates. */
-    private DotToCoordinateTransformImpl dotToCoordinateTransform;
+    //private DotToCoordinateTransformImpl dotToCoordinateTransform;
+    private MathTransform dotToCoordinateTransform;
 
     /**
      * Create a MapPane. A MapPane marshals the drawing of maps.
@@ -123,10 +124,6 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             context.getToolList().addSelectedToolListener(this);
             context.getToolList().getTool().addMouseListener(this, context);
             addComponentListener(this);
-
-            // Create a transform for this mapPane.
-            this.dotToCoordinateTransform =
-                new DotToCoordinateTransformImpl(this, context);
 
             // A zero sized mapPane cannot be resized later and doesn't behave
             // very nicely
@@ -189,7 +186,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
      * @param areaOfInterestChangedEvent The new extent.
      */
     public void areaOfInterestChanged(BoundingBoxEvent boundingBoxEvent) {
-        dotToCoordinateTransform.updateTransform();
+        updateTransform();
         repaint(getVisibleRect());
     }
 
@@ -215,7 +212,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         super.processMouseEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform.getTransform()
+                dotToCoordinateTransform
             )
         );
     }
@@ -233,7 +230,7 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         super.processMouseMotionEvent(
             new GeoMouseEvent(
                 event,
-                dotToCoordinateTransform.getTransform()
+                dotToCoordinateTransform
             )
         );
     }
@@ -313,4 +310,60 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
             context.getToolList().getTool().addMouseListener(this, context);
         }
     }
+    
+    /**
+     * Re-evaluate the screen to CoordinateSystem transform, this method
+     * should be called whenever the MapPane resizes, boundingBox resizes,
+     * or coordinateSystem changes.
+     */
+    public void updateTransform() {
+        //Real World Coordinates
+        Envelope aoi=context.getBbox().getAreaOfInterest();
+        
+        // Scaling
+        double scaleX=(aoi.getMaxX()-aoi.getMinX())
+            /(getWidth()-getInsets().left
+              -getInsets().right);
+        double scaleY=(aoi.getMaxY()-aoi.getMinY())
+            /(getHeight()-getInsets().top
+              -getInsets().bottom);
+
+        // x'=(x-leftBorder)*scaleX+csMinX
+        //   = x*scaleX -leftBorder*scaleX+csMinX
+        // y'=(maxY-bottomBorder-y)*scaleY+csMinY
+        //   =-y*scaleY+(maxY-bottomBorder)*scaleY+csMinY
+        //
+        // This equates to an AffineTransform:
+        //
+	// [ x']   [  m00  m01  m02  ] [ x ]   [ m00x + m01y + m02 ]
+	// [ y'] = [  m10  m11  m12  ] [ y ] = [ m10x + m11y + m12 ]
+	// [ 1 ]   [   0    0    1   ] [ 1 ]   [         1         ]
+        //
+        // [x'] [scaleX  0       -leftBorder*scaleX+csMinX         ][x]
+        // [y']=[0       -scaleY (maxY-bottomBorder)*scaleY+csMinY][y]
+        // [1 ] [0       0       1                                ][1]
+
+        AffineTransform at=new AffineTransform(
+            // m00: ScaleX
+            scaleX,
+            
+            // m10
+            0.0,
+            
+            // m01:
+            0.0,
+            
+            // m11: -ScaleY
+            -scaleY,
+            
+            // m02: TransformX
+            aoi.getMinX()-scaleX*getInsets().left,
+            
+            // m12: TransformY
+            (getHeight()-getInsets().bottom)*scaleY
+            +aoi.getMinY());
+        
+        dotToCoordinateTransform=MathTransformFactory.getDefault(
+            ).createAffineTransform(at);
+     }
 }
