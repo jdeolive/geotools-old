@@ -111,7 +111,7 @@ import org.geotools.renderer.array.ArrayData;
  *
  * <p align="center"><img src="doc-files/borders.png"></p>
  *
- * @version $Id: Polyline.java,v 1.15 2003/06/01 20:24:52 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.16 2003/06/02 16:32:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  *
  * @see Polygon
@@ -843,13 +843,15 @@ public class Polyline extends Geometry {
     }
 
     /**
-     * Add to the specified collection all {@link Polyline} objects making this
-     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
-     * and {@link PolygonAssembler} only.
+     * Add to the specified collection all non-empty {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator} and
+     * {@link PolygonAssembler} only.
      */
     void getPolylines(final Collection polylines) {
         freeze(); // Because this method is usually invoked from a container.
-        polylines.add(this);
+        if (!isEmpty()) {
+            polylines.add(this);
+        }
     }
 
     /**

@@ -90,7 +90,7 @@ import org.geotools.math.Statistics;
  * <code>Geometry</code>s can {@linkplain #compress compress} and share their internal data in
  * order to reduce memory footprint.
  *
- * @version $Id: Geometry.java,v 1.5 2003/05/30 18:20:52 desruisseaux Exp $
+ * @version $Id: Geometry.java,v 1.6 2003/06/02 16:32:40 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public abstract class Geometry implements Shape, Cloneable, Serializable {
@@ -224,9 +224,9 @@ public abstract class Geometry implements Shape, Cloneable, Serializable {
     }
 
     /**
-     * Add to the specified collection all {@link Polyline} objects making this
-     * geometry. This method is used by {@link GeometryCollection#getPathIterator}
-     * and {@link PolygonAssembler} only.
+     * Add to the specified collection all non-empty {@link Polyline} objects making this
+     * geometry. This method is used by {@link GeometryCollection#getPathIterator} and
+     * {@link PolygonAssembler} only.
      */
     void getPolylines(final Collection polylines) {
     }
