@@ -81,11 +81,11 @@ public class GeometryTransformer extends TransformerBase {
             }
 
             try {
-                Coordinate[] coords = new Coordinate[4];
+                Coordinate[] coords = new Coordinate[2];
                 coords[0] = new Coordinate(bounds.getMinX(), bounds.getMinY());
-                coords[1] = new Coordinate(bounds.getMinX(), bounds.getMaxY());
-                coords[2] = new Coordinate(bounds.getMaxX(), bounds.getMaxY());
-                coords[3] = new Coordinate(bounds.getMaxX(), bounds.getMinY());
+                //coords[1] = new Coordinate(bounds.getMinX(), bounds.getMaxY());
+                coords[1] = new Coordinate(bounds.getMaxX(), bounds.getMaxY());
+                //coords[3] = new Coordinate(bounds.getMaxX(), bounds.getMinY());
                 coordWriter.writeCoordinates(coords, contentHandler);
             } catch (SAXException se) {
                 throw new RuntimeException(se);
