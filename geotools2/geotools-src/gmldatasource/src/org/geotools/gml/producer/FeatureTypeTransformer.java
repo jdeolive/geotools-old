@@ -15,13 +15,14 @@
  *
  */
 /*
-   
+
  * Created on 27.11.2003
-   
+
  */
 package org.geotools.gml.producer;
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
@@ -137,7 +138,7 @@ import java.util.logging.Logger;
  * </table>
  *
  * @author Simon Raess
- * @version $Id: FeatureTypeTransformer.java,v 1.2 2003/12/23 14:26:04 aaime Exp $
+ * @version $Id: FeatureTypeTransformer.java,v 1.3 2004/01/09 16:14:36 cholmesny Exp $
  *
  * @task TODO: Support GeometryCollection.
  * @task REVISIT: Should support a bit more for the header, like being able to
@@ -296,8 +297,8 @@ public class FeatureTypeTransformer extends TransformerBase {
                 encodeGeometry(attribute);
 
                 /*} else if (FeatureType.class.isAssignableFrom(type)) {
-                   
-                   encodeFeature(attribute);*/
+                
+                                      encodeFeature(attribute);*/
             } else {
                 throw new RuntimeException("Cannot encode " + type.getName());
             }
@@ -450,6 +451,10 @@ public class FeatureTypeTransformer extends TransformerBase {
                 typeString = "gml:MultiLineStringPropertyType";
             } else if (type == MultiPolygon.class) {
                 typeString = "gml:MultiPolygonPropertyType";
+            } else if (type == GeometryCollection.class) {
+                typeString = "gml:MultiGeometryPropertyType";
+            } else if (type == Geometry.class) {
+                typeString = "gml:GeometryAssociationType";
             } else {
                 throw new RuntimeException("Unsupported type: "
                     + type.getName());
@@ -471,19 +476,19 @@ public class FeatureTypeTransformer extends TransformerBase {
          */
 
         /*protected void encodeFeature(AttributeType attribute) throws SAXException {
-           
-           AttributesImpl atts = createStandardAttributes(attribute);
-           
-           //atts.addAttribute("", "type", "type", "", "gml:AbstractFeatureType");
         
-           
-           contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
-           
-           encode("");
-           
-           contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
-           
-           }*/
+                      AttributesImpl atts = createStandardAttributes(attribute);
+        
+                      //atts.addAttribute("", "type", "type", "", "gml:AbstractFeatureType");
+        
+        
+                      contentHandler.startElement(SCHEMA_NS, "element", "xs:element", atts);
+        
+                      encode("");
+        
+                      contentHandler.endElement(SCHEMA_NS, "element", "xs:element");
+        
+                      }*/
 
         /**
          * Creates standard xml attributes present on all xs:element elements.
