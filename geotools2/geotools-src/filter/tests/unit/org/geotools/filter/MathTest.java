@@ -14,7 +14,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
- *
+ * TODO: this is just a copy of other tests, it is not yet
+ * populated with Math tests!
  * @author James
  */
 public class MathTest extends TestCase {
