@@ -52,7 +52,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link Adapters} implementation.
  *
- * @version $Id: AdaptersTest.java,v 1.1 2002/10/17 21:10:22 desruisseaux Exp $
+ * @version $Id: AdaptersTest.java,v 1.2 2003/04/10 20:41:55 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class AdaptersTest extends TestCase {
@@ -60,6 +60,14 @@ public class AdaptersTest extends TestCase {
      * The adapters to test.
      */
     private Adapters adapters;
+
+    /**
+     * Run the suit from the command line.
+     */
+    public static void main(final String[] args) {
+        org.geotools.resources.Geotools.init();
+        junit.textui.TestRunner.run(suite());
+    }
 
     /**
      * Returns the test suite.
