@@ -8,6 +8,8 @@
 package org.geotools.svg;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.net.URL;
 
 import junit.framework.*;
@@ -57,9 +59,11 @@ public class SVGTest extends TestCase {
             SLDStyle style = new SLDStyle(f);
             map.addFeatureTable(fc,style);
        
-            gen.go(map);
+            url = new URL("file:///"+dataFolder+"/simple.svg");
+            FileOutputStream out = new FileOutputStream(url.getFile());
+            gen.go(map,out);
             
-          
+            
         
         }catch(Exception e){
             System.out.println(e);
