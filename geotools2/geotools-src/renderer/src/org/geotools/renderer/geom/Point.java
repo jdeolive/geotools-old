@@ -14,11 +14,6 @@
  *    Lesser General Public License for more details.
  *
  */
-/*
- * Point.java
- *
- * Created on 1 novembre 2003, 10.25
- */
 package org.geotools.renderer.geom;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -35,6 +30,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Point2D;
+import java.awt.Shape;
 
 
 /**
@@ -42,7 +38,7 @@ import java.awt.geom.Point2D;
  * Geometry hierarchy.
  *
  * @author Andrea Aime
- * @version $Id: Point.java,v 1.2 2003/11/18 14:26:28 desruisseaux Exp $
+ * @version $Id: Point.java,v 1.3 2004/05/11 08:35:20 desruisseaux Exp $
  */
 public class Point extends Geometry {
     /**
@@ -112,10 +108,9 @@ public class Point extends Geometry {
      * coordinates must be expressed  according to the current coordinate
      * system, that is {@link #getCoordinateSystem()}.
      */
-    public boolean contains(java.awt.Shape shape) {
+    public boolean contains(final Shape shape) {
         if (shape instanceof Point) {
-            Point p = (Point) shape;
-
+            final Point p = (Point) shape;
             return (p.getX() == getX()) && (p.getY() == getY());
         } else {
             return false;
@@ -127,7 +122,6 @@ public class Point extends Geometry {
      * this object,  false otherwise. The point <code>p</code> coordinates
      * must be expressed  according to the current coordinate system, that is
      * {@link #getCoordinateSystem()}.
-     *
      */
     public boolean contains(final Point2D p) {
         return (p.getX() == getX()) && (p.getY() == getY());
@@ -135,20 +129,18 @@ public class Point extends Geometry {
 
     /**
      * Returns the bounds of this points, that is, an immutable and empty
-     * Rectangle2D centered on the current coordinates. Point reprojection
+     * rectangle centered on the current coordinates. Point reprojection
      * will change rectangle coordinates too.
-     *
      */
-    public java.awt.geom.Rectangle2D getBounds2D() {
+    public Rectangle2D getBounds2D() {
         return new Point.PointBound();
     }
 
     /**
      * Returns a path iterator for this point.
      */
-    public java.awt.geom.PathIterator getPathIterator(
-        java.awt.geom.AffineTransform at) {
-        return new Point.PointPathIterator(at);
+    public PathIterator getPathIterator(final AffineTransform at) {
+        return new PointPathIterator(at);
     }
 
     /**
@@ -170,16 +162,16 @@ public class Point extends Geometry {
     /**
      * Returns true if the shape contains the point
      */
-    public boolean intersects(java.awt.Shape shape) {
+    public boolean intersects(final Shape shape) {
         return shape.contains(getX(), getY());
     }
 
     /**
      * Emtpy method, provided for compatibility with base class.
      */
-    public void setResolution(double resolution)
-        throws org.geotools.ct.TransformException, 
-            UnmodifiableGeometryException {
+    public void setResolution(double resolution) throws TransformException, 
+                                                        UnmodifiableGeometryException
+    {
         // nothing to do...
     }
 
@@ -236,8 +228,9 @@ public class Point extends Geometry {
      *
      * @throws IllegalArgumentException if a transformation exception occurs
      */
-    private static CoordinateSystem getCoordinateSystem2D(
-        final CoordinateSystem cs) throws IllegalArgumentException {
+    private static CoordinateSystem getCoordinateSystem2D(final CoordinateSystem cs)
+            throws IllegalArgumentException
+    {
         try {
             return CTSUtilities.getCoordinateSystem2D(cs);
         } catch (TransformException exception) {
@@ -246,13 +239,12 @@ public class Point extends Geometry {
     }
 
     /**
-     * @return the native coordinate system of {@link #data}'s points, or
-     *         <code>null</code> if unknown.
+     * Returns the native coordinate system of {@link #data}'s points, or
+     * <code>null</code> if unknown.
      */
     private CoordinateSystem getInternalCS() {
         // copy 'coordinateTransform' reference in order to avoid synchronization
         final CoordinateTransformation coordinateTransform = this.ct;
-
         return (ct != null) ? ct.getSourceCS() : null;
     }
 
@@ -263,7 +255,6 @@ public class Point extends Geometry {
     public CoordinateSystem getCoordinateSystem() {
         // copy 'coordinateTransform' reference in order to avoid synchronization
         final CoordinateTransformation ct = this.ct;
-
         return (ct != null) ? ct.getTargetCS() : null;
     }
 
@@ -272,11 +263,11 @@ public class Point extends Geometry {
      * the specified coordinate system. If at least one of the coordinate
      * systems is unknown, this method returns <code>null</code>.
      *
-     * @throws CannotCreateTransformException If the transform cannot be
-     *         created.
+     * @throws CannotCreateTransformException If the transform cannot be created.
      */
-    final CoordinateTransformation getTransformationFromInternalCS(
-        final CoordinateSystem cs) throws CannotCreateTransformException {
+    final CoordinateTransformation getTransformationFromInternalCS(final CoordinateSystem cs)
+            throws CannotCreateTransformException
+    {
         // copy 'coordinateTransform' reference in order to avoid synchronization
         CoordinateTransformation ct = this.ct;
 
@@ -318,8 +309,7 @@ public class Point extends Geometry {
      *         corrupt a container. To avoid this exception, {@linkPlain
      *         #clone clone} this geometry before to modify it.
      */
-    public synchronized void setCoordinateSystem(
-        CoordinateSystem coordinateSystem)
+    public synchronized void setCoordinateSystem(CoordinateSystem coordinateSystem)
         throws TransformException, UnmodifiableGeometryException {
         // Do not use 'Polyline.getCoordinateSystem2D', since
         // we want a 'TransformException' in case of failure.
@@ -352,7 +342,7 @@ public class Point extends Geometry {
         } else {
             float[] src = new float[] { (float) coord.x, (float) coord.y };
             transformedPoint = new float[2];
-            ct.getMathTransform().transform(src, 0, transformedPoint, 0, 2);
+            ct.getMathTransform().transform(src, 0, transformedPoint, 0, 1);
         }
 
         assert Utilities.equals(coordinateSystem, getCoordinateSystem());
