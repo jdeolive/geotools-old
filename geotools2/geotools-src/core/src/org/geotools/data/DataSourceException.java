@@ -22,7 +22,7 @@ package org.geotools.data;
 
 /** 
  * Thrown when there is an error in a datasource.
- * @version $Id: DataSourceException.java,v 1.3 2002/06/04 14:22:49 loxnard Exp $
+ * @version $Id: DataSourceException.java,v 1.4 2002/07/29 16:53:36 ianturton Exp $
  * @author Ray Gallagher
  */
 public class DataSourceException extends Exception{
@@ -33,6 +33,10 @@ public class DataSourceException extends Exception{
      */
     public DataSourceException(String msg) {
         super(msg);
+    }
+    
+    public DataSourceException(String msg, Throwable exp){
+        super(msg,exp);
     }
     
 }
