@@ -183,9 +183,8 @@ cvs tag -R r2_3_4</programlisting>
 
       <para>Geotools developers meet regulary to discuss issues such as
       design. Meeting times are anounced on the geotools-dvlp email list. At
-      the time of writing, developers meet weekly at <emphasis>17:30 Wednesday
-      UTC</emphasis>. There is usually help for newbies for 30 minutes before
-      the main session. Check <ulink
+      the time of writing, developers meet weekly at <emphasis>17:30 Monday
+      UTC</emphasis>. Check <ulink
       url="http://www.timeanddate.com/worldclock/">http://www.timeanddate.com/worldclock/</ulink>
       to find what this time translates to in your part of the world.</para>
 
@@ -226,6 +225,10 @@ cvs tag -R r2_3_4</programlisting>
 
       <para>Logs from IRC meetings are stored on the <ulink
       url="http://geotools.org">http://geotools.org</ulink> site.</para>
+
+      <para>Members of the Project Management Committee who are regular IRC
+      participants should let others know if they are not coming so that the
+      meeting is not delayed on their behalf.</para>
     </section>
 
     <section id="email">
