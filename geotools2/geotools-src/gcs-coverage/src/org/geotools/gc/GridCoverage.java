@@ -155,7 +155,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * the two usual ones (horizontal extends along <var>x</var> and <var>y</var>),
  * and a third one for start time and end time (time extends along <var>t</var>).
  *
- * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
+ * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1034,7 +1034,7 @@ public class GridCoverage extends Coverage {
             return inverse=this;
         }
         synchronized (this) {
-            inverse = doGeophysics(geo);
+            inverse = createGeophysics(geo);
             inverse = interpolate(inverse);
             if (inverse.inverse == null) {
                 inverse.inverse = this;
@@ -1042,7 +1042,7 @@ public class GridCoverage extends Coverage {
                 final Locale locale = null;
                 throw new RasterFormatException(Resources.getResources(locale).getString(
                           ResourceKeys.ERROR_COVERAGE_ALREADY_BOUND_$2,
-                          "doGeophysics", inverse.inverse.getName(locale)));
+                          "createGeophysics", inverse.inverse.getName(locale)));
             }
             return inverse;
         }
@@ -1073,7 +1073,7 @@ public class GridCoverage extends Coverage {
      *             bytecode. This bug is fixed in javac 1.4.2-beta. However, we still have an
      *             ArrayIndexOutOfBoundsException in JAI code...
      */
-    protected GridCoverage doGeophysics(final boolean geo) {
+    protected GridCoverage createGeophysics(final boolean geo) {
         /*
          * STEP 1 - Gets the source image and prepare the target sample dimensions.
          *          As a slight optimisation, we skip the "Null" operations since
@@ -1130,91 +1130,25 @@ public class GridCoverage extends Coverage {
          * STEP 3 - Check if the transcoding could be done with the JAI's "Lookup" operation.
          *          This is probably the fatest operation available for 'geophysics(true)'.
          */
-        if (image.getSampleModel().getDataType() == DataBuffer.TYPE_BYTE) {
-            final Object[] data;
-            final int datatype = model.getDataType();
-            /*
-             * Allocate the arrays for table data. The data will be transformed later.
-             */
-            switch (datatype) {
-                case DataBuffer.TYPE_FLOAT: {
-                    final float[][] table = new float[numBands][];
-                    final float[]  buffer = new float[256];
-                    for (int i=0; i<buffer.length; i++) {
-                        buffer[i] = i;
-                    }
-                    for (int i=0; i<numBands; i++) {
-                        table[i] = (i==0) ? buffer : (float[])buffer.clone();
-                    }
-                    data = table;
-                    break;
-                }
-                case DataBuffer.TYPE_DOUBLE: {
-                    final double[][] table = new double[numBands][];
-                    final double[]  buffer = new double[256];
-                    for (int i=0; i<buffer.length; i++) {
-                        buffer[i] = i;
-                    }
-                    for (int i=0; i<numBands; i++) {
-                        table[i] = (i==0) ? buffer : (double[])buffer.clone();
-                    }
-                    data = table;
-                    break;
-                }
-                default: {
-                    data = null;
+        try {
+            final int sourceType = image.getSampleModel().getDataType();
+            final int targetType = model.getDataType();
+            final MathTransform1D[] transforms = new MathTransform1D[numBands];
+            for (int i=0; i<numBands; i++) {
+                transforms[i] = sampleDimensions[i].geophysics(false).getSampleToGeophysics();
+                if (transforms[i]!=null && !geo) {
+                    // We are going to convert geophysics values to packed one.
+                    transforms[i] = (MathTransform1D) transforms[i].inverse();
                 }
             }
-            if (data != null) try {
-                /*
-                 * Transform the data.
-                 */
-                for (int i=0; i<numBands; i++) {
-                    MathTransform1D transform;
-                    transform = sampleDimensions[i].geophysics(false).getSampleToGeophysics();
-                    if (!geo) {
-                        // We are going to convert geophysics values to packed one.
-                        transform = (MathTransform1D) transform.inverse();
-                    }
-                    switch (datatype) {
-                        case DataBuffer.TYPE_FLOAT: {
-                            final float[] buffer = ((float[][])data)[i];
-                            transform.transform(buffer, 0, buffer, 0, buffer.length);
-                            break;
-                        }
-                        case DataBuffer.TYPE_DOUBLE: {
-                            final double[] buffer = ((double[][])data)[i];
-                            transform.transform(buffer, 0, buffer, 0, buffer.length);
-                            break;
-                        }
-                        default: {
-                            throw new AssertionError(datatype);
-                        }
-                    }
-                }
-                /*
-                 * Create the operation.
-                 */
-                final LookupTableJAI table;
-                switch (datatype) {
-                    case DataBuffer.TYPE_FLOAT: {
-                        table = new LookupTableJAI((float[][])data);
-                        break;
-                    }
-                    case DataBuffer.TYPE_DOUBLE: {
-                        table = new LookupTableJAI((double[][])data);
-                        break;
-                    }
-                    default: {
-                        throw new AssertionError(datatype);
-                    }
-                }
+            LookupTableJAI table = LookupTableFactory.create(sourceType, targetType, transforms);
+            if (table != null) {
                 operation = "Lookup";
                 param = param.add(table);
-            } catch (TransformException exception) {
-                // A value can't be constructed. Fallback on a more general operation.
-                // REVISIT: the more general operations are likely to fail too...
             }
+        } catch (TransformException exception) {
+            // A value can't be transformed. Fallback on a more general operation.
+            // REVISIT: the more general operations are likely to fail too...
         }
         /*
          * STEP 4 - Check if the transcoding could be done with a JAI's "Rescale" or "Piecewise"
@@ -1243,9 +1177,15 @@ testLinear: for (int i=0; i<numBands; i++) {
                     MathTransform1D transform = category.geophysics(false).getSampleToGeophysics();
                     if (transform == null) {
                         // A "qualitative" category was found. Those categories maps NaN values,
-                        // which need the special processing done by our "SampleTranscode" op.
-                        canRescale   = false;
+                        // which need the special processing by our "SampleTranscode" operation.
+                        // As a special case, the "Rescale" operation will continue to work if
+                        // the NaN value maps to 0.
                         canPiecewise = false;
+                        if (category.geophysics(geo).getRange().getMinimum(true) == 0) {
+                            assert Double.isNaN(category.getRange().getMinimum()) : category;
+                            continue;
+                        }
+                        canRescale = false;
                         break testLinear;
                     }
                     if (!geo) {
@@ -1331,10 +1271,10 @@ testLinear: for (int i=0; i<numBands; i++) {
                     canPiecewise = false;
                 }
             }
-            if (canRescale) {
+            if (canRescale && scales!=null) {
                 operation = "Rescale";
                 param = param.add(scales).add(offsets);
-            } else if (canPiecewise) {
+            } else if (canPiecewise && breakpoints!=null) {
                 operation = "Piecewise";
                 param = param.add(breakpoints);
             }
@@ -1376,8 +1316,8 @@ testLinear: for (int i=0; i<numBands; i++) {
      * @return A coverage with the same data than <code>coverage</code> but
      *         the same interpolation than <code>this</code>.
      *
-     * @deprecated Override {@link #doGeophysics} instead. This method will be removed
-     *             in a future version.
+     * @deprecated Override {@link #createGeophysics} instead.
+     *             This method will be removed in a future version.
      */
     protected GridCoverage interpolate(final GridCoverage coverage) {
         // This method is overriden by org.geotools.gp.Interpolator
@@ -1422,7 +1362,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * (<cite>Remote Method Invocation</cite>).  Socket connection are used
      * for sending the rendered image through the network.
      *
-     * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     public static interface Remote extends GC_GridCoverage {
@@ -1451,7 +1391,7 @@ testLinear: for (int i=0; i<numBands; i++) {
      * of this class directly. The method {@link Adapters#export(GridCoverage)} should
      * be used instead.
      *
-     * @version $Id: GridCoverage.java,v 1.18 2003/05/04 22:33:15 desruisseaux Exp $
+     * @version $Id: GridCoverage.java,v 1.19 2003/05/05 10:50:20 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends Coverage.Export implements GC_GridCoverage, Remote {
