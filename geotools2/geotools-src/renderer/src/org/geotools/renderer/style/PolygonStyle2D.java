@@ -21,14 +21,18 @@
  */
 package org.geotools.renderer.style;
 
+// J2SE dependencies
 import java.awt.*;
+
+// Geotools dependencies
+import org.geotools.resources.Utilities;
 
 
 /**
  * A style that contains the specification to renderer both the contour and the interior of a shape
  *
  * @author Andrea Aime
- * @version $Id: PolygonStyle2D.java,v 1.3 2003/11/01 17:34:28 aaime Exp $
+ * @version $Id: PolygonStyle2D.java,v 1.4 2003/11/28 23:32:32 desruisseaux Exp $
  */
 public class PolygonStyle2D extends LineStyle2D {
     protected Paint fill;
@@ -72,5 +76,12 @@ public class PolygonStyle2D extends LineStyle2D {
      */
     public void setFillComposite(Composite fillComposite) {
         this.fillComposite = fillComposite;
+    }
+
+    /**
+     * Returns a string representation of this style.
+     */
+    public String toString() {
+        return Utilities.getShortClassName(this) + '[' + fill + ']';
     }
 }

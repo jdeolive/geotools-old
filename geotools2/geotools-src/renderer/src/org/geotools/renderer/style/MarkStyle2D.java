@@ -17,17 +17,21 @@
 
 package org.geotools.renderer.style;
 
-import org.geotools.renderer.j2d.TransformedShape;
+// J2SE dependencies
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+
+// Geotools dependencies
+import org.geotools.resources.Utilities;
+import org.geotools.renderer.j2d.TransformedShape;
 
 
 /**
  * Style to represent points as small filled and stroked shapes
  *
  * @author Andrea Aime
- * @version $Id: MarkStyle2D.java,v 1.2 2003/11/02 21:08:29 aaime Exp $
+ * @version $Id: MarkStyle2D.java,v 1.3 2003/11/28 23:32:32 desruisseaux Exp $
  */
 public class MarkStyle2D extends PolygonStyle2D {
     Shape shape;
@@ -112,5 +116,12 @@ public class MarkStyle2D extends PolygonStyle2D {
      */
     public void setSize(int i) {
         size = i;
+    }
+
+    /**
+     * Returns a string representation of this style.
+     */
+    public String toString() {
+        return Utilities.getShortClassName(this) + '[' + shape + ']';
     }
 }

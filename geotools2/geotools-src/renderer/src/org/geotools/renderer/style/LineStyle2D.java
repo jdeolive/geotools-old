@@ -21,8 +21,12 @@
  */
 package org.geotools.renderer.style;
 
+// J2SE dependencies
 import java.awt.*;
 import java.awt.image.BufferedImage;
+
+// Geotools dependencies
+import org.geotools.resources.Utilities;
 
 
 /**
@@ -115,4 +119,11 @@ public class LineStyle2D extends Style2D {
         this.graphicStroke = graphicStroke;
     }
     
+
+    /**
+     * Returns a string representation of this style.
+     */
+    public String toString() {
+        return Utilities.getShortClassName(this) + '[' + contour + ']';
+    }
 }

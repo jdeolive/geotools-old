@@ -16,6 +16,7 @@
  */
 package org.geotools.renderer.style;
 
+// J2SE dependencies
 import java.awt.BasicStroke;
 import java.awt.Composite;
 import java.awt.Font;
@@ -24,12 +25,15 @@ import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.font.GlyphVector;
 
+// Geotools dependencies
+import org.geotools.resources.Utilities;
+
 
 /**
  * Style used to represent labels over lines, polygons and points
  *
  * @author Andrea Aime
- * @version $Id: TextStyle2D.java,v 1.2 2003/11/08 11:23:36 aaime Exp $
+ * @version $Id: TextStyle2D.java,v 1.3 2003/11/28 23:32:32 desruisseaux Exp $
  */
 public class TextStyle2D extends Style2D {
     GlyphVector textGlyphVector;
@@ -121,7 +125,6 @@ public class TextStyle2D extends Style2D {
             haloShape = new BasicStroke(2f * haloRadius, BasicStroke.CAP_ROUND,
                     BasicStroke.JOIN_ROUND).createStrokedShape(gv.getOutline());
         }
-
         return haloShape;
     }
 
@@ -264,5 +267,12 @@ public class TextStyle2D extends Style2D {
      */
     public void setComposite(Composite composite) {
         this.composite = composite;
+    }
+
+    /**
+     * Returns a string representation of this style.
+     */
+    public String toString() {
+        return Utilities.getShortClassName(this) + "[\"" + label + "\"]";
     }
 }
