@@ -37,8 +37,10 @@ import org.w3c.dom.*;
 /**
  * A class to read and parse an SLD file based on verion 0.7.2 of the OGC
  * Styled Layer Descriptor Spec.
+ *
+ * It currently implements Style but it shouldn't!
  * 
- * @version $Id: SLDStyle.java,v 1.21 2002/10/14 14:19:31 ianturton Exp $
+ * @version $Id: SLDStyle.java,v 1.22 2002/10/14 17:09:48 ianturton Exp $
  * @author Ian Turton
  */
 public class SLDStyle implements org.geotools.styling.Style {
@@ -51,13 +53,18 @@ public class SLDStyle implements org.geotools.styling.Style {
     private boolean defaultB;
     private InputStream instream;
     private Document dom;
-
+    private StyleFactory factory;
+    
+    SLDStyle(){
+        factory = StyleFactory.createStyleFactory();
+    }
     /**
      * Creates a new instance of SLDStyler
      * 
      * @param filename The file to be read.
      */
-    public SLDStyle(String filename) {
+    SLDStyle(String filename) {
+        this();
         File f = new File(filename);
         setInput(f);
         readXML();
@@ -68,7 +75,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param f the File to be read
      */
-    public SLDStyle(File f) {
+    SLDStyle(File f) {
+        this();
         setInput(f);
         readXML();
     }
@@ -78,7 +86,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param url the URL to be read.
      */
-    public SLDStyle(URL url) {
+    SLDStyle(URL url) {
+        this();
         setInput(url);
         readXML();
     }
@@ -88,7 +97,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param s The inputstream to be read
      */
-    public SLDStyle(InputStream s) {
+    SLDStyle(InputStream s) {
+        this();
         instream = s;
         readXML();
     }
@@ -120,7 +130,7 @@ public class SLDStyle implements org.geotools.styling.Style {
         return abstractStr;
     }
 
-    private void addFeatureTypeStyle(FeatureTypeStyle ft) {
+    public void addFeatureTypeStyle(FeatureTypeStyle ft) {
         fts.add(ft);
     }
 
@@ -132,7 +142,12 @@ public class SLDStyle implements org.geotools.styling.Style {
     public FeatureTypeStyle[] getFeatureTypeStyles() {
         return (FeatureTypeStyle[]) fts.toArray(new FeatureTypeStyle[0]);
     }
-
+    public void setFeatureTypeStyle(FeatureTypeStyle[] types) {
+        fts = new ArrayList();
+        for(int i=0;i<types.length;i++){
+            fts.add(types[i]);
+        }
+    }
     /**
      * get the name of the style
      * 
@@ -159,13 +174,15 @@ public class SLDStyle implements org.geotools.styling.Style {
     public boolean isDefault() {
         return defaultB;
     }
-
+    public void setIsDefault(boolean db){
+        defaultB = db;
+    }
     /**
      * Setter for property name.
      * 
      * @param name New value of property name.
      */
-    private void setName(java.lang.String name) {
+    public void setName(java.lang.String name) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("setting name " + name);
         }
@@ -178,7 +195,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param abstractStr New value of property abstractStr.
      */
-    private void setAbstract(java.lang.String abstractStr) {
+    public void setAbstract(java.lang.String abstractStr) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("setting abstract " + abstractStr);
         }
@@ -191,7 +208,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @param title New value of property title.
      */
-    private void setTitle(java.lang.String title) {
+    public void setTitle(java.lang.String title) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("setting title " + title);
         }
@@ -411,8 +428,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @return the linesymbolizer
      */
-    public LineSymbolizer parseLineSymbolizer(Node root) {
-        LineSymbolizerImpl symbol = new LineSymbolizerImpl();
+    private LineSymbolizer parseLineSymbolizer(Node root) {
+        LineSymbolizer symbol = factory.createLineSymbolizer();
         NodeList children = root.getChildNodes();
 
         for (int i = 0; i < children.getLength(); i++) {
@@ -442,8 +459,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @return the polygon symbolizer
      */
-    public PolygonSymbolizer parsePolygonSymbolizer(Node root) {
-        PolygonSymbolizerImpl symbol = new PolygonSymbolizerImpl();
+    private PolygonSymbolizer parsePolygonSymbolizer(Node root) {
+        PolygonSymbolizer symbol = factory.createPolygonSymbolizer();
         symbol.setFill((Fill) null);
         symbol.setStroke((Stroke) null);
 
@@ -480,7 +497,7 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @return the TextSymbolizer
      */
-    public TextSymbolizer parseTextSymbolizer(Node root) {
+    private TextSymbolizer parseTextSymbolizer(Node root) {
         TextSymbolizerImpl symbol = new TextSymbolizerImpl();
         symbol.setFill(null);
 
@@ -530,8 +547,8 @@ public class SLDStyle implements org.geotools.styling.Style {
      * 
      * @return the pointsymbolizer
      */
-    public PointSymbolizer parsePointSymbolizer(Node root) {
-        PointSymbolizerImpl symbol = new PointSymbolizerImpl();
+    private PointSymbolizer parsePointSymbolizer(Node root) {
+        PointSymbolizer symbol = factory.createPointSymbolizer(); 
         symbol.setGraphic(null);
 
         NodeList children = root.getChildNodes();
@@ -560,8 +577,8 @@ public class SLDStyle implements org.geotools.styling.Style {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing graphic " + root);
         }
-
-        GraphicImpl graphic = new GraphicImpl();
+        // TODO: I'm not happy about this line
+        GraphicImpl graphic = (GraphicImpl)factory.createGraphic();
 
         NodeList children = root.getChildNodes();
 
@@ -599,7 +616,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             }
         }
 
-        return graphic;
+        return (Graphic) graphic;
     }
 
     private String parseGeometryName(Node root) {
@@ -623,12 +640,12 @@ public class SLDStyle implements org.geotools.styling.Style {
         return null;
     }
 
-    private MarkImpl parseMark(Node root) {
+    private Mark parseMark(Node root) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("parsing mark");
         }
 
-        MarkImpl mark = new MarkImpl();
+        Mark mark = factory.createMark();
         mark.setFill(null);
         mark.setStroke(null);
 
@@ -712,7 +729,7 @@ public class SLDStyle implements org.geotools.styling.Style {
     }
 
     private Stroke parseStroke(Node root) {
-        StrokeImpl stroke = new StrokeImpl();
+        Stroke stroke = factory.createStroke();
         NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
 
         if (list.getLength() > 0) {
@@ -842,7 +859,7 @@ public class SLDStyle implements org.geotools.styling.Style {
             LOGGER.finest("parsing fill ");
         }
 
-        FillImpl fill = new FillImpl();
+        Fill fill = factory.createFill();
         NodeList list = ((Element) root).getElementsByTagName("GraphicFill");
 
         if (list.getLength() > 0) {
@@ -1157,4 +1174,7 @@ public class SLDStyle implements org.geotools.styling.Style {
 
         return halo;
     }
+    
+    
+    
 }
