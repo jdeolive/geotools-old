@@ -64,8 +64,14 @@ public class ExpressionXmlParser {
             try{
                 NodeList kids = child.getChildNodes();
                 ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_SUBTRACT);
-                math.addLeftValue(parseExpression(child.getFirstChild()));
-                math.addRightValue(parseExpression(child.getLastChild()));
+                Node value = child.getFirstChild();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add left value -> "+value+"<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add right value -> "+value+"<-");
+                math.addRightValue(parseExpression(value));
                 return math;
             }catch (IllegalFilterException ife){
                 LOGGER.warning("Unable to build expression " + ife);
@@ -76,8 +82,14 @@ public class ExpressionXmlParser {
             try{
                 NodeList kids = child.getChildNodes();
                 ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_MULTIPLY);
-                math.addLeftValue(parseExpression(child.getFirstChild()));
-                math.addRightValue(parseExpression(child.getLastChild()));
+                Node value = child.getFirstChild();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add left value -> "+value+"<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add right value -> "+value+"<-");
+                math.addRightValue(parseExpression(value));
                 return math;
             }catch (IllegalFilterException ife){
                 LOGGER.warning("Unable to build expression " + ife);
@@ -88,8 +100,14 @@ public class ExpressionXmlParser {
             try{
                 
                 ExpressionMath math = new ExpressionMath(ExpressionMath.MATH_DIVIDE);
-                math.addLeftValue(parseExpression(child.getFirstChild()));
-                math.addRightValue(parseExpression(child.getLastChild()));
+                Node value = child.getFirstChild();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add left value -> "+value+"<-");
+                math.addLeftValue(parseExpression(value));
+                value = value.getNextSibling();
+                while(value.getNodeType() != Node.ELEMENT_NODE ) value = value.getNextSibling();
+                LOGGER.finer("add right value -> "+value+"<-");
+                math.addRightValue(parseExpression(value));
                 return math;
             }catch (IllegalFilterException ife){
                 LOGGER.warning("Unable to build expression " + ife);
