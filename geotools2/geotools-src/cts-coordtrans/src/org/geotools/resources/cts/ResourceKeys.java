@@ -36,6 +36,7 @@ public interface ResourceKeys
     public static final int DOWN                                        =    11;
     public static final int EAST                                        =    12;
     public static final int ELLIPSOIDAL                                 =    13;
+    public static final int EXPONENTIAL                                 =    80;
     public static final int FUTURE                                      =    14;
     public static final int GEOCENTRIC                                  =    15;
     public static final int GEOID_MODEL_DERIVED                         =    16;
@@ -47,6 +48,7 @@ public interface ResourceKeys
     public static final int LATITUDE                                    =    22;
     public static final int LOADED_JDBC_DRIVER_$3                       =    23;
     public static final int LOCAL                                       =    24;
+    public static final int LOGARITHM                                   =    81;
     public static final int LONGITUDE                                   =    25;
     public static final int NORMAL                                      =    26;
     public static final int NORTH                                       =    27;
