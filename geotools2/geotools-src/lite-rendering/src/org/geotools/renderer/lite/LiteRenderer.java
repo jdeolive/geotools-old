@@ -49,6 +49,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,7 +134,7 @@ import com.vividsolutions.jts.geom.Point;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.42 2004/04/18 03:16:30 groldan Exp $
+ * @version $Id: LiteRenderer.java,v 1.43 2004/04/18 05:08:54 groldan Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -631,7 +632,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
          * attributes be added by default? I will add them, but don't really
          * know what's the expected behavior
          */
-        List atts = Arrays.asList(ftsAttributes);
+        List atts = new LinkedList(Arrays.asList(ftsAttributes));
         AttributeType[] attTypes = schema.getAttributeTypes();
         String attName;
 
