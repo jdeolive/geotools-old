@@ -49,7 +49,7 @@ import java.util.Set;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.6 2003/06/13 19:33:55 jmacgill Exp $
+ * @version $Id: AbstractDataSource.java,v 1.7 2003/06/13 19:37:21 jmacgill Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** the meta data object containing information about this datasource. */
@@ -430,7 +430,7 @@ public abstract class AbstractDataSource implements DataSource {
         try {
             return getBbox();
         } catch (DataSourceException e) {
-            throw new RuntimeException(
+            throw (RuntimeException)new RuntimeException(
                 "Error in getBbox.  This method should not" +
                 " be used any more, use getBbox()").initCause(e);
         }
