@@ -1,7 +1,3 @@
-/* Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
- * This code is licensed under the GPL 2.0 license, availible at the root
- * application directory.
- */
 /*
  *    Geotools2 - OpenSource mapping toolkit
  *    http://geotools.org
@@ -37,10 +33,18 @@ import java.util.List;
  *
  * @author jgarnett, Refractions Research, Inc.
  * @author $Author: jive $ (last modification)
- * @version $Id: FeatureTypeMetaData.java,v 1.2 2004/01/11 02:34:29 jive Exp $
+ * @version $Id: FeatureTypeMetaData.java,v 1.3 2004/01/12 12:32:27 jive Exp $
  */
 public interface FeatureTypeMetaData extends MetaData {
+    /**
+     * Access typeName of this FeatureType
+     * <p>
+     * TypeName must be unique across both DataStore and Namesapce.
+     * </p>
+     * @return Name used to identify this FeatureType
+     */
     
+    public String getTypeName();
     /**
      * Access FeatureType (schema) information for this FeatureType.
      * 
@@ -58,7 +62,7 @@ public interface FeatureTypeMetaData extends MetaData {
      *
      * @return Schema information for this DataType
      */
-    public FeatureType getFeatureType(String typeName) throws IOException;
+    public FeatureType getFeatureType() throws IOException;
 
     /**
      * Provides access to the real FeatureSource used to work with data.
@@ -72,7 +76,7 @@ public interface FeatureTypeMetaData extends MetaData {
      * @param typeName
      * @return
      */
-    public FeatureSource getFeatureSource( String typeName ) throws IOException;
+    public FeatureSource getFeatureSource() throws IOException;
     
     /**
      * Access DataStore meta data that defines this FeatureType.
