@@ -16,60 +16,42 @@
  */
 package org.geotools.data.postgis;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Logger;
 
-//JTS imports
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
-import com.vividsolutions.jts.io.WKTWriter;
-
-//geotools imports
-import org.geotools.data.AbstractDataSource;
 import org.geotools.data.DataSourceException;
-import org.geotools.data.DataSourceMetaData;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureReader;
 import org.geotools.data.FeatureResults;
-import org.geotools.data.LockingManager;
 import org.geotools.data.Query;
-import org.geotools.data.jdbc.ConnectionPool;
 import org.geotools.data.jdbc.JDBCDataStore;
 import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.JDBCUtils;
 import org.geotools.data.jdbc.SQLBuilder;
 import org.geotools.feature.AttributeType;
-import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureCollection;
-import org.geotools.feature.FeatureIterator;
 import org.geotools.feature.FeatureType;
-import org.geotools.feature.FeatureTypeFactory;
 import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.SchemaException;
 import org.geotools.filter.AbstractFilter;
 import org.geotools.filter.Filter;
 import org.geotools.filter.SQLEncoderException;
 import org.geotools.filter.SQLEncoderPostgis;
-import org.geotools.filter.SQLEncoderPostgisGeos;
 import org.geotools.filter.SQLUnpacker;
-import java.io.IOException;
 
-//J2SE imports
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.logging.Logger;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.io.WKTWriter;
 
 
 /**
@@ -83,7 +65,7 @@ import java.util.logging.Logger;
  * do some solid tests to see which is actually faster.
  *
  * @author Chris Holmes, TOPP
- * @version $Id: PostgisFeatureStore.java,v 1.7 2004/04/05 12:08:45 cholmesny Exp $
+ * @version $Id: PostgisFeatureStore.java,v 1.8 2004/05/10 21:46:00 aaime Exp $
  *
  * @task HACK: too little code reuse with PostgisDataStore.
  * @task TODO: make individual operations truly atomic.  If the transaction is
@@ -901,21 +883,26 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
         sqlBuilder.sqlWhere(sql, filter);
         LOGGER.fine("SQL: " + sql);
 
-        Statement statement = conn.createStatement();
-        ResultSet results = statement.executeQuery(sql.toString());
-        results.next();
-
-        String wkt = results.getString(1);
+        Statement statement = null;
+        ResultSet results = null;
         Envelope retEnv = null;
-
-        if (wkt == null) {
-            return null;
-        } else {
-            retEnv = geometryReader.read(wkt).getEnvelopeInternal();
+        try {
+            statement = conn.createStatement();
+            results = statement.executeQuery(sql.toString());
+            results.next();
+    
+            String wkt = results.getString(1);
+            retEnv = null;
+    
+            if (wkt == null) {
+                return null;
+            } else {
+                retEnv = geometryReader.read(wkt).getEnvelopeInternal();
+            }
+        } finally {
+            JDBCUtils.close(results);
+            JDBCUtils.close(statement);
         }
-
-        results.close();
-        statement.close();
 
         return retEnv;
     }

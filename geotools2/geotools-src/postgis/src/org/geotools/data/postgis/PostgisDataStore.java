@@ -65,7 +65,7 @@ import java.util.logging.Logger;
  * Postgis DataStore implementation.
  *
  * @author Chris Holmes
- * @version $Id: PostgisDataStore.java,v 1.18 2004/01/18 00:07:49 cholmesny Exp $
+ * @version $Id: PostgisDataStore.java,v 1.19 2004/05/10 21:48:16 aaime Exp $
  */
 public class PostgisDataStore extends JDBCDataStore implements DataStore {
     /** The logger for the postgis module. */
@@ -195,6 +195,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     AttributeType getGeometryAttribute(String tableName, String columnName)
         throws SQLException, DataSourceException {
         Connection dbConnection = null;
+        Statement statement = null;
+        ResultSet result = null;
 
         try {
             dbConnection = getConnection(Transaction.AUTO_COMMIT);
@@ -207,8 +209,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             String geometryType = null;
 
             // retrieve the result set from the JDBC driver
-            Statement statement = dbConnection.createStatement();
-            ResultSet result = statement.executeQuery(sqlStatement);
+            statement = dbConnection.createStatement();
+            result = statement.executeQuery(sqlStatement);
 
             if (result.next()) {
                 geometryType = result.getString("type");
@@ -233,6 +235,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
         } catch (IOException ioe) {
             throw new DataSourceException("getting connection", ioe);
         } finally {
+            JDBCUtils.close(result);
+            JDBCUtils.close(statement);
             JDBCUtils.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
     }
@@ -313,6 +317,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
     protected int determineSRID(String tableName, String geometryColumnName)
         throws IOException {
         Connection dbConnection = null;
+        Statement statement = null;
+        ResultSet result = null;
 
         try {
             String sqlStatement = "SELECT srid FROM GEOMETRY_COLUMNS WHERE "
@@ -320,8 +326,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
                 + geometryColumnName + "';";
             dbConnection = getConnection(Transaction.AUTO_COMMIT);
 
-            Statement statement = dbConnection.createStatement();
-            ResultSet result = statement.executeQuery(sqlStatement);
+            statement = dbConnection.createStatement();
+            result = statement.executeQuery(sqlStatement);
 
             if (result.next()) {
                 int retSrid = result.getInt("srid");
@@ -338,6 +344,8 @@ public class PostgisDataStore extends JDBCDataStore implements DataStore {
             LOGGER.warning(message);
             throw new DataSourceException(message, sqle);
         } finally {
+            JDBCUtils.close(result);
+            JDBCUtils.close(statement);
             JDBCUtils.close(dbConnection, Transaction.AUTO_COMMIT, null);
         }
     }

@@ -146,7 +146,7 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author Sean  Geoghegan, Defence Science and Technology Organisation
  * @author Chris Holmes, TOPP
  *
- * $Id: JDBCDataStore.java,v 1.24 2004/04/14 11:06:19 cholmesny Exp $
+ * $Id: JDBCDataStore.java,v 1.25 2004/05/10 21:42:54 aaime Exp $
  */
 public abstract class JDBCDataStore implements DataStore {
     
@@ -868,6 +868,7 @@ public abstract class JDBCDataStore implements DataStore {
         final int TABLE_NAME_COL = 3;
 
         Connection conn = null;
+        ResultSet tables = null;
 
         try {
             Map featureTypeMap = new HashMap();
@@ -875,7 +876,7 @@ public abstract class JDBCDataStore implements DataStore {
 
             DatabaseMetaData meta = conn.getMetaData();
             String[] tableType = { "TABLE" };
-            ResultSet tables = meta.getTables(null, config.getDatabaseSchemaName(), "%", tableType);
+            tables = meta.getTables(null, config.getDatabaseSchemaName(), "%", tableType);
 
             while (tables.next()) {
                 String tableName = tables.getString(TABLE_NAME_COL);
@@ -887,6 +888,7 @@ public abstract class JDBCDataStore implements DataStore {
 
             return featureTypeMap;
         } catch (SQLException sqlException) {
+            JDBCUtils.close(tables);
             JDBCUtils.close(conn, Transaction.AUTO_COMMIT, sqlException);
             conn = null;
 
@@ -894,6 +896,7 @@ public abstract class JDBCDataStore implements DataStore {
                 sqlException.getMessage();
             throw new DataSourceException(message, sqlException);
         } finally {
+            JDBCUtils.close(tables);
             JDBCUtils.close(conn, Transaction.AUTO_COMMIT, null);
         }
     }
