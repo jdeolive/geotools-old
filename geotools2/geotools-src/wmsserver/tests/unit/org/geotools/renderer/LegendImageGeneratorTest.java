@@ -65,6 +65,19 @@ public class LegendImageGeneratorTest extends TestCase {
     }
 
     public static void main(java.lang.String[] args) {
+//      Logger.getLogger(
+//  "org.geotools.renderer.Java2DRenderer").setUseParentHandlers(false);
+//      Logger.getLogger(
+//  "org.geotools.renderer.Java2DRenderer").getParent().setLevel(java.util.logging.Level.ALL);
+//      java.util.logging.Handler h = new java.util.logging.ConsoleHandler();
+//      h.setLevel(java.util.logging.Level.ALL);
+//      Logger.getLogger(
+//  "org.geotools.renderer.Java2DRenderer").addHandler(h);
+//      LOGGER.setUseParentHandlers(false);
+//      LOGGER.getParent().setLevel(java.util.logging.Level.ALL);
+//      LOGGER.addHandler(h);
+
+      
         junit.textui.TestRunner.run(suite());
     }
 
@@ -152,10 +165,11 @@ public class LegendImageGeneratorTest extends TestCase {
         out.close();
 
         try{
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         }catch (InterruptedException e){}
         view.close();
 
+        System.out.println("-------------------------------------------------------------");
     }
     
     public void testComplexStyle() throws Exception{
@@ -185,7 +199,7 @@ public class LegendImageGeneratorTest extends TestCase {
         ImageIO.write(image, "JPEG", out);
         out.close();
         try{
-            Thread.sleep(5000);
+            Thread.sleep(2000);
         }catch (InterruptedException e){}
         view.close();
         

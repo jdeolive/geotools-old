@@ -201,6 +201,27 @@
       </properties>
     </dependency>
   </dependencies>
+
+  <!-- IanS added this for testing resources -->
+  <build>
+      <unitTest>
+        <includes>
+          <include>**/*Test.java</include>
+        </includes>
+
+        <resources>
+          <resource>
+            <directory>${basedir}/tests/unit</directory>
+              <includes>
+                 <include>**/*</include>
+              </includes>
+              <excludes>
+                 <exclude>**/*.class</exclude>
+              </excludes>
+          </resource>
+        </resources>
+      </unitTest>
+    </build>
   
 </project>
 

@@ -22,7 +22,6 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import junit.framework.*;
 import org.geotools.data.DataSourceException;
-import org.geotools.datasource.extents.EnvelopeExtent;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.Filter;
 import org.geotools.map.DefaultMap;
@@ -105,7 +104,7 @@ public class TestImageDataSource extends TestCase {
         FeatureCollection ft = ds.getFeatures(filter);
         org.geotools.map.Map map = new DefaultMap();
         StyleFactory sFac = StyleFactory.createStyleFactory();
-        EnvelopeExtent ex = new EnvelopeExtent(ds.getBbox());
+        Envelope ex = ds.getBounds();
         //The following is complex, and should be built from
         //an SLD document and not by hand
         RasterSymbolizer rs = sFac.getDefaultRasterSymbolizer();
@@ -126,14 +125,14 @@ public class TestImageDataSource extends TestCase {
         frame.setSize(w,h);
         frame.setVisible(true);
         renderer.setOutput(p.getGraphics(),p.getBounds());
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        map.render(renderer,ex);//and finaly try and draw it!
         
         BufferedImage image = new BufferedImage(w,h,BufferedImage.TYPE_INT_RGB);
         Graphics g = image.getGraphics();
         g.setColor(Color.white);
         g.fillRect(0,0,w,h);
         renderer.setOutput(g,new java.awt.Rectangle(0,0,w,h));
-        map.render(renderer,ex.getBounds());//and finaly try and draw it!
+        map.render(renderer,ex);//and finaly try and draw it!
         String dataFolder = System.getProperty("dataFolder");
         if(dataFolder==null){
             //then we are being run by maven

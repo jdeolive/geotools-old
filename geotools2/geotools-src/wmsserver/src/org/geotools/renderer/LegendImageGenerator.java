@@ -17,10 +17,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import org.geotools.feature.AttributeType;
 import org.geotools.feature.AttributeTypeFactory;
 import org.geotools.feature.Feature;
@@ -140,7 +137,7 @@ public class LegendImageGenerator {
         int items=0;
         int hstep = (getWidth() - 2* hpadding)/2;
         
-        Map rendered = new HashMap();
+        Set rendered = new LinkedHashSet();
         
         for(int s=0;s<styles.length;s++){
             FeatureTypeStyle[] fts = styles[s].getFeatureTypeStyles();
@@ -250,18 +247,20 @@ public class LegendImageGenerator {
                     throw new RuntimeException(ife);
                 }
                 textSym.setLabel(filFac.createLiteralExpression(name));
-
-
+                
                 renderer.processSymbolizers(rendered,labelFeature,new Symbolizer[]{textSym});
     
                 offset += symbolHeight+vpadding;
                 }
             }
         }
-        Iterator it = rendered.values().iterator(); 
+        Iterator it = rendered.iterator(); 
 
         while (it.hasNext()) {
-            ((RenderedObject) it.next()).render(graphics);
+          
+            RenderedObject r = (RenderedObject) it.next();
+            System.out.println("DRAWING : " + r);
+            r.render(graphics);
         }
         return image;
     }
