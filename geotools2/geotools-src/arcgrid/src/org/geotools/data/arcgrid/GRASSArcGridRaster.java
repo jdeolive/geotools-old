@@ -51,8 +51,7 @@ public class GRASSArcGridRaster extends ArcGridRaster {
         // make sure tokenizer is set up right
         st.resetSyntax();
         st.eolIsSignificant(true);
-        st.whitespaceChars('\t', '\t');
-        st.whitespaceChars(' ', ' ');
+        st.whitespaceChars(0,' ');
 		st.whitespaceChars(':', ':');
         st.wordChars('a', 'z');
         st.wordChars('A', 'Z');
