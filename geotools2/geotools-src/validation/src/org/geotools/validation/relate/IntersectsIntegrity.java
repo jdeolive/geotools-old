@@ -194,7 +194,7 @@ public class IntersectsIntegrity extends RelationIntegrity {
 	 * </p>	 * 
 	 * Author: bowens<br>
 	 * Created on: Apr 27, 2004<br>
-	 * @param featureSourceA - the FeatureSource to pull the original geometries from. This geometry is the one that is tested for intersecting with itself
+	 * @param featureSourceA - the FeatureSource to pull the original geometries from. 
 	 * @param expected - boolean value representing the user's expected outcome of the test
 	 * @param results - ValidationResults
 	 * @param bBox - Envelope - the bounding box within which to perform the intersects()
