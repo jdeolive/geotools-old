@@ -39,7 +39,7 @@ public class FeatureTypeFlat implements FeatureType {
     private String namespace = null; 
 
     /** The name of this type, within the namespace. */
-    private String name = null; 
+    private String name = "feature";//hack:? prevents null from being returned 
 
     /** Number of instances of this feature type allowed. */
     private int occurrences = 1;
