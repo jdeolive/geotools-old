@@ -111,6 +111,34 @@ public class CoordinatePoint implements Dimensioned, Cloneable, Serializable {
     public CoordinatePoint(final Point2D point) {
         this(point.getX(), point.getY());
     }
+
+    /**
+     * Set this coordinate to the specified {@link Point2D}.
+     * This coordinate must be two-dimensional.
+     *
+     * @param  point The new coordinate for this point.
+     * @throws MismatchedDimensionException if this coordinate point is not two-dimensional.
+     */
+    public void setLocation(final Point2D point) throws MismatchedDimensionException {
+        if (ord.length != 2) {
+            throw new MismatchedDimensionException(Resources.format(
+                        ResourceKeys.ERROR_NOT_TWO_DIMENSIONAL_$1, new Integer(ord.length)));
+        }
+        ord[0] = point.getX();
+        ord[1] = point.getY();
+    }
+
+    /**
+     * Set this coordinate to the specified <code>CoordinatePoint</code>.
+     *
+     * @param  point The new coordinate for this point.
+     * @throws MismatchedDimensionException if this point doesn't
+     *         have the expected dimension.
+     */
+    public void setLocation(final CoordinatePoint point) throws MismatchedDimensionException {
+        ensureDimensionMatch(point.ord.length);
+        System.arraycopy(point.ord, 0, ord, 0, ord.length);
+    }
     
     /**
      * Returns the ordinate value along the specified dimension.
