@@ -46,6 +46,26 @@ import org.geotools.resources.NumberParser;
  * }
  * r.close();
  * </PRE></CODE>
+ * For consumers who wish to be a bit more selective with their reading of rows,
+ * the Row object has been added. The semantics are the same as using the
+ * readEntry method, but remember that the Row object is always the same. The
+ * values are parsed as they are read, so it pays to copy them out (as each call
+ * to Row.read() will result in an expensive String parse).
+ * <br><b>EACH CALL TO readEntry OR readRow ADVANCES THE FILE!</b><br>
+ * An example of using the Row method of reading:
+ * <CODE><PRE>
+ * FileChannel in = new FileInputStream("thefile.dbf").getChannel();
+ * DbaseFileReader r = new DbaseFileReader( in )
+ * int fields = r.getHeader().getNumFields();
+ * while (r.hasNext()) {
+ *   DbaseFileReader.Row row = r.readRow();
+ *   for (int i = 0; i < fields; i++) {
+ *     // do stuff
+ *     Foo.bar( row.read(i) );
+ *   }
+ * }
+ * r.close();
+ * </PRE></CODE>
  *
  * @author Ian Schneider
  */
