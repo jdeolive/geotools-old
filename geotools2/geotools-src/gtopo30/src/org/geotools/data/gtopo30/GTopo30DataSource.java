@@ -19,6 +19,7 @@ package org.geotools.data.gtopo30;
 import com.sun.media.imageio.stream.FileChannelImageInputStream;
 import com.sun.media.imageio.stream.RawImageInputStream;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -46,7 +47,6 @@ import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
 import org.geotools.gc.GridGeometry;
 import org.geotools.gc.GridRange;
-import org.geotools.pt.Envelope;
 import org.geotools.units.Unit;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -72,6 +72,7 @@ import javax.media.jai.ImageLayout;
 import javax.media.jai.JAI;
 import javax.media.jai.ParameterBlockJAI;
 import javax.media.jai.RenderedOp;
+import org.geotools.feature.DefaultFeatureType;
 
 
 /**
@@ -99,6 +100,9 @@ public class GTopo30DataSource extends AbstractDataSource {
 
     /** Dem statistics file URL */
     private URL statsURL;
+    
+    /** The name of the file, used as the schema name */
+    private String name = null;
 
     /** Cropping evenlope if the user doesn't want to get out the whole file */
     private com.vividsolutions.jts.geom.Envelope cropEnvelope;
@@ -156,13 +160,14 @@ public class GTopo30DataSource extends AbstractDataSource {
             throw new DataSourceException("Unrecognized file (file extension doesn't match)");
         }
 
-        filename = filename.substring(0, filename.length() - 4);
+        name = filename.substring(0, filename.length() - 4);
+        
 
-        demURL = new URL(url, filename + dmext);
-        demHeaderURL = new URL(url, filename + dhext);
-        srcURL = new URL(url, filename + srext);
-        srcHeaderURL = new URL(url, filename + shext);
-        statsURL = new URL(url, filename + stext);
+        demURL = new URL(url, name + dmext);
+        demHeaderURL = new URL(url, name + dhext);
+        srcURL = new URL(url, name + srext);
+        srcHeaderURL = new URL(url, name + shext);
+        statsURL = new URL(url, name + stext);
     }
 
     /**
@@ -174,7 +179,7 @@ public class GTopo30DataSource extends AbstractDataSource {
      *
      * @throws RuntimeException DOCUMENT ME!
      */
-    public com.vividsolutions.jts.geom.Envelope getBounds() {
+    public Envelope getBounds() {
         com.vividsolutions.jts.geom.Envelope env = null;
 
         try {
@@ -438,11 +443,11 @@ public class GTopo30DataSource extends AbstractDataSource {
      *
      * @return DOCUMENT ME!
      */
-    private Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
+    private org.geotools.pt.Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
         double[] min = new double[] {source.getMinX(), source.getMinY()};
         double[] max = new double[] {source.getMaxX(), source.getMaxY()};
 
-        return new Envelope(min, max);
+        return new org.geotools.pt.Envelope(min, max);
     }
 
     /**
@@ -477,7 +482,18 @@ public class GTopo30DataSource extends AbstractDataSource {
      *       programmatically make powerful enough schemas?
      */
     public FeatureType getSchema() {
-        return null;
+        try {
+            AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
+            AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
+
+            FeatureType schema = null;
+            AttributeType[] attTypes = {geom, grid};
+
+            return FeatureTypeFactory.newFeatureType(attTypes, name);
+        } catch (SchemaException e) {
+            // in fact it never happens unless there is a bug in the code
+            throw new RuntimeException("Hey, someone broke the GTopo30DataSource.getSchema() code!");
+        }
     }
 
     /**

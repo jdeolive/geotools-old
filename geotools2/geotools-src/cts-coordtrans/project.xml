@@ -50,7 +50,7 @@
     </dependency>
 <dependency>
       <id>JTS</id>
-      <version>1.3</version>
+      <version>1.4</version>
       <url>http://www.vividsolutions.com/JTS/jts_frame.htm</url>
     </dependency>
     <dependency>

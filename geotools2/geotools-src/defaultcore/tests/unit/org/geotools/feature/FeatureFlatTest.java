@@ -220,6 +220,7 @@ public class FeatureFlatTest extends TestCase {
             fail("allowed bogus attribute setting");
         } catch (IllegalAttributeException iae) {
 
+        } catch (RuntimeException rt) {
         }
     }
 

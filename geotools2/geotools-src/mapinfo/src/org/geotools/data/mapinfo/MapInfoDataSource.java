@@ -51,7 +51,7 @@ import org.geotools.styling.*;
 
 
 /** Parses MIF and MID file pair into features
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @author Ian Turton
  * @author James Macgill
  */
@@ -1128,7 +1128,7 @@ public class MapInfoDataSource extends AbstractDataSource implements DataSource 
      * @return FeatureType of the features in the MIFMID file
      */
     public FeatureType getSchema(){
-        return null;
+        return DefaultFeatureType.EMPTY;
     }
     
     private List parse(String s, char delim) {

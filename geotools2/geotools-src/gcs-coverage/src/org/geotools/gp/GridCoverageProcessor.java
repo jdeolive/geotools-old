@@ -81,7 +81,7 @@ import org.geotools.gp.jai.NodataFilterDescriptor;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.36 2003/10/15 09:42:02 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.37 2003/11/21 22:31:50 aaime Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -240,7 +240,7 @@ public class GridCoverageProcessor {
             DEFAULT.addOperation(new RecolorOperation());
             DEFAULT.addOperation(new GradualColormapOperation());
             DEFAULT.addOperation(new GradientMagnitudeOperation()); // Backed by JAI
-            DEFAULT.addOperation(new FilterOperation(  HysteresisDescriptor.OPERATION_NAME));
+            DEFAULT.addOperation(new FilterOperation(HysteresisDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new FilterOperation(NodataFilterDescriptor.OPERATION_NAME));
             DEFAULT.addOperation(new CombineOperation());
             /*
@@ -538,7 +538,7 @@ public class GridCoverageProcessor {
      *                image. The OpenGIS specification allows to change sample values.  What
      *                should be the semantic for operation using those images as sources?
      *
-     * @version $Id: GridCoverageProcessor.java,v 1.36 2003/10/15 09:42:02 desruisseaux Exp $
+     * @version $Id: GridCoverageProcessor.java,v 1.37 2003/11/21 22:31:50 aaime Exp $
      * @author Martin Desruisseaux
      */
     private static final class CacheKey {

@@ -23,7 +23,7 @@ import java.util.Iterator;
  * A basic implementation of FeatureType.
  *
  * @author Ian Schneider
- * @version $Id: DefaultFeatureType.java,v 1.11 2003/11/16 21:12:01 aaime Exp $
+ * @version $Id: DefaultFeatureType.java,v 1.12 2003/11/21 22:31:52 aaime Exp $
  */
 public class DefaultFeatureType implements FeatureType {
     /** The name of this FeatureType. */
@@ -43,7 +43,10 @@ public class DefaultFeatureType implements FeatureType {
 
     /** The position of the default Geometry */
     private final int defaultGeomIdx;
-
+    
+    /** An feature type with no attributes */
+    public static final FeatureType EMPTY = new DefaultFeatureType();
+    
     /**
      * Constructs a new DefaultFeatureType.
      *
@@ -75,6 +78,18 @@ public class DefaultFeatureType implements FeatureType {
 
         // before doing this
         this.defaultGeom = defaultGeom;
+    }
+    
+    /**
+     * Builds an empty feature type, useful for testing
+     */
+    private DefaultFeatureType() {
+        this.typeName = "emtpyFeatureType";
+        this.namespace = "";
+        this.types = new AttributeType[0];
+        this.ancestors = new FeatureType[0];
+        this.defaultGeomIdx = -1;
+        this.defaultGeom = null;
     }
 
     /**

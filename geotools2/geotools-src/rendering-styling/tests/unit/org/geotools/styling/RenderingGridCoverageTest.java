@@ -76,9 +76,12 @@ import java.awt.image.WritableRaster;
 import java.util.Date;
 import java.util.logging.Logger;
 import javax.media.jai.JAI;
+import javax.media.jai.OperationRegistry;
 
 //Logging system
 import javax.media.jai.RasterFactory;
+import org.geotools.gp.jai.CombineDescriptor;
+import org.geotools.gp.jai.HysteresisDescriptor;
 import org.geotools.renderer.Renderer2D;
 import org.geotools.renderer.j2d.StyledRenderer;
 

@@ -18,6 +18,7 @@ import org.geotools.filter.Filter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
+import org.geotools.feature.DefaultFeatureType;
 
 public class VeryBasicDataSource extends AbstractDataSource 
     implements DataSource {
@@ -134,7 +135,7 @@ public class VeryBasicDataSource extends AbstractDataSource
      * @tasks TODO: implement this method.
      */
     public FeatureType getSchema(){
-	return new DummyFeatureType("typeName");
+	return DefaultFeatureType.EMPTY;
     }
 
 

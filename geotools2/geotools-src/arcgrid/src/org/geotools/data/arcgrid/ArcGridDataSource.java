@@ -17,6 +17,7 @@
 package org.geotools.data.arcgrid;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.geom.PrecisionModel;
@@ -38,7 +39,6 @@ import org.geotools.feature.IllegalAttributeException;
 import org.geotools.feature.SchemaException;
 import org.geotools.filter.Filter;
 import org.geotools.gc.GridCoverage;
-import org.geotools.pt.Envelope;
 import org.geotools.units.Unit;
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
@@ -47,6 +47,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
+import sun.security.krb5.internal.l;
 
 
 /**
@@ -161,7 +162,7 @@ public class ArcGridDataSource extends AbstractDataSource {
      *
      * @throws IllegalArgumentException if bounds could not be calculated
      */
-    public com.vividsolutions.jts.geom.Envelope getBounds() {
+    public Envelope getBounds() {
         com.vividsolutions.jts.geom.Envelope env = null;
 
         try {
@@ -282,11 +283,12 @@ public class ArcGridDataSource extends AbstractDataSource {
      *
      * @return the equivalent geotools envelope
      */
-    private Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
+    private org.geotools.pt.Envelope convertEnvelope(com.vividsolutions.jts.geom.Envelope source) {
         double[] min = new double[] {source.getMinX(), source.getMinY()};
         double[] max = new double[] {source.getMaxX(), source.getMaxY()};
 
-        return new Envelope(min, max);
+        return new org.geotools.pt.Envelope(min, max);
+        
     }
 
     /**
@@ -295,7 +297,18 @@ public class ArcGridDataSource extends AbstractDataSource {
      * @return the schema of features created by this datasource.
      */
     public FeatureType getSchema() {
-        return null;
+        try {
+            AttributeType geom = AttributeTypeFactory.newAttributeType("geom", Polygon.class);
+            AttributeType grid = AttributeTypeFactory.newAttributeType("grid", GridCoverage.class);
+
+            FeatureType schema = null;
+            AttributeType[] attTypes = {geom, grid};
+
+            return FeatureTypeFactory.newFeatureType(attTypes, name);
+        } catch (SchemaException e) {
+            // in fact it never happens unless there is a bug in the code
+            throw new RuntimeException("Hey, someone broke the ArcGridDataSource.getSchema() code!");
+        }
     }
 
     /**

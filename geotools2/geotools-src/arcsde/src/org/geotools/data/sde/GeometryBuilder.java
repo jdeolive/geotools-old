@@ -71,7 +71,7 @@ import java.util.*;
  * </p>
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 public abstract class GeometryBuilder
 {
@@ -431,7 +431,7 @@ public abstract class GeometryBuilder
  * <code>Point</code>s from <code>SeShape</code> points and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class PointBuilder extends GeometryBuilder
 {
@@ -500,7 +500,7 @@ class PointBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class MultiPointBuilder extends GeometryBuilder
 {
@@ -586,7 +586,7 @@ class MultiPointBuilder extends GeometryBuilder
  * <code>LineString</code>s from <code>SeShape</code> linestring and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class LineStringBuilder extends GeometryBuilder
 {
@@ -605,7 +605,7 @@ class LineStringBuilder extends GeometryBuilder
     {
         if (EMPTY == null)
         {
-            EMPTY = new GeometryFactory().createLineString(null);
+            EMPTY = new GeometryFactory().createLineString((Coordinate[]) null);
         }
 
         return EMPTY;
@@ -673,7 +673,7 @@ class LineStringBuilder extends GeometryBuilder
  * and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class MultiLineStringBuilder extends LineStringBuilder
 {
@@ -770,7 +770,7 @@ class MultiLineStringBuilder extends LineStringBuilder
  * <code>Polygon</code>s from <code>SeShape</code> polygon and viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class PolygonBuilder extends GeometryBuilder
 {
@@ -911,7 +911,7 @@ class PolygonBuilder extends GeometryBuilder
  * viceversa
  *
  * @author Gabriel Roldán
- * @version $Id: GeometryBuilder.java,v 1.6 2003/11/19 17:50:11 groldan Exp $
+ * @version $Id: GeometryBuilder.java,v 1.7 2003/11/21 22:31:53 aaime Exp $
  */
 class MultiPolygonBuilder extends PolygonBuilder
 {
