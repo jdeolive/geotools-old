@@ -32,7 +32,7 @@ id="index">
       </editor>
     </authorgroup>
 
-    <date>$Date: 2002/12/30 08:58:11 $</date>
+    <date>$Date: 2003/01/05 10:27:48 $</date>
 
     <edition>$Id: developersguide.sgml,v 1.15 2002/11/23 03:51:29 camerons Exp
     $</edition>
@@ -42,11 +42,11 @@ id="index">
     </abstract>
   </articleinfo>
 
-  <section>
-    <title id="introduction">Introduction</title>
+  <section id="introduction">
+    <title>Introduction</title>
 
-    <section>
-      <title id="identification">Identification.</title>
+    <section id="identification">
+      <title>Identification.</title>
 
       <para>This document aims to help new <ulink url="http://geotools.org">Geotools2</ulink>
       developers get up to speed and track practices of existing developers in

@@ -4,8 +4,8 @@
 <section id="development">
   <title>Development</title>
 
-  <section>
-    <title id="requirements">Requirements</title>
+  <section id="requirements">
+    <title>Requirements</title>
 
     <para>Before developing geotools2, you should download and install the
     following:</para>
@@ -32,8 +32,8 @@
     </itemizedlist>
   </section>
 
-  <section>
-    <title id="java">Java</title>
+  <section id="java">
+    <title>Java</title>
 
     <para>Some geotools modules depend on classes in Java Development Kit 1.4
     or greater. Even when compiling with version 1.4, you will need to
@@ -92,7 +92,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.2 2002/12/21 19:30:30 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.3 2003/01/05 10:27:48 camerons Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
@@ -160,15 +160,15 @@ public class ThisClass {
       </itemizedlist>
     </section>
 
-    <section>
-      <title id="directorynames">Directory Naming Conventions</title>
+    <section id="directorynames">
+      <title>Directory Naming Conventions</title>
 
       <para>Directory names shall be all lower case with no spaces. Some
       versions of windows do not distinguish between upper and lower case, and
       in unix, writing spaces in filenames is painful.</para>
     </section>
 
-    <section>
+    <section id="classnaming">
       <title>Class Naming Conventions</title>
 
       <figure>
@@ -188,8 +188,8 @@ public class ThisClass {
       called <filename>XXXImpl.java</filename>.</para>
     </section>
 
-    <section>
-      <title id="moduledirstructure">Module Directory Structure</title>
+    <section id="moduledirstructure">
+      <title>Module Directory Structure</title>
 
       <para>Geotools derived its directory structure from <ulink
       url="http://www.netbeans.org">Netbeans</ulink>.</para>
@@ -475,7 +475,7 @@ org.geotools.cts.level = INFO</programlisting>
       </listitem>
     </itemizedlist>
 
-    <section>
+    <section id="usingmaven">
       <title>Using Maven</title>
 
       <para>First off, what is maven? Maven is a &#34;Java project management
@@ -501,7 +501,7 @@ org.geotools.cts.level = INFO</programlisting>
       in and what support jars to download when needed. (If we move over to
       maven exclusively we will no longer need the extbin folder)</para>
 
-      <section>
+      <section id="gettingmaven">
         <title>Getting Maven</title>
 
         <para>You will need Maven 1.0 beta 7 installed in order to use the
@@ -509,7 +509,7 @@ org.geotools.cts.level = INFO</programlisting>
         url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
       </section>
 
-      <section>
+      <section id="installingmaven">
         <title>Installing Maven</title>
 
         <para>Unpack the archive you downloaded to a convenient location on
@@ -533,7 +533,7 @@ org.geotools.cts.level = INFO</programlisting>
         required by a number of modules.</para>
       </section>
 
-      <section>
+      <section id="mavenbuildall">
         <title>Using Maven to build ALL modules</title>
 
         <para>Most of the GT2 modules depend on other GT2 modules, so the
@@ -553,7 +553,7 @@ org.geotools.cts.level = INFO</programlisting>
         subsequent builds do not take as long.</para>
       </section>
 
-      <section>
+      <section id="mavenrepository">
         <title>The Maven local repository</title>
 
         <para>On your machine you will find a directory in MAVEN_HOME called
@@ -566,7 +566,7 @@ org.geotools.cts.level = INFO</programlisting>
         core, defaultcore...)</para>
       </section>
 
-      <section>
+      <section id="indvidualmavenmodule">
         <title>Building an individual module</title>
 
         <para>Provided you have done at least one complete build you should be
@@ -593,7 +593,7 @@ org.geotools.cts.level = INFO</programlisting>
         to build and try again.</para>
       </section>
 
-      <section>
+      <section id="mavenothers">
         <title>Doing things other than building</title>
 
         <para>In any individual module home you can type maven -g to see a
@@ -607,7 +607,7 @@ org.geotools.cts.level = INFO</programlisting>
         into the Maven repository for use by other modules)</para>
       </section>
 
-      <section>
+      <section id="mavenprojectstructure">
         <title>Project File structure</title>
 
         <para>Maven uses a number of files to work out what to do, the most
@@ -627,7 +627,7 @@ org.geotools.cts.level = INFO</programlisting>
         additional web pages that go into the web site</para>
       </section>
 
-      <section>
+      <section id="mavenprojectstructure">
         <title>Remote File Structure:</title>
 
         <para>There is a repository of jars required by geotools2 stored on
@@ -665,7 +665,7 @@ org.geotools.cts.level = INFO</programlisting>
         </example>
       </section>
 
-      <section>
+      <section id="maventests">
         <title>Testing with Maven</title>
 
         <para>Maven complicates things on the logging front, as it does a lot
@@ -687,7 +687,7 @@ org.geotools.cts.level = INFO</programlisting>
       </section>
     </section>
 
-    <section>
+    <section id="buildingwithant">
       <title>Using ant</title>
 
       <para>Compiling with ant is being replaced with the maven build system,
@@ -789,8 +789,8 @@ public class HelloWorldTest extends TestCase {
     Note that some old tests do not follow this naming convention.</para>
   </section>
 
-  <section>
-    <title id="inlinetasktracking">Inline Task Tracking</title>
+  <section id="inlinetasktracking">
+    <title>Inline Task Tracking</title>
 
     <para>You can place <computeroutput>@task</computeroutput> markers in the
     javadoc sections to track areas for rework. During the maven build
@@ -864,7 +864,7 @@ void example(int i) {
       <xref linkend="CodingStandards" />.</para>
     </section>
 
-    <section>
+    <section id="modulardocumentation">
       <title>Modular documentation</title>
 
       <para>Modular DocBook means content is broken up into smaller file
@@ -949,7 +949,7 @@ id=&#34;index&#34;&#62;
       <literal>&#60;xi:include&#62;</literal> tag into <filename>design.xml</filename>.</para>
     </section>
 
-    <section>
+    <section id="docbookdirectorystructure">
       <title>Location of docbook files and images</title>
 
       <para>Docbook files should be stored in:</para>
@@ -1006,10 +1006,10 @@ id=&#34;index&#34;&#62;
       </variablelist>
     </section>
 
-    <section>
+    <section id="publishingdocbook">
       <title>Publishing docbook files</title>
 
-      <section>
+      <section id="publishingintroduction">
         <title>Publishing introduction</title>
 
         <para>The problem with <literal>&#60;xi:include&#62;</literal> tags,
@@ -1018,7 +1018,7 @@ id=&#34;index&#34;&#62;
         document.</para>
       </section>
 
-      <section>
+      <section id="publishmasterdocs">
         <title>Publishing master documents</title>
 
         <para><filename>gtpublish</filename> can be used to publish all
@@ -1048,7 +1048,7 @@ $ netscape ~/geotools/geotools-src/docs/www/design.html</computeroutput></litera
         directory into the <filename>gtpublish</filename> script.</para>
       </section>
 
-      <section>
+      <section id="publishingwithant">
         <title>Publishing using ant</title>
 
         <para><filename>ant</filename> works all platforms and is probably
@@ -1070,7 +1070,7 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
         <filename>ant</filename> have even more bugs and less functionality.</para>
       </section>
 
-      <section>
+      <section id="publishusingmaven">
         <title>Publishing using maven</title>
 
         <para>Maven allows uses to process docbook to (arnika/velocity?) and
@@ -1118,8 +1118,8 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
       </itemizedlist>
     </section>
 
-    <section>
-      <title id="docbookreferences">Docbook References</title>
+    <section id="docbookreferences">
+      <title>Docbook References</title>
 
       <para>There are a few references worth knowing:</para>
 
@@ -1350,7 +1350,7 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
       to declaration&#34;.</para>
     </section>
 
-    <section>
+    <section id="netbeansprojects">
       <title>Using Projects</title>
 
       <para>After mounting all the directories from the previous section, your
@@ -1365,8 +1365,8 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
     </section>
   </section>
 
-  <section>
-    <title id="refactorit">RefactorIt</title>
+  <section id="refactorit">
+    <title>RefactorIt</title>
 
     <para><ulink url="http://www.refactorit.com/">RefactorIt</ulink> provides
     tools to:</para>
@@ -1397,8 +1397,8 @@ $ netscape ~/geotools/geotools-src/docs/www/license.html</computeroutput></liter
     if some of the geotools files don&#39;t compile.</para>
   </section>
 
-  <section>
-    <title id="poseidon">Poseidon UML</title>
+  <section id="poseidon">
+    <title>Poseidon UML</title>
 
     <para><ulink url="http://www.gentleware.com/products/index.php3">Poseidon</ulink>
     is a Unified Modeling Language (UML) editor. Using Poseidon you can
