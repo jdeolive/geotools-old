@@ -30,12 +30,16 @@ public class Example1 extends java.awt.Panel{
     Java2DRenderer renderer = new Java2DRenderer();
     Map map = new DefaultMap();
     /** Creates a new instance of Example1 */
-    
+
+ 
     public Example1(String uri){
         FeatureCollectionDefault ft = new FeatureCollectionDefault();
+
         
+
         String dataFolder = System.getProperty("user.dir");//"d:\\ian\\development\\geotools2/geotools-src/spike/ian";
        // String uri = "statepop.shp";
+
         try{
             java.net.URL url = new java.net.URL("file:///" + dataFolder + "/" + uri);
             System.out.println("Testing ability to load "+url);
@@ -55,23 +59,14 @@ public class Example1 extends java.awt.Panel{
         
         
         //The following is complex, and should be built from
-        //an SLD document and not by hand
-
-        DefaultPolygonSymbolizer polysym = new DefaultPolygonSymbolizer();
+        //an SLD document and not by hand 
         DefaultFill myFill = new DefaultFill();
         myFill.setColor("#ffaaaa");
-        polysym.setFill(myFill);
-        DefaultStroke stroke = new DefaultStroke();
-        stroke.setWidth(new ExpressionLiteral(2));
-       
-        polysym.setStroke(stroke);
-        DefaultRule rule = new DefaultRule();
-        rule.setSymbolizers(new Symbolizer[]{polysym});
-        DefaultFeatureTypeStyle fts = new DefaultFeatureTypeStyle();
-        fts.setRules(new Rule[]{rule});
-        
-        DefaultStyle style = new DefaultStyle();
-        style.setFeatureTypeStyles(new FeatureTypeStyle[]{fts});
+        myFill.setOpacity(new ExpressionLiteral(0.5));
+        DefaultStroke myStroke = new DefaultStroke();
+        myStroke.setColor("#880000");
+        //Using a BasicPolgyonStyle avoids setting up rules and symbolizers
+        BasicPolygonStyle style = new BasicPolygonStyle(myFill,myStroke);
         try{
             ft.getFeatures(new EnvelopeExtent(r));
         }catch (DataSourceException e){
@@ -79,7 +74,7 @@ public class Example1 extends java.awt.Panel{
             return;
         }
         
-            
+        
         map.addFeatureTable(ft,style);
         
         this.setSize(300,300);
@@ -89,8 +84,10 @@ public class Example1 extends java.awt.Panel{
     public void paint(Graphics g){
         System.out.println("painting " + this.getBounds().toString());
         super.paint(g);
-        renderer.setOutput(this.getGraphics(),this.getBounds());
+        Image img = this.createImage(this.getWidth(),this.getHeight());
+        renderer.setOutput(img.getGraphics(),this.getBounds());
         map.render(renderer,r);//and finaly  try and draw it!
+        g.drawImage(img,0,0,this);
         System.out.println("done paint");
         
     }
