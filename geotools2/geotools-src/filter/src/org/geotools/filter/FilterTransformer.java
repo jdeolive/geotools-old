@@ -21,7 +21,7 @@ import org.xml.sax.helpers.*;
 /**
  * An XMLEncoder for Filters and Expressions.
  *
- * @version $Id: FilterTransformer.java,v 1.6 2003/11/05 17:19:31 ianschneider Exp $
+ * @version $Id: FilterTransformer.java,v 1.7 2004/02/06 21:15:01 ianschneider Exp $
  * @author Ian Schneider
  *
  */
@@ -82,6 +82,12 @@ public class FilterTransformer extends TransformerBase {
         logical.put(new Integer(AbstractFilter.LOGIC_NOT), "Not");
     }
     
+    /**
+     * A typed convenience method for converting a Filter into XML.
+     */
+    public String transform(Filter f) throws TransformerException {
+        return super.transform(f);
+    }
     
     public org.geotools.xml.transform.Translator createTranslator(ContentHandler handler) {
         return new FilterTranslator(handler);
