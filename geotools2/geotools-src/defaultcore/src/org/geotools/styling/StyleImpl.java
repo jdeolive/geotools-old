@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @version $Id: StyleImpl.java,v 1.8 2003/05/23 20:06:51 jmacgill Exp $
+ * @version $Id: StyleImpl.java,v 1.9 2003/06/05 12:07:01 ianturton Exp $
  * @author James Macgill, CCG
  */
 public class StyleImpl implements org.geotools.styling.Style {
@@ -41,7 +41,7 @@ public class StyleImpl implements org.geotools.styling.Style {
     String abstractText = "";
     String name = "Default Styler";
     String title = "Default Styler";
-    boolean defaultB = true;
+    boolean defaultB = false;
     
     /** Creates a new instance of DefaultStyle */
     protected StyleImpl() {
