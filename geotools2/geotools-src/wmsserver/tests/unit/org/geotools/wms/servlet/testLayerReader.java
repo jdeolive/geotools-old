@@ -4,7 +4,7 @@ import junit.framework.*;
 
 import org.geotools.wms.*;
 import org.geotools.wms.gtserver.*;
-
+import java.util.HashMap;
 import java.io.*;
 
 public class testLayerReader extends TestCase {
@@ -31,7 +31,22 @@ public class testLayerReader extends TestCase {
         }
         System.out.println("looking for "+dataFolder+"/layers.xml");
         File f = new File(dataFolder,"layers.xml");
-        LayerEntry [] layers = reader.read(new FileInputStream(f));
+        HashMap layers = reader.read(new FileInputStream(f));
+        LayerEntry first = (LayerEntry) layers.get("first");
+        assertEquals("first",first.id);
+        assertEquals("maps/statepop.shp",first.properties.getProperty("filename"));
+        assertEquals(3,layers.size());
+        Object[] layerArr = layers.values().toArray();
+        LayerEntry layer = null;
+        for (int i=0;i<layerArr.length;i++){
+            layer = (LayerEntry) layerArr[i];	    
+          System.out.println("Layer : "+layer.id+" = "+ layer.description);
+         }
+        
+    }
+}
+
+/*       LayerEntry [] layers = (reader.read(new FileInputStream(f)));
         assertEquals("first",layers[0].id);
         assertEquals("maps/statepop.shp",layers[0].properties.getProperty("filename"));
         assertEquals(1,layers.length);
@@ -40,5 +55,5 @@ public class testLayerReader extends TestCase {
         }
         
     }
-}
+    }*/
 
