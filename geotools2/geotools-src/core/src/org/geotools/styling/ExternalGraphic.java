@@ -39,10 +39,10 @@ import java.net.URL;
  * strokes as set out by this interface.  For example, opacity may not be
  * supported.
  *
- * @version $Id: ExternalGraphic.java,v 1.9 2003/09/06 04:14:12 seangeo Exp $
+ * @version $Id: ExternalGraphic.java,v 1.10 2004/02/16 09:01:19 aaime Exp $
  * @author James Macgill, CCG
  */
-public interface ExternalGraphic {
+public interface ExternalGraphic extends Symbol {
     
     /** converts a URI in a string to the location URL
      *  @param uri the uri of the external graphic
@@ -72,8 +72,5 @@ public interface ExternalGraphic {
      * in a String object.
      */
     void setFormat(String format);
-    
-    void accept(StyleVisitor visitor);
-    
 }
 
