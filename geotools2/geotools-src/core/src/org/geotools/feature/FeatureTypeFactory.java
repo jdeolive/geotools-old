@@ -57,7 +57,7 @@ import java.util.Set;
  * </p>
  *
  * @author Ian Schneider
- * @version $Id: FeatureTypeFactory.java,v 1.10 2003/12/19 00:24:45 jive Exp $
+ * @version $Id: FeatureTypeFactory.java,v 1.11 2004/02/16 09:00:40 aaime Exp $
  */
 public abstract class FeatureTypeFactory implements Factory {
     /** The types that all features have. */
@@ -162,6 +162,43 @@ public abstract class FeatureTypeFactory implements Factory {
 
         return factory.getFeatureType();
     }
+    
+    /**
+         * The most specific way to create a new FeatureType.
+         *
+         * @param types The AttributeTypes to create the FeatureType with.
+         * @param name The typeName of the FeatureType. Required, may not be null.
+         * @param ns The namespace of the FeatureType. Optional, may be null.
+         * @param isAbstract True if this created type should be abstract.
+         * @param superTypes A Collection of types the FeatureType will inherit
+         *        from. Currently, all types inherit from feature in the opengis
+         *        namespace.
+         *
+         * @return A new FeatureType created from the given arguments.
+         *
+         * @throws FactoryConfigurationError If there are problems creating a
+         *         factory.
+         * @throws SchemaException If the AttributeTypes provided are invalid in
+         *         some way.
+         */
+        public static FeatureType newFeatureType(AttributeType[] types,
+            String name, String ns, boolean isAbstract, FeatureType[] superTypes, GeometryAttributeType defaultGeometry)
+            throws FactoryConfigurationError, SchemaException {
+            FeatureTypeFactory factory = newInstance(name);
+            factory.addTypes(types);
+            factory.setNamespace(ns);
+            factory.setAbstract(isAbstract);
+
+            if (superTypes != null) {
+                factory.setSuperTypes(Arrays.asList(superTypes));
+            }
+            
+            if(defaultGeometry != null) {
+                factory.setDefaultGeometry(defaultGeometry);
+            }
+
+            return factory.getFeatureType();
+        }
 
     /**
      * Create a new FeatureType with the given AttributeTypes. A short cut for
