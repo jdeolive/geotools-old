@@ -26,6 +26,8 @@
 #DEFAULT (echo ""; id; echo %{sVv}; date; cat) >> $CVSROOT/CVSROOT/commitlog
 CVSROOT $CVSROOT/CVSROOT/syncmail %{sVv} pgjm@geog.leeds.ac.uk
 
-DEFAULT $CVSROOT/CVSROOT/syncmail %{sVv} GeoTools-commits@lists.sf.net
+geotools $CVSROOT/CVSROOT/syncmail %{sVv} GeoTools-commits@lists.sf.net
 
+website $CVSROOT/CVSROOT/syncmail %{sVv} pgjm@geog.leeds.ac.uk
 
+website /home/groups/g/ge/geotools/scripts/updateSite.sh
