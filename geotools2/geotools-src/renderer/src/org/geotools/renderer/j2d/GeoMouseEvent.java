@@ -63,12 +63,12 @@ import org.geotools.resources.Utilities;
  * &nbsp;}
  * </pre></blockquote>
  *
- * @version $Id: GeoMouseEvent.java,v 1.8 2003/02/27 14:32:44 desruisseaux Exp $
+ * @version $Id: GeoMouseEvent.java,v 1.9 2003/03/08 09:50:57 camerons Exp $
  * @author Martin Desruisseaux
  */
 public final class GeoMouseEvent extends MouseEvent {
     /**
-     * Numéro de version pour compatibilité avec des versions précédentes.
+     * Version number for compatability with previous versions.
      */
     private static final long serialVersionUID = 2151488551541106023L;
 
@@ -93,12 +93,11 @@ public final class GeoMouseEvent extends MouseEvent {
     private transient CoordinateSystem coordinateSystem;
 
     /**
-     * Construit un événements qui utilisera les mêmes paramètres que <code>event</code>.
-     * Les coordonnées en pixels pourront être converties en coordonnées géographiques en
-     * utilisant les paramètres de l'objet {@link Renderer} spécifié.
-     *
+     * A mouseClick event which also contains methods to transform from 
+     * pixels to the Coordinate System of the Renderer.
      * @param event    The original mouse event.
-     * @param renderer The renderer used by the viewer that emmited <code>event</code>.
+     * @param renderer The renderer used by the viewer that emmited the
+     * <code>event</code>.
      */
     public GeoMouseEvent(final MouseEvent event, final Renderer renderer) {
         super(event.getComponent(),    // the Component that originated the event
