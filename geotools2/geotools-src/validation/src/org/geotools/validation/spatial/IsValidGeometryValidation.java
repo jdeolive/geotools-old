@@ -20,13 +20,15 @@
  */
 package org.geotools.validation.spatial;
 
-import com.vividsolutions.jts.geom.Geometry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.geotools.feature.Feature;
 import org.geotools.feature.FeatureType;
 import org.geotools.validation.DefaultFeatureValidation;
 import org.geotools.validation.ValidationResults;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import com.vividsolutions.jts.geom.Geometry;
 
 
 /**
@@ -39,7 +41,7 @@ import java.util.logging.Logger;
  *
  * @author bowens, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: IsValidGeometryValidation.java,v 1.2 2004/02/16 18:48:10 dmzwiers Exp $
+ * @version $Id: IsValidGeometryValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
  */
 public class IsValidGeometryValidation extends DefaultFeatureValidation {
     /** The logger for the validation module. */

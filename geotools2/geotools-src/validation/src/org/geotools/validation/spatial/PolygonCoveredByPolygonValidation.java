@@ -22,12 +22,14 @@
  */
 package org.geotools.validation.spatial;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
+import java.util.Map;
+
 import org.geotools.data.FeatureSource;
 import org.geotools.feature.Feature;
 import org.geotools.validation.ValidationResults;
-import java.util.Map;
+
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 
 
 /**
@@ -39,7 +41,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PolygonCoveredByPolygonValidation.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+ * @version $Id: PolygonCoveredByPolygonValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
  */
 public class PolygonCoveredByPolygonValidation
     extends PolygonPolygonAbstractValidation {

@@ -22,14 +22,16 @@
  */
 package org.geotools.validation.spatial;
 
+import java.util.Map;
+
+import org.geotools.data.FeatureSource;
+import org.geotools.feature.Feature;
+import org.geotools.validation.ValidationResults;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-import org.geotools.data.FeatureSource;
-import org.geotools.feature.Feature;
-import org.geotools.validation.ValidationResults;
-import java.util.Map;
 
 
 /**
@@ -41,10 +43,10 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PointCoveredByEndPointOfLineValidation.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+ * @version $Id: PointCoveredByEndPointOfLineValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
  */
 public class PointCoveredByEndPointOfLineValidation
-    extends LinePointAbstractValidation {
+    extends PointLineAbstractValidation {
     /**
      * PointCoveredByEndPointOfLineValidation constructor.
      * 
@@ -76,8 +78,8 @@ public class PointCoveredByEndPointOfLineValidation
      */
     public boolean validate(Map layers, Envelope envelope,
         ValidationResults results) throws Exception {
-        FeatureSource lineSource = (FeatureSource) layers.get(getLineTypeRef());
-        FeatureSource pointSource = (FeatureSource) layers.get(getRestrictedPointTypeRef());
+        FeatureSource lineSource = (FeatureSource) layers.get(getRestrictedLineTypeRef());
+        FeatureSource pointSource = (FeatureSource) layers.get(getPointTypeRef());
 
         Object[] points = pointSource.getFeatures().collection().toArray();
         Object[] lines = lineSource.getFeatures().collection().toArray();

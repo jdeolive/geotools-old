@@ -22,10 +22,12 @@
  */
 package org.geotools.validation.spatial;
 
-import com.vividsolutions.jts.geom.Envelope;
+import java.util.Map;
+
 import org.geotools.validation.DefaultFeatureValidation;
 import org.geotools.validation.ValidationResults;
-import java.util.Map;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 
 /**
@@ -37,7 +39,7 @@ import java.util.Map;
  *
  * @author dzwiers, Refractions Research, Inc.
  * @author $Author: dmzwiers $ (last modification)
- * @version $Id: PolygonNoGapsValidation.java,v 1.2 2004/02/17 17:19:13 dmzwiers Exp $
+ * @version $Id: PolygonNoGapsValidation.java,v 1.3 2004/02/20 18:45:25 dmzwiers Exp $
  */
 public class PolygonNoGapsValidation extends DefaultFeatureValidation {
     /**
