@@ -39,6 +39,7 @@ public class SLDTransformer extends TransformerBase {
         public SLDTranslator(ContentHandler handler) {
             super(handler,"sld", "http://www.opengis.net/sld");
             filterTranslator = new FilterTransformer.FilterTranslator(handler);
+            addNamespaceDeclarations(filterTranslator);
         }
         
         

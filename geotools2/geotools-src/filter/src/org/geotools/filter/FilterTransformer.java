@@ -22,7 +22,7 @@ import com.vividsolutions.jts.geom.Geometry;
 /**
  * An XMLEncoder for Filters and Expressions.
  *
- * @version $Id: FilterTransformer.java,v 1.8 2004/02/23 14:50:03 aaime Exp $
+ * @version $Id: FilterTransformer.java,v 1.9 2004/03/29 21:31:21 ianschneider Exp $
  * @author Ian Schneider
  *
  */
@@ -103,7 +103,7 @@ public class FilterTransformer extends TransformerBase {
  
             geometryEncoder = new GeometryTransformer.GeometryTranslator(handler);
             
-            getNamespaceSupport().declarePrefix(geometryEncoder.getDefaultPrefix(), geometryEncoder.getDefaultNamespace());
+            addNamespaceDeclarations(geometryEncoder);
         }
         
         public void visit(org.geotools.filter.LogicFilter filter) {
