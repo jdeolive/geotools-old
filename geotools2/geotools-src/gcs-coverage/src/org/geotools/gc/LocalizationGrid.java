@@ -63,11 +63,11 @@ import org.geotools.ct.MathTransform2D;
  * the concatenation of an affine transform with a grid of localization.
  * <br><br>
  * A transformation from grid coordinates to "real world" coordinates can be obtained by
- * the {@link #getMathTransform2D} method.  If this transformation is close enough to an
+ * the {@link #getMathTransform} method.    If this transformation is close enough to an
  * affine transform, then an instance of {@link AffineTransform} is returned. Otherwise,
  * a transform backed by the localization grid is returned.
  *
- * @version $Id: LocalizationGrid.java,v 1.5 2002/08/08 15:55:10 desruisseaux Exp $
+ * @version $Id: LocalizationGrid.java,v 1.6 2002/08/12 13:48:36 desruisseaux Exp $
  * @author Remi Eve
  * @author Martin Desruisseaux
  */
@@ -168,7 +168,7 @@ public class LocalizationGrid {
      * Returns the "real world" coordinates for the specified grid coordinates.
      * Grid coordinates must be integers inside this grid's range.  For general
      * transformations involving non-integer grid coordinates and/or coordinates
-     * outside this grid's range, use {@link #getMathTransform2D} instead.
+     * outside this grid's range, use {@link #getMathTransform} instead.
      *
      * @param  source The point in grid coordinates.
      * @return target The corresponding point in "real world" coordinates.

@@ -78,7 +78,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * should not affect the number of sample dimensions currently being
  * accessed or value sequence.
  *
- * @version $Id: GridCoverageProcessor.java,v 1.6 2002/08/09 18:37:56 desruisseaux Exp $
+ * @version $Id: GridCoverageProcessor.java,v 1.7 2002/08/12 13:48:37 desruisseaux Exp $
  * @author <a href="www.opengis.org">OpenGIS</a>
  * @author Martin Desruisseaux
  */
@@ -114,8 +114,8 @@ public class GridCoverageProcessor {
     private final Map operations = new HashMap();
 
     /**
-     * The rendering hints for JAI operations. This field is usually
-     * given as argument to {@link OperationJAI} methods.
+     * The rendering hints for JAI operations, or <code>null</code> if none.
+     * This field is usually given as argument to {@link OperationJAI} methods.
      */
     private final RenderingHints hints;
     
@@ -134,9 +134,11 @@ public class GridCoverageProcessor {
      * {@link #addOperation} method at construction time.
      *
      * @param hints The set of rendering hints, or <code>null</code> if none.
+     *
+     * @deprecated Use <code>(GridCoverageProcessor, RenderingHints)</code> arguments instead.
      */
     protected GridCoverageProcessor(final RenderingHints hints) {
-        this.hints = (hints!=null) ? new RenderingHints(hints) : hints;
+        this(null, hints);
     }
 
     /**
@@ -145,18 +147,45 @@ public class GridCoverageProcessor {
      * method at construction time.
      *
      * @param processor The {@link JAI} instance to use for instantiating JAI operations.
+     *
+     * @deprecated Use <code>(GridCoverageProcessor, RenderingHints)</code> arguments instead.
      */
     protected GridCoverageProcessor(final JAI processor) {
-        hints = (processor!=null) ? new RenderingHints(Hints.JAI_INSTANCE, processor) : null;
+        this(null, (processor!=null) ? new RenderingHints(Hints.JAI_INSTANCE, processor) : null);
     }
     
     /**
      * Construct a grid coverage processor with the same set of
      * operations and rendering hints than the specified processor.
+     *
+     * @deprecated Use <code>(GridCoverageProcessor, RenderingHints)</code> arguments instead.
      */
     protected GridCoverageProcessor(final GridCoverageProcessor processor) {
-        this.hints = processor.hints;
-        operations.putAll(processor.operations);
+        this(processor, null);
+    }
+    
+    /**
+     * Construct a grid coverage processor initialized with the same set of operations than the
+     * specified processor. The rendering hints are initialized to the union of the rendering
+     * hints of the specified processor, and the specified rendering hints. More operations can
+     * be added by invoking the {@link #addOperation} method at construction time.
+     *
+     * @param processor The processor to inherit from, or <code>null</code> if none.
+     * @param hints A set of supplemental rendering hints, or <code>null</code> if none.
+     */
+    protected GridCoverageProcessor(final GridCoverageProcessor processor, RenderingHints hints) {
+        if (hints != null) {
+            hints = new RenderingHints(hints);
+        }
+        if (processor != null) {
+            operations.putAll(processor.operations);
+            if (hints == null) {
+                hints = processor.hints;
+            } else if (processor.hints != null) {
+                hints.add(processor.hints);
+            }
+        }
+        this.hints = hints;
     }
     
     /**
