@@ -47,6 +47,7 @@
   <DCPType>
     <HTTP>
       <Get>
+         <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="http://www.ccg.leeds.ac.uk:8080/GT2WMS/servlet/GT2WMS?"/>
       </Get>
     </HTTP>
   </DCPType>

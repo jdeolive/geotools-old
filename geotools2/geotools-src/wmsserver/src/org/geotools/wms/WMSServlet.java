@@ -108,6 +108,10 @@ public class WMSServlet extends HttpServlet {
                 String key = (String)en.nextElement();
                 prop.setProperty(key, config.getInitParameter(key));
             }
+            //pass in the context as well
+            String real = getServletContext().getRealPath("");
+            System.out.println("setting base.url to " + real);
+            prop.setProperty("base.url",real);
             server.init(prop);
         }
         catch(Exception exp) {
@@ -454,13 +458,19 @@ public class WMSServlet extends HttpServlet {
         xml.replace(xml.toString().indexOf(XML_VENDORSPECIFIC), xml.toString().indexOf(XML_VENDORSPECIFIC)+ XML_VENDORSPECIFIC.length(), vendorSpecific);
         
         // Layers
-        String layerStr = "";
+        String layerStr = "<Layer>\n<Name>Experimental Web Map Server</Name>\n";
+        layerStr += "<Title>GeoTools2 web map server</Title>";
+        layerStr += "<SRS>EPSG:4326</SRS>\n";
+        layerStr += "<LatLonBoundingBox minx=\"-1\" miny=\"-1\" maxx=\"-1\" maxy=\"-1\" />\n";
+        layerStr += "<BoundingBox SRS=\"EPSG:4326\" minx=\"-1\" miny=\"-1\" maxx=\"-1\" maxy=\"-1\" />\n";
+        
         Enumeration en = cap.layers.elements();
         while (en.hasMoreElements()) {
             Capabilities.Layer l = (Capabilities.Layer)en.nextElement();
             // Layer properties
             layerStr += layersToXml(l, 1);
         }
+        layerStr += "</Layer>";
         xml.replace(xml.toString().indexOf(XML_LAYERS), xml.toString().indexOf(XML_LAYERS)+ XML_LAYERS.length(), layerStr);
         
         return xml.toString();
@@ -475,7 +485,7 @@ public class WMSServlet extends HttpServlet {
         if (root.name!=null) xml += tab+"<Name>"+root.name+"</Name>\n";
         xml += tab+"<Title>"+root.title+"</Title>\n";
         xml += tab+"<Abstract></Abstract>\n";
-        xml += tab+"<LatLongBoundingBox minx="+root.bbox[0]+" miny="+root.bbox[1]+" maxx="+root.bbox[2]+" maxy="+root.bbox[3]+"/ >\n";
+        xml += tab+"<LatLongBoundingBox minx=\""+root.bbox[0]+"\" miny=\""+root.bbox[1]+"\" maxx=\""+root.bbox[2]+"\" maxy=\""+root.bbox[3]+"\"/ >\n";
         if (root.srs!=null) xml += tab+"<SRS>"+root.srs+"</SRS>\n";
         // Styles
         if (root.styles!=null) {

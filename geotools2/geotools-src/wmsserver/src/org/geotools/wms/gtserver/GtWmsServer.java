@@ -49,6 +49,8 @@ public class GtWmsServer implements WMSServer {
     HashMap features = new HashMap();
     HashMap styles = new HashMap();
     
+    URL base;
+    
     org.geotools.map.Map map;
     
     public static final String LAYERS_PROPERTY = "layersxml";
@@ -68,8 +70,16 @@ public class GtWmsServer implements WMSServer {
         LayerReader reader = new LayerReader();
         
         try {
-            System.out.println("loading " + new File(filename).toURL().toString());
-            layers = reader.read((new File(filename)).toURL().openStream());
+            
+            if(base != null){
+                URL url = new URL(base,filename);
+                System.out.println("loading " + url.toString());
+                layers = reader.read(url.openStream());
+            }
+            else {
+                System.out.println("loading without base " + new File(filename).toURL());
+                layers = reader.read((new File(filename)).toURL().openStream());
+            }
             // For each one, create and load a theme
             
             for (int i=0;i<layers.length;i++) {
@@ -77,15 +87,23 @@ public class GtWmsServer implements WMSServer {
                 
                 // Get the type of datasource
                 if (layers[i].datasource.equalsIgnoreCase("Shapefile")) {
-                    Shapefile shapes = new Shapefile((new File(layers[i].properties.getProperty("filename"))).toURL());
+                    File file = new File(layers[i].properties.getProperty("filename"));
+                    URL url;
+                    if(base != null){
+                        url = new URL(base,file.toString());
+                    }
+                    else {
+                        url = file.toURL();
+                    }
+                    Shapefile shapes = new Shapefile(url);
                     ShapefileDataSource sds = new ShapefileDataSource(shapes);
-                   
+                    
                     
                     Style style = new BasicPolygonStyle();//bad
                     
                     features.put(layers[i].id,sds);
-                    styles.put(layers[i].id,style); 
-                }     
+                    styles.put(layers[i].id,style);
+                }
             }
         }
         catch (Exception exp) {
@@ -99,6 +117,16 @@ public class GtWmsServer implements WMSServer {
         // Load the layers from xml on the given path
         String filename = properties.getProperty(LAYERS_PROPERTY);
         System.out.println("Loading layers.xml from : "+filename);
+        String home = properties.getProperty("base.url");
+        try{
+            if(home != null){
+                base = new File(home).toURL();
+                System.out.println("base set to " + base);
+            }
+        }
+        catch(MalformedURLException mue){
+            throw new WMSException("Initialization error",mue.toString());
+        }
         loadLayers(filename);
     }
     
@@ -118,7 +146,7 @@ public class GtWmsServer implements WMSServer {
         for (int i=0;i<layers.length;i++)
             System.out.println(layers[i]);
         System.out.println("available : ");
-   
+        
         // Make sure the requested layers exist on this server
         for (int i=0;i<layers.length;i++){
             if (features.get(layers[i])==null)
@@ -129,32 +157,32 @@ public class GtWmsServer implements WMSServer {
             throw new WMSException(WMSException.WMSCODE_INVALIDSRS, "This server only supports EPSG:4326");
         
         
-       // try {
-            System.out.println("setting up map");
-            map = new DefaultMap();
-            for(int i = 0; i < layers.length; i++){
-                System.out.println("style object is a " + styles.get(layers[i]));
-                DataSource ds = (DataSource)features.get(layers[i]);
-                FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
-                map.addFeatureTable(fc,(org.geotools.styling.Style)styles.get(layers[i]));
-            }
-            System.out.println("map setup");
-            BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-            Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
-            System.out.println("setting up renderer");
-            Java2DRenderer renderer = new Java2DRenderer();
-            java.awt.Graphics g = image.getGraphics();
-            g.setColor(Color.white);
-            g.fillRect(0,0,width,height);
-            renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
-            System.out.println("calling renderer");
-            map.render(renderer, env);
-            System.out.println("returning image");
-            return image;
-       // }
-       // catch(Exception exp) {
-       //     throw new WMSException(null, "Internal error : "+exp.getMessage());
-       // }
+        // try {
+        System.out.println("setting up map");
+        map = new DefaultMap();
+        for(int i = 0; i < layers.length; i++){
+            System.out.println("style object is a " + styles.get(layers[i]));
+            DataSource ds = (DataSource)features.get(layers[i]);
+            FeatureCollectionDefault fc = new FeatureCollectionDefault(ds);
+            map.addFeatureTable(fc,(org.geotools.styling.Style)styles.get(layers[i]));
+        }
+        System.out.println("map setup");
+        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Envelope env = new Envelope(bbox[0],bbox[2],bbox[1],bbox[3]);
+        System.out.println("setting up renderer");
+        Java2DRenderer renderer = new Java2DRenderer();
+        java.awt.Graphics g = image.getGraphics();
+        g.setColor(Color.white);
+        g.fillRect(0,0,width,height);
+        renderer.setOutput(image.getGraphics(), new java.awt.Rectangle(width,height));
+        System.out.println("calling renderer");
+        map.render(renderer, env);
+        System.out.println("returning image");
+        return image;
+        // }
+        // catch(Exception exp) {
+        //     throw new WMSException(null, "Internal error : "+exp.getMessage());
+        // }
     }
     
     /** Gets the capabilites of this server as an XML-formatted string.
