@@ -1,68 +1,93 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
 package org.geotools.gui.tools;
 
+import org.geotools.map.Context;
 import java.awt.Component;
 import java.awt.Cursor;
 
-import org.geotools.map.Context;
 
 /**
- * Base class for all the geotools Tools, like PanTool, ZoomTool, etc.
- * Tools process mouse events on behalf of widgets like MapPane and change
- * data in the Context (like the AreaOfInterest).
- * @version $Id: Tool.java,v 1.4 2003/08/03 03:28:15 seangeo Exp $
+ * Base class for all the geotools Tools, like PanTool, ZoomTool, etc. Tools
+ * process mouse events on behalf of widgets like MapPane and change data in
+ * the Context (like the AreaOfInterest).
+ *
  * @author Cameron Shorter
+ * @version $Id: Tool.java,v 1.5 2003/08/20 21:32:13 cholmesny Exp $
  */
 public abstract interface Tool {
-
     /**
-     * Register this tool to receive Mouse Events from <code>component<code>.
+     * Register this tool to receive Mouse Events from <code>component</code>.
      * The events may be MouseEvents or MouseMotionEvents or both depending on
      * the Tool which implements this interface.
+     *
      * @param component The tool will process mouseEvents from this component.
      * @param context The Context that will be changed by this Tool.
-     * @throws IllegalArgumentException if an argument is <code>null</code>
-     * or the tool is being assigned a different context to before.
+     *
+     * @throws IllegalArgumentException if an argument is <code>null</code> or
+     *         the tool is being assigned a different context to before.
      */
-    public void addMouseListener(
-        Component component,
-        Context context);
-    
+    void addMouseListener(Component component, Context context)
+        throws IllegalArgumentException;
+
     /**
      * Remove all Mouse Listeners from this tool.  This method should be called
      * when this tool is deselected from a MapPane.
      */
-    public void removeMouseListeners();
+    void removeMouseListeners();
 
     /**
-     * Get the context.  If context has not been set yet, then null is returned.
-     * @param The context which stores the state data.
+     * Get the context.  If context has not been set yet, then null is
+     * returned.
+     *
+     * @return The context of this tool.
      */
-    public Context getContext();
-    
+    Context getContext();
+
     /**
      * Set the name for the tool, eg "Zoom In", "Zoom Out", "Pan".
+     *
+     * @param name what to call this tool.
      */
-    public void setName(String name);
-    
+    void setName(String name);
+
     /**
      * Get the name of the tool.
+     *
+     * @return The name of this tool.
      */
-    public String getName();
-    
+    String getName();
+
     /**
      * Return the prefered cursor for this tool.
+     *
      * @return cursor The prefered cursor for this tool.
      */
-    public Cursor getCursor();
-    
+    Cursor getCursor();
+
     /**
      * Set the cursor for this Tool.
+     *
      * @param cursor The cursor to associate with this tool.
      */
-    public void setCursor(Cursor cursor);
-    
+    void setCursor(Cursor cursor);
+
     /**
      * Clean up this class.
      */
-    public void destroy();
+    void destroy();
 }

@@ -30,7 +30,7 @@ import org.geotools.gui.tools.event.SelectedToolListener;
  * that.
  *
  * @author Cameron Shorter
- * @version $Id: ToolList.java,v 1.2 2003/08/03 03:28:15 seangeo Exp $
+ * @version $Id: ToolList.java,v 1.3 2003/08/20 21:32:13 cholmesny Exp $
  */
 public interface ToolList extends List {
     /**
@@ -38,14 +38,14 @@ public interface ToolList extends List {
      *
      * @param listener The object to notify when tool changes.
      */
-    public void addSelectedToolListener(SelectedToolListener listener);
+    void addSelectedToolListener(SelectedToolListener listener);
 
     /**
      * Remove interest in bening notified when Tool changes.
      *
      * @param listener The listener.
      */
-    public void removeSelectedToolListener(SelectedToolListener listener);
+    void removeSelectedToolListener(SelectedToolListener listener);
 
     /**
      * Get the SelectedTool.  Null will be returned if there is no
@@ -53,12 +53,12 @@ public interface ToolList extends List {
      *
      * @return The SelectedTool.
      */
-    public Tool getSelectedTool();
+    Tool getSelectedTool();
 
     /**
      * Set the SelectedTool.
      *
      * @param tool The new SelectedTtool.
      */
-    public void setSelectedTool(Tool tool);
+    void setSelectedTool(Tool tool);
 }

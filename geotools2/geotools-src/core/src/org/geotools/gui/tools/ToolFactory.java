@@ -23,12 +23,13 @@ import java.util.logging.Logger;
  * Factory for constructing Tool classes.
  *
  * @author Cameron Shorter
- * @version $Id: ToolFactory.java,v 1.5 2003/05/30 12:31:22 camerons Exp $
+ * @version $Id: ToolFactory.java,v 1.6 2003/08/20 21:32:13 cholmesny Exp $
  */
 public abstract class ToolFactory {
     /** The logger */
     private static final Logger LOGGER = Logger.getLogger(
             "org.geotools.gui.tools.ToolFactory");
+    /** Factory to make tools. */
     private static ToolFactory factory = null;
 
     /**
@@ -69,15 +70,15 @@ public abstract class ToolFactory {
             return factory = (ToolFactory) Class.forName(factoryClass)
                                                 .newInstance();
         } catch (ClassNotFoundException e) {
-            LOGGER.warning("createFactory failed to find implementation " +
-                factoryClass + " , " + e);
+            LOGGER.warning("createFactory failed to find implementation "
+                + factoryClass + " , " + e);
         } catch (InstantiationException e) {
-            LOGGER.warning("createFactory failed to insantiate implementation " +
-                factoryClass + " , " + e);
+            LOGGER.warning("createFactory failed to insantiate implementation "
+                + factoryClass + " , " + e);
         } catch (IllegalAccessException e) {
             LOGGER.warning(
-                "createStyleFactory failed to access implementation " +
-                factoryClass + " , " + e);
+                "createStyleFactory failed to access implementation "
+                + factoryClass + " , " + e);
         }
 
         return null;
