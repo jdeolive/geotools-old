@@ -92,7 +92,7 @@ import org.geotools.resources.renderer.ResourceKeys;
  * Par convention, toutes les méthodes statiques de cette classe peuvent agir
  * sur une chaîne d'objets {@link Polyline} plutôt que sur une seule instance.
  *
- * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
+ * @version $Id: Polyline.java,v 1.2 2003/01/13 22:41:32 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 final class Polyline implements Serializable {
@@ -1210,7 +1210,7 @@ final class Polyline implements Serializable {
      *              mais cette méthode sera plus rapide si c'est le premier maillon.
      * @return Copie de la chaîne <code>scan</code>.
      */
-    public static Object clone(Polyline scan) {
+    public static Polyline clone(Polyline scan) {
         Polyline queue=null;
         for (scan=getFirst(scan); scan!=null; scan=scan.next) {
             final Polyline toMerge = new Polyline(null);
@@ -1235,7 +1235,7 @@ final class Polyline implements Serializable {
      * A set of points ({@link Point2D}) from a polyline or a polygon.
      * This set of points is returned by {@link Polygon#getPoints}.
      *
-     * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.2 2003/01/13 22:41:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Collection extends AbstractCollection {
@@ -1278,7 +1278,7 @@ final class Polyline implements Serializable {
     /**
      * Iterateur balayant les coordonnées d'un polyligne ou d'un polygone.
      *
-     * @version $Id: Polyline.java,v 1.1 2003/01/12 21:56:30 desruisseaux Exp $
+     * @version $Id: Polyline.java,v 1.2 2003/01/13 22:41:32 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     static final class Iterator implements java.util.Iterator {

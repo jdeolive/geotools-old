@@ -22,7 +22,16 @@ package org.geotools.resources.renderer;
  */
 public interface ResourceKeys
 {
+    public static final int DEPRESSION                               =     4;
+    public static final int ELEVATION                                =     5;
+    public static final int FLAT                                     =     6;
+    public static final int INITIALIZING_TRANSFORMATION_$2           =     3;
+    public static final int REBUILD_CACHE_ARRAY_$3                   =     9;
+
+    public static final int WARNING_EXCESSIVE_MEMORY_USAGE           =     7;
+
     public static final int ERROR_BAD_RANGE_$2                       =     0;
     public static final int ERROR_NON_CARTESIAN_COORDINATE_SYSTEM_$1 =     2;
     public static final int ERROR_ODD_ARRAY_LENGTH_$1                =     1;
+    public static final int ERROR_POLYGON_CLOSED                     =     8;
 }
