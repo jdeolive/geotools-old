@@ -17,6 +17,14 @@ public interface Extent
 	 */	
 	public Extent [] difference(Extent other);
 	
+        /**
+         * Produces the smallest extent that will hold both the existing extent and that of the extent pased in
+         * TODO: Think about implecation of combining, new extent may contain areas which were in neither.
+         * @param other The extent to combine with this extent
+         * @return The new, larger, extent.
+         **/
+        public Extent combine(Extent other);
+        
 	/** Tests whether the given Feature is within this Extent. This Extent implementation must
 	 * know and be able to read the object types contained in the Feature.
 	 * @return True is the Feature is within this Extent, false if otherwise.
