@@ -6,25 +6,27 @@
 
   <para>This document provides comprehensive java software development
   processes tailored for open source projects. It covers processes,
-  convensions, and recommended tools. The guide aims to help developers
-  quickly get up to speed with best practices.</para>
+  conventions, and recommended tools. The guide aims to help developers
+  quickly get up to speed with best practises.</para>
 
   <para>You are not expected to read this guide cover-to-cover. You probably
   should be familiar with the contents and reference the appropriate section
   when you need it. Documentation aims to be concise with references elsewhere
   on the web for details like installation instructions.</para>
 
-  <para>This guide is written in a modular fasion so that different projects
-  can easilly add, delete, or modify sections. It is hoped that this guide
-  will become the defacto standard software developers guide for java based
-  open source projects.</para>
+  <para>This guide is written in a modular fashion so that different projects
+  can easily add, delete, or modify sections. It is hoped that this guide will
+  become the de-facto standard software developers guide for java based open
+  source projects.</para>
 
   <para>For this guide to be useful it needs to be continually added to and
   improved as tools are developed, processes improved and projects grow.
   Please consider improving or adding a section if you feel it is required.</para>
 
   <para>Only free, cross platform tools are recommended. Where applicable,
-  widely accepted convensions and open standards are used. It has been
-  satisfying to discover that quality free tools are available for the full
-  software development lifecycle, with many of the tools being open source.</para>
+  widely accepted conventions and open standards are used. It has been
+  satisfying to discover the breadth of quality free and open source tools
+  which support software development. It is hoped that this document will
+  highlight areas where tools can be improved or developed and encourage
+  developers to focus on these areas.</para>
 </section>
