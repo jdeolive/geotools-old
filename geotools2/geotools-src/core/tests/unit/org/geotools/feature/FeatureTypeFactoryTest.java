@@ -71,7 +71,7 @@ public class FeatureTypeFactoryTest extends TestCase {
       return (AttributeType) attributeTypes.get(idx);
     }
     
-    protected int getAttributeCount() {
+    public int getAttributeCount() {
       return attributeTypes.size();
     }
     
