@@ -46,8 +46,8 @@ import javax.media.jai.Histogram;
 /**
  * Describes the band values for a grid coverage.
  *
- * @version $Id: GridSampleDimension.java,v 1.2 2002/07/17 23:30:55 desruisseaux Exp $
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: GridSampleDimension.java,v 1.3 2002/07/26 23:18:18 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
 final class GridSampleDimension extends SampleDimension {

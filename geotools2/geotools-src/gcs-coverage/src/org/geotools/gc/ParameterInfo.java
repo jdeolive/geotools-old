@@ -41,6 +41,9 @@ import java.io.Serializable;
 import javax.media.jai.util.Range;
 import javax.media.jai.ParameterListDescriptor;
 
+// OpenGIS dependencies
+import org.opengis.gc.GC_ParameterInfo;
+
 // Resources
 import org.geotools.resources.Utilities;
 import org.geotools.resources.gcs.Resources;
@@ -57,9 +60,11 @@ import org.geotools.resources.gcs.ResourceKeys;
  * OpenGIS specification and its API is significantly different from Java
  * Advanced Imaging.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: ParameterInfo.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
+ *
+ * @see GC_ParameterInfo
  */
 public class ParameterInfo implements Serializable {
     /**
@@ -123,6 +128,8 @@ public class ParameterInfo implements Serializable {
     
     /**
      * Returns the parameter name.
+     *
+     * @see GC_ParameterInfo#getName
      */
     public String getName() {
         return name;
@@ -136,6 +143,8 @@ public class ParameterInfo implements Serializable {
      *
      * @param  locale The locale, or <code>null</code> for a default one.
      * @return The description, or <code>null</code> if there is none.
+     *
+     * @see GC_ParameterInfo#getDescription
      */
     public String getDescription(final Locale locale) {
         return null;
@@ -143,6 +152,8 @@ public class ParameterInfo implements Serializable {
     
     /**
      * Returns the parameter type.
+     *
+     * @see GC_ParameterInfo#getType
      */
     public Class getType() {
         return type;
@@ -154,6 +165,8 @@ public class ParameterInfo implements Serializable {
      * or a {@link String}. For example, a filtering operation could have
      * a default kernel size of 3. If there is no default value, this method
      * returns <code>null</code>.
+     *
+     * @see GC_ParameterInfo#getDefaultValue
      */
     public Object getDefaultValue() {
         final Object value = descriptor.getParamDefaultValue(name);
@@ -164,6 +177,8 @@ public class ParameterInfo implements Serializable {
      * Returns the minimum parameter value. For example,
      * a filtering operation could have a minimum kernel size of 3.
      * If there is no minimum value, this method returns <code>null</code>.
+     *
+     * @see GC_ParameterInfo#getMinimumValue
      */
     public Number getMinimumValue() {
         final Range range = descriptor.getParamValueRange(name);
@@ -180,6 +195,8 @@ public class ParameterInfo implements Serializable {
      * Returns the maximum parameter value. For example,
      * a filtering operation could have a maximum kernel size of 9.
      * If there is no maximum value, this method returns <code>null</code>.
+     *
+     * @see GC_ParameterInfo#getMaximumValue
      */
     public Number getMaximumValue() {
         final Range range = descriptor.getParamValueRange(name);

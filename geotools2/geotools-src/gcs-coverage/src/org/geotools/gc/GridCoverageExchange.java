@@ -55,8 +55,8 @@ import org.geotools.resources.gcs.ResourceKeys;
  * This class is implemented only with the JDK 1.4 version. On the JDK 1.3
  * version, all methods throws an {@link UnsupportedOperationException}.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: GridCoverageExchange.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  */
 public class GridCoverageExchange {
@@ -120,7 +120,7 @@ public class GridCoverageExchange {
         throws IOException
     {
         // TODO: Temporary implementation. More works are needed here...
-        ImageIO.write(gridCoverage.getRenderedImage(false), fileFormat, fileName);
+        ImageIO.write(gridCoverage.getRenderedImage(), fileFormat, fileName);
     }
     
     /**

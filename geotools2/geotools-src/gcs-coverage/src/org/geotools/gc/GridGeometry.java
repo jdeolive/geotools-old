@@ -43,6 +43,9 @@ import java.awt.geom.Dimension2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 
+// OpenGIS dependencies
+import org.opengis.gc.GC_GridGeometry;
+
 // Geotools dependencies
 import org.geotools.pt.Matrix;
 import org.geotools.pt.Envelope;
@@ -66,9 +69,11 @@ import org.geotools.resources.gcs.ResourceKeys;
  * Describes the valid range of grid coordinates and the math
  * transform to transform grid coordinates to real world coordinates.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: GridGeometry.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
+ *
+ * @see GC_GridGeometry
  */
 public class GridGeometry implements Dimensioned, Serializable {
     /**
@@ -244,12 +249,16 @@ public class GridGeometry implements Dimensioned, Serializable {
     /**
      * Inverse the specified math transform.
      */
-    private static MathTransform2D inverse(final MathTransform2D gridToCoordinateSystem2D) throws IllegalArgumentException {
+    private static MathTransform2D inverse(final MathTransform2D gridToCoordinateSystem2D)
+            throws IllegalArgumentException
+    {
         if (gridToCoordinateSystem2D!=null) {
             try {
                 return (MathTransform2D) gridToCoordinateSystem2D.inverse();
             } catch (NoninvertibleTransformException exception) {
-                IllegalArgumentException e = new IllegalArgumentException(); // TODO
+                IllegalArgumentException e = new IllegalArgumentException(Resources.format(
+                                            ResourceKeys.ERROR_BAD_TRANSFORM_$1,
+                                            Utilities.getShortClassName(gridToCoordinateSystem2D)));
                 e.initCause(exception);
                 throw e;
             }
@@ -269,6 +278,8 @@ public class GridGeometry implements Dimensioned, Serializable {
      * The lowest valid grid coordinate is zero. A grid with
      * 512 cells can have a minimum coordinate of 0 and maximum
      * of 512, with 511 as the highest valid index.
+     *
+     * @see GC_GridGeometry#getGridRange
      */
     public GridRange getGridRange() {
         return gridRange;
@@ -284,6 +295,8 @@ public class GridGeometry implements Dimensioned, Serializable {
      * OpenGIS requires that the transform maps <em>pixel centers</em> to real world
      * coordinates. This is different from some other systems that map pixel's upper
      * left corner.
+     *
+     * @see GC_GridGeometry#getGridToCoordinateSystem
      */
     public MathTransform getGridToCoordinateSystem() {
         return gridToCoordinateSystem;
@@ -324,7 +337,7 @@ public class GridGeometry implements Dimensioned, Serializable {
      * @throws PointOutsideCoverageException if the transformation failed.
      */
     final Point2D inverseTransform(final Point2D point) throws IllegalStateException {
-        if (gridFromCoordinateSystem2D!=null) {
+        if (gridFromCoordinateSystem2D != null) {
             try {
                 return gridFromCoordinateSystem2D.transform(point, null);
             } catch (TransformException exception) {
@@ -333,7 +346,8 @@ public class GridGeometry implements Dimensioned, Serializable {
                 throw e;
             }
         }
-        throw new IllegalStateException(); // TODO
+        throw new IllegalStateException(Resources.format(
+                  ResourceKeys.ERROR_NO_TRANSFORM2D_AVAILABLE));
     }
     
     /**

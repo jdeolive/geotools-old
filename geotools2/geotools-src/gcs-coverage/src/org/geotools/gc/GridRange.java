@@ -42,6 +42,9 @@ import java.awt.Rectangle;
 import java.awt.image.Raster;
 import java.awt.image.RenderedImage;
 
+// OpenGIS dependencies
+import org.opengis.gc.GC_GridRange;
+
 // Geotools dependencies
 import org.geotools.pt.Dimensioned;
 import org.geotools.resources.Utilities;
@@ -52,11 +55,13 @@ import org.geotools.resources.gcs.ResourceKeys;
 /**
  * Defines a range of grid coverage coordinates.
  *
- * @version 1.00
- * @author OpenGIS (www.opengis.org)
+ * @version $Id: GridRange.java,v 1.2 2002/07/26 23:18:18 desruisseaux Exp $
+ * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
+ *
+ * @see GC_GridRange
  */
-public final class GridRange implements Dimensioned, Serializable {
+public class GridRange implements Dimensioned, Serializable {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -179,6 +184,8 @@ public final class GridRange implements Dimensioned, Serializable {
     /**
      * Returns the valid minimum inclusive grid
      * coordinate along the specified dimension.
+     *
+     * @see GC_GridRange#getLo
      */
     public int getLower(final int dimension) {
         if (dimension<index.length) return index[dimension];
@@ -188,6 +195,8 @@ public final class GridRange implements Dimensioned, Serializable {
     /**
      * Returns the valid maximum exclusive grid
      * coordinate along the specified dimension.
+     *
+     * @see GC_GridRange#getHi
      */
     public int getUpper(final int dimension) {
         if (dimension>=0) return index[dimension+index.length/2];
