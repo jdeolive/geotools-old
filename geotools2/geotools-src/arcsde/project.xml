@@ -27,8 +27,8 @@
       <version>2.0-B2-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <artifactId>data</artifactId>
-      <groupId>gt2</groupId>
+      <artifactId>opengis</artifactId>
+      <groupId>opengis</groupId>
       <version>2.0-B2-SNAPSHOT</version>
     </dependency>
     <dependency>
@@ -76,7 +76,7 @@
       <!-- This section excludes the tests, comment out if your
                  testData/testparams.properties are set correctly -->
       <excludes>
-        <exclude>**/SdeDataStoreTest.java</exclude>
+        <!--<exclude>**/SdeDataStoreTest.java</exclude>-->
       </excludes>
       <!-- End exclude tests -->
       <resources>
