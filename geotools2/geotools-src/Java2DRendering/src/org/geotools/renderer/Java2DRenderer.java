@@ -53,7 +53,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 /**
- * @version $Id: Java2DRenderer.java,v 1.32 2002/07/01 16:05:48 ianturton Exp $
+ * @version $Id: Java2DRenderer.java,v 1.33 2002/07/02 16:47:31 ianturton Exp $
  * @author James Macgill
  */
 public class Java2DRenderer implements org.geotools.renderer.Renderer {
@@ -455,11 +455,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     private void renderImage(com.vividsolutions.jts.geom.Point point, BufferedImage img, int size,
     double rotation){
-        _log.info("drawing Image");
+        renderImage(point.getX(),point.getY(),img,size,rotation);
+    }
+    private void renderImage(double tx, double ty, BufferedImage img, int size,
+    double rotation){
+        _log.info("drawing Image @"+tx+","+ty);
         AffineTransform temp = graphics.getTransform();
         AffineTransform markAT = new AffineTransform();
-        double tx = point.getX();
-        double ty = point.getY();
         Point2D mapCentre = new Point2D.Double(tx,ty);
         Point2D graphicCentre = new Point2D.Double();
         temp.transform(mapCentre,graphicCentre);
@@ -479,11 +481,13 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
     }
     
     private void fillDrawMark(Graphics2D graphic,com.vividsolutions.jts.geom.Point point,Mark mark, int size, double rotation){
+        fillDrawMark(graphic,point.getX(),point.getY(),mark,size,rotation);
+    }
+    private void fillDrawMark(Graphics2D graphic,double tx, double ty,Mark mark, int size, double rotation){
         AffineTransform temp = graphic.getTransform();
         AffineTransform markAT = new AffineTransform();
         Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName());
-        double tx = point.getX();
-        double ty = point.getY();
+        
         Point2D mapCentre = new Point2D.Double(tx,ty);
         Point2D graphicCentre = new Point2D.Double();
         temp.transform(mapCentre,graphicCentre);
@@ -548,11 +552,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             
             image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g1 = image.createGraphics();
-            _log.debug("Background "+graphics.getBackground());
-            /*g1.setColor(graphics.getBackground());
-            graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0));
-            g1.fillRect(0,0,size+1,size+1);
-            graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1)); */
+
             fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gr.getRotation());
             
             java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
@@ -566,6 +566,7 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         int height = image.getHeight();
         double unitSize = Math.max(width,height);
         double drawSize = (double)gr.getSize()/unitSize;
+        _log.debug("size = "+gr.getSize()+" unitsize "+unitSize+" drawSize "+drawSize);
         AffineTransform at = graphics.getTransform();
         double scaleX = drawSize/at.getScaleX();
         double scaleY = drawSize/-at.getScaleY();
@@ -686,42 +687,65 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         _log.debug("drawing a graphicalStroke");
         
         /* HACK: should modify setTexture to be able to extract the iamge and rect directly */
+        /*
         setTexture(graphic,gFill);
         BufferedImage image = ((java.awt.TexturePaint)graphic.getPaint()).getImage();
         Rectangle2D anchorRect = ((java.awt.TexturePaint)graphic.getPaint()).getAnchorRect();
-        int imageWidth = (int)anchorRect.getWidth();
-        int imageHeight = (int)anchorRect.getHeight();
+        BufferedImage image = getExternalGraphic(gr);
+        int imageWidth = (int)gFill.getSize();//(int)anchorRect.getWidth();
+        int imageHeight = (int)gFill.getSize();// (int)anchorRect.getHeight();
         int midx = imageWidth/2;
         int midy = imageHeight/2;
-        _log.debug("got image");
-        
-        /* Create a bufferedImage the size of the path's bounding box,
-         * work our way along the path and at each point draw the graphic pointing along the line
-         * Then set this as our paint and draw the stroke.
-         */
-        
-        Rectangle2D rect = path.getBounds2D();
-        _log.debug("path bounds "+rect.toString());
-        BufferedImage img = new BufferedImage((int)rect.getWidth(),(int)rect.getHeight(),BufferedImage.TYPE_INT_ARGB);
-        Graphics2D ig = img.createGraphics();
-        
-        AffineTransform at = new AffineTransform();
-        
-        at.translate(-rect.getMinX(),-rect.getMinY());
+        _log.debug("got image w:"+imageWidth+" h:"+imageHeight);
         
         double unitSize = Math.max(imageWidth,imageHeight);
-        double drawSize = (double)gFill.getSize()/unitSize;
+        double drawSize = gFill.getSize()/unitSize;
         _log.debug("size "+gFill.getSize());
-        double scaleX = drawSize/graphic.getTransform().getScaleX();
-        double scaleY = drawSize/-graphic.getTransform().getScaleY();
+        double scaleX = 1;
+        double scaleY = 1; //drawSize/-graphic.getTransform().getScaleY();
         _log.debug("scale X "+scaleX+" Y "+scaleY);
-        ig.setTransform(at);
+       
         AffineTransform at2 = new AffineTransform();
         AffineTransformOp op;
         BufferedImage image2;
         RenderingHints hints = new RenderingHints(RenderingHints.KEY_INTERPOLATION,RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         hints.put(RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON);
         hints.put(RenderingHints.KEY_RENDERING,RenderingHints.VALUE_RENDER_QUALITY);
+         */
+        
+        // get the image to draw
+        BufferedImage image = getExternalGraphic(gFill);
+        if(image != null){
+            _log.debug("got an image in graphic fill");
+        }else{
+            _log.debug("going for the mark from graphic fill");
+            
+            Mark mark = getMark(gFill);
+            int size=200;
+            
+            image = new BufferedImage(size,size,BufferedImage.TYPE_INT_ARGB);
+            Graphics2D g1 = image.createGraphics();
+
+            fillDrawMark(g1,markCentrePoint,mark,(int)(size*.9),gFill.getRotation());
+            
+            java.awt.MediaTracker track = new java.awt.MediaTracker(obs);
+            track.addImage(image,1);
+            try{
+                track.waitForID(1);
+            } catch (InterruptedException e){}
+            
+        }
+        
+        int size = (int)gFill.getSize();
+        int imageWidth = size;//image.getWidth();
+        int imageHeight = size;//image.getHeight();
+        int midx = imageWidth/2;
+        int midy = imageHeight/2;
+        
+        
+        double scaleX = graphic.getTransform().getScaleX();
+        double scaleY = -graphic.getTransform().getScaleY();
+        _log.debug("scale X "+scaleX+" Y "+scaleY);
         PathIterator pi = path.getPathIterator(null,10.0);
         double[] coords = new double[6];
         int type;
@@ -740,7 +764,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
         _log.debug("starting at "+first[0]+","+first[1]);
         pi.next();
         while(!pi.isDone()){
-            
             type = pi.currentSegment(coords);
             switch(type){
                 case PathIterator.SEG_MOVETO:
@@ -748,7 +771,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     _log.debug("moving to "+coords[0]+","+coords[1]);
                     break;
                 case PathIterator.SEG_CLOSE:
-                    
                     // draw back to first from previous
                     coords[0]=first[0];
                     coords[1]=first[1];
@@ -759,26 +781,29 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
                     _log.debug("drawing from "+previous[0]+","+previous[1]+" to "+coords[0]+","+coords[1]);
                     double dx = coords[0]-previous[0];
                     double dy = coords[1]-previous[1];
-                    double len = Math.sqrt(dx*dx+dy*dy)-imageWidth/(scaleX);
-                    if(len<0){
+                    double len = Math.sqrt(dx*dx+dy*dy)*scaleX - imageWidth;
+                    if(len<=0){
                         len=1;
                     }
                     double theta = Math.atan2(dx,dy);
                     dx = Math.sin(theta)*imageWidth/scaleX;
                     dy = Math.cos(theta)*imageHeight/scaleY;
-                    int dx2 = (int)Math.round(dy/2d);
-                    int dy2 = (int)Math.round(dx/2d);
-                    _log.debug("dx = "+dx+" dy "+dy);
+                    //int dx2 = (int)Math.round(dy/2d);
+                    //int dy2 = (int)Math.round(dx/2d);
+                    _log.debug("dx = "+dx+" dy "+dy+" step = "+Math.sqrt(dx*dx+dy*dy));
+                    /*
+                    at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
+                    at2.scale(scaleX,scaleY);
+                    op = new AffineTransformOp(at2,hints);
+                    image2 =  op.filter(image, null);
+                    */
+                    double rotation = theta-(Math.PI/2d);
                     double x = previous[0]+dx/2d,y=previous[1]+dy/2d;
                     
                     _log.debug("len ="+len+" imageWidth "+imageWidth);
                     for(double dist =0;dist<len;dist+=imageWidth){
-                        at2.setToRotation((3d*Math.PI/2.0)-theta,midx,midy);
-                        at2.scale(scaleX,scaleY);
-                        op = new AffineTransformOp(at2,hints);
-                        image2 =  op.filter(image, null);
-                        
-                        graphic.drawImage(image2,(int)x-midx,(int)y-midy,null);
+                        /*graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
+                        renderImage(x,y,image,size,rotation);
                         x+= dx;
                         y+= dy;
                     }
@@ -788,16 +813,6 @@ public class Java2DRenderer implements org.geotools.renderer.Renderer {
             previous[1]=coords[1];
             pi.next();
         }
-        _log.debug("finished preparing background");
-        //java.awt.TexturePaint tp = new java.awt.TexturePaint(img,rect);
-        //graphic.setPaint(tp);
-        
-        //graphic.draw(path);
-        
-        //graphic.setPaint(Color.black);
-        //Shape lines = graphic.getStroke().createStrokedShape(path);
-        //graphic.setStroke(new BasicStroke());
-        //graphic.draw(lines);
     }
     /**
      * Convenience method.  Converts a Geometry object into a GeneralPath.

@@ -84,6 +84,14 @@ A styling layer used for the unit tests of sldstyler
         <FeatureTypeName>linefeature3</FeatureTypeName>
         <Rule>
         <LineSymbolizer>
+          <Stroke>
+            <CssParameter name="width">
+                    <literal>1</literal>
+            </CssParameter>
+            <CssParameter name="stroke"><literal>#FF0000</literal></CssParameter>
+          </Stroke>
+        </LineSymbolizer>
+        <LineSymbolizer>
            <!-- A stroke describes how the line looks -->
           <Stroke>
             <!-- the CssParameters describe the actual style 
@@ -94,6 +102,10 @@ A styling layer used for the unit tests of sldstyler
             <GraphicStroke>
                 <Graphic>
                     <size>10</size>
+                    <ExternalGraphic>
+                        <onLineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="file:///d:/ian/development/geotools2/geotools-src/sldstyling/tests/unit/testData/rail.gif"/>
+                        <format>image/gif</format>
+                    </ExternalGraphic>
                     <mark>
                         <wellknownname>arrow</wellknownname>
                         <fill>
@@ -104,13 +116,7 @@ A styling layer used for the unit tests of sldstyler
             </GraphicStroke>    
           </Stroke>
         </LineSymbolizer>
-        <LineSymbolizer>
-          <Stroke>
-            <CssParameter name="width">
-                    <literal>1</literal>
-            </CssParameter>
-          </Stroke>
-        </LineSymbolizer>
+
     </Rule>
     </FeatureTypeStyle>
     <!-- a feature type for polygons -->
