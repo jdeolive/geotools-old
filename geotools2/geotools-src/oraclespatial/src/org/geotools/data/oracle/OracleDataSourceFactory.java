@@ -14,19 +14,16 @@ import java.util.Map;
  *
  * @author Sean Geoghegan, Defence Science and Technology Organisation
  * @author $Author: seangeo $
- * @version $Id: OracleDataSourceFactory.java,v 1.5 2003/08/08 07:37:18 seangeo Exp $
+ * @version $Id: OracleDataSourceFactory.java,v 1.6 2003/10/01 01:48:33 seangeo Exp $
  */
 public class OracleDataSourceFactory implements DataSourceFactorySpi {
-    /** The Oracle driver class name */
-    private static final String JDBC_DRIVER = "oracle.jdbc.driver.OracleDriver";
+    
 
     /**
      * Default Constructor required by the DataSourceFinder
      *
-     * @throws ClassNotFoundException If the Oracle Driver class can not be found
      */
-    public OracleDataSourceFactory() throws ClassNotFoundException {
-        Class.forName(JDBC_DRIVER);
+    public OracleDataSourceFactory() {        
     }
 
     /**
