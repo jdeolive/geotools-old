@@ -35,7 +35,7 @@ import org.geotools.filter.GeometryFilter;
 import org.geotools.map.*;
 import org.geotools.renderer.*;
 import org.geotools.renderer.lite.LiteRenderer;
-import org.geotools.shapefile.ShapefileDataSource;
+import org.geotools.data.shapefile.ShapefileDataSource;
 import org.geotools.styling.*;
 import org.geotools.wms.*;
 import org.geotools.wms.gtserver.LayerEntry;
