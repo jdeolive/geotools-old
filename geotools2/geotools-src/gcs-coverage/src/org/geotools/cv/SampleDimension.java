@@ -99,7 +99,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  * is that the {@link Category#getSampleToGeophysics} method returns a non-null transform if and
  * only if the category is quantitative.
  *
- * @version $Id: SampleDimension.java,v 1.33 2003/11/12 14:13:52 desruisseaux Exp $
+ * @version $Id: SampleDimension.java,v 1.34 2004/03/07 20:05:47 aaime Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -1165,6 +1165,33 @@ public class SampleDimension implements Serializable {
     public ColorModel getColorModel(final int visibleBand, final int numBands) {
         if (categories != null) {
             return categories.getColorModel(visibleBand, numBands);
+        }
+        return null;
+    }
+    
+    /**
+     * Returns a color model for this sample dimension. The default implementation create the
+     * color model using each category's colors as returned by {@link Category#getColors}. 
+     *
+     * @param  visibleBand The band to be made visible (usually 0). All other bands, if any
+     *         will be ignored.
+     * @param  numBands The number of bands for the color model (usually 1). The returned color
+     *         model will renderer only the <code>visibleBand</code> and ignore the others, but
+     *         the existence of all <code>numBands</code> will be at least tolerated. Supplemental
+     *         bands, even invisible, are useful for processing with Java Advanced Imaging.
+     * @param  type The data type that has to be used for the sample model
+     * @return The requested color model, suitable for {@link RenderedImage} objects with values
+     *         in the <code>{@link #getRange}</code> range. May be <code>null</code> if this
+     *         sample dimension has no category.
+     *
+     * @task REVISIT: This method may be deprecated in a future version. It it strange to use
+     *                only one <code>SampleDimension</code>  for creating a multi-bands color
+     *                model. Logically, we would expect as many <code>SampleDimension</code>s
+     *                as bands.
+     */
+    public ColorModel getColorModel(final int visibleBand, final int numBands, final int type) {
+        if (categories != null) {
+            return categories.getColorModel(visibleBand, numBands, type);
         }
         return null;
     }

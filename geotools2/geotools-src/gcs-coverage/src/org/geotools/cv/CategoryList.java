@@ -77,7 +77,7 @@ import org.geotools.resources.gcs.ResourceKeys;
  *
  * Instances of {@link CategoryList} are immutable and thread-safe.
  *
- * @version $Id: CategoryList.java,v 1.19 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: CategoryList.java,v 1.20 2004/03/07 20:05:47 aaime Exp $
  * @author Martin Desruisseaux
  */
 class CategoryList extends AbstractList implements MathTransform1D, Comparator, Serializable {
@@ -602,6 +602,24 @@ class CategoryList extends AbstractList implements MathTransform1D, Comparator, 
                 type = DataBuffer.TYPE_INT;
             }
         }
+        return ColorModelFactory.getColorModel(categories, type, visibleBand, numBands);
+    }
+    
+    /**
+     * Returns a color model for this category list. This method builds up the color model
+     * from each category's colors (as returned by {@link Category#getColors}).
+     *
+     * @param  visibleBand The band to be made visible (usually 0). All other bands, if any
+     *         will be ignored.
+     * @param  numBands The number of bands for the color model (usually 1). The returned color
+     *         model will renderer only the <code>visibleBand</code> and ignore the others, but
+     *         the existence of all <code>numBands</code> will be at least tolerated. Supplemental
+     *         bands, even invisible, are useful for processing with Java Advanced Imaging.
+     * @param  type The transfer type used in the sample model
+     * @return The requested color model, suitable for {@link RenderedImage} objects with values
+     *         in the <code>{@link #getRange}</code> range.
+     */
+    public final ColorModel getColorModel(final int visibleBand, final int numBands, final int type) {
         return ColorModelFactory.getColorModel(categories, type, visibleBand, numBands);
     }
     
