@@ -340,7 +340,7 @@ cvs tag -R r2_3_4</programlisting>
         <title>Getting Maven</title>
 
         <para>You will need Maven 1.0 beta 8 or later which you can download
-        from: <ulink url="http://www.ibiblio.org/maven/maven/distributions/">http://www.ibiblio.org/maven/maven/distributions/</ulink></para>
+        from: <ulink url="http://maven.apache.org/start/download.html">http://maven.apache.org/start/download.html</ulink></para>
       </section>
 
       <section id="installingmaven">
@@ -942,7 +942,7 @@ import dir.dir.SomeClass2;
 /**
  * Description of this class.
  *
- * @version <emphasis>$Id: development.sgml,v 1.25 2003/03/27 09:52:50 camerons Exp $</emphasis>
+ * @version <emphasis>$Id: development.sgml,v 1.26 2003/03/27 14:38:24 crotwell Exp $</emphasis>
  * @author Your Name
  */
 public class ThisClass { 
