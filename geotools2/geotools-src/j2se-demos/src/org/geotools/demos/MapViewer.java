@@ -16,65 +16,31 @@
  */
 package org.geotools.demos;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.Polygon;
-
-import org.geotools.cs.CoordinateSystemFactory;
-import org.geotools.cs.HorizontalDatum;
-
 import org.geotools.ct.Adapters;
-
-import org.geotools.data.DataSource;
-import org.geotools.data.DataSourceException;
-import org.geotools.data.MemoryDataSource;
-
-import org.geotools.feature.AttributeType;
-import org.geotools.feature.Feature;
-import org.geotools.feature.FeatureType;
-import org.geotools.feature.AttributeTypeFactory;
-import org.geotools.feature.FeatureTypeFactory;
-import org.geotools.feature.IllegalAttributeException;
-import org.geotools.feature.SchemaException;
-
+import org.geotools.data.shapefile.ShapefileDataSource;
+import org.geotools.feature.FeatureCollection;
 import org.geotools.gui.swing.MapPaneImpl;
 import org.geotools.gui.swing.ToolMenu;
-import org.geotools.gui.tools.PanTool;
-import org.geotools.gui.tools.Tool;
-import org.geotools.gui.tools.ToolFactory;
-import org.geotools.gui.tools.ToolList;
-import org.geotools.gui.tools.ZoomTool;
-
-import org.geotools.map.BoundingBox;
-import org.geotools.map.Context;
-import org.geotools.map.ContextFactory;
-import org.geotools.map.Layer;
-import org.geotools.map.LayerList;
-
-import org.geotools.styling.SLDStyle;
+import org.geotools.map.*;
 import org.geotools.styling.Style;
-import org.geotools.styling.StyleFactory;
-
-import org.opengis.cs.CS_CoordinateSystem;
-
+import org.geotools.styling.StyleBuilder;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-
-import java.io.IOException;
-
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.logging.Logger;
-
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JMenuBar;
 
 
 /**
  * A demonstration of a Map Viewer which uses geotools2.
  *
  * @author Cameron Shorter
- * @version $Id: MapViewer.java,v 1.21 2003/07/17 19:47:34 cholmesny Exp $
+ * @author Andrea Aime
+ * @version $Id: MapViewer.java,v 1.22 2003/07/22 06:25:49 aaime Exp $
  */
 public class MapViewer {
     /** The class used for identifying for logging. */
@@ -89,93 +55,56 @@ public class MapViewer {
 
     /**
      * Creates new form MapViewer
+     *
+     * @param fc DOCUMENT ME!
+     * @param style DOCUMENT ME!
      */
-    public MapViewer() {
-        initComponents(createMapPane());
+    public MapViewer(FeatureCollection fc, Style style) {
+        initComponents(createMapPane(fc, style));
     }
 
     /**
      * This method is called from within the constructor to initialize the
      * form.
      *
-     * @return A demo mapPane
+     * @param fc The feature collection you want to show
+     * @param style The style applied to the feature collection
      *
-     * @throws RuntimeException When there is a FactoryException or Problem
-     *         reading the SLD style sheets.
+     * @return A demo mapPane
      *
      * @task TODO remove references to RemoteException when we can.
      */
-    private MapPaneImpl createMapPane() {
-        BoundingBox bbox;
-        Envelope envelope;
+    private MapPaneImpl createMapPane(FeatureCollection fc, Style style) {
         MapPaneImpl mapPane;
-        LayerList layerList;
         Layer layer;
-        Tool tool;
 
-        try {
-            ContextFactory contextFactory = ContextFactory.createFactory();
+        ContextFactory contextFactory = ContextFactory.createFactory();
 
-            // Create a Style
-            StyleFactory styleFactory = StyleFactory.createStyleFactory();
-            SLDStyle sldStyle = new SLDStyle(styleFactory,
-                    ClassLoader.getSystemResource(
-                        "org/geotools/demos/simple.sld"));
-            Style[] style = sldStyle.readXML();
+        // Create a Context
+        context = contextFactory.createContext();
+        layer = contextFactory.createLayer(fc, style);
+        layer.setTitle("Test layer");
+        context.getLayerList().addLayer(layer);
+        System.out.println("Layers: " +
+            context.getLayerList().getLayers().length);
 
-            // Create a DataSource
-            MemoryDataSource datasource1 = new MemoryDataSource();
-            populateDataSource(datasource1, 46, 46, "river");
-
-            MemoryDataSource datasource2 = new MemoryDataSource();
-            populateDataSource(datasource2, 50, 50, "road");
-
-            // Create a Context
-            context = contextFactory.createContext();
-            layer = contextFactory.createLayer(datasource1.getFeatures(), style[0]);
-            layer.setTitle("river layer");
-            context.getLayerList().addLayer(layer);
-
-            // Create Layers
-            layer = contextFactory.createLayer(datasource2.getFeatures(), style[0]);
-            layer.setTitle("road layer");
-            context.getLayerList().addLayer(layer);
-
-            // Create MapPane
-            mapPane = new MapPaneImpl(context);
-            mapPane.setBorder(new javax.swing.border.TitledBorder("MapPane Map"));
-            mapPane.setBackground(Color.BLACK);
-            mapPane.setPreferredSize(new Dimension(300, 300));
-        } catch (IllegalAttributeException e) {
-            LOGGER.warning("Error styling features.  Cause is: " +
-                e.getCause());
-            throw new RuntimeException(e);
-        } catch (SchemaException e) {
-            LOGGER.warning("Error styling features.  Cause is: " +
-                e.getCause());
-            throw new RuntimeException(e);
-        }catch (IOException e) {
-            LOGGER.warning("IOException creating styles.  Cause is: " +
-                e.getCause());
-            throw new RuntimeException(e);
-        } catch (DataSourceException e) {
-            LOGGER.warning("DataSourceException getting features.  Cause is: " +
-                e.getCause());
-            throw new RuntimeException(e);
-        }
+        // Create MapPane
+        mapPane = new MapPaneImpl(context);
+        mapPane.setBackground(Color.WHITE);
+        mapPane.setPreferredSize(new Dimension(300, 300));
 
         return mapPane;
     }
 
     private void initComponents(MapPaneImpl mapPane) {
         // Create Menu for tools
-        JMenuBar menuBar = new javax.swing.JMenuBar();
+        JMenuBar menuBar = new JMenuBar();
 
         // Create frame
         JFrame frame = new JFrame();
-        frame.addWindowListener(new java.awt.event.WindowAdapter() {
-                public void windowClosing(java.awt.event.WindowEvent evt) {
-                    exitForm(evt);
+        frame.addWindowListener(new WindowAdapter() {
+                public void windowClosing(WindowEvent evt) {
+                    exitForm();
                 }
             });
 
@@ -183,101 +112,10 @@ public class MapViewer {
         menuBar.add(toolMenu);
         frame.setJMenuBar(menuBar);
         frame.getContentPane().setLayout(new BorderLayout());
-        frame.getContentPane().add(mapPane, "North");
+        frame.getContentPane().add(mapPane);
         frame.setTitle("Map Viewer");
         frame.pack();
         frame.show();
-    }
-
-    /**
-     * Create a test LineString.
-     *
-     * @param geomFac The geometry factory to use
-     * @param xoff The starting x postion
-     * @param yoff The starting y position
-     *
-     * @return a line
-     */
-    private LineString makeSampleLineString(final GeometryFactory geomFac,
-        double xoff, double yoff) {
-        Coordinate[] linestringCoordinates = new Coordinate[8];
-        linestringCoordinates[0] = new Coordinate(5.0d + xoff, 5.0d + yoff);
-        linestringCoordinates[1] = new Coordinate(6.0d + xoff, 5.0d + yoff);
-        linestringCoordinates[2] = new Coordinate(6.0d + xoff, 6.0d + yoff);
-        linestringCoordinates[3] = new Coordinate(7.0d + xoff, 6.0d + yoff);
-        linestringCoordinates[4] = new Coordinate(7.0d + xoff, 7.0d + yoff);
-        linestringCoordinates[5] = new Coordinate(8.0d + xoff, 7.0d + yoff);
-        linestringCoordinates[6] = new Coordinate(8.0d + xoff, 8.0d + yoff);
-        linestringCoordinates[7] = new Coordinate(8.0d + xoff, 9.0d + yoff);
-
-        LineString line = geomFac.createLineString(linestringCoordinates);
-
-        return line;
-    }
-
-    /**
-     * Create a test LineString.
-     *
-     * @param geomFac The geometry factory to use
-     *
-     * @return a line
-     */
-    private LineString makeSampleLineString2(final GeometryFactory geomFac) {
-        Coordinate[] linestringCoordinates = new Coordinate[4];
-        linestringCoordinates[0] = new Coordinate(-170.0d, -80.0d);
-        linestringCoordinates[1] = new Coordinate(-170.0d, 80.0d);
-        linestringCoordinates[2] = new Coordinate(170.0d, 80.0d);
-        linestringCoordinates[3] = new Coordinate(170.0d, -80.0d);
-
-        LineString line = geomFac.createLineString(linestringCoordinates);
-
-        return line;
-    }
-
-    /**
-     * Add some features into a dataSouce
-     *
-     * @param dataSource The dataSource to populate
-     * @param xoff The starting x postion
-     * @param yoff The starting y position
-     * @param featureTypeName The type of feature
-     *
-     * @throws IllegalAttributeException for IllegalFeatures
-     */
-    private void populateDataSource(MemoryDataSource dataSource, double xoff,
-        double yoff, String featureTypeName) throws IllegalAttributeException,
-    SchemaException{
-        GeometryFactory geomFac = new GeometryFactory();
-        LineString line = makeSampleLineString(geomFac, xoff, yoff);
-        AttributeType lineAttribute = AttributeTypeFactory.newAttributeType
-	    ("centerline", line.getClass());
-	AttributeType[] atts = {lineAttribute};
-        FeatureType lineType = FeatureTypeFactory.newFeatureType(atts,
-								 featureTypeName);
-        //FlatFeatureFactory lineFac = new FlatFeatureFactory(lineType);
-        Feature lineFeature = lineType.create(new Object[] { line });
-
-        LineString line2 = makeSampleLineString(geomFac, xoff + 2, yoff);
-        //lineType = FeatureTypeFactory.newFeatureType(lineAttribute, 
-	//				     featureTypeName);
-        Feature lineFeature2 = lineType.create(new Object[] { line2 });
-
-        LineString line3 = makeSampleLineString(geomFac, xoff + 4, yoff);
-        //lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        //lineFac = new FlatFeatureFactory(lineType);
-
-        Feature lineFeature3 = lineType.create(new Object[] { line3 });
-
-        LineString line4 = makeSampleLineString2(geomFac);
-        //lineType = new FeatureTypeFlat(lineAttribute).setTypeName(featureTypeName);
-        //lineFac = new FlatFeatureFactory(lineType);
-
-        Feature lineFeature4 = lineType.create(new Object[] { line4 });
-
-        dataSource.addFeature(lineFeature);
-        dataSource.addFeature(lineFeature2);
-        dataSource.addFeature(lineFeature3);
-        dataSource.addFeature(lineFeature4);
     }
 
     /**
@@ -285,7 +123,7 @@ public class MapViewer {
      *
      * @param evt the event
      */
-    private void exitForm(java.awt.event.WindowEvent evt) {
+    private void exitForm() {
         System.exit(0);
     }
 
@@ -293,8 +131,25 @@ public class MapViewer {
      * The MapViewer main program.
      *
      * @param args the command line arguments
+     *
+     * @throws Exception DOCUMENT ME!
      */
-    public static void main(String[] args) {
-        new MapViewer(); //.show();
+    public static void main(String[] args) throws Exception {
+        mapPane();
+    }
+
+    public static void mapPane() throws Exception {
+        // load data from file (USE SOMETHING ON YOUR LOCAL DISK)
+        ShapefileDataSource sds = new ShapefileDataSource(new File(
+                    "/path/to/shape/file.shp").toURL());
+        FeatureCollection fc = sds.getFeatures();
+
+        // create the style
+        StyleBuilder sb = new StyleBuilder();
+        Style simple = sb.createSimpleStyle(sb.createPolygonSymbolizer(
+                    Color.LIGHT_GRAY, Color.BLACK, 1));
+
+        // show the map
+        new MapViewer(fc, simple); //.show();
     }
 }

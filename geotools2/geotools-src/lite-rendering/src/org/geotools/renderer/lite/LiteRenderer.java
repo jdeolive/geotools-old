@@ -82,7 +82,7 @@ import javax.imageio.ImageIO;
  *
  * @author James Macgill
  * @author Andrea Aime
- * @version $Id: LiteRenderer.java,v 1.11 2003/07/20 16:18:29 aaime Exp $
+ * @version $Id: LiteRenderer.java,v 1.12 2003/07/22 06:25:49 aaime Exp $
  */
 public class LiteRenderer implements Renderer, Renderer2D {
     /** The logger for the rendering module. */
@@ -177,7 +177,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * graphics object.  If true then the transform will be concatenated to
      * the existing transform.  If false it will be replaced.
      */
-    private boolean concatTransforms = false;
+    private boolean concatTransforms = true;
     private Envelope mapExtent = null;
 
     /** Graphics object to be rendered to. Controlled by set output. */
@@ -302,10 +302,6 @@ public class LiteRenderer implements Renderer, Renderer2D {
                 FeatureCollection fc = layer.getFeatures();
 
                 try {
-		    //TODO: don't use feature array, use fc directly, see
-		    //Java2dRenderer.
-                    Feature[] features = (Feature [])fc.toArray(new Feature[fc.size()]);
-								
                     mapExtent = this.context.getBbox().getAreaOfInterest();
 
                     if (LOGGER.isLoggable(Level.FINE)) {
@@ -326,11 +322,16 @@ public class LiteRenderer implements Renderer, Renderer2D {
                      * form of transformation then we can concatenate our
                      * transformation to it. An example of this is the ZoomPane
                      * component of the swinggui module.*/
-                    if (concatTransforms) {
-                        graphics.getTransform().concatenate(at);
+                    System.out.println("graphic " + graphics.getTransform());
+                    System.out.println("affine transform " + at);
+                    if (true) {
+                        AffineTransform atg = graphics.getTransform();
+                        atg.concatenate(at);
+                        graphics.setTransform(atg);
                     } else {
                         graphics.setTransform(at);
                     }
+                    System.out.println(graphics.getTransform());
 
                     setScaleDenominator(1 / graphics.getTransform().getScaleX());
 
@@ -338,12 +339,12 @@ public class LiteRenderer implements Renderer, Renderer2D {
                     //process them
                     FeatureTypeStyle[] featureStylers = layer.getStyle()
                                                              .getFeatureTypeStyles();
-                    processStylers(features, featureStylers);
+                    processStylers(fc, featureStylers);
 
                     Date end = new Date();
 
                     if (LOGGER.getLevel() == Level.INFO) { //change to fine when finished
-                        LOGGER.info("Time to render " + features.length +
+                        LOGGER.info("Time to render " + fc.size() +
                             " is " + (end.getTime() - start.getTime()) +
                             " milliSecs");
                     }
@@ -405,7 +406,10 @@ public class LiteRenderer implements Renderer, Renderer2D {
 
         //extract the feature type stylers from the style object and process them
         FeatureTypeStyle[] featureStylers = s.getFeatureTypeStyles();
-        processStylers(features, featureStylers);
+        FeatureCollection fc = new FeatureCollectionDefault();
+        for(int i = 0; i < features.length; i++)
+            fc.add(features[i]);
+        processStylers(fc, featureStylers);
 
         if (LOGGER.isLoggable(Level.FINE)) {
             long endTime = System.currentTimeMillis();
@@ -495,7 +499,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
      * @param features An array of features to be rendered
      * @param featureStylers An array of feature stylers to be applied
      */
-    private void processStylers(final Feature[] features,
+    private void processStylers(final FeatureCollection features,
         final FeatureTypeStyle[] featureStylers) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("processing " + featureStylers.length + " stylers");
@@ -504,8 +508,8 @@ public class LiteRenderer implements Renderer, Renderer2D {
         // create the arrayList of features that sits whithin the map envelop
         List insideFeatures = new ArrayList();
 
-        for (int i = 0; i < features.length; i++) {
-            Feature feature = features[i];
+        for (Iterator it = features.iterator(); it.hasNext(); ) {
+            Feature feature = (Feature) it.next();
             Envelope internal = feature.getDefaultGeometry()
                                        .getEnvelopeInternal();
 
@@ -524,7 +528,7 @@ public class LiteRenderer implements Renderer, Renderer2D {
             FeatureTypeStyle fts = featureStylers[i];
 
             if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("about to draw " + features.length + " feature");
+                LOGGER.finer("about to draw " + features.size() + " feature");
             }
 
             // get rules
@@ -540,16 +544,16 @@ public class LiteRenderer implements Renderer, Renderer2D {
                         Symbolizer[] symbolizers = rules[k].getSymbolizers();
                         
                         String typeName = feature.getFeatureType().getTypeName();
-                        System.out.println("typename "+typeName+" fts " + fts.getFeatureTypeName());
+                        // System.out.println("typename "+typeName+" fts " + fts.getFeatureTypeName());
                         
                         if (((typeName != null) &&
                         (feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName()) ||
                         typeName.equalsIgnoreCase(
                         fts.getFeatureTypeName()))) &&
                         ((filter == null) || filter.contains(feature))) {
-                            if(feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName())){
-                                System.out.println("made it by inheretance!");
-                            }
+//                            if(feature.getFeatureType().isDescendedFrom(null, fts.getFeatureTypeName())){
+//                                System.out.println("made it by inheretance!");
+//                            }
                             processSymbolizers(feature, symbolizers);
                         }
                     }

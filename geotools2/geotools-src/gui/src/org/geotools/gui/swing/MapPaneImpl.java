@@ -59,7 +59,7 @@ import org.geotools.renderer.Renderer2D;
  * component changes size.
  *
  * @author Cameron Shorter
- * @version $Id: MapPaneImpl.java,v 1.29 2003/07/17 18:35:07 cholmesny Exp $
+ * @version $Id: MapPaneImpl.java,v 1.30 2003/07/22 06:25:50 aaime Exp $
  *
  * @task REVISIT: We need to add a PixcelAspectRatio varible which defaults to
  *       1, ie width/heigh=1.  Currently, this is assumed to be 1.
@@ -176,8 +176,10 @@ public class MapPaneImpl extends JPanel implements BoundingBoxListener,
         }
 
         try {
-            renderer.paint((Graphics2D) graphics,
-                new Rectangle(getInsets().left, getInsets().top, w, h),
+            System.out.println(graphics.getClipBounds());
+            // paint only what's needed
+            renderer.paint((Graphics2D) graphics,  
+                graphics.getClipBounds(),
                 dotToCoordinateTransform.createInverse());
         } catch (java.awt.geom.NoninvertibleTransformException e) {
             LOGGER.warning("Transform error while rendering. Cause is: " +
