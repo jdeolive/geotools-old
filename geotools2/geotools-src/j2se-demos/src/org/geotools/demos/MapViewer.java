@@ -27,8 +27,8 @@ import javax.swing.JScrollPane;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+//Logging system
+import java.util.logging.Logger;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -38,8 +38,10 @@ import com.vividsolutions.jts.geom.Envelope;
  * @author  James
  */
 public class MapViewer extends javax.swing.JFrame {
-    
-    private static Logger log = Logger.getLogger("j2se-demos");
+    /**
+     * The logger for this module.
+     */
+    private static final Logger LOGGER = Logger.getLogger("org.geotools.j2se-demos");
     
     private FeatureCollection features;
     private Style style;
@@ -50,9 +52,7 @@ public class MapViewer extends javax.swing.JFrame {
     
     /** Creates a new instance of MapViewer */
     public MapViewer() {
-      
-        PropertyConfigurator.configure(System.getProperty("user.dir")+java.io.File.separatorChar+"logger.properties");
-        initComponents();
+         initComponents();
     }
     
     /** This method is called from within the constructor to
@@ -120,7 +120,7 @@ public class MapViewer extends javax.swing.JFrame {
     private void setupMap(){
         updateStatus();
         if(style == null || features == null){
-            log.debug("abort map setup, style or features is null");
+            LOGGER.fine("abort map setup, style or features is null");
             return;
         }
         
@@ -139,7 +139,7 @@ public class MapViewer extends javax.swing.JFrame {
             setupMap();
         }
         catch(IOException ioe){
-            log.error("Unable to load SLD file",ioe);
+            LOGGER.warning("Unable to load SLD file " + ioe);
         }
      }
     
@@ -159,7 +159,7 @@ public class MapViewer extends javax.swing.JFrame {
             features.getFeatures(r);
             features.setExtent(r);
             aoi.setAreaOfInterest(env,null);
-            log.debug("gml data loaded "+features.getFeatures().length+" features loaded");
+            LOGGER.fine("gml data loaded "+features.getFeatures().length  + " features loaded");
             
             
             
@@ -167,10 +167,10 @@ public class MapViewer extends javax.swing.JFrame {
             setupMap();
         }
         catch(IOException ioe){
-            log.error("Unable to load GML file",ioe);
+            LOGGER.warning("Unable to load GML file" + ioe);
         }
         catch(DataSourceException dse){
-            log.error("Unable to load GML file",dse);
+            LOGGER.warning("Unable to load GML file" + dse);
         }
     }
     
