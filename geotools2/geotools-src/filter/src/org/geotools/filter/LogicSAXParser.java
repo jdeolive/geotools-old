@@ -1,10 +1,11 @@
 /*
- *    Geotools - OpenSource mapping toolkit
- *    (C) 2002, Centre for Computational Geography
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
  *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; 
+ *    License as published by the Free Software Foundation;
  *    version 2.1 of the License.
  *
  *    This library is distributed in the hope that it will be useful,
@@ -12,32 +13,31 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with this library; if not, write to the Free Software
- *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
- *    
  */
-
 package org.geotools.filter;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 // J2SE dependencies
-import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 
 
 /**
- * Defines a like filter, which checks to see if an attribute matches a REGEXP.
+ * Processes messages from clients to create Logic Filters.  Handles nested
+ * logic filters.  Filters should call start and end when they reach logic
+ * filters, and create when the filter is complete.
  *
- * @version $Id: LogicSAXParser.java,v 1.4 2003/02/05 22:14:03 cholmesny Exp $
  * @author Rob Hranac, Vision for New York
+ * @author Chris Holmes, TOPP
+ * @version $Id: LogicSAXParser.java,v 1.5 2003/05/14 16:07:42 cholmesny Exp $
  */
 public class LogicSAXParser {
-
-    /**
-     * The logger for the filter module.
-     */
+    /** The logger for the filter module. */
     private static final Logger LOGGER = Logger.getLogger("org.geotools.filter");
     private static final org.geotools.filter.FilterFactory filterFactory = org.geotools.filter.FilterFactory.createFilterFactory();
+
     /** The (limited) REGEXP pattern. */
     private short logicType = -1;
 
@@ -46,133 +46,134 @@ public class LogicSAXParser {
 
     /** The (limited) REGEXP pattern. */
     private LogicSAXParser logicFactory = null;
-
-
     private boolean isActive = false;
-
     private boolean isComplete = false;
-
 
     /**
      * Constructor which flags the operator as between.
      */
-    public LogicSAXParser () {
+    public LogicSAXParser() {
         LOGGER.finer("made new logic factory");
     }
 
-
     /**
-     * Sets the matching pattern for this FilterLike.
+     * To be called by a parser to start the creation of a logic filter. Can
+     * start a nested or a base logic filter.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @param logicType OR, or AND abstract filter type.
+     *
+     * @throws IllegalFilterException if filter type does not match  declared
+     *         type.
      */
-    public void start(short logicType)
-        throws IllegalFilterException {
+    public void start(short logicType) throws IllegalFilterException {
+        LOGGER.finest("got a start element: " + logicType);
 
-        LOGGER.finer("*********************got a start element: " + logicType);
-        if( this.logicType != -1) {
+        if (this.logicType != -1) {
             logicFactory = new LogicSAXParser();
             logicFactory.start(logicType);
-        }
-        else if( !AbstractFilter.isLogicFilter(logicType)) {
-            throw new IllegalFilterException
-                ("Add logic filter type does not match declared type.");
-        }
-        else {
+        } else if (!AbstractFilter.isLogicFilter(logicType)) {
+            throw new IllegalFilterException(
+                "Add logic filter type does not match declared type.");
+        } else {
             this.logicType = logicType;
         }
     }
 
     /**
-     * Sets the matching pattern for this FilterLike.
+     * To be called when the sax parser reaches the end of a logic filter.
+     * Tells this class to complete.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @param logicType the Filter type.
+     *
+     * @throws IllegalFilterException If the end message can't be processed in
+     *         this state.
      */
-    public void end(short logicType)
-        throws IllegalFilterException {
-        
+    public void end(short logicType) throws IllegalFilterException {
         LOGGER.finer("got an end element: " + logicType);
-        if( logicFactory != null) {            
 
-            LOGGER.finer("sending end element to nested logic filter: " + logicType);
+        if (logicFactory != null) {
+            LOGGER.finer("sending end element to nested logic filter: " +
+                logicType);
             logicFactory.end(logicType);
-            if( logicFactory.isComplete()) {            
-                subFilters.add( logicFactory.create());
+
+            if (logicFactory.isComplete()) {
+                subFilters.add(logicFactory.create());
                 logicFactory = null;
             }
-        }
-        else if( this.logicType == logicType ) {
-            LOGGER.finer("end element matched internal type: " + this.logicType);
-            isComplete = true;            
-        }
-        else {
-            throw new IllegalFilterException
-                ("Logic Factory got an end message that it can't process.");
+        } else if (this.logicType == logicType) {
+            LOGGER.finer("end element matched internal type: " +
+                this.logicType);
+            isComplete = true;
+        } else {
+            throw new IllegalFilterException(
+                "Logic Factory got an end message that it can't process.");
         }
     }
 
     /**
      * Sets the matching pattern for this FilterLike.
      *
-     * @param logicType The limited REGEXP pattern for this string. 
+     * @param filter The limited REGEXP pattern for this string.
      */
     public void add(Filter filter) {
-
         LOGGER.finer("added a filter: " + filter.toString());
-        if( logicFactory != null) {            
+
+        if (logicFactory != null) {
             LOGGER.finer("adding to nested logic filter: " + filter.toString());
             logicFactory.add(filter);
-        }
-        else {
+        } else {
             LOGGER.finer("added to sub filters: " + filter.toString());
             subFilters.add(filter);
         }
     }
 
     /**
-     * Sets the matching pattern for this FilterLike.
+     * Creates the the logic filter if in a complete state.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @return The created logic filter.
+     *
+     * @throws IllegalFilterException if the filter is not complete.
      */
-    public Filter create()
-        throws IllegalFilterException {
-
+    public Filter create() throws IllegalFilterException {
         LogicFilter filter = null;
 
         LOGGER.finer("creating a logic filter");
-        if( isComplete()) {
+
+        if (isComplete()) {
             LOGGER.finer("filter is complete, with type: " + this.logicType);
-            if( logicType == AbstractFilter.LOGIC_NOT) {
-                filter = filterFactory.createLogicFilter((Filter) subFilters.get(0), this.logicType);                 
-            }
-            else {
-                filter = filterFactory.createLogicFilter(this.logicType); 
+
+            if (logicType == AbstractFilter.LOGIC_NOT) {
+                filter = filterFactory.createLogicFilter((Filter) subFilters.get(
+                            0), this.logicType);
+            } else {
+                filter = filterFactory.createLogicFilter(this.logicType);
+
                 Iterator iterator = subFilters.iterator();
-                while( iterator.hasNext()) {
-                    filter.addFilter( (Filter) iterator.next());
+
+                while (iterator.hasNext()) {
+                    filter.addFilter((Filter) iterator.next());
                 }
             }
-	    //reset the variables so it works right if called again.
-	    subFilters = new ArrayList();
-	    this.logicType = -1;
-	    isComplete = false;
+
+            //reset the variables so it works right if called again.
+            subFilters = new ArrayList();
+            this.logicType = -1;
+            isComplete = false;
+
             return filter;
-        }
-        else {
-            throw new IllegalFilterException
-                ("Attempted to generate incomplete logic filter.");            
+        } else {
+            throw new IllegalFilterException(
+                "Attempted to generate incomplete logic filter.");
         }
     }
 
-
     /**
-     * Sets the matching pattern for this FilterLike.
+     * indicates if the logic filter is complete.
      *
-     * @param pattern The limited REGEXP pattern for this string. 
+     * @return <tt>true</tt> if this holds a complete logic filter to be
+     *         created, <tt>false</tt> otherwise.
      */
     public boolean isComplete() {
         return isComplete;
     }
-
-    
 }
