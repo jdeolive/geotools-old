@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: gtpublish,v 1.6 2003/04/01 12:13:51 camerons Exp $
+# $Id: gtpublish,v 1.7 2003/06/03 10:07:31 kobit Exp $
 #
 # Publish docbook files and docbook files which contain
 # <xi:include> tags into html files.
@@ -47,9 +47,12 @@ cp -pr ${docbookSource}/${resources} ${target}
 
 # translate the docbook files
 for file in $sourceFiles; do
-    baseFile=`basename $file`
-    baseFile=`echo $baseFile | sed -e"s/\.sgml$//"`
-    baseFile=`echo $baseFile | sed -e"s/\.xml$//"`
+#     baseFile=`basename $file`
+#     baseFile=`echo $baseFile | sed -e"s/\.sgml$//"`
+#     baseFile=`echo $baseFile | sed -e"s/\.xml$//"`
+    # Code simplified a little by Artur Hefczyc Tue Jun 03 12:05:56 2003
+    baseFile=`basename $file .xml`
+    baseFile=`basename $baseFile .sgml`
     xsltproc --novalid --xinclude \
         --param section.autolabel 1 \
         --param toc.section.depth 5 \
