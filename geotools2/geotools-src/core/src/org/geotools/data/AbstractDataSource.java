@@ -51,11 +51,11 @@ import com.vividsolutions.jts.geom.Envelope;
  * </p>
  *
  * @author Chris Holmes, TOPP
- * @version $Id: AbstractDataSource.java,v 1.4 2003/08/06 18:11:24 desruisseaux Exp $
+ * @version $Id: AbstractDataSource.java,v 1.5 2003/09/22 18:49:24 cholmesny Exp $
  */
 public abstract class AbstractDataSource implements DataSource {
     /** A support string for unsupported operations messages */
-    private static String supportMsg = "This datasource does not support ";
+    protected static String supportMsg = "This datasource does not support ";
 
     /** the meta data object containing information about this datasource. */
     private DataSourceMetaData metaData;
