@@ -30,7 +30,7 @@ import org.geotools.vpf.ifc.VPFRow;
  * Created: Mon Feb 24 22:23:58 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: VariableIndexInputStream.java,v 1.2 2003/03/11 22:35:47 kobit Exp $
+ * @version $Id: VariableIndexInputStream.java,v 1.3 2003/03/11 22:47:34 kobit Exp $
  */
 public class VariableIndexInputStream extends VPFInputStream 
 {
@@ -51,7 +51,7 @@ public class VariableIndexInputStream extends VPFInputStream
 
   public VPFHeader readHeader() throws IOException
   {
-	return null;
+	return new VariableIndexHeader();
   }
 
   public VPFRow readRow() throws IOException

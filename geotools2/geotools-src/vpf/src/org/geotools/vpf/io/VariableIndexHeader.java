@@ -18,47 +18,22 @@
  */
 package org.geotools.vpf.io;
 
-import java.io.InputStream;
-import java.io.IOException;
 import org.geotools.vpf.ifc.VPFHeader;
-import org.geotools.vpf.ifc.VPFRow;
 
 /**
- * SpatialIndexInputStream.java
+ * VariableIndexHeader.java
  *
  *
- * Created: Mon Feb 24 22:25:15 2003
+ * Created: Tue Mar 11 23:41:57 2003
  *
  * @author <a href="mailto:kobit@users.sourceforge.net">Artur Hefczyc</a>
- * @version $Id: SpatialIndexInputStream.java,v 1.3 2003/03/11 22:47:34 kobit Exp $
+ * @version $Id: VariableIndexHeader.java,v 1.1 2003/03/11 22:47:34 kobit Exp $
  */
-public class SpatialIndexInputStream extends VPFInputStream 
-{
+public class VariableIndexHeader implements VPFHeader {
   
-  public SpatialIndexInputStream(String file, char byteOrder)
-	throws IOException
+  public VariableIndexHeader()
   {
-	super(file, byteOrder);
-  }
+	
+  } // VariableIndexHeader constructor
   
-  public int tableSize()
-  {
-	return -1;
-  }
-
-  public VPFHeader readHeader() throws IOException
-  {
-	return new SpatialIndexHeader();
-  }
-
-  public VPFRow readRow() throws IOException
-  {
-	return null;
-  }
-
-  public VPFRow readRow(int index) throws IOException
-  {
-	return null;
-  }
-
-} // SpatialIndexInputStream
+} // VariableIndexHeader
