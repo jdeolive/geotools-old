@@ -43,6 +43,7 @@ import java.awt.image.SampleModel;
 import java.awt.image.RenderedImage;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImage;
+import java.awt.image.renderable.ParameterBlock;
 import javax.media.jai.TiledImage;
 import javax.media.jai.iterator.RectIterFactory;
 import javax.media.jai.iterator.WritableRectIter;
@@ -56,21 +57,33 @@ import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
-// Collections and properties
+// Miscellaneous
 import java.util.Map;
 import java.util.Vector;
-import javax.media.jai.PlanarImage; // For JavaDoc
-import javax.media.jai.PropertySource;
-import javax.media.jai.PropertySourceImpl;
-import javax.media.jai.util.CaselessStringKey; // For Javadoc
-
-// Miscellaneous
 import java.util.Arrays;
 import java.util.Locale;
 import java.rmi.RemoteException;
 import java.rmi.ServerException; // For Javadoc
 import java.rmi.server.UnicastRemoteObject;
 import java.lang.ref.WeakReference;
+
+// JAI dependencies
+import javax.media.jai.JAI;
+import javax.media.jai.PlanarImage; // For JavaDoc
+import javax.media.jai.ImageLayout;
+import javax.media.jai.ImageFunction;
+import javax.media.jai.PropertySource;
+import javax.media.jai.PropertySourceImpl;
+import javax.media.jai.util.CaselessStringKey; // For Javadoc
+import javax.media.jai.operator.ImageFunctionDescriptor; // For Javadoc
+
+// OpenGIS dependencies
+import org.opengis.cv.CV_Coverage;
+import org.opengis.pt.PT_Envelope;
+import org.opengis.pt.PT_CoordinatePoint;
+import org.opengis.cs.CS_CoordinateSystem;
+import org.opengis.cv.CV_SampleDimension;
+import org.opengis.gc.GC_GridCoverage;
 
 // Geotools dependencies (CTS)
 import org.geotools.pt.Matrix;
@@ -87,14 +100,6 @@ import org.geotools.resources.ImageUtilities;
 import org.geotools.resources.XAffineTransform;
 import org.geotools.resources.gcs.ResourceKeys;
 import org.geotools.resources.gcs.Resources;
-
-// OpenGIS dependencies
-import org.opengis.cv.CV_Coverage;
-import org.opengis.pt.PT_Envelope;
-import org.opengis.pt.PT_CoordinatePoint;
-import org.opengis.cs.CS_CoordinateSystem;
-import org.opengis.cv.CV_SampleDimension;
-import org.opengis.gc.GC_GridCoverage;
 
 
 /**
@@ -139,7 +144,7 @@ import org.opengis.gc.GC_GridCoverage;
  * OpenGIS's metadata are called "Properties" in <em>Java Advanced Imaging</em>.
  * Use {@link #getProperty} instead.
  *
- * @version $Id: Coverage.java,v 1.18 2003/08/05 17:44:11 desruisseaux Exp $
+ * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
  * @author <A HREF="www.opengis.org">OpenGIS</A>
  * @author Martin Desruisseaux
  *
@@ -150,6 +155,11 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * The set of default axis name.
      */
     private static final String[] DIMENSION_NAMES = {"x", "y", "z", "t"};
+
+    /**
+     * The sample dimension to make visible by {@link #getRenderableImage}.
+     */
+    private static final int VISIBLE_BAND = 0;
 
     /**
      * The coverage name.
@@ -483,8 +493,6 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * Returns 2D view of this grid coverage as a renderable image.
      * This method allows interoperability with Java2D.
      *
-     * <strong>Note: this method is not yet tested</strong>
-     *
      * @param  xAxis Dimension to use for <var>x</var> axis.
      * @param  yAxis Dimension to use for <var>y</var> axis.
      * @return A 2D view of this grid coverage as a renderable image.
@@ -492,34 +500,56 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
     public RenderableImage getRenderableImage(final int xAxis, final int yAxis) {
         return new Renderable(xAxis, yAxis);
     }
+
+
+
+
+    /////////////////////////////////////////////////////////////////////////
+    ////////////////                                         ////////////////
+    ////////////////     RenderableImage / ImageFunction     ////////////////
+    ////////////////                                         ////////////////
+    /////////////////////////////////////////////////////////////////////////
     
     /**
-     * Base class for renderable image of a grid coverage.
-     * Renderable images allow interoperability with Java2D
-     * for a two-dimensional view of a coverage (which may
-     * or may not be a grid coverage).
-     * <br><br>
-     * <strong>Note: this class is not yet tested</strong>
+     * Base class for renderable image view of a coverage. Renderable images allow interoperability
+     * with <A HREF="http://java.sun.com/products/java-media/2D/">Java2D</A>  for a two-dimensional
+     * view of a coverage (which may or may not be a {@linkplain org.geotools.gc.GridCoverage grid
+     * coverage}).
      *
-     * @task REVISIT: The whole design of this class need to be reevaluated.
-     *                It badly need also extensive testing.
+     * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
+     * @author Martin Desruisseaux
+     *
+     * @see Coverage#getRenderableImage
      */
-    protected class Renderable extends PropertySourceImpl implements RenderableImage {
+    protected class Renderable extends PropertySourceImpl implements RenderableImage, ImageFunction
+    {
         /**
          * The two dimensional view of the coverage's envelope.
          */
         private final Rectangle2D bounds;
-        
+
         /**
          * Dimension to use for <var>x</var> axis.
          */
         protected final int xAxis;
-        
+
         /**
          * Dimension to use for <var>y</var> axis.
          */
         protected final int yAxis;
-        
+
+        /**
+         * A coordinate point where to evaluate the function. The point dimension is equals to
+         * the {@linkplain Coverage#getDimension coverage's dimension}. The {@linkplain #xAxis
+         * x} and {@link #yAxis y} ordinates will be ignored, since they will vary for each pixel
+         * to be evaluated. Other ordinates, if any, should be set to a fixed value. For example
+         * a coverage may be three-dimensional, where the third dimension is the time axis. In
+         * such case, <code>coordinate.ord[2]</code> should be set to the point in time where
+         * to evaluate the coverage. By default, all ordinates are initialized to 0. Subclasses
+         * should set the desired values in their constructor if needed.
+         */
+        protected final CoordinatePoint coordinate = new CoordinatePoint(getDimension());
+
         /**
          * Construct a renderable image.
          *
@@ -536,26 +566,31 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
                                             envelope.getLength (xAxis),
                                             envelope.getLength (yAxis));
         }
-        
+
         /**
-         * Returns <code>null</code> to indicate
-         * that no source information is available.
+         * Returns <code>null</code> to indicate that no source information is available.
          */
         public Vector getSources() {
             return null;
         }
-        
+
         /**
-         * Returns true if successive renderings with the same arguments
-         * may produce different results. The default implementation returns
-         * <code>false</code>.
+         * Returns <code>true</code> if successive renderings with the same arguments may
+         * produce different results. The default implementation returns <code>false</code>.
          *
          * @see org.geotools.gc.GridCoverage#isDataEditable
          */
         public boolean isDynamic() {
             return false;
         }
-        
+
+        /**
+         * Returns <code>false</code> since values are not complex.
+         */
+        public boolean isComplex() {
+            return false;
+        }
+
         /**
          * Gets the width in coverage coordinate space.
          *
@@ -577,7 +612,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Gets the minimum X coordinate of the rendering-independent image data.
+         * Gets the minimum <var>X</var> coordinate of the rendering-independent image data.
+         * This is the {@linkplain Coverage#getEnvelope coverage's envelope} minimal value
+         * for the {@linkplain #xAxis x axis}.
          *
          * @see Coverage#getEnvelope
          * @see Coverage#getCoordinateSystem
@@ -587,7 +624,9 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Gets the minimum Y coordinate of the rendering-independent image data.
+         * Gets the minimum <var>Y</var> coordinate of the rendering-independent image data.
+         * This is the {@linkplain Coverage#getEnvelope coverage's envelope} minimal value
+         * for the {@linkplain #yAxis y axis}.
          *
          * @see Coverage#getEnvelope
          * @see Coverage#getCoordinateSystem
@@ -597,7 +636,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Returnd a rendered image with a default width and height in pixels.
+         * Returns a rendered image with a default width and height in pixels.
          *
          * @return A rendered image containing the rendered data
          */
@@ -606,67 +645,121 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Creates a rendered image with width <code>width</code> and height
-         * <code>height</code> in pixels. If <code>width</code> is 0, it will
-         * be computed automatically from <code>height</code>. Conversely, if
-         * <code>height</code> is 0, il will be computed automatically from
-         * <code>width</code>. <code>width</code> and <code>height</code>
-         * can not be both zero.
+         * Creates a rendered image with width <code>width</code> and height <code>height</code>
+         * in pixels. If <code>width</code> is 0, it will be computed automatically from
+         * <code>height</code>. Conversely, if <code>height</code> is 0, il will be computed
+         * automatically from <code>width</code>.
+         *
+         * The default implementation creates a render context with {@link #createRenderContext}
+         * and invokes {@link #createRendering(RenderContext)}.
          *
          * @param  width  The width of rendered image in pixels, or 0.
          * @param  height The height of rendered image in pixels, or 0.
          * @param  hints  Rendering hints, or <code>null</code>.
          * @return A rendered image containing the rendered data
          */
-        public RenderedImage createScaledRendering(int width, int height, final RenderingHints hints) {
+        public RenderedImage createScaledRendering(int width, int height,
+                                                   final RenderingHints hints)
+        {
             final double boundsWidth  = bounds.getWidth();
             final double boundsHeight = bounds.getHeight();
-            if (!(width>0)) { // Use '!' in order to catch NaN
-                if (!(height>0)) {
+            if (!(width > 0)) { // Use '!' in order to catch NaN
+                if (!(height > 0)) {
                     throw new IllegalArgumentException(Resources.format(
                              ResourceKeys.ERROR_UNSPECIFIED_IMAGE_SIZE));
                 }
                 width = (int)Math.round(height * (boundsWidth/boundsHeight));
-            } else if (!(height>0)) {
+            } else if (!(height > 0)) {
                 height = (int)Math.round(width * (boundsHeight/boundsWidth));
             }
-            final AffineTransform tr = getTransform(new Rectangle(0,0,width,height));
-            return createRendering(new RenderContext(tr, hints));
+            return createRendering(createRenderContext(new Rectangle(0, 0, width, height), hints));
         }
         
         /**
-         * Creates a rendered image using a given render context.
+         * Creates a rendered image using a given render context. This method will uses an
+         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operation if possible
+         * (i.e. if the area of interect is rectangular  and the affine transform contains
+         * only translation and scale coefficients).
          *
          * @param  context The render context to use to produce the rendering.
          * @return A rendered image containing the rendered data
          */
         public RenderedImage createRendering(final RenderContext context) {
-            final SampleDimension[]     catg = getSampleDimensions();
-            final AffineTransform  transform = context.getTransform();
-            final Shape                 area = context.getAreaOfInterest();
-            final Rectangle2D        srcRect = (area!=null) ? area.getBounds2D() : bounds;
-            final Rectangle          dstRect = (Rectangle) XAffineTransform.transform(transform, srcRect, new Rectangle());
-            final ColorModel      colorModel = catg[0].geophysics(true).getColorModel(0, catg.length);
-            final Dimension         tileSize = ImageUtilities.toTileSize(dstRect.getSize());
-            final SampleModel    sampleModel = colorModel.createCompatibleSampleModel(tileSize.width, tileSize.height);
-            final TiledImage           image = new TiledImage(dstRect.x, dstRect.y, dstRect.width, dstRect.height, 0, 0, sampleModel, colorModel);
-            final CoordinatePoint coordinate = new CoordinatePoint(getDimension());
-            final Point2D.Double     point2D = new Point2D.Double();
-            
-            final int numBands = image.getNumBands();
-            final double[] samples=new double[numBands];
-            final double[] padNaNs=new double[numBands];
+            final AffineTransform csToGrid = context.getTransform();
+            final Shape area = context.getAreaOfInterest();
+            final Rectangle gridBounds;
+            if (true) {
+                /*
+                 * Compute the grid bounds for the coverage bounds (or the area of interest).
+                 * The default implementation of Rectangle uses Math.floor and Math.ceil for
+                 * computing a box which contains fully the Rectangle2D. But in our particular
+                 * case, we really want to round toward the nearest integer.
+                 */
+                final Rectangle2D bounds = XAffineTransform.transform(csToGrid,
+                                           (area!=null) ? area.getBounds2D() : this.bounds, null);
+                final int xmin = (int)Math.round(bounds.getMinX());
+                final int ymin = (int)Math.round(bounds.getMinY());
+                final int xmax = (int)Math.round(bounds.getMaxX());
+                final int ymax = (int)Math.round(bounds.getMaxY());
+                gridBounds = new Rectangle(xmin, ymin, xmax-xmin, ymax-ymin);
+            }
+            /*
+             * Compute some properties of the image to be created.
+             */
+            final Dimension tileSize = ImageUtilities.toTileSize(gridBounds.getSize());
+            final SampleDimension[] sampleDimensions = getSampleDimensions();
+            final ColorModel colorModel = sampleDimensions[VISIBLE_BAND].getColorModel(
+                                                           VISIBLE_BAND, sampleDimensions.length);
+            final SampleModel sampleModel = colorModel.createCompatibleSampleModel(
+                                                           tileSize.width, tileSize.height);
+            /*
+             * If the image can be created using the ImageFunction operation, do it.
+             * It allow JAI to defer the computation until a tile is really requested.
+             */
+            if ((area==null || area instanceof Rectangle2D) &&
+                csToGrid.getShearX()==0 && csToGrid.getShearY()==0)
+            {
+                return JAI.create("ImageFunction",
+                       new ParameterBlock()
+                                .add(this)                          // The functional description
+                                .add(gridBounds.width)                    // The image width
+                                .add(gridBounds.height)                   // The image height
+                                .add((float)(1/csToGrid.getScaleX()))     // The X scale factor
+                                .add((float)(1/csToGrid.getScaleY()))     // The Y scale factor
+                                .add((float)   csToGrid.getTranslateX())  // The X translation
+                                .add((float)   csToGrid.getTranslateY()), // The Y translation
+                       new RenderingHints(JAI.KEY_IMAGE_LAYOUT, new ImageLayout()
+                                .setMinX       (gridBounds.x)
+                                .setMinY       (gridBounds.y)
+                                .setTileWidth  (tileSize.width)
+                                .setTileHeight (tileSize.height)
+                                .setSampleModel(sampleModel)
+                                .setColorModel (colorModel)));
+            }
+            /*
+             * Creates immediately a rendered image using a given render context. This block is
+             * run when the image can't be created with JAI's ImageFunction operator, for example
+             * because the affine transform swap axis or because there is an area of interest.
+             */
+            // Clones the coordinate point in order to allow multi-thread invocation.
+            final CoordinatePoint coordinate = new CoordinatePoint(this.coordinate);
+            final TiledImage image = new TiledImage(gridBounds.x, gridBounds.y,
+                                                    gridBounds.width, gridBounds.height,
+                                                    0, 0, sampleModel, colorModel);
+            final Point2D.Double point2D = new Point2D.Double();
+            final int     numBands = image.getNumBands();
+            final double[] samples = new double[numBands];
+            final double[] padNaNs = new double[numBands];
             Arrays.fill(padNaNs, Double.NaN);
-            
-            final WritableRectIter iterator = RectIterFactory.createWritable(image, dstRect);
+            final WritableRectIter iterator = RectIterFactory.createWritable(image, gridBounds);
             if (!iterator.finishedLines()) try {
-                int y=dstRect.y; do {
+                int y=gridBounds.y; do {
                     iterator.startPixels();
                     if (!iterator.finishedPixels()) {
-                        int x=dstRect.x; do {
+                        int x=gridBounds.x; do {
                             point2D.x = x;
                             point2D.y = y;
-                            transform.inverseTransform(point2D, point2D);
+                            csToGrid.inverseTransform(point2D, point2D);
                             if (area==null || area.contains(point2D)) {
                                 coordinate.ord[xAxis] = point2D.x;
                                 coordinate.ord[yAxis] = point2D.y;
@@ -677,12 +770,12 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
                             x++;
                         }
                         while (!iterator.nextPixelDone());
-                        assert(x == dstRect.x + dstRect.width);
+                        assert(x == gridBounds.x + gridBounds.width);
                         y++;
                     }
                 }
                 while (!iterator.nextLineDone());
-                assert(y == dstRect.y + dstRect.height);
+                assert(y == gridBounds.y + gridBounds.height);
             }
             catch (NoninvertibleTransformException exception) {
                 final IllegalArgumentException e = new IllegalArgumentException("RenderContext");
@@ -693,26 +786,35 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
         }
         
         /**
-         * Returns an affine transform that maps the coverage envelope
-         * to the specified destination rectangle.  This transform may
-         * swap axis in order to normalize them (i.e. make them appear
-         * in the (x,y) order).
+         * Initialize a render context with an affine transform that maps the coverage envelope
+         * to the specified destination rectangle. The affine transform mays swap axis in order
+         * to normalize their order (i.e. make them appear in the (<var>x</var>,<var>y</var>)
+         * order), so that the image appears properly oriented when rendered.
          *
-         * @param destination The two-dimensional destination rectangle.
+         * @param  gridBounds The two-dimensional destination rectangle.
+         * @param  hints The rendering hints, or <code>null</code> if none.
+         * @return A render context initialized with an affine transform from the coverage
+         *         to the grid coordinate system. This transform is the inverse of
+         *         {@link org.geotools.gc.GridRange#getGridToCoordinateSystem2D}.
+         *
+         * @see org.geotools.gc.GridRange#getGridToCoordinateSystem
          */
-        private AffineTransform getTransform(final Rectangle2D destination) {
+        protected RenderContext createRenderContext(final Rectangle2D gridBounds,
+                                                    final RenderingHints hints)
+        {
             final Matrix matrix;
             final Envelope srcEnvelope = new Envelope(bounds);
-            final Envelope dstEnvelope = new Envelope(destination);
+            final Envelope dstEnvelope = new Envelope(gridBounds);
             final CoordinateSystem  cs = getCoordinateSystem();
-            if (cs!=null) {
+            if (cs != null) {
                 final AxisOrientation[] axis = new AxisOrientation[] {
                     cs.getAxis(xAxis).orientation,
                     cs.getAxis(yAxis).orientation
                 };
                 final AxisOrientation[] normalized = (AxisOrientation[]) axis.clone();
-                if (false) {
+                if (true) {
                     // Normalize axis: Is it really a good idea?
+                    // We should provide a rendering hint for configuring that.
                     Arrays.sort(normalized);
                     for (int i=normalized.length; --i>=0;) {
                         normalized[i] = normalized[i].absolute();
@@ -723,7 +825,76 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
             } else {
                 matrix = Matrix.createAffineTransform(srcEnvelope, dstEnvelope);
             }
-            return matrix.toAffineTransform2D();
+            return new RenderContext(matrix.toAffineTransform2D(), hints);
+        }
+
+        /**
+         * Returns the number of elements per value at each position. This is the maximum
+         * value plus 1 allowed in <code>getElements(...)</code> methods invocation. The
+         * default implementation returns the number of sample dimensions in the coverage.
+         */
+        public int getNumElements() {
+            return getSampleDimensions().length;
+        }
+
+        /**
+         * Returns all values of a given element for a specified set of coordinates.
+         * This method is automatically invoked at rendering time for populating an
+         * image tile, providing that the rendered image is created using the
+         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operator
+         * and the image type is not <code>double</code>.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint,float[])}
+         * recursively.
+         */
+        public void getElements(final float startX, final float startY,
+                                final float deltaX, final float deltaY,
+                                final int   countX, final int   countY, final int element,
+                                final float[] real, final float[] imag)
+        {
+            int index = 0;
+            float[] buffer = null;
+            // Clones the coordinate point in order to allow multi-thread invocation.
+            final CoordinatePoint coordinate = new CoordinatePoint(this.coordinate);
+            coordinate.ord[1] = startY;
+            for (int j=0; j<countY; j++) {
+                coordinate.ord[0] = startX;
+                for (int i=0; i<countX; i++) {
+                    buffer = evaluate(coordinate, buffer);
+                    real[index++] = buffer[element];
+                    coordinate.ord[0] += deltaX;
+                }
+                coordinate.ord[1] += deltaY;
+            }
+        }
+
+        /**
+         * Returns all values of a given element for a specified set of coordinates.
+         * This method is automatically invoked at rendering time for populating an
+         * image tile, providing that the rendered image is created using the
+         * &quot;{@link ImageFunctionDescriptor ImageFunction}&quot; operator
+         * and the image type is  <code>double</code>.
+         * The default implementation invokes {@link Coverage#evaluate(CoordinatePoint,double[])}
+         * recursively.
+         */
+        public void getElements(final double startX, final double startY,
+                                final double deltaX, final double deltaY,
+                                final int    countX, final int    countY, final int element,
+                                final double[] real, final double[] imag)
+        {
+            int index = 0;
+            double[] buffer = null;
+            // Clones the coordinate point in order to allow multi-thread invocation.
+            final CoordinatePoint coordinate = new CoordinatePoint(this.coordinate);
+            coordinate.ord[1] = startY;
+            for (int j=0; j<countY; j++) {
+                coordinate.ord[0] = startX;
+                for (int i=0; i<countX; i++) {
+                    buffer = evaluate(coordinate, buffer);
+                    real[index++] = buffer[element];
+                    coordinate.ord[0] += deltaX;
+                }
+                coordinate.ord[1] += deltaY;
+            }
         }
     }
 
@@ -788,7 +959,7 @@ public abstract class Coverage extends PropertySourceImpl implements Dimensioned
      * class directly. The method {@link Adapters#export(Coverage)} should be used
      * instead.
      *
-     * @version $Id: Coverage.java,v 1.18 2003/08/05 17:44:11 desruisseaux Exp $
+     * @version $Id: Coverage.java,v 1.19 2003/08/08 17:58:21 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected class Export extends UnicastRemoteObject implements CV_Coverage, PropertySource {

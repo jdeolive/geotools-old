@@ -61,7 +61,7 @@ import junit.framework.TestSuite;
 /**
  * Test the {@link OperationJAI} implementation.
  *
- * @version $Id: OperationTest.java,v 1.10 2003/08/03 20:15:04 desruisseaux Exp $
+ * @version $Id: OperationTest.java,v 1.11 2003/08/08 17:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationTest extends GridCoverageTest {
@@ -80,13 +80,6 @@ public class OperationTest extends GridCoverageTest {
      */
     public OperationTest(final String name) {
         super(name);
-    }
-
-    /**
-     * Set up common objects used for all tests.
-     */
-    protected void setUp() throws Exception {
-        super.setUp();
     }
 
     /**
@@ -129,52 +122,6 @@ public class OperationTest extends GridCoverageTest {
         assertTrue(!Arrays.equals(getARGB(coverage), getARGB(result)));
         assertTrue(!coverage.geophysics(true) .equals(result.geophysics(true )));
         assertTrue(!coverage.geophysics(false).equals(result.geophysics(false)));
-    }
-
-    /**
-     * Returns the ARGB code for the specified coverage.
-     */
-    private static int[] getARGB(final GridCoverage coverage) {
-        IndexColorModel colors = (IndexColorModel) coverage.getRenderedImage().getColorModel();
-        final int[] ARGB = new int[colors.getMapSize()];
-        colors.getRGBs(ARGB);
-        return ARGB;
-    }
-
-    /**
-     * Returns an image of type <code>byte</code> with the specified constant value.
-     * The geographic coordinates will always range from -10 to +10.
-     *
-     * @param  value The constant value.
-     * @param  size The image width and height.
-     * @return A constant image.
-     */
-    private static GridCoverage getConstantCoverage(final byte value, final float size) {
-        final RenderedImage image = JAI.create("Constant",
-              new ParameterBlock().add(size)  // Width
-                                  .add(size)  // Height
-                                  .add(new Byte[] {new Byte(value)}), null);
-
-        return new GridCoverage(String.valueOf(value), image,
-                                GeographicCoordinateSystem.WGS84,
-                                new Envelope(new Rectangle2D.Float(-10, -10, 20, 20)));
-    }
-
-    /**
-     * Make sure that all sample values in the given coverage are equals to the given value.
-     */
-    private static void assertEquals(final double value, final GridCoverage coverage) {
-        final Raster data = coverage.getRenderedImage().getData();
-        final int xmin = data.getMinX();
-        final int ymin = data.getMinY();
-        final int xmax = data.getWidth()  + xmin;
-        final int ymax = data.getHeight() + ymin;
-        for (int y=ymin; y<ymax; y++) {
-            for (int x=xmin; x<xmax; x++) {
-                assertEquals("Unexpected sample value in raster.",
-                             value, data.getSampleDouble(x,y,0), EPS);
-            }
-        }
     }
 
     /**
@@ -260,6 +207,102 @@ public class OperationTest extends GridCoverageTest {
         });
         result = operation.doOperation(param, null);
         assertEquals(value0*scale0 + value1*scale1 + value2*scale2 + offset, result);
+    }
+
+    /**
+     * Test operations on an image using a 3D coordinate system. In this test, the extra
+     * dimension is time. The operation should work on the two first dimensions only and
+     * preserve the temporal dimension.
+     */
+    public void testCoordinateSystem3D() {
+        final GridCoverageProcessor processor = GridCoverageProcessor.getDefault();
+        final CoordinateSystem cs = new CompoundCoordinateSystem("WGS84 with time",
+                                        GeographicCoordinateSystem.WGS84,
+                                        new TemporalCoordinateSystem("UTC", new Date(0)));
+
+        GridCoverage coverage = getRandomCoverage(cs);
+        Envelope     envelope = coverage.getEnvelope();
+        for (int i=0; i<4; i++) {
+            switch (i) {
+                case 0: {
+                    // Nothing to do
+                    break;
+                }
+                case 1: {
+                    coverage = processor.doOperation("Interpolate", coverage, "Type", "Bicubic");
+                    break;
+                }
+                case 2: {
+                    coverage = processor.doOperation("NodataFilter", coverage);
+                    break;
+                }
+                case 3: {
+                    coverage = processor.doOperation("GradientMagnitude", coverage);
+                    break;
+                }
+            }
+            assertEquals("CoordinateSystem lost", cs, coverage.getCoordinateSystem());
+            assertEquals("Envelope lost",   envelope, coverage.getEnvelope());
+        }
+    }
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////
+    ////////                              ////////
+    ////////        Helper methods        ////////
+    ////////                              ////////
+    //////////////////////////////////////////////
+
+    /**
+     * Returns the ARGB code for the specified coverage.
+     */
+    private static int[] getARGB(final GridCoverage coverage) {
+        IndexColorModel colors = (IndexColorModel) coverage.getRenderedImage().getColorModel();
+        final int[] ARGB = new int[colors.getMapSize()];
+        colors.getRGBs(ARGB);
+        return ARGB;
+    }
+
+    /**
+     * Returns an image of type <code>byte</code> with the specified constant value.
+     * The geographic coordinates will always range from -10 to +10.
+     *
+     * @param  value The constant value.
+     * @param  size The image width and height.
+     * @return A constant image.
+     */
+    private static GridCoverage getConstantCoverage(final byte value, final float size) {
+        final RenderedImage image = JAI.create("Constant",
+              new ParameterBlock().add(size)  // Width
+                                  .add(size)  // Height
+                                  .add(new Byte[] {new Byte(value)}), null);
+
+        return new GridCoverage(String.valueOf(value), image,
+                                GeographicCoordinateSystem.WGS84,
+                                new Envelope(new Rectangle2D.Float(-10, -10, 20, 20)));
+    }
+
+    /**
+     * Make sure that all sample values in the given coverage are equals to the given value.
+     */
+    private static void assertEquals(final double value, final GridCoverage coverage) {
+        final Raster data = coverage.getRenderedImage().getData();
+        final int xmin = data.getMinX();
+        final int ymin = data.getMinY();
+        final int xmax = data.getWidth()  + xmin;
+        final int ymax = data.getHeight() + ymin;
+        for (int y=ymin; y<ymax; y++) {
+            for (int x=xmin; x<xmax; x++) {
+                assertEquals("Unexpected sample value in raster.",
+                             value, data.getSampleDouble(x,y,0), EPS);
+            }
+        }
     }
 
     /**

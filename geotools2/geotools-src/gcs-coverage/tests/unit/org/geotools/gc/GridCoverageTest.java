@@ -69,7 +69,7 @@ import junit.framework.TestSuite;
  *  <li>{@link #getExample}</li>
  * </ul>
  *
- * @version $Id: GridCoverageTest.java,v 1.8 2003/05/13 10:59:53 desruisseaux Exp $
+ * @version $Id: GridCoverageTest.java,v 1.9 2003/08/08 17:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class GridCoverageTest extends TestCase {
@@ -117,9 +117,22 @@ public class GridCoverageTest extends TestCase {
     }
 
     /**
-     * Returns a grid coverage filled with random values.
+     * Returns a grid coverage filled with random values. The coordinate
+     * system default to {@link GeographicCoordinateSystem#WGS84}.
+     *
+     * @return A random coverage.
      */
     protected GridCoverage getRandomCoverage() {
+        return getRandomCoverage(GeographicCoordinateSystem.WGS84);
+    }
+
+    /**
+     * Returns a grid coverage filled with random values.
+     *
+     * @param coordinateSystem The coverage coordinate system.
+     * @return A random coverage.
+     */
+    protected GridCoverage getRandomCoverage(final CoordinateSystem coordinateSystem) {
         /*
          * Some constants used for the construction and test of the grid coverage.
          */
@@ -153,8 +166,14 @@ public class GridCoverageTest extends TestCase {
         }
         bounds = new Rectangle2D.Double(-10, 30, PIXEL_SIZE*image.getWidth(),
                                                  PIXEL_SIZE*image.getHeight());
-        coverage = transform(new GridCoverage("Test", image, GeographicCoordinateSystem.WGS84,
-                                              new Envelope(bounds), new SampleDimension[]{band},
+        final Envelope envelope = new Envelope(coordinateSystem.getDimension());
+        envelope.setRange(0, bounds.getMinX(), bounds.getMaxX());
+        envelope.setRange(1, bounds.getMinY(), bounds.getMaxY());
+        for (int i=coordinateSystem.getDimension(); --i>=2;) {
+            envelope.setRange(i, 10*i, 10*i+5);
+        }
+        coverage = transform(new GridCoverage("Test", image, coordinateSystem,
+                                              envelope, new SampleDimension[]{band},
                                               null, null));
 
         /* ----------------------------------------------------------------------------------------

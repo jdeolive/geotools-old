@@ -104,7 +104,7 @@ import org.geotools.resources.ImageUtilities;
  *   <li>{@link #createRenderedImage} (the actual call to {@link JAI#createNS JAI.createNS})</li>
  * </ol>
  *
- * @version $Id: OperationJAI.java,v 1.27 2003/08/04 19:07:22 desruisseaux Exp $
+ * @version $Id: OperationJAI.java,v 1.28 2003/08/08 17:58:21 desruisseaux Exp $
  * @author Martin Desruisseaux
  */
 public class OperationJAI extends Operation {
@@ -664,16 +664,22 @@ public class OperationJAI extends Operation {
         }
         /*
          * Performs the operation using JAI and construct the new grid coverage.
+         * Uses the coordinate system from the main source coverage in order to
+         * preserve the extra dimensions (if any). The first two dimensions should
+         * be equal to the coordinate system set in the 'parameters' block.
          */
-        final String        name = deriveName(source, parameters);
-        final RenderedImage data = createRenderedImage(parameters.parameters, hints);
-        return new GridCoverage(name,                              // The grid coverage name
-                                data,                              // The underlying data
-                                parameters.coordinateSystem,       // The coordinate system.
-                                parameters.gridToCoordinateSystem, // The grid transform.
-                                sampleDims,                        // The sample dimensions
-                                sources,                           // The source grid coverages.
-                                null);                             // Properties
+        final String         name = deriveName(source, parameters);
+        final CoordinateSystem cs = source.getCoordinateSystem();
+        final MathTransform  toCS = source.getGridGeometry().getGridToCoordinateSystem();
+        final RenderedImage  data = createRenderedImage(parameters.parameters, hints);
+        assert parameters.coordinateSystem.equals(CTSUtilities.getSubCoordinateSystem(cs,0,2)) : cs;
+        return new GridCoverage(name,        // The grid coverage name
+                                data,        // The underlying data
+                                cs,          // The coordinate system (may not be 2D).
+                                toCS,        // The grid transform (may not be 2D).
+                                sampleDims,  // The sample dimensions
+                                sources,     // The source grid coverages.
+                                null);       // Properties
     }
     
     /**
@@ -915,7 +921,7 @@ public class OperationJAI extends Operation {
      *   <li>{@link OperationJAI#deriveUnit}</li>
      * </ul>
      *
-     * @version $Id: OperationJAI.java,v 1.27 2003/08/04 19:07:22 desruisseaux Exp $
+     * @version $Id: OperationJAI.java,v 1.28 2003/08/08 17:58:21 desruisseaux Exp $
      * @author Martin Desruisseaux
      */
     protected static final class Parameters {
