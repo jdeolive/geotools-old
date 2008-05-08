@@ -1,0 +1,624 @@
+<chapter id="chapter-metadata">
+  <title>System: Metadata</title>
+
+  <!-- Top Level, a description with the chapter TOC -->
+  <para>
+    This chapter presents all of the Metadata module of Geotools, except for the 
+    <code>org.geotools.util</code> package which was discussed in
+    <xref linkend="chapter-util"/>.
+  </para>
+  
+  <!-- Critical Warnings -->
+  
+  
+  <sect1 id="sect-metadata-intro">
+    <title>Introduction</title>
+    
+    <!--Overview and when not to read the chapter -->
+    <para>
+      The Metadata module implements the metadata elements defined in the GeoAPI 
+      interfaces of the <code>org.opengis.metadata</code> package which are 
+      required by other elements of the ISO geospatial standards. The Metadata 
+      module also provides utility classes, internal resources, and the elements 
+      of the base ISO schema which were discussed in 
+      <xref linkend="chapter-util"/>.
+    </para>
+    
+    <note>
+      <para>
+        This chapter is only relevant to those trying to understand the 
+        internals of the metadata elements. Because the current implementation 
+        is minimal, these classes can be understood just as well by looking
+        directly at their Javadoc documentation.
+      </para>
+    </note>
+    
+    <para>
+      Geotools implements a geographic information system based on the standards 
+      defined by the International Organization for Standardization (ISO) in 
+      their 191xx series of standards. The ISO 19115 standard of that series 
+      defines the classes needed to associate metadata with geospatial elements. 
+      Geotools currently provides, in the Metadata package, only a minimal 
+      implementation of the ISO 19115 standard. This implementation is 
+      sufficient merely to allow the implementation of other standards in the 
+      series whose elements depend on the metadata elements. Notably, it is 
+      currently not possible to create a single object with the full metadata 
+      documentation for a data set.
+    </para>
+    
+    
+    
+    <sect2 id="sect-metadata-intro-usage">
+      <title>Usage</title>
+      
+      <para>
+        These classes are used as components of more complex geospatial 
+        elements, most notably those in the referencing module.
+      </para>
+      
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-metadata-intro-warnings">
+      <title>Warnings</title>
+      
+      <warning>
+        <title>The Metadata implementation is incomplete</title>
+        <para>
+          The current implementation of these classes is minimal, sufficient 
+          only to implement more complex classes in other ISO standards. There 
+          are not, for example, the methods needed to aggregate these classes 
+          into a coherent document describing a gespatial data set.
+        </para>
+      </warning>
+      
+      <!--
+      <warning>
+        <title></title>
+        <para>
+        </para>
+      </warning>
+      -->
+      
+    </sect2>
+    
+    
+    <sect2 id="sect-metadata-intro-model">
+      <title>Instance Object Model</title>
+      
+      <para>
+        
+      </para>
+      
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-metadata-intro-code">
+      <title>Code Layout</title>
+      
+      <para>
+        All of the classes in the Geotools metadata module can be found in the
+        <code>./modules/library/metadata/</code> directory of the Geotools 
+        source code.
+      </para>
+      
+      <para>
+        The Geotools metadata module defines classes in several packages. The 
+        module includes the full <code>org.geotools.util</code> package which 
+        was discussed in <xref linkend="chapter-util"/>. The module defines 
+        classes in the <code>org.geotools.resources</code> packages which 
+        should not be used by user code but is intended only for internal 
+        library use.
+      </para>
+      
+<table>
+<title>Geotools Metadata Module and related GeoAPI Packages</title>
+<tgroup cols="3">
+<colspec colname='c1'/>
+<colspec colname='c2'/>
+<colspec colname='c3'/>
+<thead>
+<row>
+  <entry namest="c1" nameend="c2" align="center">Packages</entry>
+  <entry>Use</entry>
+</row>
+<row>
+  <entry>GeoAPI</entry>
+  <entry>Geotools</entry>
+  <entry></entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.factory
+    </para>
+  </entry>
+  <entry>
+    <para>The ?metadata? Factory system
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.io
+    </para>
+  </entry>
+  <entry>
+    <para>Formatting and writing classes
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.math
+    </para>
+  </entry>
+  <entry>
+    <para>Simple numeric and geometric classes
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.citation
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.citation
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.constraint
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.constraint
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.content
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.content
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.distribution
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.distribution
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.extent
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.extent
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.identification
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.identification
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.lineage
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.lineage
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.maintenance
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.maintenance
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.quality
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.quality
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>org.opengis.metadata.spatial
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.iso.spatial
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.metadata.sql
+    </para>
+  </entry>
+  <entry>
+    <para>Storage in a database
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.resources
+    </para>
+  </entry>
+  <entry>
+    <para>For Geotools use only
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>org.geotools.util
+    </para>
+  </entry>
+  <entry>
+    <para>Discussed in the previous chapter.
+    </para>
+  </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-metadata-intro-keyClasses">
+      <title>Key Classes</title>
+      
+      <para>
+      </para>
+          
+<table>
+<title>Key Classes</title>
+<tgroup cols="4">
+<thead>
+<row>
+  <entry>Class</entry>
+  <entry>Interface</entry>
+  <entry>Creation</entry>
+  <entry>Use</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+    </sect2>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-runThrough">
+    <title>Run Through</title>
+
+    <para>
+      
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-resources">
+    <title>Resources</title>
+
+    <para>
+      The ISO 19115 standard "Metadata" describes the classes defined in the 
+      GeoAPI interfaces and defined in the Geotools package. That standard will
+      be complemented by several standards which are still in development: the 
+      ISO 19115-2 "Metadata Part2: Extensions for imagery and gridded data" 
+      will be useful for remotely sensed data, ISO 19119 "Services" defines the 
+      service presentation of metadata, ISO 19139 "Metadata-Implementation" 
+      describes the use of XML to store metadata. 
+    </para>
+
+    <para>
+      The use of these classes is described in the other ISO standards such as 
+      the use by Referencing classes documented in ISO 19111 "Spatial 
+      Referencing by Coordinates."
+    </para>
+
+    <para>
+      The topic of metadata is quite large, encompassing numerous issues in 
+      many domains. A quick introduction to these issues can be obtained from 
+      the Wikipedia <ulink
+        url="http://en.wikipedia.org/wiki/Metadata" 
+        type="http">Metadata</ulink> and <ulink
+        url="http://en.wikipedia.org/wiki/Geospatial_metadata" 
+        type="http">Geospatial metadata</ulink> pages which are currently still
+      simple pages but will hopefully become more complete with time. 
+    </para>
+
+    <para>
+      Several large scale efforts have been undertaken to develop coherent 
+      systems for metadata. Notable among these was the <ulink
+        url="http://www.fgdc.gov/" type="http">Federal Geographic Data 
+        Committee</ulink> of the United States government which has developed an 
+      extensive and complex standard for metadata. That standard serves as a 
+      reference for discussion and development of metadata software.
+    </para>
+
+    <para>
+      Many other groups deal with the issues of metadata. <ulink
+        url="http://socialchange.net.au/" 
+        type="http">Social Change Online</ulink> is researching effective ways 
+      to integrate distributed sources of data with disparate metadata 
+      definitions. The <ulink 
+        url="http://geonetwork-opensource.org/" type="http">Geonetwork</ulink>
+      and <ulink 
+        url="http://www.mdweb-project.org/" type="http">MDWeb</ulink> projects 
+      are both trying to develop software for users to define, create, and use 
+      metadata related to geospatial data.
+    </para>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-practical">
+    <title>Practical Information </title>
+
+    <para>
+      
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-classes">
+    <title>Principal Classes</title>
+
+    <para>
+      
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-tutorial">
+    <title>Tutorial</title>
+
+    <para>
+      
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-readon">
+    <title>Reading More</title>
+
+    <para>
+      
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-metadata-extending">
+    <title>Extending</title>
+
+    <para>
+      The Metadata module currently serves the needs of the Geotools library so 
+      little work is currently being done on this module.
+    </para>
+    
+    <para>
+      Complex issues surround the design of metadata schema, the documentation 
+      of metadata, and the use of these metadata for search and retrieval of 
+      geospatial data. These issues include difficult questions of compatibility 
+      when data from several sources are aggregated for use. There remains a 
+      vast amount of work to be done resolving these issues conceptually even 
+      prior to implementing solutions.
+    </para>
+    
+    <para>
+      The Geotools Metadata module would benefit greatly from a systematic 
+      effort to use the existing classes to develop a coherent metadata system 
+      for geospatial applications. Such work would include developing methods to 
+      aggregate the existing classes to develop data structures with a complete 
+      metadata documentation of a data set, methods to validate those data 
+      structures, methods to output the data structures to a document, and 
+      routines to parse metadata files into the object structure.
+    </para>
+    
+    <para>
+      Anyone interested in extending the Geotools metadata module should send 
+      an email to the Geotools developer's list 
+      (<email>geotools-devel@lists.sourceforge.net</email>) to discuss the 
+      work which could be done.
+    </para>
+  </sect1>
+
+</chapter>

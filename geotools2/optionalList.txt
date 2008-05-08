@@ -1,1 +1,0 @@
-arcsde,geomedia,mysql,gtopo30,oraclespatial,tiger,graph,validation,postgis,shapefile

@@ -1,0 +1,70 @@
+EXTENTION WIDGETS-SWING
+=======================
+Module Maintainer: Martin
+IP Review:
+- Jody Garnett, August 7th 2006
+
+org.geotools.axis
+-----------------
+IP:
+- all files contain the following:
+
+     (C) 2003-2006, Geotools Project Managment Committee (PMC)
+     (C) 2000, Institut de Recherche pour le Développement
+     (C) 1999, Pêches et Océans Canada
+ 
+- updated the headers
+
+org.geotools.gui.headless
+-------------------------
+email and printer based progress listeners.
+IP:
+- all files contain the following:
+     (C) 2003-2006, Geotools Project Managment Committee (PMC)
+     (C) 2000, Institut de Recherche pour le Développement
+     (C) 1999, Pêches et Océans Canada
+- updated headers
+
+org.geotools.gui.swing
+----------------------
+IP:
+- following range of (C) information found:
+     (C) 2003-2006, Geotools Project Managment Committee (PMC)
+     (C) 2000, Institut de Recherche pour le Développement
+     (C) 1999, Pêches et Océans Canada
+- updated headers
+
+org.geotools.gui.swing.event
+----------------------------
+IP:
+- both file contain (C) 2000, Institut de Recherche pour le Développement
+- upaded headers
+     
+org.geotools.gui.swing.image
+----------------------------
+IP:
+-files have (C) 2000, Institut de Recherche pour le Développement
+- updated headers
+
+org.geotools.gui.swing.referencing
+----------------------------------
+- one file listed (C) 2006, Geomatys
+- files also list (C) Institut de Recherche pour le Développement
+- updated headers
+
+org.geotools.gui.swing.table
+----------------------------
+IP:
+- files lists (C) 2005, Institut de Recherche pour le Développement
+- updated headers
+
+org.geotools.gui.swing.tree
+---------------------------
+- files list (C) Institut de Recherche pour le Développement
+- updated headers
+
+org.geotools.gui.swing (test)
+-----------------------------
+IP:
+- two files have included (C) Institut de Recherche pour le Développement
+- updated headers

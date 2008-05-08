@@ -1,1 +1,0 @@
-core,defaultcore,cts-coordtrans,filter,gcs-coverage,data,gmldatasource,opengis,lite-rendering,renderer,sldstyling,opengis,resources,science,gui,map

@@ -1,0 +1,177 @@
+/*
+ *    Geotools2 - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ */
+package org.geotools.arcsde.data.view;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import org.geotools.arcsde.pool.Session;
+
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.AllColumns;
+import net.sf.jsqlparser.statement.select.AllTableColumns;
+import net.sf.jsqlparser.statement.select.SelectExpressionItem;
+import net.sf.jsqlparser.statement.select.SelectItem;
+
+import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
+import com.esri.sde.sdk.client.SeTable;
+
+/**
+ * Qualifies instances of
+ * {@link net.sf.jsqlparser.statement.select.SelectExpressionItem}, and creates
+ * a list of qualified
+ * {@link net.sf.jsqlparser.statement.select.SelectExpressionItem} for each
+ * {@link net.sf.jsqlparser.statement.select.AllColumns} and
+ * {@link net.sf.jsqlparser.statement.select.AllTableColumns} instances. So,
+ * this visitor may produce more items than the visited.
+ * 
+ * @author Gabriel Roldan, Axios Engineering
+ * @version $Id: SelectItemQualifier.java 27572 2007-10-22 09:20:45Z
+ *          desruisseaux $
+ * @source $URL:
+ *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/view/SelectItemQualifier.java $
+ * @since 2.3.x
+ */
+class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectItemVisitor {
+    /** DOCUMENT ME! */
+    private List /* <SelectExpressionItem> */qualifiedItems = Collections.EMPTY_LIST;
+
+    /** DOCUMENT ME! */
+    private Session session;
+
+    private Map tableAliases;
+
+    /**
+     * Creates a new SelectItemQualifier object.
+     * 
+     * @param session
+     *            DOCUMENT ME!
+     */
+    private SelectItemQualifier(Session session, Map tableAliases) {
+        this.session = session;
+        this.tableAliases = tableAliases;
+    }
+
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param session
+     *            DOCUMENT ME!
+     * @param item
+     *            DOCUMENT ME!
+     * 
+     * @return DOCUMENT ME!
+     */
+    public static List qualify(Session session, Map tableAliases, SelectItem item) {
+        if (item == null) {
+            return null;
+        }
+
+        SelectItemQualifier qualifier = new SelectItemQualifier(session, tableAliases);
+        item.accept(qualifier);
+
+        return qualifier.qualifiedItems;
+    }
+
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param allColumns
+     *            DOCUMENT ME!
+     */
+    public void visit(AllColumns allColumns) {
+        this.qualifiedItems = Collections.singletonList(allColumns);
+    }
+
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param allTableColumns
+     *            DOCUMENT ME!
+     */
+    public void visit(AllTableColumns allTableColumns) {
+        AllTableColumns qualified = new AllTableColumns();
+
+        Table qt = allTableColumns.getTable();
+        Table unaliasedTable = (Table) tableAliases.get(qt.getName());
+
+        if (unaliasedTable == null) {
+            // not an aliased table, qualify it
+            qt = TableQualifier.qualify(session, allTableColumns.getTable());
+        } else {
+            // AllTableColumns is refering to an aliased table in the FROM
+            // clause,
+            // replace its table by the original one to get rid of the alias
+            qt = unaliasedTable;
+        }
+
+        qualified.setTable(qt);
+
+        String tableName = qt.getSchemaName() + "." + qt.getName();
+        SeTable table;
+        SeColumnDefinition[] cols;
+        try {
+            table = session.createSeTable(tableName);
+            cols = table.describe();
+        } catch (SeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        qualifiedItems = new ArrayList(cols.length);
+
+        for (int i = 0; i < cols.length; i++) {
+            String colName = cols[i].getName();
+
+            Column column = new Column();
+            column.setTable(qt);
+            column.setColumnName(colName);
+
+            SelectExpressionItem item = new SelectExpressionItem();
+            item.setExpression(column);
+
+            qualifiedItems.add(item);
+        }
+    }
+
+    /**
+     * DOCUMENT ME!
+     * 
+     * @param selectExpressionItem
+     *            DOCUMENT ME!
+     */
+    public void visit(SelectExpressionItem selectExpressionItem) {
+
+        SelectExpressionItem qualifiedItem = new SelectExpressionItem();
+
+        qualifiedItem.setAlias(selectExpressionItem.getAlias());
+
+        Expression selectExpression = selectExpressionItem.getExpression();
+
+        Expression qualifiedExpression = ExpressionQualifier.qualify(session, tableAliases,
+                selectExpression);
+
+        qualifiedItem.setExpression(qualifiedExpression);
+
+        this.qualifiedItems = Collections.singletonList(qualifiedItem);
+    }
+}

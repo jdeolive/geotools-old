@@ -1,0 +1,28 @@
+<sect1 id="license-geotools">
+
+  <title>License of the Geotools Library</title>
+
+  <para>
+    Geotools is free software; you can redistribute it and/or
+    modify it under the terms of the <citetitle>Lesser General Public
+    License (LGPL)</citetitle> as published by the Free Software Foundation;
+    either version 2 of the License, or (at your option) any later
+    version.
+  </para>
+
+  <para>
+    Geotools is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    <citetitle>Lesser General Public License</citetitle> for more details.
+  </para>
+
+  <para>
+    A copy of the <citetitle>Lesser General Public License</citetitle> is
+    included with the Geotools distribution.  You may also obtain a copy of the
+    the <citetitle>Lesser General Public License</citetitle> from the Free
+    Software Foundation by visiting 
+    <ulink type="http" url="http://www.fsf.org">their Web site</ulink>.
+  </para>
+
+</sect1>

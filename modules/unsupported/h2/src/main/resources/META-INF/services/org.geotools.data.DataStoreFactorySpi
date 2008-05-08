@@ -1,0 +1,2 @@
+org.geotools.data.mysql.MySQLDataStoreFactory
+org.geotools.data.h2.H2DataStoreFactory

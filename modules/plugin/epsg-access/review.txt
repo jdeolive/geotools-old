@@ -1,0 +1,27 @@
+PLUGIN EPSG ACCESS
+==================
+Module Maintainer Martin Desruisseaux
+IP Review Jody Garnett, July 8th, 2006
+
+Although initial headers have a (C) 2002-2006 it appears that the file was first created
+in (C) (C) 2005, Institut de Recherche pour le Développement so I am adjusting the headers
+and LICENSE.txt to match. Given that a GeoTools (C) also appears I can assume the code
+was handed over to the PMC without incident.
+
+Their is *no data* included with this module, instead a single Access.html file is included
+with the javadocs describing what needs to be done to download and set up the access database.
+
+IP
+- LICENSE.txt updated to (C) 2005-2006 GeoTools Project Management Committee (PMC)
+
+org.geotools.referencing.factory.epsg
+-------------------------------------
+Module created in 2005 to allow for the use of the EPSG access database as available via
+download. The file itself is not included.
+
+IP:
+- Header updated to (C) 2005-2006 GeoTools Project Management Committee (PMC)
+- original maintained (C) 2005, Institut de Recherche pour le Développement
+
+QA:
+- added a package.html explaining purpose and linking to provided Access.html instructions

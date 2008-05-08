@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- =======================================================================    
+        Maven Project Configuration File                                        
+                                                                                
+        The Geotools Project                                                    
+            http://www.geotools.org/                                            
+                                                                                
+        Version: $Id$              
+     ======================================================================= -->
+  <project xmlns="http://maven.apache.org/POM/4.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                               http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.geotools</groupId>
+    <artifactId>unsupported</artifactId>
+    <version>2.5-SNAPSHOT</version>
+  </parent>
+
+
+  <!-- =========================================================== -->
+  <!--   Properties and Profiles                                   -->
+  <!--       explanation of their effect.                          -->
+  <!--                                                             -->
+  <!--   Available profiles are:                                   -->
+  <!--                                                             -->
+  <!--     nameOfprofile      Explantion of what the profile does  -->
+  <!--                        for the user.                        -->
+  <!--                                                             -->
+  <!--     Example:           mvn -PnameOfprofile install          -->
+  <!--                                                             -->
+  <!--     Note ...                                                -->
+  <!-- =========================================================== -->
+  <!-- Default setting of properties -->
+  <!--
+  <properties>
+    <nameOfproperty>valueOfsetting</nameOfproperty>
+  </properties>
+  -->
+
+  <!-- Profiles set on the command-line to override default properties. -->
+  <!--
+  <profiles>
+    <profile>
+      <id>nameOfprofile</id>
+      <properties>
+        <nameOfproperty>valueOfsetting</nameOfproperty>
+      </properties>
+    </profile>
+  </profiles>
+  -->
+  
+
+  <!-- =========================================================== -->
+  <!--     Module Description                                      -->
+  <!-- =========================================================== -->
+  <groupId>org.geotools</groupId>
+  <artifactId>gt-widgets-swing-pending</artifactId>
+  <packaging>jar</packaging>
+  <name>widgets-swing-pending</name>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/widgets-swing-pending/</url>
+
+  <scm>
+    <connection>
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/widgets-swing-pending/
+    </connection>
+    <url>http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/widgets-swing-pending/</url>
+  </scm>
+
+  <description>Swing widgets, coming from project AlterSIG. Will be added in module swing widgets once cleaned up.</description>
+
+  <!-- Pick your license. -->
+  <!--
+  <licenses>
+    <license>
+      <name>Lesser General Public License (LGPL)</name>
+      <url>http://www.gnu.org/copyleft/lesser.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  -->
+
+
+  <!-- =========================================================== -->
+  <!--     Developers and Contributors                             -->
+  <!-- =========================================================== -->
+  <developers>
+    <developer>
+      <id>johann.sorel</id>
+      <name>Johann Sorel</name>
+      <email>sorel.johann@inbox.com</email>
+      <roles>
+        <role>Module Maintainer</role>
+        <role>Java Developer</role>
+      </roles>
+    </developer>
+  </developers>
+
+
+  <!-- =========================================================== -->
+  <!--     Dependency Mangement                                    -->
+  <!-- =========================================================== -->
+  <dependencies>
+
+    <!-- common-2.2.1.jar -->
+    <dependency>
+      <groupId>org.eclipse.emf</groupId>
+      <artifactId>common</artifactId>
+      <version>2.2.1</version>
+    </dependency>
+    
+    <!-- commons-beanutils-1.7.0.jar -->
+    <dependency>
+      <groupId>commons-beanutils</groupId>
+      <artifactId>commons-beanutils</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    
+    <!-- commons-collections-3.1.jar -->
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.1</version>
+    </dependency>
+    
+    <!-- commons-jxpath-1.2.jar -->
+    <dependency>
+      <groupId>commons-jxpath</groupId>
+      <artifactId>commons-jxpath</artifactId>
+      <version>1.2</version>
+      <exclusions>
+        <exclusion>
+          <groupId>xerces</groupId>
+          <artifactId>xerces</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>servletapi</groupId>
+          <artifactId>servletapi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    
+    <!-- ecore-2.2.2.jar -->
+    <dependency>
+      <groupId>org.eclipse.emf</groupId>
+      <artifactId>ecore</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+
+    <!-- geoapi-2.2-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.opengis</groupId>
+      <artifactId>geoapi</artifactId>
+      <version>2.2-SNAPSHOT</version>
+    </dependency>
+
+    <!-- api-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- coverage-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-coverage</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+<!-- epsg-hsql-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${project.version}</version> 
+    </dependency>
+
+    <!-- geotiff-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-geotiff</artifactId>
+      <version>${project.version}</version> 
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-image</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-legacy</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- main-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- mappane-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-mappane</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- metadata-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-metadata</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-cql</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-oracle-spatial</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-epsg-hsql</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-postgis</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+
+    <!-- referencing-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-referencing</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- render-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-render</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- shapefile-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- shapefile-renderer-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-shapefile-renderer</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- xml-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-xml</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- xml-filter-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-filter</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- xml-gml2-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-gml2</artifactId>
+      <version>${project.version}</version>
+    </dependency>  
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-widgets-swing</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- xml-sld-2.5-SNAPSHOT.jar -->
+    <dependency>
+      <groupId>org.geotools.xsd</groupId>
+      <artifactId>gt-sld</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- hsqldb-1.8.0.7.jar -->
+    <dependency>
+      <groupId>hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>1.8.0.7</version>
+    </dependency>
+
+    <!-- jsr108-0.01.jar -->
+    <dependency>
+      <groupId>javax.units</groupId>
+      <artifactId>jsr108</artifactId>
+      <version>0.01</version>
+    </dependency>
+
+    <!-- jts-1.8.jar -->
+    <dependency>
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.8</version>
+    </dependency>
+
+    <!-- jts-wrapper -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-jts-wrapper</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- picocontainer-1.2.jar -->
+    <dependency>
+      <groupId>picocontainer</groupId>
+      <artifactId>picocontainer</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <!-- vecmath-1.3.1.jar -->
+    <dependency>
+      <groupId>java3d</groupId>
+      <artifactId>vecmath</artifactId>
+      <version>1.3.1</version>
+    </dependency>
+
+    <!-- xercesImpl-2.8.0.jar -->
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.8.0</version>
+    </dependency>
+
+    <!-- xml-apis-1.3.03.jar -->
+    <dependency>
+     <groupId>xml-apis</groupId>
+     <artifactId>xml-apis</artifactId>
+     <version>1.3.03</version>
+   </dependency>
+
+    <!-- xsd-2.2.2.jar  -->
+    <dependency>
+      <groupId>org.eclipse.xsd</groupId>
+      <artifactId>xsd</artifactId>
+      <version>2.2.2</version>
+    </dependency>
+
+    <!-- WFS datastore -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-wfs</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+      
+    <!-- WMS datastore -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-wms</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
+    <!-- process -->
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-process</artifactId>
+      <version>${project.version}</version>
+    </dependency>    
+
+    
+
+    <!-- swing-layout.jar -->
+    <dependency>
+      <groupId>org.jdesktop</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+
+    <!-- swingx-2007_09_02.jar -->
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swingx</artifactId>
+      <version>0.8-SNAPSHOT</version>
+    </dependency>
+
+    <!-- Java Advanced Imaging (JAI) -->
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_core</artifactId>
+      <version>1.1.3</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jai_imageio</artifactId>
+      <version>1.1</version>
+    </dependency>
+    
+  </dependencies>
+ 
+
+  <!-- =========================================================== -->
+  <!--     Build Configuration                                     -->
+  <!--         copies all JARs in a single directory.              -->
+  <!-- =========================================================== -->
+  <build>
+
+    <plugins>
+      <!-- ====    Compilation      ============================== -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- ====    Switch commenting to skip tests    = -->
+          <skip>${allow.test.skip}</skip>
+          <!-- skip>true</skip> -->
+          <includes>
+            <include></include>
+          </includes>
+          <excludes>
+            <exclude></exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+      
+      <!-- ====    Execute         =============================== -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+            <executable>java</executable>
+            <arguments>                        
+              <argument>-classpath</argument>
+              <!-- automatically creates the classpath using all project dependencies,also adding the project build directory -->
+              <classpath></classpath>
+              <argument>org.geotools.gui.swing.demo.DemoAll</argument>
+            </arguments>
+          </configuration>
+       </plugin>
+
+
+      <!-- ====    Testing          ============================== -->
+      <!-- ====    Code Formatting  ============================== -->
+      <!--
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jalopy-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>format</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      -->
+      <!-- ====    Code Coverage    ============================== -->
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-clover-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal></goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      -->
+    </plugins>
+    
+  </build>
+
+</project>

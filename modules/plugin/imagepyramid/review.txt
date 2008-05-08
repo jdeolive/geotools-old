@@ -1,0 +1,3 @@
+Module ImagePyramid
+===============
+Reivew By Simone Giannecchini, it is a go.

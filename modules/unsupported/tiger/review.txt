@@ -1,0 +1,24 @@
+PLUGIN TIGER
+============
+Module Maintainer Julian Ray
+IP Review:
+- Jody Garnett August 7th, 2006
+
+org.getoools.data.tiger
+-----------------------
+DataStore access to the tiger file format.
+
+IP:
+- files have a different header (but same LGPL license):
+
+       GeoLBS - OpenSource Location Based Servces toolkit
+       Copyright (C) 2003-2004, Julian J. Ray, All Rights Reserved
+
+- updated header to geotools standard, and maintained Julian's (C) notice
+- some files donated by TOPP included with GPL 2.0 notice
+
+     Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
+     This code is licensed under the GPL 2.0 license, availible at the root
+     application directory.
+     
+- GPL 2 notice removed as per standing agreement with TOPP

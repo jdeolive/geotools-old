@@ -1,0 +1,12 @@
+Plugin GML
+==========
+Module Maintainer David Zwiers
+IP Review Jody Garnett, July 10th, 2006
+
+org.geotools.data.gml
+---------------------
+Created to quickly try out GML parsing ability as part of uDig development cycle.
+
+IP:
+- header was not present on GMLDataStoreFactory
+- headers updated to (C) 2005-2006, GeoTools Project Managment Committee (PMC)

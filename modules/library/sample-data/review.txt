@@ -1,0 +1,20 @@
+MODULE SAMPLE DATA
+==================
+Module Maintainer none!
+IP Review:
+- Jody Garnett, August 6th, 2006
+
+James Macgill is listed as a java developer on this
+one, but there is no offical module maintainer. This
+module has become more important as maven 2 forces us
+into some kind of classloader induced data access madness.
+
+org.geotools
+------------
+Contains a single TestData class, with
+lots of data that it can access using
+its jar classloader.
+
+IP:
+- updated header
+- data of unknown source! We should confirm

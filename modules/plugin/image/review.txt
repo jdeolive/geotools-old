@@ -1,0 +1,27 @@
+PLUGIN IMAGE
+============
+Module Maintainer: Simone Giannecchini / Alessio Fabiani (developers)
+IP Review Jody Garnett, July 15th, 2006
+
+This module contains code based on the origional image rendering code in GeoTools 2.0, this code
+was refactored in the face of a new CoordinateReferenceSystem interface to work with GeoAPI
+GridCoverageExchange and GridCoverage interfaces for GeoTools 2.1.
+
+org.geotools.gce.image
+----------------------
+Module started by Richard Gould to restore some ability to handle images for GeoTools 2.1,
+the GeoServer WCS project has be head of a grid coverage QA run which updated this module
+for GeoTools 2.3.
+
+QA:
+- need a module maintainer to be responsible for thise code
+IP:
+- updated headers to (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+
+
+org.geotools.gce.image (test)
+----------------------
+Many test cases date from Richard Gould's CRS changeover.
+
+IP:
+- updated headers to (C) 2005-2006, GeoTools Project Managment Committee (PMC)

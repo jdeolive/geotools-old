@@ -1,0 +1,43 @@
+PLUGIN WFS
+==========
+Module Maintainer: David Zwiers
+IP Review:
+- Jody Garnett, August 7th, 2006
+
+org.geotools.catalog.wfs
+------------------------
+IP:
+- updated headers
+
+org.geotools.data.ows
+---------------------
+IP:
+- updated headers
+
+org.geotools.data.wfs
+---------------------
+IP:
+- a couple files missing any header informaiton
+- two files contained uDig header, fixed
+- updated headers (C) 2004-2006 PMC
+
+org.geotools.xml.gml
+--------------------
+Looks to be jesse adding a hack.
+IP:
+- contained uDig header?
+
+org.geotools.xml.wfs
+--------------------
+IP:
+- updated headers
+
+org.geotools.data.wfs (test)
+org.geotools.data.wfs.demo (test)
+--------------------------
+Fun w/ junit.
+
+IP:
+- *many* udig headers to be removed & replaced
+-  a few files commited by jesse lacked headers
+- updated headers

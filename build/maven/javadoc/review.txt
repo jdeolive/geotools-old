@@ -1,0 +1,21 @@
+MAVEN JAVADOC
+=============
+Module Maintainer Martin
+IP Review Jody Garnett, July 18th
+
+Simple maven plugin...
+
+org.geotools.maven.taglet
+-------------------------
+IP:
+- updated header to (C) 2005-2006 PMC
+
+org.getools.maven.tools
+-----------------------
+IP:
+- updated header to (C) 2005-2006 PMC
+
+org.geotools.maven.taglet (test)
+-------------------------
+IP:
+- updated header to (C) 2005-2006 PMC

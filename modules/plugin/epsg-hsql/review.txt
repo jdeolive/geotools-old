@@ -1,0 +1,60 @@
+Plugin EPSG HSQL
+----------------
+Module Maintainer: Martin
+IP Review Jody Garnett, July 9th, 2006
+
+This module presents something interesting, the LICENSE.txt contains both the standard GeoTools
+header information in addition a (C) 2001-2004, The HSQL Development Group and a disclaimer to
+be maintained with the source code.
+
+More alarmingly the text of the HSQL Developerment Group asks us to include their disclaimer with
+"in the documentation and/or other materials provided with the distribution".
+
+As a library I am hard pressed to pass on this constraint to applications that make use of
+our software.
+
+Please note I cannot find this notice on *any* code header in contained in this module, perhaps
+it is in reference to the jdbc driver jar itself that is required for the module to be of use?
+
+   [Martin note: I confirm that the HSQL license applies to the "hsqldb.jar" file bundled with our
+    binary distribution only. There is no HSQL derived work in Java source code in this module.]
+
+Secondly this module includes data generated from the EPSG access database, would like to see
+the details of distribution (and redistribution) documented somewhere please.
+
+Immidiate Action:
+- include their disclaimer in our Developers Guide
+- include snapshot of developers guide with each release (as our only formal documentation)
+
+Questions:
+- I cannot what software the disclaimer is used for
+  [Martin answer: the "hsqldb.jar" file only - no impact on any source code provided in this module]
+
+- Requiring disclaimers in software that uses our library would be an unacceptable annoyance
+  [Martin answer: it would actually apply only to users of "gt2-epsg-hsql.jar" plugin]
+
+- we could drop hsql or make downloading the jar a seperate option as with arcsde/db2 etc...
+
+IP:
+- LICENSE.TXT updated to (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- LICENSE.TXT contains disclaimer with annoying restrictions on use
+
+QA:
+- readme.txt added describing installation needs
+  [Martin answer: removed the information, because they were target for module maintainer, not for users.
+   Added a note for user explaining that they don't need to take any particular action for installing this module.]
+
+org.geotools.referencing.factory.epsg
+-------------------------------------
+
+IP:
+- headers updated to (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- contains a copy of the epsg data base tweaked for hibernate, need to check redistribution policy.
+
+QA:
+- package.html added to allow a link to provided HSQL.html instructions
+
+org.geotools.referencing.factory.epsg (test)
+- headers updated to (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- references to (C) 2005, Institut de Recherche pour le Développement
+- headers updated

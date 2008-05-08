@@ -1,0 +1,22 @@
+PLUGIN GTOPO30
+==============
+Module Maintainer Andrea
+IP Review Jody Garnett July 10th, 2006
+
+IP:
+- LICENSE.TXT updated to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+
+org.geotools.gce.gtopo30
+------------------------
+Created to access the GTOPO grid format, all existing code deates from 2005
+
+IP:
+- updated headers to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+- a few files were obviously created in 2004 and 2005
+
+org.geotools.gce.gtopo30
+------------------------
+
+IP:
+- updated headers to (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+- test data no longer included

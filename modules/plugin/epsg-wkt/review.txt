@@ -1,0 +1,28 @@
+Plugin EPSG-WKT
+===============
+Module Maintainer: Jody Garnett
+IP Review, Jody Garnett, July 9th, 2006
+
+The LICENSE.TXT indicated 2002 as a (C) date, this would be an error as the files date from 2004.
+The (re) distribution of epsg.properties requires clairfication, asked Paul Ramsey for advice
+via email.
+
+
+IP:
+- LICENSE.TXT changed to (C) 2004-2006
+
+org.geotools.referencing.crs
+----------------------------
+Code contains a basic property file based EPSG Authority, in addition to an an AUTO Authority handling the AUTO projects
+defined by the OGC WMS specification. The WKT definitions contained are a derrived data product from the
+PostGIS project, modifed to hack around limitations in early GeoTools.
+
+IP:
+- headers updated to (C) 2004-2006, GeoTools Project Managment Committee (PMC)
+- epsg.properties data a derived data product from PostGIS and/or EPSG, license unclear
+
+org.geotools.referencing.crs (test)
+----------------------------
+
+IP:
+- headers updated to (C) 2004-2006, GeoTools Project Managment Committee (PMC)

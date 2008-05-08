@@ -1,0 +1,161 @@
+package org.geotools.jdbc;
+
+import org.geotools.data.DefaultQuery;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.FeatureLock;
+import org.geotools.data.FeatureLockException;
+import org.geotools.data.FeatureLockFactory;
+import org.geotools.data.FeatureReader;
+import org.geotools.data.FeatureWriter;
+import org.geotools.data.Transaction;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.PropertyIsEqualTo;
+
+public abstract class JDBCFeatureLockingTest extends JDBCTestSupport {
+
+    JDBCFeatureStore store;
+    
+    protected void setUp() throws Exception {
+        super.setUp();
+    
+        store = (JDBCFeatureStore) dataStore.getFeatureSource("ft1");
+        store.setFeatureLock(FeatureLock.TRANSACTION);
+    }
+    
+    public void testLockFeatures() throws Exception {
+        
+        FeatureLock lock = 
+            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+        
+        Transaction tx = new DefaultTransaction();
+        store.setTransaction( tx );
+        store.setFeatureLock(lock);
+        
+        //lock features
+        int locked = store.lockFeatures();
+        assertTrue( locked > 0 );
+        
+        //grabbing a reader should be no problem
+        DefaultQuery query = new DefaultQuery( "ft1" );
+         FeatureReader<SimpleFeatureType, SimpleFeature> reader = dataStore.getFeatureReader(query,tx);
+        
+        int count = 0;
+        while( reader.hasNext() ) {
+            count++;
+            reader.next();
+        }
+        assertTrue( count > 0 );
+        reader.close();
+        
+        //grab a writer
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx );
+        assertTrue( writer.hasNext() );
+        SimpleFeature feature = writer.next();
+        
+        feature.setAttribute("intProperty", new Integer(100) );
+        try {
+            writer.write();  
+            fail( "should have thrown feature lock exception" );
+        }
+        catch( FeatureLockException e ) {
+            //good
+        }
+        finally {
+            writer.close();
+        }
+        
+        tx.addAuthorization(lock.getAuthorization());
+        writer = dataStore.getFeatureWriter("ft1", tx);
+        assertTrue( writer.hasNext() );
+        feature = writer.next();
+        feature.setAttribute("intProperty", new Integer(100) );
+        writer.write();
+    }
+    
+    public void testLockFeaturesWithFilter() throws Exception {
+        
+        FeatureLock lock = 
+            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+        
+        Transaction tx = new DefaultTransaction();
+        store.setTransaction( tx );
+        store.setFeatureLock(lock);
+        
+        //lock features
+        FilterFactory ff = dataStore.getFilterFactory();
+        PropertyIsEqualTo f = ff.equals(ff.property("intProperty"), ff.literal(1));
+        
+        int locked = store.lockFeatures( f );
+        assertEquals( 1, locked );
+        
+        //grabbing a reader should be no problem
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx);
+        boolean failure = false;
+        while( writer.hasNext() ) {
+            SimpleFeature feature = (SimpleFeature) writer.next();
+            Integer old = (Integer) feature.getAttribute("intProperty");
+            
+            feature.setAttribute("intProperty", new Integer(100));
+            if ( new Integer(1).equals( old ) ) {
+                try {
+                    writer.write();
+                    fail( "writer should have thrown exception for locked feature");
+                }
+                catch( FeatureLockException e ) {
+                    failure = true;
+                }
+            }
+            else {
+                writer.write();
+            }
+        }
+        
+        assertTrue( failure );
+    }
+    
+    public void testUnlockFeatures() throws Exception {
+        FeatureLock lock = 
+            FeatureLockFactory.generate("ft1", 60 * 60 * 1000);
+        
+        Transaction tx = new DefaultTransaction();
+        store.setTransaction( tx );
+        store.setFeatureLock(lock);
+        
+        store.lockFeatures();
+        
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = dataStore.getFeatureWriter("ft1", tx );
+        assertTrue( writer.hasNext() );
+        SimpleFeature feature = writer.next();
+        feature.setAttribute( "intProperty", new Integer(100) );
+        try {
+            writer.write();
+            fail( "write should have thrown exception");
+        }
+        catch( FeatureLockException e) {
+            
+        }
+        finally {
+            writer.close();
+        }
+        
+        try {
+            store.unLockFeatures();    
+            fail( "unlock should have thrown an exception");
+        }
+        catch( FeatureLockException e ) {}
+        
+        tx.addAuthorization(lock.getAuthorization());
+        store.unLockFeatures();
+        
+        writer = dataStore.getFeatureWriter("ft1", tx );
+        assertTrue( writer.hasNext() );
+        
+        feature = writer.next();
+        feature.setAttribute( "intProperty", new Integer(100) );
+        
+        writer.write();
+        writer.close();
+    }
+}

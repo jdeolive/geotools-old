@@ -1,0 +1,28 @@
+Info for Geotools Documentation Creation:
+
+VALIDATION:
+----------
+
+  xmllint --valid --noout geotools.xml
+
+
+HTML:
+----
+1) Firefox
+With the header, the file can be viewed directly in firefox. Except that the 
+links are created incorrectly.
+
+2) Yelp
+yelp geotools.xml &
+
+
+
+PDF:
+---
+These are the commands used to generate the PDF:
+  xsltproc --stringparam fop.extensions 1 /usr/share/xml/docbook/stylesheet/nwalsh/fo/docbook.xsl geotools.xml > output/geotools.fo
+  /soft/Java/fop/fop-0.20.5/fop.sh output/geotools.fo output/geotools.pdf 
+  evince output/geotools.pdf& 
+
+
+

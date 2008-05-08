@@ -1,0 +1,70 @@
+package org.geotools.feature;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.opengis.feature.Attribute;
+import org.opengis.feature.FeatureFactory;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.feature.simple.SimpleFeatureType;
+/**
+ * A build that can be used as a replacement for SimpleFeatureBuilder in order
+ * to avoid validation.
+ * <p>
+ * The normal SimpleFeatureBuilder performs validation (rather than leaving that up
+ * to the factory implementation). 
+ * <p>
+ * @author Jody Garnett
+ */
+public class LenientBuilder {
+    private SimpleFeatureType schema;
+    private FeatureFactory factory;
+    private List<Attribute> properties;
+    
+    public LenientBuilder(SimpleFeatureType schmea ){
+        this.schema = schmea;
+        this.factory = new LenientFeatureFactory();
+        reset();
+    }
+    
+    public static SimpleFeature build( SimpleFeatureType ft, Object atts[], String fid ){
+        LenientFeatureFactory featureFactory = new LenientFeatureFactory();
+        List<Attribute> properties = new ArrayList<Attribute>();
+        for( int i=0; i<atts.length;i++){
+            Object value = atts[i];
+            Attribute property = featureFactory.createAttribute(value, ft.getAttribute(i), null);
+            properties.add(property);            
+        }
+        return featureFactory.createSimpleFeature(properties, ft, fid );
+    }
+
+    /** You can inject another Factory; this builder will still not do validation */
+    public void setFeatureFactory(FeatureFactory featureFactory) {
+        factory = featureFactory;
+    }
+
+    public void addAll(Object[] values) {
+        properties = new ArrayList<Attribute>();
+        for( int i=0; i<values.length;i++){
+            Object value = values[i];
+            Attribute property = factory.createAttribute(value, schema.getAttribute(i), null);
+            properties.add(property);
+        }
+    }
+
+    public SimpleFeature buildFeature(String fid) {
+        return factory.createSimpleFeature( properties, schema, fid );
+    }
+
+    public void reset(){
+        properties = new ArrayList<Attribute>();
+    }
+
+    public static SimpleFeature copy(SimpleFeature f) {
+        if( f == null ) return null;
+        
+        LenientBuilder builder = new LenientBuilder(f.getFeatureType());        
+        builder.addAll( f.getAttributes().toArray() );
+        return builder.buildFeature(f.getID());
+    }
+}

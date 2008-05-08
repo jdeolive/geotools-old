@@ -1,0 +1,18 @@
+Plugin Directory
+================
+Module Maintainer: David Zwiers & Jody Garnett
+IP Review Jody Garnett, July 8th, 2006
+
+IP:
+- LICENSE.txt updated to (C) 2002-2006, GeoTools Project Management Committee (PMC)
+org.geotools.data.dir
+---------------------
+Create for GeoTools 2.0 in an attempt to make GeoServer configuration a bit less of a chore to set up.
+Not much report use, never made it into any tutorials I bet.
+
+IP:
+- Headers updated to (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+
+org.geotools.data.dir (test)
+---------------------
+Directory exists but not test cases are present, just some gml files.

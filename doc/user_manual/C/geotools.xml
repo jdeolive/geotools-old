@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" 
+  "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+
+  <!ENTITY geot          "Geotools">
+  <!ENTITY geotversion   "2.4">
+  <!ENTITY jtsversion    "1.7.1">
+  <!ENTITY manversion    "0.1">
+  <!ENTITY date          "November 2006">
+  <!ENTITY javaVersion   "1.4">
+  
+  <!ENTITY legal                SYSTEM "legal.xml">
+  <!ENTITY legalprovisional     SYSTEM "legalprovisional.xml">
+
+  <!ENTITY welcome              SYSTEM "welcome.xml">
+
+  <!ENTITY start                SYSTEM "start.xml">
+
+  <!ENTITY concepts             SYSTEM "concepts.xml">
+  <!ENTITY science              SYSTEM "science.xml">
+  <!ENTITY design               SYSTEM "design.xml">
+  
+  <!ENTITY libUnits             SYSTEM "libUnits.xml">
+  <!ENTITY libJTS               SYSTEM "libJTS.xml">
+  
+  <!ENTITY util                 SYSTEM "util.xml">
+  <!ENTITY metadata             SYSTEM "metadata.xml">
+  <!ENTITY geomGeoAPI           SYSTEM "geomGeoAPI.xml">
+  <!ENTITY parameter            SYSTEM "parameter.xml">
+  <!ENTITY referencing          SYSTEM "referencing.xml">
+  <!ENTITY feature              SYSTEM "feature.xml">
+  <!ENTITY grids                SYSTEM "grids.xml">
+  <!ENTITY storage              SYSTEM "storage.xml">
+  <!ENTITY query                SYSTEM "query.xml">
+  <!ENTITY display              SYSTEM "display.xml">
+  <!ENTITY advancedGraph        SYSTEM "advanced-graph.xml">
+
+  <!ENTITY about-history        SYSTEM "about-history.xml">
+  <!ENTITY about-authors        SYSTEM "about-authors.xml">
+  <!ENTITY about-license        SYSTEM "about-license.xml">
+  
+]>
+
+
+<!--  =============Document Header =============================  -->
+<!-- please do not change the id                                  -->
+<!-- for translations, change lang to an appropriate code         -->
+<book id="index" lang="en">
+
+  <title>Geotools Users' Manual, v. &manversion;</title>
+
+
+  <bookinfo>
+
+    <authorgroup> 
+      <author> 
+        <firstname>Adrian</firstname>
+	<surname>Custer</surname> 
+        <authorblurb>
+          <para>acuster@gmail.com</para>
+        </authorblurb>
+      </author>
+      <!--
+      <author> 
+        <firstname>Your</firstname>
+	<surname>Name</surname> 
+        <authorblurb>
+          <para>an@email</para>
+        </authorblurb>
+      </author>
+      -->
+
+    <!-- This is appropriate place for other contributors:         -->
+    <!-- translators, maintainers,  etc. Commented out by default. -->
+    <!--
+     <othercredit role="translator">
+       <firstname>Latin</firstname> 
+       <surname>Translator 1</surname> 
+       <affiliation> 
+	  <orgname>Latin Translation Team</orgname> 
+	  <address> <email>translator@gnome.org</email> </address> 
+       </affiliation>
+       <contrib>Latin translation</contrib>
+     </othercredit>
+   -->
+    </authorgroup> 
+
+
+    <releaseinfo>
+      This manual describes the &geot; geospatial software library 
+      for programmers wishing to learn version &geotversion;.
+    </releaseinfo> 
+
+
+    <copyright>
+      <year>2006</year>
+      <holder>The Geotools Project Management Committee</holder> 
+    </copyright>
+    <copyright>
+      <year>2006</year>
+      <holder>Adrian Custer</holder> 
+    </copyright>
+  <!-- Translators, uncomment the lines below.                    -->
+  <!--
+    <copyright>
+   	<year>2003</year>
+   	<holder>ME-THE-TRANSLATOR (Latin translation)</holder>
+    </copyright>
+   -->
+
+
+
+    <!-- This file  contains link to license for the documentation 
+         (GNU FDL), and other legal stuff such as "NO WARRANTY" 
+         statement. Please do not change any of this. 
+    -->
+    <!-- &legal; -->
+    &legalprovisional;
+    <!-- ========================================================  -->
+
+
+    <publisher> 
+      <publishername> The Geotools Project Mangement Committee </publishername> 
+    </publisher> 
+
+
+    <legalnotice> 
+      <title>Feedback</title> 
+      <para>
+        To report a bug or make a suggestion regarding this manual, 
+        please contact the project thorugh the 
+        <ulink url="http://www.geotools.org/" type="http">
+          project's webpage
+        </ulink>.
+      </para>
+      <!-- Translators may also add here feedback address for translations -->
+    </legalnotice> 
+
+
+    <revhistory>
+      <revision> 
+	<revnumber>The Geotools Users' Manual: Version &manversion;</revnumber> 
+	<date>&date;</date> 
+	<revdescription> 
+	  <para role="author">The Geotools Project</para>
+	  <para role="publisher">The Geotools Project Management Committee</para>
+	</revdescription> 
+      </revision>
+    </revhistory>
+
+
+  </bookinfo>
+
+
+<!-- ============= Index         ============================= -->
+
+<!--
+  <indexterm> 
+    <primary>Geotools</primary> 
+  </indexterm>
+  <indexterm> 
+    <primary>Geographic Information Systems</primary> 
+  </indexterm> 
+-->
+
+
+
+<!-- ============= Document Body ============================= -->
+
+  
+  &welcome;
+    
+  &start;
+  
+  <!--part id="part-background">
+  <title>Background</title-->
+  &concepts;
+  &science;
+  &design;
+  <!--/part-->
+
+  <!--part id="part-libraries">
+  <title>Libraries</title-->
+  &libUnits;
+  &libJTS;
+  <!--/part-->
+  
+  <!-- TO WRITE >
+  <chapter id="chapter-towrite">
+    <title>TO WRITE: </title>
+  </chapter-->
+  
+  <!--part id="part-systems">
+  <title>Systems</title-->
+  &util;
+  &metadata;
+  &geomGeoAPI;
+  &parameter;
+  &referencing;
+  &feature;
+  &grids;
+  &storage;
+  &query;
+  &display;
+  <!--/part-->
+  
+  <!--part id="part-advanced">
+  <title>Advanced</title-->
+
+  <chapter id="chapter-advanced-graph">
+    <title>Advanced: Network Graphs</title>
+    &advancedGraph;
+  </chapter>
+  
+  <!--/part-->
+
+
+<!--
+  <chapter id="">
+    <title></title>
+    &;
+  </chapter>
+-->
+
+
+
+<!-- TODO: Write 'about' chapter -->
+<!--
+  <chapter id="chapter-about">
+    <title>About Geotools</title>
+
+    <para>
+      This chapter provides some background information on the
+      creation and distribution of &geot;.
+    </para>
+
+    &about-history;
+    &about-authors;
+    &about-license;
+
+  </chapter>
+-->
+
+
+<!-- ============= Appendices ================================ -->
+
+
+<!--
+
+  <appendix id="glossary">
+    <title>Glossary</title>
+
+    <para>
+      This appendix defines certain terms used in this manual.
+    </para>
+
+    &appendix-glossary;
+
+  </appendix>
+
+-->
+
+<!--
+
+  <appendix id="index">
+    <title>Index</title>
+
+    <para>
+      The index provides references to the use of the important ideas.
+    </para>
+
+    &index;
+
+  </appendix>
+
+-->
+
+
+</book>
+

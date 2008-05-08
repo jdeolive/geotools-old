@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================
+       Assembly descriptor for sources code. This descriptor is a modified
+       copy of the Maven "project" predefined descriptor published there:
+
+       http://maven.apache.org/plugins/maven-assembly-plugin/descriptor-refs.html#project
+
+       It will creates a "gt2-${project.version}-src.zip" file.  This file
+       will contains a "gt2-${project.version}" root directory, which will
+       contains the whole project minus SVN and "target" directories.
+
+       $Id$
+       $URL$
+     ====================================================================== -->
+
+<assembly>
+  <id>src</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>true</includeBaseDirectory>
+  
+  <!-- Specifies which groups of files to include in the assembly. -->
+  <fileSets>
+    <fileSet>
+      <directory>.</directory>                      <!-- The relative location from the module's directory. -->
+      <outputDirectory></outputDirectory>           <!-- The output directory relative to the root target.  -->
+<!--  <useDefaultExcludes>true</useDefaultExcludes> <!-  Excludes CVS and Subversion metadata files.        -->
+<!--  todo: uncomment the previous line if we upgrate to maven-assembly-plugin 2.2. -->
+      <excludes>
+        <exclude>**/target/**</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+</assembly>

@@ -1,0 +1,48 @@
+PLUGIN ORACLE SPATIAL
+=====================
+Module Maintainer Marc
+IP Review:
+- Jody Garnett, July 6th, 2006
+
+IP:
+- module depends on a stubbed oracle jdbc driver. This allows builds to continue
+  without having permission to distribute the oracle jdbc driver directly.
+  
+org.geotools.data.oracle
+------------------------
+Created as part of the datastore api push for geotools 2.0
+IP:
+- updated some headers, nothing out of the ordinary
+
+org.geotools.data.oracle.attributeio
+------------------------------------
+Attribute ccess to SDO information. Origionally used Oracle sdo.jar but was replaced
+with custom SDO class when it looked like oracle was going to pull it.
+IP:
+- header was missing for SDOAttributeIO
+- updated header
+
+org.geotools.data.oracle.sdo
+----------------------------
+Direct read and write of oracle MDSYS_GEOMETRY SDO types, refractions commissioned for
+this work based on indication that oracle was going to pull support. Work donated
+to GeoTools with permission.
+IP:
+- several files marked with JSpatial internal refractions project name
+- preserved (C) 2003 Refractions notice, and contact details and updated headers
+- GeometryConverter specifically created for geotools library and has normal header
+
+org.geotools.filter
+-------------------
+Updated header.
+
+org.geotools.data.oracle (test)
+org.geotools.filter (test)
+-------------------
+IP:
+- updadted headers, one file did not have a header
+
+org.geotools.data.oracle.sdo (test)
+----------------------------
+IP:
+- updated headers to list (C) 2003 Refractions, along with normal PMC (c)

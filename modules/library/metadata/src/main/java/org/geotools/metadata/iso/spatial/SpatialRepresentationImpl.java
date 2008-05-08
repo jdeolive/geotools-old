@@ -1,0 +1,60 @@
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2004-2006, GeoTools Project Managment Committee (PMC)
+ *    (C) 2004, Institut de Recherche pour le Développement
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    This package contains documentation from OpenGIS specifications.
+ *    OpenGIS consortium's work is fully acknowledged here.
+ */
+package org.geotools.metadata.iso.spatial;
+
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.XmlType;
+import org.opengis.metadata.spatial.SpatialRepresentation;
+import org.geotools.metadata.iso.MetadataEntity;
+
+
+/**
+ * Method used to represent geographic information in the dataset.
+ *
+ * @source $URL$
+ * @version $Id$
+ * @author Martin Desruisseaux
+ * @author Touraïvane
+ *
+ * @since 2.1
+ */
+@XmlType(name = "MD_SpatialRepresentation")
+@XmlSeeAlso({GridSpatialRepresentationImpl.class, VectorSpatialRepresentationImpl.class})
+public class SpatialRepresentationImpl extends MetadataEntity implements SpatialRepresentation {
+    /**
+     * Serial number for interoperability with different versions.
+     */
+    private static final long serialVersionUID = 1443170876207840116L;
+
+    /**
+     * Constructs an initially empty spatial representation.
+     */
+    public SpatialRepresentationImpl() {
+    }
+
+    /**
+     * Constructs a metadata entity initialized with the values from the specified metadata.
+     *
+     * @since 2.4
+     */
+    public SpatialRepresentationImpl(final SpatialRepresentation source) {
+        super(source);
+    }
+}

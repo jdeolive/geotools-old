@@ -1,0 +1,19 @@
+PLUGIN REFERENCING 3D
+=====================
+Module Maintainer Martin
+IP Review:
+- Jody Garnett, August 6th, 2006
+
+Not really sure what this one is about.
+
+org.geotoools.referencing.operation.transform
+---------------------------------------------
+
+IP:
+- header contains following reference to NASA
+
+    This file is derived from NGA/NASA software available for unlimited distribution.
+    See http://earth-info.nima.mil/GandG/wgs84/gravitymod/.
+
+- updated headers
+- unsure on origion of EGM180.nor data file

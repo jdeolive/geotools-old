@@ -1,0 +1,554 @@
+<chapter id="chapter-units">
+  <title>Library: Units of Measure</title>
+
+  <!-- Top Level, a description with the chapter TOC -->
+  <para>
+    This chapter describes an external library used by Geotools to define, 
+    simplify, convert, and compare scientific units of measure. The chapter 
+    presents the JSR-108 units library which is currently used by the Geotools 
+    project. 
+  </para>
+  
+  <!-- Critical Warnings -->
+  
+  
+  <sect1 id="sect-units-intro">
+    <title>Introduction</title>
+    
+    <!--Overview and when not to read the chapter -->
+    <para>
+      Geotools uses an external library to work with the scientific units of 
+      measure defined in the Système international d'unités. 
+      The library currently used is the JSR-108 library, a library defined in  
+      the <ulink url="http://jcp.org/en/jsr/detail?id=108" type="http">Java 
+      Specification Request number 108</ulink> for inclusion into the standard 
+      Java language libraries. The library provides objects and 
+      methods to define, simplify, convert, and compare measurement units. 
+    </para>
+    
+    <note>
+      <title>The 'units' library is not a 'unit testing' library.</title>
+      <para>
+        This chapter discusses a 'units' library which are libraries to operate 
+        with measurement units such as kilometers and seconds. This type of 
+        library should not be confused with a 'unit' library, a library designed 
+        to facilitate unit testing---the creation of tests which can be run 
+        automatically to validate code. 
+      </para>
+    </note>
+    
+    
+    
+    <sect2 id="sect-units-intro-usage">
+      <title>Usage</title>
+      
+      <para>
+        Geotools uses the JSR-108 units library almost exclusively simply to 
+        define and to compare the names of the units.
+      </para>
+      
+      <para>
+        The units library is used predominantly in the Referencing system, for
+        example to define the units of coordinate system axes. 
+      </para>
+      
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-intro-warnings">
+      <title>Warnings</title>
+      
+      <warning>
+        <title>Units are not used systematically in Geotools</title>
+        <para>
+          Geotools does not use unit objects from the units library everywhere 
+          where Geotools defines a unit of measure. In certain cases, Geotools 
+          uses standard Java String objects to describe a measure. However, the 
+          project does hope eventually to convert those uses of Strings to uses 
+          of unit objects.
+        </para>
+      </warning>
+      
+      <warning>
+        <title>Geotools will eventually move the the JScience library</title>
+        <para>
+          The library which Geotools currently uses, the JSR-108 units library, 
+          was proposed with the Java Specification Request number 108 which has 
+          now been withdrawn in favor of the 
+          <ulink url="http://jcp.org/en/jsr/detail?id=275" type="http">Java 
+          Specification Request number 275</ulink> developed by the 
+          <ulink url="http://www.jscience.org" type="http">JScience 
+          project</ulink>.
+        </para>
+      </warning>
+      
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-intro-model">
+      <title>Instance Object Model</title>
+      
+      <para>
+        The JSR-108 units library does not create complex data structures but 
+        instead creates relatively simple Java objects.
+      </para>
+      
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-intro-code">
+      <title>Code Layout</title>
+      
+      <para>
+        The JSR-108 units library has a simple directory layout with all classes 
+        in the <code>javax.units</code> package. 
+      </para>
+
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-intro-keyClasses">
+      <title>Key Classes</title>
+      
+      <para>
+        The key classes of the JSR-108 units library include the 
+        <code>SI</code>, <code>NonSI</code>, <code>Unit</code>, and 
+        <code>Converter</code> classes.
+      </para>
+      
+      <para>
+        The interface used to access and manipulate the classes in the JSR-108 
+        units library is provided directly in the <code>javax.units</code> 
+        package by the classes themselves.
+      </para>
+          
+<table>
+<title>Key Classes</title>
+<tgroup cols="3">
+<thead>
+<row>
+  <entry>Class</entry>
+  <entry>Creation</entry>
+  <entry>Use</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>
+    <para>SI
+    </para>
+  </entry>
+  <entry>
+    <para>static generation</para>
+    <para>  e.g. SI.AMPERE</para>
+  </entry>
+  <entry>
+    <para>static magnitude conversion</para>
+    <para>  e.g. SI.MILLI( someunit )</para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>NonSI
+    </para>
+  </entry>
+  <entry>
+    <para>static generation</para>
+    <para>  e.g. SI.OUNCE</para>
+  </entry>
+  <entry>
+    <para>
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>Unit
+    </para>
+  </entry>
+  <entry>
+    <para>abstract (non instantiable)</para>
+    <para>static Unit.ONE</para>
+  </entry>
+  <entry>
+    <para>multiply(.)</para>
+    <para>divide(.)</para>
+    <para>equals(.)</para>
+    <para>isCompatible(.)</para>
+    <para>getConverterTo(.)</para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>BaseUnit
+    </para>
+  </entry>
+  <entry>
+    <para>getInstance(.)
+    </para>
+  </entry>
+  <entry>
+    <para>getSystemUnit(.)</para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>TransformedUnit
+    </para>
+  </entry>
+  <entry>
+    <para>getInstance(.)
+    </para>
+  </entry>
+  <entry>
+    <para>getSystemUnit(.)
+    </para>
+  </entry>
+</row>
+<row>
+  <entry>
+    <para>Converter
+    </para>
+  </entry>
+  <entry>
+    <para>SomeUnit.getConverterTo(.)
+    </para>
+  </entry>
+  <entry>
+    <para>convert(.)</para>
+    <para>concatenate(.)</para>
+    <para>inverse(.)</para>
+  </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+    </sect2>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-runThrough">
+    <title>Run Through</title>
+
+    <para>
+      
+    </para>
+    
+    <para>
+      The following program example illustrates the simple uses of the JSR-108 
+      units library.
+    </para>
+    
+    <para>
+      Units are defined either by referencing the static unit 
+      name in the <code>javax.units.SI</code> or <code>javax.units.NonSI</code>
+      classes or by calling a <code>getInstance(.)</code> method on one of the 
+      classes derived from Unit such as <code>BaseUnit</code> with a String 
+      argument representing one of the units, for example <code>"kg"</code>.
+    </para>
+    
+    <para>
+      The order of magnitude of units can be changed using the static methods 
+      defined in the <code>javax.units.SI</code>, such as 
+      <code>SI.MILLI(.)</code>, with a unit argument. However, these 
+      transformed units retain the base system unit, obtained with the 
+      <code>getSystemUnit(.)</code> method, so that a milliampere will have an 
+      Ampere for a system unit.
+    </para>
+    
+    <para>
+      Units have <code>multiply(.)</code> and <code>divide(.)</code> methods to
+      allow combination of units. Note that the library automatically simplifies 
+      units so that a second unit divided by a meter per second unit will 
+      result in a seconds squared per meter unit. The units library therefore
+      automatically performs its own dimensional analysis to reduce compound 
+      units.
+    </para>
+    
+    <para>
+      Units have an <code>isCompatible(.)</code> method which enables the 
+      programatic comparison of the dimension of the unit, for example all units 
+      of mass are compatible with each other. The <code>equals(.)</code> method 
+      allows the comparison of two units no matter how these units were created.
+    </para>
+    
+    <para>
+      The unit library also provides converter objects which can convert 
+      measures defined in one unit into a measure with an equivalent value in 
+      a different unit. 
+    </para>
+    
+    <para>
+<programlisting width="100" >
+import javax.units.*;
+
+...
+
+Unit u,v,x,y,z;
+
+//Define, create, and output
+System.out.println("\nDEFINE, CREATE, AND OUTPUT:");
+
+u = SI.METER;
+v = (Unit) BaseUnit.getInstance("kg");
+x = SI.MILLI(SI.GRAM);
+y = u.divide(SI.SECOND).divide(SI.SECOND).divide(SI.NEWTON.divide(SI.METER));
+z = (Unit.ONE).divide(SI.SECOND).multiply(SI.METER.pow(3).divide(SI.SECOND.multiply(SI.NEWTON)));
+
+System.out.println(u);                            // m
+System.out.println(v);                            // kg
+System.out.println(x);                            // mg
+System.out.println(x.getSystemUnit());            // kg
+System.out.println(y);                            // m²/(s²·N)
+System.out.println(z);                            // m³/(s²·N)
+
+
+//Compare
+System.out.println("\nCOMPARE:");
+System.out.println(x.isCompatible(v));            // true
+System.out.println(x.isCompatible(NonSI.OUNCE));  // true
+System.out.println(x.equals(v));                  // false
+System.out.println(z.equals(y));                  // false
+System.out.println(z.equals(y.multiply(u)));      // true
+
+//Convert
+System.out.println("\nCONVERT:");
+System.out.println(SI.CENTI(SI.METER).getConverterTo(NonSI.INCH).convert(15.0)); // 5.9...
+
+
+...
+</programlisting>
+    </para>
+    <!--
+    <sect2 id="">
+      <title></title>
+
+      <para>
+        
+      </para>
+
+    </sect2>
+    -->
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-resources">
+    <title>Resources</title>
+
+    <para>
+      The official definition of the units of measure is produced by the 
+      <ulink url="http://www.bipm.fr/en/si/" type="http">Bureau International 
+      des Poids et Mesures</ulink> which also publishes a 
+      <ulink url="http://www.bipm.fr/en/si/si_brochure/" type="http">brochure</ulink> 
+      defining the units in the Système International. A good introduction to 
+      the system is provided by the Wikipedia entry on the
+      <ulink url="http://en.wikipedia.org/wiki/International_System_of_Units" type="http">International System of Units</ulink>. 
+    </para>
+    
+    <para>
+      The JSR-108 units library is centered on the sourceforge 
+      <ulink url="http://jsr-108.sourceforge.net/" type="http">homepage</ulink>
+      which provides links to other pages and to the downloadable source code 
+      and binary builds of the library. The Java Community Process official
+      <ulink url="http://jcp.org/en/jsr/detail?id=108" type="http">Java 
+      Specification Request page</ulink> gives some background on the project.
+    </para>
+    
+    <para>
+      The JSR-108 proposal has been withdrawn and superceeded by the JSR-275 
+      proposal which expands on the earlier effort. That proposal has been 
+      submitted by the JScience Project whose
+      <ulink url="http://www.jscience.org" type="http">web page</ulink> provides
+      numerous links to documentation, tutorials, javadocs and downloadable code. 
+      The JSR-275 has its own 
+      <ulink url="http://www.jcp.org/jsr/detail/275.jsp" type="http">Java 
+      Specification Request page</ulink> on the Java Community Process website.
+    </para>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-practical">
+    <title>Practical Information </title>
+
+    <para>
+      The JSR-108 units library provides straight forward java classes which 
+      are used directly. Users do not need to be aware of any particular design 
+      patterns or utility classes.
+    </para>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-classes">
+    <title>Principal Classes</title>
+
+    <para>
+      
+    </para>
+    
+    
+    
+    <sect2 id="sect-units-classes-SI">
+      <title>SI</title>
+
+      <para>
+        The <code>SI</code> class provides a number of static fields each of 
+        which defines one of the units in the Système International, for example,
+        <code>SI.METER</code> which defines the meter unit.
+      </para>
+      
+      <para>
+        The class also contains a number of static methods which apply the 
+        standard order of magnitude conversions along with changing the prefix
+        of the unit name, for example, <code>SI.KILO(SI.METER)</code> results in
+        a kilometer unit, that is a meter unit transformed by three orders of 
+        magnitude or a thousand.
+      </para>
+
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-classes-NonSI">
+      <title>NonSI</title>
+
+      <para>
+        The <code>NonSI</code> class provides only a number os static fields 
+        each of which defines a unit which is not in the Système International
+        but is nonetheless commonly used, for example, <code>NonSI.POUND</code>
+        defines the pound unit of mass in the avoirdupois system.
+      </para>
+
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-classes-Unit">
+      <title>Unit</title>
+
+      <para>
+        The <code>Unit</code> class provides the core of the JSR-108 unit 
+        library. This is an abstract class which provides the core functionality
+        for defining, simplifying and manipulationg units.
+      </para>
+
+    </sect2>
+    
+    
+    
+    <sect2 id="sect-units-classes-Converter">
+      <title>Converter</title>
+
+      <para>
+        The <code>Converter</code> class is used to transform a value in one 
+        unit into an equivalent value in another class.
+      </para>
+
+    </sect2>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-tutorial">
+    <title>Tutorial</title>
+
+    <para>
+      There is currently no tutorial explaining the use of this library. However,
+      the library is quite simple to anyone who understands Java.
+    </para>
+    
+    <para>
+      The <ulink url="http://www.jscience.org" type="http">JScience Project</ulink>
+      has a good set of tutorials which, while generally more advanced than 
+      what is provided in JSR-108, may be helpful to understanding the library.
+    </para>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-readon">
+    <title>Reading More</title>
+
+    <para>
+      The units library is used mostly by the referencing module but also in 
+      the coverage and metadata modules. Examples where the library is used 
+      can be found in the
+      <itemizedlist>
+        <listitem>
+          <para>
+            the 
+            <ulink 
+              url="http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/measure/CoordinateFormat.java" 
+              type="http">CoordinateFormat.java</ulink> class in the 
+            <code>org.geotools.measure</code> package, 
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            the 
+            <ulink 
+              url="http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/parameter/Parameter.java" 
+              type="http">Parameter.java</ulink> class in the 
+            <code>org.geotools.parameter</code> package, 
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            the 
+            <ulink 
+              url="http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/measure/CoordinateFormat.java" 
+              type="http">DefaultCoordinateSystemAxis.java</ulink> class in the 
+            <code>org.geotools.referencing.cs</code> package, 
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            and the 
+            <ulink 
+              url="http://svn.geotools.org/geotools/trunk/gt/modules/library/referencing/src/main/java/org/geotools/referencing/operation/transform/GeocentricTransform.java" 
+              type="http">GeocentricTransform.java</ulink> class in the 
+            <code>org.geotools.referencing.operation.transform</code> package
+          </para>
+        </listitem>
+      </itemizedlist>
+      which are all part of the main Geotools library.
+    </para>
+    
+  </sect1>
+  
+  
+  
+  
+  <sect1 id="sect-units-extending">
+    <title>Extending</title>
+
+    <para>
+      Since the Java Specification Request number 108 has been withdrawn, the 
+      JSR-108 unit library should be considered complete. Anyone wishing to 
+      extend the library should focus on the 
+      <ulink url="http://www.jscience.org" type="http">JScience Project</ulink>
+      and its library. 
+    </para>
+    
+  </sect1>
+
+</chapter>

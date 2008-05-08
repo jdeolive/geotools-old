@@ -1,0 +1,2 @@
+org.geotools.util.CommonsConverterFactory
+org.geotools.util.NumericConverterFactory

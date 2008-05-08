@@ -1,0 +1,95 @@
+EXTENTION GRAPH
+===============
+Module Maintainer Justin
+IP Review Jody Garnett July 10th, 2006
+
+The Graph module was started as part of the Java Confulation Project, this port was made avaialable
+to the GeoTools community and feature module by Refractions Research as part of the Validating
+Web Feature Server project funded by GeoConnections Canada. Earlier versions of this library
+were released under GPL to the JCP (a series of JUMP plugins). Refractions Research retained
+copyright and donated the port to GeoTools in 2003.
+
+The following header is used to reflect this:
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+ *    (C) 2002, Refractions Reserach Inc.
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
+
+One file contained an earlier header:
+/*
+ $Id$
+  
+  Copyright (c) 2003, Ministry of Sustainable Resource Management
+   Government of British Columbia, Canada
+
+   All rights reserved.
+   This information contained herein may not be used in whole
+   or in part without the express written consent of the
+   Government of British Columbia, Canada.  
+*/
+
+This seems to draw the initial (C) data at 2003 ... but only the module maintainer
+knows for sure.
+
+org.geotools.graph.build
+org.geotools.graph.build.basic
+org.geotools.graph.build.line
+org.geotools.graph.build.opt
+org.geotools.graph.build.polygon
+org.geotools.graph.io
+org.geotools.graph.io.standard
+org.geotools.graph.path
+org.geotools.graph.structure
+org.geotools.graph.structure.basic
+org.geotools.graph.structure.line
+org.geotools.graph.structure.opt
+org.geotools.graph.traverse
+org.geotools.graph.traverse.basic
+org.geotools.graph.traverse.standard
+------------------------------------
+IP:
+- headers updated
+- a few files were missing headers completly
+
+org.geotools.graph.util
+-----------------------
+- all files missing headers; except
+- StringUtil which contained   Copyright (c) 2003, Ministry of Sustainable Resource Management
+   Government of British Columbia, Canada
+
+org.geotools.graph.util.deluanay
+--------------------------------
+
+IP:
+- headers updated (C) 2006, GeoTools Project Management Committee (PMC)
+- AutoClust header provides the following reference:
+ *    This class implements the AUTOCLUST algorithm of Estivill-Castro and Lee (2002)
+ *    "Argument free clustering for large spatial point-data sets via boundary extraction
+ *    from Delaunay Diagram" in Computers, Environment and Urban Systems, 26:315-334.
+
+org.geotools.graph.util.geom
+----------------------------
+IP:
+- all files missing headers
+- headers updated (C) 2003-2006, GeoTools Project Management Committee (PMC)
+
+org.geotools.graph.util.graph
+-----------------------------
+IP:
+- headers updated (C) 2003-2006, GeoTools Project Management Committee (PMC)
+
+(test)
+IP:
+- all files missing headers

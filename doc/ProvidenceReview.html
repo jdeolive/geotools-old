@@ -1,0 +1,312 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>GeoTools Providence Review</title>
+</head>
+<body>
+<h2>Getting Started</h2>
+Here is what I would like to check:<br>
+- IP Check, do we have the correct header, is there any IP issue to consider<br>
+- Doc Check, does each class have a class javadoc. Check package html to see if it<br>
+&nbsp; is up to date.<br>
+<br>
+<h3>Header Used:</h3>
+<span style="font-family: monospace;">/*</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; Geotools - OpenSource mapping toolkit</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; http://geotools.org</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; (C) 2002-2006, Geotools Project Managment Committee (PMC)</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; This library is free software; you can redistribute it and/or</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; modify it under the terms of the GNU Lesser General Public</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; License as published by the Free Software Foundation;</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; version 2.1 of the License.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; This library is distributed in the hope that it will be useful,</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; but WITHOUT ANY WARRANTY; without even the implied warranty of</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.&nbsp; See the GNU</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*&nbsp;&nbsp;&nbsp; Lesser General Public License for more details.</span><br style="font-family: monospace;">
+<span style="font-family: monospace;">&nbsp;*/</span>
+<pre><br></pre>
+Changes<br>
+<ul>
+  <li>2002-2005 changed to 2002-2006</li>
+  <li>Geotools2 changed to GeoTools</li>
+</ul>
+<h2>Modules</h2>
+The GeoTools project is made up of three parts:<br>
+<ol>
+  <li>The "Core" GeoTools library, defining a&nbsp; implementations and
+a layered architecture around ISO and OGC specifications. Where
+approved GeoAPI interfaces are available they are used, however we do
+provide some of our own interfaces. The library on its own provides no
+functionality, simply definining a framework for plugins to work
+together. GeoTools is often deployed with own a few of the layers
+needed for the task at hand.</li>
+  <li>The GeoTools "Plugins" are each individual modules that provide
+functionality for the GeoTools library. As an example a plugin exists
+for teaching the library about a CRS Authroty, or how to talk to each
+data format.</li>
+  <li>The GeoTools "Extentions" are additional functionality built on
+top of the geotools library, often built around non standardized
+conepts. You will find examples like an SLD "color brewer" for creating
+approriate styles, or a graph module supporting limitied topology
+operations.</li>
+</ol>
+GeoTools is organized around the concept of "module maintainer", where
+each module has one or two maintainers that are responsible for keeping
+it in shape and ready for release. &nbsp;These IP checks should really
+be the domain of each module maintainer, where they have not had time
+to take part it will still be there responsibilty to fix (or accept
+patches for) any issues found.<br>
+<h1>Core</h1>
+The following modules define the scope of the library,&nbsp;
+additaional interfaces not yet available through GeoAPI, test data etc::<br>
+<ul>
+  <li>api - interfaces based on specifications, for which no GeoAPI interface is available</li>
+  <li>coverage - focus on the converage specifications</li>
+  <li>sample-data - sample data used by testcases through out the library</li>
+</ul>
+The following modules contain default implementations and structure the library into plugins:
+<ul>
+  <li>referencing - captures implementations for CRS and referencing</li>
+  <li>main - defines default implementations</li>
+  <li>main - data - implementations for datastore</li>
+  <li>main - jdbc - implementations for jdbc datastores</li>
+  <li>main - xml - implementations for several&nbsp;XML parsers</li>
+  <li>render</li>
+</ul>
+<h2>Module API</h2>
+<h3>package org.geotools.catalog</h3>
+Provides a catalog capable of managing resources and their associated connections.<br>
+<br>
+This code started out as part of the uDig project (LGPL) and has been ported for GeoTools<br>
+2.2.x, we hope to eventually back port the "adaptive renderer" which is built on the<br>
+idea of resource handles captured here.<br>
+<br>
+There is lots of great work to be done in this package, here are just a few ideas:<br>
+<ul>
+  <li>Allow the file handle to resolve to an ISO Metadata class (rather then just GeoResourceInfo - which is based on dublin core).</li>
+  <li>Allow the use of Filter to query against GeoResourceInfo</li>
+  <li>Support the capture of additional information such as associations from OWS Catalog 2 specification</li>
+</ul>
+<h4>Review</h4>
+<br>
+Catalog - updated header<br>
+CatalogInfo- updated header<br>
+GeoResource- updated header<br>
+GeoResourceInfo- updated header<br>
+Resolve- updated header<br>
+ResolveChangeEvent- updated header<br>
+ResolveChangeListener- updated header<br>
+ResolveDelta- updated header<br>
+ResolveDeltaVisitor- updated header<br>
+Service- updated header<br>
+ServiceFactory- updated header<br>
+ServiceFinder- updated header<br>
+SerivceInfo- updated header<br>
+<h4>Documentation</h4>
+Each file included a class javadoc, a package&nbsp;package html was added<br>
+<h3>package org.geotools.data</h3>
+Data access api providing a common interface to several file formats and data sources.<br>
+<br>
+This code was revised for the GeoServer 1.2 release as part of GeoTools 2.0, design documentation and research for this effort<br>
+is avaiable at http://vwfs.refractions.net/.<br>
+<br>
+There are several areas in which the data module can be improved:<br>
+<ul>
+  <li>support for "joins" has been attempted several times, most
+recently on the "complex-features" branch, a standards compatible way
+of defining joins can be seen as part of the Catalog 2 specification in
+which a Query may hold several filters against different metadata.
+Starting at the other end of the problem</li>
+  <li>the "community schema" effort concentrates on mapping the joins needed to fufill a predefined XML schema.</li>
+  <li>The exact mechaism for Locking can be improved based on the
+workflow documented in GeoAPI currently (in which LockResults are
+returned at the end of a Commit)</li>
+  <li>Repository can either be subsumed by Catalog, or can remain as a
+front end for cross datastore opperations (such as client side joins
+and unlocks). It would make sense to have Repository serve as the
+creator of both Transaction and Locks.</li>
+  <li>Coverage support should be accessable in a manner similar to DataStore.</li>
+</ul>
+<br>
+<h4>Review</h4>
+AllQuery<br>
+AutoCommitTransaction<br>
+CurrentTransactionLock<br>
+DataSourceException<br>
+DataStore<br>
+DataStoreFactorySPI<br>
+FeatureEvent<br>
+FeatureListener<br>
+FeatureLock<br>
+FeatureLocking<br>
+FeatureReader<br>
+FeatureResults<br>
+FeatureSource<br>
+FeatureStore<br>
+FeatureWriter<br>
+FIDSQuery<br>
+LockingManager<br>
+Query<br>
+Repository<br>
+Transaction<br>
+- All files required their header updated<br>
+<br>
+<h4>Documentation</h4>
+- Each file does indeed have a class javadoc<br>
+- package html provided as part of module mail<br>
+<br>
+<h3>package org.geotools.data.collection</h3>
+Defines additional API for handling resource based iterators (ie they
+must be closed). The idea is from the hibernate framework, although it
+was just mentioned in IRC meetings, no API was copied directly.
+<h4>Review</h4>
+ResourceCollection <br>
+ResourceList
+<h4>Documentation</h4>
+package.html required.
+<h3>package org.geotools.</h3>
+<h4>Review</h4>
+<h4>Documentation</h4>
+<h3>package org.geotools.event</h3>
+Used to define interfaces for an EMF Style event model (as oppsed to
+java beans). This style of event model is much better equiped for
+handling tree structures such as a SLD. Originally based on uDig
+codebase, same source as that used for Catalog events. Chances are we
+can reduce this to one set of event classes.
+<h4>Review</h4>
+GTComponent<br>
+GTConstant<br>
+GTDelta<br>
+GTDeltaVisitor<br>
+GTEvent<br>
+GTListener<br>
+GTNote<br>
+GTRoot
+<h4>Documentation</h4>
+package.html present.
+<h3>package org.geotools.feature</h3>
+Defines the interfaces for the GeoTools 2 feature model.
+<h4>Review</h4>
+AttributeType<br>
+CollectionEvent<br>
+CollectionListener<br>
+Feature<br>
+FeatureAttributeType<br>
+FeatureCollection<br>
+FeatureIterator<br>
+FeatureIterator<br>
+FeatureList<br>
+FeatureType<br>
+GeometryAttributeType<br>
+IllegalAttributeException<br>
+PrivateAttributeType<br>
+SchemaExceptionType
+<h4>Documentation</h4>
+<h3>package org.geotools.feature.collection</h3>
+<h4>Review</h4>
+RandomFeatureAccess
+<h4>Documentation</h4>
+No package html.
+<h3>package org.geotools.feature.visitor</h3>
+<h4>Review</h4>
+FeatureVisitor
+<h4>Documentation</h4>
+<h3>package org.geotools.filter</h3>
+Responsible for representing the&nbsp;Filter 1.1 filter and sortBy syntax. Right
+now these interfaces implement the GeoAPI interfaces, and they will be
+removed next major release.
+<h4>Review</h4>
+BetweenFilter<br>
+CompareFilter<br>
+EnvironmentVariable<br>
+FidFilter<br>
+Filter<br>
+FilterFactory<br>
+FilterType<br>
+FilterVisitor<br>
+GeometryDistanceFilter<br>
+GeometryFilter<br>
+IllegalFilterException<br>
+LikeFilter<br>
+LogicFilter<br>
+MapScaleDenominator<br>
+NullFilter<br>
+SortBy<br>
+SortBy2<br>
+SortOrder
+<h4>Documentation</h4>
+<h3>package org.geotools.filter.expression</h3>
+Responsible for representing the&nbsp;Filter 1.1 expression syntax.
+Right now these interfaces implement the GeoAPI interfaces, and they
+will be removed next major release.
+<h4>Review</h4>
+AttributeExpression<br>
+BBoxExpression<br>
+ConstantExpression<br>
+Expression<br>
+ExpressionType<br>
+FunctionExpression<br>
+LiteralExpression<br>
+MathExpression
+<h4>Documentation</h4>
+<h3>package org.geotools.styling</h3>
+<h4>Review</h4>
+AnchorPoint<br>
+ChannelSelection<br>
+ColorMap<br>
+ColorMapEntry<br>
+ContrastEnhancement<br>
+Displacement<br>
+Extent<br>
+ExternalGraphic<br>
+FeatureTypeConstraint<br>
+FeatureTypeStyle<br>
+Fill<br>
+Font<br>
+Graphic<br>
+Halo<br>
+ImageOutline<br>
+LabelPlacement<br>
+LineSymbolizer<br>
+Mark<br>
+NamedLayer<br>
+NamedStyle<br>
+OverlapBehavior<br>
+PointPlacement<br>
+PointSymbolizer<br>
+remoteOWS<br>
+Rule<br>
+SelectedChannelType<br>
+ShadedRelive<br>
+Stroke<br>
+Style<br>
+StyledLayer<br>
+StyledLayerDescriptor<br>
+StyleFactory<br>
+StyleFactory2<br>
+StyleVisistor<br>
+Symbol<br>
+Symbolizer<br>
+TextMark<br>
+TextSymbolizer<br>
+TextSymbolizer2<br>
+UserLayer
+<h4>Documentation</h4>
+<h3>package org.geotools.feature.util</h3>
+<h4>Review</h4>
+ProgressListener
+<h4>Documentation</h4>
+No package html.<br>
+<h2>Module Coverage</h2>
+<h2>Module sample-data</h2>
+<h2>Module referencing</h2>
+<h2>Module main</h2>
+<h2>Module main - data</h2>
+<h2>Module main - jdbc</h2>
+<h2>Module main - xml</h2>
+<h2>Module render</h2>
+</body>
+</html>

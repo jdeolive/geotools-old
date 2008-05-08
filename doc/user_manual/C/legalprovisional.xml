@@ -1,0 +1,24 @@
+<legalnotice id="legalnotice">
+
+  <para>
+    (c) Adrian Custer, 2006. All rights reserved.
+  </para>
+
+  <para>
+    This document may, at the choice of the initial authors listed above (currently only Adrian Custer), become formally licensed using a license of the choice of the initial authors. The document may become licensed in perpetuity under terms of the Gnu Free Documentation License or may gain an even broader license, for example if a broader license would be required by the Debian project. By contributing to this document, you agree to grant the initial authors the full legal rights to your contributions so that they may in turn transmit the full rights to the Geotools steering committee or another legal entity.
+  </para>
+
+  <para>
+    The idea of this clause is to maximize the freedom of all subsequent readers by giving them as many rights as possible to the document and its contents. For those readers who believe in anarchic self-organization, they will take the right to do as they see fit with this document. For those readers who believe in organization under formal legal systems, those readers will be granted formal legal license rights to do as they see fit with this document and its contents subject only to certain restrictions of redistribution rights, restrictions which are designed to ensure the freedoms of subsequent readers.
+  </para>
+
+  <para>
+    This clause will allow a clear chain of legal custody of the document so that it may formally be contributed to the Geotools project steering committee or another appropriate body. The control of the initial authors will be ceded as quickly as possible to the appropriate legal body. Unfortunately, until the licensing of this document is formalized, you are trusting the good faith of the initial authors to ensure this document will persist in a form that maximizes the freedom of subsequent readers---that's the breaks.
+  </para>
+
+  <para>
+    If you are a contributor to the geotools project and would like to be added to the list of initial authors, please mail the geotools-devel list.
+  </para>
+
+</legalnotice>
+ 

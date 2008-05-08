@@ -1,0 +1,40 @@
+<sect1 id="authors-geotools">
+  <title>Geotools Authors</title>
+  <table frame='none'>
+    <title><application>Geotools</application> has been written by</title>
+    <tgroup cols='3' align='left' colsep='0' rowsep='0'>
+      <tbody>
+      <row>
+	<entry>James Macgill</entry>
+	<entry>Creator</entry><entry>
+	<email>unknown</email></entry>
+      </row>
+      <row>
+	<entry>You</entry>
+	<entry>Contribution</entry><entry>
+	<email>unknown</email></entry>
+      </row>
+      </tbody>
+    </tgroup>
+  </table>
+
+  <para>
+    To find more information about Geotools please visit the
+    <ulink url="http://www.geotools.org" type="http">Web site</ulink>.
+  </para>
+
+  <para>
+     If you have some comments or suggestions regarding this manual or the
+     geotools library; if you need help, want to report a bug, or simply want
+     to meet the team, please contact us! See the web page for links to the 
+     mailing list, to the irc chatroom, or for other ways to reach us.
+  </para>
+
+<!-- For translations: uncomment this:
+  <para>
+   Latin translation was done by ME
+   (<email>MYNAME@MYADDRESS</email>). Please send all  comments  and
+   suggestions regarding this translation to SOMEWHERE.
+  </para>
+-->
+</sect1>

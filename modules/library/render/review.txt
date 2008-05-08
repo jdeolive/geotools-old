@@ -1,0 +1,70 @@
+MODULE RENDER
+=============
+Module Maintainer:
+- Jesse Eichar
+
+IP Review:
+- Jody Garnett, August 6th, 2006
+
+org.geotools.renderer
+---------------------
+Contains a "unified" rendering interface for which several implementations have been
+made available.
+
+IP:
+- GTRenderer header garbled by code formatter, assume (C) 2005 PMC
+- range of (C) found in headers
+
+  (C) 2002, Centre for Computational Geography
+
+- Renderer interface only contained (C) 2002, Centre for Computational Geography, assume
+  it was intended to be donated to GeoTools?
+  
+org.geotools.renderer.lite
+--------------------------
+Andrea's experimental simplified rendering pipeline, on the grounds that simple
+code can be debugged, and go fast.
+
+IP:
+- Most code (C) 2002 PMC although the lite renderer was not created yet, assume 2004 based
+on other code in the package.
+- CustomGlyphRenderer, along with others, lacked header
+- LabelCacheDefault had a uDig header to start, but contained 
+  
+    (C) 2005-2006, Geotools Project Managment Committee (PMC)
+    (C) 2004, Refractions Research Inc.
+    (c) others
+  
+  Will need to check with Jesse to see who these others are...
+ 
+- ListenerList which appears to had a uDig header (corrected)
+- ListenerList appears to hava JFace javadocs ... this needs to be fixed (or reimplemented)
+- TransformedShape also bears the following (C)
+   (C) 2003, Geotools Project Managment Committee (PMC)
+   (C) 2003, Institut de Recherche pour le Developpement
+   
+- updated header to (C) 2004-2006 PMC as needed
+
+org.geotools.renderer.lite.gridcoverage2d
+-----------------------------------------
+Think this was recently added from the coverage branch, (C) says 2002 ... going to guess 2005.
+IP:
+- updated headers to (C) 2005-2006 PMC
+
+org.geotools.renderer.style
+---------------------------
+Some code here dates back to 2003, appears to be some cross over with the geovista project (supporting
+dynamic style obejcts and the like).
+
+IP:
+- updated headers to (C) 2004-2006 PMC as needed
+
+org.geotools.renderer.lite (test)
+org.geotools.renderer.style (test)
+---------------------------
+Fun with JUnit.
+
+IP:
+- updated headers as needed
+- some test case headers are cleary (C) 2002, so will need to use svn history to sort this module out
+- GridCoverageRendererTest had uDig header by mistake

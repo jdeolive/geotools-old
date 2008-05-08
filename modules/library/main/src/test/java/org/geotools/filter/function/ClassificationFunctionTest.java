@@ -1,0 +1,49 @@
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2005-2006, Geotools Project Managment Committee (PMC)
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation; either
+ *    version 2.1 of the License, or (at your option) any later version.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
+package org.geotools.filter.function;
+
+import java.util.logging.Logger;
+
+import org.geotools.filter.FunctionExpression;
+
+public class ClassificationFunctionTest extends FunctionTestSupport {
+    
+    protected static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.filter");
+    
+    public ClassificationFunctionTest(String testName) {
+        super(testName);
+    }
+    
+    public void testDecimalPlaces() throws Exception {
+    	FunctionExpression func = fac.createFunctionExpression("EqualInterval");
+        EqualIntervalFunction eif = (EqualIntervalFunction) func;
+        assertEquals(0, eif.decimalPlaces(100.0));
+        assertEquals(3, eif.decimalPlaces(25.99312));
+        assertEquals(1, eif.decimalPlaces(1.1));
+        assertEquals(1, eif.decimalPlaces(0.9));
+        assertEquals(1, eif.decimalPlaces(0.1));
+        assertEquals(2, eif.decimalPlaces(0.01));
+        assertEquals(3, eif.decimalPlaces(0.001));
+    }
+    
+    public void testRound() throws Exception {
+        FunctionExpression func = fac.createFunctionExpression("Quantile");
+        QuantileFunction classifier = (QuantileFunction) func;
+        assertEquals(100.0, classifier.round(100.0, 0), 0);
+        assertEquals(1.1, classifier.round(1.12, 1), 0);
+        assertEquals(0.35, classifier.round(0.34523, 2), 0);
+    }
+}

@@ -1,0 +1,73 @@
+PLUGIN SHAPEFILE
+================
+Module Maintainer:
+- Ian
+- Jesse
+
+IP Review:
+- Richard Gould, March 2006
+- Jody Garnett, March 2006
+- Jody Garnett, August 6th, 2006
+
+org.geotools.catalog.shapefile
+------------------------------
+IP:
+- ShapefileServiceFactory.java - no copyright message, no author. Added copyright.
+- updated headers
+
+org.geotools.data.shapefile
+---------------------------
+IP:
+- ShapefileUtilities.java - no copyright message, appears to be written by Ian Schneider. Added copyright.
+- StreamLogging.java - no copyright message, no author. Added copyright.
+- updated headers
+
+org.geotools.data.shapefile.dbf
+-------------------------------
+IP:
+- DbaseFileException.java - no copyright message, no author. Added copyright.
+  (Maybe copyright same as below?)
+- DbaseFileHeader.java, DbaseFileReader.java, DbaseFileWriter.java Copyright for these:
+  
+  (C) Centre for Computation Geography
+  
+- DbaseFileHeader is apparnetly based on something from GISToolkit - see credit:
+
+     This file is based on an origional contained in the GISToolkit project:
+     http://gistoolkit.sourceforge.net/
+  
+- original is LGPL we are also distributing as LGPL so we are compliant with the license
+  
+- Headers updated as needed, adding (C) PMC to existing (
+org.geotools.data.shapefile.prj
+-------------------------------
+IP:
+- PrjFileReader.java - Copyright for file
+  
+  (C) Centre for Computation Geography
+  
+- header updated
+
+org.geotools.data.shapefile.shp
+-------------------------------
+IP:
+- Copyright for these three files is assigned to
+  (C) Centre for Computation Geography
+  
+- File is apparnetly based on something from GISToolkit. Header unchanged. *TO_RESOLVE*
+
+org.geotools.data.shapefile.shp.xml
+-----------------------------------
+Added to try and figure out bbox from metadata file, ended up being silly because
+the bounds are already supposed to be in the header.
+
+IP:
+- IdInfo.java, ShpXmlFileReader.java - no copyright, no author. Added copyright.
+- Metadata.java - no copyright, jgarnett author. Added copyright.
+- updated headers
+
+org.geotools.data.shapefile (test)
+org.geotools.data.shapefile.shp.xml (test)
+-----------------------------------
+IP:
+- headers were udpated

@@ -1,0 +1,64 @@
+EXTENTION VALIDATION
+====================
+Module Maintainer:
+- Brent Owens
+- David Zwiers
+- Jody Garnett
+IP Review:
+- Jody Garnett, August 7th, 2006
+
+org.geotools.validation
+-----------------------
+Outlines the validaiton framework and infrastructure.
+
+IP:
+- many files missing headers :-(
+- some files contain TOPP (C) from early geoserver work
+
+   Copyright (c) 2001, 2003 TOPP - www.openplans.org.  All rights reserved.
+   This code is licensed under the GPL 2.0 license, availible at the root
+   application directory.
+
+   A TOPP (C) has been added to the header, and the GPL 2.0 license option removed
+- updated headers
+
+org.geotools.validation.attributes
+----------------------------------
+Attribute validaiton, aka what SQL is good at checking.
+IP:
+- updated headers
+- added TOPP (C) and removed GPL 2 license option
+
+org.geotools.validation.dto
+---------------------------
+Beans use dto hold data enroute from xml to memory ...
+IP:
+- removed GPL 2 and added TOPP (C) where needed
+- updated headers
+- schema probably needs a note
+
+org.geotools.validation.network
+org.geotools.validation.relate
+org.geotools.validation.spatial
+-------------------------------
+Remaining validation test, nothing that exciting.
+IP:
+- some files have duplicated headers (nodoubt the product of a script)
+- some files have a TOPP (C) has been added to the header, and the GPL 2.0 removed
+- updated headers
+
+org.geotools.validation.xml
+---------------------------
+IP:
+- removed GPL 2.0 license note, and added (C) TOPP 2004 to all files
+- updated headers
+
+org.geotools.validation (test)
+org.geotools.validation.attributes (test)
+org.geotools.validation.relate (test)
+------------------------------
+Bleah, the horribe memory leak test, the first brute force abuse of geotools datastore
+api.
+IP:
+- some files missing headers
+- updated headers

@@ -1,0 +1,20 @@
+MODULE MYSQL
+============
+Module Maintainer Chris Holmes
+IP Review Jody Garnett July 30th
+
+org.geotools.data.mysql
+org.geotools.data.filter
+------------------------
+
+IP:
+- updated headers to (C) 2002-2006 PMC
+- some files missing headers
+- need to confirm dates
+
+org.geotools.data.mysql(test)
+org.geotools.filter
+-----------------------
+IP:
+- updated headers to (C) 2002-2006 PMC
+- some files missing headers

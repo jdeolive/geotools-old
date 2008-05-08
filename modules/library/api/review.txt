@@ -1,0 +1,120 @@
+Module API
+==========
+Module Maintainer Jody Garnett
+IP Review Jody Garnett, July 8th, 2006
+IP Review Jody Garnett, July 20th, 2006
+IP Review Jody Garnett, April 1, 2008
+
+Header Used:
+/*
+ *    GeoTools - The Open Source Java GIS Tookit
+ *    http://geotools.org
+ *    (C) 2008, Open Source Geospatial Foundation (OSGeo)
+ *    
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ */
+
+Here is what I would like to check:
+- IP Check, do we have the correct header, is there any IP issues to consider
+- Update header to (C) 2008, Open Source Geospatial Foundation (OSGeo)
+
+
+org.geotools.data
+-----------------
+This code was revised for the GeoServer 1.2 release as part of GeoTools 2.0, design documentation and research for this effort
+is available at http://vwfs.refractions.net/. Additional Java 5 generalization work
+introduced for GeoTools 2.5 in the form of DataAccess superclass.
+- Update header to (C) 2008, Open Source Geospatial Foundation (OSGeo)
+- Headers updated with (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+- DataAccess and related classes (added for GeoTools 2.5) had no headers
+- GmlObjectStore interfaces added in 2007 to support wfs 1.1 wor had no headers
+- ServiceInfo and ResourceInfo taken out of catalog package prior to move
+
+org.geotools.data.collection
+----------------------------
+Added in GeoTools 2.2 time frame to support closable iterators, mostly used to define additional javadocs.
+
+IP:
+- ResourceCollection borrows an idea of a closable iterator from hibernate
+- Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- Collections API contract referenced from java.util.
+
+org.geotools.data.event
+-----------------------
+Added in GeoTools 2.2, based on event notification used in uDig (LGPL) allowing for a delta based events relative to a tree root.
+
+IP:
+- Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- Method names compatible with some Eclipse code that informed origional design uDig event design
+
+org.geotools.feature
+org.geotools.feature.collection
+org.geotools.feature.visitor
+-------------------------------
+Added in GeoTools 2.0, based on OGC / ISO feature model.
+Revised for GeoTools 2.1 based on GML2 requirements.
+Updated in GeoTools 2.2 to support random access, sorting and aggregate functions.
+
+IP:
+- 2.0 Headers updated (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+- 2.1 Headers updated (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+- 2.2 Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+
+org.geotools.filter
+org.geotools.filter.expression
+------------------------------
+Added for GeoTools 2.0 as part of Vision for new York, based on OGC Filter specification.
+Updated for 2.2 to agree with Filter 1.1 specification.
+Updated for 2.3 to agree/extend with GeoAPI interfaces (also Filter 1.1).
+
+IP:
+- 2.0 Headers updated (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+- 2.2 Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- 2.3 Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+
+org.geotools.styling
+--------------------
+Added baed on SLD specification for GeoTools 2.0.
+Some constructs like RemoteOWS added for GeoTools 2.1.
+Updated to agree with SLD 1.0, added event notification, and made method compatible with GeoAPI 2.0 (GPL Licience) for GeoTools 2.2.
+
+IP:
+- 2.0 Headers updated (C) 2002-2006, GeoTools Project Managment Committee (PMC)
+- 2.3 Headers updated (C) 2003-2006, GeoTools Project Managment Committee (PMC)
+- 2.2 Headers updated (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+- method names from GeoAPI 2.0 GPL project, not viewd as serious (and these interfaces will be retired shortly)
+- Origional styling code is "Geotools - OpenSource mapping toolkit (C) 2002, Center for Computational Geography" with James Macgill as a contact.
+
+org.geotools.util
+-----------------
+- ProgressListener: (C) 1999, Pêches et Océans Canada, (C) 2001, Institut de Recherche pour le Développement, before being handed to GeoTools PMC
+
+Modules Coverage
+================
+This module provides several coverage implementations, with a focus on GridCoverages. This work was begun
+in GeoTools 2.0 (2001 at Institut de Recherche pour le Développement), and was revised to work with
+OGC based interfaces for GeoTools 2.1 (interfaces hosted by GeoAPI).
+
+Coverage work continues as the focus of a specific GridCoverage branch for GeoTools 2.3. Planned work
+continues to work on n dimensional geometry based on ISO based Coverage interfaces (once again hosted by GeoAPI).
+
+org.geotools.coverage
+---------------------
+Added for GeoTools 2.0, updated to OGC coverage interfaces were prototyped for GeoTools 2.1 and relased to GeoAPI
+when ready.
+
+IP:
+- AbstractCoverage: header updated.
+- AbstractCoverage: historical copyright notification: "(C) 2001, Institut de Recherche pour le Développement" maintained.
+- AbstractCoverage: OGC specification credit: "This package contains documentation from OpenGIS specifications. OpenGIS consortium's work is fully acknowledged here."
+- ColorModelFactory: OGC credit & "Institut" (c) 2003, Geotool 2002-2006
+- CategoryList: "Institut" (c) 2003, Geotool 2005-2006
+- CoverageStack: 

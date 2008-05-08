@@ -1,0 +1,933 @@
+<chapter id="chapter-conceptFound">
+  <title>Conceptual Foundations</title>
+    
+  <!-- Top Level, a description with the chapter TOC -->
+  <para>
+    This chapter presents some of the concepts, vocabulary, and standards 
+    underlying the &geot; application.
+  </para>
+
+
+
+<sect1 id="sect-conceptual-foundations-terminology">
+  <title>Terminology</title>
+
+  <para>
+     Geotools uses certain terms in very specific ways. The terms used to 
+     refer to geospatial information come from a set of standards developed 
+     by the International Organization for Standardization (ISO) and the Open 
+     Geospatial Consortium (OGC). These standards, for example, use the term 
+     'Feature' to describe the fundamental unit of geospatial information: both 
+     real physical entities such as rivers and abstract ideas such as 
+     property boundaries.
+  </para>
+
+  <!-- TODO: add link to OGC Reference Model, 03-040. -->
+  <para>
+    The best introduction to this terminology is the general introduction 
+    written by the OGC, the OGC Reference Model, specification number 03-040.
+  </para>
+
+<table>
+<title>Fundamental Terminology</title>
+<tgroup cols="3">
+<thead>
+<row>
+  <entry>Term</entry>
+  <entry>Definition</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>Feature</entry>
+  <entry>
+    The fundamental unit of geospatial information which may be a real physical 
+    entity, such as a river, or an abstract conceptual notion, such as the geoid.
+  </entry>
+</row>
+<row>
+  <entry>Coordinate Referencing System</entry>
+  <entry>
+    The metadata required to link a coordinate to an actual spatial location 
+    defined relative to the physical globe. The term is commonly shortened to 
+    CRS. 
+  </entry>
+</row>
+<row>
+  <entry>Datum</entry>
+  <entry>
+    Refers to several concepts all related to anchoring a system of coordinate 
+    reference to known or defined points in the real world. Datums may be 
+    spatial or temporal. Spatial datums refer to known points on the globe 
+    whereas temporal datums refer to defined instants in time used to define 
+    the endpoints of an epoch. Spatial datums may refer only to the actual 
+    locations used to anchor a coordinate system or may refer to a unit of 
+    metadata including the locations plus a definition of a coordinate system 
+    and a prime meridian.
+  </entry>
+</row>
+<row>
+  <entry>Geoid</entry>
+  <entry>
+    Geoids are conceptual surfaces of equipotential gravitational attraction 
+    which are modern equivalents to the idea of a globally equal "Mean Sea Level"
+    from which geodedic altitudes could be derived. Global geoids are commonly 
+    defined using a spherical harmonic model. Local geoids may be defined using 
+    a grid of points and a triangular irregular network function to calculate the 
+    values between the points.
+  </entry>
+</row>
+<row>
+  <entry></entry>
+  <entry>
+    
+  </entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+</sect1>
+
+
+
+<sect1 id="sect-conceptual-foundations-standards">
+  <title>Standards</title>
+
+  <!-- TODO: check the new name of the EPSG. -->
+  <para>
+    &geot; is explicitly designed to implement the fundamental international 
+    standards for geospatial application. This included, first of all, the 
+    standards promulgated by the Open Geospatial Consortium (OGC). Those 
+    standards have been partially superceeded by newer standards proposed by the
+    International Organization for Standardization (ISO). &geot; also uses 
+    common standards provided by other ogranizations, notably the database of 
+    coordinate reference systems and transformations provided by the Surveying 
+    and Positioning Committee of the International Petroleum Organization 
+    still called, for historical reasons, the European Petroleum Survey 
+    Group (EPSG). 
+  </para>
+
+  <note>
+    <para>
+      The GeoAPI file org.opengis.annotation.Enum has a partial list of these 
+      standards.
+    </para>
+  </note>
+  
+  <para>
+    The Technical Committee 211 has an overview of their work avaialable 
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Overview.htm" 
+           type="http">here></ulink>.
+  </para>
+
+<table id="table-iso-standards">
+<title>ISO Standards</title>
+<tgroup cols="3">
+<thead>
+<row>
+  <entry>Spec #</entry>
+  <entry>Title</entry>
+  <entry>GeoAPI package</entry>
+  <entry>Geotools package</entry>
+  <entry>OGC Equivalent</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19101.pdf" 
+           type="http">19101</ulink></entry>
+  <entry>Reference Model</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19101-2.pdf" 
+           type="http">19101</ulink></entry>
+  <entry>Reference Model Part2: Imagery</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19103.pdf" 
+           type="http">19103</ulink></entry>
+  <entry>Conceptual Schema Language</entry>
+  <entry>org.opengis.util</entry>
+  <entry>org.geotools.util</entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19104.pdf" 
+           type="http">19104</ulink></entry>
+  <entry>Terminology</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19105.pdf" 
+           type="http">19105</ulink></entry>
+  <entry>Conformance and Testing</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19106.pdf" 
+           type="http">19106</ulink></entry>
+  <entry>Profiles</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19107.pdf" 
+           type="http">19107</ulink></entry>
+  <entry>Spatial Schemal for Feature Geometry</entry>
+  <entry>org.opengis.spatialschema.geometry</entry>
+  <entry>JTS (org.geotools.geometry)</entry>
+  <entry>Abstract Topic 1</entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19108.pdf" 
+           type="http">19108</ulink></entry>
+  <entry>Temporal Schema</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19109.pdf" 
+           type="http">19109</ulink></entry>
+  <entry>Rules for Application Schema</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19110.pdf" 
+           type="http">19110</ulink></entry>
+  <entry>Methodology for Feature Cataloging</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19111.pdf" 
+           type="http">19111</ulink></entry>
+  <entry>Spatial Referencing by Coordinates</entry>
+  <entry>org.opengis.referencing</entry>
+  <entry>org.geotools.referencing</entry>
+  <entry>Abstract Topic 2</entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19112.pdf" 
+           type="http">19112</ulink></entry>
+  <entry>Spatial Referencing by Geographical Identifier</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19113.pdf" 
+           type="http">19113</ulink></entry>
+  <entry>Quality Principles</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19114.pdf" 
+           type="http">19114</ulink></entry>
+  <entry>Quality Evaluation Procedures</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19115.pdf" 
+           type="http">19115</ulink></entry>
+  <entry>Metadata</entry>
+  <entry>org.opengis.metadata</entry>
+  <entry>org.geotools.metadata</entry>
+  <entry>Abstract Topic 11</entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19115-2.pdf" 
+           type="http">19115-2</ulink></entry>
+  <entry>Metadata Part2: Extensions for imagery and gridded data</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19116.pdf" 
+           type="http">19116</ulink></entry>
+  <entry>Positioning Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19117.pdf" 
+           type="http">19117</ulink></entry>
+  <entry>Portrayal</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19118.pdf" 
+           type="http">19118</ulink></entry>
+  <entry>Encoding</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19119.pdf" 
+           type="http">19119</ulink></entry>
+  <entry>Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19120.pdf" 
+           type="http">19120</ulink></entry>
+  <entry>Functional standards</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19121.pdf" 
+           type="http">19121</ulink></entry>
+  <entry>Imagery and gridded data</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19122.pdf" 
+           type="http">19122</ulink></entry>
+  <entry>Qualifications and Certification of personnel</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19123.pdf" 
+           type="http">19123</ulink></entry>
+  <entry>Schema for Coverage Geometry and Functions</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19124.pdf" 
+           type="http">19124</ulink></entry>
+  <entry> Imagery and Gridded Data Components</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19125-1.pdf" 
+           type="http">19125-1</ulink></entry>
+  <entry>Simple Feature Access Part1: Common architecture</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19125-2.pdf" 
+           type="http">19125-2</ulink></entry>
+  <entry>Simple Feature Access Part2: SQL option</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19125-3.pdf" 
+           type="http">19125-3</ulink></entry>
+  <entry>Simple Feature Access Part3: COM/OLE option</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19126.pdf" 
+           type="http">19126</ulink></entry>
+  <entry>Profile - FACC Data Dictionary</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19127.pdf" 
+           type="http">19127</ulink></entry>
+  <entry>Geodetic Codes and Paramters</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19128.pdf" 
+           type="http">19128</ulink></entry>
+  <entry>Web Map Server Interface (SLD?)</entry>
+  <entry>org.opengis.layer</entry>
+  <entry>org.geotools.layer</entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19129.pdf" 
+           type="http">19129</ulink></entry>
+  <entry>Imagery, Gridded and Coverage Data Framework</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19130.pdf" 
+           type="http">19130</ulink></entry>
+  <entry>Sensor and Data Models for Imagery and Gridded Data</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19131.pdf" 
+           type="http">19131</ulink></entry>
+  <entry>Data Product Specification</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19132.pdf" 
+           type="http">19132</ulink></entry>
+  <entry>Location Based Services Possible Standards</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19133.pdf" 
+           type="http">19133</ulink></entry>
+  <entry>Location Based Services Tracking and Navigation</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19134.pdf" 
+           type="http">19134</ulink></entry>
+  <entry>Multimodal Location Based Services for Routing and Navigation</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19135.pdf" 
+           type="http">19135</ulink></entry>
+  <entry>Procedures for registration of Geographic Information Items</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19136.pdf" 
+           type="http">19136</ulink></entry>
+  <entry>Geography Markup Language</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19137.pdf" 
+           type="http">19137</ulink></entry>
+  <entry>Generally Used Profiles of the Spatial Schema and of Similar
+         Important other Schemas</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19138.pdf" 
+           type="http">19138</ulink></entry>
+  <entry>Data Quality Measures</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_19139.pdf" 
+           type="http">19139</ulink></entry>
+  <entry>Metadata - Implementation</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<!--
+<row>
+  <entry>
+    <ulink url="http://www.isotc211.org/Outreach/Overview/Factsheet_191.pdf" 
+           type="http">191</ulink></entry>
+  <entry></entry>
+  <entry>org.opengis.</entry>
+  <entry>org.geotools.</entry>
+  <entry></entry>
+</row>
+-->
+</tbody>
+</tgroup>
+</table>
+
+
+<table>
+<title>OGC Standards</title>
+<tgroup cols="3">
+<thead>
+<row>
+  <entry>Spec #</entry>
+  <entry>Topic</entry>
+  <entry>Title</entry>
+  <entry>GeoAPI package</entry>
+  <entry>Geotools package</entry>
+  <entry>ISO Equivalent</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>03-040</entry>
+  <entry></entry>
+  <entry>OGC Reference Model</entry>
+  <entry>none</entry>
+  <entry>none</entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-101r1</entry>
+  <entry>Abstract 0</entry>
+  <entry>Abstract Specification Overview</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>01-101</entry>
+  <entry>Abstract 1</entry>
+  <entry>Feature Geometry</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry>ISO 19107</entry>
+</row>
+<row>
+  <entry>04-046r3</entry>
+  <entry>Abstract 2</entry>
+  <entry>Spatial Referencing by Coordinates</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry>ISO 19111</entry>
+</row>
+<row>
+  <entry>99-103</entry>
+  <entry>Abstract 3</entry>
+  <entry>Locational Geometry Structures</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry>ISO 19111</entry>
+</row>
+<row>
+  <entry>99-104</entry>
+  <entry>Abstract 4</entry>
+  <entry>Stored Functions and Interpolation</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-104</entry>
+  <entry>Abstract 5</entry>
+  <entry>Features</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-106</entry>
+  <entry>Abstract 6</entry>
+  <entry>Coverage</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-107</entry>
+  <entry>Abstract 7</entry>
+  <entry>Earth Imagery</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-108r2</entry>
+  <entry>Abstract 8</entry>
+  <entry>Relationships between Features</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-109r1</entry>
+  <entry>Abstract 9</entry>
+  <entry>Quality</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-110</entry>
+  <entry>Abstract 10</entry>
+  <entry>Feature Collections</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-111r1</entry>
+  <entry>Abstract 11</entry>
+  <entry>Metadata</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-112</entry>
+  <entry>Abstract 12</entry>
+  <entry>Service Architecture</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-113</entry>
+  <entry>Abstract 13</entry>
+  <entry>Catalog Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-114</entry>
+  <entry>Abstract 14</entry>
+  <entry>Semantics and Information Communities</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-115r2</entry>
+  <entry>Abstract 15</entry>
+  <entry>Image Exploration Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-116r2</entry>
+  <entry>Abstract 16</entry>
+  <entry>Image Coordinate Transformation Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>01-104</entry>
+  <entry>Implementation</entry>
+  <entry>Grid Coverage</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry>ISO 19123</entry>
+</row>
+<row>
+  <entry>01-009</entry>
+  <entry>Implementation</entry>
+  <entry>Coordinate Transformation Services</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry>extends ISO 19111</entry>
+</row>
+<row>
+  <entry>01-029</entry>
+  <entry>Implementation</entry>
+  <entry>Geographic Markup Language 2.0</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>99-049</entry>
+  <entry>Implementation</entry>
+  <entry>Simple Features for SQL</entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>02-059</entry>
+  <entry></entry>
+  <entry>Filter Encoding Specification</entry>
+  <entry>org.opengis.filter</entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>02-070</entry>
+  <entry></entry>
+  <entry>Styled Layer Descriptor</entry>
+  <entry>org.opengis.sld</entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>03-064</entry>
+  <entry></entry>
+  <entry>GO-1 Application Objects</entry>
+  <entry>org.opengis.go</entry>
+  <entry>ext/go  org.geotools.display</entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>04-024</entry>
+  <entry></entry>
+  <entry>Web Mapping Service</entry>
+  <entry>?org.opengis.layer</entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>04-094</entry>
+  <entry></entry>
+  <entry>Web Feature Service</entry>
+  <entry>?org.opengis.feature</entry>
+  <entry></entry>
+  <entry></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+
+<table>
+<title>EPSG Standards</title>
+<tgroup cols="3">
+<thead>
+<row>
+  <entry>Specification</entry>
+  <entry>Title</entry>
+  <entry>Base package</entry>
+</row>
+</thead>
+<tbody>
+<row>
+  <entry>EPSG Tech. Note 7</entry>
+  <entry>Part I</entry>
+  <entry></entry>
+</row>
+<row>
+  <entry>EPSG Tech. Note 7</entry>
+  <entry>Part II</entry>
+  <entry></entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+
+
+</sect1>
+
+
+
+
+
+<!--
+
+<sect1 id="sect-conceptual-foundations-codeLayout">
+  <title>Code Layout</title>
+
+  <para>
+     The &geot; library consists of several modules which can be assembled
+     according to user needs. For example, a simple application could use 
+     only the api, geometric, referencing and feature modules. Each module 
+     contributes several java packages 
+     to the overall library. A few java packages are special and are built
+     piecewise from code in several modules.
+  </para>
+
+  <sect2 id="sect-conceptual-foundations-codeLayout-modules">
+    <title>The Modules</title>
+
+    <para>
+    </para>
+
+  </sect2>
+
+  <sect2 id="sect-conceptual-foundations-codeLayout-packages">
+    <title>The Packages</title>
+
+    <para>
+      Should this be combined with the section above?
+    </para>
+
+  </sect2>
+
+
+</sect1>
+
+
+
+
+<sect1 id="sect-conceptual-foundations-factorySystems">
+  <title>Factory Systems</title>
+
+  <para>
+    &geot; uses the "factory" pattern extensively to enable users to create
+    objects while developing most of their code against the standard 
+    APIs.
+  </para>
+
+  <sect2 id="sect-conceptual-foundations-factorySystems-JTS">
+    <title>The Geometry Factory System</title>
+
+    <para>
+      The JTS Geometry library has its own factory system.
+    </para>
+
+  </sect2>
+
+  <sect2 id="sect-conceptual-foundations-factorySystems-referencing">
+    <title>The Geo-Referencing Factory System</title>
+
+    <para>
+      The Geo-Referencing module has a separate factory system.
+    </para>
+
+  </sect2>
+
+  <sect2 id="sect-conceptual-foundations-factorySystems-feature">
+    <title>The Feature Factory System</title>
+
+    <para>
+      The Feature modules use the core Geotools factory system.
+    </para>
+
+  </sect2>
+
+</sect1>
+
+-->
+<!--
+
+<sect1 id="sect-conceptual-foundations-">
+  <title></title>
+
+  <para>
+     
+  </para>
+
+  <sect2 id="">
+    <title></title>
+
+    <para>
+    </para>
+
+  </sect2>
+
+</sect1>
+-->
+
+
+<!--
+
+<sect1 id="sect-conceptual-foundations-">
+  <title></title>
+
+  <para>
+     
+  </para>
+
+  <sect2 id="">
+    <title></title>
+
+    <para>
+    </para>
+
+  </sect2>
+
+</sect1>
+-->
+
+</chapter>
+

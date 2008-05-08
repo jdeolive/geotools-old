@@ -1,0 +1,6 @@
+MinX   =  35
+MaxX   =  80
+MinY   = -41
+MaxY   =   5
+Width  = 450
+Height = 460

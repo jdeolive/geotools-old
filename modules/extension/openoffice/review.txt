@@ -1,0 +1,10 @@
+EXT OPENOFFICE
+==============
+Module Maintainer Martin
+IP Review Jody Garnett July 31st
+
+org.geotools.openoffice
+-----------------------
+IP:
+- updated headers to (C) 2005-2006 PMC
+- two files marked (C) 2005) Institut de Recherche pour le Développement

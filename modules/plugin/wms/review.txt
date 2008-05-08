@@ -1,0 +1,53 @@
+PLUGIN WMS
+==========
+Module Maintainer Richard Gould
+IP Review:
+- Jody Garnett, August 7th, 2006
+
+org.getools.catalog.wms
+-----------------------
+IP:
+- needed to credit refractions with (C) 2005 Refractions Research
+- updated headers
+
+org.geotools.data.ows
+---------------------
+IP:
+- header update
+
+org.geotools.data.wms
+-----------------------
+IP:
+- updated (C) 2004-2006 PMC
+org.geotools.data.wms.gce
+-------------------------
+An attempt, successful, to wrap a WMS as a grid coverage exchanged (too bad it was a silly idea).
+IP:
+- updated headers
+
+org.geotools.data.wms.request
+-----------------------------
+IP:
+- AbstractWMSRequest missing header
+- updated headers
+
+org.geotools.data.wms.response
+------------------------------
+IP:
+- headers updated, everything in order
+
+org.geotools.data.wms.xml
+-------------------------
+Bleah, scary classes that start with a lowercase letter.
+IP:
+- updated headers
+
+
+org.geotools.data.ows.test (test)
+org.geotools.data.wms.gce.test (test)
+org.geotools.data.wms.test (test)
+org.geotools.data.wms.xml.test (test)
+------------------------------
+JUnit, note most of the useful tests are "online".
+IP:
+- everything in order, headers updated

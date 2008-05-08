@@ -1,0 +1,74 @@
+EXTENTION GO
+------------
+Module Maintainer Martin
+IP Review Jody Garnett, July 10th 2006
+
+As with much of Martins code it contains an initial  (C) 2005, Institut de Recherche pour le Développement
+Some of the early work contains a  (C) 1998, Pêches et Océans Canada
+
+Note some header files also acknoledge OpenGIS specifications - if this is needed
+we should adopt it for the Filter and Styling code as required.
+
+/*
+ *    GeoTools - OpenSource mapping toolkit
+ *    http://geotools.org
+ *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
+ *    (C) 2005, Institut de Recherche pour le Développement
+ *
+ *    This library is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU Lesser General Public
+ *    License as published by the Free Software Foundation;
+ *    version 2.1 of the License.
+ *
+ *    This library is distributed in the hope that it will be useful,
+ *    but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *    Lesser General Public License for more details.
+ *
+ *    This package contains documentation from OpenGIS specifications.
+ *    OpenGIS consortium's work is fully acknowledged here.
+ */
+ 
+org.geotools.display.canvas
+---------------------------
+Some of this code is included was included GeoTools 2.0, it is being repackaged as an implementation
+of the GO-1 standard. Currently experimental in status.
+
+IP:
+- headers updated to (C) 2006 GeoTools Project Management Committee (PMC)
+- (C) 2005, Institut de Recherche pour le Développement
+- early code contains (C) 1998, Pêches et Océans Canada
+- references to OGC Specifications
+
+org.geotools.display.canvas.map
+org.geotools.display.event
+-------------------------------
+IP:
+- headers updated to (C) 2006 GeoTools Project Management Committee (PMC)
+- (C) 2005, Institut de Recherche pour le Développement
+
+org.geotools.display.geom
+-------------------------
+IP:
+- headers updated to (C) 2006 GeoTools Project Management Committee (PMC)
+- (C) 2005, Institut de Recherche pour le Développement
+- early code contains (C) 1998, Pêches et Océans Canada
+
+org.geotools.display.style
+--------------------------
+IP:
+- (C) 2006 GeoTools Project Management Committee (PMC)
+- (C) 2006, Institut de Recherche pour le Développement
+
+org.geotools.display.array
+--------------------------
+IP:
+- (C) 2003-2006 GeoTools Project Management Committee (PMC)
+- (C) 2003, Institut de Recherche pour le Développement
+- (C) 1999, Pêches et Océans Canada
+
+org.geotools.display.canvas (test)
+----------------------------------
+IP:
+- (C) 2005-2006 GeoTools Project Management Committee (PMC)
+- (C) 2005, Institut de Recherche pour le Développement
