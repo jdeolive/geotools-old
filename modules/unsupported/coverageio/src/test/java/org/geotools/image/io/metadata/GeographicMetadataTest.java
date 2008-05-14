@@ -20,9 +20,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import javax.imageio.metadata.IIOMetadataFormat;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -32,37 +31,12 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class GeographicMetadataTest extends TestCase {
-    /**
-     * Run the suit from the command line.
-     */
-    public static void main(final String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(GeographicMetadataTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public GeographicMetadataTest(final String name) {
-        super(name);
-    }
-
+public final class GeographicMetadataTest {
     /**
      * Tests the geographic metadata format.
      */
+    @Test
     public void testFormat() {
-        if (true) {
-            return;
-            // TODO: this test doesn't seem to work with J2SE 1.4.
-            //       Try again when we will be allowed to target J2SE 1.5.
-        }
         final GeographicMetadata metadata = new GeographicMetadata();
         final Collection formats = Arrays.asList(metadata.getMetadataFormatNames());
         assertTrue(formats.contains(GeographicMetadataFormat.FORMAT_NAME));
@@ -78,6 +52,7 @@ public class GeographicMetadataTest extends TestCase {
     /**
      * Tests the setting of values in the metadata object.
      */
+    @Test
     public void testSetting() {
         final GeographicMetadata metadata = new GeographicMetadata();
         final ImageReferencing referencing = metadata.getReferencing();

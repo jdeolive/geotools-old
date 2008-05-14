@@ -18,19 +18,15 @@ package org.geotools.coverage.io;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 import org.opengis.coverage.grid.GridRange;
 import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.referencing.crs.GeographicCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-
 import org.geotools.referencing.CRS;
-import org.geotools.resources.Arguments;
+
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -40,45 +36,18 @@ import org.geotools.resources.Arguments;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class MetadataBuilderTest extends TestCase {
+public final class MetadataBuilderTest {
     /**
      * Set to a non-null value for printing some diagnostic message to the standard output.
      */
     private static PrintWriter out;
 
     /**
-     * Run the suit from the command line. Run the test with the
-     * "-print" option in order to print test to standard output.
-     */
-    public static void main(final String[] args) {
-        final Arguments arguments = new Arguments(args);
-        if (arguments.getFlag("-print")) {
-            out = arguments.out;
-        } else {
-            out = new PrintWriter(new StringWriter());
-        }
-        arguments.getRemainingArguments(0);
-        org.geotools.util.logging.Logging.GEOTOOLS.forceMonolineConsoleOutput();
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(MetadataBuilderTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public MetadataBuilderTest(final String name) {
-        super(name);
-    }
-
-    /**
      * Tests the addition of alias.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testAlias() throws IOException {
         final MetadataBuilder parser = new MetadataBuilder();
         /*
@@ -166,7 +135,10 @@ public class MetadataBuilderTest extends TestCase {
 
     /**
      * Tests the formatting.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testFormat() throws IOException {
         final MetadataBuilder parser = new MetadataBuilder();
         /*

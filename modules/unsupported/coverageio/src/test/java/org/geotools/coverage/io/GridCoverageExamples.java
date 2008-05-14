@@ -16,16 +16,13 @@
  */
 package org.geotools.coverage.io;
 
-// J2SE dependencies and extensions
 import java.awt.Color;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
-import junit.framework.Assert;
 
-// OpenGIS and Geotools dependencies
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.coverage.Category;
@@ -48,7 +45,7 @@ import org.geotools.util.NumberRange;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public final class GridCoverageExamples extends Assert {
+public final class GridCoverageExamples {
     /**
      * Do not allows instantiation of this class.
      */
@@ -57,6 +54,8 @@ public final class GridCoverageExamples extends Assert {
 
     /**
      * Returns the number of available image which may be used as example.
+     *
+     * @return The number of available images.
      */
     public static int getNumExamples() {
         return 1;
@@ -86,13 +85,13 @@ public final class GridCoverageExamples extends Assert {
                 path = "QL95209.png";
                 crs  = DefaultGeographicCRS.WGS84;
                 categories = new Category[] {
-                    new Category("Coast line", Color.decode("#000000"), new NumberRange(  0,   0)),
-                    new Category("Cloud",      Color.decode("#C3C3C3"), new NumberRange(  1,   9)),
-                    new Category("Unused",     Color.decode("#822382"), new NumberRange( 10,  29)),
-                    new Category("Sea Surface Temperature", null,       new NumberRange( 30, 219), 0.1, 10.0),
-                    new Category("Unused",     Color.decode("#A0505C"), new NumberRange(220, 239)),
-                    new Category("Land",       Color.decode("#D2C8A0"), new NumberRange(240, 254)),
-                    new Category("No data",    Color.decode("#FFFFFF"), new NumberRange(255, 255)),
+                    new Category("Coast line", Color.decode("#000000"), NumberRange.create(  0,   0)),
+                    new Category("Cloud",      Color.decode("#C3C3C3"), NumberRange.create(  1,   9)),
+                    new Category("Unused",     Color.decode("#822382"), NumberRange.create( 10,  29)),
+                    new Category("Sea Surface Temperature", null,       NumberRange.create( 30, 219), 0.1, 10.0),
+                    new Category("Unused",     Color.decode("#A0505C"), NumberRange.create(220, 239)),
+                    new Category("Land",       Color.decode("#D2C8A0"), NumberRange.create(240, 254)),
+                    new Category("No data",    Color.decode("#FFFFFF"), NumberRange.create(255, 255)),
                 };
                 // 41°S - 5°N ; 35°E - 80°E  (450 x 460 pixels)
                 bounds = new Rectangle2D.Double(35, -41, 45, 46);
@@ -106,6 +105,6 @@ public final class GridCoverageExamples extends Assert {
         final RenderedImage      image = ImageIO.read(TestData.getResource(GridCoverage2D.class, path));
         final String          filename = new File(path).getName();
         envelope.setCoordinateReferenceSystem(crs);
-        return (GridCoverage2D) factory.create(filename, image, envelope, bands, null, null);
+        return factory.create(filename, image, envelope, bands, null, null);
     }
 }

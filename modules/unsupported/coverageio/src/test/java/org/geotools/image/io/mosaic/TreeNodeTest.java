@@ -26,6 +26,9 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import org.geotools.resources.OptionalDependencies;
 
+import org.junit.*;
+import static org.junit.Assert.*;
+
 
 /**
  * Tests {@link TreeNode} and {@link RTree}. The later is merely a wrapper around
@@ -36,7 +39,7 @@ import org.geotools.resources.OptionalDependencies;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class TreeNodeTest extends TestBase {
+public final class TreeNodeTest extends TestBase {
     /**
      * The root of an RTree for {@link #targetTiles}.
      */
@@ -44,10 +47,11 @@ public class TreeNodeTest extends TestBase {
 
     /**
      * Initializes every fields in this class.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
-    @Override
-    protected void setUp() throws IOException {
-        super.setUp();
+    @Before
+    public void initTreeNode() throws IOException {
         assertEquals(4733, targetTiles.length);
         root = new GridNode(targetTiles);
     }
@@ -56,6 +60,7 @@ public class TreeNodeTest extends TestBase {
      * Ensures that the view as a Swing tree is the same one that we get if we copy every
      * nodes in the default Swing tree node implementations.
      */
+    @Test
     public void testSwingTree() {
         final javax.swing.tree.TreeNode copy = OptionalDependencies.copy(root);
         final int n = assertTreeEqual(root, copy, null, null);
@@ -90,7 +95,10 @@ public class TreeNodeTest extends TestBase {
 
     /**
      * Tests with a set of files corresponding to a Blue Marble mosaic.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testTreeNode() throws IOException {
         // GridNode has many assert statements, so we want them enabled.
         assertTrue(GridNode.class.desiredAssertionStatus());
@@ -162,7 +170,10 @@ public class TreeNodeTest extends TestBase {
 
     /**
      * Tests the {@link RTree} class.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testRTree() throws IOException {
         final RTree tree = new RTree(root);
         if (false) {

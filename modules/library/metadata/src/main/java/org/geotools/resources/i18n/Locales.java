@@ -37,7 +37,9 @@ public final class Locales {
     }
 
     /**
-     * Returns available locales.
+     * Returns available languages.
+     *
+     * @return Available languages.
      *
      * @todo Current implementation returns a hard-coded list.
      *       Future implementations may perform a more intelligent work.
@@ -53,6 +55,8 @@ public final class Locales {
 
     /**
      * Returns the list of available locales.
+     *
+     * @return Available locales.
      */
     public static Locale[] getAvailableLocales() {
         final Locale[] languages = getAvailableLanguages();
@@ -64,7 +68,7 @@ public final class Locales {
                 locales[count++] = locale;
             }
         }
-        locales = (Locale[]) XArray.resize(locales, count);
+        locales = XArray.resize(locales, count);
         return locales;
     }
 
@@ -84,6 +88,9 @@ public final class Locales {
 
     /**
      * Returns the list of available locales formatted as string in the specified locale.
+     *
+     * @param locale The locale to use for formatting the strings to be returned.
+     * @return String descriptions of available locales.
      */
     public static String[] getAvailableLocales(final Locale locale) {
         final Locale[] locales = getAvailableLocales();
@@ -97,6 +104,8 @@ public final class Locales {
 
     /**
      * Prints the list of available locales.
+     *
+     * @param args Command-lines arguments.
      */
     public static void main(String[] args) {
         final Arguments arguments = new Arguments(args);

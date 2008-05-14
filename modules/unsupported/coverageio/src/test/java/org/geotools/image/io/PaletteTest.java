@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -33,32 +32,11 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class PaletteTest extends TestCase {
-    /**
-     * Run the suit from the command line.
-     */
-    public static void main(final String[] args) {
-        org.geotools.util.logging.Logging.GEOTOOLS.forceMonolineConsoleOutput();
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(PaletteTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public PaletteTest(final String name) {
-        super(name);
-    }
-
+public final class PaletteTest {
     /**
      * Tests the argument check performed by constructor.
      */
+    @Test
     public void testConstructor() {
         final PaletteFactory factory = PaletteFactory.getDefault();
         assertEquals(100, new IndexedPalette(factory, "grayscale",    0, 100, 100, 1, 0).upper);
@@ -99,8 +77,9 @@ public class PaletteTest extends TestCase {
     /**
      * Tests {@link PaletteFactory#getAvailableNames}.
      */
+    @Test
     public void testAvailableNames() {
-        final List names = Arrays.asList(PaletteFactory.getDefault().getAvailableNames());
+        final List<String> names = Arrays.asList(PaletteFactory.getDefault().getAvailableNames());
         assertFalse(names.isEmpty());
         assertTrue (names.contains("rainbow"));
         assertTrue (names.contains("grayscale"));
@@ -111,6 +90,7 @@ public class PaletteTest extends TestCase {
     /**
      * Tests the cache.
      */
+    @Test
     public void testCache() {
         final PaletteFactory factory = PaletteFactory.getDefault();
         final Palette first  = factory.getPalettePadValueFirst("rainbow", 100);
@@ -123,7 +103,10 @@ public class PaletteTest extends TestCase {
 
     /**
      * Tests the color model.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testColorModel() throws IOException {
         final PaletteFactory  factory = PaletteFactory.getDefault();
         final Palette         palette = factory.getPalettePadValueFirst("rainbow", 100);

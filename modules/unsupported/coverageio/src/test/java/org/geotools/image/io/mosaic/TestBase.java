@@ -28,7 +28,8 @@ import javax.swing.JScrollPane;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowAdapter;
 
-import junit.framework.TestCase;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -38,7 +39,7 @@ import junit.framework.TestCase;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public abstract class TestBase extends TestCase {
+public abstract class TestBase {
     /**
      * Source tile size for BlueMarble mosaic.
      */
@@ -71,9 +72,11 @@ public abstract class TestBase extends TestCase {
 
     /**
      * Initializes every fields declared in this {@link TestBase} class.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
-    @Override
-    protected void setUp() throws IOException {
+    @Before
+    public final void initTileManager() throws IOException {
         assertTrue("Assertions should be enabled.", MosaicBuilder.class.desiredAssertionStatus());
 
         builder = new MosaicBuilder();

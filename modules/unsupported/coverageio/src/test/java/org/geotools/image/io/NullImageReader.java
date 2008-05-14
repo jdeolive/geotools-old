@@ -35,7 +35,7 @@ import org.geotools.image.io.metadata.GeographicMetadata;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-final class NullImageReader extends GeographicImageReader {
+public class NullImageReader extends GeographicImageReader {
     /**
      * The data type to be returned by {@link #getRawDataType}.
      */
@@ -48,6 +48,11 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Creates a reader with a dummy provider.
+     *
+     * @param dataType The data type as one of {@link java.awt.image.DataBuffer} constants.
+     * @param minimum  The minimum sample value.
+     * @param maximum  The maximum sample value.
+     * @param padValue The value for missing data.
      */
     public NullImageReader(final int dataType, final double minimum, final double maximum, final double padValue) {
         super(new Spi());
@@ -60,6 +65,9 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Returns a dummy width.
+     *
+     * @param  imageIndex  The image index, numbered from 0.
+     * @throws IOException Never thrown in default implementation.
      */
     public int getWidth(final int imageIndex) throws IOException {
         checkImageIndex(imageIndex);
@@ -68,6 +76,9 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Returns a dummy height.
+     *
+     * @param  imageIndex  The image index, numbered from 0.
+     * @throws IOException Never thrown in default implementation.
      */
     public int getHeight(final int imageIndex) throws IOException {
         checkImageIndex(imageIndex);
@@ -76,6 +87,9 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Returns the metadata specified at construction time.
+     *
+     * @param  imageIndex  The image index, numbered from 0.
+     * @throws IOException Never thrown in default implementation.
      */
     @Override
     public IIOMetadata getImageMetadata(final int imageIndex) throws IOException {
@@ -88,6 +102,10 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Returns the data type specified at construction time.
+     *
+     * @param  imageIndex  The image index, numbered from 0.
+     * @return The value given at construction time.
+     * @throws IOException Never thrown in default implementation.
      */
     @Override
     protected int getRawDataType(final int imageIndex) throws IOException {
@@ -97,6 +115,11 @@ final class NullImageReader extends GeographicImageReader {
 
     /**
      * Returns a dummy image.
+     *
+     * @param  imageIndex  The image index, numbered from 0.
+     * @param  param Optional parameters, or {@code null} if none.
+     * @return A dummy image.
+     * @throws IOException Never thrown in default implementation.
      */
     public BufferedImage read(final int imageIndex, final ImageReadParam param) throws IOException {
         checkImageIndex(imageIndex);
@@ -122,6 +145,6 @@ final class NullImageReader extends GeographicImageReader {
 
         public String getDescription(final Locale locale) {
             return "Dummy";
-        }        
+        }
     }
 }

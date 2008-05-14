@@ -56,15 +56,26 @@ final class FilenameFormatter implements Serializable {
     private String prefix;
 
     /**
-     * File extension to be given to filenames. Computed automatically by
-     * {@link MosaicBuilder#createTileManager}.
+     * The separator between level number and the (row,column) coordinates.
      */
-    private String extension;
+    private String overviewSeparator;
+
+    /**
+     * The separator between column and row.
+     */
+    private String locationSeparator;
+
+    /**
+     * The suffix, typically the file extension with its leading dot.
+     */
+    private String suffix;
 
     /**
      * Creates a default filename formatter.
      */
     public FilenameFormatter() {
+        overviewSeparator = "_";
+        locationSeparator = "";
     }
 
     /**
@@ -78,13 +89,13 @@ final class FilenameFormatter implements Serializable {
         if (prefix == null) {
             prefix = DEFAULT_PREFIX;
         }
-        extension = "";
-        final String[] suffix = tileReaderSpi.getFileSuffixes();
-        if (suffix != null) {
-            for (int i=0; i<suffix.length; i++) {
-                final String s = suffix[i];
-                if (s.length() > extension.length()) {
-                    extension = s;
+        suffix = "";
+        final String[] suffixes = tileReaderSpi.getFileSuffixes();
+        if (suffixes != null) {
+            for (int i=0; i<suffixes.length; i++) {
+                final String s = suffixes[i];
+                if (s.length() > suffix.length()) {
+                    suffix = s;
                 }
             }
         }
@@ -189,9 +200,106 @@ final class FilenameFormatter implements Serializable {
      */
     public String generateFilename(final int overview, final int column, final int row) {
         final StringBuilder buffer = new StringBuilder(prefix);
-        format10(buffer, overview, overviewFieldSize); buffer.append('_');
-        format26(buffer, column,   columnFieldSize);
+        format10(buffer, overview, overviewFieldSize); buffer.append(overviewSeparator);
+        format26(buffer, column,   columnFieldSize);   buffer.append(locationSeparator);
         format10(buffer, row,      rowFieldSize);
-        return buffer.append('.').append(extension).toString();
+        if (suffix != null) {
+            buffer.append(suffix);
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Returns a pattern for the given filename. For example if the overview level is 2,
+     * the column is 3 and the row is 4 (numbered from 0), and if the given filename is
+     * {@code "L3_AD05.png"}, then the returned pattern is
+     * {@code "L{overview:1}_{column:2}{row:2}.png"}
+     * <p>
+     * The state of this formatter is modified by this method.
+     *
+     * @param  overview  The level of overview. First overview is 0.
+     * @param  column    The index of columns. First column is 0.
+     * @param  row       The index of rows. First row is 0.
+     * @param  filename  The filename.
+     * @return A pattern for the given filename, or {@code null} if the pattern can not be found.
+     */
+    public String pattern(final int overview, final int column, final int row, final String filename) {
+        /*
+         * Extracts immediately the file extension, if any. Then we will scan the filename
+         * in reverse order, because we want to search for numbers aligned to the right.
+         */
+        int last = filename.length();
+        final StringBuilder buffer = new StringBuilder();
+loop:   for (int fieldNumber=0; ;fieldNumber++) {
+            final int fieldValue;
+            final boolean useLetters;
+            switch (fieldNumber) {
+                case 0:  fieldValue = row;      useLetters = false; break;
+                case 1:  fieldValue = column;   useLetters = true;  break;
+                case 2:  fieldValue = overview; useLetters = false; break;
+                default: break loop;
+            }
+            buffer.setLength(0);
+            if (useLetters) {
+                format26(buffer, fieldValue, 0);
+            } else {
+                format10(buffer, fieldValue, 0);
+            }
+            /*
+             * For a given field (row, column or overview), searchs the last occurence of this
+             * field in the filename, starting just before the field processed in the previous loop
+             * iteration (if any). If the field is not found, or if it not bounded by a different
+             * character than the ones used for formatting the field value (digits or letters),
+             * then this method stops immediately and returns null.
+             */
+            final String fieldText = buffer.toString();
+            int length = fieldText.length();
+            int start = filename.lastIndexOf(fieldText, last - length);
+            if (start < 0) {
+                return null;
+            }
+            final int end = start + length;
+            if (end < last) {
+                final char c = filename.charAt(end);
+                if (useLetters ? Character.isLetter(c) : Character.isDigit(c)) {
+                    return null;
+                }
+            }
+            final char fill = useLetters ? 'A' : '0';
+            while (start != 0) {
+                final char c = filename.charAt(start - 1);
+                if (c != fill) {
+                    if (!(useLetters ? Character.isLetter(c) : Character.isDigit(c))) {
+                        break;
+                    }
+                }
+                start--;
+            }
+            /*
+             * Sets every formatter fields with the values found so far.
+             */
+            final String separator = filename.substring(end, last);
+            length = end - start;
+            switch (fieldNumber) {
+                case 0: suffix            = separator; rowFieldSize      = length; break;
+                case 1: locationSeparator = separator; columnFieldSize   = length; break;
+                case 2: overviewSeparator = separator; overviewFieldSize = length; break;
+            }
+            last = start;
+        }
+        prefix = filename.substring(0, last);
+        assert filename.equals(generateFilename(overview, column, row)) : filename;
+        return toString();
+    }
+
+    /**
+     * Returns the pattern.
+     */
+    @Override
+    public String toString() {
+        return (prefix != null ? prefix : DEFAULT_PREFIX) +
+                "{overview:" + overviewFieldSize + '}' + overviewSeparator +
+                "{column:"   + columnFieldSize   + '}' + locationSeparator +
+                "{row:"      + rowFieldSize      + '}' + suffix;
     }
 }

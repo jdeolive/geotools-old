@@ -24,6 +24,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.junit.*;
+import static org.junit.Assert.*;
+
 
 /**
  * Tests {@link MosaicBuilder}.
@@ -32,10 +35,14 @@ import java.io.ObjectOutputStream;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class MosaicBuilderTest extends TestBase {
+public final class MosaicBuilderTest extends TestBase {
     /**
      * Tests with a set of files corresponding to a Blue Marble mosaic.
+     *
+     * @throws IOException If an I/O operation failed.
+     * @throws ClassNotFoundException if a deserialization failed.
      */
+    @Test
     public void testBlueMarble() throws IOException, ClassNotFoundException {
         assertTrue(MosaicBuilder.class.desiredAssertionStatus());
         builder.setSubsamplings((Dimension[]) null);

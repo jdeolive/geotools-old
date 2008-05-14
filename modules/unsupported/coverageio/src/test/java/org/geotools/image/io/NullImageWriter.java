@@ -41,7 +41,7 @@ public class NullImageWriter extends GeographicImageWriter {
     /**
      * Constructs a {@code NullImageWriter}.
      *
-     * @param originatingProvider The {@code ImageWriterSpi} that
+     * @param provider The {@code ImageWriterSpi} that
      *        is constructing this object, or {@code null}.
      */
     protected NullImageWriter(final ImageWriterSpi provider) {
@@ -50,6 +50,9 @@ public class NullImageWriter extends GeographicImageWriter {
 
     /**
      * Silently ignore the given parameters.
+     *
+     * @param metadata Ignored.
+     * @throws IOException Never thrown.
      */
     @Override
     public void write(IIOMetadata metadata, IIOImage image, ImageWriteParam param) throws IOException {
@@ -103,6 +106,8 @@ public class NullImageWriter extends GeographicImageWriter {
 
         /**
          * Returns a new {@link NullImageWriter} instance.
+         *
+         * @throws IOException If an I/O operation was required and failed.
          */
         @Override
         public ImageWriter createWriterInstance(Object extension) throws IOException {

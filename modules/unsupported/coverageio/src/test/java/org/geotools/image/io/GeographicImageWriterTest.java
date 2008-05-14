@@ -25,9 +25,8 @@ import java.awt.image.WritableRaster;
 import javax.imageio.ImageWriteParam;
 import javax.media.jai.iterator.RectIter;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -37,32 +36,13 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class GeographicImageWriterTest extends TestCase {
-    /**
-     * Run the suite from the command line.
-     */
-    public static void main(final String[] args) {
-        org.geotools.util.logging.Logging.GEOTOOLS.forceMonolineConsoleOutput();
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(GeographicImageWriterTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public GeographicImageWriterTest(final String name) {
-        super(name);
-    }
-
+public final class GeographicImageWriterTest {
     /**
      * Tests the {@link RectIter}.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testRectIter() throws IOException {
         final Insets margin = new Insets(5, 2, 2, 1); // top, left, bottom, right
         runRectIter(10, 20, margin);

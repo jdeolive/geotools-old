@@ -23,9 +23,8 @@ import java.awt.image.IndexColorModel;
 import javax.imageio.ImageTypeSpecifier;
 import java.io.IOException;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -35,33 +34,14 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class GeographicImageReaderTest extends TestCase {
-    /**
-     * Run the suite from the command line.
-     */
-    public static void main(final String[] args) {
-        org.geotools.util.logging.Logging.GEOTOOLS.forceMonolineConsoleOutput();
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(GeographicImageReaderTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public GeographicImageReaderTest(final String name) {
-        super(name);
-    }
-
+public final class GeographicImageReaderTest {
     /**
      * Tests {@link DataBuffer#TYPE_FLOAT}. The converter should be the identity one
      * except for pad values which should be replaced by NaN.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testTypeFloat() throws IOException {
         final float minimum  = -2000;
         final float maximum  =  4000;
@@ -91,7 +71,10 @@ public class GeographicImageReaderTest extends TestCase {
     /**
      * Tests {@link DataBuffer#TYPE_SHORT}. The converter should be the identity one,
      * including pad values. The index color model is going to be quite large.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testTypeShort() throws IOException {
         final int minimum  = -2000;
         final int maximum  =  4000;
@@ -133,7 +116,10 @@ public class GeographicImageReaderTest extends TestCase {
     /**
      * Tests {@link DataBuffer#TYPE_USHORT}. The converter should pack the negative
      * values in a smaller range.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testTypeUnsignedShort() throws IOException {
         final int minimum  = -2000;
         final int maximum  =  4000;
@@ -170,7 +156,10 @@ public class GeographicImageReaderTest extends TestCase {
 
     /**
      * Tests {@link DataBuffer#TYPE_BYTE}.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testTypeUnsignedByte() throws IOException {
         final int minimum  =   0;
         final int maximum  = 200;

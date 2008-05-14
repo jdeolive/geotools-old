@@ -21,6 +21,9 @@ import java.awt.Rectangle;
 import java.io.IOException;
 import java.util.Collection;
 
+import org.junit.*;
+import static org.junit.Assert.*;
+
 
 /**
  * Tests {@link TileManager}.
@@ -29,7 +32,7 @@ import java.util.Collection;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class TileManagerTest extends TestBase {
+public final class TileManagerTest extends TestBase {
     /**
      * The region of interest to be queried.
      */
@@ -48,9 +51,8 @@ public class TileManagerTest extends TestBase {
     /**
      * Initializes the fields to be used for tile searchs.
      */
-    @Override
-    protected void setUp() throws IOException {
-        super.setUp();
+    @Before
+    public void initRegion() {
         regionOfInterest = new Rectangle(SOURCE_SIZE*4, SOURCE_SIZE*2);
         subsampling = new Dimension(90,90);
     }
@@ -98,7 +100,10 @@ public class TileManagerTest extends TestBase {
 
     /**
      * Tests the search of tiles on a tile layout using constant tile size.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testConstantSizeLayout() throws IOException {
         int total = 0;
 
@@ -158,7 +163,10 @@ public class TileManagerTest extends TestBase {
     /**
      * Tests a few specific regions. They are region that were known to be have issues at
      * some point in the development process of the mosaic package. They should now be fixed.
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
+    @Test
     public void testSpecific() throws IOException {
         regionOfInterest.x      = 31375;
         regionOfInterest.y      =  8488;
