@@ -382,7 +382,7 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @param runnable Code to be executed with an ArcSDEConnection
      */
-    void getConnection( Command runnable ){
+    void getConnection( Command runnable ) throws IOException {
     	// for now we will just make use of Transaction.AUTO_COMMIT
     	getConnection( runnable, Transaction.AUTO_COMMIT );
     }
@@ -392,23 +392,24 @@ public class ArcSDEDataStore implements DataStore {
      * @param runnable
      * @param transaction
      */
-    void getConnection( Command runnable, Transaction transaction ) throws IOException {
+    void getConnection( Command command, Transaction transaction ) throws IOException {
         final Session session;
         final ArcTransactionState state;
         
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             session = connectionPool.getConnection();
+            try {
+            	session.execute( command );            
+            }
+            finally {
+                session.close(); // return to pool
+            }
             state = null;
         } else {
             state = ArcTransactionState.getState(transaction, connectionPool, listenerManager, false );
             session = state.getConnection();
-        }
-        try {
-            runnable.execute( session );
-        }
-        finally {
-            session.close(); // return to pool
-        }
+            session.execute( command );
+        }        
     }
     
     /**
