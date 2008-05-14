@@ -48,7 +48,7 @@ public class ThreeByteBandRGBReaderTest {
                     0, 0), 0, new int[] { 1, 2, 3 });
 
             session = rasterTestData.getTestData().getConnectionPool().getConnection();
-            SeRasterColumn rcol = new SeRasterColumn(session.unWrap(), rattr.getRasterColumnId());
+            SeRasterColumn rcol = session.createSeRasterColumn(rattr.getRasterColumnId());
 
             CoordinateReferenceSystem crs = CRS.decode("EPSG:2805");
             pyramid = new ArcSDEPyramid(rattr, crs);

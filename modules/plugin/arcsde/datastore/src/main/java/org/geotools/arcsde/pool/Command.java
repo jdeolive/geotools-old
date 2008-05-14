@@ -1,5 +1,7 @@
 package org.geotools.arcsde.pool;
 
+import com.esri.sde.sdk.client.SeConnection;
+
 /**
  * Runnable used to interact with an ArcSDEConnection.
  * <p>
@@ -10,13 +12,15 @@ package org.geotools.arcsde.pool;
  * 
  * @author Jody Garnett
  */
-public abstract class ArcSDERunnable {
+public abstract class Command {
     /**
-     * Executed to operate on an ArcSDEConnection, ArcTransactionState will be provided
-     * when working on a transaction.
+     * Executed to operate on an SeConnection, a Command is scheduled for execution
+     * on a Session.
+     * <p>
+     * Please keep in mind that a Command should be short in duration; you are sharing this
+     * SeConnection with other threads.
      * 
      * @param connection connection used to interact with ArcSDE
-     * @param context Non null if working on a transaction
      */
-    public abstract void run( Session connection );
+    public abstract void execute( SeConnection connection );
 }

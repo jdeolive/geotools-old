@@ -35,7 +35,7 @@ import org.geotools.arcsde.data.view.QueryInfoParser;
 import org.geotools.arcsde.data.view.SelectQualifier;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.Session;
-import org.geotools.arcsde.pool.ArcSDERunnable;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.data.DataAccess;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
@@ -382,8 +382,9 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @param runnable Code to be executed with an ArcSDEConnection
      */
-    void getConnection( ArcSDERunnable runnable ){
-        
+    void getConnection( Command runnable ){
+    	// for now we will just make use of Transaction.AUTO_COMMIT
+    	getConnection( runnable, Transaction.AUTO_COMMIT );
     }
     
     /**
@@ -391,7 +392,7 @@ public class ArcSDEDataStore implements DataStore {
      * @param runnable
      * @param transaction
      */
-    void getConnection( ArcSDERunnable runnable, String typeName, Transaction transaction ) throws IOException {
+    void getConnection( Command runnable, Transaction transaction ) throws IOException {
         final Session session;
         final ArcTransactionState state;
         
@@ -403,12 +404,13 @@ public class ArcSDEDataStore implements DataStore {
             session = state.getConnection();
         }
         try {
-            runnable.run( session );
+            runnable.execute( session );
         }
         finally {
             session.close(); // return to pool
         }
     }
+    
     /**
      * @see DataStore#getFeatureWriter(String, Filter, Transaction)
      */

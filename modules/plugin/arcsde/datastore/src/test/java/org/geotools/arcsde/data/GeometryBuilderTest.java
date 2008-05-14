@@ -171,7 +171,7 @@ public class GeometryBuilderTest extends TestCase {
 
         Geometry[] fetched = new Geometry[original.length];
         try {
-            testData.insertData(original, layer, session.unWrap());
+            testData.insertData(original, layer, session );
 
             SeSqlConstruct sqlCons = new SeSqlConstruct(layer.getName());
             SeQuery query = session.createSeQuery(new String[] { "SHAPE" }, sqlCons);

@@ -204,7 +204,7 @@ public class TestData {
         Session session = getConnectionPool().getConnection();
         String tempTableName;
         try {
-            tempTableName = getTemp_table(session.unWrap());
+            tempTableName = getTemp_table(session );
         } finally {
             session.close();
         }
@@ -215,8 +215,8 @@ public class TestData {
      * @return Returns the temp_table.
      * @throws SeException
      */
-    public String getTemp_table(SeConnection conn) throws SeException {
-        return conn.getUser() + "." + this.temp_table;
+    public String getTemp_table(Session session) throws SeException {
+        return session.getUser() + "." + this.temp_table;
     }
 
     public String getConfigKeyword() {
@@ -298,15 +298,15 @@ public class TestData {
              * be created, "EXAMPLE".
              */
             tempTableLayer = session.createSeLayer();
-            String tableName = getTemp_table(session.unWrap());
+            String tableName = getTemp_table(session);
             tempTable = session.createSeTable(tableName);
             tempTableLayer.setTableName(tableName);
 
-            tempTableColumns = createBaseTable(session.unWrap(), tempTable, tempTableLayer,
+            tempTableColumns = createBaseTable(session, tempTable, tempTableLayer,
                     configKeyword);
 
             if (insertTestData) {
-                insertData(tempTableLayer, session.unWrap(), tempTableColumns);
+                insertData(tempTableLayer, session, tempTableColumns);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -328,7 +328,7 @@ public class TestData {
         Session session = connPool.getConnection();
         try {
             tempTable.truncate();
-            insertData(tempTableLayer, session.unWrap(), tempTableColumns);
+            insertData(tempTableLayer, session, tempTableColumns);
         } finally {
             session.close();
         }
@@ -348,7 +348,7 @@ public class TestData {
      * 
      * 
      */
-    private static SeColumnDefinition[] createBaseTable(final SeConnection conn,
+    private static SeColumnDefinition[] createBaseTable(final Session session,
             final SeTable table,
             final SeLayer layer,
             final String configKeyword) throws SeException {
@@ -387,8 +387,8 @@ public class TestData {
 
         /*
          * Register the column to be used as feature id and managed by sde
-         */
-        SeRegistration reg = new SeRegistration(conn, table.getName());
+         */        
+        SeRegistration reg = session.createSeRegistration( table.getName() );
         LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
         reg.setRowIdColumnName("ROW_ID");
         final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
@@ -458,7 +458,7 @@ public class TestData {
      * 
      * @throws ParseException
      */
-    private void insertData(SeLayer layer, SeConnection conn, SeColumnDefinition[] colDefs)
+    private void insertData(SeLayer layer, Session session, SeColumnDefinition[] colDefs)
             throws Exception {
         WKTReader reader = new WKTReader();
         Geometry[] geoms = new Geometry[8];
@@ -472,10 +472,10 @@ public class TestData {
         geoms[6] = reader.read("POINT EMPTY");
         geoms[7] = null;
 
-        insertData(geoms, layer, conn);
+        insertData(geoms, layer, session);
     }
 
-    public void insertData(final Geometry[] g, SeLayer layer, SeConnection conn) throws Exception {
+    public void insertData(final Geometry[] g, SeLayer layer, Session session) throws Exception {
 
         SeColumnDefinition[] colDefs = tempTableColumns;
         Geometry[] geoms = g;
@@ -510,8 +510,8 @@ public class TestData {
         columns[4] = colDefs[5].getName(); // String column
         columns[5] = colDefs[6].getName(); // Date column
         columns[6] = "SHAPE"; // Shape column
-
-        SeInsert insert = new SeInsert(conn);
+        
+        SeInsert insert = session.createSeInsert();
         insert.intoTable(layer.getName(), columns);
         insert.setWriteMode(true);
 
@@ -939,16 +939,16 @@ public class TestData {
      * @throws Exception any exception thrown by sde
      */
     public SeTable createVersionedTable(final Session session) throws Exception {
-        SeConnection conn = session.unWrap();
-        SeLayer layer = new SeLayer(conn);
+        //SeConnection conn = session.unWrap();
+        SeLayer layer = session.createSeLayer();
         SeTable table;
 
         /*
          * Create a qualified table name with current user's name and the name of the table to be
          * created, "EXAMPLE".
          */
-        String tableName = (conn.getUser() + ".VERSIONED_EXAMPLE");
-        table = new SeTable(conn, tableName);
+        String tableName = (session.getUser() + ".VERSIONED_EXAMPLE");
+        table = session.createSeTable(tableName);
         layer.setTableName("VERSIONED_EXAMPLE");
 
         try {
@@ -996,7 +996,7 @@ public class TestData {
         layer.create(3, 4);
 
         // register the table as versioned
-        SeRegistration registration = new SeRegistration(conn, tableName);
+        SeRegistration registration = session.createSeRegistration(tableName);
         registration.setMultiVersion(true);
         registration.alter();
 

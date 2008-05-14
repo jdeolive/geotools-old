@@ -43,14 +43,14 @@ public class OneByteBandNoColormapReaderTest {
             // Set up a pyramid and readerprops for the sample three-band imagery
             session = rasterTestData.getTestData().getConnectionPool().getConnection();
             tableName = rasterTestData.getGrayScaleOneByteRasterTableName();
-            q = new SeQuery(session.unWrap(), new String[] { "RASTER" }, new SeSqlConstruct(tableName));
+            q = session.createSeQuery( new String[] { "RASTER" }, new SeSqlConstruct(tableName));
             q.prepareQuery();
             q.execute();
             r = q.fetch();
             SeRasterAttr rattrThreeBand = r.getRaster(0);
             q.close();
 
-            SeRasterColumn rcol = new SeRasterColumn(session.unWrap(), rattrThreeBand.getRasterColumnId());
+            SeRasterColumn rcol = session.createSeRasterColumn(rattrThreeBand.getRasterColumnId());
 
             CoordinateReferenceSystem crs = CRS.parseWKT(rcol.getCoordRef().getCoordSysDescription());
             pyramid = new ArcSDEPyramid(rattrThreeBand, crs);

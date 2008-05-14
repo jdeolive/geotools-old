@@ -54,14 +54,14 @@ public class OneBitBandReaderTest {
             // Set up a pyramid and readerprops for the sample three-band imagery
             session = rasterTestData.getTestData().getConnectionPool().getConnection();
             tableName = rasterTestData.get1bitRasterTableName();
-            q = new SeQuery(session.unWrap(), new String[] { "RASTER" }, new SeSqlConstruct(tableName));
+            q = session.createSeQuery( new String[] { "RASTER" }, new SeSqlConstruct(tableName));
             q.prepareQuery();
             q.execute();
             r = q.fetch();
             rasterAttr = r.getRaster(0);
             q.close();
 
-            SeRasterColumn rcol = new SeRasterColumn(session.unWrap(), rasterAttr.getRasterColumnId());
+            SeRasterColumn rcol = session.createSeRasterColumn( rasterAttr.getRasterColumnId());
 
             CoordinateReferenceSystem crs = CRS.decode("EPSG:2805");
             pyramid = new ArcSDEPyramid(rasterAttr, crs);

@@ -397,12 +397,18 @@ public class Session  {
     public SeRasterColumn createSeRasterColumn( SeObjectId rasterColumnId ) throws SeException {
         return new SeRasterColumn( connection, rasterColumnId );
     }
-    
     /**
-     * @deprecated used for test cases only
-     * @return
+     * Schedule the provided Command for execution.
+     * 
+     * @param command
      */
-    public SeConnection unWrap(){
-        return connection;
-    }
+    public void execute( Command command ){
+    	try {
+    		lock.lock();
+            command.execute( connection );            
+        }
+        finally {
+        	lock.unlock();
+        }
+    }    
 }
