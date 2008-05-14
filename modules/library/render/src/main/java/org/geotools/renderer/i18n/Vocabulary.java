@@ -31,8 +31,8 @@ import org.opengis.util.InternationalString;
  * or use static convenience methods instead.
  *
  * @since 2.2
- * @source $URL: http://svn.geotools.org/geotools/branches/2.4.x_rs/modules/library/metadata/src/main/java/org/geotools/resources/i18n/Vocabulary.java $
- * @version $Id: Vocabulary.java 22482 2006-10-31 02:58:00Z desruisseaux $
+ * @source $URL$
+ * @version $Id$
  * @author Martin Desruisseaux, GeoMatys
  */
 public class Vocabulary extends IndexedResourceBundle {

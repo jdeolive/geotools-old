@@ -31,8 +31,8 @@ import org.geotools.resources.IndexedResourceBundle;
  * or use static convenience methods instead.
  *
  * @since 2.2
- * @source $URL: http://svn.geotools.org/geotools/branches/2.4.x_rs/modules/library/metadata/src/main/java/org/geotools/resources/i18n/Logging.java $
- * @version $Id: Logging.java 22443 2006-10-27 20:47:22Z desruisseaux $
+ * @source $URL$
+ * @version $Id$
  * @author Simone Giannecchini, GeoSolutions
  */
 public class Logging extends IndexedResourceBundle {

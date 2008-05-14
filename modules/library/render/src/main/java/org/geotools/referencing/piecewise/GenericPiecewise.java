@@ -45,7 +45,7 @@ import com.sun.media.jai.util.ImageUtil;
 
 /**
  * Images are created using the    {@code            GenericPiecewise.CRIF}    inner class, where "CRIF" stands for   {@link java.awt.image.renderable.ContextualRenderedImageFactory}    . The image operation name is "org.geotools.GenericPiecewise".
- * @version    $Id: GenericPiecewise.java 29282 2008-02-13 21:32:09Z simboss $
+ * @version    $Id$
  * @author    Simone Giannecchini - GeoSolutions
  * @since    2.4
  */
