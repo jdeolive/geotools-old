@@ -275,7 +275,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *       spatial and temporal parts, get the grid geometry and create on-the-fly a
      *       {@link DomainObject} for each cell.
      */
-    public Set<? extends DomainObject> getDomainElements() {
+    public Set getDomainElements() {
         throw unsupported();
     }
 
@@ -642,7 +642,7 @@ public abstract class AbstractCoverage extends PropertySourceImpl implements Cov
      *
      * @since 2.3
      */
-    public Set<? extends DomainObject> evaluateInverse(Record v) {
+    public Set evaluateInverse(Record v) {
         throw unsupported();
     }
 
