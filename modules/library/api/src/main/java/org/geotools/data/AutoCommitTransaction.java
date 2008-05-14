@@ -41,7 +41,7 @@ class AutoCommitTransaction implements Transaction {
      *
      * @throws UnsupportedOperationException AUTO_COMMIT does not support this
      */
-    public Set getAuthorizations() {
+    public Set<String> getAuthorizations() {
         throw new UnsupportedOperationException(
             "Authorization IDs are not valid for AutoCommit Transaction");
     }

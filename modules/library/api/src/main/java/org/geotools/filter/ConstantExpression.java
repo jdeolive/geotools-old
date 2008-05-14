@@ -86,9 +86,9 @@ public class ConstantExpression implements LiteralExpression, Cloneable {
         return getValue();
     }
 
-    public Object evaluate(Object object, Class context) {
+    public <T> T evaluate(Object object, Class<T> context) {
         if(value == null || value.getClass().equals(context))
-            return value;
+            return context.cast( value );
         else
             return null;
     }
@@ -267,16 +267,16 @@ public class ConstantExpression implements LiteralExpression, Cloneable {
     static short type(Object value) {
         if (value instanceof Number) {
             if (value instanceof Double) {
-                return Expression.LITERAL_DOUBLE;
+                return ExpressionType.LITERAL_DOUBLE;
             } else if (value instanceof BigDecimal) {
-                return Expression.LITERAL_DOUBLE;
+                return ExpressionType.LITERAL_DOUBLE;
             } else {
-                return Expression.LITERAL_INTEGER;
+                return ExpressionType.LITERAL_INTEGER;
             }
         } else if (value instanceof Geometry) {
-            return Expression.LITERAL_GEOMETRY;
+            return ExpressionType.LITERAL_GEOMETRY;
         }
 
-        return Expression.LITERAL_STRING;
+        return ExpressionType.LITERAL_STRING;
     }
 }

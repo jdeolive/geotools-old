@@ -39,6 +39,7 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.Converters;
 import org.geotools.util.logging.Logging;
+import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -240,7 +241,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         } else {
             final String newFid = newFid();
             final SimpleFeature newFeature = featureBuilder.buildFeature(newFid);
-            final List properties = (List) newFeature.getProperties();
+            final List<Property> properties = (List<Property>) newFeature.getProperties();
             feature = new MutableFIDFeature(properties, featureType, newFid);
         }
         return feature;
@@ -546,7 +547,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         final Long newId = Long.valueOf(id);
 
         final AttributeDescriptor rowIdAtt = featureType.getAttribute(fidReader.getFidColumn());
-        final Class binding = rowIdAtt.getType().getBinding();
+        final Class<?> binding = rowIdAtt.getType().getBinding();
         final Number userFidValue;
         if (Long.class == binding) {
             userFidValue = newId;

@@ -253,7 +253,7 @@ public class Validator
             	
 				// FeatureTypeInfo meta = catalog.getFeatureTypeInfo(typeName);
 				LOGGER.finer(" loaded required typeRef: " + typeRef );				
-				FeatureSource<SimpleFeatureType, SimpleFeature> source = repository.source( dataStoreId, typeName );				                
+				FeatureSource<?,?> source = repository.source( dataStoreId, typeName );				                
 				sources.put( typeRef, source );                                                
 			}
 		}

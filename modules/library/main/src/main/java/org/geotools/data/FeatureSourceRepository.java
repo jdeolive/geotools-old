@@ -28,6 +28,7 @@ import java.util.TreeSet;
 
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.FeatureType;
 
 /**
  * Another Quick hack of a DataRepository as a bridge to the Opperations api.
@@ -41,12 +42,12 @@ import org.opengis.feature.simple.SimpleFeatureType;
 public class FeatureSourceRepository implements Repository {	    
 	
 	/** Map of FeatuerSource by dataStoreId:typeName */
-    protected SortedMap<String, FeatureSource<SimpleFeatureType, SimpleFeature>> featuresources = new TreeMap<String, FeatureSource<SimpleFeatureType, SimpleFeature>>();
+    protected SortedMap<String, FeatureSource<?,?>> featuresources = new TreeMap<String, FeatureSource<?,?>>();
     
     /**
      * All FeatureTypes by dataStoreId:typeName 
      */
-	public SortedMap<String, FeatureSource<SimpleFeatureType, SimpleFeature>> getFeatureSources() {
+	public SortedMap<String, FeatureSource<?,?>> getFeatureSources() {
 		return Collections.unmodifiableSortedMap( featuresources );
 	}
     /**
@@ -59,20 +60,20 @@ public class FeatureSourceRepository implements Repository {
      */
     public Set<String> getPrefixes() throws IOException {
     	Set<String> prefix = new HashSet<String>();
-    	for( Iterator<FeatureSource<SimpleFeatureType, SimpleFeature>> i=featuresources.values().iterator(); i.hasNext();){
-    		FeatureSource<SimpleFeatureType, SimpleFeature> fs = i.next();
-    		SimpleFeatureType schema = fs.getSchema();
+    	for( Iterator<FeatureSource<?,?>> i=featuresources.values().iterator(); i.hasNext();){
+    		FeatureSource<?,?> fs = i.next();
+    		FeatureType schema = fs.getSchema();
     		prefix.add( schema.getName().getNamespaceURI());
     	}
         return prefix;
     }
     private SortedSet<String> typeNames() throws IOException {
     	SortedSet<String> typeNames = new TreeSet<String>();
-    	for (Iterator<FeatureSource<SimpleFeatureType, SimpleFeature>> i = featuresources.values()
+    	for (Iterator<FeatureSource<?,?>> i = featuresources.values()
                 .iterator(); i.hasNext();) {
-    		FeatureSource<SimpleFeatureType, SimpleFeature> fs = i.next();
-    		SimpleFeatureType schema = fs.getSchema();
-    		typeNames.add( schema.getTypeName() );
+    		FeatureSource<?,?> fs = i.next();
+    		FeatureType schema = fs.getSchema();
+    		typeNames.add( schema.getName().getLocalPart() );
     	}
         return typeNames;    	    	
     }
@@ -80,16 +81,16 @@ public class FeatureSourceRepository implements Repository {
     /** Map of dataStores by dataStoreId */
     private Map<String, DataStore> dataStores() {
     	SortedMap<String, DataStore> dataStores = new TreeMap<String, DataStore>();    	
-    	for (Map.Entry<String, FeatureSource<SimpleFeatureType, SimpleFeature>> entry : featuresources.entrySet()) {
+    	for (Map.Entry<String, FeatureSource<?,?>> entry : featuresources.entrySet()) {
     		String key = entry.getKey();
     		String dataStoreId = key.split(":")[0];
-    		FeatureSource<SimpleFeatureType, SimpleFeature> fs = entry.getValue();
+    		FeatureSource<?,?> fs = entry.getValue();
     		dataStores.put( dataStoreId, (DataStore) fs.getDataStore() );    		
     	}        
         return dataStores;    	    	
     }
-    private SortedMap types( DataStore ds ) throws IOException {
-    	SortedMap map = new TreeMap();
+    private SortedMap<String, SimpleFeatureType> types( DataStore ds ) throws IOException {
+    	SortedMap<String, SimpleFeatureType> map = new TreeMap<String, SimpleFeatureType>();
     	String typeNames[] = ds.getTypeNames();
     	for( int i=0; i<typeNames.length; i++){
     		try {
@@ -105,8 +106,8 @@ public class FeatureSourceRepository implements Repository {
     /**
      * All FeatureTypes by dataStoreId:typeName 
      */
-    public SortedMap types() {
-    	return new TreeMap( featuresources );    	
+    public SortedMap<String, FeatureSource<?,?>> types() {
+    	return new TreeMap<String, FeatureSource<?,?>>( featuresources );    	
     }
 
     
@@ -122,8 +123,8 @@ public class FeatureSourceRepository implements Repository {
         DataStore store;
         LockingManager lockManager;
                 
-        for( Iterator i=dataStores().values().iterator(); i.hasNext(); ){
-             store = (DataStore) i.next();
+        for( Iterator<DataStore> i=dataStores().values().iterator(); i.hasNext(); ){
+             store = i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
              if( lockManager.exists( lockID ) ){
@@ -164,8 +165,8 @@ public class FeatureSourceRepository implements Repository {
         LockingManager lockManager;
         
         boolean refresh = false;
-        for( Iterator i=dataStores().values().iterator(); i.hasNext(); ){
-             store = (DataStore) i.next();
+        for( Iterator<DataStore> i=dataStores().values().iterator(); i.hasNext(); ){
+             store = i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
                           
@@ -203,8 +204,8 @@ public class FeatureSourceRepository implements Repository {
         LockingManager lockManager;
                 
         boolean release = false;                
-        for( Iterator i=dataStores().values().iterator(); i.hasNext(); ){
-             store = (DataStore) i.next();
+        for( Iterator<DataStore> i=dataStores().values().iterator(); i.hasNext(); ){
+             store = i.next();
              lockManager = store.getLockingManager();
              if( lockManager == null ) continue; // did not support locking
          
@@ -241,11 +242,11 @@ public class FeatureSourceRepository implements Repository {
      * @param id
      */
     public DataStore datastore(String id ) {    	
-    	for(Map.Entry<String, FeatureSource<SimpleFeatureType, SimpleFeature>> entry : featuresources.entrySet()){
+    	for(Map.Entry<String, FeatureSource<?,?>> entry : featuresources.entrySet()){
     		String key = (String) entry.getKey();
     		String dataStoreId = key.split(":")[0];
     		if( id.equals( dataStoreId )){
-    			FeatureSource<SimpleFeatureType, SimpleFeature> fs = entry.getValue();
+    			FeatureSource<?,?> fs = entry.getValue();
     			return (DataStore) fs.getDataStore();
     		}
     	}
@@ -261,10 +262,10 @@ public class FeatureSourceRepository implements Repository {
      * 
      * 
      */
-    public Map getDataStores() {
+    public Map<String, DataStore> getDataStores() {
     	return Collections.unmodifiableMap( dataStores() );
     }
-    public FeatureSource<SimpleFeatureType, SimpleFeature> source( String dataStoreId, String typeName ) throws IOException{
+    public FeatureSource<?,?> source( String dataStoreId, String typeName ) throws IOException{
     	String typeRef = dataStoreId+":"+typeName;
     	return featuresources.get( typeRef );
     }

@@ -20,7 +20,6 @@ import java.util.EventObject;
 import org.geotools.data.FeatureEvent;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 
@@ -58,26 +57,22 @@ public class CollectionEvent extends EventObject {
     public CollectionEvent(FeatureCollection<? extends FeatureType, ? extends Feature> collection, FeatureEvent event) {
         super(collection);
 
-        switch (event.getEventType()) {
-        case FeatureEvent.FEATURES_ADDED:
+        switch ( event.getType() ) {
+        case ADDED:
             this.type = CollectionEvent.FEATURES_ADDED;
-
             break;
 
-        case FeatureEvent.FEATURES_CHANGED:
+        case CHANGED:
             this.type = CollectionEvent.FEATURES_CHANGED;
-
             break;
 
-        case FeatureEvent.FEATURES_REMOVED:
+        case REMOVED:
             this.type = CollectionEvent.FEATURES_REMOVED;
-
             break;
 
         default:
             this.type = CollectionEvent.FEATURES_REMOVED;
         }
-
         this.features = null;
     }
 
@@ -99,7 +94,8 @@ public class CollectionEvent extends EventObject {
      *
      * @return The FeatureCollection<SimpleFeatureType, SimpleFeature> which was the event's source.
      */
-    public FeatureCollection<? extends FeatureType, ? extends Feature> getCollection() {
+    @SuppressWarnings("unchecked")
+	public FeatureCollection<? extends FeatureType, ? extends Feature> getCollection() {
         return (FeatureCollection<? extends FeatureType, ? extends Feature>) source;
     }
 

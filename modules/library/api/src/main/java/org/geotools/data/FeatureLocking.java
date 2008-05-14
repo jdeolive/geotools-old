@@ -190,10 +190,10 @@ public interface FeatureLocking<T extends FeatureType, F extends Feature> extend
      */
     public static class Response {
         String authID;
-        Set locked;
-        Set notLocked;
+        Set<String> locked;
+        Set<String> notLocked;
 
-        public Response(FeatureLock lock, Set lockedFids, Set notLockedFids) {
+        public Response(FeatureLock lock, Set<String> lockedFids, Set<String> notLockedFids) {
             authID = lock.getAuthorization();
             locked = lockedFids;
             notLocked = notLockedFids;
@@ -203,11 +203,11 @@ public interface FeatureLocking<T extends FeatureType, F extends Feature> extend
             return authID;
         }
 
-        public Set getLockedFids() {
+        public Set<String> getLockedFids() {
             return locked;
         }
 
-        public Set getNotLockedFids() {
+        public Set<String> getNotLockedFids() {
             return notLocked;
         }
     }

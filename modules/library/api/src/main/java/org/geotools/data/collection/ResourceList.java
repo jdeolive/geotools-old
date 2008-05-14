@@ -25,7 +25,7 @@ import java.util.List;
  * </p>
  * @author Jody Garnett, Refractions Research Inc.
  */
-public interface ResourceList extends List, ResourceCollection {
+public interface ResourceList<T> extends List<T>, ResourceCollection<T> {
     /**
      * Remove indicated range.
      * <p>

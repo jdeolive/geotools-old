@@ -152,7 +152,7 @@ public interface Transaction {
      *
      * @return List of Authorization IDs
      */
-    Set getAuthorizations();
+    Set<String> getAuthorizations();
 
     /**
      * Allows FeatureSource<SimpleFeatureType, SimpleFeature> to squirel away information( and callbacks ) for

@@ -17,7 +17,6 @@
 package org.geotools.arcsde.data;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,11 +81,11 @@ public abstract class ArcSDEGeometryBuilder {
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger(ArcSDEGeometryBuilder.class.getName());
 
-    /** specialized geometry builders classes by it's geometry type */
-    private static final Map builders = new HashMap();
+    /** lookup specialized geometry builders classes by it's geometry type */
+    private static final Map<Class<?>,ArcSDEGeometryBuilder> builders = new HashMap<Class<?>,ArcSDEGeometryBuilder>();
 
-    /** DOCUMENT ME! */
-    private static final Map nullGeometries = new HashMap();
+    /** Look up "empty" geometry instances based on geometry class */
+    private static final Map<Class<?>,Geometry> nullGeometries = new HashMap<Class<?>,Geometry>();
 
     static {
         builders.put(Geometry.class, GenericGeometryBuilder.getInstance());
@@ -178,7 +177,7 @@ public abstract class ArcSDEGeometryBuilder {
             gcol = new GeometryFactory().createGeometryCollection(geoms);
         }
 
-        List allPoints = new ArrayList();
+        List<SDEPoint> allPoints = new ArrayList<SDEPoint>();
         numParts = gcol.getNumGeometries();
 
         int[] partOffsets = new int[numParts];
@@ -394,13 +393,13 @@ public abstract class ArcSDEGeometryBuilder {
     }
 
     /**
-     * DOCUMENT ME!
+     * Create an empty geometry for the indicated class
      * 
      * @param geoClass DOCUMENT ME!
      * @return DOCUMENT ME!
      * @throws NullPointerException DOCUMENT ME!
      */
-    public static Geometry defaultValueFor(Class geoClass) {
+    public static Geometry defaultValueFor(Class<?> geoClass) {
         if (geoClass == null) {
             throw new NullPointerException("got null geometry class");
         }
@@ -450,7 +449,7 @@ public abstract class ArcSDEGeometryBuilder {
             if (shape == null || shape.isNil()) {
                 return getEmpty();
             }
-            Class realGeomClass = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
+            Class<? extends Geometry> realGeomClass = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
             if (realGeomClass == null) {
                 return null;
             }

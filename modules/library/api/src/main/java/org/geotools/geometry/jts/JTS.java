@@ -23,14 +23,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.LinearRing;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.Polygon;
+
+import org.geotools.geometry.Envelope2D;
+import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.GeodeticCalculator;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.operation.TransformPathNotFoundException;
+import org.geotools.referencing.operation.projection.PointOutsideEnvelopeException;
+import org.geotools.resources.Classes;
+import org.geotools.resources.geometry.ShapeUtilities;
+import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
 import org.opengis.geometry.BoundingBox;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
@@ -39,18 +43,15 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.CoordinateSystemAxis;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import org.geotools.geometry.Envelope2D;
-import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.referencing.CRS;
-import org.geotools.referencing.GeodeticCalculator;
-import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.geotools.referencing.operation.TransformPathNotFoundException;
-import org.geotools.referencing.operation.projection.PointOutsideEnvelopeException;
-import org.geotools.resources.CRSUtilities;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.geometry.ShapeUtilities;
-import org.geotools.resources.i18n.ErrorKeys;
-import org.geotools.resources.i18n.Errors;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
+import com.vividsolutions.jts.geom.MultiLineString;
+import com.vividsolutions.jts.geom.Polygon;
 
 
 /**
@@ -91,7 +92,7 @@ public final class JTS {
      * Note: We would like to use {@link org.geotools.util.CanonicalSet}, but we can't because
      *       {@link GeodeticCalculator} keep a reference to the CRS which is used as the key.
      */
-    private static final Map /*<CoordinateReferenceSystem,GeodeticCalculator>*/ CALCULATORS = new HashMap();
+    private static final Map<CoordinateReferenceSystem,GeodeticCalculator> CALCULATORS = new HashMap<CoordinateReferenceSystem,GeodeticCalculator>();
 
     /**
      * Do not allow instantiation of this class.
@@ -162,7 +163,7 @@ public final class JTS {
 
         if ((transform.getSourceDimensions() != 2) || (transform.getTargetDimensions() != 2)) {
             throw new MismatchedDimensionException(Errors.format(ErrorKeys.BAD_TRANSFORM_$1,
-                    Utilities.getShortClassName(transform)));
+            		Classes.getShortClassName(transform)));
         }
 
         npoints++; // for the starting point.
@@ -439,8 +440,8 @@ public final class JTS {
 
         final PathIterator iterator = shape.getPathIterator(null, ShapeUtilities.getFlatness(shape));
         final double[] buffer = new double[6];
-        final List coords = new ArrayList();
-        final List lines = new ArrayList();
+        final List<Coordinate> coords = new ArrayList<Coordinate>();
+        final List<LineString> lines = new ArrayList<LineString>();
 
         while (!iterator.isDone()) {
             switch (iterator.currentSegment(buffer)) {
@@ -450,12 +451,11 @@ public final class JTS {
              */
             case PathIterator.SEG_CLOSE: {
                 if (!coords.isEmpty()) {
-                    coords.add((Coordinate[]) coords.get(0));
+                    coords.add( coords.get(0) );
                     lines.add(factory.createLinearRing(
                             (Coordinate[]) coords.toArray(new Coordinate[coords.size()])));
                     coords.clear();
                 }
-
                 break;
             }
 

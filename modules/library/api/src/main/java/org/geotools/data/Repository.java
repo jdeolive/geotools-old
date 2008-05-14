@@ -45,7 +45,7 @@ public interface Repository {
     /**
      * All FeatureSources by typeRef ( aka dataStoreId:typeName)
      */
-    public SortedMap getFeatureSources();
+    public SortedMap<String,FeatureSource<?,?>> getFeatureSources();
 
     /**
      * Retrieve Set of Namespaces prefixes registered by DataStores in this
@@ -81,7 +81,7 @@ public interface Repository {
      *
      * @return Set of available Namespace prefixes.
      */
-    Set getPrefixes() throws IOException;
+    Set<String> getPrefixes() throws IOException;
 
     /**
      * The default Namespace prefix for this Catalog.
@@ -96,7 +96,7 @@ public interface Repository {
      * @param dataStoreId
      * @param typeName
      */
-    FeatureSource<SimpleFeatureType, SimpleFeature> source(String dataStoreId, String typeName)
+    FeatureSource<?,?> source(String dataStoreId, String typeName)
         throws IOException;
 
     /**
@@ -133,7 +133,7 @@ public interface Repository {
      *
      * @return Map of registered dataStoreId:DataStore
      */
-    Map getDataStores();
+    Map<String,DataStore> getDataStores();
 
     //
     // Lock Management

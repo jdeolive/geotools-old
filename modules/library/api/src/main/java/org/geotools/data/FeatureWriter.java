@@ -18,8 +18,6 @@ package org.geotools.data;
 import java.io.IOException;
 
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.FeatureType;
 
 

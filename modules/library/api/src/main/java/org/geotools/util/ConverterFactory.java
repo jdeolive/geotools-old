@@ -37,5 +37,5 @@ public interface ConverterFactory {
      *
      * @return The converter, or <code>null</code> if one could not be found.
      */
-    Converter createConverter(Class source, Class target, Hints hints);
+    Converter createConverter(Class<?> source, Class<?> target, Hints hints);
 }

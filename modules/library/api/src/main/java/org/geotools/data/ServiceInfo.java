@@ -19,8 +19,6 @@ package org.geotools.data;
 import java.net.URI;
 import java.util.Set;
 
-import javax.swing.Icon;
-
 
 /**
  * Information about a service.

@@ -25,7 +25,6 @@ import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
@@ -298,7 +297,7 @@ public interface FeatureSource<T extends FeatureType, F extends Feature>{
      * may decide not to honor the hint.
      * @return a set of {@link RenderingHints#Key} objects (eventually empty, never null).
      */
-    public Set /*<RenderingHints.Key>*/ getSupportedHints();
+    public Set<RenderingHints.Key> getSupportedHints();
     
     // FeatureReader getFeatureReader( Query query ); // ask justin for proposal
 }

@@ -114,6 +114,7 @@ public class FeatureEvent extends EventObject {
      * FeatureWriter modified Features. This may not be possible during a
      * <code>commit()</code> or <code>rollback()</code> opperation.
      * </p>
+     * @deprecated Please use FeatureEvent.getType() == Type.CHANGED 
      */
     public static final int FEATURES_CHANGED = 0;
 
@@ -142,12 +143,10 @@ public class FeatureEvent extends EventObject {
      * FeatureEvent.getBounds() should reflect the the Bounding Box of the
      * removed Features.
      * </p>
+     * @deprecated Please use FeatureEvent.getType() == Type.REMOVED 
      */
     public static final int FEATURES_REMOVED = -1;
 
-    /** Indicates one of FEATURES_ADDED, FEATURES_REMOVED, FEATURES_CHANGED */
-    private int type;
-    
     public enum Type {
         /**
          * Features have been added.
@@ -180,14 +179,25 @@ public class FeatureEvent extends EventObject {
         REMOVED( FEATURES_REMOVED );
         
         final int type;
+        
         Type( int type ){
             this.type = type;
         }
-
+        static Type fromValue( int value ){
+        	switch( value ){
+        	case FEATURES_ADDED: return ADDED;
+        	case FEATURES_CHANGED: return CHANGED;
+        	case FEATURES_REMOVED: return REMOVED;
+        	}   
+        	return CHANGED;    	
+        }
     }
 
+    /** Indicates one of Type.ADDED, Type.REMOVED, Type.CHANGED */
+    private Type type;
+    
     /**
-     * Indicates the bounds in which the modification occured.
+     * Indicates the bounds in which the modification occurred.
      *
      * <p>
      * This value is allowed to by <code>null</code> if this information is not
@@ -205,9 +215,37 @@ public class FeatureEvent extends EventObject {
      * @param bounds The area modified by this change
      */
     public FeatureEvent(FeatureSource<? extends FeatureType, ? extends Feature> featureSource,
-            int eventType, Envelope bounds) {
+            Type type, Envelope bounds) {
         super(featureSource);
-        this.type = eventType;
+        this.type = type;
+        this.bounds = bounds;
+    }
+    
+    /**
+     * Constructs a new FeatureEvent.
+     *
+     * @param FeatureSource<SimpleFeatureType, SimpleFeature> The DataStore that fired the event
+     * @param eventType One of FEATURE_CHANGED, FEATURE_REMOVED or
+     *        FEATURE_ADDED
+     * @param bounds The area modified by this change
+     * @deprecated Please use FeatureEvent( FeatureSource, Type, Envelope )
+     */
+    public FeatureEvent(FeatureSource<? extends FeatureType, ? extends Feature> featureSource,
+            int eventType, Envelope bounds) {
+        super(featureSource);        
+    	switch( eventType ){
+    	case FEATURES_ADDED:
+    		type = Type.ADDED;
+    	    break;
+    	case FEATURES_CHANGED:
+    		type = Type.CHANGED;
+    		break;
+    	case FEATURES_REMOVED: 
+    		type = Type.REMOVED;
+    		break;
+    	default:
+    		type = Type.CHANGED;    			
+    	}   
         this.bounds = bounds;
     }
 
@@ -229,6 +267,16 @@ public class FeatureEvent extends EventObject {
      *         FEATURES_CHANGED
      */
     public int getEventType() {
+        return type.type;
+    }
+    
+    /**
+     * Provides information on the type of change that has occured. Possible
+     * types are: add, remove, change
+     *
+     * @return Type
+     */
+    public Type getType() {
         return type;
     }
 

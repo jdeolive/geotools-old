@@ -19,13 +19,18 @@ import org.opengis.feature.simple.SimpleFeature;
 
 
 /**
- * DOCUMENT ME!
+ * Represents a reference to an environmental variable.
+ * <p>
+ * The environmental variables are expected to be "understood" by the service making
+ * use of the Expression. As an example when evaluating an SLD file you can often
+ * refer to an environmental variable "DPI", for details review the SLD specification.
  *
  * @author James
  * @source $URL$
  */
 public interface EnvironmentVariable extends Expression {
-    /**
+	
+	/**
      * Gets the attribute value at the path held by this expression from the
      * feature.
      *

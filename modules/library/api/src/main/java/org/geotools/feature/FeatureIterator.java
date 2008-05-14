@@ -16,8 +16,6 @@
 package org.geotools.feature;
 
 import org.opengis.feature.Feature;
-import org.opengis.feature.simple.SimpleFeature;
-
 
 /**
  * A drop in replacement for Iterator that does not require casting for Java 1.4 code.

@@ -21,8 +21,6 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.swing.Icon;
-
 import org.geotools.data.ResourceInfo;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;

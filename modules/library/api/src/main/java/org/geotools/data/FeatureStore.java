@@ -22,7 +22,6 @@ import org.opengis.feature.Feature;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.identity.FeatureId;
 import org.geotools.feature.FeatureCollection;
 
 

@@ -18,17 +18,36 @@ package org.geotools.data;
 import java.io.IOException;
 import java.util.Map;
 
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-
-
 /**
- * Constructs a live DataStore from a set of parameters.
+ * Factory used to construct a DataStore from a set of parameters.
+ * <p>
+ * The following example shows how a user might connect to a PostGIS database,
+ * and maintain the resulting DataStore in a Registry:
+ * </p>
  *
  * <p>
+ * <pre><code>
+ * HashMap params = new HashMap();
+ * params.put("namespace", "leeds");
+ * params.put("dbtype", "postgis");
+ * params.put("host","feathers.leeds.ac.uk");
+ * params.put("port", "5432");
+ * params.put("database","postgis_test");
+ * params.put("user","postgis_ro");
+ * params.put("passwd","postgis_ro");
+ *
+ * DefaultRegistry registry = new DefaultRegistry();
+ * registry.addDataStore("leeds", params);
+ *
+ * DataStore postgis = registry.getDataStore( "leeds" );
+ * FeatureSource<SimpleFeatureType, SimpleFeature> = postgis.getFeatureSource( "table" );
+ * </code></pre>
+ * </p> 
+ * <h2>Implementation Notes</h2>
+ * <p>
  * An instance of this interface should exist for all data stores which want to
- * take advantage of the dynamic plugin system. In addition to implementing
- * this interface datastores should have a services file:
+ * take advantage of the dynamic plug-in system. In addition to implementing
+ * this factory interface each DataStore implementation should have a services file:
  * </p>
  *
  * <p>
@@ -49,50 +68,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
  * The factories are never called directly by client code, instead the
  * DataStoreFinder class is used.
  * </p>
- *
- * <p>
- * The following example shows how a user might connect to a PostGIS database,
- * and maintain the resulting datastore in a registry:
- * </p>
- *
- * <p>
- * <pre><code>
- * HashMap params = new HashMap();
- * params.put("namespace", "leeds");
- * params.put("dbtype", "postgis");
- * params.put("host","feathers.leeds.ac.uk");
- * params.put("port", "5432");
- * params.put("database","postgis_test");
- * params.put("user","postgis_ro");
- * params.put("passwd","postgis_ro");
- *
- * DefaultRegistry registry = new DefaultRegistry();
- * registry.addDataStore("leeds", params);
- *
- * DataStore postgis = registry.getDataStore( "leeds" );
- * FeatureSource<SimpleFeatureType, SimpleFeature> = postgis.getFeatureSource( "table" );
- * </code></pre>
- * </p>
- * <h2>
- *
- * <ul>
- * <li>
- * Jody - can we please get something better then Param to describe what is
- * allowed? <br>
- * Jody - ISO19119 has something that looks okay, WSDL/SOAP could be used?
- * </li>
- * <li>
- * Jody - can we seperate out Identification of a Service from configration of
- * the service? <br>
- * Jody - this is mostly a problem when managing user supplied configurations
- * in GeoServer and uDig. <br>
- * Jody - the "Catalog API" has now been ported and contains a URI as
- * indentification, while still allowing configuration using a Map of
- * parameters
- * </li>
- * </ul>
- *
- *
+ * 
  * @author Jody Garnett, Refractions Research
  * @source $URL$
  */
@@ -156,5 +132,5 @@ public interface DataStoreFactorySpi extends DataAccessFactory {
     //     * @throws IOException
     //     */
     //    DataSourceMetadataEnity createMetadata( Map params ) throws IOException;
-    DataStore createNewDataStore(Map params) throws IOException;
+    DataStore createNewDataStore(Map<String, java.io.Serializable> params) throws IOException;
 }
