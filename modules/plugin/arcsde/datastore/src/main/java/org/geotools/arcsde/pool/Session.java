@@ -16,6 +16,7 @@
  */
 package org.geotools.arcsde.pool;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -50,155 +51,169 @@ import com.esri.sde.sdk.client.SeVersion;
 /**
  * Provides thread safe access to an SeConnection.
  * <p>
- * This class has become more and more magic over time! It no longer represents a Connection but provides
- * "safe" access to a connection.
+ * This class has become more and more magic over time! It no longer represents a Connection but
+ * provides "safe" access to a connection.
  * <p>
+ * 
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.3.x
- * 
  */
-public class Session  {
-    
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.arcsde.pool");
+public class Session {
+
+    private static final Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger("org.geotools.arcsde.pool");
 
     /**
      * Lock used to protect the connection
      */
-	private Lock lock;
-	
-	/** Actual SeConnection being protected */
-	SeConnection connection;
-    
-	/**
-	 * ObjectPool used to manage open connections (shared).
-	 */
-	private ObjectPool pool;
+    private Lock lock;
 
-	private ArcSDEConnectionConfig config;
+    /** Actual SeConnection being protected */
+    SeConnection connection;
 
-	private static int connectionCounter;
+    /**
+     * ObjectPool used to manage open connections (shared).
+     */
+    private ObjectPool pool;
 
-	private int connectionId;
+    private ArcSDEConnectionConfig config;
 
-	private boolean transactionInProgress;
+    private static int connectionCounter;
 
-	private boolean isPassivated;
+    private int connectionId;
 
-	private Map<String, SeTable> cachedTables = new WeakHashMap<String, SeTable>();
-	private Map<String, SeLayer> cachedLayers = new WeakHashMap<String, SeLayer>();
-	private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
+    private boolean transactionInProgress;
 
-	/**
-	 * Provides safe access to an SeConnection.
-	 * @param pool ObjectPool used to manage SeConnection
-	 * @param config Used to set up a SeConnection
-	 * @throws SeException If we cannot connect
-	 */
-	public Session(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {	    
-		this.connection = new SeConnection( config.getServerName(), config.getPortNumber().intValue(), config.getDatabaseName(), config.getUserName(), config.getUserPassword());
-	    this.config = config;
-		this.pool = pool;
-		this.lock = new ReentrantLock(false);
-		this.connection.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
-		
-		synchronized (Session.class) {
-			connectionCounter++;
-			connectionId = connectionCounter;
-		}
-	}
+    private boolean isPassivated;
 
-	public final Lock getLock() {
-		return lock;
-	}
+    private Map<String, SeTable> cachedTables = new WeakHashMap<String, SeTable>();
 
-	public final boolean isClosed() {
-		return this.connection.isClosed();
-	}
+    private Map<String, SeLayer> cachedLayers = new WeakHashMap<String, SeLayer>();
 
-	/**
-	 * Marks the connection as being active (i.e. its out of the pool and ready to be used).
-	 * <p>
-	 * Shall be called just before being returned from the connection pool
-	 * </p>
-	 * 
-	 * @see #markInactive()
-	 * @see #isPassivated
-	 * @see #checkActive()
-	 */
-	void markActive() {
-		this.isPassivated = false;
-	}
+    private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
-	/**
-	 * Marks the connection as being inactive (i.e. laying on the connection pool)
-	 * <p>
-	 * Shall be callled just before sending it back to the pool
-	 * </p>
-	 * 
-	 * @see #markActive()
-	 * @see #isPassivated
-	 * @see #checkActive()
-	 */
-	void markInactive() {
-		this.isPassivated = true;
-	}
+    /**
+     * Provides safe access to an SeConnection.
+     * 
+     * @param pool ObjectPool used to manage SeConnection
+     * @param config Used to set up a SeConnection
+     * @throws SeException If we cannot connect
+     */
+    public Session(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {
+        this.connection = new SeConnection(config.getServerName(), config.getPortNumber()
+                .intValue(), config.getDatabaseName(), config.getUserName(), config
+                .getUserPassword());
+        this.config = config;
+        this.pool = pool;
+        this.lock = new ReentrantLock(false);
+        this.connection.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
 
-	/**
-	 * Returns whether this connection is on the connection pool domain or not.
-	 * 
-	 * @return <code>true</code> if this connection has beed returned to the pool and thus cannot be used, <code>false</code> if its safe to keep using it.
-	 */
-	public boolean isPassivated() {
-		return isPassivated;
-	}
+        synchronized (Session.class) {
+            connectionCounter++;
+            connectionId = connectionCounter;
+        }
+    }
 
-	/**
-	 * Sanity check method called before every public operation delegates to the superclass.
-	 * 
-	 * @throws IllegalStateException
-	 *             if {@link #isPassivated() isPassivated() == true} as this is a serious workflow breackage.
-	 */
-	private void checkActive() {
-		if (isPassivated()) {
-			throw new IllegalStateException("Unrecoverable error: " + toString() + " is passivated, shall not be used!");
-		}
-	}
+    /**
+     * @return
+     * @deprecated locking externally is no longer needed, use {@link #execute(Command)} for the
+     *             session to handle it for you
+     */
+    public final Lock getLock() {
+        return lock;
+    }
 
-	public synchronized SeLayer getLayer(final String layerName) throws DataSourceException {
-		checkActive();
-		if (!cachedLayers.containsKey(layerName)) {
-			try {
-				cacheLayers();
-			} catch (SeException e) {
-				throw new DataSourceException("Can't obtain layer " + layerName, e);
-			}
-		}
-		SeLayer seLayer = cachedLayers.get(layerName);
-		if (seLayer == null) {
-			throw new NoSuchElementException("Layer '" + layerName + "' not found");
-		}
-		return seLayer;
-	}
+    public final boolean isClosed() {
+        return this.connection.isClosed();
+    }
 
-	public synchronized SeRasterColumn getRasterColumn(final String rasterName) throws DataSourceException {
-		checkActive();
-		if (!cachedRasters.containsKey(rasterName)) {
-			try {
-				cacheRasters();
-			} catch (SeException e) {
-				throw new DataSourceException("Can't obtain raster " + rasterName, e);
-			}
-		}
-		SeRasterColumn raster = cachedRasters.get(rasterName);
-		if (raster == null) {
-			throw new NoSuchElementException("Raster '" + rasterName + "' not found");
-		}
-		return raster;
-	}
+    /**
+     * Marks the connection as being active (i.e. its out of the pool and ready to be used).
+     * <p>
+     * Shall be called just before being returned from the connection pool
+     * </p>
+     * 
+     * @see #markInactive()
+     * @see #isPassivated
+     * @see #checkActive()
+     */
+    void markActive() {
+        this.isPassivated = false;
+    }
 
-	public synchronized SeTable getTable(final String tableName) throws DataSourceException {
-		checkActive();
+    /**
+     * Marks the connection as being inactive (i.e. laying on the connection pool)
+     * <p>
+     * Shall be callled just before sending it back to the pool
+     * </p>
+     * 
+     * @see #markActive()
+     * @see #isPassivated
+     * @see #checkActive()
+     */
+    void markInactive() {
+        this.isPassivated = true;
+    }
+
+    /**
+     * Returns whether this connection is on the connection pool domain or not.
+     * 
+     * @return <code>true</code> if this connection has beed returned to the pool and thus cannot
+     *         be used, <code>false</code> if its safe to keep using it.
+     */
+    public boolean isPassivated() {
+        return isPassivated;
+    }
+
+    /**
+     * Sanity check method called before every public operation delegates to the superclass.
+     * 
+     * @throws IllegalStateException if {@link #isPassivated() isPassivated() == true} as this is a
+     *             serious workflow breackage.
+     */
+    private void checkActive() {
+        if (isPassivated()) {
+            throw new IllegalStateException("Unrecoverable error: " + toString()
+                    + " is passivated, shall not be used!");
+        }
+    }
+
+    public synchronized SeLayer getLayer(final String layerName) throws DataSourceException {
+        checkActive();
+        if (!cachedLayers.containsKey(layerName)) {
+            try {
+                cacheLayers();
+            } catch (SeException e) {
+                throw new DataSourceException("Can't obtain layer " + layerName, e);
+            }
+        }
+        SeLayer seLayer = cachedLayers.get(layerName);
+        if (seLayer == null) {
+            throw new NoSuchElementException("Layer '" + layerName + "' not found");
+        }
+        return seLayer;
+    }
+
+    public synchronized SeRasterColumn getRasterColumn(final String rasterName)
+            throws DataSourceException {
+        checkActive();
+        if (!cachedRasters.containsKey(rasterName)) {
+            try {
+                cacheRasters();
+            } catch (SeException e) {
+                throw new DataSourceException("Can't obtain raster " + rasterName, e);
+            }
+        }
+        SeRasterColumn raster = cachedRasters.get(rasterName);
+        if (raster == null) {
+            throw new NoSuchElementException("Raster '" + rasterName + "' not found");
+        }
+        return raster;
+    }
+
+    public synchronized SeTable getTable(final String tableName) throws DataSourceException {
+        checkActive();
         if (!cachedTables.containsKey(tableName)) {
             try {
                 cacheLayers();
@@ -211,10 +226,11 @@ public class Session  {
             throw new NoSuchElementException("Table '" + tableName + "' not found");
         }
         return seTable;
-	}
+    }
 
     /**
      * Caches both tables and layers
+     * 
      * @throws SeException
      */
     @SuppressWarnings("unchecked")
@@ -234,111 +250,112 @@ public class Session  {
         }
     }
 
-	@SuppressWarnings("unchecked")
-	private void cacheRasters() throws SeException {
-		Vector<SeRasterColumn> rasters = this.connection.getRasterColumns();
-		cachedRasters.clear();
-		for (SeRasterColumn raster : rasters) {
-			cachedRasters.put(raster.getQualifiedTableName(), raster);
-		}
-	}
+    @SuppressWarnings("unchecked")
+    private void cacheRasters() throws SeException {
+        Vector<SeRasterColumn> rasters = this.connection.getRasterColumns();
+        cachedRasters.clear();
+        for (SeRasterColumn raster : rasters) {
+            cachedRasters.put(raster.getQualifiedTableName(), raster);
+        }
+    }
 
-	public void startTransaction() throws SeException {
-		checkActive();
-		this.connection.startTransaction();
-		transactionInProgress = true;
-	}
+    public void startTransaction() throws SeException {
+        checkActive();
+        this.connection.startTransaction();
+        transactionInProgress = true;
+    }
 
-	public void commitTransaction() throws SeException {
-		checkActive();
-		this.connection.commitTransaction();
-		transactionInProgress = false;
-	}
+    public void commitTransaction() throws SeException {
+        checkActive();
+        this.connection.commitTransaction();
+        transactionInProgress = false;
+    }
 
-	/**
-	 * Returns whether a transaction is in progress over this connection
-	 * <p>
-	 * As for any other public method, this one can't be called if {@link #isPassivated()} is true.
-	 * </p>
-	 * 
-	 * @return
-	 */
-	public boolean isTransactionActive() {
-		checkActive();
-		return transactionInProgress;
-	}
+    /**
+     * Returns whether a transaction is in progress over this connection
+     * <p>
+     * As for any other public method, this one can't be called if {@link #isPassivated()} is true.
+     * </p>
+     * 
+     * @return
+     */
+    public boolean isTransactionActive() {
+        checkActive();
+        return transactionInProgress;
+    }
 
-	public void rollbackTransaction() throws SeException {
-		checkActive();
-	    this.connection.rollbackTransaction();
-		transactionInProgress = false;
-	}
+    public void rollbackTransaction() throws SeException {
+        checkActive();
+        this.connection.rollbackTransaction();
+        transactionInProgress = false;
+    }
 
-	/**
-	 * Return to the pool (may not close the internal connection, depends on pool settings).
-	 * 
-	 * @throws IllegalStateException
-	 *             if close() is called while a transaction is in progress
-	 * @see #destroy()
-	 */
-	public void close() throws IllegalStateException {
-		checkActive();
-		if (transactionInProgress) {
-			throw new IllegalStateException("Transaction is in progress, should commit or rollback before closing");
-		}
+    /**
+     * Return to the pool (may not close the internal connection, depends on pool settings).
+     * 
+     * @throws IllegalStateException if close() is called while a transaction is in progress
+     * @see #destroy()
+     */
+    public void close() throws IllegalStateException {
+        checkActive();
+        if (transactionInProgress) {
+            throw new IllegalStateException(
+                    "Transaction is in progress, should commit or rollback before closing");
+        }
 
-		try {
-			if (LOGGER.isLoggable(Level.FINER)) {
-				// StackTraceElement[] stackTrace =
-				// Thread.currentThread().getStackTrace();
-				// String caller = stackTrace[3].getClassName() + "." +
-				// stackTrace[3].getMethodName();
-				// System.err.println("<- " + caller + " returning " +
-				// toString() + " to pool");
-				LOGGER.finer("<- returning " + toString() + " to pool");
-			}
-			this.pool.returnObject(this);
-		} catch (Exception e) {
-			LOGGER.log(Level.SEVERE, e.getMessage(), e);
-		}
-	}
+        try {
+            if (LOGGER.isLoggable(Level.FINER)) {
+                // StackTraceElement[] stackTrace =
+                // Thread.currentThread().getStackTrace();
+                // String caller = stackTrace[3].getClassName() + "." +
+                // stackTrace[3].getMethodName();
+                // System.err.println("<- " + caller + " returning " +
+                // toString() + " to pool");
+                LOGGER.finer("<- returning " + toString() + " to pool");
+            }
+            this.pool.returnObject(this);
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
 
-	@Override
-	public String toString() {
-		return "ArcSDEPooledConnection[" + connectionId + "]";
-	}
+    @Override
+    public String toString() {
+        return "ArcSDEPooledConnection[" + connectionId + "]";
+    }
 
-	/**
-	 * Actually closes the connection
-	 */
-	void destroy() {
-		try {
-			this.connection.close();
-		} catch (SeException e) {
-			LOGGER.info("closing connection: " + e.getMessage());
-		}
-	}
+    /**
+     * Actually closes the connection
+     */
+    void destroy() {
+        try {
+            this.connection.close();
+        } catch (SeException e) {
+            LOGGER.info("closing connection: " + e.getMessage());
+        }
+    }
 
-	/**
-	 * Compares for reference equality
-	 */
-	@Override
-	public boolean equals(Object other) {
-		return other == this;
-	}
+    /**
+     * Compares for reference equality
+     */
+    @Override
+    public boolean equals(Object other) {
+        return other == this;
+    }
 
-	@Override
-	public int hashCode() {
-		return 17 ^ this.config.hashCode();
-	}
-	//
-	// Helper method that delgates to internal connection
-	//
+    @Override
+    public int hashCode() {
+        return 17 ^ this.config.hashCode();
+    }
+
+    //
+    // Helper method that delgates to internal connection
+    //
     @SuppressWarnings("unchecked")
     public List<SeLayer> getLayers() throws SeException {
         return connection.getLayers();
     }
-    
+
     public String getUser() throws SeException {
         return connection.getUser();
     }
@@ -346,17 +363,19 @@ public class Session  {
     public SeRelease getRelease() {
         return connection.getRelease();
     }
+
     public String getDatabaseName() throws SeException {
         return connection.getDatabaseName();
     }
-    
-    public void setConcurrency( int policy ) throws SeException {
-        connection.setConcurrency( policy );
+
+    public void setConcurrency(int policy) throws SeException {
+        connection.setConcurrency(policy);
     }
 
-    public void setTransactionAutoCommit( int auto ) throws SeException {
-       connection.setTransactionAutoCommit( auto );
+    public void setTransactionAutoCommit(int auto) throws SeException {
+        connection.setTransactionAutoCommit(auto);
     }
+
     //
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...
@@ -364,21 +383,24 @@ public class Session  {
     public SeLayer createSeLayer() throws SeException {
         return new SeLayer(connection);
     }
-    public SeLayer createSeLayer( String tableName, String shape) throws SeException {
-        return new SeLayer(connection, tableName, shape );
+
+    public SeLayer createSeLayer(String tableName, String shape) throws SeException {
+        return new SeLayer(connection, tableName, shape);
     }
+
     public SeQuery createSeQuery() throws SeException {
         return new SeQuery(connection);
     }
-    public SeQuery createSeQuery( String[] propertyNames, SeSqlConstruct sql ) throws SeException {
-        return new SeQuery(connection, propertyNames, sql );
+
+    public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws SeException {
+        return new SeQuery(connection, propertyNames, sql);
     }
-    
-    public SeRegistration createSeRegistration( String typeName ) throws SeException {
+
+    public SeRegistration createSeRegistration(String typeName) throws SeException {
         return new SeRegistration(connection, typeName);
     }
 
-    public SeTable createSeTable( String qualifiedName ) throws SeException {
+    public SeTable createSeTable(String qualifiedName) throws SeException {
         return new SeTable(connection, qualifiedName);
     }
 
@@ -394,43 +416,49 @@ public class Session  {
         return new SeDelete(connection);
     }
 
-    public SeVersion createSeVersion( String versionName ) throws SeException {
-        return new SeVersion( connection, versionName );
+    public SeVersion createSeVersion(String versionName) throws SeException {
+        return new SeVersion(connection, versionName);
     }
+
     /**
      * Create an SeState for the provided id.
+     * 
      * @param stateId stateId to use, or null
      * @return SeState
      * @throws SeException
      */
-    public SeState createSeState( SeObjectId stateId ) throws SeException {
-        if( stateId == null ){
+    public SeState createSeState(SeObjectId stateId) throws SeException {
+        if (stateId == null) {
             return createSeState();
         }
-        return new SeState(connection, stateId );
+        return new SeState(connection, stateId);
     }
+
     public SeState createSeState() throws SeException {
-        return new SeState( connection );
+        return new SeState(connection);
     }
 
     public SeRasterColumn createSeRasterColumn() throws SeException {
-        return new SeRasterColumn( connection );
+        return new SeRasterColumn(connection);
     }
-    public SeRasterColumn createSeRasterColumn( SeObjectId rasterColumnId ) throws SeException {
-        return new SeRasterColumn( connection, rasterColumnId );
+
+    public SeRasterColumn createSeRasterColumn(SeObjectId rasterColumnId) throws SeException {
+        return new SeRasterColumn(connection, rasterColumnId);
     }
+
     /**
      * Schedule the provided Command for execution.
      * 
      * @param command
+     * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
+     *             command
      */
-    public void execute( Command command ){
-    	try {
-    		lock.lock();
-            command.execute( connection );            
+    public void execute(Command command) throws IOException {
+        try {
+            lock.lock();
+            command.execute(connection);
+        } finally {
+            lock.unlock();
         }
-        finally {
-        	lock.unlock();
-        }
-    }    
+    }
 }

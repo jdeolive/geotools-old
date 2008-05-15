@@ -1,5 +1,7 @@
 package org.geotools.arcsde.pool;
 
+import java.io.IOException;
+
 import com.esri.sde.sdk.client.SeConnection;
 
 /**
@@ -22,5 +24,5 @@ public abstract class Command {
      * 
      * @param connection connection used to interact with ArcSDE
      */
-    public abstract void execute( SeConnection connection );
+    public abstract void execute( SeConnection connection ) throws IOException;
 }
