@@ -87,7 +87,7 @@
     <module>directory</module>
     <module>epsg-oracle</module>
     <module>gml</module>
-    <module>go</module>
+    <!--<module>go</module>-->
     <module>gpx</module>
     <module>h2</module>
     <module>jts-wrapper</module>
