@@ -107,10 +107,8 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.TransformException;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
  * A streaming implementation of the GTRenderer interface.
@@ -1974,16 +1972,7 @@ public final class StreamingRenderer implements GTRenderer {
 		    geom = (Geometry) geomName.evaluate(drawMe, Geometry.class);
 		}
 		    
-		    
-
-		// if the symbolizer is a point symbolizer generate a suitable location
-		// to place the
-		// point in order to avoid recomputing that location at each rendering
-		// step
-		if (s instanceof PointSymbolizer){
-			geom = RendererUtilities.getCentroid(geom); // djb: major simpificatioN
-        }
-		return geom;
+		return geom;    
 	}
 
 	/**
@@ -2261,7 +2250,7 @@ public final class StreamingRenderer implements GTRenderer {
 		
 		public LiteShape2 getShape(Symbolizer symbolizer, AffineTransform at) throws FactoryException {
 			Geometry g = findGeometry(content, symbolizer); // pulls the geometry
-
+			
 			if ( g == null )
 				return null;
 			
@@ -2296,7 +2285,22 @@ public final class StreamingRenderer implements GTRenderer {
 			// some shapes may be too close to projection boundaries to
 			// get transformed, try to be lenient
 			try {
-				return getTransformedShape(g, sa.getXform());
+			    if (symbolizer instanceof PointSymbolizer) {
+                    if(!clone) {
+                        // if the symbolizer is a point symbolizer we first get the transformed
+                        // geometry to make sure the coordinates have been modified once, and then
+                        // compute the centroid in the screen space. This is a side effect of the
+                        // fact we're modifing the geometry coordinates directly, if we don't get
+                        // the reprojected and decimated geometry we risk of transforming it twice
+                        // when computing the centroid
+                        getTransformedShape(g, sa.getXform());
+                        return new LiteShape2(RendererUtilities.getCentroid(g), null, null, false, true);
+                    } else {
+                        return getTransformedShape(RendererUtilities.getCentroid(g), sa.getXform());
+                    }
+                } else {
+                    return getTransformedShape(g, sa.getXform());
+                }
 			} catch (TransformException te) {
                                     LOGGER.log(Level.FINE, te.getLocalizedMessage(), te);
 				fireErrorEvent(te);

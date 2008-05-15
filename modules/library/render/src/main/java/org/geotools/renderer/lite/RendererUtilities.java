@@ -48,6 +48,8 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
+import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Class for holding utility functions that are common tasks for people using
@@ -686,12 +688,32 @@ public final class RendererUtilities {
             final Coordinate[] pts = new Coordinate[gc.getNumGeometries()];
             final int length = gc.getNumGeometries();
             for (int t = 0; t < length; t++) {
-                pts[t] = gc.getGeometryN(t).getCentroid().getCoordinate();
+                pts[t] = pointInGeometry(gc.getGeometryN(t)).getCoordinate();
             }
             return g.getFactory().createMultiPoint(pts);
         } else if (g != null) {
-            return g.getCentroid();
+            return pointInGeometry(g);
         }
         return null;
+    }
+    
+    private static Geometry pointInGeometry(Geometry g) {
+        if(g instanceof Polygon) {
+            Point p = g.getCentroid();
+            // if the geometry is heavily generalized centroid computation may fail and return NaN
+            if(Double.isNaN(p.getX()) || Double.isNaN(p.getY()))
+                return g.getFactory().createPoint(g.getCoordinate());
+            if(!g.contains(p))
+                try {
+                    return g.getInteriorPoint();
+                } catch(Exception e) {
+                    // generalized geometries might make interior point go bye bye
+                    return p;
+                }
+            else
+                return p;
+        } else {
+            return g.getCentroid();
+        }
     }
 }
