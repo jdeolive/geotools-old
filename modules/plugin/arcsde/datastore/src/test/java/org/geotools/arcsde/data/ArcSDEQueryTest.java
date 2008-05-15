@@ -179,8 +179,8 @@ public class ArcSDEQueryTest extends TestCase {
 
     private ArcSDEQuery getQueryAll() throws IOException {
         Session session = dstore.getConnectionPool().getConnection();
-        this._queryAll = ArcSDEQuery.createQuery(session, ftype, Query.ALL,
-                FIDReader.NULL_READER, ArcSdeVersionHandler.NONVERSIONED_HANDLER);
+        this._queryAll = ArcSDEQuery.createQuery(session, ftype, Query.ALL, FIDReader.NULL_READER,
+                ArcSdeVersionHandler.NONVERSIONED_HANDLER);
         return this._queryAll;
     }
 
@@ -277,8 +277,12 @@ public class ArcSDEQueryTest extends TestCase {
             SimpleFeatureType featureType = features.getSchema();
             GeometryDescriptor defaultGeometry = featureType.getDefaultGeometry();
             ReferencedEnvelope real = new ReferencedEnvelope(defaultGeometry.getCRS());
-            while (reader.hasNext()) {
-                real.include(reader.next().getBounds());
+            try {
+                while (reader.hasNext()) {
+                    real.include(reader.next().getBounds());
+                }
+            } finally {
+                reader.close();
             }
 
             // TODO: make calculateQueryExtent to return ReferencedEnvelope
@@ -293,15 +297,18 @@ public class ArcSDEQueryTest extends TestCase {
             FeatureReader<SimpleFeatureType, SimpleFeature> featureReader = dstore
                     .getFeatureReader(filteringQuery, Transaction.AUTO_COMMIT);
             ReferencedEnvelope real = new ReferencedEnvelope();
-            while (featureReader.hasNext()) {
-                real.include(featureReader.next().getBounds());
+            try {
+                while (featureReader.hasNext()) {
+                    real.include(featureReader.next().getBounds());
+                }
+            } finally {
+                featureReader.close();
             }
 
             Envelope actual = getQueryFiltered().calculateQueryExtent();
             assertNotNull(actual);
             Envelope expected = new Envelope(real);
             assertEquals(expected, actual);
-            featureReader.close();
         }
     }
 
