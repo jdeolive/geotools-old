@@ -55,9 +55,9 @@ public class WebMapServerOnlineTest extends ServerTestCase {
      */
     protected void setUp() throws Exception {
         super.setUp();
-//        serverURL = new URL("http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?CONFIG=main&SERVICE=WMS&?VERSION=1.3.0&REQUEST=GetCapabilities");
-        // serverURL = new URL("http://terraservice.net/ogccapabilities.ashx?version=1.1.1&request=GetCapabilties");
-        serverURL = new URL("http://www.mapserv.nl/wms?mosm&request=GetCapabilities&service=WMS&VERSION=1.1.1");        
+        // serverURL = new URL("http://demo.cubewerx.com/demo/cubeserv/cubeserv.cgi?CONFIG=main&SERVICE=WMS&?VERSION=1.3.0&REQUEST=GetCapabilities");
+        serverURL = new URL("http://terraservice.net/ogccapabilities.ashx?version=1.1.1&request=GetCapabilties");
+        // serverURL = new URL("http://www.mapserv.nl/wms?mosm&request=GetCapabilities&service=WMS&VERSION=1.1.1");        
         featureURL = new URL(
                 "http://www2.dmsolutions.ca/cgi-bin/mswms_gmap?VERSION=1.1.0&REQUEST=GetCapabilities");
         

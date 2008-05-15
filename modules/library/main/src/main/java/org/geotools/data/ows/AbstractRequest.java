@@ -76,39 +76,44 @@ public abstract class AbstractRequest implements Request{
         String urlWithoutQuery = null;
 
         if (index <= 0) {
-            urlWithoutQuery = onlineResource.toExternalForm();
+            urlWithoutQuery = onlineResource.toExternalForm() + "?";
         } else {
             urlWithoutQuery = onlineResource.toExternalForm().substring(0, index);
-        }
-
-        // Doing this preserves all of the query parameters while
-        // enforcing the mandatory ones
-        if (onlineResource.getQuery() != null) {
-            StringTokenizer tokenizer = new StringTokenizer(onlineResource.getQuery(),
-                    "&"); //$NON-NLS-1$
-
-            boolean once=false;
-            while (tokenizer.hasMoreTokens()) {
-                String token = tokenizer.nextToken();
-                String[] param = token.split("="); //$NON-NLS-1$'
-                if (param != null && param.length>0 && param[0] != null) {
-                    String key=param[0];
-                    String value;
-                    if( param.length==1 ){
-                    	if( once ){
-                    		urlWithoutQuery += "?"+param;
-                    	}
-                    	else {
-                    		once = true;
-                    		urlWithoutQuery += "&"+param;                    		
-                    	}                    	
-                    }
-                    else {
-                        value = param[1];
-                        setProperty(key.toUpperCase(), value);                        
-                    }
-                }
-            }
+            boolean once=true;   	        
+	        // Doing this preserves all of the query parameters while
+	        // enforcing the mandatory ones
+	        if (onlineResource.getQuery() != null) {
+	            StringTokenizer tokenizer = new StringTokenizer(onlineResource.getQuery(),
+	                    "&"); //$NON-NLS-1$
+	
+	            while (tokenizer.hasMoreTokens()) {
+	                String token = tokenizer.nextToken();
+	                String[] param = token.split("="); //$NON-NLS-1$'
+	                if (param != null && param.length>0 && param[0] != null) {
+	                    String key=param[0];
+	                    String value;
+	                    if( param.length==1 ){
+	                    	// some servers like to keep a few additional settings in their URL
+	                    	// (even though this is not part of the specification we gotta
+	                    	//  let them get away with it)
+	                    	if( once ){
+	                    		urlWithoutQuery += "?"+param[0]+"&";
+	                    		once = false;	                    		
+	                    	}
+	                    	else {
+	                    		urlWithoutQuery += param[0]+"&";                    		
+	                    	}
+	                    }
+	                    else {
+	                        value = param[1];
+	                        setProperty(key.toUpperCase(), value);                        
+	                    }
+	                }
+	            }
+	        }
+	        if( once ){
+	        	urlWithoutQuery += "?";
+	        }
         }
         try {
             this.onlineResource = new URL(urlWithoutQuery);
@@ -129,7 +134,7 @@ public abstract class AbstractRequest implements Request{
     	}
         String url = onlineResource.toExternalForm();
 
-        if (!url.endsWith("?")) { //$NON-NLS-1$
+        if (!url.contains("?")) { //$NON-NLS-1$        	
             url = url.concat("?"); //$NON-NLS-1$
         }
         
@@ -143,9 +148,10 @@ public abstract class AbstractRequest implements Request{
              * must be case insensitive. We will let each specification
              * implementation deal with it in their own way.
              */
-            String param = processKey((String) entry.getKey()) + "=" + value;
-            
-
+            String param = processKey((String) entry.getKey());
+            if( value != null && param.length() != 0 ){
+            	param += "=" + value;
+            }            
             if (iter.hasNext()) {
                 param = param.concat("&"); //$NON-NLS-1$
             }
