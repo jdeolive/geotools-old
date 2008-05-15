@@ -1981,32 +1981,9 @@ public final class StreamingRenderer implements GTRenderer {
 		// point in order to avoid recomputing that location at each rendering
 		// step
 		if (s instanceof PointSymbolizer){
-			geom = getCentroid(geom); // djb: major simpificatioN
+			geom = RendererUtilities.getCentroid(geom); // djb: major simpificatioN
         }
 		return geom;
-	}
-
-	/**
-	 * Finds the centroid of the input geometry if input = point, line, polygon
-	 * --> return a point that represents the centroid of that geom if input =
-	 * geometry collection --> return a multipoint that represents the centoid
-	 * of each sub-geom
-	 * 
-	 * @param g
-	 */
-	private Geometry getCentroid(Geometry g) {
-		if (g instanceof GeometryCollection) {
-			final GeometryCollection gc = (GeometryCollection) g;
-			final Coordinate[] pts = new Coordinate[gc.getNumGeometries()];
-			final int length = gc.getNumGeometries();
-			for (int t = 0; t < length; t++) {
-				pts[t] = gc.getGeometryN(t).getCentroid().getCoordinate();
-			}
-			return g.getFactory().createMultiPoint(pts);
-		} else if (g != null) {
-			return g.getCentroid();
-		}
-		return null;
 	}
 
 	/**

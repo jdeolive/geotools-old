@@ -867,12 +867,26 @@ public class ShapefileRenderer implements GTRenderer {
                     fireErrorEvent(e);
                 }
             } else {
+                Shape shape;
                 try {
                     Style2D style = styleFactory.createStyle(feature, symbolizers[m], scaleRange);
                     if( isJTS ){
-                        painter.paint(graphics, new LiteShape2((Geometry) geom, null, null, false, false), style, scaleDenominator);
+                        Geometry g;
+                        if(symbolizers[m] instanceof PointSymbolizer) {
+                            g = RendererUtilities.getCentroid((Geometry) geom);
+                        } else {
+                            g = (Geometry) geom;
+                        }
+                        shape = new LiteShape2(g, null, null, false, false);
+                        painter.paint(graphics, shape, style, scaleDenominator);
                     }else{
-                        painter.paint(graphics, getShape((SimpleGeometry) geom), style, scaleDenominator);
+                        if(symbolizers[m] instanceof PointSymbolizer) {
+                            shape = new LiteShape2(RendererUtilities.getCentroid((Geometry) feature.getDefaultGeometry()), null, null, false, false);
+                        } else {
+                            shape = getShape((SimpleGeometry) geom);
+                        }
+                            
+                        painter.paint(graphics, shape, style, scaleDenominator);
                     }
                 } catch (Exception e) {
                     fireErrorEvent(e);
@@ -910,6 +924,8 @@ public class ShapefileRenderer implements GTRenderer {
             }
 
             Geometry g = (Geometry) feature.getDefaultGeometry();
+            if(symbolizers[m] instanceof PointSymbolizer)
+                g = RendererUtilities.getCentroid(g);
             shape = new LiteShape2(g, transform, getDecimator(transform), false);
 
             if (symbolizers[m] instanceof TextSymbolizer) {
@@ -1033,6 +1049,8 @@ public class ShapefileRenderer implements GTRenderer {
                 || (geom.type == ShapeType.MULTIPOINTM) || (geom.type == ShapeType.MULTIPOINTZ)) {
             return new MultiPointShape(geom);
         }
+        
+        
 
         return null;
     }

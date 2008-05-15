@@ -46,6 +46,8 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryCollection;
 
 /**
  * Class for holding utility functions that are common tasks for people using
@@ -669,4 +671,27 @@ public final class RendererUtilities {
 
 
 	}
+	
+	/**
+     * Finds the centroid of the input geometry if input = point, line, polygon
+     * --> return a point that represents the centroid of that geom if input =
+     * geometry collection --> return a multipoint that represents the centoid
+     * of each sub-geom
+     * 
+     * @param g
+     */
+    public static Geometry getCentroid(Geometry g) {
+        if (g instanceof GeometryCollection) {
+            final GeometryCollection gc = (GeometryCollection) g;
+            final Coordinate[] pts = new Coordinate[gc.getNumGeometries()];
+            final int length = gc.getNumGeometries();
+            for (int t = 0; t < length; t++) {
+                pts[t] = gc.getGeometryN(t).getCentroid().getCoordinate();
+            }
+            return g.getFactory().createMultiPoint(pts);
+        } else if (g != null) {
+            return g.getCentroid();
+        }
+        return null;
+    }
 }
