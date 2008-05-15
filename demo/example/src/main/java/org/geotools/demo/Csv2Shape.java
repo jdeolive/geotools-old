@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -76,7 +77,7 @@ public class Csv2Shape {
 		
 		DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
 
-		Map<String,Object> create = new HashMap<String,Object>();
+		Map<String,Serializable> create = new HashMap<String,Serializable>();
 		create.put("url", newFile.toURI().toURL() );
 		create.put("create spatial index",Boolean.TRUE);
 		

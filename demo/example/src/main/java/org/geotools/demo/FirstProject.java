@@ -2,6 +2,7 @@ package org.geotools.demo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -65,7 +66,7 @@ public class FirstProject {
 
         DataStoreFactorySpi factory = new ShapefileDataStoreFactory();
 
-        Map<String, Object> create = new HashMap<String, Object>();
+        Map<String, Serializable> create = new HashMap<String,Serializable>();
         create.put("url", newFile.toURI().toURL());
         create.put("create spatial index", Boolean.TRUE);
         DataStore newDataStore = factory.createNewDataStore(create);

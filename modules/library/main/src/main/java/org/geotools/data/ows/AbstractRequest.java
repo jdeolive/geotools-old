@@ -81,33 +81,40 @@ public abstract class AbstractRequest implements Request{
             urlWithoutQuery = onlineResource.toExternalForm().substring(0, index);
         }
 
-        try {
-            this.onlineResource = new URL(urlWithoutQuery);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error parsing URL. This is likely a bug in the code.");
-        }
-
         // Doing this preserves all of the query parameters while
         // enforcing the mandatory ones
         if (onlineResource.getQuery() != null) {
             StringTokenizer tokenizer = new StringTokenizer(onlineResource.getQuery(),
                     "&"); //$NON-NLS-1$
 
+            boolean once=false;
             while (tokenizer.hasMoreTokens()) {
                 String token = tokenizer.nextToken();
                 String[] param = token.split("="); //$NON-NLS-1$'
                 if (param != null && param.length>0 && param[0] != null) {
                     String key=param[0];
                     String value;
-		    if( param.length==1 )
-                        value = "";
-                    else
+                    if( param.length==1 ){
+                    	if( once ){
+                    		urlWithoutQuery += "?"+param;
+                    	}
+                    	else {
+                    		once = true;
+                    		urlWithoutQuery += "&"+param;                    		
+                    	}                    	
+                    }
+                    else {
                         value = param[1];
-                    setProperty(key.toUpperCase(), value);
+                        setProperty(key.toUpperCase(), value);                        
+                    }
                 }
             }
         }
-
+        try {
+            this.onlineResource = new URL(urlWithoutQuery);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error parsing URL. This is likely a bug in the code.");
+        }        
         initService();
         initRequest();
         initVersion();
