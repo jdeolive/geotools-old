@@ -17,10 +17,12 @@
 package org.geotools.arcsde.pool;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
+import java.util.WeakHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
@@ -83,7 +85,8 @@ public class Session  {
 
 	private boolean isPassivated;
 
-	private Map<String, SeLayer> cachedLayers = new HashMap<String, SeLayer>();
+	private Map<String, SeTable> cachedTables = new WeakHashMap<String, SeTable>();
+	private Map<String, SeLayer> cachedLayers = new WeakHashMap<String, SeLayer>();
 	private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
 	/**
@@ -196,21 +199,40 @@ public class Session  {
 
 	public synchronized SeTable getTable(final String tableName) throws DataSourceException {
 		checkActive();
-		try {
-			return new SeTable(this.connection, tableName);
-		} catch (SeException e) {
-			throw new DataSourceException("Can't access table " + tableName, e);
-		}
+        if (!cachedTables.containsKey(tableName)) {
+            try {
+                cacheLayers();
+            } catch (SeException e) {
+                throw new DataSourceException("Can't obtain table " + tableName, e);
+            }
+        }
+        SeTable seTable = (SeTable) cachedTables.get(tableName);
+        if (seTable == null) {
+            throw new NoSuchElementException("Table '" + tableName + "' not found");
+        }
+        return seTable;
 	}
 
-	@SuppressWarnings("unchecked")
-	private void cacheLayers() throws SeException {
-		Vector<SeLayer> layers = this.connection.getLayers();
-		cachedLayers.clear();
-		for (SeLayer layer : layers) {
-			cachedLayers.put(layer.getQualifiedName(), layer);
-		}
-	}
+    /**
+     * Caches both tables and layers
+     * @throws SeException
+     */
+    @SuppressWarnings("unchecked")
+    private void cacheLayers() throws SeException {
+        Vector/* <SeLayer> */layers = connection.getLayers();
+        String qualifiedName;
+        SeLayer layer;
+        SeTable table;
+        cachedTables.clear();
+        cachedLayers.clear();
+        for (Iterator it = layers.iterator(); it.hasNext();) {
+            layer = (SeLayer) it.next();
+            qualifiedName = layer.getQualifiedName();
+            table = new SeTable(connection, qualifiedName);
+            cachedLayers.put(qualifiedName, layer);
+            cachedTables.put(qualifiedName, table);
+        }
+    }
 
 	@SuppressWarnings("unchecked")
 	private void cacheRasters() throws SeException {
