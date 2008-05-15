@@ -15,7 +15,6 @@
  */
 package org.geotools.maven.tools;
 
-// J2SE dependencies
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
@@ -26,8 +25,8 @@ import java.io.Writer;
 
 
 /**
- * Add a javadoc tag at the end of class comment in a set of source files.
- * The default implementation add the {@code @source URL} tag. The algorithm
+ * Adds a javadoc tag at the end of class comment in a set of source files.
+ * The default implementation adds the {@code @source URL} tag. The algorithm
  * used in this class has limited capabilities and expects comments formatted
  * in a "classic" fashion:
  * <p>
@@ -134,7 +133,7 @@ public class CommentUpdater implements FileFilter {
      */
     protected boolean process(final File file) throws IOException {
         final LineNumberReader  in = new LineNumberReader(new FileReader(file));
-        final StringBuffer  buffer = new StringBuffer();
+        final StringBuilder buffer = new StringBuilder();
         final String lineSeparator = System.getProperty("line.separator", "\n");
         String message = null;
         int      insertAt = 0;

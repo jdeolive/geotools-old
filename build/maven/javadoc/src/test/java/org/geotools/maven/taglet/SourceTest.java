@@ -15,13 +15,9 @@
  */
 package org.geotools.maven.taglet;
 
-// J2SE dependencies
 import java.util.regex.Matcher;
-
-// JUnit dependencies
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.*;
+import static org.junit.Assert.*;
 
 
 /**
@@ -31,35 +27,12 @@ import junit.framework.TestSuite;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class SourceTest extends TestCase {
-    /**
-     * Run the suite from the command line.
-     */
-    public static void main(final String[] args) {
-        junit.textui.TestRunner.run(suite());
-    }
-
-    /**
-     * Returns the test suite.
-     */
-    public static Test suite() {
-        return new TestSuite(SourceTest.class);
-    }
-
-    /**
-     * Constructs a test case with the given name.
-     */
-    public SourceTest(final String name) {
-        super(name);
-    }
-
+public class SourceTest {
     /**
      * Tests the regular expression validity using the tag for this source file.
      */
+    @Test
     public void testCurrentTag() {
-/* See http://jira.codehaus.org/browse/GEOT-1812 for a patch about this issue. --adrian */
-/* Note the Source file will have to change also since .../gt/... no longer exists.     */
-/*
         Source  s = new Source();
         Matcher m;
         String tag, url, group, category, module;
@@ -79,7 +52,7 @@ public class SourceTest extends TestCase {
         assertEquals("javadoc", module);
 
         // Try an other URL from a tag.
-        url = "http://svn.geotools.org/geotools/tags/2.4-M0/modules/library/api/src/main/java/org/geotools/catalog/ResolveChangeListener.java";
+        url = "http://svn.geotools.org/tags/2.4-M0/modules/library/api/src/main/java/org/geotools/catalog/ResolveChangeListener.java";
         m = s.findModule.matcher(url);
         assertTrue(m.matches());
         group    = m.group(1);
@@ -90,7 +63,7 @@ public class SourceTest extends TestCase {
         assertEquals("api", module);
 
         // Try an other URL from a tag.
-        url = "http://svn.geotools.org/geotools/tags/2.2-RC4/modules/library/referencing/src/main/java/org/geotools/referencing/CRS.java";
+        url = "http://svn.geotools.org/tags/2.2-RC4/modules/library/referencing/src/main/java/org/geotools/referencing/CRS.java";
         tag = Source.SVN_KEYWORD_DELIMITER + "URL: " + url + ' ' + Source.SVN_KEYWORD_DELIMITER;
         m = s.findURL.matcher(tag);
         assertTrue(m.matches());
@@ -103,6 +76,5 @@ public class SourceTest extends TestCase {
         assertEquals("modules", group);
         assertEquals("library", category);
         assertEquals("referencing", module);
-*/
     }
 }

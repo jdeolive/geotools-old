@@ -15,12 +15,9 @@
  */
 package org.geotools.maven.taglet;
 
-// J2SE dependencies
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
-// Standard JavaDoc dependencies
 import com.sun.javadoc.Tag;
 import com.sun.tools.doclets.Taglet;
 
@@ -39,7 +36,7 @@ public final class Source implements Taglet {
      *
      * @param tagletMap the map to register this tag to.
      */
-    public static void register(final Map tagletMap) {
+    public static void register(final Map<String,Taglet> tagletMap) {
        final Source tag = new Source();
        tagletMap.put(tag.getName(), tag);
     }
@@ -74,21 +71,22 @@ public final class Source implements Taglet {
      * Constructs a default <code>@source</code> taglet.
      */
     Source() {
-        super();                               //   Typical example         Could be also
-        findModule = Pattern.compile(          //   ---------------------   ---------------------
-                  "\\p{Alnum}+\\Q://\\E"    +  //   http://                 https://
-                 "[\\p{Alnum}\\.\\-]+"      +  //   svn.geotools.org        gtsvn.refractions.net
-                  "\\/geotools\\/"          +  //   /geotools/
-                  "\\p{Alpha}+\\/"          +  //   trunk/                  tags/
-                 "[\\p{Alnum}\\.\\-]+\\/"   +  //   gt/                     2.3-M1/
-                "([\\p{Alnum}\\-]+)\\/"     +  //   modules/                build/
-                "([\\p{Alnum}\\-]+)\\/"     +  //   library/                plugins/
-                "([\\p{Alnum}\\-]+)\\/"     +  //   referencing/            epsg-hsql/
-                ".+");
+        super();                                           //   Typical example         Could be also
+        findModule = Pattern.compile(                      //   ---------------------   ---------------------
+            "\\p{Alnum}+\\Q://\\E"                      +  //   http://                 https://
+            "[\\p{Alnum}\\.\\-]+"                       +  //   svn.geotools.org        gtsvn.refractions.net
+            "\\/\\p{Alpha}+\\/"                         +  //   /trunk/                 /tags/
+            "(?:\\p{Alnum}+\\.[\\p{Alnum}\\.\\-]+\\/)?" +  //   (nothing)               2.3-M1/
+            "([\\p{Alnum}\\-]+)\\/"                     +  //   modules/                build/
+            "([\\p{Alnum}\\-]+)\\/"                     +  //   library/                plugins/
+            "([\\p{Alnum}\\-]+)\\/"                     +  //   referencing/            epsg-hsql/
+            ".+");
     }
 
     /**
      * Returns the name of this custom tag.
+     *
+     * @return The tag name.
      */
     public String getName() {
         return "source";
@@ -96,6 +94,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code true} since <code>@source</code> can be used in overview.
+     *
+     * @return Always {@code true}.
      */
     public boolean inOverview() {
         return true;
@@ -103,6 +103,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code true} since <code>@source</code> can be used in package documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inPackage() {
         return true;
@@ -111,6 +113,8 @@ public final class Source implements Taglet {
     /**
      * Returns {@code true} since <code>@source</code> can be used in type documentation
      * (classes or interfaces).
+     *
+     * @return Always {@code true}.
      */
     public boolean inType() {
         return true;
@@ -118,6 +122,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code true} since <code>@source</code> can be used in constructor
+     *
+     * @return Always {@code true}.
      */
     public boolean inConstructor() {
         return true;
@@ -125,6 +131,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code true} since <code>@source</code> can be used in method documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inMethod() {
         return true;
@@ -132,6 +140,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code true} since <code>@source</code> can be used in field documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inField() {
         return true;
@@ -139,6 +149,8 @@ public final class Source implements Taglet {
 
     /**
      * Returns {@code false} since <code>@source</code> is not an inline tag.
+     *
+     * @return Always {@code false}.
      */
     public boolean isInlineTag() {
         return false;
@@ -147,6 +159,9 @@ public final class Source implements Taglet {
     /**
      * Given the <code>Tag</code> representation of this custom tag, return its string representation.
      * The default implementation invokes the array variant of this method.
+     *
+     * @param tag The tag to format.
+     * @return A string representation of the given tag.
      */
     public String toString(final Tag tag) {
         return toString(new Tag[] {tag});
@@ -155,12 +170,15 @@ public final class Source implements Taglet {
     /**
      * Given an array of {@code Tag}s representing this custom tag, return its string
      * representation.
+     *
+     * @param tags The tags to format.
+     * @return A string representation of the given tags.
      */
     public String toString(final Tag[] tags) {
         if (tags==null || tags.length==0) {
             return "";
         }
-        final StringBuffer buffer = new StringBuffer("\n<DT><B>Module:</B></DT>");
+        final StringBuilder buffer = new StringBuilder("\n<DT><B>Module:</B></DT>");
         for (int i=0; i<tags.length; i++) {
             final Matcher matchURL = findURL.matcher(tags[i].text());
             if (!matchURL.matches()) {
@@ -174,33 +192,20 @@ public final class Source implements Taglet {
             final String group    = matchModule.group(1);
             final String category = matchModule.group(2);
             final String module   = matchModule.group(3);
-            buffer.append('\n');
-            buffer.append(i==0 ? "<DD>" : "    ");
-            buffer.append("<CODE><B>");
-            buffer.append(group);
-            buffer.append('/');
-            buffer.append(category);
-            buffer.append('/');
-            buffer.append(module);
-            buffer.append("</B></CODE> &nbsp; (<A HREF=\"");
-            buffer.append(MAVEN_REPOSITORY_BASE_URL);
-            buffer.append("org/geotools/");
+            buffer.append('\n').append(i==0 ? "<DD>" : "    ").append("<CODE><B>")
+                   .append(group).append('/')
+                   .append(category).append('/')
+                   .append(module).append("</B></CODE> &nbsp; (<A HREF=\"")
+                   .append(MAVEN_REPOSITORY_BASE_URL).append("org/geotools/");
             if (category.equals("maven")) {
-                buffer.append(category);
-                buffer.append('/');
+                buffer.append(category).append('/');
             }
-            buffer.append("gt2-");
-            buffer.append(module);
-            buffer.append("/\"><CODE>gt2-");
-            buffer.append(module);
-            buffer.append(".jar</CODE></A>) (<A HREF=\"");
-            buffer.append(MAVEN_REPORTS_BASE_URL);
-            buffer.append(module);
-            buffer.append("/index.html\">Maven report</A>) (<A HREF=\"");
-            buffer.append(url);
-            buffer.append("\">SVN head</A>)");
+            buffer.append("gt-").append(module).append("/\"><CODE>gt-")
+                  .append(module).append(".jar</CODE></A>) (<A HREF=\"")
+                  .append(MAVEN_REPORTS_BASE_URL).append(module)
+                  .append("/index.html\">Maven report</A>) (<A HREF=\"")
+                  .append(url).append("\">SVN head</A>)");
         }
-        buffer.append("</DD>\n");
-        return buffer.toString();
+        return buffer.append("</DD>\n").toString();
     }
 }

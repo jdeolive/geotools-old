@@ -15,10 +15,7 @@
  */
 package org.geotools.maven.taglet;
 
-// J2SE dependencies
 import java.util.Map;
-
-// Standard JavaDoc dependencies
 import com.sun.javadoc.Tag;
 import com.sun.tools.doclets.Taglet;
 
@@ -37,7 +34,7 @@ public final class Tutorial implements Taglet {
      *
      * @param tagletMap the map to register this tag to.
      */
-    public static void register(final Map tagletMap) {
+    public static void register(final Map<String,Taglet> tagletMap) {
        final Tutorial tag = new Tutorial();
        tagletMap.put(tag.getName(), tag);
     }
@@ -51,6 +48,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns the name of this custom tag.
+     *
+     * @return The tag name.
      */
     public String getName() {
         return "tutorial";
@@ -58,6 +57,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in overview.
+     *
+     * @return Always {@code true}.
      */
     public boolean inOverview() {
         return true;
@@ -65,6 +66,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in package documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inPackage() {
         return true;
@@ -73,6 +76,8 @@ public final class Tutorial implements Taglet {
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in type documentation
      * (classes or interfaces).
+     *
+     * @return Always {@code true}.
      */
     public boolean inType() {
         return true;
@@ -80,6 +85,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in constructor
+     *
+     * @return Always {@code true}.
      */
     public boolean inConstructor() {
         return true;
@@ -87,6 +94,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in method documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inMethod() {
         return true;
@@ -94,6 +103,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code true} since <code>@tutorial</code> can be used in field documentation.
+     *
+     * @return Always {@code true}.
      */
     public boolean inField() {
         return true;
@@ -101,6 +112,8 @@ public final class Tutorial implements Taglet {
 
     /**
      * Returns {@code false} since <code>@tutorial</code> is not an inline tag.
+     *
+     * @return Always {@code false}.
      */
     public boolean isInlineTag() {
         return false;
@@ -109,6 +122,9 @@ public final class Tutorial implements Taglet {
     /**
      * Given the <code>Tag</code> representation of this custom tag, return its string representation.
      * The default implementation invokes the array variant of this method.
+     *
+     * @param tag The tag to format.
+     * @return A string representation of the given tag.
      */
     public String toString(final Tag tag) {
         return toString(new Tag[] {tag});
@@ -117,24 +133,21 @@ public final class Tutorial implements Taglet {
     /**
      * Given an array of {@code Tag}s representing this custom tag, return its string
      * representation.
+     *
+     * @param tags The tags to format.
+     * @return A string representation of the given tags.
      */
     public String toString(final Tag[] tags) {
         if (tags==null || tags.length==0) {
             return "";
         }
-        final StringBuffer buffer = new StringBuffer("\n<DT><B>Tutorial:</B></DT>");
+        final StringBuilder buffer = new StringBuilder("\n<DT><B>Tutorial:</B></DT>");
         for (int i=0; i<tags.length; i++) {
             final String url   = tags[i].text().trim();
             final String title = url.substring(url.lastIndexOf('/')+1).replace('+',' ');
-            buffer.append('\n');
-            buffer.append(i==0 ? "<DD>" : "    ");
-            buffer.append("<A HREF=\"");
-            buffer.append(url);
-            buffer.append("\">");
-            buffer.append(title);
-            buffer.append("</A>");
+            buffer.append('\n').append(i==0 ? "<DD>" : "    ")
+                .append("<A HREF=\"").append(url).append("\">").append(title).append("</A>");
         }
-        buffer.append("</DD>\n");
-        return buffer.toString();
+        return buffer.append("</DD>\n").toString();
     }
 }
