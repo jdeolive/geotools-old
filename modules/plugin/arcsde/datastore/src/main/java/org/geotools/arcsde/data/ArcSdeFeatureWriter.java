@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.FeatureListenerManager;
@@ -46,6 +47,7 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.geometry.BoundingBox;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeDelete;
 import com.esri.sde.sdk.client.SeException;
@@ -159,11 +161,9 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
      * 
      * @param streamType
      * @return
-     * @throws SeException
      * @throws IOException
      */
-    private SeStreamOp createStream(Class<? extends SeStreamOp> streamType) throws SeException,
-            IOException {
+    private SeStreamOp createStream(Class<? extends SeStreamOp> streamType) throws IOException {
         SeStreamOp streamOp;
 
         if (SeInsert.class == streamType) {
@@ -260,49 +260,55 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         // method if something happens bellow.
         final boolean handleTransaction = !session.isTransactionActive();
         if (handleTransaction) {
-            try {
-                session.startTransaction();
-            } catch (SeException e) {
-                throw new ArcSdeException("Can't initiate delete transaction", e);
-            }
+            session.startTransaction();
         }
 
         final String id = feature.getID();
         final long featureId = ArcSDEAdapter.getNumericFid(id);
         final SeObjectId objectID = new SeObjectId(featureId);
         final String qualifiedName = featureType.getTypeName();
-        SeDelete seDelete = null;
-        try {
-            seDelete = (SeDelete) createStream(SeDelete.class);
-            // A call to SeDelete.byId immediately deletes the row from the
-            // database. The application does not need to call execute()
-            seDelete.byId(qualifiedName, objectID);
-            if (handleTransaction) {
-                session.commitTransaction();
-            }
-            fireRemoved(feature);
-            versionHandler.editOperationWritten(seDelete);
-        } catch (SeException e) {
-            versionHandler.editOperationFailed(seDelete);
-            if (handleTransaction) {
+
+        final SeDelete seDelete = (SeDelete) createStream(SeDelete.class);
+
+        final Command<Void> deleteCmd = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
                 try {
-                    session.rollbackTransaction();
-                } catch (SeException e1) {
-                    LOGGER.log(Level.SEVERE, "Unrecoverable error rolling back delete transaction",
-                            new ArcSdeException("Unable to rollback", e));
+                    // A call to SeDelete.byId immediately deletes the row from the
+                    // database. The application does not need to call execute()
+                    seDelete.byId(qualifiedName, objectID);
+                    if (handleTransaction) {
+                        session.commitTransaction();
+                    }
+                    fireRemoved(feature);
+                    versionHandler.editOperationWritten(seDelete);
+                } catch (IOException e) {
+                    versionHandler.editOperationFailed(seDelete);
+                    if (handleTransaction) {
+                        try {
+                            session.rollbackTransaction();
+                        } catch (IOException e1) {
+                            LOGGER.log(Level.SEVERE, "Unrecoverable error rolling "
+                                    + "back delete transaction", e);
+                        }
+                    }
+                    throw new DataSourceException("Error deleting feature with id:" + featureId, e);
+                } finally {
+                    if (seDelete != null) {
+                        try {
+                            seDelete.close();
+                        } catch (SeException e) {
+                            LOGGER.log(Level.SEVERE,
+                                    "Unrecoverable error rolling back delete transaction", e);
+                        }
+                    }
                 }
+                return null;
             }
-            throw new ArcSdeException("Error deleting feature id:" + featureId, e);
-        } finally {
-            if (seDelete != null) {
-                try {
-                    seDelete.close();
-                } catch (SeException e) {
-                    LOGGER.log(Level.SEVERE, "Unrecoverable error rolling back delete transaction",
-                            e);
-                }
-            }
-        }
+        };
+
+        session.execute(deleteCmd);
     }
 
     private void fireAdded(final SimpleFeature addedFeature) {
@@ -748,7 +754,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         return this.insertableColumnNames;
     }
 
-    private SeTable getTable() throws DataSourceException {
+    private SeTable getTable() throws IOException {
         if (this.cachedTable == null) {
             // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
@@ -758,7 +764,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         return this.cachedTable;
     }
 
-    private SeLayer getLayer() throws DataSourceException {
+    private SeLayer getLayer() throws IOException {
         if (this.cachedLayer == null) {
             // final ArcSDEPooledConnection connection = getConnection();
             final String typeName = this.featureType.getTypeName();
@@ -790,5 +796,9 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
     private final boolean isNewlyCreated(SimpleFeature aFeature) {
         final String id = aFeature.getID();
         return id.startsWith(NEW_FID_PREFIX);
+    }
+
+    public Session getSession() {
+        return session;
     }
 }

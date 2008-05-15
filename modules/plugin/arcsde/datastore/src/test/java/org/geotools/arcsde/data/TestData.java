@@ -19,13 +19,16 @@ package org.geotools.arcsde.data;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
@@ -199,12 +202,11 @@ public class TestData {
         return this.conProps;
     }
 
-    public String getTemp_table() throws SeException, DataSourceException,
-            UnavailableArcSDEConnectionException {
+    public String getTemp_table() throws IOException, UnavailableArcSDEConnectionException {
         Session session = getConnectionPool().getConnection();
         String tempTableName;
         try {
-            tempTableName = getTemp_table(session );
+            tempTableName = getTemp_table(session);
         } finally {
             session.close();
         }
@@ -215,7 +217,7 @@ public class TestData {
      * @return Returns the temp_table.
      * @throws SeException
      */
-    public String getTemp_table(Session session) throws SeException {
+    public String getTemp_table(Session session) throws IOException {
         return session.getUser() + "." + this.temp_table;
     }
 
@@ -238,7 +240,7 @@ public class TestData {
         }
     }
 
-    public void deleteTable(final String typeName) throws DataSourceException,
+    public void deleteTable(final String typeName) throws IOException,
             UnavailableArcSDEConnectionException {
         ArcSDEConnectionPool connectionPool = getConnectionPool();
         deleteTable(connectionPool, typeName);
@@ -258,24 +260,32 @@ public class TestData {
     }
 
     private static void deleteTable(final ArcSDEConnectionPool connPool, final String tableName)
-            throws DataSourceException, UnavailableArcSDEConnectionException {
-        Session session = connPool.getConnection();
-        try {
-            try {
-                SeLayer layer = session.createSeLayer(tableName, "SHAPE");
-                layer.delete();
-            } catch (SeException e) {
-                // LOGGER.log(Level.WARNING, "while deleteing layer " + tableName + " got '" +
-                // e.getSeError().getErrDesc() + "'");
+            throws IOException, UnavailableArcSDEConnectionException {
+
+        final Session session = connPool.getConnection();
+
+        final Command<Void> deleteCmd = new Command<Void>() {
+
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                try {
+                    SeLayer layer = session.getLayer(tableName);
+                    layer.delete();
+                } catch (NoSuchElementException e) {
+                    // nothing to do
+                } catch (SeException e) {
+                    // LOGGER.log(Level.WARNING, "while deleteing layer " + tableName + " got '" +
+                    // e.getSeError().getErrDesc() + "'");
+                }
+                SeTable table = session.createSeTable(tableName);
+                table.delete();
+                return null;
             }
-            SeTable table = session.createSeTable(tableName);
-            table.delete();
-        } catch (SeException e) {
-            // LOGGER.log(Level.WARNING, "while deleteing table " + tableName + " got '" +
-            // e.getSeError().getErrDesc() + "'");
-        } finally {
-            session.close();
-        }
+        };
+
+        session.execute(deleteCmd);
+        session.close();
     }
 
     /**
@@ -302,8 +312,7 @@ public class TestData {
             tempTable = session.createSeTable(tableName);
             tempTableLayer.setTableName(tableName);
 
-            tempTableColumns = createBaseTable(session, tempTable, tempTableLayer,
-                    configKeyword);
+            tempTableColumns = createBaseTable(session, tempTable, tempTableLayer, configKeyword);
 
             if (insertTestData) {
                 insertData(tempTableLayer, session, tempTableColumns);
@@ -351,85 +360,98 @@ public class TestData {
     private static SeColumnDefinition[] createBaseTable(final Session session,
             final SeTable table,
             final SeLayer layer,
-            final String configKeyword) throws SeException {
-        SeColumnDefinition[] colDefs = new SeColumnDefinition[8];
+            final String configKeyword) throws IOException {
 
-        /*
-         * Define the columns and their attributes for the table to be created. NOTE: The valid
-         * range/values of size and scale parameters vary from one database to another.
-         */
-        boolean isNullable = true;
+        Command<SeColumnDefinition[]> createTableCmd = new Command<SeColumnDefinition[]>() {
 
-        // first column to be SDE managed feature id
-        colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false);
+            @Override
+            public SeColumnDefinition[] execute(Session session, SeConnection connection)
+                    throws SeException, IOException {
 
-        colDefs[1] = new SeColumnDefinition(TEST_TABLE_COLS[0], SeColumnDefinition.TYPE_INTEGER,
-                10, 0, isNullable);
-        colDefs[2] = new SeColumnDefinition(TEST_TABLE_COLS[1], SeColumnDefinition.TYPE_SMALLINT,
-                4, 0, isNullable);
-        colDefs[3] = new SeColumnDefinition(TEST_TABLE_COLS[2], SeColumnDefinition.TYPE_FLOAT, 5,
-                2, isNullable);
-        colDefs[4] = new SeColumnDefinition(TEST_TABLE_COLS[3], SeColumnDefinition.TYPE_DOUBLE, 25,
-                4, isNullable);
-        colDefs[5] = new SeColumnDefinition(TEST_TABLE_COLS[4], SeColumnDefinition.TYPE_STRING, 25,
-                0, isNullable);
-        colDefs[6] = new SeColumnDefinition(TEST_TABLE_COLS[5], SeColumnDefinition.TYPE_DATE, 1, 0,
-                isNullable);
-        // this is a blob one and should be ignored to all effects
-        colDefs[7] = new SeColumnDefinition("SE_ANNO_CAD_DATA", SeColumnDefinition.TYPE_BLOB, 1000,
-                0, isNullable);
+                SeColumnDefinition[] colDefs = new SeColumnDefinition[8];
 
-        /*
-         * Create the table using the DBMS default configuration keyword. Valid keywords are defined
-         * in the dbtune table.
-         */
-        table.create(colDefs, configKeyword);
+                /*
+                 * Define the columns and their attributes for the table to be created. NOTE: The
+                 * valid range/values of size and scale parameters vary from one database to
+                 * another.
+                 */
+                boolean isNullable = true;
 
-        /*
-         * Register the column to be used as feature id and managed by sde
-         */        
-        SeRegistration reg = session.createSeRegistration( table.getName() );
-        LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
-        reg.setRowIdColumnName("ROW_ID");
-        final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-        reg.setRowIdColumnType(rowIdColumnType);
-        reg.alter();
+                // first column to be SDE managed feature id
+                colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10,
+                        0, false);
 
-        /*
-         * Define the attributes of the spatial column
-         */
-        layer.setSpatialColumnName(TEST_TABLE_COLS[6]);
+                colDefs[1] = new SeColumnDefinition(TEST_TABLE_COLS[0],
+                        SeColumnDefinition.TYPE_INTEGER, 10, 0, isNullable);
+                colDefs[2] = new SeColumnDefinition(TEST_TABLE_COLS[1],
+                        SeColumnDefinition.TYPE_SMALLINT, 4, 0, isNullable);
+                colDefs[3] = new SeColumnDefinition(TEST_TABLE_COLS[2],
+                        SeColumnDefinition.TYPE_FLOAT, 5, 2, isNullable);
+                colDefs[4] = new SeColumnDefinition(TEST_TABLE_COLS[3],
+                        SeColumnDefinition.TYPE_DOUBLE, 25, 4, isNullable);
+                colDefs[5] = new SeColumnDefinition(TEST_TABLE_COLS[4],
+                        SeColumnDefinition.TYPE_STRING, 25, 0, isNullable);
+                colDefs[6] = new SeColumnDefinition(TEST_TABLE_COLS[5],
+                        SeColumnDefinition.TYPE_DATE, 1, 0, isNullable);
+                // this is a blob one and should be ignored to all effects
+                colDefs[7] = new SeColumnDefinition("SE_ANNO_CAD_DATA",
+                        SeColumnDefinition.TYPE_BLOB, 1000, 0, isNullable);
 
-        /*
-         * Set the type of shapes that can be inserted into the layer. Shape type can be just one or
-         * many. NOTE: Layers that contain more than one shape type can only be accessed through the
-         * C and Java APIs and Arc Explorer Java 3.x. They cannot be seen from ArcGIS desktop
-         * applications.
-         */
-        layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
-                | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
-                | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
-        layer.setGridSizes(1100.0, 0.0, 0.0);
-        layer.setDescription("Layer Example");
+                /*
+                 * Create the table using the DBMS default configuration keyword. Valid keywords are
+                 * defined in the dbtune table.
+                 */
+                table.create(colDefs, configKeyword);
 
-        /*
-         * Define the layer's Coordinate Reference
-         */
-        SeCoordinateReference coordref = getGenericCoordRef();
+                /*
+                 * Register the column to be used as feature id and managed by sde
+                 */
+                SeRegistration reg = session.createSeRegistration(table.getName());
+                LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
+                reg.setRowIdColumnName("ROW_ID");
+                final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
+                reg.setRowIdColumnType(rowIdColumnType);
+                reg.alter();
 
-        // SeExtent ext = new SeExtent(-1000000.0, -1000000.0, 1000000.0,
-        // 1000000.0);
-        SeExtent ext = coordref.getXYEnvelope();
-        layer.setExtent(ext);
-        layer.setCoordRef(coordref);
+                /*
+                 * Define the attributes of the spatial column
+                 */
+                layer.setSpatialColumnName(TEST_TABLE_COLS[6]);
 
-        layer.setCreationKeyword(configKeyword);
+                /*
+                 * Set the type of shapes that can be inserted into the layer. Shape type can be
+                 * just one or many. NOTE: Layers that contain more than one shape type can only be
+                 * accessed through the C and Java APIs and Arc Explorer Java 3.x. They cannot be
+                 * seen from ArcGIS desktop applications.
+                 */
+                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
+                        | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
+                        | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
+                layer.setGridSizes(1100.0, 0.0, 0.0);
+                layer.setDescription("Layer Example");
 
-        /*
-         * Spatially enable the new table...
-         */
-        layer.create(3, 4);
+                /*
+                 * Define the layer's Coordinate Reference
+                 */
+                SeCoordinateReference coordref = getGenericCoordRef();
 
+                // SeExtent ext = new SeExtent(-1000000.0, -1000000.0, 1000000.0,
+                // 1000000.0);
+                SeExtent ext = coordref.getXYEnvelope();
+                layer.setExtent(ext);
+                layer.setCoordRef(coordref);
+
+                layer.setCreationKeyword(configKeyword);
+
+                /*
+                 * Spatially enable the new table...
+                 */
+                layer.create(3, 4);
+
+                return colDefs;
+            }
+        };
+        SeColumnDefinition[] colDefs = session.execute(createTableCmd);
         return colDefs;
     }
 
@@ -510,7 +532,7 @@ public class TestData {
         columns[4] = colDefs[5].getName(); // String column
         columns[5] = colDefs[6].getName(); // Date column
         columns[6] = "SHAPE"; // Shape column
-        
+
         SeInsert insert = session.createSeInsert();
         insert.intoTable(layer.getName(), columns);
         insert.setWriteMode(true);
@@ -841,95 +863,105 @@ public class TestData {
             final String tableName,
             final String rowIdColName,
             final int rowIdColumnType,
-            final int shapeTypeMask) throws SeException {
+            final int shapeTypeMask) throws IOException {
         System.out.println("Creating layer " + tableName);
 
-        final SeLayer layer = session.createSeLayer();
-        final SeTable table = session.createSeTable(tableName);
+        final Command<Void> createCmd = new Command<Void>() {
 
-        try {
-            table.delete();
-        } catch (SeException e) {
-            System.out.println("table " + tableName + " didnt already exist");
-        }
-        layer.setTableName(tableName);
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                final SeLayer layer = new SeLayer(connection);
+                final SeTable table = new SeTable(connection, tableName);
 
-        final boolean isNullable = true;
+                try {
+                    table.delete();
+                } catch (SeException e) {
+                    System.out.println("table " + tableName + " didnt already exist");
+                }
+                layer.setTableName(tableName);
 
-        // ROW_ID, INT_COL, DATE_COL, STRING_COL, SE_ANNO_CAD_DATA
-        final int numCols = 5;
-        final SeColumnDefinition[] colDefs = new SeColumnDefinition[numCols];
+                final boolean isNullable = true;
 
-        // first column to be SDE managed feature id
-        colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INT32, 10, 0, false);
-        colDefs[1] = new SeColumnDefinition("INT_COL", SeColumnDefinition.TYPE_INT32, 10, 0,
-                isNullable);
-        colDefs[2] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE, 1, 0,
-                isNullable);
-        colDefs[3] = new SeColumnDefinition("STRING_COL", SeColumnDefinition.TYPE_STRING, 25, 0,
-                isNullable);
-        // use a blob type just to make sure they're correctly ignored
-        colDefs[4] = new SeColumnDefinition("SE_ANNO_CAD_DATA", SeColumnDefinition.TYPE_BLOB, 4000,
-                0, isNullable);
+                // ROW_ID, INT_COL, DATE_COL, STRING_COL, SE_ANNO_CAD_DATA
+                final int numCols = 5;
+                final SeColumnDefinition[] colDefs = new SeColumnDefinition[numCols];
 
-        /*
-         * Create the table using the DBMS default configuration keyword. Valid keywords are defined
-         * in the dbtune table.
-         */
-        table.create(colDefs, configKeyword);
+                // first column to be SDE managed feature id
+                colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INT32, 10, 0,
+                        false);
+                colDefs[1] = new SeColumnDefinition("INT_COL", SeColumnDefinition.TYPE_INT32, 10,
+                        0, isNullable);
+                colDefs[2] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE, 1, 0,
+                        isNullable);
+                colDefs[3] = new SeColumnDefinition("STRING_COL", SeColumnDefinition.TYPE_STRING,
+                        25, 0, isNullable);
+                // use a blob type just to make sure they're correctly ignored
+                colDefs[4] = new SeColumnDefinition("SE_ANNO_CAD_DATA",
+                        SeColumnDefinition.TYPE_BLOB, 4000, 0, isNullable);
 
-        /*
-         * Register the column to be used as feature id and managed by sde
-         */
-        if (SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE != rowIdColumnType) {
-            SeRegistration reg = session.createSeRegistration(table.getName());
-            LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
-            reg.setRowIdColumnName("ROW_ID");
-            reg.setRowIdColumnType(rowIdColumnType);
-            reg.alter();
-        }
+                /*
+                 * Create the table using the DBMS default configuration keyword. Valid keywords are
+                 * defined in the dbtune table.
+                 */
+                table.create(colDefs, configKeyword);
 
-        // Only tables with an sde maintained rowid column can be versioned
-        if (SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE == rowIdColumnType) {
-            // make the table multiversioned
-            System.err.println("Making " + tableName + " versioned...");
-            SeRegistration reg = session.createSeRegistration(tableName);
-            reg.getInfo();
-            reg.setMultiVersion(true);
-            reg.alter();
-            System.err.println(tableName + " successfully made versioned");
-        }
+                /*
+                 * Register the column to be used as feature id and managed by sde
+                 */
+                if (SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE != rowIdColumnType) {
+                    SeRegistration reg = new SeRegistration(connection, table.getName());
+                    LOGGER.fine("setting rowIdColumnName to ROW_ID in table " + reg.getTableName());
+                    reg.setRowIdColumnName("ROW_ID");
+                    reg.setRowIdColumnType(rowIdColumnType);
+                    reg.alter();
+                }
 
-        /*
-         * Define the attributes of the spatial column
-         */
-        layer.setSpatialColumnName("GEOM");
+                // Only tables with an sde maintained rowid column can be versioned
+                if (SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE == rowIdColumnType) {
+                    // make the table multiversioned
+                    System.err.println("Making " + tableName + " versioned...");
+                    SeRegistration reg = new SeRegistration(connection, tableName);
+                    reg.getInfo();
+                    reg.setMultiVersion(true);
+                    reg.alter();
+                    System.err.println(tableName + " successfully made versioned");
+                }
 
-        /*
-         * Set the type of shapes that can be inserted into the layer.
-         */
-        layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | shapeTypeMask);
-        layer.setGridSizes(1100.0, 0.0, 0.0);
-        layer.setDescription("GeoTools test table");
+                /*
+                 * Define the attributes of the spatial column
+                 */
+                layer.setSpatialColumnName("GEOM");
 
-        /*
-         * Define the layer's Coordinate Reference
-         */
-        SeCoordinateReference coordref = getGenericCoordRef();
+                /*
+                 * Set the type of shapes that can be inserted into the layer.
+                 */
+                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | shapeTypeMask);
+                layer.setGridSizes(1100.0, 0.0, 0.0);
+                layer.setDescription("GeoTools test table");
 
-        // SeExtent ext = new SeExtent(-1000000.0, -1000000.0, 1000000.0,
-        // 1000000.0);
-        SeExtent ext = coordref.getXYEnvelope();
-        layer.setExtent(ext);
-        layer.setCoordRef(coordref);
+                /*
+                 * Define the layer's Coordinate Reference
+                 */
+                SeCoordinateReference coordref = getGenericCoordRef();
 
-        layer.setCreationKeyword(configKeyword);
+                // SeExtent ext = new SeExtent(-1000000.0, -1000000.0, 1000000.0,
+                // 1000000.0);
+                SeExtent ext = coordref.getXYEnvelope();
+                layer.setExtent(ext);
+                layer.setCoordRef(coordref);
 
-        /*
-         * Spatially enable the new table...
-         */
-        layer.create(3, 4);
+                layer.setCreationKeyword(configKeyword);
 
+                /*
+                 * Spatially enable the new table...
+                 */
+                layer.create(3, 4);
+                return null;
+            }
+        };
+
+        session.equals(createCmd);
     }
 
     /**
@@ -939,7 +971,7 @@ public class TestData {
      * @throws Exception any exception thrown by sde
      */
     public SeTable createVersionedTable(final Session session) throws Exception {
-        //SeConnection conn = session.unWrap();
+        // SeConnection conn = session.unWrap();
         SeLayer layer = session.createSeLayer();
         SeTable table;
 
@@ -1003,19 +1035,28 @@ public class TestData {
         return table;
     }
 
-    public void insertIntoVersionedTable(Session session,
-            SeState state,
-            String tableName,
-            String nameField) throws SeException {
-        SeInsert insert = session.createSeInsert();
+    public void insertIntoVersionedTable(final Session session,
+            final SeState state,
+            final String tableName,
+            final String nameField) throws IOException {
 
-        SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
-        insert.setState(state.getId(), differencesId, SeState.SE_STATE_DIFF_NOCHECK);
+        final SeInsert insert = session.createSeInsert();
 
-        insert.intoTable(tableName, new String[] { "NAME" });
-        SeRow row = insert.getRowToSet();
-        row.setString(0, "NAME 1");
-        insert.execute();
-        insert.close();
+        session.execute(new Command<Void>() {
+
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
+                insert.setState(state.getId(), differencesId, SeState.SE_STATE_DIFF_NOCHECK);
+
+                insert.intoTable(tableName, new String[] { "NAME" });
+                SeRow row = insert.getRowToSet();
+                row.setString(0, "NAME 1");
+                insert.execute();
+                insert.close();
+                return null;
+            }
+        });
     }
 }

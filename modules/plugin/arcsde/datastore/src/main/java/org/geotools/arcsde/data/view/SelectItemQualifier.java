@@ -16,6 +16,7 @@
  */
 package org.geotools.arcsde.data.view;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,12 +129,10 @@ class SelectItemQualifier implements net.sf.jsqlparser.statement.select.SelectIt
         qualified.setTable(qt);
 
         String tableName = qt.getSchemaName() + "." + qt.getName();
-        SeTable table;
         SeColumnDefinition[] cols;
         try {
-            table = session.createSeTable(tableName);
-            cols = table.describe();
-        } catch (SeException e) {
+            cols = session.describe(tableName);
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
 

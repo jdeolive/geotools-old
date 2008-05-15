@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DataSourceException;
 import org.geotools.feature.AttributeTypeBuilder;
@@ -46,6 +47,7 @@ import org.opengis.referencing.crs.CRSFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeDefs;
 import com.esri.sde.sdk.client.SeException;
@@ -249,12 +251,8 @@ public class ArcSDEAdapter {
 
         final SimpleFeatureType featureType = createSchema(typeName, namespace, properties);
 
-        SeRegistration registration;
-        try {
-            registration = session.createSeRegistration(typeName);
-        } catch (SeException e) {
-            throw new ArcSdeException("Can't get a registration object for " + typeName, e);
-        }
+        SeRegistration registration = session.createSeRegistration(typeName);
+
         final boolean isMultiVersioned = registration.isMultiVersion();
         final boolean isView = registration.isView();
         final FIDReader fidStrategy;
@@ -332,33 +330,35 @@ public class ArcSDEAdapter {
         }
         LOGGER.fine("testing query");
 
-        final SeQuery testQuery;
-        try {
-            testQuery = session.createSeQuery();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-        try {
-            testQuery.prepareQueryInfo(queryInfo);
-            testQuery.execute();
-            LOGGER.fine("definition query executed successfully");
+        final Command<SeColumnDefinition[]> testQueryCmd = new Command<SeColumnDefinition[]>() {
+            @Override
+            public SeColumnDefinition[] execute(Session session, SeConnection connection)
+                    throws SeException, IOException {
+                final SeQuery testQuery = new SeQuery(connection);
 
-            LOGGER.fine("fetching row to obtain view's types");
+                try {
+                    testQuery.prepareQueryInfo(queryInfo);
+                    testQuery.execute();
+                    LOGGER.fine("definition query executed successfully");
 
-            SeRow testRow = testQuery.fetch();
-            SeColumnDefinition[] colDefs = testRow.getColumns();
+                    LOGGER.fine("fetching row to obtain view's types");
 
-            attributeDescriptors = createAttributeDescriptors(layer, namespace, colDefs);
-
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        } finally {
-            try {
-                testQuery.close();
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
+                    SeRow testRow = testQuery.fetch();
+                    SeColumnDefinition[] colDefs = testRow.getColumns();
+                    return colDefs;
+                } finally {
+                    try {
+                        testQuery.close();
+                    } catch (SeException e) {
+                        throw new ArcSdeException(e);
+                    }
+                }
             }
-        }
+        };
+
+        final SeColumnDefinition[] colDefs = session.execute(testQueryCmd);
+        attributeDescriptors = createAttributeDescriptors(layer, namespace, colDefs);
+
         final SimpleFeatureType type = createSchema(typeName, namespace, attributeDescriptors);
         final FIDReader fidStrategy = FIDReader.NULL_READER;
 
@@ -433,15 +433,16 @@ public class ArcSDEAdapter {
                     LOGGER.info("Found an unsupported ArcSDE data type: " + sdeType
                             + " for column " + attName + ". Ignoring it.");
                     continue;
-                }                
+                }
                 // @TODO: add restrictions once the Restrictions utility methods
                 // are implemented
                 // Set restrictions = Restrictions.createLength(name, typeClass,
                 // fieldLen);
             }
             int rowIdType = colDef.getRowIdType();
-            if( colDef.getRowIdType() == SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE ){
-                continue; // skip over things we cannot edit modify or otherwise treat as attributes
+            if (colDef.getRowIdType() == SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE) {
+                continue; // skip over things we cannot edit modify or otherwise treat as
+                // attributes
             }
             AttributeTypeBuilder b = new AttributeTypeBuilder();
             b.setBinding(typeClass);
@@ -983,7 +984,7 @@ public class ArcSDEAdapter {
             table.dropColumn(HACK_COL_NAME);
 
             LOGGER.fine("setting up table registration with ArcSDE...");
-            SeRegistration reg = session.createSeRegistration( table.getName() );
+            SeRegistration reg = session.createSeRegistration(table.getName());
             if (rowIdColumn != null) {
                 LOGGER.fine("setting rowIdColumnName to " + rowIdColumn + " in table "
                         + reg.getTableName());
@@ -1006,27 +1007,33 @@ public class ArcSDEAdapter {
         }
     }
 
-    private static SeTable createSeTable(Session session,
-            String qualifiedName,
-            String hackColName,
-            String configKeyword) throws SeException {
-        SeTable table;
-        final SeColumnDefinition[] tmpCol = { new SeColumnDefinition(hackColName,
-                SeColumnDefinition.TYPE_STRING, 4, 0, true) };
-        table = session.createSeTable(qualifiedName);
+    private static SeTable createSeTable(final Session session,
+            final String qualifiedName,
+            final String hackColName,
+            final String configKeyword) throws IOException {
 
+        final SeTable table;
+        final SeColumnDefinition[] tmpCol = new SeColumnDefinition[1];
         try {
-            LOGGER.warning("Remove the line 'table.delete()' for production use!!!");
-            table.delete();
+            tmpCol[0] = new SeColumnDefinition(hackColName, SeColumnDefinition.TYPE_STRING, 4, 0,
+                    true);
         } catch (SeException e) {
-            // intentionally do nothing
+            throw new ArcSdeException(e);
         }
+        table = session.createSeTable(qualifiedName);
 
         LOGGER.info("creating table " + qualifiedName);
 
         // create the table using DBMS default configuration keyword.
         // valid keywords are defined in the dbtune table.
-        table.create(tmpCol, configKeyword);
+        session.execute(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                table.create(tmpCol, configKeyword);
+                return null;
+            }
+        });
         LOGGER.info("table " + qualifiedName + " created...");
 
         return table;

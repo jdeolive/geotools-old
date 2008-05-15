@@ -93,33 +93,30 @@ public class RasterTestData {
     /*
      * Names for the raster data test tables
      */
-    public String get1bitRasterTableName() throws SeException,
-            UnavailableArcSDEConnectionException, DataSourceException {
+    public String get1bitRasterTableName() throws UnavailableArcSDEConnectionException, IOException {
         return testData.getTemp_table() + "_ONEBITRASTER";
     }
 
-    public String getRGBRasterTableName() throws SeException, UnavailableArcSDEConnectionException,
-            DataSourceException {
+    public String getRGBRasterTableName() throws UnavailableArcSDEConnectionException, IOException {
         return testData.getTemp_table() + "_RGBRASTER";
     }
 
-    public String getRGBARasterTableName() throws SeException,
-            UnavailableArcSDEConnectionException, DataSourceException {
+    public String getRGBARasterTableName() throws UnavailableArcSDEConnectionException, IOException {
         return testData.getTemp_table() + "_RGBARASTER";
     }
 
-    public String getRGBColorMappedRasterTableName() throws SeException,
-            UnavailableArcSDEConnectionException, DataSourceException {
+    public String getRGBColorMappedRasterTableName() throws UnavailableArcSDEConnectionException,
+            IOException {
         return testData.getTemp_table() + "_RGBRASTER_CM";
     }
 
-    public String getGrayScaleOneByteRasterTableName() throws SeException,
-            UnavailableArcSDEConnectionException, DataSourceException {
+    public String getGrayScaleOneByteRasterTableName() throws UnavailableArcSDEConnectionException,
+            IOException {
         return testData.getTemp_table() + "_GRAYSCALERASTER";
     }
 
-    public String getFloatRasterTableName() throws SeException,
-            UnavailableArcSDEConnectionException, DataSourceException {
+    public String getFloatRasterTableName() throws UnavailableArcSDEConnectionException,
+            IOException {
         return testData.getTemp_table() + "_FLOATRASTER";
     }
 
@@ -258,9 +255,7 @@ public class RasterTestData {
 
         // first column to be SDE managed feature id
         colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false);
-        session.getLock().lock();
         table.create(colDefs, testData.getConfigKeyword());
-        session.getLock().unlock();
 
         /*
          * Register the column to be used as feature id and managed by sde
@@ -270,9 +265,7 @@ public class RasterTestData {
         reg.setRowIdColumnName("ROW_ID");
         final int rowIdColumnType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
         reg.setRowIdColumnType(rowIdColumnType);
-        session.getLock().lock();
         reg.alter();
-        session.getLock().unlock();
     }
 
     public void importRasterImage(final String tableName,
@@ -303,9 +296,7 @@ public class RasterTestData {
             rasCol.setCoordRef(crs);
             rasCol.setConfigurationKeyword(testData.getConfigKeyword());
 
-            session.getLock().lock();
             rasCol.create();
-            session.getLock().unlock();
 
             // now start loading the actual raster data
             BufferedImage sampleImage = ImageIO.read(org.geotools.test.TestData.getResource(null,
@@ -338,10 +329,8 @@ public class RasterTestData {
                 SeRow row = insert.getRowToSet();
                 row.setRaster(0, attr);
 
-                session.getLock().lock();
                 insert.execute();
                 insert.close();
-                session.getLock().unlock();
             } catch (SeException se) {
                 se.printStackTrace();
                 throw se;
@@ -395,35 +384,39 @@ public class RasterTestData {
      * @param image2
      * @return
      */
-    public static boolean imageEquals(RenderedImage image1, RenderedImage image2, boolean ignoreAlpha) {
+    public static boolean imageEquals(RenderedImage image1,
+            RenderedImage image2,
+            boolean ignoreAlpha) {
 
         final int h = image1.getHeight();
         final int w = image2.getWidth();
-        
+
         int skipBand = -1;
         if (ignoreAlpha) {
             skipBand = 3;
         }
-        
+
         for (int b = 0; b < image1.getData().getNumBands(); b++) {
-            if (b == skipBand) continue;
+            if (b == skipBand)
+                continue;
             int[] img1data = image1.getData().getSamples(0, 0, image1.getWidth(),
                     image1.getHeight(), b, new int[image1.getHeight() * image1.getWidth()]);
             int[] img2data = image2.getData().getSamples(0, 0, image1.getWidth(),
                     image1.getHeight(), b, new int[image1.getHeight() * image1.getWidth()]);
-            
+
             if (!Arrays.equals(img1data, img2data)) {
                 // try to figure out which pixel (exactly) was different
                 for (int i = 0; i < img1data.length; i++) {
                     if (img1data[i] != img2data[i]) {
                         final int x = i % image1.getWidth();
                         final int y = i / image1.getHeight();
-                        System.out.println("pixel " + i + " (possibly " + x + "," + y + ") differs: "  + img1data[i] + " != " + img2data[i]);
+                        System.out.println("pixel " + i + " (possibly " + x + "," + y
+                                + ") differs: " + img1data[i] + " != " + img2data[i]);
                         return false;
                     }
                 }
             }
-            
+
             /*
              * for (int xpos = 0; xpos < image1.getWidth(); xpos++) { System.out.println("checking
              * column " + xpos); int[] img1data = image1.getData().getSamples(xpos, 0, 1,
@@ -440,18 +433,16 @@ public class RasterTestData {
     public SeRasterAttr getRasterAttributes(final String rasterName,
             Rectangle tiles,
             int level,
-            int[] bands) throws DataSourceException, UnavailableArcSDEConnectionException {
+            int[] bands) throws IOException, UnavailableArcSDEConnectionException {
 
         Session session = testData.getConnectionPool().getConnection();
 
         try {
-            SeQuery query = session.createSeQuery(new String[] { session.getRasterColumn(rasterName)
-                    .getName() }, new SeSqlConstruct(rasterName));
-            session.getLock().lock();
+            SeQuery query = session.createSeQuery(new String[] { session
+                    .getRasterColumn(rasterName).getName() }, new SeSqlConstruct(rasterName));
             query.prepareQuery();
             query.execute();
             final SeRow r = query.fetch();
-            session.getLock().unlock();
 
             // Now build a SeRasterConstraint object which queries the db for
             // the right tiles/bands/pyramid level
@@ -463,13 +454,11 @@ public class RasterTestData {
 
             // Finally, execute the raster query aganist the already-opened
             // SeQuery object which already has an SeRow fetched against it.
-            session.getLock().lock();
 
             query.queryRasterTile(rConstraint);
             final SeRasterAttr rattr = r.getRaster(0);
 
             query.close();
-            session.getLock().unlock();
 
             return rattr;
         } catch (SeException se) {

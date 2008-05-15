@@ -30,10 +30,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.pool.ObjectPool;
+import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 
+import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDelete;
+import com.esri.sde.sdk.client.SeDoesNotExistException;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
@@ -170,14 +173,10 @@ public class Session {
         }
     }
 
-    public synchronized SeLayer getLayer(final String layerName) throws DataSourceException {
+    public synchronized SeLayer getLayer(final String layerName) throws IOException {
         checkActive();
         if (!cachedLayers.containsKey(layerName)) {
-            try {
-                cacheLayers();
-            } catch (SeException e) {
-                throw new DataSourceException("Can't obtain layer " + layerName, e);
-            }
+            cacheLayers();
         }
         SeLayer seLayer = cachedLayers.get(layerName);
         if (seLayer == null) {
@@ -186,8 +185,7 @@ public class Session {
         return seLayer;
     }
 
-    public synchronized SeRasterColumn getRasterColumn(final String rasterName)
-            throws DataSourceException {
+    public synchronized SeRasterColumn getRasterColumn(final String rasterName) throws IOException {
         checkActive();
         if (!cachedRasters.containsKey(rasterName)) {
             try {
@@ -203,14 +201,10 @@ public class Session {
         return raster;
     }
 
-    public synchronized SeTable getTable(final String tableName) throws DataSourceException {
+    public synchronized SeTable getTable(final String tableName) throws IOException {
         checkActive();
         if (!cachedTables.containsKey(tableName)) {
-            try {
-                cacheLayers();
-            } catch (SeException e) {
-                throw new DataSourceException("Can't obtain table " + tableName, e);
-            }
+            cacheLayers();
         }
         SeTable seTable = (SeTable) cachedTables.get(tableName);
         if (seTable == null) {
@@ -225,20 +219,27 @@ public class Session {
      * @throws SeException
      */
     @SuppressWarnings("unchecked")
-    private void cacheLayers() throws SeException {
-        Vector/* <SeLayer> */layers = connection.getLayers();
-        String qualifiedName;
-        SeLayer layer;
-        SeTable table;
-        cachedTables.clear();
-        cachedLayers.clear();
-        for (Iterator it = layers.iterator(); it.hasNext();) {
-            layer = (SeLayer) it.next();
-            qualifiedName = layer.getQualifiedName();
-            table = new SeTable(connection, qualifiedName);
-            cachedLayers.put(qualifiedName, layer);
-            cachedTables.put(qualifiedName, table);
-        }
+    private void cacheLayers() throws IOException {
+        Command<Void> cmd = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException {
+                Vector/* <SeLayer> */layers = connection.getLayers();
+                String qualifiedName;
+                SeLayer layer;
+                SeTable table;
+                cachedTables.clear();
+                cachedLayers.clear();
+                for (Iterator it = layers.iterator(); it.hasNext();) {
+                    layer = (SeLayer) it.next();
+                    qualifiedName = layer.getQualifiedName();
+                    table = new SeTable(connection, qualifiedName);
+                    cachedLayers.put(qualifiedName, layer);
+                    cachedTables.put(qualifiedName, table);
+                }
+                return null;
+            }
+        };
+        execute(cmd);
     }
 
     @SuppressWarnings("unchecked")
@@ -250,16 +251,30 @@ public class Session {
         }
     }
 
-    public void startTransaction() throws SeException {
+    public void startTransaction() throws IOException {
         checkActive();
-        this.connection.startTransaction();
-        transactionInProgress = true;
+        execute(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                connection.startTransaction();
+                transactionInProgress = true;
+                return null;
+            }
+        });
     }
 
-    public void commitTransaction() throws SeException {
+    public void commitTransaction() throws IOException {
         checkActive();
-        this.connection.commitTransaction();
-        transactionInProgress = false;
+        execute(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                connection.commitTransaction();
+                transactionInProgress = false;
+                return null;
+            }
+        });
     }
 
     /**
@@ -275,10 +290,15 @@ public class Session {
         return transactionInProgress;
     }
 
-    public void rollbackTransaction() throws SeException {
+    public void rollbackTransaction() throws IOException {
         checkActive();
-        this.connection.rollbackTransaction();
-        transactionInProgress = false;
+        try {
+            this.connection.rollbackTransaction();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        } finally {
+            transactionInProgress = false;
+        }
     }
 
     /**
@@ -343,72 +363,136 @@ public class Session {
     // Helper method that delgates to internal connection
     //
     @SuppressWarnings("unchecked")
-    public List<SeLayer> getLayers() throws SeException {
-        return connection.getLayers();
+    public List<SeLayer> getLayers() throws IOException {
+        try {
+            return connection.getLayers();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public String getUser() throws SeException {
-        return connection.getUser();
+    public String getUser() throws IOException {
+        try {
+            return connection.getUser();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     public SeRelease getRelease() {
         return connection.getRelease();
     }
 
-    public String getDatabaseName() throws SeException {
-        return connection.getDatabaseName();
+    public String getDatabaseName() throws IOException {
+        try {
+            return connection.getDatabaseName();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public void setConcurrency(int policy) throws SeException {
-        connection.setConcurrency(policy);
+    public void setConcurrency(int policy) throws IOException {
+        try {
+            connection.setConcurrency(policy);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public void setTransactionAutoCommit(int auto) throws SeException {
-        connection.setTransactionAutoCommit(auto);
+    public void setTransactionAutoCommit(int auto) throws IOException {
+        try {
+            connection.setTransactionAutoCommit(auto);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     //
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...
     //
-    public SeLayer createSeLayer() throws SeException {
+    public SeLayer createSeLayer() throws IOException {
         return new SeLayer(connection);
     }
 
-    public SeLayer createSeLayer(String tableName, String shape) throws SeException {
-        return new SeLayer(connection, tableName, shape);
+    public SeLayer createSeLayer(String tableName, String shape) throws IOException {
+        try {
+            return new SeLayer(connection, tableName, shape);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeQuery createSeQuery() throws SeException {
-        return new SeQuery(connection);
+    public SeQuery createSeQuery() throws IOException {
+        try {
+            return new SeQuery(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws SeException {
-        return new SeQuery(connection, propertyNames, sql);
+    public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws IOException {
+        try {
+            return new SeQuery(connection, propertyNames, sql);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeRegistration createSeRegistration(String typeName) throws SeException {
-        return new SeRegistration(connection, typeName);
+    public SeRegistration createSeRegistration(String typeName) throws IOException {
+        try {
+            return new SeRegistration(connection, typeName);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeTable createSeTable(String qualifiedName) throws SeException {
-        return new SeTable(connection, qualifiedName);
+    /**
+     * Creates an SeTable named
+     * <code>qualifiedName<code>; the layer does not need to exist on the server.
+     * 
+     * @param qualifiedName
+     * @return
+     * @throws IOException
+     */
+    public SeTable createSeTable(String qualifiedName) throws IOException {
+        try {
+            return new SeTable(connection, qualifiedName);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeInsert createSeInsert() throws SeException {
-        return new SeInsert(connection);
+    public SeInsert createSeInsert() throws IOException {
+        try {
+            return new SeInsert(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeUpdate createSeUpdate() throws SeException {
-        return new SeUpdate(connection);
+    public SeUpdate createSeUpdate() throws IOException {
+        try {
+            return new SeUpdate(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeDelete createSeDelete() throws SeException {
-        return new SeDelete(connection);
+    public SeDelete createSeDelete() throws IOException {
+        try {
+            return new SeDelete(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeVersion createSeVersion(String versionName) throws SeException {
-        return new SeVersion(connection, versionName);
+    public SeVersion createSeVersion(String versionName) throws IOException {
+        try {
+            return new SeVersion(connection, versionName);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     /**
@@ -416,25 +500,38 @@ public class Session {
      * 
      * @param stateId stateId to use, or null
      * @return SeState
-     * @throws SeException
+     * @throws IOException
      */
-    public SeState createSeState(SeObjectId stateId) throws SeException {
-        if (stateId == null) {
-            return createSeState();
+    public SeState createSeState(SeObjectId stateId) throws IOException {
+        try {
+            return new SeState(connection, stateId);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
         }
-        return new SeState(connection, stateId);
     }
 
-    public SeState createSeState() throws SeException {
-        return new SeState(connection);
+    public SeState createSeState() throws IOException {
+        try {
+            return new SeState(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeRasterColumn createSeRasterColumn() throws SeException {
-        return new SeRasterColumn(connection);
+    public SeRasterColumn createSeRasterColumn() throws IOException {
+        try {
+            return new SeRasterColumn(connection);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
-    public SeRasterColumn createSeRasterColumn(SeObjectId rasterColumnId) throws SeException {
-        return new SeRasterColumn(connection, rasterColumnId);
+    public SeRasterColumn createSeRasterColumn(SeObjectId rasterColumnId) throws IOException {
+        try {
+            return new SeRasterColumn(connection, rasterColumnId);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     /**
@@ -444,12 +541,25 @@ public class Session {
      * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
      *             command
      */
-    public void execute(Command command) throws IOException {
+    public <T> T execute(Command<T> command) throws IOException {
         try {
             lock.lock();
-            command.execute(this, connection);
+            try {
+                return command.execute(this, connection);
+            } catch (SeException e) {
+                throw new ArcSdeException(e);
+            }
         } finally {
             lock.unlock();
+        }
+    }
+
+    public SeColumnDefinition[] describe(String tableName) throws IOException {
+        SeTable table = getTable(tableName);
+        try {
+            return table.describe();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
         }
     }
 }

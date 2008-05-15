@@ -723,8 +723,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
     private void testInsertAutoCommit(Class<? extends Geometry> geometryClass) throws Exception {
         final String typeName = testData.getTemp_table();
         final int insertCount = 2;
-        final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures = testData
-                .createTestFeatures(geometryClass, insertCount);
+        final FeatureCollection<SimpleFeatureType, SimpleFeature> testFeatures;
+        testFeatures = testData.createTestFeatures(geometryClass, insertCount);
 
         final DataStore ds = testData.getDataStore();
         final FeatureSource<SimpleFeatureType, SimpleFeature> fsource = ds

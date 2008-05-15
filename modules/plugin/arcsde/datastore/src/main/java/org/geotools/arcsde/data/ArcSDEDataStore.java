@@ -222,8 +222,8 @@ public class ArcSDEDataStore implements DataStore {
         // indicates the feature reader should close the connection when done
         // if it's not inside a transaction.
         final boolean handleConnection = true;
-        FeatureReader<SimpleFeatureType, SimpleFeature> reader = getFeatureReader(query,
-                session, handleConnection, versionHandler);
+        FeatureReader<SimpleFeatureType, SimpleFeature> reader = getFeatureReader(query, session,
+                handleConnection, versionHandler);
 
         return reader;
     }
@@ -324,7 +324,8 @@ public class ArcSDEDataStore implements DataStore {
     public FeatureSource<SimpleFeatureType, SimpleFeature> getFeatureSource(final String typeName)
             throws IOException {
         final FeatureTypeInfo typeInfo = getFeatureTypeInfo(typeName);
-        final ArcSdeVersionHandler versionHandler = getVersionHandler(typeName, Transaction.AUTO_COMMIT);
+        final ArcSdeVersionHandler versionHandler = getVersionHandler(typeName,
+                Transaction.AUTO_COMMIT);
         FeatureSource<SimpleFeatureType, SimpleFeature> fsource;
         if (typeInfo.isWritable()) {
             fsource = new ArcSdeFeatureStore(typeInfo, this, versionHandler);
@@ -340,8 +341,8 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @see DataStore#getFeatureWriter(String, Transaction)
      */
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(final String typeName,
-            final Transaction transaction) throws IOException {
+    public ArcSdeFeatureWriter getFeatureWriter(final String typeName, final Transaction transaction)
+            throws IOException {
         return getFeatureWriter(typeName, Filter.INCLUDE, transaction);
     }
 
@@ -382,40 +383,41 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @param runnable Code to be executed with an ArcSDEConnection
      */
-    void getConnection( Command runnable ) throws IOException {
-    	// for now we will just make use of Transaction.AUTO_COMMIT
-    	getConnection( runnable, Transaction.AUTO_COMMIT );
+    void getConnection(Command runnable) throws IOException {
+        // for now we will just make use of Transaction.AUTO_COMMIT
+        getConnection(runnable, Transaction.AUTO_COMMIT);
     }
-    
+
     /**
      * Execute code that requires an ArcSDEConnection for a read/write activity.
+     * 
      * @param runnable
      * @param transaction
      */
-    void getConnection( Command command, Transaction transaction ) throws IOException {
+    void getConnection(Command command, Transaction transaction) throws IOException {
         final Session session;
         final ArcTransactionState state;
-        
+
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             session = connectionPool.getConnection();
             try {
-            	session.execute( command );            
-            }
-            finally {
+                session.execute(command);
+            } finally {
                 session.close(); // return to pool
             }
             state = null;
         } else {
-            state = ArcTransactionState.getState(transaction, connectionPool, listenerManager, false );
+            state = ArcTransactionState.getState(transaction, connectionPool, listenerManager,
+                    false);
             session = state.getConnection();
-            session.execute( command );
-        }        
+            session.execute(command);
+        }
     }
-    
+
     /**
      * @see DataStore#getFeatureWriter(String, Filter, Transaction)
      */
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(final String typeName,
+    public ArcSdeFeatureWriter getFeatureWriter(final String typeName,
             final Filter filter,
             final Transaction transaction) throws IOException {
         // get the connection the streamed writer content has to work over
@@ -451,7 +453,7 @@ public class ArcSDEDataStore implements DataStore {
             final FeatureReader<SimpleFeatureType, SimpleFeature> reader;
             reader = getFeatureReader(query, session, closeConnection, versionHandler);
 
-            final FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+            final ArcSdeFeatureWriter writer;
 
             final FIDReader fidReader = typeInfo.getFidStrategy();
 
@@ -468,18 +470,18 @@ public class ArcSDEDataStore implements DataStore {
         } catch (IOException e) {
             try {
                 session.rollbackTransaction();
-            } catch (SeException e1) {
-                LOGGER.log(Level.SEVERE, "Error rolling back transaction on " + session, e);
+            } finally {
+                session.close();
             }
-            session.close();
             throw e;
         } catch (RuntimeException e) {
             try {
                 session.rollbackTransaction();
-            } catch (SeException e1) {
+            } catch (IOException e1) {
                 LOGGER.log(Level.SEVERE, "Error rolling back transaction on " + session, e);
+            } finally {
+                session.close();
             }
-            session.close();
             throw e;
         }
     }
@@ -490,7 +492,7 @@ public class ArcSDEDataStore implements DataStore {
      * 
      * @see DataStore#getFeatureWriterAppend(String, Transaction)
      */
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriterAppend(final String typeName,
+    public ArcSdeFeatureWriter getFeatureWriterAppend(final String typeName,
             final Transaction transaction) throws IOException {
         return getFeatureWriter(typeName, Filter.EXCLUDE, transaction);
     }
@@ -633,8 +635,8 @@ public class ArcSDEDataStore implements DataStore {
     }
 
     /**
-     * Check inProcessFeatureTypeInfos and featureTypeInfos for the provided typeName,
-     * checking the ArcSDE server as a last resort.
+     * Check inProcessFeatureTypeInfos and featureTypeInfos for the provided typeName, checking the
+     * ArcSDE server as a last resort.
      * 
      * @param typeName
      * @return FeatureTypeInfo
@@ -653,19 +655,22 @@ public class ArcSDEDataStore implements DataStore {
         if (typeInfo != null) {
             return typeInfo;
         }
-        return getFeatureTypeInfo(typeName, getConnectionPool() );
+        return getFeatureTypeInfo(typeName, getConnectionPool());
     }
 
     /**
-     * Obtain a connection used to retrieve the user name if a non qualified type name was passed in.
+     * Obtain a connection used to retrieve the user name if a non qualified type name was passed
+     * in.
      * <p>
-     * This method is responsible for leasing a connection from the provided pool
-     * and calling getFeatureTypeInfo( typeName, connection ) to populate inProcessFeatureTypeInfos.
+     * This method is responsible for leasing a connection from the provided pool and calling
+     * getFeatureTypeInfo( typeName, connection ) to populate inProcessFeatureTypeInfos.
+     * 
      * @param typeName
      * @param pool
      * @return Generated FeatureTypeInfo for typeName
      */
-    protected synchronized FeatureTypeInfo getFeatureTypeInfo( String typeName, ArcSDEConnectionPool pool ) throws IOException {
+    protected synchronized FeatureTypeInfo getFeatureTypeInfo(String typeName,
+            ArcSDEConnectionPool pool) throws IOException {
         final Session session = getConnectionPool().getConnection();
         try {
             return getFeatureTypeInfo(typeName, session);
@@ -673,9 +678,9 @@ public class ArcSDEDataStore implements DataStore {
             session.close();
         }
     }
-    
-    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName,
-            final Session session) throws IOException {
+
+    synchronized FeatureTypeInfo getFeatureTypeInfo(final String typeName, final Session session)
+            throws IOException {
 
         FeatureTypeInfo ftInfo = inProcessFeatureTypeInfos.get(typeName);
 

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -42,9 +43,8 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeTable;
 
 /**
- * Visits a {@link net.sf.jsqlparser.statement.select.PlainSelect} SQL SELECT
- * construct to create the correspondent
- * {@link com.esri.sde.sdk.client.SeQueryInfo} object, that can be used as an in
+ * Visits a {@link net.sf.jsqlparser.statement.select.PlainSelect} SQL SELECT construct to create
+ * the correspondent {@link com.esri.sde.sdk.client.SeQueryInfo} object, that can be used as an in
  * process view definition of ArcSDE Java API.
  * 
  * @author Gabriel Roldan, Axios Engineering
@@ -127,13 +127,11 @@ public class QueryInfoParser {
     }
 
     /**
-     * 
      * @param selectItems
-     * @return <code>null</code> if <code>selectItems</code> is null or
-     *         contains only an
+     * @return <code>null</code> if <code>selectItems</code> is null or contains only an
      *         {@link net.sf.jsqlparser.statement.select.AllColumns}
      */
-    private static String[] getColumns(Session session, List selectItems) throws SeException {
+    private static String[] getColumns(Session session, List selectItems) throws IOException {
         if (selectItems == null || selectItems.size() == 0) {
             return null;
         }
@@ -161,11 +159,10 @@ public class QueryInfoParser {
         return columns;
     }
 
-    private static List getTableColumns(Session session, Table table) throws SeException {
+    private static List getTableColumns(Session session, Table table) throws IOException {
         List colNames = new ArrayList();
         String tableName = table.getSchemaName() + "." + table.getName();
-        SeTable seTable = session.createSeTable( tableName);
-        SeColumnDefinition[] cols = seTable.describe();
+        SeColumnDefinition[] cols = session.describe(tableName);
         for (int i = 0; i < cols.length; i++) {
             String colName = cols[i].getName();
             colName = tableName + "." + colName;

@@ -17,6 +17,7 @@
 package org.geotools.arcsde.gce;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -83,7 +84,7 @@ public class ArcSDERasterFormat extends AbstractGridFormat implements Format {
     public GridCoverageReader getReader(Object source, Hints hints) {
         try {
             return new ArcSDERasterGridCoverage2DReader(source, hints);
-        } catch (DataSourceException dse) {
+        } catch (IOException dse) {
             LOGGER
                     .log(Level.SEVERE, "Unable to creata ArcSDERasterReader for " + source + ".",
                             dse);

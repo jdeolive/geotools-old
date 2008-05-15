@@ -16,10 +16,12 @@
  */
 package org.geotools.arcsde.data;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
@@ -28,6 +30,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.esri.sde.sdk.client.SDEPoint;
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeInsert;
@@ -42,8 +45,7 @@ import com.esri.sde.sdk.client.SeTable;
  * @author Gabriel Roldan, Axios Engineering
  * @source $URL:
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/test/java/org/geotools/arcsde/data/InProcessViewSupportTestData.java $
- * @version $Id: InProcessViewSupportTestData.java 27989 2007-11-22 14:38:30Z
- *          groldan $
+ * @version $Id$
  * @since 2.4.x
  */
 public class InProcessViewSupportTestData {
@@ -64,14 +66,14 @@ public class InProcessViewSupportTestData {
     public static String masterChildSql;
 
     /**
-     * Extra datastore creation parameters to set up {@link #typeName} as a
-     * FeatureType defined by {@link #masterChildSql}
+     * Extra datastore creation parameters to set up {@link #typeName} as a FeatureType defined by
+     * {@link #masterChildSql}
      */
     public static Map registerViewParams;
 
     public static final String typeName = "MasterChildTest";
 
-    public static void setUp(Session session, TestData td) throws SeException, DataSourceException,
+    public static void setUp(Session session, TestData td) throws IOException,
             UnavailableArcSDEConnectionException {
 
         testCrs = DefaultGeographicCRS.WGS84;
@@ -95,65 +97,90 @@ public class InProcessViewSupportTestData {
         registerViewParams.put("sqlView.1.sqlQuery", masterChildSql);
     }
 
-    private static void createMasterTable(Session session, TestData td) throws SeException,
-            DataSourceException, UnavailableArcSDEConnectionException {
-        SeTable table = session.createSeTable( MASTER);
-        SeLayer layer = null;
-        try {
-            table.delete();
-        } catch (SeException e) {
-            // no-op, table didn't existed
-        }
-
-        SeColumnDefinition[] colDefs = new SeColumnDefinition[2];
-
-        layer = session.createSeLayer();
-        layer.setTableName(MASTER);
-
-        colDefs[0] = new SeColumnDefinition("ID", SeColumnDefinition.TYPE_INT32, 10, 0, false);
-        colDefs[1] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 255, 0, false);
-
-        table.create(colDefs, td.getConfigKeyword());
-
-        layer.setSpatialColumnName("SHAPE");
-        layer.setShapeTypes(SeLayer.SE_POINT_TYPE_MASK);
-        layer.setGridSizes(1100.0, 0.0, 0.0);
-        layer.setDescription("Geotools sde pluing join support testing master table");
-        SeCoordinateReference coordref = new SeCoordinateReference();
-        coordref.setCoordSysByDescription(testCrs.toWKT());
+    private static void createMasterTable(final Session session, final TestData td)
+            throws IOException, UnavailableArcSDEConnectionException {
         
-        layer.setCreationKeyword(td.getConfigKeyword());
-        layer.create(3, 4);
+        final SeTable table = session.createSeTable(MASTER);
+        
+        final Command<SeLayer> createLayerCmd = new Command<SeLayer>() {
+
+            @Override
+            public SeLayer execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeLayer layer;
+                try {
+                    table.delete();
+                } catch (SeException e) {
+                    // no-op, table didn't existed
+                }
+
+                SeColumnDefinition[] colDefs = new SeColumnDefinition[2];
+
+                layer = session.createSeLayer();
+                layer.setTableName(MASTER);
+
+                colDefs[0] = new SeColumnDefinition("ID", SeColumnDefinition.TYPE_INT32, 10, 0,
+                        false);
+                colDefs[1] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 255, 0,
+                        false);
+
+                table.create(colDefs, td.getConfigKeyword());
+
+                layer.setSpatialColumnName("SHAPE");
+                layer.setShapeTypes(SeLayer.SE_POINT_TYPE_MASK);
+                layer.setGridSizes(1100.0, 0.0, 0.0);
+                layer.setDescription("Geotools sde pluing join support testing master table");
+                SeCoordinateReference coordref = new SeCoordinateReference();
+                coordref.setCoordSysByDescription(testCrs.toWKT());
+
+                layer.setCreationKeyword(td.getConfigKeyword());
+                layer.create(3, 4);
+                return layer;
+            }
+        };
+
+        SeLayer layer = session.execute(createLayerCmd);
 
         insertMasterData(session, layer);
-        LOGGER.info("successfully created master table " + layer.getQualifiedName());
+        LOGGER.info("successfully created master table " + MASTER);
     }
 
-    private static void createChildTable(Session session, TestData td) throws DataSourceException,
-            UnavailableArcSDEConnectionException, SeException {
-        SeTable table = session.createSeTable(CHILD);
-        try {
-            table.delete();
-        } catch (SeException e) {
-            // no-op, table didn't existed
-        }
+    private static void createChildTable(final Session session, final TestData td)
+            throws IOException, UnavailableArcSDEConnectionException {
+        final SeTable table = session.createSeTable(CHILD);
+        Command<Void> createCmd = new Command<Void>() {
 
-        SeColumnDefinition[] colDefs = new SeColumnDefinition[4];
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                try {
+                    table.delete();
+                } catch (SeException e) {
+                    // no-op, table didn't existed
+                }
 
-        colDefs[0] = new SeColumnDefinition("ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false);
-        colDefs[1] = new SeColumnDefinition("MASTER_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0,
-                false);
-        colDefs[2] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 255, 0, false);
-        colDefs[3] = new SeColumnDefinition("DESCRIPTION", SeColumnDefinition.TYPE_STRING, 255, 0,
-                false);
+                SeColumnDefinition[] colDefs = new SeColumnDefinition[4];
 
-        table.create(colDefs, td.getConfigKeyword());
+                colDefs[0] = new SeColumnDefinition("ID", SeColumnDefinition.TYPE_INTEGER, 10, 0,
+                        false);
+                colDefs[1] = new SeColumnDefinition("MASTER_ID", SeColumnDefinition.TYPE_INTEGER,
+                        10, 0, false);
+                colDefs[2] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 255, 0,
+                        false);
+                colDefs[3] = new SeColumnDefinition("DESCRIPTION", SeColumnDefinition.TYPE_STRING,
+                        255, 0, false);
+
+                table.create(colDefs, td.getConfigKeyword());
+                return null;
+            }
+        };
+
+        session.execute(createCmd);
 
         /*
          * SeRegistration tableRegistration = new SeRegistration(conn, CHILD);
          * tableRegistration.setRowIdColumnType(SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER);
-         * tableRegistration.setRowIdColumnName("ID");
-         * tableRegistration.alter();
+         * tableRegistration.setRowIdColumnName("ID"); tableRegistration.alter();
          */
         insertChildData(session, table);
 
@@ -181,28 +208,38 @@ public class InProcessViewSupportTestData {
      * @throws SeException
      * @throws Exception
      */
-    private static void insertMasterData(Session session, SeLayer layer)
-            throws SeException {
-        SeInsert insert = null;
+    private static void insertMasterData(final Session session, final SeLayer layer)
+            throws IOException {
+        Command<Void> insertCmd = new Command<Void>() {
 
-        SeCoordinateReference coordref = layer.getCoordRef();
-        final String[] columns = { "ID", "NAME", "SHAPE" };
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeInsert insert = null;
+                SeCoordinateReference coordref = layer.getCoordRef();
+                final String[] columns = { "ID", "NAME", "SHAPE" };
 
-        for (int i = 1; i < 4; i++) {
-            insert = session.createSeInsert();
-            insert.intoTable(layer.getName(), columns);
-            insert.setWriteMode(true);
+                for (int i = 1; i < 4; i++) {
+                    insert = new SeInsert(connection);
+                    insert.intoTable(layer.getName(), columns);
+                    insert.setWriteMode(true);
 
-            SeRow row = insert.getRowToSet();
-            SeShape shape = new SeShape(coordref);
-            SDEPoint[] points = { new SDEPoint(i, i) };
-            shape.generatePoint(1, points);
+                    SeRow row = insert.getRowToSet();
+                    SeShape shape = new SeShape(coordref);
+                    SDEPoint[] points = { new SDEPoint(i, i) };
+                    shape.generatePoint(1, points);
 
-            row.setInteger(0, Integer.valueOf(i));
-            row.setString(1, "name" + i);
-            row.setShape(2, shape);
-            insert.execute();
-        }
+                    row.setInteger(0, Integer.valueOf(i));
+                    row.setString(1, "name" + i);
+                    row.setShape(2, shape);
+                    insert.execute();
+                    insert.close();
+                }
+                return null;
+            }
+        };
+
+        session.execute(insertCmd);
         session.commitTransaction();
     }
 
@@ -235,45 +272,53 @@ public class InProcessViewSupportTestData {
      * 
      * @param session
      * @param table
-     * @throws SeException
-     * @throws Exception
+     * @throws IOException
      */
-    private static void insertChildData(Session session, SeTable table)
-            throws SeException {
-        final String[] columns = { "ID", "MASTER_ID", "NAME", "DESCRIPTION" };
+    private static void insertChildData(final Session session, final SeTable table)
+            throws IOException {
 
-        int childId = 0;
+        Command<Void> insertCmd = new Command<Void>() {
 
-        for (int master = 1; master < 4; master++) {
-            for (int child = 0; child < master; child++) {
-                childId++;
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                final String[] columns = { "ID", "MASTER_ID", "NAME", "DESCRIPTION" };
+                int childId = 0;
 
+                for (int master = 1; master < 4; master++) {
+                    for (int child = 0; child < master; child++) {
+                        childId++;
+
+                        SeInsert insert = session.createSeInsert();
+                        insert.intoTable(table.getName(), columns);
+                        insert.setWriteMode(true);
+
+                        SeRow row = insert.getRowToSet();
+
+                        row.setInteger(0, Integer.valueOf(childId));
+                        row.setInteger(1, Integer.valueOf(master));
+                        row.setString(2, "child" + (childId));
+                        row.setString(3, "description" + (childId));
+                        insert.execute();
+                        // insert.close();
+                    }
+                }
+                // add the 7th row to test group by
                 SeInsert insert = session.createSeInsert();
                 insert.intoTable(table.getName(), columns);
                 insert.setWriteMode(true);
-
                 SeRow row = insert.getRowToSet();
 
-                row.setInteger(0, Integer.valueOf(childId));
-                row.setInteger(1, Integer.valueOf(master));
-                row.setString(2, "child" + (childId));
-                row.setString(3, "description" + (childId));
+                row.setInteger(0, new Integer(7));
+                row.setInteger(1, new Integer(3));
+                row.setString(2, "child6");
+                row.setString(3, "description7");
                 insert.execute();
-                //insert.close();
+                // insert.close();
+                return null;
             }
-        }
-        // add the 7th row to test group by
-        SeInsert insert = session.createSeInsert();
-        insert.intoTable(table.getName(), columns);
-        insert.setWriteMode(true);
-        SeRow row = insert.getRowToSet();
-
-        row.setInteger(0, new Integer(7));
-        row.setInteger(1, new Integer(3));
-        row.setString(2, "child6");
-        row.setString(3, "description7");
-        insert.execute();
-        //insert.close();
+        };
+        session.execute(insertCmd);
         session.commitTransaction();
     }
 }

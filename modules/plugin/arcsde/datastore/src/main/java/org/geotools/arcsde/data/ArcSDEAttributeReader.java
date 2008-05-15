@@ -20,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.AttributeReader;
 import org.geotools.data.DataSourceException;
@@ -27,6 +28,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeShape;
@@ -115,8 +117,8 @@ final class ArcSDEAttributeReader implements AttributeReader {
      * 
      * @param query the {@link SeQuery} wrapper where to fetch rows from. Must NOT be already
      *            {@link ArcSDEQuery#execute() executed}.
-     * @param session the session the <code>query</code> is being ran over. This attribute
-     *            reader will close it only if it does not have a transaction in progress.
+     * @param session the session the <code>query</code> is being ran over. This attribute reader
+     *            will close it only if it does not have a transaction in progress.
      * @param handleConnectionClosing whether to close or not the connection when done. Useful to
      *            allow a feature reader working over this attribute reader to stream out the
      *            filtered content of an {@link AutoCommitFeatureWriter}.
@@ -143,15 +145,15 @@ final class ArcSDEAttributeReader implements AttributeReader {
         } else {
             this.schemaGeometryClass = null;
         }
-        // get the lock before executing the query so streams don't get confused,
-        // and keep it until close() is called on this class
-        session.getLock().lock();
-        try {
-            query.execute();
-        } catch (IOException e) {
-            session.getLock().unlock();
-            throw e;
-        }
+
+        Command<Void> cmd = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws IOException {
+                query.execute();
+                return null;
+            }
+        };
+        session.execute(cmd);
     }
 
     /**
@@ -174,15 +176,20 @@ final class ArcSDEAttributeReader implements AttributeReader {
      */
     public void close() throws IOException {
         if (query != null) {
-            this.query.close();
+            session.execute(new Command<Void>() {
+                @Override
+                public Void execute(Session session, SeConnection connection) throws IOException {
+                    query.close();
+                    return null;
+                }
+            });
+
             if (handleConnectionClosing) {
                 if (!session.isTransactionActive()) {
                     session.close();
                 }
             }
-            if (session != null) {
-                session.getLock().unlock();
-            }
+
             query = null;
             session = null;
             schema = null;

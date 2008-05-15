@@ -964,7 +964,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         }
     } // End method createBaseTable
 
-    public void testDeleteById() throws DataSourceException, UnavailableArcSDEConnectionException,
+    public void testDeleteById() throws IOException, UnavailableArcSDEConnectionException,
             SeException {
 
         final String typeName = testData.getTemp_table();

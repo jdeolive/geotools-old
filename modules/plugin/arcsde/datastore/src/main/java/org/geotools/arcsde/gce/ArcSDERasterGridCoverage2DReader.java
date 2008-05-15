@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 
 import javax.media.jai.ImageLayout;
 
+import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.gce.band.ArcSDERasterBandCopier;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
@@ -144,9 +145,9 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
      * 
      * @param input Source object (probably a connection-type URL) for which we want to build the
      *            ArcSDERasterReader
-     * @throws DataSourceException
+     * @throws IOException
      */
-    public ArcSDERasterGridCoverage2DReader(Object input) throws DataSourceException {
+    public ArcSDERasterGridCoverage2DReader(Object input) throws IOException {
         this(input, null);
     }
 
@@ -156,9 +157,9 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
      * @param input Source object (probably a connection-type URL) for which we want to build the
      *            ArcSDERasterReader
      * @param hints Hints to be used by this reader throughout his life.
-     * @throws DataSourceException
+     * @throws IOException
      */
-    public ArcSDERasterGridCoverage2DReader(Object input, final Hints hints) throws DataSourceException {
+    public ArcSDERasterGridCoverage2DReader(Object input, final Hints hints) throws IOException {
 
         if (hints != null)
             this.hints.add(hints);
@@ -543,7 +544,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
      * Gets the coordinate system that will be associated to the {@link GridCoverage}. The WGS84
      * coordinate system is used by default.
      */
-    private void calculateCoordinateReferenceSystem() throws DataSourceException {
+    private void calculateCoordinateReferenceSystem() throws IOException {
 
         if (rasterAttributes == null) {
             throw new DataSourceException("Raster Attributes are null, can't calculated CRS info.");
@@ -589,7 +590,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
             throw new DataSourceException(e);
         } catch (SeException e) {
             LOGGER.log(Level.SEVERE, "", e);
-            throw new DataSourceException(e.getSeError().getErrDesc(), e);
+            throw new ArcSdeException(e);
         } catch (FactoryException e) {
             LOGGER.log(Level.SEVERE, "", e);
             throw new DataSourceException(e);
@@ -610,7 +611,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
      * @throws DataSourceException
      * @throws IOException
      */
-    private void setupConnectionPool(Object input) throws DataSourceException {
+    private void setupConnectionPool(Object input) throws IOException {
         if (input == null) {
             final DataSourceException ex = new DataSourceException(
                     "No source set to read this coverage.");

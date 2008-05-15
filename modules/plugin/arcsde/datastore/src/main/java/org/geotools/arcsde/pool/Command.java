@@ -3,6 +3,7 @@ package org.geotools.arcsde.pool;
 import java.io.IOException;
 
 import com.esri.sde.sdk.client.SeConnection;
+import com.esri.sde.sdk.client.SeException;
 
 /**
  * Runnable used to interact with an ArcSDEConnection.
@@ -13,14 +14,18 @@ import com.esri.sde.sdk.client.SeConnection;
  * 
  * @author Jody Garnett
  */
-public abstract class Command {
+public abstract class Command<R> {
     /**
      * Executed to operate on an SeConnection, a Command is scheduled for execution on a Session.
      * <p>
      * Please keep in mind that a Command should be short in duration; you are sharing this
      * SeConnection with other threads.
      * 
-     * @param connection connection used to interact with ArcSDE
+     * @param session the Session the command is being executed inside
+     * @param connection the session's connection, used to interact with ArcSDE
+     * @return the result of the command execution, or null if the command is not meant to return
+     *         anything (a command meant to return something should fail if not able to)
      */
-    public abstract void execute(SeConnection connection) throws IOException;
+    public abstract R execute(Session session, SeConnection connection) throws SeException,
+            IOException;
 }

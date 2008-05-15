@@ -16,6 +16,8 @@
  */
 package org.geotools.arcsde.data.view;
 
+import java.io.IOException;
+
 import org.geotools.arcsde.pool.Session;
 
 import net.sf.jsqlparser.schema.Table;
@@ -67,7 +69,7 @@ class TableQualifier {
         try {
             databaseName = session.getDatabaseName();
             userName = session.getUser();
-        } catch (SeException e) {
+        } catch (IOException e) {
             throw new IllegalStateException("getting database name: " + e.getMessage());
         }
 

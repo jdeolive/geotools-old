@@ -137,7 +137,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     public final ReferencedEnvelope getBounds(final Query query) throws IOException {
         final Query namedQuery = namedQuery(query);
-        final Session session = getConnection();
+        final Session session = getSession();
         ReferencedEnvelope ev;
         try {
             ev = getBounds(namedQuery, session);
@@ -186,7 +186,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      */
     public final int getCount(final Query query) throws IOException {
         final Query namedQuery = namedQuery(query);
-        final Session session = getConnection();
+        final Session session = getSession();
         final int count;
         try {
             count = getCount(namedQuery, session);
@@ -209,7 +209,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
     }
 
     /**
-     * Returns a connection from the datastore's connection pool.
+     * Returns a session from the datastore's connection pool.
      * <p>
      * This is convenient way to get a connection for {@link #getBounds()} and
      * {@link #getCount(Query)}. {@link ArcSdeFeatureStore} overrides to get the connection from
@@ -219,7 +219,7 @@ public class ArcSdeFeatureSource implements FeatureSource<SimpleFeatureType, Sim
      * @return
      * @throws IOException
      */
-    protected Session getConnection() throws IOException {
+    protected Session getSession() throws IOException {
         final ArcSDEConnectionPool connectionPool = dataStore.getConnectionPool();
         final Session session = connectionPool.getConnection();
         return session;

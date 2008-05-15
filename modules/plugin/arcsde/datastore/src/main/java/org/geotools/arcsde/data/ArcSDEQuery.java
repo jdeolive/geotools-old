@@ -744,24 +744,6 @@ class ArcSDEQuery {
         }
     }
 
-    // //////////////////////////////////////////////////////////////////////
-    // /////////////// METHODS WRAPPED FROM SeQuery /////////////////////
-    // //////////////////////////////////////////////////////////////////////
-
-    /**
-     * Initializes a stream with a query using a selected set of columns and an SeSqlConstruct
-     * object for the where clause. The where clause can?t contain any ORDER BY or GROUP BY clauses.
-     * 
-     * @throws IOException DOCUMENT ME!
-     * @throws DataSourceException DOCUMENT ME!
-     */
-    // public void prepareQuery() throws IOException {
-    // try {
-    // getSeQuery().prepareQuery();
-    // } catch (SeException e) {
-    // throw new ArcSdeException(e);
-    // }
-    // }
     /**
      * Fetches an SeRow of data.
      * 
