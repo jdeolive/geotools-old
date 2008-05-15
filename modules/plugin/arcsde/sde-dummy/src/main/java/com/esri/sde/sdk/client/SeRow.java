@@ -25,7 +25,7 @@ public class SeRow {
 	public SeRasterTile getRasterTile() { return null; }
 	public short getNumColumns() { return -1; }
 	public int getIndicator(int i) { return -1; }
-    public Level getInteger(int i) throws SeException {return null;}
+    public Integer getInteger(int i) throws SeException {return null;}
     public void setLong(int index, Long value) {}
     public SeShape getShape(int i) {return null;}
 	
