@@ -244,7 +244,7 @@ public class ArcSDEDataStoreTest extends TestCase {
         schema = store.getSchema(testData.getTemp_table());
         assertNotNull(schema);
         // ROW_ID is not included in TEST_TABLE_COLS
-        assertEquals(1 + TestData.TEST_TABLE_COLS.length, schema.getAttributeCount());
+        assertEquals(TestData.TEST_TABLE_COLS.length, schema.getAttributeCount());
     }
 
     // ///////////////// HELPER FUNCTIONS ////////////////////////
