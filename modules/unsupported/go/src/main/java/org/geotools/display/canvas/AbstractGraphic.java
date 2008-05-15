@@ -706,7 +706,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
         synchronized (getTreeLock()) {
             final AbstractCanvas canvas = (AbstractCanvas) getCanvas();
             if (canvas != null) {
-                canvas.getRenderer().remove(this);
+//                canvas.getRenderer().remove(this);    ---------------------------------------------------- Cyclic call graphic>canvas>renderer>graphic ...
             }
             super.dispose();
         }

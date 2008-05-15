@@ -47,6 +47,7 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.display.event.ReferencedEvent;
+import org.geotools.display.renderer.AbstractRenderer;
 import org.opengis.display.primitive.Graphic;
 
 
@@ -132,8 +133,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      *
      * @param factory The display factory associated with this canvas, or {@code null} if none.
      */
-    protected ReferencedCanvas2D() {
-        super(2);
+    protected ReferencedCanvas2D(final AbstractRenderer renderer) {
+        super(renderer,2);
         // The following must be invoked here instead than in super-class because
         // 'normalizeToDots' is not yet assigned when the super-class constructor
         // is run.

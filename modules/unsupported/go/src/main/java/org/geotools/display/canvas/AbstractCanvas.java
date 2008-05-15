@@ -145,7 +145,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     protected final Hints hints;
     
     
-    protected AbstractRenderer renderer;
+    protected final AbstractRenderer renderer;
     
 
     /**
@@ -153,20 +153,12 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      *
      * @param hints   The initial set of hints, or {@code null} if none.
      */
-    protected AbstractCanvas(final Hints hints) {
+    protected AbstractCanvas(final AbstractRenderer renderer, final Hints hints) {
         this.canvasListeners = new EventListenerList();
         this.hints = new Hints(hints);
-    }
-
-    
-    public Renderer getRenderer() {
-        return renderer;
-    }
-
-    public void setRenderer(AbstractRenderer renderer) {
         this.renderer = renderer;
-    }    
-    
+    }
+ 
     /**
      * Returns the title assigned to this {@code Canvas}, or {@code null} if none. If the title
      * was {@linkplain #setTitle(InternationalString) defined as an international string}, then

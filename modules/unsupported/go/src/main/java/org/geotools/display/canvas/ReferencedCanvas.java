@@ -69,6 +69,7 @@ import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.display.event.ReferencedEvent;
+import org.geotools.display.renderer.AbstractRenderer;
 
 
 /**
@@ -237,10 +238,10 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @param  dimension The number of dimensions, which must be 2 or 3.
      * @throws IllegalArgumentException if the specified number of dimensions is not supported.
      */
-    protected ReferencedCanvas(final int dimension)
+    protected ReferencedCanvas(final AbstractRenderer renderer,final int dimension)
             throws IllegalArgumentException
     {
-        this(getDefaultCRS(dimension), null);
+        this(renderer,getDefaultCRS(dimension), null);
         useDefaultCRS = true;
     }
 
@@ -250,10 +251,11 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @param objectiveCRS The initial objective CRS.
      * @param hints        The initial set of hints, or {@code null} if none.
      */
-    protected ReferencedCanvas(final CoordinateReferenceSystem objectiveCRS,
+    protected ReferencedCanvas(final AbstractRenderer renderer, 
+                               final CoordinateReferenceSystem objectiveCRS,
                                final Hints hints)
     {
-        super(hints);
+        super(renderer, hints);
         this.envelope = new GeneralEnvelope(objectiveCRS);
         this.envelope.setToNull();
     }

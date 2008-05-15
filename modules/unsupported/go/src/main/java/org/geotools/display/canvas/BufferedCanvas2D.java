@@ -53,6 +53,7 @@ import java.awt.event.ComponentAdapter;
 import java.beans.PropertyChangeEvent;
 import javax.media.jai.GraphicsJAI;
 
+import org.geotools.display.renderer.AbstractRenderer;
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.referencing.operation.TransformException;
 
@@ -180,8 +181,8 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
      *
      * @param owner   The component owner, or {@code null} if none.
      */
-    public BufferedCanvas2D(final Component owner) {
-        super();
+    public BufferedCanvas2D(final AbstractRenderer renderer, final Component owner) {
+        super(renderer);
         this.owner = owner;
         if (owner != null) {
             owner.addComponentListener(listener);
