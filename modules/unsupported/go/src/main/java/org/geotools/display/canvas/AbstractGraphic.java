@@ -27,8 +27,8 @@ import java.text.FieldPosition;
 import java.beans.PropertyChangeEvent;  // For javadoc
 import java.beans.PropertyChangeListener;
 
-import org.opengis.go.display.canvas.Canvas;
-import org.opengis.go.display.primitive.Graphic;
+import org.opengis.display.canvas.Canvas;
+import org.opengis.display.primitive.Graphic;
 import org.opengis.go.display.event.GraphicEvent;
 import org.opengis.go.display.event.GraphicListener;
 import org.opengis.go.display.style.GraphicStyle;
@@ -49,6 +49,36 @@ import org.geotools.resources.i18n.ErrorKeys;
  * @author Martin Desruisseaux
  */
 public abstract class AbstractGraphic extends DisplayObject implements Graphic {
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AbstractGraphic#getName graphic name} changed.
+     */
+    public static final String NAME_PROPERTY = "name";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AbstractGraphic#getParent graphic parent} changed.
+     */
+    public static final String PARENT_PROPERTY = "parent";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AbstractGraphic#getZOrderHint z order hint} changed.
+     */
+    public static final String Z_ORDER_HINT_PROPERTY = "zOrderHint";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AbstractGraphic#getVisible graphic visibility} changed.
+     */
+    public static final String VISIBLE_PROPERTY = "visible";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
+     */
+    public static final String SCALE_PROPERTY = "scale";
+    
     /**
      * The default {@linkplain #getZOrderHint z-order}.
      */
@@ -134,14 +164,14 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * If this display object is contained in a canvas, returns the canvas that own it.
      * Otherwise, returns {@code null}.
      */
-    final Canvas getCanvas() {
+    public final Canvas getCanvas() {
         return canvas;
     }
 
     /**
      * Set the canvas to the specified value. Used by {@link AbstractCanvas} only.
      */
-    final void setCanvas(final Canvas canvas) {
+    public final void setCanvas(final Canvas canvas) {
         this.canvas = canvas;
     }
 
@@ -189,7 +219,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
         synchronized (getTreeLock()) {
             old = this.name;
             this.name = name;
-            listeners.firePropertyChange(NAME_PROPERTY, old, name);
+            propertyListeners.firePropertyChange(NAME_PROPERTY, old, name);
         }
     }
 
@@ -212,7 +242,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
         synchronized (getTreeLock()) {
             old = this.parent;
             this.parent = parent;
-            listeners.firePropertyChange(PARENT_PROPERTY, old, name);
+            propertyListeners.firePropertyChange(PARENT_PROPERTY, old, name);
         }
     }
 
@@ -578,7 +608,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
             }
             this.zOrder = zOrderHint;
             refresh();
-            listeners.firePropertyChange(Z_ORDER_HINT_PROPERTY, oldZOrder, zOrderHint);
+            propertyListeners.firePropertyChange(Z_ORDER_HINT_PROPERTY, oldZOrder, zOrderHint);
         }
     }
 
@@ -606,7 +636,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
             }
             this.visible = visible;
             refresh();
-            listeners.firePropertyChange(VISIBLE_PROPERTY, !visible, visible);
+            propertyListeners.firePropertyChange(VISIBLE_PROPERTY, !visible, visible);
         }
     }
 
@@ -674,9 +704,9 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
     @Override
     public void dispose() {
         synchronized (getTreeLock()) {
-            final Canvas canvas = getCanvas();
+            final AbstractCanvas canvas = (AbstractCanvas) getCanvas();
             if (canvas != null) {
-                canvas.remove(this);
+                canvas.getRenderer().remove(this);
             }
             super.dispose();
         }
@@ -700,8 +730,8 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * because the two above-cited events are fired everytime the zoom change.
      */
     final boolean hasListeners(final String property) {
-        if (listeners.hasListeners(property)) {
-            final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
+        if (propertyListeners.hasListeners(property)) {
+            final PropertyChangeListener[] list = propertyListeners.getPropertyChangeListeners();
             for (int i=0; i<list.length; i++) {
                 if (list[i] != AbstractCanvas.PROPERTIES_LISTENER) {
                     return true;
@@ -730,7 +760,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * Returns the lock for synchronisation. If this object is contained in a canvas,
      * then this method returns the same lock than the canvas.
      */
-    protected final Object getTreeLock() {
+    public final Object getTreeLock() {
         final Canvas canvas = this.canvas;
         return (canvas != null) ? (Object) canvas : (Object) this;
     }

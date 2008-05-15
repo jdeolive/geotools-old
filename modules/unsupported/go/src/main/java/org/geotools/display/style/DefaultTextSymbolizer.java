@@ -91,7 +91,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillColor;
             this.fillColor = fillColor;
         }
-        listeners.firePropertyChange("fillColor", old, fillColor);
+        propertyListeners.firePropertyChange("fillColor", old, fillColor);
     }
 
     /**
@@ -112,7 +112,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillBackgroundColor;
             this.fillBackgroundColor = fillBackgroundColor;
         }
-        listeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
+        propertyListeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
     }
 
     /**
@@ -131,7 +131,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillGradientPoints;
             this.fillGradientPoints = fillGradientPoints;
         }
-        listeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
+        propertyListeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
     }
 
     /**
@@ -150,7 +150,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillOpacity;
             this.fillOpacity = fillOpacity;
         }
-        listeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
+        propertyListeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
     }
 
     /**
@@ -169,7 +169,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillPattern;
             this.fillPattern = fillPattern;
         }
-        listeners.firePropertyChange("fillPattern", old, fillPattern);
+        propertyListeners.firePropertyChange("fillPattern", old, fillPattern);
     }
 
     /**
@@ -188,7 +188,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.fillStyle;
             this.fillStyle = fillStyle;
         }
-        listeners.firePropertyChange("fillStyle", old, fillStyle);
+        propertyListeners.firePropertyChange("fillStyle", old, fillStyle);
     }
 
     /**
@@ -207,7 +207,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.font;
             this.font = font;
         }
-        listeners.firePropertyChange("font", old, font);
+        propertyListeners.firePropertyChange("font", old, font);
     }
 
     /**
@@ -226,7 +226,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.haloRadius;
             this.haloRadius = haloRadius;
         }
-        listeners.firePropertyChange("haloRadius", new Float(old), new Float(haloRadius));
+        propertyListeners.firePropertyChange("haloRadius", new Float(old), new Float(haloRadius));
     }
 
     /**
@@ -246,7 +246,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.haloColor;
             this.haloColor = haloColor;
         }
-        listeners.firePropertyChange("haloColor", old, haloColor);
+        propertyListeners.firePropertyChange("haloColor", old, haloColor);
     }
 
     /**
@@ -266,7 +266,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.backgroundColor;
             this.backgroundColor = backgroundColor;
         }
-        listeners.firePropertyChange("backgroundColor", old, backgroundColor);
+        propertyListeners.firePropertyChange("backgroundColor", old, backgroundColor);
     }
 
     /**
@@ -285,7 +285,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.rotation;
             this.rotation = rotation;
         }
-        listeners.firePropertyChange("rotation", new Float(old), new Float(rotation));
+        propertyListeners.firePropertyChange("rotation", new Float(old), new Float(rotation));
     }
 
     /**
@@ -304,7 +304,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.xAnchor;
             this.xAnchor = xAnchor;
         }
-        listeners.firePropertyChange("xAnchor", old, xAnchor);
+        propertyListeners.firePropertyChange("xAnchor", old, xAnchor);
     }
 
     /**
@@ -323,7 +323,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.xDisplacement;
             this.xDisplacement = xDisplacement;
         }
-        listeners.firePropertyChange("xDisplacement", new Float(old), new Float(xDisplacement));
+        propertyListeners.firePropertyChange("xDisplacement", new Float(old), new Float(xDisplacement));
     }
 
     /**
@@ -342,7 +342,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.yAnchor;
             this.yAnchor = yAnchor;
         }
-        listeners.firePropertyChange("yAnchor", old, yAnchor);
+        propertyListeners.firePropertyChange("yAnchor", old, yAnchor);
     }
 
     /**
@@ -361,7 +361,7 @@ public class DefaultTextSymbolizer extends DefaultGraphicStyle implements TextSy
             old = this.yDisplacement;
             this.yDisplacement = yDisplacement;
         }
-        listeners.firePropertyChange("yDisplacement", new Float(old), new Float(yDisplacement));
+        propertyListeners.firePropertyChange("yDisplacement", new Float(old), new Float(yDisplacement));
     }
 
     /**

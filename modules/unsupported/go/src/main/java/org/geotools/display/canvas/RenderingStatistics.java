@@ -22,7 +22,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import javax.units.Unit;
-import javax.units.SI;
 
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
@@ -179,7 +178,7 @@ final class RenderingStatistics {
         final String title;
         if (canvas != null) {
             locale = canvas.getLocale();
-            title  = canvas.getTitle();
+            title  = canvas.getState().getTitle().toString();
         } else {
             locale = Locale.getDefault();
             title  = Vocabulary.format(VocabularyKeys.UNKNOW);

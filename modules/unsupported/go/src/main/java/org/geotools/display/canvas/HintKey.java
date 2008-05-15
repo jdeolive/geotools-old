@@ -28,7 +28,7 @@ import java.awt.RenderingHints;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-final class HintKey extends RenderingHints.Key {
+public final class HintKey extends RenderingHints.Key {
     /**
      * Base class of all values for this key.
      */
@@ -40,7 +40,7 @@ final class HintKey extends RenderingHints.Key {
      * @param id An ID. Must be unique for all instances of {@link Key}.
      * @param valueClass Base class of all valid values.
      */
-    HintKey(final int id, final Class valueClass) {
+    public HintKey(final int id, final Class valueClass) {
         super(id);
         this.valueClass = valueClass;
     }

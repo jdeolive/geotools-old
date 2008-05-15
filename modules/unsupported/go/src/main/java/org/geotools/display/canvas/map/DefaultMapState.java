@@ -25,6 +25,7 @@ import javax.units.Unit;
 
 // OpenGIS dependencies
 import org.opengis.go.display.canvas.Canvas;  // For javadoc
+import org.opengis.go.display.canvas.CanvasState;
 import org.opengis.go.display.canvas.map2d.Map2DState;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -33,6 +34,9 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.resources.Utilities;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.display.canvas.DefaultCanvasState;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.util.InternationalString;
 
 
 /**
@@ -43,7 +47,7 @@ import org.geotools.display.canvas.DefaultCanvasState;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class DefaultMapState extends DefaultCanvasState implements Map2DState {
+public class DefaultMapState extends DefaultCanvasState {
     /**
      * Serial number for interoperability with different versions.
      */
@@ -73,8 +77,14 @@ public class DefaultMapState extends DefaultCanvasState implements Map2DState {
      * @param bounds   The widget bounds, in display CRS.
      * @param scale    The scale of the canvas.
      */
-    public DefaultMapState(final String title, final Envelope envelope, final Rectangle bounds, final double scale) {
-        super(title, envelope);
+    public DefaultMapState(final InternationalString title, 
+            final DirectPosition center,
+            final CoordinateReferenceSystem obj,
+            final CoordinateReferenceSystem disp,
+            final MathTransform toObj,
+            final MathTransform toDisp,
+            final Envelope envelope, final Rectangle bounds, final double scale) {
+        super(title, center,obj,disp,toObj,toDisp);
         this.envelope = new GeneralEnvelope(envelope);
         this.width    = bounds.width;
         this.height   = bounds.height;
@@ -154,4 +164,6 @@ public class DefaultMapState extends DefaultCanvasState implements Map2DState {
         }
         return false;
     }
+
+
 }

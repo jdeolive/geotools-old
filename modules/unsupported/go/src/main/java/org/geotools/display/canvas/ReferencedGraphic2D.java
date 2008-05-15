@@ -28,7 +28,6 @@ import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent; // For javadoc
 
 // OpenGIS dependencies
-import org.opengis.go.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -37,6 +36,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.opengis.display.canvas.Canvas;
 
 
 /**
@@ -51,6 +51,12 @@ import org.geotools.referencing.crs.DefaultEngineeringCRS;
  * @author Martin Desruisseaux
  */
 public abstract class ReferencedGraphic2D extends ReferencedGraphic {
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
+     */
+    public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
+    
     /**
      * A geometric shape that fully contains the area painted during the last
      * {@linkplain GraphicPrimitive2D#paint rendering}. This shape must be in terms of the
@@ -119,8 +125,10 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * If the specified CRS has more than two dimensions, then it must be a
      * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} with
      * a two dimensional head.
+     * @throws TransformException 
      */
-    protected void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
+    @Override
+    public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
         super.setObjectiveCRS(CRSUtilities.getCRS2D(crs));
     }
 
@@ -148,7 +156,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * <p>
      * This method never returns {@code null}.
      */
-    final Shape getDisplayBounds() {
+    public final Shape getDisplayBounds() {
         return displayBounds;
     }
 
@@ -165,7 +173,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * This method fires a {@value org.geotools.display.canvas.DisplayObject#DISPLAY_BOUNDS_PROPERTY}
      * property change event.
      */
-    final void setDisplayBounds(Shape bounds) {
+    public final void setDisplayBounds(Shape bounds) {
         if (bounds == null) {
             bounds = XRectangle2D.INFINITY;
         }
@@ -174,7 +182,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
             old = displayBounds;
             displayBounds = bounds;
             if (hasBoundsListeners) {
-                listeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, old, bounds);
+                propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, old, bounds);
             }
         }
     }
@@ -293,9 +301,9 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
     /**
      * Clears all cached data.
      */
-    protected void clearCache() {
+    public void clearCache() {
         assert Thread.holdsLock(getTreeLock());
         displayBounds = null;
-        super.clearCache();
+//        super.clearCache();
     }
 }

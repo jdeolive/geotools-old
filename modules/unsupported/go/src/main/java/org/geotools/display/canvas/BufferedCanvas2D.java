@@ -44,22 +44,17 @@ import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
-import java.awt.Frame;
-import java.awt.Dialog;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.IllegalComponentStateException;
 import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
 import java.beans.PropertyChangeEvent;
 import javax.media.jai.GraphicsJAI;
 
-import org.opengis.go.display.DisplayFactory;
-import org.opengis.go.display.primitive.Graphic;
+import org.opengis.display.canvas.CanvasController;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.crs.DerivedCRS;
 
 import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -70,6 +65,7 @@ import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.util.RangeSet;
 import org.geotools.util.Range;
+import org.opengis.display.primitive.Graphic;
 
 
 /**
@@ -182,42 +178,14 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
     /**
      * Creates an initially empty canvas with a default objective CRS.
      *
-     * @param factory The display factory associated with this canvas, or {@code null} if none.
      * @param owner   The component owner, or {@code null} if none.
      */
-    public BufferedCanvas2D(final DisplayFactory factory, final Component owner) {
-        super(factory);
+    public BufferedCanvas2D(final Component owner) {
+        super();
         this.owner = owner;
         if (owner != null) {
             owner.addComponentListener(listener);
         }
-    }
-
-    /**
-     * Returns the title assigned to this {@code Canvas}.
-     * If no title were {@linkplain #setTitle explicitly set}, then
-     * this method returns the title of the window which contains this canvas.
-     */
-    @Override
-    public String getTitle() {
-        String title = super.getTitle();
-        if (title == null) {
-            for (Component c=owner; c!=null; c=c.getParent()) {
-                if (c instanceof Frame) {
-                    title = ((Frame) c).getTitle();
-                    break;
-                }
-                if (c instanceof Dialog) {
-                    title = ((Dialog) c).getTitle();
-                    break;
-                }
-                if (c instanceof JInternalFrame) {
-                    title = ((JInternalFrame) c).getTitle();
-                    break;
-                }
-            }
-        }
-        return title;
     }
 
     /**
@@ -260,39 +228,8 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
      */
     private void checkDisplayBounds() {
         if (super.getDisplayBounds().equals(XRectangle2D.INFINITY)) {
-            listeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, null, null);
+            propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, null, null);
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized Graphic add(Graphic graphic) {
-        graphic = super.add(graphic);
-        flushOffscreenBuffer(graphic.getZOrderHint());
-        repaint(); // Must be invoked last
-        return graphic;
-    }
-
-    /**
-     * Removes the given {@code Graphic} from this canvas.
-     */
-    @Override
-    public synchronized void remove(final Graphic graphic) {
-        repaint(); // Must be invoked first
-        flushOffscreenBuffer(graphic.getZOrderHint());
-        super.remove(graphic);
-    }
-
-    /**
-     * Remove all graphics from this canvas.
-     */
-    @Override
-    public synchronized void removeAll() {
-        repaint(); // Must be invoked first
-        flushOffscreenBuffers();
-        super.removeAll();
     }
 
     /**
@@ -304,7 +241,7 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
     {
         super.graphicPropertyChanged(graphic, event);
         final String propertyName = event.getPropertyName();
-        if (propertyName.equalsIgnoreCase(Z_ORDER_HINT_PROPERTY)) {
+        if (propertyName.equalsIgnoreCase(AbstractGraphic.Z_ORDER_HINT_PROPERTY)) {
             final Object value = event.getOldValue();
             if (value instanceof Number) {
                 final double oldZOrder = ((Number) value).doubleValue();
@@ -491,241 +428,28 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
                 }
             }
         }
-        /*
-         * Draw all graphics, starting with the one with the lowest <var>z</var> value. Before
-         * to start the actual drawing,  we will notify all graphics that they are about to be
-         * drawn. Some graphics may spend one or two threads for pre-computing data.
-         */
-        final List/*<Graphic>*/ graphics = getGraphics();
-        final int graphicCount = graphics.size();
-        boolean success = false;
-        output.addRenderingHints(hints);
-        final RenderingContext context = new RenderingContext(this, displayBounds, isPrinting);
-        try {
-            context.setGraphics(output, zoom);
-            if (allowPrefetch()) {
-                // Prepare data in background threads. While we are painting
-                // one graphic, next graphics will be pre-computed.
-                for (int i=0; i<graphicCount; i++) {
-                    final Graphic candidate = (Graphic) graphics.get(i);
-                    if (candidate instanceof GraphicPrimitive2D) {
-                        ((GraphicPrimitive2D) candidate).prefetch(context);
-                    }
-                }
-            }
-            int    offscreenIndex = -1;                  // Index of current offscreen buffer.
-            double minZOrder = Double.NEGATIVE_INFINITY; // The minimum z-value for current buffer.
-            double maxZOrder = Double.NaN;               // The maximum z-value for current buffer.
-            for (int graphicIndex=0; graphicIndex<graphicCount; graphicIndex++) {
-                int graphicIndexUp = graphicIndex;
-                Graphic candidate = (Graphic) graphics.get(graphicIndex);
-                if (!(candidate instanceof GraphicPrimitive2D)) {
-                    continue;
-                }
-                final GraphicPrimitive2D graphic = (GraphicPrimitive2D) candidate;
-                final double zOrder = graphic.getZOrderHint();
-                while (zOrder >= minZOrder) {
-                    if (!(zOrder <= maxZOrder)) {
-                        if (++offscreenIndex < offscreenCount) {
-                            minZOrder = offscreenZRanges.getMinValueAsDouble(offscreenIndex);
-                            maxZOrder = offscreenZRanges.getMaxValueAsDouble(offscreenIndex);
-                            continue;
-                        } else {
-                            minZOrder = Double.NaN;
-                            maxZOrder = Double.NaN;
-                            break;
-                        }
-                    }
-                    assert offscreenZRanges.indexOfRange(Double.valueOf(zOrder)) == offscreenIndex;
-                    /*
-                     * We have found the begining of a range to be rendered using offscreen
-                     * buffer. Search the index of the last graphic in this range, exclusive.
-                     */
-                    while (++graphicIndexUp < graphicCount) {
-                        candidate = (Graphic) graphics.get(graphicIndexUp);
-                        if (!(candidate.getZOrderHint() <= maxZOrder)) {
-                            break;
-                        }
-                    }
-                    break;
-                }
-                /*
-                 * If the current graphic is not part of any offscreen buffer,
-                 * render it directly in the Swing's output handler.
-                 */
-                if (graphicIndex == graphicIndexUp) {
-                    try {
-                        paint(graphic, context, clipBounds);
-                    } catch (TransformException exception) {
-                        handleException(GraphicPrimitive2D.class, "paint", exception);
-                    } catch (RuntimeException exception) {
-                        handleException(GraphicPrimitive2D.class, "paint", exception);
-                    }
-                    continue;
-                }
-                /*
-                 * The range of graphic index to render offscreen goes from 'graphicIndex'
-                 * inclusive to 'graphicIndexUp' exclusive. If the image is still valid,
-                 * paint it immediately. Otherwise, performs the rendering offscreen.
-                 */
-                boolean createFromComponent = (owner != null);
-                Rectangle bufferClip = clipBounds;
-                Image buffer = offscreenBuffers[offscreenIndex];
-renderOffscreen:while (true) {
-                    switch (validate(buffer, config)) {
-                        //
-                        // Image incompatible or inexistant: recreates an empty
-                        // one and restarts the loop from the 'validate' check.
-                        //
-                        case VolatileImage.IMAGE_INCOMPATIBLE: {
-                            if (buffer != null) {
-                                buffer.flush();
-                                buffer = null;
-                            }
-                            if (createFromComponent) {
-                                createFromComponent = false;
-                                if (offscreenIsVolatile[offscreenIndex]) {
-                                    buffer = owner.createVolatileImage(
-                                                   displayBounds.width, displayBounds.height);
-                                }
-                            }
-                            if (buffer == null) {
-                                if (offscreenIsVolatile[offscreenIndex]) {
-                                    buffer = config.createCompatibleVolatileImage(
-                                                    displayBounds.width, displayBounds.height);
-                                } else {
-                                    buffer = config.createCompatibleImage(
-                                                    displayBounds.width, displayBounds.height,
-                                                    Transparency.TRANSLUCENT);
-                                }
-                            }
-                            offscreenBuffers[offscreenIndex] = buffer;
-                            bufferClip = displayBounds;
-                            continue;
-                        }
-                        //
-                        // Image preserved: paint it immediately if no graphic changed
-                        // since last rendering, or repaint only the damaged area.
-                        //
-                        case VolatileImage.IMAGE_OK: {
-                            if (!offscreenNeedRepaint[offscreenIndex]) {
-                                // REVISIT: Which AlphaComposite to use here?
-                                output.drawImage(buffer, displayBounds.x,
-                                                         displayBounds.y, owner);
-                                if (contentsLost(buffer)) {
-                                    // Upcomming 'validate' will falls in IMAGE_RESTORED case.
-                                    continue;
-                                }
-                                // Rendering finished for this offscreen buffer.
-                                break renderOffscreen;
-                            }
-                            // Repaint only the damaged area.
-                            break;
-                        }
-                        //
-                        // Contents has been lost: we need to repaint the whole image.
-                        //
-                        case VolatileImage.IMAGE_RESTORED: {
-                            bufferClip = displayBounds;
-                            break;
-                        }
-                    }
-                    /*
-                     * At this point, we know that some area need to be repainted.
-                     * Reset a transparent background on the area to be repainted,
-                     * and invokes GraphicPrimitive2D.update(...) for each graphics
-                     * to be included in this offscreen buffer.
-                     */
-                    final Graphics2D graphicsOff = (Graphics2D) buffer.getGraphics();
-                    final Composite oldComposite = graphicsOff.getComposite();
-                    graphicsOff.addRenderingHints(hints);
-                    graphicsOff.translate(-displayBounds.x, -displayBounds.y);
-                    if (offscreenIsVolatile[offscreenIndex]) {
-                        // HACK: We should use the transparent color in all cases. However,
-                        //       as of J2SE 1.4, VolatileImage doesn't supports transparency.
-                        //       We have to use some opaque color in the main time.
-                        // TODO: Delete this hack when J2SE 1.5 will be available.
-                        //       Avoid filling if the image has just been created.
-                        graphicsOff.setComposite(AlphaComposite.Src);
-                    } else {
-                        graphicsOff.setComposite(AlphaComposite.Clear);
-                    }
-                    graphicsOff.setColor(owner!=null ? owner.getBackground() : Color.WHITE);
-                    graphicsOff.fill(bufferClip);
-                    graphicsOff.setComposite(oldComposite); // REVISIT: is it the best composite?
-                    graphicsOff.setColor(owner!=null ? owner.getForeground() : Color.BLACK);
-                    graphicsOff.clip(bufferClip); // Information needed by some graphics.
-                    context.setGraphics(graphicsOff, zoom);
-                    offscreenNeedRepaint[offscreenIndex] = false;
-                    for (int i=graphicIndex; i<graphicIndexUp; i++) {
-                        candidate = (Graphic) graphics.get(i);
-                        if (candidate instanceof GraphicPrimitive2D) try {
-                            paint((GraphicPrimitive2D) candidate, context, bufferClip);
-                        } catch (Exception exception) {
-                            /*
-                             * An exception occured in user code. Do not try anymore to use
-                             * offscreen buffer for this graphic; render it in the "ordinary"
-                             * loop instead. If this exception still occurs, it will be the
-                             * "ordinary" loop's job to handle it.
-                             */
-                            context.disposeGraphics();
-                            buffer.flush();
-                            offscreenBuffers[offscreenIndex] = buffer = null;
-                            graphicIndexUp = graphicIndex; // Force re-rendering of this graphic.
-                            minZOrder    = Double.NaN;  // Disable offscreen for all graphics.
-                            handleOffscreenException(candidate, exception);
-                            break renderOffscreen;
-                        }
-                        if (contentsLost(buffer)) {
-                            break;
-                        }
-                    }
-                    context.disposeGraphics();
-                }
-                /*
-                 * The offscreen buffer has been successfully rendered (or we failed because
-                 * of an exception in user's code). If the ordinary (clipped) context was
-                 * modified, it will be restored in the "ordinary" loop when first needed.
-                 */
-                graphicIndex = graphicIndexUp-1;
-            }
-            success = true;
-        } finally {
-            context.setGraphics(null, null);
-            paintFinished(success);
-        }
+        
+        //call the renderer paint method
+        boolean success = renderer.paint(
+                output,
+                zoom,
+                displayBounds,
+                isPrinting, 
+                offscreenCount, 
+                offscreenBuffers, 
+                offscreenZRanges, 
+                owner, 
+                offscreenIsVolatile,
+                offscreenNeedRepaint,
+                config,
+                clipBounds);
+         
+        paintFinished(success);
+        
         statistics.finish(this);
     }
 
-    /**
-     * {@linkplain GraphicPrimitive2D#paint Paints} the specified graphic and
-     * {@linkplain GraphicPrimitive2D#setDisplayBounds update its display bounds}.
-     * If the specified graphic is not {@linkplain GraphicPrimitive2D#getVisible visible}
-     * or if {@code clipBounds} doesn't intersect the
-     * {@linkplain GraphicPrimitive2D#getDisplayBounds graphic display bounds},
-     * then this method do nothing.
-     *
-     * @param graphic    The graphics to paint.
-     * @param context    Information relative to the rendering context.
-     * @param clipBounds The area to paint in terms of display CRS, or {@code null}.
-     * @throws TransformException If a coordinate transformation failed during the rendering
-     *         process.
-     */
-    private void paint(final GraphicPrimitive2D graphic,
-                       final RenderingContext   context,
-                       final Rectangle          clipBounds)
-            throws TransformException
-    {
-        assert Thread.holdsLock(this);
-        if (graphic.getVisible()) {
-            final Shape paintedArea = graphic.getDisplayBounds();
-            if (paintedArea==null || clipBounds==null || paintedArea.intersects(clipBounds)) {
-                context.paintedArea = null;
-                graphic.paint(context);
-                graphic.setDisplayBounds(context.paintedArea);
-            }
-        }
-    }
+    
 
     /**
      * Declares that the {@link Component} need to be repainted. This method can be invoked
@@ -733,7 +457,7 @@ renderOffscreen:while (true) {
      * method doesn't invoke any {@link #flushOffscreenBuffer} method; this is up to the caller
      * to invokes the appropriate method.
      */
-    private void repaint() {
+    public void repaint() {
         final Component owner = this.owner;
         if (owner != null) {
             if (EventQueue.isDispatchThread()) {
@@ -807,8 +531,8 @@ renderOffscreen:while (true) {
              * Flush the offscreen buffers and send the repaint event. The paint method
              * will be invoked by Swing at some later, widget-dependent, time.
              */
-            if (graphic != null) {
-                flushOffscreenBuffer(graphic.getZOrderHint());
+            if (graphic != null && graphic instanceof AbstractGraphic) {
+                flushOffscreenBuffer( ((AbstractGraphic)graphic).getZOrderHint());
             } else {
                 flushOffscreenBuffers();
             }
@@ -827,7 +551,7 @@ renderOffscreen:while (true) {
         final Logger logger = getLogger();
         if (logger.isLoggable(Level.FINEST)) {
             final Loggings resources = Loggings.getResources(getLocale());
-            final String name = (graphic!=null) ? graphic.getName()
+            final String name = (graphic!=null && graphic instanceof AbstractGraphic) ? ((AbstractGraphic)graphic).getName()
                                                 : Vocabulary.format(VocabularyKeys.UNKNOW);
             final LogRecord record;
             if (bounds != null) {
@@ -881,7 +605,7 @@ renderOffscreen:while (true) {
      * @param graphic The graphic for which the offscreen rendering failed.
      * @param exception The exception.
      */
-    private void handleOffscreenException(final Graphic graphic, final Exception exception) {
+    private void handleOffscreenException(final AbstractGraphic graphic, final Exception exception) {
         final Locale locale = getLocale();
         final LogRecord record = Loggings.getResources(locale).getLogRecord(Level.FINE,
                 LoggingKeys.OFFSCREEN_RENDERING_FAILED_$1, graphic.getName());
@@ -1045,22 +769,13 @@ renderOffscreen:while (true) {
     }
 
     /**
-     * Returns extended information to print for the given graphic in the {@link #toString} method.
-     */
-    @Override
-    String toStringExt(final Graphic graphic) {
-        final ImageType type = getOffscreenBuffered(graphic.getZOrderHint());
-        return ImageType.NONE.equals(type) ? super.toStringExt(graphic) : type.name();
-    }
-
-    /**
      * Clears all cached data. Invoking this method may help to release some resources for other
      * applications. It should be invoked when we know that the map is not going to be rendered
      * for a while. Note that this method doesn't changes the renderer setting; it will just slow
      * down the first rendering after this method call.
      */
     @Override
-    protected void clearCache() {
+    public void clearCache() {
         flushOffscreenBuffers();
         if (offscreenBuffers != null) {
             Arrays.fill(offscreenBuffers, null);
@@ -1083,4 +798,9 @@ renderOffscreen:while (true) {
         offscreenNeedRepaint = null;
         super.dispose();
     }
+
+    public CanvasController getController() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

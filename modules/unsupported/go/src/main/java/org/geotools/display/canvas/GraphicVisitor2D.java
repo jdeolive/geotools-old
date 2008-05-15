@@ -20,7 +20,7 @@ package org.geotools.display.canvas;
 import java.awt.geom.Point2D;
 
 // OpenGIS dependencies
-import org.opengis.go.display.primitive.Graphic;
+import org.opengis.display.primitive.Graphic;
 
 // Geotools dependencies
 import org.geotools.display.event.ReferencedEvent;

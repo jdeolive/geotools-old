@@ -91,7 +91,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeBeginArrowStyle;
             this.strokeBeginArrowStyle = strokeBeginArrowStyle;
         }
-        listeners.firePropertyChange("strokeBeginArrowStyle", old, strokeBeginArrowStyle);
+        propertyListeners.firePropertyChange("strokeBeginArrowStyle", old, strokeBeginArrowStyle);
     }
 
     /**
@@ -110,7 +110,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeEndArrowStyle;
             this.strokeEndArrowStyle = strokeEndArrowStyle;
         }
-        listeners.firePropertyChange("strokeEndArrowStyle", old, strokeEndArrowStyle);
+        propertyListeners.firePropertyChange("strokeEndArrowStyle", old, strokeEndArrowStyle);
     }
 
     /**
@@ -131,7 +131,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeColor;
             this.strokeColor = strokeColor;
         }
-        listeners.firePropertyChange("strokeColor", old, strokeColor);
+        propertyListeners.firePropertyChange("strokeColor", old, strokeColor);
     }
 
     /**
@@ -150,7 +150,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeDashArray;
             this.strokeDashArray = strokeDashArray;
         }
-        listeners.firePropertyChange("strokeDashArray", old, strokeDashArray);
+        propertyListeners.firePropertyChange("strokeDashArray", old, strokeDashArray);
     }
 
     /**
@@ -169,7 +169,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeDashOffset;
             this.strokeDashOffset = strokeDashOffset;
         }
-        listeners.firePropertyChange("strokeDashOffset", new Float(old), new Float(strokeDashOffset));
+        propertyListeners.firePropertyChange("strokeDashOffset", new Float(old), new Float(strokeDashOffset));
     }
 
     /**
@@ -190,7 +190,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillColor;
             this.strokeFillColor = strokeFillColor;
         }
-        listeners.firePropertyChange("strokeFillColor", old, strokeFillColor);
+        propertyListeners.firePropertyChange("strokeFillColor", old, strokeFillColor);
     }
 
     /**
@@ -209,7 +209,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillBackgroundColor;
             this.strokeFillBackgroundColor = strokeFillBackgroundColor;
         }
-        listeners.firePropertyChange("strokeFillBackgroundColor", old, strokeFillBackgroundColor);
+        propertyListeners.firePropertyChange("strokeFillBackgroundColor", old, strokeFillBackgroundColor);
     }
     
     /**
@@ -229,7 +229,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillGradientPoints;
             this.strokeFillGradientPoints = strokeFillGradientPoints;
         }
-        listeners.firePropertyChange("strokeFillGradientPoints", old, strokeFillGradientPoints);
+        propertyListeners.firePropertyChange("strokeFillGradientPoints", old, strokeFillGradientPoints);
     }
 
     /**
@@ -248,7 +248,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillOpacity;
             this.strokeFillOpacity = strokeFillOpacity;
         }
-        listeners.firePropertyChange("strokeFillOpacity", new Float(old), new Float(strokeFillOpacity));
+        propertyListeners.firePropertyChange("strokeFillOpacity", new Float(old), new Float(strokeFillOpacity));
     }
 
     /**
@@ -267,7 +267,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillPattern;
             this.strokeFillPattern = strokeFillPattern;
         }
-        listeners.firePropertyChange("strokeFillPattern", old, strokeFillPattern);
+        propertyListeners.firePropertyChange("strokeFillPattern", old, strokeFillPattern);
     }
 
     /**
@@ -286,7 +286,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeFillStyle;
             this.strokeFillStyle = strokeFillStyle;
         }
-        listeners.firePropertyChange("strokeFillStyle", old, strokeFillStyle);
+        propertyListeners.firePropertyChange("strokeFillStyle", old, strokeFillStyle);
     }
 
     /**
@@ -305,7 +305,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeLineCap;
             this.strokeLineCap = strokeLineCap;
         }
-        listeners.firePropertyChange("strokeLineCap", old, strokeLineCap);
+        propertyListeners.firePropertyChange("strokeLineCap", old, strokeLineCap);
     }
 
     /**
@@ -324,7 +324,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeLineGap;
             this.strokeLineGap = strokeLineGap;
         }
-        listeners.firePropertyChange("strokeLineGap", new Float(old), new Float(strokeLineGap));
+        propertyListeners.firePropertyChange("strokeLineGap", new Float(old), new Float(strokeLineGap));
     }
 
     /**
@@ -343,7 +343,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeLineJoin;
             this.strokeLineJoin = strokeLineJoin;
         }
-        listeners.firePropertyChange("strokeLineJoin", old, strokeLineJoin);
+        propertyListeners.firePropertyChange("strokeLineJoin", old, strokeLineJoin);
     }
 
     /**
@@ -362,7 +362,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeLinePattern;
             this.strokeLinePattern = strokeLinePattern;
         }
-        listeners.firePropertyChange("strokeLinePattern", old, strokeLinePattern);
+        propertyListeners.firePropertyChange("strokeLinePattern", old, strokeLinePattern);
     }
 
     /**
@@ -381,7 +381,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeLineStyle;
             this.strokeLineStyle = strokeLineStyle;
         }
-        listeners.firePropertyChange("strokeLineStyle", old, strokeLineStyle);
+        propertyListeners.firePropertyChange("strokeLineStyle", old, strokeLineStyle);
     }
     
     /**
@@ -400,7 +400,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeOpacity;
             this.strokeOpacity = strokeOpacity;
         }
-        listeners.firePropertyChange("strokeOpacity", new Float(old), new Float(strokeOpacity));
+        propertyListeners.firePropertyChange("strokeOpacity", new Float(old), new Float(strokeOpacity));
     }
 
     /**
@@ -419,7 +419,7 @@ public class DefaultLineSymbolizer extends DefaultGraphicStyle implements LineSy
             old = this.strokeWidth;
             this.strokeWidth = strokeWidth;
         }
-        listeners.firePropertyChange("strokeWidth", new Float(old), new Float(strokeWidth));
+        propertyListeners.firePropertyChange("strokeWidth", new Float(old), new Float(strokeWidth));
     }
 
     /**

@@ -21,15 +21,15 @@ package org.geotools.display.canvas;
 
 import java.io.Serializable;
 
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.util.Cloneable;
-import org.opengis.go.display.canvas.Canvas;        // For javadoc
-import org.opengis.go.display.canvas.CanvasState;
-import org.opengis.geometry.Envelope;
+import org.opengis.util.InternationalString;
+import org.opengis.display.canvas.CanvasState;
 import org.opengis.geometry.DirectPosition;
 
 import org.geotools.resources.Classes;
 import org.geotools.resources.Utilities;
-import org.geotools.geometry.GeneralDirectPosition;
 
 
 /**
@@ -55,67 +55,87 @@ public class DefaultCanvasState implements CanvasState, Cloneable, Serializable 
     /**
      * The title of the canvas.
      */
-    private final String title;
-
+    private final InternationalString title;
     /**
      * The position of the center pixel of the canvas.
      */
-    private final GeneralDirectPosition center;
+    private final DirectPosition center;
+    
+    private final CoordinateReferenceSystem objectiveCRS;
+    
+    private final CoordinateReferenceSystem displayCRS;
+    
+    private final MathTransform dispToObj;
+    
+    private final MathTransform objToDisp;
+    
 
     /**
      * Creates a canvas state with the specified title and center position.
      *
      * @param title  The title of the canvas.
      * @param center The position of the center pixel of the canvas.
+     * @param obj Objective CRS
+     * @param disp Display CRS
+     * @param toObj MathTransform to Objective CRS
+     * @param toDisp MathTransform to Display CRS
      */
-    public DefaultCanvasState(final String title, final DirectPosition center) {
+    public DefaultCanvasState(
+            final InternationalString title, 
+            final DirectPosition center,
+            final CoordinateReferenceSystem obj,
+            final CoordinateReferenceSystem disp,
+            final MathTransform toObj,
+            final MathTransform toDisp) {
         this.title  = title;
-        this.center = (center!=null) ? new GeneralDirectPosition(center) : null;
+        this.center = center;
+        objectiveCRS = obj;
+        displayCRS = disp;
+        dispToObj = toObj;
+        objToDisp = toDisp;
     }
 
-    /**
-     * Creates a canvas state with the specified title and envelope. The center position
-     * is infered from the envelope.
-     *
-     * @param title    The title of the canvas.
-     * @param envelope The canvas envelope.
-     */
-    public DefaultCanvasState(final String title, final Envelope envelope) {
-        this.title = title;
-        if (envelope != null) {
-            final int dimension = envelope.getDimension();
-            center = new GeneralDirectPosition(dimension);
-            center.setCoordinateReferenceSystem(envelope.getCoordinateReferenceSystem());
-            for (int i=0; i<dimension; i++) {
-                center.ordinates[i] = envelope.getCenter(i);
-            }
-        } else {
-            center = null;
-        }
+   
+
+
+    public DirectPosition getCenter() {
+        return center;
     }
 
-    /**
-     * Returns the title of the canvas.
-     */
-    public String getTitle() {
+    public InternationalString getTitle() {
         return title;
     }
 
-    /**
-     * Returns the position of the center pixel of the canvas.
-     */
-    public DirectPosition getCenter() {
-        return (center!=null) ? new GeneralDirectPosition(center) : center;
+    public CoordinateReferenceSystem getDisplayCRS() {
+        return displayCRS;
     }
 
+    public CoordinateReferenceSystem getObjectiveCRS() {
+        return objectiveCRS;
+    }
+
+    public MathTransform getObjectiveToDisplayTransform() {
+        return objToDisp;
+    }
+
+    public MathTransform getDisplayToObjectiveTransform() {
+        return dispToObj;
+    }
+    
+    
     /**
      * Returns a hash code value for this canvas state.
+     * @return hashcode
      */
     @Override
     public int hashCode() {
         int code = (int) serialVersionUID;
         if (title  != null) code ^= title .hashCode();
         if (center != null) code ^= center.hashCode();
+        if (objectiveCRS != null) code ^= objectiveCRS.hashCode();
+        if (displayCRS != null) code ^= displayCRS.hashCode();
+        if (objToDisp != null) code ^= objToDisp.hashCode();
+        if (dispToObj != null) code ^= dispToObj.hashCode();
         return code;
     }
 
@@ -131,7 +151,11 @@ public class DefaultCanvasState implements CanvasState, Cloneable, Serializable 
         if (object!=null && object.getClass().equals(getClass())) {
             final DefaultCanvasState that = (DefaultCanvasState) object;
             return Utilities.equals(this.title,  that.title ) &&
-                   Utilities.equals(this.center, that.center);
+                   Utilities.equals(this.center, that.center) &&
+                   Utilities.equals(this.displayCRS, that.displayCRS) &&
+                   Utilities.equals(this.objectiveCRS, that.objectiveCRS) &&
+                   Utilities.equals(this.objToDisp, that.objToDisp) &&
+                   Utilities.equals(this.dispToObj, that.dispToObj);
         }
         return false;
     }
@@ -148,9 +172,10 @@ public class DefaultCanvasState implements CanvasState, Cloneable, Serializable 
             throw new AssertionError(e);
         }
     }
-
+    
     /**
      * Returns a string representation of this canvas state.
+     * String is formed : ["TITLE", (CENTER), OBJECTIVE_CRS_NAME , DISPLAY_CRS_NAME ]
      */
     @Override
     public String toString() {
@@ -162,6 +187,14 @@ public class DefaultCanvasState implements CanvasState, Cloneable, Serializable 
         if (center != null) {
             buffer.append(", (").append(center).append(')');
         }
+        if (objectiveCRS != null) {
+            buffer.append(", ").append(objectiveCRS.getName()).append(' ');
+        }
+        if (displayCRS != null) {
+            buffer.append(", ").append(displayCRS.getName()).append(' ');
+        }
         return buffer.append(']').toString();
     }
+    
+    
 }

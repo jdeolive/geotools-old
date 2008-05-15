@@ -26,7 +26,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import org.geotools.display.canvas.RenderingContext;
+import org.geotools.display.renderer.RenderingContext;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 
@@ -131,7 +131,7 @@ public abstract class GraphicPrimitive2D extends ReferencedGraphic2D {
      * @throws TransformException If a coordinate transformation failed during the rendering
      *         process.
      */
-    protected abstract void paint(final RenderingContext context) throws TransformException;
+    public abstract void paint(final RenderingContext context) throws TransformException;
 
     /**
      * Hints that this graphic might be painted in the near future. Some implementations may

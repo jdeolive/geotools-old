@@ -74,7 +74,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillColor;
             this.fillColor = fillColor;
         }
-        listeners.firePropertyChange("fillColor", old, fillColor);
+        propertyListeners.firePropertyChange("fillColor", old, fillColor);
     }
 
     /**
@@ -93,7 +93,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillBackgroundColor;
             this.fillBackgroundColor = fillBackgroundColor;
         }
-        listeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
+        propertyListeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
     }
 
     /**
@@ -112,7 +112,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillGradientPoints;
             this.fillGradientPoints = fillGradientPoints;
         }
-        listeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
+        propertyListeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
     }
 
     /**
@@ -133,7 +133,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillOpacity;
             this.fillOpacity = fillOpacity;
         }
-        listeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
+        propertyListeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
     }
 
     /**
@@ -152,7 +152,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillPattern;
             this.fillPattern = fillPattern;
         }
-        listeners.firePropertyChange("fillPattern", old, fillPattern);
+        propertyListeners.firePropertyChange("fillPattern", old, fillPattern);
     }
 
     /**
@@ -171,7 +171,7 @@ public class DefaultPolygonSymbolizer extends DefaultLineSymbolizer implements P
             old = this.fillStyle;
             this.fillStyle = fillStyle;
         }
-        listeners.firePropertyChange("fillStyle", old, fillStyle);
+        propertyListeners.firePropertyChange("fillStyle", old, fillStyle);
     }
 
     /**

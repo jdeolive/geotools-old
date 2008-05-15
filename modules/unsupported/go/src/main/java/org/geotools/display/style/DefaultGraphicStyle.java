@@ -104,7 +104,7 @@ public class DefaultGraphicStyle extends DisplayObject implements GraphicStyle {
      */
     public synchronized void addGraphicStyleListener(final GraphicStyleListener listener) {
         if (graphicStyleListeners.add(listener)) {
-            listeners.addPropertyChangeListener(graphicStyleListeners);
+            propertyListeners.addPropertyChangeListener(graphicStyleListeners);
         }
     }
 
@@ -115,7 +115,7 @@ public class DefaultGraphicStyle extends DisplayObject implements GraphicStyle {
      */
     public synchronized void removeGraphicStyleListener(final GraphicStyleListener listener) {
         if (graphicStyleListeners.remove(listener)) {
-            listeners.removePropertyChangeListener(graphicStyleListeners);
+            propertyListeners.removePropertyChangeListener(graphicStyleListeners);
         }
     }
 
@@ -206,5 +206,13 @@ public class DefaultGraphicStyle extends DisplayObject implements GraphicStyle {
         clone.hints = (Hints) hints.clone();
         clone.graphicStyleListeners = new GraphicStyleListenerList(graphicStyleListeners);
         return clone;
+    }
+
+    public Object getImplHint(String arg0) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public void setImplHint(String arg0, Object arg1) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

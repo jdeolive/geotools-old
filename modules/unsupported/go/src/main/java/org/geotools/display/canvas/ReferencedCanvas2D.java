@@ -21,7 +21,6 @@ package org.geotools.display.canvas;
 
 import java.awt.Shape;
 import java.awt.Rectangle;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
 import java.util.List;
@@ -33,12 +32,8 @@ import javax.units.SI;
 import javax.units.NonSI;
 import javax.units.ConversionException;
 
-import org.opengis.go.display.DisplayFactory;
-import org.opengis.go.display.primitive.Graphic;
 import org.opengis.referencing.datum.Ellipsoid;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.cs.CoordinateSystem;
-import org.opengis.referencing.crs.DerivedCRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.DirectPosition;
@@ -49,10 +44,10 @@ import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.geometry.GeneralDirectPosition;
-import org.geotools.geometry.TransformedDirectPosition;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.display.event.ReferencedEvent;
+import org.opengis.display.primitive.Graphic;
 
 
 /**
@@ -85,7 +80,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #zoomChanged
      */
     protected final AffineTransform2D objectiveToDisplay = new AffineTransform2D();
-
+        
     /**
      * The affine transform from the {@linkplain #getDisplayCRS display CRS} to the {@linkplain
      * #getDeviceCRS device CRS}. This transform is set as if no clipping were performed by
@@ -103,7 +98,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getDeviceCRS
      */
     protected final AffineTransform2D displayToDevice = new AffineTransform2D();
-
+    
     /**
      * The affine transform from the units used in the {@linkplain #getObjectiveCRS objective CRS}
      * to "dots" units. A dots is equals to 1/72 of inch. This transform is basically nothing else
@@ -137,8 +132,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      *
      * @param factory The display factory associated with this canvas, or {@code null} if none.
      */
-    protected ReferencedCanvas2D(final DisplayFactory factory) {
-        super(factory, 2);
+    protected ReferencedCanvas2D() {
+        super(2);
         // The following must be invoked here instead than in super-class because
         // 'normalizeToDots' is not yet assigned when the super-class constructor
         // is run.
@@ -151,6 +146,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} with
      * a two dimensional head.
      */
+    @Override
     public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
         super.setObjectiveCRS(CRSUtilities.getCRS2D(crs));
     }
@@ -173,6 +169,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getEnvelope
      * @see org.geotools.display.canvas.map.DefaultMapState#getEnvelope
      */
+    @Override
     public Rectangle2D getEnvelope2D() {
         return super.getEnvelope2D();
     }
@@ -210,7 +207,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         final Shape old;
         old = displayBounds;
         displayBounds = bounds;
-        listeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, old, bounds);
+        propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, old, bounds);
     }
 
     /**
@@ -222,7 +219,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @param  bounds The rectangle in terms of {@linkplain #getObjectiveCRS objective CRS}.
      * @return The rectangle in terms of {@linkplain #getDisplayCRS display CRS}.
      */
-    protected final Rectangle objectiveToDisplay(final Rectangle2D bounds) {
+    public final Rectangle objectiveToDisplay(final Rectangle2D bounds) {
         assert Thread.holdsLock(this);
         return (Rectangle) XAffineTransform.transform(objectiveToDisplay, bounds, new Rectangle());
     }
@@ -257,7 +254,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @param  area The area to test, in terms of {@linkplain #getDisplayCRS display CRS}.
      * @return {@code true} if the specified area is already in process of being painted.
      */
-    final boolean isDirtyArea(final Rectangle area) {
+    public final boolean isDirtyArea(final Rectangle area) {
         assert Thread.holdsLock(this);
         if (dirtyArea == null) {
             return true;
@@ -298,6 +295,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * implementation checks if the coordinate (transformed in terms of {@linkplain #getDisplayCRS
      * display CRS}) is inside the {@linkplain #getDisplayBounds display bounds}.
      */
+    @Override
     public synchronized boolean isVisible(final DirectPosition coordinate) {
         final GeneralDirectPosition position;
         try {
@@ -345,6 +343,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      *
      * @param crs The new objective CRS.
      */
+    @Override
     protected void updateNormalizationFactor(final CoordinateReferenceSystem crs) {
         super.updateNormalizationFactor(crs);
         final Ellipsoid ellipsoid = CRSUtilities.getHeadGeoEllipsoid(crs);
@@ -409,7 +408,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         }
         return 7200/2.54 * m;
     }
-
+    
     /**
      * Notifies all listeners that the {@link #objectiveToDisplay} transform changed. This change
      * is more often the consequence of some zoom action. The {@code change} argument can be
@@ -430,12 +429,12 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      */
     protected void zoomChanged(final AffineTransform change) {
         assert Thread.holdsLock(this);
-        final List/*<Graphic>*/ graphics = getGraphics();
+        final List/*<Graphic>*/ graphics = renderer.getGraphics();
         for (int i=graphics.size(); --i>=0;) {
             final Graphic graphic = (Graphic) graphics.get(i);
             if (graphic instanceof ReferencedGraphic2D) {
                 ((ReferencedGraphic2D) graphic).zoomChanged(change);
-            }
+}
         }
     }
 }

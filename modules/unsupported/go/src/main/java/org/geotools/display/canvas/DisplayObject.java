@@ -22,17 +22,12 @@ package org.geotools.display.canvas;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.logging.LogRecord;
 import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;  // For javadoc
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 
-import org.opengis.go.display.primitive.Graphic;  // For javadoc
-
 import org.geotools.util.logging.Logging;
-import org.geotools.resources.i18n.Loggings;
-import org.geotools.resources.i18n.LoggingKeys;
 
 
 /**
@@ -53,93 +48,15 @@ public class DisplayObject {
     private static final Logger LOGGER = Logging.getLogger("org.geotools.display");
 
     /**
-     * List of classes that provides rendering hints as public static fields.
-     * This is used by {@link #toRenderingHintKey}.
-     */
-    private static final String[] HINT_CLASSES = {
-        "java.awt.RenderingHints",
-        "org.geotools.factory.Hints",
-        "org.geotools.display.canvas.AbstractCanvas",
-        "javax.media.jai.JAI"
-    };
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getName graphic name} changed.
-     */
-    public static final String NAME_PROPERTY = "name";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractCanvas#getTitle canvas title} changed.
-     */
-    public static final String TITLE_PROPERTY = "title";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * canvas {@linkplain ReferencedCanvas#getObjectiveCRS objective CRS} changed.
-     */
-    public static final String OBJECTIVE_CRS_PROPERTY = "objectiveCRS";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * canvas {@linkplain ReferencedCanvas#getDisplayCRS display CRS} changed.
-     */
-    public static final String DISPLAY_CRS_PROPERTY = "displayCRS";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractCanvas#getGraphics set of graphics} in this canvas changed.
-     */
-    public static final String GRAPHICS_PROPERTY = "graphics";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getVisible graphic visibility} changed.
-     */
-    public static final String VISIBLE_PROPERTY = "visible";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getZOrderHint z order hint} changed.
-     */
-    public static final String Z_ORDER_HINT_PROPERTY = "zOrderHint";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event}
-     * fired when the {@linkplain ReferencedCanvas#getEnvelope canvas envelope} or
-     * {@linkplain ReferencedGraphic#getEnvelope graphic envelope} changed.
-     */
-    public static final String ENVELOPE_PROPERTY = "envelope";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
-     */
-    public static final String SCALE_PROPERTY = "scale";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
-     */
-    public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getParent graphic parent} changed.
-     */
-    public static final String PARENT_PROPERTY = "parent";
-
-    /**
      * Listeners to be notified about any changes in this canvas properties.
      */
-    protected final PropertyChangeSupport listeners;
+    protected final PropertyChangeSupport propertyListeners;
 
     /**
      * Creates a new instance of display object.
      */
     protected DisplayObject() {
-        this.listeners = new PropertyChangeSupport(this);
+        this.propertyListeners = new PropertyChangeSupport(this);
     }
 
     /**
@@ -152,7 +69,7 @@ public class DisplayObject {
      *
      * @see #getImplHint
      */
-    public Object getRenderingHint(final RenderingHints.Key key) {
+    public Object getHint(final RenderingHints.Key key) {
         return null;
     }
 
@@ -166,102 +83,7 @@ public class DisplayObject {
      *
      * @see #setImplHint
      */
-    public void setRenderingHint(RenderingHints.Key key, Object value) {
-    }
-
-    /**
-     * Returns the rendering hint associated with the hint name. The default implementation looks
-     * for a rendering hint key of the given name in some known classes like {@link RenderingHints}
-     * and {@link javax.media.jai.JAI}, and invokes {@link #getRenderingHint} with that key.
-     *
-     * @param  name the name of the hint.
-     * @return The hint value for the specified key, or {@code null} if none.
-     */
-    public Object getImplHint(final String name) throws IllegalArgumentException {
-        return getRenderingHint(toRenderingHintKey(name, "getImplHint"));
-    }
-
-    /**
-     * Sets a rendering hint for implementation or platform specific rendering information.
-     * The default implementation looks for a rendering hint key of the given name in some
-     * known classes like {@link RenderingHints} and {@link javax.media.jai.JAI}, and invokes
-     * {@link #setRenderingHint} with that key. For example the two following method calls are
-     * close to equivalent:
-     * <p>
-     * <ol>
-     *   <li><code>setRenderingHint({@linkplain javax.media.jai.JAI#KEY_TILE_CACHE}, value);</code></li>
-     *   <li><code>setImplHint("KEY_TILE_CACHE", value);</code></li>
-     * </ol>
-     * <p>
-     * The main differences are that approach 1 is more type-safe but will fails on a machine
-     * without JAI installation, while approach 2 is not type-safe but will silently ignore
-     * the hint on a machine without JAI installation. Likewise, a user can write for example
-     * <code>setImplHint("FINEST_RESOLUTION", value)</code> for setting the
-     * {@link AbstractCanvas#FINEST_RESOLUTION FINEST_RESOLUTION} hint without immediate
-     * dependency to the {@link AbstractCanvas} Geotools implementation.
-     *
-     * @param name  the name of the hint.
-     * @param value The hint value. A {@code null} value remove the hint.
-     */
-    public void setImplHint(final String name, final Object value) {
-        final RenderingHints.Key key = toRenderingHintKey(name, "setImplHint");
-        if (key != null) {
-            setRenderingHint(key, value);
-        } else {
-            getLogger().fine(Loggings.getResources(getLocale()).getString(
-                    LoggingKeys.HINT_IGNORED_$1, name));
-        }
-    }
-
-    /**
-     * Returns the rendering hint key for the specified name.
-     *
-     * @param  name       The key name.
-     * @param  methodName The caller name, for logging purpose only.
-     * @return A rendering hint key of the given name, or {@code null}
-     *         if no key were found for the given name.
-     */
-    private RenderingHints.Key toRenderingHintKey(String name, final String methodName) {
-        if (true) {
-            /*
-             * Converts the name in upper case, adding '_' as needed.
-             * For example "someName" will be converted as "SOME_NAME".
-             */
-            final int length = name.length();
-            final StringBuffer buffer = new StringBuffer(length);
-            for (int i=0; i<length; i++) {
-                char c = name.charAt(i);
-                if (Character.isUpperCase(c)) {
-                    if (i!=0 && Character.isLowerCase(name.charAt(i-1))) {
-                        buffer.append('_');
-                    }
-                } else {
-                    c = Character.toUpperCase(c);
-                }
-                buffer.append(c);
-            }
-            name = buffer.toString();
-        }
-        /*
-         * Now searchs for the public static constants defined in some known classes.
-         */
-        for (int i=0; i<HINT_CLASSES.length; i++) {
-            try {
-                return (RenderingHints.Key) Class.forName(HINT_CLASSES[i]).getField(name).get(null);
-            } catch (Exception e) {
-                /*
-                 * May be SecurityException, ClassNotFoundException, NoSuchFieldException,
-                 * IllegalAccessException, NullPointerException, ClassCastException and more...
-                 * We ignore all of them and just try the next class.
-                 */
-                final LogRecord record = new LogRecord(Level.FINEST, name);
-                record.setSourceClassName(DisplayObject.class.getName());
-                record.setSourceMethodName(methodName);
-                record.setThrown(e);
-                getLogger().log(record);
-            }
-        }
-        return null;
+    public void setHint(RenderingHints.Key key, Object value) {
     }
 
     /**
@@ -274,8 +96,8 @@ public class DisplayObject {
      * @param listener The property change listener to be added
      */
     public void addPropertyChangeListener(final PropertyChangeListener listener) {
-        synchronized (listeners) {
-            listeners.addPropertyChangeListener(listener);
+        synchronized (propertyListeners) {
+            propertyListeners.addPropertyChangeListener(listener);
             listenersChanged();
         }
     }
@@ -290,8 +112,8 @@ public class DisplayObject {
     public void addPropertyChangeListener(final String propertyName,
                                           final PropertyChangeListener listener)
     {
-        synchronized (listeners) {
-            listeners.addPropertyChangeListener(propertyName, listener);
+        synchronized (propertyListeners) {
+            propertyListeners.addPropertyChangeListener(propertyName, listener);
             listenersChanged();
         }
     }
@@ -303,8 +125,8 @@ public class DisplayObject {
      * @param listener The property change listener to be removed
      */
     public void removePropertyChangeListener(final PropertyChangeListener listener) {
-        synchronized (listeners) {
-            listeners.removePropertyChangeListener(listener);
+        synchronized (propertyListeners) {
+            propertyListeners.removePropertyChangeListener(listener);
             listenersChanged();
         }
     }
@@ -318,8 +140,8 @@ public class DisplayObject {
     public void removePropertyChangeListener(final String propertyName,
                                              final PropertyChangeListener listener)
     {
-        synchronized (listeners) {
-            listeners.removePropertyChangeListener(propertyName, listener);
+        synchronized (propertyListeners) {
+            propertyListeners.removePropertyChangeListener(propertyName, listener);
             listenersChanged();
         }
     }
@@ -375,20 +197,21 @@ public class DisplayObject {
      *
      * @see #dispose
      */
-    protected void clearCache() {
+    public void clearCache() {
     }
 
     /**
      * Method that can be called when an object is no longer needed. Implementations may use
      * this method to release resources, if needed. Implementations may also implement this
      * method to return an object to an object pool. It is an error to reference a
-     * {@link Graphic} or {@link Canvas} in any way after its dispose method has been called.
+     * {@link org.opengis.display.primitive.Graphic} or {@link Canvas} in any way after its
+     * dispose method has been called.
      */
     public void dispose() {
-        synchronized (listeners) {
-            final PropertyChangeListener[] list = listeners.getPropertyChangeListeners();
+        synchronized (propertyListeners) {
+            final PropertyChangeListener[] list = propertyListeners.getPropertyChangeListeners();
             for (int i=list.length; --i>=0;) {
-                listeners.removePropertyChangeListener(list[i]);
+                propertyListeners.removePropertyChangeListener(list[i]);
             }
             listenersChanged();
         }

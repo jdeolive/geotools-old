@@ -101,7 +101,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillColor;
             this.fillColor = fillColor;
         }
-        listeners.firePropertyChange("fillColor", old, fillColor);
+        propertyListeners.firePropertyChange("fillColor", old, fillColor);
     }
 
     /**
@@ -120,7 +120,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillBackgroundColor;
             this.fillBackgroundColor = fillBackgroundColor;
         }
-        listeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
+        propertyListeners.firePropertyChange("fillBackgroundColor", old, fillBackgroundColor);
     }
 
     /**
@@ -139,7 +139,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillGradientPoints;
             this.fillGradientPoints = fillGradientPoints;
         }
-        listeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
+        propertyListeners.firePropertyChange("fillGradientPoints", old, fillGradientPoints);
     }
 
     /**
@@ -158,7 +158,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillOpacity;
             this.fillOpacity = fillOpacity;
         }
-        listeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
+        propertyListeners.firePropertyChange("fillOpacity", new Float(old), new Float(fillOpacity));
     }
 
     /**
@@ -177,7 +177,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillPattern;
             this.fillPattern = fillPattern;
         }
-        listeners.firePropertyChange("fillPattern", old, fillPattern);
+        propertyListeners.firePropertyChange("fillPattern", old, fillPattern);
     }
 
     /**
@@ -196,7 +196,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.fillStyle;
             this.fillStyle = fillStyle;
         }
-        listeners.firePropertyChange("fillStyle", old, fillStyle);
+        propertyListeners.firePropertyChange("fillStyle", old, fillStyle);
     }
 
     /**
@@ -215,7 +215,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.mark;
             this.mark = mark;
         }
-        listeners.firePropertyChange("mark", old, mark);
+        propertyListeners.firePropertyChange("mark", old, mark);
     }
 
     /**
@@ -234,7 +234,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.rotation;
             this.rotation = rotation;
         }
-        listeners.firePropertyChange("rotation", new Float(old), new Float(rotation));
+        propertyListeners.firePropertyChange("rotation", new Float(old), new Float(rotation));
     }
 
     /**
@@ -253,7 +253,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.size;
             this.size = size;
         }
-        listeners.firePropertyChange("size", new Float(old), new Float(size));
+        propertyListeners.firePropertyChange("size", new Float(old), new Float(size));
     }
 
     /**
@@ -272,7 +272,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.opacity;
             this.opacity = opacity;
         }
-        listeners.firePropertyChange("opacity", new Float(old), new Float(opacity));
+        propertyListeners.firePropertyChange("opacity", new Float(old), new Float(opacity));
     }
 
     /**
@@ -291,7 +291,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeBeginArrowStyle;
             this.strokeBeginArrowStyle = strokeBeginArrowStyle;
         }
-        listeners.firePropertyChange("strokeBeginArrowStyle", old, strokeBeginArrowStyle);
+        propertyListeners.firePropertyChange("strokeBeginArrowStyle", old, strokeBeginArrowStyle);
     }
 
     /**
@@ -310,7 +310,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeEndArrowStyle;
             this.strokeEndArrowStyle = strokeEndArrowStyle;
         }
-        listeners.firePropertyChange("strokeEndArrowStyle", old, strokeEndArrowStyle);
+        propertyListeners.firePropertyChange("strokeEndArrowStyle", old, strokeEndArrowStyle);
     }
 
     /**
@@ -329,7 +329,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeColor;
             this.strokeColor = strokeColor;
         }
-        listeners.firePropertyChange("strokeColor", old, strokeColor);
+        propertyListeners.firePropertyChange("strokeColor", old, strokeColor);
     }
 
     /**
@@ -348,7 +348,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeDashArray;
             this.strokeDashArray = strokeDashArray;
         }
-        listeners.firePropertyChange("strokeDashArray", old, strokeDashArray);
+        propertyListeners.firePropertyChange("strokeDashArray", old, strokeDashArray);
     }
     
     /**
@@ -367,7 +367,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeDashOffset;
             this.strokeDashOffset = strokeDashOffset;
         }
-        listeners.firePropertyChange("strokeDashOffset", new Float(old), new Float(strokeDashOffset));
+        propertyListeners.firePropertyChange("strokeDashOffset", new Float(old), new Float(strokeDashOffset));
     }
 
     /**
@@ -386,7 +386,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillColor;
             this.strokeFillColor = strokeFillColor;
         }
-        listeners.firePropertyChange("strokeFillColor", old, strokeFillColor);
+        propertyListeners.firePropertyChange("strokeFillColor", old, strokeFillColor);
     }
 
     /**
@@ -405,7 +405,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillBackgroundColor;
             this.strokeFillBackgroundColor = strokeFillBackgroundColor;
         }
-        listeners.firePropertyChange("strokeFillBackgroundColor", old, strokeFillBackgroundColor);
+        propertyListeners.firePropertyChange("strokeFillBackgroundColor", old, strokeFillBackgroundColor);
     }
 
     /**
@@ -424,7 +424,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillGradientPoints;
             this.strokeFillGradientPoints = strokeFillGradientPoints;
         }
-        listeners.firePropertyChange("strokeFillGradientPoints", old, strokeFillGradientPoints);
+        propertyListeners.firePropertyChange("strokeFillGradientPoints", old, strokeFillGradientPoints);
     }
 
     /**
@@ -443,7 +443,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillOpacity;
             this.strokeFillOpacity = strokeFillOpacity;
         }
-        listeners.firePropertyChange("strokeFillOpacity", new Float(old), new Float(strokeFillOpacity));
+        propertyListeners.firePropertyChange("strokeFillOpacity", new Float(old), new Float(strokeFillOpacity));
     }
 
     /**
@@ -462,7 +462,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillPattern;
             this.strokeFillPattern = strokeFillPattern;
         }
-        listeners.firePropertyChange("strokeFillPattern", old, strokeFillPattern);
+        propertyListeners.firePropertyChange("strokeFillPattern", old, strokeFillPattern);
     }
 
     /**
@@ -481,7 +481,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeFillStyle;
             this.strokeFillStyle = strokeFillStyle;
         }
-        listeners.firePropertyChange("strokeFillStyle", old, strokeFillStyle);
+        propertyListeners.firePropertyChange("strokeFillStyle", old, strokeFillStyle);
     }
 
     /**
@@ -500,7 +500,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeLineCap;
             this.strokeLineCap = strokeLineCap;
         }
-        listeners.firePropertyChange("strokeLineCap", old, strokeLineCap);
+        propertyListeners.firePropertyChange("strokeLineCap", old, strokeLineCap);
     }
 
     /**
@@ -519,7 +519,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeLineGap;
             this.strokeLineGap = strokeLineGap;
         }
-        listeners.firePropertyChange("strokeLineGap", new Float(old), new Float(strokeLineGap));
+        propertyListeners.firePropertyChange("strokeLineGap", new Float(old), new Float(strokeLineGap));
     }
 
     /**
@@ -538,7 +538,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeLineJoin;
             this.strokeLineJoin = strokeLineJoin;
         }
-        listeners.firePropertyChange("strokeLineJoin", old, strokeLineJoin);
+        propertyListeners.firePropertyChange("strokeLineJoin", old, strokeLineJoin);
     }
 
     /**
@@ -557,7 +557,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeLinePattern;
             this.strokeLinePattern = strokeLinePattern;
         }
-        listeners.firePropertyChange("strokeLinePattern", old, strokeLinePattern);
+        propertyListeners.firePropertyChange("strokeLinePattern", old, strokeLinePattern);
     }
 
     /**
@@ -576,7 +576,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeLineStyle;
             this.strokeLineStyle = strokeLineStyle;
         }
-        listeners.firePropertyChange("strokeLineStyle", old, strokeLineStyle);
+        propertyListeners.firePropertyChange("strokeLineStyle", old, strokeLineStyle);
     }
 
     /**
@@ -595,7 +595,7 @@ public class DefaultPointSymbolizer extends DefaultGraphicStyle implements Point
             old = this.strokeWidth;
             this.strokeWidth = strokeWidth;
         }
-        listeners.firePropertyChange("strokeWidth", new Float(old), new Float(strokeWidth));
+        propertyListeners.firePropertyChange("strokeWidth", new Float(old), new Float(strokeWidth));
     }
     
     /**

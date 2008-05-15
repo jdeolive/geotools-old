@@ -23,14 +23,12 @@ package org.geotools.display.canvas;
 import javax.swing.Action;
 
 // OpenGIS dependencies
-import org.opengis.go.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import org.opengis.referencing.operation.CoordinateOperation;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 // Geotools dependencies
@@ -42,6 +40,7 @@ import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.opengis.display.canvas.Canvas;
 
 
 /**
@@ -55,6 +54,19 @@ import org.geotools.resources.i18n.Errors;
  * @author Martin Desruisseaux
  */
 public abstract class ReferencedGraphic extends AbstractGraphic {
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * canvas {@linkplain ReferencedCanvas#getObjectiveCRS objective CRS} changed.
+     */
+    public static final String OBJECTIVE_CRS_PROPERTY = "objectiveCRS";
+    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event}
+     * fired when the {@linkplain ReferencedCanvas#getEnvelope canvas envelope} or
+     * {@linkplain ReferencedGraphic#getEnvelope graphic envelope} changed.
+     */
+    public static final String ENVELOPE_PROPERTY = "envelope";
+    
     /**
      * An envelope that completly encloses the graphic. Note that there is no guarantee
      * that the returned envelope is the smallest bounding box that encloses the graphic,
@@ -123,7 +135,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      * @throws TransformException If this method do not accept the new CRS. In such case,
      *         this method should keep the old CRS and leaves this graphic in a consistent state.
      */
-    protected void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
+    public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
         if (crs == null) {
             throw new IllegalArgumentException(Errors.getResources(getLocale())
                       .getString(ErrorKeys.ILLEGAL_ARGUMENT_$2, "crs", crs));
@@ -178,10 +190,9 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
                     transform(transform);
                     envelope.setEnvelope(newEnvelope);
                     typicalCellDimension = cellDimension;
-                    clearCache();
                 }
             }
-            listeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, crs);
+            propertyListeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, crs);
             refresh();
         }
     }
@@ -271,7 +282,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
             old = new GeneralEnvelope(envelope);
             envelope.setEnvelope(CRS.transform(mt, newEnvelope));
             assert envelope.getCoordinateReferenceSystem() == old.getCoordinateReferenceSystem();
-            listeners.firePropertyChange(ENVELOPE_PROPERTY, old, envelope);
+            propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, old, envelope);
         }
     }
 
