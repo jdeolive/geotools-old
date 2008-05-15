@@ -100,7 +100,7 @@ public class Session {
      * @param config Used to set up a SeConnection
      * @throws SeException If we cannot connect
      */
-    public Session(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {
+    Session(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {
         this.connection = new SeConnection(config.getServerName(), config.getPortNumber()
                 .intValue(), config.getDatabaseName(), config.getUserName(), config
                 .getUserPassword());
@@ -113,15 +113,6 @@ public class Session {
             connectionCounter++;
             connectionId = connectionCounter;
         }
-    }
-
-    /**
-     * @return
-     * @deprecated locking externally is no longer needed, use {@link #execute(Command)} for the
-     *             session to handle it for you
-     */
-    public final Lock getLock() {
-        return lock;
     }
 
     public final boolean isClosed() {
@@ -456,7 +447,7 @@ public class Session {
     public void execute(Command command) throws IOException {
         try {
             lock.lock();
-            command.execute(connection);
+            command.execute(this, connection);
         } finally {
             lock.unlock();
         }
