@@ -487,8 +487,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         final Query newValueQuery = new DefaultQuery(typeName, newValueFilter);
 
         final Transaction transaction = new DefaultTransaction("testUpdateTransaction");
-        FeatureWriter<SimpleFeatureType, SimpleFeature> writer = ds.getFeatureWriter(typeName,
-                oldValueFilter, transaction);
+        FeatureWriter<SimpleFeatureType, SimpleFeature> writer;
+        writer = ds.getFeatureWriter(typeName, oldValueFilter, transaction);
 
         try {
             assertTrue(writer.hasNext());
@@ -1310,9 +1310,10 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             }
 
             final ArcSDEDataStore dataStore = testData.getDataStore();
-            FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore
-                    .getFeatureSource(tableName);
+            final FeatureSource<SimpleFeatureType, SimpleFeature> source;
             final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+
+            source = dataStore.getFeatureSource(tableName);
             store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
                     .getFeatureSource(tableName);
 
@@ -1328,13 +1329,13 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             assertEquals(0, initialCount);
 
             final WKTReader reader = new WKTReader();
-            Object[] content = new Object[3];
+            Object[] content = new Object[2];
             SimpleFeature feature;
             FeatureCollection<SimpleFeatureType, SimpleFeature> collection;
             int count;
 
-            content[1] = "Feature name 1";
-            content[2] = reader.read("POINT (10 10)");
+            content[0] = "Feature name 1";
+            content[1] = reader.read("POINT (10 10)");
             feature = SimpleFeatureBuilder.build(schema, content, (String) null);
             collection = DataUtilities.collection(feature);
 
@@ -1418,8 +1419,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             assertTrue(info.isVersioned());
 
             final SimpleFeatureType schema = store.getSchema();
-            assertNull( schema.getAttribute("ROW_ID") );
-            
+            assertNull(schema.getAttribute("ROW_ID"));
+
             final int initialCount = store.getCount(Query.ALL);
             assertEquals(0, initialCount);
 
