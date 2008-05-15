@@ -17,6 +17,7 @@
 package org.geotools.display.canvas;
 
 // Geotools dependencies
+import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.opengis.display.primitive.GraphicListener;
 

@@ -5,12 +5,10 @@
 
 package org.geotools.display.renderer;
 
-import java.beans.PropertyChangeEvent;
-import org.geotools.display.canvas.AbstractCanvas;
-import org.geotools.display.canvas.AbstractGraphic;
 import org.geotools.display.canvas.ReferencedCanvas;
-import org.geotools.display.canvas.ReferencedGraphic;
+import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.geometry.GeneralEnvelope;
+
 import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;

@@ -46,6 +46,4 @@ public class MapPane extends JPanel{
     }
     
     
-   
-    
 }

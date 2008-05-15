@@ -47,6 +47,7 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.display.event.ReferencedEvent;
+import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.display.renderer.AbstractRenderer;
 import org.opengis.display.primitive.Graphic;
 

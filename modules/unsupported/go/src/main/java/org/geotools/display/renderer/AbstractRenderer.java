@@ -15,14 +15,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.geotools.display.canvas.AbstractCanvas;
-import org.geotools.display.canvas.AbstractGraphic;
 import org.geotools.display.canvas.DisplayObject;
+import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
 import org.geotools.resources.UnmodifiableArrayList;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.util.RangeSet;
+
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.display.renderer.Renderer;

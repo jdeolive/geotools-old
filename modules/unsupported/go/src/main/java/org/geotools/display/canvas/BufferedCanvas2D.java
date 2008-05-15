@@ -18,7 +18,6 @@
 package org.geotools.display.canvas;
 
 import java.util.Map;
-import java.util.List;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.HashMap;
@@ -27,11 +26,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 
-import java.awt.Color;
-import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.AlphaComposite;
 
 import java.awt.Shape;
 import java.awt.Rectangle;
@@ -40,7 +36,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.NoninvertibleTransformException;
 
 import java.awt.Image;
-import java.awt.Transparency;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 
@@ -53,10 +48,12 @@ import java.awt.event.ComponentAdapter;
 import java.beans.PropertyChangeEvent;
 import javax.media.jai.GraphicsJAI;
 
-import org.geotools.display.renderer.AbstractRenderer;
 import org.opengis.display.canvas.CanvasController;
+import org.opengis.display.primitive.Graphic;
 import org.opengis.referencing.operation.TransformException;
 
+import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.Vocabulary;
@@ -66,7 +63,6 @@ import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.util.RangeSet;
 import org.geotools.util.Range;
-import org.opengis.display.primitive.Graphic;
 
 
 /**

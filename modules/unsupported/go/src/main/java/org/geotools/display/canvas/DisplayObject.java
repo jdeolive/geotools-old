@@ -152,7 +152,7 @@ public class DisplayObject {
      * interrested to know if there is any registered listener of a particular kind. Such
      * subclasses can override this method in order to perform their check only once.
      */
-    void listenersChanged() {
+    protected void listenersChanged() {
     }
 
     /**
@@ -166,7 +166,7 @@ public class DisplayObject {
     /**
      * Returns the logger for all messages to be logged by the Geotools implementation of GO-1.
      */
-    protected Logger getLogger() {
+    public Logger getLogger() {
         return LOGGER;
     }
 

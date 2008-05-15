@@ -18,7 +18,7 @@
  *    OpenGIS consortium's work is fully acknowledged here.
  */
 
-package org.geotools.display.canvas;
+package org.geotools.display.primitive;
 
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -27,6 +27,7 @@ import java.text.FieldPosition;
 import java.beans.PropertyChangeEvent;  // For javadoc
 import java.beans.PropertyChangeListener;
 
+import org.geotools.display.canvas.AbstractCanvas;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.go.display.event.GraphicEvent;
@@ -37,6 +38,7 @@ import org.opengis.go.display.style.Symbology;
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.display.canvas.DisplayObject;
 
 
 /**
@@ -150,7 +152,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      *
      * @see #listenersChanged
      */
-    boolean hasScaleListeners;
+    public boolean hasScaleListeners;
 
     /**
      * Creates a new graphic. The {@linkplain #getZOrderHint z-order} default to positive infinity
@@ -717,7 +719,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * added} or {@linkplain #removePropertyChangeListener removed}.
      */
     @Override
-    void listenersChanged() {
+    protected void listenersChanged() {
         super.listenersChanged();
         hasScaleListeners = hasListeners(SCALE_PROPERTY);
     }
@@ -748,7 +750,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * returns a default one.
      */
     @Override
-    protected Logger getLogger() {
+    public Logger getLogger() {
         final Canvas canvas = getCanvas();
         if (canvas instanceof DisplayObject) {
             return ((DisplayObject) canvas).getLogger();

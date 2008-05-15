@@ -39,17 +39,16 @@ import java.awt.image.VolatileImage;
 
 import java.awt.Component;
 
-import org.geotools.display.canvas.AbstractGraphic;
-import org.geotools.display.canvas.BufferedCanvas2D;
-import org.geotools.display.canvas.GraphicPrimitive2D;
-import org.geotools.display.canvas.ReferencedCanvas;
 import org.opengis.display.canvas.Canvas;
+import org.opengis.display.primitive.Graphic;
 import org.opengis.referencing.operation.TransformException;
 
+import org.geotools.display.canvas.BufferedCanvas2D;
+import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.util.RangeSet;
-import org.opengis.display.primitive.Graphic;
 
 
 /**

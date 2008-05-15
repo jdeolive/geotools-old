@@ -6,8 +6,7 @@
 package org.geotools.gui.swing;
 
 import java.awt.Graphics2D;
-import org.geotools.display.canvas.AbstractGraphic;
-import org.geotools.display.canvas.GraphicPrimitive2D;
+import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.display.renderer.RenderingContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.display.primitive.GraphicListener;

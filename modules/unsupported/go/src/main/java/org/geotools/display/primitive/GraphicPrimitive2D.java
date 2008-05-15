@@ -15,7 +15,7 @@
  *    Lesser General Public License for more details.
  */
 
-package org.geotools.display.canvas;
+package org.geotools.display.primitive;
 
 import java.awt.Graphics2D;
 import java.util.logging.Level;

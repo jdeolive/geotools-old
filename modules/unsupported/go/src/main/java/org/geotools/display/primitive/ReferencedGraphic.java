@@ -17,12 +17,13 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.display.canvas;
+package org.geotools.display.primitive;
 
 // J2SE dependencies
 import javax.swing.Action;
 
 // OpenGIS dependencies
+import org.opengis.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
@@ -34,13 +35,13 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 // Geotools dependencies
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.display.canvas.ReferencedCanvas;
 import org.geotools.display.event.ReferencedEvent;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.opengis.display.canvas.Canvas;
 
 
 /**
@@ -339,7 +340,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      *
      * @see ReferencedCanvas#getToolTipText
      */
-    protected String getToolTipText(final ReferencedEvent event) {
+    public String getToolTipText(final ReferencedEvent event) {
         return null;
     }
 
@@ -354,7 +355,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      *
      * @see ReferencedCanvas#getAction
      */
-    protected Action getAction(final ReferencedEvent event) {
+    public Action getAction(final ReferencedEvent event) {
         return null;
     }
 
@@ -373,7 +374,7 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      * @see ReferencedCanvas#format
      * @see MouseCoordinateFormat#format(GeoMouseEvent)
      */
-    protected boolean format(final ReferencedEvent event, final StringBuffer toAppendTo) {
+    public boolean format(final ReferencedEvent event, final StringBuffer toAppendTo) {
         return false;
     }
 }

@@ -34,9 +34,9 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.canvas.CanvasListener;
 import org.opengis.display.primitive.Graphic;
-import org.opengis.display.renderer.Renderer;
 
 import org.geotools.display.renderer.AbstractRenderer;
+import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
 import org.geotools.resources.Classes;
 

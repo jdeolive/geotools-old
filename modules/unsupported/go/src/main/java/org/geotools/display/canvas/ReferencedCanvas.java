@@ -69,6 +69,8 @@ import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.IdentityTransform;
 import org.geotools.display.event.ReferencedEvent;
+import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.display.renderer.AbstractRenderer;
 
 
@@ -1359,7 +1361,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * added} or {@linkplain #removePropertyChangeListener removed}.
      */
     @Override
-    void listenersChanged() {
+    protected void listenersChanged() {
         super.listenersChanged();
         hasScaleListeners    = propertyListeners.hasListeners(SCALE_PROPERTY);
         hasDisplayListeners  = propertyListeners.hasListeners(DISPLAY_CRS_PROPERTY);

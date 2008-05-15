@@ -17,7 +17,7 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-package org.geotools.display.canvas;
+package org.geotools.display.primitive;
 
 // J2SE dependencies
 import java.awt.Shape;
@@ -28,6 +28,7 @@ import java.awt.geom.AffineTransform;
 import java.beans.PropertyChangeEvent; // For javadoc
 
 // OpenGIS dependencies
+import org.opengis.display.canvas.Canvas;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -36,7 +37,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
-import org.opengis.display.canvas.Canvas;
+import org.geotools.display.canvas.ReferencedCanvas2D;
 
 
 /**
@@ -261,7 +262,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      *        or {@code null} if unknow. If {@code null}, then this graphic will be fully redrawn
      *        during the next rendering.
      */
-    protected void zoomChanged(final AffineTransform change) {
+    public void zoomChanged(final AffineTransform change) {
         synchronized (getTreeLock()) {
             final Shape displayBounds = getDisplayBounds();
             if (displayBounds.equals(XRectangle2D.INFINITY)) {
@@ -293,7 +294,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * added} or {@linkplain #removePropertyChangeListener removed}.
      */
     @Override
-    void listenersChanged() {
+    protected void listenersChanged() {
         super.listenersChanged();
         hasBoundsListeners = hasListeners(DISPLAY_BOUNDS_PROPERTY);
     }
