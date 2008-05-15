@@ -32,8 +32,6 @@ import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.go.display.event.GraphicEvent;
 import org.opengis.go.display.event.GraphicListener;
-import org.opengis.go.display.style.GraphicStyle;
-import org.opengis.go.display.style.Symbology;
 
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
@@ -246,27 +244,6 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
             this.parent = parent;
             propertyListeners.firePropertyChange(PARENT_PROPERTY, old, name);
         }
-    }
-
-    /**
-     * Sets the graphic style for this {@code Graphic}.
-     * {@code Graphic}s may share style property objects with other {@code Graphic}s.
-     *
-     * @todo Not yet implemented.
-     */
-    public void setGraphicStyle(final GraphicStyle style) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns the graphic style for this {@code Graphic}. Implementations should return a reference
-     * to their internal {@code GraphicStyle} object, so that users may modify this
-     * {@code Graphic}'s style properties directly through the style object.
-     *
-     * @todo Not yet implemented.
-     */
-    public GraphicStyle getGraphicStyle() {
-        throw new UnsupportedOperationException();
     }
 
     /**
@@ -519,27 +496,6 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * @todo Not yet implemented.
      */
     public void setBlinkPattern(float[] blinkPattern) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Returns a symbology object that will be used to override some, if not
-     * all, of the graphical properties of {@code Graphics} using this style.
-     * This will be null by default.
-     *
-     * @todo Not yet implemented.
-     */
-    public Symbology getSymbology() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Sets the symbology object that will be used to override some, if not
-     * all, of the graphical properties of {@code Graphics} using this style.
-     *
-     * @todo Not yet implemented.
-     */
-    public void setSymbology(Symbology symbology) {
         throw new UnsupportedOperationException();
     }
 
