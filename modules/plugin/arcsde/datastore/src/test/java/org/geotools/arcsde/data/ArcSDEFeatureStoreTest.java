@@ -1234,12 +1234,6 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                     }
                 } finally {
                     done[0] = true;
-                    try {
-                        System.err.println("closing transaction.");
-                        transaction.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                 }
             }
         };
@@ -1277,6 +1271,12 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         thread2.start();
         while (!(done[0] && done[1])) {
             Thread.sleep(100);
+        }
+        try {
+            System.err.println("closing transaction.");
+            transaction.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         Exception worker1Error = errors[0];
         Exception worker2Error = errors[1];
