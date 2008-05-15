@@ -23,7 +23,10 @@ public boolean equals(Object aThat){
 * <em>Arrays are not handled by this class</em>.
 * This is because the <code>Arrays.equals</code> methods should be used for
 * array fields.
+ *
+ * @deprecated Use {@link Utilities} instead.
 */
+@Deprecated
 public final class EqualsUtil {
 
   static public boolean equals(boolean o1, boolean o2){

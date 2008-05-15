@@ -13,10 +13,11 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.resources;
+package org.geotools.util;
 
 import org.junit.*;
 import static org.junit.Assert.*;
+import static org.geotools.util.Utilities.*;
 
 
 /**
@@ -28,15 +29,15 @@ import static org.junit.Assert.*;
  */
 public final class UtilitiesTest {
     /**
-     * Tests {@link Utilities#equals}.
+     * Tests {@link Utilities#shallowEquals}.
      */
     @Test
     public void testEquals() {
-        assertTrue (Utilities.equals(null, null));
-        assertFalse(Utilities.equals(null, ""  ));
-        assertFalse(Utilities.equals(""  , null));
-        assertTrue (Utilities.equals(""  , ""  ));
-        assertFalse(Utilities.equals(" " , ""  ));
+        assertTrue (shallowEquals(null, null));
+        assertFalse(shallowEquals(null, ""  ));
+        assertFalse(shallowEquals(""  , null));
+        assertTrue (shallowEquals(""  , ""  ));
+        assertFalse(shallowEquals(" " , ""  ));
     }
 
     /**
@@ -44,8 +45,8 @@ public final class UtilitiesTest {
      */
     @Test
     public void testSpaces() {
-        assertEquals("",         Utilities.spaces(0));
-        assertEquals(" ",        Utilities.spaces(1));
-        assertEquals("        ", Utilities.spaces(8));
+        assertEquals("",         spaces(0));
+        assertEquals(" ",        spaces(1));
+        assertEquals("        ", spaces(8));
     }
 }

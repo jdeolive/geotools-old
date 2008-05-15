@@ -17,7 +17,10 @@ import java.util.Arrays;
 *    return result;
 *  }
 * </pre>
+ *
+ * @deprecated Use {@link Utilities} instead.
 */
+@Deprecated
 public final class HashCodeUtil {
 
   /**

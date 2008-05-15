@@ -16,16 +16,11 @@
  */
 package org.geotools.resources;
 
-import java.util.Set;
 import java.util.Queue;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Collections;
-import java.util.AbstractQueue;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
-import java.io.Serializable;
-import java.io.ObjectStreamException;
 import org.geotools.util.logging.Logging;
 
 
@@ -36,71 +31,11 @@ import org.geotools.util.logging.Logging;
  * @source $URL$
  * @version $Id$
  * @author Martin Desruisseaux
+ *
+ * @deprecated Moved to {@link org.geotools.util} package.
  */
+@Deprecated
 public final class Utilities {
-    /**
-     * An array of strings containing only white spaces. Strings' lengths are equal to their
-     * index + 1 in the {@code spacesFactory} array. For example, {@code spacesFactory[4]}
-     * contains a string of length 5. Strings are constructed only when first needed.
-     */
-    private static final String[] spacesFactory = new String[20];
-
-    /**
-     * The singleton instance to be returned by {@link #emptyQueue}.
-     */
-    private static Queue EMPTY_QUEUE = new EmptyQueue<Object>();
-
-    /**
-     * The class for the {@link #EMPTY_QUEUE} instance. Defined as a named class rather than
-     * anonymous in order to avoid serialization issue.
-     */
-    private static final class EmptyQueue<E> extends AbstractQueue<E> implements Serializable {
-        /** For cross-version compatibility. **/
-        private static final long serialVersionUID = -6147951199761870325L;
-
-        /** No effect on an queue which is already empty. */
-        @Override
-        public void clear() {
-        }
-
-        /** Returns {@code true} is all case. */
-        @Override
-        public boolean isEmpty() {
-            return true;
-        }
-
-        /** Returns the size, which is always 0. */
-        public int size() {
-            return 0;
-        }
-
-        /** Returns an empty iterator. */
-        public Iterator<E> iterator() {
-            final Set<E> empty = Collections.emptySet();
-            return empty.iterator();
-        }
-
-        /** Always returns {@code false} since this queue doesn't accept any element. */
-        public boolean offer(E e) {
-            return false;
-        }
-
-        /** Always returns {@code null} since this queue is always empty. */
-        public E poll() {
-            return null;
-        }
-
-        /** Always returns {@code null} since this queue is always empty. */
-        public E peek() {
-            return null;
-        }
-
-        /** Returns the singleton instance of deserialization. */
-        protected Object readResolve() throws ObjectStreamException {
-            return EMPTY_QUEUE;
-        }
-    }
-
     /**
      * Forbid object creation.
      */
@@ -145,49 +80,7 @@ public final class Utilities {
      * </ul>
      */
     public static boolean deepEquals(final Object object1, final Object object2) {
-        if (object1 == object2) {
-            return true;
-        }
-        if (object1 == null || object2 == null) {
-            return false;
-        }
-        if (object1 instanceof Object[]) {
-            return (object2 instanceof Object[]) &&
-                    Arrays.deepEquals((Object[]) object1, (Object[]) object2);
-        }
-        if (object1 instanceof double[]) {
-            return (object2 instanceof double[]) &&
-                    Arrays.equals((double[]) object1, (double[]) object2);
-        }
-        if (object1 instanceof float[]) {
-            return (object2 instanceof float[]) &&
-                    Arrays.equals((float[]) object1, (float[]) object2);
-        }
-        if (object1 instanceof long[]) {
-            return (object2 instanceof long[]) &&
-                    Arrays.equals((long[]) object1, (long[]) object2);
-        }
-        if (object1 instanceof int[]) {
-            return (object2 instanceof int[]) &&
-                    Arrays.equals((int[]) object1, (int[]) object2);
-        }
-        if (object1 instanceof short[]) {
-            return (object2 instanceof short[]) &&
-                    Arrays.equals((short[]) object1, (short[]) object2);
-        }
-        if (object1 instanceof byte[]) {
-            return (object2 instanceof byte[]) &&
-                    Arrays.equals((byte[]) object1, (byte[]) object2);
-        }
-        if (object1 instanceof char[]) {
-            return (object2 instanceof char[]) &&
-                    Arrays.equals((char[]) object1, (char[]) object2);
-        }
-        if (object1 instanceof boolean[]) {
-            return (object2 instanceof boolean[]) &&
-                    Arrays.equals((boolean[]) object1, (boolean[]) object2);
-        }
-        return object1.equals(object2);
+        return org.geotools.util.Utilities.deepEquals(object1, object2);
     }
 
     /**
@@ -208,37 +101,7 @@ public final class Utilities {
      * {@code float[]}. In the later cases, use the appropriate {@link Arrays} method instead.
      */
     public static int deepHashCode(final Object object) {
-        if (object == null) {
-            return 0;
-        }
-        if (object instanceof Object[]) {
-            return Arrays.deepHashCode((Object[]) object);
-        }
-        if (object instanceof double[]) {
-            return Arrays.hashCode((double[]) object);
-        }
-        if (object instanceof float[]) {
-            return Arrays.hashCode((float[]) object);
-        }
-        if (object instanceof long[]) {
-            return Arrays.hashCode((long[]) object);
-        }
-        if (object instanceof int[]) {
-            return Arrays.hashCode((int[]) object);
-        }
-        if (object instanceof short[]) {
-            return Arrays.hashCode((short[]) object);
-        }
-        if (object instanceof byte[]) {
-            return Arrays.hashCode((byte[]) object);
-        }
-        if (object instanceof char[]) {
-            return Arrays.hashCode((char[]) object);
-        }
-        if (object instanceof boolean[]) {
-            return Arrays.hashCode((boolean[]) object);
-        }
-        return object.hashCode();
+        return org.geotools.util.Utilities.deepHashCode(object);
     }
 
     /**
@@ -258,34 +121,7 @@ public final class Utilities {
      * {@code float[]}. In the later cases, use the appropriate {@link Arrays} method instead.
      */
     public static String deepToString(final Object object) {
-        if (object instanceof Object[]) {
-            return Arrays.deepToString((Object[]) object);
-        }
-        if (object instanceof double[]) {
-            return Arrays.toString((double[]) object);
-        }
-        if (object instanceof float[]) {
-            return Arrays.toString((float[]) object);
-        }
-        if (object instanceof long[]) {
-            return Arrays.toString((long[]) object);
-        }
-        if (object instanceof int[]) {
-            return Arrays.toString((int[]) object);
-        }
-        if (object instanceof short[]) {
-            return Arrays.toString((short[]) object);
-        }
-        if (object instanceof byte[]) {
-            return Arrays.toString((byte[]) object);
-        }
-        if (object instanceof char[]) {
-            return Arrays.toString((char[]) object);
-        }
-        if (object instanceof boolean[]) {
-            return Arrays.toString((boolean[]) object);
-        }
-        return String.valueOf(object);
+        return org.geotools.util.Utilities.deepToString(object);
     }
 
     /**
@@ -296,7 +132,7 @@ public final class Utilities {
      */
     @SuppressWarnings("unchecked")
     public static <E> Queue<E> emptyQueue() {
-        return EMPTY_QUEUE;
+        return org.geotools.util.Utilities.emptyQueue();
     }
 
     /**
@@ -327,28 +163,7 @@ public final class Utilities {
      * @return A string of length {@code length} filled with white spaces.
      */
     public static String spaces(int length) {
-        /*
-         * No need to synchronize.  In the unlikely event of two threads calling this method
-         * at the same time and the two calls creating a new string, the String.intern() call
-         * will take care of canonicalizing the strings.
-         */
-        final int last = spacesFactory.length-1;
-        if (length<0) length=0;
-        if (length <= last) {
-            if (spacesFactory[length]==null) {
-                if (spacesFactory[last]==null) {
-                    char[] blancs = new char[last];
-                    Arrays.fill(blancs, ' ');
-                    spacesFactory[last]=new String(blancs).intern();
-                }
-                spacesFactory[length] = spacesFactory[last].substring(0,length).intern();
-            }
-            return spacesFactory[length];
-        } else {
-            char[] blancs = new char[length];
-            Arrays.fill(blancs, ' ');
-            return new String(blancs);
-        }
+        return org.geotools.util.Utilities.spaces(length);
     }
 
     /**
