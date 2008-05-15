@@ -1409,9 +1409,9 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             }
 
             final ArcSDEDataStore dataStore = testData.getDataStore();
-            FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore
-                    .getFeatureSource(tableName);
+            final FeatureSource<SimpleFeatureType, SimpleFeature> source;
             final FeatureStore<SimpleFeatureType, SimpleFeature> store;
+            source = dataStore.getFeatureSource(tableName);
             store = (FeatureStore<SimpleFeatureType, SimpleFeature>) dataStore
                     .getFeatureSource(tableName);
 
