@@ -63,7 +63,6 @@
   <!--     Modules included in the build                           -->
   <!-- =========================================================== -->
   <modules>
-    <module>common</module>
     <module>jaxb</module>
   </modules>
 
