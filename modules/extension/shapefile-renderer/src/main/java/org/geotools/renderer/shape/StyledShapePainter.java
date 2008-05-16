@@ -137,7 +137,7 @@ public class StyledShapePainter {
             GraphicStyle2D gs2d = (GraphicStyle2D) style;
 
             renderImage(graphics, coords[0], coords[1],
-                (Image) gs2d.getImage(), gs2d.getRotation(), gs2d.getOpacity());
+                (Image) gs2d.getImage(), gs2d.getRotation(), gs2d.getOpacity(), false);
         } else {
             // if the style is a polygon one, process it even if the polyline is not
             // closed (by SLD specification)
@@ -284,8 +284,8 @@ public class StyledShapePainter {
                 }
 
                 double rotation = -(theta - (Math.PI / 2d));
-                double x = previous[0] + dx;
-                double y = previous[1] + dy;
+                double x = previous[0];
+                double y = previous[1];
 
                 if (LOGGER.isLoggable(Level.FINEST)) {
                     LOGGER.finest("len =" + len + " imageSize " + imageSize);
@@ -294,7 +294,7 @@ public class StyledShapePainter {
                 double dist = 0;
 
                 for (dist = 0; dist < (len - imageSize); dist += imageSize) {
-                    renderImage(graphics, x, y, image, rotation, 1);
+                    renderImage(graphics, x, y, image, rotation, 1, true);
                     
 //                  Use this code to visually debug the x,y used to draw the image
 //                  graphics.setColor(Color.BLACK);
@@ -327,7 +327,7 @@ public class StyledShapePainter {
                     Graphics2D ig = img.createGraphics();
                     ig.drawImage(image, 0, 0, imgObserver);
 
-                    renderImage(graphics, x, y, img, rotation, 1);
+                    renderImage(graphics, x, y, img, rotation, 1, true);
                 }
 
                 break;
@@ -345,25 +345,31 @@ public class StyledShapePainter {
 
     /**
      * Renders an image on the device
-     *
-     * @param graphics the image location on the screen, x coordinate
-     * @param x the image location on the screen, y coordinate
-     * @param y the image
-     * @param image DOCUMENT ME!
-     * @param rotation the image rotatation
-     * @param opacity DOCUMENT ME!
+     * 
+     * @param graphics
+     *            the image location on the screen, x coordinate
+     * @param x
+     *            the image location on the screen, y coordinate
+     * @param y
+     *            the image
+     * @param image
+     *            DOCUMENT ME!
+     * @param rotation
+     *            the image rotatation
+     * @param opacity
+     *            DOCUMENT ME!
      */
     private void renderImage(Graphics2D graphics, double x, double y,
-        Image image, double rotation, float opacity) {
+            Image image, double rotation, float opacity, boolean leftMiddle) {
         if (LOGGER.isLoggable(Level.FINEST)) {
             LOGGER.finest("drawing Image @" + x + "," + y);
         }
 
         AffineTransform temp = graphics.getTransform();
         AffineTransform markAT = new AffineTransform();
-        Point2D leftMid = new java.awt.geom.Point2D.Double(x, y);
+        Point2D center = new java.awt.geom.Point2D.Double(x, y);
         Point2D pointTx = new java.awt.geom.Point2D.Double();
-        temp.transform(leftMid, pointTx);
+        temp.transform(center, pointTx);
         markAT.translate(pointTx.getX(), pointTx.getY());
 
         double shearY = temp.getShearY();
@@ -380,12 +386,14 @@ public class StyledShapePainter {
         graphics.setComposite(AlphaComposite.getInstance(
                 AlphaComposite.SRC_OVER, opacity));
 
-        // we moved the origin to the centre of the image.
-        // -1 is a magic number, but various tests show that images
-        // are always drawn one pixel after the start of the line without
-        // it
-        graphics.drawImage(image, -1,
-            -image.getHeight(imgObserver) / 2, imgObserver);
+        // we moved the origin to the middle of the image.
+        if(leftMiddle) {
+            graphics.drawImage(image, 0, -image
+                    .getHeight(imgObserver) / 2, imgObserver);
+        } else {
+            graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
+                .getHeight(imgObserver) / 2, imgObserver);
+        }
 
         graphics.setTransform(temp);
 

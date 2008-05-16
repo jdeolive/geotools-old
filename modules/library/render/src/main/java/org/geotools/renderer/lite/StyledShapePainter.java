@@ -155,7 +155,7 @@ public final class StyledShapePainter {
 
 			renderImage(graphics, coords[0], coords[1],
 					(Image) gs2d.getImage(), gs2d.getRotation(), gs2d
-							.getOpacity());
+							.getOpacity(), false);
 		} else {
 			// if the style is a polygon one, process it even if the polyline is
 			// not closed (by SLD specification)
@@ -342,7 +342,7 @@ public final class StyledShapePainter {
 
 				for (dist = 0; dist < len - imageSize; dist += imageSize) {
 					/* graphic.drawImage(image2,(int)x-midx,(int)y-midy,null); */
-					renderImage(graphics, x, y, image, rotation, 1);
+					renderImage(graphics, x, y, image, rotation, 1, true);
 //					Use this code to visually debug the x,y used to draw the image
 //					graphics.setColor(Color.BLACK);
 //					graphics.setStroke(new BasicStroke());
@@ -377,7 +377,7 @@ public final class StyledShapePainter {
 					ig.drawImage(image, 0, 0, imgObserver);
 					
 
-					renderImage(graphics, x, y, img, rotation, 1);
+					renderImage(graphics, x, y, img, rotation, 1, true);
 				}
 
 				break;
@@ -410,16 +410,16 @@ public final class StyledShapePainter {
 	 *            DOCUMENT ME!
 	 */
 	private void renderImage(Graphics2D graphics, double x, double y,
-			Image image, double rotation, float opacity) {
+			Image image, double rotation, float opacity, boolean leftMiddle) {
 		if (LOGGER.isLoggable(Level.FINEST)) {
 			LOGGER.finest("drawing Image @" + x + "," + y);
 		}
 
 		AffineTransform temp = graphics.getTransform();
 		AffineTransform markAT = new AffineTransform();
-		Point2D leftMid = new java.awt.geom.Point2D.Double(x, y);
+		Point2D center = new java.awt.geom.Point2D.Double(x, y);
 		Point2D pointTx = new java.awt.geom.Point2D.Double();
-		temp.transform(leftMid, pointTx);
+		temp.transform(center, pointTx);
 		markAT.translate(pointTx.getX(), pointTx.getY());
 
 		double shearY = temp.getShearY();
@@ -436,12 +436,14 @@ public final class StyledShapePainter {
 		graphics.setComposite(AlphaComposite.getInstance(
 				AlphaComposite.SRC_OVER, opacity));
 
-		// we moved the origin to the left/middle of the image.
-		// -1 is a magic number, but various tests show that images
-		// are always drawn one pixel after the start of the line without
-		// it
-		graphics.drawImage(image, -1, -image
+		// we moved the origin to the middle of the image.
+		if(leftMiddle) {
+		    graphics.drawImage(image, 0, -image
+	                .getHeight(imgObserver) / 2, imgObserver);
+		} else {
+		    graphics.drawImage(image, -image.getWidth(imgObserver) / 2, -image
 				.getHeight(imgObserver) / 2, imgObserver);
+		}
 
 		graphics.setTransform(temp);
 
