@@ -21,7 +21,7 @@ public class SeLayer {
 	public static /* GEOT-947 final*/ int TYPE_MULTI_POINT = 16;
 	
 	public SeLayer(SeConnection c, String s, String y) throws SeException {}
-	public SeLayer(SeConnection c) throws SeException {}
+	public SeLayer(SeConnection c) {}
 	
 	public String getName() { return null; }
 	public int getShapeTypes() { return 0; }

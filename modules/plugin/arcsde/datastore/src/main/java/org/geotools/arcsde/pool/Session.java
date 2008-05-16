@@ -411,11 +411,8 @@ public class Session {
     // Q: How "long" are these objects good for? until the connection closes - or longer...
     //
     public SeLayer createSeLayer() throws IOException {
-    	try {    	
-    		return new SeLayer(connection);
-    	} catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+    	if( connection.isClosed() ) throw new IOException("Connection is closed");
+    	return new SeLayer(connection);
     }
 
     public SeLayer createSeLayer(String tableName, String shape) throws IOException {
