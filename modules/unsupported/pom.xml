@@ -101,7 +101,7 @@
     <module>repository</module>
     <module>tiger</module>
     <module>vpf</module>
-    <module>widgets-swing-pending</module>
+    <!--<module>widgets-swing-pending</module>-->
     <module>xml-gpx</module>
   </modules>
 
