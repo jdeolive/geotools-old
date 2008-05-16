@@ -4,7 +4,7 @@ public class SeVersion {
 
     public static String SE_QUALIFIED_DEFAULT_VERSION_NAME = null;
 
-    public SeVersion(SeConnection conn, String versionName) {
+    public SeVersion(SeConnection conn, String versionName) throws SeException {
     }
 
     public void create(boolean uniqueName, SeVersion newVersion) throws SeException{}

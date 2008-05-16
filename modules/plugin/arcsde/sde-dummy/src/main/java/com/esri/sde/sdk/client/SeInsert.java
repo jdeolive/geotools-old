@@ -3,7 +3,7 @@ package com.esri.sde.sdk.client;
 
 public class SeInsert extends SeStreamOp {
 
-    public SeInsert(SeConnection c) {
+    public SeInsert(SeConnection c) throws SeException {
     }
 
     public void intoTable(String s, String[] t) {

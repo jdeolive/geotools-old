@@ -19,6 +19,6 @@ public class SeConnection {
 	public void rollbackTransaction() throws SeException {}
 	
 	public void setConcurrency(int i)throws SeException {}
-	public int setTransactionAutoCommit(int i) { return -1;}
+	public int setTransactionAutoCommit(int i) throws SeException { return -1;}
 	public void startTransaction() throws SeException{}
 }

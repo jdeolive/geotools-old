@@ -207,9 +207,9 @@ public class GeometryBuilderTest extends TestCase {
     private void assertEquals(Geometry g1, Geometry g2, double tolerance) {
         g1.normalize();
         g2.normalize();
-        assertEquals(g1.getDimension(), g2.getDimension());
-        assertEquals(g1.getNumGeometries(), g2.getNumGeometries());
-        assertEquals(g1.getNumPoints(), g2.getNumPoints());
+        assertEquals("geometry dimension", g1.getDimension(), g2.getDimension());
+        assertEquals("number of geometries", g1.getNumGeometries(), g2.getNumGeometries());
+        assertEquals("number of points", g1.getNumPoints(), g2.getNumPoints());
 
     }
 

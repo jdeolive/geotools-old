@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.gce.ArcSDEPyramid;
 import org.geotools.arcsde.gce.RasterTestData;
 import org.geotools.arcsde.pool.Session;
@@ -57,7 +58,7 @@ public class ThreeByteBandRGBReaderTest {
             readerProps.put(ArcSDERasterReaderSpi.PYRAMID, pyramid);
             readerProps.put(ArcSDERasterReaderSpi.RASTER_TABLE, tableName);
             readerProps.put(ArcSDERasterReaderSpi.RASTER_COLUMN, "RASTER");
-        } catch (SeException se) {
+        } catch (ArcSdeException se) {
             LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
             throw se;
         } finally {

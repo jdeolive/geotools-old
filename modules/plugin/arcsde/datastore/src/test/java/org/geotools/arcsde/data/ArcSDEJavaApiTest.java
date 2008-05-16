@@ -173,7 +173,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             rowQuery.prepareQuery();
             rowQuery.execute();
             fail("A null SeSqlConstruct should have thrown an exception!");
-        } catch (SeException e) {
+        } catch (ArcSdeException e) {
             assertTrue(true);
         }
     }
@@ -364,7 +364,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             assertEquals(0D, maxX, 1E-9);
             assertEquals(0D, maxY, 1E-9);
 
-        } catch (SeException e) {
+        } catch (ArcSdeException e) {
             LOGGER.warning(e.getSeError().getErrDesc());
             e.printStackTrace();
             throw e;

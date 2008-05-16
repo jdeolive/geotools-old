@@ -2,7 +2,7 @@ package com.esri.sde.sdk.client;
 
 public class SeColumnDefinition {
 	
-    public SeColumnDefinition(String s,int i,int j,int k, boolean b) {}
+    public SeColumnDefinition(String s,int i,int j,int k, boolean b) throws SeException {}
 	
 	public static /* GEOT-947 final*/ int TYPE_SMALLINT = 0;
 	public static /* GEOT-947 final*/ int TYPE_INTEGER = 1;

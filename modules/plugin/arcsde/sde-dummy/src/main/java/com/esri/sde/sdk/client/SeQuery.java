@@ -6,8 +6,8 @@ public class SeQuery extends SeStreamOp {
 	
 	public static short SE_SPATIAL_FIRST = 0;
 
-    public SeQuery(SeConnection c)throws SeException {}
-	public SeQuery(SeConnection c, String[] s, SeSqlConstruct y) {}
+    public SeQuery(SeConnection c) throws SeException {}
+	public SeQuery(SeConnection c, String[] s, SeSqlConstruct y) throws SeException {}
 	
 	public static /* GEOT-947 final*/ short SE_OPTIMIZE = 0;
 	

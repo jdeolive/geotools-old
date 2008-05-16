@@ -36,7 +36,6 @@ import org.geotools.data.DataSourceException;
 import com.esri.sde.sdk.client.SeColumnDefinition;
 import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeDelete;
-import com.esri.sde.sdk.client.SeDoesNotExistException;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeInsert;
 import com.esri.sde.sdk.client.SeLayer;
@@ -412,7 +411,11 @@ public class Session {
     // Q: How "long" are these objects good for? until the connection closes - or longer...
     //
     public SeLayer createSeLayer() throws IOException {
-        return new SeLayer(connection);
+    	try {    	
+    		return new SeLayer(connection);
+    	} catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     public SeLayer createSeLayer(String tableName, String shape) throws IOException {
