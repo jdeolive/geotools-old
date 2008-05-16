@@ -20,9 +20,8 @@ import java.awt.BasicStroke;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Composite;
-import java.awt.FontFormatException;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
 import java.awt.MediaTracker;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -33,35 +32,19 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
-import org.apache.batik.transcoder.SVGAbstractTranscoder;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
 import org.geotools.factory.CommonFactoryFinder;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.expression.Expression;
-import org.opengis.filter.expression.PropertyName;
 import org.geotools.renderer.lite.CustomGlyphRenderer;
 import org.geotools.renderer.lite.GlyphRenderer;
 import org.geotools.renderer.lite.SVGGlyphRenderer;
@@ -86,7 +69,11 @@ import org.geotools.styling.TextSymbolizer;
 import org.geotools.styling.TextSymbolizer2;
 import org.geotools.util.Range;
 import org.geotools.util.SoftValueHashMap;
-import org.w3c.dom.Document;
+import org.opengis.feature.Feature;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.filter.FilterFactory;
+import org.opengis.filter.expression.Expression;
+import org.opengis.filter.expression.PropertyName;
 
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -149,21 +136,6 @@ public class SLDStyleFactory {
 
     private static final FilterFactory ff = CommonFactoryFinder.getFilterFactory( null );
     
-    /** Set containing the font families known of this machine */
-    private static Set fontFamilies = null;
-
-    /** Fonts already loaded */
-    private static Map loadedFonts = new HashMap();
-
-    /** Holds the set of well-known marks. */
-    static Set wellKnownMarks = new java.util.HashSet();
-
-    /** Holds the of graphic formats supported by the current jdk */
-    static Set supportedGraphicFormats = null;
-
-    /** Current way to load images */
-    static ImageLoader imageLoader = new ImageLoader();
-
     /** This one is used as the observer object in image tracks */
     private static final Canvas obs = new Canvas();
 
@@ -185,27 +157,6 @@ public class SLDStyleFactory {
         fontStyleLookup.put("bold", new Integer(java.awt.Font.BOLD));
 
         /**
-         * A list of wellknownshapes that we know about: square, circle, triangle, star, cross, x.
-         * Note arrow is an implementation specific mark.
-         */
-        wellKnownMarks.add("Square");
-        wellKnownMarks.add("Triangle");
-        wellKnownMarks.add("Cross");
-        wellKnownMarks.add("Circle");
-        wellKnownMarks.add("Star");
-        wellKnownMarks.add("X");
-        wellKnownMarks.add("Arrow");
-        wellKnownMarks.add("Hatch");
-        wellKnownMarks.add("square");
-        wellKnownMarks.add("triangle");
-        wellKnownMarks.add("cross");
-        wellKnownMarks.add("circle");
-        wellKnownMarks.add("star");
-        wellKnownMarks.add("x");
-        wellKnownMarks.add("arrow");
-        wellKnownMarks.add("hatch");
-
-        /**
          * Initialize the gliph renderers array with the default ones
          */
         glyphRenderers.add(new CustomGlyphRenderer());
@@ -217,28 +168,13 @@ public class SLDStyleFactory {
         }
     }
 
-    /** Parsed SVG glyphs */
-    Map svgGlyphs = new SoftValueHashMap();
-
     /** Symbolizers that depend on attributes */
     Map dynamicSymbolizers = new SoftValueHashMap();
 
     /** Symbolizers that do not depend on attributes */
     Map staticSymbolizers = new SoftValueHashMap(); 
 
-    private static Set getSupportedGraphicFormats() {
-        if (supportedGraphicFormats == null) {
-            supportedGraphicFormats = new java.util.HashSet();
-
-            String[] types = ImageIO.getReaderMIMETypes();
-
-            for (int i = 0; i < types.length; i++) {
-                supportedGraphicFormats.add(types[i]);
-            }
-        }
-
-        return supportedGraphicFormats;
-    }
+    
 
     private long hits;
 
@@ -465,7 +401,7 @@ public class SLDStyleFactory {
 				eg = (ExternalGraphic) symbols[i];
 				img = null;
 
-                // first see if any glyph renderers can handle this
+                // first see if any glyph renderers can handle this, for backwards compatibility
                 for(Iterator it = glyphRenderers.iterator(); it.hasNext() && (img == null); ) {
 					r = (GlyphRenderer) it.next();
 
@@ -475,48 +411,14 @@ public class SLDStyleFactory {
                     }
                 }
 
-                // if no-one of the glyph renderers can handle the eg, try to load it as an external image
+                // if no-one of the glyph renderers can handle the eg, use the dynamic symbol factoreis
                 if(img == null) {
-                    img = getImage(eg, size); //size is only a hint
+                    img = getImage(eg, (Feature) feature, size); //size is only a hint
                 }
 
                 if (img == null) {
                     continue;
                 }
-
-//SLD SPEC page 52 on ExternalGraphic
-// The default size of an image format (such as GIF) is the inherent size of the image. The
-//default size of a format without an inherent size (such as SVG) is defined to be 16 pixels
-//in height and the corresponding aspect in width. If a size is specified, the height of the
-//graphic will be scaled to that size and the corresponding aspect will be used for the width.
-
-//				dsize = (double) size;
-//				scaleTx = AffineTransform.getScaleInstance(dsize
-//						/ img.getWidth(), dsize / img.getHeight());
-//				ato = new AffineTransformOp(scaleTx,
-//						AffineTransformOp.TYPE_BILINEAR);
-//				scaledImage = ato.createCompatibleDestImage(img, img
-//						.getColorModel());
-//				img = ato.filter(img, scaledImage);
-
- 			    // therefore, we determine the scaling required for "y" (height), then calculate a corresponding
- 			    // scaling for "x" in which we keep the original's aspect ratio
-
-                if (img.getHeight() != size) //need to scale
-                {     
-                	dsize = (double) size;
-
-	 			    double scaleY = dsize/img.getHeight(); // >1 if you're magnifying
-	 			    double scaleX =  scaleY; // keep aspect ratio!
-	
-	
-	                scaleTx = AffineTransform.getScaleInstance(scaleX,scaleY);  //DJB: keep aspect ratio
-	                ato = new AffineTransformOp(scaleTx,
-	                        AffineTransformOp.TYPE_BILINEAR);
-	                scaledImage = ato.createCompatibleDestImage(img, img.getColorModel());
-	                img = ato.filter(img, scaledImage);
-                }
-        
 
                 if (img != null) {
                     retval = new GraphicStyle2D(img, rotation, opacity);
@@ -531,8 +433,11 @@ public class SLDStyleFactory {
                 }
 
 				mark = (Mark) symbols[i];
-				shape = Java2DMark.getWellKnownMark(mark.getWellKnownName()
-						.evaluate(feature).toString());
+				shape = getShape(mark, feature);
+				
+				if(shape == null)
+				    throw new IllegalArgumentException("The specified mark " + mark.getWellKnownName() 
+				            + " was not found!");
 
 				ms2d = new MarkStyle2D();
                 ms2d.setShape(shape);
@@ -716,166 +621,35 @@ public class SLDStyleFactory {
      * @return The first of the specified fonts found on this machine or null if none found
      */
     private java.awt.Font getFont(Object feature, Font[] fonts) {
-        // we need to synchronize font loading or multithreaded access may
-        // result in us returning the wrong font
-        synchronized (loadedFonts) {
-            if (fontFamilies == null) {
-                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                fontFamilies = new HashSet();
-    
-                List f = Arrays.asList(ge.getAvailableFontFamilyNames());
-                fontFamilies.addAll(f);
-    
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("there are " + fontFamilies.size() + " fonts available");
-                }
-            }
-    
-            java.awt.Font javaFont = null;
-    
-            int styleCode = 0;
-            int size = 6;
-            String requestedFont = "";
-    
-            for (int k = 0; k < fonts.length; k++) {
-                requestedFont = fonts[k].getFontFamily().evaluate(feature).toString();
-    
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("trying to load " + requestedFont);
-                }
-    
-                if (loadedFonts.containsKey(requestedFont)) {
-                    javaFont = (java.awt.Font) loadedFonts.get(requestedFont);
-    
-                    String reqStyle = (String) fonts[k].getFontStyle().evaluate(feature);
-    
-                    if (fontStyleLookup.containsKey(reqStyle)) {
-                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
-                    } else {
-                        styleCode = java.awt.Font.PLAIN;
-                    }
-    
-                    String reqWeight = (String) fonts[k].getFontWeight().evaluate(feature);
-    
-                    if (reqWeight.equalsIgnoreCase("Bold")) {
-                        styleCode = styleCode | java.awt.Font.BOLD;
-                    }
-    
-                    size = ((Number) fonts[k].getFontSize().evaluate(feature)).intValue();
-    
-                    return javaFont.deriveFont(styleCode, size);
-                }
-    
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("not already loaded");
-                }
-    
-                if (fontFamilies.contains(requestedFont)) {
-                    String reqStyle = (String) fonts[k].getFontStyle().evaluate(feature);
-    
-                    if (fontStyleLookup.containsKey(reqStyle)) {
-                        styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
-                    } else {
-                        styleCode = java.awt.Font.PLAIN;
-                    }
-    
-                    String reqWeight = (String) fonts[k].getFontWeight().evaluate(feature);
-    
-                    if (reqWeight.equalsIgnoreCase("Bold")) {
-                        styleCode = styleCode | java.awt.Font.BOLD;
-                    }
-    
-                    size = ((Number) fonts[k].getFontSize().evaluate(feature)).intValue();
-    
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("requesting " + requestedFont + " " + styleCode + " " + size);
-                    }
-    
-                    javaFont = new java.awt.Font(requestedFont, styleCode, size);
-                    loadedFonts.put(requestedFont, javaFont);
-    
-                    return javaFont;
-                }
-    
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("not a system font");
-                }
-    
-                // may be its a file or url
-                InputStream is = null;
-    
-                if (requestedFont.startsWith("http") || requestedFont.startsWith("file:")) {
-                    try {
-                        URL url = new URL(requestedFont);
-                        is = url.openStream();
-                    } catch (MalformedURLException mue) {
-                        // this may be ok - but we should mention it
-                        if (LOGGER.isLoggable(Level.INFO)) {
-                            LOGGER.info("Bad url in SLDStyleFactory " + requestedFont + "\n" + mue);
-                        }
-                    } catch (IOException ioe) {
-                        // we'll ignore this for the moment
-                        if (LOGGER.isLoggable(Level.INFO)) {
-                            LOGGER.info("IO error in SLDStyleFactory " + requestedFont + "\n" + ioe);
-                        }
-                    }
+        for (int k = 0; k < fonts.length; k++) {
+            String requestedFont = fonts[k].getFontFamily().evaluate(feature).toString();
+            java.awt.Font javaFont = FontCache.getDefaultInsance().getFont(requestedFont);
+            
+            if(javaFont != null) {
+                String reqStyle = (String) fonts[k].getFontStyle().evaluate(feature);
+
+                int styleCode;
+                if (fontStyleLookup.containsKey(reqStyle)) {
+                    styleCode = ((Integer) fontStyleLookup.get(reqStyle)).intValue();
                 } else {
-                    if (LOGGER.isLoggable(Level.FINEST)) {
-                        LOGGER.finest("not a URL");
-                    }
-    
-                    File file = new File(requestedFont);
-    
-                    //if(file.canRead()){
-                    try {
-                        is = new FileInputStream(file);
-                    } catch (FileNotFoundException fne) {
-                        // this may be ok - but we should mention it
-                        if (LOGGER.isLoggable(Level.INFO)) {
-                            LOGGER.info("Bad file name in SLDStyleFactory" + requestedFont + "\n" + fne);
-                        }
-                    }
+                    styleCode = java.awt.Font.PLAIN;
                 }
-    
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("about to load");
+
+                String reqWeight = (String) fonts[k].getFontWeight().evaluate(feature);
+
+                if (reqWeight.equalsIgnoreCase("Bold")) {
+                    styleCode = styleCode | java.awt.Font.BOLD;
                 }
-    
-                if (is == null) {
-                    if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("null input stream");
-                    }
-    
-                    continue;
-                }
-    
-                try {
-                    javaFont = java.awt.Font.createFont(java.awt.Font.TRUETYPE_FONT, is);
-                } catch (FontFormatException ffe) {
-                    if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("Font format error in SLDStyleFactory " + requestedFont + "\n"
-                            + ffe);
-                    }
-    
-                    continue;
-                } catch (IOException ioe) {
-                    // we'll ignore this for the moment
-                    if (LOGGER.isLoggable(Level.INFO)) {
-                        LOGGER.info("IO error in SLDStyleFactory " + requestedFont + "\n" + ioe);
-                    }
-    
-                    continue;
-                }
-    
-                loadedFonts.put(requestedFont, javaFont);
-    
-                return javaFont;
+
+                int size = ((Number) fonts[k].getFontSize().evaluate(feature)).intValue();
+
+                return javaFont.deriveFont(styleCode, size);
             }
-    
-            // if everything else fails fall back on a default font distributed
-            // along with the jdk
-            return new java.awt.Font("Serif",java.awt.Font.PLAIN,12);
         }
+
+        // if everything else fails fall back on a default font distributed
+        // along with the jdk
+        return new java.awt.Font("Serif",java.awt.Font.PLAIN,12);
     }
 
     void setScaleRange(Style style, Range scaleRange) {
@@ -892,29 +666,12 @@ public class SLDStyleFactory {
         }
 
         Graphic graphicStroke = stroke.getGraphicStroke();
+        int size = ((Number) graphicStroke.getSize().evaluate(feature)).intValue();
 
         // lets see if an external image is to be used
-        BufferedImage image = getExternalGraphic(graphicStroke);
+        BufferedImage image = getImage(graphicStroke, (Feature) feature, size);
 
-        double size = ((Number) graphicStroke.getSize().evaluate(feature)).doubleValue();
-
-        if (image != null) {
-            int trueImageWidth = image.getWidth();
-            int trueImageHeight = image.getHeight();
-            double scalex = size / trueImageWidth;
-            double scaley = size / trueImageWidth;
-
-            AffineTransform at = AffineTransform.getScaleInstance(scalex, scaley);
-            AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
-            BufferedImage scaledImage = ato.createCompatibleDestImage(image, image.getColorModel());
-            ato.filter(image, scaledImage);
-
-            image = scaledImage;
-
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("got an image in graphic fill");
-            }
-        } else {
+        if (image == null) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("going for the mark from graphic fill");
             }
@@ -1076,7 +833,7 @@ public class SLDStyleFactory {
      * @return DOCUMENT ME!
      */
     public TexturePaint getTexturePaint(org.geotools.styling.Graphic gr, Object feature) {
-        BufferedImage image = getExternalGraphic(gr);
+        BufferedImage image = getImage(gr, feature, -1);
 
         if (image != null) {
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -1141,120 +898,133 @@ public class SLDStyleFactory {
         return imagePaint;
     }
 
-    private BufferedImage getExternalGraphic(Graphic graphic) {
+    /**
+     * Scans the dynamic external graphic factories and returns the image representing
+     * the first external graphic that could be parsed successfully 
+     * @param graphic
+     * @param feature
+     * @param size
+     * @return
+     */
+    private BufferedImage getImage(Graphic graphic, Object feature, int size) {
         ExternalGraphic[] extgraphics = graphic.getExternalGraphics();
 
         if (extgraphics != null) {
             for (int i = 0; i < extgraphics.length; i++) {
-                ExternalGraphic eg = extgraphics[i];
-                BufferedImage img = getImage(eg, -1);
-
-                if (img != null) {
-                    return img;
-                }
+                BufferedImage image = getImage(extgraphics[i], feature, size);
+                if(image != null)
+                    return image;
             }
         }
 
         return null;
     }
 
-    private BufferedImage getImage(ExternalGraphic eg, int sizeHint) {
-        if (LOGGER.isLoggable(Level.FINEST)) {
-            LOGGER.finest("got a " + eg.getFormat());
+    /**
+     * Tries to parse the provided external graphic into a BufferedImage. 
+     * @param eg
+     * @param feature
+     * @param size
+     * @return the image, or null if the external graphics could not be interpreted
+     */
+    private BufferedImage getImage(ExternalGraphic eg, Object feature, int size) {
+        Expression location;
+        try {
+            location = CommonFactoryFinder.getFilterFactory(null).literal(eg.getLocation());
+        } catch(MalformedURLException e) {
+            LOGGER.log(Level.INFO, "Malformed URL processing external graphic", e);
+            return null;
         }
-
-        BufferedImage img;
-
-        if (eg.getFormat().toLowerCase().equals("image/svg")) {
+        
+        Iterator<ExternalGraphicFactory> it  = DynamicSymbolFactoryFinder.getExternalGraphicFactories();
+        while(it.hasNext()) {
             try {
-                URL svgfile = eg.getLocation();
-                InternalTranscoder svgTranscoder = new InternalTranscoder();
-                TranscoderInput in;
-
-                if (svgGlyphs.containsKey(svgfile)) {
-                    in = new TranscoderInput((Document) svgGlyphs.get(svgfile));
-                } else {
-                    in = new TranscoderInput(svgfile.openStream());
+                Icon icon = it.next().getIcon((Feature) feature, location, eg.getFormat(), size);
+                if(icon != null) {
+                    return rasterizeIcon(icon);
                 }
-
-                if (sizeHint > 0) {
-                    svgTranscoder.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH,
-                        new Float(sizeHint));
-                }
-
-                TranscoderOutput out = new TranscoderOutput();
-                svgTranscoder.transcode(in, out);
-
-                svgGlyphs.put(svgfile, svgTranscoder.getDocument());
-                img = svgTranscoder.getImage();
-
-                return img;
-            } catch (IOException mue) {
-                LOGGER.warning("Unable to load external svg file, " + mue.getMessage());
-
-                return null;
-            }
-            //            catch(org.apache.batik.transcoder.TranscoderException te){
-            //                this.LOGGER.warning("Unable to render external svg file, " + te.getMessage());
-            //                return null;
-            //            }
-             catch (Exception e) {
-                LOGGER.warning("Unable to process or render external svg file, "
-                    + e.getMessage());
-
-                return null;
+            } catch(Exception e) {
+                LOGGER.log(Level.FINE, "Error occurred evaluating external graphic", e);
             }
         }
-
-        if (getSupportedGraphicFormats().contains(eg.getFormat().toLowerCase())) {
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.finer("a java supported format");
-            }
-
-            try {
-                // imageLoader is not
-                synchronized (imageLoader) {
-                    img = imageLoader.get(eg.getLocation(), false);
-                }
-
-                if (LOGGER.isLoggable(Level.FINEST)) {
-                    LOGGER.finest("Image return = " + img);
-                }
-
-                return img;
-            } catch (java.net.MalformedURLException e) {
-                LOGGER.warning("ExternalGraphic has a malformed url: " + e);
-            }
-        }
-
         return null;
     }
+    
+    
+    /**
+     * Turns an icon into a BufferedImage
+     * @param icon
+     * @return
+     */
+    private BufferedImage rasterizeIcon(Icon icon) {
+        // optimization, if this is an IconImage based on a BufferedImage, just return the
+        // wrapped one
+        if(icon instanceof ImageIcon) {
+            ImageIcon img = (ImageIcon) icon;
+            if(img.getImage() instanceof BufferedImage)
+                return (BufferedImage) img.getImage();
+        }
+        
+        // otherwise have the icon draw itself on a BufferedImage
+        BufferedImage result = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(), 
+                BufferedImage.TYPE_4BYTE_ABGR);
+        Graphics g = result.getGraphics();
+        icon.paintIcon(null, g, 0, 0);
+        g.dispose();
+        return result;
+    }
 
+    /**
+     * Looks ups the marks included in the graphics and returns the one that can be drawn
+     * by at least one mark factory
+     * @param graphic
+     * @param feature
+     * @return
+     */
     private Mark getMark(Graphic graphic, Object feature) {
         Mark[] marks = graphic.getMarks();
-        Mark mark;
-
         for (int i = 0; i < marks.length; i++) {
-            String name = marks[i].getWellKnownName().evaluate(feature).toString();
-
-            if (wellKnownMarks.contains(name)) {
-                mark = marks[i];
-
+            final Mark mark = marks[i];
+            Shape shape = getShape(mark, feature);
+            if(shape != null)
                 return mark;
-            }
+            
         }
-
-        mark = null;
-
-        return mark;
+        // if nothing worked, we return a square
+        return null;
+    }
+    
+    /**
+     * Given a mark and a feature, returns the Shape provided by the first {@link MarkFactory} 
+     * that was able to handle the Mark
+     * @param mark
+     * @param feature
+     * @return
+     */
+    private Shape getShape(Mark mark, Object feature) {
+        Expression name = mark.getWellKnownName();
+        
+        Iterator<MarkFactory> it = DynamicSymbolFactoryFinder.getMarkFactories();
+        while(it.hasNext()) {
+            MarkFactory factory = it.next();
+            try {
+                Shape shape = factory.getShape(null, name, (Feature) feature);
+                if(shape != null)
+                    return shape;
+            } catch(Exception e) {
+                LOGGER.log(Level.FINE, "Exception while scanning for " +
+                        "the appropriate mark factory", e);
+            }
+            
+        } 
+        return null;
     }
 
-    private void fillDrawMark(Graphics2D graphic, double tx, double ty, Mark mark, int size,
+    private void fillDrawMark(Graphics2D g2d, double tx, double ty, Mark mark, int size,
         double rotation, Object feature) {
-        AffineTransform temp = graphic.getTransform();
+        AffineTransform temp = g2d.getTransform();
         AffineTransform markAT = new AffineTransform();
-        Shape shape = Java2DMark.getWellKnownMark(mark.getWellKnownName().evaluate(feature)
-                                                      .toString());
+        Shape shape = getShape(mark, feature);
 
         Point2D mapCentre = new Point2D.Double(tx, ty);
         Point2D graphicCentre = new Point2D.Double();
@@ -1276,16 +1046,16 @@ public class SLDStyleFactory {
         double drawSize = (double) size / unitSize;
         markAT.scale(drawSize, -drawSize);
 
-        graphic.setTransform(markAT);
+        g2d.setTransform(markAT);
 
         if (mark.getFill() != null) {
             if (LOGGER.isLoggable(Level.FINER)) {
                 LOGGER.finer("applying fill to mark");
             }
 
-            graphic.setPaint(getPaint(mark.getFill(), null));
-            graphic.setComposite(getComposite(mark.getFill(), null));
-            graphic.fill(shape);
+            g2d.setPaint(getPaint(mark.getFill(), null));
+            g2d.setComposite(getComposite(mark.getFill(), null));
+            g2d.fill(shape);
         }
 
         if (mark.getStroke() != null) {
@@ -1293,16 +1063,16 @@ public class SLDStyleFactory {
                 LOGGER.finer("applying stroke to mark");
             }
 
-            graphic.setPaint(getStrokePaint(mark.getStroke(), null));
-            graphic.setComposite(getStrokeComposite(mark.getStroke(), null));
-            graphic.setStroke(getStroke(mark.getStroke(), null));
-            graphic.draw(shape);
+            g2d.setPaint(getStrokePaint(mark.getStroke(), null));
+            g2d.setComposite(getStrokeComposite(mark.getStroke(), null));
+            g2d.setStroke(getStroke(mark.getStroke(), null));
+            g2d.draw(shape);
         }
 
-        graphic.setTransform(temp);
+        g2d.setTransform(temp);
 
         if (mark.getFill() != null) {
-            graphic.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
         }
 
         return;

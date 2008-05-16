@@ -23,6 +23,9 @@ import org.geotools.data.memory.MemoryDataStore;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.map.DefaultMapContext;
+import org.geotools.map.MapContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.styling.SLDParser;
 import org.geotools.styling.Style;
@@ -32,6 +35,7 @@ import org.geotools.test.TestData;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -59,6 +63,7 @@ public class LabelingTest extends TestCase {
 	 * @see TestCase#setUp()
 	 */
 	protected void setUp() throws Exception {
+//	    System.setProperty(TestData.INTERACTIVE_TEST_KEY, "true");
 		super.setUp();
 	}
 
@@ -70,20 +75,19 @@ public class LabelingTest extends TestCase {
 	}
 	
 	public void testPointLabeling() throws Exception{
-//		FeatureCollection collection=createPointFeatureCollection();
-//		Style style=loadStyle("PointStyle.sld");
-//		assertNotNull(style);
-//		MapContext map = new DefaultMapContext();
-//        map.addLayer(collection, style);
-//
-//        StreamingRenderer renderer=new StreamingRenderer();
-//        renderer.setContext(map);
-//        Envelope env = map.getLayerBounds();
-//        int boundary=10;
-//        env = new Envelope(env.getMinX() - boundary, env.getMaxX() + boundary, 
-//        		env.getMinY() - boundary, env.getMaxY() + boundary);
-//        Rendering2DTest.INTERACTIVE=INTERACTIVE;
-//        Rendering2DTest.showRender("testPointLabeling", renderer, timout, env);
+		FeatureCollection collection=createPointFeatureCollection();
+		Style style=loadStyle("PointStyle.sld");
+		assertNotNull(style);
+		MapContext map = new DefaultMapContext();
+        map.addLayer(collection, style);
+
+        StreamingRenderer renderer=new StreamingRenderer();
+        renderer.setContext(map);
+        ReferencedEnvelope env = map.getLayerBounds();
+        int boundary=10;
+        env = new ReferencedEnvelope(env.getMinX() - boundary, env.getMaxX() + boundary, 
+        		env.getMinY() - boundary, env.getMaxY() + boundary, null);
+        RendererBaseTest.showRender("testPointLabeling", renderer, timout, env);
 	}
 
 	private Style loadStyle(String sldFilename) throws IOException {
@@ -122,6 +126,8 @@ public class LabelingTest extends TestCase {
         	builder.add("point", point.getClass(), crs);
         else
         	builder.add("centre", point.getClass());
+        builder.add("name", String.class);
+        builder.setName("pointfeature");
         SimpleFeatureType type = builder.buildFeatureType();
         return SimpleFeatureBuilder.build(type, new Object[]{point, name}, null);
 	}

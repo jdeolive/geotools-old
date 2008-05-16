@@ -1,43 +1,42 @@
-/*
- *    GeoTools - OpenSource mapping toolkit
- *    http://geotools.org
- *    (C) 2002-2006, Geotools Project Managment Committee (PMC)
- *
- *    This library is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
- *    License as published by the Free Software Foundation; either
- *    version 2.1 of the License, or (at your option) any later version.
- *
- *    This library is distributed in the hope that it will be useful,
- *    but WITHOUT ANY WARRANTY; without even the implied warranty of
- *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
- */
 package org.geotools.renderer.style;
 
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.GeneralPath;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.Rectangle2D.Double;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import org.opengis.feature.Feature;
+import org.opengis.filter.expression.Expression;
 
-/**
- * Utility class that will return the Shape for well known marks
- *
- * @author Ian Turton
- * @source $URL$
- * @version $Id$
- */
-public class Java2DMark {
+public class WellKnownMarkFactory implements MarkFactory {
+
     /** The logger for the rendering module. */
-    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.rendering");
-    static GeneralPath cross;
-    static GeneralPath star;
-    static GeneralPath triangle;
-    static GeneralPath arrow;
-    static Shape X;
+    private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
+            "org.geotools.rendering");
+
+    /** Cross general path */
+    private static GeneralPath cross;
+
+    /** Star general path */
+    private static GeneralPath star;
+
+    /** Triangle general path */
+    private static GeneralPath triangle;
+
+    /** Arrow general path */
+    private static GeneralPath arrow;
+
+    /** X general path */
+    private static Shape X;
+    
+    /** hatch path */
     static GeneralPath hatch;
+    
+    /** square */
+    private static Shape square;
 
     static {
         cross = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
@@ -94,7 +93,7 @@ public class Java2DMark {
         arrow.lineTo(-.5f, -.1f);
         arrow.lineTo(0f, -.1f);
         arrow.lineTo(0f, -.5f);
-        
+
         hatch = new GeneralPath(GeneralPath.WIND_EVEN_ODD);
         hatch.moveTo(.55f,.57f);
         hatch.lineTo(.52f,.57f);
@@ -113,10 +112,17 @@ public class Java2DMark {
         hatch.lineTo(-.5f, .57f);
         hatch.lineTo(-.57f,.57f);
         hatch.lineTo(-.57f,.5f);
-
+        
+        square = new Double(-.5, -.5, 1., 1.);
     }
 
-    public static Shape getWellKnownMark(String wellKnownName) {
+    public Shape getShape(Graphics2D graphics, Expression symbolUrl, Feature feature) throws Exception {
+        // cannot handle a null url
+        if(symbolUrl == null)
+            return null;
+        
+        String wellKnownName = symbolUrl.evaluate(feature, String.class);
+        
         LOGGER.finer("fetching mark of name " + wellKnownName);
 
         if (wellKnownName.equalsIgnoreCase("cross")) {
@@ -156,15 +162,21 @@ public class Java2DMark {
         }
         
         if (wellKnownName.equalsIgnoreCase("hatch")) {
-        	LOGGER.finer("returning hatch");
-        	 
-        	return hatch;
+            LOGGER.finer("returning hatch");
+             
+            return hatch;
+        }
+        
+        if (wellKnownName.equalsIgnoreCase("square")) {
+            LOGGER.finer("returning square");
+             
+            return square;
         }
 
-
         // failing that return a square?
-        LOGGER.finer("returning square");
+        LOGGER.finer("Could not find the symbol, returning null");
 
-        return new Rectangle2D.Double(-.5, -.5, 1., 1.);
+        return null;
     }
+
 }
