@@ -8,7 +8,7 @@ import com.esri.sde.sdk.client.SeException;
 /**
  * Runnable used to interact with an ArcSDEConnection.
  * <p>
- * Instances of this class can the sent to {@link Session#execute(Command)} in order to be executed.
+ * Instances of this class can the sent to {@link Session#issue(Command)} in order to be executed.
  * An ArcSDERunnable has exclusive access to the Connection for the duration. This facility is used
  * to prevent a series of complicated locks and try/catch/finally code.
  * 

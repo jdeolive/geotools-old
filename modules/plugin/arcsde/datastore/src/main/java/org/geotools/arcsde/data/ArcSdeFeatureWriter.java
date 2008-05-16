@@ -308,7 +308,7 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
             }
         };
 
-        session.execute(deleteCmd);
+        session.issue(deleteCmd);
     }
 
     private void fireAdded(final SimpleFeature addedFeature) {

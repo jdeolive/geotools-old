@@ -153,7 +153,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
                 return null;
             }
         };
-        session.execute(cmd);
+        session.issue(cmd);
     }
 
     /**
@@ -176,7 +176,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
      */
     public void close() throws IOException {
         if (query != null) {
-            session.execute(new Command<Void>() {
+            session.issue(new Command<Void>() {
                 @Override
                 public Void execute(Session session, SeConnection connection) throws IOException {
                     query.close();

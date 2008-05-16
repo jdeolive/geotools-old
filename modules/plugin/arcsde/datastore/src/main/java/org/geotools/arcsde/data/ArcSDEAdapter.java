@@ -356,7 +356,7 @@ public class ArcSDEAdapter {
             }
         };
 
-        final SeColumnDefinition[] colDefs = session.execute(testQueryCmd);
+        final SeColumnDefinition[] colDefs = session.issue(testQueryCmd);
         attributeDescriptors = createAttributeDescriptors(layer, namespace, colDefs);
 
         final SimpleFeatureType type = createSchema(typeName, namespace, attributeDescriptors);
@@ -1026,7 +1026,7 @@ public class ArcSDEAdapter {
 
         // create the table using DBMS default configuration keyword.
         // valid keywords are defined in the dbtune table.
-        session.execute(new Command<Void>() {
+        session.issue(new Command<Void>() {
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,
                     IOException {

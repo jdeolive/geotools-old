@@ -284,7 +284,7 @@ public class TestData {
             }
         };
 
-        session.execute(deleteCmd);
+        session.issue(deleteCmd);
         session.close();
     }
 
@@ -451,7 +451,7 @@ public class TestData {
                 return colDefs;
             }
         };
-        SeColumnDefinition[] colDefs = session.execute(createTableCmd);
+        SeColumnDefinition[] colDefs = session.issue(createTableCmd);
         return colDefs;
     }
 
@@ -1042,7 +1042,7 @@ public class TestData {
 
         final SeInsert insert = session.createSeInsert();
 
-        session.execute(new Command<Void>() {
+        session.issue(new Command<Void>() {
 
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,

@@ -238,7 +238,7 @@ public class Session {
                 return null;
             }
         };
-        execute(cmd);
+        issue(cmd);
     }
 
     @SuppressWarnings("unchecked")
@@ -252,7 +252,7 @@ public class Session {
 
     public void startTransaction() throws IOException {
         checkActive();
-        execute(new Command<Void>() {
+        issue(new Command<Void>() {
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,
                     IOException {
@@ -265,7 +265,7 @@ public class Session {
 
     public void commitTransaction() throws IOException {
         checkActive();
-        execute(new Command<Void>() {
+        issue(new Command<Void>() {
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,
                     IOException {
@@ -541,7 +541,7 @@ public class Session {
      * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
      *             command
      */
-    public <T> T execute(Command<T> command) throws IOException {
+    public <T> T issue(Command<T> command) throws IOException {
         try {
             lock.lock();
             try {

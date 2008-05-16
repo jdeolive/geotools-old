@@ -139,7 +139,7 @@ public class InProcessViewSupportTestData {
             }
         };
 
-        SeLayer layer = session.execute(createLayerCmd);
+        SeLayer layer = session.issue(createLayerCmd);
 
         insertMasterData(session, layer);
         LOGGER.info("successfully created master table " + MASTER);
@@ -175,7 +175,7 @@ public class InProcessViewSupportTestData {
             }
         };
 
-        session.execute(createCmd);
+        session.issue(createCmd);
 
         /*
          * SeRegistration tableRegistration = new SeRegistration(conn, CHILD);
@@ -239,7 +239,7 @@ public class InProcessViewSupportTestData {
             }
         };
 
-        session.execute(insertCmd);
+        session.issue(insertCmd);
         session.commitTransaction();
     }
 
@@ -318,7 +318,7 @@ public class InProcessViewSupportTestData {
                 return null;
             }
         };
-        session.execute(insertCmd);
+        session.issue(insertCmd);
         session.commitTransaction();
     }
 }

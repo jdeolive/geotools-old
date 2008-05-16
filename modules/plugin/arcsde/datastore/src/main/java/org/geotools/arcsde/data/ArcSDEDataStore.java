@@ -401,7 +401,7 @@ public class ArcSDEDataStore implements DataStore {
         if (Transaction.AUTO_COMMIT.equals(transaction)) {
             session = connectionPool.getConnection();
             try {
-                session.execute(command);
+                session.issue(command);
             } finally {
                 session.close(); // return to pool
             }
@@ -410,7 +410,7 @@ public class ArcSDEDataStore implements DataStore {
             state = ArcTransactionState.getState(transaction, connectionPool, listenerManager,
                     false);
             session = state.getConnection();
-            session.execute(command);
+            session.issue(command);
         }
     }
 
