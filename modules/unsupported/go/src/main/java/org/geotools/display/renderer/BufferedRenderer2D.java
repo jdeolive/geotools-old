@@ -17,6 +17,7 @@
 
 package org.geotools.display.renderer;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -39,6 +40,7 @@ import java.awt.image.VolatileImage;
 
 import java.awt.Component;
 
+import java.beans.PropertyChangeEvent;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.referencing.operation.TransformException;
@@ -419,6 +421,24 @@ renderOffscreen:while (true) {
     @Override
     public void setCanvas(Canvas canvas) {
         this.canvas = (BufferedCanvas2D) canvas;
+    }
+   
+    
+    /**
+     * Invoked automatically when a graphic registered in this canvas changed.
+     */
+    @Override
+    protected void graphicPropertyChanged(final AbstractGraphic graphic,
+                                          final PropertyChangeEvent event) {
+//        super.graphicPropertyChanged(graphic, event);
+        final String propertyName = event.getPropertyName();
+        if (propertyName.equalsIgnoreCase(AbstractGraphic.Z_ORDER_HINT_PROPERTY)) {
+            final Object value = event.getOldValue();
+            if (value instanceof Number) {
+                final double oldZOrder = ((Number) value).doubleValue();
+//                flushOffscreenBuffer(oldZOrder);  ---------------------------------------------------------------will call a repaint on the canvas
+            }
+        }
     }
     
     

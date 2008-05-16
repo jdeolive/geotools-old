@@ -62,11 +62,11 @@ public abstract class ReferencedRenderer extends AbstractRenderer{
             /*
              * Now set the graphic CRS to this canvas CRS and update the canvas envelope.
              */
-            try {
-                referenced.setObjectiveCRS(objectiveCRS);
-            } catch (TransformException exception) {
-                throw new IllegalArgumentException(exception.getLocalizedMessage(), exception);
-            }
+//            try {
+//                referenced.setObjectiveCRS(objectiveCRS);
+//            } catch (TransformException exception) {
+//                throw new IllegalArgumentException(exception.getLocalizedMessage(), exception);
+//            }
 //            if (hasEnvelopeListeners) {   -----------------------------------------------------------------------OPTIMISATION
                 oldEnvelope = new GeneralEnvelope(getCanvas().getEnvelope());
 //            }

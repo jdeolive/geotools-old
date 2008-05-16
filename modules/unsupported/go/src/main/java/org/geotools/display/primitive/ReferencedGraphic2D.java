@@ -240,54 +240,54 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
         }
     }
 
-    /**
-     * Invoked every time the {@linkplain ReferencedCanvas2D#getScale canvas scale} changed.
-     * The default implementation updates the {@linkplain #getDisplayBounds display bounds}
-     * as below:
-     *
-     * <ul>
-     *   <li><p>Since the {@linkplain #getDisplayBounds display bounds} is express in terms of
-     *       {@linkplain ReferencedCanvas2D#getDisplayCRS display CRS} and since the display CRS
-     *       is scale-dependent, a scale change implies a {@linkplain #getDisplayBounds display
-     *       bounds} change as well.</p></li>
-     *   <li><p>Since the {@linkplain #getDisplayBounds display bounds} may be clipped to the
-     *       {@linkplain ReferencedCanvas2D#getDisplayBounds canvas bounds}, a scale change may
-     *       bring some new area inside the canvas bounds. This new area may need to be rendered,
-     *       so we need to conservatively add it to this graphic {@linkplain #getDisplayBounds
-     *       display bounds}.</p></li>
-     * </ul>
-     *
-     * @param change The zoom <strong>change</strong> in <strong>Java2D</strong> coordinate
-     *        reference system ({@linkplain ReferencedCanvas2D#getDisplayCRS display CRS}),
-     *        or {@code null} if unknow. If {@code null}, then this graphic will be fully redrawn
-     *        during the next rendering.
-     */
-    public void zoomChanged(final AffineTransform change) {
-        synchronized (getTreeLock()) {
-            final Shape displayBounds = getDisplayBounds();
-            if (displayBounds.equals(XRectangle2D.INFINITY)) {
-                return;
-            }
-            if (change != null) {
-                final Canvas owner = getCanvas();
-                if (owner instanceof ReferencedCanvas2D) {
-                    final ReferencedCanvas2D canvas = (ReferencedCanvas2D) owner;
-                    final Shape canvasBounds = canvas.getDisplayBounds();
-                    if (!canvasBounds.equals(XRectangle2D.INFINITY)) {
-                        final Area newArea = new Area(canvasBounds);
-                        newArea.subtract(newArea.createTransformedArea(change));
-                        final Area area = (displayBounds instanceof Area) ?
-                                          (Area)displayBounds : new Area(displayBounds);
-                        area.transform(change);
-                        area.add(newArea);
-                        setDisplayBounds(area);
-                        return;
-                    }
-                }
-            }
-            setDisplayBounds(XRectangle2D.INFINITY);
-        }
-    }
+//    /**
+//     * Invoked every time the {@linkplain ReferencedCanvas2D#getScale canvas scale} changed.
+//     * The default implementation updates the {@linkplain #getDisplayBounds display bounds}
+//     * as below:
+//     *
+//     * <ul>
+//     *   <li><p>Since the {@linkplain #getDisplayBounds display bounds} is express in terms of
+//     *       {@linkplain ReferencedCanvas2D#getDisplayCRS display CRS} and since the display CRS
+//     *       is scale-dependent, a scale change implies a {@linkplain #getDisplayBounds display
+//     *       bounds} change as well.</p></li>
+//     *   <li><p>Since the {@linkplain #getDisplayBounds display bounds} may be clipped to the
+//     *       {@linkplain ReferencedCanvas2D#getDisplayBounds canvas bounds}, a scale change may
+//     *       bring some new area inside the canvas bounds. This new area may need to be rendered,
+//     *       so we need to conservatively add it to this graphic {@linkplain #getDisplayBounds
+//     *       display bounds}.</p></li>
+//     * </ul>
+//     *
+//     * @param change The zoom <strong>change</strong> in <strong>Java2D</strong> coordinate
+//     *        reference system ({@linkplain ReferencedCanvas2D#getDisplayCRS display CRS}),
+//     *        or {@code null} if unknow. If {@code null}, then this graphic will be fully redrawn
+//     *        during the next rendering.
+//     */
+//    public void zoomChanged(final AffineTransform change) {
+//        synchronized (getTreeLock()) {
+//            final Shape displayBounds = getDisplayBounds();
+//            if (displayBounds.equals(XRectangle2D.INFINITY)) {
+//                return;
+//            }
+//            if (change != null) {
+//                final Canvas owner = getCanvas();
+//                if (owner instanceof ReferencedCanvas2D) {
+//                    final ReferencedCanvas2D canvas = (ReferencedCanvas2D) owner;
+//                    final Shape canvasBounds = canvas.getDisplayBounds();
+//                    if (!canvasBounds.equals(XRectangle2D.INFINITY)) {
+//                        final Area newArea = new Area(canvasBounds);
+//                        newArea.subtract(newArea.createTransformedArea(change));
+//                        final Area area = (displayBounds instanceof Area) ?
+//                                          (Area)displayBounds : new Area(displayBounds);
+//                        area.transform(change);
+//                        area.add(newArea);
+//                        setDisplayBounds(area);
+//                        return;
+//                    }
+//                }
+//            }
+//            setDisplayBounds(XRectangle2D.INFINITY);
+//        }
+//    }
 
     /**
      * Invoked when a property change listener has been {@linkplain #addPropertyChangeListener

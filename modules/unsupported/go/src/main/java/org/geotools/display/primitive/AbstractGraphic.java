@@ -27,16 +27,17 @@ import java.text.FieldPosition;
 import java.beans.PropertyChangeEvent;  // For javadoc
 import java.beans.PropertyChangeListener;
 
+import javax.swing.event.EventListenerList;
 import org.geotools.display.canvas.AbstractCanvas;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
-import org.opengis.go.display.event.GraphicEvent;
-import org.opengis.go.display.event.GraphicListener;
 
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.display.canvas.DisplayObject;
+import org.opengis.display.primitive.GraphicEvent;
+import org.opengis.display.primitive.GraphicListener;
 
 
 /**
@@ -72,7 +73,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * {@linkplain AbstractGraphic#getVisible graphic visibility} changed.
      */
     public static final String VISIBLE_PROPERTY = "visible";
-    
+        
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
@@ -90,7 +91,12 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * are allowed; it will just be slower.
      */
     private static Format format;
-
+    
+    /**
+     * graphic listeners list.
+     */
+    protected final EventListenerList graphicListeners;
+    
     /**
      * Convenience class for {@link RenderedLayer#getName}.
      * This class should be immutable and thread-safe.
@@ -112,24 +118,24 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
     /**
      * The canvas that own this graphic, or {@code null} if none.
      */
-    private Canvas canvas;
+    protected Canvas canvas;
 
     /**
      * The name assigned to this graphic.
      */
-    private String name;
+    protected String name;
 
     /**
      * The parent of this graphic, or {@code null} if none.
      */
-    private Graphic parent;
+    protected Graphic parent;
 
     /**
      * Tells if this graphic is visible.
      *
      * @see #setVisible
      */
-    private boolean visible = true;
+    protected boolean visible = true;
 
     /**
      * The z value for this graphic.
@@ -137,7 +143,7 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * @see #getZOrderHint
      * @see #setZOrderHint
      */
-    private double zOrder = DEFAULT_Z_ORDER;
+    protected double zOrder = DEFAULT_Z_ORDER;
 
     /**
      * {@code true} if this canvas or graphic has {@value #SCALE_PROPERTY} properties listeners.
@@ -158,20 +164,21 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
      * methods in order to define properly this graphic properties.
      */
     protected AbstractGraphic() {
+        graphicListeners = new EventListenerList();
     }
 
     /**
      * If this display object is contained in a canvas, returns the canvas that own it.
      * Otherwise, returns {@code null}.
      */
-    public final Canvas getCanvas() {
+    public Canvas getCanvas() {
         return canvas;
     }
 
     /**
      * Set the canvas to the specified value. Used by {@link AbstractCanvas} only.
      */
-    public final void setCanvas(final Canvas canvas) {
+    public void setCanvas(final Canvas canvas) {
         this.canvas = canvas;
     }
 
@@ -691,9 +698,9 @@ public abstract class AbstractGraphic extends DisplayObject implements Graphic {
         if (propertyListeners.hasListeners(property)) {
             final PropertyChangeListener[] list = propertyListeners.getPropertyChangeListeners();
             for (int i=0; i<list.length; i++) {
-                if (list[i] != AbstractCanvas.PROPERTIES_LISTENER) {
-                    return true;
-                }
+//                if (list[i] != AbstractCanvas.PROPERTIES_LISTENER) {  ------------------------------------------------------
+//                    return true;
+//                }
             }
         }
         return false;
