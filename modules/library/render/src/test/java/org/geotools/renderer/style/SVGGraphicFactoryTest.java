@@ -57,13 +57,4 @@ public class SVGGraphicFactoryTest extends TestCase {
         assertNotNull(icon);
         assertEquals(500, icon.getIconHeight());
     }
-    
-    public static void main(String[] args) throws Exception {
-        SVGGraphicFactory svg = new SVGGraphicFactory();
-        FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-        URL url = new java.io.File("C:\\progetti\\geoserver\\data\\release\\styles\\RsBaugrenze.svg").toURL();
-        Icon icon = svg.getIcon(null, ff.literal(url), "image/svg", 20);
-        
-        new IconFrame(icon);
-    }
 }
