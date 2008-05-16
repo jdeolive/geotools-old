@@ -19,9 +19,7 @@
  */
 package org.geotools.display.canvas;
 
-import java.util.List;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import javax.swing.event.EventListenerList;
 
 import java.awt.RenderingHints;
@@ -32,6 +30,7 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.display.canvas.Canvas;
+import org.opengis.display.canvas.CanvasEvent;
 import org.opengis.display.canvas.CanvasListener;
 import org.opengis.display.primitive.Graphic;
 
@@ -69,26 +68,26 @@ import org.geotools.resources.Classes;
  * @author Martin Desruisseaux
  * @author Johann Sorel
  */
-public abstract class AbstractCanvas extends DisplayObject implements Canvas {    
+public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
      */
     public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
-    
+
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * canvas {@linkplain ReferencedCanvas#getDisplayCRS display CRS} changed.
      */
     public static final String DISPLAY_CRS_PROPERTY = "displayCRS";
-    
+
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event}
      * fired when the {@linkplain ReferencedCanvas#getEnvelope canvas envelope} or
      * {@linkplain ReferencedGraphic#getEnvelope graphic envelope} changed.
      */
     public static final String ENVELOPE_PROPERTY = "envelope";
-    
+
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * canvas {@linkplain ReferencedCanvas#getObjectiveCRS objective CRS} changed.
@@ -100,26 +99,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * canvas {@linkplain ReferencedCanvas#getScale canvas scale} changed.
      */
     public static final String SCALE_PROPERTY = "scale";
-    
-    /**
-     * A listener to be notified when a graphic property changed.
-     */
-    public static final PropertyChangeListener PROPERTIES_LISTENER = new PropertyChangeListener() {
-        public void propertyChange(final PropertyChangeEvent event) {
-            final Object source = event.getSource();
-            if (source instanceof Graphic) {
-                final AbstractGraphic graphic = (AbstractGraphic) source;
-                final Canvas target = (Canvas) graphic.getCanvas();
-                if (target instanceof AbstractCanvas) {
-                    synchronized (target) {
-                        ((AbstractCanvas) target).graphicPropertyChanged(graphic, event);
-                    }
-                }
-            }
-        }
-    };
-    
-    
+
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * {@linkplain AbstractCanvas#getTitle canvas title} changed.
@@ -132,25 +112,28 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     protected final EventListenerList canvasListeners;
 
     /**
-     * The title assigned to this canvas, or {@code null} if none. It may be either an instance
-     * of {@link String} or {@link InternationalString}.
-     */
-    private InternationalString title;
-
-    /**
      * A set of rendering hints.
      *
      * @see Hints#COORDINATE_OPERATION_FACTORY
      */
     protected final Hints hints;
-    
-    
-    protected final AbstractRenderer renderer;
-    
 
+    /**
+     * Renderer used by this canvas
+     */
+    protected final AbstractRenderer renderer;
+
+    /**
+     * The title assigned to this canvas, or {@code null} if none. It may be either an instance
+     * of {@link String} or {@link InternationalString}.
+     */
+    protected InternationalString title;
+
+    
     /**
      * Creates an initially empty canvas.
      *
+     * @param renderer the renderer for this canvas
      * @param hints   The initial set of hints, or {@code null} if none.
      */
     protected AbstractCanvas(final AbstractRenderer renderer, final Hints hints) {
@@ -158,11 +141,13 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         this.hints = new Hints(hints);
         this.renderer = renderer;
     }
- 
+
     /**
      * Returns the title assigned to this {@code Canvas}, or {@code null} if none. If the title
      * was {@linkplain #setTitle(InternationalString) defined as an international string}, then
      * this method returns the title in the {@linkplain #getLocale current locale}.
+     *
+     * @return InternationalString of the title
      */
     public synchronized InternationalString getTitle() {
         return title;
@@ -174,6 +159,8 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * <p>
      * This method fires a {@value org.geotools.display.canvas.DisplayObject#TITLE_PROPERTY}
      * property change event.
+     *
+     * @param title The International String title.
      */
     public void setTitle(final InternationalString title) {
         final InternationalString old;
@@ -184,26 +171,60 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         propertyListeners.firePropertyChange(TITLE_PROPERTY, old, title);
     }
 
-    
     /**
-     * Invoked automatically when a graphic registered in this canvas changed. Subclasses can
-     * override this method if they need to react to some graphic change events, but should
-     * always invoke {@code super.graphicPropertyChanged(graphic, event)}.
+     * Clears all cached data. Invoking this method may help to release some resources for other
+     * applications. It should be invoked when we know that the map is not going to be rendered
+     * for a while. For example it may be invoked from {@link java.applet.Applet#stop}. Note
+     * that this method doesn't changes the renderer setting; it will just slow down the first
+     * rendering after this method call.
      *
-     * @param graphic The graphic that changed.
-     * @param event   The property change event.
+     * @see #dispose
      */
-    protected void graphicPropertyChanged(final AbstractGraphic graphic,
-                                          final PropertyChangeEvent event)
-    {
-        assert Thread.holdsLock(this);
-        final String propertyName = event.getPropertyName();
-//        if (propertyName.equalsIgnoreCase(Z_ORDER_HINT_PROPERTY)) {
-//            sortedGraphics = null; // Will force a new sorting according z-order.
-//            return;
-//        }
+    @Override
+    public void clearCache() {
+        renderer.clearCache();
+        super.clearCache();
     }
-        
+
+    /**
+     * Method that may be called when a {@code Canvas} is no longer needed. {@code AbstractCanvas}
+     * defines this method to invoke {@link Graphic#dispose} for all graphics. The results
+     * of referencing a canvas or any of its graphics after a call to {@code dispose()} are
+     * undefined.
+     * <p>
+     * Subclasses may use this method to release resources or to return the object to an object
+     * pool. It is an error to reference a {@code Canvas} after its dispose method has been called.
+     *
+     * @see AbstractGraphic#dispose
+     * @see javax.media.jai.PlanarImage#dispose
+     */
+    @Override
+    public synchronized void dispose() {
+        renderer.dispose();
+        super.dispose();
+    }
+
+    /**
+     * Returns a string representation of this canvas and all its {@link Graphic}s.
+     * The {@linkplain BufferedCanvas2D#getOffscreenBuffered offscreen buffer type},
+     * if any, appears in the right column. This method is for debugging purpose
+     * only and may change in any future version.
+     *
+     * @return String representation of the canvas
+     */
+    @Override
+    public synchronized String toString() {
+        final StringBuilder buffer = new StringBuilder(Classes.getShortClassName(this));
+        buffer.append("[\"").append(getTitle()).append("\" ]");
+        return buffer.toString();
+    }
+
+    /**
+     * Call this method to force a repaint
+     */
+    public abstract void repaint();
+    
+    //--------------Canvas Listeners convinient methods-------------------------
     /**
      * Adds the given listener that will be notified when the state of this
      * {@code Canvas} has changed.
@@ -220,13 +241,18 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     }
 
     /**
-     * Returns the objective Coordinate Reference System (the projection of a georeferenced CRS)
-     * for this {@code Canvas}. This is the "real world" CRS used for displaying all graphics.
-     * Note that underlying data in graphic primitives don't need to be in terms of this CRS.
-     * Transformations will be applied on the fly as needed at rendering time.
+     * Fire a canvas event to all canvas listeners.
+     *
+     * @param event CanvasEvent
      */
-    public abstract CoordinateReferenceSystem getObjectiveCRS();
+    protected void fireCanvasEvent(CanvasEvent event){
+        CanvasListener[] listeners = canvasListeners.getListeners(CanvasListener.class);
+        for(CanvasListener listener : listeners){
+            listener.canvasChanged(event);
+        }
+    }
 
+    //-----------------------CRS methods ---------------------------------------
     /**
      * Sets the objective Coordinate Reference System for this {@code Canvas}.
      *
@@ -234,6 +260,16 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @throws TransformException If the data can't be transformed.
      */
     public abstract void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException;
+
+    /**
+     * Returns the objective Coordinate Reference System (the projection of a georeferenced CRS)
+     * for this {@code Canvas}. This is the "real world" CRS used for displaying all graphics.
+     * Note that underlying data in graphic primitives don't need to be in terms of this CRS.
+     * Transformations will be applied on the fly as needed at rendering time.
+     *
+     * @return Objective CRS
+     */
+    public abstract CoordinateReferenceSystem getObjectiveCRS();
 
     /**
      * Returns the Coordinate Reference System associated with the display of this {@code Canvas}.
@@ -254,6 +290,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * {@linkplain AffineTransform#getScaleY y scale value} is often negative because of the
      * <var>y</var> axis oriented toward down.
      *
+     * @return Display CRS
      * @see ReferencedCanvas#setDisplayCRS
      */
     public abstract DerivedCRS getDisplayCRS();
@@ -283,6 +320,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * Most users will deal with the {@linkplain #getDisplayCRS display CRS} rather than this
      * device CRS.
      *
+     * @return
      * @see ReferencedCanvas#setDeviceCRS
      */
     public DerivedCRS getDeviceCRS() {
@@ -303,6 +341,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     public abstract void setObjectiveToDisplayTransform(final MathTransform transform)
             throws TransformException;
 
+    //--------------------------Hints ------------------------------------------
     /**
      * Returns a rendering hint.
      *
@@ -341,68 +380,4 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         }
     }
 
-    /**
-    /**
-     * Clears all cached data. Invoking this method may help to release some resources for other
-     * applications. It should be invoked when we know that the map is not going to be rendered
-     * for a while. For example it may be invoked from {@link java.applet.Applet#stop}. Note
-     * that this method doesn't changes the renderer setting; it will just slow down the first
-     * rendering after this method call.
-     *
-     * @see #dispose
-     */
-    @Override
-    public void clearCache() {
-        assert Thread.holdsLock(this);
-        final List<Graphic> graphics = renderer.getGraphics();
-        for (int i=graphics.size(); --i>=0;) {
-            final Graphic graphic = graphics.get(i);
-            if (graphic instanceof DisplayObject) {
-                ((DisplayObject) graphic).clearCache();
-            }
-        }
-        super.clearCache();
-    }
-     
-    /** 
-     * Method that may be called when a {@code Canvas} is no longer needed. {@code AbstractCanvas}
-     * defines this method to invoke {@link Graphic#dispose} for all graphics. The results
-     * of referencing a canvas or any of its graphics after a call to {@code dispose()} are
-     * undefined.
-     * <p>
-     * Subclasses may use this method to release resources or to return the object to an object
-     * pool. It is an error to reference a {@code Canvas} after its dispose method has been called.
-     *
-     * @see AbstractGraphic#dispose
-     * @see javax.media.jai.PlanarImage#dispose
-     */
-    @Override
-    public synchronized void dispose() {
-        final List<Graphic> graphics = renderer.getGraphics();
-        renderer.removeAll();
-        for (int i=graphics.size(); --i>=0;) {
-            final Graphic graphic = graphics.get(i);
-            graphic.dispose();
-        }
-        super.dispose();
-    }
-
-    /**
-     * Returns a string representation of this canvas and all its {@link Graphic}s.
-     * The {@linkplain BufferedCanvas2D#getOffscreenBuffered offscreen buffer type},
-     * if any, appears in the right column. This method is for debugging purpose
-     * only and may change in any future version.
-     */
-    @Override
-    public synchronized String toString() {
-        final List<Graphic> graphics = renderer.getGraphics();
-        final String lineSeparator = System.getProperty("line.separator", "\n");
-        final StringBuilder buffer = new StringBuilder(Classes.getShortClassName(this));
-        buffer.append("[\"").append(getTitle()).append("\" ]");
-        return buffer.toString();
-    }
-
-    
-    public abstract void repaint();
-        
 }

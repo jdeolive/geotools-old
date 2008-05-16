@@ -45,14 +45,16 @@ import java.awt.IllegalComponentStateException;
 import javax.swing.JComponent;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
-import java.beans.PropertyChangeEvent;
 import javax.media.jai.GraphicsJAI;
 
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.display.primitive.Graphic;
+import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import org.geotools.display.primitive.AbstractGraphic;
+import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.display.renderer.AbstractRenderer;
 import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -61,6 +63,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.referencing.operation.transform.AffineTransform2D;
 import org.geotools.util.RangeSet;
 import org.geotools.util.Range;
 
@@ -74,7 +77,7 @@ import org.geotools.util.Range;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class BufferedCanvas2D extends ReferencedCanvas2D {
+public class BufferedCanvas2D extends ReferencedCanvas2D implements CanvasController{
     /**
      * {@code true} for enabling usage of {@link GraphicsJAI}.
      */
@@ -86,6 +89,11 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
      * error in calculation of widget {@link java.awt.geom.Area} that need to be refreshed.
      */
     private static final double SCALE_ZOOM_CHANGE = 1.000001;
+    
+    /**
+     * Controller
+     */
+    protected final BufferedCanvas2D controller;
 
     /**
      * The offscreen buffers.  There is one {@link VolatileImage} or {@link BufferedImage}
@@ -141,6 +149,7 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
      */
     private final ComponentListener listener = new ComponentListener();
 
+
     /**
      * Updates the enclosing canvas according various AWT events.
      */
@@ -183,8 +192,10 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
         if (owner != null) {
             owner.addComponentListener(listener);
         }
+        
+        this.controller = this ; //new ReferencedController2D(this);
     }
-
+    
     /**
      * Returns the locale for this object. The default implementation returns the locale of the
      * {@link Component} that own this canvas, if any. Otherwise, a default locale will be returned.
@@ -226,24 +237,6 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
     private void checkDisplayBounds() {
         if (super.getDisplayBounds().equals(XRectangle2D.INFINITY)) {
             propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, null, null);
-        }
-    }
-
-    /**
-     * Invoked automatically when a graphic registered in this canvas changed.
-     */
-    @Override
-    protected void graphicPropertyChanged(final AbstractGraphic graphic,
-                                          final PropertyChangeEvent event)
-    {
-        super.graphicPropertyChanged(graphic, event);
-        final String propertyName = event.getPropertyName();
-        if (propertyName.equalsIgnoreCase(AbstractGraphic.Z_ORDER_HINT_PROPERTY)) {
-            final Object value = event.getOldValue();
-            if (value instanceof Number) {
-                final double oldZOrder = ((Number) value).doubleValue();
-                flushOffscreenBuffer(oldZOrder);
-            }
         }
     }
 
@@ -579,7 +572,6 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
      * @todo Rename as {@code scaleChanged} and expect a {@code ScaleChangeEvent} argument with
      *       old and new scale, affine transform change and affine transform change scaled.
      */
-    @Override
     protected void zoomChanged(final AffineTransform change) {
         if (change!=null && change.isIdentity()) {
             return;
@@ -591,7 +583,7 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
                 Arrays.fill(offscreenBuffers, null);
             }
         }
-        super.zoomChanged(change);
+//        super.zoomChanged(change);
     }
 
     /**
@@ -796,8 +788,41 @@ public class BufferedCanvas2D extends ReferencedCanvas2D {
         super.dispose();
     }
 
-    public CanvasController getController() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public BufferedCanvas2D getController() {
+        return controller;
     }
+
+    
+    //-----------------------------Controller methods --------------------------
+   
+    public void setCenter(DirectPosition newCenter) {
+        System.out.println("new center : " +newCenter);
+        
+        AffineTransform trs = new AffineTransform();
+        trs.translate(newCenter.getOrdinate(0), newCenter.getOrdinate(1));
+        MathTransform transform;
+        try {
+            transform = new AffineTransform2D(trs.createInverse());
+            setObjectiveToDisplayTransform(transform);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Logger.getLogger(BufferedCanvas2D.class.getName()).log(Level.SEVERE, null, ex);
+        }
+          
+        
+//        getState().getCenter();
+                
+    }
+
+//    public void setTitle(InternationalString title) {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
+
+//    public void setObjectiveCRS(CoordinateReferenceSystem crs) throws TransformException {
+//        throw new UnsupportedOperationException("Not supported yet.");
+//    }
+    
+    
+    
 
 }

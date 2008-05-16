@@ -23,7 +23,6 @@ import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import javax.swing.Action;
@@ -132,7 +131,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
     /**
      * Creates an initially empty canvas with a default CRS.
      *
-     * @param factory The display factory associated with this canvas, or {@code null} if none.
+     * @param renderer Renderer to use with this canvas
      */
     protected ReferencedCanvas2D(final AbstractRenderer renderer) {
         super(renderer,2);
@@ -147,6 +146,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * If the specified CRS has more than two dimensions, then it must be a
      * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} with
      * a two dimensional head.
+     * 
+     * @throws TransformException 
      */
     @Override
     public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
@@ -183,6 +184,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * <p>
      * If the display bounds is unknown, then this method returns a shape with infinite extends.
      * This method should never returns {@code null}.
+     * 
+     * @return 
      */
     public Shape getDisplayBounds() {
         return displayBounds;
@@ -411,32 +414,33 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         return 7200/2.54 * m;
     }
     
-    /**
-     * Notifies all listeners that the {@link #objectiveToDisplay} transform changed. This change
-     * is more often the consequence of some zoom action. The {@code change} argument can be
-     * computed as below:
-     *
-     * <blockquote><pre>
-     * AffineTransform change = <var>oldObjectiveToDisplay</var>.createInverse();
-     * change.preConcatenate(<var>newObjectiveToTransform</var>);
-     * </pre></blockquote>
-     *
-     * The default implementation invokes <code>{@linkplain ReferencedGraphic2D#zoomChanged
-     * zoomChanged}(change)</code> for all registered {@link ReferencedGraphic2D}.
-     *
-     * @param change The zoom <strong>change</strong> in terms of
-     *        {@linkplain #getDisplayCRS display CRS}, or {@code null} if unknown.
-     *
-     * @see ReferencedGraphic2D#zoomChanged
-     */
-    protected void zoomChanged(final AffineTransform change) {
-        assert Thread.holdsLock(this);
-        final List/*<Graphic>*/ graphics = renderer.getGraphics();
-        for (int i=graphics.size(); --i>=0;) {
-            final Graphic graphic = (Graphic) graphics.get(i);
-            if (graphic instanceof ReferencedGraphic2D) {
-                ((ReferencedGraphic2D) graphic).zoomChanged(change);
-}
-        }
-    }
+    //should not be done this way ----------------------------------------------------------------------------USE LISTENER SYSTEM
+//    /**
+//     * Notifies all listeners that the {@link #objectiveToDisplay} transform changed. This change
+//     * is more often the consequence of some zoom action. The {@code change} argument can be
+//     * computed as below:
+//     *
+//     * <blockquote><pre>
+//     * AffineTransform change = <var>oldObjectiveToDisplay</var>.createInverse();
+//     * change.preConcatenate(<var>newObjectiveToTransform</var>);
+//     * </pre></blockquote>
+//     *
+//     * The default implementation invokes <code>{@linkplain ReferencedGraphic2D#zoomChanged
+//     * zoomChanged}(change)</code> for all registered {@link ReferencedGraphic2D}.
+//     *
+//     * @param change The zoom <strong>change</strong> in terms of
+//     *        {@linkplain #getDisplayCRS display CRS}, or {@code null} if unknown.
+//     *
+//     * @see ReferencedGraphic2D#zoomChanged
+//     */
+//    protected void zoomChanged(final AffineTransform change) {
+//        assert Thread.holdsLock(this);
+//        final List/*<Graphic>*/ graphics = renderer.getGraphics();
+//        for (int i=graphics.size(); --i>=0;) {
+//            final Graphic graphic = (Graphic) graphics.get(i);
+//            if (graphic instanceof ReferencedGraphic2D) {
+//                ((ReferencedGraphic2D) graphic).zoomChanged(change);
+//            }
+//        }
+//    }
 }

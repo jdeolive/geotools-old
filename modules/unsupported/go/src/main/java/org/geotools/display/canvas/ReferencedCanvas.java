@@ -95,6 +95,33 @@ import org.geotools.display.renderer.AbstractRenderer;
  */
 public abstract class ReferencedCanvas extends AbstractCanvas {
     /**
+     * An envelope that completly encloses all {@linkplain ReferencedGraphic#getEnvelope graphic
+     * envelopes} managed by this canvas. Note that there is no guarantee that the returned envelope
+     * is the smallest bounding box that encloses the canvas, only that the canvas lies entirely
+     * within the indicated envelope.
+     * <p>
+     * On {@code ReferencedCanvas} construction, this envelope is
+     * {@linkplain GeneralEnvelope#setToNull initialised to NaN values}.
+     * <p>
+     * The {@linkplain GeneralEnvelope#getCoordinateReferenceSystem coordinate reference system}
+     * of this envelope should always be the {@linkplain #getObjectiveCRS objective CRS}.
+     *
+     * @see #getEnvelope
+     * @see #computeGraphicsEnvelope
+     */
+    private final GeneralEnvelope envelope;
+
+    /**
+     * A set of {@link MathTransform}s from various source CRS. The target CRS must be the
+     * {@linkplain #getObjectiveCRS objective CRS} for all entries. Keys are source CRS.
+     * This map is used only in order to avoid the costly call to
+     * {@link CoordinateOperationFactory#createOperation} as much as possible. If a
+     * transformation is not available in this collection, then the usual factory will be used.
+     */
+    private final transient Map<CoordinateReferenceSystem,MathTransform> transforms =
+            new HashMap<CoordinateReferenceSystem,MathTransform>();
+        
+    /**
      * The display coordinate reference system.
      *
      * @see #getDisplayCRS
@@ -134,33 +161,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * display CRS. This object will be created when first needed.
      */
     private transient TransformedDirectPosition displayPosition;
-
-    /**
-     * An envelope that completly encloses all {@linkplain ReferencedGraphic#getEnvelope graphic
-     * envelopes} managed by this canvas. Note that there is no guarantee that the returned envelope
-     * is the smallest bounding box that encloses the canvas, only that the canvas lies entirely
-     * within the indicated envelope.
-     * <p>
-     * On {@code ReferencedCanvas} construction, this envelope is
-     * {@linkplain GeneralEnvelope#setToNull initialised to NaN values}.
-     * <p>
-     * The {@linkplain GeneralEnvelope#getCoordinateReferenceSystem coordinate reference system}
-     * of this envelope should always be the {@linkplain #getObjectiveCRS objective CRS}.
-     *
-     * @see #getEnvelope
-     * @see #computeGraphicsEnvelope
-     */
-    private final GeneralEnvelope envelope;
-
-    /**
-     * A set of {@link MathTransform}s from various source CRS. The target CRS must be the
-     * {@linkplain #getObjectiveCRS objective CRS} for all entries. Keys are source CRS.
-     * This map is used only in order to avoid the costly call to
-     * {@link CoordinateOperationFactory#createOperation} as much as possible. If a
-     * transformation is not available in this collection, then the usual factory will be used.
-     */
-    private final transient Map<CoordinateReferenceSystem,MathTransform> transforms =
-            new HashMap<CoordinateReferenceSystem,MathTransform>();
 
     /**
      * The {@code "affine"} operation method. Cached here because used often. Will be created
@@ -234,14 +234,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     private transient boolean disableGraphicListener;
 
+    
     /**
      * Creates an initially empty canvas with a default CRS of the specified number of dimensions.
      *
+     * @param renderer 
      * @param  dimension The number of dimensions, which must be 2 or 3.
      * @throws IllegalArgumentException if the specified number of dimensions is not supported.
      */
-    protected ReferencedCanvas(final AbstractRenderer renderer,final int dimension)
-            throws IllegalArgumentException
+    protected ReferencedCanvas(final AbstractRenderer renderer, final int dimension)
+            throws IllegalArgumentException 
     {
         this(renderer,getDefaultCRS(dimension), null);
         useDefaultCRS = true;
@@ -250,6 +252,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     /**
      * Creates an initially empty canvas with the specified objective CRS.
      *
+     * @param renderer 
      * @param objectiveCRS The initial objective CRS.
      * @param hints        The initial set of hints, or {@code null} if none.
      */
@@ -260,24 +263,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         super(renderer, hints);
         this.envelope = new GeneralEnvelope(objectiveCRS);
         this.envelope.setToNull();
-    }
-
-    /**
-     * Returns a default CRS for the specified number of dimensions.
-     *
-     * @param  dimension The number of dimension for the viewer.
-     * @return A default coordinate reference system with the specified number of dimensions.
-     * @throws IllegalArgumentException if the specified number of dimensions is not supported.
-     */
-    private static CoordinateReferenceSystem getDefaultCRS(final int dimension)
-            throws IllegalArgumentException
-    {
-        switch (dimension) {
-            case 2:  return DefaultEngineeringCRS.GENERIC_2D;
-            case 3:  return DefaultEngineeringCRS.GENERIC_3D;
-            default: throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,
-                                                        "dimension", new Integer(dimension)));
-        }
     }
 
     /**
@@ -579,6 +564,62 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     }
 
     /**
+     * Invoked when an unexpected exception occured. This method is a shortcut for
+     * {@link AbstractCanvas#handleException} with {@code sourceClassName} set to
+     * {@code "org.geotools.display.canvas.ReferencedCanvas"}.
+     *
+     * @param  sourceMethodName The caller's method name, for logging purpose.
+     * @param  exception        The exception.
+     */
+    private void handleException(final String sourceMethodName, final Exception exception) {
+        handleException(ReferencedCanvas.class, sourceMethodName, exception);
+    }
+
+    /**
+     * Invoked when a property change listener has been {@linkplain #addPropertyChangeListener
+     * added} or {@linkplain #removePropertyChangeListener removed}.
+     */
+    @Override
+    protected void listenersChanged() {
+        super.listenersChanged();
+        hasScaleListeners    = propertyListeners.hasListeners(SCALE_PROPERTY);
+        hasDisplayListeners  = propertyListeners.hasListeners(DISPLAY_CRS_PROPERTY);
+        hasEnvelopeListeners = propertyListeners.hasListeners(ENVELOPE_PROPERTY);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clearCache() {
+        super.clearCache();
+        transforms.clear();
+        opFactory         = null;
+        crsFactories      = null;
+        affineMethod      = null;
+        objectivePosition = null;
+        displayPosition   = null;
+    }
+        
+    //----------------------CRS & MathTransform methods-------------------------
+    /**
+     * Returns a default CRS for the specified number of dimensions.
+     *
+     * @param  dimension The number of dimension for the viewer.
+     * @return A default coordinate reference system with the specified number of dimensions.
+     * @throws IllegalArgumentException if the specified number of dimensions is not supported.
+     */
+    private static CoordinateReferenceSystem getDefaultCRS(final int dimension)
+            throws IllegalArgumentException {
+        switch (dimension) {
+            case 2:  return DefaultEngineeringCRS.GENERIC_2D;
+            case 3:  return DefaultEngineeringCRS.GENERIC_3D;
+            default: throw new IllegalArgumentException(Errors.format(ErrorKeys.ILLEGAL_ARGUMENT_$2,
+                                                        "dimension", new Integer(dimension)));
+        }
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public final CoordinateReferenceSystem getObjectiveCRS() {
@@ -766,9 +807,9 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * @param  sourceMethodName The caller's method name, for logging purpose.
      */
     public void graphicEnvelopeChanged(final Envelope oldEnvelope,
-                                        final Envelope newEnvelope,
-                                        final CoordinateReferenceSystem crs,
-                                        final Class<?> sourceClassName,
+                                       final Envelope newEnvelope,
+                                       final CoordinateReferenceSystem crs,
+                                       final Class<?> sourceClassName,
                                         final String sourceMethodName)
     {
         assert Thread.holdsLock(this);
@@ -1161,6 +1202,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * Returns the coordinate transformation object for this {@code Canvas}. This allows the
      * {@code Canvas} to resolve conversions of coordinates between the objective and display
      * Coordinate Reference Systems.
+     * 
+     * @return MathTransform
      */
     public synchronized MathTransform getObjectiveToDisplayTransform() {
         final DerivedCRS displayCRS = getDisplayCRS();
@@ -1175,6 +1218,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      * <p>
      * The default implementation returns the {@linkplain MathTransform#inverse inverse} of
      * the {@linkplain #getObjectiveToDisplayTransform objective to display transform}.
+     * 
+     * @return MathTransform
      */
     public MathTransform getDisplayToObjectiveTransform() {
         try {
@@ -1344,41 +1389,4 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         return displayPosition;
     }
 
-    /**
-     * Invoked when an unexpected exception occured. This method is a shortcut for
-     * {@link AbstractCanvas#handleException} with {@code sourceClassName} set to
-     * {@code "org.geotools.display.canvas.ReferencedCanvas"}.
-     *
-     * @param  sourceMethodName The caller's method name, for logging purpose.
-     * @param  exception        The exception.
-     */
-    private void handleException(final String sourceMethodName, final Exception exception) {
-        handleException(ReferencedCanvas.class, sourceMethodName, exception);
-    }
-
-    /**
-     * Invoked when a property change listener has been {@linkplain #addPropertyChangeListener
-     * added} or {@linkplain #removePropertyChangeListener removed}.
-     */
-    @Override
-    protected void listenersChanged() {
-        super.listenersChanged();
-        hasScaleListeners    = propertyListeners.hasListeners(SCALE_PROPERTY);
-        hasDisplayListeners  = propertyListeners.hasListeners(DISPLAY_CRS_PROPERTY);
-        hasEnvelopeListeners = propertyListeners.hasListeners(ENVELOPE_PROPERTY);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void clearCache() {
-        super.clearCache();
-        transforms.clear();
-        opFactory         = null;
-        crsFactories      = null;
-        affineMethod      = null;
-        objectivePosition = null;
-        displayPosition   = null;
-    }
 }    

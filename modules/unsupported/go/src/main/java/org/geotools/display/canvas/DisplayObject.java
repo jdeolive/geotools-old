@@ -27,6 +27,8 @@ import java.beans.PropertyChangeEvent;  // For javadoc
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
 
+import java.beans.VetoableChangeListener;
+import java.beans.VetoableChangeSupport;
 import org.geotools.util.logging.Logging;
 
 
@@ -48,44 +50,97 @@ public class DisplayObject {
     private static final Logger LOGGER = Logging.getLogger("org.geotools.display");
 
     /**
-     * Listeners to be notified about any changes in this canvas properties.
+     * Listeners to be notified about any changes in this object properties.
      */
     protected final PropertyChangeSupport propertyListeners;
-
+    
+    /**
+     * Listeners to be notified about any changes in this object vetoable properties.
+     */
+    protected final VetoableChangeSupport vetoableListeners;
+    
     /**
      * Creates a new instance of display object.
      */
     protected DisplayObject() {
         this.propertyListeners = new PropertyChangeSupport(this);
+        this.vetoableListeners = new VetoableChangeSupport(this);        
     }
 
     /**
-     * Returns a rendering hint. The default implementation always returns {@code null}.
-     * The {@link AbstractCanvas} and {@link org.geotools.display.style.GraphicStyle2D}
-     * subclasses override this method in order to performs real work.
-     *
-     * @param  key The hint key.
-     * @return The hint value for the specified key, or {@code null} if none.
-     *
-     * @see #getImplHint
+     * Returns the locale for this object. The default implementation returns the
+     * {@linkplain Locale#getDefault system locale}.
+     * 
+     * @return Locale of this object
      */
-    public Object getHint(final RenderingHints.Key key) {
-        return null;
+    public Locale getLocale() {
+        return Locale.getDefault();
     }
 
     /**
-     * Adds a rendering hint. The default implementation ignore the hint value and does nothing.
-     * The {@link AbstractCanvas} and {@link org.geotools.display.style.GraphicStyle2D}
-     * subclasses override this method in order to performs real work.
-     *
-     * @param key   The hint key.
-     * @param value The hint value. A {@code null} value remove the hint.
-     *
-     * @see #setImplHint
+     * Returns the logger for all messages to be logged by the Geotools implementation of GO-1.
+     * 
+     * @return Logger for this object
      */
-    public void setHint(RenderingHints.Key key, Object value) {
+    public Logger getLogger() {
+        return LOGGER;
     }
 
+    /**
+     * Invoked when an unexpected exception occured. This exception may happen while a rendering
+     * is in process, so this method should not popup any dialog box and returns fast. The default
+     * implementation sends a record to the {@linkplain #getLogger() logger} with the
+     * {@link Level#WARNING WARNING} level.
+     *
+     * @param  sourceClassName  The caller's class name, for logging purpose.
+     * @param  sourceMethodName The caller's method name, for logging purpose.
+     * @param  exception        The exception.
+     */
+    protected void handleException(final Class<?> sourceClassName,
+                                   final String  sourceMethodName,
+                                   final Exception exception) {
+        Logging.unexpectedException(getLogger(),
+                sourceClassName, sourceMethodName, exception);
+    }
+
+    /**
+     * Clears all cached data. Invoking this method may help to release some resources for other
+     * applications. It should be invoked when we know that the map is not going to be rendered
+     * for a while. For example it may be invoked from {@link java.applet.Applet#stop()}. Note
+     * that this method doesn't changes the renderer setting; it will just slow down the first
+     * rendering after this method call.
+     *
+     * @see #dispose
+     */
+    public void clearCache() {
+    }
+
+    /**
+     * Method that can be called when an object is no longer needed. Implementations may use
+     * this method to release resources, if needed. Implementations may also implement this
+     * method to return an object to an object pool. It is an error to reference a
+     * {@link org.opengis.display.primitive.Graphic} or {@link Canvas} in any way after its
+     * dispose method has been called.
+     */
+    public void dispose() {
+        synchronized (propertyListeners) {
+            final PropertyChangeListener[] list = propertyListeners.getPropertyChangeListeners();
+            for (int i=list.length; --i>=0;) {
+                propertyListeners.removePropertyChangeListener(list[i]);
+            }
+            listenersChanged();
+        }
+        
+        synchronized (vetoableListeners) {
+            final VetoableChangeListener[] list = vetoableListeners.getVetoableChangeListeners();
+            for (int i=list.length; --i>=0;) {
+                vetoableListeners.removeVetoableChangeListener(list[i]);
+            }
+            listenersChanged();
+        }
+    }
+    
+    //---------------------Normal and Veto Property methods --------------------
     /**
      * Adds a property change listener to the listener list. The listener is registered
      * for all properties. For example, {@linkplain AbstractCanvas#add adding} or
@@ -114,6 +169,35 @@ public class DisplayObject {
     {
         synchronized (propertyListeners) {
             propertyListeners.addPropertyChangeListener(propertyName, listener);
+            listenersChanged();
+        }
+    }
+    
+    /**
+     * Adds a veto property change listener to the listener list. The listener is registered
+     * for all veto properties.
+     *
+     * @param listener The veto property change listener to be added
+     */
+    public void addVetoableChangeListener(final VetoableChangeListener listener) {
+        synchronized (vetoableListeners) {
+            vetoableListeners.addVetoableChangeListener(listener);
+            listenersChanged();
+        }
+    }
+
+    /**
+     * Adds a veto property change listener for a specific property.
+     * The listener will be invoked only when that specific property changes.
+     *
+     * @param propertyName The name of the property to listen on.
+     * @param listener     The veto property change listener to be added.
+     */
+    public void addVetoableChangeListener(final String propertyName,
+                                          final VetoableChangeListener listener)
+    {
+        synchronized (vetoableListeners) {
+            vetoableListeners.addVetoableChangeListener(propertyName, listener);
             listenersChanged();
         }
     }
@@ -147,6 +231,34 @@ public class DisplayObject {
     }
 
     /**
+     * Removes a veto property change listener from the listener list. This removes a listener
+     * that was registered for all properties.
+     *
+     * @param listener The veto property change listener to be removed
+     */
+    public void removeVetoableChangeListener(final VetoableChangeListener listener) {
+        synchronized(vetoableListeners){
+            vetoableListeners.removeVetoableChangeListener(listener);
+            listenersChanged();
+        }
+    }
+    
+    /**
+     * Remove a veto property change listener for a specific property.
+     *
+     * @param propertyName The name of the property that was listened on.
+     * @param listener     The veto property change listener to be removed.
+     */
+    public void removeVetoableChangeListener(final String propertyName,
+                                             final VetoableChangeListener listener)
+    {
+        synchronized(vetoableListeners){
+            vetoableListeners.removeVetoableChangeListener(propertyName,listener);
+            listenersChanged();
+        }
+    }
+        
+    /**
      * Invoked when a property change listener has been {@linkplain #addPropertyChangeListener
      * added} or {@linkplain #removePropertyChangeListener removed}. Some subclasses may be
      * interrested to know if there is any registered listener of a particular kind. Such
@@ -155,65 +267,32 @@ public class DisplayObject {
     protected void listenersChanged() {
     }
 
+    //-------------------------------Hints--------------------------------------
     /**
-     * Returns the locale for this object. The default implementation returns the
-     * {@linkplain Locale#getDefault system locale}.
-     */
-    public Locale getLocale() {
-        return Locale.getDefault();
-    }
-
-    /**
-     * Returns the logger for all messages to be logged by the Geotools implementation of GO-1.
-     */
-    public Logger getLogger() {
-        return LOGGER;
-    }
-
-    /**
-     * Invoked when an unexpected exception occured. This exception may happen while a rendering
-     * is in process, so this method should not popup any dialog box and returns fast. The default
-     * implementation sends a record to the {@linkplain #getLogger() logger} with the
-     * {@link Level#WARNING WARNING} level.
+     * Returns a rendering hint. The default implementation always returns {@code null}.
+     * The {@link AbstractCanvas} and {@link org.geotools.display.style.GraphicStyle2D}
+     * subclasses override this method in order to performs real work.
      *
-     * @param  sourceClassName  The caller's class name, for logging purpose.
-     * @param  sourceMethodName The caller's method name, for logging purpose.
-     * @param  exception        The exception.
-     */
-    protected void handleException(final Class<?> sourceClassName,
-                                   final String  sourceMethodName,
-                                   final Exception exception)
-    {
-        Logging.unexpectedException(getLogger(),
-                sourceClassName, sourceMethodName, exception);
-    }
-
-    /**
-     * Clears all cached data. Invoking this method may help to release some resources for other
-     * applications. It should be invoked when we know that the map is not going to be rendered
-     * for a while. For example it may be invoked from {@link java.applet.Applet#stop()}. Note
-     * that this method doesn't changes the renderer setting; it will just slow down the first
-     * rendering after this method call.
+     * @param  key The hint key.
+     * @return The hint value for the specified key, or {@code null} if none.
      *
-     * @see #dispose
+     * @see #getImplHint
      */
-    public void clearCache() {
+    public Object getHint(final RenderingHints.Key key) {
+        return null;
     }
 
     /**
-     * Method that can be called when an object is no longer needed. Implementations may use
-     * this method to release resources, if needed. Implementations may also implement this
-     * method to return an object to an object pool. It is an error to reference a
-     * {@link org.opengis.display.primitive.Graphic} or {@link Canvas} in any way after its
-     * dispose method has been called.
+     * Adds a rendering hint. The default implementation ignore the hint value and does nothing.
+     * The {@link AbstractCanvas} and {@link org.geotools.display.style.GraphicStyle2D}
+     * subclasses override this method in order to performs real work.
+     *
+     * @param key   The hint key.
+     * @param value The hint value. A {@code null} value remove the hint.
+     *
+     * @see #setImplHint
      */
-    public void dispose() {
-        synchronized (propertyListeners) {
-            final PropertyChangeListener[] list = propertyListeners.getPropertyChangeListeners();
-            for (int i=list.length; --i>=0;) {
-                propertyListeners.removePropertyChangeListener(list[i]);
-            }
-            listenersChanged();
-        }
+    public void setHint(RenderingHints.Key key, Object value) {
     }
+    
 }
