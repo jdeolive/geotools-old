@@ -54,12 +54,10 @@ final class DummyCanvas extends ReferencedCanvas2D {
     
     
     
-    @Override
     public void repaint(org.opengis.display.primitive.Graphic graphic, Rectangle2D objectiveArea, Rectangle displayArea) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
     public void repaint() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
