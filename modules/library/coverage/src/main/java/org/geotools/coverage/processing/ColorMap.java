@@ -34,9 +34,9 @@ import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.io.TableWriter;
 import org.geotools.util.logging.Logging;
+import org.geotools.util.Utilities;
 import org.geotools.util.NumberRange;
 import org.geotools.util.MeasurementRange;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
@@ -104,6 +104,8 @@ public class ColorMap implements Serializable {
     /**
      * Creates a color map initialized to the specified color ramp to be applied on
      * {@linkplain #ANY_QUANTITATIVE_CATEGORY any quantitative category}.
+     *
+     * @param colors The colors to be given to this map.
      */
     public ColorMap(final Color[] colors) {
         setColors(ANY_QUANTITATIVE_CATEGORY, colors);
@@ -112,7 +114,7 @@ public class ColorMap implements Serializable {
     /**
      * Creates a color map initialized to the specified map.
      *
-     * @param map A map of ({@linkplain Category#getName category name},
+     * @param colorMap A map of ({@linkplain Category#getName category name},
      *        {@linkplain Color colors}) pairs.
      */
     public ColorMap(final Map<? extends CharSequence,Color[]> colorMap) {
@@ -442,6 +444,9 @@ public class ColorMap implements Serializable {
      * If {@code true}, the ARGB values corresponding to any {@linkplain Category category}
      * <strong>not</strong> specified in this color map will be reset to the color specified
      * by the category. The default value is {@code false}.
+     *
+     * @param reset {@code true} if unspecified colors should be reset to the colors given in
+     *        the category object.
      */
     public void setResetUnspecifiedColors(final boolean reset) {
         resetUnspecifiedColors = reset;
@@ -451,6 +456,9 @@ public class ColorMap implements Serializable {
      * If {@code true}, the ARGB values corresponding to any {@linkplain Category category}
      * <strong>not</strong> specified in this color map will be reset to the color specified
      * by the category. The default value is {@code false}.
+     *
+     * @return {@code true} if unspecified colors should be reset to the colors given in
+     *         the category object.
      */
     public boolean getResetUnspecifiedColors() {
         return resetUnspecifiedColors;
@@ -610,6 +618,9 @@ public class ColorMap implements Serializable {
 
     /**
      * Compares this color map with the specified object for equality.
+     *
+     * @param object The object to compare with this color map.
+     * @return {@code true} if the given object is equals to this color map.
      */
     @Override
     public boolean equals(final Object object) {

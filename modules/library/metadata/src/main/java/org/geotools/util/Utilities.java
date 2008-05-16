@@ -144,6 +144,8 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Boolean#equals
      */
     public static boolean equals(boolean o1, boolean o2) {
         return o1 == o2;
@@ -157,6 +159,8 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Character#equals
      */
     public static boolean equals(char o1, char o2) {
         return o1 == o2;
@@ -170,6 +174,8 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Byte#equals
      */
     public static boolean equals(byte o1, byte o2) {
         return o1 == o2;
@@ -183,6 +189,8 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Short#equals
      */
     public static boolean equals(short o1, short o2) {
         return o1 == o2;
@@ -196,6 +204,8 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Integer#equals
      */
     public static boolean equals(int o1, int o2) {
         return o1 == o2;
@@ -209,28 +219,36 @@ public final class Utilities {
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Long#equals
      */
     public static boolean equals(long o1, long o2) {
         return o1 == o2;
     }
 
     /**
-     * Returns {@code true} if the given floats are equals.
+     * Returns {@code true} if the given floats are equals. Positive and negative zero are
+     * considered different, while a NaN value is considered equal to other NaN values.
      *
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Float#equals
      */
     public static boolean equals(float o1, float o2) {
         return Float.floatToIntBits(o1) == Float.floatToIntBits(o2);
     }
 
     /**
-     * Returns {@code true} if the given doubles are equals.
+     * Returns {@code true} if the given doubles are equals. Positive and negative zero are
+     * considered different, while a NaN value is considered equal to other NaN values.
      *
      * @param o1 The first value to compare.
      * @param o2 The second value to compare.
      * @return {@code true} if both values are equal.
+     *
+     * @see Double#equals
      */
     public static boolean equals(double o1, double o2) {
         return Double.doubleToLongBits(o1) == Double.doubleToLongBits(o2);
@@ -239,21 +257,32 @@ public final class Utilities {
     /**
      * Convenience method for testing two objects for equality. One or both objects may be null.
      * This method do <strong>not</strong> iterates recursively in array elements. If array needs
-     * to be compared, use one of {@link Arrays} method instead.
+     * to be compared, use one of {@link Arrays} method or {@link #deepEquals deepEquals} instead.
      * <p>
-     * <b>Note on method naming:</b> This method name is different than {@code equals} on purpose,
-     * because the argument type is {@link Object}. This method could be selected by a compiler for
-     * any kind of argument, including primitive type through auto-boxing and arrays. More efficient
-     * implementations of {@code equals} exist for them both in this {@code Utilities} class and in
-     * the {@link Arrays} class. Using a different name help to make sure that the proper flavor is
-     * selected by the compiler.
+     * <b>Note on assertions:</b> There is no way to ensure at compile time that this method
+     * is not invoked with array arguments, while doing so would usually be a program error.
+     * Performing a systematic argument check would impose a useless overhead for correctly
+     * implemented {@link Object#equals} methods. As a compromise we perform this check at runtime
+     * only if assertions are enabled. Using assertions for argument check in a public API is
+     * usually a deprecated practice, but we make an exception for this particular method.
+     * <p>
+     * <b>Note on method overloading:</b> This method could be selected by the compiler for
+     * comparing primitive types, because the compiler could perform an auto-boxing and get
+     * a result assignable to {@code Object}. However it should not occur in practice because
+     * overloaded (and more efficient) methods are provided for every primitive types. This is
+     * true even when the two arguments are different primitive type because of widening
+     * conversions. The only exception is when a {@code boolean} argument is mixed with a
+     * different primitive type.
      *
      * @param object1 The first object to compare, or {@code null}.
      * @param object2 The second object to compare, or {@code null}.
      * @return {@code true} if both objects are equal.
+     * @throws AssertionError If assertions are enabled and at least one argument is an array.
      */
-    public static boolean shallowEquals(final Object object1, final Object object2) {
-        return (object1==object2) || (object1!=null && object1.equals(object2));
+    public static boolean equals(final Object object1, final Object object2) throws AssertionError {
+        assert object1 == null || !object1.getClass().isArray() : object1;
+        assert object2 == null || !object2.getClass().isArray() : object2;
+        return (object1 == object2) || (object1 != null && object1.equals(object2));
     }
 
     /**
@@ -414,21 +443,28 @@ public final class Utilities {
     }
 
     /**
-     * Alters the given seed with the hash code value computed from the given value.
+     * Alters the given seed with the hash code value computed from the given value. The givan
+     * object may be null. This method do <strong>not</strong> iterates recursively in array
+     * elements. If array needs to be hashed, use one of {@link Arrays} method or
+     * {@link #deepHashCode deepHashCode} instead.
      * <p>
-     * <b>Note on method naming:</b> This method name is different than {@code hash} on purpose,
-     * because the argument type is {@link Object}. This method could be selected by a compiler
-     * for any kind of argument, including primitive type through auto-boxing and arrays. Using
-     * a different name help to make sure that the proper flavor is selected by the compiler.
+     * <b>Note on assertions:</b> There is no way to ensure at compile time that this method
+     * is not invoked with an array argument, while doing so would usually be a program error.
+     * Performing a systematic argument check would impose a useless overhead for correctly
+     * implemented {@link Object#hashCode} methods. As a compromise we perform this check at
+     * runtime only if assertions are enabled. Using assertions for argument check in a public
+     * API is usually a deprecated practice, but we make an exception for this particular method.
      *
      * @param  value The value whose hash code to compute, or {@code null}.
      * @param  seed  The hash code value computed so far. If this method is invoked for the first
      *               field, then any arbitrary value (preferrably different for each class) is okay.
      * @return An updated hash code value.
+     * @throws AssertionError If assertions are enabled and the given value is an array.
      */
-    public static int shallowHash(Object value, int seed) {
+    public static int hash(Object value, int seed) throws AssertionError {
         seed *= PRIME_NUMBER;
         if (value != null) {
+            assert !value.getClass().isArray() : value;
             seed += value.hashCode();
         }
         return seed;

@@ -21,8 +21,8 @@ import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedReferenceSystemException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -157,6 +157,9 @@ public abstract class AbstractEnvelope implements Envelope {
      * Returns {@code true} if the specified object is also an {@linkplain Envelope envelope}
      * with equals coordinates and {@linkplain #getCoordinateReferenceSystem CRS}.
      *
+     * @param object The object to compare with this envelope.
+     * @return {@code true} if the given object is equals to this envelope.
+     *
      * @todo Current implementation requires that {@code object} is of the same class.
      *       We can not relax this rule before we ensure that every implementations in
      *       the Geotools code base follow the same contract.
@@ -168,10 +171,8 @@ public abstract class AbstractEnvelope implements Envelope {
             final int dimension = getDimension();
             if (dimension == that.getDimension()) {
                 for (int i=0; i<dimension; i++) {
-                    if (Double.doubleToLongBits(this.getMinimum(i)) !=
-                        Double.doubleToLongBits(that.getMinimum(i)) ||
-                        Double.doubleToLongBits(this.getMaximum(i)) !=
-                        Double.doubleToLongBits(that.getMaximum(i)))
+                    if (!Utilities.equals(this.getMinimum(i), that.getMinimum(i)) ||
+                        !Utilities.equals(this.getMaximum(i), that.getMaximum(i)))
                     {
                         return false;
                     }

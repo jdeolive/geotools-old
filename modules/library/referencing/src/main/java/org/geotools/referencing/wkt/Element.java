@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.XArray;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -337,6 +337,8 @@ public final class Element {
      * {@code "GEOGCS["name", DATUM["name, ...]]"}, this is true for {@code "GEOGCS"} and
      * false for all other elements inside, like {@code "DATUM"}.
      *
+     * @return {@code true} if this element is the root element.
+     *
      * @since 2.3
      */
     public boolean isRoot() {
@@ -482,6 +484,8 @@ public final class Element {
     /**
      * Returns the next element, or {@code null} if there is no more
      * element. The element is <strong>not</strong> removed from the list.
+     *
+     * @return The next element, or {@code null} if there is no more elements.
      */
     public Object peek() {
         return list.isEmpty() ? null : list.get(0);

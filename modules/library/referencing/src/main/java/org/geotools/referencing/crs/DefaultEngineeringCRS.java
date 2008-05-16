@@ -33,8 +33,8 @@ import org.geotools.referencing.datum.DefaultEngineeringDatum;
 import org.geotools.referencing.cs.DefaultCoordinateSystemAxis;
 import org.geotools.referencing.cs.DefaultCartesianCS;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.VocabularyKeys;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -160,6 +160,8 @@ public class DefaultEngineeringCRS extends AbstractSingleCRS implements Engineer
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param crs The CRS to copy.
      *
      * @since 2.2
      */

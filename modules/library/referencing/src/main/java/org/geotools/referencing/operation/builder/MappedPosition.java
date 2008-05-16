@@ -15,16 +15,13 @@
  */
 package org.geotools.referencing.operation.builder;
 
-// J2SE dependencies
 import java.io.Serializable;
 
-// OpenGIS dependencies
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.geometry.DirectPosition;
 
-// Geotools dependencies
 import org.geotools.io.TableWriter;
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.geometry.GeneralDirectPosition;
@@ -32,7 +29,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -235,8 +232,7 @@ public class MappedPosition implements Serializable {
             return Utilities.equals(this.source,   that.source)   &&
                    Utilities.equals(this.target,   that.target)   &&
                    Utilities.equals(this.comments, that.comments) &&
-                   Double.doubleToLongBits(this.accuracy) ==
-                   Double.doubleToLongBits(that.accuracy);
+                   Utilities.equals(this.accuracy, that.accuracy);
         }
         return false;
     }

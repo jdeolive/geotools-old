@@ -21,6 +21,7 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Comparator;
 import java.util.Locale;
+import org.geotools.util.Utilities;
 
 
 /**

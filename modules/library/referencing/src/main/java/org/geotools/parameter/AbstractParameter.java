@@ -19,24 +19,21 @@
  */
 package org.geotools.parameter;
 
-// J2SE dependencies
 import java.io.Writer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
-// OpenGIS dependencies
 import org.opengis.parameter.ParameterValue;
 import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.GeneralParameterDescriptor;
 
-// Geotools dependencies
+import org.geotools.util.Utilities;
 import org.geotools.io.TableWriter;
 import org.geotools.referencing.wkt.Formattable;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 

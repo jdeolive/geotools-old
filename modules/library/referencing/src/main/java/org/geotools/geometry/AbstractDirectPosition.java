@@ -20,8 +20,8 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -57,6 +57,8 @@ public abstract class AbstractDirectPosition implements DirectPosition {
     /**
      * Sets this direct position to the given position. If the given position is
      * {@code null}, then all ordinate values are set to {@linkplain Double#NaN NaN}.
+     *
+     * @param position The new position.
      *
      * @since 2.5
      */
@@ -156,6 +158,8 @@ public abstract class AbstractDirectPosition implements DirectPosition {
 
     /**
      * Returns a hash value for this coordinate.
+     *
+     * @return A hash code value for this position.
      */
     @Override
     public int hashCode() {
@@ -183,6 +187,9 @@ public abstract class AbstractDirectPosition implements DirectPosition {
      * Returns {@code true} if the specified object is also a {@linkplain DirectPosition
      * direct position} with equals {@linkplain #getCoordinates coordinates} and
      * {@linkplain #getCoordinateReferenceSystem CRS}.
+     *
+     * @param object The object to compare with this position.
+     * @return {@code true} if the given object is equals to this position.
      */
     @Override
     public boolean equals(final Object object) {
@@ -191,9 +198,7 @@ public abstract class AbstractDirectPosition implements DirectPosition {
             final int dimension = getDimension();
             if (dimension == that.getDimension()) {
                 for (int i=0; i<dimension; i++) {
-                    if (Double.doubleToLongBits(this.getOrdinate(i)) !=
-                        Double.doubleToLongBits(that.getOrdinate(i)))
-                    {
+                    if (!Utilities.equals(this.getOrdinate(i), that.getOrdinate(i))) {
                         return false;
                     }
                 }

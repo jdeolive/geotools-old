@@ -28,11 +28,11 @@ import java.text.ParsePosition;
 import java.util.Locale;
 
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.XMath;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.util.logging.LoggedFormat;
+import org.geotools.util.Utilities;
+import org.geotools.math.XMath;
 
 
 /**
@@ -280,6 +280,9 @@ public class AngleFormat extends Format {
 
     /**
      * Constructs a new {@code AngleFormat} for the specified locale.
+     *
+     * @param locale The locale.
+     * @return An angle format in the given locale.
      */
     public static AngleFormat getInstance(final Locale locale) {
         return new AngleFormat("D\u00B0MM.m'", locale);
@@ -428,6 +431,8 @@ public class AngleFormat extends Format {
     /**
      * Returns the pattern used for parsing and formatting angles.
      * See class description for an explanation of how patterns work.
+     *
+     * @return The formatting pattern.
      */
     public synchronized String toPattern() {
         char symbol = '#';
@@ -535,13 +540,13 @@ public class AngleFormat extends Format {
                  * On applique maintenant une correction qui tiendra
                  * compte des problèmes d'arrondissements.
                  */
-                final double puissance=XMath.pow10(widthDecimal);
-                secondes=Math.rint(secondes*puissance)/puissance;
+                final double puissance = XMath.pow10(widthDecimal);
+                secondes = Math.rint(secondes*puissance)/puissance;
                 tmp = (int) (secondes/60);
                 secondes -= 60*tmp;
                 minutes += tmp;
             } else {
-                final double puissance=XMath.pow10(widthDecimal);
+                final double puissance = XMath.pow10(widthDecimal);
                 minutes = Math.rint(minutes*puissance)/puissance;
             }
             tmp = (int) (minutes/60); // Arrondie vers 0 même si négatif.

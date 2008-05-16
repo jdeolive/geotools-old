@@ -43,7 +43,7 @@ import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.referencing.operation.matrix.Matrix2;
 import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.geotools.util.logging.Logging;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -747,16 +747,15 @@ final class LocalizationGridTransform2D extends AbstractMathTransform
     }
 
     /**
-     * Compare this transform with the specified object for equality.
+     * Compares this transform with the specified object for equality.
      */
     @Override
     public boolean equals(final Object object) {
         if (super.equals(object)) {
             final LocalizationGridTransform2D that = (LocalizationGridTransform2D) object;
-            return this.width  == that.width   &&
-                   this.height == that.height  &&
+            return this.width == that.width  && this.height == that.height &&
                    Utilities.equals(this.global, that.global) &&
-                   Arrays   .equals(this.grid,   that.grid);
+                   Arrays.equals(this.grid, that.grid);
         }
         return false;
     }

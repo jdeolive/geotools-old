@@ -43,13 +43,13 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.matrix.Matrix1;
 import org.geotools.referencing.wkt.UnformattableObjectException;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.AbstractInternationalString;
 import org.geotools.util.NumberRange;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -91,7 +91,7 @@ class CategoryList extends AbstractList<Category>
      * of every categories, excluding {@code NaN} values. This field will be computed
      * only when first requested.
      */
-    private transient NumberRange range;
+    private transient NumberRange<?> range;
 
     /**
      * List of {@link Category#minimum} values for each category in {@link #categories}.
@@ -522,9 +522,9 @@ class CategoryList extends AbstractList<Category>
      *
      * @todo Returns an instance of {@link MeasurementRange} if we are a geophysics category list.
      */
-    public final NumberRange getRange() {
+    public final NumberRange<?> getRange() {
         if (range == null) {
-            NumberRange range = null;
+            NumberRange<?> range = null;
             for (int i=0; i<categories.length; i++) {
                 final NumberRange extent = categories[i].getRange();
                 if (!Double.isNaN(extent.getMinimum()) && !Double.isNaN(extent.getMaximum())) {
@@ -598,9 +598,10 @@ class CategoryList extends AbstractList<Category>
      */
     public final ColorModel getColorModel(final int visibleBand, final int numBands) {
         int type = DataBuffer.TYPE_FLOAT;
-        final NumberRange range = getRange();
-        final Class<? extends Number> rt = range.getElementClass();
+        final NumberRange<?> range = getRange();
+        final Class<?> rt = range.getElementClass();
         if (Byte.class.equals(rt) || Short.class.equals(rt) || Integer.class.equals(rt)) {
+            // TODO: remove the cast when we will be allowed to compile for Java 6.
             final int min = ((Number) range.getMinValue()).intValue();
             final int max = ((Number) range.getMaxValue()).intValue();
             if (min >= 0) {

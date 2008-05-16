@@ -17,7 +17,7 @@
 package org.geotools.referencing.operation.builder;
 
 import java.util.Arrays;
-import java.awt.image.BufferedImage;    // For javadoc
+import java.awt.image.BufferedImage;
 import java.awt.geom.AffineTransform;
 
 import org.opengis.coverage.grid.GridRange;
@@ -32,9 +32,9 @@ import org.opengis.referencing.operation.Matrix;
 
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -244,6 +244,8 @@ public class GridToEnvelopeMapper {
      * or {@linkplain PixelInCell#CELL_CORNER pixel corner}. The former is OGC convention while
      * the later is Java2D/JAI convention. The default is cell center (OGC convention).
      *
+     * @return Whatever the grid range maps pixel center or corner.
+     *
      * @since 2.5
      */
     public PixelInCell getPixelAnchor() {
@@ -266,6 +268,8 @@ public class GridToEnvelopeMapper {
      * or {@linkplain PixelInCell#CELL_CORNER pixel corner}. The former is OGC convention
      * while the later is Java2D/JAI convention.
      *
+     * @param anchor Whatever the grid range maps pixel center or corner.
+     *
      * @since 2.5
      */
     public void setPixelAnchor(final PixelInCell anchor) {
@@ -279,6 +283,7 @@ public class GridToEnvelopeMapper {
     /**
      * Returns the grid range.
      *
+     * @return The grid range.
      * @throws IllegalStateException if the grid range has not yet been defined.
      */
     public GridRange getGridRange() throws IllegalStateException {
@@ -290,7 +295,9 @@ public class GridToEnvelopeMapper {
     }
 
     /**
-     * Set the grid range.
+     * Sets the grid range.
+     *
+     * @param gridRange The new grid range.
      */
     public void setGridRange(final GridRange gridRange) {
         ensureNonNull("gridRange", gridRange);
@@ -305,6 +312,7 @@ public class GridToEnvelopeMapper {
      * Returns the envelope. For performance reason, this method do not
      * clone the envelope. So the returned object should not be modified.
      *
+     * @return The envelope.
      * @throws IllegalStateException if the envelope has not yet been defined.
      */
     public Envelope getEnvelope() throws IllegalStateException {
@@ -318,6 +326,8 @@ public class GridToEnvelopeMapper {
     /**
      * Set the envelope. This method do not clone the specified envelope,
      * so it should not be modified after this method has been invoked.
+     *
+     * @param envelope The new envelope.
      */
     public void setEnvelope(final Envelope envelope) {
         ensureNonNull("envelope", envelope);
@@ -359,6 +369,8 @@ public class GridToEnvelopeMapper {
      *       returns {@code true}, thus suggesting to interchange the
      *       (<var>y</var>,<var>x</var>) axis for such CRS.</p></li>
      * </ul>
+     *
+     * @return {@code true} if the two first axis should be interchanged.
      */
     public boolean getSwapXY() {
         if (swapXY == null) {
@@ -375,6 +387,8 @@ public class GridToEnvelopeMapper {
      * Tells if the two first axis should be interchanged. Invoking this method force
      * <code>{@linkplain #isAutomatic isAutomatic}({@linkplain #SWAP_XY})</code> to
      * {@code false}.
+     *
+     * @param swapXY {@code true} if the two first axis should be interchanged.
      */
     public void setSwapXY(final boolean swapXY) {
         final Boolean newValue = Boolean.valueOf(swapXY);
@@ -460,6 +474,8 @@ public class GridToEnvelopeMapper {
      * is equivalent to creating a boolean {@code reverse} array of the appropriate length,
      * setting {@code reverse[dimension] = true} for the <var>n</var> axis to be reversed,
      * and invoke <code>{@linkplain #setReverseAxis setReverseAxis}(reverse)</code>.
+     *
+     * @param dimension The index of the axis to reverse.
      */
     public void reverseAxis(final int dimension) {
         if (reverseAxis == null) {
@@ -484,6 +500,7 @@ public class GridToEnvelopeMapper {
      * will be computed automatically.
      *
      * @param mask Any combinaison of {@link #REVERSE_AXIS} or {@link #SWAP_XY}.
+     * @return {@code true} if all properties given by the mask will be computed automatically.
      */
     public boolean isAutomatic(final int mask) {
         return (defined & mask) == 0;
@@ -518,6 +535,7 @@ public class GridToEnvelopeMapper {
     /**
      * Creates a math transform using the information provided by setter methods.
      *
+     * @return The math transform.
      * @throws IllegalStateException if the grid range or the envelope were not set.
      */
     public MathTransform createTransform() throws IllegalStateException {
@@ -571,6 +589,7 @@ public class GridToEnvelopeMapper {
     /**
      * Returns the math transform as a two-dimensional affine transform.
      *
+     * @return The math transform as a two-dimensional affine transform.
      * @throws IllegalStateException if the math transform is not of the appropriate type.
      */
     public AffineTransform createAffineTransform() throws IllegalStateException {

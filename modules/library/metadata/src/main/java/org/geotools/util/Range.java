@@ -17,7 +17,6 @@ package org.geotools.util;
 
 import java.io.Serializable;
 import javax.units.Unit;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -45,6 +44,9 @@ import org.geotools.resources.i18n.ErrorKeys;
  * is invoked with an argument value of illegal class, then an {@link IllegalArgumentException} is
  * thrown. The {@link ClassCastException} is thrown only in case of bug in the {@code Range} class
  * or subclasses implementation.
+ *
+ * @param <T> The type of range elements, typically {@link java.util.Date} or some subclass
+ *            if {@link Number}.
  *
  * @since 2.5
  * @source $URL$
@@ -93,7 +95,7 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      *
      * @param elementClass The class of the range elements.
      * @param minValue     The minimal value (inclusive), or {@code null} if none.
-     * @param minValue     The maximal value (inclusive), or {@code null} if none.
+     * @param maxValue     The maximal value (inclusive), or {@code null} if none.
      */
     public Range(final Class<T> elementClass, final T minValue, final T maxValue) {
         this(elementClass, minValue, true, maxValue, true);
@@ -108,7 +110,7 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      *          The minimal value, or {@code null} if none.
      * @param isMinIncluded
      *          {@code true} if the minimal value is inclusive, or {@code false} if exclusive.
-     * @param minValue
+     * @param maxValue
      *          The maximal value, or {@code null} if none.
      * @param isMaxIncluded
      *          {@code true} if the maximal value is inclusive, or {@code false} if exclusive.
@@ -190,6 +192,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     /**
      * Returns the class of elements in this range. The element class extends {@link Comparable}.
      *
+     * @return The class of elements in this range.
+     *
      * @see javax.media.jai.util.Range#getElementClass
      */
     public Class<T> getElementClass() {
@@ -201,6 +205,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      * is {@code true}, then the value is considered included in the set. Otherwise it is
      * considered excluded.
      *
+     * @return The minimal value.
+     *
      * @see javax.media.jai.util.Range#getMinValue
      */
     public T getMinValue() {
@@ -209,6 +215,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
 
     /**
      * Indicates if {@link #getMinValue} is included in the range.
+     *
+     * @return {@code true} if the minimal value is inclusive.
      *
      * @see javax.media.jai.util.Range#isMinIncluded
      */
@@ -221,6 +229,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      * is {@code true}, then the value is considered included in the set. Otherwise it is
      * considered excluded.
      *
+     * @return The maximal value.
+     *
      * @see javax.media.jai.util.Range#getMaxValue
      */
     public T getMaxValue() {
@@ -229,6 +239,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
 
     /**
      * Indicates if {@link #getMaxValue} is included in the range.
+     *
+     * @return {@code true} if the maximal value is inclusive.
      *
      * @see javax.media.jai.util.Range#isMaxIncluded
      */
@@ -241,6 +253,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      * {@linkplain #getMinValue minimum value} is smaller than the
      * {@linkplain #getMaxValue maximum value}, or if they are equals while
      * at least one of them is exclusive.
+     *
+     * @return {@code true} if this range is empty.
      *
      * @see javax.media.jai.util.Range#isEmpty
      */
@@ -262,6 +276,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
      * that null {@linkplain #getMinValue minimum} or {@linkplain #getMaxValue maximum} values
      * are exclusive.
      *
+     * @param  value The value to check for inclusion in this range.
+     * @return {@code true} if the given value is included in this range.
      * @throws IllegalArgumentException is the given value can not be converted to a valid type
      *         through widening conversion.
      */
@@ -302,6 +318,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     /**
      * Returns {@code true} if this range contains fully the given range.
      *
+     * @param  range The range to check for inclusion in this range.
+     * @return {@code true} if the given range is included in this range.
      * @throws IllegalArgumentException is the given range can not be converted to a valid type
      *         through widening conversion.
      */
@@ -321,6 +339,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     /**
      * Returns {@code true} if this range intersects the given range.
      *
+     * @param  range The range to check for intersection with this range.
+     * @return {@code true} if the given range intersects this range.
      * @throws IllegalArgumentException is the given range can not be converted to a valid type
      *         through widening conversion.
      *
@@ -432,6 +452,8 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     /**
      * Returns the union of this range with the given range.
      *
+     * @param  range The range to add to this range.
+     * @return The union of this range with the given range.
      * @throws IllegalArgumentException is the given range can not be converted to a valid type
      *         through widening conversion.
      *
@@ -540,6 +562,9 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
 
     /**
      * Compares this range with the given object for equality.
+     *
+     * @param  object The object to compare with this range for equality.
+     * @return {@code true} if the given object is equals to this range.
      */
     @Override
     public boolean equals(final Object object) {
@@ -568,12 +593,11 @@ public class Range<T extends Comparable<? super T>> implements Serializable  {
     public int hashCode() {
         int result = (int) serialVersionUID;
         if (!isEmpty()) {
-            final int prime = 31;
             result += elementClass.hashCode();
-            result = prime * result + (isMaxIncluded ? 1231 : 1237);
-            result = prime * result + (isMinIncluded ? 1231 : 1237);
-            result = prime * result + ((maxValue == null) ? 0 : maxValue.hashCode());
-            result = prime * result + ((minValue == null) ? 0 : minValue.hashCode());
+            result = Utilities.hash(isMaxIncluded, result);
+            result = Utilities.hash(isMinIncluded, result);
+            result = Utilities.hash(maxValue, result);
+            result = Utilities.hash(minValue, result);
         }
         return result;
     }

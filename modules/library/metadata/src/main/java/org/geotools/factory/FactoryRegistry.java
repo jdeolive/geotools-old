@@ -23,9 +23,9 @@ import java.lang.ref.Reference;
 import java.awt.RenderingHints;
 import javax.imageio.spi.ServiceRegistry;
 
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Loggings;
@@ -165,6 +165,7 @@ public class FactoryRegistry extends ServiceRegistry {
      * ignored. This method will {@linkplain #scanForPlugins() scan for plugins} the first
      * time it is invoked for the given category.
      *
+     * @param <T>      The class represented by the {@code category} argument.
      * @param category The category to look for. Usually an interface class
      *                 (not the actual implementation class).
      * @param filter   The optional filter, or {@code null}.
@@ -235,6 +236,7 @@ public class FactoryRegistry extends ServiceRegistry {
      * created by the default implementation of this method. The {@link FactoryCreator} class
      * change this behavior however.
      *
+     * @param  <T>      The class represented by the {@code category} argument.
      * @param  category The category to look for. Must be one of the categories declared to the
      *                  constructor. Usually an interface class (not the actual implementation
      *                  class).
@@ -638,6 +640,7 @@ public class FactoryRegistry extends ServiceRegistry {
      * }
      * </pre></blockquote>
      *
+     * @param <T>      The class represented by the {@code category} argument.
      * @param provider The provider to checks.
      * @param category The factory category. Usually an interface.
      * @param hints    The user requirements, or {@code null} if none.
@@ -681,6 +684,8 @@ public class FactoryRegistry extends ServiceRegistry {
      * The actual number of class loaders may be smaller if redundancies was found.
      * If some more classloaders should be scanned, they shall be added into the code
      * of this method.
+     *
+     * @return All classloaders to be used for scanning plugins.
      */
     public final Set<ClassLoader> getClassLoaders() {
         final Set<ClassLoader> loaders = new HashSet<ClassLoader>();
@@ -1040,6 +1045,7 @@ public class FactoryRegistry extends ServiceRegistry {
      *       {@code factory2}</li>
      * </ul>
      *
+     * @param  <T>        The class represented by the {@code category} argument.
      * @param  category   The category to set ordering.
      * @param  comparator The comparator to use for ordering.
      * @return {@code true} if at least one ordering setting has been modified as a consequence
@@ -1082,11 +1088,13 @@ public class FactoryRegistry extends ServiceRegistry {
      * If one or both factories are not currently registered, or if the desired ordering is
      * already set/unset, nothing happens and false is returned.
      *
+     * @param <T>      The class represented by the {@code base} argument.
      * @param base     The base category. Only categories {@linkplain Class#isAssignableFrom
      *                 assignable} to {@code base} will be processed.
      * @param set      {@code true} for setting the ordering, or {@code false} for unsetting.
      * @param service1 Filter for the preferred factory.
      * @param service2 Filter for the factory to which {@code service1} is preferred.
+     * @return {@code true} if the ordering changed as a result of this call.
      */
     public <T> boolean setOrdering(final Class<T> base, final boolean set,
                                    final Filter service1, final Filter service2)

@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
-import org.geotools.resources.Utilities;
 import org.geotools.util.logging.Logging;
 
 
@@ -37,6 +36,9 @@ import org.geotools.util.logging.Logging;
  * class provided in J2SE, except that weak references are hold on values instead of keys.
  * <p>
  * The {@code WeakValueHashMap} class is thread-safe.
+ *
+ * @param <K> The class of key elements.
+ * @param <V> The class of value elements.
  *
  * @since 2.0
  * @source $URL$

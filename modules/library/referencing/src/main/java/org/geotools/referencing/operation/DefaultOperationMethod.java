@@ -38,7 +38,7 @@ import org.geotools.referencing.operation.transform.AbstractMathTransform;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
 import org.geotools.referencing.operation.transform.PassThroughTransform;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
@@ -139,6 +139,8 @@ public class DefaultOperationMethod extends AbstractIdentifiedObject implements 
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param method The operation method to copy.
      */
     public DefaultOperationMethod(final OperationMethod method) {
         super(method);
@@ -276,6 +278,8 @@ public class DefaultOperationMethod extends AbstractIdentifiedObject implements 
      * proper WKT formatting using an unknow implementation. But the {@link MathTransformProvider}
      * subclass (with protected access) will overrides this method with a more conservative default
      * value.
+     *
+     * @return The GeoAPI interface implemented by this operation.
      */
     Class<? extends Operation> getOperationType() {
         return Projection.class;

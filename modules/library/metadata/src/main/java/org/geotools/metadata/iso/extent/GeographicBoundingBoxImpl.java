@@ -27,15 +27,13 @@ import java.lang.reflect.UndeclaredThrowableException;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import static java.lang.Double.doubleToLongBits;
 
 import org.opengis.metadata.extent.GeographicBoundingBox;
 import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.Envelope;
 
-import org.geotools.resources.Utilities;
-import org.geotools.resources.jaxb.primitive.DoubleAdapter;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -120,6 +118,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
     /**
      * Constructs a geographic bounding box initialized to the same values than the specified one.
      *
+     * @param box The existing box to use for initializing this geographic bounding box.
+     *
      * @since 2.2
      */
     public GeographicBoundingBoxImpl(final GeographicBoundingBox box) {
@@ -176,6 +176,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
     /**
      * Constructs a geographic bounding box from the specified rectangle.
      * The rectangle is assumed in {@linkplain DefaultGeographicCRS#WGS84 WGS 84} CRS.
+     *
+     * @param bounds The rectangle to use for initializing this geographic bounding box.
      */
     public GeographicBoundingBoxImpl(final Rectangle2D bounds) {
         this(bounds.getMinX(), bounds.getMaxX(),
@@ -189,6 +191,11 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * ISO 19115 specification. This is different than the order commonly found in Java world,
      * which is rather (<var>x</var><sub>min</sub>, <var>y</var><sub>min</sub>,
      * <var>x</var><sub>max</sub>, <var>y</var><sub>max</sub>).
+     *
+     * @param westBoundLongitude The minimal <var>x</var> value.
+     * @param eastBoundLongitude The maximal <var>x</var> value.
+     * @param southBoundLatitude The minimal <var>y</var> value.
+     * @param northBoundLatitude The maximal <var>y</var> value.
      */
     public GeographicBoundingBoxImpl(final double westBoundLongitude,
                                      final double eastBoundLongitude,
@@ -216,6 +223,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * Set the western-most coordinate of the limit of the
      * dataset extent. The value is expressed in longitude in
      * decimal degrees (positive east).
+     *
+     * @param newValue The western-most longitude between -180 and +180°.
      */
     public synchronized void setWestBoundLongitude(final double newValue) {
         checkWritePermission();
@@ -238,6 +247,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * Set the eastern-most coordinate of the limit of the
      * dataset extent. The value is expressed in longitude in
      * decimal degrees (positive east).
+     *
+     * @param newValue The eastern-most longitude between -180 and +180°.
      */
     public synchronized void setEastBoundLongitude(final double newValue) {
         checkWritePermission();
@@ -260,6 +271,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * Set the southern-most coordinate of the limit of the
      * dataset extent. The value is expressed in latitude in
      * decimal degrees (positive north).
+     *
+     * @param newValue The southern-most latitude between -90 and +90°.
      */
     public synchronized void setSouthBoundLatitude(final double newValue) {
         checkWritePermission();
@@ -282,6 +295,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * Set the northern-most, coordinate of the limit of the
      * dataset extent. The value is expressed in latitude in
      * decimal degrees (positive north).
+     *
+     * @param newValue The northern-most latitude between -90 and +90°.
      */
     public synchronized void setNorthBoundLatitude(final double newValue) {
         checkWritePermission();
@@ -295,6 +310,11 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * ISO 19115 specification. This is different than the order commonly found in Java world,
      * which is rather (<var>x</var><sub>min</sub>, <var>y</var><sub>min</sub>,
      * <var>x</var><sub>max</sub>, <var>y</var><sub>max</sub>).
+     *
+     * @param westBoundLongitude The minimal <var>x</var> value.
+     * @param eastBoundLongitude The maximal <var>x</var> value.
+     * @param southBoundLatitude The minimal <var>y</var> value.
+     * @param northBoundLatitude The maximal <var>y</var> value.
      *
      * @since 2.5
      */
@@ -313,6 +333,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
     /**
      * Sets the bounding box to the same values than the specified box.
      *
+     * @param box The geographic bounding box to use for setting the values of this box.
+     *
      * @since 2.5
      */
     public void setBounds(final GeographicBoundingBox box) {
@@ -329,6 +351,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * opposite (<cite>exclusion</cite>), then this method attempt to exclude some area of
      * specified box from this box. The resulting bounding box is smaller if the exclusion can
      * be performed without ambiguity.
+     *
+     * @param box The geographic bounding box to add to this box.
      *
      * @since 2.2
      */
@@ -366,6 +390,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * Sets this bounding box to the intersection of this box with the specified one.
      * The {@linkplain #getInclusion inclusion} status must be the same for both boxes.
      *
+     * @param box The geographic bounding box to intersect with this box.
+     *
      * @since 2.5
      */
     public synchronized void intersect(final GeographicBoundingBox box) {
@@ -394,6 +420,8 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
     /**
      * Returns {@code true} if this bounding box is empty.
      *
+     * @return {@code true} if this box is empty.
+     *
      * @since 2.5
      */
     public boolean isEmpty() {
@@ -403,6 +431,9 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
 
     /**
      * Compares this geographic bounding box with the specified object for equality.
+     *
+     * @param object The object to compare for equality.
+     * @return {@code true} if the given object is equals to this box.
      */
     @Override
     public synchronized boolean equals(final Object object) {
@@ -467,6 +498,7 @@ public class GeographicBoundingBoxImpl extends GeographicExtentImpl
      * @param box     The bounding box to format.
      * @param pattern The angle pattern (e.g. {@code DD°MM'SS.s"}.
      * @param locale  The locale, or {@code null} for the default one.
+     * @return A string representation of the given box in the given locale.
      *
      * @since 2.2
      */

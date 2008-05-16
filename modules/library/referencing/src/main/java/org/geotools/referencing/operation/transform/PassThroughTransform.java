@@ -30,7 +30,7 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 
@@ -172,6 +172,8 @@ public class PassThroughTransform extends AbstractMathTransform implements Seria
 
     /**
      * Returns the sub transform.
+     *
+     * @return The sub transform.
      *
      * @since 2.2
      */

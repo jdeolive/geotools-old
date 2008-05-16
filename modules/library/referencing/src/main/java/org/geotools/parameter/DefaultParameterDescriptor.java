@@ -33,9 +33,9 @@ import org.opengis.parameter.ParameterValue;
 
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.NamedIdentifier;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -51,6 +51,8 @@ import org.geotools.resources.i18n.ErrorKeys;
  * This class contains numerous convenience constructors. But all of them ultimately invoke
  * {@linkplain #DefaultParameterDescriptor(Map,Class,Object[],Object,Comparable,Comparable,Unit,boolean)
  * a single, full-featured constructor}. All other constructors are just shortcuts.
+ *
+ * @param <T> The type of elements to be returned by {@link ParameterValue#getValue}.
  *
  * @since 2.1
  * @source $URL$
@@ -103,6 +105,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
     /**
      * Constructs a descriptor with the same values than the specified one. This copy constructor
      * may be used in order to wraps an arbitrary implementation into a Geotools one.
+     *
+     * @param descriptor The descriptor to copy.
      *
      * @since 2.2
      */
@@ -444,6 +448,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * parameter can be included. For a {@linkplain DefaultParameterDescriptor
      * single parameter}, the value is always 1.
      *
+     * @return The maximum occurence.
+     *
      * @see #getMinimumOccurs
      */
     public int getMaximumOccurs() {
@@ -455,6 +461,8 @@ public class DefaultParameterDescriptor<T> extends AbstractParameterDescriptor
      * initialized with the {@linkplain #getDefaultValue default value}.
      * The {@linkplain org.geotools.parameter.Parameter#getDescriptor parameter value
      * descriptor} for the created parameter value will be {@code this} object.
+     *
+     * @return A parameter initialized to the default value.
      */
     @SuppressWarnings("unchecked")
     public ParameterValue<T> createValue() {

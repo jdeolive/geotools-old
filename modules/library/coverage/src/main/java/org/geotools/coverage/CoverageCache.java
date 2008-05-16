@@ -16,7 +16,6 @@
  */
 package org.geotools.coverage;
 
-// J2SE dependencies
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
@@ -25,11 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-// OpenGIS dependencies
 import org.opengis.coverage.Coverage;
-
-// Geotools dependencies
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -69,12 +65,12 @@ public class CoverageCache {
      * without holding any reference to {@code CoverageCache} in the {@code Cleaner}
      * thread.
      */
-    private final Map cache = new HashMap();
+    private final Map<Ref,Ref> cache = new HashMap<Ref,Ref>();
 
     /**
      * The reference queue for supression of garbage-collected coverages.
      */
-    private final ReferenceQueue queue = new ReferenceQueue();
+    private final ReferenceQueue<Coverage> queue = new ReferenceQueue<Coverage>();
 
     /**
      * The cleaner thread.
@@ -101,7 +97,7 @@ public class CoverageCache {
     public Reference reference(final Coverage coverage) {
         synchronized (cache) {
             final Ref candidate = new Ref(coverage);
-            Ref ref = (Ref) cache.get(candidate);
+            Ref ref = cache.get(candidate);
             if (ref == null) {
                 ref = candidate;
                 cache.put(ref, ref);
@@ -141,9 +137,10 @@ public class CoverageCache {
          * Returns the weak reference to the coverage. This method will changes
          * strong reference into weak one the first time it is invoked.
          */
-        public Reference getReference(final ReferenceQueue queue) {
+        public Reference getReference(final ReferenceQueue<Coverage> queue) {
             if (referent instanceof Coverage) {
-                referent = new WeakReference(referent, queue);
+                final Coverage coverage = (Coverage) referent;
+                referent = new WeakReference<Coverage>(coverage, queue);
             }
             return (Reference) referent;
         }
@@ -151,6 +148,7 @@ public class CoverageCache {
         /**
          * Returns the hash code value for the coverage.
          */
+        @Override
         public int hashCode() {
             return getCoverage().hashCode();
         }
@@ -158,6 +156,7 @@ public class CoverageCache {
         /**
          * Compares this object with the specified entry for equality.
          */
+        @Override
         public boolean equals(final Object object) {
             return (object instanceof Ref) &&
                     Utilities.equals(getCoverage(), ((Ref) object).getCoverage());
@@ -206,6 +205,7 @@ public class CoverageCache {
         /**
          * Waits for a reference to be garbage collected and remove it from the map.
          */
+        @Override
         public void run() {
             while (!stop) {
                 final Reference ref;
@@ -230,6 +230,7 @@ public class CoverageCache {
     /**
      * Cleanup this coverage cache on garbage collection.
      */
+    @Override
     protected void finalize() throws Throwable {
         synchronized (cache) {
             cleaner.stop = true;

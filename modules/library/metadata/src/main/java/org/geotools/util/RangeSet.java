@@ -28,7 +28,6 @@ import java.util.SortedSet;
 import org.opengis.util.Cloneable;
 import org.geotools.resources.ClassChanger;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import static org.geotools.resources.Classes.*;
@@ -44,6 +43,8 @@ import static org.geotools.resources.Classes.*;
  * <p>
  * All entries in this set can be seen as {@link Range} objects.
  * This class is <strong>not</strong> thread-safe.
+ *
+ * @param <T> The type of range elements.
  *
  * @since 2.0
  * @source $URL$
@@ -231,7 +232,7 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
      * @todo support open intervals.
      */
     @Override
-    public boolean add(final Range<T> range) throws ClassCastException {
+    public boolean add(final Range<T> range) {
         if (!range.isMinIncluded() || !range.isMaxIncluded()) {
             throw new UnsupportedOperationException("Open interval not yet supported");
         }
@@ -242,8 +243,8 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
      * Adds a range of values to this set. Range may be added in any order.
      * If the specified range overlap an existing range, the two ranges will be merged.
      *
-     * @param  lower The lower value, inclusive.
-     * @param  upper The upper value, inclusive.
+     * @param  min The lower value, inclusive.
+     * @param  max The upper value, inclusive.
      * @return {@code true} if this set changed as a result of the call.
      * @throws IllegalArgumentException if {@code lower} is greater than {@code upper}.
      */
@@ -463,8 +464,8 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
     /**
      * Remove a range of values from this set. Range may be removed in any order.
      *
-     * @param lower The lower value to remove, exclusive.
-     * @param upper The upper value to remove, exclusive.
+     * @param  min The lower value to remove, exclusive.
+     * @param  max The upper value to remove, exclusive.
      * @return {@code true} if this set changed as a result of the call.
      * @throws IllegalArgumentException if {@code lower} is greater than {@code upper}.
      */
@@ -771,6 +772,9 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
 
     /**
      * Returns {@code true} if this set contains the specified element.
+     *
+     * @param object The object to compare to this set.
+     * @return {@code true} if the given object is equals to this set.
      */
     @Override
     public boolean contains(final Object object) {
@@ -945,8 +949,10 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
     }
 
     /**
-     * Compares the specified object with
-     * this set of ranges for equality.
+     * Compares the specified object with this set of ranges for equality.
+     *
+     * @param object The object to compare with this range.
+     * @return {@code true} if the given object is equals to this range.
      */
     @Override
     public boolean equals(final Object object) {
@@ -970,6 +976,8 @@ public class RangeSet<T extends Comparable<? super T>> extends AbstractSet<Range
 
     /**
      * Returns a clone of this range set.
+     *
+     * @return A clone of this range set.
      */
     @Override
     public RangeSet clone() {

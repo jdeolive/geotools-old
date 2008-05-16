@@ -22,8 +22,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Locale;
 
-import org.geotools.resources.Utilities;
-
 
 /**
  * A simple international string consisting of a single string for all locales.
@@ -55,6 +53,9 @@ public class SimpleInternationalString extends AbstractInternationalString imple
      * If the specified string is null or an instance of
      * {@link AbstractInternationalString}, returns it unchanged.
      * Otherwise, wraps the string value in a {@code SimpleInternationalString}.
+     *
+     * @param string The string to wrap.
+     * @return The given string as an international string.
      */
     public static AbstractInternationalString wrap(final CharSequence string) {
         if (string==null || string instanceof AbstractInternationalString) {
@@ -72,6 +73,9 @@ public class SimpleInternationalString extends AbstractInternationalString imple
 
     /**
      * Compares this international string with the specified object for equality.
+     *
+     * @param object The object to compare with this international string.
+     * @return {@code true} if the given object is equals to this string.
      */
     @Override
     public boolean equals(final Object object) {

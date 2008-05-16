@@ -19,7 +19,6 @@ import org.geotools.factory.FactoryRegistryException;
 import org.geotools.factory.GeoTools;
 import org.geotools.factory.Hints;
 import org.geotools.metadata.iso.citation.Citations;
-import org.geotools.resources.Utilities;
 import org.opengis.metadata.citation.Citation;
 import org.opengis.util.GenericName;
 

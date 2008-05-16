@@ -29,6 +29,7 @@ import org.opengis.referencing.operation.Matrix;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.Transformation;
 
+import org.geotools.util.Utilities;
 import org.geotools.measure.Units;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.parameter.DefaultParameterDescriptor;
@@ -37,7 +38,6 @@ import org.geotools.parameter.ParameterGroup;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.referencing.datum.BursaWolfParameters;
 import org.geotools.referencing.operation.MathTransformProvider;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -87,6 +87,8 @@ public class GeocentricTranslation extends ProjectiveTransform {
      * Creates a new geocentric affine transform. If the parameters don't contain rotation terms,
      * then this transform will be of kind "<cite>Geocentric translations</cite>". Otherwise, it
      * will be of kind "<cite>Position Vector 7-param. transformation</cite>".
+     *
+     * @param parameters The Bursa-Wolf parameters to use for initializing the transformation.
      */
     public GeocentricTranslation(final BursaWolfParameters parameters) {
         this(parameters, parameters.isTranslation() ?
@@ -358,11 +360,14 @@ public class GeocentricTranslation extends ProjectiveTransform {
         /**
          * Fill the specified Bursa-Wolf parameters according the specified values.
          * This method is invoked automatically by {@link #createMathTransform}.
+         *
+         * @param parameters The Bursa-Wold parameters to set.
+         * @param values The parameter values to read. Those parameters will not be modified.
          */
         protected void fill(final BursaWolfParameters parameters, final ParameterValueGroup values) {
-            parameters.dx  = doubleValue(DX,  values);
-            parameters.dy  = doubleValue(DY,  values);
-            parameters.dz  = doubleValue(DZ,  values);
+            parameters.dx = doubleValue(DX, values);
+            parameters.dy = doubleValue(DY, values);
+            parameters.dz = doubleValue(DZ, values);
         }
 
         /**

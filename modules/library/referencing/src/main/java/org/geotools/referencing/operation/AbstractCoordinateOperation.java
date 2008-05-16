@@ -50,7 +50,7 @@ import org.geotools.metadata.iso.quality.PositionalAccuracyImpl;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.crs.AbstractDerivedCRS;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -330,6 +330,8 @@ public class AbstractCoordinateOperation extends AbstractIdentifiedObject
      * Convenience method returning the accuracy in meters. The default implementation delegates
      * to <code>{@linkplain #getAccuracy(CoordinateOperation) getAccuracy}(this)</code>. Subclasses
      * should override this method if they can provide a more accurate algorithm.
+     *
+     * @return The accuracy in meters, or NaN if unknown.
      *
      * @since 2.2
      */

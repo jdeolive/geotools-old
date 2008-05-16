@@ -47,7 +47,7 @@ import org.geotools.coverage.GridSampleDimension;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -116,6 +116,8 @@ public class GridCoverageFactory extends AbstractFactory {
      *   <li>{@link Hints#DEFAULT_COORDINATE_REFERENCE_SYSTEM}</li>
      *   <li>{@link Hints#TILE_ENCODING}</li>
      * </ul>
+     *
+     * @param userHints An optional set of hints to use for coverage constructions.
      */
     public GridCoverageFactory(final Hints userHints) {
         CoordinateReferenceSystem defaultCRS = null;
@@ -149,6 +151,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * override this method if they want to use different defaults.
      *
      * @param dimension The number of dimension expected in the CRS to be returned.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -176,6 +179,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param bands        Sample dimensions for each image band, or {@code null} for
      *                     default sample dimensions.
      * @param properties The set of properties for this coverage, or {@code null} if there is none.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -221,6 +225,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param matrix   The matrix data in a {@code [row][column]} layout.
      *                 {@linkplain Float#NaN NaN} values are mapped to a transparent color.
      * @param envelope The envelope.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -266,6 +271,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param raster   The data (may be floating point numbers). {@linkplain Float#NaN NaN}
      *                 values are mapped to a transparent color.
      * @param envelope The envelope.
+     * @return The new grid coverage.
      */
     public GridCoverage2D create(final CharSequence   name,
                                  final WritableRaster raster,
@@ -306,6 +312,7 @@ public class GridCoverageFactory extends AbstractFactory {
      *                    specifies the {@link SampleDimensionType} to be used at rendering time,
      *                    which can be one of {@link SampleDimensionType#UNSIGNED_8BITS UNSIGNED_8BITS}
      *                    or {@link SampleDimensionType#UNSIGNED_16BITS UNSIGNED_16BITS}.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -352,6 +359,7 @@ public class GridCoverageFactory extends AbstractFactory {
      *                    specifies the {@link SampleDimensionType} to be used at rendering time,
      *                    which can be one of {@link SampleDimensionType#UNSIGNED_8BITS UNSIGNED_8BITS}
      *                    or {@link SampleDimensionType#UNSIGNED_16BITS UNSIGNED_16BITS}.
+     * @return The new grid coverage.
      */
     public GridCoverage2D create(final CharSequence              name,
                                  final WritableRaster            raster,
@@ -387,6 +395,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param bands        Sample dimensions for each image band, or {@code null} for default
      *                     sample dimensions. If non-null, then this array's length must matches
      *                     the number of bands in {@code image}.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -414,6 +423,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param bands        Sample dimensions for each image band, or {@code null} for
      *                     default sample dimensions. If non-null, then this array's length
      *                     must matches the number of bands in {@code image}.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -441,6 +451,7 @@ public class GridCoverageFactory extends AbstractFactory {
      * @param name     The grid coverage name.
      * @param image    The image.
      * @param envelope The grid coverage cordinates.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -485,6 +496,7 @@ public class GridCoverageFactory extends AbstractFactory {
      *                   the number of bands in {@code image}.
      * @param sources    The sources for this grid coverage, or {@code null} if none.
      * @param properties The set of properties for this coverage, or {@code null} if there is none.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */
@@ -525,6 +537,7 @@ public class GridCoverageFactory extends AbstractFactory {
      *                   of bands in the {@code image}.
      * @param sources    The sources for this grid coverage, or {@code null} if none.
      * @param properties The set of properties for this coverage, or {@code null} if there is none.
+     * @return The new grid coverage.
      */
     public GridCoverage2D create(final CharSequence              name,
                                  final RenderedImage             image,
@@ -561,6 +574,7 @@ public class GridCoverageFactory extends AbstractFactory {
      *                     of bands in {@code image}.
      * @param sources      The sources for this grid coverage, or {@code null} if none.
      * @param properties   The set of properties for this coverage, or {@code null} none.
+     * @return The new grid coverage.
      *
      * @since 2.2
      */

@@ -47,7 +47,7 @@ import org.opengis.util.InternationalString;
 import org.geotools.math.XMath;
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.resources.Arguments;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.X364;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -439,6 +439,8 @@ public class Formatter {
 
     /**
      * Append a code list to the WKT.
+     *
+     * @param code The code list to format.
      */
     public void append(final CodeList code) {
         if (code != null) {
@@ -462,6 +464,8 @@ public class Formatter {
      * Append a {@linkplain ParameterValue parameter} in WKT form. If the supplied parameter
      * is actually a {@linkplain ParameterValueGroup parameter group}, all parameters will be
      * inlined.
+     *
+     * @param parameter The parameter to format.
      */
     public void append(final GeneralParameterValue parameter) {
         if (parameter instanceof ParameterValueGroup) {
@@ -545,6 +549,8 @@ public class Formatter {
     /**
      * Append an integer number. A comma (or any other element
      * separator) will be written before the number if needed.
+     *
+     * @param number The integer to format.
      */
     public void append(final int number) {
         appendSeparator(false);
@@ -554,6 +560,8 @@ public class Formatter {
     /**
      * Append a floating point number. A comma (or any other element
      * separator) will be written before the number if needed.
+     *
+     * @param number The floating point value to format.
      */
     public void append(final double number) {
         appendSeparator(false);
@@ -597,6 +605,8 @@ public class Formatter {
     /**
      * Append a character string. The string will be written between quotes.
      * A comma (or any other element separator) will be written before the string if needed.
+     *
+     * @param text The string to format.
      */
     public void append(final String text) {
         appendSeparator(false);
@@ -872,6 +882,8 @@ public class Formatter {
      * {@code java org.geotools.referencing.wkt.Formatter -indentation=}<var>&lt;preferred
      * indentation&gt;</var>
      * </blockquote>
+     *
+     * @param args The command-line arguments.
      */
     public static void main(String[] args) {
         final Arguments arguments = new Arguments(args);

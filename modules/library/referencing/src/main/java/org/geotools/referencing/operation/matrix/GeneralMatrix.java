@@ -34,8 +34,8 @@ import org.opengis.geometry.MismatchedDimensionException;
 
 import org.geotools.io.LineFormat;
 import org.geotools.io.ContentFormatException;
+import org.geotools.util.Utilities;
 import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -64,6 +64,8 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
 
     /**
      * Constructs a square identity matrix of size {@code size}&nbsp;&times;&nbsp;{@code size}.
+     *
+     * @param size The number of rows and columns.
      */
     public GeneralMatrix(final int size) {
         super(size, size);
@@ -72,6 +74,9 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
     /**
      * Creates a matrix of size {@code numRow}&nbsp;&times;&nbsp;{@code numCol}.
      * Elements on the diagonal <var>j==i</var> are set to 1.
+     *
+     * @param numRow Number of rows.
+     * @param numCol Number of columns.
      */
     public GeneralMatrix(final int numRow, final int numCol) {
         super(numRow, numCol);
@@ -84,6 +89,10 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
      * exactly <code>numRow*numCol</code> in length. Note that because row and column
      * numbering begins with zero, {@code numRow} and {@code numCol} will be
      * one larger than the maximum possible matrix index values.
+     *
+     * @param numRow Number of rows.
+     * @param numCol Number of columns.
+     * @param matrix Initial values.
      */
     public GeneralMatrix(final int numRow, final int numCol, final double[] matrix) {
         super(numRow, numCol, matrix);
@@ -113,6 +122,8 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
 
     /**
      * Constructs a new matrix and copies the initial values from the parameter matrix.
+     *
+     * @param matrix The matrix to copy.
      */
     public GeneralMatrix(final Matrix matrix) {
         this(matrix.getNumRow(), matrix.getNumCol());
@@ -127,6 +138,8 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
 
     /**
      * Constructs a new matrix and copies the initial values from the parameter matrix.
+     *
+     * @param matrix The matrix to copy.
      */
     public GeneralMatrix(final GMatrix matrix) {
         super(matrix);
@@ -134,6 +147,8 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
 
     /**
      * Constructs a 3&times;3 matrix from the specified affine transform.
+     *
+     * @param transform The matrix to copy.
      */
     public GeneralMatrix(final AffineTransform transform) {
         super(3,3, new double[] {
@@ -331,6 +346,9 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
      * into the 2-dimensional array using the row index as the first subscript
      * and the column index as the second. Values are copied; changes to the
      * returned array will not change this matrix.
+     *
+     * @param matrix The matrix to extract elements from.
+     * @return The matrix elements.
      */
     public static double[][] getElements(final Matrix matrix) {
         if (matrix instanceof GeneralMatrix) {
@@ -354,6 +372,8 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
      * into the 2-dimensional array using the row index as the first subscript
      * and the column index as the second. Values are copied; changes to the
      * returned array will not change this matrix.
+     *
+     * @return The matrix elements.
      */
     public final double[][] getElements() {
         final int numCol = getNumCol();
@@ -488,6 +508,7 @@ public class GeneralMatrix extends GMatrix implements XMatrix {
      * Returns an affine transform for this matrix.
      * This is a convenience method for interoperability with Java2D.
      *
+     * @return The affine transform for this matrix.
      * @throws IllegalStateException if this matrix is not 3&times;3,
      *         or if the last row is not {@code [0 0 1]}.
      */

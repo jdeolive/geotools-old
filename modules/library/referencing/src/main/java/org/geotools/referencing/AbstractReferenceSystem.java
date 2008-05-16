@@ -25,7 +25,7 @@ import java.util.Map;
 import org.opengis.metadata.extent.Extent;
 import org.opengis.util.InternationalString;
 import org.opengis.referencing.ReferenceSystem;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -71,6 +71,8 @@ public class AbstractReferenceSystem extends AbstractIdentifiedObject implements
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param object The reference system to copy.
+     *
      * @since 2.2
      */
     public AbstractReferenceSystem(final ReferenceSystem object) {
@@ -102,6 +104,8 @@ public class AbstractReferenceSystem extends AbstractIdentifiedObject implements
      *     <td nowrap>&nbsp;{@link #getScope}</td>
      *   </tr>
      * </table>
+     *
+     * @param properties The properties to be given to this object.
      */
     public AbstractReferenceSystem(final Map<String,?> properties) {
         this(properties, new HashMap<String,Object>());

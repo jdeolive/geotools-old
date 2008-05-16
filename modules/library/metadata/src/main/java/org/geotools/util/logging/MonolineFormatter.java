@@ -32,7 +32,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 import org.geotools.io.LineWriter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**

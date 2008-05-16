@@ -20,12 +20,14 @@ import java.io.Serializable;
 import java.util.Map;
 
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 
 
 /**
  * A default implementation of {@link java.util.Map.Entry} which map an arbitrary
  * key-value pairs. This entry is immutable by default.
+ *
+ * @param <K> The class of key elements.
+ * @param <V> The class of value elements.
  *
  * @since 2.1
  * @source $URL$
@@ -53,6 +55,9 @@ public class MapEntry<K,V> implements Map.Entry<K,V>, Serializable {
 
     /**
      * Creates a new map entry with the specified key-value pair.
+     *
+     * @param key The key.
+     * @param value The value.
      */
     public MapEntry(final K key, final V value) {
         this.key   = key;

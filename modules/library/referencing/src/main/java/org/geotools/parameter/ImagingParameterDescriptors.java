@@ -47,8 +47,8 @@ import org.opengis.coverage.grid.GridCoverage;
 import org.opengis.util.InternationalString;
 import org.opengis.util.GenericName;
 
+import org.geotools.util.Utilities;
 import org.geotools.util.NameFactory;
-import org.geotools.resources.Utilities;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.opengis.parameter.InvalidParameterNameException;
 import org.geotools.metadata.iso.citation.Citations;
@@ -515,6 +515,8 @@ public class ImagingParameterDescriptors extends DefaultParameterDescriptorGroup
      * Creates a new instance of parameter value group. A JAI {@link javax.media.jai.ParameterList}
      * is created for holding parameter values, and wrapped into an {@link ImagingParameters}
      * instance.
+     *
+     * @return The new value initialized to the default value.
      */
     @Override
     public ParameterValueGroup createValue() {

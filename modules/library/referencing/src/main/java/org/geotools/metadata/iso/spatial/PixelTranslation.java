@@ -26,10 +26,10 @@ import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.metadata.spatial.PixelOrientation;
 import static org.opengis.metadata.spatial.PixelOrientation.*;
 
+import org.geotools.util.Utilities;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.referencing.operation.transform.ConcatenatedTransform;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -147,6 +147,9 @@ public final class PixelTranslation implements Serializable {
      * <p>
      * This method is typically used for <var>n</var>-dimensional grids,
      * where the number of dimension is unknown.
+     *
+     * @param anchor The "pixel in cell" value.
+     * @return The translation for the given "pixel in cell" value.
      */
     public static double getPixelTranslation(final PixelInCell anchor) {
         if (PixelInCell.CELL_CENTER.equals(anchor)) {
@@ -192,6 +195,10 @@ public final class PixelTranslation implements Serializable {
     /**
      * Returns the pixel orientation for the given offset, or {@code null} if none.
      * This is the reverse of {@link #getPixelTranslation(PixelOrientation)}.
+     *
+     * @param dx The translation along <var>x</var> axis.
+     * @param dy The translation along <var>y</var> axis.
+     * @return The pixel orientation of the given values, or {@code null} if none.
      */
     public static PixelOrientation getPixelOrientation(final double dx, final double dy) {
         for (final PixelTranslation candidate : ORIENTATIONS.values()) {
@@ -208,6 +215,7 @@ public final class PixelTranslation implements Serializable {
      * @param gridToCRS  A math transform from <cite>pixel</cite> coordinates to any CRS.
      * @param current    The pixel orientation of the given {@code gridToCRS} transform.
      * @param expected   The pixel orientation of the desired transform.
+     * @return The translation from {@code current} to {@code expected}.
      */
     public static MathTransform translate(final MathTransform gridToCRS,
                                           final PixelInCell current,
@@ -250,6 +258,7 @@ public final class PixelTranslation implements Serializable {
      * @param expected   The pixel orientation of the desired transform.
      * @param xDimension The dimension of <var>x</var> coordinates (pixel columns). Often 0.
      * @param yDimension The dimension of <var>y</var> coordinates (pixel rows). Often 1.
+     * @return The translation from {@code current} to {@code expected}.
      */
     public static MathTransform translate(final MathTransform gridToCRS,
                                           final PixelOrientation current,

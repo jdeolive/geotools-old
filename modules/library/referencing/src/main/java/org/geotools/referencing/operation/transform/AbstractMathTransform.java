@@ -55,7 +55,7 @@ import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.resources.geometry.ShapeUtilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
@@ -583,6 +583,12 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      * The default implementation checks if {@code object} is an instance
      * of the same class than {@code this} and use the same parameter descriptor.
      * Subclasses should override this method in order to compare internal fields.
+     *
+     * @param object The object to compare with this transform.
+     * @return {@code true} if the given object is a transform of the same class
+     *         and if, given identical source position, the
+     *         {@linkplain #transform(DirectPosition,DirectPosition) transformed}
+     *         position would be the equals.
      */
     @Override
     public boolean equals(final Object object) {
@@ -591,7 +597,7 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
         if (object!=null && getClass().equals(object.getClass())) {
             final AbstractMathTransform that = (AbstractMathTransform) object;
             return Utilities.equals(this.getParameterDescriptors(),
-                                    that.getParameterDescriptors());
+                                           that.getParameterDescriptors());
         }
         return false;
     }
@@ -625,7 +631,7 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      * @throws InvalidParameterValueException if {@code object} is null.
      */
     protected static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException
+            throws InvalidParameterValueException
     {
         if (object == null) {
             throw new InvalidParameterValueException(Errors.format(
@@ -637,19 +643,19 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      * Checks if source coordinates need to be copied before to apply the transformation.
      * This convenience method is provided for {@code transform(...)} method implementation.
      * This method make the following assumptions:
-     * <BR><BR>
+     * <P>
      * <UL>
      *   <LI>Coordinates will be iterated from lower index to upper index.</LI>
      *   <LI>Coordinates are read and writen in shrunk. For example (longitude,latitude,height)
      *       values for one coordinate are read together, and the transformed (x,y,z) values are
      *       written together only after.</LI>
      * </UL>
-     * <BR><BR>
+     * <P>
      * However, this method does not assumes that source and target dimension are the same (in the
      * special case where source and target dimension are always the same, a simplier and more
      * efficient check is possible). The following example prepares a transformation from 2
      * dimensional points to three dimensional points:
-     * <BR><BR>
+     * <P>
      * <blockquote><pre>
      * public void transform(double[] srcPts, int srcOff,
      *                       double[] dstPts, int dstOff, int numPts)
@@ -661,6 +667,14 @@ public abstract class AbstractMathTransform extends Formattable implements MathT
      *         srcOff = 0;
      *     }
      * }</pre><blockquote>
+     *
+     * @param srcOff The offset in the source coordinate array.
+     * @param dimSource The dimension of input points.
+     * @param dstOff The offset in the destination coordinate array.
+     * @param dimTarget The dimension of output points.
+     * @param numPts The number of points to transform.
+     * @return {@code true} if the source coordinates should be copied before to apply the
+     *         transformation in order to avoid an overlap with the destination array.
      */
     protected static boolean needCopy(final int srcOff, final int dimSource,
                                       final int dstOff, final int dimTarget, final int numPts)

@@ -18,7 +18,7 @@
 package org.geotools.measure;
 
 import javax.units.Unit;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -47,21 +47,26 @@ public final class Measure extends Number {
 
     /**
      * Creates a new measure with the specified value and unit.
+     *
+     * @param value The value.
+     * @param unit The unit of measurement for the given value.
      */
     public Measure(final double value, final Unit unit) {
         this.value = value;
         this.unit  = unit;
     }
 
-    /** Returns the scalar value. */ public double doubleValue() {return (double) value;}
-    /** Returns the scalar value. */ public float   floatValue() {return (float)  value;}
-    /** Returns the scalar value. */ public long     longValue() {return (long)   value;}
-    /** Returns the scalar value. */ public int       intValue() {return (int)    value;}
-    /** Returns the scalar value. */ public short   shortValue() {return (short)  value;}
-    /** Returns the scalar value. */ public byte     byteValue() {return (byte)   value;}
+    /** Returns the scalar value. */           public double doubleValue() {return         value;}
+    /** Returns the scalar value. */           public float   floatValue() {return (float) value;}
+    /** Returns the scalar value. */           public long     longValue() {return (long)  value;}
+    /** Returns the scalar value. */           public int       intValue() {return (int)   value;}
+    /** Returns the scalar value. */ @Override public short   shortValue() {return (short) value;}
+    /** Returns the scalar value. */ @Override public byte     byteValue() {return (byte)  value;}
 
     /**
      * Returns the unit.
+     *
+     * @return The unit of measurement.
      */
     public Unit getUnit() {
         return unit;
@@ -73,18 +78,21 @@ public final class Measure extends Number {
     @Override
     public int hashCode() {
         long code = Double.doubleToLongBits(value);
-        return (int)code ^ (int)(code >>> 32) ^ unit.hashCode();
+        return (int) code ^ (int)(code >>> 32) ^ unit.hashCode();
     }
 
     /**
      * Compares this measure with the specified object for equality.
+     *
+     * @param object The object to compare with this measure.
+     * @return {@code true} if the given object is equals to this measure.
      */
     @Override
     public boolean equals(final Object object) {
         if (object instanceof Measure) {
             final Measure that = (Measure) object;
-            return Double.doubleToLongBits(value) == Double.doubleToLongBits(that.value) &&
-                   Utilities.equals(unit, that.unit);
+            return Utilities.equals(value, that.value) &&
+                   Utilities.equals(unit,  that.unit);
         }
         return false;
     }

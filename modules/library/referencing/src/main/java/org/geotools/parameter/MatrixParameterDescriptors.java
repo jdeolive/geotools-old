@@ -33,9 +33,9 @@ import org.opengis.referencing.operation.Matrix;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.resources.UnmodifiableArrayList;
-import org.geotools.resources.Utilities;
-import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -341,6 +341,8 @@ public class MatrixParameterDescriptors extends DefaultParameterDescriptorGroup 
      * elements initialized to the 1 on the diagonal, and 0 everywere else. The returned
      * parameter group is extensible, i.e. the number of elements will depends upon the
      * value associated to the {@link #numRow} and {@link #numCol numCol} parameters.
+     *
+     * @return A new parameter initialized to the default value.
      */
     @Override
     public ParameterValueGroup createValue() {

@@ -18,7 +18,6 @@
  */
 package org.geotools.util;
 
-import org.geotools.resources.Utilities;
 import org.opengis.util.MemberName;
 import org.opengis.util.TypeName;
 

@@ -48,12 +48,12 @@ public interface XMatrix extends Matrix {
     /**
      * Returns the element at the specified index.
      */
-    double getElement(int row, int col);
+    double getElement(int row, int column);
 
     /**
      * Set the element at the specified index.
      */
-    void setElement(int row, int col, double value);
+    void setElement(int row, int column, double value);
 
     /**
      * Sets all the values in this matrix to zero.
@@ -76,6 +76,10 @@ public interface XMatrix extends Matrix {
      * matrix of identical size, and returning {@code true} if and only if all differences are
      * smaller than or equal to {@code tolerance}.
      *
+     * @param tolerance The tolerance value.
+     * @return {@code true} if this matrix is close enough to the identity matrix
+     *         given the tolerance value.
+     *
      * @since 2.4
      */
     boolean isIdentity(double tolerance);
@@ -84,6 +88,8 @@ public interface XMatrix extends Matrix {
      * Returns {@code true} if this matrix is an affine transform.
      * A transform is affine if the matrix is square and last row contains
      * only zeros, except in the last column which contains 1.
+     *
+     * @return {@code true} if this matrix is affine.
      */
     boolean isAffine();
 
@@ -111,6 +117,8 @@ public interface XMatrix extends Matrix {
      * <code>{@linkplain java.awt.geom.AffineTransform#concatenate AffineTransform.concatenate}</code>:
      * first transforms by the supplied transform and then transform the result by the original
      * transform.
+     *
+     * @param matrix The matrix to multiply to this matrix.
      */
     void multiply(Matrix matrix);
 
@@ -122,6 +130,8 @@ public interface XMatrix extends Matrix {
      *
      * @param matrix    The matrix to compare.
      * @param tolerance The tolerance value.
+     * @return {@code true} if this matrix is close enough to the given matrix
+     *         given the tolerance value.
      *
      * @since 2.5
      */

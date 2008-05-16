@@ -53,7 +53,6 @@ import org.geotools.coverage.Category;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.processing.AbstractProcessor;
 import org.geotools.factory.Hints;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.XArray;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.Errors;
@@ -64,6 +63,7 @@ import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.image.ColorUtilities;
 import org.geotools.resources.image.ImageUtilities;
+import org.geotools.util.Utilities;
 import org.geotools.util.NumberRange;
 import org.geotools.util.logging.Logging;
 

@@ -28,15 +28,15 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.util.InternationalString;
 
 import org.geotools.referencing.operation.transform.LinearTransform1D;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.XMath;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.NumberRange;
+import org.geotools.util.Utilities;
+import org.geotools.math.XMath;
 
 
 /**
@@ -92,19 +92,19 @@ public class Category implements Serializable {
     /**
      * The 0 value as a byte. Used for {@link #FALSE} categories.
      */
-    private static final NumberRange BYTE_0;
+    private static final NumberRange<Byte> BYTE_0;
     static {
         final Byte index = 0;
-        BYTE_0 = new NumberRange(Byte.class, index, index);
+        BYTE_0 = NumberRange.create(index, index);
     }
 
     /**
      * The 1 value as a byte. Used for {@link #TRUE} categories.
      */
-    private static final NumberRange BYTE_1;
+    private static final NumberRange<Byte> BYTE_1;
     static {
         final Byte index = 1;
-        BYTE_1 = new NumberRange(Byte.class, index, index);
+        BYTE_1 = NumberRange.create(index, index);
     }
 
     /**
@@ -274,10 +274,10 @@ public class Category implements Serializable {
      * @param  sampleValueRange The range of sample values for this category. Element class
      *                 is usually {@link Integer}, but {@link Float} and {@link Double} are
      *                 accepted as well.
+     * @throws IllegalArgumentException If the given range is invalid.
      */
-    public Category(final CharSequence name,
-                    final Color       color,
-                    final NumberRange sampleValueRange) throws IllegalArgumentException
+    public Category(final CharSequence name, final Color color,
+                    final NumberRange<?> sampleValueRange) throws IllegalArgumentException
     {
         this(name, toArray(color), sampleValueRange, (MathTransform1D) null);
     }
@@ -304,8 +304,8 @@ public class Category implements Serializable {
      * @param  offset  The {@link GridSampleDimension#getOffset() offset} value to add
      *                 to sample values for this category.
      *
-     * @throws IllegalArgumentException if {@code lower} is not smaller than {@code upper}.
-     * @throws IllegalArgumentException if {@code scale} or {@code offset} are not real numbers.
+     * @throws IllegalArgumentException if {@code lower} is not smaller than {@code upper},
+     *         or if {@code scale} or {@code offset} are not real numbers.
      */
     public Category(final CharSequence name,
                     final Color[]      colors,
@@ -314,7 +314,7 @@ public class Category implements Serializable {
                     final double       scale,
                     final double       offset) throws IllegalArgumentException
     {
-        this(name, colors, new NumberRange(Integer.class, lower, true, upper, false), scale, offset);
+        this(name, colors, NumberRange.create(lower, true, upper, false), scale, offset);
     }
 
     /**
@@ -340,8 +340,8 @@ public class Category implements Serializable {
      * @param  offset  The {@link GridSampleDimension#getOffset() offset} value to add
      *                 to sample values for this category.
      *
-     * @throws IllegalArgumentException if {@code lower} is not smaller than {@code upper}.
-     * @throws IllegalArgumentException if {@code scale} or {@code offset} are not real numbers.
+     * @throws IllegalArgumentException if {@code lower} is not smaller than {@code upper},
+     *         or if {@code scale} or {@code offset} are not real numbers.
      */
     public Category(final CharSequence name,
                     final Color[]     colors,
@@ -579,7 +579,7 @@ public class Category implements Serializable {
          * values as well.  Note: the change is usually applied on sample values, but may be applied
          * on geophysics values instead if sample are floats or geophysics values are integers.
          */
-        final boolean adjustSamples = (XMath.isInteger(sType) && !XMath.isInteger(gType));
+        final boolean adjustSamples = (Classes.isInteger(sType) && !Classes.isInteger(gType));
         if ((adjustSamples ? gMinInc : sMinInc) != 0) {
             int swap = sMinInc;
             sMinInc = -gMinInc;
@@ -625,7 +625,7 @@ public class Category implements Serializable {
                                       final int     direction)
     {
         assert (direction >= -1) && (direction <= +1) : direction;
-        return XMath.rool(type, ((Number)number).doubleValue(), direction);
+        return org.geotools.resources.XMath.rool(type, ((Number)number).doubleValue(), direction);
     }
 
     /**
@@ -676,15 +676,18 @@ public class Category implements Serializable {
 
     /**
      * Returns the category name.
+     *
+     * @return The category name.
      */
     public InternationalString getName() {
         return name;
     }
 
     /**
-     * Returns the set of colors for this category.
-     * Change to the returned array will not affect
+     * Returns the set of colors for this category. Change to the returned array will not affect
      * this category.
+     *
+     * @return The colors palette for this category.
      *
      * @see GridSampleDimension#getColorModel
      */
@@ -715,6 +718,8 @@ public class Category implements Serializable {
     /**
      * Returns a transform from sample values to geophysics values. If this category
      * is not a quantitative one, then this method returns {@code null}.
+     *
+     * @return The transform from sample values to geophysics values.
      */
     public MathTransform1D getSampleToGeophysics() {
         return isQuantitative() ? transform : null;
@@ -827,8 +832,7 @@ public class Category implements Serializable {
     }
 
     /**
-     * Returns a hash value for this category.
-     * This value need not remain consistent between
+     * Returns a hash value for this category. This value need not remain consistent between
      * different implementations of the same class.
      */
     @Override
@@ -837,12 +841,14 @@ public class Category implements Serializable {
     }
 
     /**
-     * Compares the specified object with
-     * this category for equality.
+     * Compares the specified object with this category for equality.
+     *
+     * @param  object The object to compare with.
+     * @return {@code true} if the given object is equals to this category.
      */
     @Override
     public boolean equals(final Object object) {
-        if (object==this) {
+        if (object == this) {
             // Slight optimization
             return true;
         }
@@ -852,7 +858,7 @@ public class Category implements Serializable {
                 Double.doubleToRawLongBits(maximum)== Double.doubleToRawLongBits(that.maximum) &&
                 Utilities.equals(this.transform, that.transform) &&
                 Utilities.equals(this.name,      that.name ) &&
-                   Arrays.equals(this.ARGB,      that.ARGB ))
+                          Arrays.equals(this.ARGB,      that.ARGB ))
             {
                 // Special test for 'range', since 'GeophysicsCategory'
                 // computes it only when first needed.
@@ -885,7 +891,7 @@ public class Category implements Serializable {
             buffer.append("NaN(").append(Math.round(inverse.minimum))
                   .append("...") .append(Math.round(inverse.maximum)).append(')');
         } else {
-            if (XMath.isInteger(getRange().getElementClass())) {
+            if (Classes.isInteger(getRange().getElementClass())) {
                 buffer.append(Math.round(minimum)).append("...")
                       .append(Math.round(maximum)); // Inclusive
             } else {

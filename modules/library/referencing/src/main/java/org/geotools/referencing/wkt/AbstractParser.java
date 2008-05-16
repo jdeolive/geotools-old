@@ -1,7 +1,7 @@
 /*
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
- *   
+ *
  *   (C) 2003-2006, Geotools Project Managment Committee (PMC)
  *   (C) 2002, Institut de Recherche pour le Développement
  *
@@ -34,7 +34,7 @@ import org.opengis.parameter.InvalidParameterValueException;
 import org.opengis.referencing.IdentifiedObject;
 import org.opengis.referencing.operation.MathTransform;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -76,9 +76,11 @@ public abstract class AbstractParser extends Format {
      * The object to use for parsing numbers.
      */
     private final NumberFormat numberFormat;
-    
+
     /**
      * Constructs a parser using the specified set of symbols.
+     *
+     * @param symbols The set of symbols to use.
      */
     public AbstractParser(final Symbols symbols) {
         this.symbols      = symbols;
@@ -101,6 +103,8 @@ public abstract class AbstractParser extends Format {
      * Returns the preferred authority for formatting WKT entities.
      * The {@link #format format} methods will uses the name specified
      * by this authority, if available.
+     *
+     * @return The expected authority.
      */
     public Citation getAuthority() {
         return getFormatter().authority;
@@ -110,6 +114,8 @@ public abstract class AbstractParser extends Format {
      * Set the preferred authority for formatting WKT entities.
      * The {@link #format format} methods will uses the name specified
      * by this authority, if available.
+     *
+     * @param authority The new authority.
      */
     public void setAuthority(final Citation authority) {
         if (authority == null) {
@@ -123,6 +129,8 @@ public abstract class AbstractParser extends Format {
      * Returns {@code true} if syntax coloring is enabled.
      * By default, syntax coloring is disabled.
      *
+     * @return {@code true} if syntax coloring are enabled.
+     *
      * @since 2.4
      */
     public boolean isColorEnabled() {
@@ -134,6 +142,8 @@ public abstract class AbstractParser extends Format {
      * terminal. This apply only when formatting text. By default, syntax coloring is disabled.
      * When enabled, {@link #format(Object)} tries to highlight most of the elements compared by
      * {@link org.geotools.referencing.CRS#equalsIgnoreMetadata}.
+     *
+     * @param enabled {@code true} for enabling syntax coloring.
      *
      * @since 2.4
      */
@@ -155,7 +165,7 @@ public abstract class AbstractParser extends Format {
         element.close();
         return object;
     }
-    
+
     /**
      * Parses a <cite>Well Know Text</cite> (WKT).
      *
@@ -218,6 +228,8 @@ public abstract class AbstractParser extends Format {
      * @param  text       The text to parse.
      * @param  position   In input, the position where to start parsing from.
      *                    In output, the first character after the separator.
+     * @return The tree of elements to parse.
+     * @throws ParseException If an parsing error occured while creating the tree.
      */
     protected final Element getTree(final String text, final ParsePosition position)
             throws ParseException
@@ -246,6 +258,10 @@ public abstract class AbstractParser extends Format {
      * Format the specified object as a Well Know Text.
      * Formatting will uses the same set of symbols than the one used for parsing.
      *
+     * @param object     The object to format.
+     * @param toAppendTo Where the text is to be appended.
+     * @param pos        An identification of a field in the formatted text.
+     *
      * @see #getWarning
      */
     public StringBuffer format(final Object        object,
@@ -271,7 +287,7 @@ public abstract class AbstractParser extends Format {
         } finally {
             formatter.buffer = null;
         }
-    }     
+    }
 
     /**
      * Read WKT strings from an input stream and reformat them to the specified
@@ -316,6 +332,8 @@ public abstract class AbstractParser extends Format {
      * If a warning occured during the last WKT {@linkplain #format formatting},
      * returns the warning. Otherwise returns {@code null}. The warning is cleared
      * every time a new object is formatted.
+     *
+     * @return The last warning, or {@code null} if none.
      *
      * @since 2.4
      */

@@ -31,7 +31,7 @@ import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.measure.CoordinateFormat;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -134,6 +134,8 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param ellipsoid The ellipsoid to copy.
+     *
      * @since 2.2
      *
      * @see #wrap
@@ -186,6 +188,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * @param semiMajorAxis The equatorial radius.
      * @param semiMinorAxis The polar radius.
      * @param unit          The units of the semi-major and semi-minor axis values.
+     * @return An ellipsoid with the given axis length.
      */
     public static DefaultEllipsoid createEllipsoid(final String name,
                                                    final double semiMajorAxis,
@@ -205,6 +208,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * @param semiMajorAxis The equatorial radius.
      * @param semiMinorAxis The polar radius.
      * @param unit          The units of the semi-major and semi-minor axis values.
+     * @return An ellipsoid with the given axis length.
      */
     public static DefaultEllipsoid createEllipsoid(final Map<String,?> properties,
                                                    final double semiMajorAxis,
@@ -227,6 +231,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * @param inverseFlattening The inverse flattening value.
      * @param unit              The units of the semi-major and semi-minor axis
      *                          values.
+     * @return An ellipsoid with the given axis length.
      */
     public static DefaultEllipsoid createFlattenedSphere(final String name,
                                                          final double semiMajorAxis,
@@ -247,6 +252,7 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * @param inverseFlattening The inverse flattening value.
      * @param unit              The units of the semi-major and semi-minor axis
      *                          values.
+     * @return An ellipsoid with the given axis length.
      */
     public static DefaultEllipsoid createFlattenedSphere(final Map<String,?> properties,
                                                          final double semiMajorAxis,
@@ -267,6 +273,9 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * {@link #orthodromicDistance orthodromic distance computation} (for example) are desired.
      * If the supplied ellipsoid is already an instance of {@code DefaultEllipsoid} or is
      * {@code null}, then it is returned unchanged.
+     *
+     * @param ellipsoid The ellipsoid to wrap.
+     * @return The given ellipsoid as a {@code DefaultEllipsoid} instance.
      */
     public static DefaultEllipsoid wrap(final Ellipsoid ellipsoid) {
         if (ellipsoid==null || ellipsoid instanceof DefaultEllipsoid) {
@@ -334,6 +343,8 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
      * The ratio of the distance between the center and a focus of the ellipse
      * to the length of its semimajor axis. The eccentricity can alternately be
      * computed from the equation: <code>e=sqrt(2f-f²)</code>.
+     *
+     * @return The eccentricity of this ellipsoid.
      */
     public double getEccentricity() {
         final double f = 1-getSemiMinorAxis()/getSemiMajorAxis();
@@ -512,11 +523,11 @@ public class DefaultEllipsoid extends AbstractIdentifiedObject implements Ellips
         }
         if (super.equals(object, compareMetadata)) {
             final DefaultEllipsoid that = (DefaultEllipsoid) object;
-            return (!compareMetadata || this.ivfDefinitive == that.ivfDefinitive) &&
-                   Double.doubleToLongBits(this.semiMajorAxis)     == Double.doubleToLongBits(that.semiMajorAxis)     &&
-                   Double.doubleToLongBits(this.semiMinorAxis)     == Double.doubleToLongBits(that.semiMinorAxis)     &&
-                   Double.doubleToLongBits(this.inverseFlattening) == Double.doubleToLongBits(that.inverseFlattening) &&
-                   Utilities.equals(this.unit, that.unit);
+            return (!compareMetadata || this.ivfDefinitive == that.ivfDefinitive)   &&
+                   Utilities.equals(this.semiMajorAxis,     that.semiMajorAxis)     &&
+                   Utilities.equals(this.semiMinorAxis,     that.semiMinorAxis)     &&
+                   Utilities.equals(this.inverseFlattening, that.inverseFlattening) &&
+                   Utilities.equals(this.unit,              that.unit);
         }
         return false;
     }

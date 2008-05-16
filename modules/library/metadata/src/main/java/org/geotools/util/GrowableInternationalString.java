@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.opengis.util.InternationalString;
 import org.geotools.util.logging.Logging;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -235,6 +234,8 @@ public class GrowableInternationalString extends AbstractInternationalString imp
 
     /**
      * Returns the set of locales defined in this international string.
+     *
+     * @return The set of locales.
      */
     public synchronized Set<Locale> getLocales() {
         if (localSet == null) {
@@ -311,6 +312,10 @@ public class GrowableInternationalString extends AbstractInternationalString imp
      *   <li><p>Otherwise, this method returns {@code false}.</p></li>
      * </ul>
      *
+     * @param  candidate The object which may contains this international string.
+     * @return {@code true} if the given object contains all localized strings found in this
+     *         international string.
+     *
      * @since 2.3
      */
     public boolean isSubsetOf(final Object candidate) {
@@ -341,6 +346,9 @@ public class GrowableInternationalString extends AbstractInternationalString imp
 
     /**
      * Compares this international string with the specified object for equality.
+     *
+     * @param object The object to compare with this international string.
+     * @return {@code true} if the given object is equals to this string.
      */
     @Override
     public boolean equals(final Object object) {

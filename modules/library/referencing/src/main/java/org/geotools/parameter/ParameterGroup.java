@@ -41,7 +41,7 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**

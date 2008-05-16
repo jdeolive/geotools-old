@@ -45,7 +45,6 @@ import org.opengis.util.ScopedName;
 
 import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.referencing.wkt.Formattable;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Loggings;
@@ -53,6 +52,7 @@ import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.util.logging.Logging;
 import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.NameFactory;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -216,6 +216,8 @@ public class AbstractIdentifiedObject extends Formattable implements IdentifiedO
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param object The object to copy.
      */
     public AbstractIdentifiedObject(final IdentifiedObject object) {
         name        = object.getName();
@@ -282,6 +284,7 @@ public class AbstractIdentifiedObject extends Formattable implements IdentifiedO
      * Note that the {@code "authority"} and {@code "version"} properties are ignored if the
      * {@code "name"} property is already a {@link Citation} object instead of a {@link String}.
      *
+     * @param properties The properties to be given to this identified object.
      * @throws InvalidParameterValueException if a property has an invalid value.
      * @throws IllegalArgumentException if a property is invalid for some other reason.
      */
@@ -806,6 +809,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      *
      * @param o1 The first object to compare by name.
      * @param o2 The second object to compare by name.
+     * @return {@code true} if both objects have a common name.
      *
      * @since 2.4
      */
@@ -1029,6 +1033,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * array is empty or null. This is a convenience method for sub-classes
      * constructors.
      *
+     * @param  <E> The type of array elements.
      * @param  array The array to copy in a set. May be {@code null}.
      * @return A set containing the array elements, or {@code null} if none or empty.
      */
@@ -1052,7 +1057,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * @throws InvalidParameterValueException if {@code object} is null.
      */
     protected static void ensureNonNull(final String name, final Object object)
-            throws IllegalArgumentException
+            throws InvalidParameterValueException
     {
         if (object == null) {
             throw new InvalidParameterValueException(Errors.format(
@@ -1070,7 +1075,7 @@ NEXT_KEY: for (final Map.Entry<String,?> entry : properties.entrySet()) {
      * @throws InvalidParameterValueException if {@code array[i]} is null.
      */
     protected static void ensureNonNull(final String name, final Object[] array, final int index)
-            throws IllegalArgumentException
+            throws InvalidParameterValueException
     {
         if (array[index] == null) {
             throw new InvalidParameterValueException(Errors.format(

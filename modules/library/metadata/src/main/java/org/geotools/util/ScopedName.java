@@ -28,8 +28,6 @@ import org.opengis.util.InternationalString; // For javadoc
 import org.opengis.util.LocalName;
 import org.opengis.util.NameSpace;
 
-import org.geotools.resources.Utilities;
-
 
 /**
  * Fully qualified identifier for an object.

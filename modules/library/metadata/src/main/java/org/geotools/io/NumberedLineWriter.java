@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 
+import org.geotools.util.Utilities;
 import org.geotools.resources.Arguments;
-import org.geotools.resources.Utilities;
 
 
 /**
@@ -79,6 +79,8 @@ public class NumberedLineWriter extends IndentedLineWriter {
 
     /**
      * Returns the current line number.
+     *
+     * @return The current line number.
      */
     public int getLineNumber() {
         return current;

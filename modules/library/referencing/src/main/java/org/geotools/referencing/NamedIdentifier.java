@@ -37,7 +37,6 @@ import org.opengis.util.NameSpace;
 import org.opengis.util.ScopedName;
 import static org.opengis.referencing.IdentifiedObject.REMARKS_KEY;
 
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Loggings;
@@ -46,6 +45,7 @@ import org.geotools.metadata.iso.citation.Citations;
 import org.geotools.util.GrowableInternationalString;
 import org.geotools.util.WeakValueHashMap;
 import org.geotools.util.logging.Logging;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -168,6 +168,7 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
      * {@linkplain Locale#FRENCH French} and the <code>"remarks_fr_CA"</code> property stands
      * for remarks in {@linkplain Locale#CANADA_FRENCH French Canadian}.</P>
      *
+     * @param properties The properties to be given to this identifier.
      * @throws InvalidParameterValueException if a property has an invalid value.
      * @throws IllegalArgumentException if a property is invalid for some other reason.
      */
@@ -437,6 +438,8 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
 
     /**
      * Comments on or information about this identifier, or {@code null} if none.
+     *
+     * @return Optional comments about this identifier.
      */
     public InternationalString getRemarks() {
         return remarks;
@@ -653,6 +656,9 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
      * Compares this name with the specified object for order. Returns a negative integer,
      * zero, or a positive integer as this name lexicographically precedes, is equals to,
      * or follows the specified object.
+     *
+     * @param object The object to compare with.
+     * @return -1 if this identifier precedes the given object, +1 if it follows it.
      */
     public int compareTo(final GenericName object) {
         return getName().compareTo(object);
@@ -660,6 +666,9 @@ public class NamedIdentifier implements ReferenceIdentifier, GenericName,
 
     /**
      * Compares this identifier with the specified object for equality.
+     *
+     * @param object The object to compare with this name.
+     * @return {@code true} if the given object is equals to this name.
      */
     @Override
     public boolean equals(final Object object) {

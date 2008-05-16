@@ -41,10 +41,8 @@ import org.opengis.util.InternationalString;
 
 import org.geotools.referencing.operation.transform.LinearTransform1D;
 import org.geotools.resources.ClassChanger;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.Classes;
 import org.geotools.resources.XArray;
-import org.geotools.resources.XMath;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
@@ -52,6 +50,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.resources.image.ColorUtilities;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.NumberRange;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -386,7 +385,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
             if (name == null) {
                 name = value.toString();
             }
-            final NumberRange range = new NumberRange(value.getClass(), value, value);
+            final NumberRange<?> range = new NumberRange(value.getClass(), value, value);
             final Color[] colors = ColorUtilities.subarray(palette, intValue, intValue + 1);
             categoryList.add(new Category(name, colors, range, (MathTransform1D) null));
         }
@@ -423,7 +422,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
                     min    = ClassChanger.cast(min, classe);
                     max    = ClassChanger.cast(max, classe);
                 }
-                final NumberRange range = new NumberRange(classe, min, max);
+                final NumberRange<?> range = new NumberRange(classe, min, max);
                 final Color[] colors = ColorUtilities.subarray(palette, lower, upper);
                 categoryList.add(new Category(name, colors, range, (MathTransform1D) null));
                 lower = upper;
@@ -660,6 +659,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      * implementation of {@code GridSampleDimension}.
      *
      * @param sd The sample dimension to wrap into a Geotools implementation.
+     * @return The given sample dimension as a {@code GridSampleDimension} instance.
      */
     public static GridSampleDimension wrap(final SampleDimension sd) {
         if (sd instanceof GridSampleDimension) {
@@ -706,8 +706,10 @@ public class GridSampleDimension implements SampleDimension, Serializable {
     }
 
     /**
-     * Get the sample dimension title or description.
+     * Gets the sample dimension title or description.
      * This string may be {@code null} if no description is present.
+     *
+     * @return The title or description of this sample dimension.
      */
     public InternationalString getDescription() {
         return description;
@@ -865,7 +867,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
                         int lower = (int) min;
                         int upper = (int) max;
                         if (lower!=min || upper!=max ||
-                            !XMath.isInteger(category.getRange().getElementClass()))
+                            !Classes.isInteger(category.getRange().getElementClass()))
                         {
                             throw new IllegalStateException(Errors.format(
                                       ErrorKeys.NON_INTEGER_CATEGORY));
@@ -1321,6 +1323,7 @@ public class GridSampleDimension implements SampleDimension, Serializable {
      *
      * @param scale  The value which is multiplied to grid values for the new sample dimension.
      * @param offset The value to add to grid values for the new sample dimension.
+     * @return The scaled sample dimension.
      *
      * @see #getScale
      * @see #getOffset
@@ -1356,6 +1359,9 @@ public class GridSampleDimension implements SampleDimension, Serializable {
 
     /**
      * Compares the specified object with this sample dimension for equality.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if the given object is equals to this sample dimension.
      */
     @Override
     public boolean equals(final Object object) {

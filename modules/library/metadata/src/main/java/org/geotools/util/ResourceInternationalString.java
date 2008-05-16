@@ -21,8 +21,6 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.geotools.resources.Utilities;
-
 
 /**
  * An international string backed by a {@linkplain ResourceBundle resource bundle}. A resource
@@ -104,6 +102,9 @@ public class ResourceInternationalString extends AbstractInternationalString imp
 
     /**
      * Compares this international string with the specified object for equality.
+     *
+     * @param object The object to compare with this international string.
+     * @return {@code true} if the given object is equals to this string.
      */
     @Override
     public boolean equals(final Object object) {

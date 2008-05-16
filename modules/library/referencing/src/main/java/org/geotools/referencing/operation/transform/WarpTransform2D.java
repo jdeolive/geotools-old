@@ -37,7 +37,7 @@ import org.opengis.referencing.operation.MathTransform2D;
 import org.opengis.referencing.operation.NoninvertibleTransformException;
 import org.opengis.referencing.operation.Transformation;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.referencing.NamedIdentifier;
 import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.metadata.iso.citation.Citations;
@@ -291,6 +291,7 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
      * using the {@link Warp#warpPoint(int,int,float[]) warpPoint} method or something equivalent.
      *
      * @param warp The image warp to wrap into a math transform.
+     * @return The transform for the given warp.
      */
     public static MathTransform2D create(final Warp warp) {
         if (warp instanceof WarpAdapter) {
@@ -313,6 +314,7 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
      *        {@link org.opengis.referencing.operation.TransformException} are thrown by the
      *        supplied transform.
      * @param transform The transform to returns as an image warp.
+     * @return The warp for the given transform.
      *
      * @todo We should check for {@link ConcatenatedTransform}. If we detect that a
      * {@code WarpTransform2D} is concatenated with {@code AffineTransform} only, and if the
@@ -429,9 +431,9 @@ public class WarpTransform2D extends AbstractMathTransform implements MathTransf
          * purpose, JAI needs to map pixel's center. This introduce a shift of 0.5, which is
          * documented (for example) in WarpAffine.mapDestPoint(Point2D).
          */
-        ptSrc = new PointDouble(ptSrc.getX()-0.5, ptSrc.getY()-0.5);
+        ptSrc = new PointDouble(ptSrc.getX() - 0.5, ptSrc.getY() - 0.5);
         final Point2D result = warp.mapDestPoint(ptSrc);
-        result.setLocation(result.getX()+0.5, result.getY()+0.5);
+        result.setLocation(result.getX() + 0.5, result.getY() + 0.5);
         if (ptDst == null) {
             // Do not returns 'result' directly, since it has tricked 'clone()' method.
             ptDst = new Point2D.Float();

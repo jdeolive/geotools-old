@@ -23,7 +23,7 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Locale;
 import javax.units.Unit;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**

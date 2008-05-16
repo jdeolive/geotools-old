@@ -20,7 +20,6 @@ import javax.units.ConversionException;
 import javax.units.Converter;
 import javax.units.Unit;
 
-import org.geotools.resources.Utilities;
 import org.geotools.resources.ClassChanger;
 
 
@@ -188,6 +187,8 @@ public class MeasurementRange<T extends Number & Comparable<? super T>> extends 
 
     /**
      * Returns the units of measurement, or {@code null} if unknown.
+     *
+     * @return The units of measurement, or {@code null}.
      */
     @Override
     public Unit getUnits() {
@@ -199,7 +200,7 @@ public class MeasurementRange<T extends Number & Comparable<? super T>> extends 
      * then the specified target units are simply assigned to the returned range with no
      * other changes.
      *
-     * @param  targetUnit the target units.
+     * @param  targetUnits the target units.
      * @return The converted range, or {@code this} if no conversion is needed.
      * @throws ConversionException if the target units are not compatible with
      *         this {@linkplain #getUnits range units}.
@@ -332,10 +333,10 @@ public class MeasurementRange<T extends Number & Comparable<? super T>> extends 
      * Compares this range with the specified object for equality.
      */
     @Override
-    public boolean equals(final Object other) {
-        if (super.equals(other)) {
-            if (other instanceof MeasurementRange) {
-                final MeasurementRange that = (MeasurementRange) other;
+    public boolean equals(final Object object) {
+        if (super.equals(object)) {
+            if (object instanceof MeasurementRange) {
+                final MeasurementRange that = (MeasurementRange) object;
                 return Utilities.equals(this.units, that.units);
             }
             return true;

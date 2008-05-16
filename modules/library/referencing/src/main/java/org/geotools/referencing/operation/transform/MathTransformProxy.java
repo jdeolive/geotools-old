@@ -29,7 +29,7 @@ import org.opengis.referencing.operation.TransformException;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.MismatchedDimensionException;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -60,6 +60,8 @@ public class MathTransformProxy implements MathTransform, Serializable {
 
     /**
      * Creates a new proxy which delegates its work to the specified math transform.
+     *
+     * @param transform The transform on which to delegate the work.
      */
     protected MathTransformProxy(final MathTransform transform) {
         this.transform = transform;
@@ -81,6 +83,10 @@ public class MathTransformProxy implements MathTransform, Serializable {
 
     /**
      * Transforms the specified {@code ptSrc} and stores the result in {@code ptDst}.
+     *
+     * @throws MismatchedDimensionException if {@code ptSrc} or
+     *         {@code ptDst} doesn't have the expected dimension.
+     * @throws TransformException if the point can't be transformed.
      */
     public DirectPosition transform(final DirectPosition ptSrc, final DirectPosition ptDst)
             throws MismatchedDimensionException, TransformException
@@ -131,6 +137,8 @@ public class MathTransformProxy implements MathTransform, Serializable {
 
     /**
      * Returns a <cite>Well Known Text</cite> (WKT) for this transform.
+     *
+     * @throws UnsupportedOperationException If this object can't be formatted as WKT.
      */
     public String toWKT() throws UnsupportedOperationException {
         return transform.toWKT();
@@ -146,6 +154,10 @@ public class MathTransformProxy implements MathTransform, Serializable {
 
     /**
      * Compares the specified object with this inverse math transform for equality.
+     *
+     * @param object The object to compare with this transform.
+     * @return {@code true} if the given object is of the same class and if the wrapped
+     *         transforms are equal.
      */
     @Override
     public boolean equals(final Object object) {

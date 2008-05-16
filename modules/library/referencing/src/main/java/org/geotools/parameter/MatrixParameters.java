@@ -36,8 +36,8 @@ import org.opengis.util.GenericName;
 import org.geotools.io.TableWriter;
 import org.geotools.referencing.operation.matrix.MatrixFactory;
 import org.geotools.resources.UnmodifiableArrayList;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.XArray;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -80,6 +80,8 @@ public class MatrixParameters extends ParameterGroup implements ParameterDescrip
     /**
      * Constructs default values for the specified
      * {@linkplain MatrixParameterDescriptors matrix parameter descriptors}.
+     *
+     * @param descriptor The descriptor for this group of parameters.
      */
     public MatrixParameters(final MatrixParameterDescriptors descriptor) {
         super(descriptor);

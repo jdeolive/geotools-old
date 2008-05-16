@@ -20,7 +20,7 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -84,6 +84,8 @@ public class ExpandedTabWriter extends FilterWriter {
 
     /**
      * Returns the tab width.
+     *
+     * @return The tabulation width.
      */
     public int getTabWidth() {
         return tabWidth;

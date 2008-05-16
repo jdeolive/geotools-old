@@ -32,7 +32,7 @@ import org.geotools.referencing.wkt.Formattable;
 import org.geotools.referencing.wkt.Formatter;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -91,6 +91,8 @@ public class BursaWolfParameters extends Formattable implements Cloneable, Seria
     /**
      * Returns {@code true} if this Bursa Wolf parameters performs no operation.
      * This is true when all parameters are set to zero.
+     *
+     * @return {@code true} if the parameters describe no operation.
      */
     public boolean isIdentity() {
         return dx==0 && dy==0 && dz==0 && ex==0 && ey==0 && ez==0 && ppm==0;
@@ -98,6 +100,8 @@ public class BursaWolfParameters extends Formattable implements Cloneable, Seria
 
     /**
      * Returns {@code true} if this Bursa Wolf parameters contains only translation terms.
+     *
+     * @return {@code true} if the parameters describe to a translation only.
      */
     public boolean isTranslation() {
         return ex==0 && ey==0 && ez==0 && ppm==0;
@@ -117,6 +121,8 @@ public class BursaWolfParameters extends Formattable implements Cloneable, Seria
      * </pre></blockquote>
      *
      * This affine transform can be applied on <strong>geocentric</strong> coordinates.
+     *
+     * @return An affine transform created from the parameters.
      */
     public XMatrix getAffineTransform() {
         /*
@@ -212,6 +218,8 @@ public class BursaWolfParameters extends Formattable implements Cloneable, Seria
 
     /**
      * Returns a copy of this object.
+     *
+     * @return A clone of the parameters.
      */
     @Override
     public BursaWolfParameters clone() {
@@ -225,18 +233,21 @@ public class BursaWolfParameters extends Formattable implements Cloneable, Seria
 
     /**
      * Compares the specified object with this object for equality.
+     *
+     * @param object The object to compare with the parameters.
+     * @return {@code true} if the given object is equals to the parameters.
      */
     @Override
     public boolean equals(final Object object) {
         if (object instanceof BursaWolfParameters) {
             final BursaWolfParameters that = (BursaWolfParameters) object;
-            return doubleToLongBits(this.dx)  == doubleToLongBits(that.dx)  &&
-                   doubleToLongBits(this.dy)  == doubleToLongBits(that.dy)  &&
-                   doubleToLongBits(this.dz)  == doubleToLongBits(that.dz)  &&
-                   doubleToLongBits(this.ex)  == doubleToLongBits(that.ex)  &&
-                   doubleToLongBits(this.ey)  == doubleToLongBits(that.ey)  &&
-                   doubleToLongBits(this.ez)  == doubleToLongBits(that.ez)  &&
-                   doubleToLongBits(this.ppm) == doubleToLongBits(that.ppm) &&
+            return Utilities.equals(this.dx,  that.dx)  &&
+                   Utilities.equals(this.dy,  that.dy)  &&
+                   Utilities.equals(this.dz,  that.dz)  &&
+                   Utilities.equals(this.ex,  that.ex)  &&
+                   Utilities.equals(this.ey,  that.ey)  &&
+                   Utilities.equals(this.ez,  that.ez)  &&
+                   Utilities.equals(this.ppm, that.ppm) &&
                    Utilities.equals(this.targetDatum, that.targetDatum);
         }
         return false;

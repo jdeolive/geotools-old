@@ -27,8 +27,6 @@ import org.opengis.util.InternationalString;
 import org.opengis.util.NameSpace;
 import org.opengis.util.ScopedName;
 
-import org.geotools.resources.Utilities;
-
 
 /**
  * Identifier within a name space for a local object. This could be the target object of the

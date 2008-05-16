@@ -38,9 +38,9 @@ import org.opengis.util.CodeList;
 
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.Classes;
 import org.geotools.measure.Units;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -184,6 +184,9 @@ public class Parameter<T> extends AbstractParameter implements ParameterValue<T>
      * Parameters#isValid}(descriptor, value)</code> except that the exception contains an
      * error message formatted with a description of the failure reason.
      *
+     * @param  <T> The type of parameter value. The given {@code value} should typically be an
+     *         instance of this class. This is not required by this method signature but is
+     *         checked by this method implementation.
      * @param  descriptor The parameter descriptor to check against.
      * @param  value The value to check, or {@code null}.
      * @return The value casted to the descriptor parameterized type.

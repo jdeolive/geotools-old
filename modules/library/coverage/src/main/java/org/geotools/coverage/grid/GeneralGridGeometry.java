@@ -29,11 +29,11 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 
+import org.geotools.util.Utilities;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.metadata.iso.spatial.PixelTranslation;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -421,6 +421,8 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
 
     /**
      * Returns the number of dimensions.
+     *
+     * @return The number of dimensions.
      */
     public int getDimension() {
         if (gridToCRS != null) {
@@ -606,6 +608,9 @@ public class GeneralGridGeometry implements GridGeometry, Serializable {
 
     /**
      * Compares the specified object with this grid geometry for equality.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if the given object is equals to this grid geometry.
      */
     @Override
     public boolean equals(final Object object) {

@@ -37,9 +37,9 @@ import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.LinearTransform;
 import org.geotools.referencing.wkt.Formatter;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -379,6 +379,8 @@ public class ConcatenatedTransform extends AbstractMathTransform implements Seri
     /**
      * Returns the number of {@linkplain MathTransform math transform} steps performed by this
      * concatenated transform.
+     *
+     * @return The number of transform steps.
      *
      * @since 2.5
      */

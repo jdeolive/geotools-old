@@ -36,8 +36,8 @@ import org.opengis.parameter.ParameterValueGroup;
 import org.geotools.coverage.GridSampleDimension;
 import org.geotools.coverage.processing.AbstractProcessor;
 import org.geotools.resources.Arguments;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.Classes;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -76,7 +76,7 @@ public class Viewer extends JPanel {
     /**
      * Constructs a viewer for the specified image.
      *
-     * @param coverage The image to display.
+     * @param image The image to display.
      */
     public Viewer(RenderedImage image) {
         image = this.image = PlanarImage.wrapRenderedImage(image);
@@ -96,6 +96,8 @@ public class Viewer extends JPanel {
 
     /**
      * Paints this component.
+     *
+     * @param graphics The graphics handler.
      */
     @Override
     public void paintComponent(final Graphics graphics) {
@@ -108,7 +110,7 @@ public class Viewer extends JPanel {
      * A convenience method showing an image. The application
      * will be terminated when the user close the frame.
      *
-     * @param  coverage The coverage to display.
+     * @param  image The coverage to display.
      * @return The viewer, for information.
      */
     public static Viewer show(final RenderedImage image) {
@@ -232,12 +234,15 @@ public class Viewer extends JPanel {
      */
     private static void format(final PrintWriter out, final int value) {
         final String str = String.valueOf(value);
-        out.print(Utilities.spaces(3-str.length()));
+        out.print(Utilities.spaces(3 - str.length()));
         out.print(str);
     }
 
     /**
      * Load and display one of examples grid coverages.
+     *
+     * @param args The command-line arguments.
+     * @throws IOException if an error occured while reading an image.
      */
     public static void main(String[] args) throws IOException {
         final Arguments arguments = new Arguments(args);
@@ -266,7 +271,7 @@ public class Viewer extends JPanel {
         }
         GridCoverage2D coverage = GridCoverageExamples.getExample(Integer.parseInt(args[0]));
         if (geophysics != null) {
-            coverage = coverage.geophysics(geophysics.booleanValue());
+            coverage = coverage.view(geophysics.booleanValue() ? ViewType.GEOPHYSICS : ViewType.RENDERED);
         }
         if (operation != null) {
             final AbstractProcessor processor = AbstractProcessor.getInstance();

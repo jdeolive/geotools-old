@@ -18,7 +18,7 @@ package org.geotools.factory;
 import java.util.Set;
 import java.util.Map;
 import java.awt.RenderingHints;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**

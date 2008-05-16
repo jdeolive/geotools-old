@@ -24,9 +24,9 @@ import javax.units.Unit;
 import org.opengis.util.Cloneable;
 import org.opengis.referencing.operation.MathTransform1D;
 
+import org.geotools.util.Utilities;
 import org.geotools.util.NumberRange;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 
 
 /**
@@ -62,7 +62,7 @@ public class RangeSpecifier implements Serializable, Cloneable {
     /**
      * The target range, or {@code null} if none.
      */
-    private NumberRange range;
+    private NumberRange<?> range;
 
     /**
      * The target "sample to geophysics" transform, or {@code null} if none.
@@ -87,14 +87,18 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Constructs a {@code RangeSpecifier} initialised to the spécified range.
+     *
+     * @param range The range
      */
-    public RangeSpecifier(final NumberRange range) {
+    public RangeSpecifier(final NumberRange<?> range) {
         this.range = range;
     }
 
     /**
      * Constructs a {@code RangeSpecifier} initialised to the specified
      * "sample to geophysics" transform.
+     *
+     * @param transform The sample to geophysics transform.
      */
     public RangeSpecifier(final MathTransform1D transform) {
         this.transform = transform;
@@ -102,8 +106,10 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Returns the target range, or {@code null} if none.
+     *
+     * @return The range
      */
-    public NumberRange getRange() {
+    public NumberRange<?> getRange() {
         return range;
     }
 
@@ -114,13 +120,15 @@ public class RangeSpecifier implements Serializable, Cloneable {
      *
      * @param range The target range.
      */
-    public void setRange(final NumberRange range) {
+    public void setRange(final NumberRange<?> range) {
         this.range = range;
         transform  = null;
     }
 
     /**
      * Returns the target "sample to geophysics" transform, or {@code null} if none.
+     *
+     * @return The current sample to geophysics transform.
      */
     public MathTransform1D getSampleToGeophysics() {
         return transform;
@@ -130,6 +138,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
      * Set the target "sample to geophysics" transform to the specified value.
      * Setting this property will clear the {@linkplain #getRange range} property,
      * since those properties are mutually exclusive.
+     *
+     * @param transform The new sample to geophysics transform.
      */
     public void setSampleToGeophysics(final MathTransform1D transform) {
         this.transform = transform;
@@ -138,6 +148,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Returns the target range units, or {@code null} if none.
+     *
+     * @return The current units.
      */
     public Unit getUnit() {
         return unit;
@@ -145,6 +157,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Set the target range units to the specified value.
+     *
+     * @param unit The new units.
      */
     public void setUnit(final Unit unit) {
         this.unit = unit;
@@ -152,6 +166,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Returns the target colors, or {@code null} if none.
+     *
+     * @return The current colors.
      */
     public Color[] getColors() {
         return (colors != null) ? colors.clone() : null;
@@ -159,6 +175,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Set the target colors to the specified value.
+     *
+     * @param colors The new colors.
      */
     public void setColors(final Color[] colors) {
         this.colors = (colors != null) ? colors.clone() : null;
@@ -166,6 +184,8 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Returns a clone of this object.
+     *
+     * @return A clone of this object.
      */
     @Override
     public RangeSpecifier clone() {
@@ -194,6 +214,9 @@ public class RangeSpecifier implements Serializable, Cloneable {
 
     /**
      * Compares this range specifier with the specified object for equality.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if the given object is equals to this range specifier.
      */
     @Override
     public boolean equals(final Object object) {

@@ -16,10 +16,8 @@
  */
 package org.geotools.referencing.factory;
 
-// J2SE dependencies
 import java.io.Serializable;
 import java.io.ObjectStreamException;
-import java.sql.SQLException;
 import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +30,6 @@ import java.util.LinkedHashSet;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-// OpenGIS dependencies
 import org.opengis.metadata.Identifier;
 import org.opengis.referencing.AuthorityFactory;
 import org.opengis.referencing.FactoryException;
@@ -41,8 +38,7 @@ import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.operation.CoordinateOperationAuthorityFactory; // For javadoc
 
-// Geotools dependencies
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -110,9 +106,10 @@ public class IdentifiedObjectSet extends AbstractSet implements Serializable {
     /**
      * Removes all of the elements from this collection.
      */
+    @Override
     public void clear() {
         objects.clear();
-	}
+    }
 
     /**
      * Returns the number of objects available in this set. Note that this

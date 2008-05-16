@@ -36,13 +36,13 @@ import org.opengis.util.InternationalString;
 
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.SimpleInternationalString;
 import org.geotools.util.NameFactory;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -641,6 +641,8 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param axis The coordinate system axis to copy.
+     *
      * @since 2.2
      */
     public DefaultCoordinateSystemAxis(final CoordinateSystemAxis axis) {
@@ -1017,6 +1019,9 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      * Compass directions include "<cite>North</cite>", "<cite>North-North-East</cite>",
      * "<cite>North-East</cite>", <cite>etc.</cite>
      *
+     * @param direction The axis direction to test.
+     * @return {@code true} if the given direction is a compass direction.
+     *
      * @since 2.4
      */
     public static boolean isCompassDirection(final AxisDirection direction) {
@@ -1052,6 +1057,12 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
      *   <li>The angle from "<cite>North along 90 deg East</cite>" to
      *       "<cite>North along 0 deg</cite>" is 90°.</li>
      * </ul>
+     *
+     * @param  source The source axis direction.
+     * @param  target The target axis direction.
+     * @return The arithmetic angle (in degrees) of the rotation to apply on a line pointing toward
+     *         the source direction in order to make it point toward the target direction, or
+     *         {@link Double#NaN} if this value can't be computed.
      *
      * @since 2.4
      */
@@ -1098,6 +1109,10 @@ public class DefaultCoordinateSystemAxis extends AbstractIdentifiedObject
 
     /**
      * Returns {@code true} if the specified directions are perpendicular.
+     *
+     * @param first The first axis direction to test.
+     * @param second The second axis direction to test.
+     * @return {@code true} if the given axis direction are perpendicular.
      *
      * @since 2.4
      */

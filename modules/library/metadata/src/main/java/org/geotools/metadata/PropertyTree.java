@@ -28,9 +28,8 @@ import javax.swing.tree.TreeNode;
 
 import org.opengis.util.CodeList;
 import org.opengis.util.InternationalString;
-import org.geotools.resources.XMath;
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.OptionalDependencies;
 
 
@@ -184,7 +183,7 @@ final class PropertyTree {
             numberFormat.setMinimumFractionDigits(0);
         }
         int precision = 0;
-        if (!XMath.isInteger(value.getClass())) {
+        if (!Classes.isInteger(value.getClass())) {
             precision = PRECISION;
             final double v = Math.abs(value.doubleValue());
             if (v > 0) {

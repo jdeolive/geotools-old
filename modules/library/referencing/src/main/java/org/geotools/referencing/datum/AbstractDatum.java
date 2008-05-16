@@ -21,7 +21,6 @@ package org.geotools.referencing.datum;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import org.opengis.metadata.extent.Extent;
@@ -30,7 +29,7 @@ import org.opengis.util.InternationalString;
 
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
 import org.geotools.resources.i18n.Vocabulary;
 
@@ -103,6 +102,8 @@ public class AbstractDatum extends AbstractIdentifiedObject implements Datum {
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
      *
+     * @param datum The datum to copy.
+     *
      * @since 2.2
      */
     public AbstractDatum(final Datum datum) {
@@ -147,6 +148,8 @@ public class AbstractDatum extends AbstractIdentifiedObject implements Datum {
      *     <td nowrap>&nbsp;{@link #getScope}</td>
      *   </tr>
      * </table>
+     *
+     * @param properties The properties to be given to the identified object.
      */
     public AbstractDatum(final Map<String,?> properties) {
         this(properties, new HashMap<String,Object>());

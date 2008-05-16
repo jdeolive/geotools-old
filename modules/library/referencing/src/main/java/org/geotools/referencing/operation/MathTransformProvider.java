@@ -127,10 +127,12 @@ public abstract class MathTransformProvider extends DefaultOperationMethod {
      * <code>{@linkplain org.opengis.referencing.operation.Conversion}.class</code>,
      * <code>{@linkplain org.opengis.referencing.operation.Projection}.class</code>,
      * <cite>etc</cite>.
-     *
+     * <p>
      * The default implementation returns {@code Operation.class}.
      * Subclass should overrides this methods and returns the appropriate
      * OpenGIS interface type (<strong>not</strong> the implementation type).
+     *
+     * @return The GeoAPI interface implemented by this operation.
      */
     @Override
     public Class<? extends Operation> getOperationType() {

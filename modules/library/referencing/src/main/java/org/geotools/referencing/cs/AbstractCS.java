@@ -35,12 +35,12 @@ import org.opengis.referencing.operation.Matrix;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.util.InternationalString;
 
+import org.geotools.util.Utilities;
 import org.geotools.measure.Measure;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.wkt.Formatter;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
@@ -105,6 +105,8 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param cs The coordinate system to copy.
      *
      * @since 2.2
      */
@@ -233,6 +235,9 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * system. This method is invoked at construction time for checking argument validity.
      * The default implementation returns {@code true} for all axis directions. Subclasses
      * will overrides this method in order to put more restrictions on allowed axis directions.
+     *
+     * @param direction The direction to test for compatibility.
+     * @return {@code true} if the given direction is compatible with this coordinate system.
      */
     protected boolean isCompatibleDirection(final AxisDirection direction) {
         return true;
@@ -244,6 +249,10 @@ public class AbstractCS extends AbstractIdentifiedObject implements CoordinateSy
      * implementation returns {@code true} in all cases. Subclasses can override this method and
      * check for compatibility with {@linkplain SI#METER meter} or
      * {@linkplain NonSI#DEGREE_ANGLE degree} units.
+     *
+     * @param direction The direction of the axis having the given unit.
+     * @param unit The unit to test for compatibility.
+     * @return {@code true} if the given unit is compatible with this coordinate system.
      *
      * @since 2.2
      */

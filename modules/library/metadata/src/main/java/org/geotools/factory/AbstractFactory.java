@@ -29,9 +29,9 @@ import javax.imageio.spi.ServiceRegistry;
 import javax.imageio.spi.RegisterableService;
 
 import org.opengis.referencing.AuthorityFactory;
+import org.geotools.util.Utilities;
 import org.geotools.io.TableWriter;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -349,6 +349,9 @@ public class AbstractFactory implements Factory, RegisterableService {
      * The requirement for the <cite>exact same class</cite> is needed for consistency with the
      * {@linkplain FactoryRegistry factory registry} working, since at most one instance of a given
      * class {@linkplain FactoryRegistry#getServiceProviderByClass) is allowed} in a registry.
+     *
+     * @param object The object to compare.
+     * @return {@code true} if the given object is equals to this factory.
      *
      * @since 2.3
      */

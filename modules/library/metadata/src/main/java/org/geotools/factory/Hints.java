@@ -30,8 +30,8 @@ import javax.naming.Name;
 import javax.sql.DataSource;
 
 import org.opengis.util.InternationalString;
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -1346,6 +1346,8 @@ public class Hints extends RenderingHints {
 
         /**
          * Returns the expected class for values stored under this key.
+         *
+         * @return The class of values stored under this key.
          */
         public Class<?> getValueClass() {
             if (valueClass == null) {
@@ -1555,6 +1557,8 @@ public class Hints extends RenderingHints {
 
         /**
          * Creates a new key with the specified default value.
+         *
+         * @param number The default value.
          */
         public IntegerKey(final int number) {
             super(Integer.class);
@@ -1563,6 +1567,8 @@ public class Hints extends RenderingHints {
 
         /**
          * Returns the default value.
+         *
+         * @return The default value.
          */
         public int getDefault(){
             return number;
@@ -1630,6 +1636,8 @@ public class Hints extends RenderingHints {
 
         /**
          * Creates a new key for a configuration option.
+         *
+         * @param alternatives The available options.
          */
         public OptionKey(final String... alternatives) {
             super(String.class);
@@ -1640,6 +1648,8 @@ public class Hints extends RenderingHints {
 
         /**
          * Returns the set of available options.
+         *
+         * @return The available options.
          */
         public Set<String> getOptions() {
             return options;

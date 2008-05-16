@@ -3,7 +3,7 @@
  *    http://geotools.org
  *    (C) 2005-2006, GeoTools Project Managment Committee (PMC)
  *    (C) 2005, Institut de Recherche pour le Développement
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -16,17 +16,14 @@
  */
 package org.geotools.parameter;
 
-// J2SE dependencies
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.MissingResourceException;
 import java.io.Serializable;
 
-// JAI dependencies
 import javax.media.jai.OperationDescriptor;
 
-// Geotools dependencies
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.util.AbstractInternationalString;
 
 
@@ -159,6 +156,7 @@ final class ImagingParameterDescription extends AbstractInternationalString impl
     /**
      * Compares this international string with the specified object for equality.
      */
+    @Override
     public boolean equals(final Object object) {
         if (object!=null && object.getClass().equals(getClass())) {
             final ImagingParameterDescription that = (ImagingParameterDescription) object;
@@ -172,6 +170,7 @@ final class ImagingParameterDescription extends AbstractInternationalString impl
     /**
      * Returns a hash code value for this international text.
      */
+    @Override
     public int hashCode() {
         return (int)serialVersionUID ^ key.hashCode() ^ operation.hashCode();
     }

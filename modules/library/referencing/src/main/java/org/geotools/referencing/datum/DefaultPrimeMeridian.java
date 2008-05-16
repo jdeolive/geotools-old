@@ -27,7 +27,7 @@ import javax.units.Unit;
 import org.opengis.referencing.datum.PrimeMeridian;
 import org.geotools.referencing.AbstractIdentifiedObject;
 import org.geotools.referencing.wkt.Formatter;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -70,6 +70,8 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * Geotools one or a user-defined one (as a subclass), usually in order to leverage
      * some implementation-specific API. This constructor performs a shallow copy,
      * i.e. the properties are not cloned.
+     *
+     * @param meridian The prime meridian to copy.
      *
      * @since 2.2
      */
@@ -139,6 +141,7 @@ public class DefaultPrimeMeridian extends AbstractIdentifiedObject implements Pr
      * angular units of this prime meridian.
      *
      * @param targetUnit The unit in which to express longitude.
+     * @return The Greenwich longitude in the given units.
      */
     public double getGreenwichLongitude(final Unit targetUnit) {
         return getAngularUnit().getConverterTo(targetUnit).convert(getGreenwichLongitude());

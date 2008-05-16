@@ -28,9 +28,9 @@ import org.opengis.parameter.ParameterDescriptorGroup;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.util.InternationalString;
 
+import org.geotools.util.Utilities;
 import org.geotools.factory.Hints;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -204,6 +204,9 @@ public abstract class AbstractOperation implements Operation, Serializable {
 
     /**
      * Compares the specified object with this operation for equality.
+     *
+     * @param object The object to compare with this operation.
+     * @return {@code true} if the given object is equals to this operation.
      */
     @Override
     public boolean equals(final Object object) {

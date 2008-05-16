@@ -61,13 +61,13 @@ import org.geotools.referencing.ReferencingFactoryFinder;
 import org.geotools.referencing.operation.transform.DimensionFilter;
 import org.geotools.image.jai.Registry;
 import org.geotools.resources.XArray;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.CRSUtilities;
 import org.geotools.resources.coverage.CoverageUtilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.image.ImageUtilities;
 import org.geotools.util.AbstractInternationalString;
+import org.geotools.util.Utilities;
 import org.geotools.util.NumberRange;
 import org.geotools.util.logging.Logging;
 
@@ -681,6 +681,9 @@ public class OperationJAI extends Operation2D {
      * one and only one quantitative category. If {@code categories} contains 0,
      * 2 or more quantitative category, then this method returns {@code -1}.
      *
+     * @param categories The categories to test.
+     * @return The index of the quantitative category, or {@code -1} if none can be choosen.
+     *
      * @since 2.4
      */
     protected static int getQuantitative(final Category[] categories) {
@@ -965,6 +968,7 @@ public class OperationJAI extends Operation2D {
      *
      * @param parameters The parameters to be given to JAI.
      * @param hints The rendering hints to be given to JAI.
+     * @return The result of JAI operation using the given parameters and hints.
      */
     protected RenderedImage createRenderedImage(final ParameterBlockJAI parameters,
                                                 final RenderingHints    hints)

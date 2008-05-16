@@ -29,11 +29,11 @@ import javax.swing.event.EventListenerList;
 
 import org.geotools.resources.Classes;
 import org.geotools.resources.Arguments;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.util.logging.LoggerFactory;
 import org.geotools.util.logging.Logging;
+import org.geotools.util.Utilities;
 import org.geotools.util.Version;
 
 
@@ -173,6 +173,8 @@ public final class GeoTools {
 
     /**
      * Reports back the version of GeoTools being used.
+     *
+     * @return The current GeoTools version.
      */
     public static Version getVersion(){
          return VERSION;
@@ -187,6 +189,8 @@ public final class GeoTools {
      * <A HREF="http://logging.apache.org/log4j/">log4j</A>. This method exists to allow you
      * supply your own implementation (this is sometimes required when using a GeoTools
      * application in an exotic environment like Eclipse, OC4J or your application).
+     *
+     * @param factory The logger factory to use.
      *
      * @see Logging#setLoggerFactory(LoggerFactory)
      *
@@ -233,6 +237,8 @@ public final class GeoTools {
      * GeoTools.init(hints);
      * </pre></blockquote>
      *
+     * @param hints The hints to use.
+     *
      * @see Logging#setLoggerFactory(String)
      * @see Logging#forceMonolineConsoleOutput
      * @see Hints#putSystemDefault
@@ -261,6 +267,8 @@ public final class GeoTools {
 
     /**
      * Forces the initial context for test cases, or as needed.
+     *
+     * @param applicationContext The initial context to use.
      *
      * @see #getInitialContext
      *
@@ -455,6 +463,8 @@ public final class GeoTools {
      * to specify additional discovery algorithms. It may be useful in the context of some
      * frameworks that use the <cite>constructor injection</cite> pattern, like the
      * <a href="http://www.springframework.org/">Spring framework</a>.
+     *
+     * @param provider A new provider for factory iterators.
      */
     public static void addFactoryIteratorProvider(final FactoryIteratorProvider provider) {
         FactoryIteratorProviders.addFactoryIteratorProvider(provider);
@@ -464,6 +474,8 @@ public final class GeoTools {
      * Removes a provider that was previously {@linkplain #addFactoryIteratorProvider added}.
      * Note that factories already obtained from the specified provider will not be
      * {@linkplain FactoryRegistry#deregisterServiceProvider deregistered} by this method.
+     *
+     * @param provider The provider to remove.
      */
     public static void removeFactoryIteratorProvider(final FactoryIteratorProvider provider) {
         FactoryIteratorProviders.removeFactoryIteratorProvider(provider);
@@ -472,6 +484,8 @@ public final class GeoTools {
     /**
      * Adds the specified listener to the list of objects to inform when system-wide
      * configuration changed.
+     *
+     * @param listener The listener to add.
      */
     public static void addChangeListener(final ChangeListener listener) {
         removeChangeListener(listener); // Ensure singleton.
@@ -481,6 +495,8 @@ public final class GeoTools {
     /**
      * Removes the specified listener from the list of objects to inform when system-wide
      * configuration changed.
+     *
+     * @param listener The listener to remove.
      */
     public static void removeChangeListener(final ChangeListener listener) {
         LISTENERS.remove(ChangeListener.class, listener);
@@ -502,6 +518,8 @@ public final class GeoTools {
     /**
      * Reports the GeoTools {@linkplain #getVersion version} number to the
      * {@linkplain System#out standard output stream}.
+     *
+     * @param args Command line arguments.
      */
     public static void main(String[] args) {
         final Arguments arguments = new Arguments(args);

@@ -26,8 +26,8 @@ import java.io.Serializable;
 import org.opengis.util.Cloneable;
 import org.opengis.coverage.grid.GridGeometry;
 
+import org.geotools.util.Utilities;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
 
 
@@ -68,7 +68,7 @@ public class ImageGeometry implements GridGeometry, Serializable, Cloneable {
      * affine transform.
      *
      * @param bounds The image bounds in pixel coordinates.
-     * @param The affine transform from pixel coordinates to "real world" coordinates.
+     * @param gridToCRS The affine transform from pixel coordinates to "real world" coordinates.
      */
     public ImageGeometry(final Rectangle bounds, final AffineTransform gridToCRS) {
         this.gridRange = new GridRange2D(bounds);
@@ -115,6 +115,9 @@ public class ImageGeometry implements GridGeometry, Serializable, Cloneable {
 
     /**
      * Compares this grid geometry with the specified one for equality.
+     *
+     * @param object The object to compare with.
+     * @return {@code true} if the given object is equals to this grid geometry.
      */
     @Override
     public boolean equals(final Object object) {
@@ -131,6 +134,8 @@ public class ImageGeometry implements GridGeometry, Serializable, Cloneable {
 
     /**
      * Returns a clone of this image geometry.
+     *
+     * @return A clone of this grid geometry.
      */
     @Override
     public ImageGeometry clone() {

@@ -16,21 +16,18 @@
  */
 package org.geotools.coverage.processing;
 
-// J2SE dependencies
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-// OpenGIS dependencies
 import org.opengis.coverage.Coverage;
 import org.opengis.coverage.processing.Operation;
 import org.opengis.parameter.ParameterValueGroup;
 
-// Geotools dependencies
-import org.geotools.coverage.CoverageCache;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.parameter.Parameters;
+import org.geotools.coverage.CoverageCache;
 
 
 /**
@@ -75,9 +72,10 @@ final class CachedOperation {
      * @param parameters The parameters, including source grid coverages.
      */
     CachedOperation(final Operation operation, final ParameterValueGroup parameters) {
+        final Map<String,Object> param =
+                Parameters.toNameValueMap(parameters, new TreeMap<String,Object>());
         this.operation  = operation;
         int   hashCode  = operation.hashCode();
-        final Map param = Parameters.toNameValueMap(parameters, new TreeMap());
         this.names      = new String[param.size()];
         this.values     = new Object[names.length];
         int  index      = 0;
@@ -104,8 +102,8 @@ final class CachedOperation {
         if (object instanceof CachedOperation) {
             final CachedOperation that = (CachedOperation) object;
             return Utilities.equals(this.operation, that.operation) &&
-                      Arrays.equals(this.names,     that.names)     &&
-                      Arrays.equals(this.values,    that.values);
+                             Arrays.equals(this.names,     that.names)     &&
+                             Arrays.equals(this.values,    that.values);
             /*
              * NOTE: values array may contains WeakReference, in which case the 'equals'
              *       method applies to reference instead of referent (i.e. Coverage). It

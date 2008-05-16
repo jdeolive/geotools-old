@@ -40,7 +40,7 @@ import org.opengis.parameter.GeneralParameterValue;
 import org.opengis.parameter.GeneralParameterDescriptor;
 import org.opengis.parameter.InvalidParameterNameException;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.UnmodifiableArrayList;
@@ -97,6 +97,8 @@ public class ImagingParameters extends AbstractParameter implements ParameterVal
 
     /**
      * Constructs a parameter group for the specified descriptor.
+     *
+     * @param descriptor The descriptor for this group of parameters.
      */
     public ImagingParameters(final ImagingParameterDescriptors descriptor) {
         super(descriptor);
@@ -117,7 +119,7 @@ public class ImagingParameters extends AbstractParameter implements ParameterVal
      * @param properties Set of properties. Should contains at least {@code "name"}.
      * @param parameters The JAI's parameters.
      */
-    public ImagingParameters(final Map properties, final ParameterList parameters) {
+    public ImagingParameters(final Map<String,?> properties, final ParameterList parameters) {
         super(new ImagingParameterDescriptors(properties, parameters.getParameterListDescriptor()));
         this.parameters = parameters;
         ensureNonNull("parameters", parameters);
@@ -304,9 +306,7 @@ public class ImagingParameters extends AbstractParameter implements ParameterVal
      * Always throws an exception, since JAI's {@linkplain ParameterList parameter list}
      * don't have subgroups.
      */
-    public ParameterValueGroup addGroup(final String name)
-            throws ParameterNotFoundException, IllegalStateException
-    {
+    public ParameterValueGroup addGroup(final String name) throws ParameterNotFoundException {
         throw new ParameterNotFoundException(Errors.format(
                   ErrorKeys.MISSING_PARAMETER_$1, name), name);
     }

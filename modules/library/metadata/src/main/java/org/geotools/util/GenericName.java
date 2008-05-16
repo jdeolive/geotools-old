@@ -31,8 +31,6 @@ import org.opengis.util.LocalName;
 import org.opengis.util.ScopedName;  // For javadoc
 import org.opengis.util.InternationalString;
 
-import org.geotools.resources.Utilities;
-
 
 /**
  * Base class for {@linkplain ScopedName generic scoped} and
@@ -85,6 +83,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * associated with a {@linkplain NameSpace name space} having the name {@code "org.opengis"},
      * then the fully qualified name would be {@code "org.opengis.util.GenericName"}.
      *
+     * @return The name space.
+     *
      * @since 2.3
      */
     public abstract NameSpace scope();
@@ -97,6 +97,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * The depth is the length of the list returned by the {@link #getParsedNames} method.
      * As such it is a derived parameter.
      *
+     * @return The depth of this name.
+     *
      * @since 2.3
      */
     @XmlElement(name = "depth", required = true)
@@ -106,6 +108,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * Returns the sequence of {@linkplain LocalName local names} making this generic name.
      * Each element in this list is like a directory name in a file path name.
      * The length of this sequence is the generic name depth.
+     *
+     * @return The sequence of local names.
      */
     @XmlElement(name = "parsedName", required = true)
     public abstract List<LocalName> getParsedNames();
@@ -113,6 +117,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
     /**
      * Returns the last element in the sequence of {@linkplain #getParsedNames parsed names}.
      * For any {@link LocalName}, this is always {@code this}.
+     *
+     * @return The last element of this name.
      *
      * @see LocalName#name
      * @see ScopedName#name
@@ -137,6 +143,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * {@linkplain ScopedName scoped name} will contains the scope, while the
      * {@code toString()} method for the {@linkplain LocalName local version} of
      * the same name will not contains the scope.
+     *
+     * @return A string representation of this name.
      */
     @Override
     public String toString() {
@@ -158,6 +166,8 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      * been localized in the {@linkplain InternationalString#toString(Locale)
      * specified locale}. If no international string is available, then this method should
      * returns an implementation mapping to {@link #toString} for all locales.
+     *
+     * @return A localizable string representation of this name.
      */
     public InternationalString toInternationalString() {
         return new International(getParsedNames(), getSeparator());
@@ -249,6 +259,9 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
      *       respectively.</li>
      *   <li>Otherwise, returns 0.</li>
      * </ul>
+     *
+     * @param that The name to compare with this name.
+     * @return -1 if this name precedes the given one, +1 if it follows, 0 if equals.
      */
     public int compareTo(final org.opengis.util.GenericName that) {
         final Iterator<LocalName> thisNames = this.getParsedNames().iterator();
@@ -273,6 +286,9 @@ public abstract class GenericName implements org.opengis.util.GenericName, Seria
 
     /**
      * Compares this generic name with the specified object for equality.
+     *
+     * @param object The object to compare with this name.
+     * @return {@code true} if the given object is equals to this one.
      */
     @Override
     public boolean equals(final Object object) {

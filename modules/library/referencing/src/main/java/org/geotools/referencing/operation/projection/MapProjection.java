@@ -833,8 +833,8 @@ public abstract class MapProjection extends AbstractMathTransform
      *         have value {@link Double#NaN}. If more than one point can't be transformed, then this
      *         exception may be about an arbitrary point.
      */
-    public final void transform(final double[] src,  int srcOffset,
-                                final double[] dest, int dstOffset, int numPts)
+    public final void transform(final double[] srcPts, int srcOff,
+                                final double[] dstPts, int dstOff, int numPts)
             throws ProjectionException
     {
         /*
@@ -842,31 +842,31 @@ public abstract class MapProjection extends AbstractMathTransform
          * Ce sera le cas si les tableaux source et destination se
          * chevauchent et que la destination est après la source.
          */
-        final boolean reverse = (src==dest && srcOffset<dstOffset &&
-                                 srcOffset+(2*numPts) > dstOffset);
+        final boolean reverse = (srcPts == dstPts && srcOff < dstOff &&
+                                 srcOff + (2*numPts) > dstOff);
         if (reverse) {
-            srcOffset += 2*numPts;
-            dstOffset += 2*numPts;
+            srcOff += 2*numPts;
+            dstOff += 2*numPts;
         }
         final Point2D.Double point = new Point2D.Double();
         ProjectionException firstException = null;
-        while (--numPts>=0) {
+        while (--numPts >= 0) {
             try {
-                point.x = src[srcOffset++];
-                point.y = src[srcOffset++];
+                point.x = srcPts[srcOff++];
+                point.y = srcPts[srcOff++];
                 transform(point, point);
-                dest[dstOffset++] = point.x;
-                dest[dstOffset++] = point.y;
+                dstPts[dstOff++] = point.x;
+                dstPts[dstOff++] = point.y;
             } catch (ProjectionException exception) {
-                dest[dstOffset++] = Double.NaN;
-                dest[dstOffset++] = Double.NaN;
+                dstPts[dstOff++] = Double.NaN;
+                dstPts[dstOff++] = Double.NaN;
                 if (firstException == null) {
                     firstException = exception;
                 }
             }
             if (reverse) {
-                srcOffset -= 4;
-                dstOffset -= 4;
+                srcOff -= 4;
+                dstOff -= 4;
             }
         }
         if (firstException != null) {
@@ -884,35 +884,35 @@ public abstract class MapProjection extends AbstractMathTransform
      *         exception may be about an arbitrary point.
      */
     @Override
-    public final void transform(final float[] src,  int srcOffset,
-                                final float[] dest, int dstOffset, int numPts)
+    public final void transform(final float[] srcPts, int srcOff,
+                                final float[] dstPts, int dstOff, int numPts)
             throws ProjectionException
     {
-        final boolean reverse = (src==dest && srcOffset<dstOffset &&
-                                 srcOffset+(2*numPts) > dstOffset);
+        final boolean reverse = (srcPts == dstPts && srcOff < dstOff &&
+                                 srcOff + (2*numPts) > dstOff);
         if (reverse) {
-            srcOffset += 2*numPts;
-            dstOffset += 2*numPts;
+            srcOff += 2*numPts;
+            dstOff += 2*numPts;
         }
         final Point2D.Double point = new Point2D.Double();
         ProjectionException firstException = null;
-        while (--numPts>=0) {
+        while (--numPts >= 0) {
             try {
-                point.x = src[srcOffset++];
-                point.y = src[srcOffset++];
+                point.x = srcPts[srcOff++];
+                point.y = srcPts[srcOff++];
                 transform(point, point);
-                dest[dstOffset++] = (float) point.x;
-                dest[dstOffset++] = (float) point.y;
+                dstPts[dstOff++] = (float) point.x;
+                dstPts[dstOff++] = (float) point.y;
             } catch (ProjectionException exception) {
-                dest[dstOffset++] = Float.NaN;
-                dest[dstOffset++] = Float.NaN;
+                dstPts[dstOff++] = Float.NaN;
+                dstPts[dstOff++] = Float.NaN;
                 if (firstException == null) {
                     firstException = exception;
                 }
             }
             if (reverse) {
-                srcOffset -= 4;
-                dstOffset -= 4;
+                srcOff -= 4;
+                dstOff -= 4;
             }
         }
         if (firstException != null) {

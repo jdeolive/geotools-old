@@ -2,7 +2,7 @@
  *    GeoTools - OpenSource mapping toolkit
  *    http://geotools.org
  *    (C) 2006, GeoTools Project Managment Committee (PMC)
- *   
+ *
  *    This library is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU Lesser General Public
  *    License as published by the Free Software Foundation;
@@ -15,8 +15,7 @@
  */
 package org.geotools.referencing.factory.epsg;
 
-// Geotools dependencies
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -49,6 +48,7 @@ final class AxisName {
     /**
      * Returns a hash code for this object.
      */
+    @Override
     public int hashCode() {
         return name.hashCode();
     }
@@ -56,6 +56,7 @@ final class AxisName {
     /**
      * Compare this name with the specified object for equality.
      */
+    @Override
     public boolean equals(final Object object) {
         if (object instanceof AxisName) {
             final AxisName that = (AxisName) object;
@@ -68,6 +69,7 @@ final class AxisName {
     /**
      * Returns a string representation of this object, for debugging purpose only.
      */
+    @Override
     public String toString() {
         return name;
     }

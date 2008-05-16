@@ -26,7 +26,7 @@ import org.opengis.geometry.MismatchedReferenceSystemException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.cs.AxisDirection;  // For javadoc
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -73,6 +73,8 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Constructs two-dimensional envelope defined by an other {@link Envelope}.
+     *
+     * @param envelope The envelope to copy.
      */
     public Envelope2D(final Envelope envelope) {
         super(envelope.getMinimum(0), envelope.getMinimum(1),
@@ -89,6 +91,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Constructs two-dimensional envelope defined by an other {@link Rectangle2D}.
+     *
+     * @param crs The coordinate reference system, or {@code null}.
+     * @param rect The rectangle to copy.
      */
     public Envelope2D(final CoordinateReferenceSystem crs, final Rectangle2D rect) {
         super(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight());
@@ -102,6 +107,12 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      * Those parameter names simply match the {@linkplain #x x} and {@linkplain #y y} fields.
      * The actual axis orientations are determined by the specified CRS.
      * See the {@linkplain Envelope2D class javadoc} for details.
+     *
+     * @param crs The coordinate reference system, or {@code null}.
+     * @param x The <var>x</var> minimal value.
+     * @param y The <var>y</var> minimal value.
+     * @param width The envelope width.
+     * @param height The envelope height.
      */
     public Envelope2D(final CoordinateReferenceSystem crs,
                       final double x, final double y, final double width, final double height)
@@ -195,6 +206,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Returns the minimal ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The minimal ordinate value along the given dimension.
      */
     public final double getMinimum(final int dimension) {
         switch (dimension) {
@@ -206,6 +220,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Returns the maximal ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The maximal ordinate value along the given dimension.
      */
     public final double getMaximum(final int dimension) {
         switch (dimension) {
@@ -217,6 +234,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Returns the center ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The mid ordinate value along the given dimension.
      */
     public final double getCenter(final int dimension) {
         switch (dimension) {
@@ -230,6 +250,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
      * Returns the envelope length along the specified dimension.
      * This length is equals to the maximum ordinate minus the
      * minimal ordinate.
+     *
+     * @param dimension The dimension to query.
+     * @return The difference along maximal and minimal ordinates in the given dimension.
      */
     public final double getLength(final int dimension) {
         switch (dimension) {
@@ -254,6 +277,9 @@ public class Envelope2D extends Rectangle2D.Double implements Envelope, Cloneabl
 
     /**
      * Compares the specified object with this envelope for equality.
+     *
+     * @param object The object to compare with this envelope.
+     * @return {@code true} if the given object is equals to this envelope.
      */
     @Override
     public boolean equals(final Object object) {

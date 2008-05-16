@@ -26,7 +26,7 @@ import org.opengis.referencing.operation.OperationNotFoundException;
 
 import org.geotools.factory.Hints;
 import org.geotools.factory.BufferedFactory;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.util.SoftValueHashMap;
 import org.geotools.referencing.ReferencingFactoryFinder;
 

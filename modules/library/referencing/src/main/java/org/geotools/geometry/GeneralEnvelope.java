@@ -40,7 +40,7 @@ import org.opengis.geometry.MismatchedReferenceSystemException;
 
 import org.geotools.referencing.CRS;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.geometry.XRectangle2D;
@@ -94,6 +94,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
     /**
      * Constructs an empty envelope of the specified dimension. All ordinates
      * are initialized to 0 and the coordinate reference system is undefined.
+     *
+     * @param dimension The envelope dimension.
      */
     public GeneralEnvelope(final int dimension) {
         ordinates = new double[dimension*2];
@@ -157,6 +159,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * Constructs an empty envelope with the specified coordinate reference system.
      * All ordinates are initialized to 0.
      *
+     * @param crs The coordinate reference system.
+     *
      * @since 2.2
      */
     public GeneralEnvelope(final CoordinateReferenceSystem crs) {
@@ -168,6 +172,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
 
     /**
      * Constructs a new envelope with the same data than the specified envelope.
+     *
+     * @param envelope The envelope to copy.
      */
     public GeneralEnvelope(final Envelope envelope) {
         ensureNonNull("envelope", envelope);
@@ -192,6 +198,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * geographic bounding box. The coordinate reference system is set
      * to {@linkplain DefaultGeographicCRS#WGS84 WGS84}.
      *
+     * @param box The bounding box to copy.
+     *
      * @since 2.4
      */
     public GeneralEnvelope(final GeographicBoundingBox box) {
@@ -208,6 +216,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
     /**
      * Constructs two-dimensional envelope defined by a {@link Rectangle2D}.
      * The coordinate reference system is initially undefined.
+     *
+     * @param rect The rectangle to copy.
      */
     public GeneralEnvelope(final Rectangle2D rect) {
         ensureNonNull("rect", rect);
@@ -502,6 +512,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * A coordinate position consisting of all the {@linkplain #getCenter(int) middle ordinates}
      * for each dimension for all points within the {@code Envelope}.
      *
+     * @return The center coordinates.
+     *
      * @since 2.3
      */
     public DirectPosition getCenter() {
@@ -515,6 +527,9 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
 
     /**
      * Returns the minimal ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The minimal ordinate value along the given dimension.
      */
     public final double getMinimum(final int dimension) {
         if (dimension < ordinates.length/2) {
@@ -526,6 +541,9 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
 
     /**
      * Returns the maximal ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The maximal ordinate value along the given dimension.
      */
     public final double getMaximum(final int dimension) {
         if (dimension >= 0) {
@@ -537,6 +555,9 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
 
     /**
      * Returns the center ordinate along the specified dimension.
+     *
+     * @param dimension The dimension to query.
+     * @return The mid ordinate value along the given dimension.
      */
     public final double getCenter(final int dimension) {
         return 0.5*(ordinates[dimension] + ordinates[dimension + ordinates.length/2]);
@@ -546,6 +567,9 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * Returns the envelope length along the specified dimension.
      * This length is equals to the maximum ordinate minus the
      * minimal ordinate.
+     *
+     * @param dimension The dimension to query.
+     * @return The difference along maximal and minimal ordinates in the given dimension.
      */
     public final double getLength(final int dimension) {
         return ordinates[dimension + ordinates.length/2] - ordinates[dimension];
@@ -554,6 +578,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
     /**
      * Returns the envelope length along the specified dimension, in terms of the given units.
      *
+     * @param  dimension The dimension to query.
      * @param  unit The unit for the return value.
      * @return The length in terms of the given unit.
      * @throws ConversionException if the length can't be converted to the specified units.
@@ -602,6 +627,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * <b>Example:</b>
      * (<var>x</var><sub>min</sub>, <var>y</var><sub>min</sub>, <var>z</var><sub>min</sub>,
      *  <var>x</var><sub>max</sub>, <var>y</var><sub>max</sub>, <var>z</var><sub>max</sub>)
+     *
+     * @param ordinates The new ordinate values.
      *
      * @since 2.5
      */
@@ -659,6 +686,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * Returns {@code true} if at least one ordinate has an
      * {@linkplain Double#isInfinite infinite} value.
      *
+     * @return {@code true} if this envelope has infinite value.
+     *
      * @since 2.2
      */
     public boolean isInfinite() {
@@ -695,6 +724,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      *   <li>The converse of the above-cited rules are not always true.</li>
      * </ul>
      *
+     * @return {@code true} if this envelope has NaN values.
+     *
      * @since 2.2
      */
     public boolean isNull() {
@@ -712,6 +743,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * at least one {@linkplain #getDimension dimension}, and the {@linkplain #getLength length}
      * is greater than 0 along all dimensions. Note that a non-empty envelope is always
      * non-{@linkplain #isNull null}, but the converse is not always true.
+     *
+     * @return {@code true} if this envelope is empty.
      */
     public boolean isEmpty() {
         final int dimension = ordinates.length / 2;
@@ -991,6 +1024,7 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * Returns a {@link Rectangle2D} with the same bounds as this {@code Envelope}.
      * This is a convenience method for interoperability with Java2D.
      *
+     * @return This envelope as a twp-dimensional rectangle.
      * @throws IllegalStateException if this envelope is not two-dimensional.
      */
     public Rectangle2D toRectangle2D() throws IllegalStateException {
@@ -1055,6 +1089,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
      * @param eps The tolerance value to use for numerical comparaisons.
      * @param epsIsRelative {@code true} if the tolerance value should be relative to
      *        axis length, or {@code false} if it is an absolute value.
+     * @return {@code true} if the given object is equals to this envelope up to the given
+     *         tolerance value.
      *
      * @see #contains(Envelope, boolean)
      * @see #intersects(Envelope, boolean)
@@ -1088,6 +1124,8 @@ public class GeneralEnvelope extends AbstractEnvelope implements Cloneable, Seri
 
     /**
      * Returns a deep copy of this envelope.
+     *
+     * @return A clone of this envelope.
      */
     @Override
     public GeneralEnvelope clone() {

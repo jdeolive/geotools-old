@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.text.StyleConstants;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 import org.geotools.resources.XArray;
 
 
@@ -364,6 +364,8 @@ public class TableWriter extends FilterWriter {
 
     /**
      * Tells if EOL characters are used for line feeds inside current cells.
+     *
+     * @return {@code true} if EOL characters are to be write inside the cell.
      */
     public boolean isMultiLinesCells() {
         synchronized (lock) {
@@ -436,6 +438,8 @@ public class TableWriter extends FilterWriter {
     /**
      * Returns the number of rows in this table. This count is reset to 0 by {@link #flush}.
      *
+     * @return The number of rows in this table.
+     *
      * @since 2.5
      */
     public int getRowCount() {
@@ -448,6 +452,8 @@ public class TableWriter extends FilterWriter {
 
     /**
      * Returns the number of columns in this table.
+     *
+     * @return The number of colunms in this table.
      *
      * @since 2.5
      */

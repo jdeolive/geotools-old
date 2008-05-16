@@ -19,7 +19,7 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.geotools.resources.Utilities;
+import org.geotools.util.Utilities;
 
 
 /**
@@ -59,6 +59,8 @@ public class IndentedLineWriter extends FilterWriter {
 
     /**
      * Returns the current indentation.
+     *
+     * @return The current indentation.
      */
     public int getIdentation() {
         return margin.length();
@@ -66,6 +68,8 @@ public class IndentedLineWriter extends FilterWriter {
 
     /**
      * Sets the indentation to the specified value.
+     *
+     * @param width The new indentation.
      */
     public void setIndentation(final int width) {
         synchronized (lock) {

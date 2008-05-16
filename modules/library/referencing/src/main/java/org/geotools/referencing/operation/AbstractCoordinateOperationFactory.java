@@ -46,12 +46,12 @@ import org.geotools.referencing.factory.ReferencingFactoryContainer;
 import org.geotools.referencing.cs.AbstractCS;
 import org.geotools.referencing.operation.transform.ProjectiveTransform;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
 import org.geotools.util.CanonicalSet;
+import org.geotools.util.Utilities;
 
 import static org.geotools.referencing.CRS.equalsIgnoreMetadata;
 
@@ -231,6 +231,8 @@ public abstract class AbstractCoordinateOperationFactory extends ReferencingFact
      * Returns the underlying math transform factory. This factory
      * is used for constructing {@link MathTransform} objects for
      * all {@linkplain CoordinateOperation coordinate operations}.
+     *
+     * @return The underlying math transform factory.
      */
     public final MathTransformFactory getMathTransformFactory() {
         return mtFactory;
