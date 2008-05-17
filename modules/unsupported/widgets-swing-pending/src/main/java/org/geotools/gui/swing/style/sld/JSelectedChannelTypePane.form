@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 <Form version="1.3" maxVersion="1.5" type="org.netbeans.modules.form.forminfo.JPanelFormInfo">
+  <Properties>
+    <Property name="opaque" type="boolean" value="false"/>
+  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
@@ -21,7 +24,7 @@
               <Component id="guiName" min="-2" pref="142" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
-          <Component id="jXTitledSeparator1" alignment="0" pref="202" max="32767" attributes="0"/>
+          <Component id="jXTitledSeparator1" alignment="0" pref="210" max="32767" attributes="0"/>
           <Group type="102" alignment="0" attributes="0">
               <Component id="guiContrast" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -45,6 +48,9 @@
   </Layout>
   <SubComponents>
     <Component class="org.geotools.gui.swing.style.sld.JContrastEnhancement" name="guiContrast">
+      <Properties>
+        <Property name="opaque" type="boolean" value="false"/>
+      </Properties>
     </Component>
     <Component class="org.jdesktop.swingx.JXTitledSeparator" name="jXTitledSeparator1">
       <Properties>
@@ -63,6 +69,9 @@
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="guiName">
+      <Properties>
+        <Property name="opaque" type="boolean" value="false"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>

@@ -100,7 +100,12 @@ public class JLabelPlacementPane extends javax.swing.JPanel implements StyleElem
         jrbLine = new javax.swing.JRadioButton();
         jrbPoint = new javax.swing.JRadioButton();
 
+        setOpaque(false);
+
         guiPoint.setBorder(javax.swing.BorderFactory.createTitledBorder(""));
+        guiPoint.setOpaque(false);
+
+        guiLine.setOpaque(false);
 
         grpType.add(jrbLine);
         jrbLine.setSelected(true);

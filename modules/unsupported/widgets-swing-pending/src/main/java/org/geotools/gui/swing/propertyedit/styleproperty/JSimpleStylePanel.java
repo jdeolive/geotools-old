@@ -68,11 +68,11 @@ public class JSimpleStylePanel extends javax.swing.JPanel implements PropertyPan
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 511, Short.MAX_VALUE)
+            .add(0, 0, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 368, Short.MAX_VALUE)
+            .add(0, 0, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -113,28 +113,43 @@ public class JSimpleStylePanel extends javax.swing.JPanel implements PropertyPan
                 if (layer.getFeatureSource().getSchema().getName().getLocalPart().equals("GridCoverage")) {
                     detail = new JRasterSymbolizerPane();
                     detail.setLayer(layer);
-                    detail.setStyle(layer.getStyle());     
-                    add(BorderLayout.CENTER, new JScrollPane(detail.getComponent()) );
+                    detail.setStyle(layer.getStyle());   
+                    JScrollPane jsp = new JScrollPane(detail.getComponent());
+                    jsp.setBorder(null);
+                    jsp.setViewportBorder(null);
+                    add(BorderLayout.CENTER, jsp );
                 } else if (val.equals(Polygon.class) || val.equals(MultiPolygon.class)) {
                     detail = new JPolygonSymbolizerPane();
                     detail.setLayer(layer);
-                    detail.setStyle(layer.getStyle());     
-                   add(BorderLayout.CENTER, new JScrollPane(detail.getComponent()) );
+                    detail.setStyle(layer.getStyle());   
+                    JScrollPane jsp = new JScrollPane(detail.getComponent());
+                    jsp.setBorder(null);
+                    jsp.setViewportBorder(null);
+                    add(BorderLayout.CENTER, jsp );
                 } else if (val.equals(MultiLineString.class) || val.equals(LineString.class)) {
                     detail = new JLineSymbolizerPane();
                     detail.setLayer(layer);
-                    detail.setStyle(layer.getStyle());                    
-                   add(BorderLayout.CENTER, detail.getComponent() );
+                    detail.setStyle(layer.getStyle());   
+                    JScrollPane jsp = new JScrollPane(detail.getComponent());
+                    jsp.setBorder(null);
+                    jsp.setViewportBorder(null);
+                    add(BorderLayout.CENTER, jsp );
                 } else if (val.equals(Point.class) || val.equals(MultiPoint.class)) {
                     detail = new JPointSymbolizerPane();
                     detail.setLayer(layer);
-                    detail.setStyle(layer.getStyle());     
-                    add(BorderLayout.CENTER, new JScrollPane(detail.getComponent()) );
+                    detail.setStyle(layer.getStyle());   
+                    JScrollPane jsp = new JScrollPane(detail.getComponent());
+                    jsp.setBorder(null);
+                    jsp.setViewportBorder(null);
+                    add(BorderLayout.CENTER, jsp );
                 } else if (val.equals(TextSymbolizer.class) ) {
                     detail = new JTextSymbolizerPane();
                     detail.setLayer(layer);
-                    detail.setStyle(layer.getStyle());     
-                    add(BorderLayout.CENTER, new JScrollPane(detail.getComponent()) );
+                    detail.setStyle(layer.getStyle());   
+                    JScrollPane jsp = new JScrollPane(detail.getComponent());
+                    jsp.setBorder(null);
+                    jsp.setViewportBorder(null);
+                    add(BorderLayout.CENTER, jsp );
                 }else {        
                     detail = null;
                     add(BorderLayout.CENTER,new JLabel("<b>" + BUNDLE.getString("unknown_simplestyle") + "</b>"));

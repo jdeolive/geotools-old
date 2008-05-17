@@ -108,12 +108,18 @@ public class JExternalGraphicPane extends javax.swing.JPanel implements StyleEle
         guiMime = new javax.swing.JTextField();
         guiURL = new javax.swing.JTextField();
 
+        setOpaque(false);
+
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jLabel2.setText(bundle.getString("mime")); // NOI18N
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText(bundle.getString("url")); // NOI18N
+
+        guiMime.setOpaque(false);
+
+        guiURL.setOpaque(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);

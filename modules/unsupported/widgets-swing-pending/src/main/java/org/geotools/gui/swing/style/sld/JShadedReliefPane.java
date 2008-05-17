@@ -94,6 +94,8 @@ public class JShadedReliefPane extends javax.swing.JPanel implements StyleElemen
         jLabel1 = new javax.swing.JLabel();
         guiBrightness = new javax.swing.JCheckBox();
 
+        setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jLabel1.setText(bundle.getString("factor")); // NOI18N
 

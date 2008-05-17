@@ -62,7 +62,8 @@ public class LayerStylePropertyPanel extends MultiPropertyPanel {
 
     @Override
     public ImageIcon getIcon() {
-        return IconBundle.getResource().getIcon("16_style");
+        return IconBundle.EMPTY_ICON;
+        //return IconBundle.getResource().getIcon("16_style");
     }
 
     @Override

@@ -158,35 +158,32 @@ public class JPointSymbolizerPane extends javax.swing.JPanel implements org.geot
 
         jScrollPane1 = new javax.swing.JScrollPane();
         tab_demo = new org.geotools.gui.swing.style.sld.JDemoTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
         guiGraphic = new org.geotools.gui.swing.style.sld.JGraphicPane();
 
+        setLayout(new java.awt.BorderLayout());
+
         jScrollPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(250, 250));
+
+        tab_demo.setPreferredSize(new java.awt.Dimension(100, 100));
         jScrollPane1.setViewportView(tab_demo);
 
-        guiGraphic.setBorder(null);
+        add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(guiGraphic, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 25, Short.MAX_VALUE))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(guiGraphic, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
-        );
+        jScrollPane2.setBorder(null);
+        jScrollPane2.setViewportBorder(null);
+
+        guiGraphic.setBorder(null);
+        jScrollPane2.setViewportView(guiGraphic);
+
+        add(jScrollPane2, java.awt.BorderLayout.WEST);
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private org.geotools.gui.swing.style.sld.JGraphicPane guiGraphic;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private org.geotools.gui.swing.style.sld.JDemoTable tab_demo;
     // End of variables declaration//GEN-END:variables
 }

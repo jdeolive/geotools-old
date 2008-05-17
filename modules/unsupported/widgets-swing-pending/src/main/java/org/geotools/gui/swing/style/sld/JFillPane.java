@@ -96,6 +96,8 @@ public class JFillPane extends javax.swing.JPanel implements StyleElementEditor<
         guiColor = new org.geotools.gui.swing.style.sld.JExpressionPane();
         lbl_color1 = new javax.swing.JLabel();
 
+        setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         butFill.setText(bundle.getString("fill")); // NOI18N
         butFill.setBorderPainted(false);

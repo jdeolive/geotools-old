@@ -206,7 +206,8 @@ public class LayerCRSPropertyPanel extends javax.swing.JPanel implements Propert
     }
 
     public ImageIcon getIcon() {
-        return IconBundle.getResource().getIcon("16_CRS");
+        return IconBundle.EMPTY_ICON;
+//        return IconBundle.getResource().getIcon("16_CRS");
     }
 
     public String getToolTip() {

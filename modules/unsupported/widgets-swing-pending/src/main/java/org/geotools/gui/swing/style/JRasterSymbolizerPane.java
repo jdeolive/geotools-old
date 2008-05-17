@@ -201,45 +201,127 @@ public class JRasterSymbolizerPane extends javax.swing.JPanel implements Symboli
     private void initComponents() {
 
         grpOutline = new javax.swing.ButtonGroup();
-        jLabel1 = new javax.swing.JLabel();
-        guiOpacity = new org.geotools.gui.swing.style.sld.JExpressionPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabDemo = new org.geotools.gui.swing.style.sld.JDemoTable();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jXTaskPaneContainer1 = new org.jdesktop.swingx.JXTaskPaneContainer();
         guiGeom = new org.geotools.gui.swing.style.sld.JGeomPane();
-        jXTitledSeparator1 = new org.jdesktop.swingx.JXTitledSeparator();
-        jXTitledSeparator2 = new org.jdesktop.swingx.JXTitledSeparator();
-        guinone = new javax.swing.JRadioButton();
-        guiLine = new javax.swing.JRadioButton();
-        guiPolygon = new javax.swing.JRadioButton();
-        butLineSymbolizer = new javax.swing.JButton();
-        butPolygonSymbolizer = new javax.swing.JButton();
+        jXTaskPane1 = new org.jdesktop.swingx.JXTaskPane();
+        jPanel2 = new javax.swing.JPanel();
+        butChannels = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         guiOverLap = new org.geotools.gui.swing.style.sld.JExpressionPane();
+        guiOpacity = new org.geotools.gui.swing.style.sld.JExpressionPane();
+        jLabel1 = new javax.swing.JLabel();
+        jXTaskPane2 = new org.jdesktop.swingx.JXTaskPane();
         guiContrast = new org.geotools.gui.swing.style.sld.JContrastEnhancement();
-        jXTitledSeparator3 = new org.jdesktop.swingx.JXTitledSeparator();
+        jXTaskPane3 = new org.jdesktop.swingx.JXTaskPane();
         guiRelief = new org.geotools.gui.swing.style.sld.JShadedReliefPane();
-        jXTitledSeparator4 = new org.jdesktop.swingx.JXTitledSeparator();
-        jLabel3 = new javax.swing.JLabel();
-        butChannels = new javax.swing.JButton();
+        jXTaskPane4 = new org.jdesktop.swingx.JXTaskPane();
+        jPanel1 = new javax.swing.JPanel();
+        guinone = new javax.swing.JRadioButton();
+        guiLine = new javax.swing.JRadioButton();
+        butLineSymbolizer = new javax.swing.JButton();
+        guiPolygon = new javax.swing.JRadioButton();
+        butPolygonSymbolizer = new javax.swing.JButton();
 
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/Bundle"); // NOI18N
-        jLabel1.setText(bundle.getString("opacity")); // NOI18N
+        setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setViewportView(tabDemo);
 
-        jXTitledSeparator1.setAlpha(0.5F);
-        jXTitledSeparator1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        java.util.ResourceBundle bundle1 = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
-        jXTitledSeparator1.setTitle(bundle1.getString("general")); // NOI18N
-        jXTitledSeparator1.setFont(jXTitledSeparator1.getFont().deriveFont(jXTitledSeparator1.getFont().getStyle() | java.awt.Font.BOLD));
+        add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jXTitledSeparator2.setAlpha(0.5F);
-        jXTitledSeparator2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jXTitledSeparator2.setTitle(bundle1.getString("outline")); // NOI18N
+        jScrollPane2.setBorder(null);
+        jScrollPane2.setViewportBorder(null);
+
+        jXTaskPaneContainer1.add(guiGeom);
+
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
+        jXTaskPane1.setTitle(bundle.getString("general")); // NOI18N
+
+        jPanel2.setOpaque(false);
+
+        butChannels.setText(bundle.getString("edit")); // NOI18N
+        butChannels.setBorderPainted(false);
+        butChannels.setPreferredSize(new java.awt.Dimension(79, 22));
+        butChannels.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                butChannelsActionPerformed(evt);
+            }
+        });
+
+        jLabel3.setText(bundle.getString("channels")); // NOI18N
+
+        jLabel2.setText(bundle.getString("overlap")); // NOI18N
+
+        java.util.ResourceBundle bundle1 = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/Bundle"); // NOI18N
+        jLabel1.setText(bundle1.getString("opacity")); // NOI18N
+
+        org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel2Layout.createSequentialGroup()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(guiOpacity, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jPanel2Layout.createSequentialGroup()
+                .add(jLabel2)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(guiOverLap, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jPanel2Layout.createSequentialGroup()
+                .add(jLabel3)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(butChannels, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+        );
+
+        jPanel2Layout.linkSize(new java.awt.Component[] {jLabel1, jLabel2, jLabel3}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        jPanel2Layout.linkSize(new java.awt.Component[] {butChannels, guiOpacity, guiOverLap}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel2Layout.createSequentialGroup()
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.LEADING, guiOpacity, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(guiOverLap, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(butChannels, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 24, Short.MAX_VALUE)
+                    .add(jLabel3)))
+        );
+
+        jXTaskPane1.getContentPane().add(jPanel2);
+
+        jXTaskPaneContainer1.add(jXTaskPane1);
+
+        jXTaskPane2.setExpanded(false);
+        jXTaskPane2.setTitle(bundle.getString("contrast")); // NOI18N
+
+        guiContrast.setOpaque(false);
+        jXTaskPane2.getContentPane().add(guiContrast);
+
+        jXTaskPaneContainer1.add(jXTaskPane2);
+
+        jXTaskPane3.setExpanded(false);
+        jXTaskPane3.setTitle(bundle.getString("relief")); // NOI18N
+        jXTaskPane3.getContentPane().add(guiRelief);
+
+        jXTaskPaneContainer1.add(jXTaskPane3);
+
+        jXTaskPane4.setExpanded(false);
+        jXTaskPane4.setTitle(bundle.getString("outline")); // NOI18N
+
+        jPanel1.setOpaque(false);
 
         grpOutline.add(guinone);
         guinone.setSelected(true);
-        guinone.setText(bundle1.getString("none")); // NOI18N
+        guinone.setText(bundle.getString("none")); // NOI18N
         guinone.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 guinoneActionPerformed(evt);
@@ -247,22 +329,14 @@ public class JRasterSymbolizerPane extends javax.swing.JPanel implements Symboli
         });
 
         grpOutline.add(guiLine);
-        guiLine.setText(bundle1.getString("line")); // NOI18N
+        guiLine.setText(bundle.getString("line")); // NOI18N
         guiLine.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 guiLineActionPerformed(evt);
             }
         });
 
-        grpOutline.add(guiPolygon);
-        guiPolygon.setText(bundle1.getString("polygon")); // NOI18N
-        guiPolygon.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                guiPolygonActionPerformed(evt);
-            }
-        });
-
-        butLineSymbolizer.setText(bundle1.getString("edit")); // NOI18N
+        butLineSymbolizer.setText(bundle.getString("edit")); // NOI18N
         butLineSymbolizer.setBorderPainted(false);
         butLineSymbolizer.setEnabled(false);
         butLineSymbolizer.setPreferredSize(new java.awt.Dimension(79, 20));
@@ -272,7 +346,15 @@ public class JRasterSymbolizerPane extends javax.swing.JPanel implements Symboli
             }
         });
 
-        butPolygonSymbolizer.setText(bundle1.getString("edit")); // NOI18N
+        grpOutline.add(guiPolygon);
+        guiPolygon.setText(bundle.getString("polygon")); // NOI18N
+        guiPolygon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guiPolygonActionPerformed(evt);
+            }
+        });
+
+        butPolygonSymbolizer.setText(bundle.getString("edit")); // NOI18N
         butPolygonSymbolizer.setBorderPainted(false);
         butPolygonSymbolizer.setEnabled(false);
         butPolygonSymbolizer.setPreferredSize(new java.awt.Dimension(79, 20));
@@ -282,133 +364,46 @@ public class JRasterSymbolizerPane extends javax.swing.JPanel implements Symboli
             }
         });
 
-        jLabel2.setText(bundle1.getString("overlap")); // NOI18N
-
-        jXTitledSeparator3.setAlpha(0.5F);
-        jXTitledSeparator3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jXTitledSeparator3.setTitle(bundle1.getString("contrast")); // NOI18N
-
-        jXTitledSeparator4.setAlpha(0.5F);
-        jXTitledSeparator4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jXTitledSeparator4.setTitle(bundle1.getString("relief")); // NOI18N
-
-        jLabel3.setText(bundle1.getString("channels")); // NOI18N
-
-        butChannels.setText(bundle1.getString("edit")); // NOI18N
-        butChannels.setBorderPainted(false);
-        butChannels.setPreferredSize(new java.awt.Dimension(79, 22));
-        butChannels.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                butChannelsActionPerformed(evt);
-            }
-        });
-
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
-        this.setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                                .add(jLabel1)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(guiOpacity, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(guiOverLap, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(18, 18, 18))
-                    .add(layout.createSequentialGroup()
-                        .add(jLabel3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(butChannels, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18))
-                    .add(layout.createSequentialGroup()
-                        .add(guiContrast, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(27, 27, 27))
-                    .add(layout.createSequentialGroup()
-                        .add(guiRelief, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(31, 31, 31))
-                    .add(layout.createSequentialGroup()
-                        .add(jXTitledSeparator4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(layout.createSequentialGroup()
-                        .add(jXTitledSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED))
-                    .add(layout.createSequentialGroup()
-                        .add(guinone)
-                        .add(92, 92, 92))
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(guiLine)
-                            .add(guiPolygon))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(butLineSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(butPolygonSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(11, 11, 11))
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(org.jdesktop.layout.GroupLayout.LEADING, jXTitledSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
-                            .add(jXTitledSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
-                            .add(guiGeom, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)))
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(guinone)
+                .add(85, 85, 85))
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(guiLine)
+                    .add(guiPolygon))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 23, Short.MAX_VALUE))
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(butLineSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(butPolygonSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
-        layout.linkSize(new java.awt.Component[] {guiLine, guiPolygon, guinone}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+        jPanel1Layout.linkSize(new java.awt.Component[] {guiLine, guiPolygon, guinone}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
-        layout.linkSize(new java.awt.Component[] {jLabel1, jLabel2, jLabel3}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
-        layout.linkSize(new java.awt.Component[] {butChannels, guiOpacity, guiOverLap}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
-        layout.linkSize(new java.awt.Component[] {jXTitledSeparator1, jXTitledSeparator2, jXTitledSeparator3, jXTitledSeparator4}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(guiGeom, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.LEADING, guiOpacity, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(guiOverLap, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(butChannels, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 24, Short.MAX_VALUE)
-                    .add(jLabel3))
-                .add(18, 18, 18)
-                .add(jXTitledSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(guiContrast, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
-                .add(jXTitledSeparator4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(guiRelief, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
-                .add(jXTitledSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
                 .add(guinone)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(butLineSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(guiLine))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(butPolygonSymbolizer, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(guiPolygon))
-                .add(10, 10, 10))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 416, Short.MAX_VALUE)
+                    .add(guiPolygon)))
         );
+
+        jXTaskPane4.getContentPane().add(jPanel1);
+
+        jXTaskPaneContainer1.add(jXTaskPane4);
+
+        jScrollPane2.setViewportView(jXTaskPaneContainer1);
+
+        add(jScrollPane2, java.awt.BorderLayout.WEST);
     }// </editor-fold>//GEN-END:initComponents
 
     private void butPolygonSymbolizerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butPolygonSymbolizerActionPerformed
@@ -497,11 +492,15 @@ public class JRasterSymbolizerPane extends javax.swing.JPanel implements Symboli
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator1;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator2;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator3;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator4;
+    private javax.swing.JScrollPane jScrollPane2;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane1;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane2;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane3;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane4;
+    private org.jdesktop.swingx.JXTaskPaneContainer jXTaskPaneContainer1;
     private org.geotools.gui.swing.style.sld.JDemoTable tabDemo;
     // End of variables declaration//GEN-END:variables
     

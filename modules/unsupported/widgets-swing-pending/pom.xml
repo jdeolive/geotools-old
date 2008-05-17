@@ -309,6 +309,12 @@
       <artifactId>gt-sld</artifactId>
       <version>${project.version}</version>
     </dependency>
+    
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-go</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- hsqldb-1.8.0.7.jar -->
     <dependency>
@@ -455,6 +461,7 @@
           <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
+                <phase/>
                 <goals>
                   <goal>exec</goal>
                 </goals>
@@ -463,10 +470,10 @@
             <configuration>
             <executable>java</executable>
             <arguments>                        
-              <argument>-classpath</argument>
+              <!-- <argument>-classpath</argument>-->
               <!-- automatically creates the classpath using all project dependencies,also adding the project build directory -->
-              <classpath></classpath>
-              <argument>org.geotools.gui.swing.demo.DemoAll</argument>
+              <!--<classpath></classpath>-->
+              <argument>org.geotools.gui.swing.go.GoFrame</argument>
             </arguments>
           </configuration>
        </plugin>

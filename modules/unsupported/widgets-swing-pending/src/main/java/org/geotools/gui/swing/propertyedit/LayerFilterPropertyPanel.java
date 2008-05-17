@@ -62,7 +62,8 @@ public class LayerFilterPropertyPanel extends MultiPropertyPanel {
     }
 
     public ImageIcon getIcon() {
-        return IconBundle.getResource().getIcon("16_filter");
+        return IconBundle.EMPTY_ICON;
+        //return IconBundle.getResource().getIcon("16_filter");
     }
 
     public String getToolTip() {

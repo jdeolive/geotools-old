@@ -83,6 +83,8 @@ public class JLinePlacementPane extends javax.swing.JPanel implements StyleEleme
         guiOffset = new org.geotools.gui.swing.style.sld.JExpressionPane();
         jLabel1 = new javax.swing.JLabel();
 
+        setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jLabel1.setText(bundle.getString("offset2")); // NOI18N
 

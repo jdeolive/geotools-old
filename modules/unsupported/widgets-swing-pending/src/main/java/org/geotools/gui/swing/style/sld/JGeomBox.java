@@ -36,6 +36,7 @@ public class JGeomBox extends JComboBox {
 
     public JGeomBox() {
         setEnabled(false);
+        setOpaque(false);
     }
 
     public void setLayer(MapLayer layer) {

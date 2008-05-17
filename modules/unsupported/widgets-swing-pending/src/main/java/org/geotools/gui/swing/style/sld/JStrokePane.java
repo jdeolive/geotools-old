@@ -130,6 +130,10 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
         GuiStrokeColor = new org.geotools.gui.swing.style.sld.JExpressionPane();
         lbl_b_alpha1 = new javax.swing.JLabel();
 
+        setOpaque(false);
+
+        GuiStrokeDashes.setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         butFill.setText(bundle.getString("fill")); // NOI18N
         butFill.setBorderPainted(false);
@@ -208,11 +212,11 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
                 .add(butFill, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
 
-        layout.linkSize(new java.awt.Component[] {GuiStrokeAlpha, GuiStrokeColor, GuiStrokeWidth}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {jLabel1, jLabel2, jLabel3, lbl_b_alpha, lbl_b_alpha1, lbl_b_color, lbl_b_width}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.linkSize(new java.awt.Component[] {GuiStrokeLineCap, GuiStrokeLineJoin}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {GuiStrokeAlpha, GuiStrokeColor, GuiStrokeWidth}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

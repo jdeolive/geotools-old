@@ -206,7 +206,8 @@ public class ContextCRSPropertyPanel extends javax.swing.JPanel implements Prope
     }
 
     public ImageIcon getIcon() {
-        return IconBundle.getResource().getIcon("16_CRS");
+        return IconBundle.EMPTY_ICON;
+        //return IconBundle.getResource().getIcon("16_CRS");
     }
 
     public String getToolTip() {

@@ -92,6 +92,10 @@ public class JHaloPane extends javax.swing.JPanel implements StyleElementEditor<
         jLabel1 = new javax.swing.JLabel();
         jXTitledSeparator1 = new org.jdesktop.swingx.JXTitledSeparator();
 
+        setOpaque(false);
+
+        guiFill.setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jLabel1.setText(bundle.getString("radius")); // NOI18N
 
@@ -110,7 +114,7 @@ public class JHaloPane extends javax.swing.JPanel implements StyleElementEditor<
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(guiRadius, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(guiFill, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(13, Short.MAX_VALUE))
             .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(

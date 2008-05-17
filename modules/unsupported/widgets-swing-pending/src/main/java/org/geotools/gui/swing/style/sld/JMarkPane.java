@@ -16,10 +16,17 @@
 package org.geotools.gui.swing.style.sld;
 
 import java.awt.Component;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Mark;
 import org.geotools.styling.StyleBuilder;
+import org.jdesktop.swingx.plaf.LookAndFeelAddons;
+import org.jdesktop.swingx.plaf.macosx.MacOSXLookAndFeelAddons;
+import org.jdesktop.swingx.plaf.windows.WindowsClassicLookAndFeelAddons;
 
 /**
  * @author johann sorel
@@ -30,6 +37,19 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
     private Mark mark = null;
 
     public JMarkPane() {
+
+        LookAndFeel oldLnF = UIManager.getLookAndFeel();
+
+        UIManager.put("win.xpstyle.name", null);
+
+        try {
+            LookAndFeelAddons.setAddon(MacOSXLookAndFeelAddons.class);
+        } catch (InstantiationException ex) {
+            Logger.getLogger(JMarkPane.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IllegalAccessException ex) {
+            Logger.getLogger(JMarkPane.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         initComponents();
         init();
     }
@@ -38,6 +58,9 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
         guiRotation.setType(JExpressionPane.EXP_TYPE.NUMBER);
         guiSize.setType(JExpressionPane.EXP_TYPE.NUMBER);
         guiWKN.setType(JExpressionPane.EXP_TYPE.WELL_KNOWN_NAME);
+
+
+
     }
 
     public void setLayer(MapLayer layer) {
@@ -84,7 +107,7 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
             mark.setWellKnownName(guiWKN.getExpression());
         }
     }
-        
+
     public Component getComponent() {
         return this;
     }
@@ -97,31 +120,24 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        guiFill = new org.geotools.gui.swing.style.sld.JFillPane();
-        guiStroke = new org.geotools.gui.swing.style.sld.JStrokePane();
-        jXTitledSeparator1 = new org.jdesktop.swingx.JXTitledSeparator();
-        jXTitledSeparator2 = new org.jdesktop.swingx.JXTitledSeparator();
-        jXTitledSeparator3 = new org.jdesktop.swingx.JXTitledSeparator();
+        jXTaskPaneContainer1 = new org.jdesktop.swingx.JXTaskPaneContainer();
+        jXTaskPane1 = new org.jdesktop.swingx.JXTaskPane();
+        jPanel1 = new javax.swing.JPanel();
         guiRotation = new org.geotools.gui.swing.style.sld.JExpressionPane();
         jLabel3 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         guiSize = new org.geotools.gui.swing.style.sld.JExpressionPane();
         guiWKN = new org.geotools.gui.swing.style.sld.JExpressionPane();
         jLabel1 = new javax.swing.JLabel();
+        jXTaskPane2 = new org.jdesktop.swingx.JXTaskPane();
+        guiStroke = new org.geotools.gui.swing.style.sld.JStrokePane();
+        jXTaskPane3 = new org.jdesktop.swingx.JXTaskPane();
+        guiFill = new org.geotools.gui.swing.style.sld.JFillPane();
 
-        jXTitledSeparator1.setAlpha(0.5F);
-        jXTitledSeparator1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
-        jXTitledSeparator1.setTitle(bundle.getString("general")); // NOI18N
-        jXTitledSeparator1.setFont(jXTitledSeparator1.getFont().deriveFont(jXTitledSeparator1.getFont().getStyle() | java.awt.Font.BOLD));
+        jXTaskPane1.setTitle(bundle.getString("general")); // NOI18N
 
-        jXTitledSeparator2.setAlpha(0.5F);
-        jXTitledSeparator2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jXTitledSeparator2.setTitle(bundle.getString("fill")); // NOI18N
-
-        jXTitledSeparator3.setAlpha(0.5F);
-        jXTitledSeparator3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jXTitledSeparator3.setTitle(bundle.getString("stroke")); // NOI18N
+        jPanel1.setOpaque(false);
 
         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel3.setText(bundle.getString("rotation")); // NOI18N
@@ -133,72 +149,68 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel1.setText(bundle.getString("wellknownname")); // NOI18N
 
+        org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(jLabel1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(guiWKN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(73, 73, 73)
+                .add(jLabel3)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(guiRotation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(102, 102, 102)
+                .add(jLabel2)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(guiSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(jPanel1Layout.createSequentialGroup()
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(guiWKN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE)
+                    .add(guiSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 22, Short.MAX_VALUE)
+                    .add(guiRotation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        jXTaskPane1.getContentPane().add(jPanel1);
+
+        jXTaskPaneContainer1.add(jXTaskPane1);
+
+        jXTaskPane2.setTitle(bundle.getString("stroke")); // NOI18N
+
+        guiStroke.setOpaque(false);
+        jXTaskPane2.getContentPane().add(guiStroke);
+
+        jXTaskPaneContainer1.add(jXTaskPane2);
+
+        jXTaskPane3.setTitle(bundle.getString("fill")); // NOI18N
+
+        guiFill.setOpaque(false);
+        jXTaskPane3.getContentPane().add(guiFill);
+
+        jXTaskPaneContainer1.add(jXTaskPane3);
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel1)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(guiWKN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel3)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(guiRotation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(layout.createSequentialGroup()
-                                .add(jLabel2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(guiSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                    .add(layout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jXTitledSeparator3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE)
-                            .add(guiStroke, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap())
-                    .add(layout.createSequentialGroup()
-                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(guiFill, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jXTitledSeparator2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
-                        .addContainerGap())))
+            .add(jXTaskPaneContainer1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
-        layout.linkSize(new java.awt.Component[] {jLabel1, jLabel2, jLabel3}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jLabel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(guiWKN, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jLabel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(guiSize, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jLabel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(guiRotation, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .add(18, 18, 18)
-                .add(jXTitledSeparator3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(guiStroke, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
-                .add(jXTitledSeparator2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(guiFill, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(jXTaskPaneContainer1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -210,9 +222,10 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator1;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator2;
-    private org.jdesktop.swingx.JXTitledSeparator jXTitledSeparator3;
+    private javax.swing.JPanel jPanel1;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane1;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane2;
+    private org.jdesktop.swingx.JXTaskPane jXTaskPane3;
+    private org.jdesktop.swingx.JXTaskPaneContainer jXTaskPaneContainer1;
     // End of variables declaration//GEN-END:variables
-
 }

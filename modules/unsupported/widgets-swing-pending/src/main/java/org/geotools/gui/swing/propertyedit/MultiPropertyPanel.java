@@ -130,12 +130,26 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jSplitPane1 = new javax.swing.JSplitPane();
+        jXTitledPanel1 = new org.jdesktop.swingx.JXTitledPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tree = new org.jdesktop.swingx.JXTree();
-        pan_subprop = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         lbl_title = new org.jdesktop.swingx.JXTitledSeparator();
+        pan_subprop = new javax.swing.JPanel();
 
+        jSplitPane1.setBorder(null);
+        jSplitPane1.setDividerSize(4);
+
+        jXTitledPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
+        jXTitledPanel1.setTitle(bundle.getString("editor")); // NOI18N
+        jXTitledPanel1.setTitleFont(jXTitledPanel1.getTitleFont().deriveFont(jXTitledPanel1.getTitleFont().getStyle() | java.awt.Font.BOLD));
+        jXTitledPanel1.getContentContainer().setLayout(new java.awt.BorderLayout());
+
+        jScrollPane1.setBorder(null);
         jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        jScrollPane1.setViewportBorder(null);
         jScrollPane1.setMinimumSize(new java.awt.Dimension(152, 202));
         jScrollPane1.setPreferredSize(new java.awt.Dimension(152, 202));
 
@@ -144,37 +158,39 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
         tree.setPreferredSize(new java.awt.Dimension(150, 200));
         jScrollPane1.setViewportView(tree);
 
+        jXTitledPanel1.getContentContainer().add(jScrollPane1, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setLeftComponent(jXTitledPanel1);
+
+        jPanel1.setLayout(new java.awt.BorderLayout());
+
+        lbl_title.setTitle("Style");
+        jPanel1.add(lbl_title, java.awt.BorderLayout.NORTH);
+
         org.jdesktop.layout.GroupLayout pan_subpropLayout = new org.jdesktop.layout.GroupLayout(pan_subprop);
         pan_subprop.setLayout(pan_subpropLayout);
         pan_subpropLayout.setHorizontalGroup(
             pan_subpropLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 29, Short.MAX_VALUE)
+            .add(0, 317, Short.MAX_VALUE)
         );
         pan_subpropLayout.setVerticalGroup(
             pan_subpropLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 175, Short.MAX_VALUE)
+            .add(0, 265, Short.MAX_VALUE)
         );
 
-        lbl_title.setTitle("Style");
+        jPanel1.add(pan_subprop, java.awt.BorderLayout.CENTER);
+
+        jSplitPane1.setRightComponent(jPanel1);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                    .add(lbl_title, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 29, Short.MAX_VALUE)
-                    .add(pan_subprop, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .add(jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .add(layout.createSequentialGroup()
-                .add(lbl_title, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 21, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(pan_subprop, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jSplitPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 280, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     public void setTarget(Object target) {
@@ -210,7 +226,10 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
         return this;
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JSplitPane jSplitPane1;
+    private org.jdesktop.swingx.JXTitledPanel jXTitledPanel1;
     private org.jdesktop.swingx.JXTitledSeparator lbl_title;
     private javax.swing.JPanel pan_subprop;
     private org.jdesktop.swingx.JXTree tree;

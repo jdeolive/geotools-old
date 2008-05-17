@@ -198,6 +198,7 @@ public class JExpressionPane extends javax.swing.JPanel{
         but_color = new javax.swing.JButton();
         pan_exp = new javax.swing.JPanel();
 
+        jtf_exp.setOpaque(false);
         jtf_exp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jtf_expActionPerformed(evt);
@@ -210,12 +211,14 @@ public class JExpressionPane extends javax.swing.JPanel{
         });
 
         jsp_exp.setModel(new javax.swing.SpinnerNumberModel(Double.valueOf(1.0d), Double.valueOf(0.0d), null, Double.valueOf(1.0d)));
+        jsp_exp.setOpaque(false);
         jsp_exp.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 jsp_expStateChanged(evt);
             }
         });
 
+        jcb_exp.setOpaque(false);
         jcb_exp.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 jcb_expItemStateChanged(evt);
@@ -227,7 +230,6 @@ public class JExpressionPane extends javax.swing.JPanel{
         but_exp.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/geotools/gui/swing/icon/defaultset/crystalproject/16x16/actions/irc_channel.png"))); // NOI18N
         but_exp.setBorderPainted(false);
         but_exp.setContentAreaFilled(false);
-        but_exp.setMargin(new java.awt.Insets(0, 0, 0, 0));
         but_exp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 actionDialog(evt);
@@ -237,7 +239,6 @@ public class JExpressionPane extends javax.swing.JPanel{
         but_color.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/geotools/gui/swing/icon/defaultset/jsorel/16x16/color.png"))); // NOI18N
         but_color.setBorderPainted(false);
         but_color.setContentAreaFilled(false);
-        but_color.setMargin(new java.awt.Insets(0, 0, 0, 0));
         but_color.setMaximumSize(new java.awt.Dimension(22, 22));
         but_color.setMinimumSize(new java.awt.Dimension(22, 22));
         but_color.setPreferredSize(new java.awt.Dimension(22, 22));

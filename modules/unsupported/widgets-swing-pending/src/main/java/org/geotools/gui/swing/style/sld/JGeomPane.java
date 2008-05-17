@@ -56,7 +56,10 @@ public class JGeomPane extends javax.swing.JPanel {
         guiBox = new org.geotools.gui.swing.style.sld.JGeomBox();
         lbl = new javax.swing.JLabel();
 
+        setOpaque(false);
+
         guiBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        guiBox.setOpaque(false);
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         lbl.setText(bundle.getString("geometry")); // NOI18N

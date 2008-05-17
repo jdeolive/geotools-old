@@ -54,10 +54,14 @@ public class JPointPlacementPane extends javax.swing.JPanel implements StyleElem
         guiRotation = new org.geotools.gui.swing.style.sld.JExpressionPane();
         jLabel1 = new javax.swing.JLabel();
 
+        setOpaque(false);
+
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         guiAnchor.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("anchor"))); // NOI18N
+        guiAnchor.setOpaque(false);
 
         guiDisplacement.setBorder(javax.swing.BorderFactory.createTitledBorder(bundle.getString("displacement"))); // NOI18N
+        guiDisplacement.setOpaque(false);
 
         jLabel1.setText(bundle.getString("rotation")); // NOI18N
 

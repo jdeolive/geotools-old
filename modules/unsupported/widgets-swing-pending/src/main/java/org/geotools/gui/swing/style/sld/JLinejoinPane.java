@@ -103,6 +103,8 @@ public class JLinejoinPane extends javax.swing.JPanel {
         but_mitre = new javax.swing.JToggleButton();
         jButton1 = new javax.swing.JButton();
 
+        setOpaque(false);
+
         buttonGroup1.add(but_round);
         but_round.setIcon(ICON_ROUND);
         but_round.setBorderPainted(false);

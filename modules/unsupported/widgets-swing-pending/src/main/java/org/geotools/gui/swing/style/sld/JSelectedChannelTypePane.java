@@ -93,12 +93,18 @@ public class JSelectedChannelTypePane extends javax.swing.JPanel implements Styl
         jLabel1 = new javax.swing.JLabel();
         guiName = new javax.swing.JTextField();
 
+        setOpaque(false);
+
+        guiContrast.setOpaque(false);
+
         jXTitledSeparator1.setAlpha(0.5F);
         jXTitledSeparator1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jXTitledSeparator1.setTitle(bundle.getString("contrast")); // NOI18N
 
         jLabel1.setText(bundle.getString("name")); // NOI18N
+
+        guiName.setOpaque(false);
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(this);
         this.setLayout(layout);
@@ -109,7 +115,7 @@ public class JSelectedChannelTypePane extends javax.swing.JPanel implements Styl
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(guiName, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 142, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 202, Short.MAX_VALUE)
+            .add(jXTitledSeparator1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
             .add(layout.createSequentialGroup()
                 .add(guiContrast, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())

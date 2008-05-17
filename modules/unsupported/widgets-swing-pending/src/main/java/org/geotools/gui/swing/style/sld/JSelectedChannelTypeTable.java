@@ -103,6 +103,8 @@ public class JSelectedChannelTypeTable extends javax.swing.JPanel implements Sty
         guiNew = new javax.swing.JButton();
         guiDelete = new javax.swing.JButton();
 
+        setOpaque(false);
+
         jScrollPane1.setViewportView(tabFonts);
 
         guiUp.setIcon(ICO_UP);
@@ -173,7 +175,7 @@ public class JSelectedChannelTypeTable extends javax.swing.JPanel implements Sty
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(guiDelete)
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 82, Short.MAX_VALUE)
+            .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
     private void guiUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guiUpActionPerformed

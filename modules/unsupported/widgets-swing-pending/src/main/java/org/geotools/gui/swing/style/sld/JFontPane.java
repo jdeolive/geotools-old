@@ -104,6 +104,8 @@ public class JFontPane extends javax.swing.JPanel implements StyleElementEditor<
         guiSize = new org.geotools.gui.swing.style.sld.JExpressionPane();
         guiWeight = new org.geotools.gui.swing.style.sld.JExpressionPane();
 
+        setOpaque(false);
+
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         jLabel1.setText(bundle.getString("family")); // NOI18N
@@ -139,9 +141,9 @@ public class JFontPane extends javax.swing.JPanel implements StyleElementEditor<
                 .add(guiWeight, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
 
-        layout.linkSize(new java.awt.Component[] {guiFamily, guiSize, guiStyle, guiWeight}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.linkSize(new java.awt.Component[] {jLabel1, jLabel2, jLabel3, jLabel4}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
+
+        layout.linkSize(new java.awt.Component[] {guiFamily, guiSize, guiStyle, guiWeight}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
 
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)

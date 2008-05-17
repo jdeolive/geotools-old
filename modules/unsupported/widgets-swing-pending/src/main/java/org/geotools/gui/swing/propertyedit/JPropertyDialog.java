@@ -23,20 +23,23 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.geotools.gui.swing.icon.IconBundle;
 
 
 /**
  * @author johann sorel
  */
 public class JPropertyDialog extends JDialog{
-    
+        
     private JButton apply = new JButton(BUNDLE.getString("apply"));
     private JButton revert = new JButton(BUNDLE.getString("revert"));
     private JButton close = new JButton(BUNDLE.getString("close"));
@@ -52,12 +55,19 @@ public class JPropertyDialog extends JDialog{
         setTitle(BUNDLE.getString("properties"));
         //setIconImage(IconBundle.getResource().getIcon("16_jpropertydialog").getImage());
         
-        JPanel bas = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JToolBar bas = new JToolBar();
+        bas.setFloatable(false);
+        bas.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        
         bas.add(apply);
         bas.add(revert);
         bas.add(close);
         
-        tabs.setTabPlacement(JTabbedPane.TOP);
+        apply.setIcon(IconBundle.getResource().getIcon("16_apply"));
+        revert.setIcon(IconBundle.getResource().getIcon("16_reload"));
+        close.setIcon(IconBundle.getResource().getIcon("16_close"));
+        
+        tabs.setTabPlacement(JTabbedPane.LEFT);
         
         tabs.addChangeListener(new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
