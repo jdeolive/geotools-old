@@ -102,9 +102,6 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
         if (panel != null) {
             if (panels.contains(panel)) {
                 active = panel;
-                lbl_title.setTitle(panel.getTitle());
-                lbl_title.setIcon(panel.getIcon());
-
                 SwingUtilities.invokeLater(new Runnable() {
 
                             public void run() {
@@ -135,14 +132,13 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
         jScrollPane1 = new javax.swing.JScrollPane();
         tree = new org.jdesktop.swingx.JXTree();
         jPanel1 = new javax.swing.JPanel();
-        lbl_title = new org.jdesktop.swingx.JXTitledSeparator();
         pan_subprop = new javax.swing.JPanel();
 
         jSplitPane1.setBorder(null);
         jSplitPane1.setDividerSize(4);
 
         jXTitledPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
+        java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/propertyedit/Bundle"); // NOI18N
         jXTitledPanel1.setTitle(bundle.getString("editor")); // NOI18N
         jXTitledPanel1.setTitleFont(jXTitledPanel1.getTitleFont().deriveFont(jXTitledPanel1.getTitleFont().getStyle() | java.awt.Font.BOLD));
         jXTitledPanel1.getContentContainer().setLayout(new java.awt.BorderLayout());
@@ -164,9 +160,6 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        lbl_title.setTitle("Style");
-        jPanel1.add(lbl_title, java.awt.BorderLayout.NORTH);
-
         org.jdesktop.layout.GroupLayout pan_subpropLayout = new org.jdesktop.layout.GroupLayout(pan_subprop);
         pan_subprop.setLayout(pan_subpropLayout);
         pan_subpropLayout.setHorizontalGroup(
@@ -175,7 +168,7 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
         );
         pan_subpropLayout.setVerticalGroup(
             pan_subpropLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(0, 265, Short.MAX_VALUE)
+            .add(0, 280, Short.MAX_VALUE)
         );
 
         jPanel1.add(pan_subprop, java.awt.BorderLayout.CENTER);
@@ -230,7 +223,6 @@ public abstract class MultiPropertyPanel extends javax.swing.JPanel implements P
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
     private org.jdesktop.swingx.JXTitledPanel jXTitledPanel1;
-    private org.jdesktop.swingx.JXTitledSeparator lbl_title;
     private javax.swing.JPanel pan_subprop;
     private org.jdesktop.swingx.JXTree tree;
     // End of variables declaration//GEN-END:variables

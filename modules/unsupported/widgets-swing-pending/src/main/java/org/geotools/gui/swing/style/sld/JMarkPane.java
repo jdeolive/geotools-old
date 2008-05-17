@@ -18,8 +18,10 @@ package org.geotools.gui.swing.style.sld;
 import java.awt.Component;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
+import org.geotools.gui.swing.icon.IconBundle;
 import org.geotools.gui.swing.style.StyleElementEditor;
 import org.geotools.map.MapLayer;
 import org.geotools.styling.Mark;
@@ -33,6 +35,9 @@ import org.jdesktop.swingx.plaf.windows.WindowsClassicLookAndFeelAddons;
  */
 public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<Mark> {
 
+    private static final ImageIcon ICO_FILL = IconBundle.getResource().getIcon("16_paint_fill");
+    private static final ImageIcon ICO_STROKE = IconBundle.getResource().getIcon("16_paint_stroke");
+    
     private MapLayer layer = null;
     private Mark mark = null;
 
@@ -188,16 +193,16 @@ public class JMarkPane extends javax.swing.JPanel implements StyleElementEditor<
 
         jXTaskPaneContainer1.add(jXTaskPane1);
 
+        jXTaskPane2.setExpanded(false);
+        jXTaskPane2.setIcon(ICO_STROKE);
         jXTaskPane2.setTitle(bundle.getString("stroke")); // NOI18N
-
-        guiStroke.setOpaque(false);
         jXTaskPane2.getContentPane().add(guiStroke);
 
         jXTaskPaneContainer1.add(jXTaskPane2);
 
+        jXTaskPane3.setExpanded(false);
+        jXTaskPane3.setIcon(ICO_FILL);
         jXTaskPane3.setTitle(bundle.getString("fill")); // NOI18N
-
-        guiFill.setOpaque(false);
         jXTaskPane3.getContentPane().add(guiFill);
 
         jXTaskPaneContainer1.add(jXTaskPane3);

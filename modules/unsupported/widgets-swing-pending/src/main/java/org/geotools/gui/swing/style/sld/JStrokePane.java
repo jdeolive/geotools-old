@@ -136,7 +136,6 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
 
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/style/sld/Bundle"); // NOI18N
         butFill.setText(bundle.getString("fill")); // NOI18N
-        butFill.setBorderPainted(false);
         butFill.setPreferredSize(new java.awt.Dimension(68, 22));
         butFill.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -148,7 +147,6 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
         jLabel3.setText(bundle.getString("graphic")); // NOI18N
 
         butStroke.setText(bundle.getString("stroke")); // NOI18N
-        butStroke.setBorderPainted(false);
         butStroke.setPreferredSize(new java.awt.Dimension(68, 22));
         butStroke.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -253,9 +251,7 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
     }// </editor-fold>//GEN-END:initComponents
 
     private void butStrokeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butStrokeActionPerformed
-                
-        JDialog dia = new JDialog();
-        
+             
         JGraphicPane pane = new JGraphicPane();
         pane.setLayer(layer);
         
@@ -263,10 +259,10 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
             pane.setEdited(stroke.getGraphicStroke());
         }
         
-        dia.setContentPane(pane);
+        JSimpleDialog dia = new JSimpleDialog(null,true,pane); 
+                
         dia.pack();
         dia.setLocationRelativeTo(butStroke);
-        dia.setModal(true);
         dia.setVisible(true);
         
         if(stroke == null){
@@ -278,8 +274,6 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
 
     private void butFillActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_butFillActionPerformed
         
-        JDialog dia = new JDialog();
-        
         JGraphicPane pane = new JGraphicPane();
         pane.setLayer(layer);
         
@@ -287,10 +281,9 @@ public class JStrokePane extends javax.swing.JPanel implements StyleElementEdito
             pane.setEdited(stroke.getGraphicFill());
         }
         
-        dia.setContentPane(pane);
+        JSimpleDialog dia = new JSimpleDialog(null,true,pane);        
         dia.pack();
         dia.setLocationRelativeTo(butFill);
-        dia.setModal(true);
         dia.setVisible(true);
         
         if(stroke == null){

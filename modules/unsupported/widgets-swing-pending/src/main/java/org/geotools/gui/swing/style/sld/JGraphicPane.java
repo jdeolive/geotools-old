@@ -189,6 +189,7 @@ public class JGraphicPane extends javax.swing.JPanel implements StyleElementEdit
 
         jXTaskPaneContainer1.add(jXTaskPane1);
 
+        jXTaskPane2.setExpanded(false);
         jXTaskPane2.setTitle(bundle.getString("symbol")); // NOI18N
 
         jPanel2.setOpaque(false);

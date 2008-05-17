@@ -133,6 +133,7 @@
         </Container>
         <Container class="org.jdesktop.swingx.JXTaskPane" name="jXTaskPane2">
           <Properties>
+            <Property name="expanded" type="boolean" value="false"/>
             <Property name="title" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
               <ResourceString bundle="org/geotools/gui/swing/style/sld/Bundle.properties" key="symbol" replaceFormat="java.util.ResourceBundle.getBundle(&quot;{bundleNameSlashes}&quot;).getString(&quot;{key}&quot;)"/>
             </Property>

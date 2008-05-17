@@ -164,7 +164,7 @@ public class JPointSymbolizerPane extends javax.swing.JPanel implements org.geot
         setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(250, 250));
+        jScrollPane1.setPreferredSize(new java.awt.Dimension(0, 0));
 
         tab_demo.setPreferredSize(new java.awt.Dimension(100, 100));
         jScrollPane1.setViewportView(tab_demo);
