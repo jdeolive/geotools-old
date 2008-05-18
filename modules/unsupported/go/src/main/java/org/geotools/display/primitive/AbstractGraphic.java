@@ -17,7 +17,6 @@
  *    This package contains documentation from OpenGIS specifications.
  *    OpenGIS consortium's work is fully acknowledged here.
  */
-
 package org.geotools.display.primitive;
 
 import java.util.Locale;

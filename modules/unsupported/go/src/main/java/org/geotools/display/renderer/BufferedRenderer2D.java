@@ -62,7 +62,7 @@ import org.geotools.util.RangeSet;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public class BufferedRenderer2D extends ReferencedRenderer2D {
+public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
     
     protected BufferedCanvas2D canvas = null;
         

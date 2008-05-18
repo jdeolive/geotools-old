@@ -19,10 +19,9 @@
  */
 package org.geotools.display.canvas;
 
+import java.awt.RenderingHints;
 import java.beans.PropertyChangeEvent;
 import javax.swing.event.EventListenerList;
-
-import java.awt.RenderingHints;
 
 import org.opengis.util.InternationalString;
 import org.opengis.referencing.crs.DerivedCRS;
@@ -109,7 +108,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
     /**
      * Canvas listeners list.
      */
-    protected final EventListenerList canvasListeners;
+    private final EventListenerList canvasListeners;
 
     /**
      * A set of rendering hints.
@@ -129,7 +128,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      */
     protected InternationalString title;
 
-    
+
     /**
      * Creates an initially empty canvas.
      *
@@ -223,7 +222,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * Call this method to force a repaint
      */
     public abstract void repaint();
-    
+
     //--------------Canvas Listeners convinient methods-------------------------
     /**
      * Adds the given listener that will be notified when the state of this
@@ -349,7 +348,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @return The hint value for the specified key, or {@code null} if none.
      */
     @Override
-    public synchronized Object getHint(final RenderingHints.Key key) {
+    public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return hints.get(key);
     }
 
@@ -368,7 +367,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @see RenderingHints#KEY_INTERPOLATION
      */
     @Override
-    public synchronized void setHint(final RenderingHints.Key key, final Object value) {
+    public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         if (value != null) {
             if (!value.equals(hints.put(key, value))) {
                 clearCache(); // Invokes only if the new value is different than the previous one.

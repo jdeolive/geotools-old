@@ -314,7 +314,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @return The hint value for the specified key, or {@code null} if none.
      */
     @Override
-    public synchronized Object getHint(final RenderingHints.Key key) {
+    public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return hints.get(key);
     }
 
@@ -333,7 +333,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see RenderingHints#KEY_INTERPOLATION
      */
     @Override
-    public synchronized void setHint(final RenderingHints.Key key, final Object value) {
+    public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         if (value != null) {
             hints.put(key, value);
         } else {
@@ -391,7 +391,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         }
     }
 
-    public void remove(Collection<? extends Graphic> graphics) {
+    public void remove(Collection<Graphic> graphics) {
         for(Graphic g : graphics){
             remove(g);
         }

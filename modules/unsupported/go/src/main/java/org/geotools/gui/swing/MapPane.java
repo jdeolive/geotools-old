@@ -25,7 +25,7 @@ public class MapPane extends JPanel{
     
     public MapPane(){
         super();
-        renderer = new BufferedRenderer2D();
+        renderer = null; //new BufferedRenderer2D();
         canvas = new BufferedCanvas2D(renderer,this);
         renderer.setCanvas(canvas);
         
