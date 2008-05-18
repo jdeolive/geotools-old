@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import org.geotools.util.IntegerList;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
@@ -84,12 +86,15 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     /**
      * Size of every tiles at this level.
      */
-    private final int width, height;
+    final int width, height;
 
     /**
-     * The region of every tiles in this level.
+     * The region of every tiles in this level. The {@linkplain Rectangle#x x} and
+     * {@linkplain Rectangle#y y} coordinates are the upper-left corner of the (0,0)
+     * tile. The {@linkplain Rectangle#width width} and {@linkplain Rectangle#height height}
+     * are big enough for including every tiles.
      */
-    private final Rectangle region;
+    final Rectangle region;
 
     /**
      * On construction, the list of tiles {@linkplain #add added} in this level in no particular
@@ -111,6 +116,17 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
      * holes in the mosaic if there is any.
      */
     private IntegerList patternUsed;
+
+    /**
+     * Index of last pattern used. Used in order to avoid reinitializing
+     * the {@linkplain #formatter} more often than needed.
+     */
+    private transient int lastPattern;
+
+    /**
+     * The formatter used for parsing and creating filename.
+     */
+    private transient FilenameFormatter formatter;
 
     /**
      * Creates a new level from the given tile.
@@ -178,11 +194,11 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
          * rectangle below is named "size" because the (x,y) location is not representative.
          * The tiles that we failed to modelize by a pattern will be stored under the null key.
          */
+        formatter = new FilenameFormatter();
         final Rectangle size = new Rectangle(x, y, width, height);
-        final FilenameFormatter formatter = new FilenameFormatter();
         final Map<Tile,List<Tile>> models = new HashMap<Tile,List<Tile>>();
         for (final Tile tile : tiles) {
-            final String input = inputPattern(formatter, tile);
+            final String input = inputPattern(tile);
             final Tile model = (input != null) ? new Tile(tile, input, size) : null;
             List<Tile> similar = models.get(model);
             if (similar == null) {
@@ -212,6 +228,14 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
         }
         if (tiles != null) {
             tiles = UnmodifiableArrayList.wrap(toArray(tiles));
+        }
+        /*
+         * If there is no recognized pattern, clears the unused fields and finish immediately
+         * this method, so we skip the construction of "pattern used" list (which may be large).
+         */
+        if (models.isEmpty()) {
+            formatter = null;
+            return;
         }
         /*
          * Sets the pattern index. Index in the 'tile' array are numbered from 0 (like usual),
@@ -251,15 +275,14 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     }
 
     /**
-     * Returns a pattern for the given tile, using the given formatter. If no pattern can be
-     * found, returns {@code null}. This method accepts only tile and input of specific types
-     * in order to be able to rebuild later an exactly equivalent object from the pattern.
+     * Returns a pattern for the given tile. If no pattern can be found, returns {@code null}.
+     * This method accepts only tile and input of specific types in order to be able to rebuild
+     * later an exactly equivalent object from the pattern.
      *
-     * @param  formatter A formatter to use for determining the pattern.
      * @param  tile The tile to inspect for a pattern in the input object.
      * @return The pattern, or {@code null} if none.
      */
-    private String inputPattern(final FilenameFormatter formatter, final Tile tile) {
+    private String inputPattern(final Tile tile) {
         if (!Tile.class.equals(tile.getClass())) {
             return null;
         }
@@ -270,8 +293,10 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
         }
         final Point index = getIndex2D(tile);
         String pattern = input.toString();
-        pattern = formatter.pattern(ordinal, index.x, index.y, pattern);
-        pattern = type.getSimpleName() + ':' + pattern;
+        pattern = formatter.guessPattern(ordinal, index.x, index.y, pattern);
+        if (pattern != null) {
+            pattern = type.getSimpleName() + ':' + pattern;
+        }
         return pattern;
     }
 
@@ -340,16 +365,28 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
      * @param The tile location, with (0,0) as the upper-left tile.
      * @return The tile at the given location.
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
+     * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    public Tile getTile(final Point location) throws IndexOutOfBoundsException {
+    public Tile getTile(final Point location)
+            throws IndexOutOfBoundsException, MalformedURLException
+    {
         Tile tile;
         final int index = getIndex(location);
+        /*
+         * Checks for fully-created instance. Those instances are expected to exist if
+         * some tile do not comply to a general pattern that this class can recognize.
+         */
         if (tiles != null) {
             tile = tiles.get(index);
             if (tile != null) {
                 return tile;
             }
         }
+        /*
+         * The requested tile does not need to be handled in a special way, so now get the
+         * pattern for this tile and generate the filename of the fly. Doing so avoid the
+         * consumption of memory for the thousands of tiles we may have.
+         */
         int p = 0;
         if (patternUsed != null) {
             p = patternUsed.get(index);
@@ -359,8 +396,64 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
             p--;
         }
         tile = patterns[p];
-        // TODO: apply pattern here.
-        return tile;
+        final String pattern = tile.getInput().toString();
+        if (formatter == null) {
+            formatter = new FilenameFormatter();
+            lastPattern = -1;
+        }
+        if (p != lastPattern) {
+            formatter.applyPattern(pattern.substring(pattern.indexOf(':') + 1));
+            lastPattern = p;
+        }
+        final String filename = formatter.generateFilename(ordinal, location.x, location.y);
+        /*
+         * We now have the filename to be given to the tile. Creates the appropriate object
+         * (File, URL, URI or String) from it.
+         */
+        final Object input;
+        if (pattern.startsWith("File")) {
+            input = new File(filename);
+        } else if (pattern.startsWith("URL")) {
+            input = new URL(filename);
+        } else if (pattern.startsWith("URI")) try {
+            input = new URI(filename);
+        } catch (URISyntaxException cause) { // Rethrown as an IOException subclass.
+            MalformedURLException e = new MalformedURLException(cause.getLocalizedMessage());
+            e.initCause(cause);
+            throw e;
+        } else {
+            input = filename;
+        }
+        assert INPUT_TYPES.contains(input.getClass()) : input;
+        /*
+         * Now creates the definitive tile.
+         */
+        return new Tile(tile, input, new Rectangle(
+                region.x + location.x * width,
+                region.y + location.y * height,
+                width, height));
+    }
+
+    /**
+     * Adds all internal tiles to the given collection.
+     *
+     * @param list The collection where to add the internal tiles.
+     */
+    final void addInternalTiles(final List<? super Tile> list) {
+        if (tiles != null) {
+            for (final Tile tile : tiles) {
+                if (tile != null) {
+                    list.add(tile);
+                }
+            }
+        }
+        if (patterns != null) {
+            for (final Tile tile : patterns) {
+                if (tile != null) {
+                    list.add(tile);
+                }
+            }
+        }
     }
 
     /**

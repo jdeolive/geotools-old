@@ -91,7 +91,7 @@ public abstract class TileManager implements Serializable {
         AffineTransform at = new XAffineTransform(gridToCRS);
         shared.put(new Dimension(1,1), at);
         geometry = new ImageGeometry(getRegion(), at);
-        for (final Tile tile : getTiles()) {
+        for (final Tile tile : getInternalTiles()) {
             final Dimension subsampling = tile.getSubsampling();
             at = shared.get(subsampling);
             if (at == null) {
@@ -125,7 +125,7 @@ public abstract class TileManager implements Serializable {
              * gridToCRS transform is not computed by RegionCalculator. Only the particular tile
              * searched by current implementation should be okay in all cases.
              */
-            for (final Tile tile : getTiles()) {
+            for (final Tile tile : getInternalTiles()) {
                 final Dimension subsampling = tile.getSubsampling();
                 if (subsampling.width != 1 || subsampling.height != 1) {
                     continue;
@@ -179,7 +179,7 @@ public abstract class TileManager implements Serializable {
      *              The image reader provider to be given to the created tile, or {@code null} for
      *              inferring it automatically. In the later case the provider is inferred from the
      *              input suffix if any (e.g. the {@code ".png"} extension in a filename), or
-     *              failing that most frequently used provider is selected.
+     *              failing that the most frequently used provider is selected.
      * @param  input
      *              The input to be given to the created tile. It doesn't need to be an existing
      *              {@linkplain java.io.File file} or URI since this method will not attempt to
@@ -216,6 +216,25 @@ public abstract class TileManager implements Serializable {
             tile.setGridToCRS(geometry.getGridToCRS());
         }
         return tile;
+    }
+
+    /**
+     * Returns a reference to the tiles used internally by the tile manager. The returned collection
+     * must contains only direct references to the tiles hold internally, not instances created on
+     * the fly (as {@link GridTileManager} can do). This is because we want to update the state of
+     * those tiles in a persistent way if this method is invoked by {@link #setGridToCRS}.
+     * <p>
+     * Callers of this method should not rely on the {@linkplain Tile#getInput tile input} and
+     * should not attempt to read the tiles, since the inputs can be non-existant files or patterns
+     * (again the case of {@link GridTileManager}). This method is not public for that reason.
+     * <p>
+     * The default implementation returns {@link #getTiles}. Subclasses that override this method
+     * typically return a smaller list.
+     *
+     * @return The internal tiles.
+     */
+    Collection<Tile> getInternalTiles() {
+        return getTiles();
     }
 
     /**

@@ -116,6 +116,8 @@ public class MosaicImageReader extends ImageReader {
 
     /**
      * Constructs an image reader with the specified provider.
+     *
+     * @param spi The image reader provider, or {@code null} for the default one.
      */
     public MosaicImageReader(final ImageReaderSpi spi) {
         super(spi != null ? spi : Spi.DEFAULT);
@@ -126,6 +128,8 @@ public class MosaicImageReader extends ImageReader {
 
     /**
      * Returns the logging level for tile information during reads.
+     *
+     * @return The current logging level.
      */
     public Level getLogLevel() {
         return level;
@@ -134,6 +138,8 @@ public class MosaicImageReader extends ImageReader {
     /**
      * Sets the logging level for tile information during reads. The default
      * value is {@link Level#FINE}. A {@code null} value restore the default.
+     *
+     * @param level The new logging level.
      */
     public void setLogLevel(Level level) {
         if (level == null) {
@@ -248,6 +254,8 @@ public class MosaicImageReader extends ImageReader {
      * Returns the <cite>Service Provider Interfaces</cite> (SPI) of every
      * {@linkplain ImageReader image readers} to be used for reading tiles.
      * This method returns an empty set if no input has been set.
+     *
+     * @return The service providers for tile readers.
      *
      * @see TileManager#getImageReaderSpis
      */
@@ -620,6 +628,8 @@ public class MosaicImageReader extends ImageReader {
      * produces the same result than {@code SUPPORTED_BY_ALL}.
      * <p>
      * Subclasses can override this method if they want a different policy.
+     *
+     * @return The default image type policy.
      */
     public ImageTypePolicy getDefaultImageTypePolicy() {
         switch (providers.size()) {
@@ -1443,6 +1453,8 @@ public class MosaicImageReader extends ImageReader {
          * Returns {@code true} if the image reader can decode the given input. The default
          * implementation returns {@code true} if the given object is non-null and an instance
          * of an {@linkplain #inputTypes input types}, or {@code false} otherwise.
+         *
+         * @throws IOException If an I/O operation was required and failed.
          */
         public boolean canDecodeInput(final Object source) throws IOException {
             if (source != null) {
@@ -1458,6 +1470,8 @@ public class MosaicImageReader extends ImageReader {
 
         /**
          * Returns a new {@link MosaicImageReader}.
+         *
+         * @throws IOException If an I/O operation was required and failed.
          */
         public ImageReader createReaderInstance(final Object extension) throws IOException {
             return new MosaicImageReader(this);

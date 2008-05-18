@@ -23,8 +23,6 @@ import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import javax.imageio.spi.ImageReaderSpi;
 
-import org.geotools.referencing.operation.matrix.XAffineTransform;
-
 
 /**
  * A tile manager for the particular case of tile distributed on a regular grid.
@@ -41,10 +39,9 @@ public abstract class GridTileManager extends TileManager {
     private final GridLevel[] levels;
 
     /**
-     * A single tile representing the whole mosaic. This tile will never be loaded, but the
-     * information contained in it will be used for inferring other tiles.
+     * The region enclosing all tiles.
      */
-    private final Tile mosaic;
+    private final Rectangle region;
 
     /**
      * Creates a new tile manager for the given tiles, which must be distributed on a grid.
@@ -72,24 +69,51 @@ public abstract class GridTileManager extends TileManager {
         }
         levels = levelsBySubsampling.values().toArray(new GridLevel[levelsBySubsampling.size()]);
         Arrays.sort(levels);
+        region = new Rectangle(-1, -1);
         for (int i=0; i<levels.length; i++) {
-            levels[i].process(i);
+            final GridLevel level = levels[i];
+            level.process(i);
+            region.add(level.region);
         }
-        mosaic = null; // TODO
     }
 
     /**
-     * Sets the {@linkplain Tile#getGridTocRS grid to CRS} transform for every tiles.
-     * This method can be invoked only once.
+     * Returns the region enclosing all tiles.
      *
-     * @param gridToCRS The "grid to CRS" transform.
-     * @throws IllegalStateException if a transform was already assigned to at least one tile.
-     * @throws IOException if an I/O operation was required and failed.
+     * @return The region. <strong>Do not modify</strong> since it is a direct reference to
+     *         internal structures.
      */
     @Override
-    public synchronized void setGridToCRS(AffineTransform gridToCRS)
-            throws IllegalStateException, IOException
-    {
-        mosaic.setGridToCRS(new XAffineTransform(gridToCRS));
+    final Rectangle getRegion() {
+        return region;
+    }
+
+    /**
+     * Returns an estimation of tiles dimension. This method looks only to the first level
+     * having more than 1 tile.
+     *
+     * @return The tiles dimension.
+     */
+    @Override
+    final Dimension getTileSize() {
+        for (int i=levels.length; --i >= 0;) {
+            final GridLevel level = levels[i];
+            if (level.region.width > level.width || level.region.height > level.height) {
+                return new Dimension(level.width, level.height);
+            }
+        }
+        return region.getSize();
+    }
+
+    /**
+     * Returns a reference to the tiles used internally by this tile manager.
+     */
+    @Override
+    final Collection<Tile> getInternalTiles() {
+        final List<Tile> tiles = new ArrayList<Tile>();
+        for (final GridLevel level : levels) {
+            level.addInternalTiles(tiles);
+        }
+        return tiles;
     }
 }

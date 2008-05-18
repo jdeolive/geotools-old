@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
 import javax.imageio.spi.ImageReaderSpi;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
@@ -223,7 +225,7 @@ final class FilenameFormatter implements Serializable {
      * @param  filename  The filename.
      * @return A pattern for the given filename, or {@code null} if the pattern can not be found.
      */
-    public String pattern(final int overview, final int column, final int row, final String filename) {
+    public String guessPattern(final int overview, final int column, final int row, final String filename) {
         /*
          * Extracts immediately the file extension, if any. Then we will scan the filename
          * in reverse order, because we want to search for numbers aligned to the right.
@@ -290,6 +292,54 @@ loop:   for (int fieldNumber=0; ;fieldNumber++) {
         prefix = filename.substring(0, last);
         assert filename.equals(generateFilename(overview, column, row)) : filename;
         return toString();
+    }
+
+    /**
+     * Applies the given pattern to this formatter.
+     *
+     * @param pattern The pattern.
+     * @throws IllegalArgumentException if the pattern is not recognized.
+     */
+    public void applyPattern(final String pattern) throws IllegalArgumentException {
+        int last = 0;
+        RuntimeException cause = null; // In case of failure.
+        for (int fieldNumber=0; ;fieldNumber++) {
+            final String field;
+            switch (fieldNumber) {
+                case 0:  field = "{overview:"; break;
+                case 1:  field = "{column:";   break;
+                case 2:  field = "{row:";      break;
+                default: {
+                    suffix = pattern.substring(last);
+                    return; // Everything done, no exception.
+                }
+            }
+            int i = pattern.indexOf(field, last);
+            if (i < 0) {
+                break; // Exception will be thrown outside the loop.
+            }
+            final String separator = pattern.substring(last, i);
+            i += field.length();
+            last = pattern.indexOf('}', i);
+            if (last < 0) {
+                break; // Exception will be thrown outside the loop.
+            }
+            final int n;
+            try {
+                n = Integer.parseInt(pattern.substring(i, last));
+            } catch (NumberFormatException e) {
+                cause = e;
+                break; // Exception will be thrown outside the loop.
+            }
+            last++;
+            switch (fieldNumber) {
+                case 0:  prefix            = separator; overviewFieldSize = n; break;
+                case 1:  overviewSeparator = separator; columnFieldSize   = n; break;
+                case 2:  locationSeparator = separator; rowFieldSize      = n; break;
+            }
+        }
+        throw new IllegalArgumentException(Errors.format(
+                ErrorKeys.ILLEGAL_ARGUMENT_$2, "pattern", pattern), cause);
     }
 
     /**
