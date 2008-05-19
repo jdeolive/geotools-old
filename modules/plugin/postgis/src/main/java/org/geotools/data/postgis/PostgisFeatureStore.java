@@ -30,7 +30,6 @@ import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.Query;
-import org.geotools.data.QueryCapabilities;
 import org.geotools.data.jdbc.JDBCDataStore;
 import org.geotools.data.jdbc.JDBCFeatureStore;
 import org.geotools.data.jdbc.JDBCUtils;
@@ -48,14 +47,11 @@ import org.geotools.filter.SQLEncoderException;
 import org.geotools.filter.SQLEncoderPostgis;
 import org.geotools.filter.SQLUnpacker;
 import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.util.Converters;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.GeometryDescriptor;
-import org.opengis.feature.type.GeometryType;
 import org.opengis.filter.Filter;
-import org.opengis.filter.sort.SortBy;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.TransformException;
@@ -133,24 +129,22 @@ public class PostgisFeatureStore extends JDBCFeatureStore {
             encoder.setSRID(srid);
             encoder.setFIDMapper(fidMapper);
         }
-        queryCapabilities = new QueryCapabilities(){
+        /**
+         * Override to indicate we support offset, and natural and reverse order sorting
+         */
+        queryCapabilities = new JDBCQueryCapabilities(featureType){
             @Override
             public boolean isOffsetSupported(){
                 return true;
             }
+            
+            @Override
+            protected boolean supportsNaturalOrderSorting() {
+                return true;
+            }
 
             @Override
-            public boolean supportsSorting(SortBy[] sortAttributes){
-                for(int i = 0; i < sortAttributes.length; i++){
-                    SortBy sortBy = sortAttributes[i];
-                    if(SortBy.NATURAL_ORDER == sortBy){
-                        continue;
-                    }
-                    String attName = sortBy.getPropertyName().getPropertyName();
-                    if(featureType.getAttribute(attName) == null){
-                       return false; 
-                    }
-                }
+            protected boolean supportsReverseOrderSorting() {
                 return true;
             }
         };

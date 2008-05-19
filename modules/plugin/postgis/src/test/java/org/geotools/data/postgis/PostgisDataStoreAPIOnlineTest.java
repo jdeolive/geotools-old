@@ -1521,42 +1521,56 @@ public class PostgisDataStoreAPIOnlineTest extends AbstractPostgisDataTestCase {
 
     public void testGetFeaturesSortBy() throws NoSuchElementException, IOException,
     IllegalAttributeException {
-        FeatureSource<SimpleFeatureType, SimpleFeature> river = data.getFeatureSource("river");
+        final org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
         
-        org.opengis.filter.FilterFactory ff = CommonFactoryFinder.getFilterFactory(null);
-        
-        DefaultQuery query = new DefaultQuery(riverType.getTypeName());
-        query.setSortBy(new SortBy[]{ff.sort("nonExistentProperty", SortOrder.ASCENDING)});
         try{
+            DefaultQuery query = new DefaultQuery(riverType.getTypeName());
+            query.setSortBy(new SortBy[]{ff.sort("nonExistentProperty", SortOrder.ASCENDING)});
+            final FeatureSource<SimpleFeatureType, SimpleFeature> river = data.getFeatureSource("river");            
             river.getFeatures(query);
             fail("Expected a datasource exception while asking to sort by a non existent attribute");
         }catch(DataSourceException e){
             assertTrue(true);
         }
 
-        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
-        SimpleFeature f1, f2;
-        
-        query.setSortBy(new SortBy[]{ff.sort("river", SortOrder.ASCENDING)});
-        features = river.getFeatures(query);
-        Iterator<SimpleFeature> iterator = features.iterator();
-        try{
-            f1 = iterator.next();
-            f2 = iterator.next();
-            assertEquals("rv1", f1.getAttribute("river"));
-            assertEquals("rv2", f2.getAttribute("river"));
-        }finally{
-           features.close(iterator);
-        }
+        final String rv1 = "rv1";
+        final String rv2 = "rv2";
 
-        query.setSortBy(new SortBy[]{ff.sort("river", SortOrder.DESCENDING)});
+        testSortBy(new SortBy[]{ff.sort("river", SortOrder.ASCENDING)}, rv1, rv2);
+        
+        testSortBy(new SortBy[]{ff.sort("river", SortOrder.DESCENDING)}, rv2, rv1);
+
+        testSortBy(new SortBy[]{SortBy.NATURAL_ORDER}, rv1, rv2);
+
+        testSortBy(new SortBy[]{SortBy.REVERSE_ORDER}, rv2, rv1);
+
+        //may the attribute name contain a namespace prefix
+        testSortBy(new SortBy[]{ff.sort("geot:river", SortOrder.ASCENDING)}, rv1, rv2);
+    }
+
+    /**
+     * Fetches the features from the river test data using the provided sort order and asserts
+     * the "river" property matches the <code>riverAtt1</code> and <code>riverAtt2</code> values,
+     * in that order.
+     */
+    private void testSortBy(final SortBy[]sortBy, final String riverAtt1, final String riverAtt2) throws IOException {
+
+        FeatureSource<SimpleFeatureType, SimpleFeature> river = data.getFeatureSource("river");
+        
+        DefaultQuery query = new DefaultQuery(riverType.getTypeName());
+        query.setSortBy(sortBy);
+        
+        FeatureCollection<SimpleFeatureType, SimpleFeature> features;
+        SimpleFeature f1;
+        SimpleFeature f2;
+        Iterator<SimpleFeature> iterator;
         features = river.getFeatures(query);
         iterator = features.iterator();
         try{
             f1 = iterator.next();
             f2 = iterator.next();
-            assertEquals("rv2", f1.getAttribute("river"));
-            assertEquals("rv1", f2.getAttribute("river"));
+            assertEquals(riverAtt1, f1.getAttribute("river"));
+            assertEquals(riverAtt2, f2.getAttribute("river"));
         }finally{
            features.close(iterator);
         }

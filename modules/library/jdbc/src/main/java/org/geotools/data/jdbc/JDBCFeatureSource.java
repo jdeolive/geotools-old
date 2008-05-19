@@ -22,15 +22,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.swing.Icon;
-
-import org.geotools.data.AbstractFeatureSource;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DefaultQuery;
@@ -40,16 +35,17 @@ import org.geotools.data.Query;
 import org.geotools.data.QueryCapabilities;
 import org.geotools.data.ResourceInfo;
 import org.geotools.data.Transaction;
-import org.geotools.factory.Hints;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.filter.SQLEncoderException;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
+import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.feature.type.Name;
 import org.opengis.filter.Filter;
 import org.opengis.filter.expression.PropertyName;
 import org.opengis.filter.sort.SortBy;
+import org.opengis.filter.sort.SortOrder;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -89,6 +85,109 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
     /** The logger for the filter module. */
     private static final Logger LOGGER = org.geotools.util.logging.Logging.getLogger("org.geotools.data.jdbc");
     
+    /**
+     * A default QueryCapabilities implementation for JDBCFeatureSource with template methods
+     * JDBCFeatureSource subclasses may override.
+     * <p>
+     * This default implementation assumes sorting is supported both in ascending and descending
+     * order by any FeatureType attribute. Sorting by {@link SortBy#NATURAL_ORDER} and
+     * {@link SortBy#REVERSE_ORDER}, by the other hand, defaults to <code>false</code>, since a
+     * datastore may take explicit actions in orther to support those concepts, though most of the
+     * time it implies sorting by the primary key for JDBC datastores.
+     * </p>
+     * 
+     * @author Gabriel Roldan (TOPP)
+     * @version $Id$
+     * @since 2.4.3
+     * @see #supportsNaturalOrderSorting()
+     * @see #supportsReverseOrderSorting()
+     * @see #supportsPropertySorting(PropertyName, SortOrder)
+     */
+    protected static class JDBCQueryCapabilities extends QueryCapabilities {
+
+        private SimpleFeatureType featureType;
+
+        /**
+         * Creates a new JDBCQueryCapabilities to check for sorting support over the
+         * attributes of the provided feature type.
+         * @param fullFeatureType the feature type with all the registered attribtues
+         */
+        public JDBCQueryCapabilities(SimpleFeatureType fullFeatureType) {
+            this.featureType = fullFeatureType;
+        }
+
+        /**
+         * Overrides to delegate to the three template methods in order to check for sorting
+         * capabilities over the natural and reverse order, and each specific attribute type.
+         */
+        @Override
+        public boolean supportsSorting(final SortBy[] sortAttributes) {
+            for (int i = 0; i < sortAttributes.length; i++) {
+                SortBy sortBy = sortAttributes[i];
+                if (SortBy.NATURAL_ORDER == sortBy) {
+                    if(!supportsNaturalOrderSorting()){
+                        return false;
+                    }
+                }else if (SortBy.REVERSE_ORDER == sortBy) {
+                    if(!supportsReverseOrderSorting()){
+                        return false;
+                    }
+                }else{
+                    PropertyName propertyName = sortBy.getPropertyName();
+                    SortOrder sortOrder = sortBy.getSortOrder();
+                    if (!supportsPropertySorting(propertyName, sortOrder)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /**
+         * Indicates whether sorting by {@link SortBy#NATURAL_ORDER} is supported; defaults to
+         * <code>false</code>.
+         * 
+         * @return false, override if NATURAL_ORDER sorting is supported.
+         */
+        protected boolean supportsNaturalOrderSorting() {
+            return false;
+        }
+
+        /**
+         * Indicates whether sorting by {@link SortBy#REVERSE_ORDER} is supported; defaults to
+         * <code>false</code>.
+         * 
+         * @return false, override if REVERSE_ORDER sorting is supported.
+         */
+        protected boolean supportsReverseOrderSorting() {
+            return false;
+        }
+
+        /**
+         * Template method to check for sorting support in the given sort order for a specific
+         * attribute type, given by a PropertyName expression.
+         * <p>
+         * This default implementation assumes both orders are supported as long as the property
+         * name corresponds to the name of one of the attribute types in the complete FeatureType.
+         * </p>
+         * 
+         * @param propertyName the expression holding the property name to check for sortability
+         *            support
+         * @param sortOrder the order, ascending or descending, to check for sortability support
+         *            over the given property name.
+         * @return true if propertyName refers to one of the FeatureType attributes
+         */
+        protected boolean supportsPropertySorting(PropertyName propertyName, SortOrder sortOrder) {
+            AttributeDescriptor descriptor = (AttributeDescriptor) propertyName.evaluate(featureType);
+            if (descriptor != null) {
+                return true;
+            }
+            String attName = propertyName.getPropertyName();
+            AttributeDescriptor attribute = featureType.getAttribute(attName);
+            return attribute != null;
+        }
+    }
+    
     /** FeatureType being provided */
     private SimpleFeatureType featureType;
     
@@ -114,24 +213,7 @@ public class JDBCFeatureSource implements FeatureSource<SimpleFeatureType, Simpl
         this.dataStore = jdbcDataStore;
         //We assume jdbc datastores can sort by any field. Be sure to override
         //if you support @id, NATURAL_ORDER, or REVERSE_ORDER
-        this.queryCapabilities = new QueryCapabilities(){
-            @Override
-            public boolean supportsSorting(SortBy[] sortAttributes){
-                final SimpleFeatureType featureType = JDBCFeatureSource.this.featureType;
-                for(int i = 0; i < sortAttributes.length; i++){
-                    SortBy sortBy = sortAttributes[i];
-                    PropertyName propertyName = sortBy.getPropertyName();
-                    String attName = (String)propertyName.evaluate(featureType, String.class);
-                    if(attName == null){
-                        attName = propertyName.getPropertyName();
-                    }
-                    if(featureType.getAttribute(attName) == null){
-                       return false; 
-                    }
-                }
-                return true;
-            }  
-        };
+        this.queryCapabilities = new JDBCQueryCapabilities(featureType);
     }
     
     /**
