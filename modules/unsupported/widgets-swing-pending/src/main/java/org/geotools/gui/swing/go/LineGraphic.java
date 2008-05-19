@@ -9,7 +9,6 @@ import java.awt.Graphics2D;
 import org.geotools.display.primitive.GraphicPrimitive2D;
 import org.geotools.display.renderer.RenderingContext;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.display.primitive.GraphicListener;
 import org.opengis.referencing.operation.TransformException;
 
 /**
@@ -39,11 +38,6 @@ public class LineGraphic extends GraphicPrimitive2D{
         return true;
     }
 
-    public void addGraphicListener(GraphicListener arg0) {
-    }
-
-    public void removeGraphicListener(GraphicListener arg0) {
-    }
 
 
 }

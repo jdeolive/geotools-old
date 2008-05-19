@@ -63,7 +63,7 @@ public class ZoomMapPane extends ZoomPane{
 //        
 ////        canvas.getController().setObjectiveCRS(context.getCoordinateReferenceSystem()); 
 //        
-        renderer.add(new LineGraphic());
+//        renderer.add(new LineGraphic());
         
         
         

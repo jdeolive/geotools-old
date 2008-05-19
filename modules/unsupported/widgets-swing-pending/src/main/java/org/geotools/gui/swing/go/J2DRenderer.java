@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.display.geom.MultiLineGraphic;
 import org.geotools.display.primitive.FeatureGraphic;
+import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.BufferedRenderer2D;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.geometry.DirectPosition2D;
@@ -34,12 +35,13 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
 /**
  *
  * @author sorel
  */
-public class J2DRenderer extends BufferedRenderer2D {
+public class J2DRenderer extends AWTDirectRenderer2D {
 
     protected MapContext context = null;
     protected Map<MapLayer, List<FeatureGraphic>> featureGraphics = new HashMap<MapLayer, List<FeatureGraphic>>();
@@ -47,6 +49,8 @@ public class J2DRenderer extends BufferedRenderer2D {
     public void setContext(MapContext context) {
 
 
+        add(new LineGraphic());
+        
         if (this.context != context) {
             removeContextGraphics();
             this.context = context;
@@ -55,23 +59,48 @@ public class J2DRenderer extends BufferedRenderer2D {
             }
         }
         
-        /**
-         * we set the maparea to see the complete mapcontext
-         */
-        ReferencedEnvelope env = null;
-        
         try {
-            env = context.getLayerBounds();
-        } catch (IOException ex) {
-            ex.printStackTrace();
+            canvas.setObjectiveCRS(context.getCoordinateReferenceSystem());
+        } catch (TransformException ex) {
             Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        DirectPosition center = new DirectPosition2D(context.getCoordinateReferenceSystem(), env.centre().x, env.centre().y);        
+//        /**
+//         * we set the maparea to see the complete mapcontext
+//         */
+//        ReferencedEnvelope env = null;
+//
+//        try {
+//            env = context.getLayerBounds();
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//        DirectPosition center = new DirectPosition2D(context.getCoordinateReferenceSystem(), env.centre().x, env.centre().y);
+//
+//        if (env != null) {
+//            getCanvas().getController().setCenter(center);
+//        }
         
-        if (env != null) {
-            getCanvas().getController().setCenter(center);
-        }
+        
+//        /**
+//         * we set the maparea to see the complete mapcontext
+//         */
+//        ReferencedEnvelope env = null;
+//        
+//        try {
+//            env = context.getLayerBounds();
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        
+//        DirectPosition center = new DirectPosition2D(context.getCoordinateReferenceSystem(), env.centre().x, env.centre().y);        
+//        
+//        if (env != null) {
+//            getCanvas().getController().setCenter(center);
+//        }
 
     }
 
@@ -130,8 +159,4 @@ public class J2DRenderer extends BufferedRenderer2D {
 
     }
 
-    @Override
-    public boolean paint(Graphics2D output, AffineTransform zoom) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }
