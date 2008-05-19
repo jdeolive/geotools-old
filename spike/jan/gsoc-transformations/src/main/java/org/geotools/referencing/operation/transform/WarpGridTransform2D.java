@@ -36,7 +36,6 @@ import org.geotools.referencing.operation.MathTransformProvider;
 import org.geotools.resources.XArray;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.opengis.coverage.grid.GridRange;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.parameter.InvalidParameterTypeException;
 import org.opengis.parameter.ParameterDescriptor;
@@ -53,7 +52,7 @@ import org.opengis.referencing.operation.Transformation;
 
 
 /**
- * Basic implementation of JAI's WarpGrid Transformation. This class just encapsulate GridWarp into the
+ * Basic implementation of JAI's WarpGrid Transformation. This class encapsulates WarpGrid into the
  * GeoTools transformations conventions.
  * @author jezekjan
  *
@@ -75,17 +74,22 @@ public class WarpGridTransform2D extends WarpTransform2D {
     private float[] inversePos;
 
     /**
-     *
-     * @param xStart
-     * @param xStep
-     * @param xNumCells
-     * @param yStart
-     * @param yStep
-     * @param yNumCells
-     * @param warpPositions
+     * Constructs WarpGridTransform2D by settings values defining grid values. 
+     * See http://java.sun.com/products/java-media/jai/forDevelopers/jai-apidocs/javax/media/jai/WarpGrid.html
+     * for more.
+     * 
+     * @param xStart Start of the grid in X direction
+     * @param xStep Length of the cell in X direction
+     * @param xNumCells Number of cells  in X direction
+     * @param yStart Start of the grid in Y direction
+     * @param yStep Length of the sell in Y direction
+     * @param yNumCells Number of cells in Y direction
+     * @param warpPositions Array of warp position where the dimension must be equal to (xNumCells+1) * (yNumCells+1)
+     * 
+     * @throws IllegalArgumentException if the lenght of warpPosition is incorrect.
      */
     public WarpGridTransform2D(int xStart, int xStep, int xNumCells, int yStart, int yStep,
-        int yNumCells, float[] warpPositions) {
+        int yNumCells, float[] warpPositions) throws IllegalArgumentException{
         super(new WarpGrid(xStart, xStep, xNumCells, yStart, yStep, yNumCells, warpPositions), null);
 
         this.warp = super.getWarp();
@@ -140,7 +144,7 @@ public class WarpGridTransform2D extends WarpTransform2D {
      */
     public ParameterValueGroup getParameterValues() {
         if (this.warp instanceof WarpGrid) {
-            final WarpGrid wGrid = (WarpGrid) warp;
+           // final WarpGrid wGrid = (WarpGrid) warp;
             final ParameterValue[] p = new ParameterValue[7];
             int c = 0;
             p[c++] = new Parameter(Provider.X_START, ((WarpGrid) getWarp()).getXStart()); //new Integer(((WarpGrid)super.getWarp()).getXStart()));
@@ -296,23 +300,7 @@ public class WarpGridTransform2D extends WarpTransform2D {
         return inverse;
     }
 
-    /**
-     * Returns range of transformed data by searching max shift on each border of whole grid
-     * @return GridRange of transformed data
-     */
-   /* public GridRange getGridRange(){
-    	float top ;
-    	
-    	top = warpPositions[0];
-    	
-    	for (int i = 0; i < ((WarpGrid) getWarp()).getXNumCells()*2; i = i + 2){
-    		if (top < warpPositions[i]){
-    			top = warpPositions[i];
-    		}    	
-        }
-       return null;//new GridRange(null, null);
-
-    }*/
+   
     /**
      *
      * The provider for the {@linkplain WarpGridTransform2D}. This provider constructs a JAI
@@ -564,9 +552,9 @@ public class WarpGridTransform2D extends WarpTransform2D {
 
                     while (xSt.hasMoreTokens() && longSt.hasMoreTokens()) {
                         warpPos[(2 * j) + (nc * i * 2)] = xStart + (j * xStep)
-                            + (float) -Float.parseFloat(xSt.nextToken())/3600;//decimal seconds
+                            + (float) -Float.parseFloat(xSt.nextToken());
                         warpPos[(2 * j) + (nc * i * 2) + 1] = yStart + (i * yStep)
-                            + (float) Float.parseFloat(longSt.nextToken())/3600;//decimal seconds
+                            + (float) Float.parseFloat(longSt.nextToken());
                         ++j;
                     }
                 }

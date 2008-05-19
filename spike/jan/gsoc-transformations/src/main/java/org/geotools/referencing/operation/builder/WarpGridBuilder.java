@@ -34,6 +34,7 @@ import javax.vecmath.MismatchedSizeException;
 
 import org.geotools.geometry.DirectPosition2D;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.algorithm.AbstractInterpolation;
 import org.geotools.referencing.operation.matrix.GeneralMatrix;
 import org.geotools.referencing.operation.transform.AffineTransform2D;
@@ -46,7 +47,6 @@ import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.geometry.MismatchedReferenceSystemException;
-import org.opengis.parameter.ParameterValueGroup;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchIdentifierException;
 import org.opengis.referencing.operation.MathTransform;
@@ -80,21 +80,22 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 	/**
 	 * Envelope for generated Grid
 	 */
-	private Envelope envelope;
+	protected final Envelope envelope;
 
+	
+	/** RealToGrid Math Transform */
+	protected final MathTransform worldToGrid;
+	
 	/**
 	 * List of Mapped Positions in local coordinates (transformed by worldToGrid
 	 * transformation)
 	 */
-	final List<MappedPosition> localpositions ;//= new ArrayList<MappedPosition>();
+	private  List<MappedPosition> localpositions ;
 
 	// List /*<MappedPosition>*/ worldpositions ;
 
 	/** GridValues like maxx maxt dx dy etc.. */
-	 GridParameters gridParameters;
-
-	/** RealToGrid Math Transform */
-	MathTransform worldToGrid;
+	protected GridParameters gridParameters;	
 
 	/** Grid of x shifts */
 	private float[][] dxgrid;
@@ -112,10 +113,12 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 	private WritableRaster yRaster;
 
 	/**
-	 * Constructs Builder
+	 * Constructs Builder with proper worldToGrid math transform with integer values for
+	 * generated grid. This constructor is useful for calculating transformation for 
+	 * image in image coordinate system. 
 	 * 
 	 * @param vectors
-	 *            Mapped positions
+	 *            Mapped positions ground control points
 	 * @param dx
 	 *            The horizontal spacing between grid cells.
 	 * @param dy
@@ -134,31 +137,36 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 			NoSuchIdentifierException {
 		
 		this.worldToGrid = worldToGrid;
-
+        this.envelope = envelope;
 		this.gridParameters = GridParameters.createGridParameters(envelope, dx, dy,
 				(AffineTransform2D) worldToGrid, true);
-
-		super.setMappedPositions(vectors);
-
-		// super.setMappedPositions(transformMPToGrid(vectors, realToGrid));
-		localpositions = transformMPToGrid(vectors, worldToGrid);
-		//this.envelope = envelope;
+		super.setMappedPositions(vectors);		
+		localpositions = transformMPToGrid(vectors, worldToGrid);		
 	}
 
-	protected WarpGridBuilder(List<MappedPosition> vectors, GridParameters params){
+	/**
+	 * Constructs builder to be used in real world system with Float values as parameters.
+	 * @param vectors
+	 * @param params
+	 * @param envelope
+	 */
+	protected WarpGridBuilder(List<MappedPosition> vectors, GridParameters params, Envelope envelope){
 		
 		super.setMappedPositions(vectors);
 		localpositions = vectors;
+		this.envelope = envelope;
 		this.gridParameters = params;
+		DefaultMathTransformFactory  s = new DefaultMathTransformFactory();
+		this.worldToGrid = this.getIdntityTransform(); 
 	}
 	
-	public WarpGridBuilder(List<MappedPosition> vectors, double dx, double dy,
+	/*public WarpGridBuilder(List<MappedPosition> vectors, double dx, double dy,
 			Envelope envelope) throws MismatchedSizeException,
 			MismatchedDimensionException, MismatchedReferenceSystemException,
 			TransformException, NoSuchIdentifierException {
 		this(vectors, dx, dy, envelope, getIdntityTransform());
 
-	}
+	}*/
 
 	private static MathTransform getIdntityTransform() {
 		GeneralMatrix M = new GeneralMatrix(3, 3);
@@ -174,30 +182,35 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 	public List<MappedPosition> getGridMappedPositions()
 			throws MismatchedDimensionException, TransformException {
 		if (localpositions == null) {
-		//	localpositions = transformMPToGrid(getMappedPositions(),
-			//		worldToGrid);
+			localpositions = transformMPToGrid(getMappedPositions(),
+					worldToGrid);
 		}
 
 		return localpositions;
 	}
 
+	protected HashMap<DirectPosition, Float> buildPositionsMap(int dim) throws TransformException{
+		return  buildPositionsMap(dim, 1);
+	}
+	
 	/**
 	 * Converts MappedPosition to HashMap where Source Points are key and delta
 	 * in proper dimension is value
 	 * 
 	 * @param dim
 	 *            delta dimension (0 - dx, 1 - dy)
+	 * @param k coefficient for multiplying  point value (For example 3600 to get difference in degree seconds).           
 	 * @return Map
 	 * @throws TransformException
 	 */
-	protected HashMap<DirectPosition, Float> buildPositionsMap(int dim)
+	protected HashMap<DirectPosition, Float> buildPositionsMap(int dim, float k)
 			throws TransformException {
 		HashMap<DirectPosition, Float> poitnsToDeltas = new HashMap<DirectPosition, Float>();
 
 		for (Iterator<MappedPosition> i = this.getGridMappedPositions()
 				.iterator(); i.hasNext();) {
 			MappedPosition mp = ((MappedPosition) i.next());
-			poitnsToDeltas.put(mp.getSource(), new Float(mp.getSource()
+			poitnsToDeltas.put(mp.getSource(), k * new Float(mp.getSource()
 					.getCoordinates()[dim]
 					- mp.getTarget().getCoordinates()[dim]));
 		}
@@ -470,7 +483,7 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 		format.setMinimumIntegerDigits(0);
 		String space = " ";
 		osw.write(" "+
-			       (gridParameters.getXNumber() + 1) + "  "
+			       (gridParameters.getXNumber() + 1) + " "
 				+  (gridParameters.getYNumber() + 1) + "   "
 				+ "1" + "    " 
 				+  format.format(gridParameters.getXStart()) + "      "
@@ -484,7 +497,47 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 
 		format.setMinimumFractionDigits(6);
 		format.setMaximumFractionDigits(6);
-			for (int i = getDxGrid().length - 1; i >= 0; i--) {
+		
+		switch (dim){
+		
+		case 0:
+          for (int i = getDxGrid().length - 1; i >= 0; i--) {
+				
+				osw.write(String.valueOf("\n"));
+
+				int col = 0; //laa
+				for (int j = 0; j < getDxGrid()[i].length; j++) {
+										
+							
+				     float val =    -1*/*3600**/getDxGrid()[i][j];  //in decimal seconds 				
+				     osw.write("   " + format.format(val));
+					 col++;
+					 if (col >= 6){
+						 osw.write(String.valueOf("\n"));
+						 col=0;
+					 }
+				}
+			}
+		case 1:	
+			
+         for (int i = getDyGrid().length - 1; i >= 0; i--) {
+				
+				osw.write(String.valueOf("\n"));
+
+				int col = 0;//loa
+				for (int j = 0; j < getDyGrid()[i].length; j++) {
+										
+					float val = /*3600*/getDyGrid()[i][j];
+					osw.write("    "+format.format(val));
+					 col++;
+					 if (col >= 6){
+						 osw.write(String.valueOf("\n"));
+						 col=0;
+					 }
+				}
+			}
+		}
+		/*	for (int i = getDxGrid().length - 1; i >= 0; i--) {
 				
 				osw.write(String.valueOf("\n"));
 
@@ -493,7 +546,7 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 										
 					float val = 0;					
 					if (dim == 0) { val =    -3600*getDxGrid()[i][j]; } //in decimal seconds 
-					else if (dim == 1) {val =3600*getDyGrid()[i][j];}
+					else if (dim == 1) {val = 3600*getDyGrid()[i][j];}
 					osw.write("     " + format.format(val));
 					 col++;
 					 if (col >= 6){
@@ -503,7 +556,7 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 				}
 			}
 	
-
+*/
 		osw.close();
 
 		return file;
@@ -675,6 +728,8 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 	public Envelope getEnvelope() {
 		return envelope;
 	}
+	
+	
 
 	public MathTransform getWorldToGrid() {
 		MathTransform mt = null;
@@ -684,10 +739,10 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 		return mt;
 	}
 
-	public void setEnvelope(Envelope envelope) {
+	/*public void setEnvelope(Envelope envelope) {
 		cleanTransformationVars();
 		this.envelope = envelope;
-	}
+	}*/
 
 	/**
 	 * Cleans all variable to force the recalculation of grid.
@@ -696,7 +751,7 @@ public abstract class WarpGridBuilder extends MathTransformBuilder {
 		this.warpPositions = null;
 		this.dxgrid = null;
 		this.dygrid = null;
-		//this.localpositions = null;
+		this.localpositions = null;
 	}
 
 	public void setMappedPositions(List<MappedPosition> positions)

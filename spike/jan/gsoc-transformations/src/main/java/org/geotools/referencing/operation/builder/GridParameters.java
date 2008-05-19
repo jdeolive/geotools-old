@@ -13,6 +13,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 /**
+ * Grid parameters are handled here. 
  * @author jezekjan
  * 
  */
@@ -24,7 +25,7 @@ class GridParameters {
 	final private double xStart;
 	final private double yStart;
 	final private int xNumber;
-	final private int yNumber;
+	final private int yNumber;	
 	
 	
 	//final private AffineTransform2D trans;
@@ -51,22 +52,22 @@ class GridParameters {
 
 	private GridParameters(int xstep, int ystep, int xstart, int ystart,
 			int xnumber, int ynumber) {
-		super();
+		
 		xStep = xstep;
 		yStep = ystep;
 		xStart = xstart;
 		yStart = ystart;
 		xNumber = xnumber;
-		yNumber = ynumber;
-		
+		yNumber = ynumber;		
 		warpPositions = new float[2 * (xnumber + 1) * (ynumber + 1)];
 
 	}
 
+	
 	public static GridParameters createGridParameters(Envelope env, double dx,
 			double dy, AffineTransform2D trans, boolean isInteger)
 			throws TransformException {
-
+		
 		if (isInteger) {
 			if (trans==null) { trans = getIdntityTransform();
 			}
@@ -134,6 +135,7 @@ class GridParameters {
 		return warpPositions;
 	}
 	
+		
 	public ParameterValueGroup getWarpGridParameters() {
 		ParameterValueGroup WarpGridParameters = new ParameterGroup(
 				new WarpGridTransform2D.Provider().getParameters());

@@ -245,7 +245,7 @@ public class WarpGridBuilderTest extends TestCase {
              //          ProjectiveTransform.create(M));
 
                // Generates 15 MappedPositions of approximately 2 m differences
-               List<MappedPosition> mp = generateMappedPositions(env, 15, 0.001, crs);
+               List<MappedPosition> mp = generateMappedPositions(env, 15, 0.01, crs);
 
                WarpGridBuilder builder = new IDWGridBuilder(mp, 20, 20, env, ProjectiveTransform.create(M));
 
