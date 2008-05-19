@@ -194,7 +194,6 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
                 }
             }
             propertyListeners.firePropertyChange(OBJECTIVE_CRS_PROPERTY, oldCRS, crs);
-            refresh();
         }
     }
 
@@ -341,21 +340,6 @@ public abstract class ReferencedGraphic extends AbstractGraphic {
      * @see ReferencedCanvas#getToolTipText
      */
     public String getToolTipText(final ReferencedEvent event) {
-        return null;
-    }
-
-    /**
-     * Returns the action to run when some action occured over this graphic. The default
-     * implementation return always {@code null}, which means that no action is defined
-     * for this graphic. Subclasses which override this method should check if the event
-     * is really located over a visual component of this graphic (for example over a geometry).
-     *
-     * @param  event The event.
-     * @return The action for this graphic, or {@code null} if none.
-     *
-     * @see ReferencedCanvas#getAction
-     */
-    public Action getAction(final ReferencedEvent event) {
         return null;
     }
 

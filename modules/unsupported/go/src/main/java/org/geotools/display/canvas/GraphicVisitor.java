@@ -70,9 +70,9 @@ abstract class GraphicVisitor {
         public static final Action SHARED = new Action();
 
         public Object visit(final Graphic graphic, final ReferencedEvent event) {
-            if (graphic instanceof ReferencedGraphic) {
-                return ((ReferencedGraphic) graphic).getAction(event);
-            }
+//            if (graphic instanceof ReferencedGraphic) {
+//                return ((ReferencedGraphic) graphic).getAction(event);
+//            }
             return null;
         }
     }

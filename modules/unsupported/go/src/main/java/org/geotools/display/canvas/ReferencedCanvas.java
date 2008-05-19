@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import java.util.logging.LogRecord;
 import java.beans.PropertyChangeEvent;
 import java.awt.geom.Rectangle2D;
+import java.util.Collection;
 import javax.swing.Action;
 
 import org.opengis.display.primitive.Graphic;
@@ -356,10 +357,8 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * will be processed. Other kind of graphics will be ignored, since we don't know how to
          * handle them.
          */
-        final List/*<Graphic>*/ graphics = renderer.getGraphics();
-        final int graphicCount = graphics.size();
-        for (int i=0; i<graphicCount; i++) {
-            final Graphic candidate = (Graphic) graphics.get(i);
+        final Collection<Graphic> graphics = renderer.getGraphics();
+        for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {
                 continue;
             }
@@ -454,19 +453,19 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     protected void setScale(final double scaleFactor) {
         final Double oldScale = this.scaleFactor;
-        if (oldScale==null || oldScale.doubleValue()!=scaleFactor) {
+        if (oldScale == null || oldScale.doubleValue() != scaleFactor) {
             final Double newScale = new Double(scaleFactor);
-            this.scaleFactor = newScale; 
-            final List/*<Graphic>*/ graphics = renderer.getGraphics();
-            for (int i=graphics.size(); --i>=0;) {
-                final Graphic candidate = (Graphic) graphics.get(i);
-                if (candidate instanceof AbstractGraphic) {
-                    final AbstractGraphic graphic = ((AbstractGraphic) candidate);
-                    if (graphic.hasScaleListeners) {
-                        graphic.propertyListeners.firePropertyChange(SCALE_PROPERTY, oldScale, newScale);
-        }
-    }
-            }
+            this.scaleFactor = newScale;
+            //graphic should listen to the canvas, not the canvas that give the new scale to the graphic -----------------------------
+//            final Collection<Graphic> graphics = renderer.getGraphics();
+//            for ( final Graphic candidate : graphics) {
+//                if (candidate instanceof AbstractGraphic) {
+//                    final AbstractGraphic graphic = ((AbstractGraphic) candidate);
+//                    if (graphic.hasScaleListeners) {
+//                        graphic.propertyListeners.firePropertyChange(SCALE_PROPERTY, oldScale, newScale);
+//                    }
+//                }
+//            }
             if (hasScaleListeners) {
                 propertyListeners.firePropertyChange(SCALE_PROPERTY, oldScale, newScale);
             }
@@ -505,16 +504,16 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     final synchronized Object/*<T>*/ visit(final GraphicVisitor/*<T>*/ visitor,
                                            final ReferencedEvent event)
     {
-        final List/*<Graphic>*/ graphics = renderer.getGraphics();
-        for (int i=graphics.size(); --i>=0;) {
-            final AbstractGraphic candidate = (AbstractGraphic) graphics.get(i);
-            if (candidate.getVisible()) {
-                final Object value = visitor.visit(candidate, event);
-                if (value != null) {
-                    return value;
-                }
-            }
-        }
+//        final Collection/*<Graphic>*/ graphics = renderer.getGraphics();
+//        for (int i=graphics.size(); --i>=0;) {
+//            final AbstractGraphic candidate = (AbstractGraphic) graphics.get(i);
+//            if (candidate.getVisible()) {
+//                final Object value = visitor.visit(candidate, event);
+//                if (value != null) {
+//                    return value;
+//                }
+//            }
+//        }
         return null;
     }
 
@@ -676,39 +675,40 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * for all of them. If there is any failure, then we will roolback the change to the
          * previous CRS.
          */
-        final List/*<Graphic>*/ graphics = renderer.getGraphics();
-        final int graphicCount = graphics.size();
-        int changed = 0;
-        try {
-            disableGraphicListener = true;
-            while (changed < graphicCount) {
-                final Graphic graphic = (Graphic) graphics.get(changed);
-                if (graphic instanceof ReferencedGraphic) {
-                    ((ReferencedGraphic) graphic).setObjectiveCRS(crs);
-                }
-                changed++; // Increment only if previous call succeed.
-            }
-        } catch (TransformException exception) {
-            /*
-             * At least one graphic primitives can't accept the new CRS. Roll back all
-             * CRS changes (restore the previous one) before to rethrow the exception.
-             */
-            while (--changed >= 0) {
-                final Graphic graphic = (Graphic) graphics.get(changed);
-                if (graphic instanceof ReferencedGraphic) try {
-                    ((ReferencedGraphic) graphic).setObjectiveCRS(oldCRS);
-                } catch (TransformException unexpected) {
-                    // Should not happen, since we are rolling
-                    // back to an old CRS that previously worked.
-                    handleException("setObjectiveCRS", unexpected);
-                }
-            }
-            envelope.setCoordinateReferenceSystem(oldCRS);
-            clearCache();
-            throw exception;
-        } finally {
-            disableGraphicListener = false;
-        }
+        //---------------------------------------------------Graphics should have a listener on CRS property,no the canvas that call each graphic
+//        final List/*<Graphic>*/ graphics = renderer.getGraphics();
+//        final int graphicCount = graphics.size();
+//        int changed = 0;
+//        try {
+//            disableGraphicListener = true;
+//            while (changed < graphicCount) {
+//                final Graphic graphic = (Graphic) graphics.get(changed);
+//                if (graphic instanceof ReferencedGraphic) {
+//                    ((ReferencedGraphic) graphic).setObjectiveCRS(crs);
+//                }
+//                changed++; // Increment only if previous call succeed.
+//            }
+//        } catch (TransformException exception) {
+//            /*
+//             * At least one graphic primitives can't accept the new CRS. Roll back all
+//             * CRS changes (restore the previous one) before to rethrow the exception.
+//             */
+//            while (--changed >= 0) {
+//                final Graphic graphic = (Graphic) graphics.get(changed);
+//                if (graphic instanceof ReferencedGraphic) try {
+//                    ((ReferencedGraphic) graphic).setObjectiveCRS(oldCRS);
+//                } catch (TransformException unexpected) {
+//                    // Should not happen, since we are rolling
+//                    // back to an old CRS that previously worked.
+//                    handleException("setObjectiveCRS", unexpected);
+//                }
+//            }
+//            envelope.setCoordinateReferenceSystem(oldCRS);
+//            clearCache();
+//            throw exception;
+//        } finally {
+//            disableGraphicListener = false;
+//        }
         /*
          * The CRS change has been successful for all graphic primitives.
          * Now updates internal states.
@@ -757,13 +757,12 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         envelope.setToNull();
         CoordinateReferenceSystem lastCRS = null;
         MathTransform           transform = null;
-        final List/*<Graphic>*/  graphics = renderer.getGraphics();
-        final int            graphicCount = graphics.size();
-        for (int i=0; i<graphicCount; i++) {
-            final Graphic candidate = (Graphic) graphics.get(i);
+        final Collection<Graphic>  graphics = renderer.getGraphics();
+        
+        for (final Graphic candidate : graphics) {
             if (!(candidate instanceof ReferencedGraphic)) {
                 continue;
-    }
+            }
             final ReferencedGraphic graphic = (ReferencedGraphic) candidate;
             final Envelope graphicEnvelope = graphic.getEnvelope();
             /*

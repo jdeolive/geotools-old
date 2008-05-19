@@ -55,8 +55,11 @@ public class DisplayObject {
 
     /**
      * Listeners to be notified about any changes in this object vetoable properties.
+     * 
+     * Property event are also called when no veto exception have been raised.
+     *  
+     * 
      */
-    @Deprecated
     protected final VetoableChangeSupport vetoableListeners;
 
     /**

@@ -137,6 +137,7 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
      * Set the envelope for this graphic. Subclasses should invokes this method as soon as they
      * known their envelope.
      */
+    @Override
     protected void setEnvelope(final Envelope envelope) throws TransformException {
         synchronized (getTreeLock()) {
             super.setEnvelope(envelope);
@@ -296,15 +297,16 @@ public abstract class ReferencedGraphic2D extends ReferencedGraphic {
     @Override
     protected void listenersChanged() {
         super.listenersChanged();
-        hasBoundsListeners = hasListeners(DISPLAY_BOUNDS_PROPERTY);
+        hasBoundsListeners = propertyListeners.hasListeners(DISPLAY_BOUNDS_PROPERTY);
     }
 
     /**
      * Clears all cached data.
      */
+    @Override
     public void clearCache() {
         assert Thread.holdsLock(getTreeLock());
         displayBounds = null;
-//        super.clearCache();
+        super.clearCache();
     }
 }

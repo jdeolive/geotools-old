@@ -17,23 +17,37 @@ import java.awt.geom.Rectangle2D;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+
+import org.geotools.display.canvas.CanvasHandler;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.renderer.AbstractRenderer;
+import org.geotools.referencing.operation.matrix.AffineTransform2D;
+import org.geotools.referencing.operation.matrix.XAffineTransform;
+import org.geotools.resources.GraphicsUtilities;
 import org.geotools.resources.geometry.XRectangle2D;
 import org.geotools.resources.i18n.LoggingKeys;
 import org.geotools.resources.i18n.Loggings;
 import org.geotools.resources.i18n.Vocabulary;
 import org.geotools.resources.i18n.VocabularyKeys;
+
 import org.opengis.display.canvas.CanvasController;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
+import org.opengis.util.InternationalString;
 
 /**
  *
  * @author sorel
  */
 public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
-    
+    /**
+     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
+     * {@linkplain AWTCanvas2D#getHandler canvas handler} changed.
+     */
+    public static final String HANDLER_PROPERTY = "handler";
+        
     /**
      * The component owner, or {@code null} if none. This is used for managing
      * repaint request (see {@link GraphicPrimitive2D#refresh}) or mouse events.
@@ -45,7 +59,9 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
      * from any {@link GraphicPrimitive2D} or from the {@link Component}.
      */
     private final ComponentListener listener = new ComponentListener();
-
+    
+    private CanvasHandler handler;    
+    
     /**
      * Updates the enclosing canvas according various AWT events.
      */
@@ -76,7 +92,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
             // and the zoom will be. We are better to wait until 'paint(...)' is invoked.
         }
     }
-    
+       
     
     public AWTCanvas2D(final AbstractRenderer renderer, final Component owner){
         super(renderer);
@@ -87,6 +103,34 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         } 
     }
         
+    public CanvasHandler getHandler(){
+        return handler;
+    }
+    
+    public void setHandler(CanvasHandler handler){
+        
+        if(this.handler != handler) {
+            //TODO : check for possible vetos
+
+            final CanvasHandler old = this.handler;
+
+            if (this.handler != null){
+                this.handler.uninstall(owner);
+                this.handler.setCanvas(null);
+            }
+
+            this.handler = handler;
+
+            if (this.handler != null) {
+                this.handler.setCanvas(this);
+                this.handler.install(owner);
+            }
+            
+            propertyListeners.firePropertyChange(HANDLER_PROPERTY, old, handler);            
+        }
+        
+    }
+    
     /**
      * Returns the display bounds in terms of {@linkplain #getDisplayCRS display CRS}.
      * If no bounds were {@linkplain #setDisplayBounds explicitly set}, then this method
@@ -105,6 +149,19 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     
     //----------------------AWT Paint methods ----------------------------------    
     public void paint(Graphics2D output, final AffineTransform zoom){
+        Rectangle clipBounds = output.getClipBounds();
+        
+        final AffineTransform normalize = output.getDeviceConfiguration().getNormalizingTransform(); 
+        displayToDevice = new AffineTransform2D(normalize);
+        
+        try{
+            setObjectiveToDisplayTransform(clipBounds);
+        }catch(TransformException exception){
+            exception.printStackTrace();
+            GraphicsUtilities.paintStackTrace(output, owner.getBounds(), exception);
+        }
+        
+        
         renderer.paint(output,zoom);
     }
             
@@ -226,8 +283,57 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
         return this;
     }
     
-    public void setCenter(DirectPosition center) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    
+    public void translate(double x, double y){
+        
     }
 
+    public void scale(double s){
+        
+    }
+    
+    public void rotate(double r){
+        
+    }
+    
+    public void setCenter(DirectPosition center) {
+        double transX = center.getOrdinate(0);
+        double transY = center.getOrdinate(1);
+        
+        double oldTransX = objectiveToDisplay.getTranslateX();
+        double oldTransY = objectiveToDisplay.getTranslateY();
+        
+        double diffX = transX - oldTransX;
+        double diffY = transY - oldTransY;
+        
+        objectiveToDisplay.translate(diffX, diffY);
+        
+        System.out.println("BEFORE PAINT" + objectiveToDisplay);
+        owner.repaint();
+        System.out.println("AFTER PAINT" + objectiveToDisplay);
+    }
+    
+    public void setScale(double newScale){
+        double oldScale = XAffineTransform.getScale(objectiveToDisplay);
+        double diff = newScale/oldScale;
+                
+        objectiveToDisplay.scale(diff, diff);
+                
+        System.out.println("BEFORE PAINT" + objectiveToDisplay);
+        owner.repaint();
+        System.out.println("AFTER PAINT" + objectiveToDisplay);
+    }
+    
+    public void setRotation(double r){
+        
+    }
+    
+    /**
+     * 
+     * @return the live affineTransform
+     */
+    public AffineTransform2D getTransform(){
+        return objectiveToDisplay;
+    }
+        
 }

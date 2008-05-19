@@ -342,7 +342,6 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @param  key The hint key (e.g. {@link #FINEST_RESOLUTION}).
      * @return The hint value for the specified key, or {@code null} if none.
      */
-    @Override
     public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return hints.get(key);
     }
@@ -361,7 +360,6 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
      * @see RenderingHints#KEY_COLOR_RENDERING
      * @see RenderingHints#KEY_INTERPOLATION
      */
-    @Override
     public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         if (value != null) {
             if (!value.equals(hints.put(key, value))) {

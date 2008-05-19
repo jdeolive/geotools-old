@@ -7,8 +7,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.AbstractSet;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +34,7 @@ import org.opengis.display.renderer.RendererListener;
  *
  * @author johann sorel
  */
-public abstract class AbstractRenderer extends DisplayObject implements Renderer{
+public abstract class AbstractRenderer extends DisplayObject implements Renderer{        
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * {@linkplain AbstractCanvas#getGraphics set of graphics} in this canvas changed.
@@ -43,14 +46,13 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
      */
     public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
-    
+
     /**
      * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
      * {@linkplain AbstractGraphic#getZOrderHint z order hint} changed.
      */
     public static final String Z_ORDER_HINT_PROPERTY = "zOrderHint";
-            
-        
+    
     /**
      * A listener to be notified when a graphic property changed.
      */
@@ -68,17 +70,24 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             }
         }
     };
-    
-    
+
     /**
      * A comparator for sorting {@link Graphic} objects by increasing <var>z</var> order.
      */
-    private static final Comparator<AbstractGraphic> COMPARATOR = new Comparator<AbstractGraphic>() {
-        public int compare(final AbstractGraphic graphic1, final AbstractGraphic graphic2) {
-            return Double.compare(graphic1.getZOrderHint(), graphic2.getZOrderHint());
+    private static final Comparator<Graphic> COMPARATOR = new Comparator<Graphic>() {
+        public int compare(final Graphic graphic1, final Graphic graphic2) {
+            if(graphic1 instanceof AbstractGraphic && graphic2 instanceof AbstractGraphic){
+                return Double.compare(((AbstractGraphic)graphic1).getZOrderHint(), ((AbstractGraphic)graphic2).getZOrderHint());
+            }else{
+                return 0;
+            }
+
         }
     };
     
+    
+    private final AbstractRenderer This = this;
+
     /**
      * The set of {@link Graphic}s to display. Keys and values are identical; values are used as
      * a way to recognize existing graphics that are equals to the {@linkplain #add added} ones.
@@ -98,31 +107,60 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     private transient List<Graphic> sortedGraphics;
 
-//    /**
-//     * {@code true} if this canvas has
-//     * {@value org.geotools.display.canvas.DisplayObject#GRAPHICS_PROPERTY} properties listeners.
-//     *
-//     * @see #listenersChanged
-//     */
-//    private boolean hasGraphicsListeners;
-    
+    /**
+     * The set of {@link Graphic}s given to the user. This set is act like a
+     * proxy, this set delegate his methods to the graphics map.
+     */
+    private final AbstractSet<Graphic> userGraphics = new AbstractSet<Graphic>() {
+
+        @Override
+        public Iterator<Graphic> iterator() {
+            return graphics.keySet().iterator();
+        }
+
+        @Override
+        public int size() {
+            return graphics.size();
+        }
+    };
+
     /**
      * A set of rendering hints.
      *
      * @see Hints#COORDINATE_OPERATION_FACTORY
      */
     protected final Hints hints;
-    
-    
-    
+
+
     public AbstractRenderer(){
         this(null);
     }
-        
+
     public AbstractRenderer(Hints hints){
         this.hints = (hints != null) ? hints : new Hints() ;
     }
-                
+
+    /**
+     * This method sort the sortedGraphic list using graphic Z-order.
+     * If two graphics have the same order then the first one added will have
+     * priority.
+     * If the sortedList is null then this method will create it.
+     * 
+     * @return The sorted graphic list
+     */
+    protected List<Graphic> getSortedGraphics(){
+        if (sortedGraphics == null) {
+            final Set<Graphic> keys = graphics.keySet();
+            final Graphic[] list = keys.toArray(new Graphic[keys.size()]);
+            Arrays.sort(list, COMPARATOR);
+            sortedGraphics = UnmodifiableArrayList.wrap(list);
+        }
+        assert sortedGraphics.size() == graphics.size();
+        assert graphics.keySet().containsAll(sortedGraphics);
+        
+        return sortedGraphics;
+    }
+
     /**
      * Adds the given {@code Graphic} to this {@code Canvas}. This implementation respect the
      * <var>z</var>-order retrieved by calling {@link Graphic#getZOrderHint()}. When two added
@@ -155,7 +193,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      *       {@code graphic1} was already added to {@code canvas1} and {@code graphic2} was already
      *       added to {@code canvas2} before the above-cited {@code add} method calls.
      */
-    public synchronized void add(Graphic graphic) throws IllegalArgumentException {
+    protected synchronized Graphic add(Graphic graphic) throws IllegalArgumentException {
         final List<Graphic> oldGraphics = sortedGraphics; // May be null.
 
         if (graphic instanceof AbstractGraphic) {
@@ -169,11 +207,12 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
                     assert !graphics.containsKey(candidate) : candidate;
                     if (canvas != null) {
 //                        try {
-                        graphic = candidate; //= candidate.clone();
-//                    } catch (CloneNotSupportedException e) {
-//                        throw new IllegalArgumentException(
-//                                Errors.format(ErrorKeys.CANVAS_NOT_OWNER_$1, candidate.getName()), e);
-//                    }
+                            graphic = candidate;
+//                        graphic = candidate.clone();
+//                        } catch (CloneNotSupportedException e) {
+//                            throw new IllegalArgumentException(
+//                                    Errors.format(ErrorKeys.CANVAS_NOT_OWNER_$1, candidate.getName()), e);
+//                        }
 
                     }
                     candidate.setCanvas(getCanvas());
@@ -200,7 +239,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
 //        if (hasGraphicsListeners) {   ----------------------------------------------------------------------------OPTIMISATION
         propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
 //        }
-//        return graphic;
+        return graphic;
     }
 
     /**
@@ -220,7 +259,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see #removeAll
      * @see #getGraphics
      */
-    public synchronized void remove(final Graphic graphic) throws IllegalArgumentException {
+    protected synchronized void remove(final Graphic graphic) throws IllegalArgumentException {
         final List<Graphic> oldGraphics = sortedGraphics; // May be null.
         if (graphic instanceof AbstractGraphic) {
             final AbstractGraphic candidate = (AbstractGraphic) graphic;
@@ -263,7 +302,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see #remove
      * @see #getGraphics
      */
-    public synchronized void removeAll() {
+    protected synchronized void removeAll() {
         final List<Graphic> oldGraphics = sortedGraphics; // May be null.
         for (final Graphic graphic : graphics.keySet()) {
             if (graphic instanceof AbstractGraphic) {
@@ -290,25 +329,16 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * {@linkplain #add Adding} or {@linkplain #remove removing} graphics will
      * not affect the content of previous list returned by previous call to this method.
      */
-    public synchronized List<Graphic> getGraphics() {
-        if (sortedGraphics == null) {
-            final Set<Graphic> keys = graphics.keySet();
-            final Graphic[] list = keys.toArray(new Graphic[keys.size()]);
-//            Arrays.sort(list, COMPARATOR); ------------------------------------------------------------------------------------ TODO
-            sortedGraphics = UnmodifiableArrayList.wrap(list);
-        }
-        assert sortedGraphics.size() == graphics.size();
-        assert graphics.keySet().containsAll(sortedGraphics);
-        return sortedGraphics;
+    public synchronized Collection<Graphic> getGraphics() {
+        return userGraphics;
     }
-    
+
     /**
      * Returns a rendering hint.
      *
      * @param  key The hint key (e.g. {@link #FINEST_RESOLUTION}).
      * @return The hint value for the specified key, or {@code null} if none.
      */
-    @Override
     public synchronized Object getRenderingHint(final RenderingHints.Key key) {
         return hints.get(key);
     }
@@ -327,7 +357,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see RenderingHints#KEY_COLOR_RENDERING
      * @see RenderingHints#KEY_INTERPOLATION
      */
-    @Override
     public synchronized void setRenderingHint(final RenderingHints.Key key, final Object value) {
         if (value != null) {
             hints.put(key, value);
@@ -335,7 +364,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             hints.remove(key);
         }
     }
-        
+
     /**
      * Clears all cached data. Invoking this method may help to release some resources for other
      * applications. It should be invoked when we know that the map is not going to be rendered
@@ -348,9 +377,8 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     @Override
     public void clearCache() {
         assert Thread.holdsLock(this);
-        final List<Graphic> graphics = getGraphics();
-        for (int i=graphics.size(); --i>=0;) {
-            final Graphic graphic = graphics.get(i);
+        final Collection<Graphic> graphics = getGraphics();
+        for (final Graphic graphic : graphics) {
             if (graphic instanceof DisplayObject) {
                 ((DisplayObject) graphic).clearCache();
             }
@@ -360,33 +388,26 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
 
     @Override
     public void dispose() {
-        final List<Graphic> graphics = getGraphics();
+        final Collection<Graphic> graphics = getGraphics();
         removeAll();
-        for (int i=graphics.size(); --i>=0;) {
-            final Graphic graphic = graphics.get(i);
+        for (final Graphic graphic : graphics) {
             graphic.dispose();
-        }        
+        }
         super.dispose();
     }
-        
-    
-    
-    
-    public abstract void setCanvas(Canvas canvas);
 
-    public abstract AbstractCanvas getCanvas();
 
     public RenderedImage getSnapShot() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void add(Collection<Graphic> graphics) {
+    protected void add(Collection<Graphic> graphics) {
         for(Graphic g : graphics){
             add(g);
         }
     }
 
-    public void remove(Collection<Graphic> graphics) {
+    protected void remove(Collection<Graphic> graphics) {
         for(Graphic g : graphics){
             remove(g);
         }
@@ -399,11 +420,10 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     public void removeRendererListener(RendererListener listener) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-   
+
     public abstract boolean paint(
-            Graphics2D output, 
+            Graphics2D output,
             AffineTransform zoom);
-    
     
     /**
      * Invoked automatically when a graphic registered in this canvas changed. Subclasses can
@@ -422,6 +442,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
 //            return;
 //        }
     }
-    
-    
+
+
 }

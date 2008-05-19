@@ -5,16 +5,11 @@
 
 package org.geotools.display.geom;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiLineString;
 import java.awt.BasicStroke;
 import java.awt.Graphics2D;
-import java.awt.Shape;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.geotools.display.primitive.FeatureGraphic;
@@ -50,16 +45,17 @@ public class MultiLineGraphic extends FeatureGraphic{
                 
         AffineTransform trs = new AffineTransform();
         Geometry geom = null;
-        
+                
         try {
             MathTransform transform = CRS.findMathTransform(getEnvelope().getCoordinateReferenceSystem(), context.displayCRS);
+//            System.out.println(transform);
             geom = JTS.transform(line, transform);
 //            System.out.println(geom);
             j2dShape = new LiteShape(geom, trs, false);
         } catch (FactoryException ex) {
             Logger.getLogger(MultiLineGraphic.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+                
         
 //        trs.scale(1, 1);
 //        trs.translate(-897617, -1799350);

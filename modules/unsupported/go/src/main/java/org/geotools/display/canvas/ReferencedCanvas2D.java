@@ -84,7 +84,9 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getObjectiveToDisplayTransform
      * @see #zoomChanged
      */
-    protected final AffineTransform2D objectiveToDisplay = new AffineTransform2D();
+    protected AffineTransform2D objectiveToDisplay = new AffineTransform2D();
+    
+    private final AffineTransform2D previousObjectiveToDisplay = new AffineTransform2D();
 
     /**
      * The affine transform from the {@linkplain #getDisplayCRS display CRS} to the {@linkplain
@@ -102,7 +104,9 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getDisplayCRS
      * @see #getDeviceCRS
      */
-    protected final AffineTransform2D displayToDevice = new AffineTransform2D();
+    protected AffineTransform2D displayToDevice = new AffineTransform2D();    
+    
+    private final AffineTransform2D previousDisplayToDevice = new AffineTransform2D();
 
     /**
      * The affine transform from the units used in the {@linkplain #getObjectiveCRS objective CRS}
@@ -237,7 +241,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      */
     public final Rectangle objectiveToDisplay(final Rectangle2D bounds) {
         assert Thread.holdsLock(this);
-        return (Rectangle) XAffineTransform.transform(objectiveToDisplay, bounds, new Rectangle());
+        return (Rectangle) XAffineTransform.transform(previousObjectiveToDisplay, bounds, new Rectangle());
     }
 
     /**
@@ -462,11 +466,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         }
     }
         
-    public void setObjectiveToDisplayTransform(
-                        Graphics2D output,
-                        AffineTransform zoom, 
-                        AffineTransform dispToDevice)
-    {
+    protected void setObjectiveToDisplayTransform(Rectangle clipBounds) throws TransformException{
         
         /*
          * Sets a flag for avoiding some "refresh()" events while we are actually painting.
@@ -479,7 +479,6 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
          * disabling repaint events while we are painting help to reduces duplicated rendering.
          */
         final Rectangle displayBounds = getDisplayBounds().getBounds();
-        Rectangle          clipBounds = output.getClipBounds();
         Rectangle2D         dirtyArea = XRectangle2D.INFINITY;
         if (clipBounds == null) {
             clipBounds = displayBounds;
@@ -495,15 +494,15 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
          * 'dirtyArea' flag above, some 'paint' event will be intercepted in order to avoid
          * repainting the same area twice.
          */
-        if (!objectiveToDisplay.equals(zoom)) {
+        if (!previousObjectiveToDisplay.equals(objectiveToDisplay)) {
             /*
              * Computes the change as an affine transform, and send the notification.
              * Optionnaly scale slightly the change in order to avoid rounding errors
              * in calculation of widget area that need to be refreshed.
              */
             try {
-                final AffineTransform change = objectiveToDisplay.createInverse();
-                change.preConcatenate(zoom);
+                final AffineTransform change = previousObjectiveToDisplay.createInverse();
+                change.preConcatenate(objectiveToDisplay);
                 if (SCALE_ZOOM_CHANGE != 1) {
                     final double centerX = displayBounds.getCenterX();
                     final double centerY = displayBounds.getCenterY();
@@ -526,8 +525,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
                  * size of the rendering device (e.g. the screen), but is only as accurate as
                  * the information supplied by the underlying system.
                  */
-                final AffineTransform normalize = zoom.createInverse();
-                normalize.concatenate(dispToDevice);
+                final AffineTransform normalize = objectiveToDisplay.createInverse();
+                normalize.concatenate(displayToDevice);
                 normalize.preConcatenate(normalizeToDots);
                 setScale(1 / XAffineTransform.getScale(normalize));
             } catch (NoninvertibleTransformException exception) {
@@ -538,14 +537,9 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
              * to create this CRS will make the rendering process impossible. In such case, we
              * will paint the stack trace right into the component and exit from this method.
              */
-            objectiveToDisplay.setTransform(zoom);
-            try {
-                setObjectiveToDisplayTransform(objectiveToDisplay);
-            } catch (TransformException exception) {
-                GraphicsUtilities.paintStackTrace(output, displayBounds, exception);
-                paintFinished(false);
-                return;
-            }
+            previousObjectiveToDisplay.setTransform(objectiveToDisplay);            
+            setObjectiveToDisplayTransform(previousObjectiveToDisplay);
+            
         }
         /*
          * If the device changed, then the 'deviceCRS' must be recreated. Failure to create this
@@ -553,14 +547,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
          * trace right into the component and exit from this method.
          */
         // TODO: concatenate with the information provided in config. Check if changed since last call.
-        displayToDevice.setToTranslation(-displayBounds.x, -displayBounds.y);
-        try {
-            setDisplayToDeviceTransform(displayToDevice);
-        } catch (TransformException exception) {
-            GraphicsUtilities.paintStackTrace(output, displayBounds, exception);
-            paintFinished(false);
-            return;
-        }
+        previousDisplayToDevice.setToTranslation(-displayBounds.x, -displayBounds.y);
+        setDisplayToDeviceTransform(previousDisplayToDevice);
         
     }
     

@@ -134,24 +134,11 @@ public abstract class GraphicPrimitive2D extends ReferencedGraphic2D {
     public abstract void paint(final RenderingContext context) throws TransformException;
 
     /**
-     * Hints that this graphic might be painted in the near future. Some implementations may
-     * spawn a thread to compute the data while others may ignore the hint. The default
-     * implementation does nothing.
-     *
-     * @param  context Information relatives to the rendering context. This object contains
-     *         methods for querying the area to be painted in arbitrary coordinate reference system.
-     *
-     * @see javax.media.jai.PlanarImage#prefetchTiles
-     */
-    protected void prefetch(final RenderingContext context) {
-    }
-
-    /**
      * Log a message saying that this graphic is rebuilding its cache.
      *
      * @param classname The caller class name.
      */
-    final void logCacheRebuild(final String classname) {
+    protected final void logCacheRebuild(final String classname) {
         final Logger logger = getLogger();
         if (logger.isLoggable(Level.FINER)) {
             final LogRecord record = Loggings.getResources(getLocale()).getLogRecord(Level.FINER,

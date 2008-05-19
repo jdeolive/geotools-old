@@ -102,7 +102,8 @@ abstract class GraphicVisitor2D extends GraphicVisitor/*<T>*/ {
             } else if (!(graphic instanceof ReferencedGraphic)) {
                 return null;
             }
-            return ((ReferencedGraphic) graphic).getAction(event);
+            return null;
+//            return ((ReferencedGraphic) graphic).getAction(event);
         }
     }
 

@@ -19,7 +19,6 @@ package org.geotools.display.canvas;
 // Geotools dependencies
 import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
-import org.opengis.display.primitive.GraphicListener;
 
 
 /**
@@ -46,11 +45,4 @@ final class DummyGraphic extends ReferencedGraphic implements Cloneable {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public void addGraphicListener(GraphicListener arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void removeGraphicListener(GraphicListener arg0) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }

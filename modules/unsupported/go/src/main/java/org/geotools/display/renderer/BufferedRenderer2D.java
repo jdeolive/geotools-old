@@ -131,19 +131,24 @@ public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void add(Graphic graphic) {
-        super.add(graphic);
-//        flushOffscreenBuffer(graphic.getZOrderHint());    ------------------------------------------ WILL BE CALLED BY A RENDERER EVENT
+    protected synchronized Graphic add(Graphic graphic) {
+        graphic = super.add(graphic);
+        if(graphic instanceof AbstractGraphic){
+            flushOffscreenBuffer(((AbstractGraphic)graphic).getZOrderHint());
+        }
 //        getCanvas().repaint(); // Must be invoked last
+        return graphic;
     }
 
     /**
      * Removes the given {@code Graphic} from this canvas.
      */
     @Override
-    public synchronized void remove(final Graphic graphic) {
+    protected synchronized void remove(final Graphic graphic) {
 //        getCanvas().repaint(); // Must be invoked first
-//        flushOffscreenBuffer(graphic.getZOrderHint());    ------------------------------------------ WILL BE CALLED BY A RENDERER EVENT
+        if(graphic instanceof AbstractGraphic){
+            flushOffscreenBuffer(((AbstractGraphic)graphic).getZOrderHint());
+        }
         super.remove(graphic);
     }
 
@@ -151,9 +156,9 @@ public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
      * Remove all graphics from this canvas.
      */
     @Override
-    public synchronized void removeAll() {
+    protected synchronized void removeAll() {
 //        getCanvas().repaint(); // Must be invoked first
-//        flushOffscreenBuffers();  ------------------------------------------------------------------- WILL BE CALLED BY A RENDERER EVENT
+        flushOffscreenBuffers();  
         super.removeAll();
     }
     
@@ -225,8 +230,8 @@ public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
         }
         
         final GraphicsConfiguration config = output.getDeviceConfiguration();
-        AffineTransform normalize = config.getNormalizingTransform();        
-        canvas.setObjectiveToDisplayTransform(output, zoom, normalize);
+//        AffineTransform normalize = config.getNormalizingTransform();        
+//        canvas.setObjectiveToDisplayTransform(output, zoom, normalize);
         
         final Rectangle displayBounds = canvas.getDisplayBounds().getBounds();
         Rectangle          clipBounds = output.getClipBounds();
@@ -256,7 +261,7 @@ public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
          * to start the actual drawing,  we will notify all graphics that they are about to be
          * drawn. Some graphics may spend one or two threads for pre-computing data.
          */
-        final List/*<Graphic>*/ graphics = getGraphics();
+        final List<Graphic> graphics = getSortedGraphics();
         final int graphicCount = graphics.size();
         boolean success = false;
         output.addRenderingHints(hints);

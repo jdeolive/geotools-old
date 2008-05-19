@@ -34,11 +34,11 @@ public abstract class ReferencedRenderer extends AbstractRenderer{
      * {@value org.geotools.display.canvas.DisplayObject#ENVELOPE_PROPERTY} property change events.
      */
     @Override
-    public synchronized void add(Graphic graphic) {
+    protected synchronized Graphic add(Graphic graphic) {
         Envelope oldEnvelope = null;
         
-        super.add(graphic);        
-//        graphic = super.add(graphic); ----------------------------------------------------------- parent was cloning the graphic
+//        super.add(graphic);        
+        graphic = super.add(graphic); 
         if (graphic instanceof ReferencedGraphic) {
             final ReferencedGraphic   referenced   = (ReferencedGraphic) graphic;
             CoordinateReferenceSystem graphicCRS   = referenced.getObjectiveCRS();
@@ -79,14 +79,14 @@ public abstract class ReferencedRenderer extends AbstractRenderer{
 //        if (oldEnvelope != null) {
 //            propertyListeners.firePropertyChange(ENVELOPE_PROPERTY, oldEnvelope, envelope);
 //        }
-//        return graphic;
+        return graphic;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public synchronized void remove(final Graphic graphic) {
+    protected synchronized void remove(final Graphic graphic) {
         Envelope oldEnvelope = null;
         if (graphic instanceof ReferencedGraphic) {
             final ReferencedGraphic referenced = (ReferencedGraphic) graphic;
@@ -112,7 +112,7 @@ public abstract class ReferencedRenderer extends AbstractRenderer{
      * {@inheritDoc}
      */
     @Override
-    public synchronized void removeAll() {
+    protected synchronized void removeAll() {
         // envelope changes should be handle by the canvas ---------------------------------------------------------
 //        final Envelope oldEnvelope = new GeneralEnvelope(envelope);
         super.removeAll();
