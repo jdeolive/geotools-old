@@ -1,0 +1,136 @@
+
+          ISO Geometries for Geotools
+          ---------------------------
+
+The Fried Egg module aims to bring to the Geotools library a module which 
+implements the vector data structures and associated methods defined by the ISO 
+specification
+
+     ISO 19107:2003 Geographic Information: Spatial Schema
+
+created by the ISO technical committee TC/211. The module code currently lives 
+in 
+  trunk/unsupported/isogeometry
+while the module's wiki page is here:
+  http://docs.codehaus.org/display/GEOTOOLS/Fried+Egg
+and the module page itself may be found here:
+  http://docs.codehaus.org/display/GEOTOOLS/Geometry
+if the separate 'geometry' module is dropped in favour of this one.
+
+
+The key difficulties involved in implementing this specification are:
+
+    1) it is an abstract specification that is realized in concrete profiles 
+       such as: 
+         - ISO 19123 "Simple Features" 
+         - ISO 19137 "Core profile"
+         - realizations of the also abstract ISO 19136 "GML" 
+         - ISO/IEC 13249-3 "SQL MM pt3: Spatial" (may come into conformance)
+       which implies that Geotools must therefore permit the use of the module 
+       in a restricted setting for example in the setting of an implementation 
+       of ISO 19137 where all objects must share the same Coordinate Reference
+       System, where only objects from the 19137 specification can be allowed, 
+       and where the boundary rules follow the 19137 (and 19107) specifications,
+       
+    2) it requires that all operations on the data structures happen *in the 
+       coordinate system of the first object called* which implies that the 
+       library must handle geometric operations in a variety of different 
+       coordinate spaces such as:
+         - the cartesian 1D, 2D, and 3D open manifolds
+         - the spherical 2D and 2+1D closed manifolds
+         - the ellipsoidal 2D and 2+1D closed manifolds
+       along possibly with other spaces such as that used by sterographic 
+       projections.
+    
+    3) it introduces curved objects which implies that Geotools completely 
+       rethink the approach used by JTS
+    
+    4) it introduces three dimensional objects.
+    
+This obviously represents a vast amount of work and Geotools aims to build this 
+and more. To greatly limit the initial effort, the first major milestone will be 
+to provide a library capable of implementing ISO 19137 data objects, i.e. 
+objects defined by their vertices with 'linear' interpolation between vertices 
+i.e. the minimal distance between the vertices on the manifold of the coordinate 
+system itself. However, this implementation must correctly have considered the 
+integration of both data structures with curvilinear forms and data structures 
+in 2+1D and real 3D. Note, that the +1 Dimension is the vertical dimension off 
+of a closed manifold which may be defined either as the perpendicular to the 
+manifold surface or as following the gravity vector outward from the center of 
+mass.
+
+
+The integration of this module in the Geotools feature model is specifically 
+*not* part of the concern of this effort. Traditionally, Geotools has used the 
+same data structure for the *definition* of the object and for its spatial 
+*representation*. Geotools used the geometric objects from the excellent JTS 
+library which has had a variety of homes but, as of late spring 2008, currently 
+lives at:
+    http://tsusiatsoftware.net/jts/main.html
+with older web pages scattered on SourceForge, at Vivid Solutions, in the JUMP 
+project and elsewhere. While an ISO Geometric object, once these exist, could 
+readily fulfill the same role, this is not necessarily a good idea. Probably 
+it would make more sense to call:
+ myFeature.getSpatialRepresentation( ContextoftheRepresentation).asISOGeometry()
+rather than
+ myFeature.getDefaultGeometry()
+but that concern is for another date, in a higher level of the Geotools library.
+
+
+Several efforts have gone before this one: 
+
+The GeoAPI project has defined the key interfaces for the objects in work led by
+the GO-1 group and Dr. Martin Desruisseaux.
+
+The jts-wrapper Geotools module undertook the first attempt an implementation 
+hoping to merely translate between the two world views. 
+
+The geometry module was developed by Sanjay Dominik Jena working in the 
+laboratory of Prof. Dr. Jackson Roehrig at the Institut für Technologie in den 
+Tropen of the Fachhochschule Köln (Jackson.Roehrig-- @ --fh-koeln.de). 
+Subsequently, the module was taken over by Graham Davis of Refractions Research 
+and brought to supported status. 
+
+
+
+In the spring of 2008, Adrian Custer of Geomatys started the Fried Egg module as 
+a straight copy of the plugin/geometry module to unsupported/isogeometry.
+
+The tentative plan is to:
+
+  1) Cleanup the module for later refactoring: e.g. drop the use of an Assert 
+     class, fix the factories and their names, 
+     
+  2) Hash out a design for the module including resolving:
+       A. How to support concrete profiles of the abstract ISO 19107 spec.
+       B. How to handle dispatching of operations. Possible use of <trait>.
+       C. Decision on mutability of geometry objects
+       D. How to handle disaggregation of arbitrary geometries, threads?
+       E. How to handle progress info and cancellation for complex operations
+       F. Whether to construct rich results out of operations
+       G. What exceptions to throw when
+       H. How to structure the logging strategy
+       I. Develop a testing strategy to verify: functioning, exterme cases
+       
+   3) Build a framework that can handle the known issues to:
+       * Dispatch correctly by CRS, ? to the appropriate analytic pipeline
+       * Allow configuration to a specific concrete profile
+   
+   4) Develop a first working system for ISO 19137 geometries with cartesian CRS
+       This will be the big steal from JTS or may wrap JTS.
+   
+   ?5 Repeat for ISO 19123 objects
+   
+   ?5 Handle CRS's on the finite, unclosed manifold, the surface of the sphere 
+      or of the ellipsoid e.g. 2D geographic data.
+       
+
+
+Adrian Custer
+May 2008
+Montpellier
+Coast of the Mediterranean  
+
+
+
+
