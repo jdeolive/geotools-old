@@ -6,6 +6,8 @@ package org.geotools.gui.swing.go;
 
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.io.IOException;
 import java.lang.ref.Reference;
 import java.util.Collection;
@@ -80,9 +82,9 @@ public class J2DRenderer extends BufferedRenderer2D {
     private void removeContextGraphics() {
         Collection<List<FeatureGraphic>> lists = featureGraphics.values();
 
-        for (Collection<FeatureGraphic> list : lists) {
-            remove(list);
-        }
+//        for (Collection<FeatureGraphic> list : lists) {
+//            remove(list);
+//        }
     }
 
     private void parseContext(MapContext context) {
@@ -126,5 +128,10 @@ public class J2DRenderer extends BufferedRenderer2D {
 
         }
 
+    }
+
+    @Override
+    public boolean paint(Graphics2D output, AffineTransform zoom) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

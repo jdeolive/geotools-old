@@ -7,7 +7,6 @@ package org.geotools.gui.swing.go;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +18,7 @@ import javax.swing.JPanel;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.display.canvas.BufferedCanvas2D;
-import org.geotools.display.renderer.BufferedRenderer2D;
+import org.geotools.display.canvas.AWTCanvas2D;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.map.DefaultMapContext;
 import org.geotools.map.DefaultMapLayer;
@@ -41,13 +39,13 @@ import org.opengis.referencing.operation.TransformException;
 public class NormalMapPane extends JPanel{
 
     
-    private final BufferedCanvas2D canvas;
+    private final AWTCanvas2D canvas;
     private final J2DRenderer renderer;
     
     public NormalMapPane(){
         super();
         renderer = new J2DRenderer();
-        canvas = new BufferedCanvas2D(renderer,this);
+        canvas = new AWTCanvas2D(renderer,this);
         renderer.setCanvas(canvas);
         
         

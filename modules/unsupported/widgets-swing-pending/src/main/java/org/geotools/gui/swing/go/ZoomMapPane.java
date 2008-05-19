@@ -17,7 +17,7 @@ import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
-import org.geotools.display.canvas.BufferedCanvas2D;
+import org.geotools.display.canvas.AWTCanvas2D;
 import org.geotools.geometry.Envelope2D;
 import org.geotools.gui.swing.ZoomPane;
 import org.geotools.map.DefaultMapContext;
@@ -38,7 +38,7 @@ import org.opengis.referencing.operation.TransformException;
  */
 public class ZoomMapPane extends ZoomPane{
 
-    private final BufferedCanvas2D canvas;
+    private final AWTCanvas2D canvas;
     private final J2DRenderer renderer;
     private MapContext context;
     
@@ -47,7 +47,7 @@ public class ZoomMapPane extends ZoomPane{
         super(ZoomPane.SCALE_X | ZoomPane.SCALE_Y | ZoomPane.ROTATE | ZoomPane.TRANSLATE_X | ZoomPane.TRANSLATE_Y | ZoomPane.RESET);
         
         renderer = new J2DRenderer();
-        canvas = new BufferedCanvas2D(renderer,this);
+        canvas = new AWTCanvas2D(renderer,this);
         renderer.setCanvas(canvas);
         
         

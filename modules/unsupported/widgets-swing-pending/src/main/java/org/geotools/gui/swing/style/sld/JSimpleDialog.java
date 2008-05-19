@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.awt.FlowLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 import org.geotools.gui.swing.icon.IconBundle;
 
 /**
@@ -26,7 +27,10 @@ public class JSimpleDialog extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         
+        JToolBar guiBar = new JToolBar();
         guiBar.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        guiBar.add(guiClose);
+        guiBar.setFloatable(false);
         
         JScrollPane jsp = new JScrollPane(child);
         
@@ -44,40 +48,32 @@ public class JSimpleDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        guiBar = new javax.swing.JToolBar();
-        jButton1 = new javax.swing.JButton();
+        guiClose = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-
-        guiBar.setFloatable(false);
-        guiBar.setRollover(true);
-
-        jButton1.setIcon(ICO_CLOSE);
+        guiClose.setIcon(ICO_CLOSE);
         java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("org/geotools/gui/swing/propertyedit/Bundle"); // NOI18N
-        jButton1.setText(bundle.getString("close")); // NOI18N
-        jButton1.setFocusable(false);
-        jButton1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        jButton1.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        guiClose.setText(bundle.getString("close")); // NOI18N
+        guiClose.setFocusable(false);
+        guiClose.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        guiClose.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        guiClose.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                guiCloseActionPerformed(evt);
             }
         });
-        guiBar.add(jButton1);
 
-        getContentPane().add(guiBar, java.awt.BorderLayout.SOUTH);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+private void guiCloseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guiCloseActionPerformed
     
     this.dispose();
-}//GEN-LAST:event_jButton1ActionPerformed
+}//GEN-LAST:event_guiCloseActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JToolBar guiBar;
-    private javax.swing.JButton jButton1;
+    private javax.swing.JButton guiClose;
     // End of variables declaration//GEN-END:variables
 
 }
