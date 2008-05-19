@@ -24,20 +24,23 @@
   <!--     Module Description                                      -->
   <!-- =========================================================== -->
   <groupId>org.geotools</groupId>
-  <artifactId>gt-geometry</artifactId>
+  <artifactId>gt-isogeometry</artifactId>
   <packaging>jar</packaging>
-  <name>Geometries</name>
-  <url>http://maven.geotools.fr/reports/modules/plugin/geometry/</url>
+  <name>Fried Egg: ISO 19107 vector geometry data structures</name>
+  <url>http://maven.geotools.fr/reports/modules/unsupported/isogeometry/</url>
 
   <scm>
     <connection>
-      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/plugin/geometry/
+      scm:svn:http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/isogeometry/
     </connection>
-    <url>http://svn.geotools.org/geotools/trunk/gt/modules/plugin/geometry/</url>
+    <url>
+      http://svn.geotools.org/geotools/trunk/gt/modules/unsupported/isogeometry/
+    </url>
   </scm>
 
   <description>
-    Implementations of ISO 19107 (Spatial Schema).
+    Data structures and operations conformant with defined profiles of 
+    the ISO 19107 Spatial Schema specification.
   </description>
 
   <licenses>
@@ -53,30 +56,40 @@
   <!--     Developers and Contributors                             -->
   <!-- =========================================================== -->
   <developers>
-    <developer>
-      <name>Sanjay Jena</name>
-      <id>sanjayjena</id>
-      <email>sanjayjena@users.sourceforge.net</email>
-      <organization>Fachhochschule Koeln</organization>
-      <organizationUrl>www.fh-koeln.de</organizationUrl>
-      <timezone>(todo)</timezone>
+     <developer>
+      <name>Adrian Custer</name>
+      <id>acuster</id>
+      <organization>Geomatys</organization>
+      <organizationUrl>www.geomatys.fr</organizationUrl>
       <roles>
-        <role>Module Maintainer</role>
-        <role>Java Developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <name>Jackson Roehrig</name>
-      <organization>Fachhochschule Koeln</organization>
-      <organizationUrl>www.fh-koeln.de</organizationUrl>
-      <roles>
+        <role>Module maintainer</role>
         <role>Java developper</role>
       </roles>
     </developer>
      <developer>
       <name>Graham Davis</name>
+      <id>gdavis</id>
       <organization>Refractions Research</organization>
       <organizationUrl>www.refractions.net</organizationUrl>
+      <roles>
+        <role>Java developper</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Sanjay Jena</name>
+      <id>sanjayjena</id>
+      <organization>Fachhochschule Koeln</organization>
+      <organizationUrl>www.fh-koeln.de</organizationUrl>
+      <roles>
+        <role>Initiation of the module</role>
+        <role>Java developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <name>Jackson Roehrig</name>
+      <id></id>
+      <organization>Fachhochschule Koeln</organization>
+      <organizationUrl>www.fh-koeln.de</organizationUrl>
       <roles>
         <role>Java developper</role>
       </roles>
@@ -87,49 +100,11 @@
   <!-- ======================================================= -->
   <!--     Compilation.                                        -->
   <!-- ======================================================= -->
-  <build>
+  <!-- build>
     <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.3</version>
-          <!-- Current version is 2.3, but it seems to be rough with
-               class loaders; JAI is not found anymore, and we have
-               some additional test failures. -->
-        </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>1.5</source>  <!-- The -source argument for the Java compiler. -->
-          <target>1.5</target>  <!-- The -target argument for the Java compiler. -->
-          <debug>true</debug>   <!-- Whether to include debugging information.   -->
-          <encoding>UTF-8</encoding> <!-- The -encoding argument for the Java compiler. -->
-        </configuration>
-      </plugin>
-      <!-- ======================================================= -->
-      <!--     Code coverage                                       -->
-      <!-- ======================================================= -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-clover-plugin</artifactId>
-        <configuration>
-          <jdk>1.5</jdk>
-          <licenseLocation>http://svn.geotools.org/geotools/trunk/gt/build/maven/build-configs/src/main/resources/gt2/clover.license</licenseLocation>
-          <flushPolicy>directed</flushPolicy>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>instrument</goal>
-              <!-- aggregation is disabled due to the bug:     -->
-              <!-- http://jira.codehaus.org/browse/MCLOVER-34  -->
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
+      
+      <!- FIXME comment out: To exclude a test from the compilation run ->
+      < plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
@@ -138,8 +113,10 @@
           </excludes>
         </configuration>
       </plugin>
+
     </plugins>
-  </build>
+
+  </build -->
 
 
   <!-- =========================================================== -->
@@ -160,14 +137,16 @@
       <version>${project.version}</version>  
     </dependency>
     <dependency>
-      <groupId>org.geotools</groupId>
-      <artifactId>gt-sample-data</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-sample-data</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.geotools</groupId>
@@ -175,12 +154,13 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-	<dependency>
-	    <groupId>picocontainer</groupId>
-	    <artifactId>picocontainer</artifactId>
-	    <version>3</version>
-	    <scope>test</scope>
-	</dependency>       
+    <dependency>
+      <groupId>picocontainer</groupId>
+      <artifactId>picocontainer</artifactId>
+      <version>3</version>
+      <scope>test</scope>
+    </dependency>
+  
   </dependencies>
 
 
@@ -189,13 +169,14 @@
   <!--     This is where Maven looks for dependencies.             -->
   <!-- =========================================================== -->
   <repositories>
+
     <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <id>ibiblio</id>
       <name>Ibiblio - the public's library and digital archive</name>
       <url>http://www.ibiblio.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
     
     <repository>
@@ -205,13 +186,14 @@
     </repository>
     
     <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
       <id>geotools</id>
       <name>Geotools repository</name>
       <url>http://maven.geotools.fr/repository</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
     </repository>
+
   </repositories>
 
 </project>
