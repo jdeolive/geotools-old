@@ -28,6 +28,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.MalformedURLException;
 import org.geotools.util.IntegerList;
+import org.geotools.util.FrequencySortedSet;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.UnmodifiableArrayList;
@@ -118,6 +119,11 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     private IntegerList patternUsed;
 
     /**
+     * A sample tile which can be used as a pattern. This is just one amont many possible tiles.
+     */
+    private transient Tile sample;
+
+    /**
      * Index of last pattern used. Used in order to avoid reinitializing
      * the {@linkplain #formatter} more often than needed.
      */
@@ -154,9 +160,9 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
      * Adds a tile to the list of tiles in this level, provided that they are aligned on the same
      * grid.
      *
-     * @param tile The tile to add.
-     * @param subsampling The tile subsampling, provided as an explicit argument only
-     *        in order to avoid creating a temporary {@link Dimension} object again.
+     * @param  tile The tile to add.
+     * @param  subsampling The tile subsampling, provided as an explicit argument only
+     *         in order to avoid creating a temporary {@link Dimension} object again.
      * @throws IOException if an I/O operation was required and failed.
      * @throws IllegalArgumentException if the tiles are not aligned on the same grid.
      */
@@ -303,7 +309,7 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     /**
      * Returns the index of the given tile. The tile in the upper-left corner has index (0,0).
      *
-     * @param tile The tile for which to get the index.
+     * @param  tile The tile for which to get the index.
      * @return The index in a two-dimensional grid.
      */
     private Point getIndex2D(final Tile tile) {
@@ -362,8 +368,8 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     /**
      * Returns the tile at the given index.
      *
-     * @param The tile location, with (0,0) as the upper-left tile.
-     * @return The tile at the given location.
+     * @param  The tile location, with (0,0) as the upper-left tile.
+     * @return The tile at the given location, or {@code null} if none.
      * @throws IndexOutOfBoundsException if the given index is out of bounds.
      * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
@@ -379,6 +385,8 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
         if (tiles != null) {
             tile = tiles.get(index);
             if (tile != null) {
+                // If a tile is explicitly defined, it should not have a pattern.
+                assert patternUsed == null || patternUsed.getInteger(index) == 0 : index;
                 return tile;
             }
         }
@@ -435,25 +443,115 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     }
 
     /**
-     * Adds all internal tiles to the given collection.
+     * Adds all internal tiles to the given set, together with their frequency.
      *
-     * @param list The collection where to add the internal tiles.
+     * @param addTo The collection where to add the internal tiles.
      */
-    final void addInternalTiles(final List<? super Tile> list) {
+    final void addInternalTiles(final FrequencySortedSet<? super Tile> addTo) {
+        int count = 0;
         if (tiles != null) {
             for (final Tile tile : tiles) {
                 if (tile != null) {
-                    list.add(tile);
+                    addTo.add(tile);
+                    count++;
                 }
             }
         }
         if (patterns != null) {
-            for (final Tile tile : patterns) {
+            for (int p=0; p<patterns.length;) {
+                final Tile tile = patterns[p++];
+                final int n = (patternUsed != null) ? patternUsed.occurence(p) : nx*ny - count;
+                addTo.add(tile, n);
+            }
+        }
+    }
+
+    /**
+     * Adds to the given collection every tiles that intersect the given region.
+     * This is caller responsability to ensure that this level use the subsampling
+     * of interest.
+     *
+     * @param  addTo The collection where to add the tiles.
+     * @param  region The region of interest, or {@code null} for including all tiles.
+     * @return The tiles that intercept the given region. May be empty but never {@code null}.
+     * @throws MalformedURLException if an error occured while creating the URL for the tile.
+     */
+    final void addTiles(final Collection<? super Tile> addTo, final Rectangle region)
+            throws MalformedURLException
+    {
+        int xmin, xmax, ymin, ymax;
+        if (region != null) {
+            xmin = region.x - this.region.x;
+            ymin = region.y - this.region.y;
+            xmax = xmin + region.width;
+            ymax = ymin + region.height;
+            if (xmin >= 0) xmin /= width;  else xmin = 0;
+            if (ymin >= 0) ymin /= height; else ymin = 0;
+            xmax = (xmax + width  - 1) / width; // Round toward higher integer.
+            ymax = (ymax + height - 1) / height;
+        } else {
+            xmin = 0;
+            ymin = 0;
+            xmax = nx;
+            ymax = ny;
+        }
+        int count = addTo.size();
+        final Point location = new Point();
+        for (location.y=ymin; location.y<ymax; location.y++) {
+            for (location.x=xmin; location.x<xmax; location.x++) {
+                final Tile tile = getTile(location);
                 if (tile != null) {
-                    list.add(tile);
+                    addTo.add(tile);
                 }
             }
         }
+        // If the caller requested all tiles, make sure that we got the expected amount.
+        assert (region != null) || (count = addTo.size() - count) == getNumTiles() : count;
+    }
+
+    /**
+     * Returns the number of tiles in this level.
+     *
+     * @return The number of tiles.
+     */
+    public int getNumTiles() {
+        int count = 0;
+        if (patternUsed != null) {
+            final int size = patternUsed.size();
+            for (int i=0; i<size; i++) {
+                if (patternUsed.get(i) != 0) {
+                    count++;
+                }
+            }
+        } else if (patterns != null) {
+            count = nx * ny;
+        } else if (tiles != null) {
+            for (final Tile tile : tiles) {
+                if (tile != null) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Returns a sample tile.
+     */
+    final Tile getSample() {
+        if (sample == null) {
+            if (patterns != null) {
+                // Should never be empty. If we get an IndexOutOfBoundsException,
+                // this is a bug in the process(int) method.
+                sample = patterns[0];
+            } else {
+                // Should never be null when patterns == null and never empty. If we get
+                // a NullPointerException or an IndexOutOfBoundsException, this is a bug
+                // in the process(int) method.
+                sample = tiles.get(0);
+            }
+        }
+        return sample;
     }
 
     /**

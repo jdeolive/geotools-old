@@ -101,15 +101,6 @@ public class TreeTileManager extends TileManager {
     private transient Dimension tileSize;
 
     /**
-     * All image providers used as an unmodifiable set.
-     * <p>
-     * Consider this field as final. It is not because it needs to be set by {@link #readObject}.
-     * If this field become public or protected in a future version, then we should make it final
-     * and use reflection like {@link org.geotools.coverage.grid.GridCoverage2D#readObject}.
-     */
-    private transient Set<ImageReaderSpi> providers;
-
-    /**
      * A view of the tile as a Swing tree. Created only when first requested.
      */
     private transient TreeModel swing;
@@ -129,7 +120,6 @@ public class TreeTileManager extends TileManager {
          * different input, we will order by image index first, then (y,x) order.
          */
         Tile.ensureNonNull("tiles", tiles);
-        final Set<ImageReaderSpi> providers;
         final Map<ReaderInputPair,List<Tile>> tilesByInput;
         tilesByInput = new LinkedHashMap<ReaderInputPair, List<Tile>>();
         providers    = new FrequencySortedSet<ImageReaderSpi>(4, true);
@@ -145,7 +135,7 @@ public class TreeTileManager extends TileManager {
             }
             sameInputs.add(tile);
         }
-        this.providers = Collections.unmodifiableSet(providers);
+        providers = Collections.unmodifiableSet(providers);
         /*
          * Overwrites the tiles array with the same tiles, but ordered with same input firsts.
          */
@@ -179,6 +169,33 @@ fill:   for (final List<Tile> sameInputs : asArray) {
             }
         }
         return region;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    final synchronized Dimension getTileSize() throws IOException {
+        if (tileSize == null) {
+            final RTree tree = getTree();
+            try {
+                tileSize = tree.getTileSize();
+            } finally {
+                release(tree);
+            }
+        }
+        return tileSize;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IOException If an I/O operation was required and failed.
+     */
+    @Override
+    final boolean isImageTiled() throws IOException {
+        // Don't invoke 'getTiles' because we want to avoid the call to Tile.getRegion().
+        return tiles.length >= 2;
     }
 
     /**
@@ -225,8 +242,13 @@ fill:   for (final List<Tile> sameInputs : asArray) {
 
     /**
      * {@inheritDoc}
+     *
+     * @throws IOException If an I/O operation was required and failed.
      */
-    public Set<ImageReaderSpi> getImageReaderSpis() {
+    @Override
+    public Set<ImageReaderSpi> getImageReaderSpis() throws IOException {
+        // No need to synchronize because this implementation class creates
+        // the providers set at construction time or deserialization time.
         return providers;
     }
 
@@ -240,7 +262,7 @@ fill:   for (final List<Tile> sameInputs : asArray) {
     /**
      * {@inheritDoc}
      *
-     * @throws IOException if it was necessary to fetch an image dimension from its
+     * @throws IOException If it was necessary to fetch an image dimension from its
      *         {@linkplain Tile#getImageReader reader} and this operation failed.
      */
     public Collection<Tile> getTiles(final Rectangle region, final Dimension subsampling,
@@ -260,30 +282,6 @@ fill:   for (final List<Tile> sameInputs : asArray) {
             release(tree);
         }
         return values;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isImageTiled() {
-        // Don't invoke 'getTiles' because we want to avoid the call to Tile.getRegion().
-        return tiles.length >= 2;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    final synchronized Dimension getTileSize() throws IOException {
-        if (tileSize == null) {
-            final RTree tree = getTree();
-            try {
-                tileSize = tree.getTileSize();
-            } finally {
-                release(tree);
-            }
-        }
-        return tileSize;
     }
 
     /**

@@ -26,6 +26,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
+import org.geotools.resources.i18n.Errors;
+import org.geotools.resources.i18n.ErrorKeys;
 
 
 /**
@@ -39,6 +41,8 @@ import java.util.SortedSet;
  * but not identical to creating a defaut {@code FrequencySortedSet} and iterating through it
  * in reverse order. The difference is that elements added the same amount of time will still
  * be traversed in their insertion order.
+ *
+ * @param <E> The type of elements in the set.
  *
  * @since 2.5
  * @source $URL$
@@ -123,20 +127,47 @@ public class FrequencySortedSet<E> extends AbstractSet<E> implements SortedSet<E
      * Adds the specified element to this set. Returns {@code true} if this set changed as a
      * result of this operation. Changes in element order are not notified by the returned
      * value.
+     *
+     * @param element The element to add.
+     * @param occurence The number of time to add the given elements. The default value is 1.
+     * @return {@code true} if this set changed as a result of this operation.
+     * @throws IllegalArgumentException If {@code occurence} is negative.
      */
-    @Override
-    public boolean add(final E element) {
-        sorted = null;
-        final Integer n = count.put(element, order);
-        if (n == null) {
-            return true;
+    public boolean add(final E element, int occurence) throws IllegalArgumentException {
+        if (occurence != 0) {
+            if (occurence < 0) {
+                throw new IllegalArgumentException(Errors.format(
+                        ErrorKeys.NOT_GREATER_THAN_ZERO_$1, occurence));
+            }
+            sorted = null;
+            occurence *= order;
+            final Integer n = count.put(element, occurence);
+            if (n == null) {
+                return true;
+            }
+            count.put(element, n + occurence);
         }
-        count.put(element, n + order);
         return false;
     }
 
     /**
+     * Adds the specified element to this set. Returns {@code true} if this set changed as a
+     * result of this operation. Changes in element order are not notified by the returned
+     * value.
+     *
+     * @param element The element to add.
+     * @return {@code true} if this set changed as a result of this operation.
+     */
+    @Override
+    public boolean add(final E element) {
+        return add(element, 1);
+    }
+
+    /**
      * Returns {@code true} if this set contains the specified element.
+     *
+     * @param element The element whose presence in this set is to be tested.
+     * @return {@code true} if this set contains the specified element.
      */
     @Override
     public boolean contains(final Object element) {
@@ -146,6 +177,9 @@ public class FrequencySortedSet<E> extends AbstractSet<E> implements SortedSet<E
     /**
      * Removes the specified element from this set, no matter how many time it has been added.
      * Returns {@code true} if this set changed as a result of this operation.
+     *
+     * @param element The element to remove.
+     * @return {@code true} if this set changed as a result of this operation.
      */
     @Override
     public boolean remove(final Object element) {
@@ -366,6 +400,9 @@ public class FrequencySortedSet<E> extends AbstractSet<E> implements SortedSet<E
 
     /**
      * Returns the frequency of the specified element in this set.
+     *
+     * @param element The element whose frequency is to be obtained.
+     * @return The frequency of the given element, or {@code 0} if it doesn't occur in this set.
      */
     public int frequency(final E element) {
         return Math.abs(signedFrequency(element));
@@ -373,6 +410,8 @@ public class FrequencySortedSet<E> extends AbstractSet<E> implements SortedSet<E
 
     /**
      * Returns the frequency of each element in this set, in iteration order.
+     *
+     * @return The frequency of each element in this set.
      */
     public int[] frequencies() {
         ensureSorted();
@@ -390,6 +429,11 @@ public class FrequencySortedSet<E> extends AbstractSet<E> implements SortedSet<E
 
     /**
      * Returns the content of this set as an array.
+     *
+     * @param  <T> The type of the array elements.
+     * @param  array The array where to copy the elements.
+     * @return The elements in the given array, or in a new array if the given array doesn't
+     *         have a sufficient capacity.
      */
     @Override
     @SuppressWarnings("unchecked")

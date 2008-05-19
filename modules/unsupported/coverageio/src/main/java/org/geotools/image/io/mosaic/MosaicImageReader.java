@@ -200,23 +200,32 @@ public class MosaicImageReader extends ImageReader {
          * We keep their streams open since it is possible that the new input uses the same ones
          * (the old streams will be closed later if appears to not be used).
          */
-        final Set<ImageReaderSpi> providers;
-        switch (numImages) {
-            case 0: {
-                providers = Collections.emptySet();
-                break;
-            }
-            case 1: {
-                providers = managers[0].getImageReaderSpis();
-                break;
-            }
-            default: {
-                providers = new HashSet<ImageReaderSpi>(managers[0].getImageReaderSpis());
-                for (int i=1; i<numImages; i++) {
-                    providers.addAll(managers[i].getImageReaderSpis());
+        Set<ImageReaderSpi> providers = Collections.emptySet();
+        try {
+            switch (numImages) {
+                case 0: {
+                    // Keep the empty provider set.
+                    break;
                 }
-                break;
+                case 1: {
+                    providers = managers[0].getImageReaderSpis();
+                    break;
+                }
+                default: {
+                    providers = new HashSet<ImageReaderSpi>(managers[0].getImageReaderSpis());
+                    for (int i=1; i<numImages; i++) {
+                        providers.addAll(managers[i].getImageReaderSpis());
+                    }
+                    break;
+                }
             }
+        } catch (IOException e) {
+            /*
+             * Failed to get the set of providers.  This is not a big issue; the only consequence
+             * is that we will dispose more readers than necessary, which means that we will need
+             * to recreate them later. Note that the set of providers may be partially filled.
+             */
+            Logging.recoverableException(MosaicImageReader.class, "setInput", e);
         }
         final Iterator<Map.Entry<ImageReaderSpi,ImageReader>> it = readers.entrySet().iterator();
         while (it.hasNext()) {

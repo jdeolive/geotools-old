@@ -29,9 +29,11 @@ import java.awt.geom.AffineTransform;
 import java.io.PrintWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import javax.imageio.ImageReader;
 import javax.imageio.spi.ImageReaderSpi;
 
+import org.geotools.util.FrequencySortedSet;
 import org.geotools.coverage.grid.ImageGeometry;
 import org.geotools.referencing.operation.matrix.XAffineTransform;
 import org.geotools.resources.i18n.Errors;
@@ -61,6 +63,11 @@ public abstract class TileManager implements Serializable {
     ImageGeometry geometry;
 
     /**
+     * All image providers used as an unmodifiable set. Computed when first needed.
+     */
+    transient Set<ImageReaderSpi> providers;
+
+    /**
      * Creates a tile manager.
      */
     protected TileManager() {
@@ -79,7 +86,7 @@ public abstract class TileManager implements Serializable {
      *
      * @param gridToCRS The "grid to CRS" transform.
      * @throws IllegalStateException if a transform was already assigned to at least one tile.
-     * @throws IOException if an I/O operation was required and failed.
+     * @throws IOException If an I/O operation was required and failed.
      */
     public synchronized void setGridToCRS(final AffineTransform gridToCRS)
             throws IllegalStateException, IOException
@@ -111,7 +118,7 @@ public abstract class TileManager implements Serializable {
      * Dimension,AffineTransform) tile constructor}.
      *
      * @return The grid geometry, or {@code null} if this information is not available.
-     * @throws IOException if an I/O operation was required and failed.
+     * @throws IOException If an I/O operation was required and failed.
      *
      * @see Tile#getGridToCRS
      */
@@ -151,11 +158,35 @@ public abstract class TileManager implements Serializable {
      *
      * @return The region. <strong>Do not modify</strong> since it may be a direct reference to
      *         internal structures.
-     * @throws IOException if it was necessary to fetch an image dimension from its
+     * @throws IOException If it was necessary to fetch an image dimension from its
      *         {@linkplain Tile#getImageReader reader} and this operation failed.
      */
     Rectangle getRegion() throws IOException {
         return getGridGeometry().getGridRange();
+    }
+
+    /**
+     * Returns the tiles dimension. Subclasses will override this method with a better
+     * implementation.
+     *
+     * @return The tiles dimension. <strong>Do not modify</strong> since it may be a direct
+     *         reference to internal structures.
+     * @throws IOException If it was necessary to fetch an image dimension from its
+     *         {@linkplain Tile#getImageReader reader} and this operation failed.
+     */
+    Dimension getTileSize() throws IOException {
+        return getRegion().getSize();
+    }
+
+    /**
+     * Returns {@code true} if there is more than one tile. The default implementation returns
+     * {@code true} in all cases.
+     *
+     * @return {@code true} if the image is tiled.
+     * @throws IOException If an I/O operation was required and failed.
+     */
+    boolean isImageTiled() throws IOException {
+        return true;
     }
 
     /**
@@ -164,10 +195,28 @@ public abstract class TileManager implements Serializable {
      * sorted from the most frequently used provider to the less frequently used.
      *
      * @return The image reader providers.
+     * @throws IOException If an I/O operation was required and failed.
      *
      * @see MosaicImageReader#getTileReaderSpis
      */
-    public abstract Set<ImageReaderSpi> getImageReaderSpis();
+    public synchronized Set<ImageReaderSpi> getImageReaderSpis() throws IOException {
+        if (providers == null) {
+            final FrequencySortedSet<ImageReaderSpi> providers =
+                    new FrequencySortedSet<ImageReaderSpi>(4, true);
+            final Collection<Tile> tiles = getInternalTiles();
+            int[] frequencies = null;
+            if (tiles instanceof FrequencySortedSet) {
+                frequencies = ((FrequencySortedSet<Tile>) tiles).frequencies();
+            }
+            int i = 0;
+            for (final Tile tile : tiles) {
+                final int n = (frequencies != null) ? frequencies[i++] : 1;
+                providers.add(tile.getImageReaderSpi(), n);
+            }
+            this.providers = Collections.unmodifiableSet(providers);
+        }
+        return providers;
+    }
 
     /**
      * Creates a tile with a {@linkplain Tile#getRegion region} big enough for containing
@@ -228,12 +277,14 @@ public abstract class TileManager implements Serializable {
      * should not attempt to read the tiles, since the inputs can be non-existant files or patterns
      * (again the case of {@link GridTileManager}). This method is not public for that reason.
      * <p>
-     * The default implementation returns {@link #getTiles}. Subclasses that override this method
-     * typically return a smaller list.
+     * The default implementation returns {@link #getTiles}.
      *
-     * @return The internal tiles.
+     * @return The internal tiles. If the returned collection is an instance of
+     *         {@link FrequencySortedSet}, then the frequencies will be honored
+     *         in methods where it matter like {@link #getImageReaderSpis}.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    Collection<Tile> getInternalTiles() {
+    Collection<Tile> getInternalTiles() throws IOException {
         return getTiles();
     }
 
@@ -241,8 +292,9 @@ public abstract class TileManager implements Serializable {
      * Returns all tiles.
      *
      * @return The tiles.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    public abstract Collection<Tile> getTiles();
+    public abstract Collection<Tile> getTiles() throws IOException;
 
     /**
      * Returns every tiles that intersect the given region.
@@ -258,31 +310,11 @@ public abstract class TileManager implements Serializable {
      *          highest subsampling that overviews can handle, not greater than the given
      *          subsampling.
      * @return The tiles that intercept the given region. May be empty but never {@code null}.
-     * @throws IOException if it was necessary to fetch an image dimension from its
+     * @throws IOException If it was necessary to fetch an image dimension from its
      *         {@linkplain Tile#getImageReader reader} and this operation failed.
      */
     public abstract Collection<Tile> getTiles(Rectangle region, Dimension subsampling,
             boolean subsamplingChangeAllowed) throws IOException;
-
-    /**
-     * Returns {@code true} if there is more than one tile.
-     *
-     * @return {@code true} if the image is tiled.
-     */
-    public abstract boolean isImageTiled();
-
-    /**
-     * Returns the tiles dimension. Subclasses will override this method with a better
-     * implementation.
-     *
-     * @return The tiles dimension. <strong>Do not modify</strong> since it may be a direct
-     *         reference to internal structures.
-     * @throws IOException if it was necessary to fetch an image dimension from its
-     *         {@linkplain Tile#getImageReader reader} and this operation failed.
-     */
-    Dimension getTileSize() throws IOException {
-        return getRegion().getSize();
-    }
 
     /**
      * Checks for file existence and image size of every tiles and reports any error found.
@@ -294,7 +326,14 @@ public abstract class TileManager implements Serializable {
         if (out == null) {
             out = new PrintWriter(System.out, true);
         }
-        for (final Tile tile : getTiles()) {
+        final Collection<Tile> tiles;
+        try {
+            tiles = getTiles();
+        } catch (IOException e) {
+            e.printStackTrace(out);
+            return;
+        }
+        for (final Tile tile : tiles) {
             final int imageIndex = tile.getImageIndex();
             ImageReader reader = null;
             String message = null;

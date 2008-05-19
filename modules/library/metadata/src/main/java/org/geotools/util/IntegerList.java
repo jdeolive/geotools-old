@@ -282,6 +282,23 @@ public class IntegerList extends AbstractList<Integer> implements RandomAccess, 
     }
 
     /**
+     * Returns the occurence of the given value in this list.
+     *
+     * @param value The value to search for.
+     * @return The number of time the given value occurs in this list.
+     */
+    public int occurence(final int value) {
+        int count = 0;
+        final int size = size();
+        for (int i=0; i<size; i++) {
+            if (getInteger(i) == value) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Trims the capacity of this list to be its current size.
      */
     public void trimToSize() {

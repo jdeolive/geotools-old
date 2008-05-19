@@ -16,12 +16,15 @@
  */
 package org.geotools.image.io.mosaic;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import javax.imageio.spi.ImageReaderSpi;
+import org.geotools.util.FrequencySortedSet;
 
 
 /**
@@ -32,7 +35,12 @@ import javax.imageio.spi.ImageReaderSpi;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public abstract class GridTileManager extends TileManager {
+public class GridTileManager extends TileManager {
+    /**
+     * For cross-version interoperability.
+     */
+    private static final long serialVersionUID = -3140767174475649400L;
+
     /**
      * The levels of overview sorted by finest levels first.
      */
@@ -42,6 +50,11 @@ public abstract class GridTileManager extends TileManager {
      * The region enclosing all tiles.
      */
     private final Rectangle region;
+
+    /**
+     * The number of tiles.
+     */
+    private final int count;
 
     /**
      * Creates a new tile manager for the given tiles, which must be distributed on a grid.
@@ -70,11 +83,14 @@ public abstract class GridTileManager extends TileManager {
         levels = levelsBySubsampling.values().toArray(new GridLevel[levelsBySubsampling.size()]);
         Arrays.sort(levels);
         region = new Rectangle(-1, -1);
+        int count = 0;
         for (int i=0; i<levels.length; i++) {
             final GridLevel level = levels[i];
             level.process(i);
             region.add(level.region);
+            count += level.getNumTiles();
         }
+        this.count = count;
     }
 
     /**
@@ -106,13 +122,70 @@ public abstract class GridTileManager extends TileManager {
     }
 
     /**
+     * Returns {@code true} if there is more than one tile.
+     *
+     * @return {@code true} if the image is tiled.
+     * @throws IOException If an I/O operation was required and failed.
+     */
+    @Override
+    final boolean isImageTiled() throws IOException {
+        return count >= 2;
+    }
+
+    /**
      * Returns a reference to the tiles used internally by this tile manager.
+     * This implementation returns an instance of {@link FrequencySortedSet} whith
+     * {@linkplain FrequencySortedSet#frequencies frequency values} greater than 1
+     * for the tiles that actually represent a pattern.
      */
     @Override
     final Collection<Tile> getInternalTiles() {
-        final List<Tile> tiles = new ArrayList<Tile>();
+        final FrequencySortedSet<Tile> tiles = new FrequencySortedSet<Tile>();
         for (final GridLevel level : levels) {
             level.addInternalTiles(tiles);
+        }
+        return tiles;
+    }
+
+    /**
+     * Returns all tiles. The list is generated on the fly every time this method is invoked.
+     * The list is not and should not be cached since it may be large.
+     *
+     * @throws IOException If an I/O operation was required and failed.
+     */
+    public Collection<Tile> getTiles() throws IOException {
+        final Collection<Tile> tiles = new ArrayList<Tile>(count);
+        for (final GridLevel level : levels) {
+            level.addTiles(tiles, null);
+        }
+        return tiles;
+    }
+
+    /**
+     * Returns every tiles that intersect the given region.
+     *
+     * @throws IOException If it was necessary to fetch an image dimension from its
+     *         {@linkplain Tile#getImageReader reader} and this operation failed.
+     */
+    public Collection<Tile> getTiles(final Rectangle region, final Dimension subsampling,
+                                     final boolean subsamplingChangeAllowed) throws IOException
+    {
+        final Collection<Tile> tiles = new ArrayList<Tile>();
+        for (int ordinal=levels.length; --ordinal>=0;) {
+            final GridLevel level = levels[ordinal];
+            final Dimension doable = level.getSample().getSubsamplingFloor(subsampling);
+            if (doable == null) {
+                // The current level can not handle the given subsampling or any finer one.
+                continue;
+            }
+            if (doable != subsampling) {
+                if (!subsamplingChangeAllowed) {
+                    // The current level can not handle the given subsampling
+                    // and we are not allowed to use a finer one.
+                    continue;
+                }
+            }
+            level.addTiles(tiles, region);
         }
         return tiles;
     }

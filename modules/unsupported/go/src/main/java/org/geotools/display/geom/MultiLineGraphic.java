@@ -26,7 +26,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @author sorel
  */
-public class MultiLineGraphic extends FeatureGraphic{
+public abstract class MultiLineGraphic extends FeatureGraphic{
 
     private final MultiLineString line;
     private LiteShape j2dShape;
