@@ -31,7 +31,6 @@ import org.geotools.geometry.iso.primitive.CurveImpl;
 import org.geotools.geometry.iso.primitive.RingImpl;
 import org.geotools.geometry.iso.primitive.SurfaceBoundaryImpl;
 import org.geotools.geometry.iso.primitive.SurfaceImpl;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.CGAlgorithms;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.coordinate.Position;
@@ -236,7 +235,7 @@ public abstract class EdgeRing {
 		DirectedEdge de = start;
 		boolean isFirstEdge = true;
 		do {
-			Assert.isTrue(de != null, "found null Directed Edge");
+			assert de != null : "found null Directed Edge" ;
 			if (de.getEdgeRing() == this)
 				throw new TopologyException(
 						"Directed Edge visited twice during ring-building at "
@@ -246,7 +245,7 @@ public abstract class EdgeRing {
 			// Debug.println(de);
 			// Debug.println(de.getEdge());
 			Label label = de.getLabel();
-			Assert.isTrue(label.isArea());
+			assert label.isArea();
 			mergeLabel(label);
 			addPoints(de.getEdge(), de.isForward(), isFirstEdge);
 			isFirstEdge = false;

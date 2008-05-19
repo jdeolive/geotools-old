@@ -22,7 +22,6 @@ package org.geotools.geometry.iso.topograph2D;
 import java.io.Serializable;
 import java.util.Comparator;
 
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * A lightweight class used to store coordinates on the 2-dimensional Cartesian
@@ -237,10 +236,8 @@ public class Coordinate implements Comparable, Cloneable, Serializable {
 
 			return coord; // return the clone
 		} catch (CloneNotSupportedException e) {
-			Assert
-					.shouldNeverReachHere("this shouldn't happen because this class is Cloneable");
-
-			return null;
+		    //this shouldn't happen because this class is Cloneable
+			throw new AssertionError(e);
 		}
 	}
 

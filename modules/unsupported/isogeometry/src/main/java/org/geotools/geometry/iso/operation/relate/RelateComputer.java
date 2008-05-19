@@ -38,7 +38,6 @@ import org.geotools.geometry.iso.topograph2D.Location;
 import org.geotools.geometry.iso.topograph2D.Node;
 import org.geotools.geometry.iso.topograph2D.NodeMap;
 import org.geotools.geometry.iso.topograph2D.index.SegmentIntersector;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.LineIntersector;
 import org.geotools.geometry.iso.util.algorithm2D.PointLocator;
 import org.geotools.geometry.iso.util.algorithm2D.RobustLineIntersector;
@@ -405,8 +404,7 @@ public class RelateComputer {
 			Label label = n.getLabel();
 			// isolated nodes should always have at least one geometry in their
 			// label
-			Assert.isTrue(label.getGeometryCount() > 0,
-					"node with empty label found");
+			assert label.getGeometryCount() > 0 : "node with empty label found" ;
 			if (n.isIsolated()) {
 				if (label.isNull(0))
 					labelIsolatedNode(n, 0);

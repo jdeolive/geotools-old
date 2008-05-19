@@ -34,7 +34,6 @@ import org.geotools.geometry.iso.topograph2D.Edge;
 import org.geotools.geometry.iso.topograph2D.Label;
 import org.geotools.geometry.iso.topograph2D.Node;
 import org.geotools.geometry.iso.topograph2D.util.CoordinateArrays;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.PointLocator;
 import org.opengis.geometry.coordinate.LineString;
 import org.opengis.geometry.coordinate.Position;
@@ -173,8 +172,7 @@ public class LineBuilder {
 		// it again
 
 		// sanity check for labelling of result edgerings
-		Assert.isTrue(!(de.isInResult() || de.getSym().isInResult())
-				|| !de.getEdge().isInResult());
+		assert (  !(de.isInResult() || de.getSym().isInResult())  ||  !de.getEdge().isInResult()  );
 
 		// include the linework if it's in the result of the operation
 		if (OverlayOp.isResultOfOp(label, opCode)

@@ -51,7 +51,6 @@ import org.geotools.geometry.iso.topograph2D.Coordinate;
 import org.geotools.geometry.iso.topograph2D.CoordinateList;
 import org.geotools.geometry.iso.topograph2D.util.CoordinateArrays;
 import org.geotools.geometry.iso.topograph2D.util.UniqueCoordinateArrayFilter;
-import org.geotools.geometry.iso.util.Assert;
 import org.opengis.geometry.coordinate.Position;
 import org.opengis.geometry.primitive.CurveSegment;
 import org.opengis.geometry.primitive.OrientableCurve;
@@ -185,9 +184,9 @@ public class ConvexHull {
 			positions = new ArrayList<DirectPositionImpl>();
 			positions.add(((CompositePointImpl)geom).getElements().iterator().next());
 		} else if (geom instanceof CompositeCurveImpl) {
-			Assert.isTrue(false, "not implemented yet");
+            throw new UnsupportedOperationException("We don't yet handle hulls for CompositeCurves");
 		} else if (geom instanceof CompositeSurfaceImpl) {
-			Assert.isTrue(false, "not implemented yet");
+            throw new UnsupportedOperationException("We don't yet handle hulls for CompositeSurfaces");
 		} else if (geom instanceof CurveBoundaryImpl) {
 			positions = new ArrayList<DirectPositionImpl>();
 			positions.add(((CurveBoundaryImpl)geom).getStartPoint());
@@ -209,7 +208,7 @@ public class ConvexHull {
 			} else if (pos instanceof PointImpl) {
 				filter.filter(new Coordinate(((PointImpl)pos).getPosition().getCoordinates()));
 			} else
-				Assert.isTrue(false, "Invalid coordinate type");
+				assert false: "Invalid coordinate type" ;
 		}
 		
 		return filter.getCoordinates();
@@ -486,7 +485,7 @@ public class ConvexHull {
 	 * @return the coordinates with unnecessary (collinear) vertices removed
 	 */
 	private Coordinate[] cleanRing(Coordinate[] original) {
-		Assert.equals(original[0], original[original.length - 1]);
+		assert original[0].equals(original[original.length - 1]);
 		ArrayList cleanedRing = new ArrayList();
 		Coordinate previousDistinctCoordinate = null;
 		for (int i = 0; i <= original.length - 2; i++) {

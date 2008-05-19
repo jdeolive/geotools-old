@@ -20,7 +20,6 @@ package org.geotools.geometry.iso.topograph2D;
 
 import java.io.PrintStream;
 
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.CGAlgorithms;
 
 /**
@@ -65,8 +64,7 @@ public class EdgeEnd implements Comparable {
 		dx = p1.x - p0.x;
 		dy = p1.y - p0.y;
 		quadrant = Quadrant.quadrant(dx, dy);
-		Assert.isTrue(!(dx == 0 && dy == 0),
-				"EdgeEnd with identical endpoints found");
+		assert !(dx == 0 && dy == 0) : "EdgeEnd with identical endpoints found";
 	}
 
 	public Edge getEdge() {

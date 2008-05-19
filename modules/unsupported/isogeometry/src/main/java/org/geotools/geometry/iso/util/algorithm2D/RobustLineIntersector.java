@@ -20,7 +20,6 @@ package org.geotools.geometry.iso.util.algorithm2D;
 
 import org.geotools.geometry.iso.topograph2D.Coordinate;
 import org.geotools.geometry.iso.topograph2D.Envelope;
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * A robust version of {@link LineIntersector}.
@@ -178,8 +177,10 @@ public class RobustLineIntersector extends LineIntersector {
 		try {
 			intPt = HCoordinate.intersection(n1, n2, n3, n4);
 		} catch (NotRepresentableException e) {
-			Assert
-					.shouldNeverReachHere("Coordinate for intersection is not calculable");
+			
+			//should never reach here: Coordinate for intersection is not calculable
+			throw new AssertionError();
+			
 			// EnvelopeMidpointIntersector emInt = new
 			// EnvelopeMidpointIntersector(n1, n2, n3, n4);
 			// intPt = emInt.getIntersection();

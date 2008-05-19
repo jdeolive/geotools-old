@@ -34,7 +34,6 @@ import org.geotools.geometry.iso.primitive.PointImpl;
 import org.geotools.geometry.iso.primitive.RingImpl;
 import org.geotools.geometry.iso.primitive.SurfaceBoundaryImpl;
 import org.geotools.geometry.iso.primitive.SurfaceImpl;
-import org.geotools.geometry.iso.util.AssertionFailedException;
 import org.opengis.geometry.Geometry;
 import org.opengis.geometry.PositionFactory;
 import org.opengis.geometry.coordinate.LineString;

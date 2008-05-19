@@ -19,7 +19,6 @@
 
 package org.geotools.geometry.iso.topograph2D;
 
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * A GraphComponent is the parent class for the objects' that form a graph. Each
@@ -109,7 +108,7 @@ abstract public class GraphComponent {
 	 * contributes if it has a labelling for both parent geometries
 	 */
 	public void updateIM(IntersectionMatrix im) {
-		Assert.isTrue(label.getGeometryCount() >= 2, "found partial label");
+		assert label.getGeometryCount() >= 2 : "found partial label";
 		computeIM(im);
 	}
 

@@ -35,7 +35,6 @@ import org.geotools.geometry.iso.primitive.CurveImpl;
 import org.geotools.geometry.iso.primitive.RingImpl;
 import org.geotools.geometry.iso.primitive.SurfaceBoundaryImpl;
 import org.geotools.geometry.iso.primitive.SurfaceImpl;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
@@ -553,8 +552,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public ArcStringByBulge createArcStringByBulge(List<Position> points, double[] bulges, List<double[]> normals) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -563,8 +561,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public BSplineCurve createBSplineCurve(int degree, PointArray points, List<Knot> knots, KnotType knotSpec) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -573,8 +570,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public BSplineSurface createBSplineSurface(List<PointArray> points, int[] degree, List<Knot>[] knots, KnotType knotSpec) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -583,8 +579,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public GeodesicString createGeodesicString(List<Position> points) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -593,8 +588,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public PolyhedralSurface createPolyhedralSurface(List<Polygon> tiles) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -603,8 +597,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public Tin createTin(Set<Position> post, Set<LineString> stopLines, Set<LineString> breakLines, double maxLength) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -613,8 +606,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public Arc createArc(Position startPoint, Position midPoint, Position endPoint) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -623,8 +615,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public Arc createArc(Position startPoint, Position endPoint, double bulge, double[] normal) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -633,8 +624,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public ArcByBulge createArcByBulge(Position startPoint, Position endPoint, double bulge, double[] normal) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -643,8 +633,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	public Geodesic createGeodesic(Position startPoint, Position endPoint) throws MismatchedReferenceSystemException, MismatchedDimensionException {
@@ -653,8 +642,7 @@ public class GeometryFactoryImpl implements Factory, GeometryFactory {
 		// TO DO implementation
 		// TO DO test
 		// TO DO documentation
-		Assert.isTrue(false, "not implemented");
-		return null;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	

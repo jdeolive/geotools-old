@@ -22,7 +22,6 @@ package org.geotools.geometry.iso.index.quadtree;
 
 import org.geotools.geometry.iso.topograph2D.Coordinate;
 import org.geotools.geometry.iso.topograph2D.Envelope;
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * Represents a node of a {@link Quadtree}. Nodes contain items which have a
@@ -105,7 +104,7 @@ public class Node extends NodeBase {
 	}
 
 	void insertNode(Node node) {
-		Assert.isTrue(env == null || env.contains(node.env));
+		assert (env == null || env.contains(node.env)) ;
 		// System.out.println(env);
 		// System.out.println(quad.env);
 		int index = getSubnodeIndex(node.env, centre);

@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * A DirectedEdgeStar is an ordered list of <b>outgoing</b> DirectedEdges
@@ -102,9 +101,8 @@ public class DirectedEdgeStar extends EdgeEndStar {
 			else if (deLast.getDy() != 0)
 				return deLast;
 		}
-		Assert
-				.shouldNeverReachHere("found two horizontal edges incident on node");
-		return null;
+		//Should never reach here: we found two horizontal edges incident on node
+		throw new AssertionError();
 
 	}
 
@@ -236,8 +234,7 @@ public class DirectedEdgeStar extends EdgeEndStar {
 						getCoordinate());
 			// Assert.isTrue(firstOut != null, "no outgoing dirEdge found (at "
 			// + getCoordinate() );
-			Assert.isTrue(firstOut.isInResult(),
-					"unable to link last incoming dirEdge");
+			assert firstOut.isInResult() : "unable to link last incoming dirEdge";
 			incoming.setNext(firstOut);
 		}
 	}
@@ -274,10 +271,8 @@ public class DirectedEdgeStar extends EdgeEndStar {
 		}
 		// print(System.out);
 		if (state == LINKING_TO_OUTGOING) {
-			Assert.isTrue(firstOut != null,
-					"found null for first outgoing dirEdge");
-			Assert.isTrue(firstOut.getEdgeRing() == er,
-					"unable to link last incoming dirEdge");
+			assert firstOut != null : "found null for first outgoing dirEdge";
+			assert firstOut.getEdgeRing() == er : "unable to link last incoming dirEdge";
 			incoming.setNextMin(firstOut);
 		}
 	}

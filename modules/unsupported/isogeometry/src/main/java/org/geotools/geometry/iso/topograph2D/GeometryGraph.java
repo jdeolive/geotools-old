@@ -43,7 +43,6 @@ import org.geotools.geometry.iso.topograph2D.index.EdgeSetIntersector;
 import org.geotools.geometry.iso.topograph2D.index.SegmentIntersector;
 import org.geotools.geometry.iso.topograph2D.index.SimpleMonotoneChainSweepLineIntersector;
 import org.geotools.geometry.iso.topograph2D.util.CoordinateArrays;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.LineIntersector;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.aggregate.MultiPrimitive;
@@ -411,7 +410,7 @@ public class GeometryGraph extends PlanarGraph {
 		 * allows for the case that the node already exists and is a boundary
 		 * point.
 		 */
-		Assert.isTrue(coord.length >= 2, "found LineString with single point");
+		assert coord.length >= 2 : "found LineString with single point";
 		insertBoundaryPoint(argIndex, coord[0]);
 		insertBoundaryPoint(argIndex, coord[coord.length - 1]);
 

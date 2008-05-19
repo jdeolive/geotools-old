@@ -46,7 +46,6 @@ import org.geotools.geometry.iso.primitive.SurfaceBoundaryImpl;
 import org.geotools.geometry.iso.primitive.SurfaceImpl;
 import org.geotools.geometry.iso.topograph2D.Coordinate;
 import org.geotools.geometry.iso.topograph2D.IntersectionMatrix;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.CGAlgorithms;
 import org.geotools.geometry.iso.util.algorithm2D.CentroidArea2D;
 import org.geotools.geometry.iso.util.algorithm2D.ConvexHull;
@@ -226,7 +225,7 @@ public abstract class GeometryImpl implements Geometry, Serializable  {
 		try {
 			transform = CRS.findMathTransform(this.getCoordinateReferenceSystem(), newCRS);
 		} catch (FactoryException e) {
-			Assert.isTrue(false, "Could not find math transform for given CRS objects.");
+			assert false : "Could not find math transform for given CRS objects.";
 			//e.printStackTrace();
 		}
 		return transform(newCRS, transform);
@@ -416,7 +415,7 @@ public abstract class GeometryImpl implements Geometry, Serializable  {
         
 		// if it is some other type, show an error
 		// TODO: implement code for any missing types
-		Assert.isTrue(false);
+		assert false ;
 		return Double.NaN;
 	}
 
@@ -430,8 +429,7 @@ public abstract class GeometryImpl implements Geometry, Serializable  {
 		// TODO implementation
 		// TODO test
 		// TODO documentation
-		Assert.isTrue(false);
-		return null;
+		throw new UnsupportedOperationException("We can't yet buffer.");
 	}
 
 
@@ -534,7 +532,7 @@ public abstract class GeometryImpl implements Geometry, Serializable  {
 			
 		}
 	
-		Assert.isTrue(false, "The centroid operation is not defined for this geometry object");
+		assert false : "The centroid operation is not defined for this geometry object" ;
 		return null;
 	}
 
@@ -1115,8 +1113,7 @@ public abstract class GeometryImpl implements Geometry, Serializable  {
 		} else
 
 		
-		Assert.isTrue(false, "The closure operation is not implemented for this geometry object");
-		return null;
+		throw new UnsupportedOperationException("The closure operation is not implemented for this geometry object");
 		
 	}
 	

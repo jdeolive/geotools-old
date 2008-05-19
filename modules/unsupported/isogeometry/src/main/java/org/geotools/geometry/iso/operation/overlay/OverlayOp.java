@@ -41,7 +41,6 @@ import org.geotools.geometry.iso.topograph2D.Location;
 import org.geotools.geometry.iso.topograph2D.Node;
 import org.geotools.geometry.iso.topograph2D.PlanarGraph;
 import org.geotools.geometry.iso.topograph2D.Position;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.PointLocator;
 import org.opengis.geometry.Geometry;
 import org.opengis.geometry.primitive.OrientableCurve;
@@ -355,14 +354,12 @@ public class OverlayOp extends GeometryGraphOperation {
 							 * to reflect the resultant side locations indicated
 							 * by the depth values.
 							 */
-							Assert
-									.isTrue(!depth.isNull(i, Position.LEFT),
-											"depth of LEFT side has not been initialized");
+							assert !depth.isNull(i, Position.LEFT) :
+											"depth of LEFT side has not been initialized";
 							lbl.setLocation(i, Position.LEFT, depth
 									.getLocation(i, Position.LEFT));
-							Assert
-									.isTrue(!depth.isNull(i, Position.RIGHT),
-											"depth of RIGHT side has not been initialized");
+							assert !depth.isNull(i, Position.RIGHT) :
+											"depth of RIGHT side has not been initialized";
 							lbl.setLocation(i, Position.RIGHT, depth
 									.getLocation(i, Position.RIGHT));
 						}

@@ -22,7 +22,6 @@ package org.geotools.geometry.iso.index.quadtree;
 
 import org.geotools.geometry.iso.topograph2D.Coordinate;
 import org.geotools.geometry.iso.topograph2D.Envelope;
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * QuadRoot is the root of a single Quadtree. It is centred at the origin, and
@@ -78,7 +77,7 @@ public class Root extends NodeBase {
 	 * necessary to hold the item.
 	 */
 	private void insertContained(Node tree, Envelope itemEnv, Object item) {
-		Assert.isTrue(tree.getEnvelope().contains(itemEnv));
+		assert tree.getEnvelope().contains(itemEnv) ;
 		/**
 		 * Do NOT create a new quad for zero-area envelopes - this would lead to
 		 * infinite recursion. Instead, use a heuristic of simply returning the

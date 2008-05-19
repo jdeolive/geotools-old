@@ -35,7 +35,6 @@ import org.geotools.geometry.iso.topograph2D.EdgeRing;
 import org.geotools.geometry.iso.topograph2D.Envelope;
 import org.geotools.geometry.iso.topograph2D.PlanarGraph;
 import org.geotools.geometry.iso.topograph2D.util.CoordinateArrays;
-import org.geotools.geometry.iso.util.Assert;
 import org.geotools.geometry.iso.util.algorithm2D.CGAlgorithms;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.primitive.Ring;
@@ -164,8 +163,7 @@ public class PolygonBuilder {
 				shellCount++;
 			}
 		}
-		Assert.isTrue(shellCount <= 1,
-				"found two shells in MinimalEdgeRing list");
+		assert shellCount <= 1 : "found two shells in MinimalEdgeRing list";
 		return shell;
 	}
 
@@ -223,9 +221,7 @@ public class PolygonBuilder {
 			// only place this hole if it doesn't yet have a shell
 			if (hole.getShell() == null) {
 				EdgeRing shell = findEdgeRingContaining(hole, shellList);
-				Assert
-						.isTrue(shell != null,
-								"unable to assign hole to a shell");
+				assert shell != null : "unable to assign hole to a shell";
 				hole.setShell(shell);
 			}
 		}

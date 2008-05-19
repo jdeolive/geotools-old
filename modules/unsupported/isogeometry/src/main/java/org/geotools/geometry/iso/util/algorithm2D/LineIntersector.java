@@ -20,7 +20,6 @@ package org.geotools.geometry.iso.util.algorithm2D;
 
 import org.geotools.geometry.iso.PrecisionModel;
 import org.geotools.geometry.iso.topograph2D.Coordinate;
-import org.geotools.geometry.iso.util.Assert;
 
 /**
  * A LineIntersector is an algorithm that can both test whether two line
@@ -82,8 +81,7 @@ public abstract class LineIntersector {
 				dist = Math.max(pdx, pdy);
 			}
 		}
-		Assert.isTrue(!(dist == 0.0 && !p.equals(p0)),
-				"Bad distance calculation");
+		assert !(dist == 0.0 && !p.equals(p0)) : "Bad distance calculation";
 		return dist;
 	}
 
@@ -96,8 +94,7 @@ public abstract class LineIntersector {
 		double dx = p.x - p1.x;
 		double dy = p.y - p1.y;
 		double dist = Math.sqrt(dx * dx + dy * dy); // dummy value
-		Assert.isTrue(!(dist == 0.0 && !p.equals(p1)),
-				"Invalid distance calculation");
+		assert !(dist == 0.0 && !p.equals(p1)) : "Invalid distance calculation";
 		return dist;
 	}
 
