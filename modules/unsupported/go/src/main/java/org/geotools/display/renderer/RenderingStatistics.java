@@ -15,7 +15,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.display.canvas;
+package org.geotools.display.renderer;
 
 import java.util.Locale;
 import java.util.logging.Level;
@@ -38,7 +38,7 @@ import org.geotools.resources.i18n.VocabularyKeys;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-final class RenderingStatistics {
+public final class RenderingStatistics {
     /**
      * Minimum amout of milliseconds during rendering before logging a message.
      * A message will be logged only if rendering take longer, which is usefull
@@ -159,10 +159,10 @@ final class RenderingStatistics {
      *
      * @param canvas The caller.
      */
-    final void finish(final AbstractCanvas canvas) {
+    final void finish(final AbstractRenderer renderer) {
         ellapsedTime = System.currentTimeMillis() - startTime;
         if (isLoggable() && ellapsedTime>=TIME_THRESHOLD) {
-            logger.log(createLogRecord(canvas));
+            logger.log(createLogRecord(renderer));
         }
     }
 
@@ -171,14 +171,14 @@ final class RenderingStatistics {
      *
      * @param canvas The caller, or {@code null} if unknown.
      */
-    private LogRecord createLogRecord(final AbstractCanvas canvas) {
+    private LogRecord createLogRecord(final AbstractRenderer renderer) {
         final Double ellapsed = new Double((ellapsedTime!=0 ? ellapsedTime :
                                             System.currentTimeMillis() - startTime) / 1000);
         final Locale locale;
         final String title;
-        if (canvas != null) {
-            locale = canvas.getLocale();
-            title  = canvas.getState().getTitle().toString();
+        if (renderer != null) {
+            locale = renderer.getLocale();
+            title  = renderer.getCanvas().getState().getTitle().toString();
         } else {
             locale = Locale.getDefault();
             title  = Vocabulary.format(VocabularyKeys.UNKNOW);
@@ -196,7 +196,7 @@ final class RenderingStatistics {
                           new Double((double)(rendered-recomputed)/(double)rendered),
                           new Double(resolution/rendered), units));
         }
-        record.setSourceClassName(canvas.getClass().getName());
+        record.setSourceClassName(renderer.getClass().getName());
         record.setSourceMethodName("paint");
         return record;
     }

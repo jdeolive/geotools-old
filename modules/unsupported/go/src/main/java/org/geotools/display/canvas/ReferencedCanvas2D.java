@@ -19,10 +19,13 @@
  */
 package org.geotools.display.canvas;
 
+import java.awt.Component;
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.AffineTransform;
+import java.awt.geom.NoninvertibleTransformException;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import javax.swing.Action;
@@ -48,6 +51,7 @@ import org.geotools.referencing.operation.matrix.AffineTransform2D;
 import org.geotools.display.event.ReferencedEvent;
 import org.geotools.display.primitive.ReferencedGraphic2D;
 import org.geotools.display.renderer.AbstractRenderer;
+import org.geotools.resources.GraphicsUtilities;
 import org.opengis.display.primitive.Graphic;
 
 
@@ -81,7 +85,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #zoomChanged
      */
     protected final AffineTransform2D objectiveToDisplay = new AffineTransform2D();
-        
+
     /**
      * The affine transform from the {@linkplain #getDisplayCRS display CRS} to the {@linkplain
      * #getDeviceCRS device CRS}. This transform is set as if no clipping were performed by
@@ -99,7 +103,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #getDeviceCRS
      */
     protected final AffineTransform2D displayToDevice = new AffineTransform2D();
-    
+
     /**
      * The affine transform from the units used in the {@linkplain #getObjectiveCRS objective CRS}
      * to "dots" units. A dots is equals to 1/72 of inch. This transform is basically nothing else
@@ -112,6 +116,13 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * @see #updateNormalizationFactor
      */
     protected final AffineTransform normalizeToDots = new AffineTransform();
+        
+    /**
+     * If different than 1, then calls to the {@linkplain #zoomChanged} method will be performed
+     * with an affine transform expanded by this factor. This is used in order to avoid rounding
+     * error in calculation of widget {@link java.awt.geom.Area} that need to be refreshed.
+     */
+    private static final double SCALE_ZOOM_CHANGE = 1.000001;
 
     /**
      * The display bounds. Initially set to an infinite rectangle.
@@ -146,8 +157,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * If the specified CRS has more than two dimensions, then it must be a
      * {@linkplain org.opengis.referencing.crs.CompoundCRS compound CRS} with
      * a two dimensional head.
-     * 
-     * @throws TransformException 
+     *
+     * @throws TransformException
      */
     @Override
     public void setObjectiveCRS(final CoordinateReferenceSystem crs) throws TransformException {
@@ -184,8 +195,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
      * <p>
      * If the display bounds is unknown, then this method returns a shape with infinite extends.
      * This method should never returns {@code null}.
-     * 
-     * @return 
+     *
+     * @return
      */
     public Shape getDisplayBounds() {
         return displayBounds;
@@ -413,34 +424,144 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         }
         return 7200/2.54 * m;
     }
-    
-    //should not be done this way ----------------------------------------------------------------------------USE LISTENER SYSTEM
-//    /**
-//     * Notifies all listeners that the {@link #objectiveToDisplay} transform changed. This change
-//     * is more often the consequence of some zoom action. The {@code change} argument can be
-//     * computed as below:
-//     *
-//     * <blockquote><pre>
-//     * AffineTransform change = <var>oldObjectiveToDisplay</var>.createInverse();
-//     * change.preConcatenate(<var>newObjectiveToTransform</var>);
-//     * </pre></blockquote>
-//     *
-//     * The default implementation invokes <code>{@linkplain ReferencedGraphic2D#zoomChanged
-//     * zoomChanged}(change)</code> for all registered {@link ReferencedGraphic2D}.
-//     *
-//     * @param change The zoom <strong>change</strong> in terms of
-//     *        {@linkplain #getDisplayCRS display CRS}, or {@code null} if unknown.
-//     *
-//     * @see ReferencedGraphic2D#zoomChanged
-//     */
-//    protected void zoomChanged(final AffineTransform change) {
-//        assert Thread.holdsLock(this);
-//        final List/*<Graphic>*/ graphics = renderer.getGraphics();
-//        for (int i=graphics.size(); --i>=0;) {
-//            final Graphic graphic = (Graphic) graphics.get(i);
-//            if (graphic instanceof ReferencedGraphic2D) {
-//                ((ReferencedGraphic2D) graphic).zoomChanged(change);
+
+    /**
+     * Invoked when the {@linkplain #objectiveToDisplay objective to display transform} changed.
+     * This method updates cached informations like the envelope in every graphics.
+     *
+     * @param change The zoom <strong>change</strong> in terms of {@linkplain #getDisplayCRS
+     *        display CRS}, or {@code null} if unknown. If {@code null}, then all graphics will
+     *        be fully redrawn during the next rendering (i.e. all offscreen buffers are flushed).
+     *
+     * @see GraphicPrimitive2D#zoomChanged
+     *
+     * @todo Rename as {@code scaleChanged} and expect a {@code ScaleChangeEvent} argument with
+     *       old and new scale, affine transform change and affine transform change scaled.
+     */
+    protected void zoomChanged(final AffineTransform change) {
+        if (change!=null && change.isIdentity()) {
+            return;
+        }
+        //---------------------------------------------should call a zoom change event that will make each graphic fire a change event
+//        flushOffscreenBuffers();
+//        if (change == null) {
+//            // Paranoiac clean only if there is a major change in display.
+//            if (offscreenBuffers != null) {
+//                Arrays.fill(offscreenBuffers, null);
 //            }
 //        }
-//    }
+//        super.zoomChanged(change);
+    }
+    
+    /**
+     * Invoked when the display bounds may have changed as a result of component resizing.
+     */
+    protected void checkDisplayBounds() {
+        if (getDisplayBounds().equals(XRectangle2D.INFINITY)) {
+            propertyListeners.firePropertyChange(DISPLAY_BOUNDS_PROPERTY, null, null);
+        }
+    }
+        
+    public void setObjectiveToDisplayTransform(
+                        Graphics2D output,
+                        AffineTransform zoom, 
+                        AffineTransform dispToDevice)
+    {
+        
+        /*
+         * Sets a flag for avoiding some "refresh()" events while we are actually painting.
+         * For example some implementation of the GraphicPrimitive2D.paint(...) method may
+         * detects changes since the last rendering and invokes some kind of invalidate(...)
+         * methods before the graphic rendering begin. Invoking those methods may cause in some
+         * indirect way a call to GraphicPrimitive2D.refresh(), which will trig an other widget
+         * repaint. This second repaint is usually not needed, since Graphics usually managed
+         * to update their informations before they start their rendering. Consequently,
+         * disabling repaint events while we are painting help to reduces duplicated rendering.
+         */
+        final Rectangle displayBounds = getDisplayBounds().getBounds();
+        Rectangle          clipBounds = output.getClipBounds();
+        Rectangle2D         dirtyArea = XRectangle2D.INFINITY;
+        if (clipBounds == null) {
+            clipBounds = displayBounds;
+        } else if (displayBounds.contains(clipBounds)) {
+            dirtyArea = clipBounds;
+        }
+        paintStarted(dirtyArea);
+        /*
+         * If the zoom has changed, send a notification to all graphics before to start the
+         * rendering. Graphics will update their cache, which is used in order to decide if
+         * a graphic needs to be repainted or not. Note that some graphics may change their
+         * state, which may results in a new 'paint' event to be fired.  But because of the
+         * 'dirtyArea' flag above, some 'paint' event will be intercepted in order to avoid
+         * repainting the same area twice.
+         */
+        if (!objectiveToDisplay.equals(zoom)) {
+            /*
+             * Computes the change as an affine transform, and send the notification.
+             * Optionnaly scale slightly the change in order to avoid rounding errors
+             * in calculation of widget area that need to be refreshed.
+             */
+            try {
+                final AffineTransform change = objectiveToDisplay.createInverse();
+                change.preConcatenate(zoom);
+                if (SCALE_ZOOM_CHANGE != 1) {
+                    final double centerX = displayBounds.getCenterX();
+                    final double centerY = displayBounds.getCenterY();
+                    change.translate(      centerX,           centerY);
+                    change.scale(SCALE_ZOOM_CHANGE, SCALE_ZOOM_CHANGE);
+                    change.translate(     -centerX,          -centerY);
+                }
+                zoomChanged(change);
+            } catch (NoninvertibleTransformException exception) {
+                /*
+                 * Should not happen. If it happen anyway, declare that everything must be
+                 * repainted. It will be slower, but will not prevent the renderer to work.
+                 */
+                handleException(ReferencedCanvas2D.class, "paint", exception);
+                zoomChanged(null);
+            }
+            try {
+                /*
+                 * Computes the new scale factor. This scale factor takes in account the real
+                 * size of the rendering device (e.g. the screen), but is only as accurate as
+                 * the information supplied by the underlying system.
+                 */
+                final AffineTransform normalize = zoom.createInverse();
+                normalize.concatenate(dispToDevice);
+                normalize.preConcatenate(normalizeToDots);
+                setScale(1 / XAffineTransform.getScale(normalize));
+            } catch (NoninvertibleTransformException exception) {
+                handleException(ReferencedCanvas2D.class, "paint", exception);
+            }
+            /*
+             * Now takes in account the zoom change. The 'displayCRS' must be recreated. Failure
+             * to create this CRS will make the rendering process impossible. In such case, we
+             * will paint the stack trace right into the component and exit from this method.
+             */
+            objectiveToDisplay.setTransform(zoom);
+            try {
+                setObjectiveToDisplayTransform(objectiveToDisplay);
+            } catch (TransformException exception) {
+                GraphicsUtilities.paintStackTrace(output, displayBounds, exception);
+                paintFinished(false);
+                return;
+            }
+        }
+        /*
+         * If the device changed, then the 'deviceCRS' must be recreated. Failure to create this
+         * CRS will make the rendering process impossible. In such case, we will paint the stack
+         * trace right into the component and exit from this method.
+         */
+        // TODO: concatenate with the information provided in config. Check if changed since last call.
+        displayToDevice.setToTranslation(-displayBounds.x, -displayBounds.y);
+        try {
+            setDisplayToDeviceTransform(displayToDevice);
+        } catch (TransformException exception) {
+            GraphicsUtilities.paintStackTrace(output, displayBounds, exception);
+            paintFinished(false);
+            return;
+        }
+        
+    }
+    
 }

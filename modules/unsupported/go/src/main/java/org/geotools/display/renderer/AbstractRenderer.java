@@ -1,11 +1,7 @@
 
 package org.geotools.display.renderer;
 
-import java.awt.Component;
 import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
-import java.awt.Image;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.RenderedImage;
@@ -25,7 +21,6 @@ import org.geotools.factory.Hints;
 import org.geotools.resources.UnmodifiableArrayList;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
-import org.geotools.util.RangeSet;
 
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
@@ -404,20 +399,10 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     public void removeRendererListener(RendererListener listener) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
+   
     public abstract boolean paint(
             Graphics2D output, 
-            AffineTransform zoom, 
-            Rectangle displayBounds, 
-            final boolean isPrinting, 
-            int offscreenCount, 
-            Image[] offscreenBuffers, 
-            RangeSet<Double> offscreenZRanges,
-            Component owner,
-            boolean[] offscreenIsVolatile,
-            boolean[] offscreenNeedRepaint,
-            GraphicsConfiguration config,
-            Rectangle clipBounds);
+            AffineTransform zoom);
     
     
     /**

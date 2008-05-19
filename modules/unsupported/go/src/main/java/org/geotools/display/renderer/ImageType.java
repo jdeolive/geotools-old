@@ -14,7 +14,7 @@
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *    Lesser General Public License for more details.
  */
-package org.geotools.display.canvas;
+package org.geotools.display.renderer;
 
 // J2SE and JAI dependencies
 import java.util.List;

@@ -218,11 +218,6 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         return buffer.toString();
     }
 
-    /**
-     * Call this method to force a repaint
-     */
-    public abstract void repaint();
-
     //--------------Canvas Listeners convinient methods-------------------------
     /**
      * Adds the given listener that will be notified when the state of this
