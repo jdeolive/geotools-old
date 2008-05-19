@@ -1192,7 +1192,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         fStore.setTransaction(transaction);
 
         final boolean[] done = { false, false };
-        final Exception[] errors = new Exception[2];
+        final Throwable[] errors = new Throwable[2];
 
         Runnable worker1 = new Runnable() {
             public void run() {
@@ -1224,7 +1224,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                     size = fStore.getCount(new DefaultQuery(typeName, newFidsFilter));
                     System.err.println("Size: " + size);
                     assertEquals(2, size);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     errors[0] = e;
                     try {
                         System.err.println("rolling back!.");
@@ -1257,7 +1257,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
                         features.close();
                     }
                     System.err.println("worker2 done.");
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     errors[1] = e;
                 } finally {
                     done[1] = true;
@@ -1278,8 +1278,8 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Exception worker1Error = errors[0];
-        Exception worker2Error = errors[1];
+        Throwable worker1Error = errors[0];
+        Throwable worker2Error = errors[1];
         if (worker1Error != null || worker2Error != null) {
             String errMessg = "worker1: "
                     + (worker1Error == null ? "ok." : worker1Error.getMessage());

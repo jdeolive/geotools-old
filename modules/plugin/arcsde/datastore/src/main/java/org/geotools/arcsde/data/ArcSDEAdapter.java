@@ -243,8 +243,8 @@ public class ArcSDEAdapter {
             final String namespace,
             final Session session) throws IOException {
 
-        final SeLayer layer = session.getLayer(typeName);
-        final SeTable table = session.getTable(typeName);
+        final SeLayer layer = Session.issueGetLayer(session, typeName);
+        final SeTable table = Session.issueGetTable(session, typeName);
 
         final List<AttributeDescriptor> properties = createAttributeDescriptors(layer, table,
                 namespace);
@@ -324,7 +324,7 @@ public class ArcSDEAdapter {
 
         SeLayer layer = null;
         try {
-            layer = session.getLayer(mainTable);
+            layer = Session.issueGetLayer(session, mainTable);
         } catch (NoSuchElementException e) {
             LOGGER.info(mainTable + " is not an SeLayer, so no CRS info will be parsed");
         }
@@ -875,6 +875,7 @@ public class ArcSDEAdapter {
     public static void createSchema(final SimpleFeatureType featureType,
             final Map hints,
             final Session session) throws IOException, IllegalArgumentException {
+
         if (featureType == null) {
             throw new NullPointerException("You have to provide a FeatureType instance");
         }
@@ -884,156 +885,168 @@ public class ArcSDEAdapter {
                     "FeatureType must have at least one geometry attribute");
         }
 
-        final String[] typeNameParts = featureType.getTypeName().split("\\.");
-        final String unqualifiedTypeName = typeNameParts[typeNameParts.length - 1];
+        final Command<Void> createSchemaCmd = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
 
-        // Create a new SeTable/SeLayer with the specified attributes....
-        SeTable table = null;
-        SeLayer layer = null;
+                final String[] typeNameParts = featureType.getTypeName().split("\\.");
+                final String unqualifiedTypeName = typeNameParts[typeNameParts.length - 1];
 
-        // flag to know if the table was created by us when catching an
-        // exception.
-        boolean tableCreated = false;
+                // Create a new SeTable/SeLayer with the specified attributes....
+                SeTable table = null;
+                SeLayer layer = null;
 
-        // table/layer creation hints information
-        int rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-        String rowIdColumn = null;
-        String configKeyword = "DEFAULTS";
-        if (hints != null) {
-            if (hints.get("configuration.keyword") instanceof String) {
-                configKeyword = (String) hints.get("configuration.keyword");
-            }
-            if (hints.get("rowid.column.type") instanceof String) {
-                String rowIdStr = (String) hints.get("rowid.column.type");
-                if (rowIdStr.equalsIgnoreCase("NONE")) {
-                    rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
-                } else if (rowIdStr.equalsIgnoreCase("USER")) {
-                    rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
-                } else if (rowIdStr.equalsIgnoreCase("SDE")) {
-                    rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
-                } else {
-                    throw new DataSourceException(
-                            "createSchema hint 'rowid.column.type' must be one of 'NONE', 'USER' or 'SDE'");
+                // flag to know if the table was created by us when catching an
+                // exception.
+                boolean tableCreated = false;
+
+                // table/layer creation hints information
+                int rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
+                String rowIdColumn = null;
+                String configKeyword = "DEFAULTS";
+                if (hints != null) {
+                    if (hints.get("configuration.keyword") instanceof String) {
+                        configKeyword = (String) hints.get("configuration.keyword");
+                    }
+                    if (hints.get("rowid.column.type") instanceof String) {
+                        String rowIdStr = (String) hints.get("rowid.column.type");
+                        if (rowIdStr.equalsIgnoreCase("NONE")) {
+                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_NONE;
+                        } else if (rowIdStr.equalsIgnoreCase("USER")) {
+                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_USER;
+                        } else if (rowIdStr.equalsIgnoreCase("SDE")) {
+                            rowIdType = SeRegistration.SE_REGISTRATION_ROW_ID_COLUMN_TYPE_SDE;
+                        } else {
+                            throw new DataSourceException(
+                                    "createSchema hint 'rowid.column.type' must be one of 'NONE', 'USER' or 'SDE'");
+                        }
+                    }
+                    if (hints.get("rowid.column.name") instanceof String) {
+                        rowIdColumn = (String) hints.get("rowid.column.name");
+                    }
                 }
-            }
-            if (hints.get("rowid.column.name") instanceof String) {
-                rowIdColumn = (String) hints.get("rowid.column.name");
-            }
-        }
 
-        // placeholder to a catched exception to know in the finally block
-        // if we should cleanup the crap we left in the database
-        Exception error = null;
+                // placeholder to a catched exception to know in the finally block
+                // if we should cleanup the crap we left in the database
+                Exception error = null;
 
-        try {
-            // create a table with provided username
-            String qualifiedName = null;
+                try {
+                    // create a table with provided username
+                    String qualifiedName = null;
 
-            if (unqualifiedTypeName.indexOf('.') == -1) {
-                qualifiedName = session.getUser() + "." + featureType.getTypeName();
-                LOGGER.finer("new full qualified type name: " + qualifiedName);
-            } else {
-                qualifiedName = unqualifiedTypeName;
-                LOGGER.finer("full qualified type name provided by user: " + qualifiedName);
-            }
+                    if (unqualifiedTypeName.indexOf('.') == -1) {
+                        qualifiedName = connection.getUser() + "." + featureType.getTypeName();
+                        LOGGER.finer("new full qualified type name: " + qualifiedName);
+                    } else {
+                        qualifiedName = unqualifiedTypeName;
+                        LOGGER.finer("full qualified type name provided by user: " + qualifiedName);
+                    }
 
-            layer = session.createSeLayer();
-            layer.setTableName(qualifiedName);
-            layer.setCreationKeyword(configKeyword);
+                    layer = new SeLayer(connection);
+                    layer.setTableName(qualifiedName);
+                    layer.setCreationKeyword(configKeyword);
 
-            final String HACK_COL_NAME = "gt_workaround_col_";
+                    final String HACK_COL_NAME = "gt_workaround_col_";
 
-            table = createSeTable(session, qualifiedName, HACK_COL_NAME, configKeyword);
-            tableCreated = true;
+                    table = createSeTable(connection, qualifiedName, HACK_COL_NAME, configKeyword);
+                    tableCreated = true;
 
-            final List<AttributeDescriptor> atts = featureType.getAttributes();
-            AttributeDescriptor currAtt;
+                    final List<AttributeDescriptor> atts = featureType.getAttributes();
+                    AttributeDescriptor currAtt;
 
-            for (Iterator<AttributeDescriptor> it = atts.iterator(); it.hasNext();) {
-                currAtt = it.next();
+                    for (Iterator<AttributeDescriptor> it = atts.iterator(); it.hasNext();) {
+                        currAtt = it.next();
 
-                if (currAtt instanceof GeometryDescriptor) {
-                    GeometryDescriptor geometryAtt = (GeometryDescriptor) currAtt;
-                    createSeLayer(layer, qualifiedName, geometryAtt);
-                } else {
-                    LOGGER.fine("Creating column definition for " + currAtt);
+                        if (currAtt instanceof GeometryDescriptor) {
+                            GeometryDescriptor geometryAtt = (GeometryDescriptor) currAtt;
+                            createSeLayer(layer, qualifiedName, geometryAtt);
+                        } else {
+                            LOGGER.fine("Creating column definition for " + currAtt);
 
-                    SeColumnDefinition newCol = ArcSDEAdapter.createSeColumnDefinition(currAtt);
+                            SeColumnDefinition newCol = ArcSDEAdapter
+                                    .createSeColumnDefinition(currAtt);
 
-                    // /////////////////////////////////////////////////////////////
-                    // HACK!!!!: this hack is just to avoid the error that
-                    // occurs //
-                    // when adding a column wich is not nillable. Need to fix
-                    // this//
-                    // but by now it conflicts with the requirement of creating
-                    // //
-                    // the schema with the correct attribute order. //
-                    // /////////////////////////////////////////////////////////////
-                    newCol = new SeColumnDefinition(newCol.getName(), newCol.getType(), newCol
-                            .getSize(), newCol.getScale(), true);
+                            // /////////////////////////////////////////////////////////////
+                            // HACK!!!!: this hack is just to avoid the error that
+                            // occurs //
+                            // when adding a column wich is not nillable. Need to fix
+                            // this//
+                            // but by now it conflicts with the requirement of creating
+                            // //
+                            // the schema with the correct attribute order. //
+                            // /////////////////////////////////////////////////////////////
+                            newCol = new SeColumnDefinition(newCol.getName(), newCol.getType(),
+                                    newCol.getSize(), newCol.getScale(), true);
 
-                    // /////////////////////////////////////////////////////////////
-                    // END of horrible HACK //
-                    // /////////////////////////////////////////////////////////////
-                    LOGGER.fine("Adding column " + newCol.getName() + " to the actual table.");
-                    table.addColumn(newCol);
+                            // /////////////////////////////////////////////////////////////
+                            // END of horrible HACK //
+                            // /////////////////////////////////////////////////////////////
+                            LOGGER.fine("Adding column " + newCol.getName()
+                                    + " to the actual table.");
+                            table.addColumn(newCol);
+                        }
+                    }
+
+                    LOGGER.fine("deleting the 'workaround' column...");
+                    table.dropColumn(HACK_COL_NAME);
+
+                    LOGGER.fine("setting up table registration with ArcSDE...");
+                    SeRegistration reg = new SeRegistration(connection, table.getName());
+                    if (rowIdColumn != null) {
+                        LOGGER.fine("setting rowIdColumnName to " + rowIdColumn + " in table "
+                                + reg.getTableName());
+                        reg.setRowIdColumnName(rowIdColumn);
+                        reg.setRowIdColumnType(rowIdType);
+                        reg.alter();
+                        reg = null;
+                    }
+
+                    LOGGER.fine("Schema correctly created: " + featureType);
+
+                } catch (SeException e) {
+                    LOGGER.log(Level.WARNING, e.getSeError().getErrDesc(), e);
+                    throw e;
+                } finally {
+                    if ((error != null) && tableCreated) {
+                        // TODO: remove table if created and then failed
+                    }
                 }
+                return null;
             }
+        };
 
-            LOGGER.fine("deleting the 'workaround' column...");
-            table.dropColumn(HACK_COL_NAME);
-
-            LOGGER.fine("setting up table registration with ArcSDE...");
-            SeRegistration reg = session.createSeRegistration(table.getName());
-            if (rowIdColumn != null) {
-                LOGGER.fine("setting rowIdColumnName to " + rowIdColumn + " in table "
-                        + reg.getTableName());
-                reg.setRowIdColumnName(rowIdColumn);
-                reg.setRowIdColumnType(rowIdType);
-                reg.alter();
-                reg = null;
-            }
-
-            LOGGER.fine("Schema correctly created: " + featureType);
-
-        } catch (SeException e) {
-            LOGGER.log(Level.WARNING, e.getSeError().getErrDesc(), e);
-            error = e;
-            throw new ArcSdeException(e);
-        } finally {
-            if ((error != null) && tableCreated) {
-                // TODO: remove table if created and then failed
-            }
-        }
+        session.issue(createSchemaCmd);
     }
 
-    private static SeTable createSeTable(final Session session,
+    /**
+     * Creates a new table in the server. Warning warning, this method shall only be called from
+     * inside a {@link Command}
+     * 
+     * @param connection
+     * @param qualifiedName
+     * @param hackColName
+     * @param configKeyword
+     * @return
+     * @throws IOException
+     * @throws SeException
+     */
+    private static SeTable createSeTable(final SeConnection connection,
             final String qualifiedName,
             final String hackColName,
-            final String configKeyword) throws IOException {
+            final String configKeyword) throws SeException {
 
         final SeTable table;
         final SeColumnDefinition[] tmpCol = new SeColumnDefinition[1];
-        try {
-            tmpCol[0] = new SeColumnDefinition(hackColName, SeColumnDefinition.TYPE_STRING, 4, 0,
-                    true);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-        table = session.createSeTable(qualifiedName);
+        tmpCol[0] = new SeColumnDefinition(hackColName, SeColumnDefinition.TYPE_STRING, 4, 0, true);
+
+        table = new SeTable(connection, qualifiedName);
 
         LOGGER.info("creating table " + qualifiedName);
 
         // create the table using DBMS default configuration keyword.
         // valid keywords are defined in the dbtune table.
-        session.issue(new Command<Void>() {
-            @Override
-            public Void execute(Session session, SeConnection connection) throws SeException,
-                    IOException {
-                table.create(tmpCol, configKeyword);
-                return null;
-            }
-        });
+        table.create(tmpCol, configKeyword);
         LOGGER.info("table " + qualifiedName + " created...");
 
         return table;

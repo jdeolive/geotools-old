@@ -146,14 +146,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
             this.schemaGeometryClass = null;
         }
 
-        Command<Void> cmd = new Command<Void>() {
-            @Override
-            public Void execute(Session session, SeConnection connection) throws IOException {
-                query.execute();
-                return null;
-            }
-        };
-        session.issue(cmd);
+        query.execute();
     }
 
     /**
@@ -176,13 +169,7 @@ final class ArcSDEAttributeReader implements AttributeReader {
      */
     public void close() throws IOException {
         if (query != null) {
-            session.issue(new Command<Void>() {
-                @Override
-                public Void execute(Session session, SeConnection connection) throws IOException {
-                    query.close();
-                    return null;
-                }
-            });
+            query.close();
 
             if (handleConnectionClosing) {
                 if (!session.isTransactionActive()) {

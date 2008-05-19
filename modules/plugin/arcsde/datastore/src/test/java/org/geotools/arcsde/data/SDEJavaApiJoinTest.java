@@ -31,6 +31,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectBody;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DefaultQuery;
 import org.geotools.data.FeatureSource;
@@ -44,6 +45,7 @@ import org.opengis.filter.Filter;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeQueryInfo;
@@ -499,9 +501,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         final int shapeIndex = 5;
         final int expectedCount = 7;
 
-        SeQuery query = session.createSeQuery();
-
-        SeQueryInfo queryInfo = new SeQueryInfo();
+        final SeQueryInfo queryInfo = new SeQueryInfo();
         queryInfo.setConstruct(sqlConstruct);
         queryInfo.setColumns(propertyNames);
         queryInfo.setByClause(" ORDER BY " + InProcessViewSupportTestData.CHILD + ".ID DESC");
@@ -516,10 +516,21 @@ public class SDEJavaApiJoinTest extends TestCase {
                 SeRow.SE_IS_REPEATED_FEATURE, // child2
                 SeRow.SE_IS_NOT_NULL_VALUE // child1
         };
+
+        final SeQuery query = session.issue(new Command<SeQuery>(){
+
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery query = new SeQuery(connection);
+                query.prepareQueryInfo(queryInfo);
+                query.execute();
+                return query;
+         }});
+
         try {
-            query.prepareQueryInfo(queryInfo);
-            query.execute();
-            SeRow row = query.fetch();
+            SdeRow row = Session.issueFetch(session, query);
+            
             int count = 0;
             final int childIdIndex = 2;
             while (row != null) {
@@ -540,12 +551,9 @@ public class SDEJavaApiJoinTest extends TestCase {
                 }
 
                 count++;
-                row = query.fetch();
+                row = Session.issueFetch(session, query);
             }
             assertEquals(expectedCount, count);
-        } catch (SeException e) {
-            LOGGER.log(Level.SEVERE, "", new ArcSdeException(e));
-            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -577,16 +585,22 @@ public class SDEJavaApiJoinTest extends TestCase {
         final int shapeIndex = 2;
         final int expectedCount = 7;
 
-        SeQuery query = session.createSeQuery();
-
-        SeQueryInfo queryInfo = new SeQueryInfo();
+        final SeQueryInfo queryInfo = new SeQueryInfo();
         queryInfo.setConstruct(sqlConstruct);
         queryInfo.setColumns(propertyNames);
 
+        final SeQuery query = session.issue(new Command<SeQuery>(){
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery query = new SeQuery(connection);
+                query.prepareQueryInfo(queryInfo);
+                query.execute();
+                return query;
+            }});
+        
         try {
-            query.prepareQueryInfo(queryInfo);
-            query.execute();
-            SeRow row = query.fetch();
+            SdeRow row = Session.issueFetch(session, query);
             int count = 0;
             while (row != null) {
                 // we would expect SeShape being returned from shapeIndex, but
@@ -598,13 +612,12 @@ public class SDEJavaApiJoinTest extends TestCase {
                     assertFalse(shape.getClass().getName(), shape instanceof SeShape);
                 }
                 count++;
-                row = query.fetch();
+                row = Session.issueFetch(session, query);
             }
             assertEquals(expectedCount, count);
-        } catch (SeException e) {
-            ArcSdeException sdeEx = new ArcSdeException(e);
-            sdeEx.printStackTrace();
-            throw sdeEx;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw e;
         } finally {
             session.close();
         }
@@ -638,9 +651,7 @@ public class SDEJavaApiJoinTest extends TestCase {
         // final int shapeIndex = 5;
         final int expectedCount = 6;
 
-        SeQuery query = session.createSeQuery();
-
-        SeQueryInfo queryInfo = new SeQueryInfo();
+        final SeQueryInfo queryInfo = new SeQueryInfo();
         queryInfo.setConstruct(sqlConstruct);
         queryInfo.setColumns(propertyNames);
 
@@ -661,10 +672,18 @@ public class SDEJavaApiJoinTest extends TestCase {
         // SeRow.SE_IS_REPEATED_FEATURE, // child2
         // SeRow.SE_IS_NOT_NULL_VALUE // child1
         // };
+
+        SeQuery query = session.issue(new Command<SeQuery>(){
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery query = new SeQuery(connection);
+                query.prepareQueryInfo(queryInfo);
+                query.execute();
+                return query;
+            }});
         try {
-            query.prepareQueryInfo(queryInfo);
-            query.execute();
-            SeRow row = query.fetch();
+            SdeRow row = Session.issueFetch(session, query);
             int count = 0;
             while (row != null) {
                 // duplicate shapes are not returned by arcsde.
@@ -676,7 +695,7 @@ public class SDEJavaApiJoinTest extends TestCase {
                 // expectedShapeIndicators[count], indicator);
 
                 count++;
-                row = query.fetch();
+                row = Session.issueFetch(session, query);
             }
             assertEquals(expectedCount, count);
         } catch (Exception e) {
@@ -698,7 +717,6 @@ public class SDEJavaApiJoinTest extends TestCase {
     public void testApiPlainSql() throws Exception {
         Session session = store.getConnectionPool().getConnection();
 
-        final SeQuery query = session.createSeQuery();
         final String plainQuery = "SELECT " + InProcessViewSupportTestData.MASTER + ".ID, "
                 + InProcessViewSupportTestData.MASTER + ".SHAPE, "
                 + InProcessViewSupportTestData.CHILD + ".NAME  FROM "
@@ -708,17 +726,26 @@ public class SDEJavaApiJoinTest extends TestCase {
 
         final int shapeIndex = 1;
         final int expectedCount = 7;
+        final SeQuery query = session.issue(new Command<SeQuery>(){
+
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery query = new SeQuery(connection);
+                query.prepareSql(plainQuery);
+                query.execute();
+                return query;
+            }});
+        
         try {
-            query.prepareSql(plainQuery);
-            query.execute();
-            SeRow row = query.fetch();
+            SdeRow row = Session.issueFetch(session, query);
             int count = 0;
             while (row != null) {
                 Object shape = row.getObject(shapeIndex);
                 assertTrue(shape instanceof Integer); // returns int instead
                 // of shape
                 count++;
-                row = query.fetch();
+                row = Session.issueFetch(session, query);
             }
             assertEquals(expectedCount, count);
         } catch (Exception e) {

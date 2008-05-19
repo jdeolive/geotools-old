@@ -36,12 +36,14 @@ import org.geotools.arcsde.gce.producer.ArcSDERasterFloatProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBitPerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterOneBytePerBandProducerImpl;
 import org.geotools.arcsde.gce.producer.ArcSDERasterProducer;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
 import org.geotools.util.logging.Logging;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeCoordinateReference;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeExtent;
@@ -278,71 +280,82 @@ public class RasterTestData {
     }
 
     public void importRasterImage(final String tableName,
-            SeCoordinateReference crs,
+            final SeCoordinateReference crs,
             final String rasterFilename,
             final int sePixelType,
-            SeExtent extent,
-            ArcSDERasterProducer prod,
-            IndexColorModel colorModel) throws Exception {
-        Session session = testData.getConnectionPool().getConnection();
+            final SeExtent extent,
+            final ArcSDERasterProducer prod,
+            final IndexColorModel colorModel) throws Exception {
+
+        final Session session = testData.getConnectionPool().getConnection();
+        final Command<Void> command = new Command<Void>() {
+
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                // much of this code is from
+                // http://edndoc.esri.com/arcsde/9.2/concepts/rasters/dataloading/dataloading.htm
+                SeRasterColumn rasCol = session.createSeRasterColumn();
+                rasCol.setTableName(tableName);
+                rasCol.setDescription("Sample geotools ArcSDE raster test-suite data.");
+                rasCol.setRasterColumnName("RASTER");
+                rasCol.setCoordRef(crs);
+                rasCol.setConfigurationKeyword(testData.getConfigKeyword());
+
+                rasCol.create();
+
+                // now start loading the actual raster data
+                BufferedImage sampleImage = ImageIO.read(org.geotools.test.TestData.getResource(
+                        null, rasterFilename));
+
+                int imageWidth = sampleImage.getWidth(), imageHeight = sampleImage.getHeight();
+
+                SeRasterAttr attr = new SeRasterAttr(true);
+                attr.setImageSize(imageWidth, imageHeight, sampleImage.getSampleModel()
+                        .getNumBands());
+                attr.setTileSize(128, 128);
+                attr.setPixelType(sePixelType);
+                attr.setCompressionType(SeRaster.SE_COMPRESSION_NONE);
+                // no pyramiding
+                // attr.setPyramidInfo(3, true, SeRaster.SE_INTERPOLATION_BILINEAR);
+                attr.setMaskMode(false);
+                attr.setImportMode(false);
+
+                attr.setExtent(extent);
+                // attr.setImageOrigin();
+
+                prod.setSeRasterAttr(attr);
+                prod.setSourceImage(sampleImage);
+                attr.setRasterProducer(prod);
+
+                try {
+                    SeInsert insert = new SeInsert(connection);
+                    insert.intoTable(tableName, new String[] { "RASTER" });
+                    // no buffered writes on raster loads
+                    insert.setWriteMode(false);
+                    SeRow row = insert.getRowToSet();
+                    row.setRaster(0, attr);
+
+                    insert.execute();
+                    insert.close();
+                } catch (SeException se) {
+                    se.printStackTrace();
+                    throw se;
+                }
+
+                // if there's a colormap to insert, let's add that too
+                if (colorModel != null) {
+                    attr = getRasterAttributes(tableName, new Rectangle(0, 0, 0, 0), 0,
+                            new int[] { 1 });
+                    // attr.getBands()[0].setColorMap(SeRaster.SE_COLORMAP_DATA_BYTE, );
+                    // NOT IMPLEMENTED FOR NOW!
+                }
+                return null;
+            }
+        };
+
         try {
-
-            // much of this code is from
-            // http://edndoc.esri.com/arcsde/9.2/concepts/rasters/dataloading/dataloading.htm
-            SeRasterColumn rasCol = session.createSeRasterColumn();
-            rasCol.setTableName(tableName);
-            rasCol.setDescription("Sample geotools ArcSDE raster test-suite data.");
-            rasCol.setRasterColumnName("RASTER");
-            rasCol.setCoordRef(crs);
-            rasCol.setConfigurationKeyword(testData.getConfigKeyword());
-
-            rasCol.create();
-
-            // now start loading the actual raster data
-            BufferedImage sampleImage = ImageIO.read(org.geotools.test.TestData.getResource(null,
-                    rasterFilename));
-
-            int imageWidth = sampleImage.getWidth(), imageHeight = sampleImage.getHeight();
-
-            SeRasterAttr attr = new SeRasterAttr(true);
-            attr.setImageSize(imageWidth, imageHeight, sampleImage.getSampleModel().getNumBands());
-            attr.setTileSize(128, 128);
-            attr.setPixelType(sePixelType);
-            attr.setCompressionType(SeRaster.SE_COMPRESSION_NONE);
-            // no pyramiding
-            // attr.setPyramidInfo(3, true, SeRaster.SE_INTERPOLATION_BILINEAR);
-            attr.setMaskMode(false);
-            attr.setImportMode(false);
-
-            attr.setExtent(extent);
-            // attr.setImageOrigin();
-
-            prod.setSeRasterAttr(attr);
-            prod.setSourceImage(sampleImage);
-            attr.setRasterProducer(prod);
-
-            try {
-                SeInsert insert = session.createSeInsert();
-                insert.intoTable(tableName, new String[] { "RASTER" });
-                // no buffered writes on raster loads
-                insert.setWriteMode(false);
-                SeRow row = insert.getRowToSet();
-                row.setRaster(0, attr);
-
-                insert.execute();
-                insert.close();
-            } catch (SeException se) {
-                se.printStackTrace();
-                throw se;
-            }
-
-            // if there's a colormap to insert, let's add that too
-            if (colorModel != null) {
-                attr = getRasterAttributes(tableName, new Rectangle(0, 0, 0, 0), 0, new int[] { 1 });
-                // attr.getBands()[0].setColorMap(SeRaster.SE_COLORMAP_DATA_BYTE, );
-                // NOT IMPLEMENTED FOR NOW!
-            }
-
+            session.issue(command);
         } finally {
             session.close();
         }

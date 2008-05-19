@@ -24,13 +24,20 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 import java.util.WeakHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.pool.ObjectPool;
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.data.SdeRow;
 import org.geotools.data.DataSourceException;
 
 import com.esri.sde.sdk.client.SeColumnDefinition;
@@ -44,6 +51,7 @@ import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterColumn;
 import com.esri.sde.sdk.client.SeRegistration;
 import com.esri.sde.sdk.client.SeRelease;
+import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeTable;
@@ -65,11 +73,6 @@ public class Session {
 
     private static final Logger LOGGER = org.geotools.util.logging.Logging
             .getLogger("org.geotools.arcsde.pool");
-
-    /**
-     * Lock used to protect the connection
-     */
-    private Lock lock;
 
     /** Actual SeConnection being protected */
     SeConnection connection;
@@ -96,20 +99,27 @@ public class Session {
     private Map<String, SeRasterColumn> cachedRasters = new HashMap<String, SeRasterColumn>();
 
     /**
+     * The SeConnection bound task executor, ensures all operations against a given connection are
+     * performed in the same thread regardless of the thread the {@link #issue(Command)} is being
+     * called from.
+     */
+    private final ExecutorService taskExecutor;
+
+    /**
      * Provides safe access to an SeConnection.
      * 
      * @param pool ObjectPool used to manage SeConnection
      * @param config Used to set up a SeConnection
      * @throws SeException If we cannot connect
      */
-    Session(ObjectPool pool, ArcSDEConnectionConfig config) throws SeException {
+    Session(final ObjectPool pool, final ArcSDEConnectionConfig config) throws SeException {
         this.connection = new SeConnection(config.getServerName(), config.getPortNumber()
                 .intValue(), config.getDatabaseName(), config.getUserName(), config
                 .getUserPassword());
         this.config = config;
         this.pool = pool;
-        this.lock = new ReentrantLock(false);
-        this.connection.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
+        this.connection.setConcurrency(SeConnection.SE_TRYLOCK_POLICY);
+        this.taskExecutor = Executors.newSingleThreadExecutor();
 
         synchronized (Session.class) {
             connectionCounter++;
@@ -172,7 +182,18 @@ public class Session {
         }
     }
 
-    public synchronized SeLayer getLayer(final String layerName) throws IOException {
+    public static SeLayer issueGetLayer(final Session session, final String layerName)
+            throws IOException {
+        return session.issue(new Command<SeLayer>() {
+            @Override
+            public SeLayer execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return session.getLayer(layerName);
+            }
+        });
+    }
+
+    public SeLayer getLayer(final String layerName) throws IOException {
         checkActive();
         if (!cachedLayers.containsKey(layerName)) {
             cacheLayers();
@@ -200,7 +221,18 @@ public class Session {
         return raster;
     }
 
-    public synchronized SeTable getTable(final String tableName) throws IOException {
+    public static SeTable issueGetTable(final Session session, final String tableName)
+            throws IOException {
+        return session.issue(new Command<SeTable>() {
+            @Override
+            public SeTable execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return session.getTable(tableName);
+            }
+        });
+    }
+
+    public SeTable getTable(final String tableName) throws IOException {
         checkActive();
         if (!cachedTables.containsKey(tableName)) {
             cacheLayers();
@@ -219,26 +251,23 @@ public class Session {
      */
     @SuppressWarnings("unchecked")
     private void cacheLayers() throws IOException {
-        Command<Void> cmd = new Command<Void>() {
-            @Override
-            public Void execute(Session session, SeConnection connection) throws SeException {
-                Vector/* <SeLayer> */layers = connection.getLayers();
-                String qualifiedName;
-                SeLayer layer;
-                SeTable table;
-                cachedTables.clear();
-                cachedLayers.clear();
-                for (Iterator it = layers.iterator(); it.hasNext();) {
-                    layer = (SeLayer) it.next();
-                    qualifiedName = layer.getQualifiedName();
-                    table = new SeTable(connection, qualifiedName);
-                    cachedLayers.put(qualifiedName, layer);
-                    cachedTables.put(qualifiedName, table);
-                }
-                return null;
+        try {
+            Vector/* <SeLayer> */layers = connection.getLayers();
+            String qualifiedName;
+            SeLayer layer;
+            SeTable table;
+            cachedTables.clear();
+            cachedLayers.clear();
+            for (Iterator it = layers.iterator(); it.hasNext();) {
+                layer = (SeLayer) it.next();
+                qualifiedName = layer.getQualifiedName();
+                table = new SeTable(connection, qualifiedName);
+                cachedLayers.put(qualifiedName, layer);
+                cachedTables.put(qualifiedName, table);
             }
-        };
-        issue(cmd);
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -250,30 +279,77 @@ public class Session {
         }
     }
 
-    public void startTransaction() throws IOException {
-        checkActive();
-        issue(new Command<Void>() {
+    /**
+     * Issues a command to start a transaction over the session's internal connection
+     * 
+     * @param session
+     * @throws IOException
+     * @see {@link #startTransaction()}
+     */
+    public static void issueStartTransaction(Session session) throws IOException {
+        session.issue(new Command<Void>() {
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,
                     IOException {
-                connection.startTransaction();
-                transactionInProgress = true;
+                session.startTransaction();
                 return null;
             }
         });
     }
 
-    public void commitTransaction() throws IOException {
+    /**
+     * Starts a transaction over the connection held by this Session
+     * <p>
+     * This method shall only be called from inside a {@link Command}
+     * </p>
+     * 
+     * @throws IOException
+     * @see {@link #issueStartTransaction(Session)}
+     */
+    public void startTransaction() throws IOException {
         checkActive();
-        issue(new Command<Void>() {
+        try {
+            connection.setTransactionAutoCommit(0);
+            connection.startTransaction();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
+        transactionInProgress = true;
+    }
+
+    /**
+     * Issues a commit command
+     * 
+     * @param session
+     * @throws IOException
+     */
+    public static void issueCommitTransaction(Session session) throws IOException {
+        session.issue(new Command<Void>() {
             @Override
             public Void execute(Session session, SeConnection connection) throws SeException,
                     IOException {
-                connection.commitTransaction();
-                transactionInProgress = false;
+                session.commitTransaction();
                 return null;
             }
         });
+    }
+
+    /**
+     * Commits the current transaction.
+     * <p>
+     * This method shall only be called from inside a command
+     * </p>
+     * 
+     * @throws IOException
+     */
+    public void commitTransaction() throws IOException {
+        checkActive();
+        try {
+            connection.commitTransaction();
+        } catch (SeException e) {
+            throw new ArcSdeException(e);
+        }
+        transactionInProgress = false;
     }
 
     /**
@@ -289,6 +365,25 @@ public class Session {
         return transactionInProgress;
     }
 
+    public static void issueRollbackTransaction(Session session) throws IOException {
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                session.rollbackTransaction();
+                return null;
+            }
+        });
+    }
+
+    /**
+     * Rolls back the current transaction
+     * <p>
+     * This method shall only be called from inside a {@link Command}
+     * </p>
+     * 
+     * @throws IOException
+     */
     public void rollbackTransaction() throws IOException {
         checkActive();
         try {
@@ -371,11 +466,13 @@ public class Session {
     }
 
     public String getUser() throws IOException {
-        try {
-            return connection.getUser();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        return issue(new Command<String>() {
+            @Override
+            public String execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return connection.getUser();
+            }
+        });
     }
 
     public SeRelease getRelease() {
@@ -385,14 +482,6 @@ public class Session {
     public String getDatabaseName() throws IOException {
         try {
             return connection.getDatabaseName();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    public void setConcurrency(int policy) throws IOException {
-        try {
-            connection.setConcurrency(policy);
         } catch (SeException e) {
             throw new ArcSdeException(e);
         }
@@ -410,27 +499,28 @@ public class Session {
     // Factory methods that make use of internal connection
     // Q: How "long" are these objects good for? until the connection closes - or longer...
     //
-    public SeLayer createSeLayer() throws IOException {
-    	if( connection.isClosed() ) throw new IOException("Connection is closed");
-    	return new SeLayer(connection);
+    public static SeLayer createSeLayer(Session session) throws IOException {
+        return session.issue(new Command<SeLayer>() {
+            @Override
+            public SeLayer execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeLayer(connection);
+            }
+        });
     }
 
-    public SeLayer createSeLayer(String tableName, String shape) throws IOException {
-        try {
-            return new SeLayer(connection, tableName, shape);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    public SeQuery createSeQuery() throws IOException {
-        try {
-            return new SeQuery(connection);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
+    /**
+     * Creates an SeQuery to fetch the given propertyNames with the provided attribute based
+     * restrictions
+     * <p>
+     * This method shall only be called from inside a {@link Command}
+     * </p>
+     * 
+     * @param propertyNames
+     * @param sql
+     * @return
+     * @throws IOException
+     */
     public SeQuery createSeQuery(String[] propertyNames, SeSqlConstruct sql) throws IOException {
         try {
             return new SeQuery(connection, propertyNames, sql);
@@ -455,67 +545,44 @@ public class Session {
      * @return
      * @throws IOException
      */
-    public SeTable createSeTable(String qualifiedName) throws IOException {
-        try {
-            return new SeTable(connection, qualifiedName);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+    public SeTable createSeTable(final String qualifiedName) throws IOException {
+        return issue(new Command<SeTable>() {
+            @Override
+            public SeTable execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeTable(connection, qualifiedName);
+            }
+        });
     }
 
-    public SeInsert createSeInsert() throws IOException {
-        try {
-            return new SeInsert(connection);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+    public static SeInsert createSeInsert(Session session) throws IOException {
+        return session.issue(new Command<SeInsert>() {
+            @Override
+            public SeInsert execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeInsert(connection);
+            }
+        });
     }
 
-    public SeUpdate createSeUpdate() throws IOException {
-        try {
-            return new SeUpdate(connection);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+    public static SeUpdate createSeUpdate(Session session) throws IOException {
+        return session.issue(new Command<SeUpdate>() {
+            @Override
+            public SeUpdate execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeUpdate(connection);
+            }
+        });
     }
 
-    public SeDelete createSeDelete() throws IOException {
-        try {
-            return new SeDelete(connection);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    public SeVersion createSeVersion(String versionName) throws IOException {
-        try {
-            return new SeVersion(connection, versionName);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    /**
-     * Create an SeState for the provided id.
-     * 
-     * @param stateId stateId to use, or null
-     * @return SeState
-     * @throws IOException
-     */
-    public SeState createSeState(SeObjectId stateId) throws IOException {
-        try {
-            return new SeState(connection, stateId);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
-    }
-
-    public SeState createSeState() throws IOException {
-        try {
-            return new SeState(connection);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+    public static SeDelete createSeDelete(Session session) throws IOException {
+        return session.issue(new Command<SeDelete>() {
+            @Override
+            public SeDelete execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeDelete(connection);
+            }
+        });
     }
 
     public SeRasterColumn createSeRasterColumn() throws IOException {
@@ -541,17 +608,33 @@ public class Session {
      * @throws IOException if an exception occurs handling any ArcSDE resource while executing the
      *             command
      */
-    public <T> T issue(Command<T> command) throws IOException {
-        try {
-            lock.lock();
-            try {
-                return command.execute(this, connection);
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
+    public <T> T issue(final Command<T> command) throws IOException {
+
+        StackTraceElement ste = Thread.currentThread().getStackTrace()[3];
+
+        System.out.println("executing command " + ste.getClassName() + "." + ste.getMethodName()
+                + ":" + ste.getLineNumber());
+
+        FutureTask<T> task = new FutureTask<T>(new Callable<T>() {
+            public T call() throws Exception {
+                return command.execute(Session.this, connection);
             }
-        } finally {
-            lock.unlock();
+        });
+
+        taskExecutor.execute(task);
+        T result;
+        try {
+            result = task.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Command execution abruptly interrupted");
+        } catch (ExecutionException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof IOException) {
+                throw (IOException) cause;
+            }
+            throw new DataSourceException(cause);
         }
+        return result;
     }
 
     public SeColumnDefinition[] describe(String tableName) throws IOException {
@@ -562,4 +645,89 @@ public class Session {
             throw new ArcSdeException(e);
         }
     }
+
+    /**
+     * Issues a command that fetches a row from an already executed SeQuery and returns the
+     * {@link SdeRow} object with its contents.
+     * <p>
+     * The point in returning an {@link SdeRow} instead of a plain {@link SeRow} is that the former
+     * prefetches the row values and this can be freely used outside a {@link Command}. Otherwise
+     * the SeRow should only be used inside a command as accessing its values implies using the
+     * connection.
+     * </p>
+     * 
+     * @param session
+     * @param query
+     * @return
+     * @throws IOException
+     */
+    public static SdeRow issueFetch(final Session session, final SeQuery query) throws IOException {
+        return session.issue(new Command<SdeRow>() {
+            @Override
+            public SdeRow execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeRow row = query.fetch();
+                SdeRow populatedRow = null;
+                if (row != null) {
+                    populatedRow = new SdeRow(row);
+                }
+                return populatedRow;
+            }
+        });
+    }
+
+    public static void issueClose(final Session session, final SeState state) throws IOException {
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                state.close();
+                return null;
+            }
+        });
+    }
+
+    public static SeState issueCreateState(final Session session, final SeObjectId stateId)
+            throws IOException {
+
+        return session.issue(new Command<SeState>() {
+            @Override
+            public SeState execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeState(connection, stateId);
+            }
+        });
+    }
+
+    public static SeQuery issueCreateSeQuery(Session session) throws IOException {
+        return session.issue(new Command<SeQuery>() {
+
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                return new SeQuery(connection);
+            }
+        });
+    }
+
+    /**
+     * Utility method to send a command that does table.describe()
+     * 
+     * @param session
+     * @param tableName
+     * @return
+     * @throws IOException
+     */
+    public static SeColumnDefinition[] issueDescribe(final Session session, final String tableName)
+            throws IOException {
+        return session.issue(new Command<SeColumnDefinition[]>() {
+            @Override
+            public SeColumnDefinition[] execute(Session session, SeConnection connection)
+                    throws SeException, IOException {
+                SeTable table = session.getTable(tableName);
+                return table.describe();
+            }
+        });
+    }
+
 }

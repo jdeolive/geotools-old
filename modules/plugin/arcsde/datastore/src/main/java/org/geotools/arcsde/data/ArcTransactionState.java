@@ -130,35 +130,48 @@ final class ArcTransactionState implements Transaction.State {
     public void commit() throws IOException {
         failIfClosed();
         final Session session = this.session;
+
+        final Command<Void> commitCommand = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+
+                try {
+                    if (currentVersionState != null) {
+                        SeObjectId parentStateId = initialStateId;
+                        // Change the version's state pointer to the last edit state.
+                        defaultVersion.changeState(currentVersionState.getId());
+                        // Trim the state tree.
+                        currentVersionState.trimTree(parentStateId, currentVersionState.getId());
+                    }
+
+                    session.commitTransaction();
+                    // and keep editing
+                    session.startTransaction();
+
+                    fireChanges(true);
+                } catch (SeException se) {
+                    LOGGER.log(Level.WARNING, se.getMessage(), se);
+                    try {
+                        session.rollbackTransaction();
+                    } catch (IOException e) {
+                        LOGGER.log(Level.WARNING, e.getMessage(), e);
+                    } finally {
+                        // release resources
+                        close();
+                    }
+                    throw se;
+                }
+                return null;
+            }
+        };
+
         try {
-            if (currentVersionState != null) {
-                SeObjectId parentStateId = initialStateId;
-                // Change the version's state pointer to the last edit state.
-                defaultVersion.changeState(currentVersionState.getId());
-
-                // Trim the state tree.
-
-                currentVersionState.trimTree(parentStateId, currentVersionState.getId());
-            }
-
-            session.commitTransaction();
+            session.issue(commitCommand);
             versionHandler.commitEditState();
-            // and keep editing
-            session.setTransactionAutoCommit(0);
-            session.startTransaction();
-
-            fireChanges(true);
-        } catch (SeException se) {
-            LOGGER.log(Level.WARNING, se.getMessage(), se);
-            try {
-                session.rollbackTransaction();
-            } catch (IOException e) {
-                LOGGER.log(Level.WARNING, e.getMessage(), e);
-            } finally {
-                // release resources
-                close();
-            }
-            throw new ArcSdeException(se);
+        } catch (IOException e) {
+            versionHandler.rollbackEditState();
+            throw e;
         }
     }
 
@@ -170,10 +183,17 @@ final class ArcTransactionState implements Transaction.State {
         final Session session = this.session;
         try {
             versionHandler.rollbackEditState();
-            session.rollbackTransaction();
-            // and keep editing
-            session.setTransactionAutoCommit(0);
-            session.startTransaction();
+            session.issue(new Command<Void>() {
+                @Override
+                public Void execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    session.rollbackTransaction();
+                    // and keep editing
+                    session.startTransaction();
+                    return null;
+                }
+            });
+            // fire changes in the calling thread
             fireChanges(false);
         } catch (IOException se) {
             // release resources
@@ -257,13 +277,6 @@ final class ArcTransactionState implements Transaction.State {
                 // we should somehow invalidate the connection?
                 LOGGER.log(Level.SEVERE, "Unexpected exception at close(): " + e.getMessage(), e);
             }
-            try {
-                session.setConcurrency(SeConnection.SE_UNPROTECTED_POLICY);
-            } catch (IOException e) {
-                LOGGER.log(Level.SEVERE,
-                        "Unexpected exception restoring connection to thread unprotected state "
-                                + e.getMessage(), e);
-            }
             // now its safe to return it to the pool
             session.close();
         } catch (IllegalStateException workflowError) {
@@ -324,20 +337,15 @@ final class ArcTransactionState implements Transaction.State {
             if (state == null) {
                 // start a transaction
                 final Session session = connectionPool.getConnection();
+
                 try {
-                    // TRY_LOCK: one thread at a time can use the connection
-                    session.setConcurrency(SeConnection.SE_TRYLOCK_POLICY);
-                    // do not auto commit
-                    session.setTransactionAutoCommit(0);
-                    // and start a transaction
-                    session.startTransaction();
+                    Session.issueStartTransaction(session);
                 } catch (IOException e) {
                     try {
-                        session.rollbackTransaction();
-                    } catch (IOException ignorableException) {
-                        // bah, we're already failing
+                        Session.issueRollbackTransaction(session);
+                    } finally {
+                        session.close();
                     }
-                    session.close();
                     throw new DataSourceException("Exception initiating transaction on " + session,
                             e);
                 }

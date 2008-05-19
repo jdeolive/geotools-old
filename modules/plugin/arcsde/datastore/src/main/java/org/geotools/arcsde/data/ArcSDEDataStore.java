@@ -595,9 +595,9 @@ public class ArcSDEDataStore implements DataStore {
                 } catch (SeException e) {
                     throw new ArcSdeException(e);
                 }
-                layer = session.getLayer(mainLayerName);
+                layer = Session.issueGetLayer(session, mainLayerName);
             } else {
-                layer = session.getLayer(typeInfo.getFeatureTypeName());
+                layer = Session.issueGetLayer(session, typeInfo.getFeatureTypeName());
                 qInfo = null;
             }
 

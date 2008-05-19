@@ -18,6 +18,7 @@ package org.geotools.arcsde.data.versioning;
 import java.io.IOException;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 
 import com.esri.sde.sdk.client.SeConnection;
@@ -34,7 +35,8 @@ import com.esri.sde.sdk.client.SeVersion;
  * @author Gabriel Roldan (TOPP)
  * @version $Id$
  * @since 2.5.x
- * @source $URL$
+ * @source $URL:
+ *         http://svn.geotools.org/trunk/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/versioning/AutoCommitDefaultVersionHandler.java $
  */
 public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
 
@@ -44,27 +46,32 @@ public class AutoCommitDefaultVersionHandler implements ArcSdeVersionHandler {
         //
     }
 
-    public void setUpStream(final Session session, SeStreamOp streamOperation)
+    public void setUpStream(final Session session, final SeStreamOp streamOperation)
             throws IOException {
 
-        try {
-            if (defaultVersion == null) {
-                defaultVersion = session.createSeVersion(SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-                defaultVersion.getInfo();
-                SeState currentState = session.createSeState(defaultVersion.getStateId());
-                if (!currentState.isOpen()) {
-                    SeState newState = session.createSeState(null);
-                    newState.create(currentState.getId());
-                    defaultVersion.changeState(newState.getId());
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                if (defaultVersion == null) {
+                    defaultVersion = new SeVersion(connection,
+                            SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                    defaultVersion.getInfo();
+                    SeState currentState = new SeState(connection, defaultVersion.getStateId());
+                    if (!currentState.isOpen()) {
+                        SeState newState = new SeState(connection);
+                        newState.create(currentState.getId());
+                        defaultVersion.changeState(newState.getId());
+                    }
                 }
+                SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
+                defaultVersion.getInfo();
+                SeObjectId currentStateId = defaultVersion.getStateId();
+                streamOperation.setState(currentStateId, differencesId,
+                        SeState.SE_STATE_DIFF_NOCHECK);
+                return null;
             }
-            SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
-            defaultVersion.getInfo();
-            SeObjectId currentStateId = defaultVersion.getStateId();
-            streamOperation.setState(currentStateId, differencesId, SeState.SE_STATE_DIFF_NOCHECK);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        });
     }
 
     public void editOperationWritten(SeStreamOp editOperation) throws IOException {

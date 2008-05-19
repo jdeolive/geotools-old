@@ -32,6 +32,7 @@ import org.geotools.arcsde.data.versioning.ArcSdeVersionHandler;
 import org.geotools.arcsde.filter.FilterToSQLSDE;
 import org.geotools.arcsde.filter.GeometryEncoderException;
 import org.geotools.arcsde.filter.GeometryEncoderSDE;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DataSourceException;
 import org.geotools.data.DataUtilities;
@@ -45,6 +46,7 @@ import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeExtent;
 import com.esri.sde.sdk.client.SeFilter;
@@ -156,7 +158,7 @@ class ArcSDEQuery {
         LOGGER.fine("Creating new ArcSDEQuery");
 
         final String typeName = fullSchema.getTypeName();
-        final SeLayer sdeLayer = session.getLayer(typeName);
+        final SeLayer sdeLayer = Session.issueGetLayer(session, typeName);
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
         final ArcSDEQuery.FilterSet filters = new ArcSDEQuery.FilterSet(sdeLayer, filter,
@@ -202,7 +204,7 @@ class ArcSDEQuery {
         if (layerName.indexOf(" AS") > 0) {
             layerName = layerName.substring(0, layerName.indexOf(" AS"));
         }
-        sdeLayer = session.getLayer(layerName);
+        sdeLayer = Session.issueGetLayer(session, layerName);
 
         final SimpleFeatureType querySchema = getQuerySchema(query, fullSchema);
         // create the set of filters to work over
@@ -331,10 +333,9 @@ class ArcSDEQuery {
      * created with this method can be used to execute and fetch results. They cannot be used for
      * other operations, such as calculating layer extents, or result count.
      * <p>
-     * Difference with {@link #createSeQueryForFetch(Session, String[])} is tha this
-     * function tells <code>SeQuery.setSpatialConstraints</code> to NOT return geometry based
-     * bitmasks, which are needed for calculating the query extent and result count, but not for
-     * fetching SeRows.
+     * Difference with {@link #createSeQueryForFetch(Session, String[])} is tha this function tells
+     * <code>SeQuery.setSpatialConstraints</code> to NOT return geometry based bitmasks, which are
+     * needed for calculating the query extent and result count, but not for fetching SeRows.
      * </p>
      * 
      * @param propertyNames names of attributes to build the query for, respecting order
@@ -351,38 +352,52 @@ class ArcSDEQuery {
                     + "'");
         }
 
-        SeQuery seQuery = session.createSeQuery();
+        final SeQuery seQuery = Session.issueCreateSeQuery(session);
         setQueryVersionState(seQuery);
 
-        SeQueryInfo qInfo = filters.getQueryInfo(propertyNames);
+        final SeQueryInfo qInfo = filters.getQueryInfo(propertyNames);
+        final SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
         if (LOGGER.isLoggable(Level.FINER)) {
             String msg = "ArcSDE query is: " + toString(qInfo);
             LOGGER.finer(msg);
         }
-        try {
-            seQuery.prepareQueryInfo(qInfo);
-        } catch (SeException e) {
-            // HACK: a DATABASE LEVEL ERROR (code -51) occurs when using
-            // prepareQueryInfo but the geometry att is not required in the list
-            // of properties to retrieve, and thus propertyNames contains
-            // SHAPE.fid as a last resort to get a fid
-            if (-51 == e.getSeError().getSdeError()) {
-                seQuery.close();
-                seQuery = session.createSeQuery(propertyNames, filters.getSeSqlConstruct());
-                setQueryVersionState(seQuery);
-                seQuery.prepareQuery();
-            } else {
-                throw new ArcSdeException(e);
+        // try {
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                seQuery.prepareQueryInfo(qInfo);
+
+                if (spatialConstraints.length > 0) {
+                    final boolean setReturnGeometryMasks = false;
+                    seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
+                            spatialConstraints);
+                }
+
+                return null;
             }
-        }
+        });
+        // } catch (SeException e) {
+        // // HACK: a DATABASE LEVEL ERROR (code -51) occurs when using
+        // // prepareQueryInfo but the geometry att is not required in the list
+        // // of properties to retrieve, and thus propertyNames contains
+        // // SHAPE.fid as a last resort to get a fid
+        // if (-51 == e.getSeError().getSdeError()) {
+        // seQuery.close();
+        // seQuery = session.createSeQuery(propertyNames, filters.getSeSqlConstruct());
+        // setQueryVersionState(seQuery);
+        // seQuery.prepareQuery();
+        // } else {
+        // throw new ArcSdeException(e);
+        // }
+        // }
 
-        SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
-        if (spatialConstraints.length > 0) {
-            final boolean setReturnGeometryMasks = false;
-            seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
-                    spatialConstraints);
-        }
-
+        // if (spatialConstraints.length > 0) {
+        // final boolean setReturnGeometryMasks = false;
+        // seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
+        // spatialConstraints);
+        // }
+        //
         return seQuery;
     }
 
@@ -426,10 +441,9 @@ class ArcSDEQuery {
      * created with this method are to be used for calculating layer extents and result counts.
      * These queries cannot be executed or used to fetch results.
      * <p>
-     * Difference with {@link #createSeQueryForFetch(Session, String[])} is that this
-     * function tells <code>SeQuery.setSpatialConstraints</code> to return geometry based
-     * bitmasks, which are needed for calculating the query extent and result count, but not for
-     * fetching SeRows.
+     * Difference with {@link #createSeQueryForFetch(Session, String[])} is that this function tells
+     * <code>SeQuery.setSpatialConstraints</code> to return geometry based bitmasks, which are
+     * needed for calculating the query extent and result count, but not for fetching SeRows.
      * </p>
      * 
      * @param whether to instruct the query to gather "geometry masks". Should be true to calculate
@@ -437,23 +451,29 @@ class ArcSDEQuery {
      *            ArcSDE...
      * @return an SeQuery settled up with the attribute and spatial constraints to calculate result
      *         count and envelope
-     * @throws SeException if the ArcSDE Java API throws it while creating the SeQuery or setting it
-     *             the spatial constraints.
      * @throws IOException DOCUMENT ME!
      */
     private SeQuery createSeQueryForQueryInfo(final boolean setReturnGeometryMasks)
-            throws SeException, IOException {
+            throws IOException {
 
-        SeQuery seQuery = session.createSeQuery();
-        setQueryVersionState(seQuery);
-        SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
+        SeQuery query = session.issue(new Command<SeQuery>() {
+            @Override
+            public SeQuery execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery seQuery = new SeQuery(connection);
+                SeFilter[] spatialConstraints = ArcSDEQuery.this.filters.getSpatialFilters();
 
-        if (spatialConstraints.length > 0) {
-            seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
-                    spatialConstraints);
-        }
+                if (spatialConstraints.length > 0) {
+                    seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
+                            spatialConstraints);
+                }
 
-        return seQuery;
+                return seQuery;
+            }
+        });
+
+        setQueryVersionState(query);
+        return query;
     }
 
     /**
@@ -500,12 +520,11 @@ class ArcSDEQuery {
             if (typeInfo.isInProcessView()) {
                 final SeQueryInfo definitionQuery = typeInfo.getSdeDefinitionQuery();
                 final PlainSelect viewSelectStatement = typeInfo.getDefinitionQuery();
-                countQuery = createInprocessViewQuery(session, fullSchema, query,
-                        definitionQuery, viewSelectStatement);
+                countQuery = createInprocessViewQuery(session, fullSchema, query, definitionQuery,
+                        viewSelectStatement);
             } else {
                 final FIDReader fidStrategy = typeInfo.getFidStrategy();
-                countQuery = createQuery(session, fullSchema, query, fidStrategy,
-                        versioningHandler);
+                countQuery = createQuery(session, fullSchema, query, fidStrategy, versioningHandler);
             }
             count = countQuery.calculateResultCount();
         } finally {
@@ -537,8 +556,8 @@ class ArcSDEQuery {
         if (typeInfo.isInProcessView()) {
             final SeQueryInfo definitionQuery = typeInfo.getSdeDefinitionQuery();
             final PlainSelect viewSelectStatement = typeInfo.getDefinitionQuery();
-            boundsQuery = createInprocessViewQuery(session, fullSchema, realQuery,
-                    definitionQuery, viewSelectStatement);
+            boundsQuery = createInprocessViewQuery(session, fullSchema, realQuery, definitionQuery,
+                    viewSelectStatement);
         } else {
             boundsQuery = createQuery(session, fullSchema, realQuery, FIDReader.NULL_READER,
                     versioningHandler);
@@ -575,26 +594,31 @@ class ArcSDEQuery {
         LOGGER.fine("about to calculate result count");
 
         if (this.resultCount == -1) {
-            String aFieldName = "*";
-            String[] columns = { aFieldName };
-
-            SeQuery countQuery = null;
-
             if (filters.getUnsupportedFilter() == Filter.INCLUDE) {
+                final SeQuery countQuery = createSeQueryForQueryInfo(true);
+
                 // there's nothing to filter post-db, so we're clear to do the
                 // result count
                 // by sending a query to the db and completely trusting the
                 // result.
-
+                final String aFieldName = "*";
+                final String[] columns = { aFieldName };
+                final SeQueryInfo qInfo = filters.getQueryInfo(columns);
                 try {
-                    countQuery = createSeQueryForQueryInfo(true);
-                    SeQueryInfo qInfo = filters.getQueryInfo(columns);
+                    Integer resultCount = session.issue(new Command<Integer>() {
+                        @Override
+                        public Integer execute(Session session, SeConnection connection)
+                                throws SeException, IOException {
 
-                    SeTable.SeTableStats tableStats = countQuery.calculateTableStatistics(
-                            aFieldName, SeTable.SeTableStats.SE_COUNT_STATS, qInfo, 0);
+                            SeTable.SeTableStats tableStats = countQuery.calculateTableStatistics(
+                                    aFieldName, SeTable.SeTableStats.SE_COUNT_STATS, qInfo, 0);
+                            Integer resultCount = new Integer(tableStats.getCount());
+                            return resultCount;
+                        }
+                    });
 
-                    this.resultCount = tableStats.getCount();
-                } catch (SeException e) {
+                    this.resultCount = resultCount.intValue();
+                } catch (IOException e) {
                     if (LOGGER.isLoggable(Level.FINE)) {
                         LOGGER.fine("Error calculating result cout with SQL where clause: "
                                 + this.filters.getSeSqlConstruct().getWhere());
@@ -604,15 +628,15 @@ class ArcSDEQuery {
                     // throw new DataSourceException("Calculating result count:
                     // " + e.getSeError().getErrDesc(), e);
                 } finally {
-                    close(countQuery);
+                    close(countQuery, session);
                 }
 
             } else {
                 // well, we've got to filter the results after the query, so
                 // let's not do that twice. -1 is the best anyone will get
                 // on this one...
-                LOGGER
-                        .fine("Non-supported ArcSDE filters included in this query.  Can't pre-calculate result count.");
+                LOGGER.fine("Non-supported ArcSDE filters included in this query.  "
+                        + "Can't pre-calculate result count.");
             }
         }
 
@@ -629,68 +653,46 @@ class ArcSDEQuery {
      */
     public Envelope calculateQueryExtent() throws IOException {
         Envelope envelope = null;
-        SeQuery extentQuery = null;
 
         LOGGER.fine("Building a new SeQuery to consult it's resulting envelope");
 
+        final SeQuery extentQuery = createSeQueryForQueryInfo(false);
         try {
-            SeExtent extent;
+            final String[] spatialCol = { schema.getDefaultGeometry().getLocalName() };
+            final SeQueryInfo sdeQueryInfo = filters.getQueryInfo(spatialCol);
+            envelope = session.issue(new Command<Envelope>() {
+                @Override
+                public Envelope execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeExtent extent;
 
-            String[] spatialCol = { schema.getDefaultGeometry().getLocalName() };
+                    extent = extentQuery.calculateLayerExtent(sdeQueryInfo);
 
-            extentQuery = createSeQueryForQueryInfo(false);
-//            {
-//                SeQuery seQuery = new SeQuery(connection);
-//                setQueryVersionState(seQuery);
-//                SeFilter[] spatialConstraints = this.filters.getSpatialFilters();
-//
-//                if (spatialConstraints.length > 0) {
-//                    final boolean setReturnGeometryMasks = false;
-//                    seQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, setReturnGeometryMasks,
-//                            spatialConstraints);
-//                }
-//                extentQuery = seQuery;
-//            }
-
-            SeQueryInfo sdeQueryInfo = filters.getQueryInfo(spatialCol);
-            //
-            // {
-            // SeQuery spatialQuery = null;
-            // SeSqlConstruct sqlCons = new SeSqlConstruct(filters.sdeLayer.getName());
-            // sqlCons.setWhere("1=1");
-            // spatialQuery = new SeQuery(connection, spatialCol, sqlCons);
-            // SeFilter[] spatialFilters = filters.getSpatialFilters();
-            // if (spatialFilters.length > 0) {
-            // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatialFilters);
-            // }
-            // // spatialQuery.execute();
-            // extent = spatialQuery.calculateLayerExtent(sdeQueryInfo);
-            // }
-            //            
-            extent = extentQuery.calculateLayerExtent(sdeQueryInfo);
-
-            envelope = new Envelope(extent.getMinX(), extent.getMaxX(), extent.getMinY(), extent
-                    .getMaxY());
-            LOGGER.fine("got extent: " + extent + ", built envelope: " + envelope);
-            // }
-        } catch (SeException ex) {
+                    Envelope envelope = new Envelope(extent.getMinX(), extent.getMaxX(), extent
+                            .getMinY(), extent.getMaxY());
+                    LOGGER.fine("got extent: " + extent + ", built envelope: " + envelope);
+                    return envelope;
+                }
+            });
+        } catch (IOException ex) {
             SeSqlConstruct sqlCons = this.filters.getSeSqlConstruct();
             String sql = (sqlCons == null) ? null : sqlCons.getWhere();
             String tables = (sqlCons == null) ? null : Arrays.asList(sqlCons.getTables())
                     .toString();
-            if (ex.getSeError().getSdeError() == -288) {
-                // gah, the dreaded 'LOGFILE SYSTEM TABLES DO NOT EXIST' error.
-                // this error is worthless. Make it quiet, at least.
-                LOGGER.severe("ArcSDE is complaining that your 'LOGFILE SYSTEM "
-                        + "TABLES DO NOT EXIST'.  This is an ignorable error.");
-            } else {
-                ArcSdeException sdeEx = new ArcSdeException(ex);
-                LOGGER.log(Level.SEVERE, "***********************\ntables: " + tables
-                        + "\nfilter: " + this.filters.getGeometryFilter() + "\nSQL: " + sql, sdeEx);
-                throw sdeEx;
+            if (ex.getCause() instanceof SeException) {
+                SeException sdeEx = (SeException) ex.getCause();
+                if (sdeEx.getSeError().getSdeError() == -288) {
+                    // gah, the dreaded 'LOGFILE SYSTEM TABLES DO NOT EXIST' error.
+                    // this error is worthless. Make it quiet, at least.
+                    LOGGER.severe("ArcSDE is complaining that your 'LOGFILE SYSTEM "
+                            + "TABLES DO NOT EXIST'.  This is an ignorable error.");
+                }
             }
+            LOGGER.log(Level.SEVERE, "***********************\ntables: " + tables + "\nfilter: "
+                    + this.filters.getGeometryFilter() + "\nSQL: " + sql, ex);
+            throw ex;
         } finally {
-            close(extentQuery);
+            close(extentQuery, session);
         }
 
         return envelope;
@@ -700,17 +702,21 @@ class ArcSDEQuery {
      * Silently closes this query.
      * 
      * @param query
+     * @throws IOException
      */
-    private static void close(SeQuery query) {
+    private static void close(final SeQuery query, final Session session) throws IOException {
         if (query == null) {
             return;
         }
 
-        try {
-            query.close();
-        } catch (SeException e) {
-            LOGGER.warning("Closing query: " + e.getSeError().getErrDesc());
-        }
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                query.close();
+                return null;
+            }
+        });
     }
 
     // //////////////////////////////////////////////////////////////////////
@@ -720,13 +726,15 @@ class ArcSDEQuery {
     /**
      * Closes the query.
      * <p>
-     * The {@link Session connection} used by the query is not closed by this
-     * operation as it was provided by the calling code and thus it is its responsibility to handle
-     * the connection life cycle.
+     * The {@link Session connection} used by the query is not closed by this operation as it was
+     * provided by the calling code and thus it is its responsibility to handle the connection life
+     * cycle.
      * </p>
+     * 
+     * @throws IOException
      */
-    public void close() {
-        close(this.query);
+    public void close() throws IOException {
+        close(this.query, session);
         this.query = null;
     }
 
@@ -737,11 +745,15 @@ class ArcSDEQuery {
      * @throws DataSourceException DOCUMENT ME!
      */
     public void execute() throws IOException {
-        try {
-            getSeQuery().execute();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        final SeQuery seQuery = getSeQuery();
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                seQuery.execute();
+                return null;
+            }
+        });
     }
 
     /**
@@ -758,23 +770,28 @@ class ArcSDEQuery {
         }
 
         final SeQuery seQuery = getSeQuery();
+        SdeRow currentRow;
         try {
-            SeRow row = seQuery.fetch();
-            SdeRow currentRow = (row == null) ? null : new SdeRow(row, previousRowValues);
-            previousRowValues = currentRow == null ? null : currentRow.getAll();
-            return currentRow;
-        } catch (SeException e) {
+            currentRow = Session.issueFetch(session, seQuery);
+        } catch (IOException e) {
             close();
             String msg = "Error fetching row for " + this.schema.getTypeName() + "[";
             msg += "\nFilter: " + filters.sourceFilter;
             msg += "\n where clause sent: " + filters.sdeSqlConstruct.getWhere();
             msg += "\ngeometry filter:" + filters.geometryFilter;
-            throw new ArcSdeException(msg, e);
+            LOGGER.log(Level.WARNING, msg, e);
+            throw e;
         } catch (Exception e) {
             close();
             LOGGER.log(Level.SEVERE, "fetching row: " + e.getMessage(), e);
             throw new DataSourceException("fetching row: " + e.getMessage(), e);
         }
+
+        if (currentRow != null) {
+            currentRow.setPreviousValues(this.previousRowValues);
+            previousRowValues = currentRow.getAll();
+        }
+        return currentRow;
     }
 
     /**
@@ -915,11 +932,9 @@ class ArcSDEQuery {
          * 
          * @param unqualifiedPropertyNames non null, possibly empty, list of property names to fetch
          * @return
-         * @throws SeException
-         * @throws DataSourceException
+         * @throws IOException
          */
-        public SeQueryInfo getQueryInfo(final String[] unqualifiedPropertyNames)
-                throws SeException, DataSourceException {
+        public SeQueryInfo getQueryInfo(final String[] unqualifiedPropertyNames) throws IOException {
             assert unqualifiedPropertyNames != null;
             String[] tables;
             String byClause = null;
@@ -928,49 +943,53 @@ class ArcSDEQuery {
 
             String where = plainSqlConstruct.getWhere();
 
-            if (definitionQuery == null) {
-                tables = new String[] { this.sdeLayer.getQualifiedName() };
-            } else {
-                tables = definitionQuery.getConstruct().getTables();
-                String joinWhere = definitionQuery.getConstruct().getWhere();
-                if (where == null) {
-                    where = joinWhere;
+            try {
+                if (definitionQuery == null) {
+                    tables = new String[] { this.sdeLayer.getQualifiedName() };
                 } else {
-                    where = joinWhere == null ? where : (joinWhere + " AND " + where);
+                    tables = definitionQuery.getConstruct().getTables();
+                    String joinWhere = definitionQuery.getConstruct().getWhere();
+                    if (where == null) {
+                        where = joinWhere;
+                    } else {
+                        where = joinWhere == null ? where : (joinWhere + " AND " + where);
+                    }
+                    try {
+                        byClause = definitionQuery.getByClause();
+                    } catch (NullPointerException e) {
+                        // no-op
+                    }
                 }
-                try {
-                    byClause = definitionQuery.getByClause();
-                } catch (NullPointerException e) {
-                    // no-op
+
+                final SeQueryInfo qInfo = new SeQueryInfo();
+                final SeSqlConstruct sqlConstruct = new SeSqlConstruct();
+                sqlConstruct.setTables(tables);
+                if (where != null && where.length() > 0) {
+                    sqlConstruct.setWhere(where);
                 }
-            }
 
-            final SeQueryInfo qInfo = new SeQueryInfo();
-            final SeSqlConstruct sqlConstruct = new SeSqlConstruct();
-            sqlConstruct.setTables(tables);
-            if (where != null && where.length() > 0) {
-                sqlConstruct.setWhere(where);
-            }
+                final int queriedAttCount = unqualifiedPropertyNames.length;
 
-            final int queriedAttCount = unqualifiedPropertyNames.length;
+                if (queriedAttCount > 0) {
+                    String[] sdeAttNames = new String[queriedAttCount];
+                    FilterToSQLSDE sqlEncoder = getSqlEncoder();
 
-            if (queriedAttCount > 0) {
-                String[] sdeAttNames = new String[queriedAttCount];
-                FilterToSQLSDE sqlEncoder = getSqlEncoder();
-
-                for (int i = 0; i < queriedAttCount; i++) {
-                    String attName = unqualifiedPropertyNames[i];
-                    String coldef = sqlEncoder.getColumnDefinition(attName);
-                    sdeAttNames[i] = coldef;
+                    for (int i = 0; i < queriedAttCount; i++) {
+                        String attName = unqualifiedPropertyNames[i];
+                        String coldef = sqlEncoder.getColumnDefinition(attName);
+                        sdeAttNames[i] = coldef;
+                    }
+                    qInfo.setColumns(sdeAttNames);
                 }
-                qInfo.setColumns(sdeAttNames);
-            }
 
-            qInfo.setConstruct(sqlConstruct);
-            if (byClause != null) {
-                qInfo.setByClause(byClause);
+                qInfo.setConstruct(sqlConstruct);
+                if (byClause != null) {
+                    qInfo.setByClause(byClause);
+                }
+                return qInfo;
+            } catch (SeException e) {
+                throw new ArcSdeException(e);
             }
-            return qInfo;
         }
 
         /**

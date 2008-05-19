@@ -116,14 +116,13 @@ public class InProcessViewSupportTestData {
 
                 SeColumnDefinition[] colDefs = new SeColumnDefinition[2];
 
-                layer = session.createSeLayer();
-                layer.setTableName(MASTER);
-
                 colDefs[0] = new SeColumnDefinition("ID", SeColumnDefinition.TYPE_INT32, 10, 0,
                         false);
                 colDefs[1] = new SeColumnDefinition("NAME", SeColumnDefinition.TYPE_STRING, 255, 0,
                         false);
 
+                layer = new SeLayer(connection);
+                layer.setTableName(MASTER);
                 table.create(colDefs, td.getConfigKeyword());
 
                 layer.setSpatialColumnName("SHAPE");
@@ -289,7 +288,7 @@ public class InProcessViewSupportTestData {
                     for (int child = 0; child < master; child++) {
                         childId++;
 
-                        SeInsert insert = session.createSeInsert();
+                        SeInsert insert = new SeInsert(connection);
                         insert.intoTable(table.getName(), columns);
                         insert.setWriteMode(true);
 
@@ -304,7 +303,7 @@ public class InProcessViewSupportTestData {
                     }
                 }
                 // add the 7th row to test group by
-                SeInsert insert = session.createSeInsert();
+                SeInsert insert = new SeInsert(connection);
                 insert.intoTable(table.getName(), columns);
                 insert.setWriteMode(true);
                 SeRow row = insert.getRowToSet();

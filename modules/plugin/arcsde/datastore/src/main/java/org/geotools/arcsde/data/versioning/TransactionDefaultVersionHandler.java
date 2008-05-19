@@ -18,6 +18,7 @@ package org.geotools.arcsde.data.versioning;
 import java.io.IOException;
 
 import org.geotools.arcsde.ArcSdeException;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 
 import com.esri.sde.sdk.client.SeConnection;
@@ -50,13 +51,16 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
 
     public TransactionDefaultVersionHandler(final Session session) throws IOException {
         this.session = session;
-        try {
-            defaultVersion = session.createSeVersion(SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-            defaultVersion.getInfo();
-            // initialStateId = defaultVersion.getStateId();
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        defaultVersion = session.issue(new Command<SeVersion>() {
+            @Override
+            public SeVersion execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeVersion defaultVersion = new SeVersion(connection,
+                        SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                defaultVersion.getInfo();
+                return defaultVersion;
+            }
+        });
     }
 
     /**
@@ -64,28 +68,34 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
      * 
      * @see ArcSdeVersionHandler#
      */
-    public void setUpStream(final Session session, SeStreamOp streamOperation)
+    public void setUpStream(final Session session, final SeStreamOp streamOperation)
             throws IOException {
-        if (transactionState == null) {
-            try {
-                defaultVersion.getInfo();
-                SeState parentState = session.createSeState(defaultVersion.getStateId());
-                if (parentState.isOpen()) {
-                    parentState.close();
+
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+
+                if (transactionState == null) {
+                    try {
+                        defaultVersion.getInfo();
+                        SeState parentState = new SeState(connection, defaultVersion.getStateId());
+                        if (parentState.isOpen()) {
+                            parentState.close();
+                        }
+                        transactionState = new SeState(connection);
+                        transactionState.create(parentState.getId());
+                    } catch (SeException e) {
+                        throw new ArcSdeException(e);
+                    }
                 }
-                transactionState = session.createSeState();
-                transactionState.create(parentState.getId());
-            } catch (SeException e) {
-                throw new ArcSdeException(e);
+                final SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
+                final SeObjectId currentStateId = transactionState.getId();
+                streamOperation.setState(currentStateId, differencesId,
+                        SeState.SE_STATE_DIFF_NOCHECK);
+                return null;
             }
-        }
-        final SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
-        final SeObjectId currentStateId = transactionState.getId();
-        try {
-            streamOperation.setState(currentStateId, differencesId, SeState.SE_STATE_DIFF_NOCHECK);
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        });
     }
 
     /**
@@ -115,15 +125,18 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
         if (transactionState == null) {
             return;
         }
-        try {
-            SeObjectId transactionStateId = transactionState.getId();
-            defaultVersion.getInfo();
-            defaultVersion.changeState(transactionStateId);
-            // transactionState.trimTree(initialStateId, transactionStateId);
-            transactionState = null;
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeObjectId transactionStateId = transactionState.getId();
+                defaultVersion.getInfo();
+                defaultVersion.changeState(transactionStateId);
+                // transactionState.trimTree(initialStateId, transactionStateId);
+                transactionState = null;
+                return null;
+            }
+        });
     }
 
     /**
@@ -135,24 +148,28 @@ public class TransactionDefaultVersionHandler implements ArcSdeVersionHandler {
         if (transactionState == null) {
             return;
         }
-        try {
-            transactionState.delete();
-            transactionState = null;
+        session.issue(new Command<Void>() {
 
-            // parent state is closed, create a new one for it
-            defaultVersion.getInfo();
-            final SeObjectId defaultVersionStateId = defaultVersion.getStateId();
-            final SeState defaultVersionState = session.createSeState(defaultVersionStateId);
-            if (!defaultVersionState.isOpen()) {
-                // create a new open state as child of the current version closed state
-                SeState newOpenState = session.createSeState(null);
-                newOpenState.create(defaultVersionStateId);
-                final SeObjectId newStateId = newOpenState.getId();
-                defaultVersion.changeState(newStateId);
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                transactionState.delete();
+                transactionState = null;
+
+                // parent state is closed, create a new one for it
+                defaultVersion.getInfo();
+                final SeObjectId defaultVersionStateId = defaultVersion.getStateId();
+                final SeState defaultVersionState = new SeState(connection, defaultVersionStateId);
+                if (!defaultVersionState.isOpen()) {
+                    // create a new open state as child of the current version closed state
+                    SeState newOpenState = new SeState(connection);
+                    newOpenState.create(defaultVersionStateId);
+                    final SeObjectId newStateId = newOpenState.getId();
+                    defaultVersion.changeState(newStateId);
+                }
+                return null;
             }
-        } catch (SeException e) {
-            throw new ArcSdeException(e);
-        }
+        });
     }
 
 }

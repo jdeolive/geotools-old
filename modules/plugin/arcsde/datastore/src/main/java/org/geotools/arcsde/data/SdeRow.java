@@ -27,8 +27,7 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeShape;
 
 /**
- * Wrapper for an SeRow so it allows asking multiple times for the same
- * property.
+ * Wrapper for an SeRow so it allows asking multiple times for the same property.
  * 
  * @author Gabriel Roldan, Axios Engineering
  * @version $Id$
@@ -36,54 +35,32 @@ import com.esri.sde.sdk.client.SeShape;
  *         http://svn.geotools.org/geotools/trunk/gt/modules/plugin/arcsde/datastore/src/main/java/org/geotools/arcsde/data/SdeRow.java $
  * @since 2.4.0
  */
-class SdeRow {
-    /** The actual SeRow */
-    private SeRow row;
+public class SdeRow {
 
     /** cached SeRow values */
     private Object[] values;
 
-    /**
-     * Creates a new SdeRow object.
-     * 
-     * @param row
-     *            DOCUMENT ME!
-     * @param previousValues
-     *            needed in case of its a joined result, thus arcsde does not
-     *            returns geometry attributes duplicated, just on their first
-     *            occurrence (sigh)
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
-     * @throws DataSourceException
-     *             DOCUMENT ME!
-     */
-    public SdeRow(SeRow row, Object[] previousValues) throws IOException {
-        this.row = row;
-        int nCols;
+    private int[] colStatusIndicator;
 
-        try {
-            nCols = row.getNumColumns();
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            throw e;
-        }
+    private final int nCols;
+
+    public SdeRow(SeRow row) throws IOException {
+        this.nCols = row.getNumColumns();
 
         values = new Object[nCols];
+        colStatusIndicator = new int[nCols];
 
         int i = 0;
-
         int statusIndicator = 0;
 
         try {
             for (i = 0; i < nCols; i++) {
                 statusIndicator = row.getIndicator(i);
+                colStatusIndicator[i] = statusIndicator;
 
                 if (statusIndicator == SeRow.SE_IS_ALREADY_FETCHED
-                        || statusIndicator == SeRow.SE_IS_REPEATED_FEATURE) {
-                    values[i] = previousValues[i];
-                } else if (statusIndicator == SeRow.SE_IS_NULL_VALUE) {
-                    values[i] = null;
+                        || statusIndicator == SeRow.SE_IS_REPEATED_FEATURE
+                        || statusIndicator == SeRow.SE_IS_NULL_VALUE) {
                 } else {
                     values[i] = row.getObject(i);
                 }
@@ -94,15 +71,38 @@ class SdeRow {
     }
 
     /**
+     * Creates a new SdeRow object.
+     * 
+     * @param row DOCUMENT ME!
+     * @param previousValues needed in case of its a joined result, thus arcsde does not returns
+     *            geometry attributes duplicated, just on their first occurrence (sigh)
+     * @throws IOException DOCUMENT ME!
+     * @throws DataSourceException DOCUMENT ME!
+     * @deprecated
+     */
+    public SdeRow(SeRow row, Object[] previousValues) throws IOException {
+        this(row);
+        setPreviousValues(previousValues);
+    }
+
+    public void setPreviousValues(Object[] previousValues) {
+        int statusIndicator;
+        for (int i = 0; i < nCols; i++) {
+            statusIndicator = colStatusIndicator[i];
+
+            if (statusIndicator == SeRow.SE_IS_ALREADY_FETCHED
+                    || statusIndicator == SeRow.SE_IS_REPEATED_FEATURE) {
+                values[i] = previousValues[i];
+            }
+        }
+    }
+
+    /**
      * DOCUMENT ME!
      * 
-     * @param index
-     *            DOCUMENT ME!
-     * 
+     * @param index DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     public Object getObject(int index) throws IOException {
         return values[index];
@@ -120,13 +120,9 @@ class SdeRow {
     /**
      * DOCUMENT ME!
      * 
-     * @param index
-     *            DOCUMENT ME!
-     * 
+     * @param index DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     public Long getLong(int index) throws IOException {
         return (Long) getObject(index);
@@ -135,24 +131,25 @@ class SdeRow {
     /**
      * DOCUMENT ME!
      * 
-     * @param index
-     *            DOCUMENT ME!
-     * 
+     * @param index DOCUMENT ME!
      * @return DOCUMENT ME!
-     * 
-     * @throws IOException
-     *             DOCUMENT ME!
+     * @throws IOException DOCUMENT ME!
      */
     public SeShape getShape(int index) throws IOException {
         return (SeShape) getObject(index);
     }
 
     /**
-     * DOCUMENT ME!
-     * 
-     * @return DOCUMENT ME!
+     * @param columnIndex
+     * @return one of {@link SeRow#SE_IS_ALREADY_FETCHED}, {@link SeRow#SE_IS_NOT_NULL_VALUE},
+     *         {@link SeRow#SE_IS_NULL_VALUE}, {@link SeRow#SE_IS_REPEATED_FEATURE}
      */
-    public SeColumnDefinition[] getColumns() {
-        return row.getColumns();
+    public int getIndicator(int columnIndex) {
+        return colStatusIndicator[columnIndex];
     }
+
+    public Integer getInteger(int index) throws IOException {
+        return (Integer) getObject(index);
+    }
+
 }

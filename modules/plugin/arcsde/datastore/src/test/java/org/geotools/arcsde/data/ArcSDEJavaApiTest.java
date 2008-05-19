@@ -28,6 +28,7 @@ import junit.framework.TestSuite;
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.arcsde.pool.UnavailableArcSDEConnectionException;
 import org.geotools.data.DataSourceException;
@@ -52,6 +53,7 @@ import com.esri.sde.sdk.client.SeSqlConstruct;
 import com.esri.sde.sdk.client.SeState;
 import com.esri.sde.sdk.client.SeTable;
 import com.esri.sde.sdk.client.SeVersion;
+import com.sun.java_cup.internal.version;
 
 /**
  * Exercises the ArcSDE Java API to ensure our assumptions are correct.
@@ -169,7 +171,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         SeSqlConstruct sql = null;
 
         try {
-            SeQuery rowQuery = session.createSeQuery( columns, sql);
+            SeQuery rowQuery = session.createSeQuery(columns, sql);
             rowQuery.prepareQuery();
             rowQuery.execute();
             fail("A null SeSqlConstruct should have thrown an exception!");
@@ -183,7 +185,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         String[] columns = { TestData.TEST_TABLE_COLS[0] };
         SeSqlConstruct sql = new SeSqlConstruct(typeName);
 
-        SeQuery rowQuery = session.createSeQuery( columns, sql);
+        SeQuery rowQuery = session.createSeQuery(columns, sql);
         try {
             rowQuery.prepareQuery();
             rowQuery.execute();
@@ -210,7 +212,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             // constraints affects the COUNT statistics
             SeExtent extent = new SeExtent(-180, -90, -170, -80);
 
-            SeLayer layer = session.getLayer(typeName);
+            SeLayer layer = Session.issueGetLayer(session, typeName);
             SeShape filterShape = new SeShape(layer.getCoordRef());
             filterShape.generateRectangle(extent);
 
@@ -221,7 +223,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             for (int i = 0; i < 26; i++) {
                 LOGGER.fine("Running iteration #" + i);
 
-                SeQuery rowQuery = session.createSeQuery( columns, sql);
+                SeQuery rowQuery = session.createSeQuery(columns, sql);
                 rowQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
                 rowQuery.prepareQuery();
                 rowQuery.execute();
@@ -231,7 +233,7 @@ public class ArcSDEJavaApiTest extends TestCase {
                 rowQuery.fetch();
                 rowQuery.fetch();
 
-                SeQuery countQuery = session.createSeQuery( columns, sql);
+                SeQuery countQuery = session.createSeQuery(columns, sql);
                 countQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatFilters);
 
                 final int expCount = 2;
@@ -278,7 +280,7 @@ public class ArcSDEJavaApiTest extends TestCase {
         if (whereClause != null) {
             sql.setWhere(whereClause);
         }
-        SeQuery query = session.createSeQuery( columns, sql);
+        SeQuery query = session.createSeQuery(columns, sql);
 
         if (state != null) {
             SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
@@ -318,7 +320,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             // constraints affects the COUNT statistics
             SeExtent extent = new SeExtent(-180, -90, -170, -80);
 
-            SeLayer layer = session.getLayer(typeName);
+            SeLayer layer = Session.issueGetLayer(session, typeName);
             SeShape filterShape = new SeShape(layer.getCoordRef());
             filterShape.generateRectangle(extent);
 
@@ -339,116 +341,121 @@ public class ArcSDEJavaApiTest extends TestCase {
     }
 
     public void testCalculateBoundsSqlFilter() throws Exception {
-        try {
-            String typeName = testData.getTemp_table();
-            String where = "INT32_COL = 1";
-            String[] cols = { "SHAPE" };
+        String typeName = testData.getTemp_table();
+        String where = "INT32_COL = 1";
+        String[] cols = { "SHAPE" };
 
-            SeQuery spatialQuery = null;
-            SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
-            sqlCons.setWhere(where);
+        SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
+        sqlCons.setWhere(where);
 
-            SeQueryInfo seQueryInfo = new SeQueryInfo();
-            seQueryInfo.setColumns(cols);
-            seQueryInfo.setConstruct(sqlCons);
+        final SeQueryInfo seQueryInfo = new SeQueryInfo();
+        seQueryInfo.setColumns(cols);
+        seQueryInfo.setConstruct(sqlCons);
 
-            spatialQuery = session.createSeQuery();
-            // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, filters);
-            SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
-            double minX = Math.round(extent.getMinX());
-            double minY = Math.round(extent.getMinY());
-            double maxX = Math.round(extent.getMaxX());
-            double maxY = Math.round(extent.getMaxY());
-            assertEquals(0D, minX, 1E-9);
-            assertEquals(0D, minY, 1E-9);
-            assertEquals(0D, maxX, 1E-9);
-            assertEquals(0D, maxY, 1E-9);
+        SeExtent extent = session.issue(new Command<SeExtent>() {
+            @Override
+            public SeExtent execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery spatialQuery = new SeQuery(connection);
+                // spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, filters);
+                SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
+                return extent;
+            }
+        });
 
-        } catch (ArcSdeException e) {
-            LOGGER.warning(e.getSeError().getErrDesc());
-            e.printStackTrace();
-            throw e;
-        }
+        double minX = Math.round(extent.getMinX());
+        double minY = Math.round(extent.getMinY());
+        double maxX = Math.round(extent.getMaxX());
+        double maxY = Math.round(extent.getMaxY());
+        assertEquals(0D, minX, 1E-9);
+        assertEquals(0D, minY, 1E-9);
+        assertEquals(0D, maxX, 1E-9);
+        assertEquals(0D, maxY, 1E-9);
     }
 
     public void testCalculateBoundsSpatialFilter() throws Exception {
         final String typeName = testData.getTemp_table();
+
+        // String where = null;
+        String[] cols = { "SHAPE" };
+        final SeFilter[] spatFilters;
         try {
-            // String where = null;
-            String[] cols = { "SHAPE" };
-            SeFilter[] spatFilters;
-            try {
-                SeExtent extent = new SeExtent(179, -1, 180, 0);
-                SeLayer layer = session.getLayer(typeName);
-                SeShape filterShape = new SeShape(layer.getCoordRef());
-                filterShape.generateRectangle(extent);
+            SeExtent extent = new SeExtent(179, -1, 180, 0);
+            SeLayer layer = Session.issueGetLayer(session, typeName);
+            SeShape filterShape = new SeShape(layer.getCoordRef());
+            filterShape.generateRectangle(extent);
 
-                SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
-                        filterShape, SeFilter.METHOD_ENVP, true);
-                spatFilters = new SeFilter[] { bboxFilter };
-            }
-            catch (SeException eek){
-                throw new ArcSdeException( eek );
-            }
-            SeQuery spatialQuery = null;
-            SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
-            // sqlCons.setWhere(where);
-
-            SeQueryInfo seQueryInfo = new SeQueryInfo();
-            seQueryInfo.setColumns(cols);
-            seQueryInfo.setConstruct(sqlCons);
-
-            spatialQuery = session.createSeQuery();
-            spatialQuery.setSpatialConstraints(SeQuery.SE_SPATIAL_FIRST, false, spatFilters);
-
-            SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
-
-            // just checking the extent were returned, which is something as I get lots of
-            // exceptions with trial and error approaches. checking the coordinate results seems
-            // hard as the test data or layer or crs is screwing things up and getting somehing like
-            // 9.223E18. I guess the may be a problem with the test layer accepting any type of
-            // geometry or the CRS definition used in TestData, not sure
-            assertNotNull(extent);
-
-        } catch (SeException e) {
-            LOGGER.warning(e.getSeError().getErrDesc());
-            new ArcSdeException(e).printStackTrace();
-            throw e;
+            SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
+                    filterShape, SeFilter.METHOD_ENVP, true);
+            spatFilters = new SeFilter[] { bboxFilter };
+        } catch (SeException eek) {
+            throw new ArcSdeException(eek);
         }
+        SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
+        // sqlCons.setWhere(where);
+
+        final SeQueryInfo seQueryInfo = new SeQueryInfo();
+        seQueryInfo.setColumns(cols);
+        seQueryInfo.setConstruct(sqlCons);
+
+        SeExtent extent = session.issue(new Command<SeExtent>() {
+
+            @Override
+            public SeExtent execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeQuery spatialQuery = new SeQuery(connection);
+                spatialQuery.setSpatialConstraints(SeQuery.SE_SPATIAL_FIRST, false, spatFilters);
+
+                SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
+                return extent;
+            }
+        });
+
+        // just checking the extent were returned, which is something as I get lots of
+        // exceptions with trial and error approaches. checking the coordinate results seems
+        // hard as the test data or layer or crs is screwing things up and getting somehing like
+        // 9.223E18. I guess the may be a problem with the test layer accepting any type of
+        // geometry or the CRS definition used in TestData, not sure
+        assertNotNull(extent);
+
     }
-    
-    
+
     public void testCalculateBoundsMixedFilter() throws Exception {
         final String typeName = testData.getTemp_table();
         try {
             String where = "INT32_COL < 5";
             String[] cols = { "SHAPE" };
-            SeFilter[] spatFilters;
+            final SeFilter[] spatFilters;
             try {
                 SeExtent extent = new SeExtent(179, -1, 180, 0);
-                SeLayer layer = session.getLayer(typeName);
+                SeLayer layer = Session.issueGetLayer(session, typeName);
                 SeShape filterShape = new SeShape(layer.getCoordRef());
                 filterShape.generateRectangle(extent);
 
                 SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
                         filterShape, SeFilter.METHOD_ENVP, true);
                 spatFilters = new SeFilter[] { bboxFilter };
+            } catch (SeException eek) {
+                throw new ArcSdeException(eek);
             }
-            catch (SeException eek){
-                throw new ArcSdeException( eek );
-            }
-            SeQuery spatialQuery = null;
             SeSqlConstruct sqlCons = new SeSqlConstruct(typeName);
             sqlCons.setWhere(where);
 
-            SeQueryInfo seQueryInfo = new SeQueryInfo();
+            final SeQueryInfo seQueryInfo = new SeQueryInfo();
             seQueryInfo.setColumns(cols);
             seQueryInfo.setConstruct(sqlCons);
 
-            spatialQuery = session.createSeQuery();
-            spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
+            SeExtent extent = session.issue(new Command<SeExtent>() {
+                @Override
+                public SeExtent execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeQuery spatialQuery = new SeQuery(connection);
+                    spatialQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
 
-            SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
+                    SeExtent extent = spatialQuery.calculateLayerExtent(seQueryInfo);
+                    return extent;
+                }
+            });
 
             assertNotNull(extent);
             double minX = Math.round(extent.getMinX());
@@ -459,7 +466,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             assertEquals(-80D, minY, 1E-9);
             assertEquals(170D, maxX, 1E-9);
             assertEquals(80D, maxY, 1E-9);
-            
+
         } catch (SeException e) {
             LOGGER.warning(e.getSeError().getErrDesc());
             new ArcSdeException(e).printStackTrace();
@@ -738,98 +745,106 @@ public class ArcSDEJavaApiTest extends TestCase {
      */
     public void testCreateBaseTable() throws SeException, IOException,
             UnavailableArcSDEConnectionException {
-        SeLayer layer = session.createSeLayer();
-        SeTable table = null;
 
-        try {
-            /*
-             * Create a qualified table name with current user's name and the name of the table to
-             * be created, "EXAMPLE".
-             */
-            String tableName = (session.getUser() + ".EXAMPLE");
-            table = session.createSeTable( tableName);
-            layer.setTableName("EXAMPLE");
+        final SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
 
-            try {
-                table.delete();
-            } catch (Exception e) {
-                LOGGER.warning(e.getMessage());
+        /*
+         * Define the columns and their attributes for the table to be created. NOTE: The valid
+         * range/values of size and scale parameters vary from one database to another.
+         */
+        boolean isNullable = true;
+        colDefs[0] = new SeColumnDefinition("INT32_COL", SeColumnDefinition.TYPE_INTEGER, 10, 0,
+                isNullable);
+        colDefs[1] = new SeColumnDefinition("INT16_COL", SeColumnDefinition.TYPE_SMALLINT, 4, 0,
+                isNullable);
+        colDefs[2] = new SeColumnDefinition("FLOAT32_COL", SeColumnDefinition.TYPE_FLOAT, 5, 2,
+                isNullable);
+        colDefs[3] = new SeColumnDefinition("FLOAT64_COL", SeColumnDefinition.TYPE_DOUBLE, 15, 4,
+                isNullable);
+        colDefs[4] = new SeColumnDefinition("STRING_COL", SeColumnDefinition.TYPE_STRING, 25, 0,
+                isNullable);
+        colDefs[5] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE, 1, 0,
+                isNullable);
+        colDefs[6] = new SeColumnDefinition("INT64_COL", SeColumnDefinition.TYPE_INTEGER, 10, 0,
+                isNullable);
+
+        final Command<Void> createBaseTableCmd = new Command<Void>() {
+
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+
+                SeLayer layer = new SeLayer(connection);
+                SeTable table = null;
+
+                /*
+                 * Create a qualified table name with current user's name and the name of the table
+                 * to be created, "EXAMPLE".
+                 */
+                String tableName = (session.getUser() + ".EXAMPLE");
+                table = session.createSeTable(tableName);
+                layer.setTableName("EXAMPLE");
+
+                try {
+                    table.delete();
+                } catch (Exception e) {
+                    LOGGER.warning(e.getMessage());
+                }
+
+                /*
+                 * Create the table using the DBMS default configuration keyword. Valid keywords are
+                 * defined in the dbtune table.
+                 */
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine("\n--> Creating a table using DBMS Default Keyword");
+                }
+                table.create(colDefs, testData.getConfigKeyword());
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine(" - Done.");
+                }
+                /*
+                 * Define the attributes of the spatial column
+                 */
+                layer.setSpatialColumnName("SHAPE");
+
+                /*
+                 * Set the type of shapes that can be inserted into the layer. Shape type can be
+                 * just one or many. NOTE: Layers that contain more than one shape type can only be
+                 * accessed through the C and Java APIs and Arc Explorer Java 3.x. They cannot be
+                 * seen from ArcGIS desktop applications.
+                 */
+                layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
+                        | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
+                        | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
+                layer.setGridSizes(1100.0, 0.0, 0.0);
+                layer.setDescription("Layer Example");
+
+                SeExtent ext = new SeExtent(0.0, 0.0, 10000.0, 10000.0);
+                layer.setExtent(ext);
+
+                /*
+                 * Define the layer's Coordinate Reference
+                 */
+                SeCoordinateReference coordref = TestData.getGenericCoordRef();
+                layer.setCoordRef(coordref);
+
+                /*
+                 * Spatially enable the new table...
+                 */
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine("\n--> Adding spatial column \"SHAPE\"...");
+                }
+                layer.setCreationKeyword(testData.getConfigKeyword());
+                layer.create(3, 4);
+                if (LOGGER.isLoggable(Level.FINE)) {
+                    LOGGER.fine(" - Done.");
+                }
+                return null;
             }
+        };
 
-            SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
+        session.issue(createBaseTableCmd);
 
-            /*
-             * Define the columns and their attributes for the table to be created. NOTE: The valid
-             * range/values of size and scale parameters vary from one database to another.
-             */
-            boolean isNullable = true;
-            colDefs[0] = new SeColumnDefinition("INT32_COL", SeColumnDefinition.TYPE_INTEGER, 10,
-                    0, isNullable);
-            colDefs[1] = new SeColumnDefinition("INT16_COL", SeColumnDefinition.TYPE_SMALLINT, 4,
-                    0, isNullable);
-            colDefs[2] = new SeColumnDefinition("FLOAT32_COL", SeColumnDefinition.TYPE_FLOAT, 5, 2,
-                    isNullable);
-            colDefs[3] = new SeColumnDefinition("FLOAT64_COL", SeColumnDefinition.TYPE_DOUBLE, 15,
-                    4, isNullable);
-            colDefs[4] = new SeColumnDefinition("STRING_COL", SeColumnDefinition.TYPE_STRING, 25,
-                    0, isNullable);
-            colDefs[5] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE, 1, 0,
-                    isNullable);
-            colDefs[6] = new SeColumnDefinition("INT64_COL", SeColumnDefinition.TYPE_INTEGER, 10,
-                    0, isNullable);
-
-            /*
-             * Create the table using the DBMS default configuration keyword. Valid keywords are
-             * defined in the dbtune table.
-             */
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("\n--> Creating a table using DBMS Default Keyword");
-            }
-            table.create(colDefs, testData.getConfigKeyword());
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine(" - Done.");
-            }
-            /*
-             * Define the attributes of the spatial column
-             */
-            layer.setSpatialColumnName("SHAPE");
-
-            /*
-             * Set the type of shapes that can be inserted into the layer. Shape type can be just
-             * one or many. NOTE: Layers that contain more than one shape type can only be accessed
-             * through the C and Java APIs and Arc Explorer Java 3.x. They cannot be seen from
-             * ArcGIS desktop applications.
-             */
-            layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
-                    | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
-                    | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
-            layer.setGridSizes(1100.0, 0.0, 0.0);
-            layer.setDescription("Layer Example");
-
-            SeExtent ext = new SeExtent(0.0, 0.0, 10000.0, 10000.0);
-            layer.setExtent(ext);
-
-            /*
-             * Define the layer's Coordinate Reference
-             */
-            SeCoordinateReference coordref = TestData.getGenericCoordRef();
-            layer.setCoordRef(coordref);
-
-            /*
-             * Spatially enable the new table...
-             */
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("\n--> Adding spatial column \"SHAPE\"...");
-            }
-            layer.setCreationKeyword(testData.getConfigKeyword());
-            layer.create(3, 4);
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine(" - Done.");
-            }
-        } catch (SeException e) {
-            LOGGER.throwing(this.getClass().getName(), "testCreateBaseTable", e);
-            throw e;
-        }
     } // End method createBaseTable
 
     /**
@@ -845,130 +860,140 @@ public class ArcSDEJavaApiTest extends TestCase {
      */
     public void testCreateNonStandardSchema() throws SeException, IOException,
             UnavailableArcSDEConnectionException {
-        final SeLayer layer = session.createSeLayer();
-        /*
-         * Create a qualified table name with current user's name and the name of the table to be
-         * created, "EXAMPLE".
-         */
-        final String tableName = (session.getUser() + ".NOTENDSWITHGEOM");
-        final SeTable table = session.createSeTable( tableName);
-        try {
-            layer.setTableName("NOTENDSWITHGEOM");
 
-            try {
-                table.delete();
-            } catch (Exception e) {
-                // intentionally blank
+        Command<Void> createCommand = new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                final SeLayer layer = new SeLayer(connection);
+                /*
+                 * Create a qualified table name with current user's name and the name of the table
+                 * to be created, "EXAMPLE".
+                 */
+                final String tableName = (session.getUser() + ".NOTENDSWITHGEOM");
+                final SeTable table = session.createSeTable(tableName);
+                try {
+                    layer.setTableName("NOTENDSWITHGEOM");
+
+                    try {
+                        table.delete();
+                    } catch (Exception e) {
+                        // intentionally blank
+                    }
+
+                    /*
+                     * Create the table using the DBMS default configuration keyword. Valid keywords
+                     * are defined in the dbtune table.
+                     */
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        System.out.println("\n--> Creating a table using DBMS Default Keyword");
+                    }
+                    SeColumnDefinition[] tmpCols = new SeColumnDefinition[] { new SeColumnDefinition(
+                            "tmp", SeColumnDefinition.TYPE_STRING, 5, 0, true) };
+                    table.create(tmpCols, testData.getConfigKeyword());
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        System.out.println(" - Done.");
+                    }
+                    SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
+
+                    /*
+                     * Define the columns and their attributes for the table to be created. NOTE:
+                     * The valid range/values of size and scale parameters vary from one database to
+                     * another.
+                     */
+                    boolean isNullable = true;
+                    colDefs[0] = new SeColumnDefinition("INT32_COL",
+                            SeColumnDefinition.TYPE_INTEGER, 10, 0, isNullable);
+                    colDefs[1] = new SeColumnDefinition("INT16_COL",
+                            SeColumnDefinition.TYPE_SMALLINT, 4, 0, isNullable);
+                    colDefs[2] = new SeColumnDefinition("FLOAT32_COL",
+                            SeColumnDefinition.TYPE_FLOAT, 5, 2, isNullable);
+                    colDefs[3] = new SeColumnDefinition("FLOAT64_COL",
+                            SeColumnDefinition.TYPE_DOUBLE, 15, 4, isNullable);
+                    colDefs[4] = new SeColumnDefinition("STRING_COL",
+                            SeColumnDefinition.TYPE_STRING, 25, 0, isNullable);
+                    colDefs[5] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE,
+                            1, 0, isNullable);
+                    colDefs[6] = new SeColumnDefinition("INT64_COL",
+                            SeColumnDefinition.TYPE_INTEGER, 10, 0, isNullable);
+
+                    table.addColumn(colDefs[0]);
+                    table.addColumn(colDefs[1]);
+                    table.addColumn(colDefs[2]);
+                    table.addColumn(colDefs[3]);
+                    table.dropColumn(tmpCols[0].getName());
+
+                    /*
+                     * Define the attributes of the spatial column
+                     */
+                    layer.setSpatialColumnName("SHAPE");
+
+                    /*
+                     * Set the type of shapes that can be inserted into the layer. Shape type can be
+                     * just one or many. NOTE: Layers that contain more than one shape type can only
+                     * be accessed through the C and Java APIs and Arc Explorer Java 3.x. They
+                     * cannot be seen from ArcGIS desktop applications.
+                     */
+                    layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
+                            | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
+                            | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
+                    layer.setGridSizes(1100.0, 0.0, 0.0);
+                    layer.setDescription("Layer Example");
+
+                    SeExtent ext = new SeExtent(0.0, 0.0, 10000.0, 10000.0);
+                    layer.setExtent(ext);
+
+                    /*
+                     * Define the layer's Coordinate Reference
+                     */
+                    SeCoordinateReference coordref = new SeCoordinateReference();
+                    coordref.setXY(0, 0, 100);
+                    layer.setCoordRef(coordref);
+
+                    /*
+                     * Spatially enable the new table...
+                     */
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.fine("\n--> Adding spatial column \"SHAPE\"...");
+                    }
+                    layer.setCreationKeyword(testData.getConfigKeyword());
+
+                    layer.create(3, 4);
+                    if (LOGGER.isLoggable(Level.FINE)) {
+                        LOGGER.fine(" - Done.");
+                    }
+
+                    table.addColumn(colDefs[4]);
+                    table.addColumn(colDefs[5]);
+                    table.addColumn(colDefs[6]);
+                    // } catch (SeException e) {
+                    // LOGGER.throwing(this.getClass().getName(),
+                    // "testCreateNonStandardSchema", e);
+                    // throw e;
+                } finally {
+                    try {
+                        table.delete();
+                    } catch (Exception e) {
+                        // intentionally blank
+                    }
+
+                    try {
+                        layer.delete();
+                    } catch (Exception e) {
+                        // intentionally blank
+                    }
+                }
+                return null;
             }
-
-            /*
-             * Create the table using the DBMS default configuration keyword. Valid keywords are
-             * defined in the dbtune table.
-             */
-            if (LOGGER.isLoggable(Level.FINE)) {
-                System.out.println("\n--> Creating a table using DBMS Default Keyword");
-            }
-            SeColumnDefinition[] tmpCols = new SeColumnDefinition[] { new SeColumnDefinition("tmp",
-                    SeColumnDefinition.TYPE_STRING, 5, 0, true) };
-            table.create(tmpCols, testData.getConfigKeyword());
-            if (LOGGER.isLoggable(Level.FINE)) {
-                System.out.println(" - Done.");
-            }
-            SeColumnDefinition[] colDefs = new SeColumnDefinition[7];
-
-            /*
-             * Define the columns and their attributes for the table to be created. NOTE: The valid
-             * range/values of size and scale parameters vary from one database to another.
-             */
-            boolean isNullable = true;
-            colDefs[0] = new SeColumnDefinition("INT32_COL", SeColumnDefinition.TYPE_INTEGER, 10,
-                    0, isNullable);
-            colDefs[1] = new SeColumnDefinition("INT16_COL", SeColumnDefinition.TYPE_SMALLINT, 4,
-                    0, isNullable);
-            colDefs[2] = new SeColumnDefinition("FLOAT32_COL", SeColumnDefinition.TYPE_FLOAT, 5, 2,
-                    isNullable);
-            colDefs[3] = new SeColumnDefinition("FLOAT64_COL", SeColumnDefinition.TYPE_DOUBLE, 15,
-                    4, isNullable);
-            colDefs[4] = new SeColumnDefinition("STRING_COL", SeColumnDefinition.TYPE_STRING, 25,
-                    0, isNullable);
-            colDefs[5] = new SeColumnDefinition("DATE_COL", SeColumnDefinition.TYPE_DATE, 1, 0,
-                    isNullable);
-            colDefs[6] = new SeColumnDefinition("INT64_COL", SeColumnDefinition.TYPE_INTEGER, 10,
-                    0, isNullable);
-
-            table.addColumn(colDefs[0]);
-            table.addColumn(colDefs[1]);
-            table.addColumn(colDefs[2]);
-            table.addColumn(colDefs[3]);
-            table.dropColumn(tmpCols[0].getName());
-
-            /*
-             * Define the attributes of the spatial column
-             */
-            layer.setSpatialColumnName("SHAPE");
-
-            /*
-             * Set the type of shapes that can be inserted into the layer. Shape type can be just
-             * one or many. NOTE: Layers that contain more than one shape type can only be accessed
-             * through the C and Java APIs and Arc Explorer Java 3.x. They cannot be seen from
-             * ArcGIS desktop applications.
-             */
-            layer.setShapeTypes(SeLayer.SE_NIL_TYPE_MASK | SeLayer.SE_POINT_TYPE_MASK
-                    | SeLayer.SE_LINE_TYPE_MASK | SeLayer.SE_SIMPLE_LINE_TYPE_MASK
-                    | SeLayer.SE_AREA_TYPE_MASK | SeLayer.SE_MULTIPART_TYPE_MASK);
-            layer.setGridSizes(1100.0, 0.0, 0.0);
-            layer.setDescription("Layer Example");
-
-            SeExtent ext = new SeExtent(0.0, 0.0, 10000.0, 10000.0);
-            layer.setExtent(ext);
-
-            /*
-             * Define the layer's Coordinate Reference
-             */
-            SeCoordinateReference coordref = new SeCoordinateReference();
-            coordref.setXY(0, 0, 100);
-            layer.setCoordRef(coordref);
-
-            /*
-             * Spatially enable the new table...
-             */
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine("\n--> Adding spatial column \"SHAPE\"...");
-            }
-            layer.setCreationKeyword(testData.getConfigKeyword());
-
-            layer.create(3, 4);
-            if (LOGGER.isLoggable(Level.FINE)) {
-                LOGGER.fine(" - Done.");
-            }
-
-            table.addColumn(colDefs[4]);
-            table.addColumn(colDefs[5]);
-            table.addColumn(colDefs[6]);
-            // } catch (SeException e) {
-            // LOGGER.throwing(this.getClass().getName(),
-            // "testCreateNonStandardSchema", e);
-            // throw e;
-        } finally {
-            try {
-                table.delete();
-            } catch (Exception e) {
-                // intentionally blank
-            }
-
-            try {
-                layer.delete();
-            } catch (Exception e) {
-                // intentionally blank
-            }
-        }
+        };
+        session.issue(createCommand);
     } // End method createBaseTable
 
     public void testDeleteById() throws IOException, UnavailableArcSDEConnectionException,
             SeException {
 
         final String typeName = testData.getTemp_table();
-        final SeQuery query = session.createSeQuery( new String[] { "ROW_ID", "INT32_COL" },
+        final SeQuery query = session.createSeQuery(new String[] { "ROW_ID", "INT32_COL" },
                 new SeSqlConstruct(typeName));
         query.prepareQuery();
         query.execute();
@@ -981,12 +1006,12 @@ public class ArcSDEJavaApiTest extends TestCase {
             query.close();
         }
 
-        SeDelete delete = session.createSeDelete();
+        SeDelete delete = Session.createSeDelete(session);
         delete.byId(typeName, new SeObjectId(rowId));
 
         final String whereClause = "ROW_ID=" + rowId;
         final SeSqlConstruct sqlConstruct = new SeSqlConstruct(typeName, whereClause);
-        final SeQuery deletedQuery = session.createSeQuery( new String[] { "ROW_ID" }, sqlConstruct);
+        final SeQuery deletedQuery = session.createSeQuery(new String[] { "ROW_ID" }, sqlConstruct);
 
         deletedQuery.prepareQuery();
         deletedQuery.execute();
@@ -1014,15 +1039,14 @@ public class ArcSDEJavaApiTest extends TestCase {
             final ArcSDEConnectionPool connPool = testData.getConnectionPool();
             transSession = connPool.getConnection();
             // start a transaction on transConn
-            transSession.setTransactionAutoCommit(0);
-            transSession.startTransaction();
+            Session.issueStartTransaction(transSession);
         }
 
         // flag to rollback or not at finally{}
         boolean commited = false;
 
         try {
-            SeInsert insert = transSession.createSeInsert();
+            SeInsert insert = Session.createSeInsert(transSession);
             final String[] columns = { "INT32_COL", "STRING_COL" };
             final String tableName = tempTable.getName();
             insert.intoTable(tableName, columns);
@@ -1047,7 +1071,8 @@ public class ArcSDEJavaApiTest extends TestCase {
             SeRow transRow = transQuery.fetch();
             // querying over a transaction in progress does give diff
             assertNotNull(transRow);
-            // assertEquals(Integer.valueOf(50), transRow.getInteger(0));
+            // assertEquals(Integer.valueOf(50), transRow.getInteger(0))
+            ;
             transQuery.close();
 
             // commit transaction
@@ -1080,79 +1105,115 @@ public class ArcSDEJavaApiTest extends TestCase {
         final SeTable versionedTable = testData.createVersionedTable(session);
 
         // create a new version
-        SeVersion defaultVersion;
-        SeVersion newVersion;
+        final SeVersion defaultVersion;
+        final SeVersion newVersion;
         {
-            defaultVersion = session.createSeVersion( SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-            defaultVersion.getInfo();
-
-            newVersion = session.createSeVersion( SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
-            // newVersion.getInfo();
-            newVersion.setName(session.getUser() + ".GeoToolsTestVersion");
-            newVersion.setParentName(defaultVersion.getName());
-            newVersion.setDescription(defaultVersion.getName()
-                    + " child for GeoTools ArcSDE unit tests");
-            // do not require ArcSDE to create a unique name if the required
-            // version already exists
-            boolean uniqueName = false;
-            try {
-                newVersion.create(uniqueName, newVersion);
-            } catch (SeException e) {
-                int sdeError = e.getSeError().getSdeError();
-                if (sdeError != -177) {
-                    throw new ArcSdeException( e );                    
+            defaultVersion = session.issue(new Command<SeVersion>() {
+                @Override
+                public SeVersion execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeVersion defaultVersion = new SeVersion(connection,
+                            SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                    defaultVersion.getInfo();
+                    return null;
                 }
-                // "VERSION ALREADY EXISTS", ignore and continue..
-                newVersion.getInfo();
-            }
+            });
+
+            newVersion = session.issue(new Command<SeVersion>() {
+
+                @Override
+                public SeVersion execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeVersion newVersion = new SeVersion(connection,
+                            SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
+                    // newVersion.getInfo();
+                    newVersion.setName(session.getUser() + ".GeoToolsTestVersion");
+                    newVersion.setParentName(defaultVersion.getName());
+                    newVersion.setDescription(defaultVersion.getName()
+                            + " child for GeoTools ArcSDE unit tests");
+                    // do not require ArcSDE to create a unique name if the required
+                    // version already exists
+                    boolean uniqueName = false;
+                    try {
+                        newVersion.create(uniqueName, newVersion);
+                    } catch (SeException e) {
+                        int sdeError = e.getSeError().getSdeError();
+                        if (sdeError != -177) {
+                            throw new ArcSdeException(e);
+                        }
+                        // "VERSION ALREADY EXISTS", ignore and continue..
+                        newVersion.getInfo();
+                    }
+                    return newVersion;
+                }
+            });
         }
 
         // edit default version
-        SeState defVersionState = session.createSeState( defaultVersion.getStateId());
-        // create a new state as a child of the current one, the current one
-        // must be closed
-        if (defVersionState.isOpen()) {
-            defVersionState.close();
-        }
-        SeState newState1 = session.createSeState();
-        newState1.create(defVersionState.getId());
+        SeState newState1 = session.issue(new Command<SeState>() {
+            @Override
+            public SeState execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeObjectId defVersionStateId = defaultVersion.getStateId();
+                SeState defVersionState = new SeState(connection, defVersionStateId);
+                // create a new state as a child of the current one, the current one
+                // must be closed
+                if (defVersionState.isOpen()) {
+                    defVersionState.close();
+                }
+                SeState newState1 = new SeState(connection);
+                newState1.create(defVersionState.getId());
+                return newState1;
+            }
+        });
 
-        try {
-            session.startTransaction();
-            testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
-                    "name 1 state 1");
-            testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
-                    "name 2 state 1");
+        Session.issueStartTransaction(session);
+        testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
+                "name 1 state 1");
+        testData.insertIntoVersionedTable(session, newState1, versionedTable.getName(),
+                "name 2 state 1");
 
-            newState1.close();
+        final SeObjectId parentStateId = newState1.getId();
+        Session.issueClose(session, newState1);
 
-            SeState newState2 = session.createSeState();
-            SeObjectId parentStateId = newState1.getId();
-            newState2.create(parentStateId);
+        final SeState newState2 = session.issue(new Command<SeState>() {
+            @Override
+            public SeState execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeState newState = new SeState(connection);
+                newState.create(parentStateId);
+                return newState;
+            }
+        });
 
-            testData.insertIntoVersionedTable(session, newState2, versionedTable.getName(),
-                    "name 1 state 2");
+        testData.insertIntoVersionedTable(session, newState2, versionedTable.getName(),
+                "name 1 state 2");
 
-            // Change the version's state pointer to the last edit state.
-            defaultVersion.changeState(newState2.getId());
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                // Change the version's state pointer to the last edit state.
+                defaultVersion.changeState(newState2.getId());
 
-            // Trim the state tree.
-            newState2.trimTree(parentStateId, newState2.getId());
-            session.commitTransaction();
-        } catch (SeException e) {
-            new ArcSdeException(e).printStackTrace();
-            throw e;
-        }
+                // Trim the state tree.
+                newState2.trimTree(parentStateId, newState2.getId());
+
+                return null;
+            }
+        });
+        Session.issueCommitTransaction(session);
 
         // we edited the default version, lets query the default version and the
         // new version and assert they have the correct feature count
-        SeObjectId defaultVersionStateId = defaultVersion.getStateId();
-        defVersionState = session.createSeState( defaultVersionStateId);
+        final SeObjectId defaultVersionStateId = defaultVersion.getStateId();
+        SeState defVersionState = Session.issueCreateState(session, defaultVersionStateId);
+
         int defVersionCount = getTempTableCount(session, versionedTable.getName(), null, null,
                 defVersionState);
         assertEquals(3, defVersionCount);
 
-        SeState newVersionState = session.createSeState( newVersion.getStateId());
+        SeState newVersionState = Session.issueCreateState(session, newVersion.getStateId());
         int newVersionCount = getTempTableCount(session, versionedTable.getName(), null, null,
                 newVersionState);
         assertEquals(0, newVersionCount);

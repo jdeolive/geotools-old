@@ -37,7 +37,7 @@ public class SeLayer {
 	public String getSpatialColumn() { return null; }
 	public SeCoordinateReference getCoordRef() { return null; }
 	public SeExtent getExtent() { return null; }
-	public String getShapeAttributeName(int i) { return null; }
+	public String getShapeAttributeName(int i) throws SeException { return null; }
 	public void setGridSizes(double a, double b, double c){}
 	public void delete()throws SeException{}
     public void setCreationKeyword(String s) {}
