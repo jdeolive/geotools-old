@@ -1,0 +1,491 @@
+MODULE GEOMETRY
+===============
+Module Maintainer: Sanjay Dominik Jena, Grahem Davis (Refractions Research)
+
+IP Review:
+- Grahem Davis, July 17/18th, 2007
+- Jody Garnett, July 17th, 2007
+
+This module is a formal fork of the JTS Topology Suite version 1.7.2 backed onto
+GeoAPI geometry interfaces. This work was undertaken by the University of 
+Applied Sciences Köln (Fachhochschule Köln) in 2006.
+
+This work is based on GeoAPI Geometry interfaces which are defined in accordance
+with the ISO 19107 specification. The ISO 19107 specification was consulted
+during implementation. The occasional javadoc description has been taken
+from either GeoAPI or the ISO 19107 specification. It is our understanding that
+up to 20% of an ISO specifications may be used during an implementation and we
+are well within this limit.
+
+The JTS Topology Suite is property of Vivid Solutions and is available under an
+LGPL license. This license requires that we make any modifications to their
+code available in source code form. The publication of GeoTools source code
+in a public repository meets this requirement.
+
+IP:
+- LICENSE.txt created to hold a copy of the LGPL license
+
+
+org.geotools.geometry.iso
+-------------------------
+
+- Most code arrived with the following headers:
+/*
+ * This implementation of the OGC Feature Geometry Abstract Specification
+ * (ISO 19107) is a project of the University of Applied Sciences Cologne
+ * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ *
+ * Copyright (
+ * Copyright (C) 2006 University of Applied Sciences Köln
+ *                    (Fachhochschule Köln) and GeoTools
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * For more information, contact:
+ *
+ *     Prof. Dr. Jackson Roehrig
+ *     Institut für Technologie in den Tropen
+ *     Fachhochschule Köln
+ *     Betzdorfer Strasse 2
+ *     D-50679 Köln
+ *     Jackson.Roehrig@fh-koeln.de
+ *
+ *     Sanjay Dominik Jena
+ *     san.jena@gmail.com
+ *
+ */
+ 
+ - added project description and contact information to the wiki page and package.html
+ - reverted all files to standard project header
+ - PrecisionModel had the following header, changed the header to just list the
+ copyright information (extra details placed onto the wiki and package.html).
+ /*
+ * This class was copied from the JTS Topology Suite Version 1.7.2
+ * of Vivid Solutions and modified and reused in this library under
+ * the terms of GNU Lesser General Public Licence.
+ * The original copyright of the Vivid Solutions JTS is stated as follows:
+ *
+ *------------------------------------------------------------------------
+ * The JTS Topology Suite is a collection of Java classes that
+ * implement the fundamental operations required to validate a given
+ * geo-spatial data set to a known topological specification.
+ *
+ * Copyright (C) 2001 Vivid Solutions
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * For more information, contact:
+ *
+ *     Vivid Solutions
+ *     Suite #1A
+ *     2328 Government Street
+ *     Victoria BC  V8T 5G5
+ *     Canada
+ *
+ *     (250)385-6040
+ *     www.vividsolutions.com
+ *------------------------------------------------------------------------
+ */ 
+ 
+ 
+org.geotools.geometry.iso.aggregate
+-----------------------------------
+
+- All files originally had this header:
+/*
+ * This implementation of the OGC Feature Geometry Abstract Specification
+ * (ISO 19107) is a project of the University of Applied Sciences Cologne
+ * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ *
+ * Copyright (C) 2006 University of Applied Sciences Köln
+ *                    (Fachhochschule Köln) and GeoTools
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * For more information, contact:
+ *
+ *     Prof. Dr. Jackson Roehrig
+ *     Institut für Technologie in den Tropen
+ *     Fachhochschule Köln
+ *     Betzdorfer Strasse 2
+ *     D-50679 Köln
+ *     Jackson.Roehrig@fh-koeln.de
+ *
+ *     Sanjay Dominik Jena
+ *     san.jena@gmail.com
+ *
+ */
+ 
+- reverted all files to standard project header
+- created package.html
+
+ 
+org.geotools.geometry.iso.complex
+---------------------------------
+
+- All files originally had the same header as the files originally did in
+the org.geotools.geometry.iso.aggregate package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.coordinate
+------------------------------------
+
+- All files (except DoublePointArray.java) originally had the same header as the 
+files originally did in the org.geotools.geometry.iso.aggregate package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.index
+-------------------------------
+
+- All files originally had these headers:
+/*
+ * This implementation of the OGC Feature Geometry Abstract Specification
+ * (ISO 19107) is a project of the University of Applied Sciences Cologne
+ * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ *
+ * Copyright (C) 2006 University of Applied Sciences Köln
+ *                    (Fachhochschule Köln) and GeoTools
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * For more information, contact:
+ *
+ *     Prof. Dr. Jackson Roehrig
+ *     Institut für Technologie in den Tropen
+ *     Fachhochschule Köln
+ *     Betzdorfer Strasse 2
+ *     D-50679 Köln
+ *     Jackson.Roehrig@fh-koeln.de
+ *
+ *     Sanjay Dominik Jena
+ *     san.jena@gmail.com
+ *
+ */
+/*
+ * This class was copied from the JTS Topology Suite Version 1.7.2
+ * of Vivid Solutions and modified and reused in this library under
+ * the terms of GNU Lesser General Public Licence.
+ * The original copyright of the Vivid Solutions JTS is stated as follows:
+ *
+ *------------------------------------------------------------------------
+ * The JTS Topology Suite is a collection of Java classes that
+ * implement the fundamental operations required to validate a given
+ * geo-spatial data set to a known topological specification.
+ *
+ * Copyright (C) 2001 Vivid Solutions
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ * For more information, contact:
+ *
+ *     Vivid Solutions
+ *     Suite #1A
+ *     2328 Government Street
+ *     Victoria BC  V8T 5G5
+ *     Canada
+ *
+ *     (250)385-6040
+ *     www.vividsolutions.com
+ *------------------------------------------------------------------------
+ */ 
+ 
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.quadtree
+----------------------------------
+
+- All files originally had the same header as the files originally did in
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.io
+----------------------------
+
+- All files originally had the same header as the files originally did in
+the org.geotools.geometry.iso.aggregate package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.wkt
+-----------------------------
+
+- Coordinate.java, ParseException.java, and WKTReader.java originally had the same 
+header as the files originally did in the org.geotools.geometry.iso.index package.
+- GeometryToWKTString.java, and WKTConstants.java originally had the same header as 
+the files originally did in the org.geotools.geometry.iso.aggregate package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.operation
+-----------------------------------
+
+- Merger.java originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.aggregate package.
+- GeometryGraphOperation.java, and IsSimpleOp.java originally had the same
+header as the files originally did in the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.overlay
+---------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.relate
+--------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.primitive
+-----------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.aggregate package.
+header as the files originally did in the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.root
+------------------------------
+
+- GeometryImpl.java originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.aggregate package.
+header as the files originally did in the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.topograph2D
+-------------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.topograph2D.index
+-------------------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.topograph2D.util
+------------------------------------------
+
+- All files originally had the same header as the files originally did in 
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util
+------------------------------
+
+- DoubleOperation.java, and ExactDoubleOperation.java originally had the same 
+header as the files originally did in the org.geotools.geometry.iso.aggregate package.
+- Assert.java, and AssertionFailedException.java originally had the same header as 
+the files originally did in the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util.algorithm2D
+------------------------------------------
+
+- AlgoArea.java, AlgoLine2D.java, AlgoPoint2D.java, and AlgoRectangle2D.java originally 
+had the same header as the files originally did in 
+the org.geotools.geometry.iso.aggregate package.
+- All other files originally had the same header as the files originally did in
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util.algorithmND
+------------------------------------------
+
+- AlgoLineND.java, AlgoPointND.java, and AlgoRectangleND.java originally 
+had the same header as the files originally did in 
+the org.geotools.geometry.iso.aggregate package.
+- All other files originally had the same header as the files originally did in
+the org.geotools.geometry.iso.index package.
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util.algorithmND
+------------------------------------------
+
+- Circle2D.java originally had this header:
+/*
+ * Created on 03/11/2004
+ */
+ 
+ - Edge2D.java originally had this header:
+/*
+ * Created on 21.01.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+ - Geo2DFactory.java originally had this header:
+/*
+ * Created on 06.08.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+ - Node2D.java originally had this header:
+/*
+ * Created on 23.07.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+ - Quadrilateral2D.java originally had this header:
+/*
+ * Created on 21.01.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+ - Simplex2D.java originally had no header.
+ - Triangle2D.java originally had this header:
+/*
+ * Created on 21.01.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util.interpolation
+--------------------------------------------
+
+- PointNeighboursGradients.java originally had this header:
+/*
+ * Created on 26.01.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+- All other files originally had no headers
+- reverted all files to standard project header
+- created package.html
+
+
+org.geotools.geometry.iso.util.topology
+---------------------------------------
+
+- BdryEdge2D.java originally had this header:
+/*
+ * Created on 21.01.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+- Simplex2D.java originally had no header.
+- All other files originally had this header:
+/*
+ * Created on 23.07.2005
+ *
+ * TODO To change the template for this generated file go to
+ * Window - Preferences - Java - Code Style - Code Templates
+ */
+ 
+- reverted all files to standard project header
+- created package.html
+
