@@ -8,7 +8,7 @@ IP Review:
 
 This module is a formal fork of the JTS Topology Suite version 1.7.2 backed onto
 GeoAPI geometry interfaces. This work was undertaken by the University of 
-Applied Sciences Köln (Fachhochschule Köln) in 2006.
+Applied Sciences KÃ¶ln (Fachhochschule KÃ¶ln) in 2006.
 
 This work is based on GeoAPI Geometry interfaces which are defined in accordance
 with the ISO 19107 specification. The ISO 19107 specification was consulted
@@ -33,11 +33,11 @@ org.geotools.geometry.iso
 /*
  * This implementation of the OGC Feature Geometry Abstract Specification
  * (ISO 19107) is a project of the University of Applied Sciences Cologne
- * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ * (Fachhochschule KÃ¶ln) in collaboration with GeoTools and GeoAPI.
  *
  * Copyright (
- * Copyright (C) 2006 University of Applied Sciences Köln
- *                    (Fachhochschule Köln) and GeoTools
+ * Copyright (C) 2006 University of Applied Sciences KÃ¶ln
+ *                    (Fachhochschule KÃ¶ln) and GeoTools
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -56,10 +56,10 @@ org.geotools.geometry.iso
  * For more information, contact:
  *
  *     Prof. Dr. Jackson Roehrig
- *     Institut für Technologie in den Tropen
- *     Fachhochschule Köln
+ *     Institut fÃ¼r Technologie in den Tropen
+ *     Fachhochschule KÃ¶ln
  *     Betzdorfer Strasse 2
- *     D-50679 Köln
+ *     D-50679 KÃ¶ln
  *     Jackson.Roehrig@fh-koeln.de
  *
  *     Sanjay Dominik Jena
@@ -119,10 +119,10 @@ org.geotools.geometry.iso.aggregate
 /*
  * This implementation of the OGC Feature Geometry Abstract Specification
  * (ISO 19107) is a project of the University of Applied Sciences Cologne
- * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ * (Fachhochschule KÃ¶ln) in collaboration with GeoTools and GeoAPI.
  *
- * Copyright (C) 2006 University of Applied Sciences Köln
- *                    (Fachhochschule Köln) and GeoTools
+ * Copyright (C) 2006 University of Applied Sciences KÃ¶ln
+ *                    (Fachhochschule KÃ¶ln) and GeoTools
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -141,10 +141,10 @@ org.geotools.geometry.iso.aggregate
  * For more information, contact:
  *
  *     Prof. Dr. Jackson Roehrig
- *     Institut für Technologie in den Tropen
- *     Fachhochschule Köln
+ *     Institut fÃ¼r Technologie in den Tropen
+ *     Fachhochschule KÃ¶ln
  *     Betzdorfer Strasse 2
- *     D-50679 Köln
+ *     D-50679 KÃ¶ln
  *     Jackson.Roehrig@fh-koeln.de
  *
  *     Sanjay Dominik Jena
@@ -181,10 +181,10 @@ org.geotools.geometry.iso.index
 /*
  * This implementation of the OGC Feature Geometry Abstract Specification
  * (ISO 19107) is a project of the University of Applied Sciences Cologne
- * (Fachhochschule Köln) in collaboration with GeoTools and GeoAPI.
+ * (Fachhochschule KÃ¶ln) in collaboration with GeoTools and GeoAPI.
  *
- * Copyright (C) 2006 University of Applied Sciences Köln
- *                    (Fachhochschule Köln) and GeoTools
+ * Copyright (C) 2006 University of Applied Sciences KÃ¶ln
+ *                    (Fachhochschule KÃ¶ln) and GeoTools
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -203,10 +203,10 @@ org.geotools.geometry.iso.index
  * For more information, contact:
  *
  *     Prof. Dr. Jackson Roehrig
- *     Institut für Technologie in den Tropen
- *     Fachhochschule Köln
+ *     Institut fÃ¼r Technologie in den Tropen
+ *     Fachhochschule KÃ¶ln
  *     Betzdorfer Strasse 2
- *     D-50679 Köln
+ *     D-50679 KÃ¶ln
  *     Jackson.Roehrig@fh-koeln.de
  *
  *     Sanjay Dominik Jena
