@@ -39,10 +39,10 @@ import javax.imageio.spi.ImageReaderSpi;
 import javax.imageio.stream.ImageInputStream;
 
 import org.geotools.io.TableWriter;
+import org.geotools.util.Utilities;
 import org.geotools.util.logging.Logging;
 import org.geotools.resources.XArray;
 import org.geotools.resources.Classes;
-import org.geotools.resources.Utilities;
 import org.geotools.resources.i18n.Errors;
 import org.geotools.resources.i18n.ErrorKeys;
 
@@ -974,12 +974,16 @@ public class Tile implements Comparable<Tile>, Serializable {
      * {@link #xSubsampling} and {@link #ySubsampling}) to units relative to this tile, and
      * delegates to the user-overrideable {@link #countUnwantedPixels}.
      *
-     * @param toRead The region to read, in the same units than {@link #getAbsoluteRegion}.
-     *        <strong>This rectangle will be modified without clone</strong>. This is okay
-     *        for our private usage, but would not be acceptable in a public API.
-     * @param subsampling The number of columns and rows to advance between pixels in the given
-     *        region. <strong>This dimension will be modified without clone</strong>. This is
-     *        okay for our private usage, but would not be acceptable in a public API.
+     * @param  toRead The region to read, in the same units than {@link #getAbsoluteRegion}.
+     *         <strong>This rectangle will be modified without clone</strong>. This is okay
+     *         for our private usage, but would not be acceptable in a public API.
+     * @param  subsampling The number of columns and rows to advance between pixels in the given
+     *         region. <strong>This dimension will be modified without clone</strong>. This is
+     *         okay for our private usage, but would not be acceptable in a public API.
+     * @return The amount of pixels which would be unused if the reading was performed on this
+     *         tile. Smaller number is better.
+     * @throws IOException if it was necessary to fetch the image dimension from the
+     *         {@linkplain #getImageReader reader} and this operation failed.
      */
     final int countUnwantedPixelsFromAbsolute(final Rectangle toRead, final Dimension subsampling)
             throws IOException

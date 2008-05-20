@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.io.IOException;
 import java.awt.geom.AffineTransform; // For javadoc
 
 import org.geotools.factory.Hints;
@@ -61,8 +62,11 @@ public class TileManagerFactory extends AbstractFactory {
      * @return The tile managers, or {@code null} if {@code tiles} was null.
      * @throws IllegalArgumentException if {@code tiles} is not an instance of a valid class,
      *         or if it is an array or a collection containing null elements.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    public TileManager[] createFromObject(final Object tiles) throws IllegalArgumentException {
+    public TileManager[] createFromObject(final Object tiles)
+            throws IOException, IllegalArgumentException
+    {
         final TileManager[] managers;
         if (tiles == null) {
             managers = null;
@@ -98,8 +102,12 @@ public class TileManagerFactory extends AbstractFactory {
      * (for example if the ratio between {@linkplain AffineTransform affine transform} given to
      * {@linkplain Tile#Tile(ImageReaderSpi,Object,int,Dimension,AffineTransform) tile constructor}
      * would lead to fractional {@linkplain Tile#getSubsampling subsampling}).
+     *
+     * @param  tiles The tiles to give to a tile manager.
+     * @return A tile manager created from the given tiles.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    public TileManager[] create(final Tile[] tiles) {
+    public TileManager[] create(final Tile[] tiles) throws IOException {
         // The default called invokes Collection.toArray(), which will copy the array.
         return create(Arrays.asList(tiles));
     }
@@ -111,8 +119,12 @@ public class TileManagerFactory extends AbstractFactory {
      * (for example if the ratio between {@linkplain AffineTransform affine transform} given to
      * {@linkplain Tile#Tile(ImageReaderSpi,Object,int,Dimension,AffineTransform) tile constructor}
      * would lead to fractional {@linkplain Tile#getSubsampling subsampling}).
+     *
+     * @param  tiles The tiles to give to a tile manager.
+     * @return A tile manager created from the given tiles.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    public TileManager[] create(Collection<Tile> tiles) {
+    public TileManager[] create(Collection<Tile> tiles) throws IOException {
         int count = 0;
         final TileManager[] managers;
         if (!hasPendingGridToCRS(tiles)) {
@@ -183,8 +195,9 @@ public class TileManagerFactory extends AbstractFactory {
      *
      * @param tiles A copy of user-supplied tiles.
      * @return The tile manager for the given tiles.
+     * @throws IOException If an I/O operation was required and failed.
      */
-    protected TileManager createGeneric(final Tile[] tiles) {
+    protected TileManager createGeneric(final Tile[] tiles) throws IOException {
         return new TreeTileManager(tiles);
     }
 }

@@ -33,7 +33,10 @@ import static org.junit.Assert.*;
 
 
 /**
- * Base class for tests.
+ * Base class for tests. The {@linkplain #sourceTiles source tiles} are 8 tiles from Nasa
+ * Blue Marble. The {@linkplain #targetTiles target tiles} are a few thousands of smaller
+ * tiles created from the source tiles by the {@linkplain #builder}. A {@linkplain #manager
+ * tile manager} is created for those target tiles.
  *
  * @source $URL$
  * @version $Id$
@@ -51,7 +54,7 @@ public abstract class TestBase {
     protected static final int TARGET_SIZE = 960;
 
     /**
-     * The mosaic builder used for creating {@link #blueMarbleTiles}.
+     * The mosaic builder used for creating {@link #targetTiles}.
      */
     protected MosaicBuilder builder;
 
@@ -71,6 +74,18 @@ public abstract class TestBase {
     protected TileManager manager;
 
     /**
+     * The tile manager factory to be given to the {@linkplain #builder}, or {@code null} for the
+     * default one. Subclasses can override this method in order to test specific implementations
+     * of {@link TileManager}.
+     *
+     * @return The tile manager factory to use.
+     * @throws IOException If an I/O operation was required and failed.
+     */
+    protected TileManagerFactory getTileManagerFactory() throws IOException {
+        return null;
+    }
+
+    /**
      * Initializes every fields declared in this {@link TestBase} class.
      *
      * @throws IOException If an I/O operation was required and failed.
@@ -79,7 +94,7 @@ public abstract class TestBase {
     public final void initTileManager() throws IOException {
         assertTrue("Assertions should be enabled.", MosaicBuilder.class.desiredAssertionStatus());
 
-        builder = new MosaicBuilder();
+        builder = new MosaicBuilder(getTileManagerFactory());
         assertNull("No initial provider expected.", builder.getTileReaderSpi());
         builder.setTileReaderSpi("png");
         final ImageReaderSpi spi = builder.getTileReaderSpi();

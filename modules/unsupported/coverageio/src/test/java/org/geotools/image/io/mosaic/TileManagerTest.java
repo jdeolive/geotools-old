@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public final class TileManagerTest extends TestBase {
+public class TileManagerTest extends TestBase {
     /**
      * The region of interest to be queried.
      */
@@ -85,6 +85,12 @@ public final class TileManagerTest extends TestBase {
      * Searchs the tiles again with a different subsampling requested, and ensures that we get the
      * same collection than previous invocation of {@link #searchTiles}. The purpose of this method
      * is to ensure that the automatic adjustment of subsampling works.
+     *
+     * @param xRequested Subsampling to request along the x axis.
+     * @param yRequested Subsampling to request along the y axis.
+     * @param  expected  The uniform subsampling expected in the selected tiles along both axis.
+     * @param xExpected  The expected tile manager suggestion for subsampling along x axis.
+     * @param yExpected  The expected tile manager suggestion for subsampling along y axis.
      */
     private void searchSameTiles(final int xRequested, final int yRequested, final int expected,
                                  final int xExpected,  final int yExpected)

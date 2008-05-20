@@ -100,6 +100,9 @@ final class FilenameFormatter implements Serializable {
                     suffix = s;
                 }
             }
+            if (!suffix.startsWith(".")) {
+                suffix = "." + suffix;
+            }
         }
         overviewFieldSize = 0;
         rowFieldSize      = 0;

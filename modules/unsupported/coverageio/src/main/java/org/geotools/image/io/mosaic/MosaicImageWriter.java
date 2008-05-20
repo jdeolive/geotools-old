@@ -90,6 +90,8 @@ public class MosaicImageWriter extends ImageWriter {
 
     /**
      * Constructs an image writer with the specified provider.
+     *
+     * @param spi The service provider, or {@code null} for the default one.
      */
     public MosaicImageWriter(final ImageWriterSpi spi) {
         super(spi != null ? spi : Spi.DEFAULT);
@@ -97,6 +99,8 @@ public class MosaicImageWriter extends ImageWriter {
 
     /**
      * Returns the logging level for tile information during read and write operations.
+     *
+     * @return The current logging level.
      */
     public Level getLogLevel() {
         return level;
@@ -105,6 +109,8 @@ public class MosaicImageWriter extends ImageWriter {
     /**
      * Sets the logging level for tile information during read and write operations.
      * The default value is {@link Level#FINE}. A {@code null} value restore the default.
+     *
+     * @param level The new logging level, or {@code null} for the default.
      */
     public void setLogLevel(Level level) {
         if (level == null) {
@@ -129,11 +135,21 @@ public class MosaicImageWriter extends ImageWriter {
      * If the given input is a singleton, an array or a {@linkplain Collection collection} of
      * {@link Tile} objects, then it will be wrapped in an array of {@link TileManager}s.
      *
-     * @param output The output.
+     * @param  output The output.
+     * @throws IllegalArgumentException if {@code output} is not an instance of one of the
+     *         expected classes, or if the output can not be used because of an I/O error
+     *         (in which case the exception has a {@link IOException} as its
+     *         {@linkplain IllegalArgumentException#getCause cause}).
      */
     @Override
-    public void setOutput(final Object output) {
-        super.setOutput(TileManagerFactory.DEFAULT.createFromObject(output));
+    public void setOutput(final Object output) throws IllegalArgumentException {
+        final TileManager[] managers;
+        try {
+            managers = TileManagerFactory.DEFAULT.createFromObject(output);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getLocalizedMessage(), e);
+        }
+        super.setOutput(managers);
     }
 
     /**
@@ -189,7 +205,7 @@ public class MosaicImageWriter extends ImageWriter {
      * @param  outputIndex The output image index, which is the index of the
      *         {@linkplain TileManager tile manager} to use in the array returned by
      *         {@link #getOutput}.
-     * @param  boolean {@code true} on success, or {@code false} if the process has been aborted.
+     * @return {@code true} on success, or {@code false} if the process has been aborted.
      * @throws IOException If an error occured while reading or writing.
      */
     public boolean writeFromInput(final Object input, final int inputIndex, final int outputIndex)
@@ -1001,6 +1017,8 @@ search: for (final Tile tile : tiles) {
 
         /**
          * Returns a new {@link MosaicImageWriter}.
+         *
+         * @throws IOException If an I/O operation was required and failed.
          */
         public ImageWriter createWriterInstance(Object extension) throws IOException {
             return new MosaicImageWriter(this);

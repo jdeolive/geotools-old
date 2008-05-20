@@ -660,8 +660,10 @@ public class MosaicBuilder {
      *   <li>tiles of constant size in pixels. The stop condition is when a single tile cover
      *       the whole image.</li>
      * </ul>
+     *
+     * @throws IOException if an I/O operation was requested and failed.
      */
-    private TileManager createTileManager(final boolean constantArea) {
+    private TileManager createTileManager(final boolean constantArea) throws IOException {
         final List<Tile> tiles       = new ArrayList<Tile>();
         final Rectangle  tileBounds  = new Rectangle(tileSize);
         final Rectangle  imageBounds = new Rectangle(untiledBounds);
@@ -802,7 +804,15 @@ public class MosaicBuilder {
             }
             setUntiledImageBounds(bounds);
             tiles = createTileManager();
-            setOutput(tiles);
+            try {
+                setOutput(tiles);
+            } catch (IllegalArgumentException exception) {
+                final Throwable cause = exception.getCause();
+                if (cause instanceof IOException) {
+                    throw (IOException) cause;
+                }
+                throw exception;
+            }
             return true;
         }
 

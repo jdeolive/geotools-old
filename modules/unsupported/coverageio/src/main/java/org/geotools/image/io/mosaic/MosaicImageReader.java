@@ -139,7 +139,7 @@ public class MosaicImageReader extends ImageReader {
      * Sets the logging level for tile information during reads. The default
      * value is {@link Level#FINE}. A {@code null} value restore the default.
      *
-     * @param level The new logging level.
+     * @param level The new logging level, or {@code null} for the default.
      */
     public void setLogLevel(Level level) {
         if (level == null) {
@@ -187,10 +187,21 @@ public class MosaicImageReader extends ImageReader {
      * @param seekForwardOnly if {@code true}, images and metadata may only be read in ascending
      *        order from this input source.
      * @param ignoreMetadata if {@code true}, metadata may be ignored during reads.
+     * @throws IllegalArgumentException if {@code input} is not an instance of one of the
+     *         expected classes, or if the input can not be used because of an I/O error
+     *         (in which case the exception has a {@link IOException} as its
+     *         {@linkplain IllegalArgumentException#getCause cause}).
      */
     @Override
-    public void setInput(Object input, final boolean seekForwardOnly, final boolean ignoreMetadata) {
-        final TileManager[] managers = TileManagerFactory.DEFAULT.createFromObject(input);
+    public void setInput(Object input, final boolean seekForwardOnly, final boolean ignoreMetadata)
+            throws IllegalArgumentException
+    {
+        final TileManager[] managers;
+        try {
+            managers = TileManagerFactory.DEFAULT.createFromObject(input);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e.getLocalizedMessage(), e);
+        }
         final int numImages = (managers != null) ? managers.length : 0;
         super.setInput(input=managers, seekForwardOnly, ignoreMetadata);
         availableLocales = null; // Will be computed by getAvailableLocales() when first needed.

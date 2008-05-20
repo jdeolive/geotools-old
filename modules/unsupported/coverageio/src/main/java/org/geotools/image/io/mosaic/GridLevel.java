@@ -80,22 +80,29 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     private final int sx, sy;
 
     /**
-     * The location of the tile closest to origin, positive.
+     * The location of the tile closest to origin, positive. They are <cite>relative</cite>
+     * coordinates as used in public {@link Tile} API (i.e. those coordinates are <em>not</em>
+     * pre-multiplied by {@link #sx} and {@link #sy}).
      */
     private final int x, y;
 
     /**
-     * Size of every tiles at this level.
+     * Size of every tiles at this level. They are <cite>relative</cite> size as used in public
+     * {@link Tile} API (i.e. those coordinates are <em>not</em> pre-multiplied by {@link #sx}
+     * and {@link #sy}).
      */
-    final int width, height;
+    private final int width, height;
 
     /**
      * The region of every tiles in this level. The {@linkplain Rectangle#x x} and
      * {@linkplain Rectangle#y y} coordinates are the upper-left corner of the (0,0)
      * tile. The {@linkplain Rectangle#width width} and {@linkplain Rectangle#height height}
      * are big enough for including every tiles.
+     * <p>
+     * They are <cite>relative</cite> coordinates as used in public {@link Tile} API (i.e.
+     * those coordinates are <em>not</em> pre-multiplied by {@link #sx} and {@link #sy}).
      */
-    final Rectangle region;
+    private final Rectangle region;
 
     /**
      * On construction, the list of tiles {@linkplain #add added} in this level in no particular
@@ -172,17 +179,40 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
         assert subsampling.equals(tile.getSubsampling()) : subsampling;
         assert subsampling.width == sx && subsampling.height == sy : subsampling;
         final Rectangle toAdd = tile.getRegion();
-        int ox = region.x % width;
-        int oy = region.y % height;
+        if (toAdd.width != width || toAdd.height != height) {
+            throw new IllegalArgumentException(Errors.format(ErrorKeys.UNEXPECTED_IMAGE_SIZE));
+        }
+        int ox = toAdd.x % width;
+        int oy = toAdd.y % height;
         if (ox < 0) ox += width;
         if (oy < 0) oy += height;
         if (ox != x || oy != y) {
             throw new IllegalArgumentException(Errors.format(ErrorKeys.NOT_A_GRID));
         }
-        if (toAdd.width != width || toAdd.height != height) {
-            throw new IllegalArgumentException(Errors.format(ErrorKeys.UNEXPECTED_IMAGE_SIZE));
-        }
         region.add(toAdd);
+        tiles.add(tile);
+    }
+
+    /**
+     * Returns the region in absolute coordinates. This is the region that the level would have
+     * if its subsampling was 1.
+     *
+     * @return The region in absolute coordinates.
+     */
+    final Rectangle getAbsoluteRegion() {
+        return new Rectangle(region.x * sx, region.y * sy, region.width * sx, region.height * sy);
+    }
+
+    /**
+     * If there is more than one tile, returns the tile size. Otherwise returns {@code null}.
+     *
+     * @return The tile size, or {@code null} if there is only one tile.
+     */
+    final Dimension getTileSize() {
+        if (region.width > width || region.height > height) {
+            return new Dimension(width, height);
+        }
+        return null;
     }
 
     /**
@@ -467,33 +497,37 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
     }
 
     /**
-     * Adds to the given collection every tiles that intersect the given region.
-     * This is caller responsability to ensure that this level use the subsampling
-     * of interest.
+     * Adds to the given collection every tiles that intersect the given region. This is
+     * caller responsability to ensure that this level uses the subsampling of interest.
      *
      * @param  addTo The collection where to add the tiles.
-     * @param  region The region of interest, or {@code null} for including all tiles.
-     * @return The tiles that intercept the given region. May be empty but never {@code null}.
+     * @param  search The region of interest, or {@code null} for including all tiles.
+     * @return The {@code addTo} collection, or a new one if {@code addTo} was {@code null}.
      * @throws MalformedURLException if an error occured while creating the URL for the tile.
      */
-    final void addTiles(final Collection<? super Tile> addTo, final Rectangle region)
+    final Collection<Tile> addTiles(Collection<Tile> addTo, final Rectangle search)
             throws MalformedURLException
     {
         int xmin, xmax, ymin, ymax;
-        if (region != null) {
-            xmin = region.x - this.region.x;
-            ymin = region.y - this.region.y;
-            xmax = xmin + region.width;
-            ymax = ymin + region.height;
-            if (xmin >= 0) xmin /= width;  else xmin = 0;
-            if (ymin >= 0) ymin /= height; else ymin = 0;
-            xmax = (xmax + width  - 1) / width; // Round toward higher integer.
-            ymax = (ymax + height - 1) / height;
+        if (search != null) {
+            xmin = search.x - region.x;
+            ymin = search.y - region.y;
+            xmax = xmin + search.width;
+            ymax = ymin + search.height;
+            final int dx = width  * sx;
+            final int dy = height * sy;
+            if (xmin >= 0) xmin /= dx; else xmin = 0;
+            if (ymin >= 0) ymin /= dy; else ymin = 0;
+            xmax = (xmax + dx - 1) / dx; // Round toward higher integer.
+            ymax = (ymax + dy - 1) / dy;
         } else {
             xmin = 0;
             ymin = 0;
             xmax = nx;
             ymax = ny;
+        }
+        if (addTo == null) {
+            addTo = new ArrayList<Tile>((xmax - xmin) * (ymax - ymin));
         }
         int count = addTo.size();
         final Point location = new Point();
@@ -506,7 +540,8 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
             }
         }
         // If the caller requested all tiles, make sure that we got the expected amount.
-        assert (region != null) || (count = addTo.size() - count) == getNumTiles() : count;
+        assert (search != null) || (count = addTo.size() - count) == getNumTiles() : count;
+        return addTo;
     }
 
     /**
@@ -516,15 +551,11 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
      */
     public int getNumTiles() {
         int count = 0;
-        if (patternUsed != null) {
-            final int size = patternUsed.size();
-            for (int i=0; i<size; i++) {
-                if (patternUsed.get(i) != 0) {
-                    count++;
-                }
-            }
-        } else if (patterns != null) {
+        if (patterns != null) {
             count = nx * ny;
+            if (patternUsed != null) {
+                count -= patternUsed.occurence(0);
+            }
         } else if (tiles != null) {
             for (final Tile tile : tiles) {
                 if (tile != null) {
@@ -574,11 +605,6 @@ final class GridLevel implements Comparable<GridLevel>, Serializable {
      */
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder(getClass().getSimpleName())
-                .append('[').append(sx).append(',').append(sy);
-        if (tiles != null) {
-            buffer.append(": ").append(tiles.size()).append(" tiles");
-        }
-        return buffer.append(']').toString();
+        return getClass().getSimpleName() + '[' + sx + ',' + sy + ": " + getNumTiles() + " tiles]";
     }
 }

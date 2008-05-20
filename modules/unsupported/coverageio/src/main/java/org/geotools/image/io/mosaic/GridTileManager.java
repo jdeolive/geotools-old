@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
+import java.util.Collections;
 import org.geotools.util.FrequencySortedSet;
 
 
@@ -47,7 +48,8 @@ public class GridTileManager extends TileManager {
     private final GridLevel[] levels;
 
     /**
-     * The region enclosing all tiles.
+     * The region enclosing all tiles in absolute coordinates. This is the coordinates
+     * relative to the tiles having a subsampling of 1.
      */
     private final Rectangle region;
 
@@ -65,7 +67,7 @@ public class GridTileManager extends TileManager {
      * @throws IOException if an I/O operation was required and failed.
      * @throws IllegalArgumentException if this class can not handle the given tiles.
      */
-    protected GridTileManager(final Collection<Tile> tiles)
+    protected GridTileManager(final Tile[] tiles)
             throws IOException, IllegalArgumentException
     {
         Tile.ensureNonNull("tiles", tiles);
@@ -87,7 +89,7 @@ public class GridTileManager extends TileManager {
         for (int i=0; i<levels.length; i++) {
             final GridLevel level = levels[i];
             level.process(i);
-            region.add(level.region);
+            region.add(level.getAbsoluteRegion());
             count += level.getNumTiles();
         }
         this.count = count;
@@ -113,9 +115,9 @@ public class GridTileManager extends TileManager {
     @Override
     final Dimension getTileSize() {
         for (int i=levels.length; --i >= 0;) {
-            final GridLevel level = levels[i];
-            if (level.region.width > level.width || level.region.height > level.height) {
-                return new Dimension(level.width, level.height);
+            final Dimension size = levels[i].getTileSize();
+            if (size != null) {
+                return size;
             }
         }
         return region.getSize();
@@ -170,7 +172,9 @@ public class GridTileManager extends TileManager {
     public Collection<Tile> getTiles(final Rectangle region, final Dimension subsampling,
                                      final boolean subsamplingChangeAllowed) throws IOException
     {
-        final Collection<Tile> tiles = new ArrayList<Tile>();
+        long bestCost = Long.MAX_VALUE;
+        Dimension bestSubsampling = null;
+        Collection<Tile> tiles = Collections.emptySet();
         for (int ordinal=levels.length; --ordinal>=0;) {
             final GridLevel level = levels[ordinal];
             final Dimension doable = level.getSample().getSubsamplingFloor(subsampling);
@@ -185,7 +189,17 @@ public class GridTileManager extends TileManager {
                     continue;
                 }
             }
-            level.addTiles(tiles, region);
+            long cost = 0;
+            final Collection<Tile> candidates = level.addTiles(null, region);
+            for (final Tile tile : candidates) {
+                cost += tile.countUnwantedPixelsFromAbsolute(region, subsampling);
+            }
+            if (cost < bestCost) {
+                bestCost = cost;
+                bestSubsampling = doable;
+                tiles = candidates;
+                break;
+            }
         }
         return tiles;
     }
