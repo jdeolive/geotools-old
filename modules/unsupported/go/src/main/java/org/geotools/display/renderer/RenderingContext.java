@@ -376,7 +376,8 @@ public final class RenderingContext {
      * @see BufferedCanvas2D#getScale
      */
     public double getScale() {
-        return canvas.getScale();
+        return 1d;
+//        return canvas.getScale();
     }
 
     /**

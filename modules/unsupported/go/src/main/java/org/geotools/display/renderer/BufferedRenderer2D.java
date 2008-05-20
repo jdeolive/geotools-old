@@ -202,7 +202,7 @@ public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
     public synchronized void print(final Graphics2D output, final AffineTransform zoom) {
         isPrinting = true;
         try {
-            paint(output, zoom);
+            paint(output, zoom,null);
         } finally {
             isPrinting = false;
         }

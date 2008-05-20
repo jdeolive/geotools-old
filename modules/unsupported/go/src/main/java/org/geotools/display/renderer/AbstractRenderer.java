@@ -21,6 +21,7 @@ import org.geotools.display.canvas.AbstractCanvas;
 import org.geotools.display.canvas.DisplayObject;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.resources.UnmodifiableArrayList;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
@@ -332,7 +333,9 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     public synchronized Collection<Graphic> getGraphics() {
         return userGraphics;
     }
-
+        
+    public abstract ReferencedEnvelope getGraphicsEnvelope();
+    
     /**
      * Returns a rendering hint.
      *
@@ -420,10 +423,6 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     public void removeRendererListener(RendererListener listener) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    public abstract boolean paint(
-            Graphics2D output,
-            AffineTransform zoom);
     
     /**
      * Invoked automatically when a graphic registered in this canvas changed. Subclasses can

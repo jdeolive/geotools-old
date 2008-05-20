@@ -466,7 +466,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         }
     }
         
-    protected void setObjectiveToDisplayTransform(Rectangle clipBounds) throws TransformException{
+    protected AffineTransform2D setObjectiveToDisplayTransform(Rectangle clipBounds) throws TransformException{
         
         /*
          * Sets a flag for avoiding some "refresh()" events while we are actually painting.
@@ -528,7 +528,7 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
                 final AffineTransform normalize = objectiveToDisplay.createInverse();
                 normalize.concatenate(displayToDevice);
                 normalize.preConcatenate(normalizeToDots);
-                setScale(1 / XAffineTransform.getScale(normalize));
+//                setScale(1 / XAffineTransform.getScale(normalize)); -----------called a scale change on all graphics using obsolet method zoomChanged
             } catch (NoninvertibleTransformException exception) {
                 handleException(ReferencedCanvas2D.class, "paint", exception);
             }
@@ -550,6 +550,8 @@ public abstract class ReferencedCanvas2D extends ReferencedCanvas {
         previousDisplayToDevice.setToTranslation(-displayBounds.x, -displayBounds.y);
         setDisplayToDeviceTransform(previousDisplayToDevice);
         
+        
+        return previousObjectiveToDisplay;
     }
     
 }

@@ -182,20 +182,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     private transient CoordinateOperationFactory opFactory;
 
     /**
-     * {@code true} if this canvas use a {@link #getDefaultCRS default CRS} instead of
-     * an user-supplied one. In such case, a more appropriate CRS will be inferred from
-     * the first graphic {@linkplain #add added}.
-     */
-    private boolean useDefaultCRS;
-
-    /**
-     * The scale factor from the last rendering, or {@code null} if unknow. This scale factor is
-     * computed at rendering time after a zoom change. All registered listeners will be notified
-     * of any scale change.
-     */
-    private Double scaleFactor;
-
-    /**
      * {@code true} if this canvas or graphic has {@value #SCALE_PROPERTY} properties listeners.
      * Used in order to reduce the amount of {@link PropertyChangeEvent} objects created in the
      * common case where no listener have interest in this property. This optimisation may be
@@ -217,24 +203,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     private boolean hasDisplayListeners;
 
-    /**
-     * {@code true} if this canvas has
-     * {@value org.geotools.display.canvas.DisplayObject#ENVELOPE_PROPERTY} properties listeners.
-     * Note that it is not worth to check for this flag in the all cases; only in the most frequent
-     * ones (e.g. {@link #add}, {@link #remove}...).
-     *
-     * @see #listenersChanged
-     */
-    private boolean hasEnvelopeListeners;
-
-    /**
-     * If {@code true}, do not listen anymore to envelope and objective CRS changes. This flag is
-     * set temporarily during {@link #setObjectiveCRS} execution, in order to take in account the
-     * CRS changes only after the change has been applied to all graphics (for avoiding costly
-     * envelope recomputation after each graphic changes).
-     */
-    private transient boolean disableGraphicListener;
-
     
     /**
      * Creates an initially empty canvas with a default CRS of the specified number of dimensions.
@@ -247,7 +215,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
             throws IllegalArgumentException 
     {
         this(renderer,getDefaultCRS(dimension), null);
-        useDefaultCRS = true;
     }
 
     /**
@@ -303,6 +270,7 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
      */
     public synchronized CanvasState getState() {
         
+        //TODO : correct this method to return an immutable object
         InternationalString title = getTitle();
         DirectPosition center = new GeneralDirectPosition(displayPosition);
         CoordinateReferenceSystem objCRS = envelope.getCoordinateReferenceSystem();
@@ -422,57 +390,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
     }
 
     /**
-     * Returns the scale factor, or {@link Double#NaN NaN} if the scale is unknow. The scale factor
-     * is usually smaller than 1. For example for a 1:1000 scale, the scale factor will be 0.001.
-     * This scale factor takes in account the physical size of the rendering device (e.g. the
-     * screen size) if such information is available. Note that this scale can't be more accurate
-     * than the {@linkplain java.awt.GraphicsConfiguration#getNormalizingTransform() information
-     * supplied by the underlying system}.
-     * <p>
-     * {@code ReferencedCanvas} do not computes the scale by itself. This information is available
-     * only if subclasses invoke {@link #setScale}.
-     *
-     * @return The rendering scale factor as a number between 0 and 1, or {@link Double#NaN}.
-     */
-    public double getScale() {
-        final Double scaleFactor = this.scaleFactor; // Avoid the need for synchronization.
-        return (scaleFactor!=null) ? scaleFactor.doubleValue() : Double.NaN;
-    }
-
-    /**
-     * Set the scale factor to the specified value. Subclasses should invoke this method everytime
-     * the scale changed. This method is usually (but not always) invoked together with
-     * {@link BufferedCanvas2D#zoomChanged}. Note that some zoom changes do not imply a
-     * scale change. For example the zoom change may be just a translation or a rotation.
-     * <p>
-     * This method fires a {@value org.geotools.display.canvas.DisplayObject#SCALE_PROPERTY}
-     * property change event for every listeners registered in this canvas, as well as every
-     * listeners registered in each {@linkplain AbstractGraphic graphic} contained in this canvas.
-     *
-     * @param scaleFactor The new scale factor.
-     */
-    protected void setScale(final double scaleFactor) {
-        final Double oldScale = this.scaleFactor;
-        if (oldScale == null || oldScale.doubleValue() != scaleFactor) {
-            final Double newScale = new Double(scaleFactor);
-            this.scaleFactor = newScale;
-            //graphic should listen to the canvas, not the canvas that give the new scale to the graphic -----------------------------
-//            final Collection<Graphic> graphics = renderer.getGraphics();
-//            for ( final Graphic candidate : graphics) {
-//                if (candidate instanceof AbstractGraphic) {
-//                    final AbstractGraphic graphic = ((AbstractGraphic) candidate);
-//                    if (graphic.hasScaleListeners) {
-//                        graphic.propertyListeners.firePropertyChange(SCALE_PROPERTY, oldScale, newScale);
-//                    }
-//                }
-//            }
-            if (hasScaleListeners) {
-                propertyListeners.firePropertyChange(SCALE_PROPERTY, oldScale, newScale);
-            }
-        }
-    }
-
-    /**
      * Returns {@code true} if the given coordinate is visible on this {@code Canvas}. The default
      * implementation checks if the coordinate is inside the canvas envelope. Subclasses should
      * override this method if a more accurate check is possible.
@@ -583,7 +500,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         super.listenersChanged();
         hasScaleListeners    = propertyListeners.hasListeners(SCALE_PROPERTY);
         hasDisplayListeners  = propertyListeners.hasListeners(DISPLAY_CRS_PROPERTY);
-        hasEnvelopeListeners = propertyListeners.hasListeners(ENVELOPE_PROPERTY);
     }
 
     /**
@@ -714,8 +630,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
          * Now updates internal states.
          */
         clearCache();
-        scaleFactor   = null;
-        useDefaultCRS = false;
         updateNormalizationFactor(crs);
         computeEnvelope(ReferencedCanvas.class, "setObjectiveCRS");
         /*
@@ -962,7 +876,6 @@ public abstract class ReferencedCanvas extends AbstractCanvas {
         if (displayProperties == null) {
             displayProperties = AbstractIdentifiedObject.getProperties(crs, null);
         }
-        scaleFactor     = null;
         displayPosition = null;
         if (hasDisplayListeners) {
             propertyListeners.firePropertyChange(DISPLAY_CRS_PROPERTY, oldCRS, crs);

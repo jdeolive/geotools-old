@@ -15,15 +15,18 @@ import java.util.logging.Logger;
 import org.geotools.display.canvas.AWTCanvas2D;
 import org.geotools.display.canvas.ReferencedCanvas;
 import org.geotools.display.primitive.GraphicPrimitive2D;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 /**
  *
  * @author johann sorel
  */
-public class AWTDirectRenderer2D extends ReferencedRenderer2D{
+public abstract class AWTDirectRenderer2D extends ReferencedRenderer2D{
 
     protected AWTCanvas2D canvas;
     
@@ -32,13 +35,16 @@ public class AWTDirectRenderer2D extends ReferencedRenderer2D{
         super();
     }
     
+    public void setCanvas(Canvas canvas) {
+        this.canvas = (AWTCanvas2D) canvas;
+    }
+    
     @Override
     public AWTCanvas2D getCanvas() {
         return canvas;
     }
 
-    @Override
-    public boolean paint(Graphics2D output, AffineTransform zoom) {
+    public boolean paint(Graphics2D output, AffineTransform objToDisp) {
                 
         output.addRenderingHints(hints);
         
@@ -46,7 +52,7 @@ public class AWTDirectRenderer2D extends ReferencedRenderer2D{
         Rectangle clipBounds = output.getClipBounds();
                 
         final RenderingContext context = new RenderingContext(getCanvas(), displayBounds, false);        
-        context.setGraphics(output, zoom);
+        context.setGraphics(output, objToDisp);
                 
         /*
          * Draw all graphics, starting with the one with the lowest <var>z</var> value. Before
@@ -70,8 +76,6 @@ public class AWTDirectRenderer2D extends ReferencedRenderer2D{
         return true;
     }
 
-    public void setCanvas(Canvas canvas) {
-        this.canvas = (AWTCanvas2D) canvas;
-    }
-
+    
+    
 }

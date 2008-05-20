@@ -43,36 +43,35 @@ public abstract class MultiLineGraphic extends FeatureGraphic{
     public void paint(RenderingContext context) throws TransformException {
         Graphics2D g2 = context.getGraphics();
                 
-        AffineTransform trs = new AffineTransform();
-        Geometry geom = null;
                 
+        Geometry geom = null;
+        
+//        context.setGraphicsCRS(context.objectiveCRS);
+//        try {
+//            MathTransform transform = CRS.findMathTransform(getEnvelope().getCoordinateReferenceSystem(), context.objectiveCRS);
+//            geom = JTS.transform(line, transform);
+//        } catch (FactoryException ex) {
+//            ex.printStackTrace();
+//        }
+//                
+//        System.out.println("ObjectiveCRS => " + geom);
+        
+        
+        context.setGraphicsCRS(context.displayCRS);
         try {
             MathTransform transform = CRS.findMathTransform(getEnvelope().getCoordinateReferenceSystem(), context.displayCRS);
-//            System.out.println(transform);
             geom = JTS.transform(line, transform);
-//            System.out.println(geom);
-            j2dShape = new LiteShape(geom, trs, false);
         } catch (FactoryException ex) {
-            Logger.getLogger(MultiLineGraphic.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         }
-                
         
-//        trs.scale(1, 1);
-//        trs.translate(-897617, -1799350);
+//        System.out.println("DisplayCRS => " + geom);
         
-        
-//        try {
-//            trs = context.getAffineTransform(getEnvelope().getCoordinateReferenceSystem(), context.displayCRS);
-////        System.out.println(j2dShape.getBounds2D());
-//        } catch (FactoryException ex) {
-//            Logger.getLogger(MultiLineGraphic.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        System.out.println(j2dShape.getBounds2D());
-        
-        
-        g2.setStroke(new BasicStroke(3));
-               
+        j2dShape = new LiteShape(geom, new AffineTransform(), false);
+        g2.setStroke(new BasicStroke(2));               
         g2.draw(j2dShape);
+        
+        
         
     }
     

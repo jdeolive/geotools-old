@@ -139,6 +139,7 @@ public abstract class AbstractCanvas extends DisplayObject implements Canvas {
         this.canvasListeners = new EventListenerList();
         this.hints = new Hints(hints);
         this.renderer = renderer;
+        this.renderer.setCanvas(this);
     }
 
     /**
