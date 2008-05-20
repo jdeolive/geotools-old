@@ -30,6 +30,7 @@ import org.geotools.display.canvas.CanvasHandler;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
 import org.geotools.display.renderer.AbstractRenderer;
+import org.geotools.display.renderer.ReferencedRenderer;
 import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -583,7 +584,7 @@ public class AWTCanvas2D extends ReferencedCanvas2D implements CanvasController{
     protected final void reset(final Rectangle zoomableBounds,
                                final boolean yAxisUpward) {
         if (!zoomableBounds.isEmpty()) {
-            ReferencedEnvelope env = renderer.getGraphicsEnvelope();
+            ReferencedEnvelope env = ((ReferencedRenderer)renderer).getGraphicsEnvelope();
             final Rectangle2D preferredArea = new Rectangle();
             preferredArea.setRect(env.getMinX(), env.getMinY(), env.getWidth(), env.getHeight());
             

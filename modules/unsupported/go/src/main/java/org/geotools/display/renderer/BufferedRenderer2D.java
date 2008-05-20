@@ -68,7 +68,7 @@ import org.geotools.util.RangeSet;
  * @version $Id$
  * @author Martin Desruisseaux
  */
-public abstract class BufferedRenderer2D extends ReferencedRenderer2D {
+public abstract class BufferedRenderer2D extends ReferencedRenderer {
     
     protected ReferencedCanvas2D canvas = null;
     /**
@@ -703,7 +703,7 @@ renderOffscreen:while (true) {
      * Invoked automatically when a graphic registered in this canvas changed.
      */
     @Override
-    protected void graphicPropertyChanged(final AbstractGraphic graphic,
+    protected void graphicPropertyChanged(final Graphic graphic,
                                           final PropertyChangeEvent event) {
 //        super.graphicPropertyChanged(graphic, event);
         final String propertyName = event.getPropertyName();

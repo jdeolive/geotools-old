@@ -26,7 +26,7 @@ import org.opengis.referencing.operation.TransformException;
  *
  * @author johann sorel
  */
-public abstract class AWTDirectRenderer2D extends ReferencedRenderer2D{
+public abstract class AWTDirectRenderer2D extends ReferencedRenderer{
 
     protected AWTCanvas2D canvas;
     

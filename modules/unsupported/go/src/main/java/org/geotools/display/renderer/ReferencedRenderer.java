@@ -9,6 +9,7 @@ import org.geotools.display.canvas.ReferencedCanvas;
 import org.geotools.display.primitive.ReferencedGraphic;
 import org.geotools.geometry.GeneralEnvelope;
 
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
@@ -21,6 +22,11 @@ import org.opengis.referencing.operation.TransformException;
  */
 public abstract class ReferencedRenderer extends AbstractRenderer{
 
+    
+        
+    public abstract ReferencedEnvelope getGraphicsEnvelope();
+    
+    
     /**
      * Adds the given {@code Graphic} to this {@code Canvas}. This implementation respect the
      * <var>z</var>-order retrieved by calling {@link Graphic#getZOrderHint()}. When two added
@@ -36,8 +42,7 @@ public abstract class ReferencedRenderer extends AbstractRenderer{
     @Override
     protected synchronized Graphic add(Graphic graphic) {
         Envelope oldEnvelope = null;
-        
-//        super.add(graphic);        
+             
         graphic = super.add(graphic); 
         if (graphic instanceof ReferencedGraphic) {
             final ReferencedGraphic   referenced   = (ReferencedGraphic) graphic;
