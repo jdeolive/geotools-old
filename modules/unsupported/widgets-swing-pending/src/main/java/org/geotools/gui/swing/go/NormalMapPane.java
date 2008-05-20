@@ -32,7 +32,7 @@ public class NormalMapPane extends JPanel{
         Graphics2D output = (Graphics2D) g;
         
         canvas.setDisplayBounds(getBounds());
-        canvas.paint(output, new AffineTransform());
+        canvas.paint(output);
         
     }
     

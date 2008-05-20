@@ -7,6 +7,7 @@
 package org.geotools.gui.swing.go;
 
 import java.awt.BorderLayout;
+import java.awt.geom.Rectangle2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,11 +18,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.FeatureSource;
 import org.geotools.display.canvas.AWTCanvas2D;
+import org.geotools.geometry.Envelope2D;
 import org.geotools.geometry.GeneralDirectPosition;
+import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.gui.swing.contexttree.JContextTree;
 import org.geotools.gui.swing.contexttree.JContextTreePopup;
 import org.geotools.gui.swing.contexttree.column.StyleTreeTableColumn;
@@ -75,7 +79,8 @@ public class GoFrame extends javax.swing.JFrame {
     private final AWTCanvas2D canvas;
     private final J2DRenderer renderer;
     private NormalMapPane guiMap;
-    private DetailHandler handler;
+    private DetailHandler fieldHandler;
+    private MouseHandler mouseHandler;
     private MapContext context;
     
     
@@ -86,34 +91,24 @@ public class GoFrame extends javax.swing.JFrame {
         
         renderer = new J2DRenderer();
         canvas = new AWTCanvas2D(renderer,this);
-        renderer.setCanvas(canvas); 
         
         context = buildContext();        
         renderer.setContext(context);
         guiContextTree.addContext(context);
-        
-        //center on the graphic
-        DirectPosition center = new GeneralDirectPosition(context.getCoordinateReferenceSystem());                
-        
-        try {
-            center.setOrdinate(0, context.getLayerBounds().getCenter(0));
-            center.setOrdinate(1, context.getLayerBounds().getCenter(1));
-        } catch (IOException ex) {
-            Logger.getLogger(NormalMapPane.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        try {
-            canvas.getController().setObjectiveCRS(context.getCoordinateReferenceSystem());
+                        
+        guiMap = new NormalMapPane(canvas);
+        fieldHandler = new DetailHandler();
+        mouseHandler = new MouseHandler();
+                        
+        try {            
+            canvas.getController().setObjectiveCRS(context.getCoordinateReferenceSystem());            
         } catch (TransformException ex) {
             ex.printStackTrace();
             Logger.getLogger(NormalMapPane.class.getName()).log(Level.SEVERE, null, ex);
         }
-                
-        guiMap = new NormalMapPane(canvas);
-        handler = new DetailHandler();
-        handler.setCanvas(canvas);
+        
                 
         panGeneral.add(BorderLayout.CENTER, guiMap);
-        panGeneral.add(BorderLayout.EAST, handler);
         
         setSize(1024,768);
         setLocationRelativeTo(null);             
@@ -202,9 +197,11 @@ public class GoFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        buttonGroup1 = new javax.swing.ButtonGroup();
         jToolBar1 = new javax.swing.JToolBar();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        guiButZoomAll = new javax.swing.JButton();
         jSplitPane1 = new javax.swing.JSplitPane();
         guiContextTree = new org.geotools.gui.swing.contexttree.JContextTree();
         panGeneral = new javax.swing.JPanel();
@@ -246,8 +243,21 @@ public class GoFrame extends javax.swing.JFrame {
         });
         jToolBar1.add(jButton2);
 
+        guiButZoomAll.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/geotools/gui/swing/icon/defaultset/crystalproject/16x16/actions/agt_web.png"))); // NOI18N
+        guiButZoomAll.setText("Zoom All");
+        guiButZoomAll.setFocusable(false);
+        guiButZoomAll.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        guiButZoomAll.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+        guiButZoomAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                guiButZoomAllActionPerformed(evt);
+            }
+        });
+        jToolBar1.add(guiButZoomAll);
+
         getContentPane().add(jToolBar1, java.awt.BorderLayout.PAGE_START);
 
+        jSplitPane1.setDividerLocation(200);
         jSplitPane1.setLeftComponent(guiContextTree);
 
         panGeneral.setLayout(new java.awt.BorderLayout());
@@ -306,6 +316,35 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         guiContextTree.addContext(context);
 }//GEN-LAST:event_jButton1ActionPerformed
 
+private void guiButZoomAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_guiButZoomAllActionPerformed
+        
+
+//        //center on the graphic
+//        DirectPosition center = new GeneralDirectPosition(context.getCoordinateReferenceSystem());
+//        
+//        center.setOrdinate(0, 898612.81);
+//        center.setOrdinate(1, 1800097.87);
+//        
+//        try {
+//            center.setOrdinate(0, context.getLayerBounds().getCenter(0));
+//            center.setOrdinate(1, context.getLayerBounds().getCenter(1));
+//        } catch (IOException ex) {
+//            Logger.getLogger(NormalMapPane.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    
+//        canvas.setCenter(center);
+
+//        try {
+//            ReferencedEnvelope env = context.getLayerBounds();
+//            Rectangle2D rect = new Envelope2D();
+//            rect.setRect(env.getMinX(),env.getMinY(),env.getWidth(),env.getHeight());
+//            canvas.setVisibleArea(rect);
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
+        
+}//GEN-LAST:event_guiButZoomAllActionPerformed
+
     /**
     * @param args the command line arguments
     */
@@ -332,6 +371,8 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.ButtonGroup buttonGroup1;
+    private javax.swing.JButton guiButZoomAll;
     private org.geotools.gui.swing.contexttree.JContextTree guiContextTree;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

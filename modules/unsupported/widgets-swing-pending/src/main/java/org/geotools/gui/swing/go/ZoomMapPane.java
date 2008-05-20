@@ -112,7 +112,7 @@ public class ZoomMapPane extends ZoomPane{
     protected void paintComponent(Graphics2D g) {                
         Graphics2D output = (Graphics2D) g;
         canvas.setDisplayBounds(getBounds());
-        canvas.paint(output, zoom);
+        canvas.paint(output);
                 
 //        canvas.setDisplayBounds(getBounds());
 //        canvas.paint(output, zoom);

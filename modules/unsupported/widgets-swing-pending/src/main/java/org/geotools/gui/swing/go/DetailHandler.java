@@ -32,8 +32,11 @@ public class DetailHandler extends javax.swing.JPanel implements CanvasHandler {
         if (canvas != null) {
             AffineTransform2D aff = canvas.getTransform();
 
-            double transX = aff.getTranslateX();
-            double transY = aff.getTranslateY();
+            
+            DirectPosition center = canvas.getCenter();
+            
+            double transX = center.getOrdinate(0);
+            double transY = center.getOrdinate(1);
             double scale = XAffineTransform.getScale(aff);
             double rotate = XAffineTransform.getRotation(aff);
             rotate = Math.toDegrees(rotate);

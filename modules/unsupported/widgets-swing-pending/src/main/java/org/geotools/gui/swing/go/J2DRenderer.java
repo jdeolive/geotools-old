@@ -4,12 +4,8 @@
  */
 package org.geotools.gui.swing.go;
 
-import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiLineString;
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
 import java.io.IOException;
-import java.lang.ref.Reference;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -17,25 +13,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.geotools.coverage.grid.GridRange2D;
 import org.geotools.display.geom.MultiLineGraphic;
 import org.geotools.display.primitive.FeatureGraphic;
 import org.geotools.display.renderer.AWTDirectRenderer2D;
-import org.geotools.display.renderer.BufferedRenderer2D;
 import org.geotools.feature.FeatureCollection;
-import org.geotools.geometry.DirectPosition2D;
-import org.geotools.geometry.GeneralDirectPosition;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.map.MapContext;
 import org.geotools.map.MapLayer;
-import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
-import org.opengis.display.primitive.Graphic;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.type.FeatureType;
-import org.opengis.geometry.DirectPosition;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 
 /**
  *
@@ -48,7 +36,6 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 
     public void setContext(MapContext context) {
 
-
         add(new LineGraphic());
         
         if (this.context != context) {
@@ -59,49 +46,6 @@ public class J2DRenderer extends AWTDirectRenderer2D {
             }
         }
         
-        try {
-            canvas.setObjectiveCRS(context.getCoordinateReferenceSystem());
-        } catch (TransformException ex) {
-            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-//        /**
-//         * we set the maparea to see the complete mapcontext
-//         */
-//        ReferencedEnvelope env = null;
-//
-//        try {
-//            env = context.getLayerBounds();
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//        DirectPosition center = new DirectPosition2D(context.getCoordinateReferenceSystem(), env.centre().x, env.centre().y);
-//
-//        if (env != null) {
-//            getCanvas().getController().setCenter(center);
-//        }
-        
-        
-//        /**
-//         * we set the maparea to see the complete mapcontext
-//         */
-//        ReferencedEnvelope env = null;
-//        
-//        try {
-//            env = context.getLayerBounds();
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//            Logger.getLogger(J2DRenderer.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        
-//        DirectPosition center = new DirectPosition2D(context.getCoordinateReferenceSystem(), env.centre().x, env.centre().y);        
-//        
-//        if (env != null) {
-//            getCanvas().getController().setCenter(center);
-//        }
-
     }
 
     public MapContext getContext() {
@@ -146,6 +90,7 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 
         Iterator<? extends Feature> ite = features.iterator();
 
+//        for(int i=0;i<2;i++){
         while (ite.hasNext()) {
             SimpleFeature feature = (SimpleFeature) ite.next();
             Object geom = feature.getDefaultGeometry();
@@ -157,6 +102,15 @@ public class J2DRenderer extends AWTDirectRenderer2D {
 
         }
 
+    }
+
+    @Override
+    public ReferencedEnvelope getGraphicsEnvelope() {
+        try {
+            return context.getLayerBounds();
+        } catch (IOException ex) {
+            return null;
+        }
     }
 
 }
