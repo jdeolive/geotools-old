@@ -33,7 +33,7 @@ import org.opengis.referencing.NoSuchAuthorityCodeException;
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  */
-public class ServiceTest extends TestCase {
+public class ServiceTest extends AbstractMrSIDTestCase {
     public ServiceTest(java.lang.String testName) {
         super(testName);
     }
@@ -43,6 +43,9 @@ public class ServiceTest extends TestCase {
     }
 
     public void testIsAvailable() throws NoSuchAuthorityCodeException, FactoryException {
+        if (!testingEnabled()) {
+            return;
+        }
         GridFormatFinder.scanForPlugins();
 
         Iterator list = GridFormatFinder.getAvailableFormats().iterator();

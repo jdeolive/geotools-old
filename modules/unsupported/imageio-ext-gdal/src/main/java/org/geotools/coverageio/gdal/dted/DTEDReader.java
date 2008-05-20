@@ -21,7 +21,7 @@ import it.geosolutions.imageio.plugins.dted.DTEDImageReaderSpi;
 import java.util.logging.Logger;
 
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverageio.gdal.DefaultGDALGridCoverage2DReader;
+import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
 import org.geotools.factory.Hints;
 import org.opengis.coverage.grid.Format;
@@ -36,7 +36,8 @@ import org.opengis.coverage.grid.GridCoverageReader;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-public final class DTEDReader extends DefaultGDALGridCoverage2DReader implements GridCoverageReader {
+@SuppressWarnings("deprecation")
+public final class DTEDReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
     /** Logger. */
     private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
             "org.geotools.coverageio.gdal.dted");
@@ -65,7 +66,7 @@ public final class DTEDReader extends DefaultGDALGridCoverage2DReader implements
      * @throws DataSourceException
      */
     public DTEDReader(Object input, Hints hints) throws DataSourceException {
-        super(input, hints, false, worldFileExt, new DTEDImageReaderSpi());
+        super(input, hints, worldFileExt, new DTEDImageReaderSpi());
     }
 
     /**

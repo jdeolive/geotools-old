@@ -16,7 +16,6 @@
  */
 package org.geotools.coverageio.gdal.nitf;
 
-import it.geosolutions.imageio.plugins.nitf.NITFImageReader;
 import it.geosolutions.imageio.plugins.nitf.NITFImageReaderSpi;
 
 import java.util.Collections;
@@ -41,6 +40,7 @@ import org.opengis.parameter.GeneralParameterDescriptor;
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
+@SuppressWarnings("deprecation")
 public final class NITFFormat extends BaseGDALGridFormat implements Format {
 	/**
 	 * Logger.

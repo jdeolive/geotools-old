@@ -20,11 +20,15 @@ import it.geosolutions.imageio.gdalframework.GDALCommonIIOImageMetadata;
 import it.geosolutions.imageio.plugins.mrsid.MrSIDIIOImageMetadata;
 import it.geosolutions.imageio.plugins.mrsid.MrSIDImageReaderSpi;
 
+import java.awt.Rectangle;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageReader;
 import javax.imageio.metadata.IIOMetadata;
 
+import org.geotools.coverage.grid.GeneralGridRange;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
 import org.geotools.data.DataSourceException;
@@ -37,27 +41,30 @@ import org.opengis.referencing.FactoryException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-
 /**
  * This class can read a MrSID data source and create a {@link GridCoverage2D}
  * from the data.
- *
+ * 
  * @author Daniele Romagnoli, GeoSolutions
  * @author Simone Giannecchini (simboss), GeoSolutions
  * @since 2.5.x
  */
-public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements GridCoverageReader {
+@SuppressWarnings("deprecation")
+public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements
+        GridCoverageReader {
     /** Logger. */
-    private final static Logger LOGGER = org.geotools.util.logging.Logging.getLogger(
-            "org.geotools.coverageio.gdal.mrsid");
+    private final static Logger LOGGER = org.geotools.util.logging.Logging
+            .getLogger("org.geotools.coverageio.gdal.mrsid");
+
     private final static String worldFileExt = ".sdw";
 
     /**
      * Creates a new instance of a {@link MrSIDReader}. I assume nothing about
      * file extension.
-     *
+     * 
      * @param input
-     *            Source object for which we want to build a {@link MrSIDReader}.
+     *                Source object for which we want to build a
+     *                {@link MrSIDReader}.
      * @throws DataSourceException
      */
     public MrSIDReader(Object input) throws DataSourceException {
@@ -67,45 +74,95 @@ public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements G
     /**
      * Creates a new instance of a {@link MrSIDReader}. I assume nothing about
      * file extension.
-     *
+     * 
      * @param input
-     *            Source object for which we want to build a {@link MrSIDReader}.
+     *                Source object for which we want to build a
+     *                {@link MrSIDReader}.
      * @param hints
-     *            Hints to be used by this reader throughout his life.
+     *                Hints to be used by this reader throughout his life.
      * @throws DataSourceException
      */
     public MrSIDReader(Object input, final Hints hints)
-        throws DataSourceException {
-        super(input, hints, true, worldFileExt, new MrSIDImageReaderSpi());
+            throws DataSourceException {
+        super(input, hints, worldFileExt, new MrSIDImageReaderSpi());
     }
 
     /**
      * This method is responsible for building up an envelope according to the
      * definition of the crs. It assumes that X coordinate on the grid itself
      * maps to longitude and y coordinate maps to latitude.
-     *
+     * 
      * @param gridMetadata
-     *            The {@link MrSIDIIOImageMetadata} to parse.
+     *                The {@link MrSIDIIOImageMetadata} to parse.
      */
-    protected void getPropertiesFromSpecificMetadata(IIOMetadata metadata) {
+    @Override
+    protected void setCoverageProperties(ImageReader reader) throws IOException {
+
+        // //
+        //
+        // Due to a MrSID encoder (old version) bug , georeferencing information
+        // could be wrong. Hence we first attempt to get information using
+        // alternative ways (worldfile, common metadata) and then try setting
+        // empty fields with specific metadata.
+        //
+        // //
+        super.setCoverageProperties(reader);
+
+        if (getCoverageGridRange() != null && getCoverageCRS() != null
+                && getCoverageEnvelope() != null)
+            return;
+        final IIOMetadata metadata = reader.getImageMetadata(0);
+        if (!(metadata instanceof GDALCommonIIOImageMetadata)) {
+            throw new DataSourceException(
+                    "Unexpected error! Metadata should be an instance of the expected class:"
+                            + " GDALCommonIIOImageMetadata.");
+        }
         final GDALCommonIIOImageMetadata gridMetadata = (GDALCommonIIOImageMetadata) metadata;
 
         // getting metadata
-        final Node root = gridMetadata.getAsTree(MrSIDIIOImageMetadata.mrsidImageMetadataName);
+        final Node root = gridMetadata
+                .getAsTree(MrSIDIIOImageMetadata.mrsidImageMetadataName);
 
+        // //
+        //
+        // getting Image Properties
+        //
+        // //
         Node child = root.getFirstChild();
+        NamedNodeMap attributes = child.getAttributes();
+        if (getCoverageGridRange() == null) {
+            final String sWidth = attributes.getNamedItem("IMAGE__WIDTH")
+                    .getNodeValue();
+            final String sHeight = attributes.getNamedItem("IMAGE__HEIGHT")
+                    .getNodeValue();
 
+            if ((sHeight != null) && (sWidth != null)
+                    && !(sWidth.trim().equalsIgnoreCase(""))
+                    && !(sHeight.trim().equalsIgnoreCase(""))) {
+                final int width = Integer.parseInt(sWidth);
+                final int height = Integer.parseInt(sHeight);
+                setCoverageGridRange(new GeneralGridRange(new Rectangle(0, 0,
+                        width, height)));
+            }
+        }
+        // //
+        //
         // getting GeoReferencing Properties
+        //
+        // //
         child = child.getNextSibling();
+        attributes = child.getAttributes();
 
-        final NamedNodeMap attributes = child.getAttributes();
+        if (getCoverageEnvelope() == null) {
+            final String xResolution = attributes.getNamedItem(
+                    "IMAGE__X_RESOLUTION").getNodeValue();
+            final String yResolution = attributes.getNamedItem(
+                    "IMAGE__Y_RESOLUTION").getNodeValue();
+            final String xyOrigin = attributes.getNamedItem("IMAGE__XY_ORIGIN")
+                    .getNodeValue();
 
-        if ( baseEnvelope== null) {
-            final String xResolution = attributes.getNamedItem("IMAGE__X_RESOLUTION").getNodeValue();
-            final String yResolution = attributes.getNamedItem("IMAGE__Y_RESOLUTION").getNodeValue();
-            final String xyOrigin = attributes.getNamedItem("IMAGE__XY_ORIGIN").getNodeValue();
-
-            if ((xResolution != null) && (yResolution != null) && (xyOrigin != null)
+            if ((xResolution != null) && (yResolution != null)
+                    && (xyOrigin != null)
                     && !(xResolution.trim().equalsIgnoreCase(""))
                     && !(yResolution.trim().equalsIgnoreCase(""))
                     && !(xyOrigin.trim().equalsIgnoreCase(""))) {
@@ -120,17 +177,16 @@ public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements G
 
                 final double xll = xul;
                 final double yur = yul;
-                final int width = baseGridRange.getLength(0);
-                final int height = baseGridRange.getLength(1);
+                final int width = getCoverageGridRange().getLength(0);
+                final int height = getCoverageGridRange().getLength(1);
                 final double xur = xul + (cellsizeX * width);
                 final double yll = yul - (cellsizeY * height);
-                baseEnvelope = new GeneralEnvelope(new double[] { xll, yll },
-                        new double[] { xur, yur });
+                setCoverageEnvelope(new GeneralEnvelope(
+                        new double[] { xll, yll }, new double[] { xur, yur }));
             }
         }
-
         // Retrieving projection Information
-        if (coverageCRS == null) {
+        if (getCoverageCRS() == null) {
             Node attribute = attributes.getNamedItem("IMG__WKT");
 
             if (attribute != null) {
@@ -138,16 +194,16 @@ public final class MrSIDReader extends BaseGDALGridCoverage2DReader implements G
 
                 if ((wkt != null) && (wkt.trim().length() > 0)) {
                     try {
-                    	coverageCRS = CRS.parseWKT(wkt);
+                        setCoverageCRS(CRS.parseWKT(wkt));
                     } catch (FactoryException fe) {
                         if (LOGGER.isLoggable(Level.FINE)) {
-                            LOGGER.log(Level.FINE,
-                                "Unable to get CRS from" + " WKT contained in metadata."
-                                + " Looking for a PRJ.");
+                            LOGGER.log(Level.FINE, "Unable to get CRS from"
+                                    + " WKT contained in metadata."
+                                    + " Looking for a PRJ.");
                         }
 
                         // unable to get CRS from WKT
-                        coverageCRS = null;
+                        setCoverageCRS(null);
                     }
                 }
             }

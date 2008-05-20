@@ -31,13 +31,14 @@ import org.opengis.coverage.grid.GridCoverageReader;
 import org.opengis.coverage.grid.GridCoverageWriter;
 import org.opengis.parameter.GeneralParameterValue;
 
+@SuppressWarnings("deprecation")
 public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
 		Format {
 	private final static Logger LOGGER = org.geotools.util.logging.Logging
 			.getLogger("org.geotools.coverageio.gdal");
 
 	/** The inner {@code ImageReaderSpi} */
-	protected final ImageReaderSpi spi;
+	private final ImageReaderSpi spi;
 
 	/**
 	 * Constructor for the {@code BaseGDALGridFormat}. It is invoked by the
@@ -65,9 +66,10 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
 	 * operation. This will be achieved with the use of the ImageReadMT
 	 * operation of the ImageIO-Ext.
 	 */
-	public static final DefaultParameterDescriptor USE_MULTITHREADING = new DefaultParameterDescriptor(
+	public static final DefaultParameterDescriptor<Boolean> USE_MULTITHREADING = new DefaultParameterDescriptor<Boolean>(
 			USE_MT, Boolean.class,
-			new Boolean[] { Boolean.TRUE, Boolean.FALSE }, Boolean.FALSE);
+			new Boolean[] { Boolean.TRUE, Boolean.FALSE }, 
+			Boolean.FALSE);
 
 	/** The {@code String} representing the parameter to customize tile sizes */
 	private static final String SUGGESTED_TILESIZE = "SUGGESTED_TILE_SIZE";
@@ -82,8 +84,7 @@ public abstract class BaseGDALGridFormat extends AbstractGridFormat implements
 	 * a number representing the suggested tileWidth and H is a number
 	 * representing the suggested tileHeight.
 	 */
-	public static final DefaultParameterDescriptor SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor(
-			SUGGESTED_TILESIZE, String.class, null, "");
+	public static final DefaultParameterDescriptor<String> SUGGESTED_TILE_SIZE = new DefaultParameterDescriptor<String>(SUGGESTED_TILESIZE, String.class, null, "");
 
 	public static final String TILE_SIZE_SEPARATOR = ",";
 

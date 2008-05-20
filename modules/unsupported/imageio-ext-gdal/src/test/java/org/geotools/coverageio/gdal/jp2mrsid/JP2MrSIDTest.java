@@ -20,7 +20,7 @@ package org.geotools.coverageio.gdal.jp2mrsid;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.io.AbstractGridFormat;
-import org.geotools.coverageio.gdal.BaseGDALGridCoverage2DReader;
+import org.geotools.coverageio.BaseGridCoverage2DReader;
 import org.geotools.coverageio.gdal.jp2kak.JP2KReader;
 import org.geotools.geometry.GeneralEnvelope;
 import org.geotools.test.TestData;
@@ -57,7 +57,7 @@ public final class JP2MrSIDTest extends AbstractJP2MrSIDTestCase {
             return;
         }
 
-        final BaseGDALGridCoverage2DReader reader = new JP2MrSIDReader(TestData.file(this, fileName));
+        final BaseGridCoverage2DReader reader = new JP2MrSIDReader(TestData.file(this, fileName));
         final ParameterValue gg = (ParameterValue) ((AbstractGridFormat) reader.getFormat()).READ_GRIDGEOMETRY2D
             .createValue();
         final GeneralEnvelope oldEnvelope = reader.getOriginalEnvelope();
