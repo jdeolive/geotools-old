@@ -55,10 +55,8 @@ public class UnsignedByteRGBBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getConnection();
-            SeQuery q = session
-                    .createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
 

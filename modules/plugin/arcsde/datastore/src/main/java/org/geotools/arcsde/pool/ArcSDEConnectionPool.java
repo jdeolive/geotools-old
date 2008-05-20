@@ -17,7 +17,6 @@
 package org.geotools.arcsde.pool;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +30,6 @@ import org.apache.commons.pool.impl.GenericObjectPool;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.data.DataSourceException;
 
-import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeLayer;
 import com.esri.sde.sdk.client.SeRelease;
@@ -255,21 +253,6 @@ public class ArcSDEConnectionPool {
     }
 
     /**
-     * Sometimes (and largely without reason) ArcSDEPooledConnections (really their underlying
-     * SeConnection objects) just poop out. They start behaving strangely, or not behaving at all.
-     * You can tell the pool that a particular SeConnection has 'Failed' using this method, and it
-     * will do its best to get it out of the pool as soon as you release your hold on it.
-     * 
-     * @param session
-     */
-    public synchronized void markConnectionAsFailed(Session session) {
-        LOGGER.warning("ArcSDE connection '" + session
-                + "' has been marked as failed.  Current pool state is " + getAvailableCount()
-                + " avail/" + this.getPoolSize() + " total");
-        seConnectionFactory.markObjectInvalid(session);
-    }
-
-    /**
      * Gets the list of available layer names on the database
      * 
      * @return a <code>List&lt;String&gt;</code> with the registered featureclasses on the ArcSDE
@@ -319,8 +302,6 @@ public class ArcSDEConnectionPool {
         /** DOCUMENT ME! */
         private ArcSDEConnectionConfig config;
 
-        private List<SeConnection> invalidConnections = new ArrayList<SeConnection>(2);
-
         /**
          * Creates a new SeConnectionFactory object.
          * 
@@ -329,10 +310,6 @@ public class ArcSDEConnectionPool {
         public SeConnectionFactory(ArcSDEConnectionConfig config) {
             super();
             this.config = config;
-        }
-
-        public void markObjectInvalid(Object o) {
-            invalidConnections.add((SeConnection) o);
         }
 
         /**
@@ -390,19 +367,16 @@ public class ArcSDEConnectionPool {
          */
         @Override
         public boolean validateObject(Object obj) {
-            Session conn = (Session) obj;
-            boolean valid = !conn.isClosed();
+            Session session = (Session) obj;
+            boolean valid = !session.isClosed();
             // MAKE PROPER VALIDITY CHECK HERE as for GEOT-1273
             if (valid) {
-                if (invalidConnections.contains(obj))
-                    valid = false;
-
                 try {
                     LOGGER.finest("Validating SDE Connection");
-                    String user = conn.getUser();
+                    String user = Session.issueGetUser(session);
                     LOGGER.finer("Connection validated, returned user " + user);
                 } catch (IOException e) {
-                    LOGGER.info("Can't validate SeConnection, discarding it: " + conn);
+                    LOGGER.info("Can't validate SeConnection, discarding it: " + session);
                     valid = false;
                 }
             }

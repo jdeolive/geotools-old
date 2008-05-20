@@ -87,8 +87,9 @@ public class InProcessViewSupportTestData {
                 + ".MASTER_ID = " + MASTER_UNQUALIFIED + ".ID ORDER BY " + MASTER_UNQUALIFIED
                 + ".ID";
 
-        MASTER = session.getUser() + "." + MASTER_UNQUALIFIED;
-        CHILD = session.getUser() + "." + CHILD_UNQUALIFIED;
+        final String user = Session.issueGetUser(session);
+        MASTER = user + "." + MASTER_UNQUALIFIED;
+        CHILD = user + "." + CHILD_UNQUALIFIED;
         createMasterTable(session, td);
         createChildTable(session, td);
 
@@ -99,9 +100,9 @@ public class InProcessViewSupportTestData {
 
     private static void createMasterTable(final Session session, final TestData td)
             throws IOException, UnavailableArcSDEConnectionException {
-        
-        final SeTable table = session.createSeTable(MASTER);
-        
+
+        final SeTable table = Session.issueCreateSeTable(session, MASTER);
+
         final Command<SeLayer> createLayerCmd = new Command<SeLayer>() {
 
             @Override
@@ -146,7 +147,7 @@ public class InProcessViewSupportTestData {
 
     private static void createChildTable(final Session session, final TestData td)
             throws IOException, UnavailableArcSDEConnectionException {
-        final SeTable table = session.createSeTable(CHILD);
+        final SeTable table = Session.issueCreateSeTable(session, CHILD);
         Command<Void> createCmd = new Command<Void>() {
 
             @Override

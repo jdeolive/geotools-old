@@ -218,7 +218,7 @@ public class TestData {
      * @throws SeException
      */
     public String getTemp_table(Session session) throws IOException {
-        return session.getUser() + "." + this.temp_table;
+        return Session.issueGetUser(session) + "." + this.temp_table;
     }
 
     public String getConfigKeyword() {

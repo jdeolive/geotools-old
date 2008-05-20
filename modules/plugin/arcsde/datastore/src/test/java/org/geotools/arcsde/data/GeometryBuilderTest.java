@@ -171,25 +171,27 @@ public class GeometryBuilderTest extends TestCase {
 
         Geometry[] fetched = new Geometry[original.length];
         try {
-            testData.insertData(original, layer, session );
+            testData.insertData(original, layer, session);
+            final SeSqlConstruct sqlCons = new SeSqlConstruct(layer.getName());
 
-            SeSqlConstruct sqlCons = new SeSqlConstruct(layer.getName());
-            SeQuery query = session.createSeQuery(new String[] { "SHAPE" }, sqlCons);
-            query.prepareQuery();
-            query.execute();
-            SeRow row;
+            SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { "SHAPE" },
+                    sqlCons);
+
+            SdeRow row;
             SeShape shape;
 
             int i = 0;
-            while (i < fetched.length && (row = query.fetch()) != null) {
+            row = Session.issueFetch(session, query);
+            while (i < fetched.length && row != null) {
                 shape = row.getShape(0);
                 assertNotNull(shape);
                 Class clazz = ArcSDEAdapter.getGeometryTypeFromSeShape(shape);
                 ArcSDEGeometryBuilder builder = ArcSDEGeometryBuilder.builderFor(clazz);
                 fetched[i] = builder.construct(shape);
                 i++;
+                row = Session.issueFetch(session, query);
             }
-            query.close();
+            Session.issueClose(session, query);
         } finally {
             session.close();
         }

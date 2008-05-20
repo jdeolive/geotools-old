@@ -67,8 +67,8 @@ class TableQualifier {
 
         // if (schema != null) {
         try {
-            databaseName = session.getDatabaseName();
-            userName = session.getUser();
+            databaseName = Session.issueGetDatabaseName(session);
+            userName = Session.issueGetUser(session);
         } catch (IOException e) {
             throw new IllegalStateException("getting database name: " + e.getMessage());
         }

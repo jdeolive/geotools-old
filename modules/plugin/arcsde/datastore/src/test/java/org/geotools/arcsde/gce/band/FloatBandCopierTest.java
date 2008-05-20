@@ -65,9 +65,8 @@ public class FloatBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getConnection();
-            SeQuery q = session.createSeQuery(new String[] { "RASTER" },new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
 
@@ -107,8 +106,10 @@ public class FloatBandCopierTest {
             final File originalRasterFile = org.geotools.test.TestData.file(null, rasterTestData
                     .getRasterTestDataProperty("sampledata.floatraster"));
             BufferedImage originalImage = ImageIO.read(originalRasterFile);
-            ImageIO.write(originalImage.getSubimage(0, 0, 128, 128), "TIF", new File("/tmp/"
-                    + Thread.currentThread().getStackTrace()[1].getMethodName() + "-original.tiff"));
+            ImageIO
+                    .write(originalImage.getSubimage(0, 0, 128, 128), "TIF", new File("/tmp/"
+                            + Thread.currentThread().getStackTrace()[1].getMethodName()
+                            + "-original.tiff"));
 
             // Well, now we have an image tile. Does it have what we expect on it?
             Assert.assertTrue("Image from SDE isn't what we expected.", RasterTestData.imageEquals(

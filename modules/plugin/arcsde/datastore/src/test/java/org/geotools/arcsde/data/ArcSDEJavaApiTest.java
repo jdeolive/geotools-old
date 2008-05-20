@@ -171,11 +171,9 @@ public class ArcSDEJavaApiTest extends TestCase {
         SeSqlConstruct sql = null;
 
         try {
-            SeQuery rowQuery = session.createSeQuery(columns, sql);
-            rowQuery.prepareQuery();
-            rowQuery.execute();
+            Session.issueCreateAndExecuteQuery(session, columns, sql);
             fail("A null SeSqlConstruct should have thrown an exception!");
-        } catch (ArcSdeException e) {
+        } catch (IOException e) {
             assertTrue(true);
         }
     }
@@ -185,12 +183,13 @@ public class ArcSDEJavaApiTest extends TestCase {
         String[] columns = { TestData.TEST_TABLE_COLS[0] };
         SeSqlConstruct sql = new SeSqlConstruct(typeName);
 
-        SeQuery rowQuery = session.createSeQuery(columns, sql);
+        SeQuery rowQuery = null;
         try {
-            rowQuery.prepareQuery();
-            rowQuery.execute();
+            rowQuery = Session.issueCreateAndExecuteQuery(session, columns, sql);
         } finally {
-            rowQuery.close();
+            if (rowQuery != null) {
+                rowQuery.close();
+            }
         }
     }
 
@@ -200,30 +199,30 @@ public class ArcSDEJavaApiTest extends TestCase {
      * @throws Exception DOCUMENT ME!
      */
     public void testGetBoundsWhileFetchingRows() throws Exception {
-        try {
-            final String typeName = testData.getTemp_table();
-            final String[] columns = { TestData.TEST_TABLE_COLS[0] };
-            final SeSqlConstruct sql = new SeSqlConstruct(typeName);
+        final String typeName = testData.getTemp_table();
+        final String[] columns = { TestData.TEST_TABLE_COLS[0] };
+        final SeSqlConstruct sql = new SeSqlConstruct(typeName);
 
-            SeQueryInfo qInfo = new SeQueryInfo();
-            qInfo.setConstruct(sql);
+        final SeQueryInfo qInfo = new SeQueryInfo();
+        qInfo.setConstruct(sql);
 
-            // add a bounding box filter and verify both spatial and non spatial
-            // constraints affects the COUNT statistics
-            SeExtent extent = new SeExtent(-180, -90, -170, -80);
+        // add a bounding box filter and verify both spatial and non spatial
+        // constraints affects the COUNT statistics
+        SeExtent extent = new SeExtent(-180, -90, -170, -80);
 
-            SeLayer layer = Session.issueGetLayer(session, typeName);
-            SeShape filterShape = new SeShape(layer.getCoordRef());
-            filterShape.generateRectangle(extent);
+        SeLayer layer = Session.issueGetLayer(session, typeName);
+        SeShape filterShape = new SeShape(layer.getCoordRef());
+        filterShape.generateRectangle(extent);
 
-            SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
-                    filterShape, SeFilter.METHOD_ENVP, true);
-            SeFilter[] spatFilters = { bboxFilter };
+        SeShapeFilter bboxFilter = new SeShapeFilter(typeName, layer.getSpatialColumn(),
+                filterShape, SeFilter.METHOD_ENVP, true);
+        final SeFilter[] spatFilters = { bboxFilter };
 
-            for (int i = 0; i < 26; i++) {
-                LOGGER.fine("Running iteration #" + i);
-
-                SeQuery rowQuery = session.createSeQuery(columns, sql);
+        final Command<Integer> countCmd = new Command<Integer>() {
+            @Override
+            public Integer execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                final SeQuery rowQuery = new SeQuery(connection, columns, sql);
                 rowQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, false, spatFilters);
                 rowQuery.prepareQuery();
                 rowQuery.execute();
@@ -233,10 +232,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                 rowQuery.fetch();
                 rowQuery.fetch();
 
-                SeQuery countQuery = session.createSeQuery(columns, sql);
+                SeQuery countQuery = new SeQuery(connection, columns, sql);
                 countQuery.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatFilters);
-
-                final int expCount = 2;
 
                 SeTable.SeTableStats tableStats = countQuery.calculateTableStatistics("POP_ADMIN",
                         SeTable.SeTableStats.SE_COUNT_STATS, qInfo, 0);
@@ -246,17 +243,14 @@ public class ArcSDEJavaApiTest extends TestCase {
 
                 int resultCount = tableStats.getCount();
 
-                assertEquals(expCount, resultCount);
-
                 rowQuery.close();
                 countQuery.close();
+                return new Integer(resultCount);
             }
-            LOGGER.fine("TEST PASSED");
-        } catch (SeException e) {
-            LOGGER.warning(e.getSeError().getErrDesc());
-            e.printStackTrace();
-            throw e;
-        }
+        };
+        final Integer resultCount = session.issue(countCmd);
+        final int expCount = 2;
+        assertEquals(expCount, resultCount.intValue());
     }
 
     /**
@@ -266,39 +260,49 @@ public class ArcSDEJavaApiTest extends TestCase {
      * @param spatFilters spatial filters, may be null
      * @param the state identifier to query over a versioned table, may be {@code null}
      * @return the sde calculated counts for the given filter
+     * @throws IOException
      * @throws Exception
      */
     private static int getTempTableCount(final Session session,
             final String tableName,
             final String whereClause,
             final SeFilter[] spatFilters,
-            final SeState state) throws Exception {
+            final SeState state) throws IOException {
 
-        String[] columns = { "*" };
+        final Command<Integer> countCmd = new Command<Integer>() {
+            @Override
+            public Integer execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                String[] columns = { "*" };
 
-        SeSqlConstruct sql = new SeSqlConstruct(tableName);
-        if (whereClause != null) {
-            sql.setWhere(whereClause);
-        }
-        SeQuery query = session.createSeQuery(columns, sql);
+                SeSqlConstruct sql = new SeSqlConstruct(tableName);
+                if (whereClause != null) {
+                    sql.setWhere(whereClause);
+                }
+                SeQuery query = new SeQuery(connection, columns, sql);
 
-        if (state != null) {
-            SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
-            query.setState(state.getId(), differencesId, SeState.SE_STATE_DIFF_NOCHECK);
-        }
-        SeQueryInfo qInfo = new SeQueryInfo();
-        qInfo.setConstruct(sql);
+                if (state != null) {
+                    SeObjectId differencesId = new SeObjectId(SeState.SE_NULL_STATE_ID);
+                    query.setState(state.getId(), differencesId, SeState.SE_STATE_DIFF_NOCHECK);
+                }
+                SeQueryInfo qInfo = new SeQueryInfo();
+                qInfo.setConstruct(sql);
 
-        if (spatFilters != null) {
-            query.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatFilters);
-        }
+                if (spatFilters != null) {
+                    query.setSpatialConstraints(SeQuery.SE_OPTIMIZE, true, spatFilters);
+                }
 
-        SeTable.SeTableStats tableStats = query.calculateTableStatistics("INT32_COL",
-                SeTable.SeTableStats.SE_COUNT_STATS, qInfo, 0);
+                SeTable.SeTableStats tableStats = query.calculateTableStatistics("INT32_COL",
+                        SeTable.SeTableStats.SE_COUNT_STATS, qInfo, 0);
 
-        int actualCount = tableStats.getCount();
-        query.close();
-        return actualCount;
+                int actualCount = tableStats.getCount();
+                query.close();
+                return new Integer(actualCount);
+            }
+        };
+
+        final Integer count = session.issue(countCmd);
+        return count.intValue();
     }
 
     /**
@@ -333,8 +337,7 @@ public class ArcSDEJavaApiTest extends TestCase {
             actualCount = getTempTableCount(session, typeName, where, spatFilters, null);
 
             assertEquals(expCount, actualCount);
-        } catch (SeException e) {
-            LOGGER.warning(e.getSeError().getErrDesc());
+        } catch (IOException e) {
             e.printStackTrace();
             throw e;
         }
@@ -781,8 +784,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                  * Create a qualified table name with current user's name and the name of the table
                  * to be created, "EXAMPLE".
                  */
-                String tableName = (session.getUser() + ".EXAMPLE");
-                table = session.createSeTable(tableName);
+                String tableName = (connection.getUser() + ".EXAMPLE");
+                table = new SeTable(connection, tableName);
                 layer.setTableName("EXAMPLE");
 
                 try {
@@ -870,8 +873,8 @@ public class ArcSDEJavaApiTest extends TestCase {
                  * Create a qualified table name with current user's name and the name of the table
                  * to be created, "EXAMPLE".
                  */
-                final String tableName = (session.getUser() + ".NOTENDSWITHGEOM");
-                final SeTable table = session.createSeTable(tableName);
+                final String tableName = (connection.getUser() + ".NOTENDSWITHGEOM");
+                final SeTable table = new SeTable(connection, tableName);
                 try {
                     layer.setTableName("NOTENDSWITHGEOM");
 
@@ -993,30 +996,34 @@ public class ArcSDEJavaApiTest extends TestCase {
             SeException {
 
         final String typeName = testData.getTemp_table();
-        final SeQuery query = session.createSeQuery(new String[] { "ROW_ID", "INT32_COL" },
-                new SeSqlConstruct(typeName));
-        query.prepareQuery();
-        query.execute();
+        final SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { "ROW_ID",
+                "INT32_COL" }, new SeSqlConstruct(typeName));
 
         final int rowId;
         try {
-            SeRow row = query.fetch();
+            SdeRow row = Session.issueFetch(session, query);
             rowId = row.getInteger(0).intValue();
         } finally {
-            query.close();
+            Session.issueClose(session, query);
         }
 
-        SeDelete delete = Session.createSeDelete(session);
-        delete.byId(typeName, new SeObjectId(rowId));
+        session.issue(new Command<Void>() {
+            @Override
+            public Void execute(Session session, SeConnection connection) throws SeException,
+                    IOException {
+                SeDelete delete = new SeDelete(connection);
+                delete.byId(typeName, new SeObjectId(rowId));
+                delete.close();
+                return null;
+            }
+        });
 
         final String whereClause = "ROW_ID=" + rowId;
         final SeSqlConstruct sqlConstruct = new SeSqlConstruct(typeName, whereClause);
-        final SeQuery deletedQuery = session.createSeQuery(new String[] { "ROW_ID" }, sqlConstruct);
+        final SeQuery deletedQuery = Session.issueCreateAndExecuteQuery(session,
+                new String[] { "ROW_ID" }, sqlConstruct);
 
-        deletedQuery.prepareQuery();
-        deletedQuery.execute();
-
-        SeRow row = deletedQuery.fetch();
+        SdeRow row = Session.issueFetch(session, deletedQuery);
         assertNull(whereClause + " should have returned no records as it was deleted", row);
     }
 
@@ -1046,49 +1053,74 @@ public class ArcSDEJavaApiTest extends TestCase {
         boolean commited = false;
 
         try {
-            SeInsert insert = Session.createSeInsert(transSession);
             final String[] columns = { "INT32_COL", "STRING_COL" };
             final String tableName = tempTable.getName();
-            insert.intoTable(tableName, columns);
-            insert.setWriteMode(true);
-            SeRow row = insert.getRowToSet();
-            row.setInteger(0, Integer.valueOf(50));
-            row.setString(1, "inside transaction");
 
-            insert.execute();
-            // IMPORTANT to call close for the diff to take effect
-            insert.close();
+            transSession.issue(new Command<Void>() {
+                @Override
+                public Void execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    SeInsert insert = new SeInsert(connection);
+                    insert.intoTable(tableName, columns);
+                    insert.setWriteMode(true);
+                    SeRow row = insert.getRowToSet();
+                    row.setInteger(0, Integer.valueOf(50));
+                    row.setString(1, "inside transaction");
+
+                    insert.execute();
+                    // IMPORTANT to call close for the diff to take effect
+                    insert.close();
+                    return null;
+                }
+            });
 
             final SeSqlConstruct sqlConstruct = new SeSqlConstruct(tableName);
-            // the query over the transaction connection
-            SeQuery transQuery = transSession.createSeQuery(columns, sqlConstruct);
 
-            // transaction is not committed, so transQuery should give the
-            // inserted
-            // record and query don't
-            transQuery.prepareQuery();
-            transQuery.execute();
-            SeRow transRow = transQuery.fetch();
-            // querying over a transaction in progress does give diff
+            final SeRow transRow = transSession.issue(new Command<SeRow>() {
+                @Override
+                public SeRow execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    // the query over the transaction connection
+                    SeQuery transQuery = new SeQuery(connection, columns, sqlConstruct);
+                    // transaction is not committed, so transQuery should give the
+                    // inserted
+                    // record and query don't
+                    transQuery.prepareQuery();
+                    transQuery.execute();
+                    SeRow transRow = transQuery.fetch();
+                    // querying over a transaction in progress does give diff
+                    // assertEquals(Integer.valueOf(50), transRow.getInteger(0))
+                    transQuery.close();
+                    return transRow;
+                }
+            });
+
             assertNotNull(transRow);
-            // assertEquals(Integer.valueOf(50), transRow.getInteger(0))
-            ;
-            transQuery.close();
 
             // commit transaction
-            transSession.commitTransaction();
+            Session.issueCommitTransaction(transSession);
             commited = true;
 
-            SeQuery query = this.session.createSeQuery(columns, sqlConstruct);
-            query.prepareQuery();
-            query.execute();
-            assertNotNull(query.fetch());
-            query.close();
+            final SeRow noTransRow = session.issue(new Command<SeRow>() {
+                @Override
+                public SeRow execute(Session session, SeConnection connection) throws SeException,
+                        IOException {
+                    SeQuery query = new SeQuery(connection, columns, sqlConstruct);
+                    query.prepareQuery();
+                    query.execute();
+                    SeRow row = query.fetch();
+                    query.close();
+                    return row;
+                }
+            });
+
+            assertNotNull(noTransRow);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (!commited) {
-                transSession.rollbackTransaction();
+                Session.issueRollbackTransaction(transSession);
             }
             transSession.close();
             // conn.close(); closed at tearDown
@@ -1115,7 +1147,7 @@ public class ArcSDEJavaApiTest extends TestCase {
                     SeVersion defaultVersion = new SeVersion(connection,
                             SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
                     defaultVersion.getInfo();
-                    return null;
+                    return defaultVersion;
                 }
             });
 
@@ -1127,7 +1159,7 @@ public class ArcSDEJavaApiTest extends TestCase {
                     SeVersion newVersion = new SeVersion(connection,
                             SeVersion.SE_QUALIFIED_DEFAULT_VERSION_NAME);
                     // newVersion.getInfo();
-                    newVersion.setName(session.getUser() + ".GeoToolsTestVersion");
+                    newVersion.setName(connection.getUser() + ".GeoToolsTestVersion");
                     newVersion.setParentName(defaultVersion.getName());
                     newVersion.setDescription(defaultVersion.getName()
                             + " child for GeoTools ArcSDE unit tests");

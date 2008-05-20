@@ -167,11 +167,11 @@ abstract class ArcSdeFeatureWriter implements FeatureWriter<SimpleFeatureType, S
         SeStreamOp streamOp;
 
         if (SeInsert.class == streamType) {
-            streamOp = Session.createSeInsert(session);
+            streamOp = Session.issueCreateSeInsert(session);
         } else if (SeUpdate.class == streamType) {
-            streamOp = Session.createSeUpdate(session);
+            streamOp = Session.issueCreateSeUpdate(session);
         } else if (SeDelete.class == streamType) {
-            streamOp = Session.createSeDelete(session);
+            streamOp = Session.issueCreateSeDelete(session);
         } else {
             throw new IllegalArgumentException("Unrecognized stream type: " + streamType);
         }

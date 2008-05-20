@@ -201,7 +201,7 @@ public class ArcSDERasterReader extends ImageReader {
             // one gets SDE Raster output. First, query the
             // database for the single row in the raster business table.
             // FIXME: Raster catalogs need to specify what their row number is.
-            query = session.createSeQuery(new String[] { _rasterColumn }, new SeSqlConstruct(
+            query = Session.issueCreateSeQuery(session, new String[] { _rasterColumn }, new SeSqlConstruct(
                     _rasterTable));
             query.prepareQuery();
             query.execute();

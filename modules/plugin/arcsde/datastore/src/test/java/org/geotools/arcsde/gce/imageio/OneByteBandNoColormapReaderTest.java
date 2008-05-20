@@ -1,6 +1,5 @@
 package org.geotools.arcsde.gce.imageio;
 
-
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,17 +21,20 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 
 public class OneByteBandNoColormapReaderTest {
-    
+
     static RasterTestData rasterTestData;
+
     static HashMap<String, Object> readerProps;
-    static Logger LOGGER = Logging.getLogger(OneByteBandNoColormapReaderTest.class.getCanonicalName());
+
+    static Logger LOGGER = Logging.getLogger(OneByteBandNoColormapReaderTest.class
+            .getCanonicalName());
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         rasterTestData = new RasterTestData();
         rasterTestData.setUp();
         rasterTestData.loadOneByteGrayScaleRaster();
-        
+
         Session session = null;
         SeQuery q = null;
         ArcSDEPyramid pyramid;
@@ -43,16 +45,16 @@ public class OneByteBandNoColormapReaderTest {
             // Set up a pyramid and readerprops for the sample three-band imagery
             session = rasterTestData.getTestData().getConnectionPool().getConnection();
             tableName = rasterTestData.getGrayScaleOneByteRasterTableName();
-            q = session.createSeQuery( new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
+            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             r = q.fetch();
             SeRasterAttr rattrThreeBand = r.getRaster(0);
             q.close();
 
             SeRasterColumn rcol = session.createSeRasterColumn(rattrThreeBand.getRasterColumnId());
 
-            CoordinateReferenceSystem crs = CRS.parseWKT(rcol.getCoordRef().getCoordSysDescription());
+            CoordinateReferenceSystem crs = CRS.parseWKT(rcol.getCoordRef()
+                    .getCoordSysDescription());
             pyramid = new ArcSDEPyramid(rattrThreeBand, crs);
 
             readerProps = new HashMap<String, Object>();
@@ -75,7 +77,5 @@ public class OneByteBandNoColormapReaderTest {
     public static void tearDownAfterClass() throws Exception {
         rasterTestData.tearDown();
     }
-    
-    
 
 }

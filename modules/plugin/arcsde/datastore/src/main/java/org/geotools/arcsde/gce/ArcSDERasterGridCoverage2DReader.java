@@ -676,7 +676,7 @@ public final class ArcSDERasterGridCoverage2DReader extends AbstractGridCoverage
                             "Couldn't find any TYPE_RASTER columns in ArcSDE table " + rasterTable);
 
                 rasterColumns = (String[]) fetchColumns.toArray(new String[fetchColumns.size()]);
-                q = session.createSeQuery(rasterColumns, new SeSqlConstruct(rasterTable));
+                q = Session.issueCreateSeQuery(session, rasterColumns, new SeSqlConstruct(rasterTable));
                 q.prepareQuery();
                 q.execute();
 

@@ -40,8 +40,8 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 
 /**
- * Tests the functionality of the ArcSDE raster-display package to read rasters
- * from an ArcSDE database
+ * Tests the functionality of the ArcSDE raster-display package to read rasters from an ArcSDE
+ * database
  * 
  * @author Saul Farber, (based on ArcSDEPoolTest by Gabriel Roldan)
  * @source $URL:
@@ -106,10 +106,8 @@ public class ArcSDEPyramidTest extends TestCase {
         Session session = pool.getConnection();
         SeRasterAttr rAttr;
         try {
-            SeQuery q = session.createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(conProps
-                    .getProperty("threebandtable")));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(conProps.getProperty("threebandtable")));
             SeRow r = q.fetch();
             rAttr = r.getRaster(0);
         } catch (SeException se) {
@@ -154,10 +152,8 @@ public class ArcSDEPyramidTest extends TestCase {
         Session session = pool.getConnection();
         SeRasterAttr rAttr;
         try {
-            SeQuery q = session.createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(conProps
-                    .getProperty("fourbandtable")));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(conProps.getProperty("fourbandtable")));
             SeRow r = q.fetch();
             rAttr = r.getRaster(0);
         } catch (SeException se) {

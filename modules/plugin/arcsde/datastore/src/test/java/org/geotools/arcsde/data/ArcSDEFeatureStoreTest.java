@@ -33,6 +33,7 @@ import junit.framework.TestSuite;
 import org.geotools.arcsde.ArcSDEDataStoreFactory;
 import org.geotools.arcsde.ArcSdeException;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -204,16 +205,24 @@ public class ArcSDEFeatureStoreTest extends TestCase {
         SeQuery seQuery;
         try {
             int objectId = (int) ArcSDEAdapter.getNumericFid(fid);
-            String whereClause = "ROW_ID=" + objectId;
-            seQuery = session.createSeQuery(new String[] { "ROW_ID", "INT32_COL", "STRING_COL" },
-                    new SeSqlConstruct(typeName, whereClause));
-            seQuery.prepareQuery();
-            seQuery.execute();
+            final String whereClause = "ROW_ID=" + objectId;
+            seQuery = session.issue(new Command<SeQuery>() {
+                @Override
+                public SeQuery execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeQuery seQuery = new SeQuery(connection, new String[] { "ROW_ID", "INT32_COL",
+                            "STRING_COL" }, new SeSqlConstruct(typeName, whereClause));
+                    seQuery.prepareQuery();
+                    seQuery.execute();
+                    return seQuery;
+                }
+            });
+
+            SdeRow row = Session.issueFetch(session, seQuery);
+            assertNull(row);
         } finally {
             session.close();
         }
-        SeRow row = seQuery.fetch();
-        assertNull(row);
 
         // was it really removed?
         {
@@ -293,7 +302,7 @@ public class ArcSDEFeatureStoreTest extends TestCase {
             ArcSDEConnectionPool connectionPool = testData.getConnectionPool();
             Session session = connectionPool.getConnection();
             final String user;
-            user = session.getUser();
+            user = Session.issueGetUser(session);
             session.close();
             typeName = user + ".GT_TEST_CREATE";
         }

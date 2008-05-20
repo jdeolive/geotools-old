@@ -1,6 +1,5 @@
 package org.geotools.arcsde.gce.band;
 
-
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.logging.Level;
@@ -27,8 +26,9 @@ import com.esri.sde.sdk.client.SeRow;
 import com.esri.sde.sdk.client.SeSqlConstruct;
 
 public class OneBitBandCopierTest {
-    
+
     static RasterTestData rasterTestData;
+
     static Logger LOGGER;
 
     @BeforeClass
@@ -45,7 +45,7 @@ public class OneBitBandCopierTest {
     public static void tearDownAfterClass() throws Exception {
         rasterTestData.tearDown();
     }
-    
+
     @Test
     public void testLiveOneBitAlignedRasterTile() throws Exception {
         final String tableName = rasterTestData.get1bitRasterTableName();
@@ -55,9 +55,8 @@ public class OneBitBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getConnection();
-            SeQuery q = session.createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
 
@@ -107,9 +106,8 @@ public class OneBitBandCopierTest {
             ArcSDEConnectionPool pool = rasterTestData.getTestData().getConnectionPool();
 
             session = pool.getConnection();
-            SeQuery q = session.createSeQuery( new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
+            SeQuery q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
             SeRow r = q.fetch();
             SeRasterAttr rAttr = r.getRaster(0);
 

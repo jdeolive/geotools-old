@@ -253,7 +253,7 @@ public class RasterTestData {
     public void createRasterBusinessTempTable(String tableName, Session session) throws Exception {
 
         SeColumnDefinition[] colDefs = new SeColumnDefinition[1];
-        SeTable table = session.createSeTable(tableName);
+        SeTable table = Session.issueCreateSeTable(session, tableName);
 
         // first column to be SDE managed feature id
         colDefs[0] = new SeColumnDefinition("ROW_ID", SeColumnDefinition.TYPE_INTEGER, 10, 0, false);
@@ -451,10 +451,8 @@ public class RasterTestData {
         Session session = testData.getConnectionPool().getConnection();
 
         try {
-            SeQuery query = session.createSeQuery(new String[] { session
+            SeQuery query = Session.issueCreateAndExecuteQuery(session, new String[] { session
                     .getRasterColumn(rasterName).getName() }, new SeSqlConstruct(rasterName));
-            query.prepareQuery();
-            query.execute();
             final SeRow r = query.fetch();
 
             // Now build a SeRasterConstraint object which queries the db for

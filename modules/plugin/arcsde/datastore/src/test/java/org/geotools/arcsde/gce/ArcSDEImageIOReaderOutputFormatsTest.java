@@ -19,6 +19,7 @@ package org.geotools.arcsde.gce;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Properties;
@@ -27,16 +28,19 @@ import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
+import org.geotools.arcsde.data.SdeRow;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterImageReadParam;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReader;
 import org.geotools.arcsde.gce.imageio.ArcSDERasterReaderSpi;
 import org.geotools.arcsde.pool.ArcSDEConnectionConfig;
 import org.geotools.arcsde.pool.ArcSDEConnectionPool;
 import org.geotools.arcsde.pool.ArcSDEConnectionPoolFactory;
+import org.geotools.arcsde.pool.Command;
 import org.geotools.arcsde.pool.Session;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.esri.sde.sdk.client.SeConnection;
 import com.esri.sde.sdk.client.SeException;
 import com.esri.sde.sdk.client.SeQuery;
 import com.esri.sde.sdk.client.SeRasterAttr;
@@ -101,7 +105,7 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
         Session session = null;
         SeQuery q = null;
         ArcSDEPyramid pyramid;
-        SeRow r;
+        SdeRow r;
         CoordinateReferenceSystem crs = CRS.decode("EPSG:26986");
         String tableName;
         try {
@@ -109,23 +113,30 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             // Set up a pyramid and readerprops for the four-band 2005 imagery
             session = pool.getConnection();
             tableName = conProps.getProperty("fourbandtable");
-            q = session.createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
-            r = q.fetch();
-            rasterAttr = r.getRaster(0);
+            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
+            final SeQuery query = q;
+            rasterAttr = session.issue(new Command<SeRasterAttr>() {
+                @Override
+                public SeRasterAttr execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeRow r = query.fetch();
+                    return r.getRaster(0);
+                }
+            });
             pyramid = new ArcSDEPyramid(rasterAttr, crs);
 
             fourBandReaderProps = new HashMap();
             fourBandReaderProps.put(ArcSDERasterReaderSpi.PYRAMID, pyramid);
             fourBandReaderProps.put(ArcSDERasterReaderSpi.RASTER_TABLE, tableName);
             fourBandReaderProps.put(ArcSDERasterReaderSpi.RASTER_COLUMN, "RASTER");
-        } catch (SeException se) {
-            LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
+        } catch (IOException se) {
+            LOGGER.log(Level.SEVERE, se.getMessage(), se);
             throw se;
         } finally {
-            if (q != null)
-                q.close();
+            if (q != null) {
+                Session.issueClose(session, q);
+            }
             if (session != null) {
                 session.close();
             }
@@ -135,23 +146,30 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             // Set up a pyramid and readerprops for the three-band 2001 imagery
             session = pool.getConnection();
             conProps.getProperty("threebandtable");
-            q = session.createSeQuery(new String[] { "RASTER" }, new SeSqlConstruct(tableName));
-            q.prepareQuery();
-            q.execute();
-            r = q.fetch();
-            rasterAttr = r.getRaster(0);
+            q = Session.issueCreateAndExecuteQuery(session, new String[] { "RASTER" },
+                    new SeSqlConstruct(tableName));
+            final SeQuery query = q;
+            rasterAttr = session.issue(new Command<SeRasterAttr>() {
+                @Override
+                public SeRasterAttr execute(Session session, SeConnection connection)
+                        throws SeException, IOException {
+                    SeRow r = query.fetch();
+                    return r.getRaster(0);
+                }
+            });
             pyramid = new ArcSDEPyramid(rasterAttr, crs);
 
             threeBandReaderProps = new HashMap();
             threeBandReaderProps.put(ArcSDERasterReaderSpi.PYRAMID, pyramid);
             threeBandReaderProps.put(ArcSDERasterReaderSpi.RASTER_TABLE, tableName);
             threeBandReaderProps.put(ArcSDERasterReaderSpi.RASTER_COLUMN, "RASTER");
-        } catch (SeException se) {
-            LOGGER.log(Level.SEVERE, se.getSeError().getErrDesc(), se);
+        } catch (IOException se) {
+            LOGGER.log(Level.SEVERE, se.getMessage(), se);
             throw se;
         } finally {
-            if (q != null)
-                q.close();
+            if (q != null) {
+                Session.issueClose(session, q);
+            }
             if (session != null) {
                 session.close();
             }
@@ -224,8 +242,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             assertTrue("Image from SDE isn't what we expected.", RasterTestData.imageEquals(image,
                     imgPrefix + "3.png"));
         } finally {
-            if (session != null && !session.isClosed())
+            if (session != null && !session.isClosed()) {
                 session.close();
+            }
         }
     }
 
@@ -305,8 +324,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             assertTrue("Image from SDE isn't what we expected.", RasterTestData.imageEquals(image,
                     imgPrefix + "3.png"));
         } finally {
-            if (session != null)
+            if (session != null) {
                 session.close();
+            }
         }
     }
 
@@ -354,8 +374,9 @@ public class ArcSDEImageIOReaderOutputFormatsTest extends TestCase {
             assertTrue("Image from SDE isn't what we expected.", RasterTestData.imageEquals(image,
                     imgPrefix + "1.png"));
         } finally {
-            if (session != null && !session.isClosed())
+            if (session != null && !session.isClosed()){
                 session.close();
+            }
         }
     }
 }
