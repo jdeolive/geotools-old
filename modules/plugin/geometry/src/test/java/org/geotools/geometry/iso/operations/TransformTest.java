@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.geotools.geometry.Geometry;
+import org.geotools.geometry.iso.root.GeometryImpl;
 import org.geotools.geometry.GeometryBuilder;
 import org.geotools.geometry.iso.PositionFactoryImpl;
 import org.geotools.geometry.iso.PrecisionModel;
