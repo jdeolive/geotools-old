@@ -14,13 +14,12 @@ import org.opengis.display.primitive.Graphic;
 import org.opengis.geometry.DirectPosition;
 import org.opengis.geometry.Envelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.TransformException;
 
 /**
  *
  * @author johann sorel
  */
-public abstract class ReferencedRenderer extends AbstractRenderer{
+public abstract class ReferencedRenderer extends AbstractRenderer2D{
 
     
         

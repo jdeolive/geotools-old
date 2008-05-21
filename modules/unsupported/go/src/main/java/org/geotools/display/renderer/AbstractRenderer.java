@@ -1,34 +1,27 @@
 
 package org.geotools.display.renderer;
 
-import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import javax.swing.event.EventListenerList;
 import org.geotools.display.canvas.AbstractCanvas;
 import org.geotools.display.canvas.DisplayObject;
 import org.geotools.display.primitive.AbstractGraphic;
 import org.geotools.factory.Hints;
-import org.geotools.geometry.jts.ReferencedEnvelope;
-import org.geotools.resources.UnmodifiableArrayList;
 import org.geotools.resources.i18n.ErrorKeys;
 import org.geotools.resources.i18n.Errors;
 
 import org.opengis.display.canvas.Canvas;
 import org.opengis.display.primitive.Graphic;
 import org.opengis.display.renderer.Renderer;
+import org.opengis.display.renderer.RendererEvent;
 import org.opengis.display.renderer.RendererListener;
 
 /**
@@ -47,48 +40,17 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * canvas {@linkplain ReferencedCanvas2D#getDisplayBounds display bounds} changed.
      */
     public static final String DISPLAY_BOUNDS_PROPERTY = "displayBounds";
-
-    /**
-     * The name of the {@linkplain PropertyChangeEvent property change event} fired when the
-     * {@linkplain AbstractGraphic#getZOrderHint z order hint} changed.
-     */
-    public static final String Z_ORDER_HINT_PROPERTY = "zOrderHint";
     
     /**
      * A listener to be notified when a graphic property changed.
      */
-    public static final PropertyChangeListener PROPERTIES_LISTENER = new PropertyChangeListener() {
+    public final PropertyChangeListener graphicListener = new PropertyChangeListener() {
         public void propertyChange(final PropertyChangeEvent event) {
-            final Object source = event.getSource();
-            if (source instanceof Graphic) {
-                final AbstractGraphic graphic = (AbstractGraphic) source;
-                final Canvas target = (Canvas) graphic.getCanvas();
-                if (target instanceof AbstractCanvas) {
-                    synchronized (target) {
-//                        ((AbstractCanvas) target).graphicPropertyChanged(graphic, event); -----------------------------
-                    }
-                }
-            }
-        }
-    };
-
-    /**
-     * A comparator for sorting {@link Graphic} objects by increasing <var>z</var> order.
-     */
-    private static final Comparator<Graphic> COMPARATOR = new Comparator<Graphic>() {
-        public int compare(final Graphic graphic1, final Graphic graphic2) {
-            if(graphic1 instanceof AbstractGraphic && graphic2 instanceof AbstractGraphic){
-                return Double.compare(((AbstractGraphic)graphic1).getZOrderHint(), ((AbstractGraphic)graphic2).getZOrderHint());
-            }else{
-                return 0;
-            }
-
+            final Object source = event.getSource();            
+            graphicPropertyChanged((Graphic)source, event);            
         }
     };
     
-    
-    private final AbstractRenderer This = this;
-
     /**
      * The set of {@link Graphic}s to display. Keys and values are identical; values are used as
      * a way to recognize existing graphics that are equals to the {@linkplain #add added} ones.
@@ -97,16 +59,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * preserved no matter how {@link #sortedGraphics} reorder graphics. This is because we
      * want to preserve to {@link #add} contract even when z-value hints change.
      */
-    private final Map<Graphic,Graphic> graphics = new LinkedHashMap<Graphic,Graphic>();
-
-    /**
-     * The set of {@link Graphic}s to display, sorted in increasing <var>z</var> value. If
-     * {@code null}, then {@code Collections.sort(graphics, COMPARATOR)} need to be invoked
-     * and its content copied into {@code sortedGraphics}.
-     *
-     * @see #getGraphics
-     */
-    private transient List<Graphic> sortedGraphics;
+    protected final Map<Graphic,Graphic> graphics = new LinkedHashMap<Graphic,Graphic>();
 
     /**
      * The set of {@link Graphic}s given to the user. This set is act like a
@@ -132,7 +85,14 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      */
     protected final Hints hints;
 
-
+    /**
+     * Renderer listeners list. Thoses listeners are informed when
+     * graphic objects are added, removed or changes.
+     */
+    protected final EventListenerList rendererListeners = new EventListenerList(); 
+    
+    
+    
     public AbstractRenderer(){
         this(null);
     }
@@ -140,28 +100,65 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
     public AbstractRenderer(Hints hints){
         this.hints = (hints != null) ? hints : new Hints() ;
     }
-
+                
     /**
-     * This method sort the sortedGraphic list using graphic Z-order.
-     * If two graphics have the same order then the first one added will have
-     * priority.
-     * If the sortedList is null then this method will create it.
-     * 
-     * @return The sorted graphic list
+     * Invoked automatically when a graphic registered in this canvas changed. Subclasses can
+     * override this method if they need to react to some graphic change events, but should
+     * always invoke {@code super.graphicPropertyChanged(graphic, event)}.
+     *
+     * @param graphic The graphic that changed.
+     * @param event   The property change event.
      */
-    protected List<Graphic> getSortedGraphics(){
-        if (sortedGraphics == null) {
-            final Set<Graphic> keys = graphics.keySet();
-            final Graphic[] list = keys.toArray(new Graphic[keys.size()]);
-            Arrays.sort(list, COMPARATOR);
-            sortedGraphics = UnmodifiableArrayList.wrap(list);
-        }
-        assert sortedGraphics.size() == graphics.size();
-        assert graphics.keySet().containsAll(sortedGraphics);
+    protected void graphicPropertyChanged(final Graphic graphic, final PropertyChangeEvent event){
+    }
         
-        return sortedGraphics;
+    /**
+     * Clears all cached data. Invoking this method may help to release some resources for other
+     * applications. It should be invoked when we know that the map is not going to be rendered
+     * for a while. For example it may be invoked from {@link java.applet.Applet#stop}. Note
+     * that this method doesn't changes the renderer setting; it will just slow down the first
+     * rendering after this method call.
+     *
+     * @see #dispose
+     */
+    @Override
+    public void clearCache() {
+        assert Thread.holdsLock(this);
+        final Collection<Graphic> graphics = getGraphics();
+        for (final Graphic graphic : graphics) {
+            if (graphic instanceof DisplayObject) {
+                ((DisplayObject) graphic).clearCache();
+            }
+        }
+        super.clearCache();
     }
 
+    @Override
+    public void dispose() {
+        final Collection<Graphic> graphics = getGraphics();
+        removeAll();
+        for (final Graphic graphic : graphics) {
+            graphic.dispose();
+        }
+        super.dispose();
+    }
+    
+    
+    
+    //------------ graphic methods ---------------------------------------------/**
+    /** 
+     * Returns all graphics in this canvas. The returned list is sorted in increasing
+     * {@linkplain Graphic#getZOrderHint z-order}: element at index 0 contains the first
+     * graphic to be drawn.
+     * <p>
+     * This method returns an unmodifiable snapshot of current canvas state.
+     * {@linkplain #add Adding} or {@linkplain #remove removing} graphics will
+     * not affect the content of previous list returned by previous call to this method.
+     */
+    public synchronized Collection<Graphic> getGraphics() {
+        return userGraphics;
+    }
+    
     /**
      * Adds the given {@code Graphic} to this {@code Canvas}. This implementation respect the
      * <var>z</var>-order retrieved by calling {@link Graphic#getZOrderHint()}. When two added
@@ -195,8 +192,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      *       added to {@code canvas2} before the above-cited {@code add} method calls.
      */
     protected synchronized Graphic add(Graphic graphic) throws IllegalArgumentException {
-        final List<Graphic> oldGraphics = sortedGraphics; // May be null.
-
+        
         if (graphic instanceof AbstractGraphic) {
             AbstractGraphic candidate = (AbstractGraphic) graphic;
             synchronized (candidate.getTreeLock()) {
@@ -217,7 +213,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
 
                     }
                     candidate.setCanvas(getCanvas());
-                    candidate.addPropertyChangeListener(PROPERTIES_LISTENER);
+                    candidate.addPropertyChangeListener(graphicListener);
                 }
             }
             // The graphic lock should now be the same as the canvas lock.
@@ -235,10 +231,10 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             graphic = previous;
             graphics.put(graphic, graphic);
         }
-        sortedGraphics = null;
-        assert oldGraphics == null || getGraphics().containsAll(oldGraphics) : oldGraphics;
+        
+        //will be handle differently : TODO : use rendererListener methods
 //        if (hasGraphicsListeners) {   ----------------------------------------------------------------------------OPTIMISATION
-        propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
+//        propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
 //        }
         return graphic;
     }
@@ -261,7 +257,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see #getGraphics
      */
     protected synchronized void remove(final Graphic graphic) throws IllegalArgumentException {
-        final List<Graphic> oldGraphics = sortedGraphics; // May be null.
+        
         if (graphic instanceof AbstractGraphic) {
             final AbstractGraphic candidate = (AbstractGraphic) graphic;
             final Canvas canvas = candidate.getCanvas();
@@ -275,7 +271,7 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
                             ErrorKeys.CANVAS_NOT_OWNER_$1, candidate.getName()));
             }
             assert Thread.holdsLock(candidate.getTreeLock());
-            candidate.removePropertyChangeListener(PROPERTIES_LISTENER);
+            candidate.removePropertyChangeListener(graphicListener);
             candidate.clearCache();
             candidate.setCanvas(null);
         } else {
@@ -286,10 +282,10 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
         if (graphics.remove(graphic) != graphic) {
             throw new AssertionError(graphic); // Should never happen.
         }
-        sortedGraphics = null;
-        assert oldGraphics==null || oldGraphics.containsAll(getGraphics()) : oldGraphics;
+        
+        //will be handle differently : TODO : use rendererListener methods
 //        if (hasGraphicsListeners) {   --------------------------------------------------------------------------------OPTIMISATION
-            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
+//            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
 //        }
     }
 
@@ -304,38 +300,66 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
      * @see #getGraphics
      */
     protected synchronized void removeAll() {
-        final List<Graphic> oldGraphics = sortedGraphics; // May be null.
+        
         for (final Graphic graphic : graphics.keySet()) {
             if (graphic instanceof AbstractGraphic) {
                 final AbstractGraphic candidate = (AbstractGraphic) graphic;
                 assert Thread.holdsLock(candidate.getTreeLock());
-                candidate.removePropertyChangeListener(PROPERTIES_LISTENER);
+                candidate.removePropertyChangeListener(graphicListener);
                 candidate.clearCache();
                 candidate.setCanvas(null);
             }
         }
-        sortedGraphics = null;
-        clearCache(); // Must be after 'sortedGraphics=null'
+                
+        clearCache();
+        
+        //will be handle differently : TODO : use rendererListener methods
 //        if (hasGraphicsListeners) {   -----------------------------------------------------------------------------------------OPTIMISATION
-            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
+//            propertyListeners.firePropertyChange(GRAPHICS_PROPERTY, oldGraphics, getGraphics());
 //        }
     }
 
-    /**
-     * Returns all graphics in this canvas. The returned list is sorted in increasing
-     * {@linkplain Graphic#getZOrderHint z-order}: element at index 0 contains the first
-     * graphic to be drawn.
-     * <p>
-     * This method returns an unmodifiable snapshot of current canvas state.
-     * {@linkplain #add Adding} or {@linkplain #remove removing} graphics will
-     * not affect the content of previous list returned by previous call to this method.
-     */
-    public synchronized Collection<Graphic> getGraphics() {
-        return userGraphics;
+    
+    
+    //--------------------renderer listeners------------------------------------
+    public void addRendererListener(RendererListener listener) {
+        rendererListeners.add(RendererListener.class, listener);
+    }
+
+    public void removeRendererListener(RendererListener listener) {
+        rendererListeners.remove(RendererListener.class, listener);
+    }
+    
+    protected final void fireGraphicAdded(RendererEvent event){
+        
+        RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);
+        
+        for(RendererListener listener : listeners){
+            listener.graphicsAdded(event);
+        }
+    }
+    
+    protected final void fireGraphicRemoved(RendererEvent event){
+        
+        RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);
+        
+        for(RendererListener listener : listeners){
+            listener.graphicsRemoved(event);
+        }
     }
         
-    public abstract ReferencedEnvelope getGraphicsEnvelope();
+    protected final void fireGraphicChanged(RendererEvent event){
+        
+        RendererListener[] listeners = rendererListeners.getListeners(RendererListener.class);
+        
+        for(RendererListener listener : listeners){
+            listener.graphicsChanged(event);
+        }
+    }
+
     
+    
+    //-------------------------hints--------------------------------------------            
     /**
      * Returns a rendering hint.
      *
@@ -367,80 +391,5 @@ public abstract class AbstractRenderer extends DisplayObject implements Renderer
             hints.remove(key);
         }
     }
-
-    /**
-     * Clears all cached data. Invoking this method may help to release some resources for other
-     * applications. It should be invoked when we know that the map is not going to be rendered
-     * for a while. For example it may be invoked from {@link java.applet.Applet#stop}. Note
-     * that this method doesn't changes the renderer setting; it will just slow down the first
-     * rendering after this method call.
-     *
-     * @see #dispose
-     */
-    @Override
-    public void clearCache() {
-        assert Thread.holdsLock(this);
-        final Collection<Graphic> graphics = getGraphics();
-        for (final Graphic graphic : graphics) {
-            if (graphic instanceof DisplayObject) {
-                ((DisplayObject) graphic).clearCache();
-            }
-        }
-        super.clearCache();
-    }
-
-    @Override
-    public void dispose() {
-        final Collection<Graphic> graphics = getGraphics();
-        removeAll();
-        for (final Graphic graphic : graphics) {
-            graphic.dispose();
-        }
-        super.dispose();
-    }
-
-
-    public RenderedImage getSnapShot() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    protected void add(Collection<Graphic> graphics) {
-        for(Graphic g : graphics){
-            add(g);
-        }
-    }
-
-    protected void remove(Collection<Graphic> graphics) {
-        for(Graphic g : graphics){
-            remove(g);
-        }
-    }
-
-    public void addRendererListener(RendererListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void removeRendererListener(RendererListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     
-    /**
-     * Invoked automatically when a graphic registered in this canvas changed. Subclasses can
-     * override this method if they need to react to some graphic change events, but should
-     * always invoke {@code super.graphicPropertyChanged(graphic, event)}.
-     *
-     * @param graphic The graphic that changed.
-     * @param event   The property change event.
-     */
-    protected void graphicPropertyChanged(final AbstractGraphic graphic,
-                                          final PropertyChangeEvent event){
-        assert Thread.holdsLock(this);
-        final String propertyName = event.getPropertyName();
-//        if (propertyName.equalsIgnoreCase(Z_ORDER_HINT_PROPERTY)) {
-//            sortedGraphics = null; // Will force a new sorting according z-order.
-//            return;
-//        }
-    }
-
-
 }
